@@ -2,8 +2,14 @@
 // PreToolUse hook (Bash): stops the shortcuts that let a repository lie about itself, and every outward-facing release
 // action — publishing, release tags, pushes to main, creating a repository or changing its visibility. Those are a
 // maintainer's decisions (AGENTS.md); an agent prepares them. Exit code 2 blocks the command.
+//
+// The push and tag rules are this repository's: they hold in any worktree or clone of it (same common git directory,
+// or the same origin), wherever the command runs from (`cd` and `git -C` are followed). A different repository checked
+// out inside the tree — one with its own history and remote — has its own rules, and its pushes and tags pass.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 /** A release tag: a bare semver (SwiftPM's release) or anything starting with `v` and a digit. */
@@ -46,12 +52,42 @@ function program(words) {
   return words.slice(i);
 }
 
-/** `git [-C dir] [-c k=v]… <sub> args` → { sub, args }. */
+/** `git [-C dir] [-c k=v]… <sub> args` → { sub, args, dirs } (the -C directories, in order: git applies them one after another). */
 function gitParts(words) {
   let i = 1;
-  while (i < words.length && words[i].startsWith('-')) i += ['-C', '-c', '--git-dir', '--work-tree', '--namespace'].includes(words[i]) ? 2 : 1;
-  return { sub: words[i], args: words.slice(i + 1) };
+  const dirs = [];
+  while (i < words.length && words[i].startsWith('-')) {
+    if (words[i] === '-C' && words[i + 1] !== undefined) dirs.push(words[i + 1]);
+    i += ['-C', '-c', '--git-dir', '--work-tree', '--namespace'].includes(words[i]) ? 2 : 1;
+  }
+  return { sub: words[i], args: words.slice(i + 1), dirs };
 }
+
+/** `dir` as a shell would take it from `here`: `~` is the home directory, none is the home directory, `-` is unknown (null). */
+function resolveDir(here, dir) {
+  if (here === null) return null;
+  if (dir === undefined || dir === '~') return os.homedir();
+  if (dir === '-') return null;
+  return path.resolve(here, dir.startsWith('~/') ? path.join(os.homedir(), dir.slice(2)) : dir);
+}
+
+const gitOut = (dir, args) => {
+  try {
+    return execFileSync('git', args, { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch {
+    return null;
+  }
+};
+
+/** What identifies the repository a directory is in: its common git directory and its origin — or null outside any repository. */
+export function repositoryAt(dir) {
+  const common = gitOut(dir, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
+  if (!common) return null;
+  const origin = gitOut(dir, ['remote', 'get-url', 'origin']);
+  return { common, origin: origin ? origin.replace(/\/?(\.git)?\/?$/, '') : null };
+}
+
+const sameRepository = (a, b) => a.common === b.common || (!!a.origin && a.origin === b.origin);
 
 function pushProblem(args, currentBranch) {
   if (args.some((a) => ['--tags', '--follow-tags', '--mirror'].includes(a))) return 'Pushing tags is a maintainer\'s decision: a tag is a release.';
@@ -83,18 +119,33 @@ function tagProblem(args) {
   return null;
 }
 
-/** Why a command is blocked, or null. `currentBranch` is the branch checked out where it runs. */
-export function blockReason(command, { currentBranch = null } = {}) {
+/**
+ * Why a command is blocked, or null. `currentBranch` is the branch checked out where a push runs, when known without
+ * asking git; otherwise, with `cwd` (where the command line starts) it is read from the directory the git command
+ * runs in. With `project` (the repository the guard protects, from repositoryAt), a push or tag in a different
+ * repository is let through: the rules are this repository's.
+ */
+export function blockReason(command, { currentBranch = null, cwd = null, project = null } = {}) {
   if (/--no-verify\b|\bHUSKY=0\b|\bLEFTHOOK=0\b/.test(command)) return 'Do not bypass git hooks. Fix what they report.';
+  let here = cwd;
   for (const raw of simpleCommands(command)) {
     const words = program(raw);
     const [bin = ''] = words;
     const name = bin.split('/').at(-1);
+    if (name === 'cd' || name === 'pushd') here = resolveDir(here, words[1]);
     if (name === 'git') {
-      const { sub, args } = gitParts(words);
-      if (sub === 'push') {
-        const problem = pushProblem(args, currentBranch);
-        if (problem) return problem;
+      const { sub, args, dirs } = gitParts(words);
+      if (sub === 'push' || sub === 'tag') {
+        const at = dirs.reduce((dir, d) => resolveDir(dir, d), here) ?? cwd;
+        if (project && at) {
+          const repository = repositoryAt(at);
+          if (repository && !sameRepository(repository, project)) continue;
+        }
+        if (sub === 'push') {
+          const branch = currentBranch ?? (at ? gitOut(at, ['rev-parse', '--abbrev-ref', 'HEAD']) : null);
+          const problem = pushProblem(args, branch);
+          if (problem) return problem;
+        }
       }
       if (sub === 'tag') {
         const problem = tagProblem(args);
@@ -129,19 +180,13 @@ export function snapshotReason(command) {
   return null;
 }
 
-function branchAt(cwd) {
-  try {
-    return execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-  } catch {
-    return null;
-  }
-}
-
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const input = JSON.parse(fs.readFileSync(0, 'utf8') || '{}');
   const command = input.tool_input?.command ?? '';
-  const needsBranch = /\bgit\b[^\n;&|]*\bpush\b/.test(command);
-  const reason = blockReason(command, { currentBranch: needsBranch ? branchAt(input.cwd ?? process.cwd()) : null }) ?? snapshotReason(command);
+  const cwd = input.cwd ?? process.cwd();
+  // The repository this guard protects: the project's, read only when the command pushes or tags.
+  const project = /\bgit\b[^\n;&|]*\b(push|tag)\b/.test(command) ? repositoryAt(process.env.CLAUDE_PROJECT_DIR ?? cwd) : null;
+  const reason = blockReason(command, { cwd, project }) ?? snapshotReason(command);
   if (reason) {
     console.error(`Blocked: ${reason}`);
     process.exit(2);
