@@ -93,7 +93,7 @@ Status meanings: `alpha` implemented + tested, API may change · `beta` API froz
 
 ### What runs when
 
-On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs only the jobs the changed paths can affect; its `changes` job decides, with `dorny/paths-filter` over `git diff` against the pull request's base, or against the commit `main` was at before the push (if that commit cannot be read, the push runs every job). A dispatched run (`workflow_dispatch`, which the Record baselines workflow sends) and a release (`workflow_call`) run every job that is not paused (see [Native CI is paused](#native-ci-is-paused)). The full run before anything is published is the release's.
+On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs only the jobs the changed paths can affect; its `changes` job decides, with `dorny/paths-filter` over `git diff` against the pull request's base, or against the commit `main` was at before the push (the first push of a branch has no such commit, and a force push may have dropped it: either way the push runs every job). A dispatched run (`workflow_dispatch`, which the Record baselines workflow sends) and a release (`workflow_call`) run every job that is not paused (see [Native CI is paused](#native-ci-is-paused)). The full run before anything is published is the release's.
 
 **The web runs what a change can affect** (`packages/tools/src/affected.js`). The changes job traces the changed paths to components — a component's directory, spec, comp tokens or baselines, a component drawn by a stylesheet — and widens them to the components built from or using them (`builtFrom`, `uses`) and to every module and test of `packages/web/src` and `packages/web/test` that imports what changed. A change to a component's own tests or baselines alone selects that component and nothing more. The web job then runs those tests: **on a pull request in Chromium alone, on a push to `main` in all three engines**, in as many shards as the selection needs. A change it cannot trace — the Playwright config, a generator, a token below comp, the lockfile — runs every test (on a pull request every Chromium test). A change to `ci.yml` alone runs one component's tests, to show the jobs still start. Firefox and WebKit therefore first see a change on `main`; dispatch CI on a branch (`gh workflow run ci.yml --ref <branch>`) to run everything before a merge that warrants it. `node packages/tools/src/affected.js <base>` prints what a branch selects.
 
@@ -115,6 +115,8 @@ On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs 
 | React Native | `packages/react-native/` |
 
 **CI result** is the one check to require: it fails unless every job that should have run succeeded; a job may be skipped only when its paths did not change.
+
+The docs site is deployed by its own workflow (`.github/workflows/deploy-docs.yml`, outside ci.yml so that a release never deploys it): a pull request gets a preview and a push to `main` deploys production, when the Docs row's paths change. `gh workflow run deploy-docs.yml --ref main` deploys by hand — for a site that is behind, or after a change outside those paths.
 
 Runner images are pinned (`ubuntu-24.04`, `macos-26` with `XCODE_VERSION`), and the web runs in the Playwright image pinned to the lockfile: a baseline depends on the renderer, so a runner image or toolchain moves only on purpose — bump it in ci.yml and record-baselines.yml together, then re-record.
 
