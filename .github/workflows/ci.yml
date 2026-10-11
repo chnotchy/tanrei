@@ -111,11 +111,13 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       # A pull request is compared with its base; a push to main with the commit main was at before it
-      # (github.event.before), so a merge runs the areas it changed. If that commit cannot be read (a force push that
-      # dropped it), the step fails without failing the job and the push runs every area.
+      # (github.event.before), so a merge runs the areas it changed. The first push of a branch has no such commit —
+      # before is all zeros, and the action would then compare main with itself and find nothing changed — so the step
+      # is skipped and the push runs every area. If the commit cannot be read (a force push that dropped it), the step
+      # fails without failing the job and the push runs every area too.
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
-        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000')
         continue-on-error: ${{ github.event_name == 'push' }}
         with:
           token: ""
@@ -216,8 +218,8 @@ jobs:
           echo "held=$held" >> "$GITHUB_OUTPUT"
           on() { if [ "$held" = true ]; then echo false; elif [ "$ALL" = true ]; then echo true; else echo "$FILTER" | jq -r --arg k "$1" '.[$k] // "false"'; fi; }
           echo "docs=$(on docs)" >> "$GITHUB_OUTPUT"
-          # The web's matrix. Every test in the three engines (22 shards) on a dispatched run, a release and a push whose
-          # base could not be read. Otherwise the selection: on a pull request in Chromium alone (the cheap check that
+          # The web's matrix. Every test in the three engines (22 shards) on a dispatched run, a release and a push without
+          # a base to compare with (the first push of a branch, or one whose base could not be read). Otherwise the selection: on a pull request in Chromium alone (the cheap check that
           # gates a merge; the other engines run on main and before a release), on a push to main in all three; its shards from its size, about 400 Chromium tests a shard
           # (a component has about 100). A selection of nothing runs no web job.
           web=$(on web)

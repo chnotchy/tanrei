@@ -805,24 +805,38 @@ test.describe('opening and closing', () => {
 
   test('SRC-23: the docked view fades and grows in over open-duration and fades out over close-duration; the full-screen view fades; focus moves when it opens, not when the motion ends; at once where motion is reduced', async ({ page }) => {
     await mount(page, [live('s', { value: 'inv' }), live('f', { presentation: 'full-screen', value: 'inv' })], { reducedMotion: false });
+    // Every motion of the view is read as the engine announces it, from before it opens: the way out is the shortest of
+    // the motions and the view is taken away when it ends, so asked for after the key it may be over and gone before a
+    // slow runner's answer. And an animation that getAnimations() lists may still be pending — its animationstart comes
+    // at the frame it really starts, which on a loaded runner is after any later round trip.
+    const started = () => view(page, 's').evaluate((el) => (el as unknown as { started: [string, number][] }).started);
+    const ended = () => view(page, 's').evaluate((el) => (el as unknown as { ended: string[] }).ended);
+    await view(page, 's').evaluate((el) => {
+      const record = el as unknown as { started: [string, number][]; ended: string[] };
+      record.started = [];
+      record.ended = [];
+      el.addEventListener('animationstart', (event) => {
+        const animation = el.getAnimations().find((a) => (a as CSSAnimation).animationName === event.animationName);
+        record.started.push([event.animationName, Math.round(Number(animation?.effect?.getComputedTiming().duration))]);
+      });
+      el.addEventListener('animationend', (event) => record.ended.push(event.animationName));
+    });
+    const [openDuration, closeDuration] = await Promise.all(['motion-open-duration', 'motion-close-duration'].map((n) => resolveToken(page, T(n), 'duration')));
     await input(page, 's').focus();
     await page.keyboard.press('ArrowDown');
     await expect.poll(() => popoverOpen(view(page, 's'))).toBe(true);
     // Durations in whole milliseconds, as the tokens are: Firefox reports a 200 ms token as 200.000015 (a float of seconds).
     const opening = await view(page, 's').evaluate((el) => el.getAnimations().map((a) => [(a as CSSAnimation).animationName, Math.round(Number(a.effect?.getComputedTiming().duration))]));
-    expect(opening).toEqual([['view-open', await resolveToken(page, T('motion-open-duration'), 'duration')]]);
+    expect(opening).toEqual([['view-open', openDuration]]);
     expect(await css(view(page, 's'), 'transform-origin')).toMatch(/ 0px$/); // grows from its top edge, which faces the bar
-    // The way out is read as the engine announces it — the view is taken away when it ends, and it is the shortest of
-    // the motions: asked for after the key, it may be over and gone before a slow runner's answer.
-    await view(page, 's').evaluate((el) => {
-      const started: [string, number][] = ((el as unknown as { started: [string, number][] }).started = []);
-      el.addEventListener('animationstart', (event) => {
-        const animation = el.getAnimations().find((a) => (a as CSSAnimation).animationName === event.animationName);
-        started.push([event.animationName, Math.round(Number(animation?.effect?.getComputedTiming().duration))]);
-      });
-    });
+    // The way in runs to its end and the view stays open; its animationend is dispatched after its animationstart, so
+    // nothing of the way in can arrive after this.
+    await expect.poll(ended).toEqual(['view-open']);
+    expect(await popoverOpen(view(page, 's'))).toBe(true);
+    expect(await started()).toEqual([['view-open', openDuration]]);
+    // Escape starts the way out, over close-duration, and nothing else.
     await page.keyboard.press('Escape');
-    await expect.poll(() => view(page, 's').evaluate((el) => (el as unknown as { started: [string, number][] }).started)).toEqual([['view-close', await resolveToken(page, T('motion-close-duration'), 'duration')]]);
+    await expect.poll(started).toEqual([['view-open', openDuration], ['view-close', closeDuration]]);
     await expect.poll(() => popoverOpen(view(page, 's'))).toBe(false);
     // Full screen: a fade over open-duration; focus is already in the header's input while it runs.
     await host(page, 'f').locator('.glyph').click();

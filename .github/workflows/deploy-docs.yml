@@ -19,6 +19,11 @@ name: Deploy docs
 # changed: the docs app, what it embeds (the web packages, Theme Studio) and what it reads (tokens, specs, design/,
 # docs/status/, the generators). Keep these paths equal in both triggers and to the `docs` filter of ci.yml's changes
 # job. A change the site is not built from leaves the deployed site as it is.
+#
+# A dispatched run (the Actions tab, or `gh workflow run deploy-docs.yml --ref <branch>`) deploys whatever the branch
+# holds, paths or not: main to production, any other branch to its preview. It is the way to deploy a site that is
+# behind — the first push of the repository deployed nothing, because its path filter had no earlier commit to compare
+# with — or to redeploy after a change outside the paths above.
 on:
   push:
     branches: [main]
@@ -64,6 +69,7 @@ on:
       - pnpm-workspace.yaml
       - turbo.json
       - .github/workflows/deploy-docs.yml
+  workflow_dispatch:
 
 concurrency:
   group: deploy-docs-${{ github.ref }}
