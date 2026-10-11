@@ -5,13 +5,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
+import { writeThirdPartyLicenses } from '../../tools/src/third-party.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repo = path.resolve(pkg, '../..');
 const dist = path.join(pkg, 'dist');
 
 fs.rmSync(dist, { recursive: true, force: true });
-await build({
+const bundle = await build({
   entryPoints: [path.join(pkg, 'src/server.js')],
   outfile: path.join(dist, 'server.js'),
   bundle: true,
@@ -21,7 +22,10 @@ await build({
   // Real dependencies of the published package; everything from the workspace is inlined.
   external: ['@material/material-color-utilities', '@modelcontextprotocol/sdk', '@modelcontextprotocol/sdk/*', '@terrazzo/parser', 'ajv', 'ajv/*'],
   banner: { js: '// Bundled from the Tanrei monorepo (packages/mcp, packages/tokens-build, packages/token-engine).' },
+  metafile: true,
 });
+// A dependency inlined into the bundle (none today: every third-party one is external) has its licence written beside it.
+writeThirdPartyLicenses(dist, Object.keys(bundle.metafile.inputs).map((input) => path.resolve(input)), { what: 'dist/server.js' });
 
 const vocabulary = path.join(dist, 'vocabulary');
 fs.mkdirSync(path.join(vocabulary, 'docs/governance'), { recursive: true });

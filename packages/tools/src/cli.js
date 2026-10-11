@@ -22,7 +22,7 @@ function validate() {
   const results = [
     report('specs valid', validateSpecs()),
     report('system availability names what exists', validateAvailability()),
-    report('publishable packages carry the license', validatePackages()),
+    report('publishable packages carry the license and NOTICE', validatePackages()),
     report('no retired names', checkRetiredTerms()),
     report('work markers say what is missing', checkWorkMarkers()),
   ];
