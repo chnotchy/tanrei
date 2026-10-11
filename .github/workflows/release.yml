@@ -120,7 +120,14 @@ jobs:
           printf 'publishing %s\n' "${names[@]}"
           echo "names=${names[*]}" >> "$GITHUB_OUTPUT"
           echo "filters=$(printf -- '--filter %s ' "${names[@]}")" >> "$GITHUB_OUTPUT"
+      # The CLI ships the prebuilt Theme Studio app (`tanrei studio`), which its build copies from packages/studio/dist-app
+      # and leaves out, with a message, when it is missing. The app is built from the web packages, so they come first;
+      # TANREI_REQUIRE_STUDIO makes a CLI without the app a failed release, not a quiet one.
+      - run: pnpm --filter @tanrei/web --filter @tanrei/react build
+      - run: pnpm --filter @tanrei/studio build:app
       - run: pnpm ${{ steps.packages.outputs.filters }} build
+        env:
+          TANREI_REQUIRE_STUDIO: "1"
       # A version already on the registry is skipped, so a release that failed half-way can be dispatched again.
       # The dist-tag: while the packages are in changesets pre mode (.changeset/pre.json) every version is a prerelease
       # and goes out under that mode's tag (`next`), never `latest` — an install without a tag then gets nothing. npm
