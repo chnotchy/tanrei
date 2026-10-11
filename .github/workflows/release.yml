@@ -122,7 +122,22 @@ jobs:
           echo "filters=$(printf -- '--filter %s ' "${names[@]}")" >> "$GITHUB_OUTPUT"
       - run: pnpm ${{ steps.packages.outputs.filters }} build
       # A version already on the registry is skipped, so a release that failed half-way can be dispatched again.
-      - run: pnpm ${{ steps.packages.outputs.filters }} publish --access public --no-git-checks
+      # The dist-tag: while the packages are in changesets pre mode (.changeset/pre.json) every version is a prerelease
+      # and goes out under that mode's tag (`next`), never `latest` — an install without a tag then gets nothing. npm
+      # refuses to publish a prerelease without an explicit tag. Out of pre mode the tag is `latest`.
+      - name: The dist-tag
+        id: dist-tag
+        run: |
+          tag=latest
+          if [ -f .changeset/pre.json ] && [ "$(jq -r .mode .changeset/pre.json)" = pre ]; then tag=$(jq -r .tag .changeset/pre.json); fi
+          version=$(node -p "require('./tanrei.config.json').version")
+          case "$version" in
+            *-*) [ "$tag" != latest ] || { echo "::error::$version is a prerelease and would be published as latest"; exit 1; } ;;
+            *) [ "$tag" = latest ] || { echo "::error::$version is not a prerelease but pre mode names the tag $tag"; exit 1; } ;;
+          esac
+          echo "publishing $version under the dist-tag $tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - run: pnpm ${{ steps.packages.outputs.filters }} publish --access public --no-git-checks --tag ${{ steps.dist-tag.outputs.tag }}
       # One tag per published package, `<package>@<version>` (what `changeset tag` writes for every public package;
       # only the published ones are pushed). Never a bare semver tag: SwiftPM would read it as a Swift release.
       - name: Tag the published versions
