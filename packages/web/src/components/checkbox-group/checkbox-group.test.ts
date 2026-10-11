@@ -944,10 +944,20 @@ test.describe('checkbox group', () => {
     // And restyles none: a checkbox of the set is drawn as the same checkbox outside it.
     await setValue(page, []);
     await page.mouse.move(0, 0);
-    await frames(page);
-    // The selection motion of the checkbox that was just unchecked has ended: what is compared is the two at rest.
-    await page.evaluate(() => document.getAnimations().forEach((animation) => animation.finish()));
-    await frames(page);
+    // What is compared is the two at rest: the pointer off them and every motion of theirs ended. Their transitions run
+    // in their shadow roots, which neither document.getAnimations() nor the host's getAnimations({ subtree: true })
+    // reaches in Chromium, Firefox or WebKit, so each root is asked for its own; and the pointer leaving can start another
+    // a frame or two later, so this ends only once a frame has passed with nothing running and nothing hovered.
+    await page.evaluate(async () => {
+      const boxes = ['email', 'alone'].map((id) => document.getElementById(id)!);
+      for (let round = 0, quiet = 0; quiet < 2; round++) {
+        if (round === 120) throw new Error('the two checkboxes never came to rest');
+        const running = boxes.flatMap((box) => box.shadowRoot!.getAnimations());
+        running.forEach((animation) => animation.finish());
+        quiet = running.length || boxes.some((box) => box.matches(':hover')) ? 0 : quiet + 1;
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+      }
+    });
     const drawn = (id: string) =>
       page.locator(`#${id}`).evaluate((el) => {
         const [root, container, box_, label] = ['.root', '.container', '.box', '.label'].map((part) => el.shadowRoot!.querySelector(part)!);

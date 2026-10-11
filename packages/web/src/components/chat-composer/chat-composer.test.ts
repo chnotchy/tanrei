@@ -34,7 +34,17 @@ const FILES = { attachLabel: 'Attach files', removeLabel: 'Remove', retryLabel: 
 /** A fixture of the test's own. */
 const fx = (id: string, props: Fixture['props'] = {}, extra: Partial<Fixture> = {}): Fixture => ({ id, props: { ...WORDS, ...props }, ...extra });
 const file = (props: FixtureItem['props']): FixtureItem => ({ kind: 'file', props });
-const mount = (page: P, fixtures: Fixture[], options: Parameters<typeof mountFixtures>[2] = {}) => mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures, ...options });
+/**
+ * The picker is asked of the browser for the whole of a test, not at each wait. Playwright takes the browser's picker
+ * over only while the page has a `filechooser` listener, and tells the browser so without waiting for its answer: a
+ * wait that begins with a key press — which, unlike a click, is sent at once — can reach the page before the browser
+ * has been told, and then the picker the attach button asked for is the browser's own and no event comes (a page busy
+ * when both arrive takes the key first). A listener held from the mount keeps it taken.
+ */
+const mount = (page: P, fixtures: Fixture[], options: Parameters<typeof mountFixtures>[2] = {}) => {
+  page.on('filechooser', () => {});
+  return mountFixtures(page, spec, { icons: true, reducedMotion: true, fixtures, ...options });
+};
 type El = HTMLElement & {
   value: string;
   files: File[];
