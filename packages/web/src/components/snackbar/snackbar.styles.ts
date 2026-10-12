@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/snackbar.tokens.json). The action and the close button are the two values
 // of the snackbar's control axis: each has its container and content colors per state, and they share the
@@ -233,6 +234,8 @@ export const styles = css`
     color: var(--_title);
     overflow-wrap: break-word;
   }
+  /* SNK-22: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  ${unsafeCSS(scriptTracking('.title', String(t('title-typescale-letter-spacing'))))}
   .message {
     font: ${t('supporting-text-typescale-font')};
     letter-spacing: ${t('supporting-text-typescale-letter-spacing')};

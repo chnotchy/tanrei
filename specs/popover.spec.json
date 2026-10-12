@@ -264,7 +264,7 @@
     },
     {
       "id": "POP-12",
-      "text": "WHILE headline is not empty THE popover SHALL draw it in comp.popover.headline.typescale and comp.popover.headline.color, wrapping onto more lines rather than truncating and growing the header with it, and SHALL expose it as a heading."
+      "text": "WHILE headline is not empty THE popover SHALL draw it in comp.popover.headline.typescale and comp.popover.headline.color, wrapping onto more lines rather than truncating and growing the header with it, and SHALL expose it as a heading. THE popover SHALL set the headline's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them."
     },
     {
       "id": "POP-13",

@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { conditionBlock, focusRing, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/date-time-picker.tokens.json). The selectors have two conditions —
 // unselected and selected — which are their state variants: each colors the container, the label and the
@@ -222,6 +223,8 @@ export const styles = css`
     color: ${t('header-value-color')};
     overflow-wrap: break-word;
   }
+  /* DTM-10: the header's value's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  ${unsafeCSS(scriptTracking('.header > .value', String(t('header-value-typescale-letter-spacing'))))}
   .placeholder {
     color: ${t('header-placeholder-color')};
   }

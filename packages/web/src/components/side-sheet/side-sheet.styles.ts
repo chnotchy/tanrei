@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, actionBoxStyles, cornerRadius, focusRing, shape, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/side-sheet.tokens.json). The sheet paints its panel per variant (standard or
 // modal: the color, elevation, start corners and start edge — `dev.tanrei.axes.variant.members`) and lays out its header,
@@ -123,6 +124,8 @@ export const styles = css`
     color: ${t('headline-color')};
     overflow-wrap: break-word;
   }
+  /* SSH-9: the headline's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing'))))}
   /* SSH-22: the headline is its own run, in the direction of its first strong character, so a left-to-right name keeps
      its order in a right-to-left sheet; its lines are still aligned to the layout's start edge
      (src/styles/product-text.ts). */

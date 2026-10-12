@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/callout.tokens.json). The callout itself has no state (CLO-14): what
 // changes what it draws is its variant, its status and its size, each read from that form's own tokens. The close
@@ -244,6 +245,10 @@ export const styles = css`
     color: var(--_title);
     overflow-wrap: break-word;
   }
+  /* CLO-7: the title's letter-spacing follows its script (src/styles/script-tracking.ts); a title the product gives in the slot, by its own language. */
+  ${unsafeCSS(scriptTracking('.title', 'var(--_title-tracking)'))}
+  /* CLO-7: what the title slot holds. */
+  ${unsafeCSS(scriptTracking("slot[name='title']", 'var(--_title-tracking)', { slotted: true }))}
   .container:not(.titled) .title {
     display: none;
   }

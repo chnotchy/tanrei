@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { arrowStyles, whenChosen } from '../../primitives/index.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { productText } from '../../styles/product-text.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/tooltip.tokens.json). Plain and rich are two structures drawn by code, not a
 // token axis (a system restyles both by value); the tooltip has no interaction states. Each form has two looks (TIP-26):
@@ -149,6 +150,8 @@ export const styles = css`
     letter-spacing: ${t('rich-title-typescale-letter-spacing')};
     color: var(--_title);
   }
+  /* TIP-11: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  ${unsafeCSS(scriptTracking('.title', String(t('rich-title-typescale-letter-spacing'))))}
   /* TIP-21: the title and the text are each a run of their own, in the direction of their first strong character, so a
      left-to-right name or a number with its unit keeps its order in a right-to-left tooltip; TIP-12, TIP-20: their lines
      are still start-aligned by the layout direction — at the right in right-to-left (src/styles/product-text.ts). */

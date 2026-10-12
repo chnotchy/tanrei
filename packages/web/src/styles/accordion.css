@@ -386,6 +386,8 @@
       opacity var(--tanrei-comp-accordion-motion-state-duration) var(--tanrei-comp-accordion-motion-state-easing);
     transition-behavior: allow-discrete;
   }
+  /* ACC-3: the label's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  /* script-tracking: :where(tanrei-accordion) > :where(details) > :where(summary) | var(--_acc-label-tracking) */
   @media (pointer: coarse) {
     :where(tanrei-accordion) > :where(details) > :where(summary) {
       --_acc-target: var(--tanrei-sys-target-touch);
