@@ -173,7 +173,7 @@ For a short wait whose length you cannot measure, such as a list fetching its ne
 
 ### Divider or gap
 
-A determinate indicator is told from the rest of its track in one of two ways. Under `divider` it is drawn on the track with no space between them. Under `gap` a little empty space is left after it, on a ring at both ends of its arc, and a bar marks the end of its track with a dot. An indeterminate indicator looks the same under both.
+A determinate indicator is told from the rest of its track in one of two ways. Under `divider` it is drawn on the track with no space between them. Under `gap` a little empty space is left after it, on a ring at both ends of its arc. An indeterminate indicator looks the same under both. Whether a bar marks the end of its track with a dot is a separate choice, the size of its stop indicator: a design system that gives it a size draws the dot under either separation, and the default system draws none.
 
 The design system chooses once for every component that has this choice, and the default system chooses divider. Leave `separation` at `auto` to follow that choice, so the indicator agrees with the button groups and menus around it. Set `divider` or `gap` on one indicator only when that one has a reason to differ.
 

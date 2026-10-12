@@ -29,9 +29,9 @@ export type TanreiProgressIndicatorSize = keyof TanreiProgressIndicatorSizeRegis
  * Contract: specs/progress-indicator.spec.json. As a native `<progress>`: no `value` attribute (or removing it, or
  * `value = null`) is indeterminate. Every visual value is a `--tanrei-comp-progress-indicator-*` token — the bar's
  * thickness and the ring's size and stroke per size, the track and indicator colors, the ends' shape, the gap after the
- * indicator, the stop indicator, and the motion of a value change and of the indeterminate cycle. Whether the gap and
- * the stop indicator are drawn at all is `separation` (PRG-17): `auto` follows
- * `comp.progress-indicator.track.separation`, and so the design system's `sys.behavior.separation`.
+ * indicator, the stop indicator, and the motion of a value change and of the indeterminate cycle. Whether the gap is
+ * drawn at all is `separation` (PRG-17): `auto` follows `comp.progress-indicator.track.separation`, and so the design
+ * system's `sys.behavior.separation`. Whether the stop indicator is drawn is its size alone, under either (PRG-5).
  *
  * The host is the progressbar (`role="progressbar"`, `aria-label` from `label`, `aria-valuemin` / `-max` / `-now` and
  * `aria-valuetext` from `value-text` while determinate; `aria-busy="true"` and no value while indeterminate). It is
@@ -41,7 +41,7 @@ export type TanreiProgressIndicatorSize = keyof TanreiProgressIndicatorSizeRegis
  * @tag tanrei-progress-indicator
  * @csspart track - The whole of the task: the bar's track, or the ring's circle (the form the separation draws).
  * @csspart indicator - The part done, or the moving segment or arc.
- * @csspart stop-indicator - The dot at the end of a determinate bar's track (drawn under `gap`, when its size token is above 0).
+ * @csspart stop-indicator - The dot at the end of a determinate bar's track (drawn under either separation when its size token is above 0, and not at max).
  */
 export class TanreiProgressIndicator extends LitElement {
   private readonly availability = new AvailabilityController(this, 'progress-indicator');
@@ -67,7 +67,7 @@ export class TanreiProgressIndicator extends LitElement {
   /**
    * How a determinate indicator is told from the rest of its track. `divider`: the indicator is drawn on the track,
    * touching it — the edge where its color ends divides them. `gap`: `track.gap` of empty space is left between them
-   * (on a ring at both ends of the arc), and a bar draws the stop indicator at its track's end. `auto` takes
+   * (on a ring at both ends of the arc). The stop indicator at a bar's end does not depend on it. `auto` takes
    * `comp.progress-indicator.track.separation`, the design system's answer (divider in the default system). An
    * indeterminate indicator is drawn the same under either. Anything else is `auto` (reported in debug builds, PRG-12).
    */

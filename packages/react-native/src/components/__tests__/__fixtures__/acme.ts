@@ -9922,7 +9922,7 @@ export const acme = {
       motionCycleEasing: [0.2, 0, 0, 1],
       motionValueDuration: 300,
       motionValueEasing: [0.2, 0, 0, 1],
-      stopIndicatorSize: 4,
+      stopIndicatorSize: 0,
       trackColor: { kind: "role", role: "surfaceVariant" },
       trackGap: 4,
       trackSeparation: 0,
