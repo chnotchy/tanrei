@@ -326,7 +326,8 @@ test.describe('behavior', () => {
       // The focused edge is thicker than the resting one.
       const width = (await resolveToken(page, T('focused-outline-width')));
       expect(width).toBeGreaterThan(await resolveToken(page, T('outline-width')));
-      if (variant === 'outlined') expect(Number.parseFloat(await css(part(page, id, '.outline-end'), 'border-top-width'))).toBe(width);
+      // The edge widens over the state transition: read it once it has arrived, as for stacked.
+      if (variant === 'outlined') await expect.poll(() => css(part(page, id, '.outline-end'), 'border-top-width').then(Number.parseFloat)).toBe(width);
       else if (variant === 'stacked') await expect.poll(() => css(part(page, id, '.edge'), 'border-top-width').then(Number.parseFloat)).toBe(width);
       else expect((await bounds(part(page, id, '.indicator'))).height).toBe(await resolveToken(page, T('focused-active-indicator-width')));
       await page.locator('body').click({ position: { x: 1, y: 1 } });
