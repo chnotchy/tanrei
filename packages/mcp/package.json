@@ -15,7 +15,8 @@
   "files": [
     "bin",
     "dist",
-    "README.md"
+    "README.md",
+    "NOTICE"
   ],
   "engines": {
     "node": ">=20"

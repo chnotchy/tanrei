@@ -477,14 +477,28 @@ export function validateAvailability() {
   return problems;
 }
 
-/** A package that can be published carries its license: npm ships the LICENSE next to package.json, not the repository's. */
-export function validatePackages() {
+/**
+ * A package that can be published carries its license and its NOTICE. npm ships the files next to package.json, not
+ * the repository's: LICENSE always, NOTICE only when `files` lists it. Apache-2.0 §4(d) requires the NOTICE of a work
+ * that has one (the repository's names the Apache-2.0 data the packages reproduce) to travel with every copy. And its
+ * `repository` names the public repository and the package's directory: npm's trusted publishing matches them.
+ * `dirs`, `exists` and `read` default to the repository's packages; a test passes its own.
+ */
+export function validatePackages({ dirs, exists: has = exists, read: text = read, repository = `https://github.com/${CONFIG.repository.public}.git` } = {}) {
   const problems = [];
-  for (const dir of fs.readdirSync(path.join(REPO_ROOT, 'packages'))) {
-    const manifest = `packages/${dir}/package.json`;
-    if (!exists(manifest) || JSON.parse(read(manifest)).private) continue;
-    if (!exists(`packages/${dir}/LICENSE`)) problems.push(`packages/${dir}: publishable, but has no LICENSE file`);
-    else if (read(`packages/${dir}/LICENSE`) !== read('LICENSE')) problems.push(`packages/${dir}/LICENSE differs from the repository's LICENSE`);
+  for (const dir of dirs ?? fs.readdirSync(path.join(REPO_ROOT, 'packages'))) {
+    const manifestFile = `packages/${dir}/package.json`;
+    if (!has(manifestFile)) continue;
+    const manifest = JSON.parse(text(manifestFile));
+    if (manifest.private) continue;
+    for (const file of ['LICENSE', 'NOTICE']) {
+      if (!has(`packages/${dir}/${file}`)) problems.push(`packages/${dir}: publishable, but has no ${file} file (copy the repository's)`);
+      else if (text(`packages/${dir}/${file}`) !== text(file)) problems.push(`packages/${dir}/${file} differs from the repository's ${file}`);
+    }
+    if (Array.isArray(manifest.files) && !manifest.files.includes('NOTICE')) problems.push(`${manifestFile}: "files" does not list NOTICE, so npm would not ship it`);
+    if (manifest.repository?.url !== repository || manifest.repository?.directory !== `packages/${dir}`) {
+      problems.push(`${manifestFile}: "repository" must be { "url": "${repository}", "directory": "packages/${dir}" }`);
+    }
   }
   return problems;
 }

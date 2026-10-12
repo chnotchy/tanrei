@@ -2,7 +2,9 @@
 // stylesheets (icons, text, prose, link, code, table, accordion, table-of-contents, description-list, figure, app-shell, page-header, tree-view, breadcrumbs, shape, callout) and produces a self-contained, callout, empty-state) and produces a self-contained, avatar) and produces a self-contained
 // bundle (Lit included) for <script type="module"> use, demos and the test harness.
 import fs from 'node:fs';
+import path from 'node:path';
 import { build } from 'esbuild';
+import { writeThirdPartyLicenses } from '../../tools/src/third-party.js';
 import { declarations, resolved, tokensIn, writeConditions } from './conditions.js';
 
 fs.mkdirSync('dist', { recursive: true });
@@ -301,18 +303,22 @@ for (const system of fs.readdirSync('src/generated/systems').filter((file) => fi
     conditionedForSystems.push(`dist/systems/${name}`);
   }
 }
-await build({
+const bundle = await build({
   entryPoints: ['src/index.ts'],
   bundle: true,
   format: 'esm',
   target: 'es2022',
   minify: true,
   sourcemap: true,
+  metafile: true,
   outfile: 'dist/tanrei.bundle.js',
   // A development bundle: debug reports (src/primitives/report.ts) stay on. esbuild would otherwise define
   // process.env.NODE_ENV as "production" for a minified browser bundle.
   define: { 'process.env.NODE_ENV': '"development"', [TABLE_CSS_NAME]: tableText, [ACCORDION_CSS_NAME]: accordionText, [TABLE_OF_CONTENTS_CSS_NAME]: tableOfContentsText, ...Object.fromEntries(LIGHT_SHEETS) },
 });
+// The bundle inlines Lit, whose licence asks for its copyright notice and licence text in every copy: they are
+// written beside it, from the packages the bundle was made from.
+writeThirdPartyLicenses('dist', Object.keys(bundle.metafile.inputs).map((input) => path.resolve(input)), { what: 'dist/tanrei.bundle.js (and its source map)' });
 // `@tanrei/web/links/node`, the build-time helper (src/links/node/REQUIREMENTS.md). It runs under Node only
 // and is JavaScript with types written beside it, so the compiler above does not emit it: its files are copied as
 // they are. Nothing the bundle above is made from imports it (LKD-1; src/links/node/test/surface.test.mjs).

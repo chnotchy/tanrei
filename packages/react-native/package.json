@@ -20,7 +20,7 @@
     },
     "./package.json": "./package.json"
   },
-  "files": ["src", "lib", "README.md", "!**/__tests__", "!src/testing"],
+  "files": ["src", "lib", "README.md", "NOTICE", "!**/__tests__", "!src/testing"],
   "sideEffects": false,
   "scripts": {
     "build": "bob build",

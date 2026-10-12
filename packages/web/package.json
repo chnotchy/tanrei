@@ -105,7 +105,8 @@
   "files": [
     "dist",
     "custom-elements.json",
-    "README.md"
+    "README.md",
+    "NOTICE"
   ],
   "scripts": {
     "generate": "cem analyze",

@@ -35,6 +35,13 @@ The source repository also contains the Gradle wrapper
 the original authors. Apache License, Version 2.0.
 https://github.com/gradle/gradle
 
+Tanrei's libraries reference fonts by name and include no font file. Two
+build outputs include third-party code or fonts, and carry the copyright
+notice and licence of each beside them in THIRD_PARTY_LICENSES.md: the
+self-contained bundle of @tanrei/web (dist/tanrei.bundle.js), and the Theme
+Studio app that @tanrei/cli serves (dist/studio/), which includes font files
+licensed under the SIL Open Font License, Version 1.1.
+
 The design system presets other than tanrei (tokens/systems/) are independent
 approximations, named for what they resemble:
 
