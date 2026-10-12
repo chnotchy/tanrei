@@ -1,1 +1,1 @@
-public enum TanreiVersion { public static let current = "0.0.0" }
+public enum TanreiVersion { public static let current = "0.1.0-next.0" }
