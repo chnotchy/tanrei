@@ -303,4 +303,5 @@ Known platform gaps:
 - Set `valueText` when the number alone is unclear, and keep it in step with the value.
 - Show the result of a change somewhere people can see it, and tell them in text if a change could not be applied. The slider announces only its own value.
 - Under `cupertino`, where the thumb is white and the track has no end dots, keep the slider off a plain white surface when you can.
+- On a surface of the highest container tone, such as a filled card, the inactive track is hard to see: it has nearly the same tone. Where a slider stands on one, point `comp.slider.standard.track.color` at a stronger role in a layer. The handle and the active track still show the value.
 - On the web, give the slider a `name` to submit its value with a form.

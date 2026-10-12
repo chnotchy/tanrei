@@ -232,12 +232,12 @@ A change of value does not clear the error. Clear it when the answer is acceptab
 
 Known gaps on the web:
 
-- The form's own validation shows the browser's message for an unanswered set of radio buttons, not `errorText`.
 - Before the element is defined, the radio buttons are on the page without the group's label, description, layout and selection.
 
 ### What you need to do
 
 - Give the group a `label`.
 - Validate the answer yourself, set `error`, and write `errorText` so that it says how to put the answer right.
+- A required group left unanswered is refused by the form's own validation in the browser's words, as a select is. To say it in your product's words instead, do as GOV.UK does: put `novalidate` on the form, and when it is submitted set `error` and `errorText` on the group.
 - Give the words of the requirement: `required-text` and `optional-text` on the group, or once for the whole product with `setWords({ requiredText, optionalText })`. Tanrei ships none: without `requiredText` an asterisk stands in the tag's place, and without `optionalText` no tag is drawn and nothing is said. See [The product's words](/foundations/words/).
 - After a failed submission, also say above the form what was refused and link to the group: a live [callout](/components/callout/) in its error status.

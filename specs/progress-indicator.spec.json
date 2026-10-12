@@ -186,6 +186,15 @@
       }
     },
     {
+      "id": "linear-on-container-highest",
+      "props": {
+        "variant": "linear",
+        "value": 0.4,
+        "label": "Uploading"
+      },
+      "surface": "surface-container-highest"
+    },
+    {
       "id": "linear-indeterminate",
       "props": {
         "variant": "linear",
@@ -366,7 +375,7 @@
         "label": "label",
         "valueText": "currentValueLabel"
       },
-      "notes": "Initialisers follow `ProgressView`: `TanreiProgressIndicator(_ label:, value: Double?, in bounds: ClosedRange<Double> = 0...1, currentValueLabel:)`. `value: nil` is indeterminate; `bounds` carries min and max as `Slider`'s `in:` does. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet."
+      "notes": "Initialisers follow `ProgressView`: `TanreiProgressIndicator(_ label:, value: Double?, in bounds: ClosedRange<Double> = 0...1, currentValueLabel:)`. `value: nil` is indeterminate; `bounds` carries min and max as `Slider`'s `in:` does. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on."
     },
     "compose": {
       "status": "lagging",
@@ -381,7 +390,7 @@
         "label": "contentDescription",
         "valueText": "stateDescription"
       },
-      "notes": "Two overloads, as Material's indicators have: with `progress: () -> Float` it is determinate (a lambda, so a changing value redraws without recomposing), read within `valueRange: ClosedFloatingPointRange<Float> = 0f..1f` (as `Slider` names it); without `progress` it is indeterminate. `stateDescription` is the semantics property of the same name. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet."
+      "notes": "Two overloads, as Material's indicators have: with `progress: () -> Float` it is determinate (a lambda, so a changing value redraws without recomposing), read within `valueRange: ClosedFloatingPointRange<Float> = 0f..1f` (as `Slider` names it); without `progress` it is indeterminate. `stateDescription` is the semantics property of the same name. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on."
     },
     "flutter": {
       "status": "lagging",
@@ -396,7 +405,7 @@
         "label": "semanticsLabel",
         "valueText": "semanticsValue"
       },
-      "notes": "As Flutter's `ProgressIndicator`: `value: null` is indeterminate, and `semanticsLabel` / `semanticsValue` are its names. Unlike Flutter's (a fraction from 0 to 1), `value` is read between `min` and `max`, as `Slider` does. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet."
+      "notes": "As Flutter's `ProgressIndicator`: `value: null` is indeterminate, and `semanticsLabel` / `semanticsValue` are its names. Unlike Flutter's (a fraction from 0 to 1), `value` is read between `min` and `max`, as `Slider` does. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on."
     },
     "react-native": {
       "status": "lagging",
@@ -411,7 +420,7 @@
         "label": "accessibilityLabel",
         "valueText": "valueText"
       },
-      "notes": "`value` undefined or null is indeterminate. min, max, value and valueText are passed together as `accessibilityValue` (`{ min, max, now, text }`); indeterminate sets `accessibilityState={{ busy: true }}` and no `now`. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet."
+      "notes": "`value` undefined or null is indeterminate. min, max, value and valueText are passed together as `accessibilityValue` (`{ min, max, now, text }`); indeterminate sets `accessibilityState={{ busy: true }}` and no `now`. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet. Not built on this platform yet: the stage color a fixture's surface names, which the linear-on-container-highest fixture draws on."
     }
   }
 }

@@ -24,8 +24,10 @@ export type TooltipPlace = AnchoredPlace;
 
 /**
  * Where the container goes, in viewport coordinates (TIP-9, TIP-20, TIP-22 to TIP-25): `placeAnchored()` with the
- * tooltip's own fallback (`top`) and `auto` order (top, bottom, end, start, centred).
+ * tooltip's own fallback (`top`) and `auto` order (top, bottom, end, start, centred). Larger than the room on its side,
+ * it is still kept `margin` inside the window's edges (TIP-9), over the anchor; only a container larger than the window
+ * gives up the margin, at its bottom and end edges first.
  */
-export function placeTooltip(input: Omit<AnchoredInput, 'fallback' | 'auto' | 'autoAlign'>): TooltipPlace {
-  return placeAnchored({ ...input, fallback: 'top', auto: ['top', 'bottom', 'end', 'start'], autoAlign: 'center' });
+export function placeTooltip(input: Omit<AnchoredInput, 'fallback' | 'auto' | 'autoAlign' | 'holdInMargin'>): TooltipPlace {
+  return placeAnchored({ ...input, fallback: 'top', auto: ['top', 'bottom', 'end', 'start'], autoAlign: 'center', holdInMargin: true });
 }

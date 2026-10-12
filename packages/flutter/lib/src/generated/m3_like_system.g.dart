@@ -4130,7 +4130,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
         disabled: TanreiFileItemFormStateTokens(
           containerColor: TanreiPaint.none(),
           stateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
-          actionContainerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.12),
+          actionContainerColor: TanreiPaint.none(),
           actionIconColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           actionStateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
         ),

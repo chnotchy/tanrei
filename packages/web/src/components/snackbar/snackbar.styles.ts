@@ -337,6 +337,12 @@ export const styles = css`
       'action action action action';
     padding-block-end: ${t('container-padding-inline-end-with-controls')};
   }
+  /* SNK-14: with the action on its own row and no control after the text on the first, the text ends
+     container.padding-inline-end from the end edge, as a bar without controls does: the bar's padding is the controls'
+     inset, which is the action row's alone. */
+  .bar.stacked:not(:has(> .expand, > .close)) :is(.text, .focus) {
+    margin-inline-end: calc(${t('container-padding-inline-end')} - ${t('container-padding-inline-end-with-controls')});
+  }
   .bar.stacked .action {
     justify-self: end;
     margin-block: ${t('container-gap')} 0;

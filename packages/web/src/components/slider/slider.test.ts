@@ -181,6 +181,8 @@ test.describe('values, pointer and keys', () => {
     const q = await at(page, 'range', 50);
     await page.mouse.click(q.x, q.y);
     expect(await rounded(page, 'range')).toEqual([25, 50]);
+    // Below the spec's fixtures: in view before it is pressed.
+    await page.locator('[data-fixture="met"]').scrollIntoViewIfNeeded();
     const below = await at(page, 'met', 40);
     await page.mouse.click(below.x, below.y);
     expect(await rounded(page, 'met')).toEqual([40, 50]);

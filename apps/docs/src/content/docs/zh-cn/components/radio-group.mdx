@@ -2,7 +2,7 @@
 title: "单选组"
 description: "提出一个在同时全部显示出来的少量选项中恰好只有一个答案的问题——一组单选按钮，由它保存选中的值；它带有可以说明必填或选填的标签、一段描述，以及针对整组的一条错误。"
 translationOf: components/radio-group.mdx
-sourceHash: a3b0be7452dc859db3012eadbd2af528ebb21eed
+sourceHash: 3acaf21d866775ed8947b13d2537e747c103a871
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -234,12 +234,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 Web 上的已知差距：
 
-- 对于没有回答的一组单选按钮，表单自己的校验显示的是浏览器的消息，而不是 `errorText`。
 - 在元素定义之前，单选按钮出现在页面上时没有组的标签、描述、布局和选择。
 
 ### 需要你做的事
 
 - 为组提供 `label`。
 - 自己校验回答，设置 `error`，并编写说明如何改正的 `errorText`。
+- 必填却没有回答的组，会像选择框一样被表单自己的校验用浏览器的话拒绝。若要用产品自己的话来说，就像 GOV.UK 那样：在表单上加 `novalidate`，并在提交时为组设置 `error` 和 `errorText`。
 - 给出必填和选填的文字：把 `required-text` 和 `optional-text` 写在组上，或者用 `setWords({ requiredText, optionalText })` 为整个产品只给一次。Tanrei 不自带任何文字：没有 `requiredText` 时，小标签的位置上是一个星号；没有 `optionalText` 时，不绘制小标签，也不朗读任何内容。参见[产品的文字](/zh-cn/foundations/words/)。
 - 提交失败之后，还要在表单上方说明哪些内容被拒绝，并链接到这个组：使用一个带 `live`、处于错误语义状态的[提示块](/zh-cn/components/callout/)。

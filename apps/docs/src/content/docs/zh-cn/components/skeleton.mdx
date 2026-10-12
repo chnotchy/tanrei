@@ -2,7 +2,7 @@
 title: "骨架屏"
 description: "在内容加载期间，站在内容将要出现的位置上：用低调的占位符画出即将到来的内容的形状——几行文本、一个块、一个圆——并保住内容将要占据的框，所以内容到达时什么都不会移动。"
 translationOf: components/skeleton.mdx
-sourceHash: fd87c49099a85cb9c01317779b10a50e0116860c
+sourceHash: 35e480f921d9bf8421691218c876dd261757f4ac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -225,4 +225,4 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 已经有别的东西在说明这次等待时，设置 `decorative`。
 - 在内容到达算得上是消息的地方，说明内容已经到达。
 - 绝不要让骨架屏一直留着。用内容、空状态或错误来替换它。
-- 填充是装饰，不受任何对比度要求的约束。在最高容器色调的表面上，它很难看清。不要只靠它来说明某个位置正在等待。
+- 填充是装饰，不受任何对比度要求的约束。在最高容器色调的表面上，它很难看清。不要只靠它来说明某个位置正在等待。放在这样的表面上时，请在图层中把 `comp.skeleton.placeholder.color` 指向更强的角色。

@@ -6155,11 +6155,7 @@ export const tanrei = {
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
             },
-            actionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.12,
-            },
+            actionContainerColor: { kind: "none" },
             actionIconColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },

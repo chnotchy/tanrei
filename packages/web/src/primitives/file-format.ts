@@ -146,12 +146,18 @@ const ending = (name: string) => {
 };
 
 /**
+ * FIT-5: media types that choose nothing by themselves. video/mp2t is guessed from the ending .ts, which TypeScript
+ * files share with MPEG transport streams, so it is no surer than the ending: the ending decides.
+ */
+const UNDECIDING = ['application/octet-stream', 'video/mp2t'];
+
+/**
  * FIT-5: the kind of a file. The media type decides where it is on a list; where it is empty, is
- * application/octet-stream or is on no list, the ending of the name decides; and everything else is `other`.
+ * application/octet-stream or video/mp2t, or is on no list, the ending of the name decides; and everything else is `other`.
  */
 export function fileKind(mediaType: string, name: string): FileKind {
   const type = readType(mediaType ?? '');
-  if (type && type !== 'application/octet-stream') {
+  if (type && !UNDECIDING.includes(type)) {
     for (const rule of RULES) if (rule.types?.includes(type) || (rule.family && type.startsWith(rule.family))) return rule.kind;
   }
   const end = ending(name ?? '');

@@ -2,7 +2,7 @@
 title: Esqueleto
 description: Ocupa el lugar del contenido mientras se carga, con marcadores de posición discretos que tienen la forma de lo que va a llegar (líneas de texto, un bloque, un círculo), y reserva la caja que ocupará el contenido, para que nada se mueva cuando llegue.
 translationOf: components/skeleton.mdx
-sourceHash: fd87c49099a85cb9c01317779b10a50e0116860c
+sourceHash: 35e480f921d9bf8421691218c876dd261757f4ac
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -225,4 +225,4 @@ Donde nunca se ejecuta ningún script, un esqueleto no termina nunca salvo que e
 - Define `decorative` donde otra cosa ya dice la espera.
 - Di que el contenido ha llegado donde eso sea una novedad.
 - Nunca dejes un esqueleto para siempre. Sustitúyelo por el contenido, por un estado vacío o por un error.
-- El relleno es decoración y no está sujeto a ninguna relación de contraste. Sobre una superficie con el tono de contenedor más alto cuesta verlo. No dependas solo de él para decir que un lugar está esperando.
+- El relleno es decoración y no está sujeto a ninguna relación de contraste. Sobre una superficie con el tono de contenedor más alto cuesta verlo. No dependas solo de él para decir que un lugar está esperando. Donde esté sobre una, apunta `comp.skeleton.placeholder.color` a un rol más fuerte en una capa.

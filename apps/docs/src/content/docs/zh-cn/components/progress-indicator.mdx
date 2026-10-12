@@ -2,7 +2,7 @@
 title: "进度指示器"
 description: "以条形或圆环显示任务已经进行到哪里；进度未知时，则表示任务正在进行。"
 translationOf: components/progress-indicator.mdx
-sourceHash: 2c289070008e86f05c52be046b30544c8a9958f3
+sourceHash: f486cb2aed81fdd7e8f613cede165ad08fad7a23
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -208,4 +208,5 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 
 - 任务的结束要由你自己来朗读：在实时区域（live region）里放一条消息，或者把焦点移到结果上。指示器不会说明任务已经完成或已经失败。
 - 如果你更改了颜色，请让指示器的颜色相对于轨道和它背后的表面至少保持 3:1 的对比度，使用分隔线和使用间隙时都是如此。数值是从指示器与轨道相接的位置读出来的。
+- 在最高容器色调的表面上（例如填充卡片），轨道几乎是同一色调，很难看清。指示器放在这样的表面上时，请在图层中把 `comp.progress-indicator.track.color` 指向更强的角色。指示器所显示的内容仍然从它与轨道相接的位置读出。
 - 如果任务会阻塞页面的某个区域，请在任务运行期间把这个区域标记为忙碌（在 Web 上是 `aria-busy`）。

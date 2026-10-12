@@ -2373,9 +2373,9 @@
               "reason": "The body of a file item has no fill at rest; disabled, it grows none, and what it shows of the file stays as it is (FIT-21). The generic rule would lay a fill over the name and the picture."
             },
             {
-              "match": "tanrei.comp.file-item.tile.disabled.action.container.color",
-              "$value": "{tanrei.comp.file-item.tile.action.container.color}",
-              "reason": "A tile's action stands on an opaque disc over a picture; disabled, it keeps the disc its faded glyph is read on. Written for the tile alone: a row's disabled action keeps the generic fill."
+              "match": "tanrei.comp.file-item.*.disabled.action.container.color",
+              "$value": "{tanrei.comp.file-item.$1.action.container.color}",
+              "reason": "Disabled, an action keeps the container it has at rest: a tile's the opaque disc its faded glyph is read on over a picture, a row's none — a quiet icon-only button grows no fill when it is disabled, or it would look like a filled one. The chip's remove action keeps its resting container for the same reason."
             },
             {
               "match": "tanrei.comp.chat-composer.*.focused.container.color",

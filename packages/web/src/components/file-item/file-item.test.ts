@@ -416,7 +416,7 @@ test.describe('behavior', () => {
     const [fbox, retry, remove] = [await box(own(page, f, 'media')), await box(own(page, f, 'retry')), await box(own(page, f, 'remove'))];
     near(remove.y - fbox.y, inset, 'tile.action.inset from the top');
     near(fbox.x + fbox.width - (remove.x + remove.width), inset, 'tile.action.inset from the end edge');
-    near(remove.x - (retry.x + retry.width), actionGap, 'action.gap');
+    near(remove.x - (retry.x + retry.width), Math.max(actionGap, 2 * Math.max(0, (await resolveToken(page, '--tanrei-sys-target-pointer')) - actionSize)), 'action.gap, or twice what the target exceeds action.size by (FIT-18)');
     near(retry.y, remove.y, 'on one line');
     for (const action of [own(page, f, 'retry'), own(page, f, 'remove')]) {
       await isColor(page, action, 'background-color', 'tile-action-container-color');
@@ -425,7 +425,7 @@ test.describe('behavior', () => {
     }
     expect(await host(page, f).evaluate((el) => [...el.shadowRoot!.querySelectorAll('.item > *')].map((node) => node.classList[0])), 'the actions come after the body: the order of focus is the order read').toEqual(['body', 'over', 'end']);
     // No narrower than both actions, the space between them and the inset on each side; no lower than one action and the inset above and below.
-    const [leastWidth, leastHeight] = [2 * actionSize + actionGap + 2 * inset, actionSize + 2 * inset];
+    const [leastWidth, leastHeight] = [2 * actionSize + Math.max(actionGap, 2 * Math.max(0, (await resolveToken(page, '--tanrei-sys-target-pointer')) - actionSize)) + 2 * inset, actionSize + 2 * inset];
     expect(await sizes('small')).toEqual([leastWidth, leastHeight]);
     near((await sizes('narrow'))[0], leastWidth, 'a width that is less');
     near((await sizes('low'))[1], leastHeight, 'a height that is less');
@@ -599,6 +599,11 @@ test.describe('behavior', () => {
       ['', 'budget.xlsx', 'spreadsheet'],
       // Case, a parameter and white space are not read.
       [' Text/CSV; charset=utf-8 ', 'export', 'spreadsheet'],
+      // video/mp2t is guessed from the ending .ts, which TypeScript shares: it chooses nothing, and the ending decides.
+      ['video/mp2t', 'index.ts', 'code'],
+      ['', 'index.ts', 'code'],
+      ['video/mp2t', 'clip.mp4', 'video'],
+      ['video/mp2t', 'stream', 'other'],
     ];
     // What the lists leave out: a media type on no list chooses nothing, an ending on no list is other, and the ending is what follows the LAST dot.
     const beyond: [string, string, Kind][] = [
@@ -1232,7 +1237,7 @@ test.describe('behavior', () => {
     const [retry, remove] = [own(page, id, 'retry'), own(page, id, 'remove')];
     const [a, b, size] = [await box(retry), await box(remove), await token(page, 'action-size')];
     for (const side of [a.width, a.height, b.width, b.height]) near(side, size, 'action.size');
-    near(b.x - (a.x + a.width), await token(page, 'action-gap'), 'action.gap');
+    near(b.x - (a.x + a.width), Math.max(await token(page, 'action-gap'), 2 * Math.max(0, (await resolveToken(page, '--tanrei-sys-target-pointer')) - (await token(page, 'action-size')))), 'action.gap, or twice what the target exceeds action.size by (FIT-18)');
     expect(a.x, 'retry before remove').toBeLessThan(b.x);
     for (const [form, fixture] of [['row', id], ['tile', 'tile-error-retryable']] as const) {
       for (const [name, glyph] of [['retry', 'refresh'], ['remove', 'close']] as const) {
@@ -1885,7 +1890,11 @@ test.describe('behavior', () => {
     const [size, pointer, touch, actionGap, inset] = [await token(page, 'action-size'), await resolveToken(page, '--tanrei-sys-target-pointer'), await resolveToken(page, '--tanrei-sys-target-touch'), await token(page, 'action-gap'), await token(page, 'tile-action-inset')];
     const target = (el: Locator) => el.evaluate((node) => [Number.parseFloat(getComputedStyle(node, '::before').width), Number.parseFloat(getComputedStyle(node, '::before').height), getComputedStyle(node, '::before').position] as const);
     const [w, h, position] = await target(remove);
-    near(w, size + Math.min(Math.max(0, pointer - size), actionGap / 2), 'the pointer target along the row: the action at the row’s end reaches toward the one before it, and never past the row’s end');
+    // Two actions side by side stand action.gap apart, or twice what the target exceeds their size by where that is more.
+    const between = (goal: number) => Math.max(actionGap, 2 * Math.max(0, goal - size));
+    near((await box(remove)).x - ((await box(retry)).x + (await box(retry)).width), between(pointer), 'the space between the two actions');
+    near(w, Math.max(size, pointer), 'the pointer target along the row, whole: the action at the row’s end reaches toward the one before it, and never past the row’s end');
+    near((await target(retry))[0], size + Math.max(0, pointer - size) / 2 + between(pointer) / 2, 'the action before it: half of what the target lacks toward the texts, and half the space toward the action after it');
     const twoLines = Number.parseFloat((await role(page, 'headline-typescale')).lineHeight) + Number.parseFloat((await role(page, 'supporting-text-typescale')).lineHeight);
     near(h, Math.min(Math.max(size, pointer), twoLines), 'the pointer target across the row: alone, nothing lies between it and a neighbour');
     expect(position).toBe('absolute');
@@ -1906,11 +1915,13 @@ test.describe('behavior', () => {
     expect(coarse).toContain('.action::before');
     expect(coarse).toContain('.body.pressable::before');
     expect(coarse).toContain('--tanrei-sys-target-touch');
-    // As large as a touch target would make them, two hit areas still do not overlap.
-    await override(page, { '--tanrei-sys-target-pointer': `${touch + 40}px` });
+    // However large the target, the two actions stand far enough apart that each reaches it, and the two hit areas still do not overlap.
+    const large = touch + 40;
+    await override(page, { '--tanrei-sys-target-pointer': `${large}px` });
     const [tw, th] = await target(remove);
-    near(tw, size + actionGap / 2, 'held to half the gap toward the action before it, and to the row’s end');
-    near((await target(retry))[0], size + actionGap, 'held to half the gap on either side');
+    near((await box(remove)).x - ((await box(retry)).x + (await box(retry)).width), between(large), 'set apart by twice what the target exceeds their size by');
+    near(tw, large, 'the whole target toward the action before it, and none past the row’s end');
+    near((await target(retry))[0], size + (large - size) / 2 + between(large) / 2, 'at least the whole target: half the space toward the action after it');
     near(th, twoLines, 'held to the row’s two lines');
     const [, tileHeight] = await target(own(page, 'tile-error-retryable', 'remove'));
     near(tileHeight, size + 2 * inset, 'in a tile, held to the inset around it');
@@ -1933,6 +1944,8 @@ test.describe('behavior', () => {
     }
     // An action and the body beside it: a press on either's visible bounds is its own.
     for (const fixture of ['pressable', 'tile-pressable']) {
+      // The large target set above spaces the actions widely, and a row stands its actions below its texts: in view first.
+      await own(page, fixture, 'remove').scrollIntoViewIfNeeded();
       const [body, first, last] = [await box(own(page, fixture, fixture === 'pressable' ? 'text' : 'media')), await box(own(page, fixture, 'retry')), await box(own(page, fixture, 'remove'))];
       const presses: [number, number, string][] = [
         [first.x + 1, first.y + first.height / 2, 'retry'],
@@ -1977,14 +1990,15 @@ test.describe('behavior', () => {
         const [start, end] = await reach(remove);
         near(end, 0, `${message}, ${id}: no further than the end edge`);
         const lacks = Math.max(0, pointer - size);
-        near(start, id === 'row-format' ? Math.min(lacks, rowGap) : Math.min(lacks, actionGap / 2), `${message}, ${id}: what it lacks, toward the start`);
+        const between = Math.max(actionGap, 2 * lacks);
+        near(start, id === 'row-format' ? Math.min(lacks, rowGap) : Math.min(lacks, between / 2), `${message}, ${id}: what it lacks, toward the start`);
         const [a, itsHost] = [await box(remove), await box(host(page, id))];
         near(dir === 'ltr' ? a.x + a.width : a.x, dir === 'ltr' ? itsHost.x + itsHost.width : itsHost.x, `${message}, ${id}: the action at the end edge`);
         if (id === 'row-error-retryable') {
           // The action before it reaches half of what lies between them, and as far on its other side.
           const [retryStart, retryEnd] = await reach(own(page, id, 'retry'));
-          near(retryEnd, Math.min(lacks / 2, actionGap / 2), `${message}: retry toward remove`);
-          near(retryStart, Math.min(lacks / 2, actionGap / 2), `${message}: retry toward the texts`);
+          near(retryEnd, between / 2, `${message}: retry toward remove, half the space between them`);
+          near(retryStart, Math.min(lacks / 2, between / 2), `${message}: retry toward the texts`);
         }
       }
     }
@@ -2187,7 +2201,7 @@ test.describe('behavior', () => {
     expect(await missingWords(page)).toEqual([]);
   });
 
-  test('FIT-21: disabled renders each action from the disabled tokens of its form — a row’s keeps the disabled container, a tile’s its opaque disc — and disables it; makes the body not pressable and not focusable, with no hover, focus or press answer; and emits neither click, remove nor retry — while the name, the second line, the glyph, the picture, the mark and the bar stay as they are and readable', async ({ page }) => {
+  test('FIT-21: disabled renders each action from the disabled tokens of its form — each keeps the container it has at rest, none in a row and the opaque disc in a tile, and only its glyph fades — and disables it; makes the body not pressable and not focusable, with no hover, focus or press answer; and emits neither click, remove nor retry — while the name, the second line, the glyph, the picture, the mark and the bar stay as they are and readable', async ({ page }) => {
     await mount(page, [
       ...spec.fixtures.filter((f) => ['row-disabled', 'row-error-retryable', 'tile-disabled', 'tile-rtl'].includes(f.id)),
       fx('pressable', { name: 'floor-plan.png', sizeText: '3.4 MB', status: 'uploading', statusText: 'Uploading', progress: 0.4, interactive: true, preview: true, previewSrc: PICTURE, disabled: true, ...WORDS }),
@@ -2207,12 +2221,10 @@ test.describe('behavior', () => {
         expect(await css(action, 'cursor')).toBe('default');
       }
     }
-    // A row's disabled action keeps the disc the generic rule gives a disabled container…
-    const rowDisc = await painted(own(page, 'row-disabled', 'remove'), 'background-color');
-    expect(rowDisc[3], 'a row’s disabled action has a ground, where an enabled one has none').toBeGreaterThan(0);
-    expect(rowDisc[3]).toBeLessThan(255);
+    // A row's disabled action grows no ground, as an enabled one has none: a quiet icon-only button stays quiet when disabled…
+    for (const name of ['retry', 'remove'] as const) expect((await painted(own(page, 'row-disabled', name), 'background-color'))[3], `a row’s disabled ${name} has no ground`).toBe(0);
     expect((await painted(own(page, 'row-error-retryable', 'remove'), 'background-color'))[3]).toBe(0);
-    sameColor(rowDisc, await colorOf(page, 'color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-container-opacity) * 100%), transparent)'), 'the generic disabled container');
+    expect((await painted(own(page, 'row-disabled', 'remove'), 'color')).join(), 'its glyph fades').not.toBe((await painted(own(page, 'row-error-retryable', 'remove'), 'color')).join());
     // …and a tile's keeps its opaque disc, so that it is read over any picture.
     const tileDisc = await painted(own(page, 'tile-disabled', 'remove'), 'background-color');
     expect(tileDisc[3]).toBe(255);
@@ -2400,7 +2412,7 @@ test.describe('behavior', () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
   });
 
-  test('FIT-24: with the text enlarged a row’s lines grow and wrap and are never cut, its glyph keeps its box, its picture row.media.height and its actions action.size; a tile’s box keeps the size given, its name stays one line and its second line wraps beneath it; at 200 % in a width of 320 no text is lost or lies over another part, a row’s actions stay at its end beside its first lines, a tile is no wider than its layout, and nothing scrolls sideways', async ({ page }) => {
+  test('FIT-24: with the text enlarged a row’s lines grow and wrap and are never cut, its glyph keeps its box, its picture row.media.height and its actions action.size; a tile’s box keeps the size given, its name stays one line and its second line wraps beneath it; at 200 % in a width of 320 no text is lost or lies over another part, a row’s actions stay at its end beside its first lines unless what stands beside its texts would leave them less than half the row — then they stand on a line of their own below the texts and the bar, at the row’s end, and the texts take the whole width — a tile is no wider than its layout, and nothing scrolls sideways', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 2400 });
     const rows = ['row-long-text', 'row-error-retryable', 'row-uploading', 'row-preview', 'row-link-new'];
     const tiles = ['tile-long-name', 'tile-error-retryable', 'tile-size-cover', 'tile-uploading'];
@@ -2437,14 +2449,29 @@ test.describe('behavior', () => {
       near(lead.width, id === 'row-preview' ? mediaSide : rowIcon, `${id}: the glyph keeps its box, the picture row.media.height`);
       near(remove.width, actionSize, 'an action keeps action.size');
       near(remove.height, actionSize, 'an action keeps action.size');
-      // The actions at the row's end, beside its first lines; nothing lies over another part.
+      // The actions at the row's end; nothing lies over another part.
       near(remove.x + remove.width, itsHost.x + itsHost.width, `${id}: the actions at the end`);
-      expect(remove.y + remove.height / 2).toBeLessThanOrEqual(name.y + Number.parseFloat((await textStyle(own(page, id, 'headline'))).lineHeight) + Number.parseFloat((await role(page, 'supporting-text-typescale')).lineHeight));
       expect(text.x).toBeGreaterThanOrEqual(lead.x + lead.width - 0.5);
       const first = (await own(page, id, 'retry').count()) ? await box(own(page, id, 'retry')) : remove;
-      const last = (await own(page, id, 'opens').count()) ? await box(own(page, id, 'opens')) : first;
-      expect(text.x + text.width, `${id}: the texts end before what follows them`).toBeLessThanOrEqual(last.x + 0.5);
-      expect(last.x + last.width).toBeLessThanOrEqual(first.x + first.width + 0.5);
+      const opens = (await own(page, id, 'opens').count()) ? await box(own(page, id, 'opens')) : null;
+      // Beside or below, by what stands beside the texts: less than half the row left to them puts the actions on a line of their own.
+      const [end, rowGap, gap] = [await box(own(page, id, 'end')), await token(page, 'row-container-gap'), await own(page, id, 'item').evaluate((el) => Number.parseFloat(getComputedStyle(el).columnGap))];
+      const beside = lead.width + rowGap + (opens ? opens.width + rowGap : 0) + gap + end.width;
+      const stacked = beside > itsHost.width / 2;
+      expect(await own(page, id, 'item').getAttribute('data-stacked'), `${id}: ${Math.round(beside)} of ${Math.round(itsHost.width)} beside the texts`).toBe(stacked ? '' : null);
+      if (id === 'row-error-retryable') expect(stacked, 'two actions leave a letter of the name at 200 % in 320: they go below').toBe(true);
+      if (stacked) {
+        const below = Math.max(text.y + text.height, (await own(page, id, 'bar').count()) ? (await box(own(page, id, 'bar'))).y + (await box(own(page, id, 'bar'))).height : 0);
+        expect(first.y, `${id}: the actions below the texts and the bar`).toBeGreaterThanOrEqual(below - 0.5);
+        near(first.y, remove.y, `${id}: the actions on one line`);
+        if (first !== remove) expect(first.x + first.width).toBeLessThanOrEqual(remove.x + 0.5);
+        expect(text.x + text.width, `${id}: the texts take the whole width`).toBeGreaterThanOrEqual(itsHost.x + itsHost.width - (opens ? opens.width + rowGap : 0) - 0.5);
+      } else {
+        expect(remove.y + remove.height / 2, `${id}: beside its first lines`).toBeLessThanOrEqual(name.y + Number.parseFloat((await textStyle(own(page, id, 'headline'))).lineHeight) + Number.parseFloat((await role(page, 'supporting-text-typescale')).lineHeight));
+        const last = opens ?? first;
+        expect(text.x + text.width, `${id}: the texts end before what follows them`).toBeLessThanOrEqual(last.x + 0.5);
+        expect(last.x + last.width).toBeLessThanOrEqual(first.x + first.width + 0.5);
+      }
       if (second) expect(second.y).toBeGreaterThanOrEqual(name.y + name.height - 0.5);
       if (await own(page, id, 'bar').count()) expect((await box(own(page, id, 'bar'))).y).toBeGreaterThanOrEqual(second!.y + second!.height - 0.5);
     }
@@ -2475,7 +2502,7 @@ test.describe('behavior', () => {
     }
     // A box the product sized keeps its size — but for what its actions, which grew with the text, now need (FIT-3).
     const sized = await box(own(page, 'tile-size-cover', 'media'));
-    const least = [2 * actionSize + (await token(page, 'action-gap')) + 2 * (await token(page, 'tile-action-inset')), actionSize + 2 * (await token(page, 'tile-action-inset'))];
+    const least = [2 * actionSize + Math.max(await token(page, 'action-gap'), 2 * Math.max(0, (await resolveToken(page, '--tanrei-sys-target-pointer')) - actionSize)) + 2 * (await token(page, 'tile-action-inset')), actionSize + 2 * (await token(page, 'tile-action-inset'))];
     expect([sized.width, sized.height], 'a box the product sized keeps its size').toEqual([Math.max(160, least[0]), Math.max(90, least[1])]);
     expect(least[1], 'its height is the product’s still').toBeLessThan(90);
     near((await box(own(page, 'tile-long-name', 'media'))).height, await token(page, 'tile-media-height'), 'a box the token sizes keeps the token’s height');
@@ -2578,7 +2605,8 @@ test.describe('behavior', () => {
     near(icon.x + icon.width, whole.x + whole.width, 'the glyph at the right');
     near(icon.x - (text.x + text.width), gap, 'the texts after it, toward the left');
     near(remove.x, whole.x, 'remove outermost, at the left');
-    near(retry.x - (remove.x + remove.width), await token(page, 'action-gap'), 'retry beside it');
+    const between = Math.max(await token(page, 'action-gap'), 2 * Math.max(0, (await resolveToken(page, '--tanrei-sys-target-pointer')) - (await token(page, 'action-size'))));
+    near(retry.x - (remove.x + remove.width), between, 'retry beside it');
     near(opens.x - (retry.x + retry.width), gap, 'the mark of a new context after the actions, toward the right');
     near(text.x - (opens.x + opens.width), gap, 'and before the texts');
     // The status mark at the right of its words.
@@ -2614,7 +2642,7 @@ test.describe('behavior', () => {
     const [tbox, tretry, tremove, inset] = [await box(own(page, 'tile-rtl', 'media')), await box(own(page, 'tile-rtl', 'retry')), await box(own(page, 'tile-rtl', 'remove')), await token(page, 'tile-action-inset')];
     near(tremove.x - tbox.x, inset, 'remove outermost, tile.action.inset from the left edge');
     near(tremove.y - tbox.y, inset, 'tile.action.inset from the top');
-    near(tretry.x - (tremove.x + tremove.width), await token(page, 'action-gap'), 'retry after it');
+    near(tretry.x - (tremove.x + tremove.width), between, 'retry after it');
     const tname = await own(page, 'tile-rtl', 'headline').locator('.cut').evaluate((el) => {
       const range = document.createRange();
       range.selectNodeContents(el);

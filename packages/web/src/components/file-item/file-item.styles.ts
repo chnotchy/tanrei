@@ -64,6 +64,15 @@ export const styles = css`
     /* FIT-18: what lies between this item and the next of a column; its holder says it, and alone nothing does. */
     --_between: 0px;
     --_layer: transparent;
+    /* FIT-18: the minimum target in force, and the space between two actions side by side — action.gap, or twice what
+       the target exceeds action.size by where that is more, so that each hit area reaches the target on its own half. */
+    --_target: var(--tanrei-sys-target-pointer);
+    --_action-gap: max(${t('action-gap')}, calc((var(--_target) - ${t('action-size')}) * 2));
+  }
+  @media (pointer: coarse) {
+    .item {
+      --_target: var(--tanrei-sys-target-touch);
+    }
   }
 
   /* ── The row (FIT-2) ── the glyph or the picture's square, the texts taking the room that is left, the mark of a new
@@ -106,7 +115,20 @@ export const styles = css`
     grid-column: 2;
     grid-row: 1;
     position: relative;
-    gap: ${t('action-gap')};
+    gap: var(--_action-gap);
+  }
+  /* FIT-24: where what stands beside the texts would leave them less than half the row (the item measures), the actions
+     stand on a line of their own below the texts and the bar, at the row's end and in the same order, as tall as the
+     minimum target in force; the texts and the bar take the whole width after the glyph. */
+  ${unsafeCSS(on('row'))}[data-stacked] .body,
+  ${unsafeCSS(on('row'))}[data-stacked] .bar {
+    grid-column: 1 / -1;
+  }
+  ${unsafeCSS(on('row'))}[data-stacked] .end {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: end;
+    block-size: var(--_target);
   }
   ${unsafeCSS(on('row'))} .media {
     display: flex;
@@ -241,7 +263,7 @@ export const styles = css`
     --_glyph: ${t('tile-icon-size')};
     --_box-width: ${t('tile-media-height')};
     --_box-ratio: 1;
-    --_box-min-width: calc(${t('action-size')} * 2 + ${t('action-gap')} + ${t('tile-action-inset')} * 2);
+    --_box-min-width: calc(${t('action-size')} * 2 + var(--_action-gap) + ${t('tile-action-inset')} * 2);
     --_box-min-height: calc(${t('action-size')} + ${t('tile-action-inset')} * 2);
     inline-size: max(var(--_box-min-width), var(--_box-width));
     max-inline-size: 100%;
@@ -337,7 +359,7 @@ export const styles = css`
     inset-block-start: ${t('tile-action-inset')};
     inset-inline-end: ${t('tile-action-inset')};
     display: flex;
-    gap: ${t('action-gap')};
+    gap: var(--_action-gap);
   }
 
   /* ── The body (FIT-12, FIT-13) ── while the file item is pressable its body is a native button, or an anchor, with
@@ -469,17 +491,11 @@ export const styles = css`
      between two goes to the nearer one. */
   ${minimumTarget('.action')}
   .action::before {
-    --_target: var(--tanrei-sys-target-pointer);
-    inline-size: min(max(100%, var(--_target)), calc(100% + ${t('action-gap')}));
+    inline-size: min(max(100%, var(--_target)), calc(100% + var(--_action-gap)));
     block-size: min(max(100%, var(--_target)), calc(var(--_lines) + var(--_between)));
   }
   ${unsafeCSS(on('tile'))} .action::before {
     block-size: min(max(100%, var(--_target)), calc(100% + ${t('tile-action-inset')} * 2));
-  }
-  @media (pointer: coarse) {
-    .action::before {
-      --_target: var(--tanrei-sys-target-touch);
-    }
   }
   /* FIT-18, FIT-24: the hit area of the action at a file item's end reaches no further toward the end than the item's
      own edge — the row's end, which is the action's; in a tile the inset around it. A hit area that reached past it
@@ -495,8 +511,19 @@ export const styles = css`
     inset-inline-end: calc(-1 * var(--_end));
     inline-size: auto;
   }
+  /* FIT-18: the action before another reaches half of what it lacks toward the texts, as alone, and half the space
+     between the two toward the action after it — which reaches the other half — so that a press between them goes to
+     the nearer one and each reaches at least the minimum target. */
+  .item .action:not(:last-child)::before {
+    --_lacks: max(0px, var(--_target) - 100%);
+    inset-inline-start: calc(-1 * var(--_lacks) / 2);
+    inset-inline-end: calc(-1 * var(--_action-gap) / 2);
+    inline-size: auto;
+  }
   .action:last-child::before,
-  :host(:dir(rtl)) .action:last-child::before {
+  :host(:dir(rtl)) .action:last-child::before,
+  .item .action:not(:last-child)::before,
+  :host(:dir(rtl)) .item .action:not(:last-child)::before {
     transform: translateY(-50%);
   }
   ${unsafeCSS(on('tile'))} .action:last-child::before {
@@ -504,7 +531,7 @@ export const styles = css`
     --_toward-start: var(--_lacks);
   }
   .item .action + .action:last-child::before {
-    --_toward-start: calc(${t('action-gap')} / 2);
+    --_toward-start: calc(var(--_action-gap) / 2);
   }
 
   /* FIT-14, FIT-21: each state paints the action from that state's tokens of its form; pressed > focused > hovered, disabled over all. */

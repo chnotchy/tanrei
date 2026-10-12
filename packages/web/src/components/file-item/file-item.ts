@@ -130,6 +130,7 @@ export class TanreiFileItem extends LitElement {
     pictured: { state: true },
     failed: { state: true },
     lengths: { state: true },
+    stacked: { state: true },
   };
 
   /** How the file is shown. `row`: one line across the width its layout gives — for a column of files. `tile`: a box of `width` by `height` holding the picture or the glyph, the texts beneath it and the actions at its corner — for a strip of pictures. Anything else is `row`. */
@@ -227,6 +228,12 @@ export class TanreiFileItem extends LitElement {
   protected failed = '';
   /** FIT-3: three lengths of the tokens in CSS pixels, read where a tile is given a width or a height — the token of its height, and the least width and height its actions need. */
   protected lengths: { token: number; width: number; height: number } | null = null;
+  /** FIT-24: a row's actions stand on a line of their own below its texts. */
+  protected stacked = false;
+  /** FIT-24: the watch on the row's width, while a row has actions. */
+  private resize: ResizeObserver | null = null;
+  /** FIT-24: the row and its actions, as last watched. */
+  private watched: Element[] = [];
   /** The box the lengths were read for. */
   private measuredFor = '';
   /** FIT-23: the form last drawn. */
@@ -451,6 +458,9 @@ export class TanreiFileItem extends LitElement {
     this.unwatch();
     this.release();
     this.pictured = '';
+    this.resize?.disconnect();
+    this.resize = null;
+    this.watched = [];
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
@@ -504,9 +514,52 @@ export class TanreiFileItem extends LitElement {
     const form = this.shownForm;
     if (this.drawnForm && this.drawnForm !== form) for (const animation of this.renderRoot.querySelector('.item')?.getAnimations({ subtree: true }) ?? []) if (animation instanceof CSSTransition) animation.finish();
     this.drawnForm = form;
+    this.watchWidth();
     this.reports(changed);
     // A component that holds it reads it again: what it announces and what its form submits.
     if (changed.size) notifyItemUpdate(this, FILE_ITEM_UPDATE);
+  }
+
+  /** FIT-24: a row with actions is measured whenever it, or what stands beside its texts, changes size. */
+  private watchWidth() {
+    const item = this.renderRoot.querySelector<HTMLElement>('.item');
+    const end = this.renderRoot.querySelector<HTMLElement>('.end');
+    if (this.shownForm !== 'row' || !item || !end || typeof ResizeObserver === 'undefined') {
+      this.resize?.disconnect();
+      this.resize = null;
+      this.watched = [];
+      if (this.stacked) this.stacked = false;
+      return;
+    }
+    if (this.watched[0] === item && this.watched[1] === end) return;
+    this.resize ??= new ResizeObserver(() => this.measureStacked());
+    this.resize.disconnect();
+    this.resize.observe(item);
+    this.resize.observe(end);
+    this.watched = [item, end];
+  }
+
+  /**
+   * FIT-24: whether what stands beside a row's texts — the glyph or the picture, the mark of a new context, the actions
+   * and the gaps between them — would leave the texts less than half the row. Counted from the widths those parts have,
+   * which do not change with where the actions stand, so the answer is the same either way.
+   */
+  private measureStacked() {
+    const item = this.renderRoot.querySelector<HTMLElement>('.item');
+    const end = this.renderRoot.querySelector<HTMLElement>('.end');
+    if (!item || !end || this.shownForm !== 'row') return;
+    const width = (element: Element | null) => (element ? element.getBoundingClientRect().width : 0);
+    const row = width(item);
+    if (row <= 0) return;
+    const body = this.renderRoot.querySelector<HTMLElement>('.body');
+    const bodyGap = body ? Number.parseFloat(getComputedStyle(body).columnGap) || 0 : 0;
+    const gap = Number.parseFloat(getComputedStyle(item).columnGap) || 0;
+    const beside = [this.renderRoot.querySelector('.body .lead'), this.renderRoot.querySelector('.body .open')]
+      .map(width)
+      .filter((each) => each > 0)
+      .reduce((sum, each) => sum + each + bodyGap, 0) + gap + width(end);
+    const stacked = beside > row / 2;
+    if (stacked !== this.stacked) this.stacked = stacked;
   }
 
   /** FIT-29: the width and the height of a tile's box, as given — the holder's for every row, else the item's own — or null. */
@@ -716,7 +769,7 @@ export class TanreiFileItem extends LitElement {
         }
       : { '--_between': given.between ?? null };
     return html`
-      <div class="item" @click=${this.onOtherClick} data-form=${tile ? 'tile' : 'row'} data-status=${status} data-fit=${this.shownFit} ?data-preview=${this.wantsPreview} ?data-read-only=${this.readOnly} style=${styleMap(sizes)}>
+      <div class="item" @click=${this.onOtherClick} data-form=${tile ? 'tile' : 'row'} data-status=${status} data-fit=${this.shownFit} ?data-preview=${this.wantsPreview} ?data-read-only=${this.readOnly} ?data-stacked=${!tile && !this.readOnly && this.stacked} style=${styleMap(sizes)}>
         ${body}${tile ? html`<span class="over" data-tanrei-shape>${bar}</span>` : status === 'uploading' ? html`<div class="bar">${bar}</div>` : nothing}${actions}
       </div>
     `;

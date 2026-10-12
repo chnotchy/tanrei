@@ -4127,7 +4127,7 @@ private let acmeFileItemTokens = TanreiFileItemTokens(
       disabled: TanreiFileItemFormStateTokens(
         containerColor: .none,
         stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        actionContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        actionContainerColor: .none,
         actionIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         actionStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
