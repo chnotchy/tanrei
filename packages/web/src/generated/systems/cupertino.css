@@ -6176,6 +6176,7 @@
     --tanrei-comp-select-list-elevation: var(--tanrei-sys-elevation-level2);
     --tanrei-comp-select-list-elevation-inset-ring: var(--tanrei-sys-elevation-level2-inset-ring);
     --tanrei-comp-select-list-max-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 80), 0.25px);
+    --tanrei-comp-select-list-max-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 80), 0.25px);
     --tanrei-comp-select-list-min-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 40), 0.25px);
     --tanrei-comp-select-list-offset: var(--tanrei-sys-space-space50);
     --tanrei-comp-select-list-padding-block: var(--tanrei-sys-space-space50);

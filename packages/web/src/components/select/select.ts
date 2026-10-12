@@ -270,8 +270,9 @@ export class TanreiSelect extends LitElement {
     model: () => this.options$.model,
     chosen: () => this.chosen,
     choose: (option, event) => this.choose(option, event),
+    widens: true,
   });
-  /** SEL-24, SEL-25, SEL-30: where the list is — the anchored surface a popover is drawn on, as wide as the container. */
+  /** SEL-24, SEL-25, SEL-30: where the list is — the anchored surface a popover is drawn on, at least as wide as the container. */
   private readonly anchored = anchoredOptionList(this, {
     anchor: () => this.container,
     inline: () => this.inline,

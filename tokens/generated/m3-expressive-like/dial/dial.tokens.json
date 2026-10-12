@@ -6706,6 +6706,14 @@
               },
               "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.surface.min-width."
             },
+            "tanrei.comp.select.list.max-width": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 70
+              },
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.surface.max-width."
+            },
             "tanrei.comp.select.option.height": {
               "derive": {
                 "fn": "mul",

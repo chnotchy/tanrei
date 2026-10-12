@@ -784,6 +784,7 @@
     "tanrei.comp.select.list.padding-block": {"$value": "{tanrei.sys.space.space100}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.surface.padding-block."},
     "tanrei.comp.select.list.padding-inline": {"$value": "{tanrei.sys.space.space0}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.surface.padding-inline."},
     "tanrei.comp.select.list.min-width": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 28}, "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.surface.min-width."},
+    "tanrei.comp.select.list.max-width": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 70}, "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.surface.max-width."},
     "tanrei.comp.select.option.height": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 12}, "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.container.height."},
     "tanrei.comp.select.option.shape": {"$value": "{tanrei.sys.shape.corner.none}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.container.shape."},
     "tanrei.comp.select.option.leading-icon.size": {"$value": "{tanrei.sys.icon.medium}", "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.leading-icon.size."},

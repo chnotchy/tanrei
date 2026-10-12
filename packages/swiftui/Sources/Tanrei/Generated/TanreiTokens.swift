@@ -13166,6 +13166,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
   public var listColor: TanreiPaint
   public var listElevation: [TanreiShadowLayer]
   public var listMaxHeight: CGFloat
+  public var listMaxWidth: CGFloat
   public var listMinWidth: CGFloat
   public var listOffset: CGFloat
   public var listPaddingBlock: CGFloat
@@ -13210,6 +13211,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     listColor: TanreiPaint,
     listElevation: [TanreiShadowLayer],
     listMaxHeight: CGFloat,
+    listMaxWidth: CGFloat,
     listMinWidth: CGFloat,
     listOffset: CGFloat,
     listPaddingBlock: CGFloat,
@@ -13249,6 +13251,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     self.listColor = listColor
     self.listElevation = listElevation
     self.listMaxHeight = listMaxHeight
+    self.listMaxWidth = listMaxWidth
     self.listMinWidth = listMinWidth
     self.listOffset = listOffset
     self.listPaddingBlock = listPaddingBlock

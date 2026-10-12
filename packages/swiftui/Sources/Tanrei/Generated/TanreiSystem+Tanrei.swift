@@ -7042,6 +7042,7 @@ private let tanreiSelectTokens = TanreiSelectTokens(
   listColor: .role(.surfaceBright),
   listElevation: tanreiElevation.level2,
   listMaxHeight: 320,
+  listMaxWidth: 320,
   listMinWidth: 160,
   listOffset: 4,
   listPaddingBlock: 4,

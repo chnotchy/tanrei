@@ -74836,13 +74836,21 @@
             },
             "$description": "The tallest the list grows before its options scroll: six rows and most of a seventh at the default row height, so that a cut row shows there is more. The room left in the window limits it further."
           },
+          "max-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 320,
+              "unit": "px"
+            },
+            "$description": "The widest the list grows for its options where its trigger is narrower: an option that needs more wraps. A list is never narrower than its trigger, so a trigger wider than this gives the list its own width. The window limits it further."
+          },
           "min-width": {
             "$type": "dimension",
             "$value": {
               "value": 160,
               "unit": "px"
             },
-            "$description": "The least width of the list where the trigger is narrower than this (a small select in a bar); otherwise the list is as wide as its trigger."
+            "$description": "The least width of the list where its options and its trigger are narrower than this (a small select in a bar)."
           },
           "offset": {
             "$type": "dimension",

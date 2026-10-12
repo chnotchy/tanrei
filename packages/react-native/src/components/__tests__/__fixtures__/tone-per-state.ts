@@ -10446,6 +10446,7 @@ export const tonePerState = {
       listColor: { kind: "role", role: "surfaceBright" },
       listElevation: "level2",
       listMaxHeight: 320,
+      listMaxWidth: 320,
       listMinWidth: 160,
       listOffset: 4,
       listPaddingBlock: 4,

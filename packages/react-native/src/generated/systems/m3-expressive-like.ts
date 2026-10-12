@@ -10595,6 +10595,7 @@ export const m3ExpressiveLike = {
       listColor: { kind: "role", role: "surfaceContainer" },
       listElevation: "level2",
       listMaxHeight: 320,
+      listMaxWidth: 280,
       listMinWidth: 112,
       listOffset: 4,
       listPaddingBlock: 8,

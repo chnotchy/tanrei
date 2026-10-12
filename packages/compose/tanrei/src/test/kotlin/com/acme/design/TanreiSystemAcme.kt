@@ -6810,6 +6810,7 @@ private object AcmeSystemSource {
             listColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             listElevation = elevation.level2,
             listMaxHeight = 320.dp,
+            listMaxWidth = 320.dp,
             listMinWidth = 160.dp,
             listOffset = 4.dp,
             listPaddingBlock = 4.dp,

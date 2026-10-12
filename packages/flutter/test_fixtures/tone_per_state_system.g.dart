@@ -7130,6 +7130,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     listColor: TanreiPaint.role(TanreiColorRole.surfaceBright),
     listElevation: _elevationLevel2,
     listMaxHeight: 320.0,
+    listMaxWidth: 320.0,
     listMinWidth: 160.0,
     listOffset: 4.0,
     listPaddingBlock: 4.0,

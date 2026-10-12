@@ -6759,6 +6759,7 @@ private object M3ExpressiveLikeSystemSource {
             listColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainer),
             listElevation = elevation.level2,
             listMaxHeight = 320.dp,
+            listMaxWidth = 280.dp,
             listMinWidth = 112.dp,
             listOffset = 4.dp,
             listPaddingBlock = 8.dp,
