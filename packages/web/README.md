@@ -1797,7 +1797,7 @@ component's own markup, and only the controls are the product's. The host is `di
 | `label` | string | `""` | the name: of the control (a field), of the set (a group). A field's may be empty for a control that names itself |
 | `labelHidden` / `label-hidden` | boolean | `false` | draws no label row; the label stays the name; reflected |
 | `supportingText` / `supporting-text` | string | `""` | a field: help below the control. A group: the description under the label, before the controls, staying while in error |
-| `errorText` / `error-text` | string | `""` | a field: below the help, which stays, while `error` (FLD-7, FLD-31); where the field has no help, in the row's first line. A group: a row of its own below the last control |
+| `errorText` / `error-text` | string | `""` | a field: while `error`, in the help's place — the row's first line — or below the help, which then stays, where `--tanrei-comp-field-error-text-placement` is `append` (FLD-7, FLD-31). A group: a row of its own below the last control |
 | `error` | boolean | `false` | the error condition; the product's to set; reflected |
 | `disabled` | boolean | `false` | disables the control, or every control, and draws the frame as disabled; reflected |
 | `requirement` | `none` \| `required` \| `optional` | `none` | reflected; another value behaves as `none` and is reported |
@@ -1811,17 +1811,23 @@ Slots: the default slot (the control; the controls) and, on a field, `label-icon
 `requirement-label`, `value-text` and `counter` (field), `supporting-text`, `error-text`. No events.
 
 **A field's supporting row** (FLD-7, FLD-27, FLD-31) is a flex row of one column of texts and the
-count. The column holds the help (`part="supporting-text"`), which stays while the field is in error, and below it the
-error text (`part="error-text"`), `--tanrei-comp-field-error-text-gap` away, rendered only while the field is in error
-and has words — `error-text`, or the words of its control's own refusal (FLD-28). With no help the error text is the
-column's first line. The count is aligned to the first line and does not move when the
-error text comes or goes. Nothing is animated: the error text comes and goes with the layout. The description given to
-the control is the help, the error text, the optional text, in that order; the live region is given the error text
-alone. `::part(supporting-text)` does not reach the error text: use `::part(error-text)`.
+count. The column holds the help (`part="supporting-text"`) and the error text (`part="error-text"`), rendered only
+while the field is in error and has words — `error-text`, or the words of its control's own refusal (FLD-28). Where the
+error text stands is the design system's choice, `--tanrei-comp-field-error-text-placement`, read by name from the
+cascade at each render (and again when the system is switched): `replace`, the first value and the default, does not
+render the help while the error text is there, which is then the column's first line; `append` keeps the help and
+draws the error text below it, `--tanrei-comp-field-error-text-gap` away. A product that sets the token on an element
+of its own after the fields have drawn calls `requestUpdate()` on them. With no help the error text is the column's
+first line under both. The count is aligned to the first line and does not move when the error text comes or goes.
+Nothing is animated: the error text comes and goes with the layout. The description given to the control is what the
+row draws — the help, the error text, or the two in that order — and the optional text; the live region is given the
+error text alone. `::part(supporting-text)` does not reach the error text: use `::part(error-text)`.
 
-The requirement tag is a `<tanrei-tag size="small">` (`filled` for required, `tonal` for optional) with nothing of the
-frame's set on it: it reads `--tanrei-comp-tag-*` as every tag where the frame stands
-does, so what restyles small tags restyles it, and it is the same in a focused, an erroneous and a disabled frame. The
+The requirement tag is a `<tanrei-tag size="small">` (`filled` for required, `tonal` for optional, `disabled` while the
+frame is) with nothing else of the frame's set on it: it reads `--tanrei-comp-tag-*` as every tag where the frame stands
+does, so what restyles small tags restyles it. It is the same in a focused and an erroneous frame, and in a disabled one
+it is drawn from the Tag's disabled tokens (`--tanrei-comp-tag-<variant>-disabled-*`, TAG-21), so it fades with the
+label. The
 frame lays out a box one label line high around it (`.requirement-box`), in which the tag is centred: its height is
 never read, and a tag taller than the label's line reaches equally above and below it. Under
 `required-mark="auto"` the tag and the asterisk are both in the row and a style query on the component's

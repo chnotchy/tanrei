@@ -80,12 +80,13 @@
       "name": "size",
       "type": "enum",
       "values": [
+        "small",
         "medium",
         "large"
       ],
       "default": "medium",
       "axis": "tanrei.comp.input-box.size",
-      "description": "Minimum height of the container (48 / 56): the text input's two sizes. The hit area always meets the minimum target. A design system may add values."
+      "description": "Minimum height of the container (40 / 48 / 56): the text input's three sizes, small for a bar, a toolbar or a dense row of controls. The hit area always meets the minimum target. A design system may add values."
     },
     {
       "name": "value",
@@ -313,7 +314,7 @@
     {
       "id": "NMI-21",
       "text": "WHEN the number input commits a text that reads as not a number (NMI-18, NMI-20) THE number input SHALL keep the text as the person left it, make the value empty, enter an entry error, and emit entryError once with the reason invalid and with invalidText, the words it has for the refusal. WHILE an entry error lasts THE number input SHALL be in the error condition as error puts it there (NMI-10) and SHALL report the refusal to the Field that frames it, with invalidText as its words, which that Field shows in its supporting row and announces (FLD-28: its errorText WHILE invalidText is empty; its help stays above either); WHILE no Field frames it invalidText SHALL be the input's description. THE number input SHALL end the entry error, without an event of its own, WHEN the person edits the text into a number or empties it, WHEN a step gives the field a value (NMI-22), or WHEN the product sets value, and SHALL then withdraw its report; the product's own error, and the error and the errorText of its Field, are untouched by it. THE number input SHALL NOT refuse characters as they are typed and SHALL NOT discard what it could not read, because a text that was put right is quicker than a text typed again.",
-      "verify": "The text input does the same for a date left half-filled (TXI-30). Unit: type \"12 apples\", blur: the text stays, value is empty, the field is exposed as invalid and invalidText is its description; delete \" apples\": the error ends and input carries 12. In a Field: the Field shows invalidText as its error text, below its help, and announces it (FLD-28), and takes it away when the error ends."
+      "verify": "The text input does the same for a date left half-filled (TXI-30). Unit: type \"12 apples\", blur: the text stays, value is empty, the field is exposed as invalid and invalidText is its description; delete \" apples\": the error ends and input carries 12. In a Field: the Field shows invalidText as its error text, where FLD-31 puts it, and announces it (FLD-28), and takes it away when the error ends."
     },
     {
       "id": "NMI-22",
@@ -515,6 +516,17 @@
       "props": {
         "variant": "stacked",
         "size": "large",
+        "label": "Quantity",
+        "value": 12,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-small",
+      "props": {
+        "variant": "stacked",
+        "size": "small",
         "label": "Quantity",
         "value": 12,
         "incrementLabel": "Increase",

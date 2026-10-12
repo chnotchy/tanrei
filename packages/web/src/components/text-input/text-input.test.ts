@@ -788,7 +788,7 @@ test.describe('behavior', () => {
     await expect(part(page, 'stacked-label-hidden', '.label-row')).toHaveCount(0);
   });
 
-  test('TXI-16: heights, padding and corners come from the size tokens; a labelled filled field keeps room for the floated label from the start', async ({ page }) => {
+  test('TXI-16: heights, padding and corners come from the size tokens — small, medium and large; a labelled filled field keeps room for the floated label from the start', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [...spec.fixtures, fixture('filled-hidden', { variant: 'filled', label: 'Search', labelHidden: true })] });
     for (const [id, size] of [['outlined-empty', 'medium'], ['outlined-large', 'large'], ['filled-hidden', 'medium']] as const) {
       expect((await bounds(part(page, id, '.container'))).height, id).toBe(await resolveToken(page, T(`container-height-${size}`)));
@@ -813,8 +813,18 @@ test.describe('behavior', () => {
     expect(await radius('filled-filled', 'bottom-left')).toBe(bottom);
     expect(await radius('filled-filled', 'bottom-right')).toBe(bottom);
     for (const corner of ['top-left', 'top-right', 'bottom-left', 'bottom-right']) expect(await radius('stacked-filled', corner), `stacked ${corner}`).toBe(shape);
-    for (const [id, size] of [['stacked-filled', 'medium'], ['stacked-large', 'large']] as const) {
+    for (const [id, size] of [['stacked-filled', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       expect((await bounds(part(page, id, '.container'))).height, id).toBe(await resolveToken(page, T(`container-height-${size}`)));
+    }
+    // Small: the box's small step — the select's (40 high, 12 of padding, the body text style) — for a bar or a toolbar;
+    // its hit area still meets the minimum target.
+    {
+      const small = await bounds(part(page, 'stacked-small', '.container'));
+      expect([small.height, (await bounds(input(page, 'stacked-small'))).x - small.x]).toEqual([await resolveToken(page, T('container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]);
+      expect([await resolveToken(page, T('container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]).toEqual([40, 12]);
+      expect(Number.parseFloat(await css(input(page, 'stacked-small'), 'font-size'))).toBe(await resolveToken(page, T('input-typescale-small-font-size')));
+      const target = await part(page, 'stacked-small', '.container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
+      expect(target).toBe(Math.max(small.height, await resolveToken(page, '--tanrei-sys-target-pointer')));
     }
     // It grows with enlarged text and never clips it.
     const before = (await bounds(part(page, 'outlined-filled', '.container'))).height;
@@ -1408,8 +1418,8 @@ test.describe('behavior', () => {
     expect(await committed()).toEqual(['entryerror:{"reason":"invalid","text":"09/27/"}']);
     for (const unit of ['month', 'day', 'year']) await expect(seg(page, id, unit), unit).toHaveAttribute('aria-invalid', 'true');
     await expect(row(page, id, '.error-text')).toHaveText('Finish the date.');
-    await expect(row(page, id, '.supporting-text'), 'the help stays above the error text (FLD-7)').toHaveText('By the end of the year.');
-    await expect(host(page, id).getByRole('spinbutton', { name: 'year, Due' })).toHaveAccessibleDescription('By the end of the year. Finish the date.');
+    await expect(row(page, id, '.supporting-text'), 'the error text stands in the help’s place (FLD-7)').toHaveCount(0);
+    await expect(host(page, id).getByRole('spinbutton', { name: 'year, Due' })).toHaveAccessibleDescription('Finish the date.');
     await expect.poll(() => host(page, id).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.edge')!).borderTopColor)).toBe(await resolveColor(page, T('stacked-error-outline-color')));
     expect(await part(page, id, '.field').getAttribute('data-error')).not.toBeNull();
     expect(await host(page, id).evaluate((el) => [(el as any).validity.badInput, (el as any).validity.valid])).toEqual([true, false]);
@@ -2186,7 +2196,7 @@ test.describe('behavior', () => {
     expect(shots[1].equals(shots[0]), 'the two screenshots are the same bytes').toBe(true);
   });
 
-  test('TXI-42: a date or a time is drawn as one segment per unit in the order and with the separators of the locale’s numeric form; a filled segment shows its number in the input color and an empty one its placeholder; separators are no segments; a segment keeps its width as it fills; the row starts where the input text starts and runs left to right', async ({ page }) => {
+  test('TXI-42: a date or a time is drawn as one segment per unit in the order and with the separators of the locale’s numeric form; a filled segment shows its number in the input color and an empty one its placeholder; separators are no segments; a segment is as wide as the wider of its placeholder and its widest filled form, whatever it holds; the row starts where the input text starts and runs left to right', async ({ page }) => {
     await mountFixtures(page, spec, {
       icons: true,
       fixtures: [
@@ -2235,9 +2245,9 @@ test.describe('behavior', () => {
       await expect(hiddenPart).toHaveAttribute('aria-hidden', 'true');
       await expect(hiddenPart).not.toHaveAttribute('tabindex');
     }
-    // Each segment keeps the width of its filled form while it is empty or half typed, segment.padding-inline on each
-    // side, so the row does not shift as it fills. (An empty segment whose placeholder is wider than its digits — "mm"
-    // in this face — is as wide as the placeholder instead, clear of the separators: the README says so.)
+    // Each segment is as wide as the wider of its placeholder and its widest filled form, segment.padding-inline on each
+    // side, whatever it holds — empty, half typed or filled — so the row never shifts as it fills or empties ("mm" is
+    // wider than two digits in this face: the month's cell is the placeholder's width filled too).
     const widths = (id: string) => segs(page, id).evaluateAll((all) => all.map((el) => el.getBoundingClientRect().width));
     const pad = await resolveToken(page, T('segment-padding-inline'));
     const [emptyWidths, filledWidths] = [await widths('stacked-date-empty'), await widths('stacked-date')];
@@ -2252,15 +2262,13 @@ test.describe('behavior', () => {
         return width;
       });
     for (const [index, unit] of (['month', 'day', 'year'] as const).entries()) {
-      // Filled: its digits and the padding on each side. Empty: that width — or its placeholder's, where that is wider.
-      expect(filledWidths[index], `${unit} filled`).toBeCloseTo((await inked('stacked-date', unit)) + 2 * pad, 1);
-      expect(emptyWidths[index], `${unit} empty`).toBeCloseTo(Math.max(filledWidths[index], (await inked('stacked-date-empty', unit)) + 2 * pad), 1);
+      const wider = Math.max(await inked('stacked-date', unit), await inked('stacked-date-empty', unit)) + 2 * pad;
+      expect(filledWidths[index], `${unit} filled`).toBeCloseTo(wider, 1);
+      expect(emptyWidths[index], `${unit} empty: as wide as filled`).toBe(filledWidths[index]);
     }
-    expect(emptyWidths[1], 'dd is no wider than two digits: the day keeps its width').toBe(filledWidths[1]);
-    expect(emptyWidths[2], 'yyyy is no wider than four digits: the year keeps its width').toBe(filledWidths[2]);
     expect(Number.parseFloat(await css(seg(page, 'stacked-date', 'day'), 'padding-left'))).toBe(pad);
     expect(Number.parseFloat(await css(seg(page, 'stacked-date', 'day'), 'padding-right'))).toBe(pad);
-    // Half typed: one digit of a month, and one, two and three of a year, are as wide as the filled form.
+    // Half typed: one digit of a month, and one, two and three of a year, are as wide as the filled form and the empty one.
     await seg(page, 'stacked-date-empty', 'month').click();
     await page.keyboard.type('1');
     expect((await widths('stacked-date-empty'))[0], 'a month of one digit').toBe(filledWidths[0]);
@@ -2285,7 +2293,7 @@ test.describe('behavior', () => {
     const textStart = (await bounds(input(page, 'stacked-filled'))).x - (await bounds(part(page, 'stacked-filled', '.container'))).x;
     for (const id of ['stacked-date', 'stacked-date-empty', 'stacked-time-picker', 'stacked-time-empty']) {
       expect((await bounds(part(page, id, '.row'))).x - (await bounds(part(page, id, '.container'))).x, id).toBeCloseTo(textStart, 1);
-      // …and so does its first character: an hour of one digit stands at the row's start.
+      // …and so does its first cell: an hour of one digit stands at the end of a cell two digits wide (TXI-42).
       expect((await bounds(seg(page, id, id.includes('time') ? 'hour' : 'month'))).x - (await bounds(part(page, id, '.container'))).x, id).toBeCloseTo(textStart, 1);
     }
     // Laid out left to right in every layout direction, the day period isolated in its own direction.
@@ -2782,6 +2790,9 @@ test.describe('behavior', () => {
     await frame(page, 'not-required', { label: 'Email' }, { variant: 'outlined' });
     await frame(page, 'stacked', { label: 'Email', requirement: 'required', requiredMark: 'asterisk' }, {});
     await frame(page, 'in-error', { label: 'Email', requirement: 'required', requiredMark: 'asterisk', error: true }, { variant: 'outlined' });
+    await frame(page, 'optional', { label: 'Company', requirement: 'optional', optionalText: 'Optional' }, { variant: 'outlined' });
+    await frame(page, 'optional-wordless', { label: 'Company', requirement: 'optional', optionalText: '' }, { variant: 'filled' });
+    await frame(page, 'optional-stacked', { label: 'Company', requirement: 'optional', optionalText: 'Optional' }, {});
     const asterisks = (id: string) => host(page, id).locator('label.label .asterisk');
     // Under the default system the Field's mark is the tag: a floating label draws it as the asterisk.
     expect(await token(page, '--tanrei-comp-field-requirement-mark')).toBe('tag');
@@ -2791,7 +2802,28 @@ test.describe('behavior', () => {
     // No mark where the label is not drawn, where the Field asks for none, outside a Field, and in a stacked input —
     // whose mark is the Field's row (FLD-6).
     for (const id of ['hidden', 'not-required', 'bare', 'stacked']) await expect(host(page, id).locator('.asterisk'), id).toHaveCount(0);
-    // It draws no tag and no optional label; the Field draws no row of its own beside a floating label (FLD-25).
+    // The optional word: the Field's optionalText one word space after the label's text, in the label's style and color,
+    // resting and floated with it, kept from assistive technology — the description says it; none without words, none in
+    // a stacked input (the Field's row has the tag), and no asterisk with it.
+    {
+      const word = host(page, 'optional').locator('label.label .optional');
+      await expect(part(page, 'optional', 'label.label')).toHaveText('Company Optional');
+      await expect(word).toHaveAttribute('aria-hidden', 'true');
+      await expect(asterisks('optional')).toHaveCount(0);
+      expect(await css(word, 'color')).toBe(await css(part(page, 'optional', 'label.label'), 'color'));
+      expect(await css(word, 'font')).toBe(await css(part(page, 'optional', 'label.label'), 'font'));
+      await expect(input(page, 'optional')).toHaveAccessibleDescription('Optional');
+      await expect(input(page, 'optional')).toHaveJSProperty('required', false);
+      await expect(host(page, 'optional-wordless').locator('.optional')).toHaveCount(0);
+      await expect(host(page, 'optional-stacked').locator('.optional')).toHaveCount(0);
+      await expect(row(page, 'optional-stacked', '.optional-tag')).toHaveCount(1);
+      // Resting in the label's resting style, floated in its floated style: it moves with the label.
+      expect(await css(word, 'font-size')).toBe(`${await resolveToken(page, T('label-typescale-medium-font-size'))}px`);
+      await input(page, 'optional').focus();
+      await expect.poll(() => css(word, 'font-size')).toBe(`${await resolveToken(page, T('label-floated-typescale-medium-font-size'))}px`);
+      await blurAll(page);
+    }
+    // It draws no tag; the Field draws no row of its own beside a floating label (FLD-25).
     for (const mark of marks) {
       await expect(host(page, `outlined-${mark}`).locator('tanrei-tag, .chip'), mark).toHaveCount(0);
       await expect(row(page, `outlined-${mark}`, '.label-row'), mark).toHaveCount(0);
@@ -2812,8 +2844,11 @@ test.describe('behavior', () => {
     const mark = await bounds(star);
     expect(mark.x + mark.width, 'the last thing in the label').toBeCloseTo(label.x + label.width, 0);
     // It floats with the label, in the floated style, and the outline's gap opens for the two together.
+    // (Measured from the container: focus may scroll the page.)
+    const above = async () => (await bounds(star)).y - (await bounds(part(page, 'outlined-asterisk', '.container'))).y;
+    const resting = await above();
     await input(page, 'outlined-asterisk').focus();
-    await expect.poll(async () => (await bounds(star)).y).toBeLessThan(mark.y - 4);
+    await expect.poll(above).toBeLessThan(resting - 4);
     expect(await css(star, 'font-size')).toBe(`${await resolveToken(page, T('label-floated-typescale-medium-font-size'))}px`);
     const notch = (await bounds(part(page, 'outlined-asterisk', '.outline-notch'))).width;
     await input(page, 'plain').focus();
@@ -3183,6 +3218,39 @@ test.describe('the resize grip', () => {
     await tabTo(page, grip('stacked-multiline-manual'));
     await page.keyboard.press('ArrowRight');
     expect(await width('stacked-multiline-manual')).toBe(vertical);
+  });
+
+  test('TXI-41: where the field resizes both ways an activation of the grip also makes it as wide as its place, and the next one gives back the width it had — the width, too, never depends on a drag; a field that resizes vertically keeps its width', async ({ page }) => {
+    const manual = { variant: 'stacked', label: 'Notes', multiline: true, resize: 'manual', value: 'One line' };
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('both', { ...manual, resizeAxis: 'both' }), fixture('vertical', { ...manual })] });
+    for (const id of ['both', 'vertical']) {
+      await page.locator(`[data-fixture="${id}"]`).evaluate((el) => (el.style.inlineSize = '400px'));
+      await host(page, id).evaluate((el) => (el.style.inlineSize = '240px'));
+    }
+    const width = async (id: string) => (await bounds(host(page, id))).width;
+    expect(await width('both')).toBeCloseTo(240, 0);
+    // A click that ends where it began: as wide as its place…
+    await part(page, 'both', '.grip').click();
+    await expect.poll(() => width('both')).toBeCloseTo(400, 0);
+    // …and the next one gives back the width it had.
+    await part(page, 'both', '.grip').click();
+    await expect.poll(() => width('both')).toBeCloseTo(240, 0);
+    // Enter on the grip, and a click assistive technology makes, do the same.
+    await tabTo(page, part(page, 'both', '.grip'));
+    await page.keyboard.press('Enter');
+    await expect.poll(() => width('both')).toBeCloseTo(400, 0);
+    await part(page, 'both', '.grip').evaluate((el) => (el as HTMLElement).click());
+    await expect.poll(() => width('both')).toBeCloseTo(240, 0);
+    // Never wider than the field's own maximum width.
+    await host(page, 'both').evaluate((el) => (el.style.maxInlineSize = '320px'));
+    await part(page, 'both', '.grip').click();
+    await expect.poll(() => width('both')).toBeCloseTo(320, 0);
+    await part(page, 'both', '.grip').click();
+    await expect.poll(() => width('both')).toBeCloseTo(240, 0);
+    // A field that resizes vertically keeps its width.
+    await part(page, 'vertical', '.grip').click();
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    expect(await width('vertical')).toBeCloseTo(240, 0);
   });
 
   test('TXI-41: a change made from the grip’s keys moves as TXI-38 says, and under glow the grip’s keyboard focus is the glow', async ({ page }) => {
@@ -4120,7 +4188,7 @@ test.describe('the input and the Field that frames it', () => {
     await expect.poll(() => one('filled').locator('input.input').evaluate((el: HTMLInputElement) => el.placeholder)).toBe('name@example.com');
   });
 
-  test('TXI-67: beside a value that is always left-to-right — one line of email, url, tel, number or password — the prefix, the value and the suffix are one run of writing, in that order along the direction of the affixes’ first strong character and left-to-right where they have none, in every layout direction and never from the value; the value stays at the field’s start edge, and the icons, the label and the paddings follow the layout; beside every other value the prefix stays at the field’s start edge and the suffix at its end edge', async ({ page }) => {
+  test('TXI-67: beside a value that is always left-to-right — one line of email, url, tel, number or password — the prefix, the value and the suffix are one run of writing, in that order along the direction of the affixes’ first strong character and left-to-right where they have none, in every layout direction and never from the value; the value, and an empty field’s placeholder, stand against the prefix where there is one and at the field’s start edge where there is none, and the icons, the label and the paddings follow the layout; beside every other value the prefix stays at the field’s start edge and the suffix at its end edge', async ({ page }) => {
     const rtl = (id: string, props: Fixture['props'], content?: string): Fixture => ({ ...fixture(id, { variant: 'stacked', label: 'Label', ...props }, content), direction: 'rtl' });
     await mountFixtures(page, spec, {
       icons: true,
@@ -4158,7 +4226,7 @@ test.describe('the input and the Field that frames it', () => {
     const affix = await resolveToken(page, T('affix-gap'));
     const pad = await resolveToken(page, T('container-padding-inline-medium'));
     // The five types, and the run their affixes make. Written order along the run, affix.gap from the value; the line
-    // from the start padding to the end padding; the value at the field's start edge, the right.
+    // from the start padding to the end padding; the value against the prefix, or at the field's start edge, the right.
     const RUNS: Record<string, 'ltr' | 'rtl'> = { 'stacked-affixes-rtl': 'ltr', 'stacked-url-prefix-rtl': 'ltr', 'stacked-email-suffix-rtl': 'ltr', 'stacked-number-unit-own-script-rtl': 'rtl', tel: 'ltr', secret: 'ltr', marked: 'rtl' };
     for (const [id, run] of Object.entries(RUNS)) {
       const d = await drawn(id);
@@ -4169,8 +4237,20 @@ test.describe('the input and the Field that frames it', () => {
       if (last) expect(last.left - d.input.right, `${id}: affix.gap before what stands at the right`).toBeCloseTo(affix, 1);
       expect(d.container.right - (last ?? d.input).right, `${id}: the line ends at the start padding, the right`).toBeCloseTo(pad, 1);
       expect((first ?? d.input).left - d.container.left, `${id}: and begins at the end padding`).toBeCloseTo(pad, 1);
-      expect(d.edge, `${id}: the value at the field’s start edge`).toBe('right');
+      // Beside a prefix the value stands against it, at the start of the run — "https://example.com" reads as one string;
+      // without one, at the field's start edge, the right.
+      expect(d.edge, `${id}: ${d.prefix ? 'the value against the prefix' : 'the value at the field’s start edge'}`).toBe(d.prefix && run === 'ltr' ? 'left' : 'right');
     }
+    // An empty field's placeholder stands where its value would.
+    expect(await host(page, 'icons').evaluate(async (el: HTMLElement & { value: string; placeholder: string; updateComplete: Promise<unknown> }) => {
+      Object.assign(el, { value: '', placeholder: 'example.com' });
+      await el.updateComplete;
+      const input = el.shadowRoot!.querySelector('.input')!;
+      const aligned = [getComputedStyle(input).textAlign, getComputedStyle(input, '::placeholder').textAlign];
+      Object.assign(el, { value: 'example.com', placeholder: '' });
+      await el.updateComplete;
+      return aligned;
+    })).toEqual(['left', 'left']);
     // The icons keep the layout's sides, paddings and gap around a row that runs against it.
     const gap = await resolveToken(page, T('container-gap-medium'));
     const padIcon = await resolveToken(page, T('container-padding-inline-with-icon-medium'));

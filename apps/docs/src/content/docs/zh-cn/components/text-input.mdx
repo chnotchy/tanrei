@@ -2,7 +2,7 @@
 title: "文本输入框"
 description: "用户在里面键入的那个方框，以及在里面键入的一切——单行或多行、日期或时间、代码——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/text-input.mdx
-sourceHash: f696d67893933cf6b88d1d28aeb4216876f1ec36
+sourceHash: 41060d677b15780066c1fdc5516c3677bbb2c047
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -122,11 +122,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## 规格
 
-<DemoFrame label="单独使用的输入框：错误、禁用、只读、带前缀和后缀，以及大号" plain column>
+<DemoFrame label="单独使用的输入框：错误、禁用、只读、带前缀和后缀，以及小号和大号" plain column>
   <tanrei-text-input class="not-content" label="邮箱" value="ada@" error></tanrei-text-input>
   <tanrei-text-input class="not-content" label="邮箱" value="ada@example.com" disabled></tanrei-text-input>
   <tanrei-text-input class="not-content" label="邮箱" value="ada@example.com" readonly></tanrei-text-input>
   <tanrei-text-input class="not-content" label="金额" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
+  <tanrei-text-input class="not-content" size="small" label="搜索" value="tokens"></tanrei-text-input>
   <tanrei-text-input class="not-content" size="large" label="邮箱" value="ada@example.com"></tanrei-text-input>
 </DemoFrame>
 
@@ -152,6 +153,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **日期或时间只填了一半**，或者填的值不可用时，方框画成错误状态，并触发 `entryError`。`invalidText` 或 `unavailableText` 会加进输入框的描述；没有任何东西把它画出来。
 - **计数**会被记录、写进描述并朗读，但不绘制。`countText` 是文本形式的计数（“12/40”），留给你来绘制。
 - **必填**要由字段来说明。单独使用的输入框没有必填设置：表单需要回答的地方，请自己校验。
+- **小号**（40，文字 14）用于应用栏、工具栏或一排紧凑控件中的输入框：它与小号[下拉选择框](/zh-cn/components/select/)或小号按钮高度一致。`medium`（48）和 `large`（56）用于表单。无论哪种尺寸，它的点击区域都满足最小目标尺寸。
+- **从右到左页面中的前缀。** 邮箱、URL、电话、数字或密码输入框的值从左往右书写。有前缀时，值紧贴着前缀，所以在从右到左的页面里，`https://` 和地址也读作一个字符串；没有前缀时，值位于输入框的起始边。
 
 ### 已经输入的内容
 

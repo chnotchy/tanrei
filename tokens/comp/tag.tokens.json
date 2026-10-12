@@ -13,7 +13,9 @@
               "outlined",
               "filled"
             ],
-            "states": [],
+            "states": [
+              "disabled"
+            ],
             "perVariant": {
               "container.color": "color",
               "label.color": "color",
@@ -53,9 +55,9 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a tag reads: for each size, its minimum height, its padding where the label meets an end and where a glyph or a dot does, and the label's text style; the padding above and below, the gap between the mark and the label, the corners; the glyph's and the dot's sizes; the outlined look's edge; and for each look (tonal, outlined, filled), with no status and in each status (info, warning, error, success), the fill, the label's color and the color of the glyph or the dot.",
+            "usage": "Everything a tag reads: for each size, its minimum height, its padding where the label meets an end and where a glyph or a dot does, and the label's text style; the padding above and below, the gap between the mark and the label, the corners; the glyph's and the dot's sizes; the outlined look's edge; and for each look (tonal, outlined, filled), with no status and in each status (info, warning, error, success), the fill, the label's color and the color of the glyph or the dot — at rest, and drawn inside something disabled.",
             "rules": [
-              "A tag is a static label: it names a category or a status and does nothing. It takes no press, no focus and has no states. A label that does something is a chip (an action, a filter, a removable value) or a link.",
+              "A tag is a static label: it names a category or a status and does nothing. It takes no press, no focus and has no states of its own; inside something disabled it is drawn from its disabled colors (disabled), and nothing else changes. A label that does something is a chip (an action, a filter, a removable value) or a link.",
               "A badge is a count or a dot attached to another element; a tag stands by itself in the layout. Do not use a tag for a count on an icon, or a badge for a word.",
               "Tonal is the default. Use outlined where many tags sit close together (a table column, a list of categories). Use filled for the chosen one among its neighbours, and at most one status per view drawn filled.",
               "A status is never shown by color alone: the label says it (\"Failed\"), or statusLabel adds it in words for assistive technology (\"Error\").",

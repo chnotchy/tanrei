@@ -769,6 +769,10 @@
             "tanrei.comp.chip.outlined.disabled.container.color": {
               "$value": "{tanrei.comp.chip.outlined.container.color}"
             },
+            "tanrei.comp.tag.outlined.disabled.container.color": {
+              "$value": "{tanrei.comp.tag.outlined.container.color}",
+              "reason": "An outlined tag has no fill; drawn inside something disabled it grows none, and keeps its hairline."
+            },
             "tanrei.comp.menu.unselected.disabled.mark.color": {
               "$value": "{tanrei.comp.menu.unselected.mark.color}"
             },
@@ -1803,6 +1807,11 @@
               "match": "tanrei.comp.*.*.disabled.*.*.elevation",
               "$value": "{tanrei.sys.elevation.level0}",
               "reason": "Nothing disabled is raised."
+            },
+            {
+              "match": "tanrei.comp.tag.outlined.disabled.*.container.color",
+              "$value": "{tanrei.comp.tag.outlined.$1.container.color}",
+              "reason": "An outlined tag of a status has no fill either; drawn inside something disabled it grows none."
             },
             {
               "match": "tanrei.comp.checkbox.*.disabled.container.color",

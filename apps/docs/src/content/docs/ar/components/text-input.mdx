@@ -2,7 +2,7 @@
 title: حقل إدخال النص
 description: الصندوق الذي يكتب فيه الأشخاص، وكل ما يُكتب فيه، سطرًا واحدًا أو عدة أسطر، تاريخًا أو وقتًا أو شيفرة، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/text-input.mdx
-sourceHash: f696d67893933cf6b88d1d28aeb4216876f1ec36
+sourceHash: 41060d677b15780066c1fdc5516c3677bbb2c047
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -122,11 +122,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## المواصفات
 
-<DemoFrame label="حقول إدخال مجرَّدة: في حالة الخطأ، ومعطَّل، وللقراءة فقط، وببادئة ولاحقة، وبالحجم large" plain column>
+<DemoFrame label="حقول إدخال مجرَّدة: في حالة الخطأ، ومعطَّل، وللقراءة فقط، وببادئة ولاحقة، وبالحجمين small و large" plain column>
   <tanrei-text-input class="not-content" label="البريد الإلكتروني" value="ada@" error></tanrei-text-input>
   <tanrei-text-input class="not-content" label="البريد الإلكتروني" value="ada@example.com" disabled></tanrei-text-input>
   <tanrei-text-input class="not-content" label="البريد الإلكتروني" value="ada@example.com" readonly></tanrei-text-input>
   <tanrei-text-input class="not-content" label="المبلغ" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
+  <tanrei-text-input class="not-content" size="small" label="بحث" value="tokens"></tanrei-text-input>
   <tanrei-text-input class="not-content" size="large" label="البريد الإلكتروني" value="ada@example.com"></tanrei-text-input>
 </DemoFrame>
 
@@ -152,6 +153,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **التاريخ أو الوقت الذي يُترك نصف مملوء**، أو بقيمة غير متاحة، يرسم الصندوق في حالة الخطأ ويصدر `entryError`. ويُضاف نص `invalidText` أو `unavailableText` إلى وصف حقل الإدخال؛ ولا شيء يرسمه.
 - **العدد** يُحفظ ويوصف ويُعلَن، ولا يُرسم. والخاصية `countText` هي العدد نصًّا («12/40»)، لترسمه أنت.
 - **المطلوب** يقوله الحقل. وليس لحقل الإدخال المجرَّد إعداد للمطلوب أو الاختياري: حيث يحتاج النموذج إلى جواب، تحقق منه بنفسك.
+- **الحجم الصغير** (40، ونصه 14) لحقل إدخال في شريط تطبيق أو شريط أدوات أو صف كثيف من عناصر التحكم: يقف بجانب [قائمة اختيار](/ar/components/select/) صغيرة أو زر صغير بارتفاع واحد. والحجمان `medium` (48) و `large` (56) للنماذج. ومنطقة اللمس فيه تبلغ الحد الأدنى للهدف في كل حجم.
+- **البادئة في صفحة من اليمين إلى اليسار.** قيمة حقل البريد الإلكتروني أو الرابط أو الهاتف أو العدد أو كلمة المرور تُكتب من اليسار إلى اليمين. وبجانب البادئة تقف ملاصقة لها، فيُقرأ `https://` والعنوان سلسلة واحدة في الصفحة من اليمين إلى اليسار أيضًا؛ ومن دون بادئة تقف عند حافة البداية لحقل الإدخال.
 
 ### ما أُدخل سلفًا
 

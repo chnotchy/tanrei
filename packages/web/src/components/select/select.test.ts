@@ -264,7 +264,7 @@ test.describe('behavior: the trigger', () => {
   });
 
   test('SEL-2: a select field and a text field of the same variant, size, label and supporting text in one row share the tops and bottoms of their labels, containers, value lines and supporting rows, and their start edges', async ({ page }) => {
-    for (const [system, variant, size] of [[undefined, 'stacked', 'medium'], [undefined, 'stacked', 'large'], ['m3-like', 'filled', 'medium'], ['m3-like', 'outlined', 'large']] as const) {
+    for (const [system, variant, size] of [[undefined, 'stacked', 'small'], [undefined, 'stacked', 'medium'], [undefined, 'stacked', 'large'], ['m3-like', 'filled', 'small'], ['m3-like', 'filled', 'medium'], ['m3-like', 'outlined', 'large']] as const) {
       await mount(page, [fx('pair', {})], { system });
       await page.evaluate(
         async ([v, s, options]) => {
@@ -425,7 +425,7 @@ test.describe('behavior: the trigger', () => {
     expect(await description('framed')).toBe('Where your order goes.');
     expect(await description('bare')).toBeNull();
     await setField(page, 'framed', { error: true, errorText: 'We cannot ship there yet.' });
-    expect(await description('framed'), 'the help, then the error text (FLD-11)').toBe('Where your order goes. We cannot ship there yet.');
+    expect(await description('framed'), 'the error text in the help’s place (FLD-11)').toBe('We cannot ship there yet.');
     // Required is the Field's to say: exposed whichever mark is drawn and where none is, and a missing value reported.
     const validity = (id: string) => host(page, id).evaluate((el) => ({ missing: (el as unknown as HTMLSelectElement).validity.valueMissing, valid: (el as unknown as HTMLSelectElement).checkValidity(), message: (el as unknown as HTMLSelectElement).validationMessage !== '' }));
     expect(await container(page, 'hidden').getAttribute('aria-required')).toBe('true');
@@ -824,7 +824,7 @@ test.describe('behavior: the trigger', () => {
     expect(await css(label, 'color')).toBe(rest);
     // What it takes: the name, the description and the three states.
     await setField(page, id, { error: true, errorText: 'We cannot ship there yet.', disabled: true });
-    expect(await container(page, id).evaluate((el) => [el.getAttribute('aria-label'), (el.getRootNode() as ShadowRoot).getElementById('description')!.textContent, el.getAttribute('aria-invalid'), el.getAttribute('aria-required'), el.getAttribute('aria-disabled')])).toEqual(['Country', 'Where your invoices are addressed. We cannot ship there yet.', 'true', 'true', 'true']);
+    expect(await container(page, id).evaluate((el) => [el.getAttribute('aria-label'), (el.getRootNode() as ShadowRoot).getElementById('description')!.textContent, el.getAttribute('aria-invalid'), el.getAttribute('aria-required'), el.getAttribute('aria-disabled')])).toEqual(['Country', 'We cannot ship there yet.', 'true', 'true', 'true']);
     // No count and no refusal: the Field draws neither for a select.
     await setField(page, id, { disabled: false, error: false });
     await expect(fieldRow(page, id, '.counter')).toHaveCount(0);
@@ -1929,7 +1929,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     expect(await part(page, 'one', `#${await container(page, 'one').getAttribute('aria-activedescendant')}`).locator('.option-label').textContent()).toBe('Enterprise');
     // The error set later reaches the tree at once.
     await setField(page, 'one', { error: true, errorText: 'This plan is full.' });
-    expect((await comboboxes())[0]).toMatchObject({ description: 'Billed monthly. This plan is full.', invalid: 'true' });
+    expect((await comboboxes())[0]).toMatchObject({ description: 'This plan is full.', invalid: 'true' });
   });
 
   test('SEL-49: bare and given no width the select is as wide as its widest option would make it, so choosing never changes its width, and at least as wide as its placeholder; it is never wider than its layout gives it, and fills a width the product gives; in a Field it fills the width that Field gives it, whichever option is chosen', async ({ page }) => {

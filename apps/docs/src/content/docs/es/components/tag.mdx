@@ -2,7 +2,7 @@
 title: Tag
 description: Nombra una categoría o un estado con un rótulo estático y breve, de forma discreta, con contorno o con relleno, en los colores de un estado cuando lo tiene. Es texto, nunca un control.
 translationOf: components/tag.mdx
-sourceHash: fe967cfb476e3d4571ebf0fdbe8939c0c7803905
+sourceHash: c3a34569bea95920f34e80e1409983493e6a838f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -137,6 +137,17 @@ El tag no dibuja por sí solo ningún glifo de estado. Indica uno donde ayude, c
 
 Los tags de obligatorio y de opcional de un [campo](/es/components/field/) y de un [grupo de campos](/es/components/field-group/) son este componente en su tamaño pequeño: con relleno para lo obligatorio y tonal para lo opcional. Leen los tokens del tag y no tienen ninguno propio, así que un sistema de diseño que cambia el estilo de sus tags pequeños cambia también el de estos.
 
+### Dentro de algo deshabilitado
+
+Un tag no tiene estados propios, pero puede estar dentro de algo que está deshabilitado: la etiqueta de un campo deshabilitado, una fila deshabilitada de una lista, un elemento deshabilitado de un menú. `disabled` lo dibuja con los colores deshabilitados de su aspecto (`comp.tag.<variant>.disabled.*`), sea cual sea su estado, de modo que se atenúa con lo que lo contiene y no parece la única parte viva de ello. No cambia nada más: el tag conserva su tamaño y sus palabras, y no recibe entrada ni foco. Un campo y un grupo de campos lo activan en su tag de obligatoriedad mientras están deshabilitados; actívalo tú en un tag que pongas dentro de un elemento deshabilitado propio.
+
+<DemoFrame label="Tags en reposo y dentro de algo deshabilitado" plain>
+  <tanrei-tag size="small" variant="filled" label="Obligatorio"></tanrei-tag>
+  <tanrei-tag size="small" variant="filled" label="Obligatorio" disabled></tanrei-tag>
+  <tanrei-tag size="small" label="Opcional"></tanrei-tag>
+  <tanrei-tag size="small" label="Opcional" disabled></tanrei-tag>
+</DemoFrame>
+
 ### Recomendado
 
 - Di el estado con palabras. «Fallido» no necesita nada más; un tag que dice «3 compilaciones» en los colores de error necesita `statusLabel`.
@@ -161,7 +172,8 @@ Los tags de obligatorio y de opcional de un [campo](/es/components/field/) y de 
 - El glifo y el punto quedan ocultos para la tecnología de apoyo.
 - No recibe entrada ni foco, así que no añade ninguna parada al orden del foco ni ningún objetivo a una fila.
 - Una etiqueta cortada se sigue leyendo completa.
-- Con colores forzados, todos los aspectos ganan un borde en el color del texto, y la etiqueta, el glifo y el punto toman ese color.
+- Con colores forzados, todos los aspectos ganan un borde en el color del texto, y la etiqueta, el glifo y el punto toman ese color; un tag deshabilitado toma el color del texto deshabilitado.
+- `disabled` no expone nada: es el elemento en el que está el tag el que dice que está deshabilitado.
 - En un diseño de derecha a izquierda, el glifo o el punto pasan a la derecha de la etiqueta, un glifo que el conjunto de iconos marca para ello se refleja, y una etiqueta escrita de izquierda a derecha conserva su propio orden y se corta por su propio final.
 - Las compilaciones de depuración notifican una variante, un tamaño o un estado desconocidos, una etiqueta vacía y un `statusLabel` sin estado.
 
@@ -169,4 +181,5 @@ Los tags de obligatorio y de opcional de un [campo](/es/components/field/) y de 
 
 - Comprueba que las palabras de cada tag digan su estado. El componente no puede saber si «3 compilaciones» es una buena o una mala noticia.
 - Escribe `statusLabel` en el idioma de la página.
+- Activa `disabled` solo en un tag que esté dentro de algo deshabilitado, y asegúrate de que ese elemento lo dice (un control deshabilitado, o `aria-disabled`): el tag atenuado depende de ello.
 - Si un cambio debe anunciarse en el momento en que ocurre (una compilación que termina mientras la persona mira), pon el tag en una región activa (live region) o informa del cambio con un snackbar. El tag no anuncia nada.

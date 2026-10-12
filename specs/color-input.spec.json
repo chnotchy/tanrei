@@ -69,11 +69,12 @@
       "name": "size",
       "type": "enum",
       "values": [
+        "small",
         "medium",
         "large"
       ],
       "default": "medium",
-      "description": "Minimum height of the container (48 / 56): the text input's two sizes. The hit area always meets the minimum target. A design system may add values.",
+      "description": "Minimum height of the container (40 / 48 / 56): the text input's three sizes, small for a bar, a toolbar or a dense row of controls. The hit area always meets the minimum target. A design system may add values.",
       "axis": "tanrei.comp.input-box.size"
     },
     {
@@ -368,6 +369,14 @@
         "label": "Brand color",
         "value": "#0f766e",
         "size": "large"
+      }
+    },
+    {
+      "id": "stacked-small",
+      "props": {
+        "label": "Brand color",
+        "value": "#0f766e",
+        "size": "small"
       }
     },
     {

@@ -250,7 +250,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * that it draws the label itself while its look floats one, how far its text stands from its edges — the Field's
  * supporting row starts and ends there — and its own refusal of a date or a time, with its words (TXI-62). It takes
  * from that Field its name, its description, the required, invalid and disabled states, whether the label is hidden,
- * and whether an asterisk follows a floating label. `countText` is the count it keeps while `counter` is set, as text
+ * and whether an asterisk or the optional word follows a floating label. `countText` is the count it keeps while `counter` is set, as text
  * ("12/40"): it describes and announces the count and draws none — a Field draws it, given it as `count-text`.
  *
  * `stacked` (the default) draws no label — the label above it is its Field's row — and marks focus and error with a
@@ -287,7 +287,7 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
  * @csspart outline - The outlined variant's border (with the gap for the floated label); a stacked field's inner line.
  * @csspart active-indicator - The filled variant's bottom line.
  * @csspart label - The label that floats in a filled or an outlined box.
- * @csspart requirement-label - The required asterisk after a floating label.
+ * @csspart requirement-label - The required asterisk, or the optional word, after a floating label.
  * @csspart input - The native `<input>` or `<textarea>`; a date, time or date-time field's row of segments.
  * @csspart entries - What was entered already, before the typing part: the content of the `entries` slot. The text input lays it out and draws none of it, so the part has no box of its own.
  * @csspart segment - One unit of a date or a time: a spin button in the row.
@@ -731,6 +731,11 @@ export class TanreiTextInput extends LitElement {
   /** TXI-50: an asterisk follows the floating label — the Field's answer (FLD-25); never outside a Field. */
   private get asterisked(): boolean {
     return this.labelled && this.frame.requiredMark === 'asterisk';
+  }
+
+  /** TXI-50: the optional word after the floating label — the Field's (FLD-25); never outside a Field. */
+  private get optionalWord(): string {
+    return this.labelled ? this.frame.optionalText : '';
   }
 
   /**
@@ -1495,7 +1500,7 @@ export class TanreiTextInput extends LitElement {
 
   /**
    * TXI-41: the grip activated without a drag — the input becomes as tall as its text needs, within minRows and
-   * maxRows, and returns to minRows when it is already that tall.
+   * maxRows, and returns to minRows when it is already that tall; where it resizes both ways its width alternates too.
    */
   private fitToText() {
     const input = this.textarea;
@@ -1505,6 +1510,29 @@ export class TanreiTextInput extends LitElement {
     const fits = this.clampLines(this.textLines(input));
     this.manualLines = Math.abs(this.lines - fits) < 0.01 ? this.minLines : fits;
     this.showLines(input, shown, this.manualLines, true);
+    if (this.axis === 'both') this.toggleWidth();
+  }
+
+  /**
+   * TXI-41: where the field resizes both ways, an activation of the grip also makes it as wide as its layout allows —
+   * its own max-inline-size, or its containing block where it has none — and gives back the width it had before the
+   * person resized it when it already is that wide: the width, too, never depends on a drag (WCAG 2.5.7). At once,
+   * as a drag is.
+   */
+  private toggleWidth() {
+    const widest = this.manualWidth && this.style.inlineSize === '100%';
+    if (widest) {
+      const { inlineSize, maxInlineSize } = this.manualWidth!;
+      this.style.inlineSize = inlineSize;
+      this.style.maxInlineSize = maxInlineSize;
+      this.manualWidth = null;
+      return;
+    }
+    if (!this.manualWidth) {
+      this.manualWidth = { inlineSize: this.style.inlineSize, maxInlineSize: this.style.maxInlineSize };
+      if (getComputedStyle(this).maxInlineSize === 'none') this.style.maxInlineSize = '100%';
+    }
+    this.style.inlineSize = '100%';
   }
 
   /**
@@ -2177,7 +2205,13 @@ export class TanreiTextInput extends LitElement {
     const floating = !stacked;
     // TXI-50: the asterisk follows a floating label while the Field says so (FLD-25); hidden from assistive technology,
     // because the required state already says it.
-    const asterisk = this.asterisked ? html`<span part="requirement-label" class="asterisk" aria-hidden="true">*</span>` : nothing;
+    // TXI-50: and the optional word, while the Field gives one (FLD-25): one word space after the label's text, in its
+    // style and color — part of the label as drawn — and kept from assistive technology, which hears it in the description.
+    const asterisk = this.asterisked
+      ? html`<span part="requirement-label" class="asterisk" aria-hidden="true">*</span>`
+      : this.optionalWord
+        ? html`<span part="requirement-label" class="optional" aria-hidden="true"> ${this.optionalWord}</span>`
+        : nothing;
     // The edge: a stacked field's inner line (TXI-26); an outlined field's three-piece outline with the gap for the floated
     // label, and a filled field's active indicator (TXI-13).
     const edges = floating

@@ -26,7 +26,8 @@ const isStatus = (status: string): status is (typeof STATUSES)[number] => (STATU
  * A tag has no role, no name, no state and no event: its label is read where it sits, as text. It takes no input and no
  * focus, and input over it reaches the element that holds it — a link, a button, a list item — which draws its own
  * states. A label that must be pressed, switched or removed is a chip; one that leads somewhere is a link; a dot or a
- * count on another element is a badge.
+ * count on another element is a badge. Inside something disabled — a disabled field's label, a disabled row — `disabled`
+ * draws it in its look's disabled colors, so that it fades with what holds it; it changes nothing else.
  *
  * A status changes colors only, and color alone never says it: the label does ("Failed"), or `statusLabel` adds it in
  * words for assistive technology ("Error", read as "Error, 3 builds") without drawing it. An outlined tag with a status
@@ -53,6 +54,7 @@ export class TanreiTag extends LitElement {
     statusLabel: { type: String, attribute: 'status-label', reflect: true },
     size: { type: String, reflect: true },
     dot: { type: Boolean, reflect: true },
+    disabled: { type: Boolean, reflect: true },
     hasIcon: { state: true },
   };
 
@@ -73,6 +75,15 @@ export class TanreiTag extends LitElement {
 
   /** Draws the dot before the label, in the look's mark color. A glyph in the icon slot takes its place; an outlined tag with a status draws it whatever this says. */
   dot = false;
+
+  /**
+   * Draws the tag as part of something disabled — the label of a disabled field, a disabled row of a list — in its
+   * look's disabled colors, so that it fades with what it stands in (TAG-21). It changes nothing else: the tag takes no
+   * input and no focus whatever this says, and exposes no disabled state of its own, because what assistive technology
+   * hears of it, it hears from the element the tag stands in. The component that holds the tag sets it (a field does,
+   * for its requirement tag); set it yourself on a tag you place in a disabled element of your own.
+   */
+  disabled = false;
 
   /** Whether the icon slot has content. */
   protected hasIcon = false;

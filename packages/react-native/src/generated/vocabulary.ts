@@ -2200,6 +2200,7 @@ export type TanreiFieldGroupConditions = { readonly [Key in TanreiCoreFieldGroup
  */
 export interface TanreiFieldGroupTokens {
   readonly errorTextGap: number;
+  readonly fieldMinWidth: number;
   readonly gapInline: number;
   readonly labelGap: number;
   readonly labelTypescale: TanreiTypescaleRole;
@@ -2255,6 +2256,7 @@ export type TanreiFieldConditions = { readonly [Key in TanreiCoreFieldCondition]
 export interface TanreiFieldTokens {
   readonly counterGap: number;
   readonly errorTextGap: number;
+  readonly errorTextPlacement: number;
   readonly labelIconGap: number;
   readonly labelIconSize: number;
   readonly labelGap: number;
@@ -4875,8 +4877,8 @@ export interface TanreiTagVariantRegistry {
 export type TanreiTagVariant = keyof TanreiTagVariantRegistry;
 export type TanreiCoreTagVariant = "tonal" | "outlined" | "filled";
 
-/** The tokens of one `variant` of `comp.tag`. */
-export interface TanreiTagVariantTokens {
+/** What one `variant` of `comp.tag` is drawn from in ONE interaction state. */
+export interface TanreiTagVariantStateTokens {
   readonly containerColor: TanreiPaint;
   readonly labelColor: TanreiPaint;
   readonly iconColor: TanreiPaint;
@@ -4892,6 +4894,11 @@ export interface TanreiTagVariantTokens {
   readonly successContainerColor: TanreiPaint;
   readonly successLabelColor: TanreiPaint;
   readonly successIconColor: TanreiPaint;
+}
+/** One `variant`: the resting state (`enabled`) and every interaction state. States are not extensible. */
+export interface TanreiTagVariantTokens {
+  readonly enabled: TanreiTagVariantStateTokens;
+  readonly disabled: TanreiTagVariantStateTokens;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiTagVariants = { readonly [Key in TanreiCoreTagVariant]: TanreiTagVariantTokens } & { readonly [Key in TanreiTagVariant]?: TanreiTagVariantTokens };

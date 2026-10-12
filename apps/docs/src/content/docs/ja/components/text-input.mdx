@@ -2,7 +2,7 @@
 title: テキスト入力欄
 description: 文字を入力するボックスと、その中で入力するものすべてです。1 行または複数行のテキスト、日付や時刻、コードを扱います。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/text-input.mdx
-sourceHash: f696d67893933cf6b88d1d28aeb4216876f1ec36
+sourceHash: 41060d677b15780066c1fdc5516c3677bbb2c047
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -122,11 +122,12 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
 
 ## 仕様
 
-<DemoFrame label="単独の入力欄：エラー、無効、読み取り専用、接頭辞と接尾辞、large" plain column>
+<DemoFrame label="単独の入力欄：エラー、無効、読み取り専用、接頭辞と接尾辞、small と large" plain column>
   <tanrei-text-input class="not-content" label="メールアドレス" value="ada@" error></tanrei-text-input>
   <tanrei-text-input class="not-content" label="メールアドレス" value="ada@example.com" disabled></tanrei-text-input>
   <tanrei-text-input class="not-content" label="メールアドレス" value="ada@example.com" readonly></tanrei-text-input>
   <tanrei-text-input class="not-content" label="金額" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
+  <tanrei-text-input class="not-content" size="small" label="検索" value="tokens"></tanrei-text-input>
   <tanrei-text-input class="not-content" size="large" label="メールアドレス" value="ada@example.com"></tanrei-text-input>
 </DemoFrame>
 
@@ -152,6 +153,8 @@ Web では `<tanrei-text-input>` です。ほかのプラットフォームは�
 - **日付や時刻を途中まで入力したまま離れる**か、選べない値で離れると、ボックスがエラーの状態で描かれ、`entryError` が発行されます。`invalidText` または `unavailableText` は入力欄の説明に加わります。描かれることはありません。
 - **文字数**は数えられ、説明に含まれ、読み上げられますが、描かれません。`countText` は文字数をテキストにしたもの（「12/40」）で、利用者側で描くためのものです。
 - **必須**を伝えるのはフィールドです。単独の入力欄に必須の設定はありません。フォームが入力を求める箇所では、利用者側で検証します。
+- **small**（40、文字は 14）は、アプリバー、ツールバー、コントロールが密に並ぶ行に置く入力欄のためのものです。小さな[セレクト](/ja/components/select/)や小さなボタンの横に同じ高さで並びます。`medium`（48）と `large`（56）はフォーム向けです。どのサイズでも、当たり判定は最小ターゲットを満たします。
+- **右から左のページでの接頭辞。** メールアドレス、URL、電話番号、数値、パスワードの入力欄の値は、左から右に書かれます。接頭辞があるときは値がそのすぐ横に寄るので、右から左のページでも `https://` とアドレスが 1 つの文字列として読めます。接頭辞がなければ、値は入力欄の開始側に置かれます。
 
 ### 入力済みのものを置く場所
 

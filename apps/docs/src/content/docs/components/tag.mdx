@@ -135,6 +135,17 @@ The tag draws no status glyph by itself. Name one where it helps, as this site d
 
 The required and optional tags of a [field](/components/field/) and a [field group](/components/field-group/) are this component at its small size: filled for required, tonal for optional. They read the tag's tokens and have none of their own, so a design system that restyles its small tags restyles them too.
 
+### Inside something disabled
+
+A tag has no states of its own, but it can stand inside something that is disabled: the label of a disabled field, a disabled row of a list, a disabled item of a menu. `disabled` draws it in its look's disabled colors (`comp.tag.<variant>.disabled.*`), whatever its status, so that it fades with what holds it and does not read as the one live part of it. It changes nothing else: the tag keeps its size and its words, and takes no input and no focus. A field and a field group set it on their requirement tag while they are disabled; set it yourself on a tag you put in a disabled element of your own.
+
+<DemoFrame label="Tags at rest and inside something disabled" plain>
+  <tanrei-tag size="small" variant="filled" label="Required"></tanrei-tag>
+  <tanrei-tag size="small" variant="filled" label="Required" disabled></tanrei-tag>
+  <tanrei-tag size="small" label="Optional"></tanrei-tag>
+  <tanrei-tag size="small" label="Optional" disabled></tanrei-tag>
+</DemoFrame>
+
 ### Do
 
 - Say the status in words. "Failed" needs nothing more; a tag that reads "3 builds" in the error colors needs `statusLabel`.
@@ -159,7 +170,8 @@ The required and optional tags of a [field](/components/field/) and a [field gro
 - The glyph and the dot are hidden from assistive technology.
 - It takes no input and no focus, so it adds no stop to the focus order and no target to a row.
 - A label that is cut is still read in full.
-- In forced colors every look gains an edge in the text color, and the label, the glyph and the dot take that color.
+- In forced colors every look gains an edge in the text color, and the label, the glyph and the dot take that color; a disabled tag takes the color for disabled text.
+- `disabled` exposes nothing: the element the tag stands in says that it is disabled.
 - In a right-to-left layout the glyph or the dot moves to the right of the label, a glyph the icon set marks is mirrored, and a left-to-right label keeps its own order and is cut at its own end.
 - An unknown variant, size or status, an empty label and a `statusLabel` without a status are reported in debug builds.
 
@@ -167,4 +179,5 @@ The required and optional tags of a [field](/components/field/) and a [field gro
 
 - Check that each tag's words say its status. The component cannot tell whether "3 builds" is good or bad news.
 - Write `statusLabel` in the language of the page.
+- Set `disabled` only on a tag that stands inside something disabled, and make sure that element says so (a disabled control, or `aria-disabled`): the faded tag relies on it.
 - If a change must be announced as it happens (a build that finishes while the person watches), put the tag in a live region or report the change with a snackbar. The tag does not announce.

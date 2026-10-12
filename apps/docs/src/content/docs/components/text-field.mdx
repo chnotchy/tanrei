@@ -14,7 +14,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="text-field" />
 
 :::note[A revised spec, not yet on every platform]
-This page describes the text field as the spec has it now: a `stacked` variant, the default, with its label above the field; `filled` and `outlined` kept for the Material and cupertino presets only; heights of 48 and 56; date and time types, with a picker button; a multi-line field that follows its text or is resized with a grip (`resize`); a date or a time entered unit by unit, in segments; and `requirement`, which marks a field as required or optional and replaces the `required` flag. The web component already does all of this, and so do the demos. A field can also hold code (`type="code"`, and `wrap` for its lines): the web has built it, and no other platform has yet. The text field is a field around a text input, as this page describes it: the web has built that too, and there the `required` attribute is gone. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, outlined by default at 36 and 40, with a `required` flag that draws no mark, and with no `stacked` variant, no date or time types, no picker button and no resize modes, and their samples show that revision.
+This page describes the text field as the spec has it now: a `stacked` variant, the default, with its label above the field; `filled` and `outlined` kept for the Material and cupertino presets only; heights of 40, 48 and 56; date and time types, with a picker button; a multi-line field that follows its text or is resized with a grip (`resize`); a date or a time entered unit by unit, in segments; and `requirement`, which marks a field as required or optional and replaces the `required` flag. The web component already does all of this, and so do the demos. A field can also hold code (`type="code"`, and `wrap` for its lines): the web has built it, and no other platform has yet. The text field is a field around a text input, as this page describes it: the web has built that too, and there the `required` attribute is gone. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, outlined by default at 36 and 40, with a `required` flag that draws no mark, and with no `stacked` variant, no date or time types, no picker button and no resize modes, and their samples show that revision.
 :::
 
 <DemoFrame label="Stacked, the default: a required field, and a date with its picker button" column>
@@ -342,7 +342,7 @@ Use one variant throughout a form.
 
 The default is stacked in every system, including the presets. A Material product that wants Material's floating label sets `variant` to `outlined` or `filled` on its fields. Under the Tanrei system, `filled` and `outlined` still work, with a warning in development.
 
-`medium` (48) is Material's dense field and `large` (56) is Material's field. Use `medium` in filters and dense settings, and `large` in sign-in and checkout forms. The input text is 16 at both sizes in the default system. Heights are minimums: the field grows with larger text.
+`medium` (48) is Material's dense field and `large` (56) is Material's field. Use `medium` in filters and dense settings, and `large` in sign-in and checkout forms. `small` (40) is the small select's height, for a field in an app bar, a toolbar or a dense row of controls, where its input text is 14. The input text is 16 at the other two sizes in the default system. Heights are minimums: the field grows with larger text, and the hit area always meets the minimum target.
 
 ### Labels and placeholders
 
@@ -358,16 +358,17 @@ The default is stacked in every system, including the presets. A Material produc
 - **Optional** draws the requirement tag in its optional form and adds its text to the field's description.
 - **The mark** is a small tag after a stacked label by default: filled for required, tonal for optional. Its words are `requiredText` and `optionalText`, and they are yours: on the field, or once for the whole product with `setWords()`. Tanrei ships none: without `requiredText` an asterisk stands in the tag's place, and without `optionalText` no tag is drawn. It does not make the label's row taller, and it wraps to a line of its own when the label leaves it no room.
 - **An asterisk instead.** Which mark a required field draws is one choice of the design system for every form, `sys.behavior.requirement-mark`: the tag in the default system, an asterisk in the Material presets, nothing in cupertino. `requiredMark` overrides it for one field (`tag`, `asterisk`, or `none`, which keeps the semantics and draws nothing). A filled or outlined field draws the asterisk where the tag is asked for.
+- **Optional in a floating label.** A filled or outlined field has no room for the optional tag beside a label that floats: it draws `optionalText` after the label instead, as a word ("Company Optional", "会社名 （任意）"), resting and floated with it. Write the word as your forms show it, with or without brackets.
 - **It validates nothing.** The field never sets `error` for a missing value. You do, with `error` and `errorText`.
 
-Mark the fewer of the two in a form: where most fields are required, mark the optional ones, and the other way round. If you use the asterisk, say once near the top of the form what it means.
+Mark the fewer of the two in a form: where most fields are required, mark the optional ones, and the other way round. If you use the asterisk — and a filled or outlined field always does for a required field — say once in the form, near its top, what it means ("* Required"): an asterisk is a convention, not a word, and not everyone knows it.
 
 `requirement` replaces the `required` flag of the previous revision. On the web neither the `required` attribute nor the property exists any more: write `requirement="required"`. A field that was required now also shows a mark: set `requiredMark` to `none` where you do not want one.
 
 ### Help and error text
 
 - `supportingText` is one line of help below the field. It is also read as the field's description.
-- Validation is yours. When a value is wrong, set `error` and write `errorText`: it is drawn below the supporting text, which stays, so the field is taller by a line while it is in error. Do not repeat the help in the error text.
+- Validation is yours. When a value is wrong, set `error` and write `errorText`: it takes the supporting text's place while the field is in error, so a form in error is no taller than at rest. Say in it what the help said, where that still matters. A design system that keeps the help in view sets `comp.field.error-text.placement` to `append`: the error text is then drawn below the help, and the field is taller by a line while it is in error (see the [field](/components/field/#help-and-errors)).
 - Say how to fix the value, not only that it is wrong: "Enter a complete email address.", not "Invalid".
 - Show an error after the person leaves the field or submits the form, not while they are still typing.
 
@@ -408,7 +409,7 @@ Add `autocomplete` with an HTML autofill name (`email`, `current-password`, `one
 - **Auto** suits most fields: a comment, a message, a description. Set `maxRows` where a long text must not push the rest of the form away.
 - **Manual** suits text a person reads back and arranges: notes, a long description, code. `resizeAxis` is `vertical` by default; `both` also lets the person change the field's width, within what its layout allows. The size is kept, and the text wraps and scrolls inside it.
 - **Fixed** suits a form whose layout must not move, such as an address block.
-- **The grip works without a drag.** It is a focus stop named by `resizeLabel`. The arrow keys resize by a line, Home and End go to the smallest and the tallest, and a click, Enter or Space fits the height to the text, or returns it to `minRows` when it already fits. Its target is the minimum target, though its glyph is small. A disabled field draws no grip; a read-only one keeps it, because reading may need the room.
+- **The grip works without a drag.** It is a focus stop named by `resizeLabel`. The arrow keys resize by a line, Home and End go to the smallest and the tallest, and a click, Enter or Space fits the height to the text, or returns it to `minRows` when it already fits. Where `resizeAxis` is `both`, the same click also makes the field as wide as its place, and the next one gives back the width it had, so a pointer can change the width without dragging. Its target is the minimum target, though its glyph is small. A disabled field draws no grip; a read-only one keeps it, because reading may need the room.
 - **Nothing above the text moves.** A multi-line field's first line stands where a single-line field draws its line, and its icons, prefix and suffix are centred on that line. Every further line lies below, so the label and the first line stay put while the height changes.
 
 A product cannot yet learn the size a person gave a field: resizing emits nothing.
@@ -438,7 +439,7 @@ A `date`, `time` or `date-time` field is a row of segments in the input line, on
 | `time` | `14:30` | 2:30 PM | 14:30 |
 | `date-time` | `2026-09-27T14:30` | 09/27/2026, 2:30 PM | 2026/09/27 14:30 |
 
-- **The locale.** `locale`, or the platform's, sets the order, the separators, the clock and the digits. An empty segment shows its own placeholder ("mm", "dd", "yyyy"), so the row always shows its form. `placeholder`, `prefixText`, `suffixText`, `maxLength` and `multiline` are ignored by these types.
+- **The locale.** `locale`, or the platform's, sets the order, the separators, the clock and the digits. An empty segment shows its own placeholder ("mm", "dd", "yyyy"), so the row always shows its form. Each segment is as wide as the wider of its placeholder and its widest value, so the row does not move as you type or clear it. `placeholder`, `prefixText`, `suffixText`, `maxLength` and `multiline` are ignored by these types.
 - **Moving.** Tab visits each segment, then the picker button. Left and Right Arrow move to the segment on that side, in every layout direction: the row is written left to right, as a date in digits is. A press on a segment focuses it. The focused segment is drawn as selected text, with no caret.
 - **Stepping.** Up and Down Arrow change a segment by one and wrap; on an empty segment they start from today's date or the current time. Page Up and Page Down step further, and Home and End go to the ends of the range.
 - **Typing.** A digit fills the segment, and focus moves on when no further digit could extend it, or when the separator is typed. Backspace removes a digit, and on an empty segment moves back. A year needs four digits. A date that does not exist cannot be entered: a day past the end of a newly chosen month becomes that month's last day.

@@ -250,7 +250,7 @@ export class TanreiFieldGroup extends LitElement {
     const framed = this.framed;
     const radioGroup = this.isRadioGroup;
     const semantics = radioGroup ? RADIO_GROUP : undefined;
-    const rows = groupRows(framed, semantics);
+    const rows = groupRows(framed, semantics, disabled);
     const spacing = (CORE_SPACINGS as readonly string[]).includes(this.spacing) ? this.spacing : 'controls';
     // FGR-10: a fieldset with a legend — a group that contains its controls (the accessibility tree is built from the
     // flattened tree) and is named by its label, drawn or not. FGR-11: it is described by the rows of the same shadow

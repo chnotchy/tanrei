@@ -1,4 +1,4 @@
-// <tanrei-tag>, driven by specs/tag.spec.json: every behaviour id (TAG-1…20) is cited by a test title, every fixture has
+// <tanrei-tag>, driven by specs/tag.spec.json: every behaviour id (TAG-1…21) is cited by a test title, every fixture has
 // a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
@@ -621,21 +621,45 @@ test.describe('behavior', () => {
       return colors;
     });
     expect(canvasText).not.toBe(canvas);
+    // A tag drawn inside something disabled takes the mode's color for disabled text instead (TAG-21).
+    const grayText = await page.evaluate(() => {
+      const probe = document.createElement('div');
+      probe.style.color = 'GrayText';
+      document.body.appendChild(probe);
+      const value = getComputedStyle(probe).color;
+      probe.remove();
+      return value;
+    });
     const after = await geometry();
     for (const f of spec.fixtures) {
-      const c = container(page, f.id);
+      const ink = f.props.disabled ? grayText : canvasText;
+      // Read in one call for each tag: a page of forty tags read a property at a time outlasts a test.
+      const drawn = await host(page, f.id).evaluate((el) => {
+        const root = el.shadowRoot!;
+        const c = getComputedStyle(root.querySelector('.container')!);
+        const dotted = root.querySelector('.dot');
+        const glyph = el.querySelector('[slot="icon"]');
+        return {
+          sides: ['top', 'right', 'bottom', 'left'].map((side) => [c.getPropertyValue(`border-${side}-style`), Number.parseFloat(c.getPropertyValue(`border-${side}-width`)), c.getPropertyValue(`border-${side}-color`)] as const),
+          label: getComputedStyle(root.querySelector('.label')!).color,
+          fill: c.backgroundColor,
+          shadow: c.boxShadow,
+          glyph: glyph ? getComputedStyle(glyph).color : null,
+          dot: dotted ? getComputedStyle(dotted).backgroundColor : null,
+        };
+      });
       // A bounded label: a solid edge of the outline's width in CanvasText, on every side, in every variant.
-      for (const side of ['top', 'right', 'bottom', 'left']) {
-        expect(await css(c, `border-${side}-style`), `${f.id} ${side}`).toBe('solid');
-        expect(Number.parseFloat(await css(c, `border-${side}-width`)), `${f.id} ${side}`).toBeCloseTo(width, 1);
-        expect(await css(c, `border-${side}-color`), `${f.id} ${side}`).toBe(canvasText);
+      for (const [index, [style, edge, inked]] of drawn.sides.entries()) {
+        expect(style, `${f.id} side ${index}`).toBe('solid');
+        expect(edge, `${f.id} side ${index}`).toBeCloseTo(width, 1);
+        expect(inked, `${f.id} side ${index}`).toBe(ink);
       }
       // The label in CanvasText; no look rests on its fill (the mode paints none of the fills the tokens name).
-      expect(await css(label(page, f.id), 'color'), f.id).toBe(canvasText);
-      expect(await css(c, 'background-color'), f.id).not.toBe(canvasText);
-      expect(await css(c, 'box-shadow'), f.id).toBe('none');
-      if (f.slots?.icon) expect(await css(host(page, f.id).locator('[slot="icon"]'), 'color'), f.id).toBe(canvasText);
-      if (await dot(page, f.id).count()) expect(await css(dot(page, f.id), 'background-color'), f.id).toBe(canvasText);
+      expect(drawn.label, f.id).toBe(ink);
+      expect(drawn.fill, f.id).not.toBe(ink);
+      expect(drawn.shadow, f.id).toBe('none');
+      if (f.slots?.icon) expect(drawn.glyph, f.id).toBe(ink);
+      if (drawn.dot !== null) expect(drawn.dot, f.id).toBe(ink);
       // Inside the container: the box and the label are where they were.
       for (const part of [0, 1]) {
         for (const key of ['x', 'y', 'width', 'height'] as const) expect(after[f.id][part][key], `${f.id} ${key}`).toBeCloseTo(before[f.id][part][key], 1);
@@ -899,12 +923,81 @@ test.describe('behavior', () => {
     // status reports nothing.
     expect(seen.filter((line) => line.includes('TAG-20')).length).toBe(5);
   });
+
+  test('TAG-21: disabled draws the tag as part of something disabled — its fill, label, glyph and dot from its look’s disabled tokens, in every look and every status, an outlined one with no fill and its edge kept — and changes nothing else: the same size and place, no focus, no input and no disabled state exposed', async ({ page }) => {
+    const looks = VARIANTS.flatMap((variant) => ['', ...STATUSES].map((status) => ({ variant, status })));
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: looks.flatMap(({ variant, status }) => {
+        const id = `${variant}${status ? `-${status}` : ''}`;
+        const props = { variant, label: 'Archived', dot: true, ...(status ? { status } : {}) };
+        return [fx(`${id}-on`, props), fx(`${id}-off`, { ...props, disabled: true })];
+      }),
+    });
+    const sheet = (name: string) => resolveColor(page, name);
+    const [fill, content] = [
+      await page.evaluate(() => {
+        const probe = document.createElement('div');
+        probe.style.backgroundColor = 'color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-container-opacity) * 100%), transparent)';
+        document.body.appendChild(probe);
+        const value = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        return value;
+      }),
+      await page.evaluate(() => {
+        const probe = document.createElement('div');
+        probe.style.color = 'color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent)';
+        document.body.appendChild(probe);
+        const value = getComputedStyle(probe).color;
+        probe.remove();
+        return value;
+      }),
+    ];
+    for (const { variant, status } of looks) {
+      const id = `${variant}${status ? `-${status}` : ''}`;
+      const name = `${variant}-disabled${status ? `-${status}` : ''}`;
+      // From its own disabled tokens…
+      expect(await painted(page, `${id}-off`), id).toEqual({
+        container: await sheet(T(`${name}-container-color`)),
+        label: await sheet(T(`${name}-label-color`)),
+        mark: await sheet(T(`${name}-icon-color`)),
+      });
+      // …which under the default system are on-surface at the disabled opacities, an outlined look keeping no fill.
+      expect(await css(label(page, `${id}-off`), 'color'), id).toBe(content);
+      expect(await css(dot(page, `${id}-off`), 'background-color'), id).toBe(content);
+      if (variant === 'outlined') {
+        expect(await css(container(page, `${id}-off`), 'background-color'), id).toBe(await css(container(page, `${id}-on`), 'background-color'));
+        expect(await css(container(page, `${id}-off`), 'box-shadow'), id).toBe(await css(container(page, `${id}-on`), 'box-shadow'));
+      } else {
+        expect(await css(container(page, `${id}-off`), 'background-color'), id).toBe(fill);
+      }
+      // Nothing else changes: the same box.
+      const [on, off] = [await box(container(page, `${id}-on`)), await box(container(page, `${id}-off`))];
+      expect([off.width, off.height], id).toEqual([on.width, on.height]);
+    }
+    // Not a control: no focus, no tab stop, no disabled state of its own, and a press passes through to what holds it.
+    const one = host(page, 'tonal-off');
+    expect(await one.evaluate((el) => [el.getAttribute('aria-disabled'), el.hasAttribute('inert'), el.tabIndex, (el as HTMLElement & { disabled: boolean }).disabled])).toEqual([null, false, -1, true]);
+    expect(await stage(page, 'tonal-off').ariaSnapshot()).toBe('- text: Archived');
+    await expect(page.locator(':focus')).toHaveCount(0);
+    await tab(page);
+    await expect(page.locator(`${TAG}:focus, ${TAG} :focus`)).toHaveCount(0);
+    // Set and taken off, it repaints at once.
+    await one.evaluate(async (el: HTMLElement & { disabled: boolean; updateComplete: Promise<unknown> }) => {
+      el.disabled = false;
+      await el.updateComplete;
+    });
+    expect(await painted(page, 'tonal-off')).toEqual(await painted(page, 'tonal-on'));
+  });
 });
 
 test.describe('accessibility', () => {
   test('no axe violations in light and dark', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true });
+      // A tag drawn as disabled stands inside something disabled (TAG-21), which says so to assistive technology and
+      // whose text is exempt from contrast: its stage says it as that element would.
+      for (const f of spec.fixtures.filter((each) => each.props.disabled)) await stage(page, f.id).evaluate((el) => el.setAttribute('aria-disabled', 'true'));
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} (${v.nodes.map((n) => n.target.join(' ')).join('; ')})`).join(', ')}`).toEqual([]);
     }
@@ -936,13 +1029,15 @@ test.describe('fixtures', () => {
   });
 
   test('every fixture draws its label, its look and its mark as the spec gives them', async ({ page }) => {
-    expect(spec.fixtures.length).toBe(39);
+    expect(spec.fixtures.length).toBe(43);
     for (const f of spec.fixtures) {
       const variant = String(f.props.variant ?? 'tonal');
       const status = String(f.props.status ?? 'default');
       const size = String(f.props.size ?? 'medium');
+      // TAG-21: a disabled fixture's look is its variant's disabled tokens.
+      const drawn = f.props.disabled ? `${variant}-disabled` : variant;
       expect(await label(page, f.id).textContent(), f.id).toBe(String(f.props.label));
-      expect(await painted(page, f.id), f.id).toEqual(await look(page, status === 'default' ? variant : `${variant}-${status}`));
+      expect(await painted(page, f.id), f.id).toEqual(await look(page, status === 'default' ? drawn : `${drawn}-${status}`));
       // A fixture cut by the stage is still one line of its size's height.
       expect((await box(container(page, f.id))).height, f.id).toBeCloseTo(await resolveToken(page, T(`container-height-${size}`)), 1);
       const glyphGiven = !!f.slots?.icon;

@@ -120,11 +120,12 @@ The text field does this itself. It is the only thing the text field does that a
 
 ## Specs
 
-<DemoFrame label="Bare inputs: in error, disabled, read-only, with a prefix and a suffix, and large" plain column>
+<DemoFrame label="Bare inputs: in error, disabled, read-only, with a prefix and a suffix, small and large" plain column>
   <tanrei-text-input class="not-content" label="Email" value="ada@" error></tanrei-text-input>
   <tanrei-text-input class="not-content" label="Email" value="ada@example.com" disabled></tanrei-text-input>
   <tanrei-text-input class="not-content" label="Email" value="ada@example.com" readonly></tanrei-text-input>
   <tanrei-text-input class="not-content" label="Amount" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
+  <tanrei-text-input class="not-content" size="small" label="Search" value="tokens"></tanrei-text-input>
   <tanrei-text-input class="not-content" size="large" label="Email" value="ada@example.com"></tanrei-text-input>
 </DemoFrame>
 
@@ -150,6 +151,8 @@ What happens in the box is the same bare, framed and in a text field, and is des
 - **A date or a time left half-filled**, or with a value that is not available, draws the box in error and emits `entryError`. `invalidText` or `unavailableText` is added to the input's description; nothing draws it.
 - **The count** is kept, described and announced, and not drawn. `countText` is the count as text ("12/40"), for you to draw.
 - **Required** is a field's to say. A bare input has no requirement setting: where the form needs an answer, validate it yourself.
+- **Small** (40, its text 14) is for an input in an app bar, a toolbar or a dense row of controls: it stands beside a small [select](/components/select/) or a small button at one height. `medium` (48) and `large` (56) are for forms. Its hit area meets the minimum target at every size.
+- **A prefix in a right-to-left page.** The value of an email, URL, phone, number or password input is written left to right. Beside a prefix it stands against it, so `https://` and the address read as one string in a right-to-left page too; without a prefix it stands at the input's start edge.
 
 ### What was entered already
 

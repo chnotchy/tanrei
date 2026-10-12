@@ -132,12 +132,13 @@
       "name": "size",
       "type": "enum",
       "values": [
+        "small",
         "medium",
         "large"
       ],
       "default": "medium",
       "axis": "tanrei.comp.input-box.size",
-      "description": "Minimum height of the container (48 / 56): the text input's two sizes. The hit area always meets the minimum target. A design system may add values."
+      "description": "Minimum height of the container (40 / 48 / 56): the text input's three sizes, small for a bar, a toolbar or a dense row of controls. The hit area always meets the minimum target. A design system may add values."
     },
     {
       "name": "value",
@@ -816,6 +817,52 @@
       "props": {
         "variant": "stacked",
         "size": "large",
+        "label": "City",
+        "value": "tokyo"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-small",
+      "props": {
+        "variant": "stacked",
+        "size": "small",
         "label": "City",
         "value": "tokyo"
       },

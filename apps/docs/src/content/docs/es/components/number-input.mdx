@@ -2,7 +2,7 @@
 title: Entrada numérica
 description: La caja de un número (escrito en la forma de la configuración regional o cambiado por pasos con una tecla o un botón, mantenido dentro de unos límites y con su unidad al lado), sin fila de etiqueta, ayuda ni texto de error propios. Para un número cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/number-input.mdx
-sourceHash: 2f83ccdb5c9255643d9504cf32fb46892ae8e5c2
+sourceHash: 7781c9b9b92c13ee371419bbff0a4b57876f023c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -147,7 +147,7 @@ Un número y su unidad son una sola pieza de escritura. El prefijo se escribe an
 | Contiene | El valor, los límites y el paso, su lugar en un formulario, los eventos | Nada |
 | Dice a la tecnología de apoyo | Un botón de número (spin button): su valor, sus límites, el texto de su valor | El nombre, la ayuda o el texto de error, obligatorio, no válido, deshabilitado |
 
-Las tres variantes y los dos tamaños, `medium` (48) y `large` (56), son los de la entrada de texto, y la caja se dibuja y se mide como la [entrada de texto](/es/components/text-input/) de la misma variante y el mismo tamaño. El sistema predeterminado solo incluye `stacked`.
+Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (56), son los de la entrada de texto, y la caja se dibuja y se mide como la [entrada de texto](/es/components/text-input/) de la misma variante y el mismo tamaño. El sistema predeterminado solo incluye `stacked`.
 
 Los dos botones de paso son Buttons de texto de tamaño mediano, uno junto al otro. En el sistema predeterminado ocupan 88 del ancho de la caja, y cada uno es un objetivo táctil completo. Nunca se dibujan más pequeños ni se apilan: donde una fila no puede permitírselos, desactívalos. Las teclas siguen dando los pasos. Se dibujan con los propios tokens del Button, y nunca están en error.
 
