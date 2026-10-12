@@ -247,8 +247,6 @@ export const styles = css`
   }
   /* CLO-7: the title's letter-spacing follows its script (src/styles/script-tracking.ts); a title the product gives in the slot, by its own language. */
   ${unsafeCSS(scriptTracking('.title', 'var(--_title-tracking)'))}
-  /* CLO-7: what the title slot holds. */
-  ${unsafeCSS(scriptTracking("slot[name='title']", 'var(--_title-tracking)', { slotted: true }))}
   .container:not(.titled) .title {
     display: none;
   }
@@ -259,6 +257,8 @@ export const styles = css`
     letter-spacing: inherit;
     color: inherit;
   }
+  /* CLO-7: a title the product gives in the slot follows its own language. */
+  ${unsafeCSS(scriptTracking('', 'var(--_title-tracking)', { slotted: "[slot='title']" }))}
   /* CLO-28: a title given as text is text of its own direction, isolated, its lines aligned by the layout's. */
   ${productText('.headline', { align: 'start' })}
   .headline {

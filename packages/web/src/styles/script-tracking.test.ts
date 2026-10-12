@@ -106,7 +106,7 @@ test.describe('a title’s letter-spacing follows its script', () => {
     expect([...SOLID_LANGUAGES]).toEqual(['ja', 'zh', 'ko']);
     expect(UNTRACKED_LANGUAGES).toContain('ar');
     expect(scriptTracking('.title', 'var(--x)')).toContain('.title:where(:lang(ja), :lang(zh), :lang(ko)) {\n  letter-spacing: max(0px, var(--x));\n}');
-    expect(scriptTracking('slot', 'var(--x)', { slotted: true })).toContain('slot::slotted(*) {\n  letter-spacing: var(--x);\n}');
+    expect(scriptTracking('', 'var(--x)', { slotted: "[slot='title']" })).toContain("::slotted([slot='title']:where(:lang(ja), :lang(zh), :lang(ko))) {\n  letter-spacing: max(0px, var(--x));\n}");
     expect(writeScriptTracking('  /* script-tracking: & | var(--y) */\n')).toBe(`${scriptTracking('&', 'var(--y)').replace(/^/gm, '  ')}\n`);
     // No stylesheet the package ships keeps a mark, or a language list of its own for letter-spacing.
     for (const file of fs.readdirSync(path.join(pkg, 'dist')).filter((name) => name.endsWith('.css'))) {

@@ -32,17 +32,13 @@ export const UNTRACKED = languages(UNTRACKED_LANGUAGES);
 /**
  * The rules that make `selector`'s letter-spacing follow its script, for an element whose own rule sets
  * `letter-spacing: <tracking>`. `selector` is ONE compound selector (wrap a list in `:is()` or `:where()`, or use `&`
- * inside a nested rule); the rules add no specificity to it, so they are written after its own rule. With
- * `slotted: true`, `selector` is a slot and the rules are written for what is assigned to it: a slotted title's own
- * language decides, and its tracking is set on it rather than inherited from the slot.
+ * inside a nested rule); the rules add no specificity to it, so they are written after its own rule. With `slotted`,
+ * the rules are for what a shadow root's slot holds — `::slotted(<slotted>)`, by the slotted element's own language —
+ * and `selector` is what stands before `::slotted` (empty for any slot).
  */
-export const scriptTracking = (selector: string, tracking: string, { slotted = false } = {}): string => {
-  const on = (condition: string) => (slotted ? `${selector}::slotted(${condition})` : `${selector}${condition}`);
-  return [
-    ...(slotted ? [`${selector}::slotted(*) {\n  letter-spacing: ${tracking};\n}`] : []),
-    `${on(SOLID)} {\n  letter-spacing: max(0px, ${tracking});\n}`,
-    `${on(UNTRACKED)} {\n  letter-spacing: 0;\n}`,
-  ].join('\n');
+export const scriptTracking = (selector: string, tracking: string, { slotted }: { slotted?: string } = {}): string => {
+  const on = (condition: string) => (slotted ? `${selector}::slotted(${slotted}${condition})` : `${selector}${condition}`);
+  return [`${on(SOLID)} {\n  letter-spacing: max(0px, ${tracking});\n}`, `${on(UNTRACKED)} {\n  letter-spacing: 0;\n}`].join('\n');
 };
 
 /** The mark a light-DOM stylesheet writes where the rules go: `/* script-tracking: <selector> | <tracking> *\/`. */

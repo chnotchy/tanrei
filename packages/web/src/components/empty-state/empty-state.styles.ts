@@ -153,8 +153,8 @@ export const styles = css`
     letter-spacing: inherit;
     color: inherit;
   }
-  /* EMP-4: what the title slot holds. */
-  ${unsafeCSS(scriptTracking("slot[name='title']", 'var(--_title-tracking)', { slotted: true }))}
+  /* EMP-4: a title the product gives in the slot follows its own language. */
+  ${unsafeCSS(scriptTracking('', 'var(--_title-tracking)', { slotted: "[slot='title']" }))}
   /* EMP-16: a title given as text is text of its own direction, isolated; its lines are still centred, or — align
      start — aligned by the layout's direction, not by the text's own. */
   ${productText('.headline')}
