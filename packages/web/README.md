@@ -8898,10 +8898,11 @@ What the web draws differently, and what a browser cannot do:
 - **The inner focus stroke** (`sys.focus.inner-width`, 0 in the default system) is drawn from the container out to
   the outer stroke: an inline box has no second ring to draw it with.
 - **A glyph, the picture and the mark** are placed out of the line, in room the anchor keeps (so no line break parts
-  them from the word beside them, and no underline runs under them), from where the text's own order puts them. So a
-  standalone link **with a glyph, the mark or the marks of an external link** lays its label out in the layout's
-  direction (`unicode-bidi: isolate`), not by its own first strong character as LNK-26 asks of a standalone link; one
-  without any of them does (`plaintext`).
+  them from the word beside them, and no underline runs under them), from where the text's own order puts them. A
+  standalone link takes the direction of its label's first strong character (LNK-26) through `dir`, which the script
+  writes from that character where the page gave the anchor none; without the script, a standalone link with a glyph, the mark
+  or the marks of an external link lays its label out in the layout's direction (`unicode-bidi: isolate`), and one
+  without any of them by its own first strong character (`plaintext`).
   In a right-to-left layout they stand at the edge of the link's own box instead (the browsers do not agree on the
   place an out-of-line element would have had there). At the link's start — a leading glyph, the picture — that edge
   is where every engine says it is. At its end — a trailing glyph, the mark — it is not, for a link that begins late
@@ -8911,9 +8912,12 @@ What the web draws differently, and what a browser cannot do:
   defines it; Blink (`@supports (-webkit-app-region: none)`) the place the glyph would have had in the line; Gecko
   (`@supports (-moz-appearance: none)`) the glyph IN the line, taking no room, where it parts no word from what
   follows it. A browser that is none of the three has the first. The glyph is then beside the last line of the
-  label at every width, in either direction of the layout and whatever the direction of the label's own words; the
-  layout's direction — not the label's — says which side that is (LNK-14), so a left-to-right label in a
-  right-to-left paragraph has its mark at the left of its last line. In Gecko the label must not end in white space
+  label at every width, in either direction of the layout and whatever the direction of the label's own words. The
+  link's own direction says which side that is (LNK-14): a standalone link's label's, and a phrase's in a sentence
+  the sentence's — unless the page marked the phrase with a `dir` of its own. So a left-to-right standalone label in
+  a right-to-left paragraph has its glyphs at the ends of its own words (its mark at the right of its last line,
+  unmirrored), placed from the edges of the link in WebKit and Gecko and where it would have stood in Blink; a
+  left-to-right phrase in a right-to-left sentence, not marked, has its mark at the left of its last line. In Gecko the label must not end in white space
   inside the anchor (`…Group </a>`): a line could then break before the glyph.
 - **Ripple** (LNK-9's fallback): a link that runs over several lines has no one box to grow a ripple in and answers
   with the overlay. Without the script every press is the overlay.

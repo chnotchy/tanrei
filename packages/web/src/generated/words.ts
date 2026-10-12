@@ -12,6 +12,8 @@ export interface TanreiWords {
   backLabel?: string;
   /** Read by `breadcrumbs.overflowLabel`. */
   breadcrumbsOverflowLabel?: string;
+  /** Read by `button.busyLabel`. */
+  busyLabel?: string;
   /** Read by `date-time-picker.cancelLabel`. */
   cancelLabel?: string;
   /** Read by `combobox.clearLabel`, `search.clearLabel`. */
@@ -150,7 +152,7 @@ export interface TanreiWords {
 export type WordKey = keyof TanreiWords;
 
 /** Every key of the product's words, in alphabetical order. */
-export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'cancelLabel', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'duplicateEntryText', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveDownLabel', 'moveUpLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextMonthLabel', 'noFileText', 'optionalText', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousMonthLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stopLabel', 'targetLabel', 'todayLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
+export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'duplicateEntryText', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveDownLabel', 'moveUpLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextMonthLabel', 'noFileText', 'optionalText', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousMonthLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stopLabel', 'targetLabel', 'todayLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
 
 /** The props that read each key, as `<component>.<prop>` and, for an item kind, `<component>/<kind>.<prop>`. */
 export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
@@ -158,6 +160,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   attachLabel: ['chat-composer.attachLabel'],
   backLabel: ['search.backLabel'],
   breadcrumbsOverflowLabel: ['breadcrumbs.overflowLabel'],
+  busyLabel: ['button.busyLabel'],
   cancelLabel: ['date-time-picker.cancelLabel'],
   clearLabel: ['combobox.clearLabel', 'search.clearLabel'],
   closeLabel: ['callout.closeLabel', 'image-preview.closeLabel', 'popover.closeLabel', 'side-sheet.closeLabel', 'snackbar.closeLabel'],

@@ -14,9 +14,10 @@ const build = (...layers) => {
 };
 const hex = (token) => token.$value.hex + (token.$value.alpha !== undefined ? `@${token.$value.alpha}` : '');
 
-test('Button declares 5 variants × 4 states × 6 parts (the state-layer color), the five colors again for each toggle condition, plus an opacity and a shape per state', () => {
+test('Button declares 6 variants × 4 states × 6 parts (the state-layer color), the five colors again for each toggle condition, plus an opacity and a shape per state', () => {
   const ids = expandStateVocabulary([sources['comp/button.tokens.json']]).map((v) => v.id);
-  assert.equal(ids.length, 5 * 4 * 6 + 2 * 5 * 4 * 5 + 4 * 2);
+  assert.equal(ids.length, 6 * 4 * 6 + 2 * 6 * 4 * 5 + 4 * 2);
+  assert.ok(ids.includes('tanrei.comp.button.inline.hovered.container.color'));
   assert.ok(ids.includes('tanrei.comp.button.text.pressed.selected.icon.color'));
   assert.ok(ids.includes('tanrei.comp.button.filled.hovered.state-layer.color'));
   assert.ok(ids.includes('tanrei.comp.button.pressed.container.shape'));

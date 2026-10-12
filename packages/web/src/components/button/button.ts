@@ -1,4 +1,4 @@
-import { LitElement, type PropertyDeclarations, type PropertyValues, nothing } from 'lit';
+import { LitElement, type PropertyDeclarations, type PropertyValues, nothing, svg } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { html, literal } from 'lit/static-html.js';
 import { hiddenHost } from '../../primitives/hidden.js';
@@ -120,6 +120,9 @@ export class TanreiButton extends LitElement {
     toggle: { type: Boolean, reflect: true },
     selected: { type: Boolean, reflect: true },
     disabled: { type: Boolean, reflect: true },
+    focusableWhenDisabled: { type: Boolean, reflect: true, attribute: 'focusable-when-disabled' },
+    busy: { type: Boolean, reflect: true },
+    busyLabel: { type: String, attribute: 'busy-label' },
     label: { type: String },
     href: { type: String },
     target: { type: String },
@@ -173,6 +176,24 @@ export class TanreiButton extends LitElement {
    * until the next frame, as the platform's own does, and its `disabled` attribute is written then.
    */
   disabled = false;
+
+  /**
+   * Keeps a disabled button in the focus order (BTN-38): drawn and exposed as disabled (`aria-disabled`), refusing every
+   * activation, but reachable by Tab and by a pointer, and keeping focus when it becomes disabled — so that a person can
+   * learn why it does nothing (a tooltip, a description). A disabled fieldset still takes it out of the focus order.
+   * Ignored unless `disabled` is set.
+   */
+  focusableWhenDisabled = false;
+
+  /**
+   * The action it started is under way (BTN-36, BTN-37): it keeps its focus, its place in the focus order and its size,
+   * draws the loading indicator's arc in place of its label and icon, refuses every activation — a submit button sends
+   * nothing, and stops Enter in its form as a disabled one does — and announces `busyLabel`.
+   */
+  busy = false;
+
+  /** What assistive technology is told while the button is busy ("Saving"): your words, in your language. Required while busy. */
+  busyLabel = '';
 
   /**
    * The accessible name, where it is more than what the button draws. Required for an icon-only button. Beside a drawn
@@ -273,7 +294,8 @@ export class TanreiButton extends LitElement {
    */
   private readonly link = new LinkController(this, {
     ids: { refused: 'BTN-26', newContext: 'BTN-24' },
-    disabled: () => this.disabled,
+    // BTN-37: a busy link opens nothing, as a disabled one does.
+    disabled: () => this.disabled || this.busy,
     holds: () => (this.toggle ? 'a toggle' : null),
   });
 
@@ -284,7 +306,7 @@ export class TanreiButton extends LitElement {
   private readonly press = new PressController(this, {
     container: () => this.container,
     holdCarrier: () => this.container?.querySelector(this.hasLabel ? '.label' : 'slot[name="icon"]') ?? null,
-    disabled: () => this.isDisabled,
+    disabled: () => this.refuses,
     keys: () => this.link.pressKeys,
   });
 
@@ -321,6 +343,20 @@ export class TanreiButton extends LitElement {
     return !this.link.form && !this.hasAttribute('disabled') && this.matches(':disabled');
   }
 
+  /** BTN-37, BTN-38: whether a press does nothing now — disabled, or busy. */
+  private get refuses(): boolean {
+    return this.isDisabled || this.busy;
+  }
+
+  /**
+   * BTN-37, BTN-38: whether the button refuses presses and still stays in the focus order — busy, or disabled by its own
+   * `disabled` while `focusableWhenDisabled` is set. A disabled fieldset takes it out of the focus order whatever it says.
+   */
+  private get reachable(): boolean {
+    if (!this.disabled && this.isDisabled) return false;
+    return this.disabled ? this.focusableWhenDisabled : this.busy;
+  }
+
   /** BTN-33: what a press does to the form now — nothing for a toggle, a link, and a type the button does not define. */
   private get formAction(): 'submit' | 'reset' | null {
     if (this.toggle || this.link.form) return null;
@@ -332,7 +368,8 @@ export class TanreiButton extends LitElement {
    * @internal
    */
   get [SUBMIT_BUTTON](): SubmitButtonState {
-    return { submits: this.formAction === 'submit', disabled: this.isDisabled };
+    // BTN-37: a busy default button stops Enter as a disabled one does.
+    return { submits: this.formAction === 'submit', disabled: this.refuses };
   }
 
   /** BTN-32: the platform's word changed — a fieldset around the button was disabled or enabled: it is drawn again, at once. */
@@ -352,7 +389,16 @@ export class TanreiButton extends LitElement {
    * The property's reflection comes through here as the page's own `setAttribute` does.
    */
   override setAttribute(name: string, value: string) {
-    if (name.toLowerCase() === 'disabled' && waitsWhileFocused(this, () => super.setAttribute('disabled', ''))) return;
+    if (name.toLowerCase() === 'disabled') {
+      // BTN-38: a disabled button that stays reachable carries no `disabled` attribute — the platform's word that a
+      // form-associated element is disabled, which takes it out of the focus order and takes focus from it. The
+      // property says it, and aria-disabled says it to assistive technology.
+      if (this.focusableWhenDisabled) {
+        if (!this.disabled) this.disabled = true;
+        return;
+      }
+      if (waitsWhileFocused(this, () => super.setAttribute('disabled', ''))) return;
+    }
     super.setAttribute(name, value);
   }
 
@@ -364,8 +410,20 @@ export class TanreiButton extends LitElement {
   }
 
   override removeAttribute(name: string) {
-    if (name.toLowerCase() === 'disabled') endsWaiting(this);
+    if (name.toLowerCase() === 'disabled') {
+      endsWaiting(this);
+      // BTN-38: there is no attribute to remove, so no change of it tells the property.
+      if (this.focusableWhenDisabled && !this.hasAttribute('disabled') && this.disabled) this.disabled = false;
+    }
     super.removeAttribute(name);
+  }
+
+  /** BTN-38: while the attribute is taken off on the property's behalf, it says nothing of the property. */
+  private holdingDisabled = false;
+
+  override attributeChangedCallback(name: string, old: string | null, value: string | null) {
+    if (name === 'disabled' && this.holdingDisabled) return;
+    super.attributeChangedCallback(name, old, value);
   }
 
   /** BTN-29: the form owner changed — the button moved, or its `form` attribute was written. */
@@ -411,7 +469,7 @@ export class TanreiButton extends LitElement {
     this.addEventListener(
       'click',
       (event) => {
-        if (this.isDisabled) {
+        if (this.refuses) {
           event.preventDefault();
           event.stopImmediatePropagation();
         }
@@ -432,7 +490,7 @@ export class TanreiButton extends LitElement {
     const action = this.formAction;
     if (!action) return;
     afterClick(() => {
-      if (event.defaultPrevented || this.isDisabled) return;
+      if (event.defaultPrevented || this.refuses) return;
       const form = this.form;
       if (!form) {
         report(this, 'BTN-29', `a ${action} button has no form: it stands in none, and its form attribute names none; the press emitted click and did nothing more`);
@@ -482,7 +540,7 @@ export class TanreiButton extends LitElement {
   override click() {
     const container = this.container;
     if (container) container.click();
-    else if (!this.isDisabled) super.click();
+    else if (!this.refuses) super.click();
   }
 
   /**
@@ -490,13 +548,24 @@ export class TanreiButton extends LitElement {
    * `click` listener on the element already sees the new value, and `change` follows once the click has gone through the page.
    */
   private onClick() {
-    if (!this.toggle || this.isDisabled) return;
+    if (!this.toggle || this.refuses) return;
     this.selected = !this.selected;
     const detail = { selected: this.selected };
     afterClick(() => this.dispatchEvent(new CustomEvent<TanreiButtonChangeDetail>('change', { bubbles: true, detail })));
   }
 
-  protected override willUpdate() {
+  protected override willUpdate(changed: PropertyValues) {
+    // BTN-38: a disabled button made reachable gives up the `disabled` attribute (the page's too) and keeps the property;
+    // one no longer reachable takes it back, as its reflection would have written it.
+    if (changed.has('focusableWhenDisabled') || changed.has('disabled')) {
+      if (this.focusableWhenDisabled && this.hasAttribute('disabled')) {
+        this.holdingDisabled = true;
+        HTMLElement.prototype.removeAttribute.call(this, 'disabled');
+        this.holdingDisabled = false;
+      } else if (!this.focusableWhenDisabled && this.disabled && !this.hasAttribute('disabled') && changed.has('focusableWhenDisabled') && changed.get('focusableWhenDisabled') !== undefined) {
+        this.setAttribute('disabled', '');
+      }
+    }
     // The slots report their content only once rendered; the first render reads it from the children, so an icon-only
     // button is square and named from its first frame.
     if (this.hasUpdated) return;
@@ -505,7 +574,24 @@ export class TanreiButton extends LitElement {
     this.hasLabel = nodes.some((node) => (node instanceof Element ? !node.slot : node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()));
   }
 
+  /** BTN-37: the polite region busyLabel is announced through. */
+  private get status() {
+    return this.renderRoot?.querySelector<HTMLElement>('.live') ?? null;
+  }
+
   protected override updated(changed: PropertyValues) {
+    // BTN-37: busyLabel is announced once when the button becomes busy (the region was emptied when it was not), and
+    // nothing is said when it ends.
+    // The region exists only while the button is busy (a status region on every button would be one in every list of
+    // the page's regions), so the words are put in a frame after it was, where a screen reader hears a change.
+    if (changed.has('busy') && this.busy) {
+      const words = this.busyLabel;
+      requestAnimationFrame(() => {
+        const status = this.status;
+        if (status && this.busy && !this.isDisabled) status.textContent = words;
+      });
+      if (!words) report(this, 'BTN-37', 'it is busy and busyLabel is empty, so nothing tells people who cannot see the arc that it is working; give it the words ("Saving")');
+    }
     // BTN-32: the update has reflected `disabled` by now. Unset inside a disabled fieldset, the button was rendered
     // from the property alone and is still disabled by the fieldset: it is drawn again.
     if (this.drawnDisabled !== this.isDisabled) this.requestUpdate();
@@ -568,6 +654,11 @@ export class TanreiButton extends LitElement {
     const link = this.link.form;
     const disabled = this.isDisabled;
     this.drawnDisabled = disabled;
+    // BTN-36 … BTN-38: busy, or disabled and still reachable — refusing presses, staying in the focus order, and telling
+    // assistive technology so with aria-disabled in place of the platform's disabled state.
+    const reachable = this.reachable;
+    const busy = this.busy && !disabled;
+    const description = [this.link.describe(this.forwardedDescription), busy ? this.busyLabel : ''].filter(Boolean).join(', ');
     const tag = link ? literal`a` : literal`button`;
     const iconOnly = !this.hasLabel;
     const trailing = this.hasIcon && this.hasLabel && this.iconPosition === 'trailing';
@@ -579,15 +670,16 @@ export class TanreiButton extends LitElement {
         part="container"
         type=${link ? nothing : 'button'}
         data-tanrei-shape
-        class=${classMap({ 'has-icon': this.hasIcon, 'with-icon': this.hasIcon && this.hasLabel && !trailing, 'with-trailing-icon': trailing, 'with-mark': mark, 'icon-only': iconOnly, ...this[GROUP_ITEM].classes() })}
+        class=${classMap({ 'has-icon': this.hasIcon, 'with-icon': this.hasIcon && this.hasLabel && !trailing, 'with-trailing-icon': trailing, 'with-mark': mark, 'icon-only': iconOnly, busy, ...this[GROUP_ITEM].classes() })}
         data-host-variant=${this[GROUP_ITEM].variant ?? nothing}
         ${linkAttributes(link)}
-        tabindex=${this.outsideFocusOrder ? '-1' : nothing}
+        tabindex=${this.outsideFocusOrder ? '-1' : link && reachable ? '0' : nothing}
         aria-label=${this.label || nothing}
-        aria-description=${this.link.describe(this.forwardedDescription) ?? nothing}
+        aria-description=${description || nothing}
         aria-invalid=${!link && this.forwardedInvalid === 'true' ? 'true' : nothing}
         aria-pressed=${this.toggle ? String(this.selected) : nothing}
-        ?disabled=${!link && disabled}
+        ?disabled=${!link && disabled && !reachable}
+        aria-disabled=${!link && reachable ? 'true' : nothing}
         @click=${this.onClick}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
@@ -601,7 +693,9 @@ export class TanreiButton extends LitElement {
         <span part="icon" class="icon" aria-hidden="true"><slot name="icon" @slotchange=${this.onIconSlotChange}></slot></span>
         <span part="label" class="label"><slot @slotchange=${this.onLabelSlotChange}></slot></span>
         ${mark ? html`<span part="icon" class="mark" aria-hidden="true">${LINK_MARK}</span>` : nothing}
+        ${busy ? html`<span class="busy-arc" aria-hidden="true">${svg`<svg focusable="false"><circle></circle></svg>`}</span>` : nothing}
       </${tag}>
+      ${busy ? html`<span class="live" role="status"></span>` : nothing}
     `;
   }
 }

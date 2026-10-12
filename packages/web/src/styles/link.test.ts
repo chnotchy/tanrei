@@ -1218,7 +1218,8 @@ test.describe('forced colors, scaling, direction', () => {
   });
 
   test('LNK-24 the link takes its direction from an ancestor inside the page and has none of its own; a change while it is shown is drawn at once, keeping its focus', async ({ page }) => {
-    await mount(page, '<div id="region" dir="rtl"><p><a class="tanrei-link" href="#a" id="one" data-standalone><span class="tanrei-icon" aria-hidden="true">download</span>تنزيل الرموز</a></p></div>');
+    // (A phrase of a sentence: a standalone link takes its label's own direction, LNK-26.)
+    await mount(page, '<div id="region" dir="rtl"><p><a class="tanrei-link" href="#a" id="one"><span class="tanrei-icon" aria-hidden="true">download</span>تنزيل الرموز</a></p></div>');
     const anchor = page.locator('#one');
     expect(await page.locator('html').getAttribute('dir')).toBeNull();
     expect(await anchor.getAttribute('dir')).toBeNull();
@@ -1311,6 +1312,85 @@ test.describe('forced colors, scaling, direction', () => {
     });
     // The "!" after the link belongs to the sentence: it stands at the left of the link, not at its right.
     expect(mark).toBeLessThanOrEqual((await box(page.locator('#in'))).x + 0.5);
+  });
+
+  for (const [kind, side] of [['standalone', 'its own direction'], ['marked', 'the direction the page marked']] as const) {
+    test(`LNK-26 LNK-14 LNK-31 a left-to-right link in right-to-left text (${kind}) has its glyphs at the ends of its label in ${side}: the leading glyph before its first word, a trailing glyph and the mark’s room after its last, unmirrored, at every width`, async ({ page }) => {
+      const label = 'Read the accessibility guide of the example site';
+      const attrs = kind === 'standalone' ? 'data-standalone' : 'dir="ltr"';
+      await mount(
+        page,
+        `<p>مرحبا بكم <a class="tanrei-link" ${attrs} href="#a" id="lead"><span class="tanrei-icon" aria-hidden="true">download</span>${label}</a> نهاية</p>
+         <p>مرحبا بكم <a class="tanrei-link" ${attrs} href="#a" id="trail" data-icon-position="trailing">${label}<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a> نهاية</p>
+         <p>مرحبا بكم <a class="tanrei-link" ${attrs} href="https://example.com/" data-external="true" aria-description="external link" id="mark">${label}</a> نهاية</p>`,
+        { direction: 'rtl' },
+      );
+      // The script gave the standalone links their label's direction: its first strong character's, the glyph's name aside.
+      if (kind === 'standalone') for (const id of ['lead', 'trail', 'mark']) expect(await page.locator(`#${id}`).getAttribute('dir')).toBe('ltr');
+      for (const id of ['lead', 'trail', 'mark']) expect(await css(page.locator(`#${id}`), 'direction')).toBe('ltr');
+      const gap = await resolveToken(page, T('container-gap'));
+      const size = await px(page.locator('#mark'), 'font-size');
+      // Not mirrored: the label is left to right.
+      expect(await css(page.locator('#trail .tanrei-icon'), 'transform')).toBe('none');
+      expect(await css(page.locator('#mark'), 'transform', '::after')).toBe('none');
+      const widths = await page.locator('.stage').evaluate((stage: HTMLElement) => {
+        const line = (anchor: Element, node: Node, last: boolean) => {
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          const rects = [...range.getClientRects()].filter((r) => r.width > 0);
+          const top = last ? Math.max(...rects.map((r) => r.top)) : Math.min(...rects.map((r) => r.top));
+          const on = rects.filter((r) => Math.abs(r.top - top) < r.height / 2);
+          return { x: Math.min(...on.map((r) => r.left)), right: Math.max(...on.map((r) => r.right)), y: top + on[0].height / 2 };
+        };
+        const out = [];
+        for (let width = 150; width <= 420; width += 6) {
+          stage.style.inlineSize = `${width}px`;
+          const [lead, trail, mark] = ['#lead', '#trail', '#mark'].map((s) => stage.querySelector(s)!);
+          const glyph = (a: Element) => {
+            const r = a.querySelector('.tanrei-icon')!.getBoundingClientRect();
+            return { x: r.left, right: r.right, y: r.top + r.height / 2 };
+          };
+          const parts = [...mark.getClientRects()];
+          const room = parts.at(-1)!;
+          out.push({
+            width,
+            wraps: trail.getClientRects().length > 1,
+            lead: glyph(lead),
+            first: line(lead, lead.lastChild!, false),
+            trail: glyph(trail),
+            last: line(trail, trail.firstChild!, true),
+            end: line(mark, mark.firstChild!, true),
+            room: { right: room.right, y: room.top + room.height / 2 },
+          });
+        }
+        return out;
+      });
+      for (const { width, lead, first, trail, last, end, room } of widths) {
+        const what = `${width} wide`;
+        near(first.x - lead.right, gap, `${what}: the leading glyph the gap before the first word`, 0.6);
+        near(lead.y, first.y, `${what}: the leading glyph on the first line`, 1);
+        near(trail.x - last.right, gap, `${what}: the trailing glyph the gap after the last word`, 0.6);
+        near(trail.y, last.y, `${what}: the trailing glyph on the last line`, 1);
+        near(room.right - end.right, size + gap, `${what}: the mark’s room after the last word`, 0.6);
+        near(room.y, end.y, `${what}: the mark’s room on the last line`, 1);
+      }
+      expect(widths.filter((w) => w.wraps).length, 'the link wraps at many widths').toBeGreaterThan(10);
+    });
+  }
+
+  test('LNK-26 the script writes the label’s own direction on a standalone link the page gave no dir — its first strong character’s, a glyph’s name aside — follows the label, never changes a dir the page wrote, and takes its own back when the link stops standing by itself', async ({ page }) => {
+    await mount(page, '<p><a class="tanrei-link" data-standalone href="#a" id="own">Getting started</a> <a class="tanrei-link" data-standalone dir="rtl" href="#a" id="given">Getting started</a> <a class="tanrei-link" href="#a" id="phrase">the guides</a> <a class="tanrei-link" data-standalone href="#a" id="glyph"><span class="tanrei-icon" aria-hidden="true">download</span>تنزيل</a> <a class="tanrei-link" data-standalone href="#a" id="number">+1 555</a></p>');
+    await expect(page.locator('#own')).toHaveAttribute('dir', 'ltr');
+    await expect(page.locator('#glyph')).toHaveAttribute('dir', 'rtl');
+    expect(await page.locator('#number').getAttribute('dir')).toBeNull();
+    await page.locator('#own').evaluate((el) => el.replaceChildren('ابدأ'));
+    await expect(page.locator('#own')).toHaveAttribute('dir', 'rtl');
+    await expect(page.locator('#given')).toHaveAttribute('dir', 'rtl');
+    expect(await page.locator('#phrase').getAttribute('dir')).toBeNull();
+    await page.locator('#own').evaluate((el) => el.removeAttribute('data-standalone'));
+    await expect(page.locator('#own')).not.toHaveAttribute('dir', /./);
+    await page.locator('#given').evaluate((el) => el.removeAttribute('data-standalone'));
+    await expect(page.locator('#given')).toHaveAttribute('dir', 'rtl');
   });
 });
 

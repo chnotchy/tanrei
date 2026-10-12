@@ -22,6 +22,8 @@
 //     nothing itself: no address is derived from `href`, and no request is made;
 //   - `data-underline-system` and `data-external-marks-system` on the document's root, where the browser has no style
 //     queries to read `comp.link.underline.visibility` and `comp.link.external.marks` with (LNK-27, LNK-33);
+//   - the label's own direction as `dir` on a standalone link the page gave no `dir` (LNK-26), so that its glyphs and
+//     mark stand at the ends of its label in that direction;
 //   - every debug report (LNK-13, LNK-15, LNK-19, LNK-21, LNK-29, LNK-32, LNK-34, LNK-35).
 //
 // What the browser gives an anchor stays the browser's (LNK-1, LNK-12): Enter fires `click` and then follows the
@@ -195,6 +197,48 @@ function read(anchor: HTMLAnchorElement) {
   }
   readExternal(anchor);
   readSiteIcon(anchor);
+  readDirection(anchor);
+}
+
+/** The standalone links whose `dir` this script wrote: the one value of `dir` it writes, changes and takes back. */
+const ownDirection = new WeakSet<Element>();
+
+/** Right-to-left scripts' letters (Hebrew, Arabic, Syriac, Thaana, N'Ko and their presentation forms). */
+const RTL_LETTER = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/u;
+const LETTER = /\p{L}/u;
+
+/** The direction of the label's first strong character — its words, not a glyph's name — or null where it has none. */
+function labelDirection(anchor: HTMLAnchorElement): 'ltr' | 'rtl' | null {
+  const walker = anchor.ownerDocument.createTreeWalker(anchor, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) => (node.parentElement?.closest('.tanrei-icon') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+  });
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    for (const char of node.textContent ?? '') {
+      if (RTL_LETTER.test(char)) return 'rtl';
+      if (LETTER.test(char)) return 'ltr';
+    }
+  }
+  return null;
+}
+
+/**
+ * LNK-26, LNK-14: a standalone link is text of its own direction — its label's first strong character's, a glyph's
+ * name aside — and its glyphs and mark stand at the ends of its label in that direction. This script writes that
+ * direction as `dir` on a standalone link the page gave no `dir`, changes it with the label, and takes it back when the
+ * label has no strong character or the link stops standing by itself. A `dir` the page wrote is never changed: on a
+ * phrase in a sentence it is how the page says the phrase has a direction of its own.
+ */
+function readDirection(anchor: HTMLAnchorElement) {
+  const standalone = anchor.hasAttribute('data-standalone') && anchor.getAttribute('data-standalone') !== 'false';
+  if (anchor.hasAttribute('dir') && !ownDirection.has(anchor)) return;
+  const direction = standalone ? labelDirection(anchor) : null;
+  if (direction) {
+    if (anchor.getAttribute('dir') !== direction) anchor.setAttribute('dir', direction);
+    ownDirection.add(anchor);
+  } else if (ownDirection.has(anchor)) {
+    ownDirection.delete(anchor);
+    anchor.removeAttribute('dir');
+  }
 }
 
 /**

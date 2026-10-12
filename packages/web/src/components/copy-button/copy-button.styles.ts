@@ -13,6 +13,11 @@ export const styles = css`
   :host([hidden]) {
     display: none;
   }
+  /* CPY-18: the Tooltip around the Button takes no room of its own: the Button is the copy button's whole box. */
+  tanrei-tooltip {
+    display: inline-flex;
+    vertical-align: middle;
+  }
 
   /* CPY-7, CPY-11: the three glyphs are drawn in one box — the Button's icon box, which this fills. While the icon
      set cannot draw a glyph yet (its font is loading) its name would be spelled in a text face: nothing is drawn in

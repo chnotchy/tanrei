@@ -339,7 +339,7 @@
           }
         },
         "outline-variant": {
-          "$value": "{tanrei.ref.alpha.black.14}",
+          "$value": "{tanrei.ref.alpha.black.44}",
           "$description": "A decorative hairline (dividers, card edges). Separate from `outline` because a product wants quiet dividers without losing visible input borders.",
           "$extensions": {
             "dev.tanrei.vocabulary": {

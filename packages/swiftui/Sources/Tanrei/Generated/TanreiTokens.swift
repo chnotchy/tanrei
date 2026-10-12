@@ -2762,9 +2762,10 @@ public struct TanreiButtonVariant: RawRepresentable, Hashable, Sendable, CustomS
   public static let elevated = TanreiButtonVariant(rawValue: "elevated")
   public static let outlined = TanreiButtonVariant(rawValue: "outlined")
   public static let text = TanreiButtonVariant(rawValue: "text")
+  public static let inline = TanreiButtonVariant(rawValue: "inline")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiButtonVariant] = [.filled, .tonal, .elevated, .outlined, .text]
+  public static let core: [TanreiButtonVariant] = [.filled, .tonal, .elevated, .outlined, .text, .inline]
   /// The default: what a value the current design system does not have falls back to.
   public static let fallback = TanreiButtonVariant.filled
 }
@@ -2868,6 +2869,7 @@ public struct TanreiButtonVariants: Sendable, Equatable {
   public var elevated: TanreiButtonVariantTokens
   public var outlined: TanreiButtonVariantTokens
   public var text: TanreiButtonVariantTokens
+  public var inline: TanreiButtonVariantTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
   public var extra: [TanreiButtonVariant: TanreiButtonVariantTokens]
 
@@ -2877,6 +2879,7 @@ public struct TanreiButtonVariants: Sendable, Equatable {
     elevated: TanreiButtonVariantTokens,
     outlined: TanreiButtonVariantTokens,
     text: TanreiButtonVariantTokens,
+    inline: TanreiButtonVariantTokens,
     extra: [TanreiButtonVariant: TanreiButtonVariantTokens] = [:]
   ) {
     self.filled = filled
@@ -2884,6 +2887,7 @@ public struct TanreiButtonVariants: Sendable, Equatable {
     self.elevated = elevated
     self.outlined = outlined
     self.text = text
+    self.inline = inline
     self.extra = extra
   }
 
@@ -2895,6 +2899,7 @@ public struct TanreiButtonVariants: Sendable, Equatable {
     case .elevated: return elevated
     case .outlined: return outlined
     case .text: return text
+    case .inline: return inline
     default: return extra[key]
     }
   }
@@ -2927,7 +2932,12 @@ public struct TanreiButtonStateTokens: Sendable, Equatable {
 
 /// Component tokens of button (comp.button).
 public struct TanreiButtonTokens: Sendable, Equatable {
+  public var busyIndicatorThickness: CGFloat
   public var containerShape: CGFloat
+  public var inlineUnderlineOffset: CGFloat
+  public var inlineUnderlineVisibility: Double
+  public var inlineUnderlineWidth: CGFloat
+  public var motionBusyCycleDuration: Double
   public var motionFeedbackDuration: Double
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
@@ -2943,7 +2953,12 @@ public struct TanreiButtonTokens: Sendable, Equatable {
   public var disabled: TanreiButtonStateTokens
 
   public init(
+    busyIndicatorThickness: CGFloat,
     containerShape: CGFloat,
+    inlineUnderlineOffset: CGFloat,
+    inlineUnderlineVisibility: Double,
+    inlineUnderlineWidth: CGFloat,
+    motionBusyCycleDuration: Double,
     motionFeedbackDuration: Double,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
@@ -2954,7 +2969,12 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     pressed: TanreiButtonStateTokens,
     disabled: TanreiButtonStateTokens
   ) {
+    self.busyIndicatorThickness = busyIndicatorThickness
     self.containerShape = containerShape
+    self.inlineUnderlineOffset = inlineUnderlineOffset
+    self.inlineUnderlineVisibility = inlineUnderlineVisibility
+    self.inlineUnderlineWidth = inlineUnderlineWidth
+    self.motionBusyCycleDuration = motionBusyCycleDuration
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
