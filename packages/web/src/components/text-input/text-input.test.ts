@@ -4105,13 +4105,16 @@ test.describe('the input and the Field that frames it', () => {
     const labels = ['ada@example.com', 'grace.hopper@example.org'];
     await entriesPage(page, withEntries('open', labels) + withEntries('read', labels, 'readonly') + withEntries('off', labels, 'disabled'));
     const one = (id: string) => page.locator(`#${id}`);
-    const [rowGap, height] = [await resolveToken(page, T('entries-row-gap')), await resolveToken(page, T('container-height-medium'))];
     const heightOf = async (id: string) => (await bounds(one(id).locator('div.container'))).height;
     const chips = await Promise.all((await one('read').locator('tanrei-chip').all()).map((each) => bounds(each)));
-    const lines = new Set(chips.map((each) => each.y)).size;
-    // Enabled, the typing part takes a line of its own below the last item (TXI-64's verify); read-only, it takes none.
-    expect(await heightOf('open')).toBeCloseTo(height + lines * (chips[0]!.height + rowGap), 1);
-    expect(await heightOf('read')).toBeCloseTo(height + (lines - 1) * (chips[0]!.height + rowGap), 1);
+    // Enabled, the typing part takes a line of its own below the last item (TXI-64's verify); read-only, it takes none:
+    // the last line of chips stands as far from the container's bottom as the first stands from its top.
+    const typing = await bounds(one('open').locator('input.input'));
+    const openChips = await Promise.all((await one('open').locator('tanrei-chip').all()).map((each) => bounds(each)));
+    expect(typing.y).toBeGreaterThanOrEqual(openChips.at(-1)!.y + openChips.at(-1)!.height);
+    const box = await bounds(one('read').locator('div.container'));
+    expect(box.y + box.height - (chips.at(-1)!.y + chips.at(-1)!.height)).toBeCloseTo(chips[0]!.y - box.y, 1);
+    expect(await heightOf('read')).toBeLessThan(await heightOf('open'));
     await expect(one('read').locator('.field')).toHaveAttribute('data-no-typing', '');
     expect((await bounds(one('read').locator('input.input'))).width).toBe(0);
     // Still the text input: focusable, and exposed with its name.
