@@ -151,7 +151,7 @@ export const styles = css`
     color: var(--_title);
   }
   /* TIP-11: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
-  ${unsafeCSS(scriptTracking('.title', String(t('rich-title-typescale-letter-spacing'))))}
+  ${unsafeCSS(scriptTracking('.title', String(t('rich-title-typescale-letter-spacing')), { shadow: true }))}
   /* TIP-21: the title and the text are each a run of their own, in the direction of their first strong character, so a
      left-to-right name or a number with its unit keeps its order in a right-to-left tooltip; TIP-12, TIP-20: their lines
      are still start-aligned by the layout direction — at the right in right-to-left (src/styles/product-text.ts). */

@@ -235,7 +235,7 @@ export const styles = css`
     overflow-wrap: break-word;
   }
   /* SNK-22: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
-  ${unsafeCSS(scriptTracking('.title', String(t('title-typescale-letter-spacing'))))}
+  ${unsafeCSS(scriptTracking('.title', String(t('title-typescale-letter-spacing')), { shadow: true }))}
   .message {
     font: ${t('supporting-text-typescale-font')};
     letter-spacing: ${t('supporting-text-typescale-letter-spacing')};

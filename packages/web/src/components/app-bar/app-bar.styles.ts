@@ -179,7 +179,7 @@ export const styles = css`
     color: ${t('title-color')};${unsafeCSS(oneLine)}
   }
   /* APB-5: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
-  ${unsafeCSS(scriptTracking('.title', String(t('title-typescale-small-letter-spacing'))))}
+  ${unsafeCSS(scriptTracking('.title', String(t('title-typescale-small-letter-spacing')), { shadow: true }))}
   .subtitle {
     font: ${t('subtitle-typescale-small-font')};
     letter-spacing: ${t('subtitle-typescale-small-letter-spacing')};
@@ -219,7 +219,7 @@ export const styles = css`
     letter-spacing: var(--_title-ls);
   }
   /* APB-7: a large bar's title's too. */
-  ${unsafeCSS(scriptTracking('.block .title', 'var(--_title-ls)'))}
+  ${unsafeCSS(scriptTracking('.block .title', 'var(--_title-ls)', { shadow: true }))}
   .block .subtitle {
     font: var(--_subtitle-font);
     letter-spacing: var(--_subtitle-ls);

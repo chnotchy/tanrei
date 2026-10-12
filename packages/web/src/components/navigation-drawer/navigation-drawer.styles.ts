@@ -459,7 +459,7 @@ export const sectionStyles = css`
     transition: opacity ${unsafeCSS(SECOND_HALF)};
   }
   /* NVD-16: the heading's letter-spacing follows its script (src/styles/script-tracking.ts). */
-  ${unsafeCSS(scriptTracking('.heading-text', String(t('heading-typescale-letter-spacing'))))}
+  ${unsafeCSS(scriptTracking('.heading-text', String(t('heading-typescale-letter-spacing')), { shadow: true }))}
   /* NVD-52: the heading is its own run, in the direction of its first strong character, aligned to the layout's start. */
   ${productText('.heading-text', { align: 'start' })}
   .collapsed .heading-text {

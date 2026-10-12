@@ -136,7 +136,7 @@ export const styles = css`
     overflow-wrap: break-word;
   }
   /* POP-12: the headline's letter-spacing follows its script (src/styles/script-tracking.ts). */
-  ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing'))))}
+  ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing')), { shadow: true }))}
   /* POP-11: beside a close button taller than its line, the headline's first line is centred on the button. */
   .header.closable .headline {
     padding-block: max(0px, calc((var(--tanrei-comp-button-container-height-small) - 1lh) / 2));

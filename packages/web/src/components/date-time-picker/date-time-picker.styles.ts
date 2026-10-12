@@ -224,7 +224,7 @@ export const styles = css`
     overflow-wrap: break-word;
   }
   /* DTM-10: the header's value's letter-spacing follows its script (src/styles/script-tracking.ts). */
-  ${unsafeCSS(scriptTracking('.header > .value', String(t('header-value-typescale-letter-spacing'))))}
+  ${unsafeCSS(scriptTracking('.header > .value', String(t('header-value-typescale-letter-spacing')), { shadow: true }))}
   .placeholder {
     color: ${t('header-placeholder-color')};
   }

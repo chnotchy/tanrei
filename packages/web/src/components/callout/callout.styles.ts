@@ -246,7 +246,7 @@ export const styles = css`
     overflow-wrap: break-word;
   }
   /* CLO-7: the title's letter-spacing follows its script (src/styles/script-tracking.ts); a title the product gives in the slot, by its own language. */
-  ${unsafeCSS(scriptTracking('.title', 'var(--_title-tracking)'))}
+  ${unsafeCSS(scriptTracking('.title', 'var(--_title-tracking)', { shadow: true }))}
   .container:not(.titled) .title {
     display: none;
   }

@@ -125,7 +125,7 @@ export const styles = css`
     overflow-wrap: break-word;
   }
   /* SSH-9: the headline's letter-spacing follows its script (src/styles/script-tracking.ts). */
-  ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing'))))}
+  ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing')), { shadow: true }))}
   /* SSH-22: the headline is its own run, in the direction of its first strong character, so a left-to-right name keeps
      its order in a right-to-left sheet; its lines are still aligned to the layout's start edge
      (src/styles/product-text.ts). */

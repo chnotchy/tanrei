@@ -238,7 +238,7 @@ export const styles = css`
     overflow-wrap: break-word;
   }
   /* DLG-8: the headline's letter-spacing follows its script (src/styles/script-tracking.ts). */
-  ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing'))))}
+  ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing')), { shadow: true }))}
   .supporting {
     margin: 0;
     font: ${t('supporting-text-typescale-font')};

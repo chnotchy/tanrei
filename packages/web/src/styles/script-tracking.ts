@@ -34,10 +34,12 @@ export const UNTRACKED = languages(UNTRACKED_LANGUAGES);
  * `letter-spacing: <tracking>`. `selector` is ONE compound selector (wrap a list in `:is()` or `:where()`, or use `&`
  * inside a nested rule); the rules add no specificity to it, so they are written after its own rule. With `slotted`,
  * the rules are for what a shadow root's slot holds — `::slotted(<slotted>)`, by the slotted element's own language —
- * and `selector` is what stands before `::slotted` (empty for any slot).
+ * and `selector` is what stands before `::slotted` (empty for any slot). With `shadow`, `selector` is inside a shadow root
+ * and the language is asked of the host (`:host(:lang(ja)) <selector>`): an element inside a shadow root has its host's
+ * language, but not every engine matches `:lang()` there (Firefox does not), while every engine matches it on the host.
  */
-export const scriptTracking = (selector: string, tracking: string, { slotted }: { slotted?: string } = {}): string => {
-  const on = (condition: string) => (slotted ? `${selector}::slotted(${slotted}${condition})` : `${selector}${condition}`);
+export const scriptTracking = (selector: string, tracking: string, { slotted, shadow = false }: { slotted?: string; shadow?: boolean } = {}): string => {
+  const on = (condition: string) => (slotted ? `${selector}::slotted(${slotted}${condition})` : shadow ? `:host(${condition}) ${selector}` : `${selector}${condition}`);
   return [`${on(SOLID)} {\n  letter-spacing: max(0px, ${tracking});\n}`, `${on(UNTRACKED)} {\n  letter-spacing: 0;\n}`].join('\n');
 };
 
