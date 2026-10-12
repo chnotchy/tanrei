@@ -178,7 +178,7 @@ or by empty space (`gap`). One choice for the whole system, which a component an
 |---|---|---|
 | `<tanrei-button-group variant="connected">` | the items touch, square where they meet, a line on each seam; no item draws its outline or its elevation's ring along a seam | the items `connected.gap` apart, `connected.inner-shape` where they face each other |
 | `<tanrei-button-with-menu>` | the same, between its two halves | the same |
-| `<tanrei-progress-indicator>` | the indicator is drawn on the track, touching it; no stop indicator | `track.gap` between the indicator and the track (on a ring at both ends of the arc), and the stop indicator on a bar |
+| `<tanrei-progress-indicator>` | the indicator is drawn on the track, touching it | `track.gap` between the indicator and the track (on a ring at both ends of the arc); the stop indicator on a bar is drawn by its size under either |
 | `<tanrei-menu>` (and its submenus) | a line of `divider.thickness` between a group and what is next to it, `divider.space` above and below, a separator | `group.gap` of empty space there, no line and no separator |
 
 Each component reads the choice with a style container query on a private property of its host
@@ -936,9 +936,10 @@ PRG-1…17).
 **The bar** fills the inline size its layout gives it (block flow, a flex column, a grid), from the inline-start (the
 right in RTL). Its track and indicator are rounded by `track.shape`, which the browser clamps to half the thickness.
 Under `gap` (m3-like's choice, or `separation="gap"`), a value strictly between min and max leaves `track.gap` after the
-indicator (on a ring, at both ends of its arc), and a determinate bar draws the stop indicator: a dot of
-`stop-indicator.size`, never larger than the bar is thick, concentric with the track's rounded end. Under `divider`
-(Tanrei's choice) the track runs on under the indicator and no dot is drawn, whatever those two tokens say (PRG-5). The
+indicator (on a ring, at both ends of its arc). Under `divider` (Tanrei's choice) the track runs on under the
+indicator, whatever `track.gap` says. Under either, a determinate bar draws the stop indicator — a dot of
+`stop-indicator.size`, never larger than the bar is thick, concentric with the track's rounded end — unless that size is
+0 (Tanrei's) or the value is at max, where the indicator covers it (PRG-5). The
 track is two elements, both `::part(track)` — the whole track, and what is left of it after the gap — and the separation
 shows one, so a change of separation shows the other form at once, with no value motion to run. Indeterminate, a two-fifths segment crosses once per `motion.cycle-duration`
 with `motion.cycle-easing`, clipped to the track.
@@ -3170,7 +3171,7 @@ text for separators, and it has one live region.
   field.addEventListener('check', (event) => { if (!/^\S+@\S+\.\S+$/.test(event.detail.text)) event.preventDefault(); });
 </script>
 
-<!-- One level down, the same picture, by hand: every chip and remove action is then a Tab stop of its own. -->
+<!-- One level down, the same picture, by hand: every chip is then a Tab stop of its own. -->
 <tanrei-field label="Recipients">
   <tanrei-text-input type="email">
     <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com" remove-label="Remove ada@example.com"></tanrei-chip>
@@ -3964,8 +3965,11 @@ A compact choice, a suggested action or an item the user entered, as a small lab
 **Structure.** Two sibling native buttons in the shadow root: the chip (`::part(container)`) and, for an input chip,
 the remove action (`::part(remove)`) drawn over the chip's trailing room. They are siblings because buttons cannot nest,
 and so each keeps its own states: while the pointer or a press is on the remove action, the chip is neither hovered nor
-pressed (CHP-20), and hovering the chip leaves the remove action at rest. Tab reaches the chip, then its remove action
-(CHP-23); the chip handles no arrow keys — a row of chips is the page's (a future chip group).
+pressed (CHP-20), and hovering the chip leaves the remove action at rest. Every chip is one Tab stop, an input chip
+too: the remove action has `tabindex="-1"` (CHP-18, CHP-23) — pressable by pointer and assistive technology, focusable
+by `focus()`, passed by Tab — and the keyboard removes with Backspace or Delete on the chip (CHP-19), which its button
+announces as `aria-keyshortcuts="Delete Backspace"` while the chip removes (not while disabled or `not-removable`). The
+chip handles no arrow keys — a row of chips is the page's (a future chip group).
 
 **Looks (CHP-12).** A filter chip announces `aria-pressed`, and the look follows it: `true` paints the variant's
 `selected.*` parts, anything else the variant's own. A filter chip that is on shows a check in the leading position, in
@@ -3997,7 +4001,7 @@ reported, CHP-15) is clipped to `avatar.shape` at `avatar.size.<size>`, hidden f
 `sys.state.disabled-content-opacity` when disabled.
 
 **The remove action (CHP-18, CHP-20, CHP-21, CHP-27, CHP-28).** The `cancel` glyph centered on a round container of
-`remove.container.size` at the inline end. The container is larger than the glyph (the state layer shows as a ring
+`remove.container.size` at the inline end; not a Tab stop (above). The container is larger than the glyph (the state layer shows as a ring
 around the filled disc) and out of flow: it reaches into the gap and the end padding — on a small chip to its top and
 bottom — without changing the chip's size. It has its own hover, focus and press, its own focus ring, press-hold and
 ripple (within the round container; from its center for a press in the hit area outside it). While `destructiveRemove`

@@ -2,7 +2,7 @@
 title: Chip
 description: Un control pequeño con etiqueta que va en una fila, para una acción sugerida o un enlace a algún sitio, un filtro que está activado o desactivado, o un elemento que la persona introdujo y puede quitar.
 translationOf: components/chip.mdx
-sourceHash: a3d58a12a8d3b292cac1c4863b58d2661736ea10
+sourceHash: 37e38aec32b4906b81c9cd245bc9a0ee1ec6e828
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -244,7 +244,7 @@ Un chip de entrada que ahora no se puede quitar, como un elemento de un campo de
 - Todos los chips exponen el rol de botón, la etiqueta como nombre y su estado deshabilitado. El icono, la marca de verificación y el avatar quedan ocultos para la tecnología de apoyo.
 - Un chip de acción con `href` expone en su lugar el rol de enlace, con el mismo nombre. La marca de un enlace que abre una pestaña nueva queda oculta para la tecnología de apoyo; `targetLabel` es la descripción del enlace, que se lee después de su nombre y su rol.
 - Un chip de filtro expone además si está activado, como hace un botón conmutador: un estado pulsado en la web, el rasgo de seleccionado en las plataformas de Apple, un estado conmutable en Android. Su estado nunca se anuncia a partir de la marca de verificación.
-- Un chip de entrada son dos elementos: el chip y después su acción de quitar, un botón aparte que recibe su nombre de la etiqueta de quitar. Tab llega a ellos en ese orden. Retroceso o Supr sobre el chip con foco también piden quitarlo.
+- Un chip de entrada son dos elementos, el chip y su acción de quitar, un botón aparte que recibe su nombre de la etiqueta de quitar, pero una sola parada en el orden del foco: Tab llega al chip y salta la acción de quitar, que se sigue pulsando con el puntero, el tacto y las tecnologías de apoyo. Retroceso o Supr sobre el chip con foco piden quitarlo, y el chip se lo dice a las tecnologías de apoyo (en la web, con `aria-keyshortcuts`).
 - Enter y Espacio activan el chip, o la acción de quitar cuando esta tiene el foco. Un chip de enlace se activa solo con Enter. Cada uno muestra su propio indicador de foco, solo para el foco del teclado.
 - El área de pulsación del chip cumple el objetivo mínimo en los dos tamaños. La acción de quitar tiene un área de pulsación propia que también lo cumple, sin cubrir la etiqueta.
 - El aspecto destructivo de la acción de quitar nunca es la única señal. Con `destructiveRemove` activado o desactivado, la acción de quitar conserva su rol, su nombre, su glifo, su tamaño y su área de pulsación, y no anuncia nada más. El nombre, «Quitar a Ada Lovelace», dice lo que hace.
@@ -260,6 +260,7 @@ Carencias conocidas por plataforma:
 - Compose: el área de pulsación de la acción de quitar se extiende más allá del extremo del chip sin ensancharlo, así que un chip colocado justo después recibe las pulsaciones donde ambos se solapan. Un toque ahí, las teclas mediante la gestión de teclas de la plataforma y TalkBack solo se han probado con Robolectric, todavía no en un dispositivo.
 - SwiftUI: Retroceso y Supr sobre el chip, y Tab desde el chip hasta su acción de quitar, se prueban por partes, pero todavía no de extremo a extremo. Donde una pulsación atenúa el control (cupertino), el glifo de quitar se atenúa un fotograma después que el chip.
 - SwiftUI y Compose mantienen el icono, la marca de verificación, el glifo de quitar y el avatar en su propio tamaño cuando el texto crece, mientras que la etiqueta crece. Todavía no se ha decidido si deben crecer con la etiqueta.
+- SwiftUI, Compose, Flutter y React Native, que ofrecen la revisión anterior, siguen haciendo de la acción de quitar de un chip de entrada una segunda parada después del chip, y aún no dicen a las tecnologías de apoyo que Retroceso y Supr lo quitan. Cada una sacará la acción de quitar del orden del foco cuando se ponga al día.
 - La web dibuja la marca de verificación y el glifo de quitar como `check` y `cancel` del conjunto de iconos, con los nombres que da la especificación (CHP-13, CHP-18). SwiftUI, Compose, Flutter y React Native, que ofrecen la revisión anterior, siguen dibujando la acción de quitar con `close` (Flutter, mediante un punto de código de Material Symbols), y sin una fuente de iconos Compose y SwiftUI dibujan la marca de verificación y la cruz como vectores propios. Cada una dibujará `cancel` y `check` por su nombre, y ningún vector propio, cuando se ponga al día.
 
 ### Qué debes hacer tú

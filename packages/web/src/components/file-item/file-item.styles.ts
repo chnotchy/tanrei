@@ -421,8 +421,11 @@ export const styles = css`
   }
 
   /* FIT-10: the bar — the linear progress indicator's drawing (PRG-2, PRG-6, PRG-7, PRG-13, PRG-14), given this
-     component's tokens in the place of its own: the thickness, the ends, the two colors and the two motions. */
+     component's tokens in the place of its own: the thickness, the ends, the two colors and the two motions. Its bar
+     has a track and an indicator only, so the stop indicator, which the progress indicator draws by its size alone, is
+     given no size. */
   tanrei-progress-indicator {
+    ${unsafeCSS(PROGRESS)}-stop-indicator-size: var(--tanrei-sys-space-space0);
     ${unsafeCSS(PROGRESS)}-linear-thickness-medium: ${t('progress-thickness')};
     ${unsafeCSS(PROGRESS)}-track-shape: ${t('progress-shape')};
     ${unsafeCSS(PROGRESS)}-track-shape-pill: ${t('progress-shape-pill')};

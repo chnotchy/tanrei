@@ -2,7 +2,7 @@
 title: Grupo de tags
 description: Dispone un conjunto de tags o de chips en una o en varias líneas, con la separación que corresponde a lo que contiene, y expone el conjunto como una sola lista con nombre. Los miembros siguen siendo lo que son, y cuando se quita un chip el foco pasa al siguiente.
 translationOf: components/tag-group.mdx
-sourceHash: 8d6af56bf72c101aa98470342704cf2202d0d379
+sourceHash: deb4197699e52e94905bf63f9f02e8759a6bda39
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -183,7 +183,7 @@ Dos cosas siguen siendo tuyas:
 - El conjunto se expone como una sola lista, que recibe su nombre de `label`. Cada miembro es un elemento de ella: un tag se lee como su texto, un chip como su botón o su enlace con su estado, y un chip de entrada con su acción de quitar al lado.
 - Una lista dice a la persona cuántos miembros hay y en cuál de ellos está: «lista, 4 elementos».
 - Los miembros se leen y reciben el foco en el orden dado, también en un diseño de derecha a izquierda.
-- Cada chip es una parada propia en el orden del foco, y un chip de entrada son dos: el chip y después su acción de quitar. El grupo no recibe el foco ni gestiona ninguna tecla.
+- Cada chip es una parada propia en el orden del foco, y un chip de entrada una sola: Tab salta su acción de quitar, y Retroceso o Supr sobre el chip lo quitan. El grupo no recibe el foco ni gestiona ninguna tecla.
 - Después de quitar un chip que tenía el foco, el foco pasa al chip siguiente, nunca a una acción de quitar.
 - Un grupo vacío no expone nada: ni una lista vacía ni un nombre.
 - Con el texto al 200%, los miembros crecen y ocupan más líneas. Nada se corta y nada se desplaza hacia los lados.

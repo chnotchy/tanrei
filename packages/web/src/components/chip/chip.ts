@@ -55,9 +55,10 @@ const REMOVE_GLYPH = 'cancel';
  *
  * `kind` decides what the chip does and its parts; `variant` only how it looks. An action chip is a button. A filter chip
  * is a button with a pressed state: activation switches `selected` and fires `change`, and when on it shows a check in
- * its leading position. An input chip has a remove action, a second button named by `removeLabel`, reached by Tab after
- * the chip; it and Backspace or Delete on the chip fire `remove` — the chip never removes itself (the page does, and
- * moves focus). By default the remove action reads as destructive (`destructiveRemove`; the attribute
+ * its leading position. An input chip has a remove action, a second button named by `removeLabel`, pressed by pointer,
+ * touch or assistive technology and not a Tab stop: an input chip is one stop, and Backspace or Delete on it removes it,
+ * which the chip tells assistive technology with `aria-keyshortcuts`. Both fire `remove` — the chip never removes itself
+ * (the page does, and moves focus). By default the remove action reads as destructive (`destructiveRemove`; the attribute
  * `no-destructive-remove` turns it off): it looks the same at rest and takes the error color while it is hovered,
  * focused or pressed — a color only, never a change of name, glyph or size. The label is the visible text and the
  * accessible name; the icon (the `icon` slot) and the avatar (the `avatar` slot, input chips only) are decorative.
@@ -297,7 +298,7 @@ export class TanreiChip extends LitElement {
     afterClick(() => this.dispatchEvent(new CustomEvent<TanreiChipChangeDetail>('change', { bubbles: true, detail })));
   }
 
-  /** CHP-19: Backspace or Delete on a focused input chip asks for its removal. */
+  /** CHP-19: Backspace or Delete on a focused input chip asks for its removal, once per press. */
   private onKeyDown(event: KeyboardEvent) {
     this.press.onKeyDown(event);
     if (!this.removes || this.disabled || event.repeat) return;
@@ -364,7 +365,8 @@ export class TanreiChip extends LitElement {
     const checked = this.on;
     // The chip is a native <button> (role, focus, Enter / Space, disabled); a filter chip's is a toggle (aria-pressed).
     // An input chip's remove action is a second, sibling <button>: nested buttons are not allowed, and a sibling's hover,
-    // focus and press stay its own (CHP-20).
+    // focus and press stay its own (CHP-20). It is out of the Tab order (CHP-18): the keyboard removes through the chip's
+    // own button, Backspace or Delete (CHP-19), and the chip's button says so with aria-keyshortcuts.
     // CHP-33: an action chip with a destination is an anchor in the button's place — the same classes, part and
     // listeners — whose attributes are the link primitive's; a disabled one is the anchor without `href` (CHP-36).
     const link = this.link.form;
@@ -388,6 +390,7 @@ export class TanreiChip extends LitElement {
           ${linkAttributes(link)}
           aria-description=${this.link.describe() ?? nothing}
           aria-pressed=${kind === 'filter' ? String(this.selected) : nothing}
+          aria-keyshortcuts=${this.removes && !this.disabled ? 'Delete Backspace' : nothing}
           ?disabled=${!link && this.disabled}
           @click=${this.onClick}
           @pointerdown=${this.press.onPointerDown}
@@ -418,6 +421,7 @@ export class TanreiChip extends LitElement {
           class="remove"
           type="button"
           data-tanrei-shape
+          tabindex="-1"
           aria-label=${this.removeLabel || nothing}
           ?disabled=${this.disabled}
           ?hidden=${!this.removes}

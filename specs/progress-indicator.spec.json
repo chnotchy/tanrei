@@ -17,7 +17,7 @@
     },
     {
       "id": "stop-indicator",
-      "description": "A dot at the end of a determinate bar's track that marks where the task ends. Drawn under gap only, and not when its size is 0.",
+      "description": "A dot at the end of a determinate bar's track that marks where the task ends. Drawn under either separation whenever its size is above 0; 0 draws none.",
       "optional": true
     }
   ],
@@ -53,7 +53,7 @@
         "gap"
       ],
       "default": "auto",
-      "description": "How a determinate indicator is told from the rest of its track. divider: it is drawn on the track with no space between them. gap: empty space is left between them, and a bar marks the track's end with a dot. Auto takes comp.progress-indicator.track.separation, the design system's answer (divider in the default system)."
+      "description": "How a determinate indicator is told from the rest of its track. divider: it is drawn on the track with no space between them. gap: empty space is left between them. Whether a bar marks the track's end with a dot is comp.progress-indicator.stop-indicator.size, not the separation. Auto takes comp.progress-indicator.track.separation, the design system's answer (divider in the default system)."
     },
     {
       "name": "value",
@@ -108,8 +108,8 @@
     },
     {
       "id": "PRG-5",
-      "text": "WHILE determinate, its separation is gap (PRG-17) and value lies strictly between min and max THE progress indicator SHALL leave comp.progress-indicator.track.gap of empty space, measured along the track, between the indicator and the rest of the track — on a bar between the indicator's end and the track, on a ring at both ends of the indicator's arc; WHILE a bar is determinate and its separation is gap it SHALL draw a dot of comp.progress-indicator.stop-indicator.size, and no larger than the bar is thick, in comp.progress-indicator.indicator.color centered in the thickness with its center half the thickness before the track's end (concentric with the track's rounded end), and a size of 0 SHALL draw none. WHILE its separation is divider THE progress indicator SHALL draw the indicator on the track with no empty space between them and no dot: the edge where the indicator's color ends is what divides them.",
-      "verify": "Under the default system: linear-determinate and circular-determinate (auto, so divider) are drawn as before this behaviour was revised, the indicator touching the track; linear-gap and circular-gap leave 4 between them, on the ring at both ends of the arc; linear-gap draws a dot of 4 at the track's end, linear-gap-large the same dot inside a bar of 8, and linear-gap-small a dot of 2, the bar's thickness."
+      "text": "WHILE determinate, its separation is gap (PRG-17) and value lies strictly between min and max THE progress indicator SHALL leave comp.progress-indicator.track.gap of empty space, measured along the track, between the indicator and the rest of the track — on a bar between the indicator's end and the track, on a ring at both ends of the indicator's arc. WHILE its separation is divider THE progress indicator SHALL draw the indicator on the track with no empty space between them: the edge where the indicator's color ends is what divides them. WHILE a bar is determinate THE progress indicator SHALL draw, under either separation, a dot of comp.progress-indicator.stop-indicator.size, and no larger than the bar is thick, in comp.progress-indicator.indicator.color centered in the thickness with its center half the thickness before the track's end (concentric with the track's rounded end); it SHALL NOT be drawn while value is at max, where the indicator covers it, and a size of 0 SHALL draw none. Whether the dot is drawn is independent of the separation.",
+      "verify": "Under the default system: linear-determinate and circular-determinate (auto, so divider) are drawn as before this behaviour was revised, the indicator touching the track; linear-gap and circular-gap leave 4 between them, on the ring at both ends of the arc; stop-indicator.size is 0, so no bar draws a dot, under divider or gap. Under m3-like (stop-indicator.size 4) every determinate bar below max draws a dot of 4 at the track's end, linear-divider included. Unit tests give the size a value under the default system: a dot of that size under divider and under gap alike, never larger than the bar is thick (2 in linear-small), none at max and none at 0."
     },
     {
       "id": "PRG-6",
@@ -170,7 +170,7 @@
     "minimumTarget": true,
     "notes": [
       "Not interactive: the indicator takes no input and is never focusable (PRG-10), so the minimum target holds without extending anything.",
-      "The value is read from the boundary between indicator and track: comp.progress-indicator.indicator.color must stay at least 3:1 against comp.progress-indicator.track.color and against the surface behind it, under divider and under gap alike. A faint track may leave the track's end hard to see; under gap the stop indicator marks it.",
+      "The value is read from the boundary between indicator and track: comp.progress-indicator.indicator.color must stay at least 3:1 against comp.progress-indicator.track.color and against the surface behind it, under divider and under gap alike. A faint track may leave the track's end hard to see; the stop indicator, in a system that gives it a size, marks it.",
       "Indeterminate is announced as busy with no value: on the web a progressbar without aria-valuenow (and aria-busy), on Apple platforms a progress element with no value, on Android the indeterminate range info, in Flutter a progress indicator with a null value.",
       "Reduced motion replaces movement with an opacity pulse of at most one per second (PRG-7), below the three-per-second flash threshold."
     ]

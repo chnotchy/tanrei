@@ -5596,7 +5596,7 @@
     --tanrei-comp-progress-indicator-motion-cycle-easing: var(--tanrei-sys-motion-easing-standard);
     --tanrei-comp-progress-indicator-motion-value-duration: var(--tanrei-sys-motion-duration-medium2);
     --tanrei-comp-progress-indicator-motion-value-easing: var(--tanrei-sys-motion-easing-standard);
-    --tanrei-comp-progress-indicator-stop-indicator-size: var(--tanrei-sys-space-space50);
+    --tanrei-comp-progress-indicator-stop-indicator-size: var(--tanrei-sys-space-space0);
     --tanrei-comp-progress-indicator-track-color: var(--tanrei-sys-color-surface-variant);
     --tanrei-comp-progress-indicator-track-gap: var(--tanrei-sys-space-space50);
     --tanrei-comp-progress-indicator-track-separation: var(--tanrei-sys-behavior-separation);

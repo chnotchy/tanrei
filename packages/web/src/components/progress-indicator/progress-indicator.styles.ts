@@ -65,13 +65,12 @@ export const styles = css`
 
   /* ── The bar ─────────────────────────────────────────────────────────────────────────────────────────── */
   /* PRG-5, PRG-17: the divider form (the first value of the choice, and so what an unknown name draws) — no gap, the
-     whole track under the indicator, no stop indicator. The gap form is at the end of this sheet. */
+     whole track under the indicator. The gap form is at the end of this sheet. */
   .bar,
   .ring {
     --_gap: 0px;
   }
-  .track.after,
-  .bar .stop {
+  .track.after {
     display: none;
   }
   .bar {
@@ -106,7 +105,8 @@ export const styles = css`
     transition-timing-function: ${unsafeCSS(T('motion-value-easing'))};
   }
   /* PRG-5: the stop indicator, a dot in the indicator color at the track's end, concentric with its rounded end, and
-     never larger than the bar is thick. */
+     never larger than the bar is thick — under either separation, so its size alone decides whether it shows (0 draws
+     none). At max the indicator covers it, and it is not drawn. */
   .bar .stop {
     --_stop: min(${unsafeCSS(T('stop-indicator-size'))}, var(--_bar));
     position: absolute;
@@ -116,6 +116,9 @@ export const styles = css`
     block-size: var(--_stop);
     border-radius: 50%;
     background: ${unsafeCSS(T('indicator-color'))};
+  }
+  .bar.full .stop {
+    display: none;
   }
   /* PRG-2, a bar: a segment two fifths of the track long crosses from beyond its start to beyond its end once per
      cycle, clipped to the track. It is moved by a transform alone — its own length back (two fifths of the track) to
@@ -210,15 +213,14 @@ export const styles = css`
 
   /* PRG-5, PRG-17: the gap form — while determinate, track.gap of empty space between the indicator and the rest of the
      track while the value lies strictly between min and max (on a ring at both ends of the arc: the track's dashes
-     above), and on a bar the stop indicator. An indeterminate indicator is drawn the same under either separation. */
+     above). An indeterminate indicator is drawn the same under either separation. */
   ${whenGap(
     ':is(.bar, .ring)',
     (drawing) => `
   ${drawing}.determinate .track.under {
     display: none;
   }
-  ${drawing}.determinate .track.after,
-  ${drawing}.determinate .stop {
+  ${drawing}.determinate .track.after {
     display: block;
   }
   ${drawing}.between {
