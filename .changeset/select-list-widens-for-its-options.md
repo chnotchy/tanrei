@@ -24,4 +24,4 @@ row stands outside the region that scrolls, under it, and stays in view. The m3-
 gap from its original: Material's web select swaps its arrow to point up while open, and Tanrei's chevron does not
 change.
 
-Some web select baselines show a wider list and are re-recorded for this.
+Four web baselines are re-recorded for this: `select/open-supporting-text` and `select/open-disabled-chosen` show the list wider than the trigger, with each supporting line on one line. `select/open-long-options` and `select-field/open-long-options` show the list at the width its stage allows, shifted to stay inside it.
