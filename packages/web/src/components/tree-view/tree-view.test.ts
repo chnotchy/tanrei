@@ -968,6 +968,8 @@ test.describe('the keyboard', () => {
     await page.evaluate(() => document.querySelector('main')!.insertAdjacentHTML('afterbegin', '<div style="block-size: 2000px"></div><button id="before">before</button>'));
     // Not on a row: the page scrolls.
     await page.locator('#before').focus();
+    // WebKit scrolls the focused button into view after focus() returns: read the position once it has landed.
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
     const y = await page.evaluate(() => scrollY);
     await page.keyboard.press('Home');
     await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(y);
