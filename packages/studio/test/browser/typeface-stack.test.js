@@ -100,7 +100,7 @@ studioTest('ar, 390px: a family is moved and removed with a pointer — the list
   const list = brand.locator('[data-stack-list]');
   await list.scrollIntoViewIfNeeded();
   const drawn = await controls(list);
-  assert.deepEqual(drawn.filter((control) => control.family === 'Inter').map((control) => control.name), ['تحريك لأعلى', 'تحريك لأسفل', 'إزالة: Inter']);
+  assert.deepEqual(drawn.filter((control) => control.family === 'Inter').map((control) => control.name), ['تحريك Inter لأعلى', 'تحريك Inter لأسفل', 'إزالة: Inter']);
   assert.deepEqual(drawn.filter((control) => !(control.size[0] >= 24 && control.size[1] >= 24)), [], 'every control of a row is 24 by 24 at least');
   await listen(list);
   await list.locator('[data-family="Inter"] .move.down').click();
