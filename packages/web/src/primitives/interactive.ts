@@ -62,3 +62,56 @@ export function answersPress(path: readonly EventTarget[]): boolean {
   if (pressed instanceof Element && getComputedStyle(pressed).cursor === 'pointer') return true;
   return path.some((node) => node instanceof Element && node.matches(ANSWERS));
 }
+
+/** Every widget role, for a press inside content that a hit area reaches (ACC-36): a composite's parts and the composites. */
+const WIDGET_ROLES = [
+  'button',
+  'link',
+  'checkbox',
+  'radio',
+  'switch',
+  'textbox',
+  'searchbox',
+  'combobox',
+  'slider',
+  'spinbutton',
+  'scrollbar',
+  'menuitem',
+  'menuitemcheckbox',
+  'menuitemradio',
+  'option',
+  'tab',
+  'treeitem',
+  'gridcell',
+  'row',
+  'listbox',
+  'menu',
+  'menubar',
+  'radiogroup',
+  'tablist',
+  'tree',
+  'treegrid',
+  'grid',
+];
+/** What takes a press itself inside content: what `findInteractive()` looks for, a label, and every widget role. */
+const TAKES_PRESS = [INTERACTIVE, 'label', ...WIDGET_ROLES.map((role) => `[role~="${role}"]`)].join(', ');
+
+/**
+ * Whether a press whose composed path is `path` is taken by something inside `within` before it reaches `within`
+ * itself (ACC-36): the element pressed, or one around it up to `within`, is a control, a link, a label, a summary,
+ * editable, has a tab index or a widget role, or is a custom element that takes focus (it delegates it, or has a tab
+ * index of its own) — or the element pressed shows the pointer cursor while `within` does not, which is how a
+ * product's own clickable box is told from text: a pointer `within` shows itself, and its content inherits, is not a
+ * box of the product's. What lies around `within` is not asked: a press inside an item belongs to that item.
+ */
+export function pressTakenWithin(path: readonly EventTarget[], within: Element): boolean {
+  const pressed = path[0];
+  if (pressed instanceof Element && pressed !== within && getComputedStyle(pressed).cursor === 'pointer' && getComputedStyle(within).cursor !== 'pointer') return true;
+  for (const node of path) {
+    if (node === within) return false;
+    if (!(node instanceof Element)) continue;
+    if (node.matches(TAKES_PRESS)) return true;
+    if (node.localName.includes('-') && (node.shadowRoot?.delegatesFocus || (node instanceof HTMLElement && node.tabIndex >= 0))) return true;
+  }
+  return false;
+}

@@ -39,6 +39,7 @@
 //   roving      — RovingKeys: the arrow keys, Home, End and typeahead of a column of items that is one tab stop
 //   interactive — findInteractive() / slottedInteractive(): what an action's content must not hold (CRD-15, LST-24)
 //                 answersPress(): what a hit area that reaches over other content yields a press to (TAB-5)
+//                 pressTakenWithin(): what a press inside an item's content belongs to instead of the item (ACC-36)
 //   link        — a control with a destination is a link: LinkController (the link a control is now, the keys
 //                 that press it, its description, the debug reports), linkAttributes() (the anchor's attributes, the
 //                 disabled anchor), readDestination() / readTarget() / linkRel() (what a destination is), LINK_MARK,
@@ -208,7 +209,7 @@ export { minimumTarget, neighbourTarget } from './target.js';
 export { KeptLengths, keptLength } from './kept-length.js';
 export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
 export { RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
-export { answersPress, findInteractive, slottedInteractive } from './interactive.js';
+export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } from './interactive.js';
 export { VisibilityController } from './visibility.js';
 export { layoutScale } from './layout-scale.js';
 export { deepActive, focusWithin, holdPageScroll, modalLayer, returnFocus, tabbables, trapFocus } from './modal.js';
