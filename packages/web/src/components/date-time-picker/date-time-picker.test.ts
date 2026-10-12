@@ -1044,8 +1044,8 @@ test.describe('the time', () => {
     await page.mouse.up();
     await page.waitForTimeout(350);
     await expect(p).toHaveAttribute('aria-valuetext', 'PM');
-    // A press on the middle row that ends without a drag settles the other name: a period is not typed, and the press
-    // begins no entry — no input, no input mode, nothing typing.
+    // A press on the middle row that ends without a drag settles the other name: the period begins no typed entry, and the
+    // press begins none — no input, no input mode, nothing typing.
     await page.mouse.click(cx, cy);
     await expect(p).toHaveAttribute('aria-valuetext', 'AM');
     expect(await focused(page)).toBe('wheel:period');
@@ -1080,7 +1080,7 @@ test.describe('the time', () => {
     expect(await period(page, 'ja').getAttribute('aria-valuetext')).toBe('午後');
   });
 
-  test('DTM-47: the period is one spin button named periodLabel with two values, the one before noon first — Up and Down change it (Right and Left too on the period selector, not on the period wheel), Home is before noon and End after, Enter and Space change it, a digit or a letter is ignored; one Tab stop where it is drawn — after the minute’s, before the hour’s under ja-JP; keyboard focus rings the selector or the wheel’s selection container; a change keeps the hour’s number and the minute, leaves the handle, changes the hour’s exposed value, sets the selected end of a range and commits nothing', async ({ page }) => {
+  test('DTM-47: the period is one spin button named periodLabel with two values, the one before noon first — Up and Down change it (Right and Left too on the period selector, not on the period wheel), Home is before noon and End after, Enter and Space change it, the first letter of a period’s name sets that period (A, P; under ja-JP, where both begin with 午, it changes it), any other letter and a digit are ignored; one Tab stop where it is drawn — after the minute’s, before the hour’s under ja-JP; keyboard focus rings the selector or the wheel’s selection container; a change keeps the hour’s number and the minute, leaves the handle, changes the hour’s exposed value, sets the selected end of a range and commits nothing', async ({ page }) => {
     await mount(page, [modal('w', { mode: 'time', value: '07:30', hourCycle: 'h12', periodLabel: 'Half of the day' }), modal('d', { mode: 'time', value: '07:30', hourCycle: 'h12', entryMode: 'dial' })]);
     const spin = (locator: Locator) => locator.evaluate((el) => ['role', 'aria-label', 'aria-valuemin', 'aria-valuemax', 'aria-valuenow', 'aria-valuetext'].map((name) => el.getAttribute(name)));
     // The period wheel.
@@ -1113,11 +1113,16 @@ test.describe('the time', () => {
       ['End', ['1', 'PM', '7 PM', '30']],
       ['Enter', ['0', 'AM', '7 AM', '30']],
       ['Space', ['1', 'PM', '7 PM', '30']],
-      // Right and Left are not the period wheel's; a digit and a letter are ignored (a period is not typed).
+      // Right and Left are not the period wheel's; a digit and a letter that begins neither name are ignored.
       ['ArrowRight', ['1', 'PM', '7 PM', '30']],
       ['ArrowLeft', ['1', 'PM', '7 PM', '30']],
-      ['a', ['1', 'PM', '7 PM', '30']],
+      ['x', ['1', 'PM', '7 PM', '30']],
       ['1', ['1', 'PM', '7 PM', '30']],
+      // The first letter of a period's name, in either case, sets that period.
+      ['a', ['0', 'AM', '7 AM', '30']],
+      ['a', ['0', 'AM', '7 AM', '30']],
+      ['Shift+P', ['1', 'PM', '7 PM', '30']],
+      ['p', ['1', 'PM', '7 PM', '30']],
     ] as const) {
       await page.keyboard.press(key);
       await expect.poll(reads, key).toEqual(expected);
@@ -1155,8 +1160,10 @@ test.describe('the time', () => {
       ['Home', ['0', 'AM', '7 AM', '30']],
       ['Enter', ['1', 'PM', '7 PM', '30']],
       ['Space', ['0', 'AM', '7 AM', '30']],
-      ['p', ['0', 'AM', '7 AM', '30']],
+      ['q', ['0', 'AM', '7 AM', '30']],
       ['2', ['0', 'AM', '7 AM', '30']],
+      ['p', ['1', 'PM', '7 PM', '30']],
+      ['A', ['0', 'AM', '7 AM', '30']],
     ] as const) {
       await page.keyboard.press(key);
       await expect.poll(dialReads, key).toEqual(expected);
@@ -1173,6 +1180,18 @@ test.describe('the time', () => {
     expect(await focused(page)).toBe('wheel:period');
     await tab(page);
     expect(await focused(page)).toBe('wheel:hour');
+    // Both names begin with 午: typed, it changes the period.
+    await tab(page, { back: true });
+    const jp = period(page, 'jw');
+    await expect(jp).toHaveAttribute('aria-valuetext', '午前');
+    // (No key of the test browser's keyboard layout types 午: a keydown whose key is that character stands for it.)
+    const typeKey = (key: string) => jp.evaluate((el, k) => el.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, composed: true, cancelable: true })), key);
+    await typeKey('午');
+    await expect(jp).toHaveAttribute('aria-valuetext', '午後');
+    await typeKey('午');
+    await expect(jp).toHaveAttribute('aria-valuetext', '午前');
+    await typeKey('後');
+    await expect(jp, 'a character that begins neither name').toHaveAttribute('aria-valuetext', '午前');
     await page.keyboard.press('Escape');
     await expect.poll(() => isOpen(page, 'jw')).toBe(false);
     await open(page, 'jd');

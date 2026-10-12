@@ -2,7 +2,7 @@
 title: カラー入力欄
 description: 1 つの色を設定するボックスです。色見本と、読んで、入力して、貼り付けられるテキストの値と、ピッカーを求めるボタンがあります。ラベルの行、補足、エラーテキストは自分では持ちません。行や列がすでに色の名前を示しているところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/color-input.mdx
-sourceHash: c6a1f0d587f6be1fa38d747d9f53935365b8c4a9
+sourceHash: ec6bf73bd10bf8fbda1f42dfb65024d484903004
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -142,7 +142,7 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
 ### Web での描き方の違い
 
 - 要素はフォームに関連付けられます。`name` があれば `value` を送信します。色か、空文字列です。リセットすると `value` 属性の値に戻り、ページの移動で復元され、無効な `<fieldset>` に従います。フィールドが必須としている間は値がないことを、入力のエラーが続く間は不正な入力を、フォームに報告します。
-- 要素はブロックです。`focus()` はネイティブのテキスト要素に移り、ピッカーのボタンには移りません。ボックスの上の、そのボタン以外の場所を押すと、テキストにフォーカスが移ります。
+- 要素はブロックです。`focus()` はネイティブのテキスト要素に移り、ピッカーのボタンには移りません。ボックスの上の、そのボタン以外の場所を押すと、テキストにフォーカスが移ります。ただし、ボタンがあるときに色見本を押すと、ピッカーが開きます。
 - `input` と `change` は `detail` のないイベントなので、`value` は要素から読みます。`pickerrequest` は、`detail.value` を持つ、キャンセルできる CustomEvent です。`entryerror` は、`detail.text` と `detail.message` を持つ CustomEvent で、`detail.message` は `invalidText` です。型は `TanreiColorInputPickerRequestDetail` と `TanreiColorInputEntryErrorDetail` です。
 - パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`swatch`、`input`、`picker-button`。スロットはありません。
 - 要素は文言を持たず、プロダクトの言葉も読みません。`label`、`invalidText`、`pickerLabel` は、指定するまで空です。

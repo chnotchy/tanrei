@@ -64164,6 +64164,16 @@
         }
       },
       "one-time-code-input": {
+        "caret": {
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 2,
+              "unit": "px"
+            },
+            "$description": "Width of the caret an empty active cell draws (OTC-7)."
+          }
+        },
         "container": {
           "gap": {
             "$type": "dimension",
@@ -68970,14 +68980,14 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0,
-                    0,
-                    0
+                    0.9098,
+                    0.8706,
+                    0.9725
                   ],
-                  "alpha": 0,
-                  "hex": "#000000"
+                  "hex": "#e8def8",
+                  "alpha": 1
                 },
-                "$description": "The fill behind a match. None in Tanrei, which marks by weight and color; a system that highlights its matches sets it, and then answers for the contrast of result.mark.color on it."
+                "$description": "The fill behind a match, as well as its weight and color: the quiet tonal container, so that a match is found in every script, also where the reader's font has no weight between regular and bold and the raised weight draws as the regular one. result.mark.color is read on it at the text ratio in every scheme."
               }
             },
             "emphasis": {

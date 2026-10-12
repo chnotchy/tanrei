@@ -6898,6 +6898,10 @@
               },
               "reason": "This preset's fields are 56 high; a code input stands beside them."
             },
+            "tanrei.comp.one-time-code-input.caret.width": {
+              "$value": "{tanrei.sys.border.thick}",
+              "reason": "Material's text field cursor is 2 dp wide (Flutter TextField.cursorWidth 2.0; Compose draws its cursor 2 dp wide), apart from its hairlines."
+            },
             "tanrei.comp.one-time-code-input.container.shape": {
               "$value": "{tanrei.sys.shape.corner.extra-small}",
               "reason": "This preset's field corners."

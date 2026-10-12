@@ -6360,6 +6360,7 @@ private let m3LikeNumberInputTokens = TanreiNumberInputTokens(
 )
 
 private let m3LikeOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
+  caretWidth: 2,
   containerGap: 6,
   containerHeight: 56,
   containerPaddingInline: 4,
@@ -6860,7 +6861,7 @@ private let m3LikeSearchTokens = TanreiSearchTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   resultMarkColor: .role(.onSurface),
-  resultMarkContainerColor: .none,
+  resultMarkContainerColor: .role(.secondaryContainer),
   resultMarkEmphasis: 100,
   shortcutColor: .role(.onSurfaceVariant),
   shortcutTypescale: m3LikeTypescale.labelSmall,

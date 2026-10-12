@@ -9627,6 +9627,7 @@ export const m3ExpressiveLike = {
     },
     numberInput: { motionRepeatDelay: 500, motionRepeatInterval: 100, motionRepeatIntervalFast: 50, stepperGap: 0, stepperInset: 4 },
     oneTimeCodeInput: {
+      caretWidth: 2,
       containerGap: 6,
       containerHeight: 56,
       containerPaddingInline: 4,
@@ -10248,7 +10249,7 @@ export const m3ExpressiveLike = {
       pressedOpacity: 1,
       pressedOutlineWidth: 1,
       resultMarkColor: { kind: "role", role: "onSurface" },
-      resultMarkContainerColor: { kind: "none" },
+      resultMarkContainerColor: { kind: "role", role: "secondaryContainer" },
       resultMarkEmphasis: 100,
       shortcutColor: { kind: "role", role: "onSurfaceVariant" },
       shortcutTypescale: "labelSmall",

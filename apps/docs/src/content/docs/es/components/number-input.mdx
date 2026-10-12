@@ -2,7 +2,7 @@
 title: Entrada numérica
 description: La caja de un número (escrito en la forma de la configuración regional o cambiado por pasos con una tecla o un botón, mantenido dentro de unos límites y con su unidad al lado), sin fila de etiqueta, ayuda ni texto de error propios. Para un número cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/number-input.mdx
-sourceHash: 2f83ccdb5c9255643d9504cf32fb46892ae8e5c2
+sourceHash: 5343e6c25b1c6a18445ab4e07a08112a4321524c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -172,7 +172,7 @@ Lo que ocurre en la caja ([el valor y el texto](/es/components/number-field/#el-
 - Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `prefix`, `suffix`, `stepper`. No tiene ningún slot.
 - Sin `locale`, la entrada lee el atributo `lang` más cercano y, después, el idioma del navegador.
 - Además del separador de la configuración regional, un punto se lee como separador decimal siempre que la configuración regional no agrupe con puntos.
-- Una tecla de página da pasos sobre su propia cuadrícula de diez pasos: con un paso de 2, Re Pág desde 42 da 60.
+- Una tecla de página da diez pasos sobre la cuadrícula del propio paso, como la de un deslizador: con un paso de 2, Re Pág desde 42 da 62, y luego 82.
 - En iOS y iPadOS, la entrada pide el teclado completo mientras se pueda escribir un número negativo, porque el teclado decimal de esas plataformas no tiene signo menos.
 - `increment-label` y `decrement-label`, si se dejan vacíos, se leen de los textos del producto (`setWords()`).
 - Antes de que el elemento esté definido no tiene tamaño. Reserva la altura de la caja.
@@ -221,12 +221,12 @@ Lo que ocurre en la caja ([el valor y el texto](/es/components/number-field/#el-
 - El foco lo muestra el propio borde de la caja, tanto desde el teclado como desde un puntero. El área de pulsación cumple el objetivo mínimo, y cada botón de paso es un objetivo completo.
 - El asterisco que sigue a una etiqueta flotante queda oculto para la tecnología de apoyo: el estado de obligatorio ya lo dice.
 - Con el texto al 200%, una etiqueta flotante salta de línea, y el número se queda en una sola línea y se desplaza. Con colores forzados, la caja gana un borde. En un diseño de derecha a izquierda, los botones de paso y la etiqueta se reflejan: los botones de paso quedan en el extremo izquierdo. El número y su unidad se escriben como los escribe la escritura de la propia unidad: una unidad en letras o signos latinos después del número, de izquierda a derecha, y una unidad en la escritura de la página a la izquierda del número. Lo que se lee en voz alta no cambia.
+- Donde la fila no puede contener el número y los botones de paso uno al lado del otro —con el texto al 200% en una ventana estrecha, con un prefijo y un sufijo largo—, los botones de paso pasan a una fila propia debajo del número, al final de la caja. Nunca se ocultan, porque en una pantalla táctil son la única forma de dar pasos.
 - Las compilaciones de depuración notifican que falta un nombre.
 
 Carencias conocidas en la web:
 
 - Chromium lee el número sin su unidad: obtiene el texto del valor a partir del texto que hay en el campo de entrada, y pasa por alto el que indica la entrada. Nombra la unidad en la etiqueta donde importe.
-- Con el texto al 200% en una ventana de 320 de ancho, una entrada con botones de paso, un prefijo y un sufijo largo es más ancha que la ventana, porque nunca es más estrecha que lo que contiene. Desactiva ahí los botones de paso.
 
 ### Qué debes hacer tú
 
