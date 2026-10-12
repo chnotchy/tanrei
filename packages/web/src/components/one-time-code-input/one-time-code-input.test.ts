@@ -1086,9 +1086,9 @@ test.describe('behavior', () => {
     expect(await semantics('framed')).toEqual({ 'aria-label': LABEL, 'aria-description': 'Enter the 6-digit code we sent you.', 'aria-required': 'true', 'aria-invalid': null });
     await stage(page, 'framed').locator('tanrei-field').evaluate((el) => ((el as HTMLElement & { error: boolean }).error = true));
     await settled(page, 'framed');
-    expect(await semantics('framed')).toEqual({ 'aria-label': LABEL, 'aria-description': 'Enter the 6-digit code we sent you. That code is not right.', 'aria-required': 'true', 'aria-invalid': 'true' });
+    expect(await semantics('framed')).toEqual({ 'aria-label': LABEL, 'aria-description': 'That code is not right.', 'aria-required': 'true', 'aria-invalid': 'true' });
     expect((await cellStyle(page, 'framed', 0)).edge).toBe(await color(page, 'standard-error-outline-color'));
-    if (browserName === 'chromium') expect((await textboxes(page))[0]).toMatchObject({ name: LABEL, description: 'Enter the 6-digit code we sent you. That code is not right.', required: true, invalid: 'true', value: '12' });
+    if (browserName === 'chromium') expect((await textboxes(page))[0]).toMatchObject({ name: LABEL, description: 'That code is not right.', required: true, invalid: 'true', value: '12' });
     // The control's own label wins over the field's.
     expect((await semantics('own'))['aria-label']).toBe('Sign-in code');
     // A press on the field's label focuses the control: the first empty cell is active.
@@ -1523,17 +1523,17 @@ test.describe('fixtures', () => {
     expect(await host(page, 'grouped-ja').getAttribute('lang')).toBe('ja');
   });
 
-  test('the field’s two fixtures draw the frame and the control together: the label above, the cells, and the help with, in error, the error text after it below, with the control named and described by the field', async ({ page }) => {
+  test('the field’s two fixtures draw the frame and the control together: the label above, the cells, and below them the help or, in error, the error text in its place, with the control named and described by the field', async ({ page }) => {
     await mountFixtures(page, fieldSpec, { fixtures: fieldSpec.fixtures.filter((f) => f.id === 'code-supporting' || f.id === 'code-error') });
     for (const id of ['code-supporting', 'code-error']) {
       const f = fieldSpec.fixtures.find((fixture) => fixture.id === id)!;
       const field = stage(page, id).locator('tanrei-field');
-      const [label, row, text] = [await box(field.locator('.label-row')), await box(host(page, id)), await box(field.locator('.supporting-text'))];
+      const [label, row, text] = [await box(field.locator('.label-row')), await box(host(page, id)), await box(field.locator(f.props.error ? '.error-text' : '.supporting-text'))];
       expect(label.y + label.height).toBeLessThanOrEqual(row.y + 0.5);
       expect(row.y + row.height).toBeLessThanOrEqual(text.y + 0.5);
       near(row.x, label.x, `${id}: the row starts where the label starts`);
       expect(await native(page, id).getAttribute('aria-label')).toBe(LABEL);
-      expect(await native(page, id).getAttribute('aria-description')).toBe(f.props.error ? `${f.props.supportingText} ${f.props.errorText}` : String(f.props.supportingText));
+      expect(await native(page, id).getAttribute('aria-description')).toBe(String(f.props.error ? f.props.errorText : f.props.supportingText));
       expect(await native(page, id).getAttribute('aria-invalid')).toBe(f.props.error ? 'true' : null);
       expect(await host(page, id).locator('.group').count()).toBe(2);
     }

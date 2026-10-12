@@ -975,14 +975,14 @@ test.describe('behavior', () => {
     // The field's own rows are the field's: its label above the capsule, its help below.
     const field = stage(page, 'chat-composer-supporting').locator('tanrei-field');
     expect(await field.evaluate((el) => [el.shadowRoot!.querySelector('.label')!.textContent!.trim(), el.shadowRoot!.querySelector('.supporting-text')!.textContent!.trim()])).toEqual(['Message', 'Everyone in this channel can read it.']);
-    // Its own label wins; the counter comes first, then the field's help, which stays in error (FLD-11), and its error
-    // text last; the field's error is its own.
-    expect(await said('own')).toEqual({ group: 'Message', name: 'Message', description: '5/3 Be kind. Too long.', invalid: 'true', error: true, disabled: false, rows: 0 });
+    // Its own label wins; the counter comes first, then what the field's row draws — in error its error text, in the
+    // help's place (FLD-7, FLD-11); the field's error is its own.
+    expect(await said('own')).toEqual({ group: 'Message', name: 'Message', description: '5/3 Too long.', invalid: 'true', error: true, disabled: false, rows: 0 });
     await field.evaluate((el) => Object.assign(el, { disabled: true, error: true, errorText: 'Say something.' }));
     await settle(page);
-    expect(await said('chat-composer-supporting')).toMatchObject({ description: 'Everyone in this channel can read it. Say something.', invalid: 'true', error: true, disabled: true });
+    expect(await said('chat-composer-supporting')).toMatchObject({ description: 'Say something.', invalid: 'true', error: true, disabled: true });
     // The file picker inside asks the chat composer, and not the field around it: the field hears one control.
-    expect(await stage(page, 'own').locator('tanrei-field').evaluate((el) => el.shadowRoot!.querySelectorAll('.supporting-text').length)).toBe(1);
+    expect(await stage(page, 'own').locator('tanrei-field').evaluate((el) => el.shadowRoot!.querySelectorAll('.supporting-text, .error-text').length)).toBe(1);
     expect(await host(page, 'own').evaluate((el) => el.shadowRoot!.querySelector('tanrei-file-picker')!.shadowRoot!.querySelector('.group')!.getAttribute('role'))).toBeNull();
   });
 
