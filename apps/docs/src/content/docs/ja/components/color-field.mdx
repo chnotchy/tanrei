@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="color-field" />
 
 <DemoFrame label="ピッカーのボタンがあるカラーフィールドと、プロダクトが色を受け付けなかったカラーフィールド" column>
-  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" supporting-text="6 桁の 16 進数で入力します。例：#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選ぶ"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" supporting-text="6 桁の 16 進数で入力します。例：#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選択"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#fde047" error error-text="白い文字には明るすぎます。もっと暗い色を選んでください。"></tanrei-color-field>
 </DemoFrame>
 
@@ -42,7 +42,7 @@ Web では `<tanrei-color-field>` です。ほかのプラットフォームは�
         requirement="required" required-text="必須"
         supporting-text="6 桁の 16 進数で入力します。例：#0f766e"
         invalid-text="6 桁の 16 進数で入力してください。例：#0f766e"
-        picker picker-label="色を選ぶ"></tanrei-color-field>
+        picker picker-label="色を選択"></tanrei-color-field>
     </form>
 
     <script type="module">
@@ -68,7 +68,7 @@ Web では `<tanrei-color-field>` です。ほかのプラットフォームは�
     ```tsx
     import { ColorField } from '@tanrei/react';
 
-    <ColorField label="ブランドカラー" value={brand} picker pickerLabel="色を選ぶ"
+    <ColorField label="ブランドカラー" value={brand} picker pickerLabel="色を選択"
       invalidText="6 桁の 16 進数で入力してください。例：#0f766e"
       onChange={(event) => setBrand(event.currentTarget.value)} />
     ```
@@ -84,13 +84,13 @@ Web では `<tanrei-color-field>` です。ほかのプラットフォームは�
   supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="6 桁の 16 進数で入力してください。例：#0f766e"
-    picker picker-label="色を選ぶ"></tanrei-color-input>
+    picker picker-label="色を選択"></tanrei-color-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="同じフィールドを自分で書いたもの：フィールドの中のカラー入力欄" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" requirement="required" required-text="必須" supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
-    <tanrei-color-input value="#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選ぶ"></tanrei-color-input>
+    <tanrei-color-input value="#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選択"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>
 
@@ -110,8 +110,8 @@ Web では `<tanrei-color-field>` です。ほかのプラットフォームは�
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="アクセントカラー" requirement="optional" optional-text="任意"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ページの背景" value="#ffffff"></tanrei-color-field>
   <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="テキスト" value="#000000"></tanrei-color-field>
-  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" size="large" picker picker-label="色を選ぶ"></tanrei-color-field>
-  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" disabled picker picker-label="色を選ぶ"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" size="large" picker picker-label="色を選択"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" disabled picker picker-label="色を選択"></tanrei-color-field>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="プライマリ、トーン 40" value="#0f766e"></tanrei-color-input>
 </DemoFrame>
 
@@ -185,7 +185,7 @@ Web では `<tanrei-color-field>` です。ほかのプラットフォームは�
 - 要素自体にはフォーカスが移らず、ロールもありません。`focus()` は入力欄に移り、ピッカーのボタンには移りません。ラベルの行、ボックス、色見本、浮き上がるラベルを押すと、入力欄にフォーカスが移ります。補足やエラーテキストを押しても、何も起きません。
 - ラベルと補足は、ピッカーのボタンを含め、フィールドの中のどこかにフォーカスがある間、フォーカス時の色になります。ボックスがフォーカス時の見た目になるのは、入力欄にフォーカスがある間だけです。
 - 名前は `label` で付けます。ラベルを描かないときは `label-hidden` を付けます。`aria-label` は使いません。この要素では何の名前にもなりません。
-- 要素は文言を持ちません。`requiredText` と `optionalText` は、指定するまで空です。`requiredText` のない必須のフィールドは、タグが置かれる場所にアスタリスクを表示します。
+- Tanrei は言葉を同梱しません。`requiredText` と `optionalText` は、指定するまで空です。`requiredText` のない必須のフィールドは、タグが置かれる場所にアスタリスクを表示します。
 - ブラウザーのピッカーは、ブラウザーによって違います。Chromium ではページのポップアップ、Firefox と Safari ではシステムの色のウィンドウです。見た目、位置、キーは、ブラウザーのものです。
 - 全角の文字で書いたテキスト（`＃０ｆ７６６ｅ`）は、色として読みません。
 - 要素が定義されるまでは、大きさがありません。高さを確保してください。
