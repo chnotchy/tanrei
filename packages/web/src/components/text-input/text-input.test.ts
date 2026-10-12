@@ -4243,10 +4243,10 @@ test.describe('the input and the Field that frames it', () => {
     // No role and no tabindex is given to an item, and the slot has none.
     expect(await one.evaluate((el) => [...el.querySelectorAll('tanrei-chip')].map((chip) => [chip.getAttribute('role'), chip.getAttribute('tabindex')]))).toEqual([[null, null], [null, null]]);
     expect(await one.locator('[part~="entries"]').evaluate((el) => [el.getAttribute('role'), el.getAttribute('tabindex')])).toEqual([null, null]);
-    // Tab reaches each item as the item decides: an input chip is two stops, then the typing part.
+    // Tab reaches each item as the item decides: an input chip is one stop (its remove action is not), then the typing part.
     await page.locator('#after').focus();
     const stops: string[] = [];
-    for (let press = 0; press < 5; press++) {
+    for (let press = 0; press < 3; press++) {
       await tab(page, { back: true });
       stops.unshift(await one.evaluate((el) => {
         const active = document.activeElement;
@@ -4256,7 +4256,7 @@ test.describe('the input and the Field that frames it', () => {
         return `${(active as HTMLElement & { label: string }).label}:${active!.shadowRoot!.activeElement!.className.split(' ')[0]}`;
       }));
     }
-    expect(stops).toEqual(['ada@example.com:container', 'ada@example.com:remove', 'grace.hopper@example.org:container', 'grace.hopper@example.org:remove', 'typing']);
+    expect(stops).toEqual(['ada@example.com:container', 'grace.hopper@example.org:container', 'typing']);
     // A key on an item is the item's: Backspace asks for its removal and the input does nothing; a press on it is its own.
     await one.evaluate((el) => {
       (window as any).asked = [] as string[];
