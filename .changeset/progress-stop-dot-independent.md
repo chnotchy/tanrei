@@ -15,3 +15,5 @@ indicator and the track. The default `tanrei` system's `stop-indicator.size` is 
 the default system now draws the gap without a dot (the `linear-gap`, `linear-gap-small` and `linear-gap-large`
 fixtures); a bar given `separation="divider"` under `m3-like` now draws the dot. The file item's upload bar, which has no
 dot, sets the size to 0 for the bar it embeds.
+
+The web baselines of `linear-gap`, `linear-gap-small` and `linear-gap-large` are re-recorded for this: they no longer show the dot.
