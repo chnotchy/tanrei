@@ -2,7 +2,7 @@
 title: Estructura de la aplicación
 description: Enmarca una página o una aplicación. Coloca una cabecera, la navegación, el contenido principal, un contenido complementario y un pie, decide según el ancho de la ventana cómo se muestra cada uno y permite que el teclado llegue al contenido en un solo paso.
 translationOf: components/app-shell.mdx
-sourceHash: 2edf8f86601639e5c955456b820082161532f975
+sourceHash: b0533c6c20102f75d922adf1e96c3bd00dd7d019
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -126,6 +126,7 @@ Pon en la cabecera un Button de solo icono y márcalo con `data-app-shell-menu`.
 - Da preferencia a `page`. La búsqueda en la página, los enlaces a un encabezado, la vuelta al punto en que estaba quien leía y las barras que el navegador de un teléfono contrae funcionan como en una página que no tiene estructura de la aplicación.
 - `headerPosition: static` deja que la cabecera se vaya con la página al desplazarse.
 - Con `scroll: main` en la web, indica el id del elemento principal en el `scroll-target` de la barra de la aplicación.
+- Con `scroll: main` en la web, el contenido complementario dibujado encima o debajo del contenido principal (en una ventana compacta o mediana) se queda en su sitio mientras se desplaza la región principal; todavía no se desplaza con ella. El contenido que deba desplazarse con la página va dentro del `<main>`.
 - En la web, la propiedad de JavaScript es `scrolls`, porque todos los elementos tienen ya un método `scroll()`. El atributo es `scroll`.
 
 ### Los enlaces a un encabezado se detienen debajo de la cabecera

@@ -15620,8 +15620,10 @@ class TanreiNavigationDrawerTokens {
     required this.containerPaddingBlock,
     required this.containerPaddingInline,
     required this.containerWidth,
+    required this.headerColor,
     required this.headerGap,
     required this.headerItemGap,
+    required this.headerTypescale,
     required this.headingColor,
     required this.headingHeight,
     required this.headingTypescale,
@@ -15687,10 +15689,14 @@ class TanreiNavigationDrawerTokens {
   final double containerPaddingInline;
   /// `comp.navigation-drawer.container-width`
   final double containerWidth;
+  /// `comp.navigation-drawer.header-color`
+  final TanreiPaint headerColor;
   /// `comp.navigation-drawer.header-gap`
   final double headerGap;
   /// `comp.navigation-drawer.header-item-gap`
   final double headerItemGap;
+  /// `comp.navigation-drawer.header-typescale`
+  final TanreiTextStyle headerTypescale;
   /// `comp.navigation-drawer.heading-color`
   final TanreiPaint headingColor;
   /// `comp.navigation-drawer.heading-height`
@@ -15781,8 +15787,10 @@ class TanreiNavigationDrawerTokens {
     double? containerPaddingBlock,
     double? containerPaddingInline,
     double? containerWidth,
+    TanreiPaint? headerColor,
     double? headerGap,
     double? headerItemGap,
+    TanreiTextStyle? headerTypescale,
     TanreiPaint? headingColor,
     double? headingHeight,
     TanreiTextStyle? headingTypescale,
@@ -15834,8 +15842,10 @@ class TanreiNavigationDrawerTokens {
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         containerWidth: containerWidth ?? this.containerWidth,
+        headerColor: headerColor ?? this.headerColor,
         headerGap: headerGap ?? this.headerGap,
         headerItemGap: headerItemGap ?? this.headerItemGap,
+        headerTypescale: headerTypescale ?? this.headerTypescale,
         headingColor: headingColor ?? this.headingColor,
         headingHeight: headingHeight ?? this.headingHeight,
         headingTypescale: headingTypescale ?? this.headingTypescale,
@@ -22478,6 +22488,7 @@ class TanreiTabsSizeTokens {
     required this.activeIndicatorPaddingInline,
     required this.activeIndicatorPaddingBlock,
     required this.iconSize,
+    required this.iconPlacement,
   });
 
   /// `comp.tabs.container-height.<size>`
@@ -22490,6 +22501,8 @@ class TanreiTabsSizeTokens {
   final double activeIndicatorPaddingBlock;
   /// `comp.tabs.icon-size.<size>`
   final double iconSize;
+  /// `comp.tabs.icon-placement.<size>`
+  final double iconPlacement;
 
   /// A copy with the given tokens replaced.
   TanreiTabsSizeTokens copyWith({
@@ -22498,12 +22511,14 @@ class TanreiTabsSizeTokens {
     double? activeIndicatorPaddingInline,
     double? activeIndicatorPaddingBlock,
     double? iconSize,
+    double? iconPlacement,
   }) => TanreiTabsSizeTokens(
         containerHeight: containerHeight ?? this.containerHeight,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         activeIndicatorPaddingInline: activeIndicatorPaddingInline ?? this.activeIndicatorPaddingInline,
         activeIndicatorPaddingBlock: activeIndicatorPaddingBlock ?? this.activeIndicatorPaddingBlock,
         iconSize: iconSize ?? this.iconSize,
+        iconPlacement: iconPlacement ?? this.iconPlacement,
       );
 }
 
@@ -22597,6 +22612,9 @@ class TanreiTabsTokens {
     required this.motionStateDuration,
     required this.motionStateEasing,
     required this.motionTransition,
+    required this.primarySelectedLabelEmphasis,
+    required this.secondarySelectedLabelEmphasis,
+    required this.tonalSelectedLabelEmphasis,
     required this.trackPadding,
     required this.trackShape,
     required this.trackVisible,
@@ -22634,6 +22652,12 @@ class TanreiTabsTokens {
   final TanreiCubicBezier motionStateEasing;
   /// `comp.tabs.motion-transition`
   final double motionTransition;
+  /// `comp.tabs.primary-selected-label-emphasis`
+  final double primarySelectedLabelEmphasis;
+  /// `comp.tabs.secondary-selected-label-emphasis`
+  final double secondarySelectedLabelEmphasis;
+  /// `comp.tabs.tonal-selected-label-emphasis`
+  final double tonalSelectedLabelEmphasis;
   /// `comp.tabs.track-padding`
   final double trackPadding;
   /// `comp.tabs.track-shape`
@@ -22668,6 +22692,9 @@ class TanreiTabsTokens {
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     double? motionTransition,
+    double? primarySelectedLabelEmphasis,
+    double? secondarySelectedLabelEmphasis,
+    double? tonalSelectedLabelEmphasis,
     double? trackPadding,
     double? trackShape,
     double? trackVisible,
@@ -22691,6 +22718,9 @@ class TanreiTabsTokens {
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         motionTransition: motionTransition ?? this.motionTransition,
+        primarySelectedLabelEmphasis: primarySelectedLabelEmphasis ?? this.primarySelectedLabelEmphasis,
+        secondarySelectedLabelEmphasis: secondarySelectedLabelEmphasis ?? this.secondarySelectedLabelEmphasis,
+        tonalSelectedLabelEmphasis: tonalSelectedLabelEmphasis ?? this.tonalSelectedLabelEmphasis,
         trackPadding: trackPadding ?? this.trackPadding,
         trackShape: trackShape ?? this.trackShape,
         trackVisible: trackVisible ?? this.trackVisible,

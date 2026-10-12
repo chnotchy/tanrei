@@ -22946,12 +22946,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0,
-                      0,
-                      0
+                      1,
+                      1,
+                      1
                     ],
                     "alpha": 0.08,
-                    "hex": "#000000"
+                    "hex": "#ffffff"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -23224,12 +23224,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0,
-                      0,
-                      0
+                      1,
+                      1,
+                      1
                     ],
                     "alpha": 0.1,
-                    "hex": "#000000"
+                    "hex": "#ffffff"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -23502,12 +23502,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0,
-                      0,
-                      0
+                      1,
+                      1,
+                      1
                     ],
                     "alpha": 0.1,
-                    "hex": "#000000"
+                    "hex": "#ffffff"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -24184,12 +24184,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0,
-                      0,
-                      0
+                      1,
+                      1,
+                      1
                     ],
                     "alpha": 0.08,
-                    "hex": "#000000"
+                    "hex": "#ffffff"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -24462,12 +24462,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0,
-                      0,
-                      0
+                      1,
+                      1,
+                      1
                     ],
                     "alpha": 0.1,
-                    "hex": "#000000"
+                    "hex": "#ffffff"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -24740,12 +24740,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0,
-                      0,
-                      0
+                      1,
+                      1,
+                      1
                     ],
                     "alpha": 0.1,
-                    "hex": "#000000"
+                    "hex": "#ffffff"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {

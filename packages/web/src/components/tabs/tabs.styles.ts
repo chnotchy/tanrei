@@ -59,6 +59,8 @@ const variantBlock = (variant: string, selector: string, fallback: string | null
     ...Object.entries(STATES).flatMap(([state, suffix]) =>
       Object.entries(VARIANT_PARTS).map(([key, part]) => `  --_${key}${suffix}: ${ref((v) => `${PREFIX}-${v}-${state ? `${state}-` : ''}${part}`, variant, fallback)};`),
     ),
+    // TAB-50: the weight the selected label gains.
+    `  --_emph: ${ref((v) => `${PREFIX}-${v}-selected-label-emphasis`, variant, fallback)};`,
   ].join('\n')}\n}`;
 
 const TAB = '::slotted(tanrei-tab)';
@@ -70,9 +72,10 @@ const SIZE_PARTS = {
   'indicator-padding-inline': 'active-indicator-padding-inline',
   'indicator-padding-block': 'active-indicator-padding-block',
   icon: 'icon-size',
+  'icon-placement': 'icon-placement',
 } as const;
 /**
- * One size's five tokens as private custom properties (`--_size-height`…), declared by the row on its slotted tabs as a
+ * One size's tokens as private custom properties (`--_size-height`…), declared by the row on its slotted tabs as a
  * variant's parts are, so the size is the row's and every tab inherits it.
  */
 const sizeBlock = (size: string, selector: string, fallback: string | null = null) =>
@@ -81,6 +84,8 @@ const sizeBlock = (size: string, selector: string, fallback: string | null = nul
     .join('\n')}\n}`;
 const S = (key: keyof typeof SIZE_PARTS) => unsafeCSS(`var(--_size-${key})`);
 
+/** `comp.tabs.icon.placement` of the row's size (TAB-18): a choice's name. The first is what an unknown name is. */
+export const ICON_PLACEMENT = ['stacked', 'inline'] as const;
 /** `comp.tabs.track.visible` (TAB-49): a choice's name. The first is what an unknown name is. */
 export const TRACK_CHOICE = ['off', 'on'] as const;
 /** TAB-49: whether the track is filled, as the host carries it: its `track` attribute's, or — unset — the system's choice. */
@@ -398,6 +403,12 @@ export const tabStyles = css`
     background: var(--_c);
     transition: background-color ${unsafeCSS(STATE_MOTION)};
   }
+  /* TAB-18: on the selected tab the container — hover, focus, press and the ripple, in the selected parts, whose state
+     layer is the covered content's color — lies over the active indicator, so the states show there too; the ring and
+     the underline stay above it, in the order they are written. */
+  .tab.selected :is(.box, .ring, .underline) {
+    z-index: 1;
+  }
   /* TAB-18, TAB-44: at least the container height of the row's size tall (height-with-icon for a medium primary tab
      that stacks its icon above its label); every tab is as tall as the row (the row stretches them). TAB-5: at least
      the minimum target wide, in layout — tabs touch their neighbours, so the tab itself grows. The height is not met
@@ -407,6 +418,8 @@ export const tabStyles = css`
     min-block-size: ${S('height')};
     min-inline-size: calc(max(var(--tanrei-sys-target-pointer), var(--_th, 0px)) - var(--_trim, 0px));
   }
+  /* TAB-18: a primary tab with an icon and a drawn label (.stacked) stacks them as the size's icon.placement says:
+     stacked, the first value and so what an unknown name draws, unless it is inline. */
   .tab.stacked {
     min-block-size: ${t('container-height-with-icon')};
   }
@@ -433,6 +446,8 @@ export const tabStyles = css`
   .tab.stacked .content {
     flex-direction: column;
   }
+  /* TAB-18: …unless the size's icon.placement is inline: the icon before the label, the row its size's height. */
+  ${whenChosen('--_size-icon-placement', '.tab.stacked', 'placement', 'inline', (tab) => `${tab} {\n    min-block-size: ${S('height')};\n  }\n  ${tab} .content {\n    flex-direction: row;\n  }`)}
   /* TAB-16: the indicator's width where the content is wider than it is tall — the content plus
      active-indicator.padding-inline on each side, centred on it — and its corner. It draws nothing: the tab measures it
      (and keeps the box within the tab). */
@@ -448,16 +463,41 @@ export const tabStyles = css`
      ellipsis. The icon never shrinks for it. TAB-33, TAB-21: the label, in both of its copies, is its own run in the
      direction of its first strong character (src/styles/product-text.ts), so it keeps its order in a right-to-left
      row and is cut at the end of ITS direction — a left-to-right label at its right end, never at its beginning. */
-  ${productText('.label')}
+  ${productText('.label, .text')}
   .label {
+    display: grid;
     flex: 0 1 auto;
     min-inline-size: 0;
     max-inline-size: 100%;
     overflow: hidden;
     white-space: nowrap;
-    text-overflow: ellipsis;
     color: var(--_l);
-    transition: color ${unsafeCSS(STATE_MOTION)};
+    transition:
+      color ${unsafeCSS(STATE_MOTION)},
+      font-weight ${unsafeCSS(STATE_MOTION)};
+  }
+  .text {
+    grid-area: 1 / 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+  /* TAB-50, TAB-16: the selected label gains its variant's selected.label.emphasis of weight; every label keeps the room
+     it needs at that weight — the label once more, at the heavier weight, unseen and of no height, in the same cell —
+     so no tab, indicator or container changes width when the selection moves. */
+  .tab.selected .label {
+    font-weight: calc(${t('label-typescale-font-weight')} + var(--_emph, 0));
+  }
+  .label::after {
+    content: attr(data-label);
+    content: attr(data-label) / '';
+    grid-area: 1 / 1;
+    block-size: 0;
+    overflow: hidden;
+    font-weight: calc(${t('label-typescale-font-weight')} + max(0, var(--_emph, 0)));
+    visibility: hidden;
+    pointer-events: none;
   }
 
   /* TAB-24: the covered layer — the indicator's piece on this tab, in the indicator's color, with the covered copy of the

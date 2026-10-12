@@ -5154,8 +5154,16 @@
     --tanrei-comp-navigation-drawer-container-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 90), 0.25px);
     --tanrei-comp-navigation-drawer-disabled-opacity: 1;
     --tanrei-comp-navigation-drawer-focused-opacity: 1;
+    --tanrei-comp-navigation-drawer-header-color: var(--tanrei-sys-color-on-surface);
     --tanrei-comp-navigation-drawer-header-gap: var(--tanrei-sys-space-space300);
     --tanrei-comp-navigation-drawer-header-item-gap: var(--tanrei-sys-space-space100);
+    --tanrei-comp-navigation-drawer-header-typescale-font-family: var(--tanrei-sys-typescale-heading-5-font-family);
+    --tanrei-comp-navigation-drawer-header-typescale-font-size: var(--tanrei-sys-typescale-heading-5-font-size);
+    --tanrei-comp-navigation-drawer-header-typescale-font-weight: var(--tanrei-sys-typescale-heading-5-font-weight);
+    --tanrei-comp-navigation-drawer-header-typescale-font-weight-emphasized: var(--tanrei-sys-typescale-heading-5-font-weight-emphasized);
+    --tanrei-comp-navigation-drawer-header-typescale-letter-spacing: var(--tanrei-sys-typescale-heading-5-letter-spacing);
+    --tanrei-comp-navigation-drawer-header-typescale-line-height: var(--tanrei-sys-typescale-heading-5-line-height);
+    --tanrei-comp-navigation-drawer-header-typescale-font: var(--tanrei-sys-typescale-heading-5-font);
     --tanrei-comp-navigation-drawer-heading-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-navigation-drawer-heading-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 9), 0.25px);
     --tanrei-comp-navigation-drawer-heading-typescale-font-family: var(--tanrei-sys-typescale-heading-6-font-family);
@@ -7290,6 +7298,8 @@
     --tanrei-comp-tabs-divider-thickness: var(--tanrei-sys-border-hairline);
     --tanrei-comp-tabs-focused-opacity: 1;
     --tanrei-comp-tabs-hovered-opacity: 1;
+    --tanrei-comp-tabs-icon-placement-medium: stacked;
+    --tanrei-comp-tabs-icon-placement-small: inline;
     --tanrei-comp-tabs-icon-size-medium: var(--tanrei-sys-icon-medium);
     --tanrei-comp-tabs-icon-size-small: var(--tanrei-sys-icon-small);
     --tanrei-comp-tabs-label-typescale-font-family: var(--tanrei-sys-typescale-label-font-family);
@@ -7409,7 +7419,8 @@
     --tanrei-comp-tabs-primary-selected-covered-label-color: var(--tanrei-comp-tabs-primary-selected-label-color);
     --tanrei-comp-tabs-primary-selected-icon-color: var(--tanrei-sys-color-primary);
     --tanrei-comp-tabs-primary-selected-label-color: var(--tanrei-sys-color-primary);
-    --tanrei-comp-tabs-primary-selected-state-layer-color: var(--tanrei-comp-tabs-primary-selected-label-color);
+    --tanrei-comp-tabs-primary-selected-label-emphasis: 0;
+    --tanrei-comp-tabs-primary-selected-state-layer-color: var(--tanrei-comp-tabs-primary-selected-covered-label-color);
     --tanrei-comp-tabs-primary-selected-underline-color: var(--tanrei-sys-color-primary);
     --tanrei-comp-tabs-primary-state-layer-color: var(--tanrei-comp-tabs-primary-label-color);
     --tanrei-comp-tabs-primary-track-color: rgb(0 0 0 / 0);
@@ -7523,7 +7534,8 @@
     --tanrei-comp-tabs-secondary-selected-covered-label-color: var(--tanrei-comp-tabs-secondary-selected-label-color);
     --tanrei-comp-tabs-secondary-selected-icon-color: var(--tanrei-sys-color-on-surface);
     --tanrei-comp-tabs-secondary-selected-label-color: var(--tanrei-sys-color-on-surface);
-    --tanrei-comp-tabs-secondary-selected-state-layer-color: var(--tanrei-comp-tabs-secondary-selected-label-color);
+    --tanrei-comp-tabs-secondary-selected-label-emphasis: 0;
+    --tanrei-comp-tabs-secondary-selected-state-layer-color: var(--tanrei-comp-tabs-secondary-selected-covered-label-color);
     --tanrei-comp-tabs-secondary-selected-underline-color: var(--tanrei-sys-color-primary);
     --tanrei-comp-tabs-secondary-state-layer-color: var(--tanrei-comp-tabs-secondary-label-color);
     --tanrei-comp-tabs-secondary-track-color: rgb(0 0 0 / 0);
@@ -7638,6 +7650,7 @@
     --tanrei-comp-tabs-tonal-selected-covered-label-color: var(--tanrei-sys-color-on-secondary-container);
     --tanrei-comp-tabs-tonal-selected-icon-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-tabs-tonal-selected-label-color: var(--tanrei-sys-color-on-surface-variant);
+    --tanrei-comp-tabs-tonal-selected-label-emphasis: var(--tanrei-sys-typescale-emphasis-label);
     --tanrei-comp-tabs-tonal-selected-state-layer-color: var(--tanrei-comp-tabs-tonal-selected-covered-label-color);
     --tanrei-comp-tabs-tonal-selected-underline-color: rgb(0 0 0 / 0);
     --tanrei-comp-tabs-tonal-state-layer-color: var(--tanrei-comp-tabs-tonal-label-color);

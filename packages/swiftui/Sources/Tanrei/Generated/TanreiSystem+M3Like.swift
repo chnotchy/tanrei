@@ -5980,8 +5980,10 @@ private let m3LikeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   containerPaddingBlock: 12,
   containerPaddingInline: 12,
   containerWidth: 360,
+  headerColor: .role(.onSurface),
   headerGap: 24,
   headerItemGap: 8,
+  headerTypescale: m3LikeTypescale.heading5,
   headingColor: .role(.onSurfaceVariant),
   headingHeight: 36,
   headingTypescale: m3LikeTypescale.heading6,
@@ -8343,6 +8345,9 @@ private let m3LikeTabsTokens = TanreiTabsTokens(
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionTransition: 0,
+  primarySelectedLabelEmphasis: 0,
+  secondarySelectedLabelEmphasis: 0,
+  tonalSelectedLabelEmphasis: 200,
   trackPadding: 0,
   trackShape: 0,
   trackVisible: 1,
@@ -8705,14 +8710,16 @@ private let m3LikeTabsTokens = TanreiTabsTokens(
       containerPaddingInline: 12,
       activeIndicatorPaddingInline: 12,
       activeIndicatorPaddingBlock: 2,
-      iconSize: 20
+      iconSize: 20,
+      iconPlacement: 1
     ),
     medium: TanreiTabsSizeTokens(
       containerHeight: 48,
       containerPaddingInline: 16,
       activeIndicatorPaddingInline: 16,
       activeIndicatorPaddingBlock: 4,
-      iconSize: 24
+      iconSize: 24,
+      iconPlacement: 0
     )
   ),
   hovered: TanreiTabsStateTokens(

@@ -7313,8 +7313,10 @@ export const cupertino = {
       containerWidth: 240,
       disabledOpacity: 1,
       focusedOpacity: 1,
+      headerColor: { kind: "role", role: "onSurface" },
       headerGap: 24,
       headerItemGap: 8,
+      headerTypescale: "heading5",
       headingColor: { kind: "role", role: "onSurfaceVariant" },
       headingHeight: 36,
       headingTypescale: "labelSmall",
@@ -9890,6 +9892,9 @@ export const cupertino = {
       motionStateEasing: [0.2, 0, 0, 1],
       motionTransition: 0,
       pressedOpacity: 0.7,
+      primarySelectedLabelEmphasis: 0,
+      secondarySelectedLabelEmphasis: 0,
+      tonalSelectedLabelEmphasis: 200,
       trackPadding: 4,
       trackShape: 9999,
       trackVisible: 1,
@@ -9916,7 +9921,7 @@ export const cupertino = {
             selectedCoveredIconColor: { kind: "role", role: "onPrimary" },
             selectedActiveIndicatorColor: { kind: "role", role: "primary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "primary" },
+            selectedStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           hovered: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -9939,7 +9944,7 @@ export const cupertino = {
             selectedCoveredIconColor: { kind: "role", role: "onPrimary" },
             selectedActiveIndicatorColor: { kind: "role", role: "primary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "primary" },
+            selectedStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           focused: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -9962,7 +9967,7 @@ export const cupertino = {
             selectedCoveredIconColor: { kind: "role", role: "onPrimary" },
             selectedActiveIndicatorColor: { kind: "role", role: "primary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "primary" },
+            selectedStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           pressed: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -9985,7 +9990,7 @@ export const cupertino = {
             selectedCoveredIconColor: { kind: "role", role: "onPrimary" },
             selectedActiveIndicatorColor: { kind: "role", role: "primary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "primary" },
+            selectedStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           disabled: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -10077,7 +10082,7 @@ export const cupertino = {
             selectedCoveredIconColor: { kind: "role", role: "onSecondary" },
             selectedActiveIndicatorColor: { kind: "role", role: "secondary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "primary" },
+            selectedStateLayerColor: { kind: "role", role: "onSecondary" },
           },
           hovered: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -10100,7 +10105,7 @@ export const cupertino = {
             selectedCoveredIconColor: { kind: "role", role: "onSecondary" },
             selectedActiveIndicatorColor: { kind: "role", role: "secondary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "primary" },
+            selectedStateLayerColor: { kind: "role", role: "onSecondary" },
           },
           focused: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -10123,7 +10128,7 @@ export const cupertino = {
             selectedCoveredIconColor: { kind: "role", role: "onSecondary" },
             selectedActiveIndicatorColor: { kind: "role", role: "secondary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "primary" },
+            selectedStateLayerColor: { kind: "role", role: "onSecondary" },
           },
           pressed: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -10146,7 +10151,7 @@ export const cupertino = {
             selectedCoveredIconColor: { kind: "role", role: "onSecondary" },
             selectedActiveIndicatorColor: { kind: "role", role: "secondary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "primary" },
+            selectedStateLayerColor: { kind: "role", role: "onSecondary" },
           },
           disabled: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -10395,8 +10400,8 @@ export const cupertino = {
         },
       },
       sizes: {
-        small: { containerHeight: 32, containerPaddingInline: 12, activeIndicatorPaddingInline: 12, activeIndicatorPaddingBlock: 2, iconSize: 20 },
-        medium: { containerHeight: 48, containerPaddingInline: 16, activeIndicatorPaddingInline: 16, activeIndicatorPaddingBlock: 4, iconSize: 20 },
+        small: { containerHeight: 32, containerPaddingInline: 12, activeIndicatorPaddingInline: 12, activeIndicatorPaddingBlock: 2, iconSize: 20, iconPlacement: 1 },
+        medium: { containerHeight: 48, containerPaddingInline: 16, activeIndicatorPaddingInline: 16, activeIndicatorPaddingBlock: 4, iconSize: 20, iconPlacement: 0 },
       },
     },
     tagGroup: {

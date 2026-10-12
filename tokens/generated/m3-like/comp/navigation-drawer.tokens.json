@@ -35,7 +35,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the trailing text and glyph; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state.",
+            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header, and the text style and color its header slot gives what it holds; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the trailing text and glyph; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state.",
             "rules": [
               "The selected destination is drawn from the selected parts; every other destination from the unselected parts. While the drawer is collapsed they are the collapsed-selected and collapsed-unselected parts. Never pick a look by hand.",
               "Selected must differ from unselected by more than the icon's fill: an active indicator, a stronger color, or both.",
@@ -44,7 +44,7 @@
               "A row is a menu item's size and shape: item.container.height, item.padding-inline, item.gap and item.container.shape take the values the menu's item has. A drawer destination is never a capsule in the default system.",
               "The icon indicator is a box behind the glyph alone. The default system leaves it transparent in every condition; a layer that marks a collapsed destination behind its glyph only (Material's) fills it in the collapsed conditions and clears the collapsed item container.",
               "Every icon sits on the same point in both forms: its center is half the collapsed width from the drawer's start edge (plus the nesting indent), and its row keeps its height. Change collapsed.container.width, not a padding, to move the icon column; in the default system it is container.padding-inline, item.padding-inline and half the icon, twice.",
-              "A nested destination's whole row starts item.nest-indent further in, its fill and state layer included, not its text alone.",
+              "A nested destination's content (icon and label) starts item.nest-indent further in; its item container, fill, state layer and focus indicator keep the full width of a top-level row, so that every selection has the same shape and the drawn row matches its hit area.",
               "A look that draws no item container at rest draws none when disabled.",
               "A modal drawer is set apart by its elevation and the scrim; a standard one by its end edge.",
               "The trailing text is quieter than the label: a regular weight in the supporting-text color.",
@@ -215,7 +215,7 @@
         "header": {
           "$extensions": {
             "dev.tanrei.vocabulary": {
-              "rationale": "One product puts a menu button and its main action at the top of its drawer and sets them apart from the destinations by a space of their own, tighter between the two controls than below them.",
+              "rationale": "One product puts a menu button, its own name and its main action at the top of its drawer, sets them apart from the destinations by a space of their own, tighter between the two controls than below them, and draws its name as a title of the drawer whatever element holds it.",
               "since": "0.1.0"
             }
           },
@@ -228,6 +228,16 @@
             "$type": "dimension",
             "$description": "Between two rows of the header: two header buttons, or a header button and the main action.",
             "$value": "{tanrei.sys.space.space100}"
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.heading-5}",
+            "$description": "The text style the header slot gives what it holds (NVD-38): the drawer's title, such as the product's name. It is inherited, so plain text placed in the slot is drawn in it, and an element of the product's that sets its own style keeps it."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface}",
+            "$description": "The color the header slot gives what it holds, inherited as its text style is: the content color of the drawer's surface."
           }
         },
         "breakpoint": {
@@ -363,7 +373,7 @@
           },
           "nest-indent": {
             "$type": "dimension",
-            "$description": "How much further toward the end a nested destination's row starts, per level of nesting: its item container, with its fill, state layer and focus indicator, and its content with it. With the default icon and gap, a nested destination's label starts under its group's label.",
+            "$description": "How much further toward the end a nested destination's content (its icon and label) starts, per level of nesting. Its item container, with its fill, state layer and focus indicator, keeps the full width of a top-level row. With the default icon and gap, a nested destination's label starts under its group's label.",
             "$value": "{tanrei.sys.space.space450}",
             "$extensions": {
               "dev.tanrei.vocabulary": {

@@ -5968,8 +5968,10 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     containerPaddingBlock: 12.0,
     containerPaddingInline: 12.0,
     containerWidth: 240.0,
+    headerColor: TanreiPaint.role(TanreiColorRole.onSurface),
     headerGap: 24.0,
     headerItemGap: 8.0,
+    headerTypescale: _typescaleHeading5,
     headingColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     headingHeight: 36.0,
     headingTypescale: _typescaleLabelSmall,
@@ -8309,6 +8311,9 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     motionTransition: 0.0,
+    primarySelectedLabelEmphasis: 0.0,
+    secondarySelectedLabelEmphasis: 0.0,
+    tonalSelectedLabelEmphasis: 200.0,
     trackPadding: 4.0,
     trackShape: 9999.0,
     trackVisible: 1.0,
@@ -8335,7 +8340,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           selectedCoveredIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           selectedActiveIndicatorColor: TanreiPaint.role(TanreiColorRole.primary),
           selectedUnderlineColor: TanreiPaint.none(),
-          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.onPrimary),
         ),
         hovered: TanreiTabsVariantStateTokens(
           trackColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
@@ -8358,7 +8363,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           selectedCoveredIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           selectedActiveIndicatorColor: TanreiPaint.role(TanreiColorRole.primary),
           selectedUnderlineColor: TanreiPaint.none(),
-          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.onPrimary),
         ),
         focused: TanreiTabsVariantStateTokens(
           trackColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
@@ -8381,7 +8386,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           selectedCoveredIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           selectedActiveIndicatorColor: TanreiPaint.role(TanreiColorRole.primary),
           selectedUnderlineColor: TanreiPaint.none(),
-          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.onPrimary),
         ),
         pressed: TanreiTabsVariantStateTokens(
           trackColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
@@ -8404,7 +8409,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           selectedCoveredIconColor: TanreiPaint.role(TanreiColorRole.onPrimary),
           selectedActiveIndicatorColor: TanreiPaint.role(TanreiColorRole.primary),
           selectedUnderlineColor: TanreiPaint.none(),
-          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.onPrimary),
         ),
         disabled: TanreiTabsVariantStateTokens(
           trackColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
@@ -8452,7 +8457,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           selectedCoveredIconColor: TanreiPaint.role(TanreiColorRole.onSecondary),
           selectedActiveIndicatorColor: TanreiPaint.role(TanreiColorRole.secondary),
           selectedUnderlineColor: TanreiPaint.none(),
-          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondary),
         ),
         hovered: TanreiTabsVariantStateTokens(
           trackColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
@@ -8475,7 +8480,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           selectedCoveredIconColor: TanreiPaint.role(TanreiColorRole.onSecondary),
           selectedActiveIndicatorColor: TanreiPaint.role(TanreiColorRole.secondary),
           selectedUnderlineColor: TanreiPaint.none(),
-          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondary),
         ),
         focused: TanreiTabsVariantStateTokens(
           trackColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
@@ -8498,7 +8503,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           selectedCoveredIconColor: TanreiPaint.role(TanreiColorRole.onSecondary),
           selectedActiveIndicatorColor: TanreiPaint.role(TanreiColorRole.secondary),
           selectedUnderlineColor: TanreiPaint.none(),
-          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondary),
         ),
         pressed: TanreiTabsVariantStateTokens(
           trackColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
@@ -8521,7 +8526,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
           selectedCoveredIconColor: TanreiPaint.role(TanreiColorRole.onSecondary),
           selectedActiveIndicatorColor: TanreiPaint.role(TanreiColorRole.secondary),
           selectedUnderlineColor: TanreiPaint.none(),
-          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.primary),
+          selectedStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondary),
         ),
         disabled: TanreiTabsVariantStateTokens(
           trackColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
@@ -8672,6 +8677,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         activeIndicatorPaddingInline: 12.0,
         activeIndicatorPaddingBlock: 2.0,
         iconSize: 20.0,
+        iconPlacement: 1.0,
       ),
       medium: TanreiTabsSizeTokens(
         containerHeight: 48.0,
@@ -8679,6 +8685,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
         activeIndicatorPaddingInline: 16.0,
         activeIndicatorPaddingBlock: 4.0,
         iconSize: 20.0,
+        iconPlacement: 0.0,
       ),
     ),
     hovered: TanreiTabsStateTokens(

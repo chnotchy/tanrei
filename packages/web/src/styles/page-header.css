@@ -55,9 +55,10 @@
  *   eyebrow keep theirs below, the description, the meta line and the actions theirs above.
  * - The element is the container, so it cannot follow its own width: what changes at the wide width is written on
  *   the parts — the title's text style, the description's space, the actions' place.
- * - Beside the title the actions are a box one line of the title high, in the title's first row, with their row
- *   centred in it: a Button taller than that line stands out of the box by the same amount above and below, and
- *   stays centred on the title's first line (PGH-10).
+ * - Beside the title the actions are a box at least one line of the title high, in the title's first row, with their
+ *   rows centred in it: one row no taller than that line is centred on it, and rows that need more grow the box
+ *   downward from the line's top, so they never stand out of the head (PGH-10) — the `safe` alignment of CSS Box
+ *   Alignment, drawn without a script.
  * - Names that begin `--_pgh-` are private.
  */
 @layer tanrei.components {
@@ -285,13 +286,14 @@
   /* ── PGH-10, PGH-12: a head at least wide.container-width wide ──────────────────────────────────────────────── */
   @container (inline-size >= token(comp.page-header.wide.container-width)) {
     /* PGH-10: the actions beside the text at the end edge, container.gap after it, centred on the title's first
-       line however many lines the title has; their row ends at the head's end edge. */
+       line however many lines the title has while they are no taller than it; taller ones start at its top and grow
+       the box (and the head) downward. Their row ends at the head's end edge. */
     :where(tanrei-page-header:not([actions-placement='below'])) > :where([data-part='actions']) {
       grid-area: title / actions-start / auto / actions-end;
       align-self: start;
       align-content: center;
       justify-content: flex-end;
-      block-size: var(--_pgh-title-line);
+      min-block-size: var(--_pgh-title-line);
       margin-block-start: 0;
       margin-inline-start: var(--tanrei-comp-page-header-container-gap);
     }

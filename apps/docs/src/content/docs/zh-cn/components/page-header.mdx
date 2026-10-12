@@ -2,7 +2,7 @@
 title: "页头"
 description: "页面内容的开头部分。页面的标题作为标题元素，配有一句说明页面是什么的话、一行关于页面的信息、针对整个页面的操作，上方还有返回上级的途径。"
 translationOf: components/page-header.mdx
-sourceHash: a12c67657bb297bfa5b88a1a2b72e252c99db227
+sourceHash: 00651aa18391bfd7dc2d3df1d08f6de49cb85d51
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -156,7 +156,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | `actionsPlacement` | 页头宽度不小于 480 时 | 页头更窄时 |
 | --- | --- | --- |
-| `end`（默认） | 位于标题旁边的末尾边，与标题的第一行居中对齐。 | 位于文本下方的起始边。 |
+| `end`（默认） | 位于标题旁边的末尾边，与标题的第一行居中对齐。会换行的操作，或比这一行更高的操作，从这一行的顶部开始排，页头随之变高以容纳它们。 | 位于文本下方的起始边。 |
 | `below` | 位于文本下方。 | 位于文本下方。 |
 
 - 起决定作用的是页头自己的宽度，不是窗口的宽度。窗格里的页头按这个窗格来排布自己。

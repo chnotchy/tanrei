@@ -532,7 +532,7 @@ test.describe('drawing', () => {
     expect(rt.x - rr.x).toBeCloseTo(ipi, 1);
   });
 
-  test('NVD-13: a nested destination’s item container starts item.nest-indent further in per level — its fill, state layer and focus indicator with it, not its content alone — and ends with the others; its label starts under its group’s label, a nested icon is centred one indent further', async ({ page }) => {
+  test('NVD-13: a nested destination’s item container is as wide as a top-level one’s — its fill, state layer and focus indicator with it — and its content alone starts item.nest-indent further in per level: its label under its group’s label, a nested icon centred one indent further', async ({ page }) => {
     await mount(page, only('groups-nested', 'nested-icons'), { reducedMotion: true });
     const [nest, pi, ipi, column] = await Promise.all([T('item-nest-indent'), T('container-padding-inline'), T('item-padding-inline'), T('collapsed-container-width')].map((n) => px(page, n)));
     // The verify, under the default system.
@@ -547,25 +547,27 @@ test.describe('drawing', () => {
     const topIcon = await bounds(group(page, 'groups-nested', 0).locator('.icon').first());
     expect([topIcon.x - top.x, topIcon.y - top.y, top.y + top.height - (topIcon.y + topIcon.height)]).toEqual([12, 12, 12]);
     expect(topIcon.x + topIcon.width / 2 - p.x).toBe(36);
-    // One level deep: the item container starts 48 from the drawer's start edge and its label 60, under its group's label.
-    expect(await startOf(box(page, 'groups-nested', 0))).toBe(48);
+    // One level deep: the item container starts 12 from the drawer's start edge, as a top-level one does, and its label
+    // 60, under its group's label.
+    expect(await startOf(box(page, 'groups-nested', 0))).toBe(12);
     expect(await startOf(item(page, 'groups-nested', 0).locator('.label'))).toBe(60);
     expect(await startOf(group(page, 'groups-nested', 0).locator('.label').first())).toBe(60);
-    // Two levels deep: 84 and 96.
-    expect(await startOf(box(page, 'groups-nested', 1))).toBe(84);
+    // Two levels deep: 12 and 96.
+    expect(await startOf(box(page, 'groups-nested', 1))).toBe(12);
     expect(await startOf(item(page, 'groups-nested', 1).locator('.label'))).toBe(96);
-    // Every item container ends padding-inline inside the drawer's end edge, however far in it starts.
+    // Every item container ends padding-inline inside the drawer's end edge, however deep it is nested.
     for (const n of [0, 1]) {
       const c = await bounds(box(page, 'groups-nested', n));
       expect(p.x + p.width - (c.x + c.width), `${n}`).toBe(12);
     }
     // The fill, the state layer and the focus indicator are that box: hovered, a nested destination shows a state layer
-    // that starts where its item container does, not at the drawer's padding.
+    // as wide as a top-level row's, from the drawer's padding.
     const nested = item(page, 'groups-nested', 0);
     await nested.locator('.cell').hover();
     await expect.poll(() => css(nested.locator('.row > .container > .indicator'), 'background-color')).toBe(await resolveColor(page, T('unselected-hovered-item-container-color')));
     const [fill, c] = [await bounds(nested.locator('.row > .container > .indicator')), await bounds(box(page, 'groups-nested', 0))];
     expect([fill.x, fill.width]).toEqual([c.x, c.width]);
+    expect([fill.x, fill.width]).toEqual([top.x, top.width]);
     await page.mouse.click(700, 5);
     await tabTo(page, nested.locator('.cell'));
     await expect(box(page, 'groups-nested', 0)).toHaveCSS('outline-style', 'solid');
@@ -574,21 +576,22 @@ test.describe('drawing', () => {
     const icon = await bounds(item(page, 'nested-icons', 2).locator('.icon'));
     expect(icon.x + icon.width / 2 - q.x).toBe(72);
     const [row, trailing] = [await bounds(box(page, 'nested-icons', 2)), await bounds(item(page, 'nested-icons', 2).locator('.trailing-text'))];
-    expect(row.x - q.x).toBe(48);
+    expect(row.x - q.x).toBe(12);
     expect(row.x + row.width - (trailing.x + trailing.width)).toBeCloseTo(ipi, 1);
     // Mirrored in right-to-left.
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
     const [rp, rc] = [await bounds(panel(page, 'groups-nested')), await bounds(box(page, 'groups-nested', 0))];
-    expect(rp.x + rp.width - (rc.x + rc.width)).toBe(48);
+    expect(rp.x + rp.width - (rc.x + rc.width)).toBe(12);
     expect(rc.x - rp.x).toBe(12);
+    expect(rp.x + rp.width - ((await bounds(item(page, 'groups-nested', 0).locator('.label'))).x + (await bounds(item(page, 'groups-nested', 0).locator('.label'))).width)).toBe(60);
   });
 
-  test('NVD-6: a nested destination’s hit area is still the drawer’s full width, however far its item container is indented, and a press outside the item container answers on it', async ({ page }) => {
+  test('NVD-6: a nested destination’s hit area is the drawer’s full width, however deep it is nested, and a press outside the item container answers on it', async ({ page }) => {
     await mount(page, only('groups-nested'), { reducedMotion: true });
     const p = await bounds(panel(page, 'groups-nested'));
     const [hit, c] = [await bounds(cell(page, 'groups-nested', 1)), await bounds(box(page, 'groups-nested', 1))];
     expect(hit.x).toBeCloseTo(p.x, 0);
-    expect(hit.width).toBeGreaterThan(c.width + 2 * 36);
+    expect(hit.width).toBeGreaterThan(c.width);
     // Before the item container's start, at the drawer's start edge: the destination's.
     const at = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('tanrei-navigation-drawer-item')?.getAttribute('value') ?? null, [p.x + 2, c.y + c.height / 2]);
     expect(at).toBe(await item(page, 'groups-nested', 1).getAttribute('value'));
@@ -1102,6 +1105,22 @@ test.describe('the collapsed form', () => {
     expect(main.y - (second.y + second.height)).toBeCloseTo(itemGap, 1);
     // Without a header button the header slot starts at padding-inline.
     expect((await bounds(page.locator('#t-title'))).x - (await bounds(panel(page, 't'))).x).toBeCloseTo(pi, 0);
+    // Plain text in the header slot inherits header.typescale and header.color; an element that sets its own keeps it.
+    const style = await page.evaluate((name) => {
+      const probe = document.createElement('span');
+      probe.style.font = `var(${name}-font)`;
+      probe.style.color = `var(${name.replace('-typescale', '')}-color)`;
+      document.body.appendChild(probe);
+      const { fontFamily, fontSize, fontWeight, color } = getComputedStyle(probe);
+      probe.remove();
+      return { fontFamily, fontSize, fontWeight, color };
+    }, '--tanrei-comp-navigation-drawer-header-typescale');
+    for (const id of ['#title', '#t-title']) {
+      const { fontFamily, fontSize, fontWeight, color } = await page.locator(id).evaluate((el) => getComputedStyle(el));
+      expect({ fontFamily, fontSize, fontWeight, color }, id).toEqual(style);
+    }
+    await page.locator('#t-title').evaluate((el) => (el.style.fontSize = '30px'));
+    expect(await css(page.locator('#t-title'), 'font-size')).toBe('30px');
     // First in focus order, wherever the items stand among the children.
     await page.mouse.click(700, 5);
     await tabTo(page, buttons.nth(0).locator('button'));
@@ -1274,7 +1293,7 @@ test.describe('the collapsed form', () => {
     await expect.poll(() => seen.filter((w) => w.includes('NVD-43')).length).toBe(2);
   });
 
-  test('NVD-44: a group’s row is drawn as a destination’s with its chevron — expand_more at trailing-icon.size, turned half a turn while open; its items one nest-indent further; open and close move the cells below over motion.disclosure', async ({ page }) => {
+  test('NVD-44: a group’s row is drawn as a destination’s with its chevron — expand_more at trailing-icon.size, turned half a turn while open; its items’ content one nest-indent further, their item containers as wide as its own; open and close move the cells below over motion.disclosure', async ({ page }) => {
     await mount(page, only('groups', 'groups-nested'), { reducedMotion: false });
     const [nest, trailing, height] = await Promise.all([T('item-nest-indent'), T('item-trailing-icon-size'), T('item-container-height')].map((n) => px(page, n)));
     const chevron = group(page, 'groups', 0).locator('.chevron').first();
@@ -1286,10 +1305,10 @@ test.describe('the collapsed form', () => {
     // Labels without icons start one nest-indent further per level (Color at one level, Overview at two).
     const labelX = async (locator: Locator) => (await bounds(locator.locator('.label'))).x;
     expect((await labelX(item(page, 'groups-nested', 1))) - (await labelX(item(page, 'groups-nested', 0)))).toBeCloseTo(nest, 1);
-    // …and so do their item containers: each one's is item.nest-indent further from the start than its group's.
+    // …but not their item containers: each one's starts where its group's does.
     const boxX = async (locator: Locator) => (await bounds(locator.locator('.row > .container').first())).x;
-    expect((await boxX(item(page, 'groups-nested', 0))) - (await boxX(group(page, 'groups-nested', 0)))).toBeCloseTo(nest, 1);
-    expect((await boxX(item(page, 'groups-nested', 1))) - (await boxX(group(page, 'groups-nested', 1)))).toBeCloseTo(nest, 1);
+    expect((await boxX(item(page, 'groups-nested', 0))) - (await boxX(group(page, 'groups-nested', 0)))).toBeCloseTo(0, 1);
+    expect((await boxX(item(page, 'groups-nested', 1))) - (await boxX(group(page, 'groups-nested', 1)))).toBeCloseTo(0, 1);
     const disclosure = await resolveToken(page, T('motion-disclosure-duration'), 'duration');
     expect(Number.parseFloat(await css(group(page, 'groups', 0).locator('.items').first(), 'transition-duration'))).toBeCloseTo(disclosure / 1000, 3);
     const below = (await bounds(groupRow(page, 'groups', 1))).y;
@@ -1358,7 +1377,7 @@ test.describe('the collapsed form', () => {
     await expect.poll(() => activeValue(page)).toBe('group:Projects');
   });
 
-  test('NVD-48: groups nested deeper than three levels still render, one nest-indent per level, and are reported', async ({ page }) => {
+  test('NVD-48: groups nested deeper than three levels still render, their content one nest-indent further per level, and are reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [fixture('deep', [grp('1', [grp('2', [grp('3', [grp('4', [d('x', 'Deep')], { open: true })], { open: true })], { open: true })], { icon: 'folder', open: true })], { value: 'x' })], { reducedMotion: true });
     await expect(cell(page, 'deep', 0)).toBeVisible();
@@ -1366,10 +1385,11 @@ test.describe('the collapsed form', () => {
     const x3 = (await bounds(group(page, 'deep', 2).locator('.label').first())).x;
     const x4 = (await bounds(group(page, 'deep', 3).locator('.label').first())).x;
     expect(x4 - x3).toBeCloseTo(nest, 1);
-    // Each level's item containers indent, not their content alone.
+    // Each level's content indents; its item container keeps a top-level row's width.
     const starts = await Promise.all([0, 1, 2, 3].map(async (n) => (await bounds(group(page, 'deep', n).locator('.row > .container').first())).x));
-    for (const n of [1, 2, 3]) expect(starts[n] - starts[n - 1], `level ${n}`).toBeCloseTo(nest, 1);
-    expect((await bounds(box(page, 'deep', 0))).x - starts[3]).toBeCloseTo(nest, 1);
+    for (const n of [1, 2, 3]) expect(starts[n] - starts[n - 1], `level ${n}`).toBeCloseTo(0, 1);
+    expect((await bounds(box(page, 'deep', 0))).x - starts[3]).toBeCloseTo(0, 1);
+    expect((await bounds(item(page, 'deep', 0).locator('.label'))).x - x4).toBeCloseTo(nest, 1);
     await expect.poll(() => seen.filter((w) => w.includes('NVD-48')).length).toBe(1);
   });
 

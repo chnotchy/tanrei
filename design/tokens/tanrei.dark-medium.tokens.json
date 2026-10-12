@@ -63952,6 +63952,20 @@
           }
         },
         "header": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.9529,
+                0.9529,
+                0.9529
+              ],
+              "hex": "#f3f3f3",
+              "alpha": 1
+            },
+            "$description": "The color the header slot gives what it holds, inherited as its text style is: the content color of the drawer's surface."
+          },
           "gap": {
             "$type": "dimension",
             "$value": {
@@ -63967,6 +63981,29 @@
               "unit": "px"
             },
             "$description": "Between two rows of the header: two header buttons, or a header button and the main action."
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Inter",
+                "Noto Sans JP",
+                "Noto Sans",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 16,
+                "unit": "px"
+              },
+              "fontWeight": 500,
+              "letterSpacing": {
+                "value": -0.16,
+                "unit": "px"
+              },
+              "lineHeight": 1.5
+            },
+            "$description": "The text style the header slot gives what it holds (NVD-38): the drawer's title, such as the product's name. It is inherited, so plain text placed in the slot is drawn in it, and an element of the product's that sets its own style keeps it."
           }
         },
         "heading": {
@@ -64138,7 +64175,7 @@
               "value": 36,
               "unit": "px"
             },
-            "$description": "How much further toward the end a nested destination's row starts, per level of nesting: its item container, with its fill, state layer and focus indicator, and its content with it. With the default icon and gap, a nested destination's label starts under its group's label."
+            "$description": "How much further toward the end a nested destination's content (its icon and label) starts, per level of nesting. Its item container, with its fill, state layer and focus indicator, keeps the full width of a top-level row. With the default icon and gap, a nested destination's label starts under its group's label."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -87211,6 +87248,16 @@
           }
         },
         "icon": {
+          "placement": {
+            "medium": {
+              "$type": "number",
+              "$value": 0
+            },
+            "small": {
+              "$type": "number",
+              "$value": 1
+            }
+          },
           "size": {
             "medium": {
               "$type": "dimension",
@@ -87800,12 +87847,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.0667,
+                      0.0667,
+                      0.0667
                     ],
                     "alpha": 0.1,
-                    "hex": "#f1f1f1"
+                    "hex": "#111111"
                   }
                 }
               },
@@ -87875,11 +87922,11 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.0667,
+                      0.0667,
+                      0.0667
                     ],
-                    "hex": "#f1f1f1",
+                    "hex": "#111111",
                     "alpha": 1
                   }
                 }
@@ -88087,12 +88134,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.0667,
+                      0.0667,
+                      0.0667
                     ],
                     "alpha": 0.08,
-                    "hex": "#f1f1f1"
+                    "hex": "#111111"
                   }
                 }
               },
@@ -88162,11 +88209,11 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.0667,
+                      0.0667,
+                      0.0667
                     ],
-                    "hex": "#f1f1f1",
+                    "hex": "#111111",
                     "alpha": 1
                   }
                 }
@@ -88405,12 +88452,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.0667,
+                      0.0667,
+                      0.0667
                     ],
                     "alpha": 0.1,
-                    "hex": "#f1f1f1"
+                    "hex": "#111111"
                   }
                 }
               },
@@ -88480,11 +88527,11 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.0667,
+                      0.0667,
+                      0.0667
                     ],
-                    "hex": "#f1f1f1",
+                    "hex": "#111111",
                     "alpha": 1
                   }
                 }
@@ -88657,6 +88704,11 @@
                   "alpha": 1
                 },
                 "$description": "The selected tab's label outside the active indicator, on the track: seen while the indicator is on its way or follows a finger, and wherever a layer's indicator does not cover the label."
+              },
+              "emphasis": {
+                "$type": "number",
+                "$value": 0,
+                "$description": "How much weight the selected tab's label gains, added to the weight of label.typescale: none, because the filled active indicator already tells the selection by more than a difference of color. Every tab keeps the width its label would need at the heavier weight, so a layer that sets a weight here moves nothing when the selection does."
               }
             },
             "state-layer": {
@@ -88665,11 +88717,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.9451,
-                    0.9451,
-                    0.9451
+                    0.0667,
+                    0.0667,
+                    0.0667
                   ],
-                  "hex": "#f1f1f1",
+                  "hex": "#111111",
                   "alpha": 1
                 },
                 "$description": "The color hover, focus and press mix into the selected tab."
@@ -89248,12 +89300,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
                     "alpha": 0.1,
-                    "hex": "#f1f1f1"
+                    "hex": "#1b1b1b"
                   }
                 }
               },
@@ -89323,11 +89375,11 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
-                    "hex": "#f1f1f1",
+                    "hex": "#1b1b1b",
                     "alpha": 1
                   }
                 }
@@ -89535,12 +89587,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
                     "alpha": 0.08,
-                    "hex": "#f1f1f1"
+                    "hex": "#1b1b1b"
                   }
                 }
               },
@@ -89610,11 +89662,11 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
-                    "hex": "#f1f1f1",
+                    "hex": "#1b1b1b",
                     "alpha": 1
                   }
                 }
@@ -89853,12 +89905,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
                     "alpha": 0.1,
-                    "hex": "#f1f1f1"
+                    "hex": "#1b1b1b"
                   }
                 }
               },
@@ -89928,11 +89980,11 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9451,
-                      0.9451,
-                      0.9451
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
-                    "hex": "#f1f1f1",
+                    "hex": "#1b1b1b",
                     "alpha": 1
                   }
                 }
@@ -90105,6 +90157,11 @@
                   "alpha": 1
                 },
                 "$description": "The selected tab's label outside the active indicator, on the track: seen while the indicator is on its way or follows a finger, and wherever a layer's indicator does not cover the label."
+              },
+              "emphasis": {
+                "$type": "number",
+                "$value": 0,
+                "$description": "How much weight the selected tab's label gains, added to the weight of label.typescale: none, because the filled active indicator already tells the selection by more than a difference of color. Every tab keeps the width its label would need at the heavier weight, so a layer that sets a weight here moves nothing when the selection does."
               }
             },
             "state-layer": {
@@ -90113,11 +90170,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.9451,
-                    0.9451,
-                    0.9451
+                    0.1059,
+                    0.1059,
+                    0.1059
                   ],
-                  "hex": "#f1f1f1",
+                  "hex": "#1b1b1b",
                   "alpha": 1
                 },
                 "$description": "The color hover, focus and press mix into the selected tab."
@@ -91553,6 +91610,11 @@
                   "alpha": 1
                 },
                 "$description": "The selected tab's label outside the active indicator: seen while the indicator is on its way or follows a finger. It stays the quiet color there, so that the darker label is always the one under the indicator."
+              },
+              "emphasis": {
+                "$type": "number",
+                "$value": 100,
+                "$description": "How much weight the selected tab's label gains, added to the weight of label.typescale, in both of its copies (where the active indicator covers it and where it does not). The tonal row's indicator is a faint layer, so its selection is also told by weight, not by color alone; every tab keeps the width its label needs at the heavier weight, so nothing moves when the selection does."
               }
             },
             "state-layer": {

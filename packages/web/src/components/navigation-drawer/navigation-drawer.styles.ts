@@ -197,6 +197,11 @@ export const drawerStyles = css`
     grid-row: 1;
     grid-column: 2;
     min-inline-size: 0;
+    /* NVD-38: the header slot's text style and color, inherited by what it holds: plain text is drawn in them, and an
+       element of the product's that sets its own keeps it. */
+    font: ${t('header-typescale-font')};
+    letter-spacing: ${t('header-typescale-letter-spacing')};
+    color: ${t('header-color')};
     /* --_lead: where the first header button ends, from the drawer's start (measured: the button is the product's). */
     margin-inline-start: calc(var(--_lead, calc(${t('collapsed-container-width')} / 2)) + ${t('item-gap')} - ${t('collapsed-container-width')});
     padding-inline-end: ${t('container-padding-inline')};
@@ -594,9 +599,9 @@ export const cellStyles = css`
     padding-inline-end: ${t('item-padding-inline')};
   }
 
-  /* NVD-13, NVD-32, NVD-35: the item container — the expanded row, which starts item.nest-indent further in for each
-     level of nesting (so a nested destination's fill, state layer and focus indicator hang under its group, and not
-     its content alone), or the collapsed cell (collapsed.item.container.width, centred in the icon column, from collapsed
+  /* NVD-13, NVD-32, NVD-35: the item container — the expanded row, as wide at every level of nesting (a nested
+     destination's fill, state layer and focus indicator have a top-level row's width; its content alone starts
+     item.nest-indent further in per level), or the collapsed cell (collapsed.item.container.width, centred in the icon column, from collapsed
      padding-block above the icon indicator to collapsed padding-block below the short label, or below the icon indicator
      where the short label is not drawn) — one shape that changes size and corners around the same icon line over the
      change of form. Where the two forms give it the same height and corners, its end edge alone moves. */
@@ -606,8 +611,8 @@ export const cellStyles = css`
     z-index: -1;
     isolation: isolate;
     inset-block-start: 0;
-    inset-inline-start: calc(var(--_level, 0) * ${t('item-nest-indent')});
-    inline-size: calc(100% - var(--_level, 0) * ${t('item-nest-indent')});
+    inset-inline-start: 0;
+    inline-size: 100%;
     block-size: 100%;
     ${unsafeCSS(cornerRadius(`${PREFIX}-item-container-shape`))}
     transition:

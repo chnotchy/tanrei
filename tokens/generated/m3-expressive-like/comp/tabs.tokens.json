@@ -47,7 +47,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything tabs read: for each size (medium, small) a tab's height, its padding, the active indicator's margins around the content and the icon size; the height of a tab that stacks its icon, the gap, the corner of its state layer and the label style; the track behind the row (its inset and corner, whether it is drawn, and its color per variant); the divider under the row; the motion, and whether a new selection travels or is drawn at once; and for each variant (primary, secondary, tonal) the track's color, the active indicator's corner, the underline's thickness and corner, and the colors of a tab (plain = not selected, selected.) in each state — its label and icon, and the same where the active indicator covers them (covered-label, covered-icon).",
+            "usage": "Everything tabs read: for each size (medium, small) a tab's height, its padding, the active indicator's margins around the content, the icon size and whether a primary tab stacks its icon above its label; the height of a tab that stacks its icon, the gap, the corner of its state layer and the label style; the track behind the row (its inset and corner, whether it is drawn, and its color per variant); the divider under the row; the motion, and whether a new selection travels or is drawn at once; and for each variant (primary, secondary, tonal) the track's color, the active indicator's corner, the underline's thickness and corner, the weight the selected label gains, and the colors of a tab (plain = not selected, selected.) in each state — its label and icon, and the same where the active indicator covers them (covered-label, covered-icon).",
             "rules": [
               "Primary tabs switch the main views of a screen; secondary tabs switch within one of them; tonal tabs are the quiet row, for a choice that should not compete with the content it changes (a sample's language, a contrast, a unit, a period). The three differ in the weight of the active indicator alone: the filled color, the color one step quieter, and a tonal layer under a label that darkens. Never put two rows of primary tabs on one screen.",
               "Tabs switch views of the same subject; to move between destinations use a navigation bar, rail or drawer.",
@@ -59,7 +59,7 @@
               "A tap selects a tab; a drag across the row carries the indicator with the finger and selects the tab it is released on. Nothing is selected, and nothing announced, until the release. Where motion.transition is none (or the row's transition prop says so) the indicator does not travel by itself: a new selection is drawn whole in one frame, and a drag still carries the indicator, because the finger moves it.",
               "Hug (the default) sizes each tab to its content and never truncates it; fullWidth shares the row's width and truncates a label that does not fit. Choose hug for long, translated or user-written labels.",
               "Restyle through these tokens in a layer; never fork the component.",
-              "Each look's state-layer.color is the color hover, focus and press mix into a tab; it aliases that look's label color.",
+              "Each look's state-layer.color is the color hover, focus and press mix into a tab: the plain look's aliases its label color, and the selected look's its covered label color, because on the selected tab the state is drawn over the active indicator, whose content that is.",
               "Hover, press and keyboard focus are drawn at the active indicator's size and place on the tab — a capsule or a circle in the default system — never on the tab's rectangle. The whole tab still answers the pointer. container.shape rounds that box; keep it equal to active-indicator.shape.",
               "Size is the row's height and what must shrink with it (padding, the indicator's margins, the icon); the label's style, the track's inset, every color and every motion are the same at every size. Medium (48) is the row of a screen's views; small (32) stands in a header or a toolbar beside small buttons. A small row is still pressed over the minimum target: its hit area reaches above and below it.",
               "Variant, track, size and transition are four independent decisions: every variant is drawn with and without its track, at every size, with and without the travel. Do not make a variant imply one of the others in a layer.",
@@ -83,7 +83,8 @@
                 "container.padding-inline",
                 "active-indicator.padding-inline",
                 "active-indicator.padding-block",
-                "icon.size"
+                "icon.size",
+                "icon.placement"
               ]
             }
           }
@@ -178,6 +179,44 @@
             "medium": {
               "$value": "{tanrei.sys.icon.medium}",
               "$extensions": {}
+            }
+          },
+          "placement": {
+            "$type": "number",
+            "$description": "Where a primary tab of each size puts its icon beside a drawn label (TAB-18). stacked: the icon above the label, the tab at least container.height-with-icon tall. inline: the icon before the label, centred on its line. A secondary or tonal tab puts its icon before its label at every size. A size a layer adds and does not declare here is drawn as medium is. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product stacks the icon above the label in its row of main views, which is tall enough to hold both, and puts it before the label in a low row that stands in a header beside small buttons; a design system that adds a size decides which of the two that size is.",
+                "since": "0.1.0"
+              }
+            },
+            "small": {
+              "$value": 1,
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A choice of kind; no dial scales it."
+                },
+                "dev.tanrei.enum": {
+                  "values": [
+                    "stacked",
+                    "inline"
+                  ]
+                }
+              }
+            },
+            "medium": {
+              "$value": 0,
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A choice of kind; no dial scales it."
+                },
+                "dev.tanrei.enum": {
+                  "values": [
+                    "stacked",
+                    "inline"
+                  ]
+                }
+              }
             }
           }
         },
@@ -470,6 +509,20 @@
                 "$value": "{tanrei.sys.color.primary}",
                 "$description": "The selected tab's label outside the active indicator, on the track: seen while the indicator is on its way or follows a finger, and wherever a layer's indicator does not cover the label.",
                 "$extensions": {}
+              },
+              "emphasis": {
+                "$type": "number",
+                "$value": 0,
+                "$description": "How much weight the selected tab's label gains, added to the weight of label.typescale: none, because the filled active indicator already tells the selection by more than a difference of color. Every tab keeps the width its label would need at the heavier weight, so a layer that sets a weight here moves nothing when the selection does.",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product marks the selection of a quiet row of tabs, whose indicator is too faint to be told by its color alone, with a heavier label as well, and leaves the label of a row whose indicator is a filled shape at its own weight; 0 marks nothing.",
+                    "since": "0.1.0"
+                  },
+                  "dev.tanrei.derive": {
+                    "fixed": "No weight is added: this variant's filled indicator tells the selection."
+                  }
+                }
               }
             },
             "icon": {
@@ -525,7 +578,7 @@
             "state-layer": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.tabs.primary.selected.label.color}",
+                "$value": "{tanrei.comp.tabs.primary.selected.covered-label.color}",
                 "$description": "The color hover, focus and press mix into the selected tab."
               }
             }
@@ -698,6 +751,20 @@
                 "$value": "{tanrei.sys.color.on-surface}",
                 "$description": "The selected tab's label outside the active indicator, on the track: seen while the indicator is on its way or follows a finger, and wherever a layer's indicator does not cover the label.",
                 "$extensions": {}
+              },
+              "emphasis": {
+                "$type": "number",
+                "$value": 0,
+                "$description": "How much weight the selected tab's label gains, added to the weight of label.typescale: none, because the filled active indicator already tells the selection by more than a difference of color. Every tab keeps the width its label would need at the heavier weight, so a layer that sets a weight here moves nothing when the selection does.",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product marks the selection of a quiet row of tabs, whose indicator is too faint to be told by its color alone, with a heavier label as well, and leaves the label of a row whose indicator is a filled shape at its own weight; 0 marks nothing.",
+                    "since": "0.1.0"
+                  },
+                  "dev.tanrei.derive": {
+                    "fixed": "No weight is added: this variant's filled indicator tells the selection."
+                  }
+                }
               }
             },
             "icon": {
@@ -753,7 +820,7 @@
             "state-layer": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.tabs.secondary.selected.label.color}",
+                "$value": "{tanrei.comp.tabs.secondary.selected.covered-label.color}",
                 "$description": "The color hover, focus and press mix into the selected tab."
               }
             }
@@ -921,6 +988,17 @@
                 "$type": "color",
                 "$value": "{tanrei.sys.color.on-surface-variant}",
                 "$description": "The selected tab's label outside the active indicator: seen while the indicator is on its way or follows a finger. It stays the quiet color there, so that the darker label is always the one under the indicator."
+              },
+              "emphasis": {
+                "$type": "number",
+                "$value": "{tanrei.sys.typescale.emphasis.label}",
+                "$description": "How much weight the selected tab's label gains, added to the weight of label.typescale, in both of its copies (where the active indicator covers it and where it does not). The tonal row's indicator is a faint layer, so its selection is also told by weight, not by color alone; every tab keeps the width its label needs at the heavier weight, so nothing moves when the selection does.",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product marks the selection of a quiet row of tabs, whose indicator is too faint to be told by its color alone, with a heavier label as well, and leaves the label of a row whose indicator is a filled shape at its own weight; 0 marks nothing.",
+                    "since": "0.1.0"
+                  }
+                }
               }
             },
             "icon": {

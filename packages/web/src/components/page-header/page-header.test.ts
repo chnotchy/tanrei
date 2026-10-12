@@ -546,7 +546,7 @@ test.describe('the actions', () => {
     });
   const centre = (box: { top: number; bottom: number }) => (box.top + box.bottom) / 2;
 
-  test('PGH-10: in a head 768 wide the fixture actions has its two Buttons at the end edge, centred on the 40 line of the title, container.gap after the text’s column, which keeps at least half of the head; 400 wide they are under the description, 16 below it, at the start edge; actions-below has them under the text at 768; the width that decides is the head’s own, never the window’s', async ({ page }) => {
+  test('PGH-10: in a head 768 wide the fixture actions has its two Buttons at the end edge, centred on the 40 line of the title (actions taller than the line start at its top and grow the head downward), container.gap after the text’s column, which keeps at least half of the head; 400 wide they are under the description, 16 below it, at the start edge; actions-below has them under the text at 768; the width that decides is the head’s own, never the window’s', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await mount(page, [...some('actions', 'actions-below', 'small-actions', 'long-title-actions', 'everything'), raw('many', {}, `<h1>Members</h1><div data-part="actions">${Array.from({ length: 6 }, (_, i) => `<tanrei-button variant="outlined">A long action ${i + 1}</tanrei-button>`).join('')}</div>`)]);
     const wide = await resolveToken(page, T('wide-container-width'));
@@ -563,17 +563,27 @@ test.describe('the actions', () => {
     near((await edges(actions(page, 'actions'))).left - text.right, await resolveToken(page, T('container-gap')), 0.01);
     expect(first.left).toBeGreaterThanOrEqual(text.right + (await resolveToken(page, T('container-gap'))) - 0.01);
     expect((await edges(description(page, 'actions'))).right).toBeLessThanOrEqual(text.right);
-    // Centred on the first line however many lines the title has — and a Button taller than the line too.
+    // Centred on the first line however many lines the title has, while they are no taller than the line.
     expect(await lines(title(page, 'long-title-actions'))).toBeGreaterThan(1);
     near(centre(await edges(action(page, 'long-title-actions', 1))), (await firstLine(page, 'long-title-actions')).top + 20, 0.51);
+    // A Button taller than the line starts at the line's top and never stands out of the head above it.
     const small = await firstLine(page, 'small-actions');
-    expect(small.line).toBeLessThan((await edges(action(page, 'small-actions', 1))).height);
-    near(centre(await edges(action(page, 'small-actions', 1))), small.top + small.line / 2, 0.51);
+    const smallAction = await edges(action(page, 'small-actions', 1));
+    expect(small.line).toBeLessThan(smallAction.height);
+    near(smallAction.top, small.top, 0.51);
+    expect(smallAction.top).toBeGreaterThanOrEqual((await edges(host(page, 'small-actions'))).top - 0.01);
     // Below the breadcrumbs and the eyebrow, level with the title.
     near(centre(await edges(action(page, 'everything', 1))), (await firstLine(page, 'everything')).top + 20, 0.51);
     // The column keeps at least half of the head, and actions that need more wrap in their own box.
     expect((await edges(title(page, 'many'))).width).toBeGreaterThanOrEqual(768 / 2 - 0.5);
     expect(new Set(await actions(page, 'many').evaluate((el) => [...el.children].map((child) => Math.round(child.getBoundingClientRect().top)))).size).toBeGreaterThan(1);
+    // Rows that wrap start at the top of the title's first line and grow the head downward: nothing stands out of it.
+    const manyLine = await firstLine(page, 'many');
+    const manyActions = await edges(actions(page, 'many'));
+    const manyHead = await edges(host(page, 'many'));
+    near((await edges(action(page, 'many', 1))).top, manyLine.top, 0.51);
+    expect(manyActions.top).toBeGreaterThanOrEqual(manyHead.top - 0.01);
+    expect(manyActions.bottom).toBeLessThanOrEqual(manyHead.bottom + 0.01);
     expect(await stage(page, 'many').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
 
     // actions-below: under the text at every width.

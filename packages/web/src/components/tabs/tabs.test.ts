@@ -47,13 +47,20 @@ const line = async (page: P, id: string, n: number) => (await clipped(underline(
 /** Whether `inner` lies within `outer`, to half a pixel. */
 const within = (inner: { x: number; y: number; width: number; height: number }, outer: { x: number; y: number; width: number; height: number }) =>
   inner.x >= outer.x - 0.5 && inner.y >= outer.y - 0.5 && inner.x + inner.width <= outer.x + outer.width + 0.5 && inner.y + inner.height <= outer.y + outer.height + 0.5;
-const truncated = (locator: Locator) => locator.evaluate((el) => el.scrollWidth > el.clientWidth);
+/** Whether a label is cut short: its text overflows the box that cuts it (the label's `.text`, or the element itself). */
+const truncated = (locator: Locator) =>
+  locator.evaluate((label) => {
+    const el = label.querySelector(':scope > .text') ?? label;
+    return el.scrollWidth > el.clientWidth;
+  });
 /**
  * A one-line text against the box that cuts it: where its first and its last character are laid out, whether it
  * overflows the box (so an ellipsis is drawn), and the box's own direction and `text-overflow`.
  */
 const cutEnds = (locator: Locator) =>
-  locator.evaluate((el) => {
+  locator.evaluate((label) => {
+    // A tab's label cuts its text in its `.text` (the label also holds the unseen copy that keeps its width).
+    const el = label.querySelector(':scope > .text') ?? label;
     const text = document.createTreeWalker(el, NodeFilter.SHOW_TEXT).nextNode() as Text;
     const at = (index: number) => {
       const range = document.createRange();
@@ -64,7 +71,7 @@ const cutEnds = (locator: Locator) =>
     };
     const { left, right } = el.getBoundingClientRect();
     const style = getComputedStyle(el);
-    return { box: { left, right }, first: at(0), last: at(text.length - 1), overflows: el.scrollWidth > el.clientWidth, direction: style.direction, textOverflow: style.textOverflow, dir: el.getAttribute('dir') };
+    return { box: { left, right }, first: at(0), last: at(text.length - 1), overflows: el.scrollWidth > el.clientWidth, direction: style.direction, textOverflow: style.textOverflow, dir: label.getAttribute('dir') };
   });
 /** A long right-to-left label. */
 const ARABIC_LONG = 'في انتظار مراجعة ثانية من فريق إمكانية الوصول';
@@ -434,7 +441,7 @@ test.describe('layout', () => {
     for (const n of [1, 2]) {
       const l = label(page, 'primary-fill-truncated', n);
       expect(await truncated(l)).toBe(true);
-      expect([await css(l, 'white-space'), await css(l, 'text-overflow')]).toEqual(['nowrap', 'ellipsis']);
+      expect([await css(l.locator('.text'), 'white-space'), await css(l.locator('.text'), 'text-overflow')]).toEqual(['nowrap', 'ellipsis']);
       expect((await bounds(l)).height).toBeCloseTo(oneLine, 0);
       // Less the padding on each side.
       expect((await bounds(l)).width).toBeCloseTo(share - 2 * pad, 0);
@@ -1185,6 +1192,7 @@ test.describe('concentric at every size', () => {
   });
 
   test('TAB-14: a tab whose indicator is a circle is that circle and no wider — an icon-only tab and a one-character tab take no inline padding and are as wide as the minimum target, not their content plus the padding — while a capsule keeps its content plus the padding; the tabs are placed by the indicator, the first one’s starting track.padding from the track’s start and the last one’s ending the same distance before its end', async ({ page, browserName }) => {
+    test.setTimeout(120_000); // every fixture of the spec is walked
     await mountFixtures(page, spec, { icons: true });
     const [pad, inset, height] = await Promise.all([resolveToken(page, T('container-padding-inline-medium')), resolveToken(page, T('track-padding')), resolveToken(page, T('container-height-medium'))]);
     const half = await halfPixel(page);
@@ -2906,7 +2914,8 @@ test.describe('a shared choice', () => {
     // The mark is for the frame that draws the change only.
     await frames(page, 3);
     expect(await box(page, 'b', 1).getAttribute('data-still')).toBeNull();
-    expect(await css(label(page, 'b', 1), 'transition-duration')).toBe('60s');
+    // (Its color and its weight.)
+    expect((await css(label(page, 'b', 1), 'transition-duration')).split(', ').every((duration) => duration === '60s')).toBe(true);
     await box(page, 'b', 2).hover();
     expect((await moving(page, 'b')).colors).toBeGreaterThan(0);
   });
@@ -3257,11 +3266,12 @@ test.describe('variants, the track, sizes and the transition', () => {
     const onPage = await css(cover(page, 'tonal-no-track', 0), 'background-color');
     await page.locator('[data-fixture="tonal-no-track"]').evaluate((el) => (el.style.background = 'var(--tanrei-sys-color-surface-container)'));
     expect(await css(cover(page, 'tonal-no-track', 0), 'background-color')).toBe(onPage);
-    // Hover on the selected tab: its state layer, under the translucent indicator.
+    // Hover on the selected tab: its state layer, over the translucent indicator (TAB-18).
     await box(page, 'tonal', 0).hover();
     await expect.poll(() => css(layer(page, 'tonal', 0), 'background-color')).toBe(await resolveColor(page, T('tonal-hovered-selected-container-color')));
     expect(rgba(await css(layer(page, 'tonal', 0), 'background-color'))[3]).toBeGreaterThan(0);
     expect(rgba(await css(cover(page, 'tonal', 0), 'background-color'))[3]).toBe(0.16);
+    expect(await css(layer(page, 'tonal', 0), 'z-index')).toBe('1');
     await page.mouse.move(0, 0);
     // Mid-slide: every tab's piece is one drawing, at the opacity it has at rest, and no two pieces lie over each other.
     await override(page, { [T('motion-indicator-duration')]: '60s' });
@@ -3292,6 +3302,71 @@ test.describe('variants, the track, sizes and the transition', () => {
       expect(await tree('tonal')).toEqual(await tree('primary'));
       expect(await tree('secondary')).toEqual(await tree('primary'));
     }
+  });
+
+  test('TAB-50, TAB-16: the selected label gains its variant’s selected.label.emphasis of weight — 100 for tonal, none for primary and secondary in the default system — in both copies, and moving the selection changes no tab’s width', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: only('primary', 'secondary', 'tonal', 'tonal-no-track'), reducedMotion: true });
+    const base = Number(await css(label(page, 'primary', 1), 'font-weight'));
+    expect(await token(page, T('tonal-selected-label-emphasis'))).not.toBe('');
+    for (const id of ['tonal', 'tonal-no-track']) {
+      expect(Number(await css(label(page, id, 0), 'font-weight')), id).toBe(base + 100);
+      expect(Number(await css(tabAt(page, id, 0).locator('.cover .label'), 'font-weight')), id).toBe(base + 100);
+      expect(Number(await css(label(page, id, 1), 'font-weight')), id).toBe(base);
+    }
+    for (const id of ['primary', 'secondary']) {
+      for (const n of [0, 1]) expect(Number(await css(label(page, id, n), 'font-weight')), `${id} ${n}`).toBe(base);
+    }
+    // Every tab keeps the width of its label at the heavier weight: nothing moves when the selection does.
+    const widths = async (id: string) => Promise.all([0, 1, 2].map(async (n) => (await bounds(tabAt(page, id, n))).width));
+    const before = await widths('tonal');
+    await box(page, 'tonal', 1).click();
+    await expect.poll(async () => Number(await css(label(page, 'tonal', 1), 'font-weight'))).toBe(base + 100);
+    expect(Number(await css(label(page, 'tonal', 0), 'font-weight'))).toBe(base);
+    expect(await widths('tonal')).toEqual(before);
+    // The label's own text is never cut by the room kept for the heavier weight.
+    for (const n of [0, 1, 2]) expect(await truncated(label(page, 'tonal', n)), `${n}`).toBe(false);
+  });
+
+  test('TAB-18: on the selected tab the state layer — in the covered content’s color — is drawn over the active indicator, so hover and press show there; the ring and the underline stay above it', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: only('primary', 'secondary'), reducedMotion: true });
+    for (const variant of ['primary', 'secondary']) {
+      expect(await resolveColor(page, T(`${variant}-selected-state-layer-color`)), variant).toBe(await resolveColor(page, T(`${variant}-selected-covered-label-color`)));
+      await box(page, variant, 0).hover();
+      await expect.poll(() => css(layer(page, variant, 0), 'background-color')).toBe(await resolveColor(page, T(`${variant}-hovered-selected-container-color`)));
+      expect(await css(layer(page, variant, 0), 'z-index'), variant).toBe('1');
+      // The layer is drawn after the indicator in the tab's own stacking order: it is what the hovered tab shows on top.
+      expect(await tabAt(page, variant, 0).evaluate((el) => {
+        const root = el.shadowRoot!;
+        const z = (selector: string) => getComputedStyle(root.querySelector(selector)!).zIndex;
+        return [z('.cover'), z('.box'), z('.ring'), z('.underline')];
+      })).toEqual(['auto', '1', '1', '1']);
+      // A tab that is not selected keeps its container under the indicator.
+      expect(await css(layer(page, variant, 1), 'z-index'), variant).toBe('auto');
+      await page.mouse.move(0, 0);
+    }
+  });
+
+  test('TAB-18: a primary tab stacks its icon or puts it before its label as its size’s icon.placement says; a size a layer adds takes its own value, or medium’s where it declares none', async ({ page }) => {
+    // Two sizes a layer added: one declares inline, the other declares nothing and is drawn as medium is.
+    const sizesCss = `:root { ${T('container-height-roomy')}: 56px; ${T('icon-placement-roomy')}: inline; ${T('container-height-airy')}: 56px; }`;
+    await mountFixtures(page, spec, {
+      icons: true,
+      system: 'sizes',
+      systemCss: sizesCss,
+      fixtures: [...only('primary-icons', 'primary-small-icons'), fixture('added-inline', [t('a', 'Alpha', { icon: 'home' }), t('b', 'Beta', { icon: 'star' })], { size: 'roomy', selected: 'a' }), fixture('added-undeclared', [t('a', 'Alpha', { icon: 'home' }), t('b', 'Beta', { icon: 'star' })], { size: 'airy', selected: 'a' })],
+    });
+    expect([await token(page, T('icon-placement-medium')), await token(page, T('icon-placement-small'))]).toEqual(['stacked', 'inline']);
+    const stacks = async (id: string) => {
+      const [i, l] = [await bounds(icon(page, id, 0)), await bounds(label(page, id, 0))];
+      return i.y + i.height <= l.y + 0.5;
+    };
+    expect(await stacks('primary-icons')).toBe(true);
+    expect(await stacks('primary-small-icons')).toBe(false);
+    expect(await stacks('added-inline')).toBe(false);
+    expect(await stacks('added-undeclared')).toBe(true);
+    const [i, l] = [await bounds(icon(page, 'added-inline', 0)), await bounds(label(page, 'added-inline', 0))];
+    expect(i.x + i.width).toBeLessThanOrEqual(l.x + 0.5);
+    expect(Math.abs(i.y + i.height / 2 - (l.y + l.height / 2))).toBeLessThanOrEqual(1);
   });
 
   test('TAB-16, TAB-18: a tonal tab puts its icon before its label at every size and its underline spans the whole tab, as a secondary tab’s does', async ({ page }) => {
@@ -3344,9 +3419,9 @@ test.describe('variants, the track, sizes and the transition', () => {
       expect(i.x + i.width, id).toBeLessThanOrEqual(l.x + 0.5);
       expect([i.width, i.height], id).toEqual([expect.closeTo(small.glyph, 1), expect.closeTo(small.glyph, 1)]);
       expect((await bounds(track(page, id))).height, id).toBeCloseTo(small.height, 1);
-      expect(await box(page, id, 0).evaluate((el) => el.classList.contains('stacked'))).toBe(false);
+      expect(await css(content(page, id, 0), 'flex-direction'), id).toBe('row');
     }
-    expect(await box(page, 'primary-icons', 0).evaluate((el) => el.classList.contains('stacked'))).toBe(true);
+    expect(await css(content(page, 'primary-icons', 0), 'flex-direction')).toBe('column');
     expect((await bounds(icon(page, 'primary-icons', 0))).width).toBeCloseTo(medium.glyph, 1);
     // TAB-35, TAB-14: an icon-only tab of a small row is a circle as tall as its indicator, the small glyph at its centre.
     const circle = await pill(page, 'primary-small-icon-only', 0);
@@ -3723,7 +3798,11 @@ test.describe('variants, the track, sizes and the transition', () => {
       for (let n = 0; n < f.items!.length; n++) {
         if (!(await label(page, id, n).count())) continue;
         // One line, never broken within a word: a label that does not fit a shared tab is cut with an ellipsis instead.
-        const text = await label(page, id, n).evaluate((el) => ({ lines: Math.round(el.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(el).lineHeight)), wrap: getComputedStyle(el).whiteSpace, overflow: getComputedStyle(el).textOverflow }));
+        const text = await label(page, id, n).evaluate((label) => {
+          // The label's text is cut in its `.text`.
+          const el = label.querySelector(':scope > .text') ?? label;
+          return { lines: Math.round(el.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(el).lineHeight)), wrap: getComputedStyle(el).whiteSpace, overflow: getComputedStyle(el).textOverflow };
+        });
         expect(text, `${id} ${n}`).toEqual({ lines: 1, wrap: 'nowrap', overflow: 'ellipsis' });
         if (!fill) expect(await truncated(label(page, id, n)), `${id} ${n}`).toBe(false);
       }

@@ -5887,8 +5887,10 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   containerPaddingBlock: 12,
   containerPaddingInline: 12,
   containerWidth: 240,
+  headerColor: .role(.onSurface),
   headerGap: 24,
   headerItemGap: 8,
+  headerTypescale: tanreiTypescale.heading5,
   headingColor: .role(.onSurfaceVariant),
   headingHeight: 36,
   headingTypescale: tanreiTypescale.labelSmall,
@@ -8250,6 +8252,9 @@ private let tanreiTabsTokens = TanreiTabsTokens(
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionTransition: 0,
+  primarySelectedLabelEmphasis: 0,
+  secondarySelectedLabelEmphasis: 0,
+  tonalSelectedLabelEmphasis: 100,
   trackPadding: 4,
   trackShape: 9999,
   trackVisible: 1,
@@ -8276,7 +8281,7 @@ private let tanreiTabsTokens = TanreiTabsTokens(
         selectedCoveredIconColor: .role(.onPrimary),
         selectedActiveIndicatorColor: .role(.primary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onPrimary)
       ),
       hovered: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8292,14 +8297,14 @@ private let tanreiTabsTokens = TanreiTabsTokens(
         underlineThickness: 3,
         underlineShape: 3,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.08),
+        selectedContainerColor: .mix(base: .none, with: .role(.onPrimary), amount: 0.08),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onPrimary),
         selectedCoveredIconColor: .role(.onPrimary),
         selectedActiveIndicatorColor: .role(.primary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onPrimary)
       ),
       focused: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8315,14 +8320,14 @@ private let tanreiTabsTokens = TanreiTabsTokens(
         underlineThickness: 3,
         underlineShape: 3,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.1),
+        selectedContainerColor: .mix(base: .none, with: .role(.onPrimary), amount: 0.1),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onPrimary),
         selectedCoveredIconColor: .role(.onPrimary),
         selectedActiveIndicatorColor: .role(.primary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onPrimary)
       ),
       pressed: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8338,14 +8343,14 @@ private let tanreiTabsTokens = TanreiTabsTokens(
         underlineThickness: 3,
         underlineShape: 3,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.1),
+        selectedContainerColor: .mix(base: .none, with: .role(.onPrimary), amount: 0.1),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onPrimary),
         selectedCoveredIconColor: .role(.onPrimary),
         selectedActiveIndicatorColor: .role(.primary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onPrimary)
       ),
       disabled: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8393,7 +8398,7 @@ private let tanreiTabsTokens = TanreiTabsTokens(
         selectedCoveredIconColor: .role(.onSecondary),
         selectedActiveIndicatorColor: .role(.secondary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onSecondary)
       ),
       hovered: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8409,14 +8414,14 @@ private let tanreiTabsTokens = TanreiTabsTokens(
         underlineThickness: 2,
         underlineShape: 0,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.08),
+        selectedContainerColor: .mix(base: .none, with: .role(.onSecondary), amount: 0.08),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onSecondary),
         selectedCoveredIconColor: .role(.onSecondary),
         selectedActiveIndicatorColor: .role(.secondary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onSecondary)
       ),
       focused: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8432,14 +8437,14 @@ private let tanreiTabsTokens = TanreiTabsTokens(
         underlineThickness: 2,
         underlineShape: 0,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.1),
+        selectedContainerColor: .mix(base: .none, with: .role(.onSecondary), amount: 0.1),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onSecondary),
         selectedCoveredIconColor: .role(.onSecondary),
         selectedActiveIndicatorColor: .role(.secondary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onSecondary)
       ),
       pressed: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8455,14 +8460,14 @@ private let tanreiTabsTokens = TanreiTabsTokens(
         underlineThickness: 2,
         underlineShape: 0,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.1),
+        selectedContainerColor: .mix(base: .none, with: .role(.onSecondary), amount: 0.1),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onSecondary),
         selectedCoveredIconColor: .role(.onSecondary),
         selectedActiveIndicatorColor: .role(.secondary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onSecondary)
       ),
       disabled: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8612,14 +8617,16 @@ private let tanreiTabsTokens = TanreiTabsTokens(
       containerPaddingInline: 12,
       activeIndicatorPaddingInline: 12,
       activeIndicatorPaddingBlock: 2,
-      iconSize: 20
+      iconSize: 20,
+      iconPlacement: 1
     ),
     medium: TanreiTabsSizeTokens(
       containerHeight: 48,
       containerPaddingInline: 16,
       activeIndicatorPaddingInline: 16,
       activeIndicatorPaddingBlock: 4,
-      iconSize: 24
+      iconSize: 24,
+      iconPlacement: 0
     )
   ),
   hovered: TanreiTabsStateTokens(

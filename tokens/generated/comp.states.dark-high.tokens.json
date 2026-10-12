@@ -22946,12 +22946,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      1,
-                      1,
-                      1
+                      0.0667,
+                      0.0667,
+                      0.0667
                     ],
                     "alpha": 0.08,
-                    "hex": "#ffffff"
+                    "hex": "#111111"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -23224,12 +23224,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      1,
-                      1,
-                      1
+                      0.0667,
+                      0.0667,
+                      0.0667
                     ],
                     "alpha": 0.1,
-                    "hex": "#ffffff"
+                    "hex": "#111111"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -23502,12 +23502,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      1,
-                      1,
-                      1
+                      0.0667,
+                      0.0667,
+                      0.0667
                     ],
                     "alpha": 0.1,
-                    "hex": "#ffffff"
+                    "hex": "#111111"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -24184,12 +24184,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      1,
-                      1,
-                      1
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
                     "alpha": 0.08,
-                    "hex": "#ffffff"
+                    "hex": "#1b1b1b"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -24462,12 +24462,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      1,
-                      1,
-                      1
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
                     "alpha": 0.1,
-                    "hex": "#ffffff"
+                    "hex": "#1b1b1b"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
@@ -24740,12 +24740,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      1,
-                      1,
-                      1
+                      0.1059,
+                      0.1059,
+                      0.1059
                     ],
                     "alpha": 0.1,
-                    "hex": "#ffffff"
+                    "hex": "#1b1b1b"
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
