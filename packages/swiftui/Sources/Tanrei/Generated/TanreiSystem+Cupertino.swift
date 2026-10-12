@@ -2605,6 +2605,7 @@ private let cupertinoCheckboxTokens = TanreiCheckboxTokens(
 
 private let cupertinoChipTokens = TanreiChipTokens(
   avatarShape: 9999,
+  checkWeight: 300,
   containerShape: 9999,
   motionFeedbackDuration: 450,
   motionSelectionDuration: 150,
@@ -5536,12 +5537,45 @@ private let cupertinoMenubarTokens = TanreiMenubarTokens(
   containerPaddingInline: 12,
   containerShape: 8,
   iconSize: 24,
+  indicatorSize: 20,
   labelTypescale: cupertinoTypescale.label,
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   conditions: TanreiMenubarConditions(
     unselected: TanreiMenubarConditionTokens(
+      enabled: TanreiMenubarConditionStateTokens(
+        containerColor: .none,
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
+        stateLayerColor: .role(.onSurface)
+      ),
+      hovered: TanreiMenubarConditionStateTokens(
+        containerColor: .none,
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
+        stateLayerColor: .role(.onSurface)
+      ),
+      focused: TanreiMenubarConditionStateTokens(
+        containerColor: .none,
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
+        stateLayerColor: .role(.onSurface)
+      ),
+      pressed: TanreiMenubarConditionStateTokens(
+        containerColor: .none,
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
+        stateLayerColor: .role(.onSurface)
+      ),
+      disabled: TanreiMenubarConditionStateTokens(
+        containerColor: .none,
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    selected: TanreiMenubarConditionTokens(
       enabled: TanreiMenubarConditionStateTokens(
         containerColor: .none,
         labelColor: .role(.onSurface),
@@ -6873,6 +6907,7 @@ private let cupertinoSearchTokens = TanreiSearchTokens(
 )
 
 private let cupertinoSegmentedButtonTokens = TanreiSegmentedButtonTokens(
+  checkWeight: 300,
   containerShape: 8,
   dividerColor: .role(.outlineVariant),
   dividerWidth: 1,

@@ -8,6 +8,8 @@ export type TanreiTagGroupSpacing = keyof TanreiTagGroupSpacingRegistry;
 
 /** The members a tag group is for (TGR-11). */
 const MEMBERS = ['tanrei-tag', 'tanrei-chip'];
+/** The spacing of static tags, whose lines stand too close for a chip's touch target (TGR-4). */
+const TAGS = 'tags';
 /** The member that takes input (TGR-4). */
 const CHIP = 'tanrei-chip';
 /** Native elements that say nothing of their own: one of them, like a custom element, can be made an item of the list (TGR-7). */
@@ -218,7 +220,7 @@ export class TanreiTagGroup extends LitElement {
   /** TGR-4, TGR-11: what a debug build is told. The group renders either way. An empty group is told nothing (TGR-8). */
   private check(members: Element[] = this.content.filter((node): node is Element => node.nodeType === Node.ELEMENT_NODE)) {
     // TGR-4: lines of tags stand closer than a chip's touch target is high.
-    if (this.spacing === DEFAULT_SPACING && members.some((member) => member.localName === CHIP)) {
+    if (this.spacing === TAGS && members.some((member) => member.localName === CHIP)) {
       report(this, 'TGR-4', 'it holds a <tanrei-chip> while spacing is "tags"; a set of chips wants spacing="chips", whose lines stand far enough apart for each chip\'s touch target');
     }
     // TGR-11: anything else is laid out and exposed with the others.

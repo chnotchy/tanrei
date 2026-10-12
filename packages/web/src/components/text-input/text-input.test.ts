@@ -4101,6 +4101,32 @@ test.describe('the input and the Field that frames it', () => {
     expect(await css(one('one').locator('[part~="entries"]'), 'display')).toBe('contents');
   });
 
+  test('TXI-64: read-only with no typed text the typing part takes no room on a line and no line of its own — the entries end the content — and stays focusable; disabled, it keeps its room, so the field keeps its enabled shape; typed text brings the room back', async ({ page }) => {
+    const labels = ['ada@example.com', 'grace.hopper@example.org'];
+    await entriesPage(page, withEntries('open', labels) + withEntries('read', labels, 'readonly') + withEntries('off', labels, 'disabled'));
+    const one = (id: string) => page.locator(`#${id}`);
+    const [rowGap, height] = [await resolveToken(page, T('entries-row-gap')), await resolveToken(page, T('container-height-medium'))];
+    const heightOf = async (id: string) => (await bounds(one(id).locator('div.container'))).height;
+    const chips = await Promise.all((await one('read').locator('tanrei-chip').all()).map((each) => bounds(each)));
+    const lines = new Set(chips.map((each) => each.y)).size;
+    // Enabled, the typing part takes a line of its own below the last item (TXI-64's verify); read-only, it takes none.
+    expect(await heightOf('open')).toBeCloseTo(height + lines * (chips[0]!.height + rowGap), 1);
+    expect(await heightOf('read')).toBeCloseTo(height + (lines - 1) * (chips[0]!.height + rowGap), 1);
+    await expect(one('read').locator('.field')).toHaveAttribute('data-no-typing', '');
+    expect((await bounds(one('read').locator('input.input'))).width).toBe(0);
+    // Still the text input: focusable, and exposed with its name.
+    await one('read').locator('input.input').focus();
+    expect(await page.evaluate(() => (document.activeElement as HTMLElement | null)?.id)).toBe('read');
+    await expect(one('read').getByRole('textbox', { name: 'Recipients' })).toHaveAttribute('readonly', '');
+    // Disabled keeps the enabled shape: the field does not change height when it is enabled again.
+    expect(await heightOf('off')).toBeCloseTo(await heightOf('open'), 1);
+    await expect(one('off').locator('.field')).not.toHaveAttribute('data-no-typing', /.*/);
+    // Text the product put in the typing part is shown: its room comes back.
+    await one('read').evaluate((el: any) => (el.value = 'alan@'));
+    await expect(one('read').locator('.field')).not.toHaveAttribute('data-no-typing', /.*/);
+    await expect.poll(() => heightOf('read')).toBeCloseTo(await heightOf('open'), 1);
+  });
+
   test('TXI-65: while the entries slot holds content the input is not empty for its label — a filled and an outlined input float it — and its placeholder is not shown; with the slot empty again the label rests and the placeholder is back', async ({ page }) => {
     await entriesPage(page, withEntries('filled', ['ada'], 'variant="filled" placeholder="name@example.com"') + withEntries('outlined', ['ada'], 'variant="outlined" placeholder="name@example.com"') + withEntries('stacked', ['ada'], 'placeholder="name@example.com"') + withEntries('empty', [], 'variant="filled" placeholder="name@example.com"'));
     const one = (id: string) => page.locator(`#${id}`);

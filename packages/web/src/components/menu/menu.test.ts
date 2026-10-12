@@ -2396,27 +2396,54 @@ test.describe('separation, selection and marks', () => {
     await expect.poll(() => seen.join('\n')).toMatch(/separation "stripes" is not a value the menu defines; it is drawn as "auto" \(MNU-35\)/);
   });
 
-  test('MNU-36: under gap the groups are comp.menu.group.gap apart with nothing drawn between them and no separator exposed, the groups still groups; no space before the first or after the last element; a title keeps its own padding below the space', async ({ page }) => {
-    const [gap, padB, padRow] = await Promise.all(['group-gap', 'surface-padding-block', 'container-padding-block'].map((n) => resolveToken(page, T(n))));
+  test('MNU-36: under gap each group, and each run of items outside a group, is a tile of its own — the surface’s color, corners, elevation and padding — comp.menu.group.gap apart, the surface drawing no sheet around them; nothing drawn between them and no separator exposed, the groups still groups; no space before the first or after the last tile; a title keeps its own padding inside its tile', async ({ page }) => {
+    const [gap, padB, padI, padRow] = await Promise.all(['group-gap', 'surface-padding-block', 'surface-padding-inline', 'container-padding-block'].map((n) => resolveToken(page, T(n))));
+    const tiles = menu(page, 'groups-gap').locator('.tile');
+    await expect(tiles).toHaveCount(2);
+    const [first, second] = [await bounds(tiles.nth(0)), await bounds(tiles.nth(1))];
+    // The space between two tiles is the gap; the rows stand inside each tile's padding.
+    expect(second.y - (first.y + first.height)).toBeCloseTo(gap, 1);
     const last = await bounds(row(page, 'groups-gap', 2));
     const next = await bounds(row(page, 'groups-gap', 3));
-    expect(next.y - (last.y + last.height)).toBeCloseTo(gap, 1);
+    expect(next.y - (last.y + last.height)).toBeCloseTo(gap + 2 * padB, 1);
+    expect((await bounds(row(page, 'groups-gap', 0))).y - first.y).toBeCloseTo(padB, 1);
+    expect((await bounds(row(page, 'groups-gap', 0))).x - first.x).toBeCloseTo(padI, 1);
+    // Each tile is a sheet: the surface's color, corners and elevation (its ring inside the tile's edge); the surface
+    // itself draws none around them, so what is under the menu shows between the tiles.
+    for (const n of [0, 1]) {
+      const tile = tiles.nth(n);
+      expect(await css(tile, 'background-color'), `tile ${n}`).toBe(await resolveColor(page, T('surface-color')));
+      expect(Number.parseFloat(await css(tile, 'border-top-left-radius')), `tile ${n}`).toBe(await resolveToken(page, T('surface-shape')));
+      expect(await css(tile, 'box-shadow'), `tile ${n}`).toContain('inset');
+    }
+    expect(await css(surface(page, 'groups-gap'), 'background-color')).toBe('rgba(0, 0, 0, 0)');
+    expect(await css(surface(page, 'groups-gap'), 'box-shadow')).toBe('none');
+    // Under divider the tiles have no look: one sheet, as before.
+    expect(await css(menu(page, 'groups-divider').locator('.tile').first(), 'display')).toBe('contents');
+    expect(await css(surface(page, 'groups-divider'), 'background-color')).toBe(await resolveColor(page, T('surface-color')));
     // No line, and no separator: the divider is not rendered, and the space is nothing to assistive technology.
     await expect(menu(page, 'groups-gap').locator('.divider')).toBeHidden();
     await expect(page.locator('[data-fixture="groups-gap"]').getByRole('separator')).toHaveCount(0);
     await expect(page.locator('[data-fixture="groups-divider"]').getByRole('separator')).toHaveCount(1);
     expect(await css(menu(page, 'groups-gap').locator('.gap'), 'background-color')).toBe('rgba(0, 0, 0, 0)');
     await expect(menu(page, 'groups-gap').locator('.gap')).not.toHaveAttribute('role');
+    await expect(tiles.first()).not.toHaveAttribute('role');
     await expect(page.locator('[data-fixture="groups-gap"]').getByRole('group')).toHaveCount(2);
-    // None at the ends: the first and the last row are the surface's padding from its edges.
+    await expect(page.locator('[data-fixture="groups-gap"]').getByRole('menuitem')).toHaveCount(4);
+    // None at the ends: the first tile starts at the surface's top and the last ends at its bottom.
     const s = await bounds(surface(page, 'groups-gap'));
-    expect((await bounds(row(page, 'groups-gap', 0))).y - s.y).toBeCloseTo(padB, 1);
-    expect(s.y + s.height - (next.y + next.height)).toBeCloseTo(padB, 1);
+    expect(first.y - s.y).toBeCloseTo(0, 1);
+    expect(s.y + s.height - (second.y + second.height)).toBeCloseTo(0, 1);
     await expect(menu(page, 'groups-gap').locator('.gap')).toHaveCount(1);
-    // A titled group: the space, then the title with its own padding.
+    // A run of items outside any group is one tile; a group beside it is another.
+    await mountFixtures(page, spec, { fixtures: [inline('runs', [it('A'), it('B'), group({}, [it('C')]), it('D')], { separation: 'gap' })] });
+    await expect(menu(page, 'runs').locator('.tile')).toHaveCount(3);
+    expect(await menu(page, 'runs').locator('.tile').evaluateAll((all) => all.map((tile) => tile.querySelectorAll('slot').length))).toEqual([2, 1, 1]);
+    // A titled group: its title with its own padding, inside its tile.
+    await mountFixtures(page, spec, { icons: true });
+    const titled = menu(page, 'group-titles-gap').locator('.tile').nth(1);
     const title = menu(page, 'group-titles-gap').locator('tanrei-menu-group').nth(1).locator('.title');
-    const before = await bounds(row(page, 'group-titles-gap', 1));
-    expect((await bounds(title)).y - (before.y + before.height)).toBeCloseTo(gap, 1);
+    expect((await bounds(title)).y - (await bounds(titled)).y).toBeCloseTo(padB, 1);
     expect(Number.parseFloat(await css(title, 'padding-top'))).toBe(padRow);
   });
 
@@ -2897,7 +2924,7 @@ test.describe('separation, selection and marks', () => {
   });
 });
 
-// ── Link items (MNU-53 … MNU-57, with MNU-6, MNU-19 and MNU-24) ──
+// ── Link items (MNU-53 … MNU-58, with MNU-6, MNU-19 and MNU-24) ──
 
 /** A link item, as a fixture lists it. */
 const link = (label: string, href: string, props: FixtureItem['props'] = {}): FixtureItem => it(label, { href, ...props });
@@ -2981,6 +3008,39 @@ test.describe('link items', () => {
     expect(await css(row(page, 'links', 0), 'text-decoration-line')).toBe('none');
     // No look for a destination already visited: nothing in the item's styles names one.
     expect(await labelled(page, 'links', 'Guides').evaluate((el) => [...el.shadowRoot!.adoptedStyleSheets].some((sheet) => [...sheet.cssRules].some((rule) => rule.cssText.includes(':visited'))))).toBe(false);
+  });
+
+  test('MNU-58: a link item that is current is exposed as the current page on its anchor, still a menu item, and drawn from the selected condition — a checked row’s fill and colors — with no mark and its label’s own weight; current without a destination is ignored and reported; the menu never sets it', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'links-current') });
+    const [guides, components] = [linkRow(page, 'links-current', 'Guides'), linkRow(page, 'links-current', 'Components')];
+    await expect(components).toHaveAttribute('aria-current', 'page');
+    await expect(guides).not.toHaveAttribute('aria-current');
+    await expect(labelled(page, 'links-current', 'Components')).not.toHaveAttribute('aria-current');
+    expect(await anchorOf(labelled(page, 'links-current', 'Components'))).toMatchObject({ tag: 'a', href: '/components/', role: 'menuitem', tabindex: '-1' });
+    const fixture = page.locator('[data-fixture="links-current"]');
+    await expect(fixture.getByRole('menuitem')).toHaveCount(3);
+    await expect(fixture.getByRole('link')).toHaveCount(0);
+    // The selected condition: the fill of a checked row and its colors, and the other rows as actions are drawn.
+    await page.mouse.move(0, 0);
+    await expect.poll(() => drawn(page, 'links-current', 1)).toEqual(await expected(page, 'selected'));
+    await expect.poll(() => drawn(page, 'links-current', 0)).toEqual(await expected(page, 'unselected'));
+    // No mark, and the label's own weight: a fill, never a check or a heavier label.
+    await expect(components.locator('.check')).toHaveCount(0);
+    expect(await css(components.locator('.label'), 'font-weight')).toBe(await css(guides.locator('.label'), 'font-weight'));
+    expect((await bounds(components)).height).toBeCloseTo((await bounds(guides)).height, 1);
+    expect(seen.filter((text) => text.includes('MNU-58'))).toEqual([]);
+    // The product moves it; the menu sets nothing of its own.
+    await labelled(page, 'links-current', 'Components').evaluate((el: any) => (el.current = false));
+    await labelled(page, 'links-current', 'Guides').evaluate((el: any) => (el.current = true));
+    await expect(guides).toHaveAttribute('aria-current', 'page');
+    await expect(components).not.toHaveAttribute('aria-current');
+    await expect.poll(() => drawn(page, 'links-current', 0)).toEqual(await expected(page, 'selected'));
+    // Without a destination current is ignored — no state, no fill — and a debug build says so.
+    await labelled(page, 'links-current', 'Guides').evaluate((el: any) => (el.href = ''));
+    await expect.poll(() => seen.some((text) => text.includes('MNU-58') && text.includes('no destination'))).toBe(true);
+    await expect.poll(() => drawn(page, 'links-current', 0)).toEqual(await expected(page, 'unselected'));
+    await expect(labelled(page, 'links-current', 'Guides')).not.toHaveAttribute('aria-current');
   });
 
   test('MNU-53: the arrow keys, Home, End and typed characters move between link items as between actions, focus on the anchor, with the ring for a key and without it for the pointer; Tab closes the menu and is never a stop; an item that becomes a link under focus keeps it', async ({ page, browserName }) => {

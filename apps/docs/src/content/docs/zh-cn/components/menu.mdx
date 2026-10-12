@@ -2,7 +2,7 @@
 title: "菜单"
 description: "一小组操作或选项，显示在一个临时表面上，这个表面从请求它的元素处打开。"
 translationOf: components/menu.mdx
-sourceHash: 740ced78f44526a9b305909b0ad3023504f4cc05
+sourceHash: 7c288c0b054c27df7fa811eac01030ee0bd526b0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -46,10 +46,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </tanrei-menu>
 </DemoFrame>
 
-<DemoFrame label="由链接组成的菜单：每一行都通向某个地方，其中一行在新标签页中打开" plain>
+<DemoFrame label="由链接组成的菜单：每一行都通向某个地方，其中一行是当前所在的页面，一行在新标签页中打开" plain>
   <tanrei-menu inline open>
     <tanrei-menu-item label="按钮" href="/zh-cn/components/button/"></tanrei-menu-item>
-    <tanrei-menu-item label="列表" href="/zh-cn/components/list/"></tanrei-menu-item>
+    <tanrei-menu-item label="列表" href="/zh-cn/components/list/" current></tanrei-menu-item>
     <tanrei-menu-item label="示例网站" href="https://example.com/" target="new" target-label="在新标签页中打开"></tanrei-menu-item>
     <tanrei-menu-item label="归档" href="/archive/" disabled></tanrei-menu-item>
   </tanrei-menu>
@@ -63,7 +63,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 项的键盘快捷键是它的 `shortcut` 属性，用[键盘快捷键](/zh-cn/components/keyboard-shortcut/)组件那套与平台无关的按键名称来写（`mod+c`）。菜单用键盘快捷键组件把它画在行的末尾：在 Apple 的键盘上是 ⌘C，在其他键盘上是 Ctrl+C；同时把它作为该项的键盘快捷键暴露出来。它并不会让这些按键生效：按键要由你的产品来绑定。`trailingText` 用于快捷键以外的任何内容，例如数量或“Beta”。Web 会画出这一切，以及当前的外观。SwiftUI、Compose、Flutter 和 React Native 待跟进：在跟上之前，它们没有 `shortcut` 属性，而是像下面的示例那样把快捷键写在 `trailingText` 里。它们也没有子菜单、`separation` 和 `markIcon`，并且仍然在 16 的方框里用各自的标记来画对勾，不给选中的行加填充，组的标题则从标签开始的位置画起。
 
-带 `href` 的项是链接项：它是平台自己的链接，画法与操作完全相同，也用同样的按键移到它上面。普通激活会触发该项的 `click`，关闭菜单，然后打开目的地。`target` 和 `targetLabel` 与 [Button](/zh-cn/components/button/) 的相同。目前只有 Web 提供链接项；SwiftUI、Compose、Flutter 和 React Native 还没有。
+带 `href` 的项是链接项：它是平台自己的链接，画法与操作完全相同，也用同样的按键移到它上面。普通激活会触发该项的 `click`，关闭菜单，然后打开目的地。`target` 和 `targetLabel` 与 [Button](/zh-cn/components/button/) 的相同。`current` 标出用户当前所在页面的链接项：它以选中行的填充绘制，不画对勾。目前只有 Web 提供链接项；SwiftUI、Compose、Flutter 和 React Native 还没有。
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -365,7 +365,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 组、标题和分隔方式
 
-- 菜单会把一个组与它旁边的任何内容分开，但绝不在顶部或底部分隔：用一条分隔线，或者用一段空白间隙。你不需要自己放置分隔线。
+- 菜单会把一个组与它旁边的任何内容分开，但绝不在顶部或底部分隔：用一条分隔线，或者用一段间隙。选择间隙时，每个组以及组外每一串连续的项各自是一张独立的底板，底板之间是空白。你不需要自己放置分隔线或底板。
 - 用哪一种由设计系统选择，这是所有自行分隔部件的组件共用的一项选择：默认系统中是分隔线。`separation` 为单个菜单及其子菜单做决定：`auto`（默认）跟随设计系统，`divider` 或 `gap` 则指定其中一种，无论系统选的是什么。选择间隙时不暴露任何分隔符，而各个组仍然作为组暴露。
 - 带有 `title` 的组会把它画成各项上方的一个低调的标题，从行内容开始的位置画起，并以它命名。请给单选项所在的组一个提出问题的标题，例如“排序方式”。
 - 单选项应当放在组里。组外的单选项永远不会被选中，并会在调试构建中报告。
@@ -379,6 +379,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **路由。** 取消该项的 `click`，就可以自己接管导航。菜单仍会关闭，其他什么也不会打开。
 - **其他标签页。** 带修饰键的点击或 Enter，以及中键点击，交给浏览器处理。菜单不触发 `close`，并保持打开，所以可以把其中的几个链接一个接一个地打开。
 - **新上下文。** `target: new` 打开新的标签页或窗口。该项在后置图标列中以图标集的 `open_in_new` 结尾，除非 `trailingIcon` 指定了你自己的字形；`targetLabel` 则把这一点告诉辅助技术。快捷键或后置文本保留自己的那一列，位于这个标记之前。
+- **当前所在的页面。** `current` 标出用户当前所在页面的链接项。它作为当前页面暴露（在 Web 上是 `aria-current="page"`），以选中行的填充绘制，不画对勾，标签也不加粗：它说明用户身在何处，而不是用户做出的选择。它由你来设置，菜单从不设置。没有 `href` 时它会被忽略。
 - **禁用。** 禁用的链接项无论用什么方式都无法打开。与任何禁用的项一样，它仍然可以用方向键到达。
 - **只限“项”这一种。** 复选项、单选项和子菜单项不接受目的地：它们持有一个状态，或者打开下一级。
 
@@ -443,7 +444,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - 表面作为菜单暴露。操作是菜单项，复选项是菜单项复选框，单选项是菜单项单选按钮，各自带有选中状态、自己的位置和菜单的大小。
 - 每一项以它的标签命名，以它的辅助文本作为描述。平台有相应属性时（Web 上是 `aria-keyshortcuts`），项的 `shortcut` 作为它的键盘快捷键暴露；否则，逐个拼出的按键是它描述的一部分。后置文本只会是描述的一部分。图标和标记是隐藏的：方框、圆环和对勾只是图形，选中状态属于项本身。
-- 链接项作为菜单项暴露，而不是作为链接：菜单是按它的项、项的数量和方向键来朗读的，而这只有在每一行都是菜单项时才成立。在底层，它仍然是平台的链接。它会打开新上下文时，`targetLabel` 位于它描述的末尾，它的标记是隐藏的。
+- 链接项作为菜单项暴露，而不是作为链接：菜单是按它的项、项的数量和方向键来朗读的，而这只有在每一行都是菜单项时才成立。在底层，它仍然是平台的链接。它会打开新上下文时，`targetLabel` 位于它描述的末尾，它的标记是隐藏的。当前链接项还会作为当前页面暴露。
 - 组作为以其标题命名的组暴露。分隔线是不接受焦点的分隔符；用间隙分开各组时，没有分隔符。标题不接受焦点，也不会被当作项来朗读。
 - 子菜单项作为一个会打开菜单的项暴露，并带有展开状态，被禁用时也是如此。它的表面是一个独立的菜单，以该项的标签命名，每个表面各自计算自己的位置。
 - 平台有相应属性时（在 Web 上是 `aria-haspopup`、`aria-controls` 和 `aria-expanded`），锚点会被告知它会打开一个菜单，以及菜单是否打开。
@@ -453,7 +454,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 每一项的高度不小于最小目标，整行都是它的点击区域。
 - 文本变大时，项随之增高；表面在屏幕上放不下时可以滚动。
 - 图标字体还无法画出某个图标标记（例如对勾）时，菜单在它的位置上什么也不画，绝不会画出“check”这个单词。它保留这一列的宽度，仍然暴露选中状态，并在字体加载完成后显示标记。
-- 调试构建会报告：没有标签的项、组外的单选项、没有指向组内任何单选项的组值、两个值相同的单选项、组内的组、同时有快捷键和后置文本的项、菜单没有定义的 `separation`、第三级子菜单，以及没有项的子菜单。它们还会报告：会打开新上下文却没有 `targetLabel` 的链接项；复选项、单选项或子菜单项上的 `href`；指向脚本或无法解析的 `href`；以及菜单没有定义的 `target`。
+- 调试构建会报告：没有标签的项、组外的单选项、没有指向组内任何单选项的组值、两个值相同的单选项、组内的组、同时有快捷键和后置文本的项、菜单没有定义的 `separation`、第三级子菜单，以及没有项的子菜单。它们还会报告：会打开新上下文却没有 `targetLabel` 的链接项；复选项、单选项或子菜单项上的 `href`；指向脚本或无法解析的 `href`；菜单没有定义的 `target`；以及没有 `href` 的项上的 `current`。
 
 已知的平台差距：
 

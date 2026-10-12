@@ -2200,6 +2200,7 @@ export class TanreiTextInput extends LitElement {
         ?data-leading=${this.hasLeading}
         ?data-trailing=${this.hasTrailing}
         ?data-entries=${this.hasEntries}
+        ?data-no-typing=${this.hasEntries && this.readOnly && this.shownValue === ''}
         ?data-picker=${this.pickerShown}
         ?data-multiline=${this.isMultiline}
         ?data-code=${code && !row}

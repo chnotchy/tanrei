@@ -131,7 +131,7 @@ test.describe('behavior', () => {
     await mount(page, [
       ...only('tags'),
       fx('chips', { spacing: 'chips', label: 'Filters' }, filters('Open', 'Blocked', 'Archived')),
-      fx('mixed', { label: 'Sizes' }, `<tanrei-tag label="small" size="small"></tanrei-tag><tanrei-tag label="medium"></tanrei-tag><tanrei-chip label="chip"></tanrei-chip>`),
+      fx('mixed', { spacing: 'tags', label: 'Sizes' }, `<tanrei-tag label="small" size="small"></tanrei-tag><tanrei-tag label="medium"></tanrei-tag><tanrei-chip label="chip"></tanrei-chip>`),
     ]);
     for (const [id, spacing, height] of [['tags', 'tags', await resolveToken(page, '--tanrei-comp-tag-container-height-medium')], ['chips', 'chips', await resolveToken(page, '--tanrei-comp-chip-container-height-medium')]] as const) {
       const { group, placed, lines } = await layout(page, id);
@@ -169,7 +169,7 @@ test.describe('behavior', () => {
   });
 
   test('TGR-2: a member that does not fit goes whole to a new line row-gap.<spacing> below; nothing is cut, shrunk, scrolled or hidden, and a member wider than the group has the group’s width on a line of its own and cuts its own label', async ({ page }) => {
-    await mount(page, [...only('tags-wrap', 'tags-small-wrap', 'chips-filters-wrap', 'tags-long-member'), fx('narrow', { label: 'Tags' }, tags('Color', 'A note on why the documentation should be built from its components', 'Motion'))]);
+    await mount(page, [...only('tags-wrap', 'tags-small-wrap', 'chips-filters-wrap', 'tags-long-member'), fx('narrow', { spacing: 'tags', label: 'Tags' }, tags('Color', 'A note on why the documentation should be built from its components', 'Motion'))]);
     await page.addStyleTag({ content: `[data-fixture="narrow"] > ${TAG} { inline-size: 120px; }` });
     for (const [id, spacing, rowGap] of [['tags-wrap', 'tags', 8], ['tags-small-wrap', 'tags', 8], ['chips-filters-wrap', 'chips', 16]] as const) {
       const { group, placed, lines } = await layout(page, id);
@@ -239,7 +239,7 @@ test.describe('behavior', () => {
   test('TGR-4: spacing changes the two distances and nothing else — not what a member is, how it is drawn or what the group exposes; a chip under spacing tags is still rendered and reported', async ({ page }) => {
     const seen = warnings(page);
     const chips = filters('Open', 'Assigned to me', 'Needs review', 'Blocked', 'Has a design', 'Web', 'iOS', 'Android', 'This week', 'Overdue');
-    await mount(page, [fx('as-tags', { label: 'Filters' }, chips), fx('as-chips', { label: 'Filters', spacing: 'chips' }, chips), fx('tags-only', { label: 'Tags' }, tags('Design', 'Research'))]);
+    await mount(page, [fx('as-tags', { spacing: 'tags', label: 'Filters' }, chips), fx('as-chips', { label: 'Filters', spacing: 'chips' }, chips), fx('tags-only', { spacing: 'tags', label: 'Tags' }, tags('Design', 'Research'))]);
     const [a, b] = [await layout(page, 'as-tags'), await layout(page, 'as-chips')];
     // The same members, at the same sizes, on the same lines (the gap along a line is the same in the default system).
     expect(a.placed.map((m) => [m.label, m.width, m.height])).toEqual(b.placed.map((m) => [m.label, m.width, m.height]));
@@ -488,7 +488,7 @@ test.describe('behavior', () => {
 
   test('TGR-8: with no member it draws nothing, takes no space, exposes no list and no name, and reports nothing; with one member it is a list of one', async ({ page, browserName }) => {
     const seen = warnings(page);
-    await mount(page, [fx('none', { label: 'Tags' }, ''), fx('spaces', { spacing: 'chips', label: 'Filters' }, '\n   \n'), ...only('tags-single')]);
+    await mount(page, [fx('none', { spacing: 'tags', label: 'Tags' }, ''), fx('spaces', { spacing: 'chips', label: 'Filters' }, '\n   \n'), ...only('tags-single')]);
     await page.addStyleTag({ content: `.stage { display: flex; gap: 24px; }` });
     for (const id of ['none', 'spaces']) {
       expect(await host(page, id).evaluate((el) => [getComputedStyle(el).display, el.getBoundingClientRect().width, el.getBoundingClientRect().height, el.shadowRoot!.querySelector('[role="list"]')]), id).toEqual(['none', 0, 0, null]);
@@ -662,7 +662,7 @@ test.describe('behavior', () => {
 
   test('TGR-11: content that is not a tag or a chip is still laid out and exposed as a member, and reported; an element with a role of its own keeps it', async ({ page }) => {
     const seen = warnings(page);
-    await mount(page, [fx('foreign', { label: 'Tags' }, `<tanrei-tag label="Design"></tanrei-tag><span class="own">Research</span><a href="https://example.com/tanrei">Writing</a><tanrei-tag label="Motion"></tanrei-tag>`)]);
+    await mount(page, [fx('foreign', { spacing: 'tags', label: 'Tags' }, `<tanrei-tag label="Design"></tanrei-tag><span class="own">Research</span><a href="https://example.com/tanrei">Writing</a><tanrei-tag label="Motion"></tanrei-tag>`)]);
     const { placed, lines } = await layout(page, 'foreign');
     expect(lines.length).toBe(1);
     const gap = await token(page, 'gap-tags');
@@ -778,10 +778,12 @@ test.describe('behavior', () => {
     expect(await focusPath(page)).toBe(onChip('Open'));
   });
 
-  test('TGR-16: a spacing the active design system does not have is drawn with the default’s tokens and reported; one a layer adds is drawn from its own tokens and is not', async ({ page }) => {
+  test('TGR-16: the default spacing is chips; a spacing the active design system does not have is drawn with the default’s tokens and reported; one a layer adds is drawn from its own tokens and is not', async ({ page }) => {
     const seen = warnings(page);
     const many = filters('Open', 'Assigned to me', 'Needs review', 'Blocked', 'Has a design', 'Web', 'iOS', 'Android', 'This week', 'Overdue');
     await mount(page, [fx('unknown', { spacing: 'loose', label: 'Filters' }, many), fx('odd', { spacing: 'Not A Name', label: 'Filters' }, many), fx('holder', { label: 'x' }, '')]);
+    // The default is chips: a set whose spacing is not written stands as far apart as a set of chips must.
+    expect(await host(page, 'holder').evaluate((el: any) => el.spacing)).toBe('chips');
     // `dense` is a value a layer added: the layer's two tokens are what the group reads.
     await page.addStyleTag({ content: `:root { ${T('gap-dense')}: 2px; ${T('row-gap-dense')}: 4px; }` });
     await stage(page, 'holder').evaluate((el, [tag, inside]) => {
@@ -790,15 +792,15 @@ test.describe('behavior', () => {
     await frames(page);
     for (const id of ['unknown', 'odd']) {
       const { placed, lines } = await layout(page, id);
-      near(placed[1].x - placed[0].right, await token(page, 'gap-tags'), `${id}: the default's gap`);
-      near(top(lines[1]) - bottom(lines[0]), await token(page, 'row-gap-tags'), `${id}: the default's row gap`);
+      near(placed[1].x - placed[0].right, await token(page, 'gap-chips'), `${id}: the default's gap`);
+      near(top(lines[1]) - bottom(lines[0]), await token(page, 'row-gap-chips'), `${id}: the default's row gap`);
     }
     const added = await layout(page, 'holder');
     near(added.placed[1].x - added.placed[0].right, 2, 'the layer’s gap');
     near(top(added.lines[1]) - bottom(added.lines[0]), 4, 'the layer’s row gap');
     await expect.poll(() => seen.filter((line) => line.includes('TGR-16')).length).toBeGreaterThanOrEqual(2);
-    expect(seen.join('\n')).toMatch(/spacing "loose" is not a value of the active design system; it is drawn as "tags" \(TGR-16\)/);
-    expect(seen.join('\n')).toMatch(/spacing "Not A Name" is not a value of the active design system; it is drawn as "tags" \(TGR-16\)/);
+    expect(seen.join('\n')).toMatch(/spacing "loose" is not a value of the active design system; it is drawn as "chips" \(TGR-16\)/);
+    expect(seen.join('\n')).toMatch(/spacing "Not A Name" is not a value of the active design system; it is drawn as "chips" \(TGR-16\)/);
     expect(seen.join('\n')).not.toMatch(/dense/);
   });
 });
@@ -855,7 +857,7 @@ test.describe('fixtures', () => {
     for (const f of spec.fixtures) {
       const given = f.items!;
       expect(await members(page, f.id).evaluateAll((all) => all.map((el) => [el.localName, el.getAttribute('label')])), f.id).toEqual(given.map((item) => [item.kind === 'tag' ? 'tanrei-tag' : 'tanrei-chip', String(item.props.label)]));
-      expect(await host(page, f.id).getAttribute('spacing'), f.id).toBe(String(f.props.spacing ?? 'tags'));
+      expect(await host(page, f.id).getAttribute('spacing'), f.id).toBe(String(f.props.spacing ?? 'chips'));
       // A glyph the fixture names is in the member's icon slot, drawn as one glyph and not as its name spelled out.
       for (const [i, item] of given.entries()) {
         if (!item.props.icon) continue;

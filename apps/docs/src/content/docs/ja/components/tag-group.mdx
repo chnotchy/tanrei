@@ -2,7 +2,7 @@
 title: タググループ
 description: タグやチップの集まりを、折り返す行に並べ、中身に合った間隔を取り、1 つの名前付きのリストとして伝えます。メンバーはそのままの姿で、チップが取り除かれた後は、フォーカスが次のチップへ進みます。
 translationOf: components/tag-group.mdx
-sourceHash: deb4197699e52e94905bf63f9f02e8759a6bda39
+sourceHash: dfd5a40f6573b0faf035063e9e49568a6050b0e4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="tag-group" />
 
 <DemoFrame label="タグの集まりと、絞り込みの並び" column>
-  <tanrei-tag-group class="not-content" label="タグ">
+  <tanrei-tag-group class="not-content" spacing="tags" label="タグ">
     <tanrei-tag label="デザイントークン"></tanrei-tag>
     <tanrei-tag label="アクセシビリティ"></tanrei-tag>
     <tanrei-tag label="右から左"></tanrei-tag>
@@ -40,13 +40,14 @@ Web では `<tanrei-tag-group>` です。ほかのプラットフォームはま
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-tag-group label="タグ">
+    <!-- 静的なタグの集まりは、そのことを指定します。行と行が、タグ同士と同じ近さで並びます。 -->
+    <tanrei-tag-group spacing="tags" label="タグ">
       <tanrei-tag label="デザイントークン"></tanrei-tag>
       <tanrei-tag label="アクセシビリティ"></tanrei-tag>
     </tanrei-tag-group>
 
-    <!-- チップの集まりは、そのことを指定します。行の間隔が広くなります。 -->
-    <tanrei-tag-group id="recipients" spacing="chips" label="宛先">
+    <!-- チップの集まりは既定の間隔を使います。行と行は、それぞれのチップのタッチターゲットが収まるだけ離れます。 -->
+    <tanrei-tag-group id="recipients" label="宛先">
       <tanrei-chip kind="input" label="山田 花子" remove-label="山田 花子を削除"></tanrei-chip>
       <tanrei-chip kind="input" label="佐藤 健" remove-label="佐藤 健を削除"></tanrei-chip>
     </tanrei-tag-group>
@@ -70,7 +71,7 @@ Web では `<tanrei-tag-group>` です。ほかのプラットフォームはま
     ```tsx
     import { Chip, TagGroup } from '@tanrei/react';
 
-    <TagGroup spacing="chips" label="宛先">
+    <TagGroup label="宛先">
       {recipients.map((person) => (
         <Chip key={person.id} kind="input" label={person.name} removeLabel={`${person.name}を削除`} onRemove={() => remove(person.id)} />
       ))}
@@ -82,7 +83,7 @@ Web では `<tanrei-tag-group>` です。ほかのプラットフォームはま
 ## 仕様
 
 <DemoFrame label="折り返すタグ、ステータスのタグ、各タグのページへのリンク、入力された項目" plain column>
-  <tanrei-tag-group class="not-content" style="inline-size: 22rem; max-inline-size: 100%" label="タグ">
+  <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="タグ">
     <tanrei-tag label="デザイントークン"></tanrei-tag>
     <tanrei-tag label="アクセシビリティ"></tanrei-tag>
     <tanrei-tag label="右から左"></tanrei-tag>
@@ -90,7 +91,7 @@ Web では `<tanrei-tag-group>` です。ほかのプラットフォームはま
     <tanrei-tag label="カラー"></tanrei-tag>
     <tanrei-tag label="モーション"></tanrei-tag>
   </tanrei-tag-group>
-  <tanrei-tag-group class="not-content" label="プラットフォーム">
+  <tanrei-tag-group class="not-content" spacing="tags" label="プラットフォーム">
     <tanrei-tag label="Web: Stable" status="success" size="small"></tanrei-tag>
     <tanrei-tag label="SwiftUI: Beta" size="small"></tanrei-tag>
     <tanrei-tag label="Flutter: 追従待ち" status="warning" variant="outlined" size="small"></tanrei-tag>
@@ -115,9 +116,10 @@ Web では `<tanrei-tag-group>` です。ほかのプラットフォームはま
 
 | 集まり | 使うもの |
 | --- | --- |
-| 静的なタグ。記事のカテゴリー、設定が取りうる値、ステータスの並びなど | タググループ。 |
-| それぞれのタグのページへ進むタグ | `spacing="chips"` のタググループに、`href` を持つチップを入れます。タグはテキストで、リンクにはなれません。 |
-| 一覧の上の絞り込み、フィールドの下の候補、ユーザーが入力した項目 | `spacing="chips"` のタググループ。 |
+| 静的なタグ。記事のカテゴリー、設定が取りうる値、ステータスの並びなど | `spacing="tags"` のタググループ。 |
+| それぞれのタグのページへ進むタグ | タググループに、`href` を持つチップを入れます。タグはテキストで、リンクにはなれません。 |
+| 一覧の上の絞り込み、フィールドの下の候補、ユーザーが入力した項目 | チップを入れたタググループ。 |
+| Tab 1 回で通り過ぎられるようにしたい、長い絞り込みの並び | トグルボタンを入れた[ツールバー](/ja/components/toolbar/)（後述）。 |
 | 2〜4 個の異なるアクション | [ボタングループ](/ja/components/button-group/)。 |
 | いくつかの中から 1 つを選ぶ | [ラジオグループ](/ja/components/radio-group/)、[タブ](/ja/components/tabs/)、[セグメントボタン](/ja/components/segmented-button/)のいずれか。 |
 | 目に見えるラベル、必須・任意の表示、エラーが必要なコントロール | [フィールドグループ](/ja/components/field-group/)。 |
@@ -127,10 +129,10 @@ Web では `<tanrei-tag-group>` です。ほかのプラットフォームはま
 
 `spacing` は、集まりの中身を伝え、2 つの距離を決めます。1 行の中のメンバー同士の距離と、行と行の距離です。
 
-- `tags`（既定値）は、静的なタグのための値です。行と行は、1 行の中のタグ同士と同じ近さで並ぶので、折り返した集まりが 1 つのまとまりに見えます。
-- `chips` は、チップのための値です。チップは、見えている縁の外側でも、タッチターゲットの大きさまで押下を受け取ります。行と行は、medium のチップがそのターゲットを丸ごと保てるだけ離れます。2 つのチップの領域が重なるところでは、領域は間隔の真ん中で接します。
+- `chips`（既定値）は、チップのための値です。チップは、見えている縁の外側でも、タッチターゲットの大きさまで押下を受け取ります。行と行は、medium のチップがそのターゲットを丸ごと保てるだけ離れます。2 つのチップの領域が重なるところでは、領域は間隔の真ん中で接します。
+- `tags` は、静的なタグのための値です。行と行は、1 行の中のタグ同士と同じ近さで並ぶので、折り返した集まりが 1 つのまとまりに見えます。
 
-チップの集まりを `tags` のままにしても動作します。ただし行と行がタッチターゲットの高さより近くなるので、デバッグビルドがそのことを報告します。
+既定値は安全な側です。タグの集まりを `chips` のままにしても、少し離れて並ぶだけです。チップの集まりに `tags` を指定しても動作しますが、行と行がタッチターゲットの高さより近くなるので、デバッグビルドがそのことを報告します。
 
 small のチップは、集まりが 1 行に収まる、密度の高い場所のためのものです。折り返した行では、タッチターゲットが本来の大きさになる前に、行の間で接します。タッチ画面で折り返す集まりには、medium のチップを使います。
 
@@ -144,6 +146,26 @@ small のチップは、集まりが 1 行に収まる、密度の高い場所�
 - 集まりは、先頭側の端から始まります。行の末尾や中央に置くには、周りのレイアウトでグループを配置します。
 - メンバーは、すべて同じサイズにします。サイズの違うメンバーは、行の中央にそろいます。
 - メンバーのないグループは、何も描かず、場所も取りません。タグのない記事を特別に扱う必要はありません。
+
+### Tab で止まる位置を 1 つにした絞り込みの並び
+
+タググループでは、ボタングループのそれぞれのボタンと同じように、チップの 1 つずつが Tab で止まる位置になり、チップの間は Tab で移動します。長い絞り込みの並びを Tab 1 回で通り過ぎられるようにしたい場合は、代わりに絞り込みをトグルボタンとして[ツールバー](/ja/components/toolbar/)に入れます。ツールバーで Tab が止まるのは 1 か所で、ボタンの間は矢印キーで移動し、それぞれのボタンが自分の押された状態を保ちます。ツールバーは 1 行で、折り返しません。
+
+<DemoFrame label="Tab で止まる位置が 1 つの絞り込み：トグルボタンを入れたツールバー">
+  <tanrei-toolbar class="not-content" label="絞り込み">
+    <tanrei-button variant="outlined" toggle selected label="未完了"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="自分の担当"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="レビュー待ち"></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+```html
+<tanrei-toolbar label="絞り込み">
+  <tanrei-button variant="outlined" toggle selected label="未完了"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="自分の担当"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="レビュー待ち"></tanrei-button>
+</tanrei-toolbar>
+```
 
 ### ラベル
 
@@ -164,7 +186,7 @@ small のチップは、集まりが 1 行に収まる、密度の高い場所�
 
 ### 推奨
 
-- チップの集まりには、`spacing="chips"` を指定します。
+- 静的なタグの集まりには、`spacing="tags"` を指定します。
 - 集まりには、ページの言語で `label` を付けます。
 - 1 つの集まりには、1 種類のメンバーを入れます。入力された項目の後ろに「追加」のチップを 1 つ置く場合は例外です。
 
@@ -201,11 +223,11 @@ Web での既知の制約：
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+    gap: var(--tanrei-comp-tag-group-row-gap-chips) var(--tanrei-comp-tag-group-gap-chips);
   }
   ```
 
-- 集まりの中のチップを矢印キーで移動する機能はありません。フォーカスが止まる位置を 1 つにしたい長い絞り込みの並びは、チップを入れた[ツールバー](/ja/components/toolbar/)にします。
+- 集まりの中のチップを矢印キーで移動する機能はありません。チップの 1 つずつが Tab で止まる位置です。フォーカスが止まる位置を 1 つにしたい長い絞り込みの並びは、「Tab で止まる位置を 1 つにした絞り込みの並び」で示したように、トグルボタンを入れた[ツールバー](/ja/components/toolbar/)にします。
 
 ### 利用者側で行うこと
 

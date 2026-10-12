@@ -5,9 +5,10 @@ import { cornerRadius, shape } from '../../styles/shape.js';
 
 // Every visual value is a token (tokens/comp/menubar.tokens.json): the bar's fill, paddings and gap; a title's height,
 // padding, corners and text style; the size of the overflow item's glyph and of a link item's mark, and the gap between
-// that mark and its label; a title's two conditions — unselected, and
-// expanded while its menu is open — which are its state variants, each coloring the container, the label
-// and the glyph in every state; and the motion of a state change and of the press. The surfaces the titles open are
+// that mark and its label, and the size of the indicator a menu's title ends in while the bar mixes menus with bar items;
+// a title's three conditions — unselected, selected (the current link item) and expanded while its menu is open — which
+// are its state variants, each coloring the container, the label and the glyph in every state; and the motion of a state
+// change and of the press. The surfaces the titles open are
 // Menus, drawn from comp.menu.* by the menu itself: nothing here restyles them.
 const PREFIX = '--tanrei-comp-menubar';
 const T = (name: string) => `var(${PREFIX}-${name})`;
@@ -83,6 +84,7 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
   }
 
   ${conditionBlock(PREFIX, 'unselected', PARTS, '.container')}
+  ${conditionBlock(PREFIX, 'selected', PARTS, '.title.current > .container')}
   ${conditionBlock(PREFIX, 'expanded', PARTS, '.title.expanded > .container')}
 
   /* MBR-2, MBR-3: at least container.height tall, as wide as its label and the padding on each side, its corners the
@@ -124,10 +126,6 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
     color: var(--_l);
     transition: color ${motion};
   }
-  /* MBR-38: the link item that names the current page — the label's weight plus the emphasis, and no fill. */
-  .title.current .label {
-    font-weight: ${T('label-typescale-font-weight-emphasized')};
-  }
   /* MBR-26: the label is text of its own direction, isolated; the title is still placed by the layout's. */
   ${productText('.label')}
   /* MBR-21: the glyph more_horiz, through the icon helper: the unselected family and fill, sys.icon.weight, the optical
@@ -148,10 +146,22 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
   .icon:not([data-drawn]) {
     visibility: hidden;
   }
+  /* MBR-47: while the bar mixes menus with bar items, a menu's title ends in expand_more at indicator.size, container.gap
+     after its label (the content's gap), in the condition's icon color; never mirrored, never turned. */
+  ${iconGlyph('.indicator', { size: `${PREFIX}-indicator-size`, selected: ':not(*)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  .indicator {
+    color: var(--_i);
+    transition:
+      color ${motion},
+      font-variation-settings ${motion};
+  }
+  .indicator:not([data-drawn]) {
+    visibility: hidden;
+  }
 
   /* MBR-4, MBR-6, MBR-7, MBR-18: the states and their precedence — pressed over focused over hovered, disabled over all. */
   ${conditionStates(PREFIX, PARTS, { container: 'c', root: '.container', on })}
-  .container[data-pressed]:not([data-pressed='none']) :is(.label, .icon) {
+  .container[data-pressed]:not([data-pressed='none']) :is(.label, .icon, .indicator) {
     transition-duration: 0s;
   }
   ${pressHold('.content')}
@@ -164,7 +174,8 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
   @media (prefers-reduced-motion: reduce) {
     .container,
     .label,
-    .icon {
+    .icon,
+    .indicator {
       transition: none;
     }
   }
@@ -178,7 +189,8 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
       background: transparent;
     }
     .title .label,
-    .title .icon {
+    .title .icon,
+    .title .indicator {
       color: ButtonText;
     }
     .title .ripple {
@@ -192,8 +204,16 @@ export function titleStyles(focused: (focus: string) => string): CSSResult {
       background: Highlight;
     }
     .title.expanded .label,
-    .title.expanded .icon {
+    .title.expanded .icon,
+    .title.expanded .indicator {
       color: HighlightText;
+    }
+    /* MBR-46: the mode removes the fill of the current link item; a line of sys.border.thick inside its container, in
+       the person's link color, marks it instead, under the pointer and the press too. */
+    .title.current.p > .container,
+    .title.current.p:hover > .container,
+    .title.current.p > .container[data-pressed] {
+      box-shadow: inset 0 0 0 var(--tanrei-sys-border-thick) LinkText;
     }
     /* MBR-46: a link item's label and mark in the person's link color (a disabled one in the disabled text color, below). */
     .title.link .label,
@@ -292,10 +312,6 @@ export const itemStyles = css`
   /* MBR-43, MBR-45: folded, the product's anchor stays in the document and is not displayed. */
   .kept {
     display: none;
-  }
-  /* MBR-43: a folded link item that names the current page keeps the emphasized weight, in the menu's own text style. */
-  tanrei-menu-item.current::part(label) {
-    font-weight: var(--tanrei-comp-menu-label-typescale-font-weight-emphasized);
   }
   ${shape}
 `;

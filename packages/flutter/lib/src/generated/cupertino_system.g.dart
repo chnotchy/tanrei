@@ -2738,6 +2738,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
   ),
   chip: TanreiChipTokens(
     avatarShape: 9999.0,
+    checkWeight: 300.0,
     containerShape: 9999.0,
     motionFeedbackDuration: 450,
     motionSelectionDuration: 150,
@@ -5641,12 +5642,45 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     containerPaddingInline: 12.0,
     containerShape: 8.0,
     iconSize: 24.0,
+    indicatorSize: 20.0,
     labelTypescale: _typescaleLabel,
     motionFeedbackDuration: 450,
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     conditions: TanreiMenubarConditions(
       unselected: TanreiMenubarConditionTokens(
+        enabled: TanreiMenubarConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          labelColor: TanreiPaint.role(TanreiColorRole.onSurface),
+          iconColor: TanreiPaint.role(TanreiColorRole.onSurface),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.onSurface),
+        ),
+        hovered: TanreiMenubarConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          labelColor: TanreiPaint.role(TanreiColorRole.onSurface),
+          iconColor: TanreiPaint.role(TanreiColorRole.onSurface),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.onSurface),
+        ),
+        focused: TanreiMenubarConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          labelColor: TanreiPaint.role(TanreiColorRole.onSurface),
+          iconColor: TanreiPaint.role(TanreiColorRole.onSurface),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.onSurface),
+        ),
+        pressed: TanreiMenubarConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          labelColor: TanreiPaint.role(TanreiColorRole.onSurface),
+          iconColor: TanreiPaint.role(TanreiColorRole.onSurface),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.onSurface),
+        ),
+        disabled: TanreiMenubarConditionStateTokens(
+          containerColor: TanreiPaint.none(),
+          labelColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+          iconColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+          stateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+        ),
+      ),
+      selected: TanreiMenubarConditionTokens(
         enabled: TanreiMenubarConditionStateTokens(
           containerColor: TanreiPaint.none(),
           labelColor: TanreiPaint.role(TanreiColorRole.onSurface),
@@ -6965,6 +6999,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     ),
   ),
   segmentedButton: TanreiSegmentedButtonTokens(
+    checkWeight: 300.0,
     containerShape: 8.0,
     dividerColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
     dividerWidth: 1.0,

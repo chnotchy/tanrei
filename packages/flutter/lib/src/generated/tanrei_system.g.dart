@@ -2753,6 +2753,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
   ),
   chip: TanreiChipTokens(
     avatarShape: 9999.0,
+    checkWeight: 500.0,
     containerShape: 9999.0,
     motionFeedbackDuration: 450,
     motionSelectionDuration: 150,
@@ -5656,6 +5657,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     containerPaddingInline: 12.0,
     containerShape: 6.0,
     iconSize: 24.0,
+    indicatorSize: 20.0,
     labelTypescale: _typescaleLabel,
     motionFeedbackDuration: 450,
     motionStateDuration: 150,
@@ -5688,6 +5690,38 @@ const TanreiSystem tanreiSystem = TanreiSystem(
         ),
         disabled: TanreiMenubarConditionStateTokens(
           containerColor: TanreiPaint.none(),
+          labelColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+          iconColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+          stateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
+        ),
+      ),
+      selected: TanreiMenubarConditionTokens(
+        enabled: TanreiMenubarConditionStateTokens(
+          containerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16),
+          labelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          iconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+        ),
+        hovered: TanreiMenubarConditionStateTokens(
+          containerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.08),
+          labelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          iconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+        ),
+        focused: TanreiMenubarConditionStateTokens(
+          containerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
+          labelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          iconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+        ),
+        pressed: TanreiMenubarConditionStateTokens(
+          containerColor: TanreiPaint.mix(TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16), TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.1),
+          labelColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          iconColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+          stateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+        ),
+        disabled: TanreiMenubarConditionStateTokens(
+          containerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSecondaryContainer), 0.16),
           labelColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           iconColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
           stateLayerColor: TanreiPaint.alpha(TanreiPaint.role(TanreiColorRole.onSurface), 0.38),
@@ -6980,6 +7014,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     ),
   ),
   segmentedButton: TanreiSegmentedButtonTokens(
+    checkWeight: 500.0,
     containerShape: 0.0,
     dividerColor: TanreiPaint.role(TanreiColorRole.outline),
     dividerWidth: 1.0,

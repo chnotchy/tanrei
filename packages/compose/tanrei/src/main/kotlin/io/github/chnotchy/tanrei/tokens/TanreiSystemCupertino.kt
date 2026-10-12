@@ -2600,6 +2600,7 @@ private object CupertinoSystemSource {
     fun chip(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiChipTokens =
         TanreiChipTokens(
             avatarShape = 9999.dp,
+            checkWeight = 300f,
             containerShape = 9999.dp,
             motionFeedbackDuration = 450,
             motionSelectionDuration = 150,
@@ -5280,6 +5281,7 @@ private object CupertinoSystemSource {
             containerPaddingInline = 12.dp,
             containerShape = 8.dp,
             iconSize = 24.dp,
+            indicatorSize = 20.dp,
             labelTypescale = typescale.label,
             motionFeedbackDuration = 450,
             motionStateDuration = 150,
@@ -5290,6 +5292,38 @@ private object CupertinoSystemSource {
             disabled = TanreiMenubarStateTokens(containerShape = 8.dp, opacity = 1f),
             conditions = TanreiMenubarConditions(
                 unselected = TanreiMenubarConditionTokens(
+                    enabled = TanreiMenubarConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        labelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                        iconColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                    ),
+                    hovered = TanreiMenubarConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        labelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                        iconColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                    ),
+                    focused = TanreiMenubarConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        labelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                        iconColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                    ),
+                    pressed = TanreiMenubarConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        labelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                        iconColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+                    ),
+                    disabled = TanreiMenubarConditionStateTokens(
+                        containerColor = TanreiPaint.None,
+                        labelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        iconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                    ),
+                ),
+                selected = TanreiMenubarConditionTokens(
                     enabled = TanreiMenubarConditionStateTokens(
                         containerColor = TanreiPaint.None,
                         labelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
@@ -6525,6 +6559,7 @@ private object CupertinoSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun segmentedButton(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSegmentedButtonTokens =
         TanreiSegmentedButtonTokens(
+            checkWeight = 300f,
             containerShape = 8.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
             dividerWidth = 1.dp,

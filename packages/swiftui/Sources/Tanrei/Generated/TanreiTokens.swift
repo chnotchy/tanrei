@@ -4868,6 +4868,7 @@ public struct TanreiChipStateTokens: Sendable, Equatable {
 /// Component tokens of chip (comp.chip).
 public struct TanreiChipTokens: Sendable, Equatable {
   public var avatarShape: CGFloat
+  public var checkWeight: Double
   public var containerShape: CGFloat
   public var motionFeedbackDuration: Double
   public var motionSelectionDuration: Double
@@ -4889,6 +4890,7 @@ public struct TanreiChipTokens: Sendable, Equatable {
 
   public init(
     avatarShape: CGFloat,
+    checkWeight: Double,
     containerShape: CGFloat,
     motionFeedbackDuration: Double,
     motionSelectionDuration: Double,
@@ -4905,6 +4907,7 @@ public struct TanreiChipTokens: Sendable, Equatable {
     disabled: TanreiChipStateTokens
   ) {
     self.avatarShape = avatarShape
+    self.checkWeight = checkWeight
     self.containerShape = containerShape
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionSelectionDuration = motionSelectionDuration
@@ -10095,10 +10098,11 @@ public struct TanreiMenubarCondition: RawRepresentable, Hashable, Sendable, Cust
   public var description: String { rawValue }
 
   public static let unselected = TanreiMenubarCondition(rawValue: "unselected")
+  public static let selected = TanreiMenubarCondition(rawValue: "selected")
   public static let expanded = TanreiMenubarCondition(rawValue: "expanded")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiMenubarCondition] = [.unselected, .expanded]
+  public static let core: [TanreiMenubarCondition] = [.unselected, .selected, .expanded]
   /// The default: what a value the current design system does not have falls back to.
   public static let fallback = TanreiMenubarCondition.unselected
 }
@@ -10162,16 +10166,19 @@ public struct TanreiMenubarConditionTokens: Sendable, Equatable {
 /// Read one with `conditions[key]`.
 public struct TanreiMenubarConditions: Sendable, Equatable {
   public var unselected: TanreiMenubarConditionTokens
+  public var selected: TanreiMenubarConditionTokens
   public var expanded: TanreiMenubarConditionTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
   public var extra: [TanreiMenubarCondition: TanreiMenubarConditionTokens]
 
   public init(
     unselected: TanreiMenubarConditionTokens,
+    selected: TanreiMenubarConditionTokens,
     expanded: TanreiMenubarConditionTokens,
     extra: [TanreiMenubarCondition: TanreiMenubarConditionTokens] = [:]
   ) {
     self.unselected = unselected
+    self.selected = selected
     self.expanded = expanded
     self.extra = extra
   }
@@ -10180,6 +10187,7 @@ public struct TanreiMenubarConditions: Sendable, Equatable {
   public func value(for key: TanreiMenubarCondition) -> TanreiMenubarConditionTokens? {
     switch key {
     case .unselected: return unselected
+    case .selected: return selected
     case .expanded: return expanded
     default: return extra[key]
     }
@@ -10222,6 +10230,7 @@ public struct TanreiMenubarTokens: Sendable, Equatable {
   public var containerPaddingInline: CGFloat
   public var containerShape: CGFloat
   public var iconSize: CGFloat
+  public var indicatorSize: CGFloat
   public var labelTypescale: TanreiTextStyle
   public var motionFeedbackDuration: Double
   public var motionStateDuration: Double
@@ -10246,6 +10255,7 @@ public struct TanreiMenubarTokens: Sendable, Equatable {
     containerPaddingInline: CGFloat,
     containerShape: CGFloat,
     iconSize: CGFloat,
+    indicatorSize: CGFloat,
     labelTypescale: TanreiTextStyle,
     motionFeedbackDuration: Double,
     motionStateDuration: Double,
@@ -10265,6 +10275,7 @@ public struct TanreiMenubarTokens: Sendable, Equatable {
     self.containerPaddingInline = containerPaddingInline
     self.containerShape = containerShape
     self.iconSize = iconSize
+    self.indicatorSize = indicatorSize
     self.labelTypescale = labelTypescale
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateDuration = motionStateDuration
@@ -12925,6 +12936,7 @@ public struct TanreiSegmentedButtonStateTokens: Sendable, Equatable {
 
 /// Component tokens of segmented-button (comp.segmented-button).
 public struct TanreiSegmentedButtonTokens: Sendable, Equatable {
+  public var checkWeight: Double
   public var containerShape: CGFloat
   public var dividerColor: TanreiPaint
   public var dividerWidth: CGFloat
@@ -12950,6 +12962,7 @@ public struct TanreiSegmentedButtonTokens: Sendable, Equatable {
   public var disabled: TanreiSegmentedButtonStateTokens
 
   public init(
+    checkWeight: Double,
     containerShape: CGFloat,
     dividerColor: TanreiPaint,
     dividerWidth: CGFloat,
@@ -12970,6 +12983,7 @@ public struct TanreiSegmentedButtonTokens: Sendable, Equatable {
     pressed: TanreiSegmentedButtonStateTokens,
     disabled: TanreiSegmentedButtonStateTokens
   ) {
+    self.checkWeight = checkWeight
     self.containerShape = containerShape
     self.dividerColor = dividerColor
     self.dividerWidth = dividerWidth
@@ -15711,7 +15725,7 @@ public struct TanreiTagGroupSpacing: RawRepresentable, Hashable, Sendable, Custo
   /// The values every design system has, in the order the component declares them.
   public static let core: [TanreiTagGroupSpacing] = [.tags, .chips]
   /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiTagGroupSpacing.tags
+  public static let fallback = TanreiTagGroupSpacing.chips
 }
 
 /// Everything of tag-group that depends on its spacing.
@@ -15755,12 +15769,12 @@ public struct TanreiTagGroupSpacings: Sendable, Equatable {
     }
   }
 
-  /// Total lookup: a tag-group spacing this design system does not have reads the tokens of `tags`, the
+  /// Total lookup: a tag-group spacing this design system does not have reads the tokens of `chips`, the
   /// default, and is reported in debug builds only (`TanreiDiagnostics`).
   public subscript(key: TanreiTagGroupSpacing) -> TanreiTagGroupSpacingTokens {
     if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no tag-group spacing \"\(key.rawValue)\"; using \"tags\"")
-    return tags
+    TanreiDiagnostics.report("Tanrei: the current design system has no tag-group spacing \"\(key.rawValue)\"; using \"chips\"")
+    return chips
   }
 
   /// Every tag-group spacing of this design system: the core ones, then what it added.

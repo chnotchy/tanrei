@@ -2752,6 +2752,7 @@ private let m3ExpressiveLikeCheckboxTokens = TanreiCheckboxTokens(
 
 private let m3ExpressiveLikeChipTokens = TanreiChipTokens(
   avatarShape: 9999,
+  checkWeight: 400,
   containerShape: 8,
   motionFeedbackDuration: 450,
   motionSelectionDuration: 150,
@@ -5683,12 +5684,45 @@ private let m3ExpressiveLikeMenubarTokens = TanreiMenubarTokens(
   containerPaddingInline: 12,
   containerShape: 8,
   iconSize: 24,
+  indicatorSize: 20,
   labelTypescale: m3ExpressiveLikeTypescale.label,
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   conditions: TanreiMenubarConditions(
     unselected: TanreiMenubarConditionTokens(
+      enabled: TanreiMenubarConditionStateTokens(
+        containerColor: .none,
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
+        stateLayerColor: .role(.onSurface)
+      ),
+      hovered: TanreiMenubarConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.08),
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
+        stateLayerColor: .role(.onSurface)
+      ),
+      focused: TanreiMenubarConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
+        stateLayerColor: .role(.onSurface)
+      ),
+      pressed: TanreiMenubarConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
+        stateLayerColor: .role(.onSurface)
+      ),
+      disabled: TanreiMenubarConditionStateTokens(
+        containerColor: .none,
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    selected: TanreiMenubarConditionTokens(
       enabled: TanreiMenubarConditionStateTokens(
         containerColor: .none,
         labelColor: .role(.onSurface),
@@ -7020,6 +7054,7 @@ private let m3ExpressiveLikeSearchTokens = TanreiSearchTokens(
 )
 
 private let m3ExpressiveLikeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
+  checkWeight: 400,
   containerShape: 0,
   dividerColor: .role(.outline),
   dividerWidth: 1,

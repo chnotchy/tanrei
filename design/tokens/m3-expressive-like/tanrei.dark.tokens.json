@@ -23186,6 +23186,13 @@
             }
           }
         },
+        "check": {
+          "weight": {
+            "$type": "number",
+            "$value": 400,
+            "$description": "The weight a selected filter chip's check is drawn at (the `wght` axis of the icon font): the system's weight for a control's own mark, as the checkbox draws its own, because the check is drawn on the chip's selected fill only while it is on and is what tells on from off beside the fill's color. The check's box (icon.size) does not change with it; only the stroke does. The leading icon and the remove glyph keep sys.icon.weight."
+          }
+        },
         "container": {
           "gap": {
             "medium": {
@@ -57061,7 +57068,7 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "Distance between a bar item's label and the mark after it: the glyph open_in_new of a link item that opens a new context (MBR-37). 4 in the default system, so that the word and its mark read as one entry: the mark stands much nearer its own word than the next entry's, which is two paddings and bar.gap away."
+            "$description": "Distance between an entry's label and the glyph after it: the mark open_in_new of a link item that opens a new context (MBR-37), and the indicator expand_more of a menu's title while the bar mixes menus with bar items (MBR-32). 4 in the default system, so that the word and its mark read as one entry: the mark stands much nearer its own word than the next entry's, which is two paddings and bar.gap away."
           },
           "height": {
             "$type": "dimension",
@@ -57456,6 +57463,16 @@
             "$description": "The glyph box of a glyph an entry draws: the overflow item's more_horiz, and the new-context mark open_in_new after a link item's label (MBR-37)."
           }
         },
+        "indicator": {
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 20,
+              "unit": "px"
+            },
+            "$description": "The glyph box of the indicator expand_more that a menu's title ends in while the bar mixes menus with bar items (MBR-32), container.gap after the label. One step smaller than icon.size, as a disclosure glyph beside a word is: it marks the title, it is not a second word."
+          }
+        },
         "label": {
           "typescale": {
             "$type": "typography",
@@ -57518,6 +57535,319 @@
           "opacity": {
             "$type": "number",
             "$value": 1
+          }
+        },
+        "selected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "The fill of the link item that names the page the person is on (MBR-38): the menu's selected row's fill, so that the current place is drawn the same in the bar and in a menu. A design system that sets the menu's sets this one with it."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#e6e0e9"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#e6e0e9"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#e6e0e9"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#e6e0e9"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "hex": "#e6e0e9",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "hex": "#e6e0e9",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "hex": "#e6e0e9",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#e6e0e9"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "hex": "#e6e0e9",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "hex": "#e6e0e9",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "hex": "#e6e0e9",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.902,
+                  0.8784,
+                  0.9137
+                ],
+                "hex": "#e6e0e9",
+                "alpha": 1
+              },
+              "$description": "The new-context mark of a current link item, in the color of the selected row's glyphs."
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.902,
+                  0.8784,
+                  0.9137
+                ],
+                "hex": "#e6e0e9",
+                "alpha": 1
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#e6e0e9"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "hex": "#e6e0e9",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "hex": "#e6e0e9",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.902,
+                    0.8784,
+                    0.9137
+                  ],
+                  "hex": "#e6e0e9",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.902,
+                  0.8784,
+                  0.9137
+                ],
+                "hex": "#e6e0e9",
+                "alpha": 1
+              },
+              "$description": "The color hover, focus and press mix into the current link item's container: the label's color."
+            }
           }
         },
         "unselected": {
@@ -70506,6 +70836,11 @@
                 "unit": "px"
               }
             }
+          },
+          "weight": {
+            "$type": "number",
+            "$value": 400,
+            "$description": "The weight the check of a selected segment is drawn at (the `wght` axis of the icon font): the system's weight for a control's own mark, as the checkbox draws its own, because the check is a thin stroke drawn on the segment's selected fill and is what tells selected from unselected beside the fill's color. The check's box (check.size) does not change with it; only the stroke does. A segment's icon keeps sys.icon.weight."
           }
         },
         "container": {

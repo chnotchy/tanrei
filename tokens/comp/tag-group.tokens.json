@@ -9,7 +9,7 @@
           },
           "dev.tanrei.axes": {
             "spacing": {
-              "default": "tags",
+              "default": "chips",
               "values": [
                 "tags",
                 "chips"

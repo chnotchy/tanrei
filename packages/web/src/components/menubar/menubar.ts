@@ -41,8 +41,12 @@ interface Place {
   stop: boolean;
   /** The bar draws its open menu in place (for tests). */
   inline: boolean;
+  /** MBR-47: the bar mixes menus with bar items, so a menu's title ends in the indicator. */
+  indicated: boolean;
 }
-const NOWHERE: Place = { folded: false, position: 0, size: 0, stop: false, inline: false };
+const NOWHERE: Place = { folded: false, position: 0, size: 0, stop: false, inline: false, indicated: false };
+/** MBR-47: the glyph a menu's title ends in while the bar mixes menus with bar items. Never mirrored. */
+const INDICATOR_GLYPH = 'expand_more';
 
 /** Each child in a slot of its own; only a changed assignment is written (assigning again re-slots the child, which blurs a focused item). */
 function assignEach(slots: Iterable<HTMLSlotElement>, nodes: readonly Element[]) {
@@ -138,6 +142,9 @@ export class TanreiMenubarMenu extends LitElement {
     holdCarrier: () => this.renderRoot?.querySelector('.content') ?? null,
     disabled: () => this.disabled,
   });
+
+  /** MBR-47: nothing is drawn in the indicator's place until the icon set can draw it — never its name. */
+  private readonly glyphs = new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.indicator') ?? []);
 
   constructor() {
     super();
@@ -323,7 +330,11 @@ export class TanreiMenubarMenu extends LitElement {
         @pointerleave=${this.press.release}
         @pointerenter=${this.onPointerEnter}
         ><span part="container" class="container" data-tanrei-shape
-          ><span class="content"><span part="label" class="label">${this.label}</span></span></span
+          ><span class="content"
+            ><span part="label" class="label">${this.label}</span>${this.place.indicated
+              ? html`<span part="indicator" class="indicator" aria-hidden="true"><span class="ink">${INDICATOR_GLYPH}</span></span>`
+              : nothing}</span
+          ></span
         ></span
       ><tanrei-menu class="menu" aria-label=${this.label || nothing} .bar=${this.channel} .open=${shown} ?inline=${this.place.inline && shown} @close=${this.onMenuClose}>${slots}</tanrei-menu>`;
   }
@@ -807,7 +818,7 @@ export class TanreiMenubarItem extends LitElement {
           target-label=${form?.opensNew && this.targetLabel ? this.targetLabel : nothing}
           .rel=${form ? this.rel : null}
           .download=${form ? this.download : null}
-          .barCurrent=${current}
+          .current=${current}
         ></tanrei-menu-item
         ><span class="kept"><slot></slot></span>`;
     }
@@ -1055,10 +1066,11 @@ export class TanreiMenubar extends LitElement {
   private place() {
     const titles = this.titles();
     const stop = this.stopNow();
+    const mixed = this.mixed;
     for (const row of this.items) {
       const folded = this.folded.includes(row);
       if (row instanceof TanreiMenubarMenu) row.channel.ground = this;
-      row.setBarContext({ folded, position: folded ? 0 : titles.indexOf(row) + 1, size: folded ? 0 : titles.length, stop: row === stop, inline: this.inline });
+      row.setBarContext({ folded, position: folded ? 0 : titles.indexOf(row) + 1, size: folded ? 0 : titles.length, stop: row === stop, inline: this.inline, indicated: mixed && row instanceof TanreiMenubarMenu });
     }
   }
 
@@ -1625,6 +1637,11 @@ export class TanreiMenubar extends LitElement {
     }
   }
 
+  /** MBR-47: whether the bar holds both menus and bar items — of all its entries, folded or not, so that folding never adds or takes away an indicator. */
+  private get mixed(): boolean {
+    return this.items.some((row) => row instanceof TanreiMenubarItem) && this.items.some((row) => row instanceof TanreiMenubarMenu);
+  }
+
   /** The copy of a title the fold is measured from: the same boxes, drawn by the same rules, never shown. */
   private copy(content: unknown, kind: string, glyph = false) {
     return html`<span class="title ${kind}"><span class=${classMap({ container: true, glyph })}><span class="content">${content}</span></span></span>`;
@@ -1665,12 +1682,13 @@ export class TanreiMenubar extends LitElement {
             >
           </div>`
         : nothing;
+    const mixed = this.mixed;
     return html`<div part="bar" class="bar"><slot class="row"></slot>${overflow}</div>
       <div class="ruler" aria-hidden="true">
         ${this.items.map((row) =>
           row instanceof TanreiMenubarItem
-            ? this.copy(html`<span class="label">${row.label}</span>${row.marked ? html`<span class="icon"><span class="ink">${LINK_MARK}</span></span>` : nothing}`, row.isCurrent ? 'menu-copy current' : 'menu-copy')
-            : this.copy(html`<span class="label">${row.label}</span>`, 'menu-copy'),
+            ? this.copy(html`<span class="label">${row.label}</span>${row.marked ? html`<span class="icon"><span class="ink">${LINK_MARK}</span></span>` : nothing}`, 'menu-copy')
+            : this.copy(html`<span class="label">${row.label}</span>${mixed ? html`<span class="indicator"><span class="ink">${INDICATOR_GLYPH}</span></span>` : nothing}`, 'menu-copy'),
         )}${this.copy(html`<span class="icon"><span class="ink">${OVERFLOW_GLYPH}</span></span>`, 'overflow-copy apart', true)}<span class="gap apart"></span>
       </div>`;
   }

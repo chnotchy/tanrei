@@ -14,7 +14,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="tag-group" />
 
 <DemoFrame label="A set of tags, and a row of filters" column>
-  <tanrei-tag-group class="not-content" label="Tags">
+  <tanrei-tag-group class="not-content" spacing="tags" label="Tags">
     <tanrei-tag label="Design tokens"></tanrei-tag>
     <tanrei-tag label="Accessibility"></tanrei-tag>
     <tanrei-tag label="Right-to-left"></tanrei-tag>
@@ -38,13 +38,14 @@ On the web it is `<tanrei-tag-group>`. The other platforms have not implemented 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-tag-group label="Tags">
+    <!-- A set of static tags says so: its lines stand as close as its tags. -->
+    <tanrei-tag-group spacing="tags" label="Tags">
       <tanrei-tag label="Design tokens"></tanrei-tag>
       <tanrei-tag label="Accessibility"></tanrei-tag>
     </tanrei-tag-group>
 
-    <!-- A set of chips says so: its lines stand further apart. -->
-    <tanrei-tag-group id="recipients" spacing="chips" label="Recipients">
+    <!-- A set of chips takes the default spacing: its lines stand far enough apart for each chip's touch target. -->
+    <tanrei-tag-group id="recipients" label="Recipients">
       <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Remove Ada Lovelace"></tanrei-chip>
       <tanrei-chip kind="input" label="Grace Hopper" remove-label="Remove Grace Hopper"></tanrei-chip>
     </tanrei-tag-group>
@@ -68,7 +69,7 @@ On the web it is `<tanrei-tag-group>`. The other platforms have not implemented 
     ```tsx
     import { Chip, TagGroup } from '@tanrei/react';
 
-    <TagGroup spacing="chips" label="Recipients">
+    <TagGroup label="Recipients">
       {recipients.map((person) => (
         <Chip key={person.id} kind="input" label={person.name} removeLabel={`Remove ${person.name}`} onRemove={() => remove(person.id)} />
       ))}
@@ -80,7 +81,7 @@ On the web it is `<tanrei-tag-group>`. The other platforms have not implemented 
 ## Specs
 
 <DemoFrame label="Tags that wrap, status tags, links to each tag’s page, and entered items" plain column>
-  <tanrei-tag-group class="not-content" style="inline-size: 22rem; max-inline-size: 100%" label="Tags">
+  <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="Tags">
     <tanrei-tag label="Design tokens"></tanrei-tag>
     <tanrei-tag label="Accessibility"></tanrei-tag>
     <tanrei-tag label="Right-to-left"></tanrei-tag>
@@ -88,7 +89,7 @@ On the web it is `<tanrei-tag-group>`. The other platforms have not implemented 
     <tanrei-tag label="Color"></tanrei-tag>
     <tanrei-tag label="Motion"></tanrei-tag>
   </tanrei-tag-group>
-  <tanrei-tag-group class="not-content" label="Platforms">
+  <tanrei-tag-group class="not-content" spacing="tags" label="Platforms">
     <tanrei-tag label="Web: Stable" status="success" size="small"></tanrei-tag>
     <tanrei-tag label="SwiftUI: Beta" size="small"></tanrei-tag>
     <tanrei-tag label="Flutter: Lagging" status="warning" variant="outlined" size="small"></tanrei-tag>
@@ -113,9 +114,10 @@ On the web it is `<tanrei-tag-group>`. The other platforms have not implemented 
 
 | The set | Use |
 | --- | --- |
-| Static tags: an article's categories, the values a setting can take, a row of statuses | A tag group. |
-| Tags that lead to each tag's page | A tag group with `spacing="chips"` of chips with `href`. A tag is text and cannot be a link. |
-| Filters above a list, suggestions under a field, items a person entered | A tag group with `spacing="chips"`. |
+| Static tags: an article's categories, the values a setting can take, a row of statuses | A tag group with `spacing="tags"`. |
+| Tags that lead to each tag's page | A tag group of chips with `href`. A tag is text and cannot be a link. |
+| Filters above a list, suggestions under a field, items a person entered | A tag group of chips. |
+| A long row of filters that should cost one Tab press to cross | A [toolbar](/components/toolbar/) of toggle buttons (below). |
 | Two to four different actions | A [button group](/components/button-group/). |
 | One choice among several | A [radio group](/components/radio-group/), [tabs](/components/tabs/) or a [segmented button](/components/segmented-button/). |
 | Controls that need a visible label, a requirement and an error | A [field group](/components/field-group/). |
@@ -125,10 +127,10 @@ On the web it is `<tanrei-tag-group>`. The other platforms have not implemented 
 
 `spacing` says what the set holds, and decides two distances: between two members on a line, and between two lines.
 
-- `tags` (the default) is for static tags. The lines stand as close as the tags along a line, so a wrapped set reads as one block.
-- `chips` is for chips. A chip takes a press beyond its visible edge, up to a touch target. The lines stand far enough apart that each medium chip keeps that whole target, and where two chips' areas would overlap they meet at the middle of the gap.
+- `chips` (the default) is for chips. A chip takes a press beyond its visible edge, up to a touch target. The lines stand far enough apart that each medium chip keeps that whole target, and where two chips' areas would overlap they meet at the middle of the gap.
+- `tags` is for static tags. The lines stand as close as the tags along a line, so a wrapped set reads as one block.
 
-A set of chips left at `tags` still works. Its lines are closer than a touch target is high, and a debug build says so.
+The default is the safe side. A set of tags left at `chips` only stands a little further apart. A set of chips set to `tags` still works, but its lines are closer than a touch target is high, and a debug build says so.
 
 Small chips are for a dense place where the set stands on one line. On wrapped lines their touch targets meet between the lines before they reach full size. Use medium chips for a set that wraps on a touch screen.
 
@@ -142,6 +144,26 @@ A design system may add values of `spacing`.
 - The set starts at the start edge. To place it at the end or in the middle of a row, place the group with the layout around it.
 - Give every member the same size. Members of different sizes are centred on their line.
 - A group with no member draws nothing and takes no space. A post with no tags needs no special case.
+
+### One Tab stop for a row of filters
+
+A tag group gives each chip its own Tab stop, as each button of a button group has, and a person moves through the chips with Tab. Where a long row of filters should cost one Tab press to cross, put the filters in a [toolbar](/components/toolbar/) as toggle buttons instead. The toolbar is one Tab stop, the arrow keys move between its buttons, and each button keeps its own pressed state. A toolbar is one row: it does not wrap.
+
+<DemoFrame label="Filters as one Tab stop: a toolbar of toggle buttons">
+  <tanrei-toolbar class="not-content" label="Filters">
+    <tanrei-button variant="outlined" toggle selected label="Open"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="Assigned to me"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="Needs review"></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+```html
+<tanrei-toolbar label="Filters">
+  <tanrei-button variant="outlined" toggle selected label="Open"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="Assigned to me"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="Needs review"></tanrei-button>
+</tanrei-toolbar>
+```
 
 ### The label
 
@@ -162,7 +184,7 @@ Two things stay yours:
 
 ### Do
 
-- Set `spacing="chips"` for a set of chips.
+- Set `spacing="tags"` for a set of static tags.
 - Give the set a `label`, in the language of the page.
 - Keep one kind of member in a set. Entered items followed by one "Add" chip is the exception.
 
@@ -199,11 +221,11 @@ Known gaps on the web:
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+    gap: var(--tanrei-comp-tag-group-row-gap-chips) var(--tanrei-comp-tag-group-gap-chips);
   }
   ```
 
-- Arrow keys between the chips of a set are not provided. A long row of filters that should be one stop is a [toolbar](/components/toolbar/) of chips.
+- Arrow keys between the chips of a set are not provided: each chip is a Tab stop. A long row of filters that should be one stop is a [toolbar](/components/toolbar/) of toggle buttons, as shown under "One Tab stop for a row of filters".
 
 ### What you need to do
 

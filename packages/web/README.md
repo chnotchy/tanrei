@@ -790,12 +790,12 @@ as one named list (`specs/tag-group.spec.json`, TGR-1…16). It draws nothing of
 keeps no selection and fires no event; it supplies no words — the name of the set is the instance's `label`.
 
 ```html
-<tanrei-tag-group label="Tags">
+<tanrei-tag-group spacing="tags" label="Tags">
   <tanrei-tag label="Design tokens"></tanrei-tag>
   <tanrei-tag label="Accessibility"></tanrei-tag>
 </tanrei-tag-group>
 
-<tanrei-tag-group spacing="chips" label="Filters">
+<tanrei-tag-group label="Filters">
   <tanrei-chip kind="filter" label="Open" selected></tanrei-chip>
   <tanrei-chip kind="filter" label="Blocked"></tanrei-chip>
 </tanrei-tag-group>
@@ -803,7 +803,7 @@ keeps no selection and fires no event; it supplies no words — the name of the 
 
 | Property / attribute | Type | Default | |
 |---|---|---|---|
-| `spacing` | `tags` \| `chips` (open) | `tags` | what the set holds, which decides the gap along a line and between two lines (`--tanrei-comp-tag-group-gap-<spacing>`, `-row-gap-<spacing>`); reflected. A value a layer adds gets its styles on demand; one the active system lacks is drawn as `tags` and reported (TGR-16) |
+| `spacing` | `tags` \| `chips` (open) | `chips` | what the set holds, which decides the gap along a line and between two lines (`--tanrei-comp-tag-group-gap-<spacing>`, `-row-gap-<spacing>`); reflected. The default is the safe side: tags at `chips` only stand further apart, chips at `tags` lose part of their touch targets. A value a layer adds gets its styles on demand; one the active system lacks is drawn as `chips` and reported (TGR-16) |
 | `label` | string | `""` | the accessible name of the list; never drawn. Empty, the list is exposed unnamed |
 
 Default slot: the members. No parts, no events, no custom properties of its own.
@@ -851,7 +851,7 @@ unknown `spacing` (TGR-16). An empty group reports nothing.
 
 **Before the element is defined** the members are inline elements in source order, separated by the white space
 between them. A page that wants the layout from the first paint adds
-`tanrei-tag-group:not(:defined) { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags); }`.
+`tanrei-tag-group:not(:defined) { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tanrei-comp-tag-group-row-gap-chips) var(--tanrei-comp-tag-group-gap-chips); }` (the `-tags` tokens for a set of tags).
 
 ## `<tanrei-keyboard-shortcut>`
 
@@ -3992,7 +3992,8 @@ with an ellipsis only when the layout gives the chip less width (`max-inline-siz
 still the name. All logical, so RTL mirrors: the remove action sits at the left (CHP-25).
 
 **Glyphs (CHP-13, CHP-14, CHP-18).** The icon (`icon` slot), the check and the remove glyph are drawn at
-`icon.size.<size>` with `sys.icon.weight`, at the optical size of their box. The icon and the check take the family and
+`icon.size.<size>`, at the optical size of their box: the icon and the remove glyph with `sys.icon.weight`, the check —
+a control's own mark — with `check.weight` (`sys.icon.mark.weight` in the default system). The icon and the check take the family and
 fill of the chip's selection (selected only on a filter chip that is on); the remove glyph is always filled, in
 `sys.icon.family.selected` / `sys.icon.fill.selected`. The check and the remove mark are the glyphs the spec names,
 `check` and `cancel`, written as ligature text for the system's icon font — the chip draws no path of its own; a system
@@ -4258,6 +4259,10 @@ a new tab by a modified or a middle click and the status bar are the browser's o
   mirrored in right-to-left, hidden, nothing drawn until the icon set can draw it) unless `trailing-icon` names a glyph;
   a shortcut or trailing text keeps its own column before it, and the mark reserves the column for its surface.
   `target-label` ends the item's description either way; an empty one is reported (MNU-55).
+- **`current`** (boolean, reflected): the link item of the page the person is on — `aria-current="page"` on its anchor,
+  the row drawn from the `selected` condition (the fill and colors of a checked row) with no mark and its label's own
+  weight; in forced colors a line of `sys.border.thick` in `LinkText` inside the row marks it. The menu never sets it;
+  without `href` it is ignored and reported (MNU-58).
 - **Disabled.** The anchor without `href`, with `aria-disabled="true"` and the menu item role: reached by the arrow keys
   as any disabled item, no `click`, no `close`, nothing to follow (MNU-56).
 - **No destination.** An `href` attribute on a checkbox item, a radio item or a submenu item is ignored and reported;
@@ -4343,7 +4348,9 @@ item's own shadow root; the surface is the item's descendant in the accessibilit
 divider (`role="separator"`) and the gap — and the cascade answers which is rendered: `--_separation` on the host is the
 `separation` attribute, else `--tanrei-comp-menu-separation`, read with a style container query (and, where a browser has
 none, by script when the menu renders or the system is switched). Under gap the divider is not rendered at all, so no
-separator is exposed. Submenus inherit their menu's.
+separator is exposed, and each group — and each run of items outside a group — is a `.tile` (part `tile`) drawn as a sheet
+of its own (the surface's color, corners, padding, and its elevation with the ring inside the edge), the surface itself
+drawing no sheet around them; under divider the tiles are `display: contents`. Submenus inherit their menu's.
 
 **Items (MNU-10…22, MNU-26…30, MNU-37).** Four conditions — `unselected`, `selected` (a checked checkbox or radio item),
 `destructive`, `expanded` (a submenu item whose submenu is open) — each color the row and every part in every state. A
@@ -4471,8 +4478,9 @@ navigation, drawn, working and reported (MBR-44).
   anchor and gives the anchor the whole of the title's hit area, so what a browser gives a link it gives anywhere on
   the title. `click` is the anchor's: `preventDefault()` cancels the navigation (a router's own link component as
   the child needs nothing more); a click with a modifier key or the middle button and Enter with a modifier key are
-  the browser's; Space follows the link as Enter does (MBR-36). The current page is drawn at the emphasized weight
-  and with no fill (MBR-38).
+  the browser's; Space follows the link as Enter does (MBR-36). The current page is drawn from the `selected`
+  condition — the fill and colors of the menu's selected row, at the label's own weight (MBR-38). While the bar holds
+  both menus and bar items, each menu's title ends in the icon set's `expand_more` (part `indicator`, MBR-47).
 - **Two orders, on purpose.** In the row the menu that is open is another entry's: it closes, with its `toggle`,
   before the bar item's `click` reaches you. Folded, the bar item is an item of the overflow item's menu: `click`
   first, while that menu is shown, then it closes. In both, focus rests where your handler put it (MBR-33, MBR-43).
@@ -6752,7 +6760,7 @@ the check) in every state. Everything else is Button's: the precedence, press-ho
 (the ripple is clipped to the segment's corners), ring or glow **drawn inside the segment** — a keyboard-focused segment
 is lifted above the set's outline, so nothing covers it — corner smoothing, and the state motion for colors, elevation
 and opacity. A selected segment whose label is drawn shows the icon set's `check` glyph (SEG-16: always in the selected
-family and fill, never mirrored — no mark of its own) in its leading position at `check.size`, in place of its icon,
+family and fill at `check.weight`, a control's own mark, never mirrored — no mark of its own) in its leading position at `check.size`, in place of its icon,
 fading in and out; until the icon set can draw it nothing is drawn in its place — never the word "check" — and the room
 SEG-14 measured is kept, so no width changes when the font arrives (SEG-25, `GlyphDrawnController`; it then appears
 without the selection motion); an icon-only segment keeps its icon, filled, and shows no check. The set

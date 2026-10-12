@@ -64,7 +64,7 @@
     },
     {
       "id": "group",
-      "description": "A run of related items (a group item), optionally under a title. The menu separates a group from what is next to it by a divider or by a gap, as its separation names, and a group of radio items is one set of choices.",
+      "description": "A run of related items (a group item), optionally under a title. The menu separates a group from what is next to it by a divider, or under gap by drawing it as a tile of its own, as its separation names, and a group of radio items is one set of choices.",
       "optional": true
     },
     {
@@ -74,7 +74,7 @@
     },
     {
       "id": "divider",
-      "description": "The hairline the menu draws between two groups while its separation is divider. Under gap there is none: empty space parts the groups.",
+      "description": "The hairline the menu draws between two groups while its separation is divider. Under gap there is none: each group is a tile of its own, and the space between the tiles parts them (MNU-36).",
       "optional": true
     },
     {
@@ -188,6 +188,12 @@
           "default": "",
           "description": "What assistive technology reads after the link item's name while target is new (\"opens in a new tab\"), as the Button's targetLabel: Tanrei ships no words of its own. Required while target is new; ignored otherwise.",
           "words": "targetLabel"
+        },
+        {
+          "name": "current",
+          "type": "boolean",
+          "default": false,
+          "description": "Marks a link item as the destination the person is at now (the current page): exposed as the current item and drawn with the fill of the row the person is on, comp.menu.selected.container.color, with no mark and no change of weight; it stays a link (MNU-58). The product sets it; the menu never does. Ignored without href."
         }
       ],
       "events": [
@@ -518,7 +524,7 @@
     },
     {
       "id": "MNU-24",
-      "text": "THE menu SHALL expose the menu role, named by its anchor; each item as a menu item, a link item included (MNU-53), each checkbox item as a menu item checkbox and each radio item as a menu item radio with its checked state, whatever its mark looks like, each with its position and the size of the surface it is in, named by label and described by supporting text, a link item that opens a new context also by its targetLabel (MNU-55); each submenu item as a menu item that opens a menu, with whether that menu is open (aria-haspopup with the value menu, and aria-expanded, on the web), described also by its trailing text, and each submenu's surface as a menu of its own named by its submenu item's label; shortcut SHALL be exposed as the item's keyboard shortcut in the form KBS-12 gives (aria-keyshortcuts on the web) where the platform has that property, and otherwise the text KBS-10 gives as the item's description; trailing text SHALL be exposed as the item's description only, never as a keyboard shortcut, whatever it holds; icons, the mark and the submenu indicator SHALL be hidden; each group SHALL be exposed as a group, named by its title where it has one. THE menu SHALL also expose on its anchor that it opens a menu and whether the menu is open, where the platform has that property."
+      "text": "THE menu SHALL expose the menu role, named by its anchor; each item as a menu item, a link item included (MNU-53), each checkbox item as a menu item checkbox and each radio item as a menu item radio with its checked state, whatever its mark looks like, each with its position and the size of the surface it is in, named by label and described by supporting text, a link item that opens a new context also by its targetLabel (MNU-55), and a link item that is current with the current state (MNU-58); each submenu item as a menu item that opens a menu, with whether that menu is open (aria-haspopup with the value menu, and aria-expanded, on the web), described also by its trailing text, and each submenu's surface as a menu of its own named by its submenu item's label; shortcut SHALL be exposed as the item's keyboard shortcut in the form KBS-12 gives (aria-keyshortcuts on the web) where the platform has that property, and otherwise the text KBS-10 gives as the item's description; trailing text SHALL be exposed as the item's description only, never as a keyboard shortcut, whatever it holds; icons, the mark and the submenu indicator SHALL be hidden; each group SHALL be exposed as a group, named by its title where it has one. THE menu SHALL also expose on its anchor that it opens a menu and whether the menu is open, where the platform has that property."
     },
     {
       "id": "MNU-25",
@@ -571,8 +577,8 @@
     },
     {
       "id": "MNU-36",
-      "text": "WHILE the menu's separation is gap (MNU-35) THE menu SHALL leave comp.menu.group.gap of empty space between a group and an adjacent group or an adjacent item outside any group, SHALL draw no line there and SHALL expose no separator, the groups staying exposed as groups (MNU-24); it SHALL leave no such space before the first or after the last element of the surface, and a group's title SHALL keep its own padding below that space (MNU-28).",
-      "verify": "Fixtures groups-gap and group-titles-gap: in the default system the last row of a group and the first row or the title of the next are 16 apart, with nothing drawn between them."
+      "text": "WHILE the menu's separation is gap (MNU-35) THE menu SHALL draw each group, and each run of adjacent items outside any group, as a tile of its own: a sheet of comp.menu.surface.color with the corners comp.menu.surface.shape eased by sys.shape.corner-smoothing and the elevation comp.menu.surface.elevation, its ring drawn inside the tile's edge, holding its rows inside comp.menu.surface.padding-block and comp.menu.surface.padding-inline as the surface holds them; it SHALL leave comp.menu.group.gap of empty space between two tiles, through which what is under the menu shows, and SHALL draw no sheet, edge or elevation of its own around the tiles. It SHALL draw no line between tiles and SHALL expose no separator, the groups staying exposed as groups (MNU-24) and a tile being nothing to assistive technology; it SHALL leave no space before the first or after the last tile, and a group's title SHALL keep its own padding inside its tile (MNU-28). The tiles of a menu taller than the room it has SHALL scroll together inside the menu's bounds (MNU-2), and every submenu SHALL draw its tiles the same way: the gap tells the parts of a menu apart by cutting its sheet, as the gap of a button group or of an accordion makes separate shapes, never by empty space on one sheet.",
+      "verify": "Fixtures groups-gap and group-titles-gap: in the default system each group is a rounded sheet of its own with the page showing between them, the last row of one group and the first row or the title of the next 24 apart (each tile's padding of 4 and the gap of 16), with no line between them. Fixtures groups-divider and groups keep one sheet."
     },
     {
       "id": "MNU-37",
@@ -676,6 +682,11 @@
       "id": "MNU-57",
       "text": "THE menu SHALL give a destination to the item kind alone. A checkbox item and a radio item hold a state and a submenu item opens another level, so none of them has href, target or targetLabel: a control that holds a state, or a second action, is not a destination; WHERE a platform lets one be written on them (an attribute of the web's element, a field of React Native's item object) THE menu SHALL ignore it, keep the item what it is, and in debug builds report it. WHEN a link item's target names a value the menu does not define THE menu SHALL treat it as same, and in debug builds report the unknown value. IF an item's href is only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE menu SHALL make the item an action without a destination, and in the last two cases report it in debug builds, as BTN-26 says for a button. WHILE an item's href is empty THE menu SHALL ignore its target and targetLabel.",
       "verify": "On the web: an href attribute on a checkbox item changes nothing about it — it stays a menu item checkbox, Space still switches it — and a debug build reports it once."
+    },
+    {
+      "id": "MNU-58",
+      "text": "WHILE a link item's current is true THE menu SHALL expose it as the current item of its set (on the web aria-current with the value page, on the item's link; on a platform without that state, the selected state) and SHALL draw its row from the selected condition: the fill of MNU-37, comp.menu.selected.container.color at rest, and that condition's colors for its label, supporting text, trailing text and icons, in every state; it SHALL draw no mark in the mark column, keep its label's own weight, and SHALL keep it a link item in every other respect (MNU-53 to MNU-56). The current destination is where the person is, not a choice the menu holds: it carries no check, and it is told from its neighbours by the fill the menu draws for the row the person is on, as a navigation drawer marks its current destination, while assistive technology is told by the state. WHERE the platform draws with a person's own forced colors, which remove the fill, THE menu SHALL draw a line of sys.border.thick inside the current item's row in the platform's link color. THE menu SHALL NOT set current itself on any activation: where the product is, is the product's to say. WHILE an item's href is empty THE menu SHALL ignore its current and in debug builds report it.",
+      "verify": "Fixture links-current: Components is filled as a checked row is (in the default system a layer of its label color at 16% over the sheet), has no mark and its label's regular weight; Guides and Patterns are drawn as in the fixture links. On the web its anchor carries aria-current=\"page\" and role menuitem, and the accessibility tree shows three menu items and no link."
     }
   ],
   "accessibility": {
@@ -2019,6 +2030,36 @@
       ]
     },
     {
+      "id": "links-current",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Guides",
+            "href": "/guides/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "href": "/components/",
+            "current": true
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Patterns",
+            "href": "/patterns/"
+          }
+        }
+      ]
+    },
+    {
       "id": "links-rtl",
       "props": {
         "open": true
@@ -2131,7 +2172,8 @@
             "disabled": "disabled",
             "href": "href",
             "target": "target",
-            "targetLabel": "targetLabel"
+            "targetLabel": "targetLabel",
+            "current": "current"
           },
           "events": {
             "click": "click"
@@ -2197,7 +2239,7 @@
           "notes": "The title is the `label` attribute, as `<optgroup label>`: a `title` attribute would also draw the browser's tooltip. The group sets its own `value` before firing `change`."
         }
       },
-      "notes": "`tanrei-menu` (open, placement, separation, and `anchor`: the id of the anchor element, as the HTML anchor attribute) holds `tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-submenu` and `tanrei-menu-group` children; item attributes are kebab-case (`supporting-text`, `leading-icon`, `trailing-icon`, `trailing-text`, `mark-icon`). `click`, `change` and `toggle` fire on the item or group and bubble, so one listener on the menu can take them all. The surface is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback where the browser has none; each submenu's surface is a popover of its own, placed against its `tanrei-submenu` the same way. The menu implements its own light dismiss so that it can emit `close` with a reason, and treats every surface of its tree as inside. A press outside also reaches the element under it. It sets `aria-haspopup=\"menu\"`, `aria-controls` and `aria-expanded` on the anchor element, and the same three on each submenu item's row. The `inline` attribute, for tests, draws the open surface in place, with each open submenu beside it (MNU-19). The mark is the `mark` part: the box or the ring of a control look, drawn by the menu's own styles from `--tanrei-comp-menu-control-*`, or the icon helper's glyph (MNU-22, MNU-38). The submenu indicator is the icon helper's `chevron_right` in the `submenu-indicator` part. A group's title is inset by `--tanrei-comp-menu-group-title-padding-inline` from the rows' edges (MNU-28). The link item is not built on this platform yet: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing."
+      "notes": "`tanrei-menu` (open, placement, separation, and `anchor`: the id of the anchor element, as the HTML anchor attribute) holds `tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-submenu` and `tanrei-menu-group` children; item attributes are kebab-case (`supporting-text`, `leading-icon`, `trailing-icon`, `trailing-text`, `mark-icon`). `click`, `change` and `toggle` fire on the item or group and bubble, so one listener on the menu can take them all. The surface is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback where the browser has none; each submenu's surface is a popover of its own, placed against its `tanrei-submenu` the same way. The menu implements its own light dismiss so that it can emit `close` with a reason, and treats every surface of its tree as inside. A press outside also reaches the element under it. It sets `aria-haspopup=\"menu\"`, `aria-controls` and `aria-expanded` on the anchor element, and the same three on each submenu item's row. The `inline` attribute, for tests, draws the open surface in place, with each open submenu beside it (MNU-19). The mark is the `mark` part: the box or the ring of a control look, drawn by the menu's own styles from `--tanrei-comp-menu-control-*`, or the icon helper's glyph (MNU-22, MNU-38). The submenu indicator is the icon helper's `chevron_right` in the `submenu-indicator` part. A group's title is inset by `--tanrei-comp-menu-group-title-padding-inline` from the rows' edges (MNU-28). The link item is not built on this platform yet: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. A link item's `current` writes `aria-current=\"page\"` on its anchor and draws the row from the selected condition (MNU-58). Under gap each group, and each run of items outside a group, is a `.tile` (part `tile`) of its own inside the scroll box; under divider the tiles are boxes with no look (MNU-36)."
     },
     "swiftui": {
       "status": "lagging",
@@ -2224,7 +2266,8 @@
             "disabled": "disabled",
             "href": "destination",
             "target": "target",
-            "targetLabel": "targetLabel"
+            "targetLabel": "targetLabel",
+            "current": "isCurrent"
           },
           "events": {
             "click": "action"
@@ -2292,7 +2335,7 @@
           "notes": "`TanreiMenuSection(_ title:) { … }` as `Section`; `TanreiMenuSection(_ title:, selection:) { TanreiMenuOption … }` for radio items, as an inline `Picker`. Writing the binding is change."
         }
       },
-      "notes": "A modifier on the anchor, `.tanreiMenu(isPresented:placement:) { … }`, as `.popover`, presented with `presentationCompactAdaptation(.popover)` so it stays a popover on iPhone; a press outside does not reach what is under it. The content builder takes the item views. `disabled` follows `.disabled(_:)`. Closing writes `false` to `isPresented`, which is close. SwiftUI's own `Menu` is not used: its items cannot be tokenised. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing."
+      "notes": "A modifier on the anchor, `.tanreiMenu(isPresented:placement:) { … }`, as `.popover`, presented with `presentationCompactAdaptation(.popover)` so it stays a popover on iPhone; a press outside does not reach what is under it. The content builder takes the item views. `disabled` follows `.disabled(_:)`. Closing writes `false` to `isPresented`, which is close. SwiftUI's own `Menu` is not used: its items cannot be tokenised. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet."
     },
     "compose": {
       "status": "lagging",
@@ -2319,7 +2362,8 @@
             "disabled": "enabled",
             "href": "href",
             "target": "target",
-            "targetLabel": "targetLabel"
+            "targetLabel": "targetLabel",
+            "current": "current"
           },
           "events": {
             "click": "onClick"
@@ -2385,7 +2429,7 @@
           "notes": "`TanreiMenuGroup(title, selectedValue, onSelectedValueChange) { TanreiRadioMenuItem(text, value) }`; the caller keeps `selectedValue`."
         }
       },
-      "notes": "Compose idiom, as `DropdownMenu`: `TanreiMenu(expanded, onDismissRequest, placement) { TanreiMenuItem(text, onClick, …); TanreiMenuGroup { … } }` inside the anchor's `Box`, shown in a `Popup`; the item composables are called in its content lambda. The caller closes it, so close is `onDismissRequest` and it carries the reason; the caller also keeps each checkbox item's `checked` (state hoisting). A press outside does not reach what is under it. `enabled` is the inverse flag. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing."
+      "notes": "Compose idiom, as `DropdownMenu`: `TanreiMenu(expanded, onDismissRequest, placement) { TanreiMenuItem(text, onClick, …); TanreiMenuGroup { … } }` inside the anchor's `Box`, shown in a `Popup`; the item composables are called in its content lambda. The caller closes it, so close is `onDismissRequest` and it carries the reason; the caller also keeps each checkbox item's `checked` (state hoisting). A press outside does not reach what is under it. `enabled` is the inverse flag. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet."
     },
     "flutter": {
       "status": "lagging",
@@ -2412,7 +2456,8 @@
             "disabled": "onPressed",
             "href": "href",
             "target": "target",
-            "targetLabel": "targetSemanticLabel"
+            "targetLabel": "targetSemanticLabel",
+            "current": "isCurrent"
           },
           "events": {
             "click": "onPressed"
@@ -2480,7 +2525,7 @@
           "notes": "`TanreiMenuGroup<T>(title:, groupValue:, onChanged:, children:)`, which is also the `RadioGroup` of its radio items."
         }
       },
-      "notes": "Flutter idiom, as `MenuAnchor`: `TanreiMenuAnchor(controller:, placement:, menuChildren: […], builder:)` shown in the `Overlay`; the item widgets go in `menuChildren`. `MenuController.open()` and `.close()` are open, `onClose` is close. A press outside also reaches what is under it (`consumeOutsideTap: false`). Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing."
+      "notes": "Flutter idiom, as `MenuAnchor`: `TanreiMenuAnchor(controller:, placement:, menuChildren: […], builder:)` shown in the `Overlay`; the item widgets go in `menuChildren`. `MenuController.open()` and `.close()` are open, `onClose` is close. A press outside also reaches what is under it (`consumeOutsideTap: false`). Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet."
     },
     "react-native": {
       "status": "lagging",
@@ -2507,7 +2552,8 @@
             "disabled": "disabled",
             "href": "href",
             "target": "target",
-            "targetLabel": "targetLabel"
+            "targetLabel": "targetLabel",
+            "current": "current"
           },
           "events": {
             "click": "onPress"
@@ -2573,7 +2619,7 @@
           "notes": "`{ kind: 'group', title?, value?, onValueChange?, items: (MenuItem | MenuCheckboxItem | MenuRadioItem)[] }`."
         }
       },
-      "notes": "`<Menu visible anchorRef placement onDismiss items={[…]}>`: `items` is an array whose element type is the union of the five kinds, told apart by a `kind` field (`'item'`, `'checkbox-item'`, `'radio-item'`, `'submenu'`, `'group'`). Presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the anchor (`measureInWindow`); Android's back button (`BackHandler`) is close. A press outside closes the menu and does not reach what is under it. Controlled: the caller sets `visible` to false from `onDismiss` and keeps each checkbox item's `checked` and each group's `value`. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing."
+      "notes": "`<Menu visible anchorRef placement onDismiss items={[…]}>`: `items` is an array whose element type is the union of the five kinds, told apart by a `kind` field (`'item'`, `'checkbox-item'`, `'radio-item'`, `'submenu'`, `'group'`). Presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the anchor (`measureInWindow`); Android's back button (`BackHandler`) is close. A press outside closes the menu and does not reach what is under it. Controlled: the caller sets `visible` to false from `onDismiss` and keeps each checkbox item's `checked` and each group's `value`. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet."
     }
   }
 }

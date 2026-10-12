@@ -56653,6 +56653,295 @@
             }
           }
         },
+        "selected": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "hovered",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.menubar.selected.container.color}",
+                    "with": "{tanrei.comp.menubar.selected.state-layer.color}",
+                    "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "focused",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.menubar.selected.container.color}",
+                    "with": "{tanrei.comp.menubar.selected.state-layer.color}",
+                    "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "pressed",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.menubar.selected.container.color}",
+                    "with": "{tanrei.comp.menubar.selected.state-layer.color}",
+                    "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            }
+          }
+        },
         "expanded": {
           "hovered": {
             "container": {

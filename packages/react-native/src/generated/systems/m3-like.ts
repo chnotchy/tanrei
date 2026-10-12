@@ -4105,6 +4105,7 @@ export const m3Like = {
     },
     chip: {
       avatarShape: 9999,
+      checkWeight: 400,
       containerShape: 8,
       disabledOpacity: 1,
       focusedOpacity: 1,
@@ -8458,6 +8459,7 @@ export const m3Like = {
       hoveredContainerShape: 8,
       hoveredOpacity: 1,
       iconSize: 24,
+      indicatorSize: 20,
       labelTypescale: "label",
       motionFeedbackDuration: 450,
       motionStateDuration: 150,
@@ -8466,6 +8468,65 @@ export const m3Like = {
       pressedOpacity: 1,
       conditions: {
         unselected: {
+          enabled: {
+            containerColor: { kind: "none" },
+            labelColor: { kind: "role", role: "onSurface" },
+            iconColor: { kind: "role", role: "onSurface" },
+            stateLayerColor: { kind: "role", role: "onSurface" },
+          },
+          hovered: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "onSurface" },
+              amount: 0.08,
+            },
+            labelColor: { kind: "role", role: "onSurface" },
+            iconColor: { kind: "role", role: "onSurface" },
+            stateLayerColor: { kind: "role", role: "onSurface" },
+          },
+          focused: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "onSurface" },
+              amount: 0.12,
+            },
+            labelColor: { kind: "role", role: "onSurface" },
+            iconColor: { kind: "role", role: "onSurface" },
+            stateLayerColor: { kind: "role", role: "onSurface" },
+          },
+          pressed: {
+            containerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "onSurface" },
+              amount: 0.12,
+            },
+            labelColor: { kind: "role", role: "onSurface" },
+            iconColor: { kind: "role", role: "onSurface" },
+            stateLayerColor: { kind: "role", role: "onSurface" },
+          },
+          disabled: {
+            containerColor: { kind: "none" },
+            labelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            iconColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            stateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+          },
+        },
+        selected: {
           enabled: {
             containerColor: { kind: "none" },
             labelColor: { kind: "role", role: "onSurface" },
@@ -10414,6 +10475,7 @@ export const m3Like = {
       },
     },
     segmentedButton: {
+      checkWeight: 400,
       containerShape: 0,
       disabledContainerShape: 0,
       disabledOpacity: 1,

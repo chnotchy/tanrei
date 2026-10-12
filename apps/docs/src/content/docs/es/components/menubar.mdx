@@ -2,7 +2,7 @@
 title: Barra de menús
 description: Mantiene a mano los comandos de una aplicación en una fila permanente de menús con nombre (Archivo, Editar, Ver…); cada uno abre un menú debajo de su título, y las teclas de flecha recorren la fila y entran en cada menú.
 translationOf: components/menubar.mdx
-sourceHash: 3ab69d94e5684b573c7036f3ba3643141c1dec5b
+sourceHash: 727005283bfc41b0656f8ab9ab5f3acd80cb9bc8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -176,7 +176,7 @@ Antes de usar un elemento de barra, lee cuándo no usar uno. Un elemento de barr
 - **No para nada que no se pueda deshacer.** Un elemento de barra no pregunta nada antes de ejecutarse y no tiene aspecto destructivo. Un comando que elimina o descarta va en un menú.
 - **No para una opción que se activa y se desactiva.** Un título no tiene sitio para una marca. Ponla en un menú de la misma barra, como elemento de casilla de verificación o de opción.
 - **No como toda la barra.** Una fila hecha solo de acciones es una [barra de herramientas](/es/components/toolbar/), y una fila hecha solo de enlaces es navegación. Cualquiera de las dos se dibuja y funciona, y las compilaciones de depuración la notifican.
-- **No con una palabra que oculte lo que hace.** Nada, salvo la etiqueta, distingue un elemento de barra de un título. Nombra una acción con un verbo, y un enlace con el lugar al que lleva.
+- **No con una palabra que oculte lo que hace.** En una barra que contiene ambos, el título de cada menú termina en un pequeño chevrón hacia abajo y un elemento de barra no tiene ninguno, pero la etiqueta sigue diciendo qué hace una pulsación. Nombra una acción con un verbo, y un enlace con el lugar al que lleva.
 
 Una acción es `<tanrei-menubar-item label="Ejecutar">`. Una pulsación, Enter o Espacio emiten su `click` una vez. Si hay un menú de la barra abierto, se cierra antes, de modo que tu controlador se ejecuta sin ningún menú a la vista. El foco se queda en el elemento de barra, salvo que tu controlador lo mueva.
 
@@ -185,7 +185,7 @@ Un elemento de enlace es el mismo elemento alrededor de tu propia ancla: `<tanre
 - `click` es el clic propio del ancla. Cancélalo con `preventDefault()` y no se sigue nada, que es todo lo que necesita un enrutador del lado del cliente. El componente de enlace propio de un enrutador funciona como hijo.
 - Un clic con una tecla modificadora, un clic con el botón central y el menú contextual del enlace son cosa del navegador, como en cualquier enlace. Espacio sigue un elemento de enlace igual que Enter, porque todas las demás entradas de la fila responden a Espacio.
 - `target="_blank"` dibuja el `open_in_new` del conjunto de iconos después de la etiqueta y añade `noopener`. Dilo con palabras mediante `target-label` en el elemento, o una sola vez para todo el producto con `setWords({ targetLabel: … })`.
-- `aria-current="page"` en el ancla marca la página en la que está la persona. Su etiqueta se dibuja con más peso y no recibe relleno: en una barra de menús no hay nada seleccionado. Lo defines tú; la barra nunca lo hace.
+- `aria-current="page"` en el ancla marca la página en la que está la persona. Se dibuja con el relleno que un menú dibuja para la fila en la que está la persona, con el propio peso de su etiqueta, para que la página actual se vea igual en la barra y en un menú. Nunca parece el título de un menú abierto. Lo defines tú; la barra nunca lo hace.
 - Un elemento de enlace deshabilitado es `disabled` en el elemento y un ancla sin `href`.
 
 <Tabs syncKey="platform">
@@ -327,7 +327,7 @@ La barra de un sistema de escritorio, fuera de la ventana, y la barra de una tab
 - Un menú abierto no es modal. El foco no queda retenido, nada queda inerte, y una pulsación fuera llega también a lo que hay debajo.
 - En un diseño de derecha a izquierda, los títulos corren desde la derecha, la fila se pliega por el extremo izquierdo, cada menú se abre con su borde derecho sobre el de su título, y Flecha izquierda es «siguiente». La etiqueta de un título conserva su propia dirección.
 - Con un texto más grande, cada título crece con su etiqueta y la fila pliega lo que ya no cabe. Con un ancho de 320 y el texto al 200%, se sigue llegando a todos los menús y nada se desplaza hacia los lados.
-- Con colores forzados, las etiquetas toman el color del texto de botón, el título abierto los colores de resaltado, y un título con el cursor encima una línea a su alrededor. Un elemento de enlace toma el color de enlace que la persona eligió, y una entrada deshabilitada el color del texto deshabilitado.
+- Con colores forzados, las etiquetas toman el color del texto de botón, el título abierto los colores de resaltado, y un título con el cursor encima una línea a su alrededor. Un elemento de enlace toma el color de enlace que la persona eligió, y una entrada deshabilitada el color del texto deshabilitado. El elemento de enlace actual, cuyo relleno eliminan los colores forzados, recibe una línea por dentro de su borde con el color de enlace.
 - Las compilaciones de depuración notifican una barra, un menú o un elemento de barra sin etiqueta, un menú sin elementos, cualquier cosa en la barra que no sea ni un menú ni un elemento de barra, una barra solo de elementos de barra, un elemento de enlace que abre una pestaña nueva sin decirlo y un elemento de desbordamiento sin nombre.
 
 ### Qué debes hacer tú

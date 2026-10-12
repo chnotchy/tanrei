@@ -10,6 +10,7 @@
           "dev.tanrei.states": {
             "variants": [
               "unselected",
+              "selected",
               "expanded"
             ],
             "states": [
@@ -30,10 +31,10 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a menubar draws of its own: the bar (its fill, paddings and the gap between titles), a title or a bar item (its height, padding, corners, text style, the size of the glyph an entry may draw — the overflow item's, a link item's new-context mark — and the gap between a label and that mark), the colors of a title in each condition (unselected, expanded = the title whose menu is open) and state, and the motion of a title's state change and press. The surfaces the titles open are Menus and read comp.menu.* — nothing here restyles them.",
+            "usage": "Everything a menubar draws of its own: the bar (its fill, paddings and the gap between titles), a title or a bar item (its height, padding, corners, text style, the size of the glyph an entry may draw — the overflow item's, a link item's new-context mark — and the gap between a label and that mark), the size of the indicator a menu's title ends in while the bar mixes menus with bar items, the colors of a title in each condition (unselected, selected = the current link item, expanded = the title whose menu is open) and state, and the motion of a title's state change and press. The surfaces the titles open are Menus and read comp.menu.* — nothing here restyles them.",
             "rules": [
               "A menubar holds menus and, beside them, a few bar items that act by themselves: an action that runs at once, or a link. It holds no field, no toggle and no checkbox or radio entry: a choice that is switched belongs in a menu. A row of bar items with no menu is not a menubar: actions alone are a toolbar, and a row of links to a site's pages is navigation.",
-              "A bar item is drawn from the unselected condition, exactly as a title: no token sets an action, a link item or the current link item apart. The current link item is told by its label's weight (sys.typescale.emphasis.label), never by a fill or a color of its own; a link item that opens a new context is told by the mark open_in_new, container.gap after its label, at icon.size in the condition's icon.color.",
+              "A bar item is drawn from the unselected condition, exactly as a title, except the current link item: it is drawn from the selected condition, whose colors alias the menu's selected row (comp.menu.selected.*), so that the place the person is on looks the same in the bar and in a menu. A link item that opens a new context is told by the mark open_in_new, container.gap after its label, at icon.size in the condition's icon.color. While the bar mixes menus with bar items, each menu's title ends in the indicator expand_more, container.gap after its label, at indicator.size.",
               "Use a menubar only for an application's commands, and only when there are enough of them to need several named menus. A short set of options belongs in one Menu opened from a button.",
               "Each condition's state-layer.color is the color hover, focus and press mix into a title's container; it aliases that condition's label color.",
               "The title of the open menu is drawn from the expanded condition. Never mark it by color alone in a way that could be read as a selection: nothing in a menubar is selected.",
@@ -114,7 +115,7 @@
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space50}",
-            "$description": "Distance between a bar item's label and the mark after it: the glyph open_in_new of a link item that opens a new context (MBR-37). 4 in the default system, so that the word and its mark read as one entry: the mark stands much nearer its own word than the next entry's, which is two paddings and bar.gap away."
+            "$description": "Distance between an entry's label and the glyph after it: the mark open_in_new of a link item that opens a new context (MBR-37), and the indicator expand_more of a menu's title while the bar mixes menus with bar items (MBR-32). 4 in the default system, so that the word and its mark read as one entry: the mark stands much nearer its own word than the next entry's, which is two paddings and bar.gap away."
           },
           "shape": {
             "$type": "dimension",
@@ -134,6 +135,19 @@
             "$type": "dimension",
             "$value": "{tanrei.sys.icon.medium}",
             "$description": "The glyph box of a glyph an entry draws: the overflow item's more_horiz, and the new-context mark open_in_new after a link item's label (MBR-37)."
+          }
+        },
+        "indicator": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.small}",
+            "$description": "The glyph box of the indicator expand_more that a menu's title ends in while the bar mixes menus with bar items (MBR-32), container.gap after the label. One step smaller than icon.size, as a disclosure glyph beside a word is: it marks the title, it is not a second word.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product mixes a few entries that act by themselves with its menus in one bar, and needs a person to see before pressing which entries open a menu; how large that mark is beside a title's word is its own call.",
+                "since": "0.1.0"
+              }
+            }
           }
         },
         "unselected": {
@@ -175,6 +189,41 @@
               "$type": "color",
               "$value": "{tanrei.comp.menubar.unselected.label.color}",
               "$description": "The color hover, focus and press mix into the title's container: the label's color."
+            }
+          }
+        },
+        "selected": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product puts a link to a page of its own in the bar beside its menus and needs the bar to say, when the person is on that page, that this is where they are, drawn as its menus draw the row the person is on, so that one place reads the same in the bar and in a menu.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.menu.selected.container.color}",
+              "$description": "The fill of the link item that names the page the person is on (MBR-38): the menu's selected row's fill, so that the current place is drawn the same in the bar and in a menu. A design system that sets the menu's sets this one with it."
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.menu.selected.label.color}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.menu.selected.leading-icon.color}",
+              "$description": "The new-context mark of a current link item, in the color of the selected row's glyphs."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.menubar.selected.label.color}",
+              "$description": "The color hover, focus and press mix into the current link item's container: the label's color."
             }
           }
         },

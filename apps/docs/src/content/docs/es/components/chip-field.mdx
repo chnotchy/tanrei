@@ -2,7 +2,7 @@
 title: Campo de chips
 description: Recoge una lista de textos cortos (direcciones de correo electrónico, números de teléfono, palabras clave) que se escriben uno tras otro en un solo campo. Cada texto que tu comprobación acepta se convierte en un chip que se puede quitar, o devolver a la parte donde se escribe para cambiarlo, y la lista es el único valor del campo.
 translationOf: components/chip-field.mdx
-sourceHash: 8a2a4fc47c38f0ca955bd6a42eb7db404d9675df
+sourceHash: 57a522628aedb8d06ff28bc67b67f0e5ab5b3ccd
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -154,7 +154,7 @@ Baja a ese nivel para una organización que el campo de chips no ofrezca, como e
 
 - **Los elementos son chips pequeños** en los dos tamaños de la caja. Un elemento largo ocupa una línea él solo y el chip lo corta; su texto entero sigue siendo su nombre y su valor.
 - **El marcador de posición** solo se muestra mientras la lista está vacía.
-- **De solo lectura**: se puede llegar a los elementos y leerlos, y se envían. No se puede crear ni quitar ninguno, ni devolverlo a la parte donde se escribe, y cada chip se dibuja sin su acción de quitar.
+- **De solo lectura**: se puede llegar a los elementos y leerlos, y se envían. No se puede crear ni quitar ninguno, ni devolverlo a la parte donde se escribe, y cada chip se dibuja sin su acción de quitar. El campo termina con su última línea de chips: no reserva espacio para escribir. Un campo deshabilitado conserva ese espacio, para que tenga la misma forma cuando se vuelva a habilitar.
 - **Deshabilitado**: el campo, la caja y todos los chips están deshabilitados, y no se envía nada.
 - **`maxEntries`** rechaza un elemento más, con `limitText`. Nada se deshabilita ni se marca de antemano: di el límite en `supportingText`.
 - **`type`** es `text`, `email`, `tel` o `url`. Cualquier otro tipo se comporta como `text`.

@@ -3240,6 +3240,7 @@ export const cupertino = {
     },
     chip: {
       avatarShape: 9999,
+      checkWeight: 300,
       containerShape: 9999,
       disabledOpacity: 1,
       focusedOpacity: 1,
@@ -6882,6 +6883,7 @@ export const cupertino = {
       hoveredContainerShape: 8,
       hoveredOpacity: 1,
       iconSize: 24,
+      indicatorSize: 20,
       labelTypescale: "label",
       motionFeedbackDuration: 450,
       motionStateDuration: 150,
@@ -6890,6 +6892,50 @@ export const cupertino = {
       pressedOpacity: 0.7,
       conditions: {
         unselected: {
+          enabled: {
+            containerColor: { kind: "none" },
+            labelColor: { kind: "role", role: "onSurface" },
+            iconColor: { kind: "role", role: "onSurface" },
+            stateLayerColor: { kind: "role", role: "onSurface" },
+          },
+          hovered: {
+            containerColor: { kind: "none" },
+            labelColor: { kind: "role", role: "onSurface" },
+            iconColor: { kind: "role", role: "onSurface" },
+            stateLayerColor: { kind: "role", role: "onSurface" },
+          },
+          focused: {
+            containerColor: { kind: "none" },
+            labelColor: { kind: "role", role: "onSurface" },
+            iconColor: { kind: "role", role: "onSurface" },
+            stateLayerColor: { kind: "role", role: "onSurface" },
+          },
+          pressed: {
+            containerColor: { kind: "none" },
+            labelColor: { kind: "role", role: "onSurface" },
+            iconColor: { kind: "role", role: "onSurface" },
+            stateLayerColor: { kind: "role", role: "onSurface" },
+          },
+          disabled: {
+            containerColor: { kind: "none" },
+            labelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            iconColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            stateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+          },
+        },
+        selected: {
           enabled: {
             containerColor: { kind: "none" },
             labelColor: { kind: "role", role: "onSurface" },
@@ -8469,6 +8515,7 @@ export const cupertino = {
       },
     },
     segmentedButton: {
+      checkWeight: 300,
       containerShape: 8,
       disabledContainerShape: 8,
       disabledOpacity: 1,

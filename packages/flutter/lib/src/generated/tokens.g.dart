@@ -7221,6 +7221,7 @@ class TanreiChipStateTokens {
 class TanreiChipTokens {
   const TanreiChipTokens({
     required this.avatarShape,
+    required this.checkWeight,
     required this.containerShape,
     required this.motionFeedbackDuration,
     required this.motionSelectionDuration,
@@ -7239,6 +7240,8 @@ class TanreiChipTokens {
 
   /// `comp.chip.avatar-shape`
   final double avatarShape;
+  /// `comp.chip.check-weight`
+  final double checkWeight;
   /// `comp.chip.container-shape`
   final double containerShape;
   /// `comp.chip.motion-feedback-duration`
@@ -7271,6 +7274,7 @@ class TanreiChipTokens {
   /// A copy with the given tokens replaced.
   TanreiChipTokens copyWith({
     double? avatarShape,
+    double? checkWeight,
     double? containerShape,
     int? motionFeedbackDuration,
     int? motionSelectionDuration,
@@ -7287,6 +7291,7 @@ class TanreiChipTokens {
     TanreiChipStateTokens? disabled,
   }) => TanreiChipTokens(
         avatarShape: avatarShape ?? this.avatarShape,
+        checkWeight: checkWeight ?? this.checkWeight,
         containerShape: containerShape ?? this.containerShape,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionSelectionDuration: motionSelectionDuration ?? this.motionSelectionDuration,
@@ -14684,10 +14689,11 @@ class TanreiMenuTokens {
 /// active system does not have renders as [unselected].
 extension type const TanreiMenubarCondition(String name) {
   static const unselected = TanreiMenubarCondition('unselected');
+  static const selected = TanreiMenubarCondition('selected');
   static const expanded = TanreiMenubarCondition('expanded');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiMenubarCondition> core = <TanreiMenubarCondition>[unselected, expanded];
+  static const List<TanreiMenubarCondition> core = <TanreiMenubarCondition>[unselected, selected, expanded];
 }
 
 /// What one condition of menubar looks like in one interaction state.
@@ -14772,12 +14778,15 @@ class TanreiMenubarConditionTokens {
 class TanreiMenubarConditions {
   const TanreiMenubarConditions({
     required this.unselected,
+    required this.selected,
     required this.expanded,
     this.extra = const <TanreiMenubarCondition, TanreiMenubarConditionTokens>{},
   });
 
   /// `comp.menubar` condition `unselected`
   final TanreiMenubarConditionTokens unselected;
+  /// `comp.menubar` condition `selected`
+  final TanreiMenubarConditionTokens selected;
   /// `comp.menubar` condition `expanded`
   final TanreiMenubarConditionTokens expanded;
 
@@ -14788,10 +14797,12 @@ class TanreiMenubarConditions {
   /// those with the same key): a copy never loses a value the design system added.
   TanreiMenubarConditions copyWith({
     TanreiMenubarConditionTokens? unselected,
+    TanreiMenubarConditionTokens? selected,
     TanreiMenubarConditionTokens? expanded,
     Map<TanreiMenubarCondition, TanreiMenubarConditionTokens>? extra,
   }) => TanreiMenubarConditions(
         unselected: unselected ?? this.unselected,
+        selected: selected ?? this.selected,
         expanded: expanded ?? this.expanded,
         extra: extra == null ? this.extra : <TanreiMenubarCondition, TanreiMenubarConditionTokens>{...this.extra, ...extra},
       );
@@ -14802,6 +14813,7 @@ class TanreiMenubarConditions {
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
   TanreiMenubarConditionTokens operator [](TanreiMenubarCondition condition) => switch (condition.name) {
         'unselected' => unselected,
+        'selected' => selected,
         'expanded' => expanded,
         _ => extra[condition] ?? _fallback(condition),
       };
@@ -14857,6 +14869,7 @@ class TanreiMenubarTokens {
     required this.containerPaddingInline,
     required this.containerShape,
     required this.iconSize,
+    required this.indicatorSize,
     required this.labelTypescale,
     required this.motionFeedbackDuration,
     required this.motionStateDuration,
@@ -14886,6 +14899,8 @@ class TanreiMenubarTokens {
   final double containerShape;
   /// `comp.menubar.icon-size`
   final double iconSize;
+  /// `comp.menubar.indicator-size`
+  final double indicatorSize;
   /// `comp.menubar.label-typescale`
   final TanreiTextStyle labelTypescale;
   /// `comp.menubar.motion-feedback-duration`
@@ -14916,6 +14931,7 @@ class TanreiMenubarTokens {
     double? containerPaddingInline,
     double? containerShape,
     double? iconSize,
+    double? indicatorSize,
     TanreiTextStyle? labelTypescale,
     int? motionFeedbackDuration,
     int? motionStateDuration,
@@ -14935,6 +14951,7 @@ class TanreiMenubarTokens {
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         containerShape: containerShape ?? this.containerShape,
         iconSize: iconSize ?? this.iconSize,
+        indicatorSize: indicatorSize ?? this.indicatorSize,
         labelTypescale: labelTypescale ?? this.labelTypescale,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
@@ -18722,6 +18739,7 @@ class TanreiSegmentedButtonStateTokens {
 @immutable
 class TanreiSegmentedButtonTokens {
   const TanreiSegmentedButtonTokens({
+    required this.checkWeight,
     required this.containerShape,
     required this.dividerColor,
     required this.dividerWidth,
@@ -18743,6 +18761,8 @@ class TanreiSegmentedButtonTokens {
     required this.disabled,
   });
 
+  /// `comp.segmented-button.check-weight`
+  final double checkWeight;
   /// `comp.segmented-button.container-shape`
   final double containerShape;
   /// `comp.segmented-button.divider-color`
@@ -18784,6 +18804,7 @@ class TanreiSegmentedButtonTokens {
 
   /// A copy with the given tokens replaced.
   TanreiSegmentedButtonTokens copyWith({
+    double? checkWeight,
     double? containerShape,
     TanreiPaint? dividerColor,
     double? dividerWidth,
@@ -18804,6 +18825,7 @@ class TanreiSegmentedButtonTokens {
     TanreiSegmentedButtonStateTokens? pressed,
     TanreiSegmentedButtonStateTokens? disabled,
   }) => TanreiSegmentedButtonTokens(
+        checkWeight: checkWeight ?? this.checkWeight,
         containerShape: containerShape ?? this.containerShape,
         dividerColor: dividerColor ?? this.dividerColor,
         dividerWidth: dividerWidth ?? this.dividerWidth,
@@ -22717,7 +22739,7 @@ class TanreiTabsTokens {
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
 /// `const TanreiTagGroupSpacing('…')`, or the typed constants generated next to a system that extends. A value the
-/// active system does not have renders as [tags].
+/// active system does not have renders as [chips].
 extension type const TanreiTagGroupSpacing(String name) {
   static const tags = TanreiTagGroupSpacing('tags');
   static const chips = TanreiTagGroupSpacing('chips');
@@ -22781,7 +22803,7 @@ class TanreiTagGroupSpacings {
 
   /// The tokens of [spacing].
   ///
-  /// A spacing this design system does not have resolves to [tags], the default; debug builds report it
+  /// A spacing this design system does not have resolves to [chips], the default; debug builds report it
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
   TanreiTagGroupSpacingTokens operator [](TanreiTagGroupSpacing spacing) => switch (spacing.name) {
         'tags' => tags,
@@ -22797,10 +22819,10 @@ class TanreiTagGroupSpacings {
 
   TanreiTagGroupSpacingTokens _fallback(TanreiTagGroupSpacing spacing) {
     assert(() {
-      debugTanreiReportUnknownValue('tag-group spacing', spacing.name, 'tags');
+      debugTanreiReportUnknownValue('tag-group spacing', spacing.name, 'chips');
       return true;
     }());
-    return tags;
+    return chips;
   }
 }
 

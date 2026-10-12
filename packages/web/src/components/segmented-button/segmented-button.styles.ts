@@ -339,9 +339,10 @@ export const segmentStyles = css`
   /* SEG-15, SEG-16: the icon at the size's icon size and the check at its check size, in the icon color of the
      condition and state; the icon in the family and fill of the segment's condition (selected: .container.selected),
      the check — the icon set's \`check\`, never mirrored — always in the selected ones. SEG-27: iconGlyph() mirrors the
-     icon GlyphMirrorController marked, in right-to-left, in its own box. */
+     icon GlyphMirrorController marked, in right-to-left, in its own box. The icon is drawn at sys.icon.weight, the check
+     — a control's own mark — at comp.segmented-button.check.weight. */
   ${iconGlyph('.icon', { size: '--_size-icon', selected: '.container.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
-  ${iconGlyph('.check', { size: '--_size-check', selected: '.glyphs', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.check', { size: '--_size-check', selected: '.glyphs', weight: `${PREFIX}-check-weight`, duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   .glyphs > * {
     grid-area: 1 / 1;
     color: var(--_i);

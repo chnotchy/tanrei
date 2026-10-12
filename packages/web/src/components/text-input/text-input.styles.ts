@@ -319,6 +319,17 @@ export const styles = css`
   .field[data-entries] .input {
     flex-basis: var(${unsafeCSS(OWN)}-entries-typing-min-width);
   }
+  /* TXI-64: read-only and holding no typed text, the typing part takes no room on a line and no line of its own — the
+     entries end the content, since nothing can be typed there. It is taken out of the lines, not out of the page: it
+     stays focusable and exposed. Disabled, it keeps its room, so the field keeps the shape it has when enabled. */
+  .field[data-entries][data-no-typing] .input {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 0;
+    min-inline-size: 0;
+    flex: none;
+  }
   ::slotted([slot='entries']) {
     flex: none;
     max-inline-size: 100%;

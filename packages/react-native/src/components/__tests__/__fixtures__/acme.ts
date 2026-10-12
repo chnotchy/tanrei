@@ -4168,6 +4168,7 @@ export const acme = {
     },
     chip: {
       avatarShape: 9999,
+      checkWeight: 400,
       containerShape: 9999,
       disabledOpacity: 1,
       focusedOpacity: 1,
@@ -8594,6 +8595,7 @@ export const acme = {
       hoveredContainerShape: 6,
       hoveredOpacity: 1,
       iconSize: 24,
+      indicatorSize: 20,
       labelTypescale: "label",
       motionFeedbackDuration: 450,
       motionStateDuration: 150,
@@ -8643,6 +8645,85 @@ export const acme = {
           },
           disabled: {
             containerColor: { kind: "none" },
+            labelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            iconColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            stateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+          },
+        },
+        selected: {
+          enabled: {
+            containerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.16,
+            },
+            labelColor: { kind: "role", role: "onSecondaryContainer" },
+            iconColor: { kind: "role", role: "onSecondaryContainer" },
+            stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+          },
+          hovered: {
+            containerColor: {
+              kind: "mix",
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
+              with: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.06,
+            },
+            labelColor: { kind: "role", role: "onSecondaryContainer" },
+            iconColor: { kind: "role", role: "onSecondaryContainer" },
+            stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+          },
+          focused: {
+            containerColor: {
+              kind: "mix",
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
+              with: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.12,
+            },
+            labelColor: { kind: "role", role: "onSecondaryContainer" },
+            iconColor: { kind: "role", role: "onSecondaryContainer" },
+            stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+          },
+          pressed: {
+            containerColor: {
+              kind: "mix",
+              base: {
+                kind: "alpha",
+                of: { kind: "role", role: "onSecondaryContainer" },
+                amount: 0.16,
+              },
+              with: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.2,
+            },
+            labelColor: { kind: "role", role: "onSecondaryContainer" },
+            iconColor: { kind: "role", role: "onSecondaryContainer" },
+            stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+          },
+          disabled: {
+            containerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.16,
+            },
             labelColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
@@ -10460,6 +10541,7 @@ export const acme = {
       },
     },
     segmentedButton: {
+      checkWeight: 400,
       containerShape: 0,
       disabledContainerShape: 0,
       disabledOpacity: 1,

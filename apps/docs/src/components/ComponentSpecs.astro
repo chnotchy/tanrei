@@ -179,7 +179,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
 <h3>{t.states}</h3>
 {/* The states are Tanrei's Tag group of small outlined tags (NameTag.astro): names, not controls. A space parts two
     tags for the search index. */}
-<tanrei-tag-group class="states docs-name-tags not-content" label={t.states}>
+<tanrei-tag-group class="states docs-name-tags not-content" spacing="tags" label={t.states}>
   {spec.states.map((state) => <><NameTag label={state} />{' '}</>)}
 </tanrei-tag-group>
 

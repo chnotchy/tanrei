@@ -2751,6 +2751,7 @@ private let acmeCheckboxTokens = TanreiCheckboxTokens(
 
 private let acmeChipTokens = TanreiChipTokens(
   avatarShape: 9999,
+  checkWeight: 400,
   containerShape: 9999,
   motionFeedbackDuration: 450,
   motionSelectionDuration: 150,
@@ -5682,6 +5683,7 @@ private let acmeMenubarTokens = TanreiMenubarTokens(
   containerPaddingInline: 12,
   containerShape: 6,
   iconSize: 24,
+  indicatorSize: 20,
   labelTypescale: acmeTypescale.label,
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
@@ -5714,6 +5716,38 @@ private let acmeMenubarTokens = TanreiMenubarTokens(
       ),
       disabled: TanreiMenubarConditionStateTokens(
         containerColor: .none,
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    selected: TanreiMenubarConditionTokens(
+      enabled: TanreiMenubarConditionStateTokens(
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      hovered: TanreiMenubarConditionStateTokens(
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.06),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      focused: TanreiMenubarConditionStateTokens(
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.12),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      pressed: TanreiMenubarConditionStateTokens(
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.2),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      disabled: TanreiMenubarConditionStateTokens(
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
@@ -7019,6 +7053,7 @@ private let acmeSearchTokens = TanreiSearchTokens(
 )
 
 private let acmeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
+  checkWeight: 400,
   containerShape: 0,
   dividerColor: .role(.outline),
   dividerWidth: 1,

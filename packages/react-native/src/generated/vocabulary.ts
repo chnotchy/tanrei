@@ -1542,6 +1542,7 @@ export type TanreiChipVariants = { readonly [Key in TanreiCoreChipVariant]: Tanr
  */
 export interface TanreiChipTokens {
   readonly avatarShape: number;
+  readonly checkWeight: number;
   readonly containerShape: number;
   readonly disabledOpacity: number;
   readonly focusedOpacity: number;
@@ -3139,10 +3140,11 @@ export interface TanreiMenuTokens {
  */
 export interface TanreiMenubarConditionRegistry {
   unselected: true;
+  selected: true;
   expanded: true;
 }
 export type TanreiMenubarCondition = keyof TanreiMenubarConditionRegistry;
-export type TanreiCoreMenubarCondition = "unselected" | "expanded";
+export type TanreiCoreMenubarCondition = "unselected" | "selected" | "expanded";
 
 /** What one `condition` of `comp.menubar` is drawn from in ONE interaction state. */
 export interface TanreiMenubarConditionStateTokens {
@@ -3182,6 +3184,7 @@ export interface TanreiMenubarTokens {
   readonly hoveredContainerShape: number;
   readonly hoveredOpacity: number;
   readonly iconSize: number;
+  readonly indicatorSize: number;
   readonly labelTypescale: TanreiTypescaleRole;
   readonly motionFeedbackDuration: number;
   readonly motionStateDuration: number;
@@ -3981,6 +3984,7 @@ export type TanreiSegmentedButtonConditions = { readonly [Key in TanreiCoreSegme
  * `<state><Part>`), then one holder per axis (`sizes`, `conditions`), keyed by the axis value.
  */
 export interface TanreiSegmentedButtonTokens {
+  readonly checkWeight: number;
   readonly containerShape: number;
   readonly disabledContainerShape: number;
   readonly disabledOpacity: number;
@@ -4814,7 +4818,7 @@ export interface TanreiTabsTokens {
 /**
  * Every value of `comp.tag-group`'s `spacing` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
- * does not have falls back to `tags` (with a dev-only warning).
+ * does not have falls back to `chips` (with a dev-only warning).
  */
 export interface TanreiTagGroupSpacingRegistry {
   tags: true;

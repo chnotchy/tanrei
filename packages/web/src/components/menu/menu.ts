@@ -232,10 +232,11 @@ export interface TanreiMenuBarChannel {
 }
 
 /**
- * The blocks of a surface (the menu's, a submenu's), each in a slot of its own, and between a group and what is next to
- * it the two forms of the separation: the divider (MNU-23), a separator, and the gap (MNU-36), empty space that is
- * nothing to assistive technology. The surface's styles draw the one its separation names (MNU-35), so a change of the
- * attribute or of the token is followed without a render.
+ * The blocks of a surface (the menu's, a submenu's), each in a slot of its own, held in tiles — a group, or a run of
+ * adjacent items outside any group — and between two tiles the two forms of the separation: the divider (MNU-23), a
+ * separator, and the gap (MNU-36), empty space that is nothing to assistive technology. Under divider a tile is a box
+ * with no look; under gap it is a sheet of its own. The surface's styles draw the form its separation names (MNU-35),
+ * so a change of the attribute or of the token is followed without a render.
  */
 function blocksTemplate(blocks: readonly Element[]) {
   // A forwarding slot is drawn as what is assigned to it: a group at its start or end is a group there.
@@ -243,11 +244,14 @@ function blocksTemplate(blocks: readonly Element[]) {
     const elements = element ? resolved(element) : [];
     return (edge === 'first' ? elements[0] : elements.at(-1)) instanceof TanreiMenuGroup;
   };
-  return blocks.map(
-    (block, i) =>
-      html`${i > 0 && (group(blocks[i - 1], 'last') || group(block, 'first'))
-        ? html`<div part="divider" class="divider" role="separator"></div><div class="gap"></div>`
-        : nothing}<slot></slot>`,
+  const tiles: number[] = [];
+  blocks.forEach((block, i) => {
+    if (i === 0 || group(blocks[i - 1], 'last') || group(block, 'first')) tiles.push(1);
+    else tiles[tiles.length - 1] += 1;
+  });
+  return tiles.map(
+    (count, i) =>
+      html`${i > 0 ? html`<div part="divider" class="divider" role="separator"></div><div class="gap"></div>` : nothing}<div part="tile" class="tile" data-tanrei-shape>${Array.from({ length: count }, () => html`<slot></slot>`)}</div>`,
   );
 }
 
@@ -362,6 +366,11 @@ export abstract class TanreiMenuRowBase extends LitElement {
   /** MNU-24: what the kind adds to the host's semantics. */
   protected kindAria(): Record<string, string | null> {
     return {};
+  }
+
+  /** MNU-58: whether the row is a link item that names the destination the person is at (drawn from the selected condition, with no mark). */
+  protected get currentRow(): boolean {
+    return false;
   }
 
   /** MNU-53: the link the item is now — its row is then an anchor that carries its semantics and takes its focus. Null for every kind but an item with a destination. */
@@ -677,6 +686,7 @@ export abstract class TanreiMenuRowBase extends LitElement {
           destructive: condition === 'destructive',
           expanded: condition === 'expanded',
           checked: this.isChecked,
+          current: this.currentRow,
         })}
         data-tanrei-shape
         @pointerdown=${this.press.onPointerDown}
@@ -794,16 +804,16 @@ export class TanreiMenuItem extends TanreiMenuItemBase {
     targetLabel: { type: String, attribute: 'target-label' },
     rel: { type: String },
     download: { type: String },
-    barCurrent: { state: true },
+    current: { type: Boolean, reflect: true },
   };
 
   /**
-   * MBR-43: what a menubar tells the row a folded bar item draws of itself — its link item names the page the person
-   * is on, so the row's anchor says so (`aria-current="page"`); the weight is the bar item's to draw. Internal between
-   * Tanrei elements and no prop of the item.
-   * @internal
+   * Marks a link item as the destination the person is at now (MNU-58): its anchor says `aria-current="page"` and its
+   * row is drawn from the selected condition — the fill of the row the person is on — with no mark and no change of
+   * weight. You set it; the menu never does. Ignored without `href`, and reported. A menubar sets it on the row a folded
+   * current link item draws of itself (MBR-43).
    */
-  barCurrent = false;
+  current = false;
 
   /** Marks an action that deletes or discards something; it is drawn in the destructive condition (the error color). */
   destructive = false;
@@ -841,13 +851,27 @@ export class TanreiMenuItem extends TanreiMenuItemBase {
 
   protected readonly itemRole = 'menuitem';
 
-  /** MBR-43: the current page is said where the link is — on the anchor, which carries a link item's semantics (MNU-53). */
+  /** MNU-58: the current page is said where the link is — on the anchor, which carries a link item's semantics (MNU-53). */
   protected override kindAria(): Record<string, string | null> {
-    return { 'aria-current': this.barCurrent && this.isLink ? 'page' : null };
+    return { 'aria-current': this.currentRow ? 'page' : null };
   }
 
+  protected override get currentRow(): boolean {
+    return this.current && this.isLink;
+  }
+
+  /** MNU-58: a current link item is drawn from the selected condition — the fill of the row the person is on, and its colors. */
   protected override get condition(): Condition {
+    if (this.currentRow) return 'selected';
     return this.destructive ? 'destructive' : 'unselected';
+  }
+
+  protected override updated(changed: PropertyValues<this>) {
+    super.updated(changed);
+    // MNU-58: current names a destination; without one it is ignored, and a debug build says so.
+    if ((changed.has('current') || changed.has('href')) && this.current && !this.isLink) {
+      report(this, 'MNU-58', 'current is set on an item with no destination; it is ignored — current marks the link item of the page the person is on');
+    }
   }
 }
 
@@ -986,6 +1010,7 @@ let opened = 0;
  * @csspart surface - The submenu's floating sheet, drawn from the menu's surface tokens.
  * @csspart scroll - The padded box inside the surface that scrolls the items.
  * @csspart divider - A line between a group and what is next to it, while the menu's separation is divider.
+ * @csspart tile - A group, or a run of items outside any group: a sheet of its own while the separation is gap (MNU-36), a box with no look while it is divider.
  * @fires {CustomEvent<TanreiSubmenuToggleDetail>} toggle - The person opened or closed the submenu: `detail.open` (and the element's `open`) is the new value. It bubbles. A change the product makes, and the whole menu closing, fire none.
  */
 export class TanreiSubmenu extends TanreiMenuRowBase {
@@ -1267,6 +1292,7 @@ type FocusReturn = 'key' | 'pointer' | 'stay';
  * @csspart surface - The floating sheet: its color, corners, elevation and width.
  * @csspart scroll - The padded box inside the surface that scrolls the items.
  * @csspart divider - A line between a group and what is next to it, while the separation is divider.
+ * @csspart tile - A group, or a run of items outside any group: a sheet of its own while the separation is gap (MNU-36), a box with no look while it is divider.
  * @fires {CustomEvent<TanreiMenuCloseDetail>} close - The menu asks to be closed, every open submenu with it: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
  */
 export class TanreiMenu extends LitElement {

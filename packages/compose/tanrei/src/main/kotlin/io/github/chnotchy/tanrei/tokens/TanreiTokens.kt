@@ -3146,6 +3146,7 @@ public data class TanreiChipStateTokens(
 @Immutable
 public data class TanreiChipTokens(
     public val avatarShape: Dp,
+    public val checkWeight: Float,
     public val containerShape: Dp,
     public val motionFeedbackDuration: Int,
     public val motionSelectionDuration: Int,
@@ -6368,6 +6369,7 @@ public value class TanreiMenubarCondition(public val key: String) {
 
     public companion object {
         public val Unselected: TanreiMenubarCondition = TanreiMenubarCondition("unselected")
+        public val Selected: TanreiMenubarCondition = TanreiMenubarCondition("selected")
         public val Expanded: TanreiMenubarCondition = TanreiMenubarCondition("expanded")
     }
 }
@@ -6414,18 +6416,20 @@ public data class TanreiMenubarConditionTokens(
 @Immutable
 public data class TanreiMenubarConditions(
     public val unselected: TanreiMenubarConditionTokens,
+    public val selected: TanreiMenubarConditionTokens,
     public val expanded: TanreiMenubarConditionTokens,
     /** Values a design system added to the vocabulary, by key. */
     public val extra: Map<TanreiMenubarCondition, TanreiMenubarConditionTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiMenubarCondition> get() = linkedSetOf(TanreiMenubarCondition.Unselected, TanreiMenubarCondition.Expanded) + extra.keys
+    public val keys: Set<TanreiMenubarCondition> get() = linkedSetOf(TanreiMenubarCondition.Unselected, TanreiMenubarCondition.Selected, TanreiMenubarCondition.Expanded) + extra.keys
 
     public operator fun contains(key: TanreiMenubarCondition): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
     public fun find(key: TanreiMenubarCondition): TanreiMenubarConditionTokens? = when (key) {
         TanreiMenubarCondition.Unselected -> unselected
+        TanreiMenubarCondition.Selected -> selected
         TanreiMenubarCondition.Expanded -> expanded
         else -> extra[key]
     }
@@ -6435,6 +6439,7 @@ public data class TanreiMenubarConditions(
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(unselected.referencedRoles())
+        addAll(selected.referencedRoles())
         addAll(expanded.referencedRoles())
         extra.values.forEach { addAll(it.referencedRoles()) }
     }
@@ -6459,6 +6464,7 @@ public data class TanreiMenubarTokens(
     public val containerPaddingInline: Dp,
     public val containerShape: Dp,
     public val iconSize: Dp,
+    public val indicatorSize: Dp,
     public val labelTypescale: TanreiTextStyle,
     public val motionFeedbackDuration: Int,
     public val motionStateDuration: Int,
@@ -8083,6 +8089,7 @@ public data class TanreiSegmentedButtonStateTokens(
 /** `comp.segmented-button`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `conditions[condition]`). */
 @Immutable
 public data class TanreiSegmentedButtonTokens(
+    public val checkWeight: Float,
     public val containerShape: Dp,
     public val dividerColor: TanreiPaint,
     public val dividerWidth: Dp,
@@ -9767,7 +9774,7 @@ public data class TanreiTabsTokens(
 /**
  * A spacing of tag-group: the key of one entry of [TanreiTagGroupSpacings]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Tags].
+ * A key the current system does not have draws as [Chips].
  */
 @JvmInline
 public value class TanreiTagGroupSpacing(public val key: String) {
@@ -9808,8 +9815,8 @@ public data class TanreiTagGroupSpacings(
         else -> extra[key]
     }
 
-    /** TOTAL: a key this system does not have reads the default value, [tags]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiTagGroupSpacing): TanreiTagGroupSpacingTokens = find(key) ?: tags
+    /** TOTAL: a key this system does not have reads the default value, [chips]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiTagGroupSpacing): TanreiTagGroupSpacingTokens = find(key) ?: chips
 }
 
 /** `comp.tag-group`. Members are flat tokens, then per-state tokens, then one holder per axis (`spacings[spacing]`). */

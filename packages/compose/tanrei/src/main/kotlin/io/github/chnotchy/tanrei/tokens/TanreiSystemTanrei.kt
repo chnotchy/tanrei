@@ -2619,6 +2619,7 @@ private object TanreiSystemSource {
     fun chip(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiChipTokens =
         TanreiChipTokens(
             avatarShape = 9999.dp,
+            checkWeight = 500f,
             containerShape = 9999.dp,
             motionFeedbackDuration = 450,
             motionSelectionDuration = 150,
@@ -5299,6 +5300,7 @@ private object TanreiSystemSource {
             containerPaddingInline = 12.dp,
             containerShape = 6.dp,
             iconSize = 24.dp,
+            indicatorSize = 20.dp,
             labelTypescale = typescale.label,
             motionFeedbackDuration = 450,
             motionStateDuration = 150,
@@ -5335,6 +5337,38 @@ private object TanreiSystemSource {
                     ),
                     disabled = TanreiMenubarConditionStateTokens(
                         containerColor = TanreiPaint.None,
+                        labelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        iconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                        stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
+                    ),
+                ),
+                selected = TanreiMenubarConditionTokens(
+                    enabled = TanreiMenubarConditionStateTokens(
+                        containerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f),
+                        labelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        iconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                    ),
+                    hovered = TanreiMenubarConditionStateTokens(
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
+                        labelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        iconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                    ),
+                    focused = TanreiMenubarConditionStateTokens(
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
+                        labelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        iconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                    ),
+                    pressed = TanreiMenubarConditionStateTokens(
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
+                        labelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        iconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                        stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+                    ),
+                    disabled = TanreiMenubarConditionStateTokens(
+                        containerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f),
                         labelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         iconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
@@ -6544,6 +6578,7 @@ private object TanreiSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun segmentedButton(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSegmentedButtonTokens =
         TanreiSegmentedButtonTokens(
+            checkWeight = 500f,
             containerShape = 0.dp,
             dividerColor = TanreiPaint.Role(TanreiColorRole.Outline),
             dividerWidth = 1.dp,
