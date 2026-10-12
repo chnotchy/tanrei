@@ -1116,8 +1116,11 @@ test.describe('the collapsed form', () => {
       return { fontFamily, fontSize, fontWeight, color };
     }, '--tanrei-comp-navigation-drawer-header-typescale');
     for (const id of ['#title', '#t-title']) {
-      const { fontFamily, fontSize, fontWeight, color } = await page.locator(id).evaluate((el) => getComputedStyle(el));
-      expect({ fontFamily, fontSize, fontWeight, color }, id).toEqual(style);
+      const drawn = await page.locator(id).evaluate((el) => {
+        const { fontFamily, fontSize, fontWeight, color } = getComputedStyle(el);
+        return { fontFamily, fontSize, fontWeight, color };
+      });
+      expect(drawn, id).toEqual(style);
     }
     await page.locator('#t-title').evaluate((el) => (el.style.fontSize = '30px'));
     expect(await css(page.locator('#t-title'), 'font-size')).toBe('30px');
