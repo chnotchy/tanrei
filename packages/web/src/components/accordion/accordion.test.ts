@@ -379,7 +379,7 @@ test.describe('open and closed, the looks, the separation', () => {
     expect(await name.evaluate((el) => el.isConnected)).toBe(true);
   });
 
-  test('ACC-8: the content is under its header, inset at both ends by the header’s inline padding, with no space above it and content.padding-block-end below; it takes its text style and color from where the accordion stands, and a header’s hover changes nothing about it', async ({ page }) => {
+  test('ACC-8: the content is under its header, inset at both ends by the header’s inline padding, with no space above it and content.padding-block-end below; it takes its text style and color from where the accordion stands, and a hover of its open item draws the hovered container under it and changes nothing else', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: some('plain', 'compact', 'outlined') });
     for (const [id, density] of [
       ['plain', 'regular'],
@@ -411,10 +411,15 @@ test.describe('open and closed, the looks, the separation', () => {
       }),
     );
     expect(contentStyle[0]).not.toBe(await css(header(page, 'plain', 1), 'font-size'));
+    // Hovered, the open item is one target (ACC-36): the hovered container is drawn under the whole item, and the
+    // content keeps its box, its text style and its color.
     const before = await contentBox(item(page, 'plain', 1));
+    expect(await css(item(page, 'plain', 1), 'background-color')).toMatch(CLEAR);
     await header(page, 'plain', 1).hover();
     expect(await contentBox(item(page, 'plain', 1))).toEqual(before);
-    expect(await css(item(page, 'plain', 1), 'background-color')).toMatch(CLEAR);
+    const hovered = await resolveColor(page, T('plain-hovered-container-color'));
+    await expect.poll(() => css(item(page, 'plain', 1), 'background-color')).toBe(hovered);
+    expect(await item(page, 'plain', 1).evaluate((el) => [getComputedStyle(el).fontSize, getComputedStyle(el).color])).toEqual([contentStyle[0], contentStyle[2]]);
   });
 
   test('ACC-9: plain draws no edge and no fill; outlined draws one edge of outline.width in outline.color with the corners of outline.shape, inside the size of what it bounds and moving nothing, and clips to it; the variant changes the edge and the colors and nothing else', async ({ page }) => {
@@ -855,7 +860,7 @@ test.describe('opening and closing', () => {
     expect(await page.evaluate(() => 'onbeforematch' in window)).toBe(true);
   });
 
-  test('ACC-36: a click on an open item’s content — its text, or the space under its last line — closes it with one toggle, as its header does, and exclusive closes nothing else; a link, a button, a field, a label, a tab index, a widget role and a pointer-cursor box keep their press, and a click the product cancels closes nothing; a text selection, a drag past the slop, a modifier key, another button, a second click and a script’s click() close nothing, a press moved within the slop does; a nested item’s content closes that item only and a nested header toggles its own; a disabled item stays open; the content gets no role, no tab index and no cursor, and the keys on the header are as they were', async ({ page }) => {
+  test('ACC-36: a click on an open item’s content — its text, or the space under its last line — closes it with one toggle, as its header does, and exclusive closes nothing else; a link, a button, a field, a label, a tab index, a widget role and a pointer-cursor box keep their press, and a click the product cancels closes nothing; a text selection, a drag past the slop, a modifier key, another button, a second click and a script’s click() close nothing, a press moved within the slop does; a nested item’s content closes that item only and a nested header toggles its own; a disabled item stays open; the open item is one target — hovered, pressed and focused as a whole, with the pointer cursor wherever a press closes it and a control’s own cursor and no state of the item’s over the control — and the content gets no role and no tab index, and the keys on the header are as they were', async ({ page }) => {
     const own = raw(
       'content',
       { exclusive: true },
@@ -866,7 +871,7 @@ test.describe('opening and closing', () => {
         `<p id="last">The last line.</p></details><details id="n"><summary>Next</summary>Next content.</details>`,
     );
     const off = raw('content-disabled', {}, `<details id="d" open><summary aria-disabled="true" tabindex="-1">Disabled</summary><p id="dtext">Disabled content.</p></details>`);
-    await mountFixtures(page, spec, { icons: true, fixtures: [own, off] });
+    await mountFixtures(page, spec, { icons: true, fixtures: [own, off], system: 'acme', systemCss: await acmeSystemCss() });
     for (const id of ['link', 'cancelled']) await page.locator(`#${id}`).evaluate((el) => el.addEventListener('click', (event) => event.preventDefault()));
     const attributes = () => page.locator('#o').evaluate((el) => [...el.querySelectorAll(':scope > :not(summary), :scope > :not(summary) *')].map((node) => [...node.attributes].map((a) => a.name).filter((name) => name !== 'open').join(' ')).join('|'));
     const before = await attributes();
@@ -977,10 +982,70 @@ test.describe('opening and closing', () => {
     expect(await toggles(page)).toEqual([]);
     expect(await isOpen('d')).toBe(true);
 
-    // No role, no tab index, no cursor, no attribute at all; the header is the one button and its keys are unchanged.
-    expect(await attributes()).toBe(before);
+    // One target, as a whole card is: under a fine pointer the open item is hovered as a whole — header and content —
+    // with the pointer cursor, wherever a press would close it; over what takes a press itself, that thing's own cursor
+    // and no state of the item's; a press paints the pressed state on the whole item; keyboard focus rings the item.
+    await page.addStyleTag({ content: `${TAG} > details { --_acc-item-time: 0s !important; } ${TAG} > details > summary { transition: none !important; }` });
+    const o = page.locator('#o');
+    const oHeader = page.locator('#o > summary');
+    const states = {
+      hovered: await resolveColor(page, T('plain-hovered-container-color')),
+      focused: await resolveColor(page, T('plain-focused-container-color')),
+      pressed: await resolveColor(page, T('plain-pressed-container-color')),
+    };
+    expect(new Set(Object.values(states)).size).toBe(3);
+    await page.mouse.move(0, 0);
+    expect(await css(o, 'background-color')).toMatch(CLEAR);
     expect(await css(page.locator('#text'), 'cursor')).toBe('auto');
-    expect(await css(page.locator('#o'), 'cursor')).toBe('auto');
+    await page.locator('#text').hover();
+    expect(await o.getAttribute('data-tanrei-hit')).toBe('');
+    expect(await css(page.locator('#text'), 'cursor')).toBe('pointer');
+    expect(await css(o, 'background-color')).toBe(states.hovered);
+    expect(await css(oHeader, 'background-color')).toMatch(CLEAR);
+    expect(await css(oHeader, 'color')).toBe(await resolveColor(page, T('plain-hovered-label-color')));
+    await oHeader.hover();
+    expect(await css(o, 'background-color')).toBe(states.hovered);
+    // The space under the last line is the item's too.
+    const whole = await edges(o);
+    await page.mouse.move(whole.left + 2, whole.bottom - 2);
+    expect(await o.getAttribute('data-tanrei-hit')).toBe('');
+    expect(await css(o, 'background-color')).toBe(states.hovered);
+    for (const [id, own] of [
+      ['field', 'auto'],
+      ['link', 'pointer'],
+      ['btn', 'default'],
+    ] as const) {
+      await page.locator(`#${id}`).hover();
+      expect(await o.getAttribute('data-tanrei-hit')).toBeNull();
+      expect([own, 'auto', 'text', 'default']).toContain(await css(page.locator(`#${id}`), 'cursor'));
+      if (id !== 'link') expect(await css(page.locator(`#${id}`), 'cursor')).not.toBe('pointer');
+      expect(await css(o, 'background-color')).toMatch(CLEAR);
+    }
+    await page.locator('#itext').hover();
+    expect(await o.getAttribute('data-tanrei-hit')).toBeNull();
+    expect(await page.locator('#i1').getAttribute('data-tanrei-hit')).toBe('');
+    // A press on the content: the pressed state at once on the whole item; past the slop it lets go and closes nothing.
+    const line = await edges(page.locator('#last'));
+    await page.mouse.move(line.left + 4, line.top + line.height / 2);
+    await page.mouse.down();
+    await expect(oHeader).toHaveAttribute('data-pressed', 'overlay');
+    expect(await css(o, 'background-color')).toBe(states.pressed);
+    await page.mouse.move(line.left + 4, line.top + line.height / 2 + 30, { steps: 4 });
+    await page.mouse.up();
+    await unchanged();
+    await expect.poll(() => oHeader.getAttribute('data-pressed')).toBeNull();
+    await page.evaluate(() => getSelection()!.removeAllRanges());
+    // Keyboard focus: the focused container and the ring on the whole item, the header's own outline none.
+    await page.mouse.move(0, 0);
+    await page.locator('#link').focus();
+    await tab(page, { back: true });
+    expect(await page.evaluate(() => document.activeElement === document.querySelector('#o > summary'))).toBe(true);
+    expect(await css(o, 'outline-style')).toBe('solid');
+    expect(await css(oHeader, 'outline-style')).toBe('none');
+    expect(await css(o, 'background-color')).toBe(states.focused);
+
+    // No role, no tab index, no attribute at all in the content; the header is the one button and its keys are unchanged.
+    expect(await attributes()).toBe(before);
     await page.locator('#o > summary').focus();
     await tab(page);
     expect(await page.evaluate(() => document.activeElement?.id)).toBe('link');
@@ -996,7 +1061,7 @@ test.describe('opening and closing', () => {
 });
 
 test.describe('states', () => {
-  test('ACC-17: under the acme system a hovered, a focused and a pressed header are drawn from their own tokens, pressed over focused over hovered, on the whole row; focus by a pointer is not the focused state; the content, the edge and the lines do not change', async ({ page }) => {
+  test('ACC-17: under the acme system a hovered, a focused and a pressed header are drawn from their own tokens, pressed over focused over hovered, on the whole row; focus by a pointer is not the focused state; the edge and the lines do not change (an open item is drawn as a whole: ACC-36)', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: some('outlined'), system: 'acme', systemCss: await acmeSystemCss() });
     const summary = header(page, 'outlined', 2);
     const fill = () => css(summary, 'background-color');
@@ -1026,24 +1091,43 @@ test.describe('states', () => {
     expect(await css(header(page, 'outlined', 3), 'background-color')).toMatch(CLEAR);
   });
 
-  test('ACC-18: a header focused by the keyboard shows the focus ring inside its row, following container.shape, without animation; focus by a pointer shows none', async ({ page }) => {
+  test('ACC-18: a header focused by the keyboard shows the focus ring inside its row while its item is closed, and around the whole item, inside its edge and following its corners, while it is open; without animation; focus by a pointer shows none', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: some('outlined', 'plain') });
-    const summary = header(page, 'outlined', 1);
-    await tabTo(page, summary);
     const outer = await resolveToken(page, '--tanrei-sys-focus-outer-width');
+    const ringColor = await resolveColor(page, '--tanrei-sys-color-focus-ring');
+    // Open (the first item): the ring is the whole item's — the outer stroke on the item's edge, the inner stroke's box
+    // the item's inset by the outer stroke, its corners the set's at the top of the first item.
+    const opened = item(page, 'outlined', 1);
+    await tabTo(page, header(page, 'outlined', 1));
+    expect(await px(opened, 'outline-width')).toBe(outer);
+    expect(await css(opened, 'outline-style')).toBe('solid');
+    expect(await css(opened, 'outline-color')).toBe(ringColor);
+    expect(await px(opened, 'outline-offset')).toBe(-outer);
+    expect(await css(header(page, 'outlined', 1), 'outline-style')).toBe('none');
+    const box = await edges(opened);
+    near(await px(header(page, 'outlined', 1), 'width', '::before'), box.width - outer * 2, 1);
+    near(await px(header(page, 'outlined', 1), 'height', '::before'), box.height - outer * 2, 1);
+    expect((await edges(header(page, 'outlined', 1))).height).toBeLessThan(box.height - outer * 2);
+    near(await px(header(page, 'outlined', 1), 'border-top-left-radius', '::before'), Math.max(0, (await resolveToken(page, T('outline-shape'))) - outer), 1);
+    expect(await px(header(page, 'outlined', 1), 'border-bottom-left-radius', '::before')).toBe(0);
+    expect(await css(opened, 'transition-property')).not.toContain('outline');
+    // Closed (the second item): the header's own ring, as before.
+    const summary = header(page, 'outlined', 2);
+    await tabTo(page, summary);
     expect(await px(summary, 'outline-width')).toBe(outer);
     expect(await css(summary, 'outline-style')).toBe('solid');
-    expect(await css(summary, 'outline-color')).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+    expect(await css(summary, 'outline-color')).toBe(ringColor);
     // Inside: the stroke's outer edge is the row's edge.
     expect(await px(summary, 'outline-offset')).toBe(-outer);
     expect(await css(summary, 'transition-property')).not.toContain('outline');
     // It follows container.shape — and, in a corner of the outlined edge, that corner, so that the edge does not cut it.
     expect(await px(header(page, 'outlined', 2), 'border-top-left-radius')).toBeCloseTo(await resolveToken(page, T('container-shape')), 1);
-    expect(await px(summary, 'border-top-left-radius')).toBeCloseTo(await resolveToken(page, T('outline-shape')), 1);
-    expect(await px(summary, 'border-bottom-left-radius')).toBeCloseTo(await resolveToken(page, T('container-shape')), 1);
+    expect(await px(header(page, 'outlined', 1), 'border-top-left-radius')).toBeCloseTo(await resolveToken(page, T('outline-shape')), 1);
+    expect(await px(header(page, 'outlined', 1), 'border-bottom-left-radius')).toBeCloseTo(await resolveToken(page, T('container-shape')), 1);
     expect(await px(header(page, 'outlined', 3), 'border-bottom-left-radius')).toBeCloseTo(await resolveToken(page, T('outline-shape')), 1);
     await header(page, 'plain', 2).click();
     expect(await css(header(page, 'plain', 2), 'outline-style')).toBe('none');
+    expect(await css(item(page, 'plain', 2), 'outline-style')).toBe('none');
   });
 
   test('ACC-19: both densities hold the touch target in the default system; under a layer that sets the compact height to 32 a header is 44 high for a fine pointer and 48 for touch, and the whole row is the hit area', async ({ page, browserName }) => {
@@ -1176,6 +1260,21 @@ test.describe('states', () => {
     expect(await css(summaryOf().locator('> .ripple'), 'animation-name')).toBe('none');
     await up();
     await page.emulateMedia({ reducedMotion: 'no-preference' });
+    // An open item is one target (ACC-36): a press on its content grows the ripple from the point of contact over the
+    // whole item, under its header and its content.
+    const openItem = item(page, 'outlined', 1);
+    const content = await contentBox(openItem);
+    await page.mouse.move(content.left + 10, content.top + 10);
+    await page.mouse.down();
+    await expect(header(page, 'outlined', 1)).toHaveAttribute('data-pressed', 'ripple');
+    const itemRipple = header(page, 'outlined', 1).locator('> .ripple');
+    const [rippleBox, itemBox] = [await edges(itemRipple), await edges(openItem)];
+    for (const side of ['left', 'top', 'width', 'height'] as const) near(rippleBox[side], itemBox[side], 1);
+    expect(await itemRipple.evaluate((el) => Math.round(Number.parseFloat((el as HTMLElement).style.getPropertyValue('--_y'))))).toBe(Math.round(content.top + 10 - itemBox.top));
+    await page.mouse.move(content.left + 10, content.top + 60, { steps: 4 });
+    await page.mouse.up();
+    await page.mouse.move(0, 0);
+    await expect.poll(() => header(page, 'outlined', 1).getAttribute('data-pressed')).toBeNull();
     // dim
     await mountFixtures(page, spec, { icons: true, fixtures, system: 'cupertino' });
     await page.addStyleTag({ content: `${TAG} > details > summary { transition: none !important; }` });
@@ -1189,14 +1288,17 @@ test.describe('states', () => {
     // none
     await mountFixtures(page, spec, { icons: true, fixtures });
     await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'none' });
-    await page.addStyleTag({ content: `${TAG} > details > summary { transition: none !important; }` });
+    await page.addStyleTag({ content: `${TAG} > details > summary { transition: none !important; } ${TAG} > details { --_acc-item-time: 0s !important; }` });
     const before = await summaryOf().evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el).opacity, getComputedStyle(el).color]);
     await page.mouse.move(0, 0);
     await tabTo(page, summaryOf());
     const focused = await summaryOf().evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el).opacity, getComputedStyle(el).color]);
     await page.keyboard.down('Enter');
     await expect(summaryOf()).toHaveAttribute('data-pressed', 'none');
-    expect(await summaryOf().evaluate((el) => [getComputedStyle(el).backgroundColor, getComputedStyle(el).opacity, getComputedStyle(el).color])).toEqual(focused);
+    // Enter opened the item, whose state is now drawn on the whole item (ACC-36): the focused container under it all,
+    // and the header's parts and opacity still the focused ones — nothing of the press.
+    expect(await summaryOf().evaluate((el) => [getComputedStyle(el).opacity, getComputedStyle(el).color])).toEqual(focused.slice(1));
+    expect(await css(item(page, 'outlined', 2), 'background-color')).toBe(focused[0]);
     await page.keyboard.up('Enter');
     void before;
   });
@@ -1216,17 +1318,23 @@ test.describe('states', () => {
     const drawn = await px(item(page, 'outlined', 1), 'border-top-left-radius');
     if (smooth) expect(drawn).toBeGreaterThan(radius);
     else expect(drawn).toBeCloseTo(radius, 1);
-    // ring (the default) and glow (acme).
+    // ring (the default) and glow (acme), on a closed item's header and around an open item (the first).
     await mountFixtures(page, spec, { icons: true, fixtures: some('outlined') });
     await tabTo(page, header(page, 'outlined', 1));
-    expect(await css(header(page, 'outlined', 1), 'outline-color')).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+    expect(await css(item(page, 'outlined', 1), 'outline-color')).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
     expect(await css(header(page, 'outlined', 1), 'box-shadow', '::before')).toBe('none');
+    await tabTo(page, header(page, 'outlined', 2));
+    expect(await css(header(page, 'outlined', 2), 'outline-color')).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
     await mountFixtures(page, spec, { icons: true, fixtures: some('outlined'), system: 'acme', systemCss: await acmeSystemCss() });
     await tabTo(page, header(page, 'outlined', 1));
-    expect(await css(header(page, 'outlined', 1), 'outline-color')).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+    expect(await css(item(page, 'outlined', 1), 'outline-color')).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
     expect(await css(header(page, 'outlined', 1), 'box-shadow', '::before')).not.toBe('none');
-    // The glow is inside the row: its box is inset from the row's edge.
+    // The glow is inside the item: its box is inset from the item's edge, and reaches below the header.
     expect(await px(header(page, 'outlined', 1), 'top', '::before')).toBeGreaterThan(0);
+    expect(await px(header(page, 'outlined', 1), 'height', '::before')).toBeGreaterThan((await edges(header(page, 'outlined', 1))).height);
+    await tabTo(page, header(page, 'outlined', 2));
+    expect(await css(header(page, 'outlined', 2), 'outline-color')).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
+    expect(await px(header(page, 'outlined', 2), 'top', '::before')).toBeGreaterThan(0);
   });
 });
 
@@ -1657,6 +1765,17 @@ test.describe('before the element is defined, and without script', () => {
     await page.addStyleTag({ content: `${TAG} > details > summary { transition-duration: 0s, 0s, 0s, 0s !important; }` });
     await summary.hover();
     expect(await css(summary, 'background-color')).toBe(await resolveColor(page, T('plain-hovered-container-color')));
+    // ACC-36: without the script an open item's content is not a target — no pointer cursor and no state over it,
+    // and a press there closes nothing.
+    const content = await contentBox(item(page, 'plain', 1));
+    const at = { x: content.left + 4, y: content.top + content.height / 2 };
+    await page.mouse.move(at.x, at.y);
+    expect(await page.evaluate(({ x, y }) => getComputedStyle(document.elementFromPoint(x, y)!).cursor, at)).not.toBe('pointer');
+    expect(await css(item(page, 'plain', 1), 'background-color')).toMatch(CLEAR);
+    await page.mouse.click(at.x, at.y);
+    await page.waitForTimeout(50);
+    expect(await item(page, 'plain', 1).evaluate((el: HTMLDetailsElement) => el.open)).toBe(true);
+    await summary.hover();
     // A press: the pressed container at once, in the state's place, drawn in every frame of press-hold after the
     // release — nothing fades while it is held — and then gone.
     await expectPressHeldAtEveryMoment(page, summary, { pressed: await resolveColor(page, T('plain-pressed-container-color')) });
@@ -1692,8 +1811,9 @@ test.describe('before the element is defined, and without script', () => {
     // runner's answer.
     const second = inner.locator('details').nth(1);
     await watchTransitions(second);
+    // (The item, opened under the pointer, is hovered as one target too — ACC-36 — a change of its color, not a clock.)
     await inner.locator('summary').nth(1).click();
-    const clocks = async () => (await transitionsRun(second)).filter((run) => run.own && run.pseudo === '').map((run) => [run.property, run.duration]);
+    const clocks = async () => (await transitionsRun(second)).filter((run) => run.own && run.pseudo === '' && run.property !== 'background-color').map((run) => [run.property, run.duration]);
     await expect.poll(clocks).toEqual([['--_acc-open', await resolveToken(page, T('motion-disclosure-duration'), 'duration')]]);
   });
 });

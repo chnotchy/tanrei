@@ -8,7 +8,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Content that a row shows and hides in place. One item is a single disclosure; several are a set whose items open by\nthemselves or, with `exclusive`, one at a time. A help page's questions, the sections of a settings screen, the\nadvanced part of a form.\n\nContract: specs/accordion.spec.json. The element has **no shadow root**: its items are the product's own native\n`<details>` elements, which stay in the document. They open and close, are focusable, carry the expanded state, keep\ntheir closed content in the page (a field in it keeps its value and is sent with its form) and are opened by a link\nto a fragment and by the browser's find-in-page, before any script runs and without it.\n\n```html\n<tanrei-accordion variant=\"outlined\">\n  <details open>\n    <summary>\n      <span class=\"tanrei-icon\" aria-hidden=\"true\">palette</span>\n      Colors\n      <span data-supporting-text>Roles, palettes and the six schemes</span>\n      <span data-trailing-text>48 roles</span>\n    </summary>\n    <p>Every color a component reads is a role.</p>\n  </details>\n  <details>\n    <summary><h3>A label that is a heading</h3></summary>\n    <p>…</p>\n  </details>\n  <details>\n    <summary aria-disabled=\"true\" tabindex=\"-1\">A disabled item</summary>\n    <p>…</p>\n  </details>\n</tanrei-accordion>\n```\n\nAn item is a `<details>` whose first child is its `<summary>`: the header. The summary's text is the label, or ONE\nelement in its place — a heading of the level the page's outline needs, or a `<span>` around text with inline\ncontent; an element with `data-supporting-text` is the line under the label, one with `data-trailing-text` the short\nvalue before the chevron, a `.tanrei-icon` the glyph at the start. `open` is the item's own attribute and property\nand `toggle` its own event (it does not bubble; `event.newState` is `open` or `closed`) — the browser also sends it\nwhen the product sets `open`. A disabled item is `<summary aria-disabled=\"true\" tabindex=\"-1\">`.\n\nEverything drawn is `@tanrei/web/accordion.css` — every value a `--tanrei-comp-accordion-*` token — which draws the\nwhole look and every state before and without this script; the element adds the same sheet to the root it is\nconnected to, so it also works inside another component's shadow root. The script adds what a stylesheet cannot:\nthe system's answer to a press (ripple, dim), the arrow keys, `exclusive` (the `name` it writes on its items), the\nheight motion where the browser cannot move a height to `auto` in CSS, the pressed header kept in place while an\nitem above it closes, focus given to the header when its item closes around it, the supporting and trailing text\nread as the header's description instead of as part of its name, a disabled header refused, an open item closed by\na press on its content (ACC-36; without script only the header toggles), and the debug reports.\n\nAn accordion in an item's content is content like any other, drawn by its own attributes.",
+          "description": "Content that a row shows and hides in place. One item is a single disclosure; several are a set whose items open by\nthemselves or, with `exclusive`, one at a time. A help page's questions, the sections of a settings screen, the\nadvanced part of a form.\n\nContract: specs/accordion.spec.json. The element has **no shadow root**: its items are the product's own native\n`<details>` elements, which stay in the document. They open and close, are focusable, carry the expanded state, keep\ntheir closed content in the page (a field in it keeps its value and is sent with its form) and are opened by a link\nto a fragment and by the browser's find-in-page, before any script runs and without it.\n\n```html\n<tanrei-accordion variant=\"outlined\">\n  <details open>\n    <summary>\n      <span class=\"tanrei-icon\" aria-hidden=\"true\">palette</span>\n      Colors\n      <span data-supporting-text>Roles, palettes and the six schemes</span>\n      <span data-trailing-text>48 roles</span>\n    </summary>\n    <p>Every color a component reads is a role.</p>\n  </details>\n  <details>\n    <summary><h3>A label that is a heading</h3></summary>\n    <p>…</p>\n  </details>\n  <details>\n    <summary aria-disabled=\"true\" tabindex=\"-1\">A disabled item</summary>\n    <p>…</p>\n  </details>\n</tanrei-accordion>\n```\n\nAn item is a `<details>` whose first child is its `<summary>`: the header. The summary's text is the label, or ONE\nelement in its place — a heading of the level the page's outline needs, or a `<span>` around text with inline\ncontent; an element with `data-supporting-text` is the line under the label, one with `data-trailing-text` the short\nvalue before the chevron, a `.tanrei-icon` the glyph at the start. `open` is the item's own attribute and property\nand `toggle` its own event (it does not bubble; `event.newState` is `open` or `closed`) — the browser also sends it\nwhen the product sets `open`. A disabled item is `<summary aria-disabled=\"true\" tabindex=\"-1\">`.\n\nEverything drawn is `@tanrei/web/accordion.css` — every value a `--tanrei-comp-accordion-*` token — which draws the\nwhole look and every state before and without this script; the element adds the same sheet to the root it is\nconnected to, so it also works inside another component's shadow root. The script adds what a stylesheet cannot:\nthe system's answer to a press (ripple, dim), the arrow keys, `exclusive` (the `name` it writes on its items), the\nheight motion where the browser cannot move a height to `auto` in CSS, the pressed header kept in place while an\nitem above it closes, focus given to the header when its item closes around it, the supporting and trailing text\nread as the header's description instead of as part of its name, a disabled header refused, an open item drawn\nand answered as one target — closed by a press on its content, hovered, pressed and focused as a whole, with the\npointer cursor over it (ACC-36; without script only the header is a target), and the debug reports.\n\nAn accordion in an item's content is content like any other, drawn by its own attributes.",
           "name": "TanreiAccordion",
           "slots": [
             {
@@ -218,6 +218,26 @@
             },
             {
               "kind": "field",
+              "name": "heldItem",
+              "type": {
+                "text": "HTMLDetailsElement | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "ACC-36: what a press in an item's content holds — the item: the press ends when the pointer leaves it."
+            },
+            {
+              "kind": "field",
+              "name": "hit",
+              "type": {
+                "text": "HTMLDetailsElement | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "ACC-36: the item a fine pointer is over where a press would toggle or close it — drawn hovered as one target."
+            },
+            {
+              "kind": "field",
               "name": "group",
               "privacy": "private",
               "readonly": true,
@@ -289,6 +309,39 @@
                 }
               ],
               "description": "ACC-36: the open item of this accordion whose content a pointer event lands in, where a press there is the item's:\nthe innermost `<details>` on the event's path is this accordion's own item (a nested accordion's item is its own),\nthe item is open and not disabled, the press is not on its header, and nothing between the element pressed and the\nitem takes a press itself."
+            },
+            {
+              "kind": "method",
+              "name": "targetOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "HTMLDetailsElement | null"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "MouseEvent"
+                  }
+                }
+              ],
+              "description": "ACC-36: the item an event's pointer would toggle or close by a press: its header's, or its open content's."
+            },
+            {
+              "kind": "method",
+              "name": "setHit",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "details",
+                  "type": {
+                    "text": "HTMLDetailsElement | null"
+                  }
+                }
+              ],
+              "description": "ACC-36: the item drawn as the one target under a fine pointer (`data-tanrei-hit`), or none."
             },
             {
               "kind": "method",
@@ -564,6 +617,12 @@
             },
             {
               "kind": "field",
+              "name": "onPointerOver",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
               "name": "onKeyDown",
               "privacy": "private",
               "readonly": true
@@ -644,7 +703,7 @@
               },
               "privacy": "private",
               "readonly": true,
-              "default": "[ ['pointerdown', this.onPointerDown], ['pointerup', this.releasePress], ['pointercancel', this.releasePress], ['pointercancel', this.forgetContentPress], ['pointermove', this.onPointerMove], ['pointerout', this.onPointerOut], ['dragstart', this.releasePress], ['dragstart', this.forgetContentPress], ['keydown', this.onKeyDown], ['keyup', this.onKeyUp], ['focusin', this.onFocusIn], ['focusout', this.onFocusOut], ['click', this.onClick], ['click', this.onContentClick], ['transitionend', this.onMotionEnd], ['transitioncancel', this.onMotionEnd], ]"
+              "default": "[ ['pointerdown', this.onPointerDown], ['pointerup', this.releasePress], ['pointercancel', this.releasePress], ['pointercancel', this.forgetContentPress], ['pointermove', this.onPointerMove], ['pointerout', this.onPointerOut], ['pointerover', this.onPointerOver], ['dragstart', this.releasePress], ['dragstart', this.forgetContentPress], ['keydown', this.onKeyDown], ['keyup', this.onKeyUp], ['focusin', this.onFocusIn], ['focusout', this.onFocusOut], ['click', this.onClick], ['click', this.onContentClick], ['transitionend', this.onMotionEnd], ['transitioncancel', this.onMotionEnd], ]"
             }
           ],
           "attributes": [

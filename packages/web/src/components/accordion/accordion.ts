@@ -83,6 +83,9 @@ const SLACK = 0.5;
 const MAX_DEPTH = 3;
 /** ACC-36: a press in the content that moved further than this is a drag, not a press — the touch slop the sheets use, the web naming none of its own. */
 const SLOP = SHEET_TOUCH_SLOP;
+/** ACC-36: the item a fine pointer is over as one target, and the item whose own pointer cursor is set aside while a cursor is read. */
+const HIT = 'data-tanrei-hit';
+const READING = 'data-tanrei-reading';
 const modified = (event: MouseEvent) => event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 
 type Root = Document | ShadowRoot;
@@ -218,8 +221,9 @@ let descriptions = 0;
  * the system's answer to a press (ripple, dim), the arrow keys, `exclusive` (the `name` it writes on its items), the
  * height motion where the browser cannot move a height to `auto` in CSS, the pressed header kept in place while an
  * item above it closes, focus given to the header when its item closes around it, the supporting and trailing text
- * read as the header's description instead of as part of its name, a disabled header refused, an open item closed by
- * a press on its content (ACC-36; without script only the header toggles), and the debug reports.
+ * read as the header's description instead of as part of its name, a disabled header refused, an open item drawn
+ * and answered as one target — closed by a press on its content, hovered, pressed and focused as a whole, with the
+ * pointer cursor over it (ACC-36; without script only the header is a target), and the debug reports.
  *
  * An accordion in an item's content is content like any other, drawn by its own attributes.
  *
@@ -274,6 +278,10 @@ export class TanreiAccordion extends ReactiveElement {
   private holdFrame = 0;
   /** ACC-36: a press in an open item's content — which pointer, where it began, and whether it has moved past the slop. */
   private contentPress: { id: number; x: number; y: number; details: HTMLDetailsElement; moved: boolean } | null = null;
+  /** ACC-36: what a press in an item's content holds — the item: the press ends when the pointer leaves it. */
+  private heldItem: HTMLDetailsElement | null = null;
+  /** ACC-36: the item a fine pointer is over where a press would toggle or close it — drawn hovered as one target. */
+  private hit: HTMLDetailsElement | null = null;
   private readonly group = `tanrei-accordion-${++groups}`;
   /** The box the glyph's name is measured in, kept only while the icon set cannot draw it (ACC-33). */
   private glyphProbe: HTMLElement | null = null;
@@ -313,7 +321,9 @@ export class TanreiAccordion extends ReactiveElement {
     for (const press of this.pressControllers) press.hostDisconnected();
     this.held = null;
     this.heldSummary = null;
+    this.heldItem = null;
     this.contentPress = null;
+    this.setHit(null);
     clearTimeout(this.actedTimer);
     this.acted = null;
     this.release();
@@ -358,7 +368,30 @@ export class TanreiAccordion extends ReactiveElement {
       const row = summary.getBoundingClientRect();
       if (event.clientX >= row.left && event.clientX <= row.right && event.clientY >= row.top && event.clientY <= row.bottom) return null;
     }
-    return pressTakenWithin(path, details) ? null : details;
+    // The item's own pointer cursor is set aside while the cursor the product gave what is pressed is read: only a
+    // pointer of the product's own counts as a box that answers the press itself.
+    const reading = details.hasAttribute(HIT);
+    if (reading) details.setAttribute(READING, '');
+    try {
+      return pressTakenWithin(path, details) ? null : details;
+    } finally {
+      if (reading) details.removeAttribute(READING);
+    }
+  }
+
+  /** ACC-36: the item an event's pointer would toggle or close by a press: its header's, or its open content's. */
+  private targetOf(event: MouseEvent): HTMLDetailsElement | null {
+    const header = this.headerOf(event.target);
+    if (header) return disabled(header.summary) ? null : header.details;
+    return this.contentOf(event);
+  }
+
+  /** ACC-36: the item drawn as the one target under a fine pointer (`data-tanrei-hit`), or none. */
+  private setHit(details: HTMLDetailsElement | null) {
+    if (this.hit === details) return;
+    this.hit?.removeAttribute(HIT);
+    this.hit = details;
+    details?.setAttribute(HIT, '');
   }
 
   /**
@@ -704,15 +737,26 @@ export class TanreiAccordion extends ReactiveElement {
     this.held?.release();
     this.held = null;
     this.heldSummary = null;
+    this.heldItem = null;
   };
 
   private readonly onPointerDown = (event: Event) => {
     const pointer = event as PointerEvent;
-    // ACC-36: a press of the primary button, a touch or a pen in an open item's content, with no modifier key.
+    // ACC-36: a press of the primary button, a touch or a pen in an open item's content, with no modifier key, is a
+    // press of the item: its header's press primitive answers it, drawn on the whole item.
     this.contentPress = null;
     if (pointer.isPrimary && pointer.button === 0 && !modified(pointer)) {
       const details = this.contentOf(pointer);
-      if (details) this.contentPress = { id: pointer.pointerId, x: pointer.clientX, y: pointer.clientY, details, moved: false };
+      const summary = details && summaryOf(details);
+      if (details && summary) {
+        this.contentPress = { id: pointer.pointerId, x: pointer.clientX, y: pointer.clientY, details, moved: false };
+        this.answered(summary);
+        this.held = this.pressOf(summary);
+        this.heldSummary = summary;
+        this.heldItem = details;
+        this.held.onPointerDown(pointer);
+        return;
+      }
     }
     const header = this.headerOf(event.target);
     if (!header || disabled(header.summary)) return;
@@ -723,10 +767,21 @@ export class TanreiAccordion extends ReactiveElement {
     this.held.onPointerDown(pointer);
   };
 
-  // `pointerleave` is not seen from here: the press ends when the pointer goes out of the header it holds.
+  // `pointerleave` is not seen from here: the press ends when the pointer goes out of the header (or the item, for a
+  // press in its content) it holds, and the item under a fine pointer is none once the pointer leaves the accordion.
   private readonly onPointerOut = (event: Event) => {
     const to = (event as PointerEvent).relatedTarget;
-    if (this.heldSummary && !(to instanceof Node && this.heldSummary.contains(to))) this.releasePress();
+    const holds = this.heldItem ?? this.heldSummary;
+    if (holds && !(to instanceof Node && holds.contains(to))) this.releasePress();
+    if (!(to instanceof Node && this.contains(to))) this.setHit(null);
+  };
+
+  // ACC-36: a fine pointer over an item where a press would toggle or close it — its header, or its open content
+  // outside anything that takes a press itself — draws that item hovered, as one target; elsewhere none is.
+  private readonly onPointerOver = (event: Event) => {
+    const pointer = event as PointerEvent;
+    if (pointer.pointerType === 'touch') return;
+    this.setHit(this.targetOf(pointer));
   };
 
   private readonly onKeyDown = (event: Event) => {
@@ -778,7 +833,11 @@ export class TanreiAccordion extends ReactiveElement {
   private readonly onPointerMove = (event: Event) => {
     const press = this.contentPress;
     const pointer = event as PointerEvent;
-    if (press && pointer.pointerId === press.id && Math.hypot(pointer.clientX - press.x, pointer.clientY - press.y) > SLOP) press.moved = true;
+    if (press && !press.moved && pointer.pointerId === press.id && Math.hypot(pointer.clientX - press.x, pointer.clientY - press.y) > SLOP) {
+      press.moved = true;
+      // The press of the item ends there: what follows is a drag, not a press.
+      if (this.heldItem === press.details) this.releasePress();
+    }
   };
 
   private readonly forgetContentPress = () => {
@@ -803,6 +862,8 @@ export class TanreiAccordion extends ReactiveElement {
       const summary = summaryOf(details);
       if (!summary || disabled(summary)) return;
       this.act(summary);
+      // What was under the pointer goes with the content: the item is no longer the target there.
+      if (this.hit === details) this.setHit(null);
       details.open = false;
     });
   };
@@ -831,6 +892,7 @@ export class TanreiAccordion extends ReactiveElement {
     ['pointercancel', this.forgetContentPress],
     ['pointermove', this.onPointerMove],
     ['pointerout', this.onPointerOut],
+    ['pointerover', this.onPointerOver],
     ['dragstart', this.releasePress],
     ['dragstart', this.forgetContentPress],
     ['keydown', this.onKeyDown],
