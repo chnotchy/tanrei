@@ -15,7 +15,7 @@ const GROUP = 'tanrei-avatar-group';
 /** AVT-5: the most characters of initials an avatar draws, as a reader counts them. */
 const INITIALS = 2;
 /** AVT-18: a larger count is drawn as this number followed by a plus sign. */
-const COUNT_CAP = 999;
+const COUNT_CAP = 99;
 /** AVT-6: the system's own glyph, where the product gives none: a person for a circle, a neutral mark for a square. */
 const SYSTEM_GLYPHS = { person: 'person', thing: 'category' } as const;
 
@@ -343,7 +343,7 @@ export class TanreiAvatarGroup extends LitElement {
     }
   }
 
-  /** AVT-17, AVT-18: the overflow box's text — a plus sign and the number not drawn, in the locale's digits without grouping; above 999, 999 and a plus sign. */
+  /** AVT-17, AVT-18: the overflow box's text — a plus sign and the number not drawn, in the locale's digits without grouping; above 99, 99 and a plus sign, at every size. */
   private text(hidden: number): string {
     const format = new Intl.NumberFormat(this.locale(), { useGrouping: false, maximumFractionDigits: 0 });
     return hidden > COUNT_CAP ? `${format.format(COUNT_CAP)}+` : `+${format.format(hidden)}`;

@@ -189,7 +189,7 @@
     },
     {
       "id": "AVT-11",
-      "text": "WHILE the text size is enlarged THE avatar SHALL keep its box at the container size of its size, and its initials and its glyph at the sizes of AVT-5 and AVT-6: an avatar is a picture and is enlarged with the page, not with the text, as a glyph's box is."
+      "text": "WHILE the text size is enlarged THE avatar SHALL keep its box at the container size of its size and its glyph at the size of AVT-6, and SHALL let its initials, and a group's count (AVT-17), follow their text style as it grows, no larger than the glyph's box of the same size (comp.avatar.icon.size.small for small, comp.avatar.icon.size.medium for medium, comp.avatar.icon.size.large for large), so that they still stand whole inside the box: an avatar is a picture and is enlarged with the page, not with the text, as a glyph's box is, while the letters it holds grow as far as the box leaves room for them."
     },
     {
       "id": "AVT-12",
@@ -213,7 +213,7 @@
     {
       "id": "AVT-16",
       "text": "WHERE the avatar is given members THE avatar SHALL be a group: it SHALL draw its members in one row that does not wrap, in the order they are given from the start edge, each as an avatar of the group's size and shape with that member's own picture, initials or glyph (AVT-2 to AVT-6), and SHALL ignore its own src, initials, icon slot and decorative. Each box after the first SHALL lie over the end of the one before it by the overlap of the group's size (comp.avatar.group.overlap.small for small, comp.avatar.group.overlap.medium for medium, comp.avatar.group.overlap.large for large) and be drawn above it, and every box SHALL be surrounded, outside its own edge and following its shape, by a gap comp.avatar.group.outline.width wide in comp.avatar.group.outline.color that takes no room in the layout. THE group SHALL be as wide as its boxes less their overlaps, and as high as one box.",
-      "verify": "Under the default system three medium members are 40 + 30 + 30 = 100 wide; the second member covers the last 10 of the first, with 2 of the surface's color between the two pictures."
+      "verify": "Under the default system three medium members are 40 + 36 + 36 = 112 wide; the second member covers the last 4 of the first, with 2 of the surface's color between the two pictures."
     },
     {
       "id": "AVT-17",
@@ -222,8 +222,8 @@
     },
     {
       "id": "AVT-18",
-      "text": "WHILE total is greater than the number of members the group is given THE group SHALL count as not drawn every member up to total, and SHALL draw the overflow box with that number after the members it draws: where the members given fit within max less one, or max is 0, all of them are drawn before it. THE group SHALL write the number in the current locale's digits with no grouping separator, SHALL draw 999 followed by a plus sign in place of a number above 999, and SHALL lay the sign and the number out as one left-to-right run isolated from the text around it, so that the plus sign stays before the digits in a right-to-left layout.",
-      "verify": "The fixture group-total gives three members, max 4 and total 240: three members and a box reading +237."
+      "text": "WHILE total is greater than the number of members the group is given THE group SHALL count as not drawn every member up to total, and SHALL draw the overflow box with that number after the members it draws: where the members given fit within max less one, or max is 0, all of them are drawn before it. THE group SHALL write the number in the current locale's digits with no grouping separator, SHALL draw 99 followed by a plus sign in place of a number above 99, at every size, so that the box never holds more than three characters (the exact number stays in overflowLabel, AVT-19), and SHALL lay the sign and the number out as one left-to-right run isolated from the text around it, so that the plus sign stays before the digits in a right-to-left layout.",
+      "verify": "The fixture group-total gives three members, max 4 and total 240: three members and a box reading 99+."
     },
     {
       "id": "AVT-19",

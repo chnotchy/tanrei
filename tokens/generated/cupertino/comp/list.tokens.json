@@ -347,6 +347,7 @@
                 "alpha": 0,
                 "hex": "#000000"
               },
+              "$description": "The fill of a selected option's row, drawn over whatever the list stands on and under the row's content (LST-26). The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the row's own content color (selected.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json), as the menu values its checked row, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered row. A design system that sets this token draws what it sets. The check is always drawn with the fill; the fill never carries the choice alone.",
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fixed": "Apple shows a chosen row by a check in the tint, with no fill."
@@ -363,19 +364,22 @@
           "overline": {
             "color": {
               "$type": "color",
-              "$value": "{tanrei.sys.color.on-surface-variant}"
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$extensions": {}
             }
           },
           "supporting-text": {
             "color": {
               "$type": "color",
-              "$value": "{tanrei.sys.color.on-surface-variant}"
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$extensions": {}
             }
           },
           "trailing-text": {
             "color": {
               "$type": "color",
-              "$value": "{tanrei.sys.color.on-surface-variant}"
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$extensions": {}
             }
           },
           "leading-icon": {
@@ -387,7 +391,8 @@
           "trailing-icon": {
             "color": {
               "$type": "color",
-              "$value": "{tanrei.sys.color.on-surface-variant}"
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$extensions": {}
             }
           },
           "mark": {
@@ -426,6 +431,27 @@
           "reorder-easing": {
             "$type": "cubicBezier",
             "$value": "{tanrei.sys.motion.easing.standard}"
+          }
+        },
+        "reorder": {
+          "text-min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 96,
+              "unit": "px"
+            },
+            "$description": "The least width the text column of a reorderable item keeps beside its handle, its move buttons and its trailing control. Where those would leave the text narrower than this, the controls of every item go to a line of their own below the text (LST-51). It grows with enlarged text, so that the controls stay beside the text at the default text size and stand below it when the text is large.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how narrow the name of an item may become before the buttons beside it move below it: a list of fonts or sections whose items carry two move buttons and a remove button keeps them on one line at the default text size, and stacks them on a phone at enlarged text, at a width the product can set once.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 24
+              }
+            }
           }
         },
         "move-buttons": {

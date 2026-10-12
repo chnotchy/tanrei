@@ -919,12 +919,12 @@ test.describe('behavior', () => {
 
   test('AVT-16: given members, the avatar is a group — one row that does not wrap, in the order given from the start edge, each member at the group’s size and shape with its own picture, initials or glyph; each box after the first lies over the end of the one before it by the overlap of the size and above it, every box is surrounded by a gap of group.outline that takes no room, and the group is as wide as its boxes less their overlaps and as high as one', async ({ page }) => {
     await mountSpec(page, 'group', 'group-small', 'group-large', 'group-square', 'group-image');
-    // The verify: three medium members are 40 + 30 + 30 = 100 wide; the second covers the last 10 of the first, with 2 of the surface's color between the two.
-    expect([await token(page, 'group-overlap-small'), await token(page, 'group-overlap-medium'), await token(page, 'group-overlap-large'), await token(page, 'group-outline-width')]).toEqual([6, 10, 14, 2]);
+    // The verify: three medium members are 40 + 36 + 36 = 112 wide; the second covers the last 4 of the first, with 2 of the surface's color between the two.
+    expect([await token(page, 'group-overlap-small'), await token(page, 'group-overlap-medium'), await token(page, 'group-overlap-large'), await token(page, 'group-outline-width')]).toEqual([2, 4, 8, 2]);
     const g = await box(group(page, 'group'));
-    expect([g.width, g.height]).toEqual([100, 40]);
+    expect([g.width, g.height]).toEqual([112, 40]);
     const xs = await Promise.all((await members(page, 'group').all()).map(async (m) => (await box(m)).x - g.x));
-    expect(xs).toEqual([0, 30, 60]);
+    expect(xs).toEqual([0, 36, 72]);
     for (const [id, count] of [['group-small', 2], ['group-large', 3], ['group-square', 3], ['group-image', 3]] as const) {
       const size = String(spec.fixtures.find((f) => f.id === id)!.props.size ?? 'medium');
       const [side, overlap] = [await token(page, `container-size-${size}`), await token(page, `group-overlap-${size}`)];
@@ -944,10 +944,10 @@ test.describe('behavior', () => {
     // Painted: between the first member's fill and the second's, the gap in the surface's color; the second is above the first.
     const fill = rgb(await tokenColor(page, 'container-color'));
     const row = await pixels(group(page, 'group'));
-    expect(row.at(26, 20)).toBe(fill);
-    expect(row.at(29, 20)).toBe(rgb(color));
     expect(row.at(32, 20)).toBe(fill);
-    const top = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.getAttribute('label'), [g.x + 35, g.y + 20] as const);
+    expect(row.at(35, 20)).toBe(rgb(color));
+    expect(row.at(38, 20)).toBe(fill);
+    const top = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.getAttribute('label'), [g.x + 37, g.y + 20] as const);
     expect(top).toBe('Grace Hopper');
     // Each member is an avatar of the group's size and shape, with its own picture, initials or glyph.
     for (const m of await members(page, 'group-small').all()) expect(await m.getAttribute('size')).toBe('small');
@@ -966,7 +966,7 @@ test.describe('behavior', () => {
     expect(await own.evaluate((el) => [el.shadowRoot!.querySelectorAll('img, .icon').length, el.getAttribute('role'), el.getAttribute('aria-hidden')])).toEqual([0, 'group', null]);
     expect(await members(page, 'own').first().evaluate((el) => [el.getAttribute('size'), el.getAttribute('shape')])).toEqual(['small', 'circle']);
     const o = await box(own);
-    expect([o.width, o.height]).toEqual([2 * 24 - 6, 24]);
+    expect([o.width, o.height]).toEqual([2 * 24 - 2, 24]);
     // A container that stretches what has no size of its own leaves the group as wide as its boxes and as high as one.
     await mountHtml(page, {
       column: '<div style="display:flex;flex-direction:column;inline-size:300px"><tanrei-avatar-group id="col" label="Authors"><tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar><tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar></tanrei-avatar-group></div>',
@@ -974,7 +974,7 @@ test.describe('behavior', () => {
     });
     for (const id of ['col', 'row']) {
       const b = await box(page.locator(`#${id}`));
-      expect([b.width, b.height], id).toEqual([70, 40]);
+      expect([b.width, b.height], id).toEqual([76, 40]);
     }
     await expect(own.locator('> [slot="icon"]')).toBeHidden();
   });
@@ -1030,7 +1030,7 @@ test.describe('behavior', () => {
     expect(await page.evaluate(() => document.activeElement === document.body || document.activeElement === null)).toBe(true);
   });
 
-  test('AVT-18: with total greater than the members given, the group counts every member up to total and draws the overflow box with that number after the members it draws — all of them where they fit within max less one or max is 0; the number is in the locale’s digits with no grouping, 999 and a plus sign above 999, and the sign and the number are one left-to-right run, so the plus sign stays before the digits in right-to-left', async ({ page }) => {
+  test('AVT-18: with total greater than the members given, the group counts every member up to total and draws the overflow box with that number after the members it draws — all of them where they fit within max less one or max is 0; the number is in the locale’s digits with no grouping, 99 and a plus sign above 99 at every size, and the sign and the number are one left-to-right run, so the plus sign stays before the digits in right-to-left', async ({ page }) => {
     const three = [member('Ada Lovelace', 'AL'), member('Grace Hopper', 'GH'), member('Katherine Johnson', 'KJ')];
     const four = [...three, member('Hedy Lamarr', 'HL')];
     await mount(page, [
@@ -1039,24 +1039,27 @@ test.describe('behavior', () => {
       fx('fits', { label: 'Members', max: 5, total: 12 }, { items: three }),
       fx('full', { label: 'Members', max: 4, total: 10 }, { items: four }),
       fx('equal', { label: 'Members', max: 4, total: 4 }, { items: four }),
-      fx('edge', { label: 'Members', max: 3, total: 1001, size: 'large' }, { items: three }),
-      fx('capped', { label: 'Members', max: 3, total: 1002, size: 'large' }, { items: three }),
+      fx('edge', { label: 'Members', max: 3, total: 101, size: 'small' }, { items: three }),
+      fx('capped', { label: 'Members', max: 3, total: 102, size: 'small' }, { items: three }),
       fx('grouping', { label: 'Members', total: 2500, size: 'large' }, { items: three }),
-      fx('rtl', { label: 'الأعضاء', max: 4, total: 240 }, { items: three, direction: 'rtl' }),
+      fx('rtl', { label: 'الأعضاء', max: 4, total: 45 }, { items: three, direction: 'rtl' }),
     ]);
     const shown = (id: string) => members(page, id).evaluateAll((list) => list.filter((el) => (el as HTMLElement).offsetWidth > 0).length);
     const text = (id: string) => overflow(page, id).locator('.count').textContent();
-    // The verify: three members, max 4 and total 240 — three members and a box reading +237.
-    expect([await shown('group-total'), await text('group-total')]).toEqual([3, '+237']);
+    // The verify: three members, max 4 and total 240 — three members and a box reading 99+.
+    expect([await shown('group-total'), await text('group-total')]).toEqual([3, '99+']);
     expect([await shown('no-max'), await text('no-max')]).toEqual([3, '+9']);
     expect([await shown('fits'), await text('fits')]).toEqual([3, '+9']);
     // The members given fill max: one fewer is drawn, and the box counts the rest.
     expect([await shown('full'), await text('full')]).toEqual([3, '+7']);
     expect([await shown('equal'), await overflow(page, 'equal').count()]).toEqual([4, 0]);
-    // 999 is drawn as it is; above it, 999 and a plus sign; never a grouping separator.
-    expect([await shown('edge'), await text('edge')]).toEqual([2, '+999']);
-    expect([await shown('capped'), await text('capped')]).toEqual([2, '999+']);
-    expect(await text('grouping')).toBe('999+');
+    // 99 is drawn as it is; above it, 99 and a plus sign, at the small size too; never a grouping separator.
+    expect([await shown('edge'), await text('edge')]).toEqual([2, '+99']);
+    expect([await shown('capped'), await text('capped')]).toEqual([2, '99+']);
+    expect(await text('grouping')).toBe('99+');
+    // Three characters at most: the count stands inside the small box.
+    const [inner, outer] = [await box(overflow(page, 'capped').locator('.count')), await box(overflow(page, 'capped'))];
+    expect(inner.width).toBeLessThan(outer.width);
     // One left-to-right run, isolated: in right-to-left the plus sign is still before (to the left of) the digits.
     const count = overflow(page, 'rtl').locator('.count');
     expect([await css(count, 'direction'), await css(count, 'unicode-bidi')]).toEqual(['ltr', 'isolate']);
@@ -1071,15 +1074,15 @@ test.describe('behavior', () => {
       });
     });
     expect(plus).toBeLessThan(digit);
-    expect(await text('rtl')).toBe('+237');
+    expect(await text('rtl')).toBe('+42');
     // The locale's digits: under a language whose numbers are written in other digits, those digits, still ungrouped.
     await mountHtml(page, {
-      arab: `<div lang="ar-EG" dir="rtl"><tanrei-avatar-group label="الأعضاء" max="4" total="240">${['لح', 'عخ', 'نس'].map((i) => `<tanrei-avatar label="عضو ${i}" initials="${i}"></tanrei-avatar>`).join('')}</tanrei-avatar-group></div>`,
+      arab: `<div lang="ar-EG" dir="rtl"><tanrei-avatar-group label="الأعضاء" max="4" total="45">${['لح', 'عخ', 'نس'].map((i) => `<tanrei-avatar label="عضو ${i}" initials="${i}"></tanrei-avatar>`).join('')}</tanrei-avatar-group></div>`,
       hindi: `<div lang="hi-u-nu-deva"><tanrei-avatar-group label="सदस्य" total="1240" max="3">${['कि', 'रा'].map((i) => `<tanrei-avatar label="सदस्य ${i}" initials="${i}"></tanrei-avatar>`).join('')}</tanrei-avatar-group></div>`,
     });
-    const expected = await page.evaluate(() => [new Intl.NumberFormat('ar-EG', { useGrouping: false }).format(237), new Intl.NumberFormat('hi-u-nu-deva', { useGrouping: false }).format(999)]);
+    const expected = await page.evaluate(() => [new Intl.NumberFormat('ar-EG', { useGrouping: false }).format(42), new Intl.NumberFormat('hi-u-nu-deva', { useGrouping: false }).format(99)]);
     expect(await text('arab')).toBe(`+${expected[0]}`);
-    expect(expected[0]).not.toBe('237');
+    expect(expected[0]).not.toBe('42');
     expect(await text('hindi')).toBe(`${expected[1]}+`);
   });
 
@@ -1151,9 +1154,9 @@ test.describe('behavior', () => {
         const top = document.elementFromPoint(px, py);
         return top?.localName === 'tanrei-avatar' ? top.getAttribute('label') : top?.localName;
       }, [x, g.y + 20] as const);
-    expect(await at(boxes[0].x + 5)).toBe('Ada Lovelace');
-    expect(await at(boxes[1].x + 5)).toBe('عمر خالد');
-    expect(await at(boxes[2].x + 5)).toBe(GROUP);
+    expect(await at(boxes[0].x + overlap / 2)).toBe('Ada Lovelace');
+    expect(await at(boxes[1].x + overlap / 2)).toBe('عمر خالد');
+    expect(await at(boxes[2].x + overlap / 2)).toBe(GROUP);
     // The gap between two: the surface's color at the first member's covered end.
     const row = await pixels(group(page, 'group-max-rtl'));
     expect(row.at(boxes[1].x + 40 + 1 - g.x, 20)).toBe(rgb(await tokenColor(page, 'group-outline-color')));
@@ -1260,7 +1263,7 @@ test.describe('behavior', () => {
     for (const id of ['size', 'shape', 'unsafe']) expect(await look(id), id).toEqual(base);
     const groupLook = async (id: string) => ({ box: await box(group(page, id)).then((b) => [b.width, b.height]), shown: await members(page, id).evaluateAll((list) => list.filter((el) => (el as HTMLElement).offsetWidth > 0).length), more: await overflow(page, id).count() });
     const groupBase = await groupLook('group-default');
-    expect(groupBase).toEqual({ box: [100, 40], shown: 3, more: 0 });
+    expect(groupBase).toEqual({ box: [112, 40], shown: 3, more: 0 });
     for (const id of ['group-size', 'max-one', 'max-negative', 'max-fraction', 'total-low', 'total-negative', 'total-fraction']) expect(await groupLook(id), id).toEqual(groupBase);
     await expect.poll(() => seen.filter((w) => w.includes('AVT-22')).length).toBeGreaterThanOrEqual(12);
     const reported = seen.filter((w) => w.includes('AVT-22')).join('\n');
@@ -1328,7 +1331,7 @@ test.describe('behavior', () => {
       stray: '<tanrei-avatar label="Ada Lovelace" initials="AL" max="4" total="12" overflow-label="and 9 more"></tanrei-avatar>',
     });
     const g = group(page, 'emptied');
-    near((await box(g)).width, 70, 'two members', 0.01);
+    near((await box(g)).width, 76, 'two members', 0.01);
     const gap = async () => (await box(page.locator('#right'))).x - (await box(page.locator('#left'))).x - (await box(page.locator('#left'))).width;
     const withGroup = await gap();
     await g.evaluate((el) => el.replaceChildren());
@@ -1336,7 +1339,7 @@ test.describe('behavior', () => {
     // Nothing drawn, no space, nothing exposed.
     await expect(g).toBeHidden();
     expect(await g.evaluate((el) => [el.getBoundingClientRect().width, el.getBoundingClientRect().height, el.getAttribute('role'), el.getAttribute('aria-label')])).toEqual([0, 0, null, null]);
-    near(await gap(), withGroup - 70, 'the room the group took', 0.01);
+    near(await gap(), withGroup - 76, 'the room the group took', 0.01);
     expect(await group(page, 'never').evaluate((el) => [el.getBoundingClientRect().width, el.getAttribute('role')])).toEqual([0, null]);
     await expect(stage(page, 'never').getByRole('group')).toHaveCount(0);
     await expect(stage(page, 'never').getByText('not a member')).toBeHidden();
@@ -1388,9 +1391,9 @@ test.describe('behavior', () => {
     expect(before.avatars.byline.slice(2)).toEqual([24, 24]);
     expect(before.avatars.medium.slice(2)).toEqual([40, 40]);
     expect(before.avatars.large.slice(2)).toEqual([56, 56]);
-    expect(before.avatars['group-medium'].slice(2)).toEqual([100, 40]);
-    expect(before.avatars['group-small'].slice(2)).toEqual([3 * 24 - 2 * 6, 24]);
-    expect(before.avatars['group-large'].slice(2)).toEqual([3 * 56 - 2 * 14, 56]);
+    expect(before.avatars['group-medium'].slice(2)).toEqual([112, 40]);
+    expect(before.avatars['group-small'].slice(2)).toEqual([3 * 24 - 2 * 2, 24]);
+    expect(before.avatars['group-large'].slice(2)).toEqual([3 * 56 - 2 * 8, 56]);
     await expect(page.locator('#glyph > [slot="icon"]')).toBeHidden();
     sameColor(await painted(page.locator('#medium'), 'background-color'), await tokenColor(page, 'container-color'), 'the box before it is defined');
     expect(await css(page.locator('#large'), 'border-top-left-radius')).toBe('6px');
@@ -1406,11 +1409,11 @@ test.describe('behavior', () => {
     for (const [id, was] of Object.entries(before.avatars)) if (id !== 'total') close(was, after.avatars[id], id);
     for (const [id, was] of Object.entries(before.marks)) if (id !== 'after-total') close(was, after.marks[id], id);
     // Only the text after the counting group moves, by one box less its overlap.
-    expect(after.marks['after-total'][0] - before.marks['after-total'][0]).toBe(30);
-    expect(after.avatars.total[2] - before.avatars.total[2]).toBe(30);
+    expect(after.marks['after-total'][0] - before.marks['after-total'][0]).toBe(36);
+    expect(after.avatars.total[2] - before.avatars.total[2]).toBe(36);
     // …and they are the elements now.
     await expect(page.locator('#medium').locator('.label')).toHaveText('AL');
-    await expect(page.locator('#total').locator('.count')).toHaveText('+237');
+    await expect(page.locator('#total').locator('.count')).toHaveText('99+');
     // The stylesheet's rules match nothing once the elements are defined, and are in the components' layer.
     expect(dist('avatar.css')).toContain('@layer tanrei.components');
     expect(await page.evaluate(() => document.querySelectorAll('tanrei-avatar:not(:defined), tanrei-avatar-group:not(:defined)').length)).toBe(0);

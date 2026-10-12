@@ -19432,11 +19432,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.8471,
-                    0.8471,
-                    0.8471
+                    0.1059,
+                    0.1059,
+                    0.1059
                   ],
-                  "hex": "#d8d8d8"
+                  "alpha": 0.2272,
+                  "hex": "#1b1b1b"
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
@@ -19556,11 +19557,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.8314,
-                    0.8314,
-                    0.8314
+                    0.1059,
+                    0.1059,
+                    0.1059
                   ],
-                  "hex": "#d4d4d4"
+                  "alpha": 0.244,
+                  "hex": "#1b1b1b"
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
@@ -19680,11 +19682,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.8314,
-                    0.8314,
-                    0.8314
+                    0.1059,
+                    0.1059,
+                    0.1059
                   ],
-                  "hex": "#d4d4d4"
+                  "alpha": 0.244,
+                  "hex": "#1b1b1b"
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
@@ -19903,6 +19906,31 @@
                     "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
                   },
                   "dev.tanrei.state": "disabled"
+                }
+              }
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.1059,
+                  0.1059,
+                  0.1059
+                ],
+                "alpha": 0.16,
+                "hex": "#1b1b1b"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                },
+                "dev.tanrei.derive": {
+                  "fn": "alpha",
+                  "of": "{tanrei.comp.list.selected.state-layer.color}",
+                  "amount": 0.16
                 }
               }
             }

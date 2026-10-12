@@ -5197,10 +5197,12 @@ public struct TanreiCodeBlockTokens: Sendable, Equatable {
   public var languageTypescale: TanreiTextStyle
   public var lineNumberColor: TanreiPaint
   public var lineNumberGap: CGFloat
+  public var lineAddedContainerColor: TanreiPaint
   public var lineAddedMarkColor: TanreiPaint
   public var lineHighlightedContainerColor: TanreiPaint
   public var lineHighlightedMarkColor: TanreiPaint
   public var lineMarkWidth: CGFloat
+  public var lineRemovedContainerColor: TanreiPaint
   public var lineRemovedMarkColor: TanreiPaint
   public var outlineColor: TanreiPaint
   public var outlineWidth: CGFloat
@@ -5223,10 +5225,12 @@ public struct TanreiCodeBlockTokens: Sendable, Equatable {
     languageTypescale: TanreiTextStyle,
     lineNumberColor: TanreiPaint,
     lineNumberGap: CGFloat,
+    lineAddedContainerColor: TanreiPaint,
     lineAddedMarkColor: TanreiPaint,
     lineHighlightedContainerColor: TanreiPaint,
     lineHighlightedMarkColor: TanreiPaint,
     lineMarkWidth: CGFloat,
+    lineRemovedContainerColor: TanreiPaint,
     lineRemovedMarkColor: TanreiPaint,
     outlineColor: TanreiPaint,
     outlineWidth: CGFloat,
@@ -5248,10 +5252,12 @@ public struct TanreiCodeBlockTokens: Sendable, Equatable {
     self.languageTypescale = languageTypescale
     self.lineNumberColor = lineNumberColor
     self.lineNumberGap = lineNumberGap
+    self.lineAddedContainerColor = lineAddedContainerColor
     self.lineAddedMarkColor = lineAddedMarkColor
     self.lineHighlightedContainerColor = lineHighlightedContainerColor
     self.lineHighlightedMarkColor = lineHighlightedMarkColor
     self.lineMarkWidth = lineMarkWidth
+    self.lineRemovedContainerColor = lineRemovedContainerColor
     self.lineRemovedMarkColor = lineRemovedMarkColor
     self.outlineColor = outlineColor
     self.outlineWidth = outlineWidth
@@ -9221,6 +9227,7 @@ public struct TanreiListTokens: Sendable, Equatable {
   public var motionStateEasing: TanreiCubicBezier
   public var moveButtonsGap: CGFloat
   public var overlineTypescale: TanreiTextStyle
+  public var reorderTextMinWidth: CGFloat
   public var supportingTextTypescale: TanreiTextStyle
   public var trailingIconSize: CGFloat
   public var trailingTextTypescale: TanreiTextStyle
@@ -9266,6 +9273,7 @@ public struct TanreiListTokens: Sendable, Equatable {
     motionStateEasing: TanreiCubicBezier,
     moveButtonsGap: CGFloat,
     overlineTypescale: TanreiTextStyle,
+    reorderTextMinWidth: CGFloat,
     supportingTextTypescale: TanreiTextStyle,
     trailingIconSize: CGFloat,
     trailingTextTypescale: TanreiTextStyle,
@@ -9306,6 +9314,7 @@ public struct TanreiListTokens: Sendable, Equatable {
     self.motionStateEasing = motionStateEasing
     self.moveButtonsGap = moveButtonsGap
     self.overlineTypescale = overlineTypescale
+    self.reorderTextMinWidth = reorderTextMinWidth
     self.supportingTextTypescale = supportingTextTypescale
     self.trailingIconSize = trailingIconSize
     self.trailingTextTypescale = trailingTextTypescale
@@ -12058,6 +12067,7 @@ public struct TanreiProseTokens: Sendable, Equatable {
   public var heading6GapAfter: CGFloat
   public var heading6GapBefore: CGFloat
   public var itemGap: CGFloat
+  public var japaneseLineHeight: Double
   public var leadTypescale: TanreiTextStyle
   public var listIndent: CGFloat
   public var measure: Double
@@ -12085,6 +12095,7 @@ public struct TanreiProseTokens: Sendable, Equatable {
     heading6GapAfter: CGFloat,
     heading6GapBefore: CGFloat,
     itemGap: CGFloat,
+    japaneseLineHeight: Double,
     leadTypescale: TanreiTextStyle,
     listIndent: CGFloat,
     measure: Double,
@@ -12111,6 +12122,7 @@ public struct TanreiProseTokens: Sendable, Equatable {
     self.heading6GapAfter = heading6GapAfter
     self.heading6GapBefore = heading6GapBefore
     self.itemGap = itemGap
+    self.japaneseLineHeight = japaneseLineHeight
     self.leadTypescale = leadTypescale
     self.listIndent = listIndent
     self.measure = measure

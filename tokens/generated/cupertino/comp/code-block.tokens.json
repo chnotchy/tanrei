@@ -259,7 +259,7 @@
         "line": {
           "$extensions": {
             "dev.tanrei.vocabulary": {
-              "rationale": "One product points at lines inside a block of code — the line its text talks about, the lines a change adds and the lines it takes away — without relying on color alone.",
+              "rationale": "One product points at lines inside a block of code — the line its text talks about, the lines a change adds and the lines it takes away — with a band a reader scanning the block sees at once, and never by color alone.",
               "since": "0.1.0"
             }
           },
@@ -287,6 +287,27 @@
             }
           },
           "added": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$description": "The band behind an added line, from the block's left edge to its right: a faint tint of the success color, so that the line reads as added at a glance whatever the colors of its code. Its code keeps its syntax colors, held on this band at the code's contrast. Never the only mark: the bar and the plus sign are drawn with it, and in forced colors the band is not drawn.",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This preset draws no band behind an added line: its secondary label color, which its comments, line numbers and prompts take, falls under 4.5:1 on the faint status tints of its palette (4.1:1 to 4.4:1). The bar and the sign still mark the line."
+                  }
+                }
+              }
+            },
             "mark": {
               "color": {
                 "$type": "color",
@@ -296,6 +317,27 @@
             }
           },
           "removed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$description": "The band behind a removed line, from the block's left edge to its right: a faint tint of the error color, so that the line reads as removed at a glance whatever the colors of its code. Its code keeps its syntax colors, held on this band at the code's contrast. Never the only mark: the bar and the minus sign are drawn with it, and in forced colors the band is not drawn.",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This preset draws no band behind a removed line: its secondary label color, which its comments, line numbers and prompts take, falls under 4.5:1 on the faint status tints of its palette (4.1:1 to 4.4:1). The bar and the sign still mark the line."
+                  }
+                }
+              }
+            },
             "mark": {
               "color": {
                 "$type": "color",

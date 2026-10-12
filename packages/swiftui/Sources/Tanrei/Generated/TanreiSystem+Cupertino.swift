@@ -609,19 +609,19 @@ private let cupertinoAvatarTokens = TanreiAvatarTokens(
       containerSize: 24,
       labelTypescale: cupertinoTypescale.caption,
       iconSize: 16,
-      groupOverlap: 6
+      groupOverlap: 2
     ),
     medium: TanreiAvatarSizeTokens(
       containerSize: 40,
       labelTypescale: cupertinoTypescale.label,
       iconSize: 24,
-      groupOverlap: 10
+      groupOverlap: 4
     ),
     large: TanreiAvatarSizeTokens(
       containerSize: 56,
       labelTypescale: cupertinoTypescale.heading3,
       iconSize: 32,
-      groupOverlap: 14
+      groupOverlap: 8
     )
   ),
   shapes: TanreiAvatarShapes(
@@ -2872,10 +2872,12 @@ private let cupertinoCodeBlockTokens = TanreiCodeBlockTokens(
   languageTypescale: cupertinoTypescale.labelSmall,
   lineNumberColor: .role(.onSurfaceVariant),
   lineNumberGap: 16,
+  lineAddedContainerColor: .none,
   lineAddedMarkColor: .role(.success),
   lineHighlightedContainerColor: .role(.surfaceContainerHighest),
   lineHighlightedMarkColor: .role(.primary),
   lineMarkWidth: 2,
+  lineRemovedContainerColor: .none,
   lineRemovedMarkColor: .role(.error),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
@@ -4883,6 +4885,7 @@ private let cupertinoListTokens = TanreiListTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   moveButtonsGap: 0,
   overlineTypescale: cupertinoTypescale.labelSmall,
+  reorderTextMinWidth: 96,
   supportingTextTypescale: cupertinoTypescale.bodySmall,
   trailingIconSize: 20,
   trailingTextTypescale: cupertinoTypescale.labelSmall,
@@ -6514,6 +6517,7 @@ private let cupertinoProseTokens = TanreiProseTokens(
   heading6GapAfter: 8,
   heading6GapBefore: 24,
   itemGap: 4,
+  japaneseLineHeight: 1.85,
   leadTypescale: cupertinoTypescale.bodyLarge,
   listIndent: 32,
   measure: 36,

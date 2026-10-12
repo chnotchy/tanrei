@@ -160,7 +160,7 @@ Every fallback has the same quiet fill. There is no color per person: a color th
 
 ### Groups
 
-A group draws its members as one row. Each lies a quarter of its side over the one before it, with a gap in the surface's color around each.
+A group draws its members as one row. Each lies a little over the one before it (2, 4 or 8 by size), so two initials side by side stay whole and are not misread, with a gap in the surface's color around each.
 
 <DemoFrame label="A group that counts what it was not given" plain>
   <tanrei-avatar-group label="Members" max="4" total="240" overflow-label="and 237 more">
@@ -171,7 +171,7 @@ A group draws its members as one row. Each lies a quarter of its side over the o
 </DemoFrame>
 
 - `max` is the most boxes the group draws, the overflow box included. Six members with `max="4"` are three members and "+3". The group never draws "+1": it would spend a box to hide one face.
-- `total` is the real count where you give the group fewer members than exist. Three members, `max="4"` and `total="240"` are three members and "+237".
+- `total` is the real count where you give the group fewer members than exist. Three members, `max="4"` and `total="240"` are three members and "99+": above 99 the box reads "99+" at every size, so it never holds more than three characters. Give the exact number in `overflow-label`, which is what is read.
 - The group gives its `size` and `shape` to every member.
 - On another surface than the page's, set `--tanrei-comp-avatar-group-outline-color` to that surface's color.
 - The overflow box is text, not a control. Where people need to see who else there is, put a link or a button beside the group.
@@ -208,7 +208,7 @@ A group with `max` shows every member you gave it until the script counts them. 
 - A badge around it adds the badge's label after the avatar's name.
 - A group is one group named by its `label`. It holds one named image for each member it draws, in the order given, and then the overflow's text. Members it does not draw are not exposed.
 - It takes no input and no focus, so it adds no stop to the focus order.
-- With enlarged text it keeps its box, as an icon does.
+- With enlarged text it keeps its box, as an icon does. Its initials grow with the text until they fill the glyph's box of the avatar's size, and stay whole inside it.
 - In forced-colors mode every fallback gains an edge in the text color. A picture keeps its own colors.
 - In a right-to-left layout a group starts at the right. A picture and initials are never mirrored, and the plus sign of "+3" stays before the digits.
 - An avatar without a name, initials longer than two characters, a picture that fails, and an unknown size or shape are reported in debug builds.

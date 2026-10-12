@@ -2,7 +2,7 @@
 title: Avatar
 description: Representa a una persona, un equipo o un proyecto con una imagen pequeña, o con iniciales o un glifo donde no la hay, en un círculo o en un cuadrado redondeado de tres tamaños. Varios se muestran como un solo grupo superpuesto que cuenta el resto. Es una imagen, nunca un control.
 translationOf: components/avatar.mdx
-sourceHash: 3fba4dba17faacf3912404f2c65a411b7cfa585a
+sourceHash: 257eed4baf06211fa6fcff53566ae629cd94b5b1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -162,7 +162,7 @@ Todos los respaldos tienen el mismo relleno discreto. No hay un color por person
 
 ### Grupos
 
-Un grupo dibuja sus miembros en una sola fila. Cada uno se superpone al anterior un cuarto de su lado, con una separación del color de la superficie alrededor de cada uno.
+Un grupo dibuja sus miembros en una sola fila. Cada uno se superpone un poco al anterior (2, 4 u 8 según el tamaño), de modo que dos iniciales una junto a otra quedan enteras y no se leen mal, con una separación del color de la superficie alrededor de cada uno.
 
 <DemoFrame label="Un grupo que cuenta lo que no se le dio" plain>
   <tanrei-avatar-group label="Miembros" max="4" total="240" overflow-label="y 237 más">
@@ -173,7 +173,7 @@ Un grupo dibuja sus miembros en una sola fila. Cada uno se superpone al anterior
 </DemoFrame>
 
 - `max` es el número máximo de cajas que dibuja el grupo, incluida la caja de desbordamiento. Seis miembros con `max="4"` son tres miembros y «+3». El grupo nunca dibuja «+1»: gastaría una caja en ocultar una sola cara.
-- `total` es el número real donde das al grupo menos miembros de los que existen. Tres miembros, `max="4"` y `total="240"` son tres miembros y «+237».
+- `total` es el número real donde das al grupo menos miembros de los que existen. Tres miembros, `max="4"` y `total="240"` son tres miembros y «99+»: por encima de 99 la caja dice «99+» en todos los tamaños, así que nunca contiene más de tres caracteres. Da el número exacto en `overflow-label`, que es lo que se lee.
 - El grupo da su `size` y su `shape` a todos los miembros.
 - Sobre una superficie que no sea la de la página, define `--tanrei-comp-avatar-group-outline-color` con el color de esa superficie.
 - La caja de desbordamiento es texto, no un control. Donde las personas necesiten ver quién más hay, pon un enlace o un botón junto al grupo.
@@ -210,7 +210,7 @@ Un grupo con `max` muestra todos los miembros que le diste hasta que el script l
 - Una insignia a su alrededor añade la etiqueta de la insignia después del nombre del avatar.
 - Un grupo es un solo grupo que recibe su nombre de su `label`. Contiene una imagen con nombre por cada miembro que dibuja, en el orden dado, y después el texto del desbordamiento. Los miembros que no dibuja no se exponen.
 - No recibe ninguna entrada ni el foco, así que no añade ninguna parada al orden del foco.
-- Con el texto ampliado conserva su caja, como hace un icono.
+- Con el texto ampliado conserva su caja, como hace un icono. Sus iniciales crecen con el texto hasta llenar la caja del glifo de su tamaño, y quedan enteras dentro de ella.
 - Con colores forzados, todos los respaldos ganan un borde del color del texto. Una imagen conserva sus propios colores.
 - En un diseño de derecha a izquierda, un grupo empieza por la derecha. Una imagen y unas iniciales nunca se reflejan, y el signo más de «+3» se queda delante de los dígitos.
 - Las compilaciones de depuración notifican un avatar sin nombre, unas iniciales de más de dos caracteres, una imagen que falla y un tamaño o una forma desconocidos.

@@ -2127,21 +2127,21 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 14,
+                "value": 8,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 10,
+                "value": 4,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 2,
                 "unit": "px"
               }
             }
@@ -26524,6 +26524,22 @@
         },
         "line": {
           "added": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0.3255,
+                    0.1176
+                  ],
+                  "hex": "#00531e",
+                  "alpha": 1
+                },
+                "$description": "The band behind an added line, from the block's left edge to its right: a faint tint of the success color, so that the line reads as added at a glance whatever the colors of its code. Its code keeps its syntax colors, held on this band at the code's contrast. Never the only mark: the bar and the plus sign are drawn with it, and in forced colors the band is not drawn."
+              }
+            },
             "mark": {
               "color": {
                 "$type": "color",
@@ -26586,6 +26602,22 @@
             }
           },
           "removed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.549,
+                    0.1137,
+                    0.0941
+                  ],
+                  "hex": "#8c1d18",
+                  "alpha": 1
+                },
+                "$description": "The band behind a removed line, from the block's left edge to its right: a faint tint of the error color, so that the line reads as removed at a glance whatever the colors of its code. Its code keeps its syntax colors, held on this band at the code's contrast. Never the only mark: the bar and the minus sign are drawn with it, and in forced colors the band is not drawn."
+              }
+            },
             "mark": {
               "color": {
                 "$type": "color",
@@ -49725,6 +49757,16 @@
             "$value": 1
           }
         },
+        "reorder": {
+          "text-min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 96,
+              "unit": "px"
+            },
+            "$description": "The least width the text column of a reorderable item keeps beside its handle, its move buttons and its trailing control. Where those would leave the text narrower than this, the controls of every item go to a line of their own below the text (LST-51). It grows with enlarged text, so that the controls stay beside the text at the default text size and stand below it when the text is large."
+          }
+        },
         "selected": {
           "container": {
             "color": {
@@ -49738,7 +49780,8 @@
                 ],
                 "hex": "#4a4458",
                 "alpha": 1
-              }
+              },
+              "$description": "The fill of a selected option's row, drawn over whatever the list stands on and under the row's content (LST-26). The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the row's own content color (selected.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json), as the menu values its checked row, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered row. A design system that sets this token draws what it sets. The check is always drawn with the fill; the fill never carries the choice alone."
             }
           },
           "disabled": {
@@ -66698,6 +66741,13 @@
               "unit": "px"
             },
             "$description": "Space between the items of a list, between an item's text and a list nested in it, and between a term and its description."
+          }
+        },
+        "japanese": {
+          "line-height": {
+            "$type": "number",
+            "$value": 1.85,
+            "$description": "The line height of running text whose language is Japanese, as a multiple of the running text's size (PRS-31): the space between two lines is 0.85 of a character, near the whole character that the Japanese layout requirements (W3C JLREQ) recommend for lines longer than 35 characters, as the measure's 36 are. Latin text keeps the running text style's own line height."
           }
         },
         "lead": {

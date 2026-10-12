@@ -631,19 +631,19 @@ private let tanreiAvatarTokens = TanreiAvatarTokens(
       containerSize: 24,
       labelTypescale: tanreiTypescale.caption,
       iconSize: 16,
-      groupOverlap: 6
+      groupOverlap: 2
     ),
     medium: TanreiAvatarSizeTokens(
       containerSize: 40,
       labelTypescale: tanreiTypescale.label,
       iconSize: 24,
-      groupOverlap: 10
+      groupOverlap: 4
     ),
     large: TanreiAvatarSizeTokens(
       containerSize: 56,
       labelTypescale: tanreiTypescale.heading3,
       iconSize: 32,
-      groupOverlap: 14
+      groupOverlap: 8
     )
   ),
   shapes: TanreiAvatarShapes(
@@ -2894,10 +2894,12 @@ private let tanreiCodeBlockTokens = TanreiCodeBlockTokens(
   languageTypescale: tanreiTypescale.labelSmall,
   lineNumberColor: .role(.onSurfaceVariant),
   lineNumberGap: 16,
+  lineAddedContainerColor: .role(.successContainer),
   lineAddedMarkColor: .role(.success),
   lineHighlightedContainerColor: .role(.surfaceContainerHighest),
   lineHighlightedMarkColor: .role(.primary),
   lineMarkWidth: 2,
+  lineRemovedContainerColor: .role(.errorContainer),
   lineRemovedMarkColor: .role(.error),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
@@ -4905,6 +4907,7 @@ private let tanreiListTokens = TanreiListTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   moveButtonsGap: 0,
   overlineTypescale: tanreiTypescale.labelSmall,
+  reorderTextMinWidth: 96,
   supportingTextTypescale: tanreiTypescale.bodySmall,
   trailingIconSize: 24,
   trailingTextTypescale: tanreiTypescale.labelSmall,
@@ -4968,57 +4971,57 @@ private let tanreiListTokens = TanreiListTokens(
     ),
     selected: TanreiListConditionTokens(
       enabled: TanreiListConditionStateTokens(
-        containerColor: .role(.secondaryContainer),
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
+        overlineColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
         leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        trailingIconColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       hovered: TanreiListConditionStateTokens(
-        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.08),
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.08),
         headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
+        overlineColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
         leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        trailingIconColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       focused: TanreiListConditionStateTokens(
-        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.1),
         headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
+        overlineColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
         leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        trailingIconColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       pressed: TanreiListConditionStateTokens(
-        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.1),
         headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
+        overlineColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
         leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        trailingIconColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       disabled: TanreiListConditionStateTokens(
-        containerColor: .role(.secondaryContainer),
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
+        overlineColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
         leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        trailingIconColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       )
@@ -6536,6 +6539,7 @@ private let tanreiProseTokens = TanreiProseTokens(
   heading6GapAfter: 8,
   heading6GapBefore: 24,
   itemGap: 4,
+  japaneseLineHeight: 1.85,
   leadTypescale: tanreiTypescale.bodyLarge,
   listIndent: 32,
   measure: 36,

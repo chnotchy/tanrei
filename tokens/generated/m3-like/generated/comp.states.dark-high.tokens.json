@@ -59899,6 +59899,78 @@
               }
             }
           }
+        },
+        "line": {
+          "added": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0.2745,
+                    0.0941
+                  ],
+                  "hex": "#004618"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product shows code people read, compare and copy — an example in its documentation, a command to run, a configuration file, a response from its API, a log — set apart from the text around it, in a face whose columns line up, on its page and inside its cards and panels, at the interface's size and smaller where room is short."
+                  },
+                  "dev.tanrei.derive": {
+                    "fn": "tone",
+                    "palette": "success",
+                    "tone": {
+                      "light": [
+                        90
+                      ],
+                      "dark": [
+                        30,
+                        30,
+                        25
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "removed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.4941,
+                    0,
+                    0.0157
+                  ],
+                  "hex": "#7e0004"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product shows code people read, compare and copy — an example in its documentation, a command to run, a configuration file, a response from its API, a log — set apart from the text around it, in a face whose columns line up, on its page and inside its cards and panels, at the interface's size and smaller where room is short."
+                  },
+                  "dev.tanrei.derive": {
+                    "fn": "tone",
+                    "palette": "error",
+                    "tone": {
+                      "light": [
+                        90
+                      ],
+                      "dark": [
+                        30,
+                        30,
+                        25
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

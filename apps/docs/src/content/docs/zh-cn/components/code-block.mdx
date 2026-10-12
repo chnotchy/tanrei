@@ -2,7 +2,7 @@
 title: "代码块"
 description: "供人阅读、比较和复制的多行代码，使用代码字体，在自身内部滚动或换行，可带页眉、行号、带标记的行、提示符和复制按钮。给出代码和它的语言，它就会自己为代码做语法高亮。"
 translationOf: components/code-block.mdx
-sourceHash: 3f2cb34d6a6385776faace656f870690072e864d
+sourceHash: c4fe6cef35324f5127fdb081065d9e09553db29c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,8 +132,8 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 | 行 | 左边缘的竖条 | 色带 | 符号 | 在该行之前朗读 |
 | --- | --- | --- | --- | --- |
 | 高亮 | 有 | 有 | | `highlighted-label` |
-| 新增 | 有 | | + | `added-label` |
-| 删除 | 有 | | − | `removed-label` |
+| 新增 | 有 | 淡绿 | + | `added-label` |
+| 删除 | 有 | 淡红 | − | `removed-label` |
 
 行的列表由逗号分隔的数字和范围组成（`"3, 7-9"`）。它们按读者看到的行号计数，从 `start-line` 算起。
 

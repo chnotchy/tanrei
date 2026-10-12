@@ -178,6 +178,11 @@
       "verify": "The default system's heading-1 to heading-5 have negative letter-spacing; test with lang=\"ja\" on the prose and on one heading inside an English prose."
     },
     {
+      "id": "PRS-31",
+      "text": "WHERE the language of the running text is Japanese — the prose's, or a block's inside a prose in another language — THE prose SHALL set the lines of that running text at comp.prose.japanese.line-height times the running text's size, in place of the running text style's own line height, so that the space between lines is near one character for a line of the measure's length; headings, the lead paragraph and secondary text keep their own text styles' line heights, and text in other languages keeps the running text style's.",
+      "verify": "On the web, with lang=\"ja\" on the prose and on one paragraph inside an English prose: the running text's line height is 1.85 times its font size in the default system (25.9 at medium, for 14 px text); the English paragraphs and the headings keep their styles' line heights."
+    },
+    {
       "id": "PRS-21",
       "text": "WHERE a heading has an anchor THE prose SHALL place the anchor — a link to that heading showing the glyph link — after the end of the heading's text, comp.prose.anchor.gap from it, on the last line's baseline and never alone on a line of its own; the anchor SHALL NOT be part of the heading's accessible name or of its text, and SHALL have an accessible name of its own that includes the heading's text, which the product supplies in its language."
     },

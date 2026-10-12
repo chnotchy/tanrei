@@ -338,8 +338,8 @@ export class TanreiListItem extends LitElement {
   }
 
   /**
-   * @internal LST-51: whether the item's controls, standing in the row, would leave its text column less than half
-   * the row's width. Counted from what stands beside the text — the leading element, the trailing text and icon, the
+   * @internal LST-51: whether the item's controls, standing in the row, would leave its text column narrower than
+   * `comp.list.reorder.text-min-width` (a length that grows with the text, read as the row computes it). Counted from what stands beside the text — the leading element, the trailing text and icon, the
    * move buttons and the trailing control, each at the width it has, and the gaps between them — so the answer is the
    * same whichever way the controls are placed now.
    */
@@ -363,7 +363,8 @@ export class TanreiListItem extends LitElement {
     }
     const whole = width(row);
     const text = whole - (Number.parseFloat(style.paddingLeft) || 0) - (Number.parseFloat(style.paddingRight) || 0) - beside - gap * (parts - 1);
-    return text < whole / 2;
+    const least = Number.parseFloat(style.scrollPaddingTop);
+    return Number.isFinite(least) && text < least;
   }
 
   /** LST-51: what the list measures has been drawn, or has changed its size. */
@@ -1133,7 +1134,7 @@ export class TanreiList extends LitElement {
     measureTogether(this);
   }
 
-  /** @internal LST-51: whether the controls of any item would leave its text less than half its row — a reading of the layout; null where there is nothing to ask. */
+  /** @internal LST-51: whether the controls of any item would leave its text narrower than reorder.text-min-width — a reading of the layout; null where there is nothing to ask. */
   readStacked(): boolean | null {
     return this.isConnected ? this.reorderable && this.items.some((item) => item.squeezed) : null;
   }
@@ -1146,7 +1147,7 @@ export class TanreiList extends LitElement {
   }
 
   /**
-   * LST-51: where the controls of any item would leave its text less than half its row, the controls of every item
+   * LST-51: where the controls of any item would leave its text narrower than reorder.text-min-width, the controls of every item
    * stand on a line of their own.
    */
   private measureStacked() {

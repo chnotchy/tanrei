@@ -675,6 +675,24 @@
     opacity: var(--tanrei-comp-tree-view-disabled-opacity);
     cursor: default;
   }
+  /* TRV-25, TRV-27: the arrow keys reach a disabled row, so its focus indicator is drawn at full strength. The
+     opacity of a row reaches everything the row draws, its container's ring too; so a disabled row that has keyboard
+     focus takes the disabled opacity into each of its colors instead, and into the product's trailing content, and
+     the row itself is opaque. What it shows is what it showed without focus; only the ring is not faded. */
+  :where(tanrei-tree-view) :where(li[data-disabled]) > :where(:first-child:not(ul, ol):focus-visible) {
+    --_trv-fade: calc(var(--tanrei-comp-tree-view-disabled-opacity) * 100%);
+    --_trv-now-container: color-mix(in srgb, var(--_trv-disabled-container) var(--_trv-fade), transparent);
+    --_trv-now-label: color-mix(in srgb, var(--_trv-disabled-label) var(--_trv-fade), transparent);
+    --_trv-now-supporting: color-mix(in srgb, var(--_trv-disabled-supporting) var(--_trv-fade), transparent);
+    --_trv-now-trailing: color-mix(in srgb, var(--_trv-disabled-trailing) var(--_trv-fade), transparent);
+    --_trv-now-icon: color-mix(in srgb, var(--_trv-disabled-icon) var(--_trv-fade), transparent);
+    --_trv-now-chevron: color-mix(in srgb, var(--_trv-disabled-chevron) var(--_trv-fade), transparent);
+    opacity: 1;
+  }
+  :where(tanrei-tree-view) :where(li[data-disabled]) > :where(:first-child:not(ul, ol):focus-visible) > :where([data-trailing]) {
+    color: var(--_trv-disabled-label);
+    opacity: var(--tanrei-comp-tree-view-disabled-opacity);
+  }
 
   /* ── Where script does not run (TRV-9's web note): every level shown, no chevron drawn, nothing to press ────── */
   @media (scripting: none) {

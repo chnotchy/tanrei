@@ -751,7 +751,7 @@ test.describe('lines', () => {
     expect([await css(keyword(5), 'color'), await css(keyword(5), 'font-weight')]).toEqual([await css(keyword(4), 'color'), await css(keyword(4), 'font-weight')]);
   });
 
-  test('COD-16: an added or a removed line has a bar at the container’s left edge and, in the gutter after the numbers, a plus or a minus — both in its mark color — and its label exposed before its text; it keeps its colors, is not struck through and draws no band: the sign and the label say what it is', async ({ page }) => {
+  test('COD-16: an added or a removed line has a bar at the container’s left edge and, in the gutter after the numbers, a plus or a minus — both in its mark color — and its label exposed before its text; a band of its kind behind it from edge to edge; it keeps its colors and is not struck through: the sign and the label say what it is', async ({ page }) => {
     await mount(page, only('diff', 'diff-without-numbers'));
     const width = await resolveToken(page, T('line-mark-width'));
     for (const [id, removed, added] of [['diff', 4, 5], ['diff-without-numbers', 1, 2]] as const) {
@@ -763,8 +763,12 @@ test.describe('lines', () => {
         expect((await css(g, 'background-image')).replaceAll(/\s+/g, ' '), `${id} ${kind}`).toContain(`linear-gradient(${color}, ${color})`);
         expect((await css(g, 'background-size')).split(',')[0], `${id} ${kind}`).toBe(`${width}px 100%`);
         expect((await box(g)).x, `${id} ${kind}`).toBe((await box(container(page, id))).x);
-        // No band, no strike, the code's own color.
-        expect([await css(line(page, id, n), 'background-color'), await css(lineCode(page, id, n), 'text-decoration-line'), await css(lineCode(page, id, n), 'color')], `${id} ${kind}`).toEqual(['rgba(0, 0, 0, 0)', 'none', await resolveColor(page, T('code-color'))]);
+        // The band of its kind, behind the gutter too; no strike, the code's own color.
+        const band = await resolveColor(page, T(`line-${kind}-container-color`));
+        expect([await css(line(page, id, n), 'background-color'), await css(lineCode(page, id, n), 'text-decoration-line'), await css(lineCode(page, id, n), 'color')], `${id} ${kind}`).toEqual([band, 'none', await resolveColor(page, T('code-color'))]);
+        expect(await css(g, 'background-color'), `${id} ${kind}`).toBe(band);
+        const [l, c] = [await box(line(page, id, n)), await box(container(page, id))];
+        expect([l.x, l.right >= c.right], `${id} ${kind}: from the container's left edge to its right`).toEqual([c.x, true]);
         await expect(line(page, id, n).locator('[data-line-label]'), `${id} ${kind}`).toHaveText(`${words}, `);
       }
       // The sign is drawn, not text, and stands after the number; an unmarked line keeps the column.
@@ -1568,6 +1572,7 @@ test.describe('accessibility', () => {
     const ground = await css(stage(page, 'plain'), 'background-color');
     expect(await css(container(page, 'plain'), 'background-color')).toBe(ground);
     expect(await css(line(page, 'highlighted-lines', 4), 'background-color')).toMatch(/, 0\)$/);
+    for (const n of [4, 5]) expect(await css(line(page, 'diff', n), 'background-color'), `diff ${n}`).toMatch(/, 0\)$/);
     // Every role is the text color, in runs the product gave and in runs the block found; each keeps the weight of its role.
     await colors(page, 'auto-tsx');
     const weight = Number((await css(pre(page, 'syntax'), T('code-typescale-medium-font-weight'))).trim());

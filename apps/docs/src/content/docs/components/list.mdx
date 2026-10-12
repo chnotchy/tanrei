@@ -372,7 +372,7 @@ A list may mix static, interactive and link rows. A selectable list holds only o
 - Write `movedText` as one whole sentence with the three places. The list builds no phrase of its own, so the order of the words is your language's.
 - Put at most one control in the trailing slot, and name it with the item ("Remove Inter"), so that the remove buttons of two rows are told apart.
 - The list announces a move and nothing else. When you remove or add an item, what is said is yours. When you remove the last item, move focus yourself, to where a person adds one.
-- Give the rows room. Where the move buttons and the trailing control would leave the text less than half the row, every row of the list places them on a line of their own below the text. In the default system a row with a remove button and no icon, avatar or image is laid out that way where the row is narrower than about 400 px.
+- Give the rows room. Where the move buttons and the trailing control would leave the text narrower than `reorder.text-min-width` (96 px at the default text size, and larger as the text is enlarged), every row of the list places them on a line of their own below the text, and the trailing control on a further line where that one is too short. In the default system a row with a remove button and no icon, avatar or image keeps them beside its text where the row is about 300 px wide or wider at the default text size; at 200% text they stand below it.
 
 ### Choosing a selection mode
 
@@ -384,7 +384,7 @@ A list may mix static, interactive and link rows. A selectable list holds only o
 
 The arrow keys only move focus. The selection changes when the person presses Space or Enter, or taps the row. This is deliberate: in a list, choosing a row can start something slow, and moving through fifty rows must not start fifty loads.
 
-A selected option is drawn with the selected fill and a check at its end. The check's space is kept in every option, so the text lines up. The check is what meets the 3:1 contrast for the state. The fill alone does not.
+A selected option is drawn with the selected fill and a check at its end. In the default system the fill is a layer of the row's own content color, as a menu's checked item is, so it is told from a hovered row on any surface. The check's space is kept in every option, so the text lines up. The check is what meets the 3:1 contrast for the state. The fill alone does not.
 
 ### Rows and their parts
 
@@ -435,7 +435,6 @@ A selected option is drawn with the selected fill and a check at its end. The ch
 
 Known platform gaps:
 
-- Every platform, default system: a selected option's fill is close to a hovered row's in the light theme and faint on a raised surface in the dark one. The check is what marks the selection.
 - Web: the `drag` value of `reorder` is not built. It draws the two move buttons and no handle, and nothing can be dragged.
 - SwiftUI, Compose, Flutter and React Native have no reorderable list yet: no `reorder`, no `move` and none of its three words.
 - SwiftUI, Compose, Flutter and React Native have no link rows yet: no `href`, `target` or `targetLabel`.

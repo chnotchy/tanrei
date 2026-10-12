@@ -46,6 +46,22 @@
             }
           }
         },
+        "japanese": {
+          "line-height": {
+            "$type": "number",
+            "$value": 1.85,
+            "$description": "The line height of running text whose language is Japanese, as a multiple of the running text's size (PRS-31): the space between two lines is 0.85 of a character, near the whole character that the Japanese layout requirements (W3C JLREQ) recommend for lines longer than 35 characters, as the measure's 36 are. Latin text keeps the running text style's own line height.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product published in Japanese as well as in English sets its long reading lines of Japanese looser than its Latin ones, because a line of full-width characters is denser and the eye needs a wider gap to find the next line; the same product needs both line heights at once.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A ratio of the text's own size, not a distance: it scales with the text by being multiplied by it, and no dial moves it."
+              }
+            }
+          }
+        },
         "text": {
           "typescale": {
             "$type": "typography",

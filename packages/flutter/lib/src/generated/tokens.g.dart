@@ -7650,10 +7650,12 @@ class TanreiCodeBlockTokens {
     required this.languageTypescale,
     required this.lineNumberColor,
     required this.lineNumberGap,
+    required this.lineAddedContainerColor,
     required this.lineAddedMarkColor,
     required this.lineHighlightedContainerColor,
     required this.lineHighlightedMarkColor,
     required this.lineMarkWidth,
+    required this.lineRemovedContainerColor,
     required this.lineRemovedMarkColor,
     required this.outlineColor,
     required this.outlineWidth,
@@ -7686,6 +7688,8 @@ class TanreiCodeBlockTokens {
   final TanreiPaint lineNumberColor;
   /// `comp.code-block.line-number-gap`
   final double lineNumberGap;
+  /// `comp.code-block.line-added-container-color`
+  final TanreiPaint lineAddedContainerColor;
   /// `comp.code-block.line-added-mark-color`
   final TanreiPaint lineAddedMarkColor;
   /// `comp.code-block.line-highlighted-container-color`
@@ -7694,6 +7698,8 @@ class TanreiCodeBlockTokens {
   final TanreiPaint lineHighlightedMarkColor;
   /// `comp.code-block.line-mark-width`
   final double lineMarkWidth;
+  /// `comp.code-block.line-removed-container-color`
+  final TanreiPaint lineRemovedContainerColor;
   /// `comp.code-block.line-removed-mark-color`
   final TanreiPaint lineRemovedMarkColor;
   /// `comp.code-block.outline-color`
@@ -7727,10 +7733,12 @@ class TanreiCodeBlockTokens {
     TanreiTextStyle? languageTypescale,
     TanreiPaint? lineNumberColor,
     double? lineNumberGap,
+    TanreiPaint? lineAddedContainerColor,
     TanreiPaint? lineAddedMarkColor,
     TanreiPaint? lineHighlightedContainerColor,
     TanreiPaint? lineHighlightedMarkColor,
     double? lineMarkWidth,
+    TanreiPaint? lineRemovedContainerColor,
     TanreiPaint? lineRemovedMarkColor,
     TanreiPaint? outlineColor,
     double? outlineWidth,
@@ -7752,10 +7760,12 @@ class TanreiCodeBlockTokens {
         languageTypescale: languageTypescale ?? this.languageTypescale,
         lineNumberColor: lineNumberColor ?? this.lineNumberColor,
         lineNumberGap: lineNumberGap ?? this.lineNumberGap,
+        lineAddedContainerColor: lineAddedContainerColor ?? this.lineAddedContainerColor,
         lineAddedMarkColor: lineAddedMarkColor ?? this.lineAddedMarkColor,
         lineHighlightedContainerColor: lineHighlightedContainerColor ?? this.lineHighlightedContainerColor,
         lineHighlightedMarkColor: lineHighlightedMarkColor ?? this.lineHighlightedMarkColor,
         lineMarkWidth: lineMarkWidth ?? this.lineMarkWidth,
+        lineRemovedContainerColor: lineRemovedContainerColor ?? this.lineRemovedContainerColor,
         lineRemovedMarkColor: lineRemovedMarkColor ?? this.lineRemovedMarkColor,
         outlineColor: outlineColor ?? this.outlineColor,
         outlineWidth: outlineWidth ?? this.outlineWidth,
@@ -13424,6 +13434,7 @@ class TanreiListTokens {
     required this.motionStateEasing,
     required this.moveButtonsGap,
     required this.overlineTypescale,
+    required this.reorderTextMinWidth,
     required this.supportingTextTypescale,
     required this.trailingIconSize,
     required this.trailingTextTypescale,
@@ -13496,6 +13507,8 @@ class TanreiListTokens {
   final double moveButtonsGap;
   /// `comp.list.overline-typescale`
   final TanreiTextStyle overlineTypescale;
+  /// `comp.list.reorder-text-min-width`
+  final double reorderTextMinWidth;
   /// `comp.list.supporting-text-typescale`
   final TanreiTextStyle supportingTextTypescale;
   /// `comp.list.trailing-icon-size`
@@ -13546,6 +13559,7 @@ class TanreiListTokens {
     TanreiCubicBezier? motionStateEasing,
     double? moveButtonsGap,
     TanreiTextStyle? overlineTypescale,
+    double? reorderTextMinWidth,
     TanreiTextStyle? supportingTextTypescale,
     double? trailingIconSize,
     TanreiTextStyle? trailingTextTypescale,
@@ -13586,6 +13600,7 @@ class TanreiListTokens {
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         moveButtonsGap: moveButtonsGap ?? this.moveButtonsGap,
         overlineTypescale: overlineTypescale ?? this.overlineTypescale,
+        reorderTextMinWidth: reorderTextMinWidth ?? this.reorderTextMinWidth,
         supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
         trailingIconSize: trailingIconSize ?? this.trailingIconSize,
         trailingTextTypescale: trailingTextTypescale ?? this.trailingTextTypescale,
@@ -17467,6 +17482,7 @@ class TanreiProseTokens {
     required this.heading6GapAfter,
     required this.heading6GapBefore,
     required this.itemGap,
+    required this.japaneseLineHeight,
     required this.leadTypescale,
     required this.listIndent,
     required this.measure,
@@ -17509,6 +17525,8 @@ class TanreiProseTokens {
   final double heading6GapBefore;
   /// `comp.prose.item-gap`
   final double itemGap;
+  /// `comp.prose.japanese-line-height`
+  final double japaneseLineHeight;
   /// `comp.prose.lead-typescale`
   final TanreiTextStyle leadTypescale;
   /// `comp.prose.list-indent`
@@ -17547,6 +17565,7 @@ class TanreiProseTokens {
     double? heading6GapAfter,
     double? heading6GapBefore,
     double? itemGap,
+    double? japaneseLineHeight,
     TanreiTextStyle? leadTypescale,
     double? listIndent,
     double? measure,
@@ -17573,6 +17592,7 @@ class TanreiProseTokens {
         heading6GapAfter: heading6GapAfter ?? this.heading6GapAfter,
         heading6GapBefore: heading6GapBefore ?? this.heading6GapBefore,
         itemGap: itemGap ?? this.itemGap,
+        japaneseLineHeight: japaneseLineHeight ?? this.japaneseLineHeight,
         leadTypescale: leadTypescale ?? this.leadTypescale,
         listIndent: listIndent ?? this.listIndent,
         measure: measure ?? this.measure,

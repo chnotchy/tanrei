@@ -238,9 +238,9 @@
     --tanrei-comp-avatar-container-size-small: round(nearest, calc(var(--tanrei-dial-size-unit) * 6), 0.25px);
     --tanrei-comp-avatar-group-outline-color: var(--tanrei-sys-color-surface);
     --tanrei-comp-avatar-group-outline-width: var(--tanrei-sys-border-thick);
-    --tanrei-comp-avatar-group-overlap-large: var(--tanrei-sys-space-space175);
-    --tanrei-comp-avatar-group-overlap-medium: var(--tanrei-sys-space-space125);
-    --tanrei-comp-avatar-group-overlap-small: var(--tanrei-sys-space-space75);
+    --tanrei-comp-avatar-group-overlap-large: var(--tanrei-sys-space-space100);
+    --tanrei-comp-avatar-group-overlap-medium: var(--tanrei-sys-space-space50);
+    --tanrei-comp-avatar-group-overlap-small: var(--tanrei-sys-space-space25);
     --tanrei-comp-avatar-icon-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-avatar-icon-size-large: var(--tanrei-sys-icon-large);
     --tanrei-comp-avatar-icon-size-medium: var(--tanrei-sys-icon-medium);
@@ -2247,10 +2247,12 @@
     --tanrei-comp-code-block-language-typescale-font: var(--tanrei-sys-typescale-label-small-font);
     --tanrei-comp-code-block-line-number-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-code-block-line-number-gap: var(--tanrei-sys-space-space200);
+    --tanrei-comp-code-block-line-added-container-color: light-dark(#94f99f, #00531e);
     --tanrei-comp-code-block-line-added-mark-color: var(--tanrei-sys-color-success);
     --tanrei-comp-code-block-line-highlighted-container-color: var(--tanrei-sys-color-surface-container-highest);
     --tanrei-comp-code-block-line-highlighted-mark-color: var(--tanrei-sys-color-primary);
     --tanrei-comp-code-block-line-mark-width: var(--tanrei-sys-border-thick);
+    --tanrei-comp-code-block-line-removed-container-color: light-dark(#f9dedc, #8c1d18);
     --tanrei-comp-code-block-line-removed-mark-color: var(--tanrei-sys-color-error);
     --tanrei-comp-code-block-outline-color: var(--tanrei-sys-color-outline-variant);
     --tanrei-comp-code-block-outline-width: var(--tanrei-sys-border-hairline);
@@ -4244,6 +4246,7 @@
     --tanrei-comp-list-pressed-container-shape: var(--tanrei-comp-list-container-shape);
     --tanrei-comp-list-pressed-container-shape-pill: 0;
     --tanrei-comp-list-pressed-opacity: 1;
+    --tanrei-comp-list-reorder-text-min-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 24), 0.25px);
     --tanrei-comp-list-selected-container-color: var(--tanrei-sys-color-secondary-container);
     --tanrei-comp-list-selected-disabled-container-color: var(--tanrei-comp-list-selected-container-color);
     --tanrei-comp-list-selected-disabled-headline-color: var(--tanrei-comp-list-selected-headline-color);
@@ -5655,6 +5658,7 @@
     --tanrei-comp-prose-heading-6-gap-after: var(--tanrei-sys-space-space100);
     --tanrei-comp-prose-heading-6-gap-before: var(--tanrei-sys-space-space300);
     --tanrei-comp-prose-item-gap: var(--tanrei-sys-space-space50);
+    --tanrei-comp-prose-japanese-line-height: 1.85;
     --tanrei-comp-prose-lead-typescale-font-family: var(--tanrei-sys-typescale-body-large-font-family);
     --tanrei-comp-prose-lead-typescale-font-size: var(--tanrei-sys-typescale-body-large-font-size);
     --tanrei-comp-prose-lead-typescale-font-weight: var(--tanrei-sys-typescale-body-large-font-weight);
@@ -8714,6 +8718,8 @@
       --tanrei-sys-color-success: light-dark(var(--tanrei-ref-palette-success-20), var(--tanrei-ref-palette-success-90));
       --tanrei-sys-color-tertiary: light-dark(var(--tanrei-ref-palette-tertiary-20), var(--tanrei-ref-palette-tertiary-90));
       --tanrei-sys-color-warning: light-dark(var(--tanrei-ref-palette-warning-20), var(--tanrei-ref-palette-warning-90));
+      --tanrei-comp-code-block-line-added-container-color: light-dark(#94f99f, #004618);
+      --tanrei-comp-code-block-line-removed-container-color: light-dark(#f9dedc, #7e0004);
       --tanrei-comp-code-block-syntax-color-constant: light-dark(#5f2e00, #ffd8bf);
       --tanrei-comp-code-block-syntax-color-function: light-dark(#00397c, #d3e0ff);
       --tanrei-comp-code-block-syntax-color-keyword: light-dark(#5c098d, #f2d6ff);
@@ -8775,6 +8781,8 @@
     --tanrei-sys-color-success: light-dark(var(--tanrei-ref-palette-success-20), var(--tanrei-ref-palette-success-90));
     --tanrei-sys-color-tertiary: light-dark(var(--tanrei-ref-palette-tertiary-20), var(--tanrei-ref-palette-tertiary-90));
     --tanrei-sys-color-warning: light-dark(var(--tanrei-ref-palette-warning-20), var(--tanrei-ref-palette-warning-90));
+    --tanrei-comp-code-block-line-added-container-color: light-dark(#94f99f, #004618);
+    --tanrei-comp-code-block-line-removed-container-color: light-dark(#f9dedc, #7e0004);
     --tanrei-comp-code-block-syntax-color-constant: light-dark(#5f2e00, #ffd8bf);
     --tanrei-comp-code-block-syntax-color-function: light-dark(#00397c, #d3e0ff);
     --tanrei-comp-code-block-syntax-color-keyword: light-dark(#5c098d, #f2d6ff);

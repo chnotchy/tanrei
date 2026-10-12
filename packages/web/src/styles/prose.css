@@ -103,6 +103,12 @@
   :where(.tanrei-prose):where(:lang(ja), :lang(zh)) {
     line-break: strict;
   }
+  /* PRS-31: Japanese running text is set looser, the space between its lines near one character (W3C JLREQ, for
+     lines longer than 35 characters). Inherited as a number, so every block of running text takes it; a heading,
+     the lead and secondary text set their own style's font, and with it their own line height. */
+  :where(.tanrei-prose):where(:lang(ja)) {
+    line-height: var(--tanrei-comp-prose-japanese-line-height);
+  }
 
   /* ── What is prose's own (PRS-16) ──────────────────────────────────────────────────────────────────────────────── */
   /* 1 on a prose and 0 on an island, inherited: what an element's PARENT holds says whether the element is prose's
@@ -226,6 +232,15 @@
     /* PRS-19, for a block in another language than its prose. */
     :where(:lang(ja), :lang(zh)) {
       line-break: strict;
+    }
+    /* PRS-31, for a block of running text in Japanese inside a prose in another language. */
+    :where(p:not(.tanrei-prose-lead), li, dd, blockquote):where(:lang(ja)) {
+      line-height: var(--tanrei-comp-prose-japanese-line-height);
+    }
+    /* Footnotes are secondary text: their blocks keep the line height of its style (PRS-14). */
+    :where([data-footnotes], .footnotes) > :where(ol, ul) > :where(li),
+    :where([data-footnotes], .footnotes) > :where(ol, ul) > :where(li) > :where(p) {
+      line-height: inherit;
     }
 
     /* PRS-17: a link is the Link component's (specs/link.spec.json), drawn as a link that is not standalone, and
