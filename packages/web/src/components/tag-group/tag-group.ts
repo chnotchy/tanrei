@@ -270,7 +270,8 @@ export class TanreiTagGroup extends LitElement {
 
   /**
    * Focus on the first of `candidates` that takes it. A chip takes it on its own control — its button or its link,
-   * the first thing in it that can be focused — and never on its remove action, which comes after (CHP-23).
+   * the first thing in it that can be focused — and never on its remove action, which comes after it and is not a Tab
+   * stop (CHP-18).
    */
   private focusFirst(candidates: readonly HTMLElement[]): boolean {
     for (const candidate of candidates) {

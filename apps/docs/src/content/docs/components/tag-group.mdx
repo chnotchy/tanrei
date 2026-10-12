@@ -181,7 +181,7 @@ Two things stay yours:
 - The set is exposed as one list, named by `label`. Each member is one item of it: a tag is read as its text, a chip as its button or its link with its state, and an input chip with its remove action beside it.
 - A list tells a person how many members there are and where they are among them: "list, 4 items".
 - The members are read and focused in the order given, in a right-to-left layout too.
-- Each chip is its own stop in the focus order, and an input chip two: the chip, then its remove action. The group takes no focus and handles no key.
+- Each chip is its own stop in the focus order, and an input chip one: Tab passes its remove action, and Backspace or Delete on the chip removes it. The group takes no focus and handles no key.
 - After a focused chip is removed, focus goes to the next chip, never to a remove action.
 - An empty group exposes nothing: no empty list and no name.
 - At 200% text the members grow and wrap onto more lines. Nothing is cut and nothing scrolls sideways.
