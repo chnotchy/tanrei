@@ -243,6 +243,35 @@ studioTest('ar: right-to-left — axe passes and nothing scrolls sideways at 390
   assert.equal(await page.locator('[data-token-pane] code').first().evaluate((code) => getComputedStyle(code).direction), 'ltr');
 });
 
+// Arabic is drawn in the face the app loads for it, not in whatever the platform falls back to; the face is registered
+// for the Arabic subset alone, so Latin text and digits stay Inter's. A label beside a value is words, in the text face;
+// only the value is code.
+studioTest('ar: Arabic text is drawn in Noto Sans Arabic, Latin in Inter; a label beside JSON is in the text face', { layer, locale: 'ar' }, async ({ page, level }) => {
+  const faces = await page.evaluate(async () => {
+    await document.fonts.ready;
+    const stack = getComputedStyle(document.documentElement).fontFamily;
+    const arabic = [...document.fonts].filter((face) => face.family.replace(/["']/g, '') === 'Noto Sans Arabic');
+    await Promise.all(arabic.map((face) => face.load()));
+    return { stack, faces: arabic.length, ranges: arabic.map((face) => face.unicodeRange), loaded: document.fonts.check("16px 'Noto Sans Arabic'", 'ع') };
+  });
+  assert.match(faces.stack, /^Inter, "?Noto Sans Arabic"?,/, `the stack: Inter for Latin, then the Arabic face: ${faces.stack}`);
+  assert.equal(faces.faces, 1, 'one face, the Arabic subset');
+  assert.match(faces.ranges[0], /U\+600-6FF/i, `its range is Arabic's: ${faces.ranges[0]}`);
+  assert.ok(!/U\+0?0?00-00FF|U\+0-FF/i.test(faces.ranges[0]), 'it does not take Latin');
+  assert.equal(faces.loaded, true);
+  await level('tokens');
+  await page.locator('[data-tree] [role="treeitem"][tabindex="0"]').focus();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await page.waitForSelector('[data-token-pane] [data-editor]');
+  const writes = page.locator('[data-token-pane] .ts-writes').first();
+  await until(async () => (await writes.count()) > 0, 'an editor shows what it writes');
+  const [label, value] = await writes.evaluate((p) => [getComputedStyle(p).fontFamily, p.querySelector('b') ? getComputedStyle(p.querySelector('b')).fontFamily : null]);
+  assert.doesNotMatch(label, /Roboto Mono|monospace/, `the label is in the text face: ${label}`);
+  if (value) assert.match(value, /Roboto Mono|monospace/, `the value is code: ${value}`);
+});
+
 // ── The minimum target, and the hints of the fields, in the six languages ─────────────────────────────────────────
 /**
  * Runs in the page. Every single-line field of the Studio that shows its hint now — drawn, empty, with a placeholder —
