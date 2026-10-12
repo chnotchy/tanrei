@@ -6204,7 +6204,7 @@ private object TonePerStateSystemSource {
             motionCycleEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionValueDuration = 300,
             motionValueEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            stopIndicatorSize = 4.dp,
+            stopIndicatorSize = 0.dp,
             trackColor = TanreiPaint.Role(TanreiColorRole.SurfaceVariant),
             trackGap = 4.dp,
             trackSeparation = 0f,

@@ -161,44 +161,61 @@ test.describe('behavior', () => {
     expect(await css(part(page, 'linear-large', 'track'), 'border-top-left-radius')).toBe('0px');
   });
 
-  test('PRG-5: under divider the indicator is drawn on the track, touching it, with no dot; under gap track.gap is left after a bar’s indicator and at both ends of a ring’s arc while strictly between min and max, and a bar draws the stop indicator, never larger than it is thick', async ({ page }) => {
+  test('PRG-5: under divider the indicator is drawn on the track, touching it; under gap track.gap is left after a bar’s indicator and at both ends of a ring’s arc while strictly between min and max; a determinate bar draws the stop indicator by its size alone, under either separation — never larger than it is thick, not at max, and none at 0 (the default system’s size)', async ({ page }) => {
     await mountFixtures(page, spec, { reducedMotion: true });
-    const [gap, stop] = [await resolveToken(page, T('track-gap')), await resolveToken(page, T('stop-indicator-size'))];
+    const gap = await resolveToken(page, T('track-gap'));
     expect(gap).toBeGreaterThan(0);
-    expect(stop).toBeGreaterThan(0);
+    const bars = ['linear-determinate', 'linear-small', 'linear-large', 'linear-range', 'linear-divider', 'linear-gap', 'linear-gap-small', 'linear-gap-large'];
+    const dotWidth = async (id: string) => (await part(page, id, 'stop').boundingBox())?.width ?? 0;
+    // The default system gives the stop indicator no size: no bar draws a dot, under divider or under gap.
+    expect(await resolveToken(page, T('stop-indicator-size'))).toBe(0);
+    for (const id of bars) expect(await dotWidth(id), id).toBe(0);
     // Divider (the default system's choice, and linear-divider's own): the track runs on under the indicator from the
-    // bar's start, whatever the gap token says, and no dot is drawn.
+    // bar's start, whatever the gap token says.
     for (const id of ['linear-determinate', 'linear-small', 'linear-large', 'linear-range', 'linear-divider']) {
       expect((await box(part(page, id, 'track'))).x, id).toBe((await box(host(page, id))).x);
       expect((await box(part(page, id, 'track'))).width, id).toBe((await box(host(page, id))).width);
-      expect(await css(part(page, id, 'stop'), 'display'), id).toBe('none');
       await expect(host(page, id).locator('.track.after'), id).toBeHidden();
     }
     // Gap: track.gap of empty space between the indicator's end and the track; the track still ends at the bar's end.
-    for (const [id, size] of [['linear-gap', 'medium'], ['linear-gap-small', 'small'], ['linear-gap-large', 'large']] as const) {
-      const [bar, indicator, track, dot] = await Promise.all(['bar', 'indicator', 'track', 'stop'].map((n) => box(part(page, id, n))));
+    for (const id of ['linear-gap', 'linear-gap-small', 'linear-gap-large']) {
+      const [bar, indicator, track] = await Promise.all(['bar', 'indicator', 'track'].map((n) => box(part(page, id, n))));
       expect(track.x - (indicator.x + indicator.width), id).toBeCloseTo(gap, 3);
       expect(track.x + track.width, id).toBe(bar.x + bar.width);
       await expect(host(page, id).locator('.track.under'), id).toBeHidden();
-      // The dot: stop-indicator.size and no larger than the bar is thick, in the indicator color, centered in the
-      // thickness with its center half the thickness before the track's end.
-      const thickness = await resolveToken(page, T(`linear-thickness-${size}`));
+    }
+    // A system that gives the stop indicator a size: every determinate bar below max draws the dot, under divider as
+    // under gap — stop-indicator.size and no larger than the bar is thick, in the indicator color, centered in the
+    // thickness with its center half the thickness before the track's end.
+    await override(page, { [T('stop-indicator-size')]: 'var(--tanrei-sys-space-space50)' });
+    const stop = await resolveToken(page, T('stop-indicator-size'));
+    expect(stop).toBeGreaterThan(0);
+    const sizes: Record<string, string> = { 'linear-small': 'small', 'linear-large': 'large', 'linear-gap-small': 'small', 'linear-gap-large': 'large' };
+    for (const id of bars) {
+      const [bar, dot] = await Promise.all(['bar', 'stop'].map((n) => box(part(page, id, n))));
+      const thickness = await resolveToken(page, T(`linear-thickness-${sizes[id] ?? 'medium'}`));
       const drawn = Math.min(stop, thickness);
       expect([dot.width, dot.height], id).toEqual([drawn, drawn]);
       expect(dot.y + dot.height / 2, id).toBeCloseTo(bar.y + bar.height / 2, 3);
       expect(dot.x + dot.width / 2, id).toBeCloseTo(bar.x + bar.width - bar.height / 2, 3);
       expect(await css(part(page, id, 'stop'), 'background-color'), id).toBe(await resolveColor(page, T('indicator-color')));
     }
-    // PRG-5's verify: a dot of 2 in a small bar (its thickness), of 4 inside a large one.
-    expect((await box(part(page, 'linear-gap-small', 'stop'))).width).toBeLessThan(stop);
-    expect((await box(part(page, 'linear-gap-large', 'stop'))).width).toBeLessThan((await box(host(page, 'linear-gap-large'))).height);
-    // At max there is no gap (the dot is still drawn: the bar is determinate); a size of 0 draws no dot.
+    // The dot does not change the separation's form: divider still touches, gap still leaves track.gap.
+    expect((await box(part(page, 'linear-divider', 'track'))).x).toBe((await box(host(page, 'linear-divider'))).x);
+    const [gapIndicator, gapTrack] = [await box(part(page, 'linear-gap', 'indicator')), await box(part(page, 'linear-gap', 'track'))];
+    expect(gapTrack.x - (gapIndicator.x + gapIndicator.width)).toBeCloseTo(gap, 3);
+    // Never larger than the bar is thick: smaller than the size in a small bar, smaller than a large bar's thickness.
+    for (const id of ['linear-small', 'linear-gap-small']) expect((await box(part(page, id, 'stop'))).width, id).toBeLessThan(stop);
+    for (const id of ['linear-large', 'linear-gap-large']) expect((await box(part(page, id, 'stop'))).width, id).toBeLessThan((await box(host(page, id))).height);
+    // At max the indicator covers the track's end: no gap and no dot, under either separation; at min the dot is drawn.
     expect((await box(part(page, 'linear-gap-full', 'track'))).x).toBe((await box(host(page, 'linear-gap-full'))).x);
-    expect((await box(part(page, 'linear-gap-full', 'stop'))).width).toBe(Math.min(stop, await resolveToken(page, T('linear-thickness-medium'))));
+    for (const id of ['linear-full', 'linear-gap-full']) expect(await css(part(page, id, 'stop'), 'display'), id).toBe('none');
+    expect(await dotWidth('linear-empty')).toBe(Math.min(stop, await resolveToken(page, T('linear-thickness-medium'))));
     await host(page, 'linear-gap').evaluate((el: any) => (el.value = 0));
     await expect.poll(async () => (await box(part(page, 'linear-gap', 'track'))).x).toBe((await box(host(page, 'linear-gap'))).x);
+    // A size of 0 draws none.
     await host(page, 'linear-gap').evaluate((el, name) => (el as HTMLElement).style.setProperty(name, '0px'), T('stop-indicator-size'));
-    expect((await part(page, 'linear-gap', 'stop').boundingBox())?.width ?? 0).toBe(0);
+    expect(await dotWidth('linear-gap')).toBe(0);
     // Indeterminate has no stop indicator and no gap, under either separation.
     await expect(host(page, 'linear-indeterminate').locator('.stop')).toHaveCount(0);
     // The ring under gap: the track starts a gap (plus the round caps' reach) after the indicator's end, and stops a gap
@@ -241,17 +258,17 @@ test.describe('behavior', () => {
 
   test('PRG-17: auto takes comp.progress-indicator.track.separation, which follows the system’s choice — divider in the default system, gap in m3-like; an explicit value wins whatever the tokens say; an unknown name is divider', async ({ page }) => {
     const choice = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--tanrei-sys-behavior-separation').trim());
-    /** What a determinate bar draws: the space between its indicator and its track, and whether the dot is drawn. */
+    /** What a determinate bar draws: the space between its indicator and its track, and whether the dot is drawn (which the separation does not decide: PRG-5). */
     const form = async (id: string) => {
       const [indicator, track] = [await box(part(page, id, 'indicator')), await box(part(page, id, 'track'))];
       const bar = await box(host(page, id));
-      return { gap: track.x === bar.x ? 0 : Math.round((track.x - indicator.x - indicator.width) * 1000) / 1000, dot: (await css(part(page, id, 'stop'), 'display')) !== 'none' };
+      return { gap: track.x === bar.x ? 0 : Math.round((track.x - indicator.x - indicator.width) * 1000) / 1000, dot: ((await part(page, id, 'stop').boundingBox())?.width ?? 0) > 0 };
     };
     const apart = (name: string) => ({ style: `${T('track-separation')}: ${name}` });
     const extra = [fixture('linear-apart-gap', { ...apart('gap'), value: 0.4 }), fixture('linear-apart-gap-divider', { ...apart('gap'), separation: 'divider', value: 0.4 }), fixture('linear-apart-divider', { ...apart('divider'), value: 0.4 }), fixture('linear-apart-divider-gap', { ...apart('divider'), separation: 'gap', value: 0.4 }), fixture('linear-unknown', { ...apart('zipper'), value: 0.4 })];
     await mountFixtures(page, spec, { reducedMotion: true, fixtures: [...spec.fixtures, ...extra] });
     const gap = await resolveToken(page, T('track-gap'));
-    const [divider, gapped] = [{ gap: 0, dot: false }, { gap, dot: true }];
+    const [divider, gapped] = [{ gap: 0, dot: false }, { gap, dot: false }];
     expect(await choice()).toBe('divider');
     expect(await form('linear-determinate')).toEqual(divider);
     expect(await form('linear-divider')).toEqual(divider);
@@ -264,11 +281,12 @@ test.describe('behavior', () => {
 
     await mountFixtures(page, spec, { reducedMotion: true, system: 'm3-like', fixtures: [...spec.fixtures, ...extra] });
     expect(await choice()).toBe('gap');
-    const m3 = { gap: await resolveToken(page, T('track-gap')), dot: true };
+    // m3-like gives the stop indicator a size, so its bars draw the dot under divider too (PRG-5).
+    const [m3, m3Divider] = [{ gap: await resolveToken(page, T('track-gap')), dot: true }, { gap: 0, dot: true }];
     expect(await form('linear-determinate')).toEqual(m3);
     expect(await form('linear-gap')).toEqual(m3);
-    expect(await form('linear-divider')).toEqual(divider);
-    expect(await form('linear-apart-divider')).toEqual(divider);
+    expect(await form('linear-divider')).toEqual(m3Divider);
+    expect(await form('linear-apart-divider')).toEqual(m3Divider);
     expect(await form('linear-apart-divider-gap')).toEqual(m3);
   });
 

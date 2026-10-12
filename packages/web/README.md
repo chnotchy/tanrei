@@ -178,7 +178,7 @@ or by empty space (`gap`). One choice for the whole system, which a component an
 |---|---|---|
 | `<tanrei-button-group variant="connected">` | the items touch, square where they meet, a line on each seam; no item draws its outline or its elevation's ring along a seam | the items `connected.gap` apart, `connected.inner-shape` where they face each other |
 | `<tanrei-button-with-menu>` | the same, between its two halves | the same |
-| `<tanrei-progress-indicator>` | the indicator is drawn on the track, touching it; no stop indicator | `track.gap` between the indicator and the track (on a ring at both ends of the arc), and the stop indicator on a bar |
+| `<tanrei-progress-indicator>` | the indicator is drawn on the track, touching it | `track.gap` between the indicator and the track (on a ring at both ends of the arc); the stop indicator on a bar is drawn by its size under either |
 | `<tanrei-menu>` (and its submenus) | a line of `divider.thickness` between a group and what is next to it, `divider.space` above and below, a separator | `group.gap` of empty space there, no line and no separator |
 
 Each component reads the choice with a style container query on a private property of its host
@@ -936,9 +936,10 @@ PRG-1…17).
 **The bar** fills the inline size its layout gives it (block flow, a flex column, a grid), from the inline-start (the
 right in RTL). Its track and indicator are rounded by `track.shape`, which the browser clamps to half the thickness.
 Under `gap` (m3-like's choice, or `separation="gap"`), a value strictly between min and max leaves `track.gap` after the
-indicator (on a ring, at both ends of its arc), and a determinate bar draws the stop indicator: a dot of
-`stop-indicator.size`, never larger than the bar is thick, concentric with the track's rounded end. Under `divider`
-(Tanrei's choice) the track runs on under the indicator and no dot is drawn, whatever those two tokens say (PRG-5). The
+indicator (on a ring, at both ends of its arc). Under `divider` (Tanrei's choice) the track runs on under the
+indicator, whatever `track.gap` says. Under either, a determinate bar draws the stop indicator — a dot of
+`stop-indicator.size`, never larger than the bar is thick, concentric with the track's rounded end — unless that size is
+0 (Tanrei's) or the value is at max, where the indicator covers it (PRG-5). The
 track is two elements, both `::part(track)` — the whole track, and what is left of it after the gap — and the separation
 shows one, so a change of separation shows the other form at once, with no value motion to run. Indeterminate, a two-fifths segment crosses once per `motion.cycle-duration`
 with `motion.cycle-easing`, clipped to the track.

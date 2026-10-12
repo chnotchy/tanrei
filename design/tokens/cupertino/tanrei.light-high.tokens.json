@@ -64081,10 +64081,10 @@
           "size": {
             "$type": "dimension",
             "$value": {
-              "value": 4,
+              "value": 0,
               "unit": "px"
             },
-            "$description": "Under gap: the diameter of the dot a determinate bar draws at the track's end, in the indicator color, to mark where the track ends; never drawn larger than the bar is thick. 0 draws none. Not drawn under divider."
+            "$description": "The diameter of the dot a determinate bar draws at the track's end, in the indicator color, to mark where the track ends, under either separation; never drawn larger than the bar is thick, and not drawn while the indicator covers it at max. 0 draws none."
           }
         },
         "track": {
@@ -64112,7 +64112,7 @@
           "separation": {
             "$type": "number",
             "$value": 0,
-            "$description": "How a determinate indicator is told from the rest of its track. divider: the indicator is drawn on the track with no space between them; the edge where its color ends is the line. gap: track.gap of empty space is left between them, and a bar draws the stop indicator at the track's end. Follows the system's choice; an instance's separation prop overrides it (PRG-17). The value is an index into dev.tanrei.enum.values; platforms receive the name."
+            "$description": "How a determinate indicator is told from the rest of its track. divider: the indicator is drawn on the track with no space between them; the edge where its color ends is the line. gap: track.gap of empty space is left between them. Whether a bar draws the stop indicator is stop-indicator.size, not this. Follows the system's choice; an instance's separation prop overrides it (PRG-17). The value is an index into dev.tanrei.enum.values; platforms receive the name."
           },
           "shape": {
             "$type": "dimension",

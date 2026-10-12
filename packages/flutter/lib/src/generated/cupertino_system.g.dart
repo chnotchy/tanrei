@@ -6570,7 +6570,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     motionCycleEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     motionValueDuration: 300,
     motionValueEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
-    stopIndicatorSize: 4.0,
+    stopIndicatorSize: 0.0,
     trackColor: TanreiPaint.role(TanreiColorRole.surfaceVariant),
     trackGap: 4.0,
     trackSeparation: 0.0,

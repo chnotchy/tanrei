@@ -2,7 +2,7 @@
 title: Indicador de progreso
 description: Muestra cuánto ha avanzado una tarea, o que está en curso cuando no se sabe cuánto, en forma de barra o de anillo.
 translationOf: components/progress-indicator.mdx
-sourceHash: 4c913cc78754e128adde1441de5e69fac8eff4f8
+sourceHash: 2c289070008e86f05c52be046b30544c8a9958f3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -175,7 +175,7 @@ Para una espera corta cuya duración no puedes medir, como una lista que carga s
 
 ### Divisor o separación
 
-Un indicador determinado se distingue del resto de su pista de una de dos maneras. Con `divider` se dibuja sobre la pista sin espacio entre ambos. Con `gap` se deja un pequeño espacio vacío después de él (en un anillo, en los dos extremos de su arco), y una barra marca el final de su pista con un punto. Un indicador indeterminado se ve igual con las dos.
+Un indicador determinado se distingue del resto de su pista de una de dos maneras. Con `divider` se dibuja sobre la pista sin espacio entre ambos. Con `gap` se deja un pequeño espacio vacío después de él (en un anillo, en los dos extremos de su arco). Un indicador indeterminado se ve igual con las dos. Que una barra marque el final de su pista con un punto es una elección aparte, el tamaño de su indicador de parada: un sistema de diseño que le da un tamaño dibuja el punto con cualquiera de las dos separaciones, y el sistema predeterminado no lo dibuja.
 
 El sistema de diseño elige una vez para todos los componentes que tienen esta elección, y el sistema predeterminado elige divider. Deja `separation` en `auto` para seguir esa elección, de modo que el indicador concuerde con los grupos de botones y los menús que lo rodean. Define `divider` o `gap` en un indicador solo cuando ese tenga un motivo para ser distinto.
 
