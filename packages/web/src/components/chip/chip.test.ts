@@ -23,6 +23,14 @@ const css = (page: P, id: string, property: string, pseudo?: string) => style(in
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 const T = (name: string) => `--tanrei-comp-chip-${name}`;
 const pressed = (locator: Locator) => locator.getAttribute('data-pressed');
+/**
+ * Keyboard focus on an input chip's remove action. It is not a Tab stop (CHP-18): Tab reaches the chip, and script moves
+ * focus on to the remove action — as assistive technology does — so that it is keyboard focus that arrives there.
+ */
+const keyFocusRemove = async (page: P, id: string) => {
+  await tabTo(page, inner(page, id));
+  await removeOf(page, id).focus();
+};
 // A token the root already declares, written alone, is restyled for seconds in WebKit (README, "A single token set on
 // the root from script"): six such writes took
 // CHP-8's test to its time limit on a busy machine. `rootTokens()` changes the number of names with the write, which is not compared.
@@ -165,10 +173,12 @@ test.describe('behavior', () => {
     }
     expect(await host(page, 'filter-selected-disabled').evaluate((el) => (el as any).selected)).toBe(true);
     // Tab passes over the disabled chip and its remove action: from the chip before it straight to the one after it.
-    await tabTo(page, removeOf(page, 'input-small'));
+    await tabTo(page, inner(page, 'input-small'));
     await tab(page);
     await expect(inner(page, 'input-disabled')).not.toBeFocused();
     await expect(removeOf(page, 'input-disabled')).not.toBeFocused();
+    // A disabled input chip offers no key to assistive technology: it removes nothing (CHP-19).
+    await expect(inner(page, 'input-disabled')).not.toHaveAttribute('aria-keyshortcuts', /.*/);
   });
 
   test('CHP-3: each state renders the container, outline, label, icon, elevation and opacity from that state’s tokens; the elevated chip rises under hover', async ({ page }) => {
@@ -576,7 +586,7 @@ test.describe('behavior', () => {
     expect((await bounds(inner(page, 'action-no-icon'))).height).toBeGreaterThan(before.height);
   });
 
-  test('CHP-18: an input chip’s remove action is the icon set’s cancel glyph centred on a larger round container at its inline end, a separate button named by removeLabel, reached by Tab after the chip; it emits remove once and never click', async ({ page }) => {
+  test('CHP-18: an input chip’s remove action is the icon set’s cancel glyph centred on a larger round container at its inline end, a separate button named by removeLabel that is not a Tab stop; pressed by pointer, Enter or Space it emits remove once and never click', async ({ page }) => {
     const id = 'input';
     const remove = removeOf(page, id);
     for (const [target, size] of [['input', 'medium'], ['input-small', 'small']] as const) {
@@ -595,8 +605,14 @@ test.describe('behavior', () => {
       expect(await removeOf(page, target).evaluate((el) => el.querySelectorAll('svg, img, path').length), target).toBe(0);
     }
     await expect(host(page, id).getByRole('button', { name: 'Remove Ada Lovelace' })).toHaveCount(1);
+    // Out of the Tab order: Tab from the chip goes on to the next chip, past the remove action.
+    await expect(remove).toHaveAttribute('tabindex', '-1');
     await tabTo(page, inner(page, id));
     await tab(page);
+    await expect(remove).not.toBeFocused();
+    await expect(inner(page, 'input-avatar')).toBeFocused();
+    // Still focusable by script — what assistive technology and an owner's keys do — and then Enter and Space press it.
+    await remove.focus();
     await expect(remove).toBeFocused();
     await listen(host(page, id));
     await page.keyboard.press('Enter');
@@ -608,7 +624,10 @@ test.describe('behavior', () => {
     await expect(host(page, 'filter-selected').getByRole('button')).toHaveCount(1);
   });
 
-  test('CHP-19: Backspace or Delete on a focused input chip emits remove exactly once; on other kinds nothing', async ({ page }) => {
+  test('CHP-19: Backspace or Delete on a focused input chip emits remove exactly once, and once for a key held down; the chip tells assistive technology of the two keys with aria-keyshortcuts while it removes; on other kinds nothing', async ({ page }) => {
+    await expect(inner(page, 'input')).toHaveAttribute('aria-keyshortcuts', 'Delete Backspace');
+    await expect(removeOf(page, 'input')).not.toHaveAttribute('aria-keyshortcuts', /.*/);
+    for (const id of ['action-outlined', 'filter-selected', 'action-link']) await expect(inner(page, id), id).not.toHaveAttribute('aria-keyshortcuts', /.*/);
     await listen(host(page, 'input'));
     await host(page, 'input').focus();
     await expect(inner(page, 'input')).toBeFocused();
@@ -616,6 +635,16 @@ test.describe('behavior', () => {
     expect((await events(page)).remove).toBe(1);
     await page.keyboard.press('Delete');
     expect(await events(page)).toMatchObject({ remove: 2, click: 0 });
+    // A held key asks once: its repeats are not answered.
+    await page.keyboard.down('Delete');
+    for (let repeat = 0; repeat < 4; repeat++) await page.keyboard.down('Delete');
+    await page.keyboard.up('Delete');
+    expect(await events(page)).toMatchObject({ remove: 3, click: 0 });
+    // Not removable, it offers no key (CHP-38), and has it back when removable again.
+    await host(page, 'input').evaluate((el) => Object.assign(el, { removable: false }));
+    await expect(inner(page, 'input')).not.toHaveAttribute('aria-keyshortcuts', /.*/);
+    await host(page, 'input').evaluate((el) => Object.assign(el, { removable: true }));
+    await expect(inner(page, 'input')).toHaveAttribute('aria-keyshortcuts', 'Delete Backspace');
     await listen(host(page, 'action-outlined'));
     await host(page, 'action-outlined').focus();
     await page.keyboard.press('Backspace');
@@ -643,7 +672,7 @@ test.describe('behavior', () => {
       expect(await drawn(page, id)).toEqual(chipAtRest);
       await page.mouse.move(0, 0);
       await page.mouse.up();
-      await tabTo(page, remove);
+      await keyFocusRemove(page, id);
       await expect.poll(paint).toEqual(await want('focused-'));
       await expect(remove).toHaveCSS('outline-style', 'solid');
       await expect(inner(page, id)).toHaveCSS('outline-style', 'none');
@@ -736,8 +765,7 @@ test.describe('behavior', () => {
         await expect.poll(() => style(removeOf(page, id), 'background-color'), id).not.toBe('rgba(0, 0, 0, 0)');
         expect(await place(id), `${id} hovered`).toEqual(before);
         await page.mouse.move(0, 0);
-        await tabTo(page, inner(page, id));
-        await tab(page);
+        await keyFocusRemove(page, id);
         await expect(removeOf(page, id)).toBeFocused();
         expect(await style(removeOf(page, id), 'outline-style'), id).toBe('solid');
         expect(await place(id), `${id} focused`).toEqual(before);
@@ -805,12 +833,15 @@ test.describe('behavior', () => {
     await expect(inner(page, 'input-avatar')).toBeFocused();
   });
 
-  test('CHP-23: one tab stop per chip, two for an input chip; arrow keys do nothing', async ({ page }) => {
+  test('CHP-23: one tab stop per chip, an input chip one too — its remove action is passed; arrow keys do nothing', async ({ page }) => {
     await tabTo(page, inner(page, 'filter-selected-small'));
     await tab(page);
     await expect(inner(page, 'input')).toBeFocused();
     await tab(page);
-    await expect(removeOf(page, 'input')).toBeFocused();
+    await expect(removeOf(page, 'input')).not.toBeFocused();
+    await expect(inner(page, 'input-avatar')).toBeFocused();
+    await tab(page, { back: true });
+    await expect(inner(page, 'input')).toBeFocused();
     await tab(page);
     await expect(inner(page, 'input-avatar')).toBeFocused();
     for (const key of ['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp']) {
@@ -927,7 +958,7 @@ test.describe('behavior', () => {
       await page.mouse.move(0, 0);
       await page.mouse.up();
       await page.locator('body').click({ position: { x: 1, y: 1 } });
-      await tabTo(page, remove);
+      await keyFocusRemove(page, id);
       await expect.poll(() => paint(id), `${id} focused`).toEqual(await want(parts, 'focused-'));
       seen[id].focused = await paint(id);
       await page.locator('body').click({ position: { x: 1, y: 1 } });
@@ -999,7 +1030,7 @@ test.describe('behavior', () => {
     await removeOf(page, on).hover();
     await expect.poll(() => style(removeOf(page, on), 'color')).toBe(await resolveColor(page, '--tanrei-sys-color-error'));
     expect(await host(page, on).ariaSnapshot()).toBe('- button "Ada Lovelace"\n- button "Remove Ada Lovelace"');
-    await tabTo(page, removeOf(page, on));
+    await keyFocusRemove(page, on);
     expect(await host(page, on).ariaSnapshot()).toBe('- button "Ada Lovelace"\n- button "Remove Ada Lovelace"');
     // And it behaves the same: one remove, no click, for pointer and keys.
     for (const id of [on, off]) {
@@ -1204,9 +1235,10 @@ test.describe('press, feedback, corners and focus style', () => {
     await mountFixtures(page, spec, { system: 'acme', systemCss: await acmeSystemCss() });
     expect(await token(page, '--tanrei-sys-behavior-focus-style')).toBe('glow');
     const ring = await resolveColor(page, '--tanrei-sys-color-focus-ring');
-    for (const target of [inner(page, 'input'), removeOf(page, 'input')]) {
+    for (const [target, onRemove] of [[inner(page, 'input'), false], [removeOf(page, 'input'), true]] as const) {
       await page.locator('body').click({ position: { x: 1, y: 1 } });
-      await tabTo(page, target);
+      if (onRemove) await keyFocusRemove(page, 'input');
+      else await tabTo(page, target);
       expect(await style(target, 'outline-color')).toBe('rgba(0, 0, 0, 0)');
       expect(await style(target, 'box-shadow', '::after')).toContain(ring);
       expect(await target.getAttribute('data-focus-style')).toBe('glow');

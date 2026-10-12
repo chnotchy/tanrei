@@ -368,7 +368,7 @@ test.describe('behavior', () => {
     expect(inSet[1][0]).toBeLessThan(alone[1][0]);
   });
 
-  test('TGR-6: the group does not restyle its members — each draws from its own tokens, holds its own state and fires its own events; every chip is its own Tab stop, an input chip two; the group takes no focus, handles no arrow key, Home or End, keeps no selection, does not make filter chips exclusive and fires no event', async ({ page }) => {
+  test('TGR-6: the group does not restyle its members — each draws from its own tokens, holds its own state and fires its own events; every chip is its own Tab stop, an input chip one — its remove action is passed; the group takes no focus, handles no arrow key, Home or End, keeps no selection, does not make filter chips exclusive and fires no event', async ({ page }) => {
     await mount(page, [...only('tags', 'chips-filters', 'chips-input-add'), fx('free', { label: 'x' }, '')]);
     // The same tag and the same chip outside any group, to compare with.
     await stage(page, 'free').evaluate((el) => {
@@ -393,22 +393,22 @@ test.describe('behavior', () => {
     await expect.poll(() => page.evaluate(() => (window as unknown as { __seen: string[] }).__seen)).toEqual(['click:tanrei-chip', 'change:tanrei-chip']);
     // The group takes no focus: no tabindex, and focus() leaves focus where it was.
     expect(await host(page, 'chips-filters').evaluate((el) => { (el as HTMLElement).focus(); return [el.hasAttribute('tabindex'), (el as HTMLElement).tabIndex, document.activeElement === el, el.getAttribute('role')]; })).toEqual([false, -1, false, null]);
-    // Each chip is a Tab stop; an input chip two — the chip, then its remove action.
+    // Each chip is a Tab stop; an input chip one — its remove action is not a stop (CHP-18), Backspace or Delete removes it.
     await tabTo(page, member(page, 'chips-input-add', 0).locator('.container'));
     const stops = [await focusPath(page)];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 3; i++) {
       await tab(page);
       stops.push(await focusPath(page));
     }
-    expect(stops).toEqual([
-      onChip('Ada Lovelace'),
-      'tanrei-chip[Ada Lovelace] > button.remove',
-      onChip('Grace Hopper'),
-      'tanrei-chip[Grace Hopper] > button.remove',
-      onChip('Katherine Johnson'),
-      'tanrei-chip[Katherine Johnson] > button.remove',
-      onChip('Add'),
-    ]);
+    expect(stops).toEqual([onChip('Ada Lovelace'), onChip('Grace Hopper'), onChip('Katherine Johnson'), onChip('Add')]);
+    // And back the same way.
+    const back = [];
+    for (let i = 0; i < 3; i++) {
+      await tab(page, { back: true });
+      back.push(await focusPath(page));
+    }
+    expect(back).toEqual([onChip('Katherine Johnson'), onChip('Grace Hopper'), onChip('Ada Lovelace')]);
+    for (let i = 0; i < 3; i++) await tab(page);
     // No arrow key, Home or End moves focus.
     for (const key of ['ArrowLeft', 'ArrowUp', 'Home', 'ArrowRight', 'ArrowDown', 'End']) {
       await page.keyboard.press(key);
@@ -529,8 +529,14 @@ test.describe('behavior', () => {
     await page.keyboard.press('Delete');
     await expect.poll(() => focusPath(page)).toBe(onChip('Margaret'));
     expect(await remaining()).toEqual(['Ada', 'Grace', 'Margaret', 'Hedy']);
-    // Pressing a chip's remove action puts focus on the next chip — on the chip, not on its remove action.
+    // The remove action is not a Tab stop: Tab goes on to the next chip.
     await tab(page);
+    expect(await focusPath(page)).toBe(onChip('Hedy'));
+    await tab(page, { back: true });
+    expect(await focusPath(page)).toBe(onChip('Margaret'));
+    // Pressing a chip's remove action, from the keyboard where focus has been put on it (as assistive technology does),
+    // puts focus on the next chip — on the chip, not on its remove action.
+    await chip('Margaret').locator('.remove').focus();
     expect(await focusPath(page)).toBe('tanrei-chip[Margaret] > button.remove');
     await page.keyboard.press('Enter');
     await expect.poll(() => focusPath(page)).toBe(onChip('Hedy'));

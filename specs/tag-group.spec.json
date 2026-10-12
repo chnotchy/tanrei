@@ -201,7 +201,7 @@
     },
     {
       "id": "TGR-6",
-      "text": "THE tag group SHALL NOT restyle its members: each SHALL render from its own tokens at its own size, answer hover, focus and press itself, hold its own state (a filter chip its selected), emit its own events and keep its own role and name inside the item the group exposes it as (TGR-7). Each chip SHALL be its own Tab stop — an input chip two, the chip and then its remove action (CHP-23) — in the order of TGR-3; the tag group itself SHALL NOT take focus, SHALL NOT handle arrow keys, Home or End, SHALL keep no selection of its own, SHALL NOT make its filter chips exclusive, and SHALL emit no event. The tag group has no size of its own: members of different sizes on one line are centred on it (TGR-1)."
+      "text": "THE tag group SHALL NOT restyle its members: each SHALL render from its own tokens at its own size, answer hover, focus and press itself, hold its own state (a filter chip its selected), emit its own events and keep its own role and name inside the item the group exposes it as (TGR-7). Each chip SHALL be its own Tab stop — an input chip one, the chip itself, whose remove action is not a stop and which Backspace or Delete removes (CHP-18, CHP-19, CHP-23) — in the order of TGR-3; the tag group itself SHALL NOT take focus, SHALL NOT handle arrow keys, Home or End, SHALL keep no selection of its own, SHALL NOT make its filter chips exclusive, and SHALL emit no event. The tag group has no size of its own: members of different sizes on one line are centred on it (TGR-1)."
     },
     {
       "id": "TGR-7",
@@ -253,11 +253,11 @@
     "keyboard": [
       {
         "keys": "Tab / Shift+Tab",
-        "action": "Moves focus to each chip of the set in turn, in the order given; on an input chip, the next Tab moves to its remove action. A set of tags has no stop."
+        "action": "Moves focus to each chip of the set in turn, in the order given; an input chip is one stop, its remove action is not in the Tab order. A set of tags has no stop."
       },
       {
         "keys": "Enter, Space, Backspace or Delete",
-        "action": "The focused chip's own keys, as the Chip says. After a removal, focus is on the chip that followed (TGR-9)."
+        "action": "The focused chip's own keys, as the Chip says: Backspace or Delete removes an input chip. After a removal, focus is on the chip that followed, or on the one before where none follows (TGR-9)."
       }
     ],
     "labeling": "label names the list (\"Tags\", \"Filters\"); it is not drawn. Each member is one list item and keeps its own name inside it: a tag its text, a chip its label, an input chip's remove action its removeLabel. A filter chip's state is its own pressed state. An empty group exposes nothing.",

@@ -3170,7 +3170,7 @@ text for separators, and it has one live region.
   field.addEventListener('check', (event) => { if (!/^\S+@\S+\.\S+$/.test(event.detail.text)) event.preventDefault(); });
 </script>
 
-<!-- One level down, the same picture, by hand: every chip and remove action is then a Tab stop of its own. -->
+<!-- One level down, the same picture, by hand: every chip is then a Tab stop of its own. -->
 <tanrei-field label="Recipients">
   <tanrei-text-input type="email">
     <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com" remove-label="Remove ada@example.com"></tanrei-chip>
@@ -3964,8 +3964,11 @@ A compact choice, a suggested action or an item the user entered, as a small lab
 **Structure.** Two sibling native buttons in the shadow root: the chip (`::part(container)`) and, for an input chip,
 the remove action (`::part(remove)`) drawn over the chip's trailing room. They are siblings because buttons cannot nest,
 and so each keeps its own states: while the pointer or a press is on the remove action, the chip is neither hovered nor
-pressed (CHP-20), and hovering the chip leaves the remove action at rest. Tab reaches the chip, then its remove action
-(CHP-23); the chip handles no arrow keys — a row of chips is the page's (a future chip group).
+pressed (CHP-20), and hovering the chip leaves the remove action at rest. Every chip is one Tab stop, an input chip
+too: the remove action has `tabindex="-1"` (CHP-18, CHP-23) — pressable by pointer and assistive technology, focusable
+by `focus()`, passed by Tab — and the keyboard removes with Backspace or Delete on the chip (CHP-19), which its button
+announces as `aria-keyshortcuts="Delete Backspace"` while the chip removes (not while disabled or `not-removable`). The
+chip handles no arrow keys — a row of chips is the page's (a future chip group).
 
 **Looks (CHP-12).** A filter chip announces `aria-pressed`, and the look follows it: `true` paints the variant's
 `selected.*` parts, anything else the variant's own. A filter chip that is on shows a check in the leading position, in
@@ -3997,7 +4000,7 @@ reported, CHP-15) is clipped to `avatar.shape` at `avatar.size.<size>`, hidden f
 `sys.state.disabled-content-opacity` when disabled.
 
 **The remove action (CHP-18, CHP-20, CHP-21, CHP-27, CHP-28).** The `cancel` glyph centered on a round container of
-`remove.container.size` at the inline end. The container is larger than the glyph (the state layer shows as a ring
+`remove.container.size` at the inline end; not a Tab stop (above). The container is larger than the glyph (the state layer shows as a ring
 around the filled disc) and out of flow: it reaches into the gap and the end padding — on a small chip to its top and
 bottom — without changing the chip's size. It has its own hover, focus and press, its own focus ring, press-hold and
 ripple (within the round container; from its center for a press in the hit area outside it). While `destructiveRemove`
