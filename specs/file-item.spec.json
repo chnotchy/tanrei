@@ -214,15 +214,31 @@
       "name": "removeLabel",
       "type": "string",
       "default": "",
-      "description": "The accessible name of the remove action (\"Remove\"). The file's name is given as the action's description, so the product writes one word and not one per file. Empty reads the product's words.",
-      "words": "removeLabel"
+      "description": "The accessible name of the remove action: the whole name in the product's language with one place, {name}, which the file item fills with the file's name (\"Remove {name}\", \"{name}を削除\"), so that the actions of two files are told apart by their names and the product still writes one word, not one per file. Empty reads the product's words.",
+      "words": "removeLabel",
+      "places": [
+        {
+          "name": "name",
+          "kind": "text",
+          "description": "The name of the file the action removes.",
+          "required": true
+        }
+      ]
     },
     {
       "name": "retryLabel",
       "type": "string",
       "default": "",
-      "description": "The accessible name of the retry action (\"Try again\"), described by the file's name as removeLabel is. Empty reads the product's words.",
-      "words": "retryLabel"
+      "description": "The accessible name of the retry action, with the place {name} filled by the file's name as removeLabel is (\"Retry {name}\", \"{name}を再試行\"). Empty reads the product's words.",
+      "words": "retryLabel",
+      "places": [
+        {
+          "name": "name",
+          "kind": "text",
+          "description": "The name of the file the action sends again.",
+          "required": true
+        }
+      ]
     },
     {
       "name": "disabled",
@@ -347,11 +363,11 @@
     },
     {
       "id": "FIT-19",
-      "text": "THE file item SHALL expose itself to assistive technology as a group named by name, in every form and whatever nameHidden says, read in this order: name; formatText, sizeText, then statusText or — WHILE status is error — errorText; then, WHILE status is uploading, the bar as a progress bar named by name whose value is progress as a share of 0 to 1, or busy WHILE progress is null; then the retry action WHERE it is drawn, as a button named retryLabel, and the remove action WHERE it is drawn, as a button named removeLabel, each described by name so that \"Remove\" is heard with the file it removes. WHILE the body is pressable it SHALL be a button, or a link (FIT-13), named by name and described by the second line's texts. WHILE a component holds the file item as one of the items of a list of its own THE file item SHALL be exposed as an item of that list in the group's place, by the word of that component and through no prop of its own. The glyph, the picture, the status mark and the mark of a new context SHALL be kept from assistive technology. THE file item SHALL have no live region and SHALL announce nothing — not that it appeared, not a change of status or of progress: what is said of many files is said once, by whoever holds them."
+      "text": "THE file item SHALL expose itself to assistive technology as a group named by name, in every form and whatever nameHidden says, read in this order: name; formatText, sizeText, then statusText or — WHILE status is error — errorText; then, WHILE status is uploading, the bar as a progress bar named by name whose value is progress as a share of 0 to 1, or busy WHILE progress is null; then the retry action WHERE it is drawn, as a button named retryLabel, and the remove action WHERE it is drawn, as a button named removeLabel, each with its place {name} filled by name, so that \"Remove brief.pdf\" is the action's name and two files' actions are told apart wherever names are listed; neither action SHALL carry the name a second time as a description. WHILE the body is pressable it SHALL be a button, or a link (FIT-13), named by name and described by the second line's texts. WHILE a component holds the file item as one of the items of a list of its own THE file item SHALL be exposed as an item of that list in the group's place, by the word of that component and through no prop of its own. The glyph, the picture, the status mark and the mark of a new context SHALL be kept from assistive technology. THE file item SHALL have no live region and SHALL announce nothing — not that it appeared, not a change of status or of progress: what is said of many files is said once, by whoever holds them."
     },
     {
       "id": "FIT-20",
-      "text": "THE file item SHALL have no words of its own: it SHALL take removeLabel and retryLabel from the instance's prop and, WHILE that is empty, from the product's words of the keys removeLabel and retryLabel, and name, formatText, sizeText, statusText, errorText and targetLabel from the product alone, and from nowhere else. IF neither gives removeLabel or retryLabel THE file item SHALL still draw the action, expose it without a name, described by the file's name, and in debug builds report the missing word once per page or screen, naming the prop. THE file item SHALL build no word from mediaType, from the end of name or from a number: it SHALL NOT write a format, a size or a share of progress in words."
+      "text": "THE file item SHALL have no words of its own: it SHALL take removeLabel and retryLabel from the instance's prop and, WHILE that is empty, from the product's words of the keys removeLabel and retryLabel, and name, formatText, sizeText, statusText, errorText and targetLabel from the product alone, and from nowhere else. IF neither gives removeLabel or retryLabel THE file item SHALL still draw the action, expose it without a name, and in debug builds report the missing word once per page or screen, naming the prop. IF the word given has no place {name} THE file item SHALL name the action with it as it is written and in debug builds report that every file's action has the same name; another text between braces, and a brace that opens or closes nothing, SHALL be kept as written and reported. THE file item SHALL build no word from mediaType, from the end of name or from a number: it SHALL NOT write a format, a size or a share of progress in words."
     },
     {
       "id": "FIT-21",
@@ -425,14 +441,14 @@
         "action": "On a body that is a link: follows it. Space does what it does on any link (FIT-13)."
       }
     ],
-    "labeling": "A group named by the file's name — also in a tile that does not draw it — reading the name, the format, the size and the status or the error in words, a progress bar named by the file while it is sent, and its actions: buttons named retryLabel and removeLabel, each described by the file's name. A pressable body is a button, or a link, named by the file's name and described by the second line. Inside a File upload the file item is an item of the upload's list in the group's place (FUP-25).",
+    "labeling": "A group named by the file's name — also in a tile that does not draw it — reading the name, the format, the size and the status or the error in words, a progress bar named by the file while it is sent, and its actions: buttons named retryLabel and removeLabel, each with the file's name in its place ({name}). A pressable body is a button, or a link, named by the file's name and described by the second line. Inside a File upload the file item is an item of the upload's list in the group's place (FUP-25).",
     "minimumTarget": true,
     "notes": [
       "The name is the name in every form (FIT-8, FIT-19): hiding it in a strip of pictures hides it from sight alone, and only behind a picture that is drawn. A picture is no text alternative for a name, and the file item asks for no description of the picture: the picture stands for the file, which has a name. A product that shows the picture as content — to be looked at — shows it in an Image preview, whose images have their own alternative text.",
       "Status is never color alone (WCAG 1.4.1): a done or failed file has words, and its mark has a shape of its own. The glyph before the name says the format and never the status, so that a person learns one place for each.",
       "A failure is never hidden (WCAG 3.3.1): errorText is drawn in every form, wraps and is never cut, also beneath a tile whose name is hidden.",
       "A format has no color. Ten colors for ten kinds would be ten meanings a person must learn, would compete with the two status colors on the same line, and would say nothing to a person who does not tell them apart; the glyph's shape and, where the product has them, the format's words carry it.",
-      "The remove and retry actions are named once and described by the file's name, so a person tabbing through a list hears \"Remove, button, brief.pdf\" without the product writing a sentence per file.",
+      "The remove and retry actions are named by one sentence of the product's with the file's name in it, so a person tabbing through a list, or listing the buttons of the page, hears \"Remove brief.pdf, button\" — in the order of the product's language — without the product writing a sentence per file.",
       "Nothing is announced by a file item (FIT-19). A component that holds file items — a File upload, a chat composer — has one live region for all of them and says what was added, finished and failed there; a product that arranges file items itself does the same with a region of its own.",
       "A cut name (FIT-9) is cut for sight alone and keeps its ending. The whole name is the accessible name; on the web it is also the body's or the name's `title` only where the product asks for one, because a tooltip is not reachable by touch and is no substitute for the row form, which never cuts.",
       "A picture that moves (an animated image) is the platform's to hold still or not (FIT-23). On the web an image element plays it; a product whose strip must not move gives a still `previewSrc`.",
@@ -448,8 +464,8 @@
         "value": "a",
         "name": "brief.pdf",
         "sizeText": "820 KB",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -461,8 +477,8 @@
         "sizeText": "820 KB",
         "status": "pending",
         "statusText": "Waiting",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -474,8 +490,8 @@
         "status": "uploading",
         "statusText": "Uploading",
         "progress": 0.4,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -486,8 +502,8 @@
         "sizeText": "1.1 MB",
         "status": "uploading",
         "statusText": "Uploading",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -498,8 +514,8 @@
         "sizeText": "2.0 MB",
         "status": "done",
         "statusText": "Uploaded",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -511,8 +527,8 @@
         "status": "error",
         "errorText": "The connection was lost.",
         "retryable": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -523,8 +539,8 @@
         "sizeText": "48 MB",
         "status": "error",
         "errorText": "Larger than 10 MB.",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -532,8 +548,8 @@
       "props": {
         "value": "image",
         "name": "floor-plan.png",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -541,8 +557,8 @@
       "props": {
         "value": "video",
         "name": "walkthrough.mp4",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -550,8 +566,8 @@
       "props": {
         "value": "audio",
         "name": "interview.m4a",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -559,8 +575,8 @@
       "props": {
         "value": "pdf",
         "name": "brief.pdf",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -568,8 +584,8 @@
       "props": {
         "value": "spreadsheet",
         "name": "budget.xlsx",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -577,8 +593,8 @@
       "props": {
         "value": "presentation",
         "name": "kickoff.pptx",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -586,8 +602,8 @@
       "props": {
         "value": "archive",
         "name": "site-photos.zip",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -595,8 +611,8 @@
       "props": {
         "value": "code",
         "name": "config.json",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -604,8 +620,8 @@
       "props": {
         "value": "document",
         "name": "minutes.docx",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -613,8 +629,8 @@
       "props": {
         "value": "other",
         "name": "README",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -624,8 +640,8 @@
         "name": "export",
         "mediaType": "text/csv",
         "sizeText": "12 KB",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -635,8 +651,8 @@
         "name": "keys.pem",
         "glyph": "key",
         "sizeText": "2 KB",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -645,8 +661,8 @@
         "value": "a",
         "name": "model.glb",
         "sizeText": "14 MB",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       },
       "slots": {
         "icon": "deployed_code"
@@ -660,8 +676,8 @@
         "sizeText": "3.4 MB",
         "preview": true,
         "previewSrc": "fixtures/avatar.png",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -671,8 +687,8 @@
         "name": "brief.pdf",
         "sizeText": "820 KB",
         "preview": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -684,8 +700,8 @@
         "preview": true,
         "previewSrc": "fixtures/avatar.png",
         "interactive": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -708,8 +724,8 @@
         "href": "/files/contract.pdf",
         "target": "new",
         "targetLabel": "opens in a new tab",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -722,8 +738,8 @@
         "errorText": "The connection was lost.",
         "retryable": true,
         "disabled": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -756,8 +772,8 @@
         "status": "error",
         "errorText": "This file is larger than 10 MB. Export it at a lower quality and choose it again.",
         "retryable": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -769,8 +785,8 @@
         "status": "uploading",
         "statusText": "Uploading",
         "progress": 0.4,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       },
       "direction": "rtl"
     },
@@ -786,8 +802,8 @@
         "href": "/files/site-photo.png",
         "target": "new",
         "targetLabel": "opens in a new tab",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       },
       "direction": "rtl"
     },
@@ -798,8 +814,8 @@
         "value": "a",
         "name": "brief.pdf",
         "sizeText": "820 KB",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -810,8 +826,8 @@
         "name": "floor-plan.png",
         "preview": true,
         "previewSrc": "fixtures/avatar.png",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -821,8 +837,8 @@
         "value": "b",
         "name": "floor-plan.png",
         "preview": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -835,8 +851,8 @@
         "previewSrc": "fixtures/avatar.png",
         "width": 160,
         "height": 90,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -850,8 +866,8 @@
         "fit": "contain",
         "width": 160,
         "height": 90,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -863,8 +879,8 @@
         "preview": true,
         "previewSrc": "fixtures/avatar.png",
         "nameHidden": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -874,8 +890,8 @@
         "value": "a",
         "name": "brief.pdf",
         "nameHidden": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -889,8 +905,8 @@
         "status": "uploading",
         "statusText": "Uploading",
         "progress": 0.4,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -903,8 +919,8 @@
         "previewSrc": "fixtures/avatar.png",
         "status": "done",
         "statusText": "Uploaded",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -919,8 +935,8 @@
         "status": "error",
         "errorText": "The connection was lost.",
         "retryable": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -932,8 +948,8 @@
         "preview": true,
         "previewSrc": "fixtures/avatar.png",
         "interactive": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -948,8 +964,8 @@
         "errorText": "The connection was lost.",
         "retryable": true,
         "disabled": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -973,8 +989,8 @@
         "sizeText": "12.4 MB",
         "preview": true,
         "previewSrc": "fixtures/avatar.png",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       }
     },
     {
@@ -988,8 +1004,8 @@
         "status": "error",
         "errorText": "The connection was lost.",
         "retryable": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       },
       "direction": "rtl"
     }
@@ -1031,7 +1047,7 @@
         "remove": "remove",
         "retry": "retry"
       },
-      "notes": "The shadow-root form: a part with states and actions of its own. Class `TanreiFileItem`; React `FileItem`. `<tanrei-file-item name=\"brief.pdf\" size-text=\"820 KB\" remove-label=\"Remove\"></tanrei-file-item>`; a tile: `<tanrei-file-item form=\"tile\" preview width=\"160\" height=\"90\" name=\"floor-plan.png\"></tanrei-file-item>`. Attributes `media-type`, `format-text`, `size-text`, `status-text`, `error-text`, `preview-src`, `name-hidden`, `target-label`, `remove-label`, `retry-label`, `readonly`; `progress` absent for null; `width` and `height` are numbers of CSS pixels, as an image's, and are the box of the tile alone. **The file**: the property `file` (a `File` or null, never an attribute) is the platform's handle. With `preview` and an image kind and no `preview-src`, the element creates one object URL for it when it first comes near the viewport (an `IntersectionObserver`), gives it to its own `<img part=\"preview\" alt=\"\" decoding=\"async\">` and to nothing else, and revokes it in `disconnectedCallback`, when `file` is set again and when `preview`, `preview-src` or the kind stops asking for it (FIT-7); reconnected, it makes a new one when it is next in view. `name` and `media-type` left empty are read from `file.name` and `file.type` (FIT-33). `file` is also what a File upload submits for the item (FUP-31). **The body** is `<div part=\"container\">`, or `<button part=\"container\">` with `interactive`, or `<a part=\"container\" href>` with `href` (the shared link primitive; web-only `rel` and `download` are forwarded to the anchor, and `download` is how a link saves the file in place of opening it); the two actions are native buttons beside it in the shadow root, with `aria-label` and `aria-description`, never inside it. In a tile the actions are placed over the box and come after the body in the DOM, so the order of focus is the order read. `click`, `remove` and `retry` are CustomEvents that bubble and are composed, with `detail.value`; `click` is cancelable for a link. The host has `role=\"group\"` and `aria-label` from `name`; a File upload that holds it sets `role=\"listitem\"` on it through an internal channel that is not part of its public surface (FIT-19). The cut of a tile's name (FIT-9) is two spans — the start, which shrinks with an ellipsis, and the ending, which does not — inside one `<bdi>`. Parts: `container`, `media`, `icon`, `preview`, `headline`, `supporting-text`, `status-icon`, `progress`, `action`. The bar is `<tanrei-progress-indicator>` (the small linear one), drawn from this component's own bar tokens. No form participation: a file item submits nothing; what holds it does."
+      "notes": "The shadow-root form: a part with states and actions of its own. Class `TanreiFileItem`; React `FileItem`. `<tanrei-file-item name=\"brief.pdf\" size-text=\"820 KB\" remove-label=\"Remove\"></tanrei-file-item>`; a tile: `<tanrei-file-item form=\"tile\" preview width=\"160\" height=\"90\" name=\"floor-plan.png\"></tanrei-file-item>`. Attributes `media-type`, `format-text`, `size-text`, `status-text`, `error-text`, `preview-src`, `name-hidden`, `target-label`, `remove-label`, `retry-label`, `readonly`; `progress` absent for null; `width` and `height` are numbers of CSS pixels, as an image's, and are the box of the tile alone. **The file**: the property `file` (a `File` or null, never an attribute) is the platform's handle. With `preview` and an image kind and no `preview-src`, the element creates one object URL for it when it first comes near the viewport (an `IntersectionObserver`), gives it to its own `<img part=\"preview\" alt=\"\" decoding=\"async\">` and to nothing else, and revokes it in `disconnectedCallback`, when `file` is set again and when `preview`, `preview-src` or the kind stops asking for it (FIT-7); reconnected, it makes a new one when it is next in view. `name` and `media-type` left empty are read from `file.name` and `file.type` (FIT-33). `file` is also what a File upload submits for the item (FUP-31). **The body** is `<div part=\"container\">`, or `<button part=\"container\">` with `interactive`, or `<a part=\"container\" href>` with `href` (the shared link primitive; web-only `rel` and `download` are forwarded to the anchor, and `download` is how a link saves the file in place of opening it); the two actions are native buttons beside it in the shadow root, with `aria-label` — the product's sentence with the file's name filled in — never inside it. In a tile the actions are placed over the box and come after the body in the DOM, so the order of focus is the order read. `click`, `remove` and `retry` are CustomEvents that bubble and are composed, with `detail.value`; `click` is cancelable for a link. The host has `role=\"group\"` and `aria-label` from `name`; a File upload that holds it sets `role=\"listitem\"` on it through an internal channel that is not part of its public surface (FIT-19). The cut of a tile's name (FIT-9) is two spans — the start, which shrinks with an ellipsis, and the ending, which does not — inside one `<bdi>`. Parts: `container`, `media`, `icon`, `preview`, `headline`, `supporting-text`, `status-icon`, `progress`, `action`. The bar is `<tanrei-progress-indicator>` (the small linear one), drawn from this component's own bar tokens. No form participation: a file item submits nothing; what holds it does."
     },
     "swiftui": {
       "status": "planned",

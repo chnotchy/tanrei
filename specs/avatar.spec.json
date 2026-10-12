@@ -101,7 +101,16 @@
       "name": "overflowLabel",
       "type": "string",
       "default": "",
-      "description": "Group form only. What assistive technology reads for the overflow box, in the product's language and with the number in it (\"and 12 more\"). Empty reads the drawn text (\"+12\")."
+      "description": "Group form only. What assistive technology reads for the overflow box: the whole sentence in the product's language, with one place, {count}, which the group fills with the number of members not drawn (\"{count} more\", \"ほか{count}人\"). Written once as the product's words, it serves every group. A sentence that is right for every number, or a prop set per count where the language needs another form for one. Empty reads the product's words; with neither, the drawn text (\"+12\").",
+      "words": "avatarGroupOverflowLabel",
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of members not drawn, in full: above 999 too, where the drawn text stops at 999 and a plus sign.",
+          "required": true
+        }
+      ]
     }
   ],
   "items": [
@@ -227,8 +236,8 @@
     },
     {
       "id": "AVT-19",
-      "text": "THE group SHALL be exposed to assistive technology as one group named by its label, holding in order one image for each member it draws, each named by that member's label whatever decorative says, and then, where it draws an overflow box, one text: overflowLabel where it is not empty, else the drawn text. THE gaps SHALL be kept from assistive technology. IF the group's label is empty THE group SHALL expose its members without a group's name and in debug builds report that a group has no name; IF a member's label is empty THE group SHALL expose nothing for that member and in debug builds report it.",
-      "verify": "The fixture group-max is read as: group Reviewers; image Ada Lovelace; image Grace Hopper; image Katherine Johnson; and 3 more."
+      "text": "THE group SHALL be exposed to assistive technology as one group named by its label, holding in order one image for each member it draws, each named by that member's label whatever decorative says, and then, where it draws an overflow box, one text: overflowLabel — from the instance's prop or, WHILE that is empty, from the product's words of the key avatarGroupOverflowLabel — with its place {count} filled by the number of members not drawn, in the current locale's digits with no grouping separator and never cut at 999 as the drawn text is (AVT-18); else the drawn text. Another text between braces, and a brace that opens or closes nothing, SHALL be read as written and reported in debug builds; a sentence without {count} SHALL be read as written and reported in debug builds, because it does not say how many. THE gaps SHALL be kept from assistive technology. IF the group's label is empty THE group SHALL expose its members without a group's name and in debug builds report that a group has no name; IF a member's label is empty THE group SHALL expose nothing for that member and in debug builds report it.",
+      "verify": "The fixture group-max is read as: group Reviewers; image Ada Lovelace; image Grace Hopper; image Katherine Johnson; 3 more. Unit: with the sentence given once through the product's words and no prop, the overflow is read with the number filled; a group of 1240 more members draws 999+ and is read with 1240."
     },
     {
       "id": "AVT-20",
@@ -444,7 +453,7 @@
       "props": {
         "label": "Reviewers",
         "max": 4,
-        "overflowLabel": "and 3 more"
+        "overflowLabel": "{count} more"
       },
       "items": [
         {
@@ -497,7 +506,7 @@
         "label": "Members",
         "max": 4,
         "total": 240,
-        "overflowLabel": "and 237 more"
+        "overflowLabel": "{count} more"
       },
       "items": [
         {
@@ -551,7 +560,7 @@
         "label": "Authors",
         "size": "large",
         "max": 3,
-        "overflowLabel": "and 2 more"
+        "overflowLabel": "{count} more"
       },
       "items": [
         {
@@ -650,7 +659,7 @@
       "props": {
         "label": "المراجعون",
         "max": 4,
-        "overflowLabel": "و٣ آخرون"
+        "overflowLabel": "و{count} آخرون"
       },
       "items": [
         {
