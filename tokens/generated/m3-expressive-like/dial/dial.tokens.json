@@ -4829,14 +4829,16 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10
-              }
+              },
+              "reason": "Collapsed, the main action button is Material 3's small FAB (40dp). Material 3 has no extended FAB of this height: its extended FAB is 56dp, where the extended main action button keeps the height of its size."
             },
             "tanrei.comp.main-action-button.container.height.medium": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
-              }
+              },
+              "reason": "Material 3's FAB and extended FAB are both 56dp."
             },
             "tanrei.comp.main-action-button.container.height.large": {
               "derive": {
