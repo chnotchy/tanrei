@@ -1,4 +1,4 @@
-// <tanrei-accordion> and accordion.css, driven by specs/accordion.spec.json: every behaviour id (ACC-1…35) is cited by a
+// <tanrei-accordion> and accordion.css, driven by specs/accordion.spec.json: every behaviour id (ACC-1…36) is cited by a
 // test title, every fixture has a baseline, and every length and color is read back from the tokens — never from a
 // number written here (the heights and insets of ACC-2's verify are the spec's own numbers for the default system).
 import AxeBuilder from '@axe-core/playwright';
@@ -853,6 +853,145 @@ test.describe('opening and closing', () => {
     }
     // What the accordion does for it is the same in every engine: the item is opened by the browser, and the others close.
     expect(await page.evaluate(() => 'onbeforematch' in window)).toBe(true);
+  });
+
+  test('ACC-36: a click on an open item’s content — its text, or the space under its last line — closes it with one toggle, as its header does, and exclusive closes nothing else; a link, a button, a field, a label, a tab index, a widget role and a pointer-cursor box keep their press, and a click the product cancels closes nothing; a text selection, a drag past the slop, a modifier key, another button, a second click and a script’s click() close nothing, a press moved within the slop does; a nested item’s content closes that item only and a nested header toggles its own; a disabled item stays open; the content gets no role, no tab index and no cursor, and the keys on the header are as they were', async ({ page }) => {
+    const own = raw(
+      'content',
+      { exclusive: true },
+      `<details id="o" open><summary>Outer</summary><p id="text">Reading text, long enough that a word of it can be selected.</p>` +
+        `<p><a id="link" href="#nowhere">a link</a> <button id="btn">a button</button> <input id="field" aria-label="A field"> <label id="lab"><input type="checkbox"> a label</label> ` +
+        `<span id="tabbed" tabindex="-1">a tab index</span> <span id="roled" role="switch" aria-checked="false">a switch</span> <span id="pointer" style="cursor: pointer">a box of the product’s</span> <span id="cancelled">a span whose click the product cancels</span></p>` +
+        `<tanrei-accordion><details id="i1" open><summary>Inner one</summary><p id="itext">Inner content.</p></details><details id="i2"><summary>Inner two</summary>y</details></tanrei-accordion>` +
+        `<p id="last">The last line.</p></details><details id="n"><summary>Next</summary>Next content.</details>`,
+    );
+    const off = raw('content-disabled', {}, `<details id="d" open><summary aria-disabled="true" tabindex="-1">Disabled</summary><p id="dtext">Disabled content.</p></details>`);
+    await mountFixtures(page, spec, { icons: true, fixtures: [own, off] });
+    for (const id of ['link', 'cancelled']) await page.locator(`#${id}`).evaluate((el) => el.addEventListener('click', (event) => event.preventDefault()));
+    const attributes = () => page.locator('#o').evaluate((el) => [...el.querySelectorAll(':scope > :not(summary), :scope > :not(summary) *')].map((node) => [...node.attributes].map((a) => a.name).filter((name) => name !== 'open').join(' ')).join('|'));
+    const before = await attributes();
+    await watchToggles(page);
+    const isOpen = (id: string) => page.locator(`#${id}`).evaluate((el: HTMLDetailsElement) => el.open);
+    /** Opens an item again and forgets its toggle. */
+    const reopen = async (id: string) => {
+      await page.locator(`#${id}`).evaluate((el: HTMLDetailsElement) => (el.open = true));
+      await settled(page);
+      await toggles(page);
+    };
+    /** Nothing closed: a task for the deferred decision, then the toggles. */
+    const unchanged = async () => {
+      await page.waitForTimeout(50);
+      expect(await toggles(page)).toEqual([]);
+      expect(await isOpen('o')).toBe(true);
+    };
+
+    // The text: closed, one toggle, nothing else opened by exclusive.
+    await page.locator('#text').click();
+    await expect.poll(() => isOpen('o')).toBe(false);
+    expect(await toggles(page)).toEqual(['o:closed']);
+    expect(await isOpen('n')).toBe(false);
+    await reopen('o');
+    // The space under the last line: the item's own box.
+    const box = await edges(page.locator('#o'));
+    const last = await edges(page.locator('#last'));
+    expect(box.bottom - last.bottom).toBeGreaterThan(4);
+    await page.mouse.click(box.left + 2, box.bottom - 2);
+    await expect.poll(() => isOpen('o')).toBe(false);
+    expect(await toggles(page)).toEqual(['o:closed']);
+    await reopen('o');
+
+    // What takes a press itself keeps it.
+    for (const id of ['link', 'btn', 'field', 'lab', 'tabbed', 'roled', 'pointer', 'cancelled']) {
+      await page.locator(`#${id}`).click();
+      await unchanged();
+    }
+    await page.locator('#btn').blur();
+
+    // A text selection that the release ends: selected while the button is held, with no move.
+    const word = await edges(page.locator('#text'));
+    await page.mouse.move(word.left + 20, word.top + word.height / 2);
+    await page.mouse.down();
+    await page.evaluate(() => getSelection()!.selectAllChildren(document.getElementById('text')!));
+    await page.mouse.up();
+    await unchanged();
+    // A word selected by dragging over it (a press on selected text would drag that text instead).
+    await page.evaluate(() => getSelection()!.removeAllRanges());
+    await page.mouse.move(word.left + 2, word.top + word.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(word.left + 80, word.top + word.height / 2, { steps: 5 });
+    await page.mouse.up();
+    expect(await page.evaluate(() => getSelection()!.toString().length)).toBeGreaterThan(0);
+    await unchanged();
+    await page.evaluate(() => getSelection()!.removeAllRanges());
+    // A drag past the slop where there is no text to select; one within the slop is a press.
+    const y = box.bottom - 2;
+    await page.mouse.move(box.left + 2, y);
+    await page.mouse.down();
+    await page.mouse.move(box.left + 22, y, { steps: 4 });
+    await page.mouse.up();
+    await unchanged();
+    await page.mouse.move(box.left + 2, y);
+    await page.mouse.down();
+    await page.mouse.move(box.left + 6, y, { steps: 2 });
+    await page.mouse.up();
+    await expect.poll(() => isOpen('o')).toBe(false);
+    expect(await toggles(page)).toEqual(['o:closed']);
+    await reopen('o');
+
+    // A modifier key, another button, a second click, a script's click().
+    for (const modifier of ['Control', 'Meta', 'Shift', 'Alt'] as const) {
+      await page.locator('#last').click({ modifiers: [modifier] });
+      await unchanged();
+      await page.evaluate(() => getSelection()!.removeAllRanges());
+    }
+    await page.locator('#last').click({ button: 'middle' });
+    await unchanged();
+    await page.locator('#last').click({ button: 'right' });
+    await page.keyboard.press('Escape');
+    await unchanged();
+    await page.locator('#last').evaluate((el: HTMLElement) => el.click());
+    await unchanged();
+    await page.locator('#last').evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const at = { bubbles: true, cancelable: true, composed: true, clientX: r.left + 2, clientY: r.top + 2, button: 0 };
+      el.dispatchEvent(new PointerEvent('pointerdown', { ...at, isPrimary: true, pointerType: 'mouse', pointerId: 1 }));
+      el.dispatchEvent(new MouseEvent('click', { ...at, detail: 2 }));
+    });
+    await unchanged();
+
+    // Nested: the innermost item's.
+    await page.locator('#itext').click();
+    await expect.poll(() => isOpen('i1')).toBe(false);
+    expect(await toggles(page)).toEqual(['i1:closed']);
+    expect(await isOpen('o')).toBe(true);
+    await page.locator('#i1 > summary').click();
+    expect(await toggles(page)).toEqual(['i1:open']);
+    await page.locator('#i2 > summary').click();
+    expect(await toggles(page)).toEqual(['i2:open']);
+    expect(await isOpen('o')).toBe(true);
+    await settled(page);
+
+    // Disabled: stays open.
+    await page.locator('#dtext').click();
+    await page.waitForTimeout(50);
+    expect(await toggles(page)).toEqual([]);
+    expect(await isOpen('d')).toBe(true);
+
+    // No role, no tab index, no cursor, no attribute at all; the header is the one button and its keys are unchanged.
+    expect(await attributes()).toBe(before);
+    expect(await css(page.locator('#text'), 'cursor')).toBe('auto');
+    expect(await css(page.locator('#o'), 'cursor')).toBe('auto');
+    await page.locator('#o > summary').focus();
+    await tab(page);
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('link');
+    await page.locator('#o > summary').focus();
+    await page.keyboard.press('Enter');
+    expect(await toggles(page)).toEqual(['o:closed']);
+    await page.keyboard.press('Enter');
+    expect(await toggles(page)).toEqual(['o:open']);
+    await page.keyboard.press('ArrowLeft');
+    expect(await toggles(page)).toEqual(['o:closed']);
+    expect(await page.evaluate(() => document.activeElement === document.querySelector('#o > summary'))).toBe(true);
   });
 });
 

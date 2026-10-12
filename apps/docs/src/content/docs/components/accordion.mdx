@@ -209,6 +209,7 @@ On the web `exclusive` is the `name` attribute of `<details>`, which the element
 - The content is not a region and nothing is announced: the button's changed state is all assistive technology is told.
 - Closed content is not drawn, not focusable and not exposed, and it stays in the document: a field in it keeps its value and is sent with its form.
 - A link to a place inside a closed item opens the item, and so does the browser's own search of the page where the browser reveals a details element for it.
+- While an item is open, a press anywhere in its content closes it, as its header does, the way a whole card answers a press: a link, a button, a field or anything else in the content that takes a press keeps its own, and selecting text, dragging, a press with a modifier key and a press inside a nested accordion's item close nothing (that item's own content closes it). This is for a pointer only and needs the script: the keyboard and assistive technology use the header, the content gets no role, no focus stop and no cursor of its own, and without the script only the header opens and closes the item.
 - Focus never moves when an item opens. If an item closes around the focus, focus goes to its header.
 - The focus ring is drawn inside the header's row, so nothing clips it.
 - The height moves over the disclosure motion and is drawn at once where motion is reduced.

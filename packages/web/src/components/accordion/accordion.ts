@@ -4,10 +4,12 @@ import {
   PressController,
   SEPARATIONS,
   SEPARATION_VALUES,
+  SHEET_TOUCH_SLOP,
   type SeparationProp,
   compChoice,
   findInteractive,
   lineArrow,
+  pressTakenWithin,
   report,
   styleQueries,
   syncFocusStyle,
@@ -79,6 +81,9 @@ const CLOCK = '--_acc-open';
 const SLACK = 0.5;
 /** ACC-32: deeper than this is reported. */
 const MAX_DEPTH = 3;
+/** ACC-36: a press in the content that moved further than this is a drag, not a press — the touch slop the sheets use, the web naming none of its own. */
+const SLOP = SHEET_TOUCH_SLOP;
+const modified = (event: MouseEvent) => event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 
 type Root = Document | ShadowRoot;
 
@@ -213,7 +218,8 @@ let descriptions = 0;
  * the system's answer to a press (ripple, dim), the arrow keys, `exclusive` (the `name` it writes on its items), the
  * height motion where the browser cannot move a height to `auto` in CSS, the pressed header kept in place while an
  * item above it closes, focus given to the header when its item closes around it, the supporting and trailing text
- * read as the header's description instead of as part of its name, a disabled header refused, and the debug reports.
+ * read as the header's description instead of as part of its name, a disabled header refused, an open item closed by
+ * a press on its content (ACC-36; without script only the header toggles), and the debug reports.
  *
  * An accordion in an item's content is content like any other, drawn by its own attributes.
  *
@@ -266,6 +272,8 @@ export class TanreiAccordion extends ReactiveElement {
   /** The header that is being kept in place, and the frame that keeps it. */
   private holding: { summary: HTMLElement; top: number; above: HTMLDetailsElement[] } | null = null;
   private holdFrame = 0;
+  /** ACC-36: a press in an open item's content — which pointer, where it began, and whether it has moved past the slop. */
+  private contentPress: { id: number; x: number; y: number; details: HTMLDetailsElement; moved: boolean } | null = null;
   private readonly group = `tanrei-accordion-${++groups}`;
   /** The box the glyph's name is measured in, kept only while the icon set cannot draw it (ACC-33). */
   private glyphProbe: HTMLElement | null = null;
@@ -305,6 +313,7 @@ export class TanreiAccordion extends ReactiveElement {
     for (const press of this.pressControllers) press.hostDisconnected();
     this.held = null;
     this.heldSummary = null;
+    this.contentPress = null;
     clearTimeout(this.actedTimer);
     this.acted = null;
     this.release();
@@ -330,6 +339,26 @@ export class TanreiAccordion extends ReactiveElement {
     const summary = node instanceof Element ? node.closest<HTMLElement>('summary') : null;
     const details = summary?.parentElement;
     return summary && details instanceof HTMLDetailsElement && details.parentElement === this && summaryOf(details) === summary ? { details, summary } : null;
+  }
+
+  /**
+   * ACC-36: the open item of this accordion whose content a pointer event lands in, where a press there is the item's:
+   * the innermost `<details>` on the event's path is this accordion's own item (a nested accordion's item is its own),
+   * the item is open and not disabled, the press is not on its header, and nothing between the element pressed and the
+   * item takes a press itself.
+   */
+  private contentOf(event: MouseEvent): HTMLDetailsElement | null {
+    const path = event.composedPath();
+    const details = path.find((node): node is HTMLDetailsElement => node instanceof HTMLDetailsElement);
+    if (!details || details.parentElement !== this || !details.open) return null;
+    const summary = summaryOf(details);
+    if (!summary || disabled(summary) || path.includes(summary)) return null;
+    // A press on the item's own box (its inset, its edge) is in the content only below the header.
+    if (path[0] === details) {
+      const row = summary.getBoundingClientRect();
+      if (event.clientX >= row.left && event.clientX <= row.right && event.clientY >= row.top && event.clientY <= row.bottom) return null;
+    }
+    return pressTakenWithin(path, details) ? null : details;
   }
 
   /**
@@ -678,9 +707,15 @@ export class TanreiAccordion extends ReactiveElement {
   };
 
   private readonly onPointerDown = (event: Event) => {
+    const pointer = event as PointerEvent;
+    // ACC-36: a press of the primary button, a touch or a pen in an open item's content, with no modifier key.
+    this.contentPress = null;
+    if (pointer.isPrimary && pointer.button === 0 && !modified(pointer)) {
+      const details = this.contentOf(pointer);
+      if (details) this.contentPress = { id: pointer.pointerId, x: pointer.clientX, y: pointer.clientY, details, moved: false };
+    }
     const header = this.headerOf(event.target);
     if (!header || disabled(header.summary)) return;
-    const pointer = event as PointerEvent;
     if (pointer.button !== 0 && pointer.pointerType === 'mouse') return;
     this.answered(header.summary);
     this.held = this.pressOf(header.summary);
@@ -739,6 +774,48 @@ export class TanreiAccordion extends ReactiveElement {
     } else if (!event.defaultPrevented) this.act(header.summary);
   };
 
+  // ACC-36: past the slop, a press in the content is a drag — a scroll, a selection, a move — and never closes.
+  private readonly onPointerMove = (event: Event) => {
+    const press = this.contentPress;
+    const pointer = event as PointerEvent;
+    if (press && pointer.pointerId === press.id && Math.hypot(pointer.clientX - press.x, pointer.clientY - press.y) > SLOP) press.moved = true;
+  };
+
+  private readonly forgetContentPress = () => {
+    this.contentPress = null;
+  };
+
+  /**
+   * ACC-36: the click that ends a press in an open item's content closes the item, as its header's would — unless it
+   * moved past the slop, is a second click, is modified, ends a text selection in the item, lands where something
+   * else takes it, or is cancelled by a handler of the product's. The click is decided once it has reached every
+   * listener (a task later), so that the product's own handler on the content is heard first.
+   */
+  private readonly onContentClick = (event: Event) => {
+    const press = this.contentPress;
+    this.contentPress = null;
+    const click = event as MouseEvent;
+    if (!press || press.moved || click.button !== 0 || click.detail !== 1 || modified(click)) return;
+    if (Math.hypot(click.clientX - press.x, click.clientY - press.y) > SLOP || this.contentOf(click) !== press.details) return;
+    const { details } = press;
+    setTimeout(() => {
+      if (event.defaultPrevented || !details.open || details.parentElement !== this || this.selects(details)) return;
+      const summary = summaryOf(details);
+      if (!summary || disabled(summary)) return;
+      this.act(summary);
+      details.open = false;
+    });
+  };
+
+  /** Whether the selection of the document (or of the shadow root the accordion is in) is text selected in `details`. */
+  private selects(details: HTMLDetailsElement): boolean {
+    const root = this.getRootNode() as Root & { getSelection?: () => Selection | null };
+    const selection = (root instanceof ShadowRoot && typeof root.getSelection === 'function' ? root.getSelection() : null) ?? document.getSelection();
+    if (!selection || selection.isCollapsed) return false;
+    for (let i = 0; i < selection.rangeCount; i++) if (selection.getRangeAt(i).intersectsNode(details)) return true;
+    return false;
+  }
+
   // ACC-13: the item's clock has run out, or was cancelled and no other runs: its motion is over.
   private readonly onMotionEnd = (event: Event) => {
     const details = event.target;
@@ -751,13 +828,17 @@ export class TanreiAccordion extends ReactiveElement {
     ['pointerdown', this.onPointerDown],
     ['pointerup', this.releasePress],
     ['pointercancel', this.releasePress],
+    ['pointercancel', this.forgetContentPress],
+    ['pointermove', this.onPointerMove],
     ['pointerout', this.onPointerOut],
     ['dragstart', this.releasePress],
+    ['dragstart', this.forgetContentPress],
     ['keydown', this.onKeyDown],
     ['keyup', this.onKeyUp],
     ['focusin', this.onFocusIn],
     ['focusout', this.onFocusOut],
     ['click', this.onClick],
+    ['click', this.onContentClick],
     ['transitionend', this.onMotionEnd],
     ['transitioncancel', this.onMotionEnd],
   ];
