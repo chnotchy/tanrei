@@ -1,7 +1,7 @@
 {
   "name": "@tanrei/tokens-build",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0-next.0",
   "type": "module",
   "license": "Apache-2.0",
   "scripts": {

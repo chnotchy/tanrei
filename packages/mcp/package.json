@@ -1,6 +1,6 @@
 {
   "name": "@tanrei/mcp",
-  "version": "0.0.0",
+  "version": "0.1.0-next.0",
   "description": "Model Context Protocol server for Tanrei: lets an AI agent discover the token vocabulary, see where a value comes from, and write a valid design-system layer.",
   "license": "Apache-2.0",
   "type": "module",
