@@ -156,11 +156,16 @@ function encode(points: number[]): string {
  * in any other is drawn in its ASCII form — "cannot tell the script of a character" is the ASCII form (LKC-9).
  */
 const SCRIPTS = ['Latin', 'Han', 'Hiragana', 'Katakana', 'Hangul', 'Bopomofo', 'Cyrillic', 'Greek', 'Arabic', 'Hebrew', 'Devanagari', 'Bengali', 'Gurmukhi', 'Gujarati', 'Oriya', 'Tamil', 'Telugu', 'Kannada', 'Malayalam', 'Sinhala', 'Thai', 'Lao', 'Tibetan', 'Myanmar', 'Khmer', 'Georgian', 'Armenian', 'Ethiopic', 'Thaana'];
-/** The sets of scripts a single writing system uses together (LKC-9 c): Japanese, Korean, Chinese with its phonetic letters. */
+/**
+ * The sets of scripts a single writing system uses together (LKC-9 c): Japanese, Korean, Chinese with its phonetic
+ * letters — each with the ASCII letters (`ASCII`), and no other Latin one: a Latin letter with a mark beside Han is
+ * not how any of the three writes a name, and is how one name is dressed as another (the rule Chromium keeps too).
+ */
+const ASCII = 'ASCII';
 const TOGETHER = [
-  ['Latin', 'Han', 'Hiragana', 'Katakana'],
-  ['Latin', 'Han', 'Hangul'],
-  ['Latin', 'Han', 'Bopomofo'],
+  [ASCII, 'Han', 'Hiragana', 'Katakana'],
+  [ASCII, 'Han', 'Hangul'],
+  [ASCII, 'Han', 'Bopomofo'],
 ];
 /** The scripts whose letters are taken for Latin ones: a whole word of them under an ASCII ending stays ASCII (LKC-9 d). */
 const LOOKALIKE = ['Cyrillic', 'Greek'];
@@ -171,7 +176,7 @@ function written(letters: string, scripts: readonly string[]): boolean | null {
   const key = scripts.join(' ');
   if (!tests.has(key)) {
     try {
-      tests.set(key, new RegExp(`^[${scripts.map((script) => `\\p{Script_Extensions=${script}}`).join('')}]*$`, 'u'));
+      tests.set(key, new RegExp(`^[${scripts.map((script) => (script === ASCII ? 'A-Za-z' : `\\p{Script_Extensions=${script}}`)).join('')}]*$`, 'u'));
     } catch {
       tests.set(key, null);
     }
@@ -223,7 +228,7 @@ function unicodeLabel(ascii: string): { text: string; letters: string } | null {
  * A host with a label in the ASCII form of an internationalised name (`xn--…`) is given whole in its Unicode form
  * only while every such label (a) decodes and encodes back to exactly what it was, (b) holds nothing but letters,
  * combining marks, the digits 0 to 9 and the hyphen, (c) has all its letters in one script or in one of the sets one
- * writing system uses together (Latin with Han, Hiragana and Katakana; with Han and Hangul; with Han and Bopomofo),
+ * writing system uses together (the ASCII letters with Han, Hiragana and Katakana; with Han and Hangul; with Han and Bopomofo),
  * and (d) is not written wholly in Cyrillic or wholly in Greek under a last label that is ASCII. In every other case —
  * and on an engine that cannot tell a character's script — the whole host is the ASCII form, never a part in each.
  *

@@ -250,7 +250,7 @@
     {
       "id": "LNK-17",
       "text": "WHILE standalone is false and the link has a label THE link SHALL take input on its own text and container and nowhere else: its hit area is its part of each line and SHALL NOT reach over the text of a neighbouring line or of the same line. WHILE standalone is true, or the link is a glyph alone, and its visual size is below the minimum target THE link SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size or the room it takes in the layout; a platform that cannot tell the input type SHALL use sys.target.touch.",
-      "verify": "Two links on neighbouring lines of one paragraph: a press on the lower half of the upper line reaches the upper link. A standalone link in body text is 22 high and takes presses 48 high."
+      "verify": "Two links on neighbouring lines of one paragraph: a press on the lower half of the upper line reaches the upper link. A standalone link in body text takes a line 22 high and presses 48 high; its container is the text's own box (LNK-5), lower than the line, never the line's height."
     },
     {
       "id": "LNK-18",

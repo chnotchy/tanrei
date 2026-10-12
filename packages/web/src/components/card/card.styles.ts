@@ -71,9 +71,12 @@ export const styles = css`
     transition-duration: var(--tanrei-comp-card-motion-state-duration);
     transition-timing-function: var(--tanrei-comp-card-motion-state-easing);
   }
+  /* CRD-8: a press never selects the card's text nor starts a drag of it — one action, kept from selection as a button is. */
   ${unsafeCSS(ACTION)} {
     cursor: pointer;
     outline: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
   /* CRD-19: the anchor of a link card is the card's shape and nothing of a text link — no underline, and the content
      color of its variant and state (above), never the browser's link or visited color. */

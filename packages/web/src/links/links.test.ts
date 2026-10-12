@@ -125,6 +125,9 @@ test.describe('displayHost', () => {
       'https://aя中.example/',
       // Hiragana with Hangul (c).
       'https://にほん한국.example/',
+      // A Latin letter outside ASCII with Han: the writing systems that use Han beside Latin use the ASCII letters (c).
+      'https://bücher公式.example/',
+      'https://münchen東京.example/',
     ];
     for (const href of kept) {
       const host = ascii(href);
