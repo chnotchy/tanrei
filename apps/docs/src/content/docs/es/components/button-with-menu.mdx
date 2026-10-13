@@ -2,7 +2,7 @@
 title: Botón con menú
 description: Realiza una acción principal con una sola pulsación y ofrece acciones relacionadas en un menú desde un segundo botón unido a su lado.
 translationOf: components/button-with-menu.mdx
-sourceHash: da09049dfc3d610609f88d3630ba5407eb6f36c2
+sourceHash: 52a376bf9ba1224db956bf1d3bb5f7de5f2ab5f9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -37,7 +37,7 @@ Esta revisión trae lo siguiente, que por ahora solo dibuja la web:
 - Las dos mitades se unen con una línea divisora o con una separación. El sistema de diseño elige una vez para todos los componentes, un sistema de diseño puede tratar aparte este componente, y `separation` (`auto`, `divider`, `gap`) define una instancia concreta. El sistema predeterminado dibuja un divisor.
 - El relleno del lado del icono de la mitad inicial es un paso más ajustado, y los dos extremos exteriores redondeados reciben un poco más de relleno.
 - La mitad final conserva su forma mientras el menú está abierto; solo el chevron muestra el estado abierto.
-- `trailingWidth` (`default`, `narrow`) dibuja una mitad final más esbelta: tan ancha como un [Button](/es/components/button/) estrecho de solo icono del mismo tamaño, con el chevron y un pequeño margen interior a cada lado.
+- `trailingWidth` (`default`, `narrow`) dibuja una mitad final más esbelta: el chevron con un pequeño margen interior a cada lado y, como en el ancho predeterminado, un poco más de margen interior en su extremo exterior redondeado.
 :::
 
 <DemoFrame label="Variantes">
@@ -270,7 +270,7 @@ Las dos mitades se unen de una de dos maneras. Con un **divisor**, se tocan, las
 
 ### Una mitad final estrecha
 
-De forma predeterminada, la mitad final contiene el chevron en un cuadrado de la altura del botón, con un poco más de margen interior en su extremo exterior redondeado. Con `trailingWidth` en `narrow` es un asidero esbelto de la acción principal: exactamente tan ancha como un [Button](/es/components/button/) estrecho de solo icono del mismo tamaño (28 / 32 / 32 en el sistema predeterminado), con el chevron centrado, un pequeño margen interior a cada lado y sin margen exterior. La mitad inicial es la misma con cualquiera de los dos anchos.
+De forma predeterminada, la mitad final contiene el chevron en un cuadrado de la altura del botón, con un poco más de margen interior en su extremo exterior redondeado. Con `trailingWidth` en `narrow` es un asidero esbelto de la acción principal: el chevron con un pequeño margen interior a cada lado y ese mismo poco de margen adicional en su extremo exterior redondeado, para que el chevron parezca centrado frente a la curva (32 / 36 / 36 en el sistema predeterminado: el ancho de un [Button](/es/components/button/) estrecho de solo icono del mismo tamaño, más ese margen). La mitad inicial es la misma con cualquiera de los dos anchos.
 
 <DemoFrame label="Ancho de la mitad final: default y narrow, en cada tamaño" plain>
   <tanrei-button-with-menu size="small" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
