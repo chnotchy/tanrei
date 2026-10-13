@@ -2,7 +2,7 @@
 title: عنصر الملف
 description: يعرض ملفًا واحدًا، برسم أيقونة يقول صيغته أو صورة صغيرة له، وباسمه، وبما يقوله المنتج عنه، ومعه إجراءا إزالته وإعادة المحاولة، في هيئة صف من عمود ملفات أو بلاطة من سلسلة صور. ويمكن ضغطه لفتح الملف. وهو لا يقرأ الملف ولا يحتفظ به ولا يرسله بنفسه أبدًا.
 translationOf: components/file-item.mdx
-sourceHash: 7d87ffe88f4c926c993c8b2d399a647f70ab8368
+sourceHash: cc5762baeef8ad3e53caec5261135b190bb30fad
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,10 +19,10 @@ import { demoPicture } from '../../../../lib/demo-picture';
 <ComponentAvailability name="file-item" />
 
 <DemoFrame label="ملف واحد في هيئة صف، وملفات في هيئة بلاطات" column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 كيلوبايت" remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 كيلوبايت" remove-label="إزالة {name}"></tanrei-file-item>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
-    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="إزالة"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="إزالة"></tanrei-file-item>
+    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="إزالة {name}"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="إزالة {name}"></tanrei-file-item>
   </div>
 </DemoFrame>
 
@@ -58,12 +58,12 @@ import { demoPicture } from '../../../../lib/demo-picture';
     <ul class="attachments" aria-label="المرفقات">
       <li>
         <tanrei-file-item value="a" name="brief.pdf" format-text="PDF" size-text="820 كيلوبايت"
-                          href="/files/brief.pdf" remove-label="إزالة"></tanrei-file-item>
+                          href="/files/brief.pdf" remove-label="إزالة {name}"></tanrei-file-item>
       </li>
       <li>
         <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 ميغابايت"
                           status="uploading" status-text="جارٍ الرفع" progress="0.4"
-                          remove-label="إزالة" retry-label="إعادة المحاولة"></tanrei-file-item>
+                          remove-label="إزالة {name}" retry-label="إعادة محاولة {name}"></tanrei-file-item>
       </li>
     </ul>
 
@@ -90,7 +90,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
           <FileItem value={file.id} name={file.name} sizeText={file.sizeText}
             status={file.status} statusText={file.statusText} progress={file.progress}
             errorText={file.errorText} retryable={file.retryable}
-            removeLabel="إزالة" retryLabel="إعادة المحاولة"
+            removeLabel="إزالة {name}" retryLabel="إعادة محاولة {name}"
             onRemove={() => remove(file.id)} onRetry={() => retry(file.id)} />
         </li>
       ))}
@@ -104,12 +104,12 @@ import { demoPicture } from '../../../../lib/demo-picture';
 ## المواصفات
 
 <DemoFrame label="صف في كل حالة: في الانتظار، وأُرسل منه 40%، وجارٍ إرساله، ومكتمل، وفشل ويمكن إعادة محاولته، وفشل نهائيًّا" plain column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 كيلوبايت" status-text="في الانتظار" remove-label="إزالة"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 ميغابايت" status="uploading" status-text="جارٍ الرفع" progress="0.4" remove-label="إزالة"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 ميغابايت" status="uploading" status-text="جارٍ الرفع" remove-label="إزالة"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 ميغابايت" status="done" status-text="تم الرفع" remove-label="إزالة"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 ميغابايت" status="error" error-text="انقطع الاتصال." retryable remove-label="إزالة" retry-label="إعادة المحاولة"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 ميغابايت" status="error" error-text="الحجم أكبر من 10 ميغابايت." remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 كيلوبايت" status-text="في الانتظار" remove-label="إزالة {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 ميغابايت" status="uploading" status-text="جارٍ الرفع" progress="0.4" remove-label="إزالة {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 ميغابايت" status="uploading" status-text="جارٍ الرفع" remove-label="إزالة {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 ميغابايت" status="done" status-text="تم الرفع" remove-label="إزالة {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 ميغابايت" status="error" error-text="انقطع الاتصال." retryable remove-label="إزالة {name}" retry-label="إعادة محاولة {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 ميغابايت" status="error" error-text="الحجم أكبر من 10 ميغابايت." remove-label="إزالة {name}"></tanrei-file-item>
 </DemoFrame>
 
 <ComponentSpecs name="file-item" />
@@ -120,14 +120,14 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 <DemoFrame label="الملفات الثلاثة نفسها صفوفًا ثم بلاطات" plain column>
   <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
-    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 ميغابايت" preview preview-src={demoPicture} remove-label="إزالة"></tanrei-file-item>
-    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 ميغابايت" preview preview-src={demoPicture} remove-label="إزالة"></tanrei-file-item>
-    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 ميغابايت" preview remove-label="إزالة"></tanrei-file-item>
+    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 ميغابايت" preview preview-src={demoPicture} remove-label="إزالة {name}"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 ميغابايت" preview preview-src={demoPicture} remove-label="إزالة {name}"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 ميغابايت" preview remove-label="إزالة {name}"></tanrei-file-item>
   </div>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
-    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="إزالة"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="إزالة"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="إزالة"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="إزالة {name}"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="إزالة {name}"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="إزالة {name}"></tanrei-file-item>
   </div>
 </DemoFrame>
 
@@ -212,9 +212,9 @@ import { demoPicture } from '../../../../lib/demo-picture';
 الخاصية `fit` تقول كيف تملأ الصورة صندوقها. القيمة `cover`، وهي الافتراضية، تملأ الصندوق وتقصّ ما لا يتسع له؛ استخدمها للصور الفوتوغرافية. والقيمة `contain` تعرض الصورة كاملة على أرضية الصندوق؛ استخدمها للمستندات الممسوحة ضوئيًّا والتواقيع والمخططات، حيث تكون الحواف مهمة.
 
 <DemoFrame label="صندوق مقاسه 160 في 90: القيمة cover، والقيمة contain، والاسم المخفي" plain>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="إزالة"></tanrei-file-item>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="إزالة"></tanrei-file-item>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="إزالة {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="إزالة {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="إزالة {name}"></tanrei-file-item>
 </DemoFrame>
 
 ما تكلّفه المعاينة:
@@ -234,8 +234,8 @@ import { demoPicture } from '../../../../lib/demo-picture';
 في الوضع الافتراضي لا يأخذ جسم عنصر الملف تركيزًا ولا يستجيب لشيء. فالعنصر يحمل إجراءيه لا غير.
 
 <DemoFrame label="جسم هو زر، ورابط يُفتح في تبويب جديد، وملف للقراءة فقط" plain column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 ميغابايت" interactive remove-label="إزالة"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 ميغابايت" href="#قابل-للضغط-أو-رابط-أو-للقراءة-فقط" target="new" target-label="يُفتح في تبويب جديد" remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 ميغابايت" interactive remove-label="إزالة {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 ميغابايت" href="#قابل-للضغط-أو-رابط-أو-للقراءة-فقط" target="new" target-label="يُفتح في تبويب جديد" remove-label="إزالة {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 كيلوبايت" status="done" status-text="أُرسل في 4 ديسمبر" readonly></tanrei-file-item>
 </DemoFrame>
 
@@ -286,7 +286,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 | `removeLabel` | `removeLabel` | يُرسم إجراء الإزالة ولا اسم له. وتبلّغ عنه بنيات التنقيح (debug). |
 | `retryLabel` | `retryLabel` | يُرسم إجراء إعادة المحاولة ولا اسم له. وتبلّغ عنه بنيات التنقيح. |
 
-كل إجراء يصفه اسم ملفه. فكلمة واحدة، «إزالة»، تكفي لكل الملفات: يسمع الشخص «إزالة، زر، brief.pdf».
+يحمل اسم كل إجراء اسمَ ملفه: الخاصيتان `removeLabel` و `retryLabel` جملتان فيهما الموضع `{name}`، يملؤه عنصر الملف باسم الملف («`إزالة {name}`»). تكفي جملة واحدة لكل الملفات، ويسمع الشخص «إزالة brief.pdf، زر» بترتيب لغتك، وكذلك حين يعدّد قارئ الشاشة أزرار الصفحة. والجملة التي لا موضع `{name}` فيها تعطي إجراء كل ملف الاسم نفسه، وتبلّغ عنها بنيات التنقيح.
 
 ### من اليمين إلى اليسار
 
@@ -315,7 +315,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 - عنصر الملف وحده مجموعة يسمّيها اسم الملف. وفي مكوّن رفع الملفات هو عنصر من عناصر قائمة ذلك المكوّن.
 - الجسم القابل للضغط زر واحد أو رابط واحد، يسمّيه اسم الملف ويصفه السطر الثاني. ويأتي قبل الإجراءين في ترتيب التركيز. والرابط يُفعَّل بالمفتاح Enter لا بالمفتاح Space، والرابط الذي يُفتح في تبويب جديد يقول `targetLabel` بعد اسمه.
-- الإجراءان زران تسمّيهما `removeLabel` و `retryLabel` ويصفهما اسم الملف. وإعادة المحاولة تأتي قبل الإزالة.
+- الإجراءان زران تسمّيهما `removeLabel` و `retryLabel`، واسم الملف في الموضع `{name}`. وإعادة المحاولة تأتي قبل الإزالة.
 - الشريط شريط تقدم (progress bar) يسمّيه الملف. والخطأ هو نص السطر الثاني، ويُقرأ في مكان الحالة.
 - الرسم والصورة وعلامة الحالة محجوبة عن التقنيات المساعدة. والكلمات تقول ما تعرضه.
 - عنصر الملف لا يعلن شيئًا. فمن يضم عناصر كثيرة منه تكون له منطقة حيّة (live region) واحدة لها كلها، كما هي حال مكوّن رفع الملفات.

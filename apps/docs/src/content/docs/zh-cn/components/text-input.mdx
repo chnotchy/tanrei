@@ -2,7 +2,7 @@
 title: "文本输入框"
 description: "用户在里面键入的那个方框，以及在里面键入的一切——单行或多行、日期或时间、代码——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
 translationOf: components/text-input.mdx
-sourceHash: f696d67893933cf6b88d1d28aeb4216876f1ec36
+sourceHash: 3749647f72d1b3f46c616d54c6d99f6c792e4633
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -218,7 +218,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 它的名称是它自己的 `label`；它没有 `label` 时，是包着它的字段的标签。占位符绝不是名称。
 - 它的描述依次是：显示出来的前缀和后缀，计数，然后是字段给它的内容，也就是帮助文本或错误文本。
 - 处于错误状态时，它暴露为无效；所在的字段说明它必填时，暴露为必填；只读和禁用时，也分别暴露出来。
-- 键入停顿一秒之后，计数按当前的样子（“12/40”）朗读，绝不是每按一次键就朗读，也不管有没有东西把它画出来。
+- 键入停顿一秒之后朗读一次计数，绝不是每按一次键就朗读，也不管有没有东西把它画出来。朗读的是当前的样子（“12/40”），或者在你给出句子时朗读你的句子：有 `maxLength` 时是 `counterText`，带占位符 `{count}`、`{limit}` 和 `{remaining}`（“`还可输入 {remaining} 个字`”）；没有时是 `counterNoLimitText`，带 `{count}`。可以写在元素上，也可以用 `setWords({ characterCountText, characterCountNoLimitText })` 只给一次。超过上限的值只能由你设置，这时按数字朗读。同一个句子也是输入框的描述；画出来的仍然是数字。
 - 焦点由方框自己的边缘来显示，无论来自键盘还是指针。点击区域满足最小目标。
 - 浮动标签后面的星号对辅助技术隐藏：必填状态已经说明了这一点。
 - 缺少名称会在调试构建中报告。

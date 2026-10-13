@@ -2,7 +2,7 @@
 title: مربع كتابة الرسائل
 description: يتيح للشخص أن يكتب رسالة ويرسلها، في كبسولة واحدة تحمل كل شيء. منطقة كتابة تكبر مع ما يُكتب، والملفات المرفقة بالرسالة، وإجراءاتك أنت، وزر إرسال لا يكون مفعَّلًا إلا ما دام إرسال الرسالة ممكنًا. وهو يبلّغ عن الرسالة ولا يرسل شيئًا بنفسه أبدًا.
 translationOf: components/chat-composer.mdx
-sourceHash: 68233132907fd0b94d40dacc7db0d52a3c7fec59
+sourceHash: 5030b8d8268f9b3555fd16ab43bcdbb77447e8fb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,8 +17,8 @@ import Callout from '../../../../components/Callout.astro';
 <ComponentAvailability name="chat-composer" />
 
 <DemoFrame label="مربع كتابة الرسائل في كل تخطيط. اكتب رسالة، وأرفِق ملفًّا، وأرسِل. لا يُرسل شيء إلى أي مكان." column>
-  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="الرسالة" placeholder="اكتب رسالة" send-label="إرسال" attachments="own" attach-label="إرفاق ملفات" remove-label="إزالة"></tanrei-chat-composer>
-  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="الرسالة" placeholder="اكتب رسالة" send-label="إرسال" attachments="own" attach-label="إرفاق ملفات" remove-label="إزالة" max-length="280" counter>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="الرسالة" placeholder="اكتب رسالة" send-label="إرسال" attachments="own" attach-label="إرفاق ملفات" remove-label="إزالة {name}"></tanrei-chat-composer>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="الرسالة" placeholder="اكتب رسالة" send-label="إرسال" attachments="own" attach-label="إرفاق ملفات" remove-label="إزالة {name}" max-length="280" counter>
     <tanrei-button slot="leading" variant="text" label="الإشارة إلى شخص"><span slot="icon">alternate_email</span></tanrei-button>
     <tanrei-button slot="leading" variant="text" label="إضافة رمز تعبيري"><span slot="icon">mood</span></tanrei-button>
   </tanrei-chat-composer>
@@ -46,7 +46,7 @@ import Callout from '../../../../components/Callout.astro';
   <TabItem label="Web">
     ```html
     <tanrei-chat-composer label="الرسالة" placeholder="اكتب رسالة" send-label="إرسال"
-                          attachments="own" attach-label="إرفاق ملفات" remove-label="إزالة">
+                          attachments="own" attach-label="إرفاق ملفات" remove-label="إزالة {name}">
     </tanrei-chat-composer>
     ```
 
@@ -67,7 +67,7 @@ import Callout from '../../../../components/Callout.astro';
       sendLabel="إرسال"
       attachments="own"
       attachLabel="إرفاق ملفات"
-      removeLabel="إزالة"
+      removeLabel="إزالة {name}"
       onSend={(event) => post(event.detail.value, event.detail.attachments)}
     />
     ```
@@ -82,7 +82,7 @@ import Callout from '../../../../components/Callout.astro';
 
 ```html
 <tanrei-chat-composer label="الرسالة" send-label="إرسال" attachments="given"
-                      attach-label="إرفاق ملفات" remove-label="إزالة" retry-label="إعادة المحاولة">
+                      attach-label="إرفاق ملفات" remove-label="إزالة {name}" retry-label="إعادة محاولة {name}">
   <tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status="uploading" progress="0.4"></tanrei-file-item>
 </tanrei-chat-composer>
 ```
