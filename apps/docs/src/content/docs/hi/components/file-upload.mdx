@@ -2,7 +2,7 @@
 title: फ़ाइल अपलोड
 description: लोगों को फ़ाइल पिकर से फ़ाइलें चुनने देता है और जो चुना गया उसे फ़ाइल आइटम के रूप में दिखाता है, पंक्तियों के कॉलम में या टाइल की क़तार में। फ़ॉर्म में रखने पर वह चुनी गई फ़ाइलें अपने पास रखता है और बिना किसी कोड के उन्हें सबमिट करता है; जो प्रॉडक्ट फ़ाइलें ख़ुद भेजता है, वह फ़ाइल आइटम ख़ुद देता है। वह ख़ुद कभी कुछ अपलोड नहीं करता।
 translationOf: components/file-upload.mdx
-sourceHash: 92200944376e4e306774065dde5f3c738369a9a3
+sourceHash: fb899706d800e36991b2221b490a0dee56cc73df
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -18,10 +18,10 @@ import { demoPicture } from '../../../../lib/demo-picture';
 <ComponentAvailability name="file-upload" />
 
 <DemoFrame label="दोनों लेआउट में एक-एक फ़ाइल अपलोड। कोई फ़ाइल चुनें: वह लिस्ट में आती है, और हटाई जा सकती है। कुछ भी भेजा नहीं जाता।" column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="अटैचमेंट" accept=".pdf" constraints-text="PDF, 10 MB तक" max-size="10000000" empty-text="कोई फ़ाइल नहीं चुनी गई" remove-label="हटाएँ" type-error-text="सिर्फ़ PDF फ़ाइलें जोड़ी जा सकती हैं।" size-error-text="10 MB से बड़ी है।">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="अटैचमेंट" accept=".pdf" constraints-text="PDF, 10 MB तक" max-size="10000000" empty-text="कोई फ़ाइल नहीं चुनी गई" remove-label="{name} हटाएँ" type-error-text="सिर्फ़ PDF फ़ाइलें जोड़ी जा सकती हैं।" size-error-text="10 MB से बड़ी है।">
     <tanrei-button slot="trigger" variant="outlined">फ़ाइल चुनें</tanrei-button>
   </tanrei-file-upload>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="अटैचमेंट" accept=".pdf,image/png" max-size="10000000" drop-text="फ़ाइलें यहाँ खींचकर छोड़ें, या चुनें" constraints-text="PDF या PNG, हर फ़ाइल 10 MB तक" remove-label="हटाएँ" type-error-text="सिर्फ़ PDF और PNG फ़ाइलें जोड़ी जा सकती हैं।" size-error-text="10 MB से बड़ी है।">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="अटैचमेंट" accept=".pdf,image/png" max-size="10000000" drop-text="फ़ाइलें यहाँ खींचकर छोड़ें, या चुनें" constraints-text="PDF या PNG, हर फ़ाइल 10 MB तक" remove-label="{name} हटाएँ" type-error-text="सिर्फ़ PDF और PNG फ़ाइलें जोड़ी जा सकती हैं।" size-error-text="10 MB से बड़ी है।">
     <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
   </tanrei-file-upload>
 </DemoFrame>
@@ -61,7 +61,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
                           accept=".pdf,image/png" max-size="10000000"
                           label="अटैचमेंट"
                           constraints-text="PDF या PNG, हर फ़ाइल 10 MB तक"
-                          remove-label="हटाएँ"
+                          remove-label="{name} हटाएँ"
                           type-error-text="सिर्फ़ PDF और PNG फ़ाइलें जोड़ी जा सकती हैं।"
                           size-error-text="10 MB से बड़ी है।">
         <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
@@ -82,7 +82,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
         maxSize={10_000_000}
         label="अटैचमेंट"
         constraintsText="PDF या PNG, हर फ़ाइल 10 MB तक"
-        removeLabel="हटाएँ"
+        removeLabel="{name} हटाएँ"
         typeErrorText="सिर्फ़ PDF और PNG फ़ाइलें जोड़ी जा सकती हैं।"
         sizeErrorText="10 MB से बड़ी है।"
       >
@@ -134,7 +134,7 @@ React में यही तीनों ref पर मिलते हैं: 
                         label="अटैचमेंट"
                         drop-text="फ़ाइलें यहाँ खींचकर छोड़ें, या चुनें"
                         constraints-text="PDF या PNG, हर फ़ाइल 10 MB तक"
-                        remove-label="हटाएँ" retry-label="फिर कोशिश करें">
+                        remove-label="{name} हटाएँ" retry-label="{name} के लिए फिर कोशिश करें">
       <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
     </tanrei-file-upload>
 
@@ -183,8 +183,8 @@ React में यही तीनों ref पर मिलते हैं: 
       label="अटैचमेंट"
       dropText="फ़ाइलें यहाँ खींचकर छोड़ें, या चुनें"
       constraintsText="PDF या PNG, हर फ़ाइल 10 MB तक"
-      removeLabel="हटाएँ"
-      retryLabel="फिर कोशिश करें"
+      removeLabel="{name} हटाएँ"
+      retryLabel="{name} के लिए फिर कोशिश करें"
       onSelect={(event) => start(event.detail.files)}
       onReject={(event) => explain(event.detail.files)}
     >
@@ -209,7 +209,7 @@ React में यही तीनों ref पर मिलते हैं: 
 <!-- फ़ाइल अपलोड -->
 <tanrei-field label="अटैचमेंट">
   <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
-      constraints-text="PDF, ज़्यादा से ज़्यादा 5 फ़ाइलें" empty-text="कोई फ़ाइल नहीं चुनी गई" remove-label="हटाएँ" retry-label="फिर कोशिश करें">
+      constraints-text="PDF, ज़्यादा से ज़्यादा 5 फ़ाइलें" empty-text="कोई फ़ाइल नहीं चुनी गई" remove-label="{name} हटाएँ" retry-label="{name} के लिए फिर कोशिश करें">
     <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="अपलोड हो रही है" progress="0.4"></tanrei-file-item>
   </tanrei-file-upload>
@@ -224,7 +224,7 @@ React में यही तीनों ref पर मिलते हैं: 
 </tanrei-field>
 <ul class="my-files" aria-label="अटैचमेंट">
   <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="अपलोड हो रही है" progress="0.4"
-        remove-label="हटाएँ" retry-label="फिर कोशिश करें"></tanrei-file-item></li>
+        remove-label="{name} हटाएँ" retry-label="{name} के लिए फिर कोशिश करें"></tanrei-file-item></li>
 </ul>
 ```
 
@@ -233,7 +233,7 @@ React में यही तीनों ref पर मिलते हैं: 
     <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
   </tanrei-file-picker>
   <ul class="not-content" aria-label="अटैचमेंट" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
-    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="अपलोड हो रही है" progress="0.4" remove-label="हटाएँ" retry-label="फिर कोशिश करें"></tanrei-file-item></li>
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="अपलोड हो रही है" progress="0.4" remove-label="{name} हटाएँ" retry-label="{name} के लिए फिर कोशिश करें"></tanrei-file-item></li>
   </ul>
 </DemoFrame>
 
@@ -259,7 +259,7 @@ React में यही तीनों ref पर मिलते हैं: 
 ## स्पेक
 
 <DemoFrame label="प्रॉडक्ट की दी हुई पंक्तियाँ, हर स्थिति की एक: इंतज़ार में, 40% तक भेजी गई, भेजी जा रही, पूरी हुई, विफल और फिर कोशिश करने लायक़, हमेशा के लिए विफल" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="अटैचमेंट" constraints-text="PDF या PNG, हर फ़ाइल 10 MB तक" remove-label="हटाएँ" retry-label="फिर कोशिश करें">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="अटैचमेंट" constraints-text="PDF या PNG, हर फ़ाइल 10 MB तक" remove-label="{name} हटाएँ" retry-label="{name} के लिए फिर कोशिश करें">
     <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="इंतज़ार में"></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="अपलोड हो रही है" progress="0.4"></tanrei-file-item>
@@ -271,7 +271,7 @@ React में यही तीनों ref पर मिलते हैं: 
 </DemoFrame>
 
 <DemoFrame label="वही फ़ाइल अपलोड, टाइल के साथ: हर फ़ाइल अपनी तस्वीर वाला एक बॉक्स है, और नाम उसके नीचे" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="फ़ोटो" constraints-text="तस्वीरें, हर फ़ाइल 5 MB तक" remove-label="हटाएँ" retry-label="फिर कोशिश करें">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="फ़ोटो" constraints-text="तस्वीरें, हर फ़ाइल 5 MB तक" remove-label="{name} हटाएँ" retry-label="{name} के लिए फिर कोशिश करें">
     <tanrei-button slot="trigger" variant="outlined">फ़ोटो चुनें</tanrei-button>
     <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
@@ -384,7 +384,7 @@ React में यही तीनों ref पर मिलते हैं: 
 <tanrei-field label="अटैचमेंट" requirement="required" required-text="ज़रूरी"
               error error-text="10 MB या उससे छोटी PDF चुनें।">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
-                      constraints-text="PDF, 10 MB तक" remove-label="हटाएँ">
+                      constraints-text="PDF, 10 MB तक" remove-label="{name} हटाएँ">
     <tanrei-button slot="trigger" variant="outlined">फ़ाइल चुनें</tanrei-button>
   </tanrei-file-upload>
 </tanrei-field>
@@ -413,7 +413,7 @@ React में यही तीनों ref पर मिलते हैं: 
 
 तीनों वाक्य सिर्फ़ `rows="own"` के साथ पढ़े जाते हैं, और तभी जब कोई फ़ाइल उस कारण से अस्वीकार हुई हो। फ़ाइल का साइज़ शब्दों की कुंजी नहीं है: वह `formatSize` फ़ंक्शन है, जो इंस्टेंस की प्रॉपर्टी है।
 
-हर क्रिया का विवरण उसकी फ़ाइल का नाम है। एक शब्द, "हटाएँ", हर पंक्ति के लिए काफ़ी है: व्यक्ति "हटाएँ, बटन, brief.pdf" सुनता है।
+हर क्रिया के नाम में उसकी फ़ाइल का नाम होता है: `removeLabel` और `retryLabel` ऐसे वाक्य हैं जिनमें `{name}` जगह है, जिसे फ़ाइल आइटम भरता है (`{name} हटाएँ`)। एक वाक्य हर फ़ाइल के लिए काफ़ी है, और व्यक्ति आपकी भाषा के क्रम में "brief.pdf हटाएँ, बटन" सुनता है — तब भी जब स्क्रीन रीडर पेज के बटनों की सूची दिखाता है। `{name}` के बिना वाक्य हर फ़ाइल की क्रिया को एक ही नाम देता है, और डीबग बिल्ड इसकी रिपोर्ट करता है।
 
 ### दाएँ से बाएँ
 

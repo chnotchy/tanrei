@@ -18,6 +18,8 @@ import {
 import { type FileKind, KIND_GLYPH, fileKind, nameParts } from '../../primitives/file-format.js';
 import { FILE_ITEM_TAKE_FOCUS, FILE_ITEM_UPDATE, type FileItemGiven, fileItemGiven } from '../../primitives/file-item-holder.js';
 import { notifyItemUpdate } from '../../primitives/item-update.js';
+import { fillPlaces, placeFaults, reportPlaces } from '../../primitives/places.js';
+import { wordPlaces } from '../../generated/words.js';
 import '../progress-indicator/progress-indicator.js';
 import { styles } from './file-item.styles.js';
 
@@ -198,10 +200,10 @@ export class TanreiFileItem extends LitElement {
   /** What assistive technology reads after the link's name while `target` is `new` ("opens in a new tab"): your words (`target-label`). */
   targetLabel = '';
 
-  /** The accessible name of the remove action (`remove-label`): this instance's words, else the product's (`setWords({ removeLabel })`). The file's name is the action's description. */
+  /** The accessible name of the remove action (`remove-label`): your sentence with the place `{name}`, which the file item fills with the file's name ("Remove {name}"). This instance's words, else the product's (`setWords({ removeLabel })`). */
   removeLabel = '';
 
-  /** The accessible name of the retry action (`retry-label`): this instance's words, else the product's (`setWords({ retryLabel })`). */
+  /** The accessible name of the retry action (`retry-label`), with the place `{name}` filled by the file's name ("Retry {name}"). This instance's words, else the product's (`setWords({ retryLabel })`). */
   retryLabel = '';
 
   /** The actions are disabled and the body cannot be pressed. What the file item shows of the file stays as it is and stays readable. */
@@ -534,10 +536,16 @@ export class TanreiFileItem extends LitElement {
     const status = this.shown;
     if (status === 'done' && !this.statusText.trim()) report(this, 'FIT-4', 'status is "done" and status-text is empty, so only the mark says the file is done; give the file item a status-text');
     if (status === 'error' && !this.errorText.trim() && !given.made) report(this, 'FIT-4', 'status is "error" and error-text is empty, so only the mark says the file failed; give the file item an error-text');
-    // FIT-20: an action nobody named is still drawn, described by the file's name. 
+    // FIT-20: an action nobody named is still drawn; a name without the file's place names every file's action alike.
     if (!this.readOnly) {
-      if (!this.words.get('removeLabel', given.removeLabel ?? this.removeLabel)) this.words.missing('removeLabel', { id: 'FIT-20', effect: 'the remove action is drawn and works, and has no accessible name' });
-      if (status === 'error' && this.retryable && !this.words.get('retryLabel', given.retryLabel ?? this.retryLabel)) this.words.missing('retryLabel', { id: 'FIT-20', effect: 'the retry action is drawn and works, and has no accessible name' });
+      const remove = this.words.get('removeLabel', given.removeLabel ?? this.removeLabel);
+      if (!remove) this.words.missing('removeLabel', { id: 'FIT-20', effect: 'the remove action is drawn and works, and has no accessible name' });
+      else this.reportName('removeLabel', remove);
+      if (status === 'error' && this.retryable) {
+        const retry = this.words.get('retryLabel', given.retryLabel ?? this.retryLabel);
+        if (!retry) this.words.missing('retryLabel', { id: 'FIT-20', effect: 'the retry action is drawn and works, and has no accessible name' });
+        else this.reportName('retryLabel', retry);
+      }
     }
     // FIT-32: the file item has no place for content of the product's.
     const strays = [...this.childNodes].filter((node) => (node instanceof Element ? node.slot !== 'icon' : node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()));
@@ -555,6 +563,13 @@ export class TanreiFileItem extends LitElement {
     // FIT-29: a glyph the icon set does not have draws nothing, and its box is kept.
     if (this.glyph.trim() && !this.hasIcon && (changed.has('glyph') || !this.hasUpdatedOnce)) this.lookForGlyph();
     this.hasUpdatedOnce = true;
+  }
+
+  /** FIT-20: what of an action's sentence is not its place, and a sentence without the file's name. */
+  private reportName(key: 'removeLabel' | 'retryLabel', sentence: string) {
+    const declared = wordPlaces[key] ?? [];
+    reportPlaces(this, 'FIT-20', key, sentence, declared, 'the action is named with it as it is written');
+    for (const name of placeFaults(sentence, declared).absent) report(this, 'FIT-20', `${key} has no place {${name}}, so every file's action has the same name; write it as "${key === 'removeLabel' ? 'Remove' : 'Retry'} {${name}}"`);
   }
 
   /** The first update's reports were made. */
@@ -586,6 +601,18 @@ export class TanreiFileItem extends LitElement {
 
   // ─── Rendering ────────────────────────────────────────────────────────────────────────────────────────────────
 
+  /**
+   * FIT-19: an action's name — the product's sentence with its place `{name}` filled by the file's name, so that two
+   * files' actions are told apart by their names. A plain string: the name is not described a second time.
+   */
+  private actionName(sentence: string): string {
+    const said = sentence.trim();
+    if (!said) return '';
+    return fillPlaces(said, { name: this.shownName })
+      .runs.map((run) => run.text)
+      .join('');
+  }
+
   private action(kind: 'retry' | 'remove', label: string) {
     const p = this.presses[kind];
     return html`<button
@@ -594,8 +621,7 @@ export class TanreiFileItem extends LitElement {
       type="button"
       data-tanrei-shape
       ?disabled=${this.isDisabled}
-      aria-label=${label.trim() || nothing}
-      aria-description=${this.shownName || nothing}
+      aria-label=${this.actionName(label) || nothing}
       @click=${(event: Event) => this.act(event, kind)}
       @focus=${this.onFocus}
       @pointerdown=${p.onPointerDown}

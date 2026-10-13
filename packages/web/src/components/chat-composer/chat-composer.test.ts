@@ -772,8 +772,8 @@ test.describe('behavior', () => {
     await mount(page, one('inline-failed'));
     const items = host(page, 'inline-failed').locator('tanrei-file-item');
     expect(await items.evaluateAll((list) => list.map((el) => [el.getAttribute('value'), el.getAttribute('style'), el.getAttribute('class')]))).toEqual([['a', null, null], ['e', null, null], ['f', null, null]]);
-    expect(await items.nth(1).evaluate((el) => [...el.shadowRoot!.querySelectorAll('.action')].map((action) => action.getAttribute('aria-label')))).toEqual(['Try again', 'Remove']);
-    expect(await items.nth(0).evaluate((el) => el.shadowRoot!.querySelector('.action.remove')!.getAttribute('aria-label'))).toBe('Remove');
+    expect(await items.nth(1).evaluate((el) => [...el.shadowRoot!.querySelectorAll('.action')].map((action) => action.getAttribute('aria-label')))).toEqual(['Retry site-photo.png', 'Remove site-photo.png']);
+    expect(await items.nth(0).evaluate((el) => el.shadowRoot!.querySelector('.action.remove')!.getAttribute('aria-label'))).toBe('Remove brief.pdf');
     // An item's own name of an action stands where the chat composer gives none.
     await set(page, 'inline-failed', { removeLabel: '' });
     await items.nth(0).evaluate((el) => el.setAttribute('remove-label', 'Take away'));

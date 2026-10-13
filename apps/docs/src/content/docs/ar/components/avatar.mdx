@@ -2,7 +2,7 @@
 title: الصورة الرمزية
 description: تمثّل شخصًا أو فريقًا أو مشروعًا بصورة صغيرة، وبالأحرف الأولى أو برسم أيقونة حيث لا صورة، في دائرة أو مربع مستدير الزوايا بثلاثة أحجام. وتُعرض عدة صور رمزية مجموعةً واحدة متراكبة تعدّ الباقي. وهي صورة، لا عنصر تحكم أبدًا.
 translationOf: components/avatar.mdx
-sourceHash: 3fba4dba17faacf3912404f2c65a411b7cfa585a
+sourceHash: 0dc89fe7806ced38df57f747d4c563da8486504b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar label="شخص بلا صورة"></tanrei-avatar>
   <tanrei-avatar label="فريق التصميم" initials="فت" shape="square"></tanrei-avatar>
-  <tanrei-avatar-group label="المراجعون" max="4" overflow-label="و3 آخرون">
+  <tanrei-avatar-group label="المراجعون" max="4" overflow-label="و{count} آخرون">
     <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
     <tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar>
     <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
@@ -51,7 +51,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-avatar label="خدمة البناء" shape="square"><span slot="icon">smart_toy</span></tanrei-avatar>
 
     <!-- ستة أعضاء، وأربعة صناديق على الأكثر: ثلاثة أعضاء و«+3». -->
-    <tanrei-avatar-group label="المراجعون" max="4" overflow-label="و3 آخرون">
+    <tanrei-avatar-group label="المراجعون" max="4" overflow-label="و{count} آخرون">
       <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
       <tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar>
       <!-- … -->
@@ -70,7 +70,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <Avatar label={person.name} initials={person.initials} src={person.picture} />
 
-    <AvatarGroup label="المراجعون" max={4} total={reviewerCount} overflowLabel={`و${reviewerCount - 3} آخرون`}>
+    <AvatarGroup label="المراجعون" max={4} total={reviewerCount} overflowLabel="و{count} آخرون">
       {reviewers.slice(0, 3).map((person) => (
         <Avatar key={person.id} label={person.name} initials={person.initials} src={person.picture} />
       ))}
@@ -165,7 +165,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ترسم المجموعة أعضاءها صفًّا واحدًا. يتراكب كل عضو على الذي قبله بمقدار ربع ضلعه، وحول كلٍّ منهم فجوة بلون السطح.
 
 <DemoFrame label="مجموعة تعدّ ما لم تُعطَه" plain>
-  <tanrei-avatar-group label="الأعضاء" max="4" total="240" overflow-label="و237 آخرون">
+  <tanrei-avatar-group label="الأعضاء" max="4" total="240" overflow-label="و{count} آخرون">
     <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
     <tanrei-avatar label="Grace Hopper"></tanrei-avatar>
     <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
@@ -218,6 +218,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### ما عليك فعله
 
 - قرِّر لكل صورة رمزية أهي مسمّاة أم زخرفية. والقاعدة: إن كان حذف الصورة الرمزية يُضيع اسمًا فهي مسمّاة. وإلا فهي زخرفية.
-- اكتب `overflowLabel` بلغة الصفحة، وفيه العدد («و3 آخرون»). ومن دونه يُقرأ «`+3`» كما هو مرسوم.
+- اكتب `overflowLabel` مرة واحدة بلغة الصفحة، وضع الموضع `{count}` حيث يأتي العدد («`و{count} آخرون`»)، على المجموعة أو للمنتج كله بالاستدعاء `setWords({ avatarGroupOverflowLabel })`. تملأ المجموعة عدد من لا ترسمهم، كاملًا حتى حين ترسم «999+». اكتب جملة صحيحة لكل عدد، أو بدّلها بحسب العدد حيث تحتاج لغتك صيغة أخرى. ومن دونه يُقرأ «`+3`» كما هو مرسوم.
 - أعطِ الصورة الرمزية الصغيرة التي داخل رابط مساحة تكفي للضغط. عرض الصورة الرمزية 24؛ والرابط نفسه هو الذي يجب أن يستوفي الحد الأدنى للهدف.
 - الصورة تأتي بألوانها. وحيث تكون الصور باهتة عند حافتها في كثير من الأحيان، أعطِ السطح الذي خلفها درجة لونية.

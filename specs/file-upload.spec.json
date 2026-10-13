@@ -363,7 +363,7 @@
     },
     {
       "id": "FUP-25",
-      "text": "THE file upload SHALL expose its rows as one list that takes the group's name, and each file item as one item of that list, in the place of the group a file item is when it stands alone (FIT-19). What an item reads — the name, the format, the size, the status or the error, the progress bar while it is sent, and the actions named removeLabel and retryLabel and described by the file's name — is the file item's (FIT-19). A platform without a list role SHALL expose a container that holds the rows in order and state that in its README."
+      "text": "THE file upload SHALL expose its rows as one list that takes the group's name, and each file item as one item of that list, in the place of the group a file item is when it stands alone (FIT-19). What an item reads — the name, the format, the size, the status or the error, the progress bar while it is sent, and the actions named removeLabel and retryLabel with the file's name in them — is the file item's (FIT-19). A platform without a list role SHALL expose a container that holds the rows in order and state that in its README."
     },
     {
       "id": "FUP-26",
@@ -523,7 +523,7 @@
         "action": "Inside the platform's picker everything is the platform's; leaving it without choosing returns focus to the trigger and changes nothing."
       }
     ],
-    "labeling": "A group named by label, or by the label of the Field around it, holding the file picker and the list. The file picker is given no name and adds no group; its trigger is a button named by its own label and described by constraintsText, by emptyText while nothing is chosen, and by the Field's help and, in error, its error text, and is exposed as required, invalid and disabled as the props say (FPK-17). The rows are a list, and each file item an item of it: it reads the file's name, its format, its size, its status or its error in words, a progress bar named by the file while it is sent, and its actions — buttons named retryLabel and removeLabel, each described by the file's name (FIT-19).",
+    "labeling": "A group named by label, or by the label of the Field around it, holding the file picker and the list. The file picker is given no name and adds no group; its trigger is a button named by its own label and described by constraintsText, by emptyText while nothing is chosen, and by the Field's help and, in error, its error text, and is exposed as required, invalid and disabled as the props say (FPK-17). The rows are a list, and each file item an item of it: it reads the file's name, its format, its size, its status or its error in words, a progress bar named by the file while it is sent, and its actions — buttons named retryLabel and removeLabel, each with the file's name in it (FIT-19).",
     "minimumTarget": true,
     "notes": [
       "Choosing is the file picker's, and so is everything a person meets while choosing: that dragging is never the only way, that the limits are words before the choice, that a drag over the area is not announced and is told without color (the file picker's notes; FPK-5, FPK-12, FPK-13, FPK-18, FPK-23). A file is shown by a file item, and everything a person meets on one file is the file item's: that its status is never color alone, that its name is its name in every form, that a failure is never hidden, how it is named and described (the file item's notes; FIT-4, FIT-8, FIT-19). This spec says what the file upload adds: the arrangement, which files there are, the one live region, where focus goes, the form.",
@@ -567,8 +567,8 @@
         "label": "Attachment",
         "constraintsText": "PDF, up to 10 MB",
         "emptyText": "No file chosen",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again",
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}",
         "rows": "given"
       },
       "slots": {
@@ -591,8 +591,8 @@
         "label": "Attachments",
         "multiple": true,
         "constraintsText": "PDF or PNG, up to 10 MB each",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again",
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}",
         "rows": "given"
       },
       "slots": {
@@ -631,8 +631,8 @@
         "label": "Attachment",
         "disabled": true,
         "constraintsText": "PDF, up to 10 MB",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again",
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}",
         "rows": "given"
       },
       "slots": {
@@ -675,8 +675,8 @@
         "multiple": true,
         "dropText": "Drag files here, or choose them",
         "constraintsText": "PDF or PNG, up to 10 MB each",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again",
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}",
         "rows": "given"
       },
       "slots": {
@@ -770,8 +770,8 @@
         "disabled": true,
         "dropText": "Drag files here, or choose them",
         "constraintsText": "PDF or PNG, up to 10 MB each",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again",
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}",
         "rows": "given"
       },
       "slots": {
@@ -809,8 +809,8 @@
         "multiple": true,
         "dropText": "Drag the signed forms and every supporting document here, or choose them from this device",
         "constraintsText": "PDF, PNG, JPEG, TIFF or a spreadsheet, up to 10 MB each and no more than twenty files in all",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again",
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}",
         "rows": "given"
       },
       "slots": {
@@ -876,8 +876,8 @@
         "label": "Attachments",
         "multiple": true,
         "constraintsText": "PDF or PNG, up to 10 MB each",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again",
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}",
         "rows": "given"
       },
       "slots": {
@@ -917,8 +917,8 @@
         "multiple": true,
         "dropText": "Drag files here, or choose them",
         "constraintsText": "PDF or PNG, up to 10 MB each",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again",
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}",
         "rows": "given"
       },
       "slots": {
@@ -945,7 +945,7 @@
         "rows": "own",
         "constraintsText": "PDF, up to 10 MB",
         "emptyText": "No file chosen",
-        "removeLabel": "Remove",
+        "removeLabel": "Remove {name}",
         "accept": [
           ".pdf"
         ],
@@ -973,7 +973,7 @@
         "multiple": true,
         "dropText": "Drag files here, or choose them",
         "constraintsText": "PDF or PNG, up to 10 MB each",
-        "removeLabel": "Remove"
+        "removeLabel": "Remove {name}"
       },
       "slots": {
         "trigger": "Choose files"
@@ -1013,7 +1013,7 @@
         ],
         "maxFiles": 2,
         "constraintsText": "PDF, 2 files at most",
-        "removeLabel": "Remove",
+        "removeLabel": "Remove {name}",
         "typeErrorText": "Only PDF files can be added.",
         "countErrorText": "No more than 2 files can be added."
       },
@@ -1058,7 +1058,7 @@
         "rows": "own",
         "disabled": true,
         "constraintsText": "PDF, up to 10 MB",
-        "removeLabel": "Remove"
+        "removeLabel": "Remove {name}"
       },
       "slots": {
         "trigger": "Choose a file"
@@ -1112,7 +1112,7 @@
           ".png"
         ],
         "constraintsText": "PDF or PNG, up to 10 MB each",
-        "removeLabel": "Remove",
+        "removeLabel": "Remove {name}",
         "typeErrorText": "Only PDF and PNG files can be added."
       },
       "slots": {
@@ -1151,8 +1151,8 @@
         "rows": "given",
         "itemPreview": true,
         "constraintsText": "PDF or PNG, up to 10 MB each",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       },
       "slots": {
         "trigger": "Choose files"
@@ -1191,8 +1191,8 @@
         "multiple": true,
         "rows": "given",
         "constraintsText": "PDF or PNG, up to 10 MB each",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       },
       "slots": {
         "trigger": "Choose files"
@@ -1231,8 +1231,8 @@
         "itemPreview": true,
         "dropText": "Drag photos here, or choose them",
         "constraintsText": "PNG or JPEG, up to 10 MB each",
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       },
       "slots": {
         "trigger": "Choose photos"
@@ -1294,8 +1294,8 @@
         "itemNameHidden": true,
         "itemWidth": 160,
         "itemHeight": 90,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       },
       "slots": {
         "trigger": "Choose photos"
@@ -1337,7 +1337,7 @@
         "accept": [
           "image/*"
         ],
-        "removeLabel": "Remove",
+        "removeLabel": "Remove {name}",
         "typeErrorText": "Only pictures can be added."
       },
       "slots": {
@@ -1372,8 +1372,8 @@
         "rows": "given",
         "itemForm": "tile",
         "itemPreview": true,
-        "removeLabel": "Remove",
-        "retryLabel": "Try again"
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}"
       },
       "slots": {
         "trigger": "Choose photos"

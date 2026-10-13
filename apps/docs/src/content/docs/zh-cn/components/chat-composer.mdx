@@ -2,7 +2,7 @@
 title: "聊天输入栏"
 description: "让用户写一条消息并把它发出去，一切都收在一个胶囊里。随所写内容增高的输入区、附加到消息上的文件、你自己的操作，以及只在消息可以发送时才启用的发送按钮。它只报告消息，自己绝不发送任何东西。"
 translationOf: components/chat-composer.mdx
-sourceHash: 68233132907fd0b94d40dacc7db0d52a3c7fec59
+sourceHash: 5030b8d8268f9b3555fd16ab43bcdbb77447e8fb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,8 +17,8 @@ import Callout from '../../../../components/Callout.astro';
 <ComponentAvailability name="chat-composer" />
 
 <DemoFrame label="两种布局的聊天输入栏。写一条消息、附加一个文件，然后发送。不会发送到任何地方。" column>
-  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="消息" placeholder="输入消息" send-label="发送" attachments="own" attach-label="添加附件" remove-label="移除"></tanrei-chat-composer>
-  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="消息" placeholder="输入消息" send-label="发送" attachments="own" attach-label="添加附件" remove-label="移除" max-length="280" counter>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="消息" placeholder="输入消息" send-label="发送" attachments="own" attach-label="添加附件" remove-label="移除 {name}"></tanrei-chat-composer>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="消息" placeholder="输入消息" send-label="发送" attachments="own" attach-label="添加附件" remove-label="移除 {name}" max-length="280" counter>
     <tanrei-button slot="leading" variant="text" label="提及某人"><span slot="icon">alternate_email</span></tanrei-button>
     <tanrei-button slot="leading" variant="text" label="添加表情"><span slot="icon">mood</span></tanrei-button>
   </tanrei-chat-composer>
@@ -46,7 +46,7 @@ import Callout from '../../../../components/Callout.astro';
   <TabItem label="Web">
     ```html
     <tanrei-chat-composer label="消息" placeholder="输入消息" send-label="发送"
-                          attachments="own" attach-label="添加附件" remove-label="移除">
+                          attachments="own" attach-label="添加附件" remove-label="移除 {name}">
     </tanrei-chat-composer>
     ```
 
@@ -67,7 +67,7 @@ import Callout from '../../../../components/Callout.astro';
       sendLabel="发送"
       attachments="own"
       attachLabel="添加附件"
-      removeLabel="移除"
+      removeLabel="移除 {name}"
       onSend={(event) => post(event.detail.value, event.detail.attachments)}
     />
     ```
@@ -82,7 +82,7 @@ import Callout from '../../../../components/Callout.astro';
 
 ```html
 <tanrei-chat-composer label="消息" send-label="发送" attachments="given"
-                      attach-label="添加附件" remove-label="移除" retry-label="重试">
+                      attach-label="添加附件" remove-label="移除 {name}" retry-label="重试 {name}">
   <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" progress="0.4"></tanrei-file-item>
 </tanrei-chat-composer>
 ```

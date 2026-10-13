@@ -2,7 +2,7 @@
 title: チャットコンポーザー
 description: メッセージを書いて送るための、すべてを 1 つのカプセルに収めたコンポーネントです。書いた分だけ伸びる入力エリア、メッセージに添付したファイル、プロダクト独自のアクション、送信できる間だけ有効になる送信ボタンを持ちます。メッセージを報告するだけで、自分では何も送信しません。
 translationOf: components/chat-composer.mdx
-sourceHash: 68233132907fd0b94d40dacc7db0d52a3c7fec59
+sourceHash: 5030b8d8268f9b3555fd16ab43bcdbb77447e8fb
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,8 +17,8 @@ import Callout from '../../../../components/Callout.astro';
 <ComponentAvailability name="chat-composer" />
 
 <DemoFrame label="2 つのレイアウトのチャットコンポーザー。メッセージを書き、ファイルを添付して、送信できます。どこにも送信されません。" column>
-  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="メッセージ" placeholder="メッセージを入力" send-label="送信" attachments="own" attach-label="ファイルを添付" remove-label="削除"></tanrei-chat-composer>
-  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="メッセージ" placeholder="メッセージを入力" send-label="送信" attachments="own" attach-label="ファイルを添付" remove-label="削除" max-length="280" counter>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="メッセージ" placeholder="メッセージを入力" send-label="送信" attachments="own" attach-label="ファイルを添付" remove-label="{name} を削除"></tanrei-chat-composer>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="メッセージ" placeholder="メッセージを入力" send-label="送信" attachments="own" attach-label="ファイルを添付" remove-label="{name} を削除" max-length="280" counter>
     <tanrei-button slot="leading" variant="text" label="メンションを追加"><span slot="icon">alternate_email</span></tanrei-button>
     <tanrei-button slot="leading" variant="text" label="絵文字を追加"><span slot="icon">mood</span></tanrei-button>
   </tanrei-chat-composer>
@@ -46,7 +46,7 @@ Web では `<tanrei-chat-composer>` です。ほかのプラットフォーム�
   <TabItem label="Web">
     ```html
     <tanrei-chat-composer label="メッセージ" placeholder="メッセージを入力" send-label="送信"
-                          attachments="own" attach-label="ファイルを添付" remove-label="削除">
+                          attachments="own" attach-label="ファイルを添付" remove-label="{name} を削除">
     </tanrei-chat-composer>
     ```
 
@@ -67,7 +67,7 @@ Web では `<tanrei-chat-composer>` です。ほかのプラットフォーム�
       sendLabel="送信"
       attachments="own"
       attachLabel="ファイルを添付"
-      removeLabel="削除"
+      removeLabel="{name} を削除"
       onSend={(event) => post(event.detail.value, event.detail.attachments)}
     />
     ```
@@ -82,7 +82,7 @@ Web では `<tanrei-chat-composer>` です。ほかのプラットフォーム�
 
 ```html
 <tanrei-chat-composer label="メッセージ" send-label="送信" attachments="given"
-                      attach-label="ファイルを添付" remove-label="削除" retry-label="再試行">
+                      attach-label="ファイルを添付" remove-label="{name} を削除" retry-label="{name} を再試行">
   <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" progress="0.4"></tanrei-file-item>
 </tanrei-chat-composer>
 ```

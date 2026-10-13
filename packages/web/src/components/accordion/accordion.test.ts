@@ -1270,7 +1270,8 @@ test.describe('states', () => {
     const itemRipple = header(page, 'outlined', 1).locator('> .ripple');
     const [rippleBox, itemBox] = [await edges(itemRipple), await edges(openItem)];
     for (const side of ['left', 'top', 'width', 'height'] as const) near(rippleBox[side], itemBox[side], 1);
-    expect(await itemRipple.evaluate((el) => Math.round(Number.parseFloat((el as HTMLElement).style.getPropertyValue('--_y'))))).toBe(Math.round(content.top + 10 - itemBox.top));
+    // (The point of contact is the pointer's, which an engine may give in whole pixels: within one.)
+    near(await itemRipple.evaluate((el) => Number.parseFloat((el as HTMLElement).style.getPropertyValue('--_y'))), content.top + 10 - itemBox.top, 1);
     await page.mouse.move(content.left + 10, content.top + 60, { steps: 4 });
     await page.mouse.up();
     await page.mouse.move(0, 0);
