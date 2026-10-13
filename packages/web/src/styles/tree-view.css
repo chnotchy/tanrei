@@ -527,13 +527,20 @@
     color: var(--_trv-now-icon);
     vertical-align: baseline;
   }
-  /* TRV-5: a parent that is open and names a second glyph draws it in the icon's place — the open glyph first in the
-     icon's own box, which pushes the closed one past its end, where the box clips it. A leaf ignores it. */
+  /* TRV-5: a parent that is open and names a second glyph draws it in the icon's place: the icon's own glyph is set at
+     no size (its box keeps its size: icons.css gives it one), and the open glyph is drawn in the box at the box's size.
+     (Not pushed out of the box: a clipped run of text still lies where it was laid out, beside the box.) A leaf ignores
+     it. */
+  :where(tanrei-tree-view) :where(li[data-open]:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon='']),
+  :where(tanrei-tree-view) :where(li[data-open][data-expandable]) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon='']) {
+    font-size: 0;
+  }
   :where(tanrei-tree-view) :where(li[data-open]:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before,
   :where(tanrei-tree-view) :where(li[data-open][data-expandable]) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before {
     content: attr(data-open-icon);
     flex: none;
     inline-size: var(--_size);
+    font-size: var(--_size);
     text-align: center;
   }
 
@@ -558,10 +565,14 @@
     margin-left: calc(var(--_trv-gap) * var(--_trv-rtl));
     margin-right: calc(var(--_trv-gap) * (1 - var(--_trv-rtl)));
   }
-  /* TRV-8, TRV-44: the guide line of a parent whose icon stands in its chevron's place stands under that icon. */
-  :where(tanrei-tree-view[guides][disclosure='icon']) :where(li:has(> :first-child > .tanrei-icon[data-open-icon]:not([data-open-icon=''], :empty))) > :where(ul, ol)::before {
+  /* TRV-8, TRV-44: while the disclosure is icon the guide line stands under the middle of the icon's box, where a
+     parent's icon stands in its chevron's place. (Asked of the tree, not of each parent: the line is the list's, and
+     `:has()` is asked only of the element a rule styles. A parent that keeps its chevron has its line under the
+     chevron's box where the two boxes are one size, as the default system's are.) */
+  :where(tanrei-tree-view[guides][disclosure='icon']) :where(li) > :where(ul, ol)::before {
     inset-inline-start: calc(var(--_trv-at) + var(--_trv-pad-inline) + (var(--_trv-icon-size) - var(--tanrei-comp-tree-view-guide-width)) / 2);
   }
+
   /* TRV-40: while the icon set cannot draw a glyph, none is drawn and every box is kept. */
   :where(tanrei-tree-view[data-glyphs='pending']) :where(li) > :where(:first-child:not(ul, ol))::before,
   :where(tanrei-tree-view[data-glyphs='pending']) :where(li) > :where(:first-child:not(ul, ol)) > :where(.tanrei-icon) {
