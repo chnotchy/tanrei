@@ -76,6 +76,9 @@ test('a system without such a rule: no component color is declared per scheme; t
   // syntax alone; with the owner's scheme seven of the nine, of six hues: seven more, which strengthen with
   // the contrast level. The presets inherit them.
   const SYNTAX = /^\s*--tanrei-comp-code-block-syntax-color-(keyword|constant|tag|string|function|property|type): light-dark\(/;
+  // m3-like (and the systems that extend it) values the bands of an added and a removed line by a `tone` rule, a step
+  // darker in the high-contrast dark scheme so that its syntax colors keep 7:1 on them: two more there.
+  const BANDS = /^\s*--tanrei-comp-code-block-line-(added|removed)-container-color: light-dark\(/;
   for (const system of ['tanrei', 'm3-like', 'cupertino']) {
     const css = emitCss(await (await resolveSystem({ system })).model(), system === 'tanrei' ? {} : { scope: system });
     const base = css.slice(0, css.indexOf('@media (prefers-contrast: more)'));
@@ -92,9 +95,11 @@ test('a system without such a rule: no component color is declared per scheme; t
       assert.deepEqual(raised.filter((line) => !SYNTAX.test(line) && (!MIRRORED.test(line) || /-container-color:/.test(line))), []);
       assert.ok(raised.some((line) => SYNTAX.test(line)));
     } else {
-      assert.equal(perScheme.length, 7, system);
-      assert.deepEqual(perScheme.filter((line) => !SYNTAX.test(line)), [], system);
-      assert.deepEqual(raised.filter((line) => !SYNTAX.test(line)), [], `${system}: besides the inherited syntax hues the contrast blocks hold roles only`);
+      const bands = system === 'm3-like' ? 2 : 0;
+      assert.equal(perScheme.length, 7 + bands, system);
+      assert.equal(perScheme.filter((line) => BANDS.test(line)).length, bands, system);
+      assert.deepEqual(perScheme.filter((line) => !SYNTAX.test(line) && !BANDS.test(line)), [], system);
+      assert.deepEqual(raised.filter((line) => !SYNTAX.test(line) && !(bands && BANDS.test(line))), [], `${system}: besides the inherited syntax hues (and m3-like's bands) the contrast blocks hold roles only`);
     }
   }
 });

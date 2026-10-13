@@ -285,11 +285,11 @@ test('the syntax colors are read from the axis, and the default system tones sev
     }
   }
   // The value held is the tone in force in that scheme, not the alias the component's file authors: a string as pale
-  // as the hairline fails on the fill, on the band and on the eight surfaces, in the one scheme where it is.
+  // as the hairline fails on the fill, on the three bands (a highlighted, an added and a removed line) and on the eight surfaces, in the one scheme where it is.
   const pale = breakable(model);
   pale.componentColors.light[id('syntax.color.string')].value = model.colors.light['outline-variant'].value;
   const paleFailures = checkInvariants(pale).filter((f) => CODE_FAILURE.test(f));
-  assert.equal(paleFailures.length, 10, paleFailures.join('\n'));
+  assert.equal(paleFailures.length, 12, paleFailures.join('\n'));
   assert.ok(paleFailures.every((f) => f.startsWith('[light] comp.code-block.syntax.color.string on ')), paleFailures.join('\n'));
   // A role a layer adds to the axis is held without a line of code naming it: an `operator` in the hairline's color fails.
   const extended = breakable(model);
