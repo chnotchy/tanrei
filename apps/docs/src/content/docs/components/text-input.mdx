@@ -216,7 +216,7 @@ The input gives these items no role, no place in the focus order and no key: the
 - Its name is its own `label`, or the label of the field around it where it has none. The placeholder is never the name.
 - Its description is the prefix and the suffix while they are shown, then the count, then what its field gives: the help or the error text.
 - It is exposed as invalid while in error, as required while its field says so, and as read-only and disabled.
-- The count is announced as it stands ("12/40") once typing pauses for a second, never on every keystroke, whether or not anything draws it.
+- The count is announced once typing pauses for a second, never on every keystroke, whether or not anything draws it. It is said as it stands ("12/40") or, where you give one, as your sentence: `counterText` while there is a `maxLength`, with the places `{count}`, `{limit}` and `{remaining}` (`{remaining} characters left`), and `counterNoLimitText` while there is none, with `{count}`. Give them on the element or once with `setWords({ characterCountText, characterCountNoLimitText })`. A value longer than the limit, which only you can set, is said as digits. The same sentence is the input's description; what is drawn stays the digits.
 - Focus is shown by the box's own edge, from the keyboard and from a pointer alike. The hit area meets the minimum target.
 - The asterisk after a floating label is hidden from assistive technology: the required state already says it.
 - A missing name is reported in debug builds.

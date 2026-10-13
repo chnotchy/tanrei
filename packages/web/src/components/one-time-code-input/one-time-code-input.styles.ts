@@ -205,7 +205,7 @@ export const styles = css`
      is reduced. */
   .caret {
     display: block;
-    inline-size: var(--tanrei-sys-border-hairline);
+    inline-size: var(${P}-caret-width);
     block-size: var(--_line);
     background-color: var(--_r);
     animation: caret ${unsafeCSS(CARET_BLINK_MS)}ms step-end infinite;

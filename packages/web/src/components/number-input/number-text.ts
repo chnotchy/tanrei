@@ -77,7 +77,6 @@ export function compare(a: Decimal, b: Decimal): number {
   return x < y ? -1 : x > y ? 1 : 0;
 }
 
-export const times = (decimal: Decimal, factor: number): Decimal => normalise(decimal.int * BigInt(factor), decimal.scale);
 
 /** NMI-20: held within the limits — raised to `min`, lowered to `max` — where each is given. */
 export function clamp(decimal: Decimal, min: Decimal | null, max: Decimal | null): Decimal {
@@ -100,15 +99,17 @@ const floorDivide = (a: bigint, b: bigint) => (a >= 0n ? a / b : -((-a + b - 1n)
 const ceilDivide = (a: bigint, b: bigint) => -floorDivide(-a, b);
 
 /**
- * NMI-22: the next number from `from`, in `direction`, that is `base` plus a whole multiple of `amount` (which is above
- * zero) — so a number between two such numbers goes to the nearer one in that direction, and not past it.
+ * NMI-22: the `count`th number from `from`, in `direction`, that is `base` plus a whole multiple of `amount` (which is
+ * above zero) — so a number between two such numbers goes to the nearer one in that direction, and not past it, and
+ * each further count is one more `amount` (NMI-23: a page key's ten steps stay on the step's grid, 42 → 62 by 2).
  */
-export function stepped(from: Decimal, base: Decimal, amount: Decimal, direction: 1 | -1): Decimal {
+export function stepped(from: Decimal, base: Decimal, amount: Decimal, direction: 1 | -1, count = 1): Decimal {
   const scale = Math.max(from.scale, base.scale, amount.scale);
   const unit = (decimal: Decimal) => decimal.int * pow10(scale - decimal.scale);
   const offset = unit(from) - unit(base);
   const size = unit(amount);
-  const multiple = direction > 0 ? floorDivide(offset, size) + 1n : ceilDivide(offset, size) - 1n;
+  const further = BigInt(Math.max(1, Math.trunc(count)) - 1);
+  const multiple = direction > 0 ? floorDivide(offset, size) + 1n + further : ceilDivide(offset, size) - 1n - further;
   return normalise(unit(base) + multiple * size, scale);
 }
 

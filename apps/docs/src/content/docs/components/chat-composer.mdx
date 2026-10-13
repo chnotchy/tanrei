@@ -15,8 +15,8 @@ import Callout from '../../../components/Callout.astro';
 <ComponentAvailability name="chat-composer" />
 
 <DemoFrame label="A chat composer in each layout. Write a message, attach a file, and send. Nothing is sent anywhere." column>
-  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="Message" placeholder="Write a message" send-label="Send" attachments="own" attach-label="Attach files" remove-label="Remove"></tanrei-chat-composer>
-  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="Message" placeholder="Write a message" send-label="Send" attachments="own" attach-label="Attach files" remove-label="Remove" max-length="280" counter>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="Message" placeholder="Write a message" send-label="Send" attachments="own" attach-label="Attach files" remove-label="Remove {name}"></tanrei-chat-composer>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="Message" placeholder="Write a message" send-label="Send" attachments="own" attach-label="Attach files" remove-label="Remove {name}" max-length="280" counter>
     <tanrei-button slot="leading" variant="text" label="Mention someone"><span slot="icon">alternate_email</span></tanrei-button>
     <tanrei-button slot="leading" variant="text" label="Add an emoji"><span slot="icon">mood</span></tanrei-button>
   </tanrei-chat-composer>
@@ -44,7 +44,7 @@ On the web it is `<tanrei-chat-composer>`. The other platforms have not implemen
   <TabItem label="Web">
     ```html
     <tanrei-chat-composer label="Message" placeholder="Write a message" send-label="Send"
-                          attachments="own" attach-label="Attach files" remove-label="Remove">
+                          attachments="own" attach-label="Attach files" remove-label="Remove {name}">
     </tanrei-chat-composer>
     ```
 
@@ -65,7 +65,7 @@ On the web it is `<tanrei-chat-composer>`. The other platforms have not implemen
       sendLabel="Send"
       attachments="own"
       attachLabel="Attach files"
-      removeLabel="Remove"
+      removeLabel="Remove {name}"
       onSend={(event) => post(event.detail.value, event.detail.attachments)}
     />
     ```
@@ -80,7 +80,7 @@ With `attachments="given"` your product gives the file items. Use it when you se
 
 ```html
 <tanrei-chat-composer label="Message" send-label="Send" attachments="given"
-                      attach-label="Attach files" remove-label="Remove" retry-label="Try again">
+                      attach-label="Attach files" remove-label="Remove {name}" retry-label="Retry {name}">
   <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" progress="0.4"></tanrei-file-item>
 </tanrei-chat-composer>
 ```

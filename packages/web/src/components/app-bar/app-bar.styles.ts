@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import type { OpenAxis } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/app-bar.tokens.json). The bar has no interaction states: its navigation and
 // action items are the product's icon buttons, which paint themselves from their own tokens (APB-11). What the bar paints
@@ -177,6 +178,8 @@ export const styles = css`
     letter-spacing: ${t('title-typescale-small-letter-spacing')};
     color: ${t('title-color')};${unsafeCSS(oneLine)}
   }
+  /* APB-5: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  ${unsafeCSS(scriptTracking('.title', String(t('title-typescale-small-letter-spacing')), { shadow: true }))}
   .subtitle {
     font: ${t('subtitle-typescale-small-font')};
     letter-spacing: ${t('subtitle-typescale-small-letter-spacing')};
@@ -215,6 +218,8 @@ export const styles = css`
     font: var(--_title-font);
     letter-spacing: var(--_title-ls);
   }
+  /* APB-7: a large bar's title's too. */
+  ${unsafeCSS(scriptTracking('.block .title', 'var(--_title-ls)', { shadow: true }))}
   .block .subtitle {
     font: var(--_subtitle-font);
     letter-spacing: var(--_subtitle-ls);

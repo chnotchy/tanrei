@@ -2,7 +2,7 @@
 title: लिस्ट
 description: संबंधित आइटम का एक कॉलम, जिसमें हर आइटम आइकन, अवतार या इमेज के साथ टेक्स्ट की एक या ज़्यादा लाइनें है, और जिसे लोग पढ़ते हैं, एक-एक करके खोलते हैं, जिसमें से चुनते हैं, या जिसका क्रम बदलते हैं।
 translationOf: components/list.mdx
-sourceHash: 7c745f38b96cf9ce0ac81fef3e9de4e5ab65a094
+sourceHash: f1a9b7f0f40138eb4b11d744d9ce10aa25741df8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -241,7 +241,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 <ListReorderProduct />
 
 <DemoFrame label="वह लिस्ट जिसका क्रम लोग बदलते हैं: हर पंक्ति में ले जाने वाले दो बटन" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="ऊपर ले जाएँ" move-down-label="नीचे ले जाएँ" moved-text="{headline} अब {count} में से {position} नंबर पर है" style="inline-size: 20rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="{headline} को ऊपर ले जाएँ" move-down-label="{headline} को नीचे ले जाएँ" moved-text="{headline} अब {count} में से {position} नंबर पर है" style="inline-size: 20rem">
     <tanrei-list-item headline="सारांश" divider></tanrei-list-item>
     <tanrei-list-item headline="हाल की फ़ाइलें" divider></tanrei-list-item>
     <tanrei-list-item headline="मेरे साथ शेयर की गई" divider></tanrei-list-item>
@@ -250,7 +250,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 </DemoFrame>
 
 <DemoFrame label="अंतिम स्लॉट में पेज के अपने हटाने वाले बटन के साथ, ले जाने वाले बटनों के बाद" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="ऊपर ले जाएँ" move-down-label="नीचे ले जाएँ" moved-text="{headline} अब {count} में से {position} नंबर पर है" style="inline-size: 26rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="{headline} को ऊपर ले जाएँ" move-down-label="{headline} को नीचे ले जाएँ" moved-text="{headline} अब {count} में से {position} नंबर पर है" style="inline-size: 26rem">
     <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="Inter हटाएँ" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="Noto Sans JP हटाएँ" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="Helvetica Neue हटाएँ" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
@@ -263,7 +263,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 `comp.list.motion.reorder-duration` के समय के भीतर जवाब दें। जो क्रम इसके बाद आता है, वह फिर भी बनाया जाता है, पर लिस्ट तब तक मान चुकी होती है कि ले जाने से मना किया गया है, और उसे पढ़कर नहीं सुनाती।
 
-तीनों शब्द आपके हैं। `moveUpLabel` और `moveDownLabel` बटनों को नाम देते हैं, और `movedText` वह वाक्य है जो पंक्ति ले जाने के बाद पढ़कर सुनाया जाता है। पूरा वाक्य अपनी भाषा में लिखें और उसमें तीन जगहें चिह्नित करें, जिन्हें लिस्ट भरती है: `{headline}`, `{position}` (1 से गिनी हुई) और `{count}`। शब्द लिस्ट पर दें, या `setWords()` से पूरे प्रॉडक्ट के लिए एक बार।
+तीनों शब्द आपके हैं। `moveUpLabel` और `moveDownLabel` बटनों को नाम देते हैं, हर एक में `{headline}` जगह होती है जिसे लिस्ट पंक्ति की हेडलाइन से भरती है (`{headline} को ऊपर ले जाएँ`), और `movedText` वह वाक्य है जो पंक्ति ले जाने के बाद पढ़कर सुनाया जाता है। पूरा वाक्य अपनी भाषा में लिखें और उसमें तीन जगहें चिह्नित करें, जिन्हें लिस्ट भरती है: `{headline}`, `{position}` (1 से गिनी हुई) और `{count}`। शब्द लिस्ट पर दें, या `setWords()` से पूरे प्रॉडक्ट के लिए एक बार।
 
 क्रम बदलने वाली लिस्ट में सिर्फ़ स्टैटिक पंक्तियाँ रहती हैं, और वह कभी लिस्टबॉक्स नहीं होती। पंक्ति अपने अंतिम स्लॉट में, ले जाने वाले बटनों के बाद, आपका एक कंट्रोल रख सकती है: आम तौर पर आइटम को हटाने वाला बटन।
 
@@ -272,7 +272,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="ऊपर ले जाएँ" move-down-label="नीचे ले जाएँ"
+    <tanrei-list id="fonts" reorder="buttons" move-up-label="{headline} को ऊपर ले जाएँ" move-down-label="{headline} को नीचे ले जाएँ"
                  moved-text="{headline} अब {count} में से {position} नंबर पर है">
       <tanrei-list-item headline="Inter">
         <!-- आपका अपना कंट्रोल, ले जाने वाले दोनों बटनों के बाद। उसके नाम में आइटम का नाम रखें। -->
@@ -304,8 +304,8 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     // क्रम आपका स्टेट है। आप जिस क्रम में रेंडर करते हैं, उसमें लिस्ट ले जाई गई पंक्ति को फिर ढूँढ लेती है।
     <List
       reorder="buttons"
-      moveUpLabel="ऊपर ले जाएँ"
-      moveDownLabel="नीचे ले जाएँ"
+      moveUpLabel="{headline} को ऊपर ले जाएँ"
+      moveDownLabel="{headline} को नीचे ले जाएँ"
       movedText="{headline} अब {count} में से {position} नंबर पर है"
       onMove={(e) => {
         const { from, to } = e.detail;
@@ -370,7 +370,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 - `reorder` उस छोटी लिस्ट के लिए इस्तेमाल करें जिसके क्रम का कोई मतलब है और जिसे तय करना व्यक्ति का काम है: फ़ॉन्ट स्टैक की फ़ैमिली, होम स्क्रीन के सेक्शन, कोई क़तार। लंबी लिस्ट के लिए इसकी जगह उसे सॉर्ट करने का तरीक़ा दें। एक बार दबाने से पंक्ति एक जगह खिसकती है।
 - अपने आइटम का क्रम `move` हैंडलर में बदलें, या उसके बाद जितनी जल्दी आपका फ़्रेमवर्क रेंडर करे। आप मौजूदा एलिमेंट को हिला सकते हैं या नए रेंडर कर सकते हैं: लिस्ट ले जाई गई पंक्ति को उसकी जगह और उसकी हेडलाइन से ढूँढती है।
-- ले जाने वाले बटनों के शब्द छोटे और आम रखें ("ऊपर ले जाएँ", "नीचे ले जाएँ")। पंक्ति की हेडलाइन हर बटन का विवरण है, इसलिए शब्दों में आइटम का नाम लेने की ज़रूरत नहीं है।
+- ले जाने वाले बटनों के शब्दों में पंक्ति की हेडलाइन की जगह रखें (`{headline} को ऊपर ले जाएँ`, `{headline} को नीचे ले जाएँ`)। हेडलाइन हर बटन के नाम का हिस्सा है, इसलिए पेज के बटनों की सूची में और आवाज़ से नियंत्रण में दो पंक्तियों के बटन अलग पहचाने जाते हैं।
 - `movedText` को तीनों जगहों के साथ एक पूरे वाक्य के रूप में लिखें। लिस्ट अपना कोई वाक्यांश नहीं बनाती, इसलिए शब्दों का क्रम आपकी भाषा का होता है।
 - अंतिम स्लॉट में ज़्यादा से ज़्यादा एक कंट्रोल रखें, और उसके नाम में आइटम का नाम रखें ("Inter हटाएँ"), ताकि दो पंक्तियों के हटाने वाले बटन एक-दूसरे से अलग पहचाने जाएँ।
 - लिस्ट पंक्ति का ले जाया जाना पढ़कर सुनाती है, और कुछ नहीं। जब आप कोई आइटम हटाते या जोड़ते हैं, तो क्या कहा जाए, यह आपका काम है। जब आप आख़िरी आइटम हटाते हैं, तो फ़ोकस ख़ुद वहाँ ले जाएँ जहाँ व्यक्ति नया आइटम जोड़ता है।
@@ -423,7 +423,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 - चयन वाली लिस्ट `label` के नाम वाले लिस्टबॉक्स के रूप में दी जाती है, और `selection` के multiple रहते बहु चयन वाले के रूप में। हर पंक्ति एक विकल्प है, अपने चयनित स्टेट, लिस्ट में अपनी जगह और लिस्ट के साइज़ के साथ।
 - इंटरैक्टिव पंक्ति, लिंक वाली पंक्ति या विकल्प का नाम उसकी हेडलाइन से आता है, और उसका विवरण उसकी ओवरलाइन, सहायक टेक्स्ट और अंतिम टेक्स्ट से, पढ़ने के क्रम में। आइकन, चेक, डिवाइडर और शुरुआती मीडिया छिपे रहते हैं।
 - इंटरैक्टिव पंक्तियों या विकल्पों वाली लिस्ट एक Tab स्टॉप है। Tab उस पंक्ति पर जाती है जिस पर पिछली बार फ़ोकस था, नहीं तो पहले चयनित विकल्प पर, नहीं तो पहली सक्षम पंक्ति पर। Up Arrow और Down Arrow फ़ोकस को एक पंक्ति से दूसरी पर ले जाती हैं, और सिरों पर घूमकर दूसरे सिरे पर नहीं जातीं। Home और End पहली और आख़िरी पंक्ति पर ले जाती हैं। टाइप करने पर फ़ोकस उस अगली पंक्ति पर जाता है जिसकी हेडलाइन टाइप किए गए अक्षरों से शुरू होती है। Space और Enter सक्रिय करती हैं। स्टैटिक पंक्तियाँ फ़ोकस नहीं लेतीं। स्टैटिक पंक्ति का कंट्रोल अपना Tab स्टॉप बनाए रखता है।
-- क्रम बदलने वाली लिस्ट में ले जाने वाला हर बटन एक बटन है, जिसका नाम `moveUpLabel` या `moveDownLabel` से आता है और जिसका विवरण उसकी पंक्ति की हेडलाइन है। हर एक पढ़ने के क्रम में अपना अलग Tab स्टॉप है, पंक्ति के अंतिम कंट्रोल से पहले। वहाँ लिस्ट एक Tab स्टॉप नहीं होती, और ऐरो कुंजियाँ कुछ नहीं करतीं। पहली पंक्ति का ऊपर ले जाने वाला बटन और आख़िरी पंक्ति का नीचे ले जाने वाला बटन अक्षम होते हैं और फिर भी बनाए जाते हैं, इसलिए हर पंक्ति में वही भाग उन्हीं जगहों पर होते हैं।
+- क्रम बदलने वाली लिस्ट में ले जाने वाला हर बटन एक बटन है, जिसका नाम `moveUpLabel` या `moveDownLabel` से आता है, और उसकी `{headline}` जगह में पंक्ति की हेडलाइन होती है। हर एक पढ़ने के क्रम में अपना अलग Tab स्टॉप है, पंक्ति के अंतिम कंट्रोल से पहले। वहाँ लिस्ट एक Tab स्टॉप नहीं होती, और ऐरो कुंजियाँ कुछ नहीं करतीं। पहली पंक्ति का ऊपर ले जाने वाला बटन और आख़िरी पंक्ति का नीचे ले जाने वाला बटन अक्षम होते हैं और फिर भी बनाए जाते हैं, इसलिए हर पंक्ति में वही भाग उन्हीं जगहों पर होते हैं।
 - पंक्ति ले जाने के बाद फ़ोकस उसी पंक्ति के उसी बटन पर रहता है, इसलिए कुंजी दोबारा दबाने से पंक्ति फिर खिसकती है। जहाँ पंक्ति पहली या आख़िरी बन गई है, वहाँ फ़ोकस उसके दूसरे ले जाने वाले बटन पर जाता है।
 - क्रम बदलने वाली लिस्ट में एक लाइव रीजन होता है, जो बिना टोके (polite) पढ़कर सुनाता है। पंक्ति ले जाने के बाद उसमें `movedText` होता है, पंक्ति की हेडलाइन, उसकी नई जगह और पंक्तियों की संख्या के साथ, और अगली बार ले जाने पर वह बदल जाता है। संख्याएँ वैसे लिखी जाती हैं जैसे लिस्ट की भाषा उन्हें लिखती है। पंक्ति का ले जाया जाना और कोई चीज़ पढ़कर नहीं सुनाती।
 - दो पंक्तियाँ एक छोटे मोशन के साथ जगह बदलती हैं, और जहाँ मोशन कम किया गया है वहाँ तुरंत।

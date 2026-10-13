@@ -2,7 +2,7 @@
 title: Cabecera de página
 description: La cabecera del contenido de una página. El título de la página como su encabezado, con una frase que dice qué es la página, una línea de datos sobre ella, las acciones de toda la página y, encima, el camino de vuelta hacia arriba.
 translationOf: components/page-header.mdx
-sourceHash: 92f4e7f210122d4ea14477da26a2f9deed730828
+sourceHash: 1e702fdb88c5e57541104c160ade78c5a738a823
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -171,7 +171,7 @@ Una cabecera grande en un lugar estrecho dibuja el título mediano. El cambio es
 
 - Escribe la descripción en una o dos frases. Un texto más largo pertenece al contenido.
 - Da a una fecha un elemento `<time>` con un `datetime` legible por máquinas.
-- Define `lang` en el texto que esté en otro idioma. El título y el antetítulo se dibujan con un espaciado entre letras de cero en chino, japonés y coreano, y en los sistemas de escritura que unen sus letras o apilan marcas sobre ellas (árabe, devanagari): allí una palabra se deshace cuando sus letras se separan o se juntan.
+- Define `lang` en el texto que esté en otro idioma. En chino, japonés y coreano el título se dibuja sin su espaciado entre letras negativo (el antetítulo conserva el suyo, que es positivo), y en los sistemas de escritura que unen sus letras o apilan marcas sobre ellas (árabe, devanagari) el título y el antetítulo se dibujan con un espaciado entre letras de cero: allí una palabra se deshace cuando sus letras se separan o se juntan.
 
 ### Evita
 

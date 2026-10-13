@@ -162,7 +162,7 @@
     },
     {
       "id": "PGH-4",
-      "text": "WHERE the language of the title is Chinese, Japanese or Korean, or its script joins its letters or stacks marks on them (Arabic, Devanagari), THE page header SHALL draw the title at a letter-spacing of zero and SHALL NOT apply the negative letter-spacing of the title's text style (PRS-20, extended to the scripts a tracked word falls apart in); and WHERE the language of the eyebrow is one of those THE page header SHALL draw the eyebrow at a letter-spacing of zero too. No design system chooses this: it is not a token.",
+      "text": "THE page header SHALL set the title's and the eyebrow's letter-spacing by the script of their text, as PRS-20 sets a heading's: WHERE their language is Chinese, Japanese or Korean without a negative letter-spacing (the title's negative one is dropped; a positive one, as the eyebrow's, stays), and WHERE their script joins its letters or stacks marks on them (Arabic, Devanagari) at a letter-spacing of zero. No design system chooses this: it is not a token.",
       "verify": "The fixtures japanese and rtl: the computed letter-spacing of the title and of the eyebrow is zero; in the fixture medium the title has the letter-spacing of sys.typescale.heading-1."
     },
     {

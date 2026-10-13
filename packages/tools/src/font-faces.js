@@ -19,7 +19,11 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-/** The family name the tokens use → [package, stylesheet inside it]. */
+/**
+ * The family name the tokens use → [package, stylesheet inside it, the subsets to register (all, when not named)].
+ * A family a site adds for one script names that script's subset alone: its unicode-range then covers that script and
+ * nothing else, so the faces before it in the stack keep drawing Latin, digits and symbols.
+ */
 export const FONT_PACKAGES = {
   // The default system.
   Inter: ['@fontsource-variable/inter', 'wght.css'],
@@ -30,6 +34,9 @@ export const FONT_PACKAGES = {
   // m3-like and m3-expressive-like.
   Roboto: ['@fontsource-variable/roboto', 'wght.css'],
   'Material Symbols Outlined': ['@fontsource-variable/material-symbols-outlined', 'full.css'],
+  // A face of a further script that a site of ours is shown in (the Theme Studio app in Arabic): the stack's first
+  // faces have no Arabic, and the platform's fallback is drawn smaller and thinner than the text around it.
+  'Noto Sans Arabic': ['@fontsource-variable/noto-sans-arabic', 'wght.css', ['arabic']],
 };
 
 /**
@@ -59,7 +66,8 @@ export function fontFacesCss(outFile, from = process.cwd(), { families, embed = 
   for (const family of families ?? Object.keys(FONT_PACKAGES)) {
     const entry = FONT_PACKAGES[family];
     if (!entry) throw new Error(`font-faces: no package is known for "${family}". Known: ${Object.keys(FONT_PACKAGES).join(', ')}`);
-    const [pkg, sheet] = entry;
+    const [pkg, sheet, familySubsets] = entry;
+    const wanted = familySubsets ?? subsets;
     let file;
     try {
       file = require.resolve(`${pkg}/${sheet}`);
@@ -69,7 +77,9 @@ export function fontFacesCss(outFile, from = process.cwd(), { families, embed = 
     }
     const dir = path.dirname(file);
     const faces = fs.readFileSync(file, 'utf8').match(/(?:\/\*[^*]*\*\/\s*)?@font-face\s*\{[^}]*\}/g) ?? [];
-    const kept = faces.filter((face) => !subsets || isIconFamily(family) || subsets.some((subset) => new RegExp(`-${subset}-(?!ext-)`).test(face)));
+    // A face's file is `<family id>-<subset>-<axis>-<style>.woff2`: the subset is the segment before the axis, so
+    // `latin` keeps neither `latin-ext` nor, for a family whose id holds the subset's name (noto-sans-arabic), `math`.
+    const kept = faces.filter((face) => !wanted || isIconFamily(family) || wanted.some((subset) => new RegExp(`files/[a-z0-9-]*?-${subset}-[a-z]+-(?:normal|italic)\\.`).test(face)));
     const css = kept
       .join('\n')
       .replace(/font-family:\s*'[^']+';/g, `font-family: '${family}';`)

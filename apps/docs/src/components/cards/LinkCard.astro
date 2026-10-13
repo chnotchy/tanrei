@@ -1,17 +1,16 @@
 ---
-// A card that is one link, drawn by Tanrei's link card (`<tanrei-card href>`) with the authoring shape of
-// Starlight's:
+// A card that is one link: Tanrei's Link card (`<tanrei-link-card>`), with the authoring shape of Starlight's:
 //
 //   <LinkCard title="Getting started" description="Install and use Tanrei on your platform." href="/getting-started/" />
 //
-// The card's anchor is in its shadow root, so the page as built would hold no link. The heading therefore holds a plain
-// `<a href>` — what a crawler, the search index and a reader without script follow — which is taken away when the
-// element is defined and the card becomes the link (lib/link-fallback.ts).
-//
-// An address that leaves the site opens in a new tab, says so (`target-label`) and shows the icon set's `open_in_new`
-// in place of the arrow: a card draws no mark of its own.
+// The markup is the Link card's own, written where the site is built by `linkCardToHtml()` of `@tanrei/web/links`: the
+// element has no shadow root, so its anchor is in the page as built — what a crawler, the search index and a reader
+// without script follow — and `@tanrei/web/link-card.css` (styles/prose.css) draws the whole card before any script
+// runs. A card on the site draws no mark of its own: an address on the site shows none, and one that leaves it opens in
+// a new tab, says so in its last words and shows the Link card's open_in_new.
+import { linkCardToHtml } from '@tanrei/web/links';
 import { contentLang, strings } from '../../lib/i18n';
-import { destination, linkAttribute } from '../../lib/link';
+import { isExternal } from '../../lib/link';
 interface Props {
   /** The card's heading, and the link's accessible name. */
   title: string;
@@ -21,71 +20,15 @@ interface Props {
   href: string;
 }
 const { title, description, href } = Astro.props;
-const { external, props } = destination(href, strings(contentLang(Astro)).opensInNewTab);
-const fallback = { [linkAttribute]: '' };
+const external = isExternal(href);
+const card = linkCardToHtml({ href, title, description, external: external ? 'on' : 'off' }, external ? { target: 'new', targetLabel: strings(contentLang(Astro)).opensInNewTab } : {});
+// The element is the grid's cell, and it is not prose's content: the class goes on it, the one name the markup lacks.
+const html = card.replace(/^<tanrei-link-card/, '<tanrei-link-card class="docs-card not-content"');
 ---
 
-<tanrei-card class="docs-card docs-link-card not-content" label={title} {...props}>
-  <div class="docs-link-card-row">
-    <div class="docs-link-card-text">
-      <h3><a href={href} {...fallback}>{title}</a></h3>
-      {description && <p>{description}</p>}
-    </div>
-    <span class="tanrei-icon" aria-hidden="true" data-pagefind-ignore data-mirror={external ? 'never' : 'always'}>{external ? 'open_in_new' : 'arrow_forward'}</span>
-  </div>
-</tanrei-card>
+<Fragment set:html={html} />
 
 <script>
-  // The card alone — not the whole package — after the anchors it replaces have gone.
-  import '../../lib/link-fallback';
-  import '@tanrei/web/components/card';
+  // The link card alone — not the whole package.
+  import '@tanrei/web/components/link-card';
 </script>
-
-<style is:global>
-  .docs-link-card-row {
-    display: flex;
-    align-items: center;
-    gap: var(--tanrei-sys-space-space200);
-  }
-  .docs-link-card-text {
-    flex: 1;
-    min-inline-size: 0;
-  }
-  .docs-link-card-text h3 {
-    margin: 0;
-    font: var(--tanrei-sys-typescale-heading-5-font);
-    letter-spacing: var(--tanrei-sys-typescale-heading-5-letter-spacing);
-    color: inherit;
-  }
-  .docs-link-card-text p {
-    margin: var(--tanrei-sys-space-space50) 0 0;
-    font: var(--tanrei-sys-typescale-body-font);
-    letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
-    color: var(--tanrei-sys-color-on-surface-variant);
-  }
-  .docs-link-card-row > .tanrei-icon {
-    color: var(--tanrei-sys-color-on-surface-variant);
-  }
-  /* Until the element is defined the heading's anchor is the link, in the heading's own color; the whole card answers
-     it, as it will when it is the link itself. */
-  .docs-link-card:not(:defined) {
-    position: relative;
-  }
-  .docs-link-card-text h3 > a {
-    color: inherit;
-    text-decoration: none;
-  }
-  .docs-link-card-text h3 > a::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: var(--tanrei-comp-card-container-shape);
-  }
-  .docs-link-card-text h3 > a:focus-visible {
-    outline: none;
-  }
-  .docs-link-card-text h3 > a:focus-visible::after {
-    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-accent);
-    outline-offset: var(--tanrei-sys-focus-offset);
-  }
-</style>

@@ -227,6 +227,10 @@
     --_acc-open: 0;
     /* ACC-17, ACC-36: how long the state of an open item, drawn on the whole item, takes to change (none for a press). */
     --_acc-item-time: var(--tanrei-comp-accordion-motion-state-duration);
+    /* ACC-17, ACC-36: the opacity of the state of an open item, which its content's box takes — none at rest (the
+       declaration that reads it is then invalid, and the box has the initial opacity). Each item starts without one,
+       so that an item nested in another's content does not take the outer item's. */
+    --_acc-item-opacity: initial;
     /* ACC-10: the line above this item — none above the first. */
     --_acc-line-width: 0px;
     position: relative;
@@ -386,6 +390,8 @@
       opacity var(--tanrei-comp-accordion-motion-state-duration) var(--tanrei-comp-accordion-motion-state-easing);
     transition-behavior: allow-discrete;
   }
+  /* ACC-3: the label's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  /* script-tracking: :where(tanrei-accordion) > :where(details) > :where(summary) | var(--_acc-label-tracking) */
   @media (pointer: coarse) {
     :where(tanrei-accordion) > :where(details) > :where(summary) {
       --_acc-target: var(--tanrei-sys-target-touch);
@@ -547,6 +553,7 @@
       padding-block-end: 0;
       /* ACC-13: closed, and while it closes, it is out of the focus order and of assistive technology at once. */
       interactivity: inert;
+      opacity: var(--_acc-item-opacity);
       transition: opacity var(--_acc-item-time) var(--tanrei-comp-accordion-motion-state-easing);
       overflow: clip;
     }
@@ -743,8 +750,8 @@
       --_acc-now-chevron: var(--_acc-hovered-chevron);
       opacity: var(--tanrei-comp-accordion-hovered-opacity);
     }
-    :where(tanrei-accordion:defined) > :where(details[open][data-tanrei-hit])::details-content {
-      opacity: var(--tanrei-comp-accordion-hovered-opacity);
+    :where(tanrei-accordion:defined) > :where(details[open][data-tanrei-hit]) {
+      --_acc-item-opacity: var(--tanrei-comp-accordion-hovered-opacity);
     }
   }
   /* Focused (ACC-18, ACC-23): the focused container on the whole item, and the ring around it — the outer stroke on
@@ -754,8 +761,8 @@
     outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
     outline-offset: calc(var(--tanrei-sys-focus-outer-width) * -1);
   }
-  :where(tanrei-accordion:defined) > :where(details[open]:has(> summary:focus-visible))::details-content {
-    opacity: var(--tanrei-comp-accordion-focused-opacity);
+  :where(tanrei-accordion:defined) > :where(details[open]:has(> summary:focus-visible)) {
+    --_acc-item-opacity: var(--tanrei-comp-accordion-focused-opacity);
   }
   :where(tanrei-accordion:defined) > :where(details[open]) > :where(summary:focus-visible) {
     outline: none;
@@ -797,8 +804,8 @@
   :where(tanrei-accordion:defined) > :where(details[open]:has(> summary[data-pressed='overlay'])) {
     background-color: var(--_acc-pressed-container);
   }
-  :where(tanrei-accordion:defined) > :where(details[open]:has(> summary[data-pressed]:not([data-pressed='none'])))::details-content {
-    opacity: var(--tanrei-comp-accordion-pressed-opacity);
+  :where(tanrei-accordion:defined) > :where(details[open]:has(> summary[data-pressed]:not([data-pressed='none']))) {
+    --_acc-item-opacity: var(--tanrei-comp-accordion-pressed-opacity);
   }
 
   /* The ripple's layer (src/primitives/ripple.ts adds it and sets --_x, --_y, --_r): the pressed container color,

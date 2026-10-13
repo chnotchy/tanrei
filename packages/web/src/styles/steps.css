@@ -157,6 +157,8 @@
     unicode-bidi: plaintext;
     text-align: left;
   }
+  /* STP-6: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  /* script-tracking: :where(.tanrei-steps) > :where(li) > :where(:is(.tanrei-steps-title, h2, h3, h4, h5, h6):first-child) | var(--_steps-title-tracking) */
   :where(.tanrei-steps) > :where(li) > :where(:is(.tanrei-steps-title, h2, h3, h4, h5, h6):first-child:dir(rtl)) {
     text-align: right;
   }

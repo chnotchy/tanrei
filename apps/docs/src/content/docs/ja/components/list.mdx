@@ -2,7 +2,7 @@
 title: リスト
 description: アイコン、アバター、画像を添えた 1 行以上のテキストを縦に並べ、読んだり、1 つずつ開いたり、選んだり、順番を並べ替えたりできるようにします。
 translationOf: components/list.mdx
-sourceHash: 7c745f38b96cf9ce0ac81fef3e9de4e5ab65a094
+sourceHash: f1a9b7f0f40138eb4b11d744d9ce10aa25741df8
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -241,7 +241,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 <ListReorderProduct />
 
 <DemoFrame label="順番を並べ替えられるリスト：どの行にも 2 つの移動ボタンがあります" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="上へ移動" move-down-label="下へ移動" moved-text="{headline}を{count}件中{position}番目に移動しました" style="inline-size: 20rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="{headline}を上へ移動" move-down-label="{headline}を下へ移動" moved-text="{headline}を{count}件中{position}番目に移動しました" style="inline-size: 20rem">
     <tanrei-list-item headline="概要" divider></tanrei-list-item>
     <tanrei-list-item headline="最近使ったファイル" divider></tanrei-list-item>
     <tanrei-list-item headline="共有アイテム" divider></tanrei-list-item>
@@ -250,7 +250,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 </DemoFrame>
 
 <DemoFrame label="末尾のスロットにページ側の削除ボタンを置いた例：移動ボタンの後に並びます" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="上へ移動" move-down-label="下へ移動" moved-text="{headline}を{count}件中{position}番目に移動しました" style="inline-size: 26rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="{headline}を上へ移動" move-down-label="{headline}を下へ移動" moved-text="{headline}を{count}件中{position}番目に移動しました" style="inline-size: 26rem">
     <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="Inter を削除" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="Noto Sans JP を削除" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="Helvetica Neue を削除" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
@@ -263,7 +263,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 並べ替えは `comp.list.motion.reorder-duration` の時間内に行います。それより遅れて届いた順番も描きますが、リストはすでに移動が断られたものとして扱っているので、読み上げはしません。
 
-3 つの文言は利用者側で用意します。`moveUpLabel` と `moveDownLabel` はボタンの名前で、`movedText` は移動の後に読み上げる文です。文全体をプロダクトの言語で書き、リストが埋める 3 つの場所に印を付けます。`{headline}`、`{position}`（1 から数えます）、`{count}` です。文言はリストに付けるか、`setWords()` でプロダクト全体に一度だけ渡します。
+3 つの文言は利用者側で用意します。`moveUpLabel` と `moveDownLabel` はボタンの名前で、リストが行の見出しを入れる場所 `{headline}` を持ちます（「`{headline}を上へ移動`」）。`movedText` は移動の後に読み上げる文です。文全体をプロダクトの言語で書き、リストが埋める 3 つの場所に印を付けます。`{headline}`、`{position}`（1 から数えます）、`{count}` です。文言はリストに付けるか、`setWords()` でプロダクト全体に一度だけ渡します。
 
 並べ替えられるリストに入るのは静的な行だけで、リストボックスにはなりません。行の末尾のスロットには、移動ボタンの後に、自前のコントロールを 1 つ置けます。多くの場合、項目を削除するボタンです。
 
@@ -272,7 +272,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="上へ移動" move-down-label="下へ移動"
+    <tanrei-list id="fonts" reorder="buttons" move-up-label="{headline}を上へ移動" move-down-label="{headline}を下へ移動"
                  moved-text="{headline}を{count}件中{position}番目に移動しました">
       <tanrei-list-item headline="Inter">
         <!-- 自前のコントロールは 2 つの移動ボタンの後に並びます。名前には項目を入れます。 -->
@@ -304,8 +304,8 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     // 順番は利用者側の状態です。リストは、描画された順番の中から動かした行を見つけ直します。
     <List
       reorder="buttons"
-      moveUpLabel="上へ移動"
-      moveDownLabel="下へ移動"
+      moveUpLabel="{headline}を上へ移動"
+      moveDownLabel="{headline}を下へ移動"
       movedText="{headline}を{count}件中{position}番目に移動しました"
       onMove={(e) => {
         const { from, to } = e.detail;
@@ -370,7 +370,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 - `reorder` は、順番に意味があり、その順番を使う人が決める短いリストに使います。フォントスタックのファミリー、ホーム画面のセクション、キューなどです。長いリストには、並べ替えの代わりにソートの手段を用意します。1 回押すと、行は 1 つ分だけ動きます。
 - 項目の並べ替えは、`move` のハンドラーの中か、その後フレームワークが描画し次第すぐに行います。今ある要素を動かしても、新しい要素を描画してもかまいません。リストは、動かした行を位置と見出しで見つけます。
-- 移動ボタンの文言は短く、一般的なものにします（「上へ移動」「下へ移動」）。行の見出しがそれぞれのボタンの説明になるので、文言に項目の名前を入れる必要はありません。
+- 移動ボタンの文言には、行の見出しの場所を入れます（「`{headline}を上へ移動`」「`{headline}を下へ移動`」）。見出しがそれぞれのボタンの名前に入るので、ページのボタンの一覧でも音声での操作でも、行ごとのボタンを区別できます。
 - `movedText` は、3 つの場所を含む 1 つの完結した文として書きます。リストは自分で語句を組み立てないので、語順はプロダクトの言語のものになります。
 - 末尾のスロットに置くコントロールは 1 つまでにし、名前には項目を入れます（「Inter を削除」）。2 つの行の削除ボタンを聞き分けられるようにするためです。
 - リストが読み上げるのは移動だけです。項目を削除したり追加したりしたときに何を伝えるかは、利用者側で決めます。最後の項目を削除したときは、項目を追加する場所へ、利用者側でフォーカスを移します。
@@ -423,7 +423,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 - 選べるリストは、`label` を名前とするリストボックスとして伝えます。`selection` が multiple のときは複数選択できることも伝えます。各行は、選択状態、位置、件数を持つ選択肢です。
 - 操作できる行、リンクの行、選択肢は、見出しを名前とし、オーバーライン、補足テキスト、末尾のテキストを、この読み順で説明として伝えます。アイコン、チェック、区切り線、先頭メディアは支援技術から隠します。
 - 操作できる行か選択肢を含むリストは、Tab で止まる位置が 1 つです。最後にフォーカスがあった行、なければ最初に選ばれている選択肢、それもなければ最初の有効な行に止まります。上下の矢印キーで行の間を移動し、端で折り返しません。Home と End で最初と最後の行へ、文字を打つと見出しがその文字で始まる次の行へ移ります。Space と Enter で実行します。静的な行はフォーカスを受けませんが、静的な行の中のコントロールは自分の Tab で止まる位置を持ったままです。
-- 並べ替えられるリストでは、移動ボタンはそれぞれ、`moveUpLabel` か `moveDownLabel` を名前とし、行の見出しを説明とするボタンです。どのボタンも、読み順のとおりに、行の末尾のコントロールより前で、自分の Tab で止まる位置を持ちます。このときリストは Tab で止まる位置が 1 つではなく、矢印キーは何もしません。最初の行の上へ移動するボタンと、最後の行の下へ移動するボタンは無効になりますが、描いたままにします。どの行にも同じ部品が同じ場所に並びます。
+- 並べ替えられるリストでは、移動ボタンはそれぞれ、`moveUpLabel` か `moveDownLabel` を名前とし、その場所 `{headline}` に行の見出しが入るボタンです。どのボタンも、読み順のとおりに、行の末尾のコントロールより前で、自分の Tab で止まる位置を持ちます。このときリストは Tab で止まる位置が 1 つではなく、矢印キーは何もしません。最初の行の上へ移動するボタンと、最後の行の下へ移動するボタンは無効になりますが、描いたままにします。どの行にも同じ部品が同じ場所に並びます。
 - 移動の後、フォーカスは動かした行の同じボタンに残るので、もう一度キーを押せば、行はもう一度動きます。行が最初か最後になったときは、その行のもう一方の移動ボタンへフォーカスが移ります。
 - 並べ替えられるリストは、読み上げ中の内容に割り込まないライブリージョンを 1 つ持ちます。移動の後、そこに `movedText` が、行の見出し、新しい位置、行の件数を埋めた形で入ります。次の移動があると、内容は置き換わります。数字は、リストの言語の書き方で書きます。移動を読み上げるものは、ほかにありません。
 - 2 つの行は短い動きで入れ替わります。動きを減らす設定では、すぐに入れ替わります。
@@ -462,7 +462,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 - 選べるリストには `label` を付けます。付けないと、リストボックスに名前がありません。
 - 行どうしを見分けられる見出しを書きます。スクリーンリーダーが最初に読むのも、先頭文字での移動が照らし合わせるのも見出しです。
-- `target` の値が `new` のリンクの行には、「新しいタブで開きます」のように、プロダクトの言語で `targetLabel` を付けます。Tanrei は文言を持ちません。
+- `target` の値が `new` のリンクの行には、「新しいタブで開きます」のように、プロダクトの言語で `targetLabel` を付けます。Tanrei は言葉を同梱しません。
 - 並べ替えられるリストには、3 つの文言をプロダクトの言語で付けます。`moveUpLabel`、`moveDownLabel`、`movedText` です。最初の 2 つがないと、ボタンは動きますが名前がありません。3 つ目がないと、移動は読み上げられません。
 - `move` が発生したら、項目を並べ替えます。リストは何も変えていません。並べ替えの動きの時間より後に渡した順番は描きますが、読み上げはしません。
 - 削除や追加は利用者側で伝え、最後の項目を削除したときは、利用者側でフォーカスを移します。

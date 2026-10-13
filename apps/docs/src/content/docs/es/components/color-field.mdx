@@ -2,7 +2,7 @@
 title: Campo de color
 description: Permite definir un color como un campo de formulario (un valor de texto que se puede leer, escribir y pegar, una muestra del color junto al texto y un botón que pide un selector) que tiene el aspecto y las medidas de un campo de texto.
 translationOf: components/color-field.mdx
-sourceHash: 22658491c949ac04b45125142818656c61cfd393
+sourceHash: e052f116b388d9781f28037bf243ad5861d3c527
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -142,7 +142,7 @@ Nada se mezcla con la muestra: ni el paso del cursor, ni un tinte de error, ni u
 
 Un texto se lee como un color cuando, sin contar los espacios que lo rodean, es exactamente seis dígitos hexadecimales, en mayúsculas o en minúsculas, con o sin el signo de número: `0F766E`, `#0f766e` y <code> #0F766E </code> son todos `#0f766e`.
 
-Todo lo demás no es un color: tres dígitos (`#0f7`), ocho (`#0f766e80`), un nombre (`teal`), una notación funcional (`rgb(15, 118, 110)`). Tres dígitos no se leen porque el texto pasa por ellos de camino a los seis. No hay alfa ni colores de gama amplia.
+Todo lo demás no es un color: tres dígitos (`#0f7`), ocho (`#0f766e80`), un nombre (`teal`), una notación funcional (`rgb(15, 118, 110)`). Mientras se escribe, tres dígitos no son un color, porque el texto pasa por ellos de camino a los seis; al confirmar el texto se leen como los seis que representan, como los lee CSS: `#0f7` pasa a ser `#00ff77`. No hay alfa ni colores de gama amplia.
 
 No se notifica nada mientras la persona sigue escribiendo. Un error de entrada solo se produce cuando confirma.
 
@@ -155,7 +155,7 @@ Con `picker`, el campo muestra un botón al final. Al activarlo se emite `picker
 | No hace nada | El campo presenta el selector de color propio del navegador. Cada elección es una edición de la persona: el texto, la muestra, `input`. Cuando el selector se cierra, se emite `change` y el foco está en el botón del selector |
 | Cancela la petición | El campo no presenta nada. El producto abre su propia superficie, anclada al campo, y define `value` como lo que se eligió. Esa superficie devuelve el foco al botón del selector cuando se cierra |
 
-Una pulsación en la muestra no abre el selector. Lleva el foco a la entrada, como una pulsación en cualquier otra parte del campo.
+Con el botón del selector visible, una pulsación en la muestra abre el selector, como una pulsación en el botón; el foco no pasa a la entrada, y el botón sigue siendo el camino del teclado. Sin el botón, una pulsación en la muestra lleva el foco a la entrada, como una pulsación en cualquier otra parte del campo.
 
 ### Qué aporta cada miembro
 
@@ -182,7 +182,7 @@ El campo de color no tiene ningún token propio. Su caja lee los [tokens de la e
 - `value` es siempre el de la entrada de color: un valor definido como `0F766E` se lee de vuelta como `#0f766e`, y uno que no es un color, como una cadena vacía.
 - `input` y `change` son eventos simples: lee `value` del elemento. `pickerrequest` y `entryerror` son CustomEvents, el primero con `detail.value` y el segundo con `detail.text` y `detail.message`. Son los eventos propios de la entrada de color, con el elemento como destino. `detail.message` es `invalidText`, y está vacío donde no diste ninguno, también mientras el campo muestra `errorText` en su lugar.
 - Partes: `field` y `color-input` son los dos miembros. Sus propias partes tienen aquí los mismos nombres que un nivel más abajo: `label-icon`, `supporting-text`; `container`, `outline`, `active-indicator`, `swatch`, `input`, `picker-button`. `label` y `requirement-label` son las que se dibujan, sea cual sea el miembro que las dibuja; `field-label`, `color-input-label`, `field-requirement-label` y `color-input-requirement-label` nombran las de un solo miembro.
-- El elemento no puede recibir el foco por sí mismo y no tiene rol: `focus()` va a la entrada, nunca al botón del selector. Una pulsación en la fila de la etiqueta, en la caja, en la muestra o en una etiqueta flotante da el foco a la entrada. Una pulsación en la ayuda o en el texto de error no hace nada.
+- El elemento no puede recibir el foco por sí mismo y no tiene rol: `focus()` va a la entrada, nunca al botón del selector. Una pulsación en la fila de la etiqueta, en la caja, en la muestra (cuando no hay botón del selector) o en una etiqueta flotante da el foco a la entrada. Una pulsación en la ayuda o en el texto de error no hace nada.
 - La etiqueta y la ayuda toman sus colores de foco mientras el foco está en cualquier parte del campo, incluido el botón del selector. La caja toma los suyos solo mientras su entrada tiene el foco.
 - Dale nombre con `label` —con `label-hidden` donde la etiqueta no deba dibujarse— y nunca con `aria-label`, que aquí no nombra nada.
 - El elemento no tiene textos propios. `requiredText` y `optionalText` están vacíos hasta que los das. Un campo obligatorio sin `requiredText` muestra el asterisco donde estaría el tag.

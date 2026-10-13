@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, conditionBlock, focusRing, iconGlyph, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/navigation-drawer.tokens.json). The drawer paints its panel per variant
 // (standard or modal: the color, elevation, end corners and end edge) and lays out its header, sections, groups and
@@ -462,6 +463,8 @@ export const sectionStyles = css`
     opacity: 1;
     transition: opacity ${unsafeCSS(SECOND_HALF)};
   }
+  /* NVD-16: the heading's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  ${unsafeCSS(scriptTracking('.heading-text', String(t('heading-typescale-letter-spacing')), { shadow: true }))}
   /* NVD-52: the heading is its own run, in the direction of its first strong character, aligned to the layout's start. */
   ${productText('.heading-text', { align: 'start' })}
   .collapsed .heading-text {

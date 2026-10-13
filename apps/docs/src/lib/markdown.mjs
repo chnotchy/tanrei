@@ -66,13 +66,17 @@
 //    opens does not change: no `target`, no `rel`. The words are the page's language's, which this step does not
 //    know: it leaves `data-docs-words="externalLink"` in their place and `components/MarkdownContent.astro` writes
 //    `aria-description` there from the docs' strings (lib/i18n.ts), as it writes a notice's kind.
-//    NOTHING IS FETCHED: no site icon is asked for and none is drawn — the links show the arrow alone.
+//    The other site's icon stands before the link's text where the site has recorded one (LNK-32): the step asks
+//    `resolveSiteIcons()` for the origins the pages link to, from the lock file alone (`links.config.mjs`), and
+//    `markExternalLinks()` writes the `img` the Link draws. NOTHING IS FETCHED by a build: a person reads the icons
+//    once with `pnpm --filter @tanrei/docs links`, and commits the lock file and the pictures (public/link-pictures/).
 //    A path, a fragment, a mail address and an address of the site's own origin are left alone; so is an anchor that
 //    already says whether it is external (`data-external`), one that carries a class of Tanrei's, and every anchor an
 //    author wrote as HTML in MDX, which is the author's own. Code is never a link: a fence is text.
 
 import { highlightToNodes, languages, loadLanguage } from '@tanrei/web/highlight';
-import { markExternalLinks } from '@tanrei/web/links/node';
+import { markExternalLinks, resolveSiteIcons } from '@tanrei/web/links/node';
+import { linkOptions, linkedOrigins } from '../../links.config.mjs';
 import { EXTERNAL_WORDS } from './markdown-content.mjs';
 
 const KINDS = { note: 'info', tip: undefined, caution: 'warning', danger: 'error' };
@@ -262,16 +266,19 @@ export { EXTERNAL_WORDS };
  * tree is changed through its context alone, so the helper marks a copy of the anchor (it reads the address, the
  * download and the description, and never the content) and what it wrote is set on the anchor itself.
  */
-const externalLinks = (site) => ({
+export const externalLinks = (site, icons = {}) => ({
   name: 'tanrei-docs-external-link',
   element: {
     filter: ['a'],
     visit(node, ctx) {
       if (classes(node).some((name) => name.startsWith('tanrei-'))) return;
       const copy = element('a', { ...node.properties });
-      markExternalLinks(copy, { site, base: site[0] });
+      markExternalLinks(copy, { site, base: site[0], icons });
       if (copy.properties['data-external'] !== 'true' || node.properties?.['data-external'] !== undefined || node.properties?.dataExternal !== undefined) return;
       ctx.setProperty(node, 'data-external', 'true');
+      // The site's icon, where one is recorded for its origin: the helper wrote it as the copy's first child.
+      const icon = copy.children.find((child) => isElement(child, 'img'));
+      if (icon) ctx.prependChild(node, icon);
       // One description for a link (LNK-34): an anchor that has one keeps it, and one that opens a new tab says that.
       const said = ['aria-description', 'ariaDescription', 'aria-describedby', 'ariaDescribedBy', 'target'].some((name) => node.properties?.[name]);
       if (!said) ctx.setProperty(node, EXTERNAL_WORDS, 'externalLink');
@@ -301,8 +308,14 @@ export function tanreiMarkdown() {
         };
         options.hastPlugins.push(callouts, tables, codeBlocks(warn));
         // The site's own origin: every other one is another site's. Without it nothing can be told, and nothing is marked.
-        if (config.site) options.hastPlugins.push(externalLinks([new URL(config.site).origin]));
-        else logger.warn('The site has no address of its own (`site`): links that leave it are not marked.');
+        // The icons of the other sites, from the lock file alone: an origin without one shows the arrow alone. What a
+        // person must do is said — an origin the lock file has not read yet, a picture missing from its directory —;
+        // an origin whose icon could not be used was said when it was read, and is recorded with its reason.
+        if (config.site) {
+          const report = (message) => /not-in-lock|is missing from the picture directory/.test(message) && logger.warn(`${message} (run \`pnpm --filter @tanrei/docs links\`)`);
+          const icons = await resolveSiteIcons(linkedOrigins(), { ...linkOptions, mode: 'frozen', report });
+          options.hastPlugins.push(externalLinks([new URL(config.site).origin], icons));
+        } else logger.warn('The site has no address of its own (`site`): links that leave it are not marked.');
       },
     },
   };

@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, iconGlyph } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/empty-state.tokens.json). The empty state has no state (EMP-7): what
 // changes what it draws is its size and its alignment. It draws no fill, no edge and no elevation (EMP-1), so there is
@@ -140,6 +141,8 @@ export const styles = css`
     color: ${t('title-color')};
     overflow-wrap: break-word;
   }
+  /* EMP-4: the title's letter-spacing follows its script (src/styles/script-tracking.ts); a title the product gives in the slot, by its own language. */
+  ${unsafeCSS(scriptTracking('.title', 'var(--_title-tracking)', { shadow: true }))}
   .container:not(.titled) .title {
     display: none;
   }
@@ -150,6 +153,8 @@ export const styles = css`
     letter-spacing: inherit;
     color: inherit;
   }
+  /* EMP-4: a title the product gives in the slot follows its own language. */
+  ${unsafeCSS(scriptTracking('', 'var(--_title-tracking)', { slotted: "[slot='title']" }))}
   /* EMP-16: a title given as text is text of its own direction, isolated; its lines are still centred, or — align
      start — aligned by the layout's direction, not by the text's own. */
   ${productText('.headline')}
