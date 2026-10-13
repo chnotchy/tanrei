@@ -5279,7 +5279,7 @@ private let cupertinoMenuTokens = TanreiMenuTokens(
   controlBoxShape: 2,
   controlBoxSize: 18,
   controlFillInset: 0,
-  controlFillOpacity: 0.5,
+  controlFillOpacity: 0.16,
   controlMarkSize: 20,
   controlMarkWeight: 300,
   controlOutlineWidth: 2,

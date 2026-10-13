@@ -5039,7 +5039,7 @@ private object CupertinoSystemSource {
             controlBoxShape = 2.dp,
             controlBoxSize = 18.dp,
             controlFillInset = 0.dp,
-            controlFillOpacity = 0.5f,
+            controlFillOpacity = 0.16f,
             controlMarkSize = 20.dp,
             controlMarkWeight = 300f,
             controlOutlineWidth = 2.dp,

@@ -5447,7 +5447,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     controlBoxShape: 4.0,
     controlBoxSize: 18.0,
     controlFillInset: 0.0,
-    controlFillOpacity: 0.5,
+    controlFillOpacity: 0.16,
     controlMarkSize: 20.0,
     controlMarkWeight: 400.0,
     controlOutlineWidth: 2.0,

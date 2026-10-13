@@ -5384,7 +5384,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     controlBoxShape: 2.0,
     controlBoxSize: 18.0,
     controlFillInset: 0.0,
-    controlFillOpacity: 0.5,
+    controlFillOpacity: 0.16,
     controlMarkSize: 20.0,
     controlMarkWeight: 300.0,
     controlOutlineWidth: 2.0,
