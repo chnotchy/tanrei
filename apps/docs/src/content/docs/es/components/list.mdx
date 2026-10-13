@@ -2,7 +2,7 @@
 title: Lista
 description: Una columna de elementos relacionados, cada uno con una o más líneas de texto y un icono, un avatar o una imagen, que las personas leen, abren uno a uno, entre los que eligen o que ponen en otro orden.
 translationOf: components/list.mdx
-sourceHash: 481461dc40cd57e1a14bb58031d55cddea7aa259
+sourceHash: b6d8e736d3a79adf3348a2f55de05b9dbe71cbb5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -241,7 +241,7 @@ Una fila que lleva a una página recibe un `href` y es un enlace, no un botón. 
 <ListReorderProduct />
 
 <DemoFrame label="Una lista que las personas ponen en otro orden: dos botones de mover en cada fila" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="Mover hacia arriba" move-down-label="Mover hacia abajo" moved-text="{headline}, ahora en la posición {position} de {count}" style="inline-size: 20rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="Mover {headline} hacia arriba" move-down-label="Mover {headline} hacia abajo" moved-text="{headline}, ahora en la posición {position} de {count}" style="inline-size: 20rem">
     <tanrei-list-item headline="Resumen" divider></tanrei-list-item>
     <tanrei-list-item headline="Archivos recientes" divider></tanrei-list-item>
     <tanrei-list-item headline="Compartido conmigo" divider></tanrei-list-item>
@@ -250,7 +250,7 @@ Una fila que lleva a una página recibe un `href` y es un enlace, no un botón. 
 </DemoFrame>
 
 <DemoFrame label="Con un botón de quitar propio de la página en el slot final, después de los botones de mover" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="Mover hacia arriba" move-down-label="Mover hacia abajo" moved-text="{headline}, ahora en la posición {position} de {count}" style="inline-size: 26rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="Mover {headline} hacia arriba" move-down-label="Mover {headline} hacia abajo" moved-text="{headline}, ahora en la posición {position} de {count}" style="inline-size: 26rem">
     <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="Quitar Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="Quitar Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="Quitar Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
@@ -263,7 +263,7 @@ El orden son tus datos, así que la lista nunca lo cambia. Una pulsación emite 
 
 Responde dentro del tiempo de `comp.list.motion.reorder-duration`. Un orden que llega más tarde se dibuja igualmente, pero la lista ya ha dado el movimiento por rechazado y no lo anuncia.
 
-Los tres textos son tuyos. `moveUpLabel` y `moveDownLabel` dan nombre a los botones, y `movedText` es la frase que se anuncia después de un movimiento. Escribe la frase entera en tu idioma y marca tres lugares, que la lista rellena: `{headline}`, `{position}` (contada desde 1) y `{count}`. Da los textos en la lista, o una sola vez para todo el producto con `setWords()`.
+Los tres textos son tuyos. `moveUpLabel` y `moveDownLabel` dan nombre a los botones, cada uno con el marcador `{headline}`, que la lista rellena con el titular de su fila («`Mover {headline} hacia arriba`»), y `movedText` es la frase que se anuncia después de un movimiento. Escribe la frase entera en tu idioma y marca tres lugares, que la lista rellena: `{headline}`, `{position}` (contada desde 1) y `{count}`. Da los textos en la lista, o una sola vez para todo el producto con `setWords()`.
 
 Una lista reordenable solo contiene filas estáticas y nunca es un cuadro de lista. Una fila puede contener un control tuyo en su slot final, después de los botones de mover: lo habitual es un botón que quita el elemento.
 
@@ -272,7 +272,7 @@ El valor `drag` de `reorder`, que añade un tirador que se arrastra con un punte
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="Mover hacia arriba" move-down-label="Mover hacia abajo"
+    <tanrei-list id="fonts" reorder="buttons" move-up-label="Mover {headline} hacia arriba" move-down-label="Mover {headline} hacia abajo"
                  moved-text="{headline}, ahora en la posición {position} de {count}">
       <tanrei-list-item headline="Inter">
         <!-- Tu propio control, después de los dos botones de mover. Dale un nombre que incluya el elemento. -->
@@ -304,8 +304,8 @@ El valor `drag` de `reorder`, que añade un tirador que se arrastra con un punte
     // El orden es tu estado. La lista vuelve a encontrar la fila movida en el orden que renderizas.
     <List
       reorder="buttons"
-      moveUpLabel="Mover hacia arriba"
-      moveDownLabel="Mover hacia abajo"
+      moveUpLabel="Mover {headline} hacia arriba"
+      moveDownLabel="Mover {headline} hacia abajo"
       movedText="{headline}, ahora en la posición {position} de {count}"
       onMove={(e) => {
         const { from, to } = e.detail;
@@ -370,7 +370,7 @@ Una lista puede mezclar filas estáticas, interactivas y de enlace. Una lista se
 
 - Usa `reorder` para una lista corta cuyo orden significa algo y lo decide la persona: las familias de una pila de fuentes, las secciones de una pantalla de inicio, una cola. Para una lista larga, ofrece en su lugar una forma de ordenarla por un criterio. Una pulsación mueve una fila un puesto.
 - Reordena tus elementos en el controlador de `move`, o justo después, en cuanto renderice tu framework. Puedes mover los elementos que tienes o renderizar otros nuevos: la lista encuentra la fila movida por su lugar y su titular.
-- Mantén cortos y generales los textos de los botones de mover («Mover hacia arriba», «Mover hacia abajo»). El titular de la fila es la descripción de cada botón, así que los textos no necesitan nombrar el elemento.
+- Escribe los textos de los botones de mover con el titular de la fila dentro («`Mover {headline} hacia arriba`», «`Mover {headline} hacia abajo`»). El titular forma parte del nombre de cada botón, así que los botones de dos filas se distinguen en una lista de los botones de la página y por control por voz.
 - Escribe `movedText` como una frase entera con los tres lugares. La lista no compone ninguna frase propia, así que el orden de las palabras es el de tu idioma.
 - Pon como máximo un control en el slot final y dale un nombre que incluya el elemento («Quitar Inter»), para que los botones de quitar de dos filas se distingan.
 - La lista anuncia un movimiento y nada más. Cuando quitas o añades un elemento, lo que se dice depende de ti. Cuando quites el último elemento, mueve tú el foco adonde una persona añade uno.
@@ -423,7 +423,7 @@ Una opción seleccionada se dibuja con el relleno de selección y una marca de v
 - Una lista seleccionable se expone como un cuadro de lista que recibe su nombre de `label`, de selección múltiple mientras `selection` sea multiple. Cada fila es una opción con su estado seleccionado, su posición y el tamaño de la lista.
 - Una fila interactiva, una fila de enlace o una opción recibe su nombre del titular y su descripción del sobretítulo, el texto de apoyo y el texto final, en orden de lectura. Los iconos, la marca, el divisor y el contenido multimedia inicial quedan ocultos.
 - Una lista con filas interactivas u opciones es una sola parada de tabulación. Tab va a la última fila que tuvo el foco; si no la hay, a la primera opción seleccionada, y si tampoco, a la primera fila habilitada. Flecha arriba y Flecha abajo se mueven entre las filas sin dar la vuelta. Inicio y Fin van a la primera y a la última fila. Al escribir, el foco pasa a la siguiente fila cuyo titular empieza por las letras escritas. Espacio y Enter activan. Las filas estáticas no reciben el foco. Un control en una fila estática conserva su propia parada de tabulación.
-- En una lista reordenable, cada botón de mover es un botón que recibe su nombre de `moveUpLabel` o de `moveDownLabel` y su descripción del titular de su fila. Cada uno es una parada de tabulación propia en orden de lectura, antes del control final de la fila. Ahí la lista no es una sola parada de tabulación, y las teclas de flecha no hacen nada. El botón de subir de la primera fila y el de bajar de la última están deshabilitados y se siguen dibujando, de modo que todas las filas tienen las mismas partes en los mismos lugares.
+- En una lista reordenable, cada botón de mover es un botón que recibe su nombre de `moveUpLabel` o de `moveDownLabel`, con el titular de su fila en el marcador `{headline}`. Cada uno es una parada de tabulación propia en orden de lectura, antes del control final de la fila. Ahí la lista no es una sola parada de tabulación, y las teclas de flecha no hacen nada. El botón de subir de la primera fila y el de bajar de la última están deshabilitados y se siguen dibujando, de modo que todas las filas tienen las mismas partes en los mismos lugares.
 - Después de un movimiento, el foco se queda en el mismo botón de la fila movida, así que pulsar la tecla otra vez mueve la fila otra vez. Donde la fila ha pasado a ser la primera o la última, el foco va a su otro botón de mover.
 - Una lista reordenable tiene una sola región activa, que se lee de forma cortés. Después de un movimiento contiene `movedText` con el titular de la fila, su nueva posición y el número de filas, y un movimiento posterior sustituye ese texto. Los números se escriben como los escribe el idioma de la lista. Nada más anuncia un movimiento.
 - Dos filas cambian de lugar con una animación breve, y de inmediato donde el movimiento está reducido.

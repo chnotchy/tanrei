@@ -2,7 +2,7 @@
 title: القائمة (list)
 description: عمود من عناصر مترابطة، كل منها سطر أو أكثر من النص مع أيقونة أو صورة رمزية أو صورة، يقرؤها الأشخاص أو يفتحونها واحدًا واحدًا أو يختارون منها أو يضعونها في ترتيب آخر.
 translationOf: components/list.mdx
-sourceHash: 481461dc40cd57e1a14bb58031d55cddea7aa259
+sourceHash: b6d8e736d3a79adf3348a2f55de05b9dbe71cbb5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -241,7 +241,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 <ListReorderProduct />
 
 <DemoFrame label="قائمة يعيد الأشخاص ترتيبها: زرّا نقل في كل صف" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="نقل لأعلى" move-down-label="نقل لأسفل" moved-text="تم نقل {headline} إلى الموضع {position} من {count}" style="inline-size: 20rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="نقل {headline} لأعلى" move-down-label="نقل {headline} لأسفل" moved-text="تم نقل {headline} إلى الموضع {position} من {count}" style="inline-size: 20rem">
     <tanrei-list-item headline="الملخص" divider></tanrei-list-item>
     <tanrei-list-item headline="الملفات الأخيرة" divider></tanrei-list-item>
     <tanrei-list-item headline="تمت مشاركتها معي" divider></tanrei-list-item>
@@ -250,7 +250,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 </DemoFrame>
 
 <DemoFrame label="مع زر إزالة تكتبه الصفحة نفسها في منفذ النهاية، بعد زرَّي النقل" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="نقل لأعلى" move-down-label="نقل لأسفل" moved-text="تم نقل {headline} إلى الموضع {position} من {count}" style="inline-size: 26rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="نقل {headline} لأعلى" move-down-label="نقل {headline} لأسفل" moved-text="تم نقل {headline} إلى الموضع {position} من {count}" style="inline-size: 26rem">
     <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="إزالة Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="إزالة Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="إزالة Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
@@ -263,7 +263,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 أجِب في حدود مدة `comp.list.motion.reorder-duration`. الترتيب الذي يصل بعدها يُرسم مع ذلك، لكن القائمة تكون قد عدّت النقل مرفوضًا فلا تُعلنه.
 
-الكلمات الثلاث لك أنت. الخاصيتان `moveUpLabel` و `moveDownLabel` تسمّيان الزرين، والخاصية `movedText` هي الجملة التي تُعلَن بعد النقل. اكتب الجملة كلها بلغتك وعلِّم فيها ثلاثة مواضع تملؤها القائمة: `{headline}`، و `{position}` (يُعدّ من 1)، و `{count}`. أعطِ الكلمات على القائمة، أو مرة واحدة للمنتج كله بالاستدعاء `setWords()`.
+الكلمات الثلاث لك أنت. الخاصيتان `moveUpLabel` و `moveDownLabel` تسمّيان الزرين، وفي كل منهما الموضع `{headline}` تملؤه القائمة بعنوان الصف الرئيسي («`نقل {headline} لأعلى`»)، والخاصية `movedText` هي الجملة التي تُعلَن بعد النقل. اكتب الجملة كلها بلغتك وعلِّم فيها ثلاثة مواضع تملؤها القائمة: `{headline}`، و `{position}` (يُعدّ من 1)، و `{count}`. أعطِ الكلمات على القائمة، أو مرة واحدة للمنتج كله بالاستدعاء `setWords()`.
 
 القائمة القابلة لإعادة الترتيب لا تحمل إلا صفوفًا ثابتة، وليست مربع قائمة أبدًا. ويجوز أن يحمل الصف عنصر تحكم واحدًا من عندك في منفذ نهايته، بعد زرَّي النقل: وهو في العادة زر يزيل العنصر.
 
@@ -272,7 +272,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="نقل لأعلى" move-down-label="نقل لأسفل"
+    <tanrei-list id="fonts" reorder="buttons" move-up-label="نقل {headline} لأعلى" move-down-label="نقل {headline} لأسفل"
                  moved-text="تم نقل {headline} إلى الموضع {position} من {count}">
       <tanrei-list-item headline="Inter">
         <!-- عنصر التحكم الخاص بك، بعد زرَّي النقل. سمِّه بالعنصر. -->
@@ -304,8 +304,8 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     // الترتيب حالتك أنت. القائمة تجد الصف المنقول من جديد في الترتيب الذي تصيّره.
     <List
       reorder="buttons"
-      moveUpLabel="نقل لأعلى"
-      moveDownLabel="نقل لأسفل"
+      moveUpLabel="نقل {headline} لأعلى"
+      moveDownLabel="نقل {headline} لأسفل"
       movedText="تم نقل {headline} إلى الموضع {position} من {count}"
       onMove={(e) => {
         const { from, to } = e.detail;
@@ -370,7 +370,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 - استخدم الخاصية `reorder` لقائمة قصيرة لترتيبها معنى وللشخص أن يقرره: عائلات الخطوط في سلسلة خطوط، أو أقسام شاشة رئيسية، أو قائمة انتظار. وللقائمة الطويلة، قدِّم طريقة لفرزها بدلًا من ذلك. الضغطة الواحدة تنقل الصف موضعًا واحدًا.
 - أعِد ترتيب عناصرك في معالج الحدث `move`، أو بعده بأقرب ما يصيّر (render) إطار عملك. لك أن تنقل العناصر التي عندك أو أن تصيّر عناصر جديدة: القائمة تجد الصف المنقول بموضعه وبعنوانه الرئيسي.
-- أبقِ كلمات زرَّي النقل قصيرة وعامة («نقل لأعلى»، «نقل لأسفل»). العنوان الرئيسي للصف هو الوصف الذي يُقرأ لكل زر، فلا تحتاج الكلمات إلى تسمية العنصر.
+- اكتب كلمات زرَّي النقل وفيها العنوان الرئيسي للصف («`نقل {headline} لأعلى`»، «`نقل {headline} لأسفل`»). فالعنوان جزء من اسم كل زر، فتتميّز أزرار صفّين في قائمة أزرار الصفحة وفي التحكم بالصوت.
 - اكتب `movedText` جملة واحدة كاملة فيها المواضع الثلاثة. القائمة لا تبني عبارة من عندها، فترتيب الكلمات ترتيب لغتك.
 - ضع عنصر تحكم واحدًا على الأكثر في منفذ النهاية، وسمِّه بالعنصر («إزالة Inter»)، ليتميّز زرّا الإزالة في صفين أحدهما من الآخر.
 - القائمة تُعلن النقل ولا شيء غيره. حين تزيل عنصرًا أو تضيفه، فما يقال شأنك أنت. وحين تزيل العنصر الأخير، انقل التركيز بنفسك إلى حيث يضيف الشخص عنصرًا.
@@ -423,7 +423,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 - القائمة القابلة للتحديد تُعرَض مربع قائمة اسمه قيمة `label`، ومتعدد التحديد ما دامت `selection` بالقيمة multiple. وكل صف خيار له حالة تحديده وموضعه وحجم القائمة.
 - الصف التفاعلي أو صف الرابط أو الخيار اسمه عنوانه الرئيسي، ووصفه سطره العلوي ونصه المساعد ونص نهايته، بترتيب القراءة. والأيقونات وعلامة الصح والفاصل ووسائط البداية مخفيّة.
 - القائمة التي فيها صفوف تفاعلية أو خيارات موضع توقف واحد للمفتاح Tab. يذهب المفتاح Tab إلى الصف الذي كان عليه التركيز آخر مرة، وإلا فإلى أول خيار محدَّد، وإلا فإلى أول صف مفعَّل. سهما الأعلى والأسفل ينقلان بين الصفوف من دون دوران من الطرف إلى الطرف الآخر. والمفتاحان Home و End يذهبان إلى الصف الأول والأخير. والكتابة تنقل إلى الصف التالي الذي يبدأ عنوانه الرئيسي بالأحرف المكتوبة. والمفتاحان Space و Enter يفعّلان. الصفوف الثابتة لا تأخذ التركيز. وعنصر التحكم في صف ثابت يحتفظ بموضع توقف المفتاح Tab الخاص به.
-- في القائمة القابلة لإعادة الترتيب، كل زر نقل زر اسمه قيمة `moveUpLabel` أو `moveDownLabel`، والوصف الذي يُقرأ له عنوان صفه الرئيسي. وكل منهما موضع توقف خاص للمفتاح Tab بترتيب القراءة، قبل عنصر تحكم النهاية في الصف. القائمة ليست موضع توقف واحدًا هناك، ومفاتيح الأسهم لا تفعل شيئًا. وزر النقل لأعلى في الصف الأول وزر النقل لأسفل في الصف الأخير معطَّلان ويُرسمان مع ذلك، فتكون لكل صف الأجزاء نفسها في المواضع نفسها.
+- في القائمة القابلة لإعادة الترتيب، كل زر نقل زر اسمه قيمة `moveUpLabel` أو `moveDownLabel`، وفي موضعها `{headline}` عنوان صفه الرئيسي. وكل منهما موضع توقف خاص للمفتاح Tab بترتيب القراءة، قبل عنصر تحكم النهاية في الصف. القائمة ليست موضع توقف واحدًا هناك، ومفاتيح الأسهم لا تفعل شيئًا. وزر النقل لأعلى في الصف الأول وزر النقل لأسفل في الصف الأخير معطَّلان ويُرسمان مع ذلك، فتكون لكل صف الأجزاء نفسها في المواضع نفسها.
 - بعد النقل يبقى التركيز على الزر نفسه في الصف المنقول، فالضغط على المفتاح مرة أخرى ينقل الصف مرة أخرى. وحيث صار الصف الأول أو الأخير، يذهب التركيز إلى زر نقله الآخر.
 - للقائمة القابلة لإعادة الترتيب منطقة حيّة (live region) واحدة تُعلن بتهذيب. بعد النقل تحمل نص `movedText` وفيه عنوان الصف الرئيسي وموضعه الجديد وعدد الصفوف، والنقل التالي يحلّ محله. تُكتب الأرقام كما تكتبها لغة القائمة. ولا شيء آخر يُعلن النقل.
 - يتبادل الصفان موضعيهما بحركة قصيرة، وفورًا عند تقليل الحركة.

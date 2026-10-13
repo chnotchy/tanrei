@@ -2,7 +2,7 @@
 title: अवतार
 description: किसी व्यक्ति, टीम या प्रोजेक्ट को एक छोटी तस्वीर से दिखाता है, और जहाँ तस्वीर नहीं है वहाँ नाम के पहले अक्षरों या ग्लिफ़ से, तीन साइज़ के गोले या गोल कोनों वाले चौकोर में। कई अवतार एक-दूसरे पर चढ़े हुए एक ग्रुप के रूप में दिखाए जाते हैं, जो बाक़ी की गिनती बताता है। यह तस्वीर है, कंट्रोल कभी नहीं।
 translationOf: components/avatar.mdx
-sourceHash: 257eed4baf06211fa6fcff53566ae629cd94b5b1
+sourceHash: 3ca2970b0b9bc34925154938bed00d654218501d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-avatar label="अदिति शर्मा" initials="अश"></tanrei-avatar>
   <tanrei-avatar label="बिना फ़ोटो वाला कोई व्यक्ति"></tanrei-avatar>
   <tanrei-avatar label="डिज़ाइन टीम" initials="डिटी" shape="square"></tanrei-avatar>
-  <tanrei-avatar-group label="रिव्यूअर" max="4" overflow-label="और 3 लोग">
+  <tanrei-avatar-group label="रिव्यूअर" max="4" overflow-label="और {count} लोग">
     <tanrei-avatar label="अदिति शर्मा" initials="अश"></tanrei-avatar>
     <tanrei-avatar label="रोहन वर्मा" initials="रोव"></tanrei-avatar>
     <tanrei-avatar label="नेहा गुप्ता" initials="नेगु"></tanrei-avatar>
@@ -51,7 +51,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-avatar label="बिल्ड सर्विस" shape="square"><span slot="icon">smart_toy</span></tanrei-avatar>
 
     <!-- छह सदस्य, ज़्यादा से ज़्यादा चार बॉक्स: तीन सदस्य और "+3"। -->
-    <tanrei-avatar-group label="रिव्यूअर" max="4" overflow-label="और 3 लोग">
+    <tanrei-avatar-group label="रिव्यूअर" max="4" overflow-label="और {count} लोग">
       <tanrei-avatar label="अदिति शर्मा" initials="अश"></tanrei-avatar>
       <tanrei-avatar label="रोहन वर्मा" initials="रोव"></tanrei-avatar>
       <!-- … -->
@@ -70,7 +70,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <Avatar label={person.name} initials={person.initials} src={person.picture} />
 
-    <AvatarGroup label="रिव्यूअर" max={4} total={reviewerCount} overflowLabel={`और ${reviewerCount - 3} लोग`}>
+    <AvatarGroup label="रिव्यूअर" max={4} total={reviewerCount} overflowLabel="और {count} लोग">
       {reviewers.slice(0, 3).map((person) => (
         <Avatar key={person.id} label={person.name} initials={person.initials} src={person.picture} />
       ))}
@@ -165,7 +165,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ग्रुप अपने सदस्यों को एक पंक्ति के रूप में बनाता है। हर सदस्य अपने से पहले वाले पर थोड़ा-सा (साइज़ के हिसाब से 2, 4 या 8) चढ़ा रहता है, ताकि साथ-साथ रखे दो पहले अक्षर पूरे दिखें और ग़लत न पढ़े जाएँ, और हर एक के चारों ओर सरफ़ेस के रंग का एक गैप होता है।
 
 <DemoFrame label="ऐसा ग्रुप जो उन्हें भी गिनता है जो उसे दिए नहीं गए" plain>
-  <tanrei-avatar-group label="सदस्य" max="4" total="240" overflow-label="और 237 लोग">
+  <tanrei-avatar-group label="सदस्य" max="4" total="240" overflow-label="और {count} लोग">
     <tanrei-avatar label="अदिति शर्मा" initials="अश"></tanrei-avatar>
     <tanrei-avatar label="रोहन वर्मा"></tanrei-avatar>
     <tanrei-avatar label="नेहा गुप्ता" initials="नेगु"></tanrei-avatar>
@@ -218,6 +218,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### आपको क्या करना है
 
 - हर अवतार के लिए तय करें कि वह नाम वाला है या सजावटी। नियम यह है: अगर अवतार हटाने से कोई नाम खो जाता है, तो वह नाम वाला है। वरना वह सजावटी है।
-- `overflowLabel` पेज की भाषा में लिखें, और उसमें संख्या रखें ("और 3 लोग")। उसके बिना "+3" वैसे ही पढ़ा जाता है जैसे वह दिखता है।
+- `overflowLabel` पेज की भाषा में एक बार लिखें, और संख्या की जगह `{count}` रखें (`और {count} लोग`) — समूह पर, या पूरे प्रोडक्ट के लिए `setWords({ avatarGroupOverflowLabel })` से। समूह उन सदस्यों की संख्या भरता है जिन्हें वह नहीं दिखाता — 99+ दिखाने पर भी पूरी संख्या। ऐसा वाक्य लिखें जो हर संख्या के लिए सही हो, या जहाँ आपकी भाषा को किसी संख्या के लिए दूसरा रूप चाहिए, वहाँ संख्या के अनुसार बदलें। उसके बिना "+3" वैसे ही पढ़ा जाता है जैसे वह दिखता है।
 - लिंक के भीतर के छोटे अवतार को दबाने के लिए काफ़ी जगह दें। अवतार 24 चौड़ा है; न्यूनतम टार्गेट लिंक को ख़ुद पूरा करना होगा।
 - तस्वीर अपने रंग साथ लाती है। जहाँ तस्वीरें अक्सर किनारे पर फीकी होती हैं, वहाँ उनके पीछे की सरफ़ेस को एक टोन दें।

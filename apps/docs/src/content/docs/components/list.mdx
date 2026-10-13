@@ -239,7 +239,7 @@ A row that goes to a page takes an `href` and is a link, not a button. It is dra
 <ListReorderProduct />
 
 <DemoFrame label="A list people put in another order: two move buttons in every row" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="Move up" move-down-label="Move down" moved-text="{headline} moved to position {position} of {count}" style="inline-size: 20rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="Move {headline} up" move-down-label="Move {headline} down" moved-text="{headline} moved to position {position} of {count}" style="inline-size: 20rem">
     <tanrei-list-item headline="Summary" divider></tanrei-list-item>
     <tanrei-list-item headline="Recent files" divider></tanrei-list-item>
     <tanrei-list-item headline="Shared with me" divider></tanrei-list-item>
@@ -248,7 +248,7 @@ A row that goes to a page takes an `href` and is a link, not a button. It is dra
 </DemoFrame>
 
 <DemoFrame label="With a remove button of the page's own in the trailing slot, after the move buttons" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="Move up" move-down-label="Move down" moved-text="{headline} moved to position {position} of {count}" style="inline-size: 26rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="Move {headline} up" move-down-label="Move {headline} down" moved-text="{headline} moved to position {position} of {count}" style="inline-size: 26rem">
     <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
@@ -261,7 +261,7 @@ The order is your data, so the list never changes it. A press fires `move` with 
 
 Answer within the time of `comp.list.motion.reorder-duration`. An order that arrives later is still drawn, but the list has already taken the move as refused and does not announce it.
 
-The three words are yours. `moveUpLabel` and `moveDownLabel` name the buttons, and `movedText` is the sentence that is announced after a move. Write the whole sentence in your language and mark three places, which the list fills: `{headline}`, `{position}` (counted from 1) and `{count}`. Give the words on the list, or once for the product with `setWords()`.
+The three words are yours. `moveUpLabel` and `moveDownLabel` name the buttons, each with the place `{headline}` that the list fills with its row's headline (`Move {headline} up`), and `movedText` is the sentence that is announced after a move. Write the whole sentence in your language and mark three places, which the list fills: `{headline}`, `{position}` (counted from 1) and `{count}`. Give the words on the list, or once for the product with `setWords()`.
 
 A reorderable list holds static rows only and is never a listbox. A row may hold one control of yours in its trailing slot, after the move buttons: typically a button that removes the item.
 
@@ -270,7 +270,7 @@ The `drag` value of `reorder`, which adds a handle that a pointer or a finger dr
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="Move up" move-down-label="Move down"
+    <tanrei-list id="fonts" reorder="buttons" move-up-label="Move {headline} up" move-down-label="Move {headline} down"
                  moved-text="{headline} moved to position {position} of {count}">
       <tanrei-list-item headline="Inter">
         <!-- Your own control, after the two move buttons. Name it with the item. -->
@@ -302,8 +302,8 @@ The `drag` value of `reorder`, which adds a handle that a pointer or a finger dr
     // The order is your state. The list finds the moved row again in the order you render.
     <List
       reorder="buttons"
-      moveUpLabel="Move up"
-      moveDownLabel="Move down"
+      moveUpLabel="Move {headline} up"
+      moveDownLabel="Move {headline} down"
       movedText="{headline} moved to position {position} of {count}"
       onMove={(e) => {
         const { from, to } = e.detail;
@@ -368,7 +368,7 @@ A list may mix static, interactive and link rows. A selectable list holds only o
 
 - Use `reorder` for a short list whose order means something and is the person's to decide: the families of a font stack, the sections of a home screen, a queue. For a long list, offer a way to sort it instead. One press moves a row one place.
 - Reorder your items in the `move` handler, or as soon after it as your framework renders. You may move the elements you have or render new ones: the list finds the moved row by its place and its headline.
-- Keep the move buttons' words short and general ("Move up", "Move down"). The row's headline is each button's description, so the words need not name the item.
+- Write the move buttons' words with the row's headline in them (`Move {headline} up`, `Move {headline} down`). The headline is part of each button's name, so the buttons of two rows are told apart in a list of the page's buttons and by voice control.
 - Write `movedText` as one whole sentence with the three places. The list builds no phrase of its own, so the order of the words is your language's.
 - Put at most one control in the trailing slot, and name it with the item ("Remove Inter"), so that the remove buttons of two rows are told apart.
 - The list announces a move and nothing else. When you remove or add an item, what is said is yours. When you remove the last item, move focus yourself, to where a person adds one.
@@ -421,7 +421,7 @@ A selected option is drawn with the selected fill and a check at its end. In the
 - A selectable list is exposed as a listbox named by `label`, multi-selectable while `selection` is multiple. Each row is an option with its selected state, its position and the list's size.
 - An interactive row, a link row or an option is named by its headline and described by its overline, supporting text and trailing text, in reading order. Icons, the check, the divider and the leading media are hidden.
 - A list with interactive rows or options is one Tab stop. Tab goes to the row focused last, else the first selected option, else the first enabled row. Up and Down Arrow move between rows without wrapping. Home and End go to the first and last row. Typing moves to the next row whose headline begins with the typed letters. Space and Enter activate. Static rows take no focus. A control in a static row keeps its own Tab stop.
-- In a reorderable list each move button is a button named by `moveUpLabel` or `moveDownLabel` and described by its row's headline. Each is a Tab stop of its own in reading order, before the row's trailing control. The list is not one Tab stop there, and the arrow keys do nothing. The first row's move-up button and the last row's move-down button are disabled and still drawn, so every row has the same parts in the same places.
+- In a reorderable list each move button is a button named by `moveUpLabel` or `moveDownLabel` with its row's headline in the place `{headline}`. Each is a Tab stop of its own in reading order, before the row's trailing control. The list is not one Tab stop there, and the arrow keys do nothing. The first row's move-up button and the last row's move-down button are disabled and still drawn, so every row has the same parts in the same places.
 - After a move, focus stays on the same button of the moved row, so pressing the key again moves the row again. Where the row has become the first or the last, focus goes to its other move button.
 - A reorderable list has one polite live region. After a move it holds `movedText` with the row's headline, its new position and the number of rows, and a later move replaces it. The numbers are written as the list's language writes them. Nothing else announces a move.
 - Two rows change places with a short motion, and at once where motion is reduced.

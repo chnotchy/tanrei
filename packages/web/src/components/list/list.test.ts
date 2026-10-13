@@ -1334,7 +1334,7 @@ test.describe('link form', () => {
 // The test is the product: it gives the three words, answers `move` by reordering its own items, and removes one.
 // The drag form (LST-44 … LST-50) is not built on the web yet: its ids are named below
 // as tests still to be written, and what `reorder="drag"` draws in the meantime is tested with LST-36.
-const WORDS = { moveUpLabel: 'Move up', moveDownLabel: 'Move down', movedText: '{headline}: {position} of {count}' };
+const WORDS = { moveUpLabel: 'Move {headline} up', moveDownLabel: 'Move {headline} down', movedText: '{headline}: {position} of {count}' };
 const REORDER = { reorder: 'buttons', ...WORDS };
 const REMOVE = (name: string) => `<tanrei-button slot="trailing" variant="text" label="Remove ${name}"><span slot="icon">close</span></tanrei-button>`;
 const reorderable = (id: string, headlines: string[], props: Fixture['props'] = REORDER, each: ItemProps = {}, content?: (h: string) => string): Fixture => ({
@@ -1575,16 +1575,19 @@ test.describe('reordering: the buttons form', () => {
     await expect.poll(() => announced(page, 'reorder-buttons-rtl')).toBe('الخط الكوفي: 1 من 3');
   });
 
-  test('LST-38: each move button is named by the product’s word and described by its item’s headline — the prop, else the product’s words; with neither the buttons are drawn, work, have no name, nothing is announced, and the three keys are reported once', async ({ page, browserName }) => {
+  test('LST-38: each move button is named by the product’s word with its item’s headline in the word’s place, and carries no description — the prop, else the product’s words; a word without the place is used as written and reported; with neither the buttons are drawn, work, have no name, nothing is announced, and the three keys are reported once', async ({ page, browserName }) => {
     // The product's words, given once, and no prop.
-    await mountFixtures(page, spec, { icons: true, fixtures: [reorderable('said', FOUR, { reorder: 'buttons' }), reorderable('own', FOUR, { reorder: 'buttons', moveUpLabel: 'Earlier', moveDownLabel: 'Later', movedText: '{headline} → {position}' })] });
+    await mountFixtures(page, spec, { icons: true, fixtures: [reorderable('said', FOUR, { reorder: 'buttons' }), reorderable('own', FOUR, { reorder: 'buttons', moveUpLabel: 'Earlier: {headline}', moveDownLabel: 'Later: {headline}', movedText: '{headline} → {position}' })] });
     await setWords(page, WORDS);
-    await expect(moveButton(page, 'said', 1, 'up').locator('button')).toHaveAttribute('aria-label', 'Move up');
-    await expect(moveButton(page, 'said', 1, 'down').locator('button')).toHaveAttribute('aria-label', 'Move down');
-    await expect(moveButton(page, 'said', 1, 'up').locator('button')).toHaveAttribute('aria-description', 'Starred');
+    await expect(moveButton(page, 'said', 1, 'up').locator('button')).toHaveAttribute('aria-label', 'Move Starred up');
+    await expect(moveButton(page, 'said', 1, 'down').locator('button')).toHaveAttribute('aria-label', 'Move Starred down');
+    for (const which of ['up', 'down'] as const) {
+      await expect(moveButton(page, 'said', 1, which), 'the headline is in the name, and not said again').not.toHaveAttribute('aria-description');
+      await expect(moveButton(page, 'said', 1, which).locator('button')).not.toHaveAttribute('aria-description');
+    }
     // The prop wins.
-    await expect(moveButton(page, 'own', 2, 'up').locator('button')).toHaveAttribute('aria-label', 'Earlier');
-    await expect(moveButton(page, 'own', 2, 'down').locator('button')).toHaveAttribute('aria-label', 'Later');
+    await expect(moveButton(page, 'own', 2, 'up').locator('button')).toHaveAttribute('aria-label', 'Earlier: Sent');
+    await expect(moveButton(page, 'own', 2, 'down').locator('button')).toHaveAttribute('aria-label', 'Later: Sent');
     await product(page, 'said');
     await product(page, 'own');
     await moveButton(page, 'said', 2, 'up').click();
@@ -1593,8 +1596,9 @@ test.describe('reordering: the buttons form', () => {
     await expect.poll(() => announced(page, 'own')).toBe('Sent → 2');
     expect(await missingWords(page)).toEqual([]);
     if (browserName === 'chromium') {
-      const buttons = (await axNodes(page, 'button')).filter((node) => node.description === 'Archive');
-      expect(buttons.map((node) => node.name).sort()).toEqual(['Earlier', 'Later', 'Move down', 'Move up']);
+      const buttons = (await axNodes(page, 'button')).filter((node) => node.name.includes('Archive'));
+      expect(buttons.map((node) => node.name).sort()).toEqual(['Earlier: Archive', 'Later: Archive', 'Move Archive down', 'Move Archive up']);
+      expect(buttons.map((node) => node.description ?? '')).toEqual(['', '', '', '']);
     }
     // Nobody gave them (a new document: the product's words are the page's).
     await page.goto('about:blank');
@@ -1605,7 +1609,7 @@ test.describe('reordering: the buttons form', () => {
     await expect(bare.locator('button')).toBeVisible();
     expect(await bare.locator('button').getAttribute('aria-label')).toBeNull();
     expect(await bare.getAttribute('aria-hidden'), 'exposed, without a name').toBeNull();
-    if (browserName === 'chromium') expect((await axNodes(page, 'button')).filter((node) => node.description === 'Starred').map((node) => node.name)).toEqual(['', '']);
+    if (browserName === 'chromium') expect((await axNodes(page, 'button')).filter((node) => node.description === 'Starred'), 'no description stands in for the name').toEqual([]);
     await bare.click();
     expect(await moves(page)).toEqual([{ from: 1, to: 0 }]);
     await expect.poll(() => order(page, 'bare')).toEqual(['Starred', 'Inbox', 'Sent', 'Archive']);
@@ -1615,6 +1619,10 @@ test.describe('reordering: the buttons form', () => {
     for (const [attribute, key] of [['move-up-label', 'moveUpLabel'], ['move-down-label', 'moveDownLabel'], ['moved-text', 'movedText']]) {
       expect(seen.filter((text) => text.includes(`${attribute} is empty`) && text.includes(key) && text.includes('LST-38')), key).toHaveLength(1);
     }
+    // A word without the place: every row's button has that one name, and it is reported.
+    await list(page, 'bare').evaluate((el) => Object.assign(el, { moveUpLabel: 'Up' }));
+    await expect(moveButton(page, 'bare', 2, 'up').locator('button')).toHaveAttribute('aria-label', 'Up');
+    await expect.poll(() => seen.filter((text) => text.includes('LST-38') && text.includes('moveUpLabel has no place {headline}')).length).toBe(1);
   });
 
   test('LST-39: a move button emits move exactly once — from i, to i − 1 or i + 1 — by pointer, Enter and Space; the list moves nothing, the event bubbles and cannot be cancelled, and the item is no action of its own', async ({ page }) => {
@@ -1662,7 +1670,7 @@ test.describe('reordering: the buttons form', () => {
     expect(xs[2]).toEqual(xs[0]);
     expect((await bounds(moveButton(page, 'reorder-buttons', 0, 'up'))).width).toBeGreaterThan(0);
     if (browserName === 'chromium') {
-      const first = (await axNodes(page, 'button')).filter((node) => node.description === 'Inter' && node.name === 'Move up');
+      const first = (await axNodes(page, 'button')).filter((node) => node.name === 'Move Inter up');
       expect(first.every((node) => node.disabled === true)).toBe(true);
       expect(first.length).toBeGreaterThan(0);
     }

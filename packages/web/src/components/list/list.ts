@@ -17,6 +17,7 @@ import {
   WordsController,
   deepActive,
   fillPlaces,
+  placeFaults,
   reportPlaces,
   focusWithin,
   hostAria,
@@ -612,15 +613,18 @@ export class TanreiListItem extends LitElement {
     const lines = Math.min(3, 1 + (this.overline ? 1 : 0) + (this.supportingText ? this.supportingLines : 0));
     const clamp = this.supportingMaxLines > 0;
     const { reorder, position, size } = this.context;
-    // LST-37, LST-38, LST-40: one move button — an icon-only text Button, named by the product's word and described by
-    // the item's headline, disabled and still drawn where the item cannot go that way. Its glyph is never mirrored:
-    // up is up in every layout.
-    const move = (which: MoveButton, name: string, disabled: boolean) => html`<tanrei-button
+    // LST-37, LST-38, LST-40: one move button — an icon-only text Button, named by the product's sentence with its
+    // place {headline} filled by the item's headline (a plain string: the headline is not described a second time),
+    // disabled and still drawn where the item cannot go that way. Its glyph is never mirrored: up is up in every layout.
+    const move = (which: MoveButton, sentence: string, disabled: boolean) => html`<tanrei-button
       part="move-button"
       class="move ${which}"
       variant="text"
-      label=${name}
-      aria-description=${this.headline || nothing}
+      label=${sentence
+        ? fillPlaces(sentence, { headline: this.headline })
+            .runs.map((run) => run.text)
+            .join('')
+        : ''}
       ?disabled=${disabled}
       @click=${() => this.onMove(which)}
       ><span slot="icon" class="move-glyph" data-mirror="never"><span class="ink">${MOVE_GLYPHS[which]}</span></span></tanrei-button
@@ -760,10 +764,10 @@ export class TanreiList extends LitElement {
    */
   reorder: 'none' | 'buttons' = 'none';
 
-  /** The accessible name of the button that moves an item up by one place, in your language. The item's headline is its description, so the words need not name the item. Empty reads the product's words (`setWords({ moveUpLabel })`); Tanrei has none, and without them the button works unnamed (LST-38). */
+  /** The accessible name of the button that moves an item up by one place: your sentence with the place `{headline}`, which the list fills with the item's headline ("Move {headline} up"). Empty reads the product's words (`setWords({ moveUpLabel })`); Tanrei has none, and without them the button works unnamed (LST-38). */
   moveUpLabel = '';
 
-  /** The accessible name of the button that moves an item down by one place. As `moveUpLabel`. */
+  /** The accessible name of the button that moves an item down by one place ("Move {headline} down"). As `moveUpLabel`. */
   moveDownLabel = '';
 
   /**
@@ -866,6 +870,13 @@ export class TanreiList extends LitElement {
     if (reorder && items.length && this.isConnected) {
       if (!this.upName) this.words.missing('moveUpLabel', { id: 'LST-38', effect: 'the button that moves an item up is drawn and works, and has no accessible name' });
       if (!this.downName) this.words.missing('moveDownLabel', { id: 'LST-38', effect: 'the button that moves an item down is drawn and works, and has no accessible name' });
+      // LST-38: what of a button's sentence is not its place, and a sentence without the item's headline.
+      for (const [key, sentence, example] of [['moveUpLabel', this.upName, 'Move {headline} up'], ['moveDownLabel', this.downName, 'Move {headline} down']] as const) {
+        if (!sentence) continue;
+        const declared = wordPlaces[key] ?? [];
+        reportPlaces(this, 'LST-38', key, sentence, declared, 'every button is named with it as it is written');
+        if (placeFaults(sentence, declared).absent.length) report(this, 'LST-38', `${key} has no place {headline}, so the buttons of every row have the same name; write it as "${example}"`);
+      }
       if (!this.words.get('movedText', this.movedText)) this.words.missing('movedText', { id: 'LST-38', effect: 'nothing is announced after an item was moved' });
     }
     this.settle(items);

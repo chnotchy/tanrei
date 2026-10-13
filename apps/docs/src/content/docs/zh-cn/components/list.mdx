@@ -2,7 +2,7 @@
 title: "列表"
 description: "由相关的项排成的一列，每项是一行或多行文本，配有图标、头像或图片，供用户阅读、逐个打开、从中选择，或者调整顺序。"
 translationOf: components/list.mdx
-sourceHash: 481461dc40cd57e1a14bb58031d55cddea7aa259
+sourceHash: b6d8e736d3a79adf3348a2f55de05b9dbe71cbb5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -241,7 +241,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 <ListReorderProduct />
 
 <DemoFrame label="供用户调整顺序的列表：每一行有两个移动按钮" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="上移" move-down-label="下移" moved-text="“{headline}”已移到第 {position} 位，共 {count} 项" style="inline-size: 20rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="上移 {headline}" move-down-label="下移 {headline}" moved-text="“{headline}”已移到第 {position} 位，共 {count} 项" style="inline-size: 20rem">
     <tanrei-list-item headline="摘要" divider></tanrei-list-item>
     <tanrei-list-item headline="最近使用的文件" divider></tanrei-list-item>
     <tanrei-list-item headline="与我共享" divider></tanrei-list-item>
@@ -250,7 +250,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 </DemoFrame>
 
 <DemoFrame label="后置插槽中放有页面自己的移除按钮，排在移动按钮之后" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="上移" move-down-label="下移" moved-text="“{headline}”已移到第 {position} 位，共 {count} 项" style="inline-size: 26rem">
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="上移 {headline}" move-down-label="下移 {headline}" moved-text="“{headline}”已移到第 {position} 位，共 {count} 项" style="inline-size: 26rem">
     <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="移除 Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="移除 Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
     <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="移除 Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
@@ -263,7 +263,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 请在 `comp.list.motion.reorder-duration` 的时间之内作出回应。更晚到达的顺序仍然会被画出来，但列表已经把这次移动当作被拒绝，不会朗读它。
 
-这三段文字由你提供。`moveUpLabel` 和 `moveDownLabel` 为按钮命名，`movedText` 是移动之后朗读的句子。用你的语言写出整个句子，并标出三个由列表填入的位置：`{headline}`、`{position}`（从 1 算起）和 `{count}`。这些文字可以写在列表上，也可以用 `setWords()` 为整个产品只给一次。
+这三段文字由你提供。`moveUpLabel` 和 `moveDownLabel` 为按钮命名，各带一个占位符 `{headline}`，由列表填入所在行的标题（“`上移 {headline}`”）；`movedText` 是移动之后朗读的句子。用你的语言写出整个句子，并标出三个由列表填入的位置：`{headline}`、`{position}`（从 1 算起）和 `{count}`。这些文字可以写在列表上，也可以用 `setWords()` 为整个产品只给一次。
 
 可调整顺序的列表只包含静态行，并且绝不是列表框。行的后置插槽中可以放一个你自己的控件，排在移动按钮之后：通常是移除该项的按钮。
 
@@ -272,7 +272,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="上移" move-down-label="下移"
+    <tanrei-list id="fonts" reorder="buttons" move-up-label="上移 {headline}" move-down-label="下移 {headline}"
                  moved-text="“{headline}”已移到第 {position} 位，共 {count} 项">
       <tanrei-list-item headline="Inter">
         <!-- 你自己的控件，排在两个移动按钮之后。用该项为它命名。 -->
@@ -304,8 +304,8 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     // 顺序是你的状态。列表会在你渲染出的顺序中重新找到被移动的那一行。
     <List
       reorder="buttons"
-      moveUpLabel="上移"
-      moveDownLabel="下移"
+      moveUpLabel="上移 {headline}"
+      moveDownLabel="下移 {headline}"
       movedText="“{headline}”已移到第 {position} 位，共 {count} 项"
       onMove={(e) => {
         const { from, to } = e.detail;
@@ -370,7 +370,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 - `reorder` 用于顺序有含义、并且由用户自己决定的短列表：字体栈中的各个字体族、主屏幕的各个板块、一个队列。对于长列表，请改为提供排序的办法。每按一次，行移动一位。
 - 在 `move` 的处理函数中调整各项的顺序，或者在它之后、你的框架一渲染就调整。你可以移动已有的元素，也可以渲染新的元素：列表凭位置和标题找到被移动的那一行。
-- 移动按钮的文字要简短而通用（“上移”“下移”）。行的标题是每个按钮的描述，所以这些文字不必指明是哪一项。
+- 移动按钮的文字里要包含行标题的位置（“`上移 {headline}`”“`下移 {headline}`”）。标题成为每个按钮名称的一部分，所以在页面按钮列表里和语音控制中都能分清不同行的按钮。
 - 把 `movedText` 写成带有三个位置的一个完整句子。列表自己不拼任何短语，所以词序就是你的语言的词序。
 - 后置插槽中最多放一个控件，并用该项为它命名（“移除 Inter”），这样两行的移除按钮才能区分开。
 - 列表只朗读移动，别的都不朗读。移除或添加一项时，说什么由你决定。移除最后一项时，请自己把焦点移到用户添加新项的地方。
@@ -423,7 +423,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 - 可选择的列表作为列表框暴露，以 `label` 命名；`selection` 为 multiple 时它是可多选的。每一行是一个选项，带有选中状态、它的位置和列表的大小。
 - 可交互的行、链接行或选项以标题命名，并按阅读顺序以眉标、辅助文本和后置文本作为描述。图标、对勾、分隔线和前置媒体是隐藏的。
 - 含有可交互的行或选项的列表是一个 Tab 停靠点。Tab 会前往上次聚焦的行，否则前往第一个选中的选项，再否则前往第一个启用的行。上、下方向键在行之间移动，到头不循环。Home 和 End 前往第一行和最后一行。键入字符会移到标题以所键入字母开头的下一行。Space 和 Enter 激活。静态行不接受焦点。静态行中的控件保留自己的 Tab 停靠点。
-- 在可调整顺序的列表中，每个移动按钮都是一个按钮，以 `moveUpLabel` 或 `moveDownLabel` 命名，以所在行的标题作为描述。每个按钮各是一个 Tab 停靠点，按阅读顺序排在行的后置控件之前。这时列表不是单独一个 Tab 停靠点，方向键也不起作用。第一行的上移按钮和最后一行的下移按钮是禁用的，但仍然绘制，所以每一行在相同的位置上都有相同的部件。
+- 在可调整顺序的列表中，每个移动按钮都是一个按钮，以 `moveUpLabel` 或 `moveDownLabel` 命名，所在行的标题填在占位符 `{headline}` 中。每个按钮各是一个 Tab 停靠点，按阅读顺序排在行的后置控件之前。这时列表不是单独一个 Tab 停靠点，方向键也不起作用。第一行的上移按钮和最后一行的下移按钮是禁用的，但仍然绘制，所以每一行在相同的位置上都有相同的部件。
 - 移动之后，焦点留在被移动那一行的同一个按钮上，所以再按一次键就会再移动一次。如果这一行成了第一行或最后一行，焦点会移到它的另一个移动按钮上。
 - 可调整顺序的列表有一个礼貌（polite）的实时区域（live region）。移动之后，其中是填入了行的标题、新位置和行数的 `movedText`，之后的移动会替换它。数字按列表的语言的写法书写。除此之外没有任何东西朗读移动。
 - 两行以一段短促的动效交换位置；减弱动态效果时则立即交换。

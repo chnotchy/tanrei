@@ -132,15 +132,31 @@
       "name": "moveUpLabel",
       "type": "string",
       "default": "",
-      "description": "The accessible name of the button that moves an item up by one place, in the product's language (\"Move up\"). The item's headline is added as its description, so the words need not name the item. The product's: Tanrei has no word for it. Empty reads the product's words. Required while reorder is buttons or drag.",
-      "words": "moveUpLabel"
+      "description": "The accessible name of the button that moves an item up by one place: the whole name in the product's language with one place, {headline}, which the list fills with the item's headline (\"Move {headline} up\", \"{headline}を上へ移動\"), so that the buttons of two rows are told apart by their names. The product's: Tanrei has no word for it. Empty reads the product's words. Required while reorder is buttons or drag.",
+      "words": "moveUpLabel",
+      "places": [
+        {
+          "name": "headline",
+          "kind": "text",
+          "description": "The headline of the item the button moves.",
+          "required": true
+        }
+      ]
     },
     {
       "name": "moveDownLabel",
       "type": "string",
       "default": "",
-      "description": "The accessible name of the button that moves an item down by one place (\"Move down\"). As moveUpLabel.",
-      "words": "moveDownLabel"
+      "description": "The accessible name of the button that moves an item down by one place (\"Move {headline} down\"). As moveUpLabel.",
+      "words": "moveDownLabel",
+      "places": [
+        {
+          "name": "headline",
+          "kind": "text",
+          "description": "The headline of the item the button moves.",
+          "required": true
+        }
+      ]
     },
     {
       "name": "movedText",
@@ -474,8 +490,8 @@
     },
     {
       "id": "LST-38",
-      "text": "THE list SHALL name the button that moves an item up by moveUpLabel and the one that moves it down by moveDownLabel, and SHALL give each the headline of its item as its description, so that the words need not name the item and two buttons of two rows are still told apart. THE list SHALL have no words of its own: it SHALL take moveUpLabel, moveDownLabel and movedText from its own prop and, WHILE that is empty, from the product's words of the same name, and from nowhere else. IF neither gives moveUpLabel or moveDownLabel WHILE the list is reorderable THE list SHALL still draw that button and keep it working, SHALL expose it without a name, and in debug builds SHALL report the missing words once per word and page or screen, naming the prop. IF neither gives movedText THE list SHALL announce nothing after a move (LST-42) and SHALL report it the same way.",
-      "verify": "Unit: with the words given once through the product's words and no prop, every move button is named; with a prop, the prop wins; with neither, the buttons are drawn, work, have no accessible name, and the missing keys are moveUpLabel, moveDownLabel and movedText."
+      "text": "THE list SHALL name the button that moves an item up by moveUpLabel and the one that moves it down by moveDownLabel, each with its place {headline} filled by the headline of its item, so that two buttons of two rows are told apart by their names; neither SHALL carry the headline a second time as a description. IF the word given has no place {headline} THE list SHALL name the button with it as it is written and in debug builds report that every row's button has the same name; another text between braces, and a brace that opens or closes nothing, SHALL be kept as written and reported. THE list SHALL have no words of its own: it SHALL take moveUpLabel, moveDownLabel and movedText from its own prop and, WHILE that is empty, from the product's words of the same name, and from nowhere else. IF neither gives moveUpLabel or moveDownLabel WHILE the list is reorderable THE list SHALL still draw that button and keep it working, SHALL expose it without a name, and in debug builds SHALL report the missing words once per word and page or screen, naming the prop. IF neither gives movedText THE list SHALL announce nothing after a move (LST-42) and SHALL report it the same way.",
+      "verify": "Unit: with the words given once through the product's words and no prop, every move button is named; each button's name holds its item's headline in the sentence's place; with a prop, the prop wins; with neither, the buttons are drawn, work, have no accessible name, and the missing keys are moveUpLabel, moveDownLabel and movedText."
     },
     {
       "id": "LST-39",
@@ -982,8 +998,8 @@
       "id": "reorder-buttons",
       "props": {
         "reorder": "buttons",
-        "moveUpLabel": "Move up",
-        "moveDownLabel": "Move down",
+        "moveUpLabel": "Move {headline} up",
+        "moveDownLabel": "Move {headline} down",
         "movedText": "{headline}: {position} of {count}"
       },
       "items": [
@@ -1011,8 +1027,8 @@
       "id": "reorder-buttons-rtl",
       "props": {
         "reorder": "buttons",
-        "moveUpLabel": "تحريك لأعلى",
-        "moveDownLabel": "تحريك لأسفل",
+        "moveUpLabel": "تحريك {headline} لأعلى",
+        "moveDownLabel": "تحريك {headline} لأسفل",
         "movedText": "{headline}: {position} من {count}"
       },
       "items": [
@@ -1041,8 +1057,8 @@
       "id": "reorder-single-item",
       "props": {
         "reorder": "buttons",
-        "moveUpLabel": "Move up",
-        "moveDownLabel": "Move down",
+        "moveUpLabel": "Move {headline} up",
+        "moveDownLabel": "Move {headline} down",
         "movedText": "{headline}: {position} of {count}"
       },
       "items": [
@@ -1058,8 +1074,8 @@
       "id": "reorder-buttons-two-line",
       "props": {
         "reorder": "buttons",
-        "moveUpLabel": "Move up",
-        "moveDownLabel": "Move down",
+        "moveUpLabel": "Move {headline} up",
+        "moveDownLabel": "Move {headline} down",
         "movedText": "{headline}: {position} of {count}"
       },
       "items": [
@@ -1096,8 +1112,8 @@
       "id": "reorder-drag",
       "props": {
         "reorder": "drag",
-        "moveUpLabel": "Move up",
-        "moveDownLabel": "Move down",
+        "moveUpLabel": "Move {headline} up",
+        "moveDownLabel": "Move {headline} down",
         "movedText": "{headline}: {position} of {count}"
       },
       "items": [
@@ -1135,8 +1151,8 @@
       "id": "reorder-drag-rtl",
       "props": {
         "reorder": "drag",
-        "moveUpLabel": "تحريك لأعلى",
-        "moveDownLabel": "تحريك لأسفل",
+        "moveUpLabel": "تحريك {headline} لأعلى",
+        "moveDownLabel": "تحريك {headline} لأسفل",
         "movedText": "{headline}: {position} من {count}"
       },
       "items": [
@@ -1168,8 +1184,8 @@
       "id": "reorder-drag-long-text",
       "props": {
         "reorder": "drag",
-        "moveUpLabel": "Move up",
-        "moveDownLabel": "Move down",
+        "moveUpLabel": "Move {headline} up",
+        "moveDownLabel": "Move {headline} down",
         "movedText": "{headline}: {position} of {count}"
       },
       "items": [

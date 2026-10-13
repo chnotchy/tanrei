@@ -17,7 +17,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
   <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar label="Someone without a picture"></tanrei-avatar>
   <tanrei-avatar label="Design team" initials="DT" shape="square"></tanrei-avatar>
-  <tanrei-avatar-group label="Reviewers" max="4" overflow-label="and 3 more">
+  <tanrei-avatar-group label="Reviewers" max="4" overflow-label="and {count} more">
     <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
     <tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar>
     <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
@@ -49,7 +49,7 @@ On the web it is `<tanrei-avatar>`, and several together are `<tanrei-avatar-gro
     <tanrei-avatar label="Build service" shape="square"><span slot="icon">smart_toy</span></tanrei-avatar>
 
     <!-- Six members, at most four boxes: three members and "+3". -->
-    <tanrei-avatar-group label="Reviewers" max="4" overflow-label="and 3 more">
+    <tanrei-avatar-group label="Reviewers" max="4" overflow-label="and {count} more">
       <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
       <tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar>
       <!-- … -->
@@ -68,7 +68,7 @@ On the web it is `<tanrei-avatar>`, and several together are `<tanrei-avatar-gro
 
     <Avatar label={person.name} initials={person.initials} src={person.picture} />
 
-    <AvatarGroup label="Reviewers" max={4} total={reviewerCount} overflowLabel={`and ${reviewerCount - 3} more`}>
+    <AvatarGroup label="Reviewers" max={4} total={reviewerCount} overflowLabel="and {count} more">
       {reviewers.slice(0, 3).map((person) => (
         <Avatar key={person.id} label={person.name} initials={person.initials} src={person.picture} />
       ))}
@@ -163,7 +163,7 @@ Every fallback has the same quiet fill. There is no color per person: a color th
 A group draws its members as one row. Each lies a little over the one before it (2, 4 or 8 by size), so two initials side by side stay whole and are not misread, with a gap in the surface's color around each.
 
 <DemoFrame label="A group that counts what it was not given" plain>
-  <tanrei-avatar-group label="Members" max="4" total="240" overflow-label="and 237 more">
+  <tanrei-avatar-group label="Members" max="4" total="240" overflow-label="and {count} more">
     <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
     <tanrei-avatar label="Grace Hopper"></tanrei-avatar>
     <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
@@ -216,6 +216,6 @@ A group with `max` shows every member you gave it until the script counts them. 
 ### What you need to do
 
 - Decide for each avatar whether it is named or decorative. The rule: if deleting the avatar loses a name, it is named. Otherwise it is decorative.
-- Write `overflowLabel` in the page's language, with the number in it ("and 3 more"). Without it, "+3" is read as drawn.
+- Write `overflowLabel` once, in the page's language, with the place `{count}` where the number goes (`and {count} more`) — on the group, or for the whole product with `setWords({ avatarGroupOverflowLabel })`. The group fills in the number it does not draw, in full even where it draws 99+. Write a sentence that is right for every number, or set it per count where your language needs another form for one. Without it, "+3" is read as drawn.
 - Give a small avatar inside a link enough room to press. The avatar is 24 wide; the link must meet the minimum target itself.
 - A picture brings its own colors. Where pictures are often pale at their edge, give the surface behind them a tone.

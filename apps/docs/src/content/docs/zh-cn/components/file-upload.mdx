@@ -2,7 +2,7 @@
 title: "文件上传"
 description: "让用户通过文件选择器选择文件，并把选中的文件显示为文件项：以行排成一列，或以图块排成一排。放进表单时，它保留已选的文件，无需代码即可提交；自己发送文件的产品则自己给出文件项。它自己绝不上传任何东西。"
 translationOf: components/file-upload.mdx
-sourceHash: 92200944376e4e306774065dde5f3c738369a9a3
+sourceHash: fb899706d800e36991b2221b490a0dee56cc73df
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -18,10 +18,10 @@ import { demoPicture } from '../../../../lib/demo-picture';
 <ComponentAvailability name="file-upload" />
 
 <DemoFrame label="两种布局的文件上传。选一个文件：它会被列出来，也可以移除。不会发送任何东西。" column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="附件" accept=".pdf" constraints-text="PDF，不超过 10 MB" max-size="10000000" empty-text="未选择文件" remove-label="移除" type-error-text="只能添加 PDF 文件。" size-error-text="超过 10 MB。">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="附件" accept=".pdf" constraints-text="PDF，不超过 10 MB" max-size="10000000" empty-text="未选择文件" remove-label="移除 {name}" type-error-text="只能添加 PDF 文件。" size-error-text="超过 10 MB。">
     <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
   </tanrei-file-upload>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="附件" accept=".pdf,image/png" max-size="10000000" drop-text="将文件拖到此处，或选择文件" constraints-text="PDF 或 PNG，每个不超过 10 MB" remove-label="移除" type-error-text="只能添加 PDF 和 PNG 文件。" size-error-text="超过 10 MB。">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="附件" accept=".pdf,image/png" max-size="10000000" drop-text="将文件拖到此处，或选择文件" constraints-text="PDF 或 PNG，每个不超过 10 MB" remove-label="移除 {name}" type-error-text="只能添加 PDF 和 PNG 文件。" size-error-text="超过 10 MB。">
     <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
   </tanrei-file-upload>
 </DemoFrame>
@@ -61,7 +61,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
                           accept=".pdf,image/png" max-size="10000000"
                           label="附件"
                           constraints-text="PDF 或 PNG，每个不超过 10 MB"
-                          remove-label="移除"
+                          remove-label="移除 {name}"
                           type-error-text="只能添加 PDF 和 PNG 文件。"
                           size-error-text="超过 10 MB。">
         <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
@@ -82,7 +82,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
         maxSize={10_000_000}
         label="附件"
         constraintsText="PDF 或 PNG，每个不超过 10 MB"
-        removeLabel="移除"
+        removeLabel="移除 {name}"
         typeErrorText="只能添加 PDF 和 PNG 文件。"
         sizeErrorText="超过 10 MB。"
       >
@@ -134,7 +134,7 @@ upload.clear();
                         label="附件"
                         drop-text="将文件拖到此处，或选择文件"
                         constraints-text="PDF 或 PNG，每个不超过 10 MB"
-                        remove-label="移除" retry-label="重试">
+                        remove-label="移除 {name}" retry-label="重试 {name}">
       <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
     </tanrei-file-upload>
 
@@ -183,8 +183,8 @@ upload.clear();
       label="附件"
       dropText="将文件拖到此处，或选择文件"
       constraintsText="PDF 或 PNG，每个不超过 10 MB"
-      removeLabel="移除"
-      retryLabel="重试"
+      removeLabel="移除 {name}"
+      retryLabel="重试 {name}"
       onSelect={(event) => start(event.detail.files)}
       onReject={(event) => explain(event.detail.files)}
     >
@@ -209,7 +209,7 @@ upload.clear();
 <!-- 文件上传 -->
 <tanrei-field label="附件">
   <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
-      constraints-text="PDF，最多 5 个文件" empty-text="未选择文件" remove-label="移除" retry-label="重试">
+      constraints-text="PDF，最多 5 个文件" empty-text="未选择文件" remove-label="移除 {name}" retry-label="重试 {name}">
     <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="正在上传" progress="0.4"></tanrei-file-item>
   </tanrei-file-upload>
@@ -224,7 +224,7 @@ upload.clear();
 </tanrei-field>
 <ul class="my-files" aria-label="附件">
   <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="正在上传" progress="0.4"
-        remove-label="移除" retry-label="重试"></tanrei-file-item></li>
+        remove-label="移除 {name}" retry-label="重试 {name}"></tanrei-file-item></li>
 </ul>
 ```
 
@@ -233,7 +233,7 @@ upload.clear();
     <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
   </tanrei-file-picker>
   <ul class="not-content" aria-label="附件" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
-    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="正在上传" progress="0.4" remove-label="移除" retry-label="重试"></tanrei-file-item></li>
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="正在上传" progress="0.4" remove-label="移除 {name}" retry-label="重试 {name}"></tanrei-file-item></li>
   </ul>
 </DemoFrame>
 
@@ -259,7 +259,7 @@ upload.clear();
 ## 规格
 
 <DemoFrame label="由产品给出的行，每种状态一行：等待中、已发送 40%、进行中、已完成、失败但可重试、彻底失败" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="附件" constraints-text="PDF 或 PNG，每个不超过 10 MB" remove-label="移除" retry-label="重试">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="附件" constraints-text="PDF 或 PNG，每个不超过 10 MB" remove-label="移除 {name}" retry-label="重试 {name}">
     <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="等待中"></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="正在上传" progress="0.4"></tanrei-file-item>
@@ -271,7 +271,7 @@ upload.clear();
 </DemoFrame>
 
 <DemoFrame label="同一个文件上传，改用图块：每个文件是一个带有图片的方框，名称在下方" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="照片" constraints-text="图片，每张不超过 5 MB" remove-label="移除" retry-label="重试">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="照片" constraints-text="图片，每张不超过 5 MB" remove-label="移除 {name}" retry-label="重试 {name}">
     <tanrei-button slot="trigger" variant="outlined">选择照片</tanrei-button>
     <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
@@ -384,7 +384,7 @@ upload.clear();
 <tanrei-field label="附件" requirement="required" required-text="必填"
               error error-text="请选择不超过 10 MB 的 PDF。">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
-                      constraints-text="PDF，不超过 10 MB" remove-label="移除">
+                      constraints-text="PDF，不超过 10 MB" remove-label="移除 {name}">
     <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
   </tanrei-file-upload>
 </tanrei-field>
@@ -413,7 +413,7 @@ upload.clear();
 
 这三个句子只在 `rows="own"` 时读取，并且只有在某个文件因相应的原因被拒绝之后才会读取。文件的大小不是文字的键：它是 `formatSize` 函数，是实例的一个属性。
 
-每个操作都由它的文件名来描述。“移除”这一个词对每一行都够用：用户听到的是“移除，按钮，brief.pdf”。
+每个操作的名称里都有它的文件名：`removeLabel` 和 `retryLabel` 是带占位符 `{name}` 的句子，由文件项填入文件名（“`移除 {name}`”）。一个句子对每个文件都够用，用户按你的语言的语序听到“移除 brief.pdf，按钮”，屏幕阅读器列出页面上的按钮时也是如此。没有 `{name}` 的句子会让每个文件的操作同名，调试构建会报告这一点。
 
 ### 从右到左
 

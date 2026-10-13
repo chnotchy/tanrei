@@ -2,7 +2,7 @@
 title: アバター
 description: 人、チーム、プロジェクトを小さな画像で表します。画像がないときはイニシャルかグリフを描きます。円か角丸の四角で、サイズは 3 つです。複数を重ねて 1 つのグループとして並べ、残りの数を示すこともできます。画像であり、操作できるコントロールではありません。
 translationOf: components/avatar.mdx
-sourceHash: 257eed4baf06211fa6fcff53566ae629cd94b5b1
+sourceHash: 3ca2970b0b9bc34925154938bed00d654218501d
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-avatar label="山田 花子" initials="山田"></tanrei-avatar>
   <tanrei-avatar label="画像のない人"></tanrei-avatar>
   <tanrei-avatar label="デザインチーム" initials="デ" shape="square"></tanrei-avatar>
-  <tanrei-avatar-group label="レビュアー" max="4" overflow-label="ほか 3 人">
+  <tanrei-avatar-group label="レビュアー" max="4" overflow-label="ほか {count} 人">
     <tanrei-avatar label="山田 花子" initials="山田"></tanrei-avatar>
     <tanrei-avatar label="佐藤 健" initials="佐藤"></tanrei-avatar>
     <tanrei-avatar label="鈴木 一郎" initials="鈴木"></tanrei-avatar>
@@ -51,7 +51,7 @@ Web では `<tanrei-avatar>` で、複数をまとめるものは `<tanrei-avata
     <tanrei-avatar label="ビルドサービス" shape="square"><span slot="icon">smart_toy</span></tanrei-avatar>
 
     <!-- メンバー 6 人、ボックスは最大 4 つ：メンバー 3 人と「+3」になります。 -->
-    <tanrei-avatar-group label="レビュアー" max="4" overflow-label="ほか 3 人">
+    <tanrei-avatar-group label="レビュアー" max="4" overflow-label="ほか {count} 人">
       <tanrei-avatar label="山田 花子" initials="山田"></tanrei-avatar>
       <tanrei-avatar label="佐藤 健" initials="佐藤"></tanrei-avatar>
       <!-- … -->
@@ -70,7 +70,7 @@ Web では `<tanrei-avatar>` で、複数をまとめるものは `<tanrei-avata
 
     <Avatar label={person.name} initials={person.initials} src={person.picture} />
 
-    <AvatarGroup label="レビュアー" max={4} total={reviewerCount} overflowLabel={`ほか ${reviewerCount - 3} 人`}>
+    <AvatarGroup label="レビュアー" max={4} total={reviewerCount} overflowLabel="ほか {count} 人">
       {reviewers.slice(0, 3).map((person) => (
         <Avatar key={person.id} label={person.name} initials={person.initials} src={person.picture} />
       ))}
@@ -165,7 +165,7 @@ Web では `<tanrei-avatar>` で、複数をまとめるものは `<tanrei-avata
 グループは、メンバーを 1 行に並べます。それぞれが前のアバターに少しだけ（サイズにより 2、4、8）重なるので、並んだ 2 文字のイニシャルも欠けず、読み違えられません。周りにはサーフェスの色の隙間が入ります。
 
 <DemoFrame label="渡されていないメンバーも数えるグループ" plain>
-  <tanrei-avatar-group label="メンバー" max="4" total="240" overflow-label="ほか 237 人">
+  <tanrei-avatar-group label="メンバー" max="4" total="240" overflow-label="ほか {count} 人">
     <tanrei-avatar label="山田 花子" initials="山田"></tanrei-avatar>
     <tanrei-avatar label="佐藤 健"></tanrei-avatar>
     <tanrei-avatar label="鈴木 一郎" initials="鈴木"></tanrei-avatar>
@@ -218,6 +218,6 @@ Web では `<tanrei-avatar>` で、複数をまとめるものは `<tanrei-avata
 ### 利用者側で行うこと
 
 - アバターごとに、名前を持たせるか装飾にするかを決めます。決め方はこうです。アバターを消すと名前が失われるなら、名前が必要です。そうでなければ装飾です。
-- `overflowLabel` は、数を含めてページの言語で書きます（「ほか 3 人」）。指定しないと、描かれている「+3」がそのまま読まれます。
+- `overflowLabel` は、数の入る場所 `{count}` を含めてページの言語で 1 回書きます（「`ほか {count} 人`」）。グループごとに渡すか、`setWords({ avatarGroupOverflowLabel })` で製品全体に渡します。グループは描いていない人数を入れます。99+ と描くときも、本当の数を入れます。どの数でも正しい文にするか、言語が数ごとに形を変えるときは数ごとに差し替えます。指定しないと、描かれている「+3」がそのまま読まれます。
 - リンクの中の小さなアバターには、押すのに十分な広さを確保します。アバターの幅は 24 です。最小ターゲットを満たすのはリンクの役目です。
 - 画像は自身の色を持っています。縁の淡い画像が多い場所では、その背後のサーフェスにトーンを付けます。
