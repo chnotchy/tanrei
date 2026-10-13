@@ -3491,6 +3491,7 @@ export type TanreiOneTimeCodeInputConditions = { readonly [Key in TanreiCoreOneT
  * `<state><Part>`), then one holder per axis (`conditions`), keyed by the axis value.
  */
 export interface TanreiOneTimeCodeInputTokens {
+  readonly caretWidth: number;
   readonly containerGap: number;
   readonly containerHeight: number;
   readonly containerPaddingInline: number;
@@ -4062,6 +4063,7 @@ export interface TanreiSelectTokens {
   readonly listColor: TanreiPaint;
   readonly listElevation: TanreiElevationLevel;
   readonly listMaxHeight: number;
+  readonly listMaxWidth: number;
   readonly listMinWidth: number;
   readonly listOffset: number;
   readonly listPaddingBlock: number;

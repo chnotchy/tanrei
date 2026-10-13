@@ -62,4 +62,7 @@
     font: var(--tanrei-comp-callout-title-typescale-large-font);
     letter-spacing: var(--tanrei-comp-callout-title-typescale-large-letter-spacing);
   }
+  /* CLO-7: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  /* script-tracking: :where(tanrei-callout:not(:defined)) > :where([slot='title']) | var(--tanrei-comp-callout-title-typescale-medium-letter-spacing) */
+  /* script-tracking: :where(tanrei-callout[size='large']:not(:defined)) > :where([slot='title']) | var(--tanrei-comp-callout-title-typescale-large-letter-spacing) */
 }

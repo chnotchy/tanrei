@@ -2,8 +2,9 @@
 // Component × platform matrix. Rendered entirely from docs/status/status.json. The legend is Tanrei's description list,
 // stacked in three columns: each term is the status's own tag, each value what the status means. Both tables are Tanrei's Table: the first
 // column names each row (a status, a component) and stays in view while the platforms scroll under it; the totals are
-// end-aligned figures with their sum as the table's footer row.
-import { platforms, statuses, statusComponents, statusTotals, componentHref } from '../lib/repo';
+// end-aligned figures with their sum as the table's footer row. Each component's level (base, composed, feature) stands
+// beside its name, in the dictionary's word for it, as the generated STATUS.md shows it.
+import { platforms, statuses, statusComponents, statusTotals, componentHref, levelRole } from '../lib/repo';
 import { contentLang, localeBase, strings } from '../lib/i18n';
 import StatusBadge from './StatusBadge.astro';
 import SourceNote from './SourceNote.astro';
@@ -81,6 +82,7 @@ const categories = [...new Set(statusComponents.map((c) => c.category))];
             <thead>
               <tr>
                 <th scope="col" data-wrap="false">{t.component}</th>
+                <th scope="col" data-wrap="false">{t.level_}</th>
                 <th scope="col" data-wrap="false">{t.spec}</th>
                 {platforms.map((p) => <th scope="col" data-wrap="false">{t.platform[p] ?? p}</th>)}
               </tr>
@@ -92,6 +94,7 @@ const categories = [...new Set(statusComponents.map((c) => c.category))];
                     {componentHref(base, c.name) ? <a class="tanrei-link" data-standalone href={componentHref(base, c.name)}>{c.title}</a> : c.title}{' '}
                     <span class="id">{c.name}</span>
                   </th>
+                  <td data-wrap="false" data-level={c.level}>{t.level[levelRole(c.level) ?? ''] ?? c.level}</td>
                   <td data-wrap="false" class="docs-muted">{c.hasSpec ? t.specYes : t.specNo}</td>
                   {platforms.map((p) => <td data-wrap="false"><StatusBadge status={c.platforms[p] ?? 'planned'} /></td>)}
                 </tr>

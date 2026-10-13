@@ -9,7 +9,7 @@ import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { browserMissingMessage } from '../../primitives/missing-value.js';
 import { AXES, INSET, styles } from './color-input.styles.js';
-import { PICKER_START, given, picked, read } from './color-text.js';
+import { PICKER_START, given, picked, read, readCommitted } from './color-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 
@@ -518,12 +518,13 @@ export class TanreiColorInput extends LitElement {
    * in lowercase, the white space gone; a text of white space alone is no color and is cleared; a text that is not
    * empty and not a color is kept as typed and enters the entry error (`entryerror`, with `invalidText`). Then
    * `change`, once, while the value differs from the one last committed. A text the person did not change since the
-   * last commit commits nothing.
+   * last commit commits nothing. A commit also reads three digits (#fff) as the six they stand for (#ffffff): the
+   * value becomes that color, `input` says so, and then `change`.
    */
   private commit() {
     if (!this.edited || this.inert_) return;
     this.edited = false;
-    const reading = read(this.text);
+    const reading = readCommitted(this.text);
     if (reading.kind === 'invalid') {
       this.entryError = true;
       this.syncForm();
@@ -531,7 +532,11 @@ export class TanreiColorInput extends LitElement {
     } else {
       this.entryError = false;
       this.text = reading.kind === 'color' ? reading.value : '';
-      this.syncForm();
+      const value = reading.kind === 'color' ? reading.value : '';
+      if (value !== this.ownValue) {
+        this.keep(value);
+        this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      } else this.syncForm();
     }
     this.changed();
   }
@@ -655,14 +660,26 @@ export class TanreiColorInput extends LitElement {
 
   /**
    * CLI-24: a press on the container's padding, on the swatch or on a floating label moves focus to the input and does
-   * nothing else. A press in the input places the caret; the picker button keeps its own press.
+   * nothing else. A press in the input places the caret; the picker button keeps its own press. CLI-25: while the
+   * picker button is shown a press on the swatch is the picker button's instead (`onSwatchClick`), and moves no focus.
    */
   private onContainerPress(event: MouseEvent) {
     if (event.button !== 0) return;
     const target = event.target as Element;
     if (target.closest('.input, .picker')) return;
     event.preventDefault();
+    if (this.picker && target.closest('.swatch')) return;
     if (!this.inert_) this.focus();
+  }
+
+  /**
+   * CLI-25: while the picker button is shown, a press on the swatch — by pointer or touch — does what a press on the
+   * picker button does (CLI-28), as a label passes its press to its control: the swatch takes no focus and draws no
+   * answer of its own, and the keyboard's way stays the picker button.
+   */
+  private onSwatchClick(event: MouseEvent) {
+    if (!this.picker || this.inert_ || event.button !== 0) return;
+    this.onPickerClick();
   }
 
   override disconnectedCallback() {
@@ -745,7 +762,7 @@ export class TanreiColorInput extends LitElement {
         ?data-picker=${this.picker}
       >
         <div part="container" class="container" data-tanrei-shape aria-disabled=${inert ? 'true' : nothing} @mousedown=${this.onContainerPress}>
-          <span part="swatch" class="swatch" data-tanrei-shape aria-hidden="true" ?data-filled=${this.ownValue !== ''} style=${styleMap({ '--_value': this.ownValue || null })}></span>
+          <span part="swatch" class="swatch" data-tanrei-shape aria-hidden="true" @click=${this.onSwatchClick} ?data-filled=${this.ownValue !== ''} style=${styleMap({ '--_value': this.ownValue || null })}></span>
           <div class="body">
             <input
               id="input"

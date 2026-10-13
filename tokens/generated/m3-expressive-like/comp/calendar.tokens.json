@@ -160,7 +160,7 @@
                 "value": 40,
                 "unit": "px"
               },
-              "$description": "The side of a day's container, and the height of the band that joins a range. 40 is Material's day.",
+              "$description": "The side of a day's container, and the height of the band that joins a range, 40.",
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",

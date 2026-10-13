@@ -301,10 +301,8 @@
     font: var(--_dl-stat-font);
     letter-spacing: var(--_dl-stat-tracking);
     font-variant-numeric: tabular-nums;
-    /* DSL-6: a figure in Chinese, Japanese or Korean takes no negative letter-spacing. */
-    &:where(:lang(ja), :lang(zh), :lang(ko)) {
-      letter-spacing: max(0em, var(--_dl-stat-tracking));
-    }
+    /* DSL-6: the figure's letter-spacing follows its script (src/styles/script-tracking.ts). */
+    /* script-tracking: & | var(--_dl-stat-tracking) */
   }
 
   /* ── Separation: gap (DSL-13, DSL-14) — by a style query, and by the element where the browser has none ───────── */

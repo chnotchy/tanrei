@@ -61,7 +61,7 @@
           },
           "size": {
             "$type": "dimension",
-            "$description": "The round state layer centered on the handle, Material Design 3's 40; it moves with the handle and reaches 4 beyond the track's ends.",
+            "$description": "The round state layer centered on the handle, 40; it moves with the handle and reaches 4 beyond the track's ends.",
             "$value": {
               "value": 40,
               "unit": "px"
@@ -78,7 +78,7 @@
         "track": {
           "width": {
             "$type": "dimension",
-            "$description": "The length of the track, Material Design 3's 52.",
+            "$description": "The length of the track, 52.",
             "$value": {
               "value": 52,
               "unit": "px"
@@ -93,7 +93,7 @@
           },
           "height": {
             "$type": "dimension",
-            "$description": "The height of the track, Material Design 3's 32. The handle's center is half of it from the track's end.",
+            "$description": "The height of the track, 32. The handle's center is half of it from the track's end.",
             "$value": {
               "value": 32,
               "unit": "px"
@@ -114,14 +114,14 @@
         "outline": {
           "width": {
             "$type": "dimension",
-            "$description": "The border of the track, drawn inside its edge; the fill sits inside the border and never under it. Material Design 3's 2.",
+            "$description": "The border of the track, drawn inside its edge; the fill sits inside the border and never under it. 2.",
             "$value": "{tanrei.sys.border.thick}"
           }
         },
         "handle": {
           "size-with-icon": {
             "$type": "dimension",
-            "$description": "The smallest diameter of the handle while it shows an icon, Material Design 3's 24; a larger size of the condition and state wins.",
+            "$description": "The smallest diameter of the handle while it shows an icon, 24; a larger size of the condition and state wins.",
             "$value": {
               "value": 24,
               "unit": "px"
@@ -138,7 +138,7 @@
         "icon": {
           "size": {
             "$type": "dimension",
-            "$description": "The glyph box inside the handle: the icon set's glyph (check, close…) at a step of the icon scale, Material Design 3's 16.",
+            "$description": "The glyph box inside the handle: the icon set's glyph (check, close…) at a step of the icon scale, 16.",
             "$value": "{tanrei.sys.icon.extra-small}"
           },
           "weight": {
@@ -205,7 +205,7 @@
             },
             "size": {
               "$type": "dimension",
-              "$description": "The diameter of the handle while off, Material Design 3's 16. Its center stays on one line whatever the size: half the track height from the track's end.",
+              "$description": "The diameter of the handle while off, 16. Its center stays on one line whatever the size: half the track height from the track's end.",
               "$value": {
                 "value": 16,
                 "unit": "px"
@@ -282,7 +282,7 @@
             },
             "size": {
               "$type": "dimension",
-              "$description": "The diameter of the handle while on, Material Design 3's 24. Its center stays on one line whatever the size: half the track height from the track's end.",
+              "$description": "The diameter of the handle while on, 24. Its center stays on one line whatever the size: half the track height from the track's end.",
               "$value": {
                 "value": 24,
                 "unit": "px"

@@ -321,7 +321,7 @@ Both are built in, because their behaviour belongs to the search: clear empties 
 - **A suggestion is something to choose; a result is somewhere to go.** A suggestion helps finish the query or jumps to a known thing, and the arrow keys make it active while focus stays in the input. A result is a thing your search found: a link that takes focus itself.
 - Use the leading icon to tell kinds apart: history for a past query, a folder, a page, a section.
 - Keep headlines short and put detail in the supporting text or the excerpt: "Invoices", then "Folder · 24 messages". They wrap rather than being cut off.
-- Mark in the excerpt what matched. The mark is the system's, a color and a heavier weight, so matches look the same everywhere.
+- Mark in the excerpt what matched. The mark is the system's, a color, a heavier weight and a quiet fill behind the match, so matches look the same everywhere and are found in every script, also where the font has no weight between regular and bold.
 - Group results when they belong together: sections under their page, messages under "Messages". A group's heading is a link when the group itself is a place.
 - Give a result an `href` whenever it has an address. A person can then open it in a new tab, copy its address and see where it leads. Use `select` without an `href` only for a result your product opens itself.
 - The view's order is fixed: suggestions, the status row, results, then your own content, such as a "Load more results" button or a link to a full results page.
@@ -339,6 +339,7 @@ Both are built in, because their behaviour belongs to the search: clear empties 
 - Use a shortcut people already know for search in your kind of product, and write it with `mod` so that it is right on every keyboard.
 - Set `bindShortcut` on one search of a screen. Of two searches that bind the same keys, the one shown first keeps them, and debug builds report the other.
 - A shortcut without a modifier, such as `/`, is ignored while focus is in a text input, so that the person can type the character.
+- If you bind a single character key with no modifier, such as `/`, give people a way to turn it off or to change it (WCAG 2.1.4, Character Key Shortcuts). `bindShortcut` is off by default.
 - Without `bindShortcut` the hint only shows the keys: bind them yourself, or leave `shortcut` empty.
 
 ### Do

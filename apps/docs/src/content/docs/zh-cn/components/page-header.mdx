@@ -2,7 +2,7 @@
 title: "页头"
 description: "页面内容的开头部分。页面的标题作为标题元素，配有一句说明页面是什么的话、一行关于页面的信息、针对整个页面的操作，上方还有返回上级的途径。"
 translationOf: components/page-header.mdx
-sourceHash: a12c67657bb297bfa5b88a1a2b72e252c99db227
+sourceHash: cf0da7ab4cf7d863f73165b23bd68237291a800e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -171,7 +171,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - 把描述写成一两句话。更长的文本属于内容。
 - 日期请用 `<time>` 元素，并带上机器可读的 `datetime`。
-- 给其他语言的文本设置 `lang`。在中文、日文和韩文里，以及在字母相连或在字母上叠加符号的文字（阿拉伯文、天城文）里，标题和眉标以零字距绘制：在这些文字里，字母之间无论拉开还是收紧，词都会散开。
+- 给其他语言的文本设置 `lang`。在中文、日文和韩文里，标题去掉负字距绘制（眉标保留其正字距）；在字母相连或在字母上叠加符号的文字（阿拉伯文、天城文）里，标题和眉标以零字距绘制：在这些文字里，字母之间无论拉开还是收紧，词都会散开。
 
 ### 避免
 

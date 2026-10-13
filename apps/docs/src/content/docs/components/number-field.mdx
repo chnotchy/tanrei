@@ -194,7 +194,7 @@ A number beside a slider, under one row title, is the box alone: a [number input
 - `input` is a CustomEvent with `detail.value`. `change` and `action` are plain events: read `value` from the element. Unless `action` is cancelled, the form is then asked to submit.
 - Without `locale` the field reads the nearest `lang` attribute, then the browser's language.
 - Besides the locale's separator, a period is read as the decimal separator wherever the locale does not group with periods.
-- A page key steps on its own grid of ten steps: with a step of 2, Page Up from 42 gives 60.
+- A page key steps ten steps on the step's own grid, as a slider's does: with a step of 2, Page Up from 42 gives 62, then 82.
 - On iOS and iPadOS the field asks for the full keyboard while a negative number may be typed, because the decimal keypad there has no minus sign.
 - Before the element is defined it has no size. Reserve the height.
 
@@ -245,13 +245,13 @@ A postal code, a card number, a telephone number and a one-time code are digits,
 - The wheel never changes the number.
 - The field's hit area meets the minimum target, and each stepper is a full target.
 - At 200% text the label and the help wrap. The number stays on one line, and scrolls.
+- Where the row cannot hold the number and the steppers side by side — at 200% text in a narrow window, with a prefix and a long suffix — the steppers move to a row of their own below the number, at the box's end. They are never hidden, because on touch they are the only way to step.
 - In forced colors the field gains an edge, and an error is told by its words and the invalid state.
 - In a right-to-left layout the steppers and the label are mirrored: the steppers stand at the left end. The number and its unit are written as the unit's own script writes them: a unit in Latin letters or signs after the number, from left to right, and a unit in the page's script at the number's left. What is read aloud does not change.
 
 Known gaps on the web:
 
 - Chromium reads the number without its unit: it takes the value text from the text in the input, and passes over the one the field names. Name the unit in the label where it matters.
-- At 200% text in a window 320 wide, a field with steppers, a prefix and a long suffix is wider than the window, because it is never narrower than what it holds. Turn the steppers off there.
 - Before the element is defined, nothing is drawn.
 
 ### What you need to do

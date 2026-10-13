@@ -246,7 +246,7 @@
     },
     {
       "id": "SNK-22",
-      "text": "WHILE title is not empty THE snackbar SHALL draw it above the message in comp.snackbar.title.typescale and comp.snackbar.title.color, or its form's title color (SNK-21, SNK-30), with comp.snackbar.title.gap between the title and the message; WHILE title is empty it SHALL draw the message alone."
+      "text": "WHILE title is not empty THE snackbar SHALL draw it above the message in comp.snackbar.title.typescale and comp.snackbar.title.color, or its form's title color (SNK-21, SNK-30), with comp.snackbar.title.gap between the title and the message; WHILE title is empty it SHALL draw the message alone. THE snackbar SHALL set the title's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them."
     },
     {
       "id": "SNK-23",
@@ -586,7 +586,7 @@
         "dismiss": "TanreiSnackbarResult.dismissed",
         "toggle": "onExpandedChange"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. A host is a `@Observable` `TanreiSnackbarHost` attached with `.tanreiSnackbarHost(_:)` on the view whose bottom edge it uses; `await host.show(message:actionLabel:withCloseButton:closeLabel:duration:)` returns a `TanreiSnackbarResult` (`.action`, or `.dismissed(reason)`) once the snackbar has closed. It is drawn in an overlay of that view, not in a sheet, which would be modal. Snapshot harness: `TanreiSnackbar` rendered in place (SNK-19) in a 400-point frame. `inverse` is a `Bool?`, nil by default."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. A host is a `@Observable` `TanreiSnackbarHost` attached with `.tanreiSnackbarHost(_:)` on the view whose bottom edge it uses; `await host.show(message:actionLabel:withCloseButton:closeLabel:duration:)` returns a `TanreiSnackbarResult` (`.action`, or `.dismissed(reason)`) once the snackbar has closed. It is drawn in an overlay of that view, not in a sheet, which would be modal. Snapshot harness: `TanreiSnackbar` rendered in place (SNK-19) in a 400-point frame. `inverse` is a `Bool?`, nil by default. Not yet: the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     },
     "compose": {
       "status": "lagging",
@@ -609,7 +609,7 @@
         "dismiss": "TanreiSnackbarResult.Dismissed",
         "toggle": "onExpandedChange"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Material's snackbar API: `TanreiSnackbarHost(hostState)` is placed in the layout (for example a scaffold's snackbar slot), and `hostState.showSnackbar(message, actionLabel, withDismissAction, closeLabel, duration)` suspends until the snackbar has closed and returns the result; cancelling the coroutine closes it with the reason host. The recommended timeout is `AccessibilityManager.calculateRecommendedTimeoutMillis`. Snapshot harness: `TanreiSnackbar(message = …)` rendered in place (SNK-19) in a 400 dp wide box. `inverse` is a `Boolean?`, null by default."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Material's snackbar API: `TanreiSnackbarHost(hostState)` is placed in the layout (for example a scaffold's snackbar slot), and `hostState.showSnackbar(message, actionLabel, withDismissAction, closeLabel, duration)` suspends until the snackbar has closed and returns the result; cancelling the coroutine closes it with the reason host. The recommended timeout is `AccessibilityManager.calculateRecommendedTimeoutMillis`. Snapshot harness: `TanreiSnackbar(message = …)` rendered in place (SNK-19) in a 400 dp wide box. `inverse` is a `Boolean?`, null by default. Not yet: the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     },
     "flutter": {
       "status": "lagging",
@@ -632,7 +632,7 @@
         "dismiss": "TanreiSnackbarClosedReason",
         "toggle": "onExpandedChanged"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Flutter's `ScaffoldMessenger`: a `TanreiSnackbarMessenger` placed around the page, inside its route, hosts the queue (so a Tanrei dialog's route covers it and SNK-12's wait applies), and `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(...))` returns a controller whose `closed` future completes with a `TanreiSnackbarClosedReason` (`action`, `close`, `escape`, `timeout`, `host`). `showCloseIcon` is Flutter's own name for the close button. A running screen reader is `MediaQuery.accessibleNavigation` (as Flutter's own SnackBar reads it); Android's recommended timeout needs a platform channel, since Flutter does not expose it. Snapshot harness: a golden of `TanreiSnackbar` rendered in place (SNK-19) in a 400-wide surface. `inverse` is a `bool?`, null by default."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. Shaped like Flutter's `ScaffoldMessenger`: a `TanreiSnackbarMessenger` placed around the page, inside its route, hosts the queue (so a Tanrei dialog's route covers it and SNK-12's wait applies), and `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(...))` returns a controller whose `closed` future completes with a `TanreiSnackbarClosedReason` (`action`, `close`, `escape`, `timeout`, `host`). `showCloseIcon` is Flutter's own name for the close button. A running screen reader is `MediaQuery.accessibleNavigation` (as Flutter's own SnackBar reads it); Android's recommended timeout needs a platform channel, since Flutter does not expose it. Snapshot harness: a golden of `TanreiSnackbar` rendered in place (SNK-19) in a 400-wide surface. `inverse` is a `bool?`, null by default. Not yet: the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     },
     "react-native": {
       "status": "lagging",
@@ -655,7 +655,7 @@
         "dismiss": "onDismiss",
         "toggle": "onExpandedChange"
       },
-      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. `TanreiProvider` renders the host in its root overlay layer, not in a `Modal` (a `Modal` is modal and takes focus); `useSnackbar().show({ message, actionLabel, closable, closeLabel, duration })` returns a promise of the result. A `Snackbar` element rendered directly is drawn in place (SNK-19). Snapshot harness: `Snackbar` rendered in place in a 400-wide view. `inverse` is `boolean | null | undefined`; both null and undefined take the system's choice."
+      "notes": "Lagging: ships an earlier form of the snackbar: always an inverse bar, with a text action, no status forms, no title, no expansion and no `inverse`. `TanreiProvider` renders the host in its root overlay layer, not in a `Modal` (a `Modal` is modal and takes focus); `useSnackbar().show({ message, actionLabel, closable, closeLabel, duration })` returns a promise of the result. A `Snackbar` element rendered directly is drawn in place (SNK-19). Snapshot harness: `Snackbar` rendered in place in a 400-wide view. `inverse` is `boolean | null | undefined`; both null and undefined take the system's choice. Not yet: the title's letter-spacing by the script of its text (SNK-22, PRS-20)."
     }
   }
 }

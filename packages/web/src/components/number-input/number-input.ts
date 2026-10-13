@@ -22,7 +22,7 @@ import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { AXES, INSET, styles } from './number-input.styles.js';
 import { runDirection } from '../../styles/product-text.js';
-import { type Decimal, type NumberForm, type Reading, ZERO, canonical, clamp, compare, decimalFromString, decimalOf, format, numberForm, numberOf, read, round, stepped, times } from './number-text.js';
+import { type Decimal, type NumberForm, type Reading, ZERO, canonical, clamp, compare, decimalFromString, decimalOf, format, numberForm, numberOf, read, round, stepped } from './number-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 
@@ -44,7 +44,26 @@ export interface TanreiNumberInputEntryErrorDetail {
 
 type Layout = 'stacked' | 'filled' | 'outlined';
 const ALIGNS: readonly string[] = ['start', 'end'];
-/** NMI-23: Page Up and Page Down step by ten times the step. */
+/**
+ * NMI-37: whether a number input's steppers stand on a row of their own, below its input's line. One observer for every
+ * number input of the page, told when a container or an input's line changes size: every host reads, then every host
+ * writes, so the inputs of a page cost one layout between them.
+ */
+const wrapReaders = new WeakMap<Element, () => (() => void) | undefined>();
+const wrapObserver =
+  typeof ResizeObserver === 'undefined'
+    ? null
+    : new ResizeObserver((entries) => {
+        const readers = new Set<() => (() => void) | undefined>();
+        for (const entry of entries) {
+          const reader = wrapReaders.get(entry.target);
+          if (reader) readers.add(reader);
+        }
+        const writes = [...readers].map((reader) => reader());
+        for (const write of writes) write?.();
+      });
+
+/** NMI-23: Page Up and Page Down step ten steps: ten times the step, on the step's own grid. */
 const PAGE = 10;
 /** NMI-27: after its tenth repeated step a hold steps at the fast interval. */
 const FAST_AFTER = 10;
@@ -333,6 +352,8 @@ export class TanreiNumberInput extends LitElement {
    * the length the pair takes is what a floating label must end before (`--_steppers`).
    */
   private readonly kept = new KeptLengths(() => this.measureSteppers());
+  /** NMI-37: the container and the input's line have been given to the observer of wrapping once. */
+  private hasWatchedWrap = false;
 
   constructor() {
     super();
@@ -623,8 +644,8 @@ export class TanreiNumberInput extends LitElement {
 
   /**
    * NMI-22: steps `direction` by `factor` steps. From the number the text reads as — or from the value where the
-   * person did not change the text, or changed it into what is not a number — to the next number that is `min` (or
-   * zero) plus a whole multiple of the amount, held within the limits and computed in decimal; a field that holds no
+   * person did not change the text, or changed it into what is not a number — to the `factor`th number that is `min`
+   * (or zero) plus a whole multiple of the step (NMI-23: a page key's ten steps stay on the step's grid), held within the limits and computed in decimal; a field that holds no
    * value takes the number nearest to zero the limits allow, and nothing more. The result is a commit's: rounded to
    * `maxFractionDigits`, made the value and written into the input. `input`, then `change` — or, while a stepper is
    * held, `change` when the hold ends. A step that would not change the value says nothing. Returns whether it stepped.
@@ -634,7 +655,7 @@ export class TanreiNumberInput extends LitElement {
     const reading = this.edited ? this.reading(this.text) : null;
     const from = reading?.kind === 'number' ? reading.value : reading?.kind === 'empty' || this.ownValue === null ? null : decimalOf(this.ownValue);
     const { min, max } = this.limits;
-    const target = from ? stepped(from, min ?? ZERO, times(this.stepNow, factor), direction) : ZERO;
+    const target = from ? stepped(from, min ?? ZERO, this.stepNow, direction, factor) : ZERO;
     const next = numberOf(round(clamp(target, min, max), this.digits.max));
     const moved = next !== this.ownValue;
     // Up at max, down at min: nothing is done. (A text the person had changed is still made the value's.)
@@ -808,6 +829,41 @@ export class TanreiNumberInput extends LitElement {
     };
   }
 
+  /**
+   * NMI-36, NMI-37: where the input's line and the steppers do not fit on one row the container wraps them, and the
+   * steppers stand on a row of their own (`data-wrapped` on the field, which places them and the label). Read now;
+   * what is returned writes it (nothing where it is what the field has).
+   */
+  private readonly readWrap = (): (() => void) | undefined => {
+    const field = this.renderRoot.querySelector<HTMLElement>('.field');
+    const body = this.renderRoot.querySelector<HTMLElement>('.body');
+    const steppers = this.renderRoot.querySelector<HTMLElement>('.steppers');
+    if (!field || !body) return undefined;
+    const wrapped = !!steppers && steppers.getBoundingClientRect().top >= body.getBoundingClientRect().bottom - 0.5;
+    if (field.hasAttribute('data-wrapped') === wrapped) return undefined;
+    return () => field.toggleAttribute('data-wrapped', wrapped);
+  };
+
+  /** NMI-37: the container and the input's line are watched while the number input is on the page. */
+  private watchWrap(on: boolean) {
+    for (const selector of ['.container', '.body']) {
+      const element = this.renderRoot?.querySelector<HTMLElement>(selector);
+      if (!element || !wrapObserver) continue;
+      if (on) {
+        wrapReaders.set(element, this.readWrap);
+        wrapObserver.observe(element);
+      } else {
+        wrapReaders.delete(element);
+        wrapObserver.unobserve(element);
+      }
+    }
+  }
+
+  override connectedCallback() {
+    super.connectedCallback();
+    if (this.hasUpdated) this.watchWrap(true);
+  }
+
   override disconnectedCallback() {
     super.disconnectedCallback();
     window.removeEventListener('pointerup', this.onPointerEnd, true);
@@ -815,6 +871,7 @@ export class TanreiNumberInput extends LitElement {
     this.release();
     this.pressing = 0;
     this.kept.clear();
+    this.watchWrap(false);
     this.focused = false;
   }
 
@@ -845,6 +902,13 @@ export class TanreiNumberInput extends LitElement {
     // NMI-8: the label's lines follow its text — the Field's, where it gives the name —, the asterisk and the size.
     if (this.frameChanged || changed.has('label') || changed.has('labelHidden') || changed.has('variant') || changed.has('size')) this.floating.measure();
     this.frameChanged = false;
+    // NMI-37: the steppers stand on a row of their own where the row cannot hold them beside the input's line. The
+    // observer reports the first layout (and every later change of the container's or the line's size), so nothing is
+    // read here — but for steppers taken away, which may leave both sizes as they were.
+    if (!this.hasWatchedWrap) {
+      this.hasWatchedWrap = true;
+      this.watchWrap(true);
+    } else if (changed.has('steppers') && !this.steppers) this.readWrap()?.();
     // NMI-25: the steppers that are drawn keep their targets apart.
     this.kept.set([...this.renderRoot.querySelectorAll<HTMLElement>('.stepper')]);
     if (!this.steppers) this.measureSteppers()?.();

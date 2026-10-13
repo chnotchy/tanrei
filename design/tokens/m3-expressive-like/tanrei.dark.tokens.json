@@ -13452,7 +13452,7 @@
                 "value": 40,
                 "unit": "px"
               },
-              "$description": "The side of a day's container, and the height of the band that joins a range. 40 is Material's day."
+              "$description": "The side of a day's container, and the height of the band that joins a range, 40."
             }
           },
           "label": {
@@ -18684,7 +18684,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The playback control's square, and the height of the dots' container. Material Design 3's standard icon button is 40 with a 24 glyph."
+            "$description": "The playback control's square, and the height of the dots' container, 40, around a 24 glyph."
           },
           "height": {
             "$type": "dimension",
@@ -20180,7 +20180,7 @@
               "value": 2,
               "unit": "px"
             },
-            "$description": "The corner of the box, Material Design 3's 2: one unit of the roundness dial, below the corner scale's first step (extra-small, 3), which on an 18 box reads rounder than Material's."
+            "$description": "The corner of the box, 2: one unit of the roundness dial, below the corner scale's first step (extra-small, 3), which on an 18 box reads too round for a checkbox."
           },
           "size": {
             "$type": "dimension",
@@ -20188,7 +20188,7 @@
               "value": 18,
               "unit": "px"
             },
-            "$description": "The side of the visible box, Material Design 3's 18."
+            "$description": "The side of the visible box, 18."
           }
         },
         "container": {
@@ -20205,7 +20205,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The round state layer behind the box, Material Design 3's 40. With the label gap it ends where the 48 touch target does, so the label starts at the target's edge."
+            "$description": "The round state layer behind the box, 40. With the label gap it ends where the 48 touch target does, so the label starts at the target's edge."
           }
         },
         "disabled": {
@@ -22131,7 +22131,7 @@
               "value": 20,
               "unit": "px"
             },
-            "$description": "The glyph box of the check and the dash (the icon set's check and remove), centered on the box. 20 on an 18 box: a glyph's box is larger than its ink, and Material Symbols' check drawn at 20 covers about as much of the box as Material Design 3's own check; the ink stays inside the box."
+            "$description": "The glyph box of the check and the dash (the icon set's check and remove), centered on the box. 20 on an 18 box: a glyph's box is larger than its ink, so the icon set's check drawn at 20 keeps its ink inside the box."
           },
           "weight": {
             "$type": "number",
@@ -22221,7 +22221,7 @@
               "value": 2,
               "unit": "px"
             },
-            "$description": "The border of the box, drawn inside its edge; the fill sits inside the border and never under it. Material Design 3's 2."
+            "$description": "The border of the box, drawn inside its edge; the fill sits inside the border and never under it. 2."
           }
         },
         "pressed": {
@@ -64313,6 +64313,16 @@
         }
       },
       "one-time-code-input": {
+        "caret": {
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 2,
+              "unit": "px"
+            },
+            "$description": "Width of the caret an empty active cell draws (OTC-7)."
+          }
+        },
         "container": {
           "gap": {
             "$type": "dimension",
@@ -67057,7 +67067,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The round state layer behind the ring. Material's state layer is 40; the 48 target reaches 4 beyond it on each side."
+            "$description": "The round state layer behind the ring, 40; the 48 target reaches 4 beyond it on each side."
           }
         },
         "disabled": {
@@ -68007,7 +68017,7 @@
               "value": 20,
               "unit": "px"
             },
-            "$description": "The outer diameter of the ring, the same in both conditions. Material's icon box is 20."
+            "$description": "The outer diameter of the ring, the same in both conditions, 20."
           },
           "width": {
             "$type": "dimension",
@@ -69119,14 +69129,14 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0,
-                    0,
-                    0
+                    0.2902,
+                    0.2667,
+                    0.3451
                   ],
-                  "alpha": 0,
-                  "hex": "#000000"
+                  "hex": "#4a4458",
+                  "alpha": 1
                 },
-                "$description": "The fill behind a match. None in Tanrei, which marks by weight and color; a system that highlights its matches sets it, and then answers for the contrast of result.mark.color on it."
+                "$description": "The fill behind a match, as well as its weight and color: the quiet tonal container, so that a match is found in every script, also where the reader's font has no weight between regular and bold and the raised weight draws as the regular one. result.mark.color is read on it at the text ratio in every scheme."
               }
             },
             "emphasis": {
@@ -72591,13 +72601,21 @@
             },
             "$description": "The tallest the list grows before its options scroll: six rows and most of a seventh at the default row height, so that a cut row shows there is more. The room left in the window limits it further."
           },
+          "max-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 280,
+              "unit": "px"
+            },
+            "$description": "The widest the list grows for its options where its trigger is narrower: an option that needs more wraps. A list is never narrower than its trigger, so a trigger wider than this gives the list its own width. The window limits it further."
+          },
           "min-width": {
             "$type": "dimension",
             "$value": {
               "value": 112,
               "unit": "px"
             },
-            "$description": "The least width of the list where the trigger is narrower than this (a small select in a bar); otherwise the list is as wide as its trigger."
+            "$description": "The least width of the list where its options and its trigger are narrower than this (a small select in a bar)."
           },
           "offset": {
             "$type": "dimension",
@@ -81350,7 +81368,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The round state layer centered on the handle, Material Design 3's 40; it moves with the handle and reaches 4 beyond the track's ends."
+            "$description": "The round state layer centered on the handle, 40; it moves with the handle and reaches 4 beyond the track's ends."
           }
         },
         "disabled": {
@@ -81390,7 +81408,7 @@
               "value": 24,
               "unit": "px"
             },
-            "$description": "The smallest diameter of the handle while it shows an icon, Material Design 3's 24; a larger size of the condition and state wins."
+            "$description": "The smallest diameter of the handle while it shows an icon, 24; a larger size of the condition and state wins."
           }
         },
         "hovered": {
@@ -81415,7 +81433,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "The glyph box inside the handle: the icon set's glyph (check, close…) at a step of the icon scale, Material Design 3's 16."
+            "$description": "The glyph box inside the handle: the icon set's glyph (check, close…) at a step of the icon scale, 16."
           },
           "weight": {
             "$type": "number",
@@ -81504,7 +81522,7 @@
               "value": 2,
               "unit": "px"
             },
-            "$description": "The border of the track, drawn inside its edge; the fill sits inside the border and never under it. Material Design 3's 2."
+            "$description": "The border of the track, drawn inside its edge; the fill sits inside the border and never under it. 2."
           }
         },
         "pressed": {
@@ -81798,7 +81816,7 @@
                 "value": 24,
                 "unit": "px"
               },
-              "$description": "The diameter of the handle while on, Material Design 3's 24. Its center stays on one line whatever the size: half the track height from the track's end."
+              "$description": "The diameter of the handle while on, 24. Its center stays on one line whatever the size: half the track height from the track's end."
             }
           },
           "hovered": {
@@ -82120,7 +82138,7 @@
               "value": 32,
               "unit": "px"
             },
-            "$description": "The height of the track, Material Design 3's 32. The handle's center is half of it from the track's end."
+            "$description": "The height of the track, 32. The handle's center is half of it from the track's end."
           },
           "shape": {
             "$type": "dimension",
@@ -82135,7 +82153,7 @@
               "value": 52,
               "unit": "px"
             },
-            "$description": "The length of the track, Material Design 3's 52."
+            "$description": "The length of the track, 52."
           }
         },
         "unselected": {
@@ -82414,7 +82432,7 @@
                 "value": 16,
                 "unit": "px"
               },
-              "$description": "The diameter of the handle while off, Material Design 3's 16. Its center stays on one line whatever the size: half the track height from the track's end."
+              "$description": "The diameter of the handle while off, 16. Its center stays on one line whatever the size: half the track height from the track's end."
             }
           },
           "hovered": {
@@ -99019,7 +99037,7 @@
         "corner-smoothing": {
           "$type": "number",
           "$value": 0,
-          "$description": "How a corner's curve eases into the straight edge, 0–1, with Figma's meaning: 0 is a quarter circle, 0.6 is the iOS continuous corner, 1 the most eased curve. The radius does not change. Platforms that only have the OS's curve draw it for any amount above 0."
+          "$description": "How a corner's curve eases into the straight edge, 0–1, with Figma's meaning: 0 is a quarter circle, 0.6 is the iOS continuous corner, 1 the most eased curve. The radius does not change. Platforms differ in the curve they can draw: on Apple's platforms SwiftUI's continuous corner (RoundedCornerStyle.continuous) is one fixed curve with no amount, drawn for every amount above 0; on the web, CSS corner-shape: superellipse() takes the amount where the browser has it (Chromium-based browsers, WebKit 26.6), and the corner is a quarter circle where it does not."
         },
         "corner": {
           "extra-extra-large": {
@@ -99465,22 +99483,22 @@
           "body": {
             "$type": "number",
             "$value": 100,
-            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere."
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. The default system adds 100 to every family."
           },
           "display": {
             "$type": "number",
             "$value": 100,
-            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere."
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. The default system adds 100 to every family."
           },
           "heading": {
             "$type": "number",
             "$value": 100,
-            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere."
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. The default system adds 100 to every family."
           },
           "label": {
             "$type": "number",
             "$value": 200,
-            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere."
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. The default system adds 100 to every family."
           }
         },
         "eyebrow": {

@@ -1406,11 +1406,14 @@ export class TanreiDateTimePicker extends LitElement {
 
   /**
    * DTM-47: the keys of the period — Up and Down change it (it has two values), and on the period selector Right and
-   * Left too, in every layout direction; Home is before noon, End after; Enter and Space do what Up does. Returns the
-   * period the key asks for, or null for a key that is not the period's (a digit or a letter is ignored).
+   * Left too, in every layout direction; Home is before noon, End after; Enter and Space do what Up does; the first
+   * letter of a period's name in the locale (A or P in English) sets that period, and where the two names begin with
+   * the same letter (午前, 午後) it changes the period, as a browser's own time field does. Returns the period the key
+   * asks for, or null for a key that is not the period's (a digit or any other letter is ignored).
    */
   private periodKey(event: KeyboardEvent, sideways: boolean): 0 | 1 | null {
     if (event.altKey || event.ctrlKey || event.metaKey) return null;
+    if (event.isComposing || event.keyCode === 229) return null;
     const now = periodOf(this.time.hour);
     const other: 0 | 1 = now ? 0 : 1;
     switch (event.key) {
@@ -1427,8 +1430,34 @@ export class TanreiDateTimePicker extends LitElement {
       case 'End':
         return 1;
       default:
-        return null;
+        return this.periodByInitial(event.key, other);
     }
+  }
+
+  /**
+   * DTM-47: the period whose name in the locale begins with the typed character — compared without case, in the
+   * locale's own casing — or `other` where both names begin with it; null for a character neither begins with, and for
+   * a key that is no character.
+   */
+  private periodByInitial(key: string, other: 0 | 1): 0 | 1 | null {
+    if ([...key].length !== 1 || !key.trim()) return null;
+    const locale = this.cfg.locale;
+    const lower = (text: string) => {
+      try {
+        return text.toLocaleLowerCase(locale || undefined);
+      } catch {
+        return text.toLowerCase();
+      }
+    };
+    const typed = lower(key);
+    const begins = periodNames(locale).map((name) => {
+      const first = [...name.trim()][0];
+      return first !== undefined && lower(first) === typed;
+    });
+    if (begins[0] && begins[1]) return other;
+    if (begins[0]) return 0;
+    if (begins[1]) return 1;
+    return null;
   }
 
   /** DTM-14: the period selector — a press, Enter or Space changes it to the other period; it shows no unit and is never selected. */
@@ -1545,8 +1574,8 @@ export class TanreiDateTimePicker extends LitElement {
     if (wheel.pointer !== event.pointerId) return;
     const { row, duration } = this.rowMetrics(element);
     if (!wheel.moved) {
-      // DTM-46: a press on the other name's row settles it; a press on the middle row settles the other name too — a
-      // period is not typed, so the press begins no entry.
+      // DTM-46: a press on the other name's row settles it; a press on the middle row settles the other name too — the
+      // period begins no typed entry, so the press begins none.
       const box = element.getBoundingClientRect();
       const rows = Math.round((event.clientY - (box.top + box.height / 2)) / row);
       this.settlePeriod(element, rows === 0 ? 1 - wheel.at : wheel.at + rows);
@@ -2282,7 +2311,7 @@ export class TanreiDateTimePicker extends LitElement {
   /**
    * DTM-46, DTM-47: the period wheel — two rows, the name before noon above the one after, that do not run on; the
    * pending period on its selection container (its own, or its part of the joined band). Its control is its middle row,
-   * a spin button of two values that takes no text: a period is not typed.
+   * a spin button of two values that takes no text: the period begins no typed entry (a typed letter sets it, DTM-47).
    */
   private renderPeriodWheel(): TemplateResult {
     const names = periodNames(this.cfg.locale);

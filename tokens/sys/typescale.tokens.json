@@ -501,7 +501,7 @@
         },
         "emphasis": {
           "$type": "number",
-          "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere.",
+          "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. The default system adds 100 to every family.",
           "$extensions": {
             "dev.tanrei.vocabulary": {
               "rationale": "One product stresses a selected tab or a key figure without changing its size or level; how much heavier is a choice per family.",
@@ -510,7 +510,7 @@
           },
           "display": {
             "$value": 100,
-            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere.",
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. The default system adds 100 to every family.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fixed": "A weight step is a choice, not a quantity."
@@ -519,7 +519,7 @@
           },
           "heading": {
             "$value": 100,
-            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere.",
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. The default system adds 100 to every family.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fixed": "A weight step is a choice, not a quantity."
@@ -528,7 +528,7 @@
           },
           "body": {
             "$value": 100,
-            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere.",
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. The default system adds 100 to every family.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fixed": "A weight step is a choice, not a quantity."
@@ -537,7 +537,7 @@
           },
           "label": {
             "$value": 100,
-            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere.",
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. The default system adds 100 to every family.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fixed": "A weight step is a choice, not a quantity."

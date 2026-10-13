@@ -2,7 +2,7 @@
 title: حقل إدخال اللون
 description: الصندوق الذي يعيّن فيه الناس لونًا واحدًا، فيه عيّنة منه، والقيمة نصًّا يقرؤونه ويكتبونه ويلصقونه، وزر يطلب منتقيًا، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لصف أو عمود يسمّي اللون سلفًا، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/color-input.mdx
-sourceHash: c6a1f0d587f6be1fa38d747d9f53935365b8c4a9
+sourceHash: ec6bf73bd10bf8fbda1f42dfb65024d484903004
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -142,7 +142,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### ما يرسمه الويب بطريقة مختلفة
 
 - العنصر مرتبط بالنماذج (form-associated). مع `name` يرسل `value`، أي اللون أو سلسلة فارغة، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويُستعاد عند التنقل، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دام حقله يقول إنه مطلوب، وبأن الإدخال غير صالح ما دام خطأ الإدخال قائمًا.
-- العنصر كتلة. والدالة `focus()` تذهب إلى عنصر النص الأصلي، لا إلى زر المنتقي أبدًا؛ والضغطة في أي مكان من الصندوق خارج ذلك الزر تنقل التركيز إلى النص.
+- العنصر كتلة. والدالة `focus()` تذهب إلى عنصر النص الأصلي، لا إلى زر المنتقي أبدًا؛ والضغطة في أي مكان من الصندوق خارج ذلك الزر تنقل التركيز إلى النص، إلا أن الضغط على مربع اللون يفتح المنتقي حين يظهر الزر.
 - الحدثان `input` و `change` حدثان عاديان: اقرأ `value` من العنصر. والحدث `pickerrequest` من النوع CustomEvent وقابل للإلغاء ومعه `detail.value`؛ والحدث `entryerror` من النوع CustomEvent ومعه `detail.text` و `detail.message`، والأخير هو `invalidText`. ونوعاهما `TanreiColorInputPickerRequestDetail` و `TanreiColorInputEntryErrorDetail`.
 - الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `swatch`، `input`، `picker-button`. وليس له منفذ.
 - ليس للعنصر كلمات من عنده، ولا يقرأ شيئًا من كلمات المنتج: الخصائص `label` و `invalidText` و `pickerLabel` فارغة إلى أن تعطيها.
