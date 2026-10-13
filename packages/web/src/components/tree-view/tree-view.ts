@@ -11,6 +11,10 @@ import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 export type TanreiTreeViewSelection = 'none' | 'single' | 'multiple';
 /** The core densities (regular, compact), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTreeViewDensity = keyof TanreiTreeViewDensityRegistry;
+/** What a row keeps at its start: regular (every row the chevron's box), compact (a leaf none). */
+export type TanreiTreeViewIndent = 'regular' | 'compact';
+/** How a parent shows that it is open: chevron (the chevron that turns), icon (its icon and open icon take turns). */
+export type TanreiTreeViewDisclosure = 'chevron' | 'icon';
 /** What `change` carries: `value` while selection is single, `values` while it is multiple, after the change. */
 export interface TanreiTreeViewChangeDetail {
   value?: string | null;
@@ -36,6 +40,8 @@ const TREE_VIEW_CSS: string = (() => {
 const TAG = 'tanrei-tree-view';
 const PREFIX = '--tanrei-comp-tree-view';
 const SELECTIONS: readonly string[] = ['none', 'single', 'multiple'];
+const INDENTS: readonly string[] = ['regular', 'compact'];
+const DISCLOSURES: readonly string[] = ['chevron', 'icon'];
 const CORE_DENSITIES: readonly string[] = ['regular', 'compact'];
 const DEFAULT_DENSITY = 'regular';
 /** The members of the density axis (`dev.tanrei.axes.density.members`) as tree-view.css names them. */
@@ -246,6 +252,8 @@ export class TanreiTreeView extends ReactiveElement {
     },
     density: { type: String, reflect: true, useDefault: true },
     guides: { type: Boolean, reflect: true },
+    indent: { type: String, reflect: true, useDefault: true },
+    disclosure: { type: String, reflect: true, useDefault: true },
     loadingLabel: { type: String, attribute: 'loading-label' },
   };
 
@@ -266,6 +274,12 @@ export class TanreiTreeView extends ReactiveElement {
 
   /** Draws a hairline down from each open parent beside the rows it holds. Decorative. */
   guides = false;
+
+  /** What a row keeps at its start: regular (every row keeps the chevron's box, a leaf's empty), compact (a leaf keeps none, so that the leaves under a parent have their icons under the parent's icon). */
+  indent: TanreiTreeViewIndent = 'regular';
+
+  /** How a parent shows that it is open: chevron (the chevron at the start of its row), icon (a parent that names an open icon shows it while open, and its icon is what opens and closes it). */
+  disclosure: TanreiTreeViewDisclosure = 'chevron';
 
   /** The words of a loading row ("Loading…"), and the name of its indicator. Tanrei ships none. */
   loadingLabel = '';
@@ -343,6 +357,10 @@ export class TanreiTreeView extends ReactiveElement {
       report(this, 'TRV-41', `selection "${this.selection}" is not a value the tree view defines; it is drawn as "none"`);
     }
     if (changed.has('density')) this.readDensity(String(this.density ?? ''));
+    // TRV-41: an indent or a disclosure the tree does not define is the default's (no rule matches the attribute).
+    if (changed.has('indent') && !INDENTS.includes(this.indent)) report(this, 'TRV-41', `indent "${this.indent}" is not a value the tree view defines; it is drawn as "regular"`);
+    if (changed.has('disclosure') && !DISCLOSURES.includes(this.disclosure)) report(this, 'TRV-41', `disclosure "${this.disclosure}" is not a value the tree view defines; it is drawn as "chevron"`);
+    if (changed.has('disclosure') && changed.get('disclosure') !== undefined && this.disclosure === 'icon') for (const item of this.querySelectorAll<Item>('li[role="none"]')) if (isItem(item)) this.checkDisclosure(item);
     if (changed.has('label') || !this.named) {
       this.named = true;
       mark(this, 'aria-label', this.label || null);
@@ -561,6 +579,7 @@ export class TanreiTreeView extends ReactiveElement {
       row.removeAttribute('aria-label');
     }
     if (!debugBuild()) return;
+    this.checkDisclosure(item);
     // TRV-32: an item with no label. TRV-6: a row holds no control.
     if (!labelOf(item) && !row.getAttribute('aria-label') && !row.hasAttribute('aria-labelledby')) report(item, 'TRV-32', 'the item has no accessible name; give its row a label');
     let control: Element | null = null;
@@ -655,6 +674,24 @@ export class TanreiTreeView extends ReactiveElement {
       if (this.querySelector(`li[${LOADING}]`) && this.words.lacks('loadingLabel', this.loadingLabel)) report(this, 'TRV-13', 'an item is loading and the tree has no loading-label: the loading indicator has no name');
     });
   }
+
+  /**
+   * TRV-44: the icon that stands in a parent's chevron's place while the disclosure is icon — a parent that names both
+   * its glyphs. Null for every other row, which keeps its chevron.
+   */
+  private toggleIcon(item: Item): HTMLElement | null {
+    if (this.disclosure !== 'icon' || !isParent(item)) return null;
+    const icon = rowOf(item)?.querySelector<HTMLElement>(':scope > .tanrei-icon[data-open-icon]');
+    return icon && icon.getAttribute('data-open-icon')?.trim() && icon.textContent?.trim() ? icon : null;
+  }
+
+  /** TRV-44: a parent that cannot show open and closed by its glyph keeps its chevron; a debug build says so, once. */
+  private checkDisclosure(item: Item) {
+    if (this.disclosure !== 'icon' || !isParent(item) || this.toggleIcon(item) || this.disclosureReported.has(item)) return;
+    this.disclosureReported.add(item);
+    report(item, 'TRV-44', 'the tree’s disclosure is icon and this parent names no icon and open icon (data-open-icon on its .tanrei-icon): it keeps its chevron');
+  }
+  private readonly disclosureReported = new WeakSet<Element>();
 
   /** TRV-3: a level whose indent takes more than half of the tree's width is drawn where the deepest one that fits begins; a debug build says the depth, once. Read when the user first acts: it reads the layout. */
   private checkDepth() {
@@ -1080,15 +1117,17 @@ export class TanreiTreeView extends ReactiveElement {
    * the middle of the gap after the chevron's box, and at least the target wide. The lengths are the row's own, as the
    * cascade computes them.
    */
-  private onChevron(row: HTMLElement, x: number): boolean {
+  private onChevron(item: Item, row: HTMLElement, x: number): boolean {
     const style = getComputedStyle(row);
-    const chevron = getComputedStyle(row, '::before');
     const rtl = style.direction === 'rtl';
     const box = row.getBoundingClientRect();
     // The least width is the tree's own, read where the stylesheet has a real property compute it.
     const { target } = treeLengths(this);
+    // TRV-44: where the icon stands in the chevron's place, its box and the gap after it are the chevron's.
+    const icon = this.toggleIcon(item);
+    const mark = icon ? getComputedStyle(icon) : getComputedStyle(row, '::before');
     const reach = Math.max(
-      Number.parseFloat(rtl ? style.paddingRight : style.paddingLeft) + Number.parseFloat(chevron.width) + (Number.parseFloat(chevron.marginLeft) + Number.parseFloat(chevron.marginRight)) / 2,
+      Number.parseFloat(rtl ? style.paddingRight : style.paddingLeft) + Number.parseFloat(mark.width) + (Number.parseFloat(mark.marginLeft) + Number.parseFloat(mark.marginRight)) / 2,
       target > 0 ? target : 0,
     );
     return (rtl ? box.right - x : x - box.left) <= reach;
@@ -1141,7 +1180,7 @@ export class TanreiTreeView extends ReactiveElement {
     if (!item || !row || click.button !== 0 || !this.answers(item)) return;
     // (A click that names no place — one made by script — is a press on the row.)
     const placed = click.detail > 0 || click.clientX !== 0 || click.clientY !== 0;
-    this.activate(item, placed && isParent(item) && this.canChoose(item) && this.onChevron(row, click.clientX));
+    this.activate(item, placed && isParent(item) && this.canChoose(item) && this.onChevron(item, row, click.clientX));
   };
 
   // TRV-14: the browser's find-in-page found text in a closed list — that parent opens, at once, with its toggle.

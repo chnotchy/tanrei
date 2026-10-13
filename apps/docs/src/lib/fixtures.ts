@@ -360,8 +360,8 @@ const isMenubar = (spec: Spec) => spec.name === 'menubar';
  * A tree view fixture's items as the product's own nested lists, as the web package's fixture harness writes them
  * (`treeViewMarkup` in packages/web/test/harness.ts): each item an `<li>` — with `data-value`, `data-open`,
  * `data-expandable`, `data-loading` and `data-disabled` where the item has them — whose first child is its row, a
- * `<span>` holding the icon as a `.tanrei-icon`, the label in a `<bdi>` with the supporting text after it in a
- * `data-supporting-text` element, and the trailing text in a `data-trailing-text` one; the item's own items are a
+ * `<span>` holding the icon as a `.tanrei-icon` (its open icon in `data-open-icon`), the label in a `<bdi>` with the
+ * supporting text after it in a `data-supporting-text` element, and the trailing text in a `data-trailing-text` one; the item's own items are a
  * `<ul>` after the row, inside the same `<li>`, to any depth.
  */
 function treeViewHtml(items: FixtureItem[]): string {
@@ -369,7 +369,7 @@ function treeViewHtml(items: FixtureItem[]): string {
     .map((item) => {
       const p = item.props as Props;
       const flags = ['open', 'expandable', 'loading', 'disabled'].map((name) => (p[name] === true ? ` data-${name}` : '')).join('');
-      const icon = p.icon ? `<span class="tanrei-icon" aria-hidden="true">${escape(String(p.icon))}</span>` : '';
+      const icon = p.icon ? `<span class="tanrei-icon" aria-hidden="true"${p.openIcon ? ` data-open-icon="${escape(String(p.openIcon))}"` : ''}>${escape(String(p.icon))}</span>` : '';
       const supporting = p.supportingText ? `<small data-supporting-text>${escape(String(p.supportingText))}</small>` : '';
       const trailing = p.trailingText ? `<span data-trailing-text>${escape(String(p.trailingText))}</span>` : '';
       return `<li${p.value ? ` data-value="${escape(String(p.value))}"` : ''}${flags}><span>${icon}<bdi>${escape(String(p.label ?? ''))}${supporting}</bdi>${trailing}</span>${item.items?.length ? treeViewHtml(item.items) : ''}</li>`;

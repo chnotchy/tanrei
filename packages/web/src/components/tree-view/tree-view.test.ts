@@ -313,7 +313,7 @@ test.describe('the column, the rows and their parts', () => {
     expect((await drawn(row(page, 'disabled', 'generated'))).chevron.content).toContain('chevron_right');
   });
 
-  test('TRV-5: an icon is the glyph of that name after the chevron’s box, in the density’s box and the condition’s icon color, outlined — filled while its own item is selected — and hidden from assistive technology; with no icon no room is kept; the glyph is the same open and closed', async ({ page }) => {
+  test('TRV-5: an icon is the glyph of that name after the chevron’s box, in the density’s box and the condition’s icon color, outlined — filled while its own item is selected — and hidden from assistive technology; with no icon no room is kept; an item that names no open icon draws the same glyph open and closed', async ({ page }) => {
     await mount(page, { fixtures: some('icons', 'basic', 'single-parent-selected', 'compact') });
     const size = await resolveToken(page, T('icon-size-regular'));
     const glyph = row(page, 'icons', 'src').locator('> .tanrei-icon');
@@ -1932,6 +1932,109 @@ test.describe('missing, unknown, empty, changed', () => {
     // The last item of a parent taken away: a leaf again.
     await item(page, 'small', 'Eel').evaluate((el) => el.remove());
     await expect.poll(() => row(page, 'small', 'Epsilon').getAttribute('aria-expanded')).toBeNull();
+  });
+});
+
+test.describe('indent and disclosure', () => {
+  /** Where a row's icon begins, from the tree's start edge (its left in these left-to-right fixtures). */
+  const iconAt = async (page: P, id: string, label: string) => (await edges(row(page, id, label).locator('> .tanrei-icon'))).left - (await edges(host(page, id))).left;
+  const chevronAt = async (page: P, id: string, label: string) => (await drawn(row(page, id, label))).chevron.left - (await edges(host(page, id))).left;
+
+  test('TRV-43: while indent is compact a leaf keeps no chevron’s box — its icon begins where its level’s chevrons do, so that a parent’s leaves have their icons under the parent’s own icon — and a parent’s row, the step of a level and the guides are as while it is regular', async ({ page }) => {
+    await mount(page, { fixtures: some('icons', 'indent-compact', 'indent-compact-dense', 'compact-guides') });
+    for (const [id, density, twin] of [
+      ['indent-compact', 'regular', 'icons'],
+      ['indent-compact-dense', 'compact', 'compact-guides'],
+    ] as const) {
+      const pad = await resolveToken(page, T(`container-padding-inline-${density}`));
+      const step = await resolveToken(page, T(`level-indent-${density}`));
+      const chevron = await resolveToken(page, T(`chevron-size-${density}`));
+      const gap = await resolveToken(page, T(`container-gap-${density}`));
+      // The default step is the chevron's box and one gap: a child's chevron stands where its parent's icon begins.
+      expect(step).toBe(chevron + gap);
+      // A parent is drawn as it is in the regular indent: its chevron at its level's start, its icon after the box.
+      near(await chevronAt(page, id, 'src'), pad);
+      near(await iconAt(page, id, 'src'), pad + chevron + gap);
+      near(await chevronAt(page, id, 'components'), pad + step);
+      // A leaf under a parent: its icon in the column of the parent's own icon.
+      near(await iconAt(page, id, 'index.ts'), await iconAt(page, id, 'src'));
+      near(await iconAt(page, id, 'button.ts'), await iconAt(page, id, 'components'));
+      // A leaf of the first level: its icon where the first level's chevrons are.
+      near(await iconAt(page, id, 'package.json'), pad);
+      expect(await css(row(page, id, 'package.json'), 'display', '::before')).toBe('none');
+      // The row of a leaf is as high and its container begins where it would in the regular indent.
+      expect((await edges(row(page, id, 'index.ts'))).height).toBe((await edges(row(page, twin, 'index.ts'))).height);
+      near((await drawn(row(page, id, 'index.ts'))).container.left - (await edges(host(page, id))).left, (await drawn(row(page, twin, 'index.ts'))).container.left - (await edges(host(page, twin))).left);
+    }
+    // In the regular indent a leaf keeps the box: its icon one box and a gap further in than in the compact one.
+    const chevron = await resolveToken(page, T('chevron-size-regular'));
+    const gap = await resolveToken(page, T('container-gap-regular'));
+    near(await iconAt(page, 'icons', 'index.ts'), (await iconAt(page, 'indent-compact', 'index.ts')) + chevron + gap);
+    // The guides stand where they stand in the regular indent: under the parent's chevron.
+    const guide = (id: string) => item(page, id, 'src').locator('> ul').evaluate((list) => list.getBoundingClientRect().left + Number.parseFloat(getComputedStyle(list, '::before').left));
+    near(await guide('indent-compact-dense'), await guide('compact-guides'));
+  });
+
+  test('TRV-44, TRV-5: while disclosure is icon a parent that names an icon and an open icon draws no chevron and keeps no box, shows open and closed by its glyph — changed at once — and is opened and closed by a press on it, not chosen; a leaf keeps no box; Right Arrow opens it; its expanded state is the same; a parent without an open icon keeps its chevron, reported; with disclosure chevron the open icon is drawn beside the chevron', async ({ page }) => {
+    const seen = warnings(page);
+    const mixed = '<ul><li data-value="f" data-open><span><i class="tanrei-icon">folder</i>Folder</span><ul><li data-value="f1"><span><i class="tanrei-icon">draft</i>Note</span></li></ul></li><li data-value="g"><span><i class="tanrei-icon">folder</i>Plain</span><ul><li><span>Inner</span></li></ul></li></ul>';
+    await mount(page, { fixtures: [...some('disclosure-icon', 'disclosure-icon-compact', 'icons'), raw('mixed', { label: 'Mixed', disclosure: 'icon' }, mixed), raw('both', { label: 'Both' }, mixed.replace('<i class="tanrei-icon">folder</i>Folder', '<i class="tanrei-icon" data-open-icon="folder_open">folder</i>Folder'))] });
+    await nameItems(page);
+    await watch(page);
+    const id = 'disclosure-icon';
+    const pad = await resolveToken(page, T('container-padding-inline-regular'));
+    const start = (await edges(host(page, id))).left;
+    for (const label of ['src', 'components', 'styles', 'index.ts', 'test', 'package.json']) {
+      expect(await css(row(page, id, label), 'display', '::before'), label).toBe('none');
+    }
+    // The icon begins at its level's start, where the chevron's box would be.
+    near((await edges(row(page, id, 'src').locator('> .tanrei-icon'))).left - start, pad);
+    near((await edges(row(page, id, 'package.json').locator('> .tanrei-icon'))).left - start, pad);
+    // Open: the open glyph, in the icon's box; closed: the icon's own.
+    const glyph = (label: string) => row(page, id, label).locator('> .tanrei-icon').evaluate((icon) => getComputedStyle(icon, '::before').content);
+    expect(await glyph('src')).toContain('folder_open');
+    expect(await glyph('styles')).not.toContain('folder_open');
+    expect((await edges(row(page, id, 'src').locator('> .tanrei-icon'))).width).toBe(await resolveToken(page, T('icon-size-regular')));
+    // A press on a closed parent's icon opens it and chooses nothing; at once the open glyph.
+    await row(page, id, 'styles').locator('> .tanrei-icon').click();
+    expect(await events(page)).toEqual(['toggle:styles:true']);
+    expect(await glyph('styles')).toContain('folder_open');
+    await settled(page);
+    // A press on its label chooses it and opens nothing.
+    await row(page, id, 'styles').locator('bdi').click();
+    expect(await events(page)).toEqual(['change:{"value":"src/styles"}']);
+    // The keys: Right Arrow opens a closed parent, as it does one with a chevron.
+    await row(page, id, 'test').focus();
+    await page.keyboard.press('ArrowRight');
+    expect(await events(page)).toEqual(['toggle:test:true']);
+    await settled(page);
+    // The expanded state is the row's, the same as with chevrons.
+    await expect(row(page, id, 'src')).toHaveAttribute('aria-expanded', 'true');
+    await expect(row(page, 'icons', 'src')).toHaveAttribute('aria-expanded', 'true');
+    // The guide line stands under the open parent's icon.
+    const compact = 'disclosure-icon-compact';
+    const iconBox = await edges(row(page, compact, 'src').locator('> .tanrei-icon'));
+    const line = await item(page, compact, 'src')
+      .locator('> ul')
+      .evaluate((list) => list.getBoundingClientRect().left + Number.parseFloat(getComputedStyle(list, '::before').left) + Number.parseFloat(getComputedStyle(list, '::before').borderLeftWidth) / 2);
+    near(line, iconBox.left + iconBox.width / 2, 1);
+    // A parent with no open icon keeps its chevron, and a debug build says so once.
+    expect((await drawn(row(page, 'mixed', 'Plain'))).chevron.content).toContain('chevron_right');
+    expect(await css(row(page, 'mixed', 'Folder'), 'display', '::before')).not.toBe('none');
+    expect(seen.filter((text) => text.includes('TRV-44')).length).toBeGreaterThanOrEqual(1);
+    // With disclosure chevron the open glyph is drawn while open, beside the chevron.
+    expect((await drawn(row(page, 'both', 'Folder'))).chevron.content).toContain('chevron_right');
+    expect(await row(page, 'both', 'Folder').locator('> .tanrei-icon').evaluate((el) => getComputedStyle(el, '::before').content)).toContain('folder_open');
+  });
+
+  test('TRV-41: an indent or a disclosure the tree does not define is drawn as regular and as chevron, each reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, { fixtures: [raw('odd', { label: 'Odd', indent: 'tight', disclosure: 'glyph' }, '<ul><li data-open><span><i class="tanrei-icon" data-open-icon="folder_open">folder</i>Folder</span><ul><li><span>Leaf</span></li></ul></li><li><span>Top</span></li></ul>')] });
+    await nameItems(page);
+    expect((await drawn(row(page, 'odd', 'Folder'))).chevron.content).toContain('chevron_right');
+    expect(await css(row(page, 'odd', 'Top'), 'display', '::before')).not.toBe('none');
+    expect(seen.filter((text) => text.includes('TRV-41') && text.includes('"tight"'))).toHaveLength(1);
+    expect(seen.filter((text) => text.includes('TRV-41') && text.includes('"glyph"'))).toHaveLength(1);
   });
 });
 

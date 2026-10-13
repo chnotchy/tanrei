@@ -87572,6 +87572,30 @@
             },
             {
               "kind": "field",
+              "name": "indent",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiTreeViewIndent"
+              },
+              "default": "'regular'",
+              "description": "What a row keeps at its start: regular (every row keeps the chevron's box, a leaf's empty), compact (a leaf keeps none, so that the leaves under a parent have their icons under the parent's icon).",
+              "attribute": "indent",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "disclosure",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiTreeViewDisclosure"
+              },
+              "default": "'chevron'",
+              "description": "How a parent shows that it is open: chevron (the chevron at the start of its row), icon (a parent that names an open icon shows it while open, and its icon is what opens and closes it).",
+              "attribute": "disclosure",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "loadingLabel",
               "privacy": "public",
               "type": {
@@ -88111,6 +88135,46 @@
             },
             {
               "kind": "method",
+              "name": "toggleIcon",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "HTMLElement | null"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "Item"
+                  }
+                }
+              ],
+              "description": "TRV-44: the icon that stands in a parent's chevron's place while the disclosure is icon — a parent that names both\nits glyphs. Null for every other row, which keeps its chevron."
+            },
+            {
+              "kind": "method",
+              "name": "checkDisclosure",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "Item"
+                  }
+                }
+              ],
+              "description": "TRV-44: a parent that cannot show open and closed by its glyph keeps its chevron; a debug build says so, once."
+            },
+            {
+              "kind": "field",
+              "name": "disclosureReported",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new WeakSet<Element>()"
+            },
+            {
+              "kind": "method",
               "name": "checkDepth",
               "privacy": "private",
               "description": "TRV-3: a level whose indent takes more than half of the tree's width is drawn where the deepest one that fits begins; a debug build says the depth, once. Read when the user first acts: it reads the layout."
@@ -88386,6 +88450,12 @@
               },
               "parameters": [
                 {
+                  "name": "item",
+                  "type": {
+                    "text": "Item"
+                  }
+                },
+                {
                   "name": "row",
                   "type": {
                     "text": "HTMLElement"
@@ -88536,6 +88606,24 @@
               "default": "false",
               "description": "Draws a hairline down from each open parent beside the rows it holds. Decorative.",
               "fieldName": "guides"
+            },
+            {
+              "name": "indent",
+              "type": {
+                "text": "TanreiTreeViewIndent"
+              },
+              "default": "'regular'",
+              "description": "What a row keeps at its start: regular (every row keeps the chevron's box, a leaf's empty), compact (a leaf keeps none, so that the leaves under a parent have their icons under the parent's icon).",
+              "fieldName": "indent"
+            },
+            {
+              "name": "disclosure",
+              "type": {
+                "text": "TanreiTreeViewDisclosure"
+              },
+              "default": "'chevron'",
+              "description": "How a parent shows that it is open: chevron (the chevron at the start of its row), icon (a parent that names an open icon shows it while open, and its icon is what opens and closes it).",
+              "fieldName": "disclosure"
             },
             {
               "name": "loading-label",

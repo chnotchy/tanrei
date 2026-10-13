@@ -38,7 +38,10 @@
  *
  *   <span><bdi>tokens/</bdi><small data-supporting-text>source of truth</small></span>
  *
- * Attributes of the item: `data-value`, `data-open`, `data-expandable`, `data-loading`, `data-disabled`.
+ * Attributes of the item: `data-value`, `data-open`, `data-expandable`, `data-loading`, `data-disabled`. A parent's
+ * `.tanrei-icon` may name the glyph it shows while open in `data-open-icon` (TRV-5). Attributes of the tree that this
+ * stylesheet reads besides its density and guides: `indent="compact"` (a leaf keeps no chevron's box, TRV-43) and
+ * `disclosure="icon"` (a parent that names both glyphs draws no chevron, TRV-44).
  *
  * This stylesheet draws everything, before the element is defined (an element that is not yet defined is still an
  * element), and where script does not run every level is shown and no chevron is drawn: a nested list in the tree's
@@ -516,6 +519,41 @@
     margin-right: calc(var(--_trv-gap) + var(--_trv-chevron-size) * var(--_trv-rtl));
     color: var(--_trv-now-icon);
     vertical-align: baseline;
+  }
+  /* TRV-5: a parent that is open and names a second glyph draws it in the icon's place — the open glyph first in the
+     icon's own box, which pushes the closed one past its end, where the box clips it. A leaf ignores it. */
+  :where(tanrei-tree-view) :where(li[data-open]:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before,
+  :where(tanrei-tree-view) :where(li[data-open][data-expandable]) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before {
+    content: attr(data-open-icon);
+    flex: none;
+    inline-size: var(--_size);
+    text-align: center;
+  }
+
+  /* TRV-43, TRV-44: a row that keeps no chevron's box — a leaf while the indent is compact; a leaf, and a parent that
+     names both its glyphs, while the disclosure is icon. The icon, or else the label, begins where the box would. */
+  :where(tanrei-tree-view[indent='compact'], tanrei-tree-view[disclosure='icon']) :where(li:not([data-expandable], [data-tanrei-loading])) > :where(:first-child:only-child),
+  :where(tanrei-tree-view[indent='compact'], tanrei-tree-view[disclosure='icon']) :where(li[data-tanrei-leaf]:not([data-expandable])) > :where(:first-child:not(ul, ol)),
+  :where(tanrei-tree-view[disclosure='icon']) :where(li:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child):has(> .tanrei-icon[data-open-icon]:not([data-open-icon=''], :empty))),
+  :where(tanrei-tree-view[disclosure='icon']) :where(li[data-expandable]) > :where(:first-child:not(ul, ol):has(> .tanrei-icon[data-open-icon]:not([data-open-icon=''], :empty))) {
+    --_trv-lead: calc(var(--_trv-icon-size) + var(--_trv-gap));
+  }
+  :where(tanrei-tree-view[indent='compact'], tanrei-tree-view[disclosure='icon']) :where(li:not([data-expandable], [data-tanrei-loading])) > :where(:first-child:only-child)::before,
+  :where(tanrei-tree-view[indent='compact'], tanrei-tree-view[disclosure='icon']) :where(li[data-tanrei-leaf]:not([data-expandable])) > :where(:first-child:not(ul, ol))::before,
+  :where(tanrei-tree-view[disclosure='icon']) :where(li:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child):has(> .tanrei-icon[data-open-icon]:not([data-open-icon=''], :empty)))::before,
+  :where(tanrei-tree-view[disclosure='icon']) :where(li[data-expandable]) > :where(:first-child:not(ul, ol):has(> .tanrei-icon[data-open-icon]:not([data-open-icon=''], :empty)))::before {
+    display: none;
+  }
+  :where(tanrei-tree-view[indent='compact'], tanrei-tree-view[disclosure='icon']) :where(li:not([data-expandable], [data-tanrei-loading])) > :where(:first-child:only-child) > .tanrei-icon.tanrei-icon,
+  :where(tanrei-tree-view[indent='compact'], tanrei-tree-view[disclosure='icon']) :where(li[data-tanrei-leaf]:not([data-expandable])) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon,
+  :where(tanrei-tree-view[disclosure='icon']) :where(li:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''], :empty),
+  :where(tanrei-tree-view[disclosure='icon']) :where(li[data-expandable]) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''], :empty) {
+    margin-left: calc(var(--_trv-gap) * var(--_trv-rtl));
+    margin-right: calc(var(--_trv-gap) * (1 - var(--_trv-rtl)));
+  }
+  /* TRV-8, TRV-44: the guide line of a parent whose icon stands in its chevron's place stands under that icon. */
+  :where(tanrei-tree-view[guides][disclosure='icon']) :where(li:has(> :first-child > .tanrei-icon[data-open-icon]:not([data-open-icon=''], :empty))) > :where(ul, ol)::before {
+    inset-inline-start: calc(var(--_trv-at) + var(--_trv-pad-inline) + (var(--_trv-icon-size) - var(--tanrei-comp-tree-view-guide-width)) / 2);
   }
   /* TRV-40: while the icon set cannot draw a glyph, none is drawn and every box is kept. */
   :where(tanrei-tree-view[data-glyphs='pending']) :where(li) > :where(:first-child:not(ul, ol))::before,

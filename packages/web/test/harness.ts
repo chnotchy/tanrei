@@ -927,7 +927,7 @@ function menubarMarkup(spec: Spec, fixture: Fixture): string {
 /**
  * A tree view fixture's items as the product's own nested lists (the spec's web mapping): each item an `<li>` — with
  * `data-value`, `data-open`, `data-expandable`, `data-loading` and `data-disabled` where the item has them — whose
- * first child is its row, a `<span>` holding the icon as a `.tanrei-icon`, the label in a `<bdi>` with the supporting
+ * first child is its row, a `<span>` holding the icon as a `.tanrei-icon` (its open icon in `data-open-icon`), the label in a `<bdi>` with the supporting
  * text after it in a `data-supporting-text` element, and the trailing text in a `data-trailing-text` one; the item's
  * own items are a `<ul>` after the row, inside the same `<li>`. The form that is a plain nested list without script.
  */
@@ -940,7 +940,7 @@ export function treeViewMarkup(_spec: Spec, fixture: Fixture): string {
       .map((item) => {
         const p = item.props;
         const flags = (['open', 'expandable', 'loading', 'disabled'] as const).map((name) => (p[name] === true ? ` data-${name}` : '')).join('');
-        const icon = p.icon ? `<span class="tanrei-icon" aria-hidden="true">${escape(p.icon)}</span>` : '';
+        const icon = p.icon ? `<span class="tanrei-icon" aria-hidden="true"${p.openIcon ? ` data-open-icon="${escape(p.openIcon)}"` : ''}>${escape(p.icon)}</span>` : '';
         const supporting = p.supportingText ? `<small data-supporting-text>${escape(p.supportingText)}</small>` : '';
         const trailing = p.trailingText ? `<span data-trailing-text>${escape(p.trailingText)}</span>` : '';
         return `<li${p.value ? ` data-value="${escape(p.value)}"` : ''}${flags}><span>${icon}<bdi>${escape(p.label ?? '')}${supporting}</bdi>${trailing}</span>${item.items?.length ? list(item.items) : ''}</li>`;
