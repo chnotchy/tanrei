@@ -18,7 +18,7 @@ export interface TanreiWords {
   busyLabel?: string;
   /** Read by `date-time-picker.cancelLabel`. */
   cancelLabel?: string;
-  /** Read by `list.cancelledText`. A word with places: `{label}` (text), `{position}` (number), `{count}` (number). */
+  /** Read by `file-upload.cancelledText`, `list.cancelledText`. A word with places: `{label}` (text), `{position}` (number), `{count}` (number). */
   cancelledText?: string;
   /** Read by `text-input.counterNoLimitText`. A word with places: `{count}` (number). */
   characterCountNoLimitText?: string;
@@ -42,9 +42,9 @@ export interface TanreiWords {
   decrementLabel?: string;
   /** Read by `date-time-picker.dialLabel`. */
   dialLabel?: string;
-  /** Read by `list.dragHandleHint`. */
+  /** Read by `file-upload.dragHandleHint`, `list.dragHandleHint`. */
   dragHandleHint?: string;
-  /** Read by `list.dragHandleLabel`. A word with places: `{label}` (text, needed). */
+  /** Read by `file-upload.dragHandleLabel`, `list.dragHandleLabel`. A word with places: `{label}` (text, needed). */
   dragHandleLabel?: string;
   /** Read by `chip-field.duplicateText`. */
   duplicateEntryText?: string;
@@ -86,7 +86,7 @@ export interface TanreiWords {
   imageErrorText?: string;
   /** Read by `number-input.incrementLabel`. */
   incrementLabel?: string;
-  /** Read by `list.liftedText`. A word with places: `{label}` (text), `{position}` (number), `{count}` (number). */
+  /** Read by `file-upload.liftedText`, `list.liftedText`. A word with places: `{label}` (text), `{position}` (number), `{count}` (number). */
   liftedText?: string;
   /** Read by `image-preview.loadingLabel`, `skeleton.label`, `tree-view.loadingLabel`. */
   loadingLabel?: string;
@@ -94,15 +94,15 @@ export interface TanreiWords {
   menubarOverflowLabel?: string;
   /** Read by `date-time-picker.minuteLabel`. */
   minuteLabel?: string;
-  /** Read by `list.moveAfterLabel`. */
+  /** Read by `file-upload.moveAfterLabel`, `list.moveAfterLabel`. */
   moveAfterLabel?: string;
-  /** Read by `list.moveBeforeLabel`. */
+  /** Read by `file-upload.moveBeforeLabel`, `list.moveBeforeLabel`. */
   moveBeforeLabel?: string;
-  /** Read by `list.moveToEndLabel`. */
+  /** Read by `file-upload.moveToEndLabel`, `list.moveToEndLabel`. */
   moveToEndLabel?: string;
-  /** Read by `list.moveToStartLabel`. */
+  /** Read by `file-upload.moveToStartLabel`, `list.moveToStartLabel`. */
   moveToStartLabel?: string;
-  /** Read by `list.movedText`. A word with places: `{label}` (text), `{position}` (number), `{count}` (number). */
+  /** Read by `file-upload.movedText`, `list.movedText`. A word with places: `{label}` (text), `{position}` (number), `{count}` (number). */
   movedText?: string;
   /** Read by `date-time-picker.nextDayLabel`. */
   nextDayLabel?: string;
@@ -181,7 +181,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   breadcrumbsOverflowLabel: ['breadcrumbs.overflowLabel'],
   busyLabel: ['button.busyLabel'],
   cancelLabel: ['date-time-picker.cancelLabel'],
-  cancelledText: ['list.cancelledText'],
+  cancelledText: ['file-upload.cancelledText', 'list.cancelledText'],
   characterCountNoLimitText: ['text-input.counterNoLimitText'],
   characterCountText: ['text-input.counterText'],
   clearLabel: ['combobox.clearLabel', 'search.clearLabel'],
@@ -193,8 +193,8 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   dateLabel: ['date-time-picker.dateLabel'],
   decrementLabel: ['number-input.decrementLabel'],
   dialLabel: ['date-time-picker.dialLabel'],
-  dragHandleHint: ['list.dragHandleHint'],
-  dragHandleLabel: ['list.dragHandleLabel'],
+  dragHandleHint: ['file-upload.dragHandleHint', 'list.dragHandleHint'],
+  dragHandleLabel: ['file-upload.dragHandleLabel', 'list.dragHandleLabel'],
   duplicateEntryText: ['chip-field.duplicateText'],
   emptyText: ['combobox.emptyText'],
   endLabel: ['calendar.endLabel', 'date-time-picker.endLabel'],
@@ -215,15 +215,15 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   imageCountText: ['image-preview.countText'],
   imageErrorText: ['image-preview.errorText'],
   incrementLabel: ['number-input.incrementLabel'],
-  liftedText: ['list.liftedText'],
+  liftedText: ['file-upload.liftedText', 'list.liftedText'],
   loadingLabel: ['image-preview.loadingLabel', 'skeleton.label', 'tree-view.loadingLabel'],
   menubarOverflowLabel: ['menubar.overflowLabel'],
   minuteLabel: ['date-time-picker.minuteLabel'],
-  moveAfterLabel: ['list.moveAfterLabel'],
-  moveBeforeLabel: ['list.moveBeforeLabel'],
-  moveToEndLabel: ['list.moveToEndLabel'],
-  moveToStartLabel: ['list.moveToStartLabel'],
-  movedText: ['list.movedText'],
+  moveAfterLabel: ['file-upload.moveAfterLabel', 'list.moveAfterLabel'],
+  moveBeforeLabel: ['file-upload.moveBeforeLabel', 'list.moveBeforeLabel'],
+  moveToEndLabel: ['file-upload.moveToEndLabel', 'list.moveToEndLabel'],
+  moveToStartLabel: ['file-upload.moveToStartLabel', 'list.moveToStartLabel'],
+  movedText: ['file-upload.movedText', 'list.movedText'],
   nextDayLabel: ['date-time-picker.nextDayLabel'],
   nextImageLabel: ['image-preview.nextLabel'],
   nextMonthLabel: ['calendar.nextMonthLabel', 'date-time-picker.nextMonthLabel'],

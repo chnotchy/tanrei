@@ -32,7 +32,7 @@ const picker = (page: P, id: string) => host(page, id).locator(PICKER);
 const chooser = (page: P, id: string) => picker(page, id).locator('.group > .chooser');
 const own = (page: P, id: string, name: 'icon' | 'label' | 'supporting' | 'line' | 'outline') => picker(page, id).locator(`.group > .chooser > .${name}`);
 const emptyText = (page: P, id: string) => picker(page, id).locator('.group > .chooser > .line > .selection');
-const list = (page: P, id: string) => host(page, id).locator('.group > .list');
+const list = (page: P, id: string) => host(page, id).locator('.group > tanrei-list.list');
 const region = (page: P, id: string) => host(page, id).locator('.group > .announce');
 const trigger = (page: P, id: string) => host(page, id).locator(':scope > [slot="trigger"]');
 /** The rows the product gave: its own file items, in the light DOM. */
@@ -261,7 +261,7 @@ test.describe('behavior', () => {
       for (const each of around) expect(each, id).toBe('rgba(0, 0, 0, 0) | none | 0px | 0px | none | none | 0px | 0px');
       // Its own tree is the group, the list and the live region: no text, no label, no mark.
       const tree = await ownTree(page, id);
-      expect(tree.elements.filter((name) => name !== 'slot'), id).toEqual(['div.group', 'div.list', 'div.rows', 'div.announce']);
+      expect(tree.elements.filter((name) => name !== 'slot'), id).toEqual(['div.group', 'div.announce']);
       expect(tree.text, `${id}: no word of its own`).toBe('');
     }
   });
@@ -378,10 +378,10 @@ test.describe('behavior', () => {
     expect(await chooser(page, 'own').getAttribute('data-error')).toBeNull();
   });
 
-  test('FUP-17: each row is one file item, in the order the product gave them — as a column, list.item-gap apart, each as wide as the file upload; or, with itemForm tile, as a strip from the start edge that wraps where the width ends, list.item-gap apart along both directions, the tiles of one line aligned at their tops, each of the size itemWidth and itemHeight give; not sorted, grouped, numbered or counted; with no row there is no list, no room for one and none exposed; an itemForm it does not know is a column, and is reported', async ({ page }) => {
+  test('FUP-17: each row is one file item, in the order the product gave them — as a column, the List’s small gap apart, each as wide as the file upload; or, with itemForm tile, as a strip from the start edge that wraps where the width ends, the List’s small gap apart along both directions, the tiles of one line aligned at their tops, each of the size itemWidth and itemHeight give; not sorted, grouped, numbered or counted; with no row there is no list, no room for one and none exposed; an itemForm it does not know is a column, and is reported', async ({ page }) => {
     const warnings = logged(page);
     await mount(page, [...spec.fixtures.filter((f) => ['button-multiple', 'tiles', 'tiles-sized', 'drop-area'].includes(f.id)), fx('unknown', { label: 'Attachments', multiple: true, itemForm: 'grid', ...WORDS }, { items: [file('a', 'one.pdf'), file('b', 'two.pdf')] })]);
-    const gap = await token(page, 'list-item-gap');
+    const gap = await resolveToken(page, '--tanrei-comp-list-gap-small');
     // A column.
     for (const id of ['button-multiple', 'unknown']) {
       const whole = await box(host(page, id));
@@ -481,7 +481,8 @@ test.describe('behavior', () => {
     await expect(group('button', 'Attachment')).toHaveCount(1);
     await expect(group('drop-area', 'Attachments')).toHaveCount(1);
     for (const id of ['button', 'button-chosen', 'drop-area']) {
-      await expect(stage(page, id).getByRole('group'), `${id}: one group`).toHaveCount(1);
+      // One group of its own; each row's file item is the group it is alone, inside its list item (FUP-25).
+      await expect(stage(page, id).getByRole('group'), `${id}: one group, and one for each row`).toHaveCount(1 + (await rows(page, id).count()));
       expect(await get(picker(page, id), ['label']), `${id}: the file picker has no name`).toEqual(['']);
       expect(await picker(page, id).locator('.group').getAttribute('role'), `${id}: and is no group`).toBeNull();
     }
@@ -509,7 +510,7 @@ test.describe('behavior', () => {
         return node.ignored || ['generic', 'none', 'StaticText', 'InlineTextBox'].includes(role) ? below(child) : [`${role}:${node.name?.value ?? ''}`, ...below(child).map((line) => `  ${line}`)];
       });
       const named = nodes.filter((node) => node.role?.value === 'group' && node.name?.value === 'Attachment');
-      expect(named.map((node) => below(node.nodeId))).toEqual([['button:Choose a file'], ['button:Choose a file', 'list:Attachment', '  listitem:', '    button:Remove brief.pdf']]);
+      expect(named.map((node) => below(node.nodeId))).toEqual([['button:Choose a file'], ['button:Choose a file', 'list:Attachment', '  listitem:', '    group:brief.pdf', '      button:Remove brief.pdf']]);
     }
     await turn(page);
     expect(warnings.filter((text) => text.includes('<tanrei-file-upload>') && text.includes('FUP-24') && text.includes('no accessible name'))).toHaveLength(1);
@@ -522,9 +523,10 @@ test.describe('behavior', () => {
       await expect(stage(page, id).getByRole('list', { name: 'Attachments', exact: true })).toHaveCount(1);
       await expect(stage(page, id).getByRole('list')).toHaveCount(1);
       await expect(drew).toHaveCount(count);
-      // Each is an item of the list, and not the group named by its file that it is alone (FIT-19).
-      expect(await drew.evaluateAll((els) => els.map((el) => `${el.getAttribute('role')}:${el.getAttribute('aria-label')}`)), id).toEqual(Array(count).fill('listitem:null'));
-      await expect(stage(page, id).getByRole('group'), `${id}: no group but the file upload’s`).toHaveCount(1);
+      // Each is held by an item of the List, and is itself the group named by its file that it is alone (FIT-19).
+      expect(await drew.evaluateAll((els) => els.map((el) => [el.getAttribute('role'), (el.closest('tanrei-list-item') ?? el.assignedSlot?.closest('tanrei-list-item'))?.localName ?? ''].join(':'))), id).toEqual(Array(count).fill('group:tanrei-list-item'));
+      await expect(stage(page, id).getByRole('listitem'), `${id}: one list item for each row`).toHaveCount(count);
+      await expect(stage(page, id).getByRole('group'), `${id}: the file upload’s group and one for each row`).toHaveCount(1 + count);
     }
     if (browserName === 'chromium') {
       const client = await page.context().newCDPSession(page);
@@ -1032,12 +1034,12 @@ test.describe('behavior', () => {
 
   test('FUP-35: in right-to-left the arrangement mirrors — a strip of tiles begins at the right and runs to the left on every line, a row is as wide as the file upload, and its file picker and its file items take the direction they stand in', async ({ page }) => {
     await mount(page, [...spec.fixtures.filter((f) => ['tiles-rtl', 'button-rtl', 'own-rtl'].includes(f.id)), { ...spec.fixtures.find((f) => f.id === 'tiles')!, id: 'tiles-many-rtl', direction: 'rtl' }]);
-    const gap = await token(page, 'list-item-gap');
+    const gap = await resolveToken(page, '--tanrei-comp-list-gap-small');
     for (const id of ['tiles-rtl', 'tiles-many-rtl']) {
       const whole = await box(host(page, id));
       const each = await Promise.all((await rows(page, id).all()).map(box));
       near(each[0]!.x + each[0]!.width, whole.x + whole.width, `${id}: the strip begins at the right`);
-      near(each[0]!.x - (each[1]!.x + each[1]!.width), gap, `${id}: and runs to the left, list.item-gap apart`);
+      near(each[0]!.x - (each[1]!.x + each[1]!.width), gap, `${id}: and runs to the left, the List’s small gap apart`);
       near(each[1]!.y, each[0]!.y, `${id}: on one line`);
       if (each[3]) near(each[3].x + each[3].width, whole.x + whole.width, `${id}: the next line begins at the right too`);
     }
@@ -1176,7 +1178,7 @@ test.describe('behavior', () => {
     await frames(page);
     for (const id of ['drop-area-statuses', 'tiles-own']) {
       expect((await ownTree(page, id)).text, `${id}: no text of its own, so no glyph’s name`).toBe('');
-      expect((await ownTree(page, id)).elements.filter((name) => name !== 'slot')).toEqual(['div.group', 'div.list', 'div.rows', 'div.announce']);
+      expect((await ownTree(page, id)).elements.filter((name) => name !== 'slot')).toEqual(['div.group', 'div.announce']);
       // The members' glyph boxes are there and undrawn: theirs to keep (FIT-31, FPK-29).
       const glyphs = host(page, id).locator(`${ITEM} .icon, ${ITEM} .glyph, ${PICKER} .icon`);
       expect(await glyphs.count(), id).toBeGreaterThan(0);
@@ -1198,7 +1200,7 @@ test.describe('behavior', () => {
     const [wideHost, wideA, wideB] = [await box(host(page, 'tiles-wide')), await box(rows(page, 'tiles-wide').nth(0)), await box(rows(page, 'tiles-wide').nth(1))];
     near(wideA.x, wideHost.x, 'a tile wider than the file upload begins at its start edge');
     near(wideA.width, wideHost.width, 'and is no wider than it (FIT-3)');
-    near(wideB.y - (wideA.y + wideA.height), await token(page, 'list-item-gap'), 'the next, one distance below');
+    near(wideB.y - (wideA.y + wideA.height), await resolveToken(page, '--tanrei-comp-list-gap-small'), 'the next, one distance below');
     for (const id of ['strays', 'tiles-strays']) {
       await host(page, id).evaluate((el) => {
         // Words between two file items and after the last, in a column and in a strip of tiles alike.
@@ -1226,7 +1228,8 @@ test.describe('behavior', () => {
         expect(nodes.filter((node) => !node.ignored && /Loose words|A box of|A paragraph/.test(String(node.name?.value ?? ''))).map((node) => node.name?.value), `${strays}: not read`).toEqual([]);
         await client.detach();
       }
-      expect(await host(page, strays).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.rows')!).visibility)).toBe('hidden');
+      // Assigned to no slot: the file upload's slots are assigned by hand, and only its rows, trigger and glyph are.
+      expect(await host(page, strays).evaluate((el) => [...el.querySelectorAll('.stray')].map((stray) => stray.assignedSlot))).toEqual([null, null]);
       await expect(stage(page, strays).getByRole('listitem')).toHaveCount(2);
       expect(warnings.filter((w) => w.includes('<tanrei-file-upload>') && w.includes('FUP-41')).length, strays).toBeGreaterThan(0);
     }
@@ -1320,7 +1323,7 @@ test.describe('behavior', () => {
     expect(await page.evaluate(() => (window as unknown as { __seen: string[] }).__seen)).toEqual(['select:true', 'reject:true']);
   });
 
-  test('FUP-58: every row is a file item, and the file upload builds none of its own; it gives every file item it holds — the product’s included — form, preview, fit, nameHidden, width, height, removeLabel, retryLabel and disabled, and that it is an item of its list, without changing an attribute or a property of it; an item that says one of them otherwise is drawn as the file upload says and reported once; everything else stays the row’s own; and an item taken out of the file upload is the group it is alone again', async ({ page }) => {
+  test('FUP-58: every row is a file item, and the file upload builds none of its own; it gives every file item it holds — the product’s included — form, preview, fit, nameHidden, width, height, removeLabel, retryLabel and disabled, and that the List’s item holds it, without changing an attribute or a property of it; an item that says one of them otherwise is drawn as the file upload says and reported once; everything else stays the row’s own; and an item taken out of the file upload is the group it is alone again', async ({ page }) => {
     const warnings = logged(page);
     await mount(page, [
       fx('given', { label: 'Photos', multiple: true }, { items: [file('a', 'entrance.png', { previewSrc: 'fixtures/avatar.png', href: '#entrance', statusText: 'Uploaded', status: 'done' }), file('e', 'site.png', { status: 'error', errorText: 'Lost.', retryable: true })] }),
@@ -1335,7 +1338,7 @@ test.describe('behavior', () => {
     await give(page, 'own', [A, MOV]);
     // Every row is the file item's own element — given or made — and nothing else is a row.
     expect(await host(page, 'given').evaluate((el) => [...el.children].filter((child) => !child.slot).every((child) => child instanceof customElements.get('tanrei-file-item')!))).toBe(true);
-    expect(await host(page, 'own').evaluate((el) => [...el.shadowRoot!.querySelector('.rows')!.children].map((child) => `${child.localName}:${child instanceof customElements.get('tanrei-file-item')!}:${child.getAttribute('part')}`))).toEqual(['tanrei-file-item:true:file-item', 'tanrei-file-item:true:file-item']);
+    expect(await host(page, 'own').evaluate((el) => [...el.shadowRoot!.querySelectorAll('.list > tanrei-list-item > *')].map((child) => `${child.localName}:${child instanceof customElements.get('tanrei-file-item')!}:${child.getAttribute('part')}`))).toEqual(['tanrei-file-item:true:file-item', 'tanrei-file-item:true:file-item']);
     // What a product's item says of itself, before and after the file upload gives every row its form.
     const id = 'given';
     const says = () => rows(page, id).evaluateAll((els, shared) => els.map((el) => ({ attributes: [...el.attributes].filter((a) => !['role', 'aria-label', 'data-tile', 'preview-src'].includes(a.name)).map((a) => `${a.name}=${a.value}`).sort(), props: shared.map((name) => (el as unknown as Record<string, unknown>)[name]) })), SHARED);
@@ -1350,8 +1353,8 @@ test.describe('behavior', () => {
       actions: await one.evaluate((el) => [...el.shadowRoot!.querySelectorAll<HTMLButtonElement>('button.action')].map((button) => `${button.getAttribute('aria-label')}:${button.disabled}`)),
       role: await one.getAttribute('role'),
     });
-    await expect.poll(() => drawn(row(page, id, 0))).toEqual({ form: 'tile', fit: 'contain', preview: true, box: '160x90', actions: ['Take away:true'], role: 'listitem' });
-    await expect.poll(() => drawn(row(page, id, 1))).toEqual({ form: 'tile', fit: 'contain', preview: true, box: '160x90', actions: ['Once more:true', 'Take away:true'], role: 'listitem' });
+    await expect.poll(() => drawn(row(page, id, 0))).toEqual({ form: 'tile', fit: 'contain', preview: true, box: '160x90', actions: ['Take away:true'], role: 'group' });
+    await expect.poll(() => drawn(row(page, id, 1))).toEqual({ form: 'tile', fit: 'contain', preview: true, box: '160x90', actions: ['Once more:true', 'Take away:true'], role: 'group' });
     // The name is hidden behind a picture that is drawn, and drawn all the same where there is none (FIT-8).
     await expect.poll(() => inRow(row(page, id, 0), 'headline').evaluate((el) => el.classList.contains('unseen'))).toBe(true);
     expect(await inRow(row(page, id, 1), 'headline').evaluate((el) => el.classList.contains('unseen'))).toBe(false);
@@ -1384,7 +1387,8 @@ test.describe('behavior', () => {
     for (const one of await ownRows(page, 'own').all()) {
       await expect.poll(() => inRow(one, 'item').getAttribute('data-form')).toBe('tile');
       expect(await inRow(one, 'box').evaluate((el) => `${Math.round(el.getBoundingClientRect().width)}x${Math.round(el.getBoundingClientRect().height)}`)).toBe('120x80');
-      expect(await one.getAttribute('role')).toBe('listitem');
+      // The List's item is the item of the list; the file item in it is the group it is alone (FUP-25).
+      expect(await one.getAttribute('role')).toBe('group');
     }
   });
 });
@@ -1393,7 +1397,7 @@ test.describe('behavior', () => {
 // A fixture made by `ownFx` gives no `rows`: it is a file upload that keeps its own files, as one placed in a form is.
 const ownFx = (id: string, props: Fixture['props'] = {}, extra: Extra = {}): Fixture => ({ id, props: { label: 'Attachments', removeLabel: 'Remove {name}', ...props }, slots: { trigger: 'Choose files' }, ...extra });
 /** The rows the file upload drew itself: in its shadow root, in the list. */
-const ownRows = (page: P, id: string) => host(page, id).locator(`.group > .list > .rows > ${ITEM}`);
+const ownRows = (page: P, id: string) => host(page, id).locator(`.group > .list > tanrei-list-item > ${ITEM}`);
 const ownRow = (page: P, id: string, index: number) => ownRows(page, id).nth(index);
 type Upload = HTMLElement & {
   files: File[];
@@ -1740,7 +1744,7 @@ test.describe('its own rows', () => {
       const seen: string[] = [];
       (window as unknown as { __order: string[] }).__order = seen;
       const upload = document.querySelector('tanrei-file-upload') as HTMLElement & { files: File[] };
-      const rows = () => [...upload.shadowRoot!.querySelectorAll('.rows > tanrei-file-item')].map((row) => (row as HTMLElement & { name: string }).name).join('+');
+      const rows = () => [...upload.shadowRoot!.querySelectorAll('.list > tanrei-list-item > tanrei-file-item')].map((row) => (row as HTMLElement & { name: string }).name).join('+');
       for (const type of ['select', 'reject', 'change']) {
         document.addEventListener(type, (event) => {
           const detail = (event as CustomEvent<{ files: (File | { file: File; reason: string })[] }>).detail;
@@ -2111,7 +2115,7 @@ test.describe('its own rows', () => {
     expect(warnings.filter((w) => w.includes('fileSizeErrorText'))).toEqual([]);
   });
 
-  test('FUP-54: what the spec says of a row, of the list and of what stands around them holds for the rows it drew itself — the column, list.item-gap apart, each as wide as the file upload, a name that wraps and is never cut; emptyText while there is no row; disabled rows that stay readable with their remove actions disabled and out of the focus order, and no change; rows that come and go at once; enlarged text; forced colors; and right-to-left, with a Latin name keeping its order', async ({ page, browserName }) => {
+  test('FUP-54: what the spec says of a row, of the list and of what stands around them holds for the rows it drew itself — the column, the List’s small gap apart, each as wide as the file upload, a name that wraps and is never cut; emptyText while there is no row; disabled rows that stay readable with their remove actions disabled and out of the focus order, and no change; rows that come and go at once; enlarged text; forced colors; and right-to-left, with a Latin name keeping its order', async ({ page, browserName }) => {
     const long = 'quarterly-report-with-a-very-long-name-that-cannot-fit-on-one-line-of-the-row-2026-final-version-reviewed.pdf';
     await mount(page, [ownFx('a', { multiple: true, emptyText: 'No file chosen', accept: ['.pdf'], constraintsText: 'x', typeErrorText: 'Only PDF files can be added.' }), ownFx('rtl', { multiple: true }, { direction: 'rtl' })]);
     const id = 'a';
@@ -2124,7 +2128,7 @@ test.describe('its own rows', () => {
     // FUP-17: one column, item-gap apart, as wide as the file upload; the name whole.
     const [outer, first, second] = [await box(host(page, id)), await box(ownRow(page, id, 0)), await box(ownRow(page, id, 1))];
     near(first.width, outer.width, 'as wide as the file upload');
-    near(second.y - (first.y + first.height), await token(page, 'list-item-gap'), 'list.item-gap');
+    near(second.y - (first.y + first.height), await resolveToken(page, '--tanrei-comp-list-gap-small'), 'the List’s small gap');
     near((await box(list(page, id))).y - ((await box(chooser(page, id))).y + (await box(chooser(page, id))).height), await token(page, 'list-gap'), 'list.gap');
     const name = inRow(ownRow(page, id, 0), 'headline');
     expect((await box(name)).height, 'the name wraps').toBeGreaterThan(Number.parseFloat(await css(name, 'line-height')) * 1.5);
@@ -2147,7 +2151,7 @@ test.describe('its own rows', () => {
     await host(page, id).evaluate((el) => ((el as Upload).disabled = true));
     await expect(inRow(ownRow(page, id, 0), 'remove')).toBeDisabled();
     await expect(inRow(ownRow(page, id, 0), 'headline')).toBeVisible();
-    expect(await host(page, id).evaluate((el) => [...el.shadowRoot!.querySelectorAll('.rows > tanrei-file-item')].filter((r) => !r.shadowRoot!.querySelector<HTMLButtonElement>('.action.remove')!.disabled).length)).toBe(0);
+    expect(await host(page, id).evaluate((el) => [...el.shadowRoot!.querySelectorAll('.list > tanrei-list-item > tanrei-file-item')].filter((r) => !r.shadowRoot!.querySelector<HTMLButtonElement>('.action.remove')!.disabled).length)).toBe(0);
     await ownRow(page, id, 0).evaluate((el) => el.shadowRoot!.querySelector<HTMLElement>('.action.remove')!.click());
     await ownRow(page, id, 0).evaluate((el) => el.dispatchEvent(new CustomEvent('remove', { bubbles: true, detail: { value: '' } })));
     await turn(page);
@@ -2359,12 +2363,12 @@ test.describe('its own rows', () => {
     expect(await keptNames(page, 'one')).toEqual(['a.pdf']);
   });
 
-  test('FUP-17: while rows is own a strip of tiles is the kept files and then the refused ones — the staged fixture tiles-own is two kept tiles and one refused — from the start edge, list.item-gap apart, aligned at their tops; the refused one draws no picture', async ({ page }) => {
+  test('FUP-17: while rows is own a strip of tiles is the kept files and then the refused ones — the staged fixture tiles-own is two kept tiles and one refused — from the start edge, the List’s small gap apart, aligned at their tops; the refused one draws no picture', async ({ page }) => {
     await mountSpec(page, 'tiles-own');
     const id = 'tiles-own';
     expect(await drawn(page, id)).toEqual(['entrance.jpeg', 'floor-plan.png', 'brief.pdf!Only pictures can be added.']);
     expect(await keptNames(page, id)).toEqual(['entrance.jpeg', 'floor-plan.png']);
-    const gap = await token(page, 'list-item-gap');
+    const gap = await resolveToken(page, '--tanrei-comp-list-gap-small');
     const whole = await box(host(page, id));
     const each = await Promise.all((await ownRows(page, id).all()).map(box));
     near(each[0]!.x, whole.x, 'from the start edge');
@@ -2461,6 +2465,84 @@ test.describe('its own rows', () => {
   });
 });
 
+// ── A reorderable file upload: FUP-59 ───────────────────────────────────────────────────────────────────────────
+const MOVE_WORDS = {
+  dragHandleLabel: 'Reorder {label}',
+  moveToStartLabel: 'Move to start',
+  moveBeforeLabel: 'Move up',
+  moveAfterLabel: 'Move down',
+  moveToEndLabel: 'Move to end',
+  liftedText: '{label} lifted: {position} of {count}',
+  movedText: '{label}: {position} of {count}',
+  cancelledText: '{label} returned to {position} of {count}',
+};
+/** The handle of the List's item that holds row `index`, in the file upload's shadow root. */
+const handleOf = (page: P, id: string, index: number) => host(page, id).locator('.group > .list > tanrei-list-item').nth(index).locator('.handle');
+/** The file upload's own `move` and `change` events, from now on. */
+const listenMoves = (page: P, id: string) =>
+  host(page, id).evaluate((el) => {
+    const log: { moves: unknown[]; changes: string[][] } = ((window as unknown as { fup: typeof log }).fup = { moves: [], changes: [] });
+    el.addEventListener('move', (event) => log.moves.push((event as CustomEvent).detail));
+    el.addEventListener('change', (event) => log.changes.push((event as CustomEvent<{ files: File[] }>).detail.files.map((f) => f.name)));
+  });
+const moveLog = (page: P) => page.evaluate(() => (window as unknown as { fup: { moves: unknown[]; changes: string[][] } }).fup);
+/** Lifts row `index` with the keyboard from its handle, carries it by `steps` presses of Down Arrow and drops it. */
+async function carry(page: P, id: string, index: number, steps: number) {
+  await handleOf(page, id, index).focus();
+  await page.keyboard.press('Space');
+  for (let n = 0; n < steps; n++) await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Space');
+}
+
+test.describe('reorderable', () => {
+  test('FUP-59: while rows is given, a reorderable file upload makes its List reorderable — a handle on every row named with its file — and a move by the keyboard or the menu emits move once with from and to, and changes nothing', async ({ page }) => {
+    await mount(page, [fx('given', { label: 'Files', multiple: true, reorderable: true, ...WORDS, ...MOVE_WORDS }, { items: [file('a', 'one.pdf'), file('b', 'two.pdf'), file('c', 'three.pdf')] })]);
+    await expect(host(page, 'given').locator('.group > .list')).toHaveJSProperty('reorderable', true);
+    await expect(stage(page, 'given').getByRole('button', { name: 'Reorder two.pdf', exact: true })).toHaveCount(1);
+    await listenMoves(page, 'given');
+    await carry(page, 'given', 0, 2);
+    await expect.poll(async () => (await moveLog(page)).moves).toEqual([{ from: 0, to: 2 }]);
+    // The product's rows are the product's to move: the file upload changed nothing.
+    expect(await rows(page, 'given').evaluateAll((els) => els.map((el) => (el as HTMLElement & { name: string }).name))).toEqual(['one.pdf', 'two.pdf', 'three.pdf']);
+    // The menu of the handle: one move, once.
+    await handleOf(page, 'given', 2).click();
+    await host(page, 'given').locator('.group > .list > tanrei-list-item').nth(2).locator('tanrei-menu-item').first().click();
+    await expect.poll(async () => (await moveLog(page)).moves).toEqual([{ from: 0, to: 2 }, { from: 2, to: 0 }]);
+    expect((await moveLog(page)).changes).toEqual([]);
+    // The product answers by moving its own file item, and the List draws the new order.
+    await host(page, 'given').evaluate((el) => el.prepend(el.querySelectorAll('tanrei-file-item')[2]!));
+    await expect.poll(() => host(page, 'given').locator('.group > .list > tanrei-list-item').evaluateAll((els) => els.map((el) => (el as HTMLElement & { label: string }).label))).toEqual(['three.pdf', 'one.pdf', 'two.pdf']);
+  });
+
+  test('FUP-59: while rows is own the kept file takes its new place — drawn, submitted and read by files in the new order — and change is emitted once; a refused row cannot be moved among the kept ones; while disabled nothing moves', async ({ page }) => {
+    await mount(page, [ownFx('own', { multiple: true, accept: ['.pdf'], constraintsText: 'PDF', typeErrorText: 'PDF only.', reorderable: true, name: 'attachments', ...MOVE_WORDS })]);
+    await inForm(page);
+    await give(page, 'own', [A, B, C, MOV]);
+    await expect.poll(() => drawn(page, 'own')).toEqual(['a.pdf', 'b.pdf', 'c.pdf', 'holiday.mov!PDF only.']);
+    await listenMoves(page, 'own');
+    await carry(page, 'own', 0, 2);
+    await expect.poll(() => keptNames(page, 'own')).toEqual(['b.pdf', 'c.pdf', 'a.pdf']);
+    await expect.poll(() => drawn(page, 'own')).toEqual(['b.pdf', 'c.pdf', 'a.pdf', 'holiday.mov!PDF only.']);
+    expect(await moveLog(page)).toEqual({ moves: [], changes: [['b.pdf', 'c.pdf', 'a.pdf']] });
+    expect(await submitted(page)).toEqual(['attachments=b.pdf:4', 'attachments=c.pdf:4', 'attachments=a.pdf:4', 'note=hello']);
+    // A kept file after the refused one, or the refused one among the kept: nothing changes, nothing is emitted.
+    await carry(page, 'own', 2, 1);
+    await carry(page, 'own', 3, 0);
+    await handleOf(page, 'own', 3).focus();
+    await page.keyboard.press('Space');
+    await page.keyboard.press('Home');
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(700);
+    expect(await keptNames(page, 'own')).toEqual(['b.pdf', 'c.pdf', 'a.pdf']);
+    expect(await drawn(page, 'own')).toEqual(['b.pdf', 'c.pdf', 'a.pdf', 'holiday.mov!PDF only.']);
+    expect((await moveLog(page)).changes).toHaveLength(1);
+    // Disabled: the List is not reorderable, and nothing moves.
+    await set(host(page, 'own'), { disabled: true });
+    await expect(host(page, 'own').locator('.group > .list')).toHaveJSProperty('reorderable', false);
+    expect(await handleOf(page, 'own', 0).count()).toBe(0);
+  });
+});
+
 test.describe('accessibility', () => {
   // Three fixtures show what a product must not ship, and say so (FIT-20, FPK-18): actions nobody named, and a limit
   // that is enforced and not said. The first two are drawn without names by design; axe sees their unnamed buttons.
@@ -2505,7 +2587,9 @@ test.describe('accessibility', () => {
       });
       // A row's stops are the file item's (FIT-11 to FIT-13): its body where it is pressable, retry while it failed and can be tried again, remove unless it is read-only.
       const ofRow = (item: NonNullable<Fixture['items']>[number]) => (item.props.interactive || item.props.href ? 1 : 0) + (item.props.readOnly ? 0 : 1 + (item.props.status === 'error' && item.props.retryable ? 1 : 0));
-      expect(stops, `${f.id}: the stops`).toBe(f.props.disabled ? 0 : 1 + (f.items ?? []).reduce((sum, item) => sum + ofRow(item), 0));
+      // A reorderable file upload's List adds one stop to every row: its handle (LST-32, FUP-59).
+      const handles = f.props.reorderable ? (f.items?.length ?? 0) : 0;
+      expect(stops, `${f.id}: the stops`).toBe(f.props.disabled ? 0 : 1 + handles + (f.items ?? []).reduce((sum, item) => sum + ofRow(item), 0));
     }
   });
 });
@@ -2513,7 +2597,7 @@ test.describe('accessibility', () => {
 test.describe('fixtures', () => {
   test('every fixture is mounted and visible, with the layout, the texts and the rows the spec gives it — as file items, in the form the file upload gives every row', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    expect(spec.fixtures).toHaveLength(24);
+    expect(spec.fixtures).toHaveLength(25);
     // FUP-44, FUP-45: while rows is own the kept files come first, then the refused, each in its order.
     const OWN: Record<string, string[]> = { 'own-refused': ['brief.pdf', 'survey.pdf', 'holiday.mov', 'notes.pdf'], 'tiles-own': ['entrance.jpeg', 'floor-plan.png', 'brief.pdf'] };
     for (const f of spec.fixtures) {

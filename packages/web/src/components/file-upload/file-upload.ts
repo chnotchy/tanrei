@@ -1,4 +1,4 @@
-import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
+import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 import { AvailabilityController, FieldControlController, FieldProviderController, type FieldState, GROUP_PLACE, type GroupPlace, type PlacingGroup, WordsController, missingValueMessage, report } from '../../primitives/index.js';
 import { ComposedElement, composedHost, exported, forward } from '../../primitives/composed.js';
@@ -8,6 +8,8 @@ import { takeFormDisabled } from '../../primitives/form-disabled.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { TanreiFileItem, type TanreiFileItemDetail, type TanreiFileItemFit, type TanreiFileItemForm, type TanreiFileItemStatus } from '../file-item/file-item.js';
 import { TanreiFilePicker, type TanreiFilePickerLayout, type TanreiFilePickerRefused, type TanreiFilePickerRejectDetail, type TanreiFilePickerRejectReason, type TanreiFilePickerSelectDetail } from '../file-picker/file-picker.js';
+import '../list/list.js';
+import type { TanreiListMoveDetail } from '../list/list.js';
 import { styles } from './file-upload.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 
@@ -26,6 +28,8 @@ export interface TanreiFileUploadSelectDetail {
 export interface TanreiFileUploadRejectDetail {
   files: TanreiFileUploadRefused[];
 }
+/** `move`: while `rows` is `given`, the row a person moved — its index before and the index it is to have, from 0 (FUP-59). */
+export type TanreiFileUploadMoveDetail = TanreiListMoveDetail;
 /** `change`: the files the file upload now keeps, in order (FUP-47). */
 export interface TanreiFileUploadChangeDetail {
   files: File[];
@@ -35,6 +39,7 @@ const ITEM = 'tanrei-file-item';
 const ITEM_FORMS: readonly string[] = ['row', 'tile'];
 const STATUSES: readonly string[] = ['pending', 'uploading', 'done', 'error'];
 const ROWS: readonly string[] = ['own', 'given'];
+
 
 /** FUP-56: the props that are the file picker's, given to it unchanged. Its `maxFiles` and its `label` are never set, and its `selectionText` is the file upload's to fill (FUP-2). */
 const PICKER = ['layout', 'multiple', 'accept', 'maxSize', 'constraintsText', 'dropText', 'disabled', 'error', 'required'] as const;
@@ -58,7 +63,7 @@ const SHARED: readonly (readonly [prop: 'itemForm' | 'itemPreview' | 'itemFit' |
 const PICKER_PARTS = exported(TanreiFilePicker);
 const ITEM_PARTS = exported(TanreiFileItem, Object.fromEntries(TanreiFileItem.parts.map((part) => [part, { as: `item-${part}` }])));
 /** FIT-18: what lies between two rows of the file upload's column — its own distance, given to each file item through the internal channel. */
-const BETWEEN = 'var(--tanrei-comp-file-upload-list-item-gap)';
+const BETWEEN = 'var(--tanrei-comp-list-gap-small)';
 
 /** FUP-38: a limit of the files it holds is a number above zero; anything else sets none. */
 const limit = (value: unknown): number | null => (typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null);
@@ -137,8 +142,13 @@ const takeFocus = (row: Row): boolean => {
  * files and changes nothing of the product's rows. Nothing is restored with a page. Inside a `<tanrei-field>` it takes
  * the field's label, help, error, requirement and `disabled`.
  *
- * One level down, the same by hand: a `<tanrei-file-picker>` and `<tanrei-file-item>`s the product arranges — for a
- * list of its own, an order people change (file items in the rows of a List), or files that are only shown.
+ * The rows are the items of a `<tanrei-list>` in the shadow root — a column, or with `item-form="tile"` lines that
+ * wrap. With `reorderable` people can put them in another order (FUP-59): every row gets the List's handle, the whole
+ * row can be dragged, and the handle offers the moves in a menu and to the keyboard. While `rows` is `own` the file
+ * upload reorders the files it keeps and fires `change`; while it is `given` it fires `move` and you move your file item.
+ *
+ * One level down, the same by hand: a `<tanrei-file-picker>` and `<tanrei-file-item>`s the product arranges, alone or
+ * as the content of a List's items.
  *
  * Without script, and until the element is defined, the trigger is a button that opens nothing and no row is drawn: a
  * page that must take files where script does not run writes a native `<input type="file">` in its own form.
@@ -149,17 +159,25 @@ const takeFocus = (row: Row): boolean => {
  * @slot - While `rows` is `given`: the rows, `<tanrei-file-item>` children, in order. Anything else is not drawn, and while `rows` is `own` nothing here is.
  * @csspart file-picker - The part that chooses: the `<tanrei-file-picker>` it is built from.
  * @csspart file-item - A row the file upload made itself, while `rows` is `own`: a `<tanrei-file-item>` it is built from.
- * @csspart list - The list of rows.
+ * @csspart list - The List that arranges the rows, a `<tanrei-list>`.
  * @exportparts tanrei-file-picker
  * @exportparts tanrei-file-item container: item-container, media: item-media, icon: item-icon, preview: item-preview, headline: item-headline, supporting-text: item-supporting-text, status-icon: item-status-icon, progress: item-progress, action: item-action
  * @attr {string} form - The id of the form the file upload belongs to, where it stands outside it: the platform's own attribute, which then wins over a form around it. The `form` property is read-only and returns the form element.
  * @fires select - Files were chosen or dropped, passed and found room. Once per choice; `detail.files` is a `File[]` — while `rows` is `own`, the files newly kept. Bubbles.
  * @fires reject - Files of one choice or one drop were refused. Once, after `select` where both happen; `detail.files` is `{ file, reason }[]`, the reason `type`, `size` or `count`. Bubbles.
+ * @fires {CustomEvent<TanreiFileUploadMoveDetail>} move - While `rows` is `given` and `reorderable` is set: a person asked for a row to stand in another place, by the move menu, the keyboard or a drag. `detail.from` and `detail.to`, from 0. The file upload has moved nothing: put your file item in its new place. Bubbles.
  * @fires change - While `rows` is `own`: the kept files changed by what a person did — a choice or a drop that kept or replaced a file, or a kept file's row removed. Once, after `select` and `reject`; `detail.files` is the `File[]` now kept. Bubbles. Never for `add()`, `clear()`, a reset or a change of `rows`.
  */
 export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   private readonly availability = new AvailabilityController(this, 'file-upload');
   static override styles = [composedHost, hiddenHost, styles];
+
+  /**
+   * FUP-17, FUP-41: its slots are assigned by hand — each of the product's rows to a slot of its own inside the List's
+   * item that holds it, the trigger and the glyph to the two slots passed on to the file picker, and anything else to
+   * nothing, so that it is not drawn.
+   */
+  static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, slotAssignment: 'manual' };
 
   /** FUP-31, FUP-49: the one control the form meets. Its members stand in its shadow root, or are the product's own children, and take no part in a form. */
   static formAssociated = true;
@@ -187,6 +205,16 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     itemNameHidden: { type: Boolean, attribute: 'item-name-hidden', reflect: true },
     itemWidth: { type: Number, attribute: 'item-width' },
     itemHeight: { type: Number, attribute: 'item-height' },
+    reorderable: { type: Boolean, reflect: true },
+    dragHandleLabel: { type: String, attribute: 'drag-handle-label' },
+    dragHandleHint: { type: String, attribute: 'drag-handle-hint' },
+    moveToStartLabel: { type: String, attribute: 'move-to-start-label' },
+    moveBeforeLabel: { type: String, attribute: 'move-before-label' },
+    moveAfterLabel: { type: String, attribute: 'move-after-label' },
+    moveToEndLabel: { type: String, attribute: 'move-to-end-label' },
+    liftedText: { type: String, attribute: 'lifted-text' },
+    movedText: { type: String, attribute: 'moved-text' },
+    cancelledText: { type: String, attribute: 'cancelled-text' },
     removeLabel: { type: String, attribute: 'remove-label' },
     retryLabel: { type: String, attribute: 'retry-label' },
     announcement: { type: String },
@@ -247,6 +275,36 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
 
   /** @from tanrei-file-item.height */
   itemHeight: number | null = null;
+
+  /** Lets people put the files in another order (FUP-59): every row gets a handle, the whole row can be dragged, and the handle offers the moves in a menu and to the keyboard. While `rows` is `own` the file upload reorders the files it keeps and fires `change`; while it is `given` it fires `move` and you reorder your file items. Ignored while disabled. */
+  reorderable = false;
+
+  /** The name of every row's handle (`drag-handle-label`): your sentence with the place `{label}`, filled with the file's name ("Reorder {label}"). Empty reads the product's words. Given to the List. */
+  dragHandleLabel = '';
+
+  /** The description of every handle (`drag-handle-hint`): how to move a row with the keyboard, in your words. Given to the List. */
+  dragHandleHint = '';
+
+  /** The move menu's item that moves a row to the first place (`move-to-start-label`). Given to the List. */
+  moveToStartLabel = '';
+
+  /** The move menu's item that moves a row one place toward the start (`move-before-label`). Given to the List. */
+  moveBeforeLabel = '';
+
+  /** The move menu's item that moves a row one place toward the end (`move-after-label`). Given to the List. */
+  moveAfterLabel = '';
+
+  /** The move menu's item that moves a row to the last place (`move-to-end-label`). Given to the List. */
+  moveToEndLabel = '';
+
+  /** Said when the keyboard lifts a row (`lifted-text`): `{label}`, `{position}`, `{count}`. Given to the List. */
+  liftedText = '';
+
+  /** Said when a lifted row reaches another place, and once a move has taken effect (`moved-text`): `{label}`, `{position}`, `{count}`. Given to the List. */
+  movedText = '';
+
+  /** Said when a move with the keyboard is cancelled (`cancelled-text`): `{label}`, `{position}`, `{count}`. Given to the List. */
+  cancelledText = '';
 
   /** @from tanrei-file-item.removeLabel */
   removeLabel = '';
@@ -438,7 +496,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
       removeLabel: this.removeLabel,
       retryLabel: this.retryLabel,
       disabled: this.isDisabled,
-      listItem: true,
+      listItem: false,
       made: this.keeps,
       between: BETWEEN,
     };
@@ -667,7 +725,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
 
   /** The file items it made itself, in the order they are drawn. */
   private get ownRows(): Row[] {
-    return [...(this.renderRoot?.querySelectorAll<HTMLElement>(`.rows > ${ITEM}`) ?? [])];
+    return [...(this.renderRoot?.querySelectorAll<HTMLElement>(`.list > tanrei-list-item > ${ITEM}`) ?? [])];
   }
 
   /**
@@ -708,6 +766,53 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     if (kept) this.emitChange();
   }
 
+  /**
+   * FUP-59: the List asks for a row to stand in another place. While `rows` is `given` the move is the product's: the
+   * file upload says it as its own `move` and changes nothing. While it is `own` the kept file takes its new place, the
+   * rows are drawn in the new order, and `change` says so — unless the move would put a refused file's row among the
+   * kept ones, or a kept one after a refused one: then nothing changes, and the List takes the move as refused.
+   */
+  private readonly onListMove = (event: Event) => {
+    event.stopPropagation();
+    if (this.isDisabled) return;
+    const { from, to } = (event as CustomEvent<TanreiListMoveDetail>).detail;
+    if (!this.keeps) {
+      this.dispatchEvent(new CustomEvent<TanreiFileUploadMoveDetail>('move', { bubbles: true, detail: { from, to } }));
+      return;
+    }
+    const order = [...this.kept, ...this.refused];
+    const [moved] = order.splice(from, 1);
+    if (!moved) return;
+    order.splice(to, 0, moved);
+    const kept = order.slice(0, this.kept.length);
+    if (kept.some((row) => row.reason)) return;
+    this.redraw(() => {
+      this.kept = kept;
+    });
+    this.syncForm();
+    this.emitChange();
+  };
+
+  /**
+   * FUP-17, FUP-41: the slots are assigned by hand after every render: each of the product's rows to the slot inside
+   * the List's item that holds it, the trigger and the glyph to the slots passed on to the file picker; anything else
+   * to nothing.
+   */
+  private assignSlots() {
+    const root = this.shadowRoot;
+    if (!root) return;
+    for (const name of ['trigger', 'icon']) {
+      const slot = root.querySelector<HTMLSlotElement>(`slot[name="${name}"]`);
+      slot?.assign(...[...this.children].filter((child) => child.slot === name));
+    }
+    const rows = this.givenRows;
+    root.querySelectorAll<HTMLSlotElement>('slot[data-row]').forEach((slot, index) => {
+      const row = rows[index];
+      if (row) slot.assign(row);
+      else slot.assign();
+    });
+  }
+
   // ─── The rows (FUP-17, FUP-26, FUP-30, FUP-58) ────────────────────────────────────────────────────────────────
 
   private readonly onRowUpdate = (event: Event) => {
@@ -722,6 +827,8 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   private readRows() {
     const rows = this.givenRows;
     this.count = rows.length;
+    // FUP-17: the List draws the rows in the order they stand now — a new order of as many rows too.
+    this.requestUpdate();
     this.tellRows(rows);
     this.syncForm();
     this.changed();
@@ -919,6 +1026,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
 
   protected override updated(changed: PropertyValues<this>) {
     super.updated(changed);
+    this.assignSlots();
     // FUP-24, FUP-32: the file picker is told at once what a field gave the file upload.
     this.provider.sync();
     this.tellRows();
@@ -1001,6 +1109,7 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
   // below it the list: the product's own file items in the default slot, or the ones it makes.
   protected override render() {
     const name = this.groupName.trim();
+    const tile = this.shownForm === 'tile';
     return html`
       <div class="group" role="group" aria-label=${name || nothing}>
         <tanrei-file-picker
@@ -1013,9 +1122,38 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
           @tanrei-file-picker-arrival=${this.onArrival}
           >${this.pass('trigger')}${this.pass('icon')}</tanrei-file-picker
         >
-        <div part="list" class="list" role="list" aria-label=${name || nothing} data-form=${this.shownForm} ?hidden=${this.rowCount === 0}>
-          <div class="rows">${this.keeps ? repeat([...this.kept, ...this.refused], (row) => row, (row) => this.ownRow(row)) : html`<slot></slot>`}</div>
-        </div>
+        <tanrei-list
+          part="list"
+          class="list"
+          label=${name}
+          orientation=${tile ? 'horizontal' : 'vertical'}
+          ?wrap=${tile}
+          gap="small"
+          ?reorderable=${this.reorderable && !this.isDisabled}
+          .dragHandleLabel=${this.dragHandleLabel}
+          .dragHandleHint=${this.dragHandleHint}
+          .moveToStartLabel=${this.moveToStartLabel}
+          .moveBeforeLabel=${this.moveBeforeLabel}
+          .moveAfterLabel=${this.moveAfterLabel}
+          .moveToEndLabel=${this.moveToEndLabel}
+          .liftedText=${this.liftedText}
+          .movedText=${this.movedText}
+          .cancelledText=${this.cancelledText}
+          data-form=${this.shownForm}
+          ?hidden=${this.rowCount === 0}
+          @move=${this.onListMove}
+          >${this.keeps
+            ? repeat(
+                [...this.kept, ...this.refused],
+                (row) => row,
+                (row) => html`<tanrei-list-item label=${row.file.name}>${this.ownRow(row)}</tanrei-list-item>`,
+              )
+            : repeat(
+                this.givenRows,
+                (row) => row,
+                (row) => html`<tanrei-list-item label=${rowText(row, 'name', 'name')}><slot data-row></slot></tanrei-list-item>`,
+              )}</tanrei-list
+        >
         <div class="announce" aria-live="polite" aria-atomic="true"></div>
       </div>
     `;

@@ -75,6 +75,10 @@
       "key": "cancelledText",
       "readers": [
         {
+          "component": "file-upload",
+          "prop": "cancelledText"
+        },
+        {
           "component": "list",
           "prop": "cancelledText"
         }
@@ -256,6 +260,10 @@
       "key": "dragHandleHint",
       "readers": [
         {
+          "component": "file-upload",
+          "prop": "dragHandleHint"
+        },
+        {
           "component": "list",
           "prop": "dragHandleHint"
         }
@@ -264,6 +272,10 @@
     {
       "key": "dragHandleLabel",
       "readers": [
+        {
+          "component": "file-upload",
+          "prop": "dragHandleLabel"
+        },
         {
           "component": "list",
           "prop": "dragHandleLabel"
@@ -523,6 +535,10 @@
       "key": "liftedText",
       "readers": [
         {
+          "component": "file-upload",
+          "prop": "liftedText"
+        },
+        {
           "component": "list",
           "prop": "liftedText"
         }
@@ -584,6 +600,10 @@
       "key": "moveAfterLabel",
       "readers": [
         {
+          "component": "file-upload",
+          "prop": "moveAfterLabel"
+        },
+        {
           "component": "list",
           "prop": "moveAfterLabel"
         }
@@ -592,6 +612,10 @@
     {
       "key": "moveBeforeLabel",
       "readers": [
+        {
+          "component": "file-upload",
+          "prop": "moveBeforeLabel"
+        },
         {
           "component": "list",
           "prop": "moveBeforeLabel"
@@ -602,6 +626,10 @@
       "key": "moveToEndLabel",
       "readers": [
         {
+          "component": "file-upload",
+          "prop": "moveToEndLabel"
+        },
+        {
           "component": "list",
           "prop": "moveToEndLabel"
         }
@@ -611,6 +639,10 @@
       "key": "moveToStartLabel",
       "readers": [
         {
+          "component": "file-upload",
+          "prop": "moveToStartLabel"
+        },
+        {
           "component": "list",
           "prop": "moveToStartLabel"
         }
@@ -619,6 +651,10 @@
     {
       "key": "movedText",
       "readers": [
+        {
+          "component": "file-upload",
+          "prop": "movedText"
+        },
         {
           "component": "list",
           "prop": "movedText"

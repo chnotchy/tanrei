@@ -44,7 +44,7 @@ import { TanreiFieldGroup as TanreiFieldGroupElement } from '@tanrei/web/compone
 import { TanreiFigure as TanreiFigureElement } from '@tanrei/web/components/figure';
 import { TanreiFileItem as TanreiFileItemElement } from '@tanrei/web/components/file-item';
 import { TanreiFilePicker as TanreiFilePickerElement } from '@tanrei/web/components/file-picker';
-import { TanreiFileUpload as TanreiFileUploadElement } from '@tanrei/web/components/file-upload';
+import { TanreiFileUpload as TanreiFileUploadElement, type TanreiFileUploadMoveDetail } from '@tanrei/web/components/file-upload';
 import { TanreiImagePreview as TanreiImagePreviewElement, type TanreiImagePreviewCloseDetail, type TanreiImagePreviewIndexChangeDetail, type TanreiImagePreviewZoomChangeDetail, type TanreiImagePreviewControlsHiddenChangeDetail, type TanreiImagePreviewLoadErrorDetail } from '@tanrei/web/components/image-preview';
 import { TanreiImagePreviewItem as TanreiImagePreviewItemElement } from '@tanrei/web/components/image-preview';
 import { TanreiKeyboardShortcut as TanreiKeyboardShortcutElement } from '@tanrei/web/components/keyboard-shortcut';
@@ -899,6 +899,7 @@ const FileUploadElement = createComponent({
     onSelect: 'select' as EventName<TanreiEvent<TanreiFileUploadElement>>,
     onReject: 'reject' as EventName<TanreiEvent<TanreiFileUploadElement>>,
     onChange: 'change' as EventName<TanreiEvent<TanreiFileUploadElement>>,
+    onMove: 'move' as EventName<TanreiEvent<TanreiFileUploadElement, CustomEvent<TanreiFileUploadMoveDetail>>>,
   },
 });
 /**
@@ -913,6 +914,7 @@ const FileUploadElement = createComponent({
  * - `onSelect` (`select`) — Files were chosen or dropped, passed and found room. Once per choice; `detail.files` is a `File[]` — while `rows` is `own`, the files newly kept. Bubbles.
  * - `onReject` (`reject`) — Files of one choice or one drop were refused. Once, after `select` where both happen; `detail.files` is `{ file, reason }[]`, the reason `type`, `size` or `count`. Bubbles.
  * - `onChange` (`change`) — While `rows` is `own`: the kept files changed by what a person did — a choice or a drop that kept or replaced a file, or a kept file's row removed. Once, after `select` and `reject`; `detail.files` is the `File[]` now kept. Bubbles. Never for `add()`, `clear()`, a reset or a change of `rows`.
+ * - `onMove` (`move`) — While `rows` is `given` and `reorderable` is set: a person asked for a row to stand in another place, by the move menu, the keyboard or a drag. `detail.from` and `detail.to`, from 0. The file upload has moved nothing: put your file item in its new place. Bubbles.
  */
 export const FileUpload: Marked<typeof FileUploadElement, FileUploadMarks> = withMarks<FileUploadMarks>([], ['form'])(FileUploadElement);
 

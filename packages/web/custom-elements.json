@@ -35203,7 +35203,7 @@
         {
           "kind": "variable",
           "name": "styles",
-          "default": "css` /* The positioning container of the live region, which is drawn nowhere. */ .group { position: relative; min-inline-size: 0; } /* FPK-22, as the file picker has it for a trigger of its own: a trigger alone on its line is never wider than that line, and then wraps its label as the Button says. Said again here because the trigger reaches the file picker through a slot that is passed on (W9), and a rule on what is slotted stops at that slot. */ ::slotted([slot='trigger']) { max-inline-size: 100%; min-inline-size: min-content; } /* ── The list (FUP-17) ── the rows, list.gap below the file picker: a column, list.item-gap apart; or, of tiles, a strip from the start edge that wraps, list.item-gap apart along both directions, the tiles of one line aligned at their tops. With no row there is no list and no room for one. Only a file item is drawn: .rows is drawn for nothing and has no font, and a file item makes itself visible, so text or another element among the rows takes no room and is not read (FUP-41). */ .list { margin-block-start: ${t('list-gap')}; } .list[hidden] { display: none; } .rows { visibility: hidden; font-size: 0; line-height: 0; } /* A file item is given a font size again — a length of the root's — and not for its drawing: every text of a file item sets its own role and the row's line height stays nothing. It is for WebKit, which does not follow a change of the root's font size into the shadow tree of an element slotted into a box whose own font size does not change with it (.rows, above; a page of plain elements does the same), unless the slotted element's own font size does: without it a row drawn before a reader enlarges the text keeps every rem length it had. */ ::slotted(tanrei-file-item), .rows > tanrei-file-item { visibility: visible; font-size: var(--tanrei-sys-typescale-body-font-size); } ::slotted(tanrei-file-item:not(:first-of-type)), .rows > tanrei-file-item:not(:first-of-type) { margin-block-start: ${t('list-item-gap')}; } /* The strip's distances are each tile's own margins toward the start and the top, and the strip reaches one distance further those two ways (where nothing scrolls) — not a gap of the strip: a text the product left between two tiles is an item of the strip too, as wide as nothing, and a gap would be counted on both of its sides (FUP-41: it takes no room). The list is a formatting context of its own, so it begins where the first line does. */ .list[data-form='tile']:not([hidden]) { display: flow-root; } .list[data-form='tile'] .rows { display: flex; flex-wrap: wrap; align-items: flex-start; margin-block-start: calc(-1 * ${t('list-item-gap')}); margin-inline-start: calc(-1 * ${t('list-item-gap')}); } .list[data-form='tile'] ::slotted(tanrei-file-item), .list[data-form='tile'] .rows > tanrei-file-item { margin-block-start: ${t('list-item-gap')}; margin-inline-start: ${t('list-item-gap')}; /* FIT-3: never wider than its layout — the file upload's width, which the strip exceeds by one distance. */ max-inline-size: calc(100% - ${t('list-item-gap')}); } ::slotted(:not(tanrei-file-item, [slot])) { display: none; } .announce {${unsafeCSS(unseen)} } `"
+          "default": "css` /* The positioning container of the live region, which is drawn nowhere. */ .group { position: relative; min-inline-size: 0; } /* FPK-22, as the file picker has it for a trigger of its own: a trigger alone on its line is never wider than that line, and then wraps its label as the Button says. Said again here because the trigger reaches the file picker through a slot that is passed on (W9), and a rule on what is slotted stops at that slot. */ ::slotted([slot='trigger']) { max-inline-size: 100%; min-inline-size: min-content; } /* ── The list (FUP-17) ── a List, list.gap below the file picker: vertical for rows, horizontal and wrapping for tiles, list.item-gap apart along both directions (the List's small gap, set to the file upload's distance). With no row there is no list and no room for one. What is not a file item is assigned to no slot and so not drawn (FUP-41). */ .list { margin-block-start: ${t('list-gap')}; } .list[hidden] { display: none; } /* A file item is given a font size again — a length of the root's — and not for its drawing: every text of a file item sets its own role. It is for WebKit, which does not follow a change of the root's font size into the shadow tree of an element slotted into a box whose own font size does not change with it, unless the slotted element's own font size does: without it a row drawn before a reader enlarges the text keeps every rem length it had. */ .list tanrei-file-item, ::slotted(tanrei-file-item) { font-size: var(--tanrei-sys-typescale-body-font-size); } /* FIT-3: a tile is never wider than its layout — the file upload's width. */ .list[data-form='tile'] tanrei-file-item, .list[data-form='tile'] ::slotted(tanrei-file-item) { max-inline-size: 100%; } .announce {${unsafeCSS(unseen)} } `"
         }
       ],
       "exports": [
@@ -35223,7 +35223,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Lets people choose files and shows what was chosen. Built from a File picker (`<tanrei-file-picker>`) — the trigger,\nthe drop area, the limits in words, the judging of a choice — and File items (`<tanrei-file-item>`), one for each\nfile, in a column of rows or a strip of tiles; it adds the state that ties them: which files are kept, the room that\nis left, one form for all its items, one message for many changes, where focus goes after a removal, and the form's\nvalue. **It never uploads**: it opens no connection and reads no byte of a file (FUP-7).\n\nContract: specs/file-upload.spec.json. Who holds the rows is `rows`, and the product says which.\n\n`rows=\"own\"`, the default: the element keeps the chosen files and makes a file item for each itself, so a plain form\nworks by placing it — `<form><tanrei-file-upload name=\"attachments\" multiple remove-label=\"…\"><tanrei-button\nslot=\"trigger\" variant=\"outlined\">Choose files</tanrei-button></tanrei-file-upload></form>`. With `multiple` a second\nchoice adds and `max-files` counts the files kept; without it a file that passes takes the place of the one kept. The\nsame file (name, size, time of last change) is kept once. A refused file is a failed row with the product's sentence\nfor its reason (`type-error-text`, `size-error-text`, `count-error-text`, else `setWords`), is not kept, and leaves\nwhen it is removed, when files next arrive or on `clear()`. The remove action removes. `files` reads the kept files,\n`add(files)` hands files over and answers with the refused, `clear()` empties, and `formatSize` — a property — writes\na row's size; without it none is drawn. A kept file's row shows no status and no progress: the element sends nothing.\n\n`rows=\"given\"`: the rows are `<tanrei-file-item>` children the product adds on `select` and removes on a row's\n`remove`, each with its status, progress and error; the element adds, changes and removes none and keeps no file —\nfor a product that sends files itself.\n\nEvery row is of one form: `item-form` (`row`, `tile`), `item-preview`, `item-fit`, `item-name-hidden`, `item-width`,\n`item-height`, with `remove-label`, `retry-label` and `disabled`, are given to every file item it holds — the\nproduct's own included — through an internal channel; a product's item that says one of them otherwise is drawn as\nthe file upload says. The picture of an image row is made and released by its file item, never by this element.\n\n`select` carries the files that passed `accept`, `max-size` and the count and found room, `reject` the ones that did\nnot, each with a reason that is a name and not words (`type`, `size`, `count`); while `rows` is `own`, `change` then\ncarries the files now kept. None is emitted for what the product did itself (`add()`, `clear()`, a reset, a change\nof `rows`). The file picker's own two events do not leave the element.\n\nForm-associated: under its `name` it submits the kept files, in order — or, while `rows` is `given`, the `file` of\nevery row that has one; it is invalid for its form while `required` and there is none. A reset empties the kept\nfiles and changes nothing of the product's rows. Nothing is restored with a page. Inside a `<tanrei-field>` it takes\nthe field's label, help, error, requirement and `disabled`.\n\nOne level down, the same by hand: a `<tanrei-file-picker>` and `<tanrei-file-item>`s the product arranges — for a\nlist of its own, an order people change (file items in the rows of a List), or files that are only shown.\n\nWithout script, and until the element is defined, the trigger is a button that opens nothing and no row is drawn: a\npage that must take files where script does not run writes a native `<input type=\"file\">` in its own form.",
+          "description": "Lets people choose files and shows what was chosen. Built from a File picker (`<tanrei-file-picker>`) — the trigger,\nthe drop area, the limits in words, the judging of a choice — and File items (`<tanrei-file-item>`), one for each\nfile, in a column of rows or a strip of tiles; it adds the state that ties them: which files are kept, the room that\nis left, one form for all its items, one message for many changes, where focus goes after a removal, and the form's\nvalue. **It never uploads**: it opens no connection and reads no byte of a file (FUP-7).\n\nContract: specs/file-upload.spec.json. Who holds the rows is `rows`, and the product says which.\n\n`rows=\"own\"`, the default: the element keeps the chosen files and makes a file item for each itself, so a plain form\nworks by placing it — `<form><tanrei-file-upload name=\"attachments\" multiple remove-label=\"…\"><tanrei-button\nslot=\"trigger\" variant=\"outlined\">Choose files</tanrei-button></tanrei-file-upload></form>`. With `multiple` a second\nchoice adds and `max-files` counts the files kept; without it a file that passes takes the place of the one kept. The\nsame file (name, size, time of last change) is kept once. A refused file is a failed row with the product's sentence\nfor its reason (`type-error-text`, `size-error-text`, `count-error-text`, else `setWords`), is not kept, and leaves\nwhen it is removed, when files next arrive or on `clear()`. The remove action removes. `files` reads the kept files,\n`add(files)` hands files over and answers with the refused, `clear()` empties, and `formatSize` — a property — writes\na row's size; without it none is drawn. A kept file's row shows no status and no progress: the element sends nothing.\n\n`rows=\"given\"`: the rows are `<tanrei-file-item>` children the product adds on `select` and removes on a row's\n`remove`, each with its status, progress and error; the element adds, changes and removes none and keeps no file —\nfor a product that sends files itself.\n\nEvery row is of one form: `item-form` (`row`, `tile`), `item-preview`, `item-fit`, `item-name-hidden`, `item-width`,\n`item-height`, with `remove-label`, `retry-label` and `disabled`, are given to every file item it holds — the\nproduct's own included — through an internal channel; a product's item that says one of them otherwise is drawn as\nthe file upload says. The picture of an image row is made and released by its file item, never by this element.\n\n`select` carries the files that passed `accept`, `max-size` and the count and found room, `reject` the ones that did\nnot, each with a reason that is a name and not words (`type`, `size`, `count`); while `rows` is `own`, `change` then\ncarries the files now kept. None is emitted for what the product did itself (`add()`, `clear()`, a reset, a change\nof `rows`). The file picker's own two events do not leave the element.\n\nForm-associated: under its `name` it submits the kept files, in order — or, while `rows` is `given`, the `file` of\nevery row that has one; it is invalid for its form while `required` and there is none. A reset empties the kept\nfiles and changes nothing of the product's rows. Nothing is restored with a page. Inside a `<tanrei-field>` it takes\nthe field's label, help, error, requirement and `disabled`.\n\nThe rows are the items of a `<tanrei-list>` in the shadow root — a column, or with `item-form=\"tile\"` lines that\nwrap. With `reorderable` people can put them in another order (FUP-59): every row gets the List's handle, the whole\nrow can be dragged, and the handle offers the moves in a menu and to the keyboard. While `rows` is `own` the file\nupload reorders the files it keeps and fires `change`; while it is `given` it fires `move` and you move your file item.\n\nOne level down, the same by hand: a `<tanrei-file-picker>` and `<tanrei-file-item>`s the product arranges, alone or\nas the content of a List's items.\n\nWithout script, and until the element is defined, the trigger is a button that opens nothing and no row is drawn: a\npage that must take files where script does not run writes a native `<input type=\"file\">` in its own form.",
           "name": "TanreiFileUpload",
           "cssParts": [
             {
@@ -35235,7 +35235,7 @@
               "name": "file-item"
             },
             {
-              "description": "The list of rows.",
+              "description": "The List that arranges the rows, a `<tanrei-list>`.",
               "name": "list"
             },
             {
@@ -35316,6 +35316,16 @@
               "privacy": "private",
               "readonly": true,
               "default": "new AvailabilityController(this, 'file-upload')"
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...LitElement.shadowRootOptions, slotAssignment: 'manual' }",
+              "description": "FUP-17, FUP-41: its slots are assigned by hand — each of the product's rows to a slot of its own inside the List's\nitem that holds it, the trigger and the glyph to the two slots passed on to the file picker, and anything else to\nnothing, so that it is not drawn."
             },
             {
               "kind": "field",
@@ -35497,6 +35507,117 @@
               "default": "null",
               "attribute": "item-height",
               "description": "In a tile: the height of the box, in CSS pixels. Null (no attribute) reads the token of a tile's height."
+            },
+            {
+              "kind": "field",
+              "name": "reorderable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets people put the files in another order (FUP-59): every row gets a handle, the whole row can be dragged, and the handle offers the moves in a menu and to the keyboard. While `rows` is `own` the file upload reorders the files it keeps and fires `change`; while it is `given` it fires `move` and you reorder your file items. Ignored while disabled.",
+              "attribute": "reorderable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "dragHandleLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of every row's handle (`drag-handle-label`): your sentence with the place `{label}`, filled with the file's name (\"Reorder {label}\"). Empty reads the product's words. Given to the List.",
+              "attribute": "drag-handle-label"
+            },
+            {
+              "kind": "field",
+              "name": "dragHandleHint",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The description of every handle (`drag-handle-hint`): how to move a row with the keyboard, in your words. Given to the List.",
+              "attribute": "drag-handle-hint"
+            },
+            {
+              "kind": "field",
+              "name": "moveToStartLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The move menu's item that moves a row to the first place (`move-to-start-label`). Given to the List.",
+              "attribute": "move-to-start-label"
+            },
+            {
+              "kind": "field",
+              "name": "moveBeforeLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The move menu's item that moves a row one place toward the start (`move-before-label`). Given to the List.",
+              "attribute": "move-before-label"
+            },
+            {
+              "kind": "field",
+              "name": "moveAfterLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The move menu's item that moves a row one place toward the end (`move-after-label`). Given to the List.",
+              "attribute": "move-after-label"
+            },
+            {
+              "kind": "field",
+              "name": "moveToEndLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The move menu's item that moves a row to the last place (`move-to-end-label`). Given to the List.",
+              "attribute": "move-to-end-label"
+            },
+            {
+              "kind": "field",
+              "name": "liftedText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Said when the keyboard lifts a row (`lifted-text`): `{label}`, `{position}`, `{count}`. Given to the List.",
+              "attribute": "lifted-text"
+            },
+            {
+              "kind": "field",
+              "name": "movedText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Said when a lifted row reaches another place, and once a move has taken effect (`moved-text`): `{label}`, `{position}`, `{count}`. Given to the List.",
+              "attribute": "moved-text"
+            },
+            {
+              "kind": "field",
+              "name": "cancelledText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Said when a move with the keyboard is cancelled (`cancelled-text`): `{label}`, `{position}`, `{count}`. Given to the List.",
+              "attribute": "cancelled-text"
             },
             {
               "kind": "field",
@@ -36293,6 +36414,19 @@
             },
             {
               "kind": "field",
+              "name": "onListMove",
+              "privacy": "private",
+              "readonly": true,
+              "description": "FUP-59: the List asks for a row to stand in another place. While `rows` is `given` the move is the product's: the\nfile upload says it as its own `move` and changes nothing. While it is `own` the kept file takes its new place, the\nrows are drawn in the new order, and `change` says so — unless the move would put a refused file's row among the\nkept ones, or a kept one after a refused one: then nothing changes, and the List takes the move as refused."
+            },
+            {
+              "kind": "method",
+              "name": "assignSlots",
+              "privacy": "private",
+              "description": "FUP-17, FUP-41: the slots are assigned by hand after every render: each of the product's rows to the slot inside\nthe List's item that holds it, the trigger and the glyph to the slots passed on to the file picker; anything else\nto nothing."
+            },
+            {
+              "kind": "field",
               "name": "onRowUpdate",
               "privacy": "private",
               "readonly": true
@@ -36597,6 +36731,13 @@
                 "text": "CustomEvent"
               },
               "description": "While `rows` is `own`: the kept files changed by what a person did — a choice or a drop that kept or replaced a file, or a kept file's row removed. Once, after `select` and `reject`; `detail.files` is the `File[]` now kept. Bubbles. Never for `add()`, `clear()`, a reset or a change of `rows`."
+            },
+            {
+              "type": {
+                "text": "CustomEvent<TanreiFileUploadMoveDetail>"
+              },
+              "description": "While `rows` is `given` and `reorderable` is set: a person asked for a row to stand in another place, by the move menu, the keyboard or a drag. `detail.from` and `detail.to`, from 0. The file upload has moved nothing: put your file item in its new place. Bubbles.",
+              "name": "move"
             }
           ],
           "attributes": [
@@ -36741,6 +36882,96 @@
               "default": "null",
               "fieldName": "itemHeight",
               "description": "In a tile: the height of the box, in CSS pixels. Null (no attribute) reads the token of a tile's height."
+            },
+            {
+              "name": "reorderable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets people put the files in another order (FUP-59): every row gets a handle, the whole row can be dragged, and the handle offers the moves in a menu and to the keyboard. While `rows` is `own` the file upload reorders the files it keeps and fires `change`; while it is `given` it fires `move` and you reorder your file items. Ignored while disabled.",
+              "fieldName": "reorderable"
+            },
+            {
+              "name": "drag-handle-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of every row's handle (`drag-handle-label`): your sentence with the place `{label}`, filled with the file's name (\"Reorder {label}\"). Empty reads the product's words. Given to the List.",
+              "fieldName": "dragHandleLabel"
+            },
+            {
+              "name": "drag-handle-hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The description of every handle (`drag-handle-hint`): how to move a row with the keyboard, in your words. Given to the List.",
+              "fieldName": "dragHandleHint"
+            },
+            {
+              "name": "move-to-start-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The move menu's item that moves a row to the first place (`move-to-start-label`). Given to the List.",
+              "fieldName": "moveToStartLabel"
+            },
+            {
+              "name": "move-before-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The move menu's item that moves a row one place toward the start (`move-before-label`). Given to the List.",
+              "fieldName": "moveBeforeLabel"
+            },
+            {
+              "name": "move-after-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The move menu's item that moves a row one place toward the end (`move-after-label`). Given to the List.",
+              "fieldName": "moveAfterLabel"
+            },
+            {
+              "name": "move-to-end-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The move menu's item that moves a row to the last place (`move-to-end-label`). Given to the List.",
+              "fieldName": "moveToEndLabel"
+            },
+            {
+              "name": "lifted-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Said when the keyboard lifts a row (`lifted-text`): `{label}`, `{position}`, `{count}`. Given to the List.",
+              "fieldName": "liftedText"
+            },
+            {
+              "name": "moved-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Said when a lifted row reaches another place, and once a move has taken effect (`moved-text`): `{label}`, `{position}`, `{count}`. Given to the List.",
+              "fieldName": "movedText"
+            },
+            {
+              "name": "cancelled-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Said when a move with the keyboard is cancelled (`cancelled-text`): `{label}`, `{position}`, `{count}`. Given to the List.",
+              "fieldName": "cancelledText"
             },
             {
               "name": "remove-label",

@@ -602,9 +602,17 @@ export function fileUploadTwin(fixture: Fixture, made: MadeFileRow[] = []): stri
   const shared = said({ form: p.itemForm, preview: p.itemPreview, fit: p.itemFit, nameHidden: p.itemNameHidden, width: p.itemWidth, height: p.itemHeight, removeLabel: p.removeLabel, retryLabel: p.retryLabel, disabled: p.disabled });
   const [pickerStaging, itemStaging] = [STAGING['file-picker']!, STAGING['file-item']!];
   const above = `<tanrei-file-picker ${attributes(picker.props, picker.platforms.web.props, pickerStaging.props!(forwarded, fixture))}>${slotsMarkup(picker, fixture.slots)}</tanrei-file-picker>`;
-  const each = rows.map((row) => `<tanrei-file-item ${attributes(item.props, item.platforms.web.props, itemStaging.props!({ ...row, ...shared }, fixture))}></tanrei-file-item>`).join('');
-  const arranged = p.itemForm === 'tile' ? 'flex-wrap: wrap; align-items: flex-start' : 'flex-direction: column';
-  const below = rows.length ? `<div style="display: flex; ${arranged}; gap: var(--tanrei-comp-file-upload-list-item-gap); margin-block-start: var(--tanrei-comp-file-upload-list-gap)">${itemStaging.wrap!(each, fixture)}</div>` : '';
+  const each = rows.map((row) => `<tanrei-file-item ${attributes(item.props, item.platforms.web.props, itemStaging.props!({ ...row, ...shared }, fixture))}></tanrei-file-item>`);
+  // FUP-17, FUP-59: the rows are the items of a List — vertical, or horizontal and wrapping for tiles, the List's small
+  // gap apart — each holding one file item, named by its file; a reorderable one with the List's own words.
+  const tile = p.itemForm === 'tile';
+  const words = ['dragHandleLabel', 'dragHandleHint', 'moveToStartLabel', 'moveBeforeLabel', 'moveAfterLabel', 'moveToEndLabel', 'liftedText', 'movedText', 'cancelledText']
+    .filter((key) => typeof p[key] === 'string' && p[key])
+    .map((key) => `${key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}="${String(p[key]).replaceAll('"', '&quot;')}"`)
+    .join(' ');
+  const listed = rows.map((row, n) => `<tanrei-list-item label="${String(row.name ?? '').replaceAll('"', '&quot;')}">${each[n]}</tanrei-list-item>`).join('');
+  const list = `<tanrei-list orientation="${tile ? 'horizontal' : 'vertical'}"${tile ? ' wrap' : ''} gap="small"${p.reorderable && !p.disabled ? ` reorderable ${words}` : ''}${p.label ? ` label="${String(p.label)}"` : ''} style="margin-block-start: var(--tanrei-comp-file-upload-list-gap)">${listed}</tanrei-list>`;
+  const below = rows.length ? itemStaging.wrap!(list, fixture) : '';
   return `<div class="stage" data-twin-of="${fixture.id}"${fixture.direction ? ` dir="${fixture.direction}"` : ''}><div style="inline-size: 360px">${above}${below}</div></div>`;
 }
 

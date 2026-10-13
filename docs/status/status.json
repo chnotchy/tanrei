@@ -1583,7 +1583,8 @@
         "file-item"
       ],
       "uses": [
-        "button"
+        "button",
+        "list"
       ],
       "hasSpec": true,
       "docs": "/components/file-upload/",
