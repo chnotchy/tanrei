@@ -171,7 +171,7 @@ const SUBJECTS: Subject[] = [
   { name: 'multiline text field', html: (n) => `<tanrei-text-field multiline label="Text ${n}" value="One line"></tanrei-text-field>`, most: { style: 8, layout: 7 } },
   {
     name: 'reorderable list of three',
-    html: (n) => `<tanrei-list reorder="buttons" label="List ${n}">${[1, 2, 3].map((row) => `<tanrei-list-item headline="Row ${row}"></tanrei-list-item>`).join('')}</tanrei-list>`,
+    html: (n) => `<tanrei-list reorderable label="List ${n}" drag-handle-label="Reorder {label}">${[1, 2, 3].map((row) => `<tanrei-list-item>Row ${row}</tanrei-list-item>`).join('')}</tanrei-list>`,
     most: { style: 10, layout: 5 },
   },
   {

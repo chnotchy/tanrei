@@ -194,12 +194,13 @@ const give = (element: Locator, props: Record<string, unknown>) =>
 /**
  * FUP-24, FUP-25: the accessibility tree of a file upload's stage, or of its twin's, without what the file upload adds
  * and its twin cannot have — the group named by `label` around everything and the list of that name around the rows:
- * the file picker's tree, then each row's, where a row is an item of that list in the file upload and a group named by
- * the file when it stands alone (FIT-19), and is one line here. (Each is read from its own element: a tree read from
+ * the file picker's tree, then each row's, where a row is the group named by its file (FIT-19), held by an item of a
+ * List in the file upload and in its twin alike, and is one line here. (Each is read from its own element: a tree read from
  * the stage stops at the box around the rows, which is drawn for nothing so that a stray text among them is not.)
  */
 async function fileUploadTree(stage: Locator, of: 'ours' | 'twin'): Promise<string> {
-  const row = of === 'ours' ? /^- listitem(?=:|$)/ : /^- group "(?:[^"\\]|\\.)*"(?=:|$)/;
+  // A row is the group named by its file in both: in the file upload a List's item holds it, as in its twin (FUP-25).
+  const row = /^- group "(?:[^"\\]|\\.)*"(?=:|$)/;
   const rows = await stage.locator('tanrei-file-item').all();
   return [await stage.locator('tanrei-file-picker').ariaSnapshot(), ...(await Promise.all(rows.map(async (each) => (await each.ariaSnapshot()).replace(row, '- row'))))].join('\n');
 }
@@ -292,6 +293,22 @@ const DRIVEN: Record<string, Driven> = {
       change: {
         before: (page, element) => chooseFiles(page, element, [{ name: 'brief.pdf', mimeType: 'application/pdf' }]),
         act: async (_page, element) => element.locator('tanrei-file-item .action.remove').click(),
+        value: undefined,
+      },
+      // FUP-59: while rows is given, a row lifted from its handle and dropped one place further on.
+      move: {
+        before: async (_page, element) =>
+          element.evaluate(async (el) => {
+            Object.assign(el, { rows: 'given', reorderable: true, dragHandleLabel: 'Reorder {label}' });
+            el.insertAdjacentHTML('beforeend', '<tanrei-file-item value="a" name="a.pdf"></tanrei-file-item><tanrei-file-item value="b" name="b.pdf"></tanrei-file-item>');
+            await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+          }),
+        act: async (page, element) => {
+          await element.locator('tanrei-list-item').first().locator('.handle').focus();
+          await page.keyboard.press('Space');
+          await page.keyboard.press('ArrowDown');
+          await page.keyboard.press('Space');
+        },
         value: undefined,
       },
     },

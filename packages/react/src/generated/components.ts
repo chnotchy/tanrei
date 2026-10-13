@@ -35,6 +35,7 @@ import { TanreiDateTimePicker as TanreiDateTimePickerElement, type TanreiDateTim
 import { TanreiDescriptionList as TanreiDescriptionListElement } from '@tanrei/web/components/description-list';
 import { TanreiDialog as TanreiDialogElement } from '@tanrei/web/components/dialog';
 import { TanreiDivider as TanreiDividerElement } from '@tanrei/web/components/divider';
+import { TanreiDropZone as TanreiDropZoneElement } from '@tanrei/web/components/drop-zone';
 import { TanreiEmbeddedTextInput as TanreiEmbeddedTextInputElement, type TanreiEmbeddedTextInputActionDetail, type TanreiEmbeddedTextInputRowsChangeDetail } from '@tanrei/web/components/embedded-text-input';
 import { TanreiEmptyState as TanreiEmptyStateElement } from '@tanrei/web/components/empty-state';
 import { TanreiFabMenu as TanreiFabMenuElement, type TanreiFabMenuCloseDetail, type TanreiFabMenuToggleDetail } from '@tanrei/web/components/fab-menu';
@@ -44,7 +45,7 @@ import { TanreiFieldGroup as TanreiFieldGroupElement } from '@tanrei/web/compone
 import { TanreiFigure as TanreiFigureElement } from '@tanrei/web/components/figure';
 import { TanreiFileItem as TanreiFileItemElement } from '@tanrei/web/components/file-item';
 import { TanreiFilePicker as TanreiFilePickerElement } from '@tanrei/web/components/file-picker';
-import { TanreiFileUpload as TanreiFileUploadElement } from '@tanrei/web/components/file-upload';
+import { TanreiFileUpload as TanreiFileUploadElement, type TanreiFileUploadMoveDetail } from '@tanrei/web/components/file-upload';
 import { TanreiImagePreview as TanreiImagePreviewElement, type TanreiImagePreviewCloseDetail, type TanreiImagePreviewIndexChangeDetail, type TanreiImagePreviewZoomChangeDetail, type TanreiImagePreviewControlsHiddenChangeDetail, type TanreiImagePreviewLoadErrorDetail } from '@tanrei/web/components/image-preview';
 import { TanreiImagePreviewItem as TanreiImagePreviewItemElement } from '@tanrei/web/components/image-preview';
 import { TanreiKeyboardShortcut as TanreiKeyboardShortcutElement } from '@tanrei/web/components/keyboard-shortcut';
@@ -61,6 +62,7 @@ import { TanreiMenuRadioItem as TanreiMenuRadioItemElement } from '@tanrei/web/c
 import { TanreiMenubar as TanreiMenubarElement } from '@tanrei/web/components/menubar';
 import { TanreiMenubarItem as TanreiMenubarItemElement } from '@tanrei/web/components/menubar';
 import { TanreiMenubarMenu as TanreiMenubarMenuElement, type TanreiMenubarMenuToggleDetail } from '@tanrei/web/components/menubar';
+import { TanreiModalLayer as TanreiModalLayerElement, type TanreiModalLayerCloseDetail } from '@tanrei/web/components/modal-layer';
 import { TanreiNavigationBar as TanreiNavigationBarElement, type TanreiNavigationChangeDetail } from '@tanrei/web/components/navigation-bar';
 import { TanreiNavigationBarItem as TanreiNavigationBarItemElement } from '@tanrei/web/components/navigation-bar';
 import { TanreiNavigationDrawer as TanreiNavigationDrawerElement, type TanreiNavigationDrawerExpandedChangeDetail, type TanreiNavigationDrawerPresentationChangeDetail } from '@tanrei/web/components/navigation-drawer';
@@ -92,7 +94,10 @@ import { TanreiSlider as TanreiSliderElement, type TanreiSliderChangeDetail } fr
 import { TanreiSliderField as TanreiSliderFieldElement } from '@tanrei/web/components/slider-field';
 import { TanreiSnackbar as TanreiSnackbarElement, type TanreiSnackbarDismissDetail, type TanreiSnackbarExpandedChangeDetail } from '@tanrei/web/components/snackbar';
 import { TanreiSnackbarHost as TanreiSnackbarHostElement } from '@tanrei/web/components/snackbar';
+import { TanreiStepper as TanreiStepperElement, type TanreiStepperSelectDetail } from '@tanrei/web/components/stepper';
+import { TanreiStepperStep as TanreiStepperStepElement } from '@tanrei/web/components/stepper';
 import { TanreiSubmenu as TanreiSubmenuElement, type TanreiSubmenuToggleDetail } from '@tanrei/web/components/menu';
+import { TanreiSwatch as TanreiSwatchElement } from '@tanrei/web/components/swatch';
 import { TanreiSwitch as TanreiSwitchElement, type TanreiSwitchChangeDetail } from '@tanrei/web/components/switch';
 import { TanreiTab as TanreiTabElement } from '@tanrei/web/components/tabs';
 import { TanreiTabPanel as TanreiTabPanelElement } from '@tanrei/web/components/tabs';
@@ -729,6 +734,26 @@ export const Divider = createComponent({
   events: {},
 });
 
+/**
+ * Wraps any part of a screen so that files can be dropped anywhere on it, while what it holds is used exactly as without it: it draws nothing at rest and adds no hover, no press, no focus stop and no role (DRZ-1, DRZ-2). While files are dragged over it, one overlay covers it and says they can be dropped (DRZ-4); on the drop it judges them by the File picker's rule and hands over what passed and what was refused (DRZ-9). It keeps nothing (DRZ-10), and it is never the only way to add a file: the page also has a File picker or a File upload (DRZ-13).
+ *
+ * Children, by their `slot`:
+ * - default — The content: any part of the product's screen.
+ *
+ * Events:
+ * - `onSelect` (`select`) — Files were dropped and passed. Once per drop; `detail.files` is a `File[]`. Bubbles.
+ * - `onReject` (`reject`) — Files of one drop were refused. Once, after `select` where both happen; `detail.files` is `{ file, reason }[]`, the reason `type`, `size` or `count`. Bubbles.
+ */
+export const DropZone = createComponent({
+  tagName: 'tanrei-drop-zone',
+  elementClass: TanreiDropZoneElement,
+  react: React,
+  events: {
+    onSelect: 'select' as EventName<TanreiEvent<TanreiDropZoneElement>>,
+    onReject: 'reject' as EventName<TanreiEvent<TanreiDropZoneElement>>,
+  },
+});
+
 /** The attributes of `<tanrei-embedded-text-input>` that are not properties of the element, as props of `EmbeddedTextInput`. */
 export interface EmbeddedTextInputMarks {
   /** The id of the form the input belongs to, where it stands outside it: the platform's own attribute. The `form` property is read-only and returns the form element. */
@@ -899,6 +924,7 @@ const FileUploadElement = createComponent({
     onSelect: 'select' as EventName<TanreiEvent<TanreiFileUploadElement>>,
     onReject: 'reject' as EventName<TanreiEvent<TanreiFileUploadElement>>,
     onChange: 'change' as EventName<TanreiEvent<TanreiFileUploadElement>>,
+    onMove: 'move' as EventName<TanreiEvent<TanreiFileUploadElement, CustomEvent<TanreiFileUploadMoveDetail>>>,
   },
 });
 /**
@@ -913,6 +939,7 @@ const FileUploadElement = createComponent({
  * - `onSelect` (`select`) — Files were chosen or dropped, passed and found room. Once per choice; `detail.files` is a `File[]` — while `rows` is `own`, the files newly kept. Bubbles.
  * - `onReject` (`reject`) — Files of one choice or one drop were refused. Once, after `select` where both happen; `detail.files` is `{ file, reason }[]`, the reason `type`, `size` or `count`. Bubbles.
  * - `onChange` (`change`) — While `rows` is `own`: the kept files changed by what a person did — a choice or a drop that kept or replaced a file, or a kept file's row removed. Once, after `select` and `reject`; `detail.files` is the `File[]` now kept. Bubbles. Never for `add()`, `clear()`, a reset or a change of `rows`.
+ * - `onMove` (`move`) — While `rows` is `given` and `reorderable` is set: a person asked for a row to stand in another place, by the move menu, the keyboard or a drag. `detail.from` and `detail.to`, from 0. The file upload has moved nothing: put your file item in its new place. Bubbles.
  */
 export const FileUpload: Marked<typeof FileUploadElement, FileUploadMarks> = withMarks<FileUploadMarks>([], ['form'])(FileUploadElement);
 
@@ -976,13 +1003,13 @@ export const LinkCard = createComponent({
 });
 
 /**
- * Shows a column of related items that people read, open one by one, choose from, or put in another order.
+ * Holds a set of your own items in one column, one line, or lines that wrap into a grid; people read them, open them one by one, choose from them, or drag them into another order.
  *
  * Children, by their `slot`:
  * - default — The items: `<tanrei-list-item>` children.
  *
  * Events:
- * - `onMove` (`move`) — The user asked for an item to stand in another place, by a move button: `detail.from` is the item's index and `detail.to` the index it is to have, both from 0. Fired once per move; it bubbles and cannot be cancelled. The list has moved nothing: reorder your items.
+ * - `onMove` (`move`) — The user asked for an item to stand in another place — by the move menu, the keyboard or a drag: `detail.from` is the item's index and `detail.to` the index it is to have, both from 0. Fired once per move; it bubbles and cannot be cancelled. The list has moved nothing: reorder your items.
  * - `onChange` (`change`) — The user changed the selection: `detail.value` (single) or `detail.values` (multiple) after the change, which the list already holds.
  */
 export const List = createComponent({
@@ -996,11 +1023,10 @@ export const List = createComponent({
 });
 
 /**
- * One row of a list — the spec's item kind `list-item`: a headline with an optional overline, supporting text, leading icon or media and trailing text, icon or control. Placed as a child of `<tanrei-list>`, which decides whether it is an option; otherwise it is static, one action with `interactive`, or a link with `href`.
+ * One item of a list — the spec's item kind `list-item`: a box around your own content (its children). Placed as a child of `<tanrei-list>`, which decides whether it is an option; otherwise it is static, one action with `interactive`, or a link with `href`.
  *
  * Children, by their `slot`:
- * - `leading` — The avatar's or the image's content (an `<img>`, or a monogram for an avatar), drawn only while `leading-media` is `avatar` or `image`. Hidden from assistive technology unless it is named (an `alt`, an `aria-label`).
- * - `trailing` — A control of your own at the end of a static item: a switch, a checkbox, an icon button. It keeps its own tokens, semantics and focus stop. An interactive item or an option must hold no interactive element (reported in debug builds). In a reorderable list it stands after the two move buttons: one control, typically the button that removes the item.
+ * - default — The item's content: your own — text, an image, a card, a file item. An interactive item, a link item or an option must hold no interactive element (reported in debug builds); a static item may hold your controls, which keep their own semantics and focus.
  */
 export const ListItem = createComponent({
   tagName: 'tanrei-list-item',
@@ -1156,6 +1182,24 @@ export const MenubarMenu = createComponent({
   react: React,
   events: {
     onToggle: 'toggle' as EventName<TanreiEvent<TanreiMenubarMenuElement, CustomEvent<TanreiMenubarMenuToggleDetail>>>,
+  },
+});
+
+/**
+ * The layer under every modal surface: it dims the window behind what it presents, makes everything there inert, moves focus in, keeps it there and gives it back, and asks to close on Escape, the platform's back or a press on the dim. The dialog, the modal sheets, the modal drawer, the image preview, the modal picker and the search's modal views are built from it; use it alone for a modal surface Tanrei does not have (a command palette, a takeover of the window).
+ *
+ * Children, by their `slot`:
+ * - default — The content: the surface you present modally. The layer draws, styles and sizes nothing of it.
+ *
+ * Events:
+ * - `onClose` (`close`) — The layer asks to be closed: `detail.reason` is `escape`, `back` or `scrim`. Set `open` to false. Only while `closedby` is not `none`.
+ */
+export const ModalLayer = createComponent({
+  tagName: 'tanrei-modal-layer',
+  elementClass: TanreiModalLayerElement,
+  react: React,
+  events: {
+    onClose: 'close' as EventName<TanreiEvent<TanreiModalLayerElement, CustomEvent<TanreiModalLayerCloseDetail>>>,
   },
 });
 
@@ -1754,6 +1798,34 @@ export const SnackbarHost = createComponent({
 });
 
 /**
+ * Shows where a person is in a flow the product runs in a fixed order of steps — which step is current, which are complete, which has an error and which are still to come — and, where the product allows it, lets the person press a step to go back to it.
+ *
+ * Children, by their `slot`:
+ * - default — `<tanrei-stepper-step>` children: the steps.
+ *
+ * Events:
+ * - `onSelect` (`select`) — The person pressed a step to go to it: `detail.value` is its value. The stepper does not change `value`.
+ */
+export const Stepper = createComponent({
+  tagName: 'tanrei-stepper',
+  elementClass: TanreiStepperElement,
+  react: React,
+  events: {
+    onSelect: 'select' as EventName<TanreiEvent<TanreiStepperElement, CustomEvent<TanreiStepperSelectDetail>>>,
+  },
+});
+
+/**
+ * One step of a stepper — the spec's item kind `step`: its value, its label, an optional description, its status and whether it can be gone to. Placed as a child of `<tanrei-stepper>`, as `<option>` in a `<select>`; the stepper decides its condition, its number and whether it can be pressed.
+ */
+export const StepperStep = createComponent({
+  tagName: 'tanrei-stepper-step',
+  elementClass: TanreiStepperStepElement,
+  react: React,
+  events: {},
+});
+
+/**
  * An item that opens another level of the menu beside it — the spec's item kind `submenu`. It holds that level's items as its children, of any kind, further submenus included; it draws its row, ending in the icon set's `chevron_right`, in the surface that holds it, and its own surface as a manual popover in the top layer, placed against the row (MNU-46, MNU-47). It is not an action: activating it opens its submenu and closes nothing. `open` is its own: the menu sets it when the person opens or closes the submenu and fires `toggle`; the product may also set it. The menu it is in does the rest — the keys, the pointer's path, placement, focus and closing.
  *
  * Children, by their `slot`:
@@ -1769,6 +1841,16 @@ export const Submenu = createComponent({
   events: {
     onToggle: 'toggle' as EventName<TanreiEvent<TanreiSubmenuElement, CustomEvent<TanreiSubmenuToggleDetail>>>,
   },
+});
+
+/**
+ * Shows a color as a sample with its name beside it: a small square or dot of exactly that color, over a checkerboard where the color lets what is behind it through, edged so that a color close to the surface still shows where it ends. A sample to look at, never a control and never a picker.
+ */
+export const Swatch = createComponent({
+  tagName: 'tanrei-swatch',
+  elementClass: TanreiSwatchElement,
+  react: React,
+  events: {},
 });
 
 /** The attributes of `<tanrei-switch>` that are not properties of the element, as props of `Switch`. */

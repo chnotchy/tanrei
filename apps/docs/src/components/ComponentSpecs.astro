@@ -232,7 +232,7 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
           <td data-wrap="false"><code>{tk.cssVar}</code></td>
           <td>{alias ? <code>{alias.replace(`${ns}.`, '')}</code> : <span class="docs-muted">—</span>}</td>
           <td>
-            {tk.type === 'color' && <span class="chip" style={`background:${tk.value.hex}`} aria-hidden="true" />}
+            {tk.type === 'color' && <tanrei-swatch class="chip" decorative size="small" shape="circle" color={tk.value.hex} />}
             <span class="docs-mono">{formatValue(tk)}</span>
           </td>
         </tr>
@@ -510,14 +510,22 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
     font-size: var(--sl-text-xs);
     color: var(--tanrei-sys-color-on-surface-variant);
   }
+  /* A color token's value is Tanrei's Swatch, decorative: the value beside it in text names the color. Its room is
+     held before it is defined; without script it is not drawn, and the value still reads. */
   .chip {
-    display: inline-block;
-    inline-size: 0.75rem;
-    block-size: 0.75rem;
     margin-inline-end: 0.375rem;
-    border-radius: 3px;
-    vertical-align: -1px;
-    box-shadow: 0 0 0 1px var(--tanrei-sys-color-outline-variant);
+  }
+  .chip:not(:defined) {
+    display: inline-block;
+    inline-size: var(--tanrei-comp-swatch-container-size-small);
+    block-size: var(--tanrei-comp-swatch-container-size-small);
+    vertical-align: middle;
+    visibility: hidden;
+  }
+  @media (scripting: none) {
+    .chip:not(:defined) {
+      display: none;
+    }
   }
   .live {
     white-space: nowrap;

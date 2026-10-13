@@ -4,8 +4,11 @@
   "title": "Navigation drawer",
   "summary": "Lists a product's destinations in a panel at the start edge, grouped under headings and in groups that open and close, beside the content or over it, and narrows to a column of icons where the content needs the width, on request or by the window's width. Its destinations are buttons, or links to the product's pages: it is then a site's sidebar, which marks the page being shown.",
   "category": "navigation",
-  "level": "base",
+  "level": "composed",
   "listing": "default",
+  "builtFrom": [
+    "modal-layer"
+  ],
   "uses": [
     "badge",
     "divider",
@@ -24,7 +27,7 @@
     },
     {
       "id": "scrim",
-      "description": "Dims everything behind a modal drawer; a press on it closes the drawer.",
+      "description": "The modal layer's scrim (MDL-1): it dims everything behind a modal drawer; a press on it closes the drawer.",
       "optional": true
     },
     {
@@ -494,11 +497,11 @@
     },
     {
       "id": "NVD-19",
-      "text": "WHEN open becomes true WHILE variant is modal THE navigation drawer SHALL, WHILE collapsible is false, slide in from its start edge over the content and fade in comp.navigation-drawer.scrim.color over the rest of the window, over comp.navigation-drawer.motion.enter-duration with comp.navigation-drawer.motion.enter-easing (at once where motion is reduced), and WHILE collapsible is true widen from its column as NVD-40 says; in both cases it SHALL move focus to the selected destination (or the group row that shows it, NVD-47) or else to its first focusable element, SHALL keep focus inside the drawer while it is open, and SHALL make everything behind it inert to pointer, touch, keyboard and assistive technology."
+      "text": "WHEN open becomes true WHILE variant is modal THE navigation drawer SHALL, WHILE collapsible is false, slide in from its start edge over the content and fade its modal layer's scrim in comp.navigation-drawer.scrim.color and comp.navigation-drawer.scrim.blur in over the rest of the window in step (MDL-1, MDL-7), over comp.navigation-drawer.motion.enter-duration with comp.navigation-drawer.motion.enter-easing (at once where motion is reduced), and WHILE collapsible is true widen from its column as NVD-40 says; in both cases it SHALL move focus to the selected destination (or the group row that shows it, NVD-47) or else to its first focusable element, SHALL keep focus inside the drawer while it is open, and SHALL make everything behind it inert to pointer, touch, keyboard and assistive technology, as its modal layer does (MDL-2, MDL-3, MDL-4)."
     },
     {
       "id": "NVD-20",
-      "text": "WHEN the user presses the scrim, presses Escape, uses the platform's back action, activates the menu button (NVD-37), or drags the drawer toward its start edge past half its width or flings it that way, WHILE variant is modal and open is true, THE navigation drawer SHALL close and emit close exactly once; on the web it SHALL set open to false itself, as a dialog does, and a controlled platform SHALL leave open to the caller, who sets it from close. A fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond, and the drawer follows a drag only beyond the platform's touch slop (Android's ViewConfiguration.getScaledTouchSlop, Flutter's kTouchSlop) or, where the platform names none, 8 points, as BSH-9 says for the bottom sheet."
+      "text": "WHEN the user presses the scrim, presses Escape, uses the platform's back action (as its modal layer answers them, MDL-6), activates the menu button (NVD-37), or drags the drawer toward its start edge past half its width or flings it that way, WHILE variant is modal and open is true, THE navigation drawer SHALL close and emit close exactly once; on the web it SHALL set open to false itself, as a dialog does, and a controlled platform SHALL leave open to the caller, who sets it from close. A fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond, and the drawer follows a drag only beyond the platform's touch slop (Android's ViewConfiguration.getScaledTouchSlop, Flutter's kTouchSlop) or, where the platform names none, 8 points, as BSH-9 says for the bottom sheet."
     },
     {
       "id": "NVD-21",
@@ -506,7 +509,7 @@
     },
     {
       "id": "NVD-22",
-      "text": "WHEN a modal drawer closes THE navigation drawer SHALL, WHILE collapsible is false, slide out and fade its scrim out over comp.navigation-drawer.motion.exit-duration with comp.navigation-drawer.motion.exit-easing, and WHILE collapsible is true narrow back to its column as NVD-40 says (at once where motion is reduced), and SHALL return focus to the element that had it when the drawer opened, or, WHERE that element is gone, to where the platform puts focus by default."
+      "text": "WHEN a modal drawer closes THE navigation drawer SHALL, WHILE collapsible is false, slide out and fade its scrim out over comp.navigation-drawer.motion.exit-duration with comp.navigation-drawer.motion.exit-easing, and WHILE collapsible is true narrow back to its column as NVD-40 says (at once where motion is reduced), and SHALL return focus to the element that had it when the drawer opened, or, WHERE that element is gone, to where the platform puts focus by default, as its modal layer does (MDL-5)."
     },
     {
       "id": "NVD-23",
@@ -580,7 +583,7 @@
     },
     {
       "id": "NVD-40",
-      "text": "WHILE variant is modal and collapsible is true THE navigation drawer SHALL take its column's width in the layout and draw the column as a standard drawer's (comp.navigation-drawer.container.color.standard, comp.navigation-drawer.container.elevation.standard, comp.navigation-drawer.outline.color.standard) WHILE open is false; WHEN open becomes true it SHALL widen over the content, without resizing it, from the column to comp.navigation-drawer.container.width in the modal variant's container, elevation, shape and outline, and fade in comp.navigation-drawer.scrim.color over the rest of the window, both over comp.navigation-drawer.motion.expand-duration with comp.navigation-drawer.motion.expand-easing, changing its parts as NVD-35 says; WHEN it closes it SHALL narrow back to the column and fade the scrim out over the same time; WHERE motion is reduced it SHALL do both at once. NVD-19 to NVD-22 apply to it while it is open."
+      "text": "WHILE variant is modal and collapsible is true THE navigation drawer SHALL take its column's width in the layout and draw the column as a standard drawer's (comp.navigation-drawer.container.color.standard, comp.navigation-drawer.container.elevation.standard, comp.navigation-drawer.outline.color.standard) WHILE open is false; WHEN open becomes true it SHALL widen over the content, without resizing it, from the column to comp.navigation-drawer.container.width in the modal variant's container, elevation, shape and outline, and fade its modal layer's scrim in comp.navigation-drawer.scrim.color and comp.navigation-drawer.scrim.blur in over the rest of the window (MDL-1), both over comp.navigation-drawer.motion.expand-duration with comp.navigation-drawer.motion.expand-easing, changing its parts as NVD-35 says; WHEN it closes it SHALL narrow back to the column and fade the scrim out over the same time; WHERE motion is reduced it SHALL do both at once. NVD-19 to NVD-22 apply to it while it is open."
     },
     {
       "id": "NVD-41",

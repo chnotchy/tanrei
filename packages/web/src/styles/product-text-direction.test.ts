@@ -151,6 +151,7 @@ const SUBJECTS: Record<string, Subject> = {
   },
   'segmented-button': { boxes: ['tanrei-segment .label'] },
   'side-sheet': { boxes: ['tanrei-side-sheet .headline'] },
+  stepper: { boxes: ['tanrei-stepper .label', 'tanrei-stepper-step .description', 'tanrei-stepper-step .label'], texts: ['description'] },
   slider: { boxes: ['tanrei-slider .value-text'], give: 'valueText' },
   snackbar: { boxes: ['tanrei-snackbar .hold', 'tanrei-snackbar .message', 'tanrei-snackbar .title'], texts: ['action'] },
   switch: { boxes: ['tanrei-switch .label'] },

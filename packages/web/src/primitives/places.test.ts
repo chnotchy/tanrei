@@ -2,7 +2,7 @@
 // the package that reads such a sentence, with `placeFaults()` and `reportPlaces()`, what a debug build says of one
 // that does not fit. They are plain functions, so they are called here and no page is opened; the sentences are the
 // ones the tools' reference reading is held to (packages/tools/test/places.test.js), so that the two read alike. What
-// each component does with its own sentence is in its own tests (LST-42, IMP-9, CHF-22, CHF-23).
+// each component does with its own sentence is in its own tests (LST-44, IMP-9, CHF-22, CHF-23).
 import { expect, test } from '@playwright/test';
 import { wordPlaces } from '../generated/words.js';
 import { type FilledRun, fillPlaces, placeFaults, reportPlaces } from './places.js';
@@ -91,11 +91,11 @@ test.describe('a word with places', () => {
   test('what a debug build says of a sentence — an unknown place with the places the word has, a stray brace, and a needed place that is absent; a sentence that fits has no fault', () => {
     const moved = wordPlaces.movedText!;
     const remove = wordPlaces.entryRemoveLabel!;
-    expect(placeFaults('{headline}: {position} of {count}', moved)).toEqual({ written: [], absent: [] });
+    expect(placeFaults('{label}: {position} of {count}', moved)).toEqual({ written: [], absent: [] });
     expect(placeFaults('Moved', moved), 'a place may be left out').toEqual({ written: [], absent: [] });
-    expect(placeFaults('{{headline}}', moved)).toEqual({ written: [], absent: [] });
-    expect(placeFaults('{headline} {place}', moved).written).toEqual(['holds {place}, which is not a place of it ({headline}, {position}, {count})']);
-    expect(placeFaults('{headline} {', moved).written).toEqual(['holds a brace that opens or closes nothing (a brace meant as one is written twice, {{ or }})']);
+    expect(placeFaults('{{label}}', moved)).toEqual({ written: [], absent: [] });
+    expect(placeFaults('{label} {place}', moved).written).toEqual(['holds {place}, which is not a place of it ({label}, {position}, {count})']);
+    expect(placeFaults('{label} {', moved).written).toEqual(['holds a brace that opens or closes nothing (a brace meant as one is written twice, {{ or }})']);
     expect(placeFaults('{a} } {b}', moved).written).toHaveLength(3);
     // The one place of any word that is needed: the name of an entry's remove action.
     expect(placeFaults('Remove {entry}', remove)).toEqual({ written: [], absent: [] });
@@ -107,25 +107,25 @@ test.describe('a word with places', () => {
   test('an unknown place and a stray brace are reported in a debug build, once per prop, fault and page, naming the element, the prop and the sentence’s id; a sentence that fits and a production build report nothing', () => {
     const moved = wordPlaces.movedText!;
     const list = element('tanrei-places-test-list');
-    expect(warned(() => reportPlaces(list, 'LST-42', 'movedText', '{headline}: {position} of {count}', moved, 'it is announced as it is written'))).toEqual([]);
-    expect(warned(() => reportPlaces(list, 'LST-42', 'movedText', '{{headline}} {position}', moved, 'it is announced as it is written'))).toEqual([]);
-    const first = warned(() => reportPlaces(list, 'LST-42', 'movedText', '{headline} {place} {', moved, 'it is announced as it is written'));
+    expect(warned(() => reportPlaces(list, 'LST-44', 'movedText', '{label}: {position} of {count}', moved, 'it is announced as it is written'))).toEqual([]);
+    expect(warned(() => reportPlaces(list, 'LST-44', 'movedText', '{{label}} {position}', moved, 'it is announced as it is written'))).toEqual([]);
+    const first = warned(() => reportPlaces(list, 'LST-44', 'movedText', '{label} {place} {', moved, 'it is announced as it is written'));
     expect(first).toEqual([
-      '[tanrei] <tanrei-places-test-list>: movedText holds {place}, which is not a place of it ({headline}, {position}, {count}); it is announced as it is written (LST-42)',
-      '[tanrei] <tanrei-places-test-list>: movedText holds a brace that opens or closes nothing (a brace meant as one is written twice, {{ or }}); it is announced as it is written (LST-42)',
+      '[tanrei] <tanrei-places-test-list>: movedText holds {place}, which is not a place of it ({label}, {position}, {count}); it is announced as it is written (LST-44)',
+      '[tanrei] <tanrei-places-test-list>: movedText holds a brace that opens or closes nothing (a brace meant as one is written twice, {{ or }}); it is announced as it is written (LST-44)',
     ]);
     // The same fault again, on this element or on another of its kind: nothing more.
-    expect(warned(() => reportPlaces(list, 'LST-42', 'movedText', '{headline} {place} {', moved, 'it is announced as it is written'))).toEqual([]);
-    expect(warned(() => reportPlaces(element('tanrei-places-test-list'), 'LST-42', 'movedText', '{place}', moved, 'it is announced as it is written'))).toEqual([]);
+    expect(warned(() => reportPlaces(list, 'LST-44', 'movedText', '{label} {place} {', moved, 'it is announced as it is written'))).toEqual([]);
+    expect(warned(() => reportPlaces(element('tanrei-places-test-list'), 'LST-44', 'movedText', '{place}', moved, 'it is announced as it is written'))).toEqual([]);
     // Another fault of the same prop is another report.
-    expect(warned(() => reportPlaces(list, 'LST-42', 'movedText', '{headlin}', moved, 'it is announced as it is written'))).toHaveLength(1);
+    expect(warned(() => reportPlaces(list, 'LST-44', 'movedText', '{labe}', moved, 'it is announced as it is written'))).toHaveLength(1);
     // A needed place that is absent is its caller's to report, with what it breaks.
     expect(warned(() => reportPlaces(element('tanrei-places-test-field'), 'CHF-23', 'removeLabel', 'Remove', wordPlaces.entryRemoveLabel!, 'x'))).toEqual([]);
     // A release build reports nothing.
     const mode = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
     try {
-      expect(warned(() => reportPlaces(list, 'LST-42', 'movedText', '{another}', moved, 'it is announced as it is written'))).toEqual([]);
+      expect(warned(() => reportPlaces(list, 'LST-44', 'movedText', '{another}', moved, 'it is announced as it is written'))).toEqual([]);
     } finally {
       if (mode === undefined) delete process.env.NODE_ENV;
       else process.env.NODE_ENV = mode;
@@ -133,14 +133,14 @@ test.describe('a word with places', () => {
   });
 
   test('the keys of the product’s words that have places are the specs’, and every place is a number or a text', () => {
-    expect(Object.keys(wordPlaces).sort()).toEqual(['avatarGroupOverflowLabel', 'characterCountNoLimitText', 'characterCountText', 'entriesAddedText', 'entryAddedText', 'entryRemoveLabel', 'entryRemovedText', 'imageCountText', 'moveDownLabel', 'moveUpLabel', 'movedText', 'removeLabel', 'retryLabel']);
+    expect(Object.keys(wordPlaces).sort()).toEqual(['avatarGroupOverflowLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'dragHandleLabel', 'entriesAddedText', 'entryAddedText', 'entryRemoveLabel', 'entryRemovedText', 'filesDroppedText', 'filesRefusedText', 'imageCountText', 'liftedText', 'movedText', 'removeLabel', 'retryLabel', 'stepPositionText']);
     expect(wordPlaces.movedText).toEqual([
-      { name: 'headline', kind: 'text' },
+      { name: 'label', kind: 'text' },
       { name: 'position', kind: 'number' },
       { name: 'count', kind: 'number' },
     ]);
     expect(wordPlaces.entryRemoveLabel).toEqual([{ name: 'entry', kind: 'text', required: true }]);
     const kinds = new Map(Object.values(wordPlaces).flatMap((places) => places!.map((place) => [place.name, place.kind])));
-    expect([...kinds].sort()).toEqual([['count', 'number'], ['entry', 'text'], ['headline', 'text'], ['limit', 'number'], ['name', 'text'], ['position', 'number'], ['remaining', 'number']]);
+    expect([...kinds].sort()).toEqual([['count', 'number'], ['entry', 'text'], ['label', 'text'], ['limit', 'number'], ['name', 'text'], ['position', 'number'], ['remaining', 'number']]);
   });
 });

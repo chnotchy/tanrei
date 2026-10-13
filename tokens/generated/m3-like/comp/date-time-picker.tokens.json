@@ -55,8 +55,13 @@
           "scrim": {
             "color": {
               "$type": "color",
-              "$value": "{tanrei.sys.color.scrim}",
-              "$description": "The dim over everything behind a modal picker, alpha included, as a dialog's."
+              "$value": "{tanrei.comp.modal-layer.scrim.color}",
+              "$description": "The dim over everything behind a modal picker, alpha included: the modal layer's, as a dialog's."
+            },
+            "blur": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.modal-layer.scrim.blur}",
+              "$description": "How much the scrim behind a modal picker blurs what lies behind it: the modal layer's, as a dialog's."
             }
           },
           "container": {
@@ -83,19 +88,19 @@
           "motion": {
             "open-duration": {
               "$type": "duration",
-              "$value": "{tanrei.sys.motion.duration.medium2}"
+              "$value": "{tanrei.comp.modal-layer.motion.enter-duration}"
             },
             "open-easing": {
               "$type": "cubicBezier",
-              "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+              "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
             },
             "close-duration": {
               "$type": "duration",
-              "$value": "{tanrei.sys.motion.duration.short4}"
+              "$value": "{tanrei.comp.modal-layer.motion.exit-duration}"
             },
             "close-easing": {
               "$type": "cubicBezier",
-              "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+              "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
             },
             "enter-scale": {
               "$type": "number",

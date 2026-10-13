@@ -609,6 +609,27 @@
       "kind": "behavior",
       "status": "open",
       "proposal": "Tanrei's select draws one chevron that neither turns nor swaps (the state is told by aria-expanded and by the open list), as the native select and Apple's pop-up button do, so m3-like keeps a downward chevron while open. A small choice of kind for the chevron while open (none | swap | turn) would close the gap; whether one product needs it is not yet shown."
+    },
+    {
+      "id": "list-item-row-anatomy",
+      "systems": [
+        "Material 3",
+        "Apple HIG"
+      ],
+      "trait": "A list item is a ready-made row: a headline with an overline and supporting text, a leading icon, avatar or image, and trailing text, an icon or a control, at one-, two- and three-line heights (Material 3 lists; the cells of an Apple list).",
+      "kind": "anatomy",
+      "status": "open",
+      "proposal": "Tanrei's List is a box whose items hold the product's own content: it draws the arrangement, the states of an item that is an action, a link or an option, the check, dividers and reordering, but no headline, supporting text or leading and trailing parts, so m3-like and cupertino keep the item's box, height, paddings, text style and colors and leave the row's inner parts to the product. A separate row component placed in a list item (its own tokens for the line heights, the media boxes and the text roles) would close the gap."
+    },
+    {
+      "id": "list-reorder-control-trailing",
+      "systems": [
+        "Apple HIG"
+      ],
+      "trait": "In an editable Apple list the reorder control (three lines) stands at the trailing end of the row, appears only in edit mode, and is the only part a finger drags.",
+      "kind": "anatomy",
+      "status": "open",
+      "proposal": "Tanrei's reorderable list draws its handle at the start of every item, always, and lets the whole item be dragged (a long press on touch), with a menu of moves on the handle. A choice of where the handle stands (start | end) would let cupertino place it at the trailing end; an edit mode is the product's (it sets reorderable)."
     }
   ]
 }

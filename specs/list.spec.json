@@ -2,92 +2,97 @@
   "$schema": "./component.schema.json",
   "name": "list",
   "title": "List",
-  "summary": "Shows a column of related items — a line or more of text with an icon, an avatar or an image — that people read, open one by one, choose from, or put in another order.",
+  "summary": "Holds a set of the product's own items — rows, tiles, cards, files — in one column, one line, or lines that wrap into a grid; people read them, open them one by one, choose from them, or drag them into another order.",
   "category": "containment",
   "level": "base",
   "listing": "default",
   "uses": [
-    "button"
+    "button",
+    "menu"
   ],
   "anatomy": [
     {
       "id": "list",
-      "description": "The column that holds the items. It draws nothing and adds no space around them; it carries the semantics of a list or a listbox and moves keyboard focus among the items."
+      "description": "The box that holds the items. It lays them out in a column, a line or lines that wrap, draws nothing behind them and adds no space around them; it carries the semantics of a list or a listbox and moves keyboard focus among the items."
     },
     {
-      "id": "container",
-      "description": "One item's row. It carries hover, focus and press of an interactive item or an option, and the fill of a selected option."
+      "id": "item",
+      "description": "One item: a box around the product's content. A static item draws nothing and adds no space, so its content is the item; an interactive item, a link item or an option pads its content and carries hover, focus and press, and the fill of a selected option."
+    },
+    {
+      "id": "content",
+      "description": "What the product puts in the item: text, a picture, a card, a file item — anything but, in an item that is itself an action, a link or an option, another interactive element."
     },
     {
       "id": "handle",
-      "description": "The mark at the start of an item of a list that can be reordered by dragging: the place a pointer or a finger takes hold of the item. It is not a control and is hidden from assistive technology; the move buttons do its work for everyone.",
+      "description": "The mark at the start of every item of a reorderable list: an icon-only Button showing the drag glyph. It says the item can be moved, a pointer or a finger may drag the item by it, and pressing it opens the move menu; with the keyboard it lifts the item. The whole item can be dragged, not only the handle.",
       "optional": true
     },
     {
-      "id": "leading-icon",
-      "description": "An icon at the start of the row.",
+      "id": "move-menu",
+      "description": "The menu the handle opens: a Tanrei Menu with four moves — to the start, one place before, one place after, to the end. The way to reorder that needs neither dragging nor a held key.",
       "optional": true
     },
     {
-      "id": "leading-media",
-      "description": "An avatar (a round box) or an image (a rounded square) at the start of the row, holding the product's content.",
-      "optional": true
-    },
-    {
-      "id": "overline",
-      "description": "A short line above the headline: a category, a source.",
-      "optional": true
-    },
-    {
-      "id": "headline",
-      "description": "The item's main text and its accessible name."
-    },
-    {
-      "id": "supporting-text",
-      "description": "One or more lines below the headline: a description, a preview.",
-      "optional": true
-    },
-    {
-      "id": "trailing-text",
-      "description": "A short value at the end of the row: a count, a time, a size.",
-      "optional": true
-    },
-    {
-      "id": "trailing-icon",
-      "description": "An icon at the end of the row, such as a chevron that says the row opens something.",
-      "optional": true
-    },
-    {
-      "id": "move-buttons",
-      "description": "Two icon-only Buttons in every item of a list that can be reordered, one that moves the item up by one place and one that moves it down. They are the way to reorder that needs no dragging, and are always drawn where the list can be reordered.",
-      "optional": true
-    },
-    {
-      "id": "trailing-control",
-      "description": "A control the product places at the end of a static item (a switch, a checkbox, an icon-only Button). It keeps its own tokens and semantics.",
+      "id": "gap",
+      "description": "While an item is dragged, the empty place where it would land if it were dropped now: the other items slide aside to open it. Not drawn.",
       "optional": true
     },
     {
       "id": "mark",
-      "description": "The check at the end of a selected option: the glyph check of the system's icon set, drawn with the icon set's family, fill, weight and optical size. The list draws no mark of its own; a system that wants another check chooses another icon set. Its box is reserved in every option of a selectable list.",
+      "description": "The check at the end of a selected option: the glyph check of the system's icon set. Its box is reserved in every option of a selectable list.",
       "optional": true
     },
     {
       "id": "divider",
-      "description": "A hairline along the bottom of the row, from the start of the text to the row's end.",
+      "description": "A hairline between two neighbouring items of a list that does not wrap, across the list, in the middle of the gap between them.",
       "optional": true
     },
     {
       "id": "focus-ring",
-      "description": "Gap-then-ring indicator shown for keyboard focus, drawn inside the row."
+      "description": "Gap-then-ring indicator shown for keyboard focus, drawn inside an interactive item, a link item or an option."
     },
     {
       "id": "announcement",
-      "description": "The list's one live region: empty at rest, it holds the product's sentence that says where an item now stands after it was moved. Not drawn.",
+      "description": "The list's one live region: empty at rest, it holds the product's sentence that says an item was lifted, where it now stands, or that it went back. Not drawn.",
       "optional": true
     }
   ],
   "props": [
+    {
+      "name": "orientation",
+      "type": "enum",
+      "values": [
+        "vertical",
+        "horizontal"
+      ],
+      "default": "vertical",
+      "description": "The direction the items follow one another: vertical, a column from the top; horizontal, a line from the start edge (the left in a left-to-right layout)."
+    },
+    {
+      "name": "wrap",
+      "type": "boolean",
+      "default": false,
+      "description": "Lets the items run onto a further line where the list ends, so that they form a grid: a horizontal list wraps onto a line below where its width ends, a vertical list onto a column toward the end edge where the height the product gives it ends. Off, the items stay on one line or in one column."
+    },
+    {
+      "name": "gap",
+      "type": "enum",
+      "values": [
+        "none",
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "none",
+      "description": "The space between two neighbouring items, and between two lines of a wrapping list: none, where the items touch, or comp.list.gap.small, medium or large."
+    },
+    {
+      "name": "dividers",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws a hairline between every two neighbouring items. Read only while wrap is false: the lines of a grid are told apart by their gap."
+    },
     {
       "name": "selection",
       "type": "enum",
@@ -103,7 +108,7 @@
       "name": "label",
       "type": "string",
       "default": "",
-      "description": "The accessible name of the list: what the items are. Required when selection is single or multiple."
+      "description": "The accessible name of the list: what the items are. Required when selection is single or multiple, and when the list is reorderable."
     },
     {
       "name": "value",
@@ -118,43 +123,82 @@
       "description": "The values of the selected options while selection is multiple: a list of strings (the platforms take a set). An empty list selects none."
     },
     {
-      "name": "reorder",
-      "type": "enum",
-      "values": [
-        "none",
-        "buttons",
-        "drag"
-      ],
-      "default": "none",
-      "description": "Whether people can put the items in another order. none: the order is fixed. buttons: every item draws a button that moves it up and one that moves it down. drag: the same two buttons, and a handle at the start of every item by which a pointer or a finger drags it to another place. The handle never comes without the buttons: a way to reorder that needs no dragging is always there (LST-36). The list reports the move that was asked for with the move event and never changes the order itself: the items are the product's data. Read only while selection is none, and every item of a reorderable list is static."
+      "name": "reorderable",
+      "type": "boolean",
+      "default": false,
+      "description": "Lets people put the items in another order: every item draws a handle, the whole item can be dragged to another place, the handle opens a menu of moves, and the keyboard lifts and carries an item from its handle. The list reports the move that was asked for with the move event and never changes the order itself: the items are the product's data. Read only while selection is none; every item of a reorderable list is static."
     },
     {
-      "name": "moveUpLabel",
+      "name": "dragHandleLabel",
       "type": "string",
       "default": "",
-      "description": "The accessible name of the button that moves an item up by one place: the whole name in the product's language with one place, {headline}, which the list fills with the item's headline (\"Move {headline} up\", \"{headline}を上へ移動\"), so that the buttons of two rows are told apart by their names. The product's: Tanrei has no word for it. Empty reads the product's words. Required while reorder is buttons or drag.",
-      "words": "moveUpLabel",
+      "description": "The accessible name of an item's handle: the whole name in the product's language with one place, {label}, which the list fills with the item's name (\"Reorder {label}\", \"{label}を並べ替え\"), so that the handles of two items are told apart. The product's: Tanrei has no word for it. Empty reads the product's words. Required while reorderable.",
+      "words": "dragHandleLabel",
       "places": [
         {
-          "name": "headline",
+          "name": "label",
           "kind": "text",
-          "description": "The headline of the item the button moves.",
+          "description": "The item's name: its label, or else the text of its content.",
           "required": true
         }
       ]
     },
     {
-      "name": "moveDownLabel",
+      "name": "dragHandleHint",
       "type": "string",
       "default": "",
-      "description": "The accessible name of the button that moves an item down by one place (\"Move {headline} down\"). As moveUpLabel.",
-      "words": "moveDownLabel",
+      "description": "The description of every handle: how to move an item from it with the keyboard, in the product's words (\"Press Space to lift, the arrow keys to move, Space to drop, Escape to cancel; Enter opens the moves\"). Empty reads the product's words; with neither, the handle has no description.",
+      "words": "dragHandleHint"
+    },
+    {
+      "name": "moveToStartLabel",
+      "type": "string",
+      "default": "",
+      "description": "The move menu's item that moves the item to the first place (\"Move to top\", \"Move to start\"). Empty reads the product's words. Required while reorderable.",
+      "words": "moveToStartLabel"
+    },
+    {
+      "name": "moveBeforeLabel",
+      "type": "string",
+      "default": "",
+      "description": "The move menu's item that moves the item one place toward the start (\"Move up\" in a column, \"Move left\" in a line). Empty reads the product's words. Required while reorderable.",
+      "words": "moveBeforeLabel"
+    },
+    {
+      "name": "moveAfterLabel",
+      "type": "string",
+      "default": "",
+      "description": "The move menu's item that moves the item one place toward the end (\"Move down\", \"Move right\"). Empty reads the product's words. Required while reorderable.",
+      "words": "moveAfterLabel"
+    },
+    {
+      "name": "moveToEndLabel",
+      "type": "string",
+      "default": "",
+      "description": "The move menu's item that moves the item to the last place (\"Move to bottom\", \"Move to end\"). Empty reads the product's words. Required while reorderable.",
+      "words": "moveToEndLabel"
+    },
+    {
+      "name": "liftedText",
+      "type": "string",
+      "default": "",
+      "description": "The sentence assistive technology is told when the keyboard lifts an item, with three places the list fills: {label} with the item's name, {position} with its place, counted from 1, and {count} with the number of items (\"{label} lifted: {position} of {count}\"). Empty reads the product's words. Required while reorderable.",
+      "words": "liftedText",
       "places": [
         {
-          "name": "headline",
+          "name": "label",
           "kind": "text",
-          "description": "The headline of the item the button moves.",
-          "required": true
+          "description": "The item's name: its label, or else the text of its content."
+        },
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place the item has, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of items in the list."
         }
       ]
     },
@@ -162,18 +206,42 @@
       "name": "movedText",
       "type": "string",
       "default": "",
-      "description": "The sentence assistive technology is told once an item stands in its new place, whether it was moved by a button or dropped by a pointer. The product writes the whole sentence in its own language and marks three places in it, which the list fills: {headline} with the moved item's headline, {position} with the place it now has, counted from 1, and {count} with the number of items (\"{headline}: {position} of {count}\", \"{headline}を{count}件中{position}番目に移動しました\"). The product's: Tanrei has no sentence for it. Empty reads the product's words. Required while reorder is buttons or drag.",
+      "description": "The sentence assistive technology is told when a lifted item reaches another place, and once a move has taken effect, whether it came from the menu, the keyboard or a pointer: {label}, {position} (the place it has, or would have if dropped now, counted from 1) and {count} (\"{label}: {position} of {count}\"). Empty reads the product's words. Required while reorderable.",
       "words": "movedText",
       "places": [
         {
-          "name": "headline",
+          "name": "label",
           "kind": "text",
-          "description": "The moved item's headline."
+          "description": "The item's name: its label, or else the text of its content."
         },
         {
           "name": "position",
           "kind": "number",
-          "description": "The place the moved item now has, counted from 1."
+          "description": "The place the item has, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of items in the list."
+        }
+      ]
+    },
+    {
+      "name": "cancelledText",
+      "type": "string",
+      "default": "",
+      "description": "The sentence assistive technology is told when a move with the keyboard is cancelled and the item goes back: {label}, {position} (the place it has again) and {count} (\"{label} returned to {position} of {count}\"). Empty reads the product's words. Required while reorderable.",
+      "words": "cancelledText",
+      "places": [
+        {
+          "name": "label",
+          "kind": "text",
+          "description": "The item's name: its label, or else the text of its content."
+        },
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place the item has, counted from 1."
         },
         {
           "name": "count",
@@ -186,72 +254,25 @@
   "items": [
     {
       "name": "list-item",
-      "summary": "One row of the list: a headline with optional overline, supporting text, leading icon or media and trailing text, icon or control. It is static, interactive, a link or, in a selectable list, an option.",
+      "summary": "One item of the list: a box around the product's content. It is static, interactive, a link or, in a selectable list, an option.",
       "props": [
         {
-          "name": "headline",
+          "name": "label",
           "type": "string",
           "default": "",
-          "description": "The item's main text, and its accessible name. Required."
-        },
-        {
-          "name": "overline",
-          "type": "string",
-          "default": "",
-          "description": "A short line above the headline."
-        },
-        {
-          "name": "supportingText",
-          "type": "string",
-          "default": "",
-          "description": "Text below the headline. One line of it makes a two-line item; two or more make a three-line item."
-        },
-        {
-          "name": "supportingMaxLines",
-          "type": "number",
-          "default": 0,
-          "description": "The lines of supporting text shown before it ends with an ellipsis; 0 shows all of it. The full text still reaches assistive technology."
-        },
-        {
-          "name": "trailingText",
-          "type": "string",
-          "default": "",
-          "description": "A short value at the end of the row."
-        },
-        {
-          "name": "leadingIcon",
-          "type": "string",
-          "default": "",
-          "description": "The name of an icon (a glyph of the system's icon set) at the start of the row."
-        },
-        {
-          "name": "trailingIcon",
-          "type": "string",
-          "default": "",
-          "description": "The name of an icon at the end of the row."
-        },
-        {
-          "name": "leadingMedia",
-          "type": "enum",
-          "values": [
-            "none",
-            "avatar",
-            "image"
-          ],
-          "default": "none",
-          "description": "How the leading slot's content is framed: avatar fits it into a round box, image into a larger rounded square. It replaces leadingIcon."
+          "description": "The item's name. An interactive item, a link item or an option is named by it in place of its content's text; every item is called by it in the handle's name and in what the list announces about a move. Empty: the text of the content."
         },
         {
           "name": "interactive",
           "type": "boolean",
           "default": false,
-          "description": "Makes the item one pressable action that emits its click (a row that changes a setting or opens something in place). Ignored in a selectable list, where every item is an option. Its slots must then hold no interactive element. A row that goes to a page takes href instead and is a link, not a button."
+          "description": "Makes the item one pressable action that emits its click (an item that changes a setting or opens something in place). Ignored in a selectable list, where every item is an option, and in a reorderable list, where every item is static. Its content must then hold no interactive element. An item that goes to a page takes href instead and is a link, not a button."
         },
         {
           "name": "href",
           "type": "string",
           "default": "",
-          "description": "The destination: an address as the platform's links take one (a URL; on the web a path or a fragment as well). Not empty, it makes the item one link — a link item — whether interactive is set or not: the link role, activated by pointer, touch or Enter and not by Space, opened by the platform as its own links are, and drawn exactly as an interactive item is (LST-31, LST-32). Ignored in a selectable list, where every item is an option. Its slots must then hold no interactive element."
+          "description": "The destination: an address as the platform's links take one (a URL; on the web a path or a fragment as well). Not empty, it makes the item one link — a link item — whether interactive is set or not: the link role, activated by pointer, touch or Enter and not by Space, opened by the platform as its own links are, and drawn exactly as an interactive item is. Ignored in a selectable or a reorderable list. Its content must then hold no interactive element."
         },
         {
           "name": "target",
@@ -261,48 +282,38 @@
             "new"
           ],
           "default": "same",
-          "description": "Where the destination opens. same: where the person is — the same tab on the web, the app's own handling of the address elsewhere. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which the item marks with the glyph open_in_new as its trailing icon, unless trailingIcon names one, and says through targetLabel (LST-33). Ignored without href."
+          "description": "Where the destination opens. same: where the person is. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which the item marks with the glyph open_in_new at its end and says through targetLabel. Ignored without href."
         },
         {
           "name": "targetLabel",
           "type": "string",
           "default": "",
-          "description": "What assistive technology reads after the link's name while target is new (\"opens in a new tab\"). Tanrei ships no words of its own, so the product gives them in its own language, as it gives a chip its removeLabel. Required while target is new; ignored otherwise.",
+          "description": "What assistive technology reads after the link's name while target is new (\"opens in a new tab\"), in the product's language. Required while target is new; ignored otherwise.",
           "words": "targetLabel"
         },
         {
           "name": "value",
           "type": "string",
           "default": "",
-          "description": "Identifies the option: the list's value (single) or values (multiple) select the option whose value they hold, and change carries it. Unique within the list; needed for an option, unused by a static, interactive or link item."
+          "description": "Identifies the option: the list's value (single) or values (multiple) select the option whose value they hold, and change carries it. Unique within the list; needed for an option, unused by any other item."
         },
         {
           "name": "disabled",
           "type": "boolean",
           "default": false,
           "description": "Prevents activation. The arrow keys still reach it. Ignored for a static item: an item that is not an action, a link or an option has nothing to disable."
-        },
-        {
-          "name": "divider",
-          "type": "boolean",
-          "default": false,
-          "description": "Draws a hairline along the bottom of the item. The product sets it on every item but the last, or at the end of a group."
         }
       ],
       "slots": [
         {
-          "name": "leading",
-          "description": "The avatar's or the image's content: an image, or a monogram for an avatar. Drawn only while leadingMedia is avatar or image."
-        },
-        {
-          "name": "trailing",
-          "description": "A control of the product's own at the end of a static item: a switch, a checkbox, an icon-only Button."
+          "name": "default",
+          "description": "The item's content: the product's own — text, an image, a card, a file item. In an interactive item, a link item or an option it is presentational and holds no interactive element; in a static item it may hold the product's controls, which keep their own semantics and focus."
         }
       ],
       "events": [
         {
           "name": "click",
-          "description": "The interactive item or the link item was activated by pointer, touch, keyboard or assistive technology. A link item emits it before its destination opens; a product that takes the navigation itself (a client-side router) cancels it (LST-32)."
+          "description": "The interactive item or the link item was activated by pointer, touch, keyboard or assistive technology. A link item emits it before its destination opens; a product that takes the navigation itself (a client-side router) cancels it (LST-26)."
         }
       ]
     }
@@ -314,7 +325,7 @@
     },
     {
       "name": "move",
-      "description": "The user asked for an item to stand in another place, by a move button or by dropping it. Carries from, the item's index among the list's items when the move began, and to, the index it is to have once it has moved, both counted from 0 (moving the second item up is from 1, to 0; dropping the first item after the third is from 0, to 2). Emitted once per move, never for a move that ends where it began, and never during a drag. The product reorders its items; the list has changed nothing."
+      "description": "The user asked for an item to stand in another place: by the move menu, by dropping it after carrying it with the keyboard, or by dropping it after dragging it. Carries from, the item's index among the list's items when the move began, and to, the index it is to have once it has moved, both counted from 0 (moving the second item one place before is from 1, to 0; dropping the first item after the third is from 0, to 2). Emitted once per move, never for a move that ends where it began, and never while an item is carried. The product reorders its items; the list has changed nothing."
     }
   ],
   "states": [
@@ -329,239 +340,191 @@
   "behavior": [
     {
       "id": "LST-1",
-      "text": "WHEN the user activates an enabled interactive item by pointer, touch, Enter or Space — a link item (LST-31) by pointer, touch or Enter — THE list SHALL emit that item's click exactly once."
+      "text": "THE list SHALL lay out its items in the order the product gives them, as far apart as gap names — comp.list.gap.small, comp.list.gap.medium or comp.list.gap.large, and touching while it is none —: WHILE orientation is vertical and wrap is false as one column from the top, each item as wide as the list and as tall as its content; WHILE orientation is horizontal and wrap is false as one line from the start edge, each item as wide as its content and as tall as the tallest item of the line. THE list SHALL never make an item narrower than its content needs or cut it: a line wider than the list goes past the list's end, and the product that wants it scrolled places the list in a scroll view of its own. THE list SHALL draw no fill, no edge and no padding of its own around its items."
     },
     {
       "id": "LST-2",
-      "text": "WHILE an interactive item or an option is disabled THE list SHALL NOT emit its click or change for it and SHALL expose the disabled state to assistive technology; the arrow keys SHALL still reach it, so that people learn it exists, but Space, Enter, pointer and touch SHALL NOT activate it."
+      "text": "WHILE wrap is true THE list SHALL arrange its items as a grid: WHILE orientation is horizontal, in lines from the start edge that wrap onto a further line below where the list's width ends; WHILE orientation is vertical, in columns from the top that wrap onto a further column toward the end edge where the block size the product gives the list ends, and in one column where it gives none. Each item SHALL keep its content's size, never wider than the list, the items of one line aligned at their start (their tops in a horizontal list); the gap SHALL stand between two items of a line and between two lines alike; enlarged text SHALL make the items wrap sooner, never run past the list's width. Wrapping SHALL change no order: the items are read, focused and counted in the order given, line by line in the reading direction."
     },
     {
       "id": "LST-3",
-      "text": "WHILE an interactive item or an option is hovered, keyboard-focused or pressed THE list SHALL render its container, headline, overline, supporting text, trailing text, icons, mark and opacity from the component tokens of its condition in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state.",
-      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+      "text": "WHILE dividers is true and wrap is false THE list SHALL draw a line of comp.list.divider.thickness in comp.list.divider.color between every two neighbouring items, across the list (horizontal in a column, vertical in a line) and in the middle of the gap between them, inside the space of the gap where there is one and over the meeting edge where gap is none; THE list SHALL draw none before the first item or after the last, SHALL keep its color and full opacity in every state and condition of its neighbours (a disabled item's opacity does not reach it), and SHALL hide it from assistive technology. WHILE wrap is true THE list SHALL draw no divider and, where dividers is true, report it in debug builds."
     },
     {
       "id": "LST-4",
-      "text": "WHEN an item receives keyboard focus THE list SHALL show the focus ring inside the item's container, so that the list's scrolling ancestor cannot clip it, without animation; focus gained by pointer or touch SHALL NOT show it."
+      "text": "THE list SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the list is shown THE list SHALL draw itself for the new direction at once, without a motion of its own, keeping its selection, its scroll position and its focus."
     },
     {
       "id": "LST-5",
-      "text": "WHERE an interactive item or an option is shorter than the minimum target THE list SHALL make its container at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other; a platform that cannot tell the input type SHALL use sys.target.touch. The whole row, leading media and trailing elements included, SHALL be the item's hit area."
+      "text": "WHERE the layout direction is right-to-left THE list SHALL mirror its arrangement: a horizontal line, and every line of a wrapping list, begins at the right and runs to the left, a vertical list wraps onto further columns toward the left, and the handle and the mark stand at the item's right and left ends; the arrow keys that point to the start and the end follow (LST-17, LST-33). THE list SHALL leave the direction of the content's text and the mirroring of the content's glyphs to the product: the content is the product's."
     },
     {
       "id": "LST-6",
-      "text": "WHILE an interactive item or an option is disabled THE list SHALL render its container, headline, overline, supporting text, trailing text, icons, mark and opacity from the disabled component tokens of its condition, and SHALL apply that opacity to the whole item, its leading media included."
+      "text": "WHEN orientation, gap, selection or an item's target names a value the list does not define THE list SHALL render with the default value, and in debug builds report the unknown value."
     },
     {
       "id": "LST-7",
-      "text": "WHEN selection, reorder or leadingMedia names a value the list does not define THE list SHALL render with the default value, and in debug builds report the unknown value."
+      "text": "WHILE an item is static — the list's selection is none, the item's interactive is false and its href is empty, or the list is reorderable — THE list SHALL draw nothing of its own around the item's content and add no space to it, so that the item is as large as its content (with its handle in a reorderable list, LST-28), SHALL NOT make the item focusable or emit its click, SHALL draw no hover, focus or press answer on it, SHALL ignore its disabled, and SHALL leave a control in its content its own tokens, semantics and focus stop."
     },
     {
       "id": "LST-8",
-      "text": "WHEN the list item is pressed by pointer, touch, Enter or Space THE list item SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+      "text": "WHILE an item is interactive, a link item or an option THE list SHALL draw it as one box: its content padded by comp.list.container.padding-block above and below, comp.list.container.padding-inline-start from the start edge and comp.list.container.padding-inline-end from the end edge, the mark of an option comp.list.container.gap after the content (LST-21), at least comp.list.container.height tall and growing with its content and with enlarged text, its corners comp.list.container.shape, and its whole box the item's hit area. THE list SHALL hand the content the content color of the item's condition and state (comp.list.unselected.content.color at rest, and so on) as its foreground and comp.list.content.typescale as its text style, which text the product did not style takes."
     },
     {
       "id": "LST-9",
-      "text": "WHILE pressed THE list item SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; headline, overline, supporting text, trailing text, icons, mark, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.list.motion.feedback-duration with comp.list.motion.state-easing, fades over comp.list.motion.state-duration with comp.list.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
-      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+      "text": "WHILE an interactive item, a link item or an option is hovered, keyboard-focused or pressed THE list SHALL render its container, content color, mark and opacity from the component tokens of its condition in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state."
     },
     {
       "id": "LST-10",
-      "text": "THE list item SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
-      "verify": "`cupertino` is continuous; the `acme` fixture system is glow. The default rows are square, so the smoothing shows only under a system that rounds them."
+      "text": "WHEN an interactive item, a link item or an option receives keyboard focus THE list SHALL show the focus ring inside the item's box, so that the list's scrolling ancestor cannot clip it, without animation; focus gained by pointer or touch SHALL NOT show it."
     },
     {
       "id": "LST-11",
-      "text": "WHILE selection is none, an item's interactive is false and its href is empty THE list SHALL render the item from the resting tokens of the unselected condition, SHALL NOT make the item focusable or emit its click, SHALL draw no hover, focus or press answer on it, SHALL ignore its disabled, and SHALL leave a control in its trailing slot its own tokens, semantics and focus stop."
+      "text": "WHERE an interactive item, a link item or an option is smaller than the minimum target THE list SHALL make its box at least sys.target.touch tall and wide for touch input and sys.target.pointer for fine pointers, because items that touch cannot extend a hit area over each other; a platform that cannot tell the input type SHALL use sys.target.touch."
     },
     {
       "id": "LST-12",
-      "text": "WHILE selection is none THE list SHALL expose the list role, each item as a list item with its position and the list's size, and an interactive item as one element with the button role, or a link item (LST-31) as one element with the link role, inside its list item; WHILE selection is single or multiple THE list SHALL expose the listbox role named by label (multi-selectable while selection is multiple) and each item as an option with its selected state, its position and the list's size, and SHALL ignore interactive and href."
+      "text": "WHEN the list item is pressed by pointer, touch, Enter or Space THE list item SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
     },
     {
       "id": "LST-13",
-      "text": "WHEN the user activates an enabled option of a list whose selection is single and whose value is not that option's value THE list SHALL set value to the option's value, so that the option that was selected becomes unselected, and emit change once; WHEN the option is already selected THE list SHALL change nothing and SHALL NOT emit change, because a single choice is never cleared by its own option."
+      "text": "WHILE pressed THE list item SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; the content color, mark, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.list.motion.feedback-duration with comp.list.motion.state-easing, fades over comp.list.motion.state-duration with comp.list.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced."
     },
     {
       "id": "LST-14",
-      "text": "WHEN the user activates an enabled option of a list whose selection is multiple THE list SHALL add the option's value to values, or remove it when values holds it, and emit change once."
+      "text": "THE list item SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
     },
     {
       "id": "LST-15",
-      "text": "WHILE the list holds an interactive item or an option THE list SHALL be one Tab stop — the item that had focus last, or else the first selected option, or else the first enabled item — and SHALL move focus to the next and previous item with Down Arrow and Up Arrow without wrapping, to the first and last with Home and End, and to the next item whose headline begins with the typed characters when printable characters are typed within one second of each other; moving focus SHALL NOT change the selection, and Space or Enter SHALL activate the focused item, Enter alone a link item (LST-32). Static items SHALL NOT take focus."
+      "text": "WHILE an interactive item, a link item or an option is disabled THE list SHALL NOT emit its click or change for it, SHALL expose the disabled state to assistive technology, SHALL render its container, content color and mark from the disabled component tokens of its condition and SHALL apply the disabled opacity to the whole item, its content included; the arrow keys SHALL still reach it, so that people learn it exists, but Space, Enter, pointer and touch SHALL NOT activate it."
     },
     {
       "id": "LST-16",
-      "text": "THE list SHALL lay out an item as one row: comp.list.container.padding-inline-start from the start edge, the handle of a list that is reordered by dragging (LST-44), the leading icon or leading media, then the text column (overline, headline and supporting text, stacked) taking the remaining width, then the trailing text, the trailing icon, the two move buttons of a reorderable list (LST-37), the trailing control and, in a selectable list, the mark, each comp.list.container.gap from the next, and comp.list.container.padding-inline-end from the end edge; WHEN the layout direction is right-to-left THE list SHALL mirror the row, and a ripple SHALL still grow from the point of contact.",
-      "verify": "Fixtures: each renders one list 360 wide holding the fixture's items in order; the fixture's props apply to the list and each item's props to that item. With leadingMedia avatar the leading slot holds the first letter of the item's headline; with image it is empty and shows comp.list.media.container.color. Hover, focus and press are unit-tested through the resolved tokens, not snapshot."
+      "text": "WHEN the colors of an interactive item, a link item or an option change between states THE list SHALL animate them over comp.list.motion.state-duration with comp.list.motion.state-easing, and SHALL change them at once where motion is reduced."
     },
     {
       "id": "LST-17",
-      "text": "THE list SHALL make an item at least comp.list.container.height.one-line tall with a headline alone, comp.list.container.height.two-line tall with one more line of text (an overline, or supporting text on one line) and comp.list.container.height.three-line tall with two or more, SHALL pad its content by comp.list.container.padding-block above and below, and SHALL grow with its content and with enlarged text beyond that, never clipping it; it SHALL center the leading and trailing elements on the text column in a one- or two-line item and align them with the top of the text column in a taller one."
+      "text": "WHILE the list holds an interactive item, a link item or an option THE list SHALL be one Tab stop — the item that had focus last, or else the first selected option, or else the first enabled item — and SHALL move focus by the arrow keys of its arrangement, without wrapping around: WHILE wrap is false, Down Arrow and Up Arrow to the next and previous item of a vertical list, and the arrow pointing to the end and to the start (Right and Left in a left-to-right layout, the reverse in a right-to-left one) of a horizontal list; WHILE wrap is true, the arrows along the lines to the next and previous item in reading order, and the arrows across them to the item of the next or previous line whose centre is nearest along the line; Home and End to the first and the last item; and to the next item whose name begins with the typed characters when printable characters are typed within one second of each other. Moving focus SHALL NOT change the selection; Space or Enter SHALL activate the focused item, Enter alone a link item (LST-27). Static items SHALL NOT take focus."
     },
     {
       "id": "LST-18",
-      "text": "THE list SHALL draw the headline in comp.list.headline.typescale, the overline in comp.list.overline.typescale, the supporting text in comp.list.supporting-text.typescale and the trailing text in comp.list.trailing-text.typescale; the headline, overline and trailing text SHALL wrap rather than truncate; WHILE supportingMaxLines is greater than 0 the supporting text SHALL end with an ellipsis after that many lines, and its full text SHALL still reach assistive technology."
+      "text": "WHILE selection is none THE list SHALL expose the list role, each item as a list item with its position and the list's size, and an interactive item as one element with the button role, or a link item (LST-26) as one element with the link role, inside its list item; WHILE selection is single or multiple THE list SHALL expose the listbox role named by label, multi-selectable while selection is multiple and with its orientation (horizontal while orientation is horizontal and wrap is false), and each item as an option with its selected state, its position and the list's size, and SHALL ignore interactive and href. A reorderable list SHALL be named by label."
     },
     {
       "id": "LST-19",
-      "text": "THE list SHALL draw leadingIcon at comp.list.leading-icon.size and trailingIcon at comp.list.trailing-icon.size through the icon helper, with the family and fill of the item's condition (selected for a selected option, otherwise unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; an empty name SHALL draw nothing and leave no space."
+      "text": "THE list SHALL name an interactive item, a link item or an option by its label and, while label is empty, by the text of its content, and SHALL present its content as part of it, not as separate elements; the mark, the dividers and the glyph that marks a new context SHALL be hidden from assistive technology. IF an interactive item, a link item, an option or an item of a reorderable list has no name — an empty label and no text in its content — THE list SHALL still render it and in debug builds report that it has no name."
     },
     {
       "id": "LST-20",
-      "text": "WHILE leadingMedia is avatar THE list SHALL fit the leading slot's content into a box of side comp.list.avatar.size clipped to comp.list.avatar.shape, and WHILE it is image into a box of side comp.list.image.size clipped to comp.list.image.shape, each filled with comp.list.media.container.color behind the content and handing it comp.list.media.content.color as its foreground; WHILE it is none THE list SHALL NOT draw the leading slot, and WHILE it is avatar or image it SHALL NOT draw leadingIcon. A monogram in the avatar is set in comp.list.headline.typescale, centred."
+      "text": "WHILE an item is interactive, a link item or an option THE item's content SHALL contain no interactive element; a platform that can inspect its content (the web, on every change of it) SHALL report one in debug builds, and a platform that cannot SHALL state the rule in its README and docs page."
     },
     {
       "id": "LST-21",
-      "text": "WHILE selection is single or multiple THE list SHALL reserve a box of side comp.list.mark.size at the end of every option and, while the option is selected, draw the glyph check of the system's icon set centered in it, in the mark color of the option's condition, with sys.icon.family.selected, sys.icon.fill.selected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL NOT mirror it when the layout direction is right-to-left; THE list SHALL draw no mark of its own (no path, shape or character of its own for the check). WHEN an option becomes selected or unselected THE list SHALL fade the check in or out without moving or scaling it, and change the option's colors, over comp.list.motion.state-duration with comp.list.motion.state-easing, and SHALL make the change at once where motion is reduced.",
-      "verify": "Under the `acme` fixture system, whose icon set is static (a family per selection state), the check is drawn in its selected family; in the default system the glyph's box is comp.list.mark.size, the same as comp.list.trailing-icon.size, and the fixtures single-selected, multiple-selected and selected-disabled show it."
+      "text": "WHILE selection is single or multiple THE list SHALL reserve a box of side comp.list.mark.size at the end of every option, comp.list.container.gap after its content, and, while the option is selected, draw the glyph check of the system's icon set centered in it, in the mark color of the option's condition, with sys.icon.family.selected, sys.icon.fill.selected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL NOT mirror it when the layout direction is right-to-left; THE list SHALL draw no mark of its own (no path, shape or character of its own for the check). WHEN an option becomes selected or unselected THE list SHALL fade the check in or out without moving or scaling it, and change the option's colors, over comp.list.motion.state-duration with comp.list.motion.state-easing, and SHALL make the change at once where motion is reduced."
     },
     {
       "id": "LST-22",
-      "text": "WHILE divider is true THE list SHALL draw a line of comp.list.divider.thickness in comp.list.divider.color along the bottom edge of the item, inside its height, from the start of the text column to the row's end edge; the line SHALL keep its color, and its full opacity, in every state and condition of the item (a disabled item's opacity does not reach it) and SHALL be hidden from assistive technology."
-    },
-    {
-      "id": "LST-23",
-      "text": "THE list SHALL name an interactive item or an option by its headline and describe it by its overline, supporting text and trailing text, in reading order; icons, the mark, the divider and the leading media SHALL be hidden from assistive technology unless the product names the media; WHILE headline is empty THE list SHALL still render the item and in debug builds report that it has no accessible name, and WHILE selection is single or multiple and label is empty it SHALL report that the listbox has no accessible name."
-    },
-    {
-      "id": "LST-24",
-      "text": "WHILE an item is interactive or an option THE item's slots SHALL contain no interactive element; a platform that can inspect its slot content (the web, on every slot change) SHALL report one in debug builds, and a platform that cannot SHALL state the rule in its README and docs page."
-    },
-    {
-      "id": "LST-25",
-      "text": "WHEN the colors of an interactive item or an option change between states THE list SHALL animate them over comp.list.motion.state-duration with comp.list.motion.state-easing, and SHALL change them at once where motion is reduced."
-    },
-    {
-      "id": "LST-26",
-      "text": "THE list SHALL render an option as selected, from the selected condition, WHILE selection is single and value equals the option's value, or selection is multiple and values holds it, and every other option from the unselected condition; THE list SHALL draw the selected option's fill (comp.list.selected.container.color in its state) over whatever the list stands on and under the row's content, so that a container color that is not opaque lets that surface show through it and nothing else, and SHALL draw the headline, overline, supporting text, trailing text and icons in that condition's colors; WHEN value or values names no option THE list SHALL select nothing for that name, and WHEN an option's value is empty or repeats another option's THE list SHALL still render it; in debug builds it SHALL report each of these."
-    },
-    {
-      "id": "LST-27",
       "text": "IF the icon set cannot draw the check yet (its font is still loading or failed to load) THE list SHALL draw nothing in the check's place, never the glyph's name as text, SHALL keep the box of side comp.list.mark.size, SHALL still expose the option's selected state, and SHALL show the check once the icon set can draw it, without the fade of LST-21."
     },
     {
+      "id": "LST-23",
+      "text": "WHEN the user activates an enabled interactive item by pointer, touch, Enter or Space — a link item (LST-26) by pointer, touch or Enter — THE list SHALL emit that item's click exactly once."
+    },
+    {
+      "id": "LST-24",
+      "text": "WHEN the user activates an enabled option of a list whose selection is single and whose value is not that option's value THE list SHALL set value to the option's value, so that the option that was selected becomes unselected, and emit change once; WHEN the option is already selected THE list SHALL change nothing and SHALL NOT emit change, because a single choice is never cleared by its own option. WHEN the user activates an enabled option of a list whose selection is multiple THE list SHALL add the option's value to values, or remove it when values holds it, and emit change once."
+    },
+    {
+      "id": "LST-25",
+      "text": "THE list SHALL render an option as selected, from the selected condition, WHILE selection is single and value equals the option's value, or selection is multiple and values holds it, and every other option from the unselected condition; THE list SHALL draw the selected option's fill (comp.list.selected.container.color in its state) over whatever the list stands on and under the item's content, and hand the content the selected content color; WHEN value or values names no option THE list SHALL select nothing for that name, and WHEN an option's value is empty or repeats another option's THE list SHALL still render it; in debug builds it SHALL report each of these."
+    },
+    {
+      "id": "LST-26",
+      "text": "WHILE selection is none, the list is not reorderable and an item's href is not empty THE list SHALL make the item a link item, whether its interactive is true or false: one element with the link role and not the button role inside its list item, named as LST-19 says, its content held to LST-20; the platform's own link to href (the web's anchor element; SwiftUI's Link; on Compose, Flutter and React Native an element with the platform's link semantics whose address is opened by the platform's opener), so that whatever the platform gives a link — on the web its context menu, opening in a new tab or window, copying and dragging its address, and the address shown before it is followed — is the platform's; and everything this spec says of an interactive item other than its role and its keys — its box, states, focus ring, target, press answer, corners, motion, disabled look and its place in the list's one Tab stop (LST-8 to LST-17) — SHALL hold for a link item from the same tokens, with no look of its own for a link and none for a destination already visited."
+    },
+    {
+      "id": "LST-27",
+      "text": "WHEN the user activates a link item by pointer, touch or Enter THE list SHALL emit that item's click exactly once and then open href where target names, unless the product cancelled that click, in which case it SHALL open nothing: the product's own router has taken the navigation. It SHALL show the pressed state as LST-12 and LST-13 say and SHALL NOT hold the navigation back for sys.motion.duration.press-hold. THE list SHALL NOT activate a link item on Space, which on the web scrolls the page as it does on any link, and SHALL NOT show the pressed state for it; WHERE the platform gives its links other keys or gestures (on the web a modified or a middle click that opens a new tab, on Apple platforms a long press that previews) THE list SHALL leave them to the platform."
+    },
+    {
       "id": "LST-28",
-      "text": "THE list SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the list is shown THE list SHALL draw itself for the new direction at once, without a motion of its own, keeping its selection, its scroll position and its focus.",
-      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+      "text": "WHILE an item is a link item and its target is new THE list SHALL open href in a new context — on the web a new tab or window that is given no handle to the page that opened it; on the other platforms outside the screen the person is on, as the platform's opener decides — and SHALL draw the glyph open_in_new of the system's icon set at the item's end, after the content and comp.list.container.gap from it, at sys.icon.small in the content color of the item's condition and state, through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name, and hidden from assistive technology. THE list SHALL expose targetLabel as the item's description, and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE list SHALL draw no mark and SHALL ignore targetLabel."
     },
     {
       "id": "LST-29",
-      "text": "WHERE the layout direction is right-to-left THE list SHALL draw an item's leading icon and trailing icon mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order LST-16 gives. THE list SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. A leading avatar or image and the check of a selected option (LST-21) are never mirrored.",
-      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+      "text": "WHILE selection is none and an item's href is not empty and its disabled is true THE list SHALL NOT make the item a link that can be followed: it SHALL render the item as LST-15 says, the mark of LST-28 with it, SHALL expose the link role with the disabled state and no destination, SHALL keep it reachable by the arrow keys as LST-15 keeps any disabled item, SHALL NOT emit its click, and SHALL open nothing by any means the platform gives a link (on the web the anchor carries no href, so there is no context menu entry, no drag and no new tab for it)."
     },
     {
       "id": "LST-30",
-      "text": "THE list SHALL lay out an item's overline, headline, supporting text and trailing text as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE list SHALL still place each and align its lines by the layout direction, not by the text's own, and SHALL cut supporting text limited by supportingMaxLines that does not fit (LST-18) at the end of its own direction, so that a left-to-right label in a right-to-left layout loses its right end and never its beginning."
+      "text": "WHILE selection is single or multiple THE list SHALL ignore every item's href, target and targetLabel, as it ignores interactive (LST-18), and in debug builds SHALL report an option that has an href: an option holds a state and is not a destination. WHEN an item's target names a value the list does not define THE list SHALL treat it as same, and in debug builds report the unknown value. IF an item's href is only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE list SHALL make the item what its interactive makes it, without a destination, and in the last two cases report it in debug builds."
     },
     {
       "id": "LST-31",
-      "text": "WHILE selection is none and an item's href is not empty THE list SHALL make the item a link item, whether its interactive is true or false: one element with the link role and not the button role inside its list item, named and described as LST-23 says, its slots held to LST-24; the platform's own link to href (the web's anchor element; SwiftUI's Link; on Compose, Flutter and React Native an element with the platform's link semantics whose address is opened by the platform's opener), so that whatever the platform gives a link — on the web its context menu, opening in a new tab or window, copying and dragging its address, and the address shown before it is followed — is the platform's, and not the list's to draw or to take over; and everything this spec says of an interactive item other than its role and its keys — its states, focus ring, minimum height, press answer, corners, motion, disabled look and its place in the list's one Tab stop and arrow-key order (LST-2 to LST-6, LST-8 to LST-10, LST-15, LST-25) — SHALL hold for a link item from the same tokens, with no look of its own for a link and none for a destination already visited.",
-      "verify": "Fixture links: its first two items are drawn exactly as interactive items with the same content. On the web the item's shadow root holds an anchor with the href; assert the role link inside a list item, and that the arrow keys move between link items."
+      "text": "WHILE selection is none and reorderable is true THE list SHALL be reorderable: it SHALL render every item as a static item (LST-7) whatever its interactive and href say, SHALL draw a handle in every item (LST-32), SHALL let every item be dragged by the whole of it (LST-36), SHALL open the move menu from a handle (LST-33) and SHALL let the keyboard carry an item from its handle (LST-35). WHILE selection is single or multiple THE list SHALL NOT be reorderable, and where reorderable is true SHALL report it in debug builds: an option is chosen by a press that a drag would take."
     },
     {
       "id": "LST-32",
-      "text": "WHEN the user activates a link item by pointer, touch or Enter THE list SHALL emit that item's click exactly once and then open href where target names, unless the product cancelled that click, in which case it SHALL open nothing: the product's own router has taken the navigation. It SHALL show the pressed state as LST-8 and LST-9 say and SHALL NOT hold the navigation back for sys.motion.duration.press-hold. THE list SHALL NOT activate a link item on Space, which on the web scrolls the page as it does on any link, and SHALL NOT show the pressed state for it; WHERE the platform gives its links other keys or gestures (on the web a modified or a middle click that opens a new tab, on Apple platforms a long press that previews) THE list SHALL leave them to the platform.",
-      "verify": "On the web: Enter on the focused link item follows the link and fires its click once; Space fires no click and leaves the page to scroll; a click listener that calls preventDefault() keeps the page where it is."
+      "text": "WHILE the list is reorderable THE list SHALL draw in every item, at its start edge and before its content, comp.list.container.gap from it and centred across the item, a handle: an icon-only Tanrei Button of the text variant at Button's small size showing the glyph drag_indicator of the system's icon set, drawn and answering hover, focus and press from Button's tokens, the list's handle in every item the same. THE list SHALL name it by dragHandleLabel with its place {label} filled by the item's name (LST-19), describe it by dragHandleHint, expose it as a button that opens a menu, with its expanded state, and SHALL disable it WHILE the list holds one item, which has nowhere to go — as Button disables a control that stays reachable (focusableWhenDisabled), so that focus that comes to it after the other items were taken away is not lost. The handle SHALL be a Tab stop of its own in every item, before the controls of the item's content."
     },
     {
       "id": "LST-33",
-      "text": "WHILE an item is a link item and its target is new THE list SHALL open href in a new context — on the web a new tab or window that is given no handle to the page that opened it; on the other platforms outside the screen the person is on, as the platform's opener decides — and, WHILE the item's trailingIcon is empty, SHALL draw the glyph open_in_new of the system's icon set as the item's trailing icon, as LST-16 places and LST-19 draws trailingIcon: at comp.list.trailing-icon.size, in the trailing-icon color of the item's condition and state (comp.list.unselected.trailing-icon.color at rest, and so on), through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name (LST-29), and hidden from assistive technology. WHILE trailingIcon names a glyph THE list SHALL draw that glyph and no mark of its own: the product has chosen what that place shows. Whether a mark is drawn or not THE list SHALL expose targetLabel as the end of the item's description, after what LST-23 gives it, and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE list SHALL draw no mark and SHALL ignore targetLabel.",
-      "verify": "Fixture links: the third item shows the mark at the row's end, 24 large under the default system; fixture links-rtl shows it at the left, mirrored."
+      "text": "WHEN the user activates an enabled handle by pointer, touch, Enter or Down Arrow THE list SHALL open the move menu: one Tanrei Menu, anchored to that handle as a Menu is to its anchor, holding four items in this order — moveToStartLabel with the glyph vertical_align_top, moveBeforeLabel with arrow_upward, moveAfterLabel with arrow_downward and moveToEndLabel with vertical_align_bottom in a vertical list; first_page, arrow_back, arrow_forward and last_page, which the icon set mirrors in a right-to-left layout, in a horizontal one — with focus on its first enabled item. THE list SHALL disable the two items that would leave the first item where it is, and the two that would leave the last item where it is. WHEN the user chooses one THE list SHALL close the menu and emit move once with from the item's index i and to 0, i − 1, i + 1 or the index of the last item; WHEN the menu asks to be closed otherwise (Escape, a press outside, Tab) THE list SHALL close it and move nothing. Focus SHALL return to the handle when the menu closes (LST-43)."
     },
     {
       "id": "LST-34",
-      "text": "WHILE selection is none and an item's href is not empty and its disabled is true THE list SHALL NOT make the item a link that can be followed: it SHALL render the item as LST-6 says, the mark of LST-33 with it, SHALL expose the link role with the disabled state and no destination, SHALL keep it reachable by the arrow keys as LST-2 keeps any disabled item, SHALL NOT emit its click, and SHALL open nothing by any means the platform gives a link (on the web the anchor carries no href, so there is no context menu entry, no drag and no new tab for it).",
-      "verify": "Fixture links: the fourth item. On the web its anchor has no href attribute, role link and aria-disabled true; Down Arrow still reaches it and Enter does nothing."
+      "text": "WHEN the user presses Space on an enabled handle THE list SHALL lift its item for the keyboard: it SHALL draw the item dragged (LST-37) where it stands, keep focus on its handle and announce liftedText (LST-44). WHILE an item is lifted by the keyboard THE list SHALL take Space, Enter, Escape, Home, End and the arrow keys of its arrangement (LST-17) on the handle and let none of them reach anything else, an overlay that holds the list included: an arrow key SHALL move the item's place one step — in a list that does not wrap one place toward the start or the end; in a wrapping list one place in reading order along the lines, or into the next or previous line at the place whose centre is nearest along the line — and Home and End to the first and the last place, never past either; the item SHALL move into its new place and its neighbours aside as LST-38 says, and each step that changes the place SHALL announce movedText with the place the item would have if dropped now."
     },
     {
       "id": "LST-35",
-      "text": "WHILE selection is single or multiple THE list SHALL ignore every item's href, target and targetLabel, as it ignores interactive (LST-12), and in debug builds SHALL report an option that has an href: an option holds a state and is not a destination. WHEN an item's target names a value the list does not define THE list SHALL treat it as same, and in debug builds report the unknown value. IF an item's href is only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE list SHALL make the item what its interactive makes it, without a destination, and in the last two cases report it in debug builds."
+      "text": "WHEN the user presses Space or Enter WHILE an item is lifted by the keyboard THE list SHALL drop it: settle it into its place as LST-39 says and, where the place is not the one it was lifted from, emit move exactly once with from the index it had and to the index of its place. WHEN the user presses Escape, or focus leaves the handle, or the window or the app loses focus, or the product changes the list's items, its reorderable or its selection, WHILE an item is lifted by the keyboard THE list SHALL return the item and its neighbours to their places as LST-40 says, emit nothing, and announce cancelledText with the place the item has again — except where the product removed the item."
     },
     {
       "id": "LST-36",
-      "text": "WHILE selection is none and reorder is buttons or drag THE list SHALL be reorderable: it SHALL draw the two move buttons in every item (LST-37) and, WHILE reorder is drag, the handle as well (LST-44), and SHALL NOT draw the handle without the buttons under any value, so that every way of using the list has a way to move an item that needs no dragging. THE list SHALL render every item of a reorderable list as a static item (LST-11), ignoring its interactive and its href, and in debug builds SHALL report an item that has either: a row that is itself one button or one link cannot hold the buttons that move it (LST-24). WHILE selection is single or multiple THE list SHALL ignore reorder, draw no move button and no handle, and in debug builds report it: an option cannot hold a button. THE list SHALL never change the order of its items itself: it SHALL report the move that was asked for (LST-39, LST-47) and draw the items in the order the product gives them.",
-      "verify": "Fixtures reorder-buttons and reorder-drag. Unit: a list with selection single and reorder buttons draws no move button and reports once; an item with interactive or href in a reorderable list has no element with the button or the link role for its row. After a move button is pressed and the product changes nothing, the items are in the order they were."
+      "text": "WHILE the list is reorderable THE list SHALL let a pointer drag an item by any part of it that is not an interactive element of its content (a button, a link, a field, a control — which keep their presses), the handle included: WHEN the primary button of a mouse is pressed there and the pointer moves past the platform's touch slop (8 points where the platform names none) THE list SHALL lift the item at once; WHEN a touch or a pen presses the handle and moves past the slop THE list SHALL lift the item at once, and the touch SHALL NOT scroll; WHEN a touch or a pen presses anywhere else on the item and stays within the slop for the platform's long-press duration (500 ms where the platform names none) THE list SHALL lift the item then, and the touch SHALL NOT scroll from then on, while a touch that moves past the slop sooner SHALL scroll, select text or do whatever it did before, and lift nothing. A press of another mouse button, a second pointer while an item is carried, and a press on a disabled handle SHALL lift nothing. THE list SHALL keep the platform's own answers to a long press on a reorderable item (a context menu, a text selection, a preview) from appearing, and a press that lifts nothing SHALL do what it would have done."
     },
     {
       "id": "LST-37",
-      "text": "WHILE the list is reorderable THE list SHALL draw in every item, after the trailing icon and before the trailing control, two buttons: first, in reading order, the one that moves the item up, showing the glyph arrow_upward of the system's icon set, then the one that moves it down, showing the glyph arrow_downward; each an icon-only Tanrei Button of the text variant at Button's medium size and default width, drawn from Button's own tokens, the two comp.list.move-buttons.gap apart, measured so that each keeps at least sys.target.touch along the row (two buttons narrower than that stand apart by what is missing), both centred on the text column as LST-17 places a trailing element. Each SHALL be a Button in its press, its target, its states and its focus ring (BTN-5, BTN-8, BTN-9, BTN-10), and a focus stop of its own in reading order, before the item's trailing control: the list handles no key for them and is not one Tab stop (LST-15 speaks of interactive items and options, and a reorderable list has neither). THE list SHALL NOT mirror the two glyphs in a right-to-left layout, where up is still up, and SHALL keep their order: the button that moves up comes first in reading order, so at the right of the other.",
-      "verify": "Fixtures reorder-buttons and reorder-buttons-rtl. Unit: Tab from before the list reaches the first item's enabled move button, then the next, then that item's trailing control; no arrow key moves focus."
+      "text": "WHILE an item is dragged — lifted by a pointer or by the keyboard — THE list SHALL draw it above the other items of the list with its content unchanged, filled with comp.list.dragged.container.color under the content, with the shadow comp.list.dragged.container.elevation and the corners comp.list.container.shape, the fill and the shadow arriving over comp.list.motion.state-duration with comp.list.motion.state-easing, and SHALL leave the gap where it would land. WHILE a pointer drags it THE list SHALL move it with the pointer by the distance the pointer has travelled since the press, in the frame the pointer moves and without a motion of its own — along the list's axis only while wrap is false, in both directions while wrap is true — never past the list's own box, wherever the pointer goes; SHALL draw no item and no handle hovered or pressed; SHALL let nothing of the list be selected as text or be taken by the platform's own drag and drop; SHALL show a fine pointer the platform's cursor for something held (grabbing), and the cursor for something that can be held (grab) over a draggable part of an item at rest; and SHALL emit nothing."
     },
     {
       "id": "LST-38",
-      "text": "THE list SHALL name the button that moves an item up by moveUpLabel and the one that moves it down by moveDownLabel, each with its place {headline} filled by the headline of its item, so that two buttons of two rows are told apart by their names; neither SHALL carry the headline a second time as a description. IF the word given has no place {headline} THE list SHALL name the button with it as it is written and in debug builds report that every row's button has the same name; another text between braces, and a brace that opens or closes nothing, SHALL be kept as written and reported. THE list SHALL have no words of its own: it SHALL take moveUpLabel, moveDownLabel and movedText from its own prop and, WHILE that is empty, from the product's words of the same name, and from nowhere else. IF neither gives moveUpLabel or moveDownLabel WHILE the list is reorderable THE list SHALL still draw that button and keep it working, SHALL expose it without a name, and in debug builds SHALL report the missing words once per word and page or screen, naming the prop. IF neither gives movedText THE list SHALL announce nothing after a move (LST-42) and SHALL report it the same way.",
-      "verify": "Unit: with the words given once through the product's words and no prop, every move button is named; each button's name holds its item's headline in the sentence's place; with a prop, the prop wins; with neither, the buttons are drawn, work, have no accessible name, and the missing keys are moveUpLabel, moveDownLabel and movedText."
+      "text": "WHILE an item is dragged THE list SHALL keep the gap where the item would land if it were dropped now and SHALL move every other item whose place that changes, over comp.list.motion.reorder-duration with comp.list.motion.reorder-easing, without fading or scaling it: WHILE wrap is false, WHEN the centre of the dragged item passes the centre of a neighbour, that neighbour SHALL move to the other side of the gap by the dragged item's length and the gap; WHILE wrap is true the dragged item's place SHALL be the place, among those the items had when it was lifted, whose centre is nearest to the dragged item's centre, and every item between its old place and that one SHALL move into the place of its neighbour, so that the grid closes behind the item and opens in front of it. WHILE a pointer is nearer than sys.target.touch to an edge of the list's nearest scrolling ancestor and the list reaches beyond that edge THE list SHALL scroll that ancestor toward it, the faster the nearer, and keep the gap under the dragged item."
     },
     {
       "id": "LST-39",
-      "text": "WHEN the user activates the button that moves up of the item at index i, counted from 0, THE list SHALL emit move exactly once with from i and to i − 1, and WHEN the user activates the button that moves down it SHALL emit move exactly once with from i and to i + 1; one activation is one whole move, with nothing to confirm and nothing to cancel. THE list SHALL NOT move the item itself and SHALL NOT emit an item's click for it.",
-      "verify": "Unit: in reorder-buttons, pressing the second item's move-up emits one move with from 1 and to 0; Enter and Space on the focused button do the same; no click is emitted by the item."
+      "text": "WHEN the user releases an item dragged by a pointer, or drops one lifted by the keyboard (LST-35), THE list SHALL move it into the gap over comp.list.motion.reorder-duration with comp.list.motion.reorder-easing and take the dragged fill and shadow from it over comp.list.motion.state-duration. IF the gap is not where the item stood when it was lifted THE list SHALL emit move exactly once, with from the index the item had and to the index of the gap, both counted from 0, and SHALL keep drawing the items as they were dropped until the product gives that order or comp.list.motion.reorder-duration has passed since the event, whichever comes first, so that a product that reorders in answer to the event shows no frame of the old order; it SHALL then draw the product's order and go on as LST-43 says, and where the product gave no such order the items SHALL go back to their places over the same motion. IF the gap is where the item stood THE list SHALL emit nothing and announce nothing."
     },
     {
       "id": "LST-40",
-      "text": "WHILE the list is reorderable THE list SHALL disable the button that moves up of its first item and the button that moves down of its last item, and both buttons of an item that is alone, as Button disables (not focusable, the disabled state exposed), and SHALL still draw them, so that every row has the same parts in the same places and a button does not arrive under a pointer after a move.",
-      "verify": "Fixtures reorder-buttons (the first and the last item) and reorder-single-item."
+      "text": "WHILE a pointer drags an item, WHEN the user presses Escape, or the platform cancels the pointer or takes it for a gesture of its own, or the window or the app loses focus, or the product changes the list's items, its reorderable or its selection, THE list SHALL end the drag without a move: it SHALL return the item and its neighbours to the places they had over comp.list.motion.reorder-duration with comp.list.motion.reorder-easing, SHALL emit nothing, SHALL announce nothing and SHALL leave the scroll position where the drag brought it. Escape SHALL be taken by the list while an item is dragged and SHALL NOT reach an overlay that holds the list, so that putting an item back does not also close the dialog it is in."
     },
     {
       "id": "LST-41",
-      "text": "WHEN the product, after a move the list emitted, gives its items in an order in which the moved item stands at the index to, THE list SHALL draw that order (LST-43), SHALL set every item's position anew for assistive technology (LST-12), SHALL announce the move (LST-42), and SHALL keep keyboard focus with the moved item: WHILE focus was on one of its move buttons when the move was asked for, on that same button of the item now at to, or on its other move button where that one has become disabled (LST-40), whether the product moved the item it had or gave a new one for the same content; WHILE focus was elsewhere THE list SHALL NOT move it. The same button keeping focus is what lets a person move an item several places by pressing one key several times. IF the product has not given such an order by the time comp.list.motion.reorder-duration has passed since the move was emitted THE list SHALL take the move as refused: it SHALL announce nothing, leave focus where it is and draw the items as the product has them.",
-      "verify": "Unit: pressing Enter three times on the fourth item's move-up, with a product that reorders in its handler, leaves that item first, focus on its move-down button (move-up is disabled there) and three announcements, the last with position 1. The same with a product that replaces every item element. With a product that ignores the event, focus and order are unchanged and nothing is announced."
+      "text": "WHEN the order of the items of a reorderable list changes — after a move, or because the product changed it — THE list SHALL move every item whose place changed from where it was drawn to its new place over comp.list.motion.reorder-duration with comp.list.motion.reorder-easing, in both directions where the list wraps, without fading or scaling it, the focus ring travelling with the item that holds focus; an item that is new or gone SHALL appear or leave at once, and an item that was just dropped SHALL go on from where it is drawn into its place."
     },
     {
       "id": "LST-42",
-      "text": "WHILE the list is reorderable THE list SHALL hold one live region of its own, polite, empty at rest and not drawn, and SHALL have nothing else of the list announce a move. WHEN a move has taken effect (LST-41) THE list SHALL put into it movedText with its three places filled — {headline} by the moved item's headline, {position} by the place the item now has, counted from 1, and {count} by the number of items in the list, the two numbers written as the platform writes a whole number in the language of the list — so that it is announced once, after what is being read; a later move SHALL replace what the region holds and SHALL NOT queue behind it. THE list SHALL fill the places as a word with places is filled: each place wherever and however often the product wrote it; any other text between braces, and a brace that opens or closes nothing, left as it is written and in debug builds reported once per page or screen, naming the prop; a brace written twice drawn as one brace; and the headline inserted as plain text of its own direction, isolated from the sentence (LST-30). THE list SHALL announce nothing when an item is lifted and nothing while it is dragged over other items (LST-45, LST-46): the handle is a pointer's, the person using it is watching the item, and assistive technology is told the one thing that happened, where the item now stands.",
-      "verify": "Unit, with movedText \"{headline}: {position} of {count}\": moving Sent from third to second of three sets the live region to \"Sent: 2 of 3\"; a second move replaces the text; a drag over two rows writes nothing until the drop has taken effect. With movedText \"{headline} {place}\" the text keeps \"{place}\" and one report is made. With movedText \"{{headline}} {position}\" the text is \"{headline} 2\" and nothing is reported."
+      "text": "WHERE motion is reduced THE list SHALL still move an item dragged by a pointer with the pointer, which is the person's own movement and not a motion of the list's, SHALL give a dragged item the dragged fill and shadow at once, SHALL put a neighbour into its new place at once (LST-38), SHALL put an item lifted by the keyboard into its next place at once (LST-34), SHALL put a released or dropped item into the gap or back to its place at once (LST-39, LST-40, LST-35), SHALL draw a new order at once (LST-41) and SHALL scroll its ancestor near an edge as LST-38 says."
     },
     {
       "id": "LST-43",
-      "text": "WHEN the order of the items of a reorderable list changes THE list SHALL move every item whose place changed from where it was drawn to its new place over comp.list.motion.reorder-duration with comp.list.motion.reorder-easing, along the list's axis and without fading or scaling it, the focus ring travelling with the item that holds focus; an item that is new or gone SHALL appear or leave at once. WHERE motion is reduced THE list SHALL draw the new order at once.",
-      "verify": "Unit: after a move button, the two items that changed places are drawn between their places for the length of the motion and at rest after it; with reduced motion the first frame after the change is the final one."
+      "text": "WHEN the product, after a move the list emitted, gives its items in an order in which the moved item stands at the index to, THE list SHALL draw that order (LST-41), SHALL set every item's position anew for assistive technology (LST-18), SHALL announce movedText with the place the item now has (LST-44) and SHALL keep keyboard focus with the moved item: WHILE focus was on its handle, in the move menu, or on the handle of the item carried by the keyboard, on the handle of the item now at to, whether the product moved the item it had or gave a new one for the same content; WHILE focus was elsewhere THE list SHALL NOT move it. IF the product has not given such an order by the time comp.list.motion.reorder-duration has passed since the move was emitted THE list SHALL take the move as refused: it SHALL announce nothing, leave focus on the handle of the item that stands where it stood, and draw the items as the product has them."
     },
     {
       "id": "LST-44",
-      "text": "WHILE the list is reorderable and reorder is drag THE list SHALL draw in every item, at the row's start before the leading icon or the leading media, the glyph drag_indicator of the system's icon set in a box of side comp.list.handle.size, in comp.list.handle.color, through the icon helper with sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, centred on the text column as LST-17 places a leading element, and never mirrored. Its hit area SHALL be at least sys.target.touch square for touch input and sys.target.pointer square for fine pointers, reaching over the row's start padding and the gap beside it without changing the layout and without reaching over another control. THE handle SHALL be hidden from assistive technology and SHALL NOT be a focus stop: it is not a button, a press on it that ends without a drag SHALL do nothing and draw no answer, and the move buttons do its work for a keyboard, a switch, a voice and a screen reader. WHERE the pointer is a fine one THE list SHALL show over the handle the platform's cursor for something that can be held (grab). THE list SHALL draw the handle of an item that is alone in its list as well, and SHALL take no drag from it.",
-      "verify": "Fixtures reorder-drag and reorder-drag-rtl. On the web: the handle is aria-hidden, has no tabindex and no role; a click on it emits nothing."
+      "text": "WHILE the list is reorderable THE list SHALL hold one live region of its own, polite, empty at rest and not drawn, and SHALL have nothing else of the list announce a move. THE list SHALL put into it liftedText when the keyboard lifts an item (LST-34), movedText when an item lifted by the keyboard reaches another place (LST-34) and when a move has taken effect (LST-43), and cancelledText when a move with the keyboard is cancelled (LST-35), each with its places filled — {label} by the item's name (LST-19), {position} by its place counted from 1, and {count} by the number of items, the two numbers written as the platform writes a whole number in the language of the list — so that it is announced once, after what is being read; a later sentence SHALL replace what the region holds and SHALL NOT queue behind it. THE list SHALL fill the places as a word with places is filled: each place wherever and however often the product wrote it; any other text between braces, and a brace that opens or closes nothing, left as it is written and in debug builds reported once per page or screen, naming the prop; a brace written twice drawn as one brace; and the name inserted as plain text of its own direction, isolated from the sentence. THE list SHALL announce nothing when a pointer lifts an item or carries it over others: the person using a pointer is watching the item, and assistive technology is told the one thing that happened, where the item now stands."
     },
     {
       "id": "LST-45",
-      "text": "WHEN the user presses a handle with touch, a pen or the primary button of a mouse and moves past the platform's touch slop (8 points where the platform names none, for every kind of pointer) THE list SHALL lift that item: at once, with no long press, because the handle is there to be dragged and holds nothing else a press could mean. From then until the drag ends THE list SHALL draw the item above the other items of the list, as wide as its row and with its content unchanged, filled with comp.list.dragged.container.color and with the shadow comp.list.dragged.container.elevation, the fill and the shadow arriving over comp.list.motion.state-duration with comp.list.motion.state-easing, and SHALL leave a gap of the item's height where it would stand if it were dropped now. A touch that begins on a handle SHALL NOT scroll the page or the list's scrolling ancestor; a touch or a press that begins anywhere else on a row SHALL scroll, select text and do whatever it did before, and SHALL never lift an item: THE list SHALL take no drag from a long press on a row, which is the platform's to answer (a menu, a selection, a preview). A press of another mouse button, and a second pointer while one item is carried, SHALL lift nothing.",
-      "verify": "Unit: a touch pressed on the second item's handle and moved 12 down draws that item with the dragged fill and shadow and a gap where it stood, without any wait; a press held 800 ms on the headline and then moved lifts nothing and the page scrolls. The row at rest has no fill."
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE list SHALL draw a dragged item on the platform's background color with an edge sys.border.hairline wide in the platform's highlight color all around it, in place of a fill and a shadow that are not drawn there, SHALL draw the dividers in the platform's text color, and SHALL leave the handle and the move menu to be drawn as a Button and a Menu are there."
     },
     {
       "id": "LST-46",
-      "text": "WHILE an item is dragged THE list SHALL move it with the pointer along the list's axis only, by the distance the pointer has travelled since the press, in the frame the pointer moves and without a motion of its own, never further than the first item's and the last item's place, wherever the pointer goes, outside the list included. WHEN the centre of the dragged item passes the centre of a neighbouring item THE list SHALL move that neighbour by the dragged item's height to the other side of the gap, over comp.list.motion.reorder-duration with comp.list.motion.reorder-easing, so that the gap is always where the item would be dropped. WHILE the pointer is nearer than sys.target.touch to the top or the bottom edge of the list's nearest scrolling ancestor and the list reaches beyond that edge THE list SHALL scroll that ancestor toward it, the faster the nearer, and keep the gap under the dragged item. WHILE the drag lasts THE list SHALL draw no item and no button hovered or pressed, SHALL let nothing it draws be selected as text or be taken by the platform's own drag and drop, SHALL show a fine pointer the platform's cursor for something held (grabbing), and SHALL emit nothing.",
-      "verify": "Unit: in reorder-drag, the first item dragged down by one and a half row heights draws the second item in the first place and the gap in the second; dragged sideways by 200 it does not leave its column; dragged below the last item it stays in the last place. No move is emitted before the release."
+      "text": "WHEN the product takes away an item of a reorderable list that holds keyboard focus THE list SHALL move focus to the handle of the item that now stands where that item stood, else of the item before it; WHEN the last item is taken away THE list SHALL leave focus to the product, which knows where a person adds an item. THE list SHALL announce nothing for a removal or an addition: what was removed is the product's to say. A control the product places in an item's content — a button that removes the item — keeps its own tokens, semantics and focus stop, after the handle in reading and focus order."
     },
     {
       "id": "LST-47",
-      "text": "WHEN the user releases a dragged item THE list SHALL move it into the gap over comp.list.motion.reorder-duration with comp.list.motion.reorder-easing and take the dragged fill and shadow from it over comp.list.motion.state-duration. IF the gap is not where the item stood when it was lifted THE list SHALL emit move exactly once, with from the index the item had and to the index of the gap, both counted from 0, and SHALL keep drawing the items as they were dropped until the product gives that order or comp.list.motion.reorder-duration has passed since the event, whichever comes first, so that a product that reorders in answer to the event shows no frame of the old order; it SHALL then draw the product's order, announce the move and keep focus as LST-41 says (focus inside the moved item stays with it; focus elsewhere is not moved), and where the product gave no such order the items SHALL go back to their places over the same motion. IF the gap is where the item stood THE list SHALL emit nothing and announce nothing.",
-      "verify": "Unit: the first of three items dropped after the third emits one move with from 0 and to 2; with a product that reorders in its handler no frame shows the old order; with a product that ignores the event the item is back in the first place after the motion. A drag released where it began emits nothing."
-    },
-    {
-      "id": "LST-48",
-      "text": "WHILE an item is dragged, WHEN the user presses Escape, or the platform cancels the pointer or takes it for a gesture of its own, or the window or the app loses focus, or the product changes the list's items, its reorder or its selection, THE list SHALL end the drag without a move: it SHALL return the item and its neighbours to the places they had over comp.list.motion.reorder-duration with comp.list.motion.reorder-easing, SHALL emit nothing, SHALL announce nothing and SHALL leave the scroll position where the drag brought it. Escape SHALL be taken by the list while a drag lasts and SHALL NOT reach an overlay that holds the list, so that putting an item back does not also close the dialog it is in.",
-      "verify": "Unit: the first item dragged past the second and Escape pressed is the first item again, no move was emitted and a dialog around the list is still open."
-    },
-    {
-      "id": "LST-49",
-      "text": "WHERE motion is reduced THE list SHALL still move a dragged item with the pointer, which is the person's own movement and not a motion of the list's, SHALL give it the dragged fill and shadow at once, SHALL put a neighbour on the other side of the gap at once (LST-46), SHALL put a released item into the gap or back to its place at once (LST-47, LST-48), and SHALL scroll its ancestor near an edge as LST-46 says.",
-      "verify": "Unit, with reduced motion: every frame of a drag shows each neighbour in one of its two places and never between them."
-    },
-    {
-      "id": "LST-50",
-      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE list SHALL draw the handle in the platform's text color, SHALL draw a dragged item on the platform's background color with an edge sys.border.hairline wide in the platform's highlight color all around it, in place of a fill and a shadow that are not drawn there, and SHALL leave the move buttons to be drawn as Buttons are there, a disabled one in the platform's disabled text color.",
-      "verify": "On the web, with forced colors emulated: the dragged item has an outline in Highlight and covers the rows under it."
-    },
-    {
-      "id": "LST-51",
-      "text": "WHERE the handle, the move buttons and the trailing control of a reorderable list would leave the text column narrower than comp.list.reorder.text-min-width — a narrow screen, enlarged text — THE list SHALL place the move buttons and the trailing control on a line of their own below the text column, at the row's end and in the same order (and WHERE that line is too short for all of them, the trailing control on a further line below the move buttons, at the row's end as well), comp.list.container.padding-block below the text, and SHALL do so for every item of the list at once, so that the buttons of all rows stand under each other. The row SHALL grow with it (LST-17) and the handle SHALL stay at the row's start, centred on the first line of the text column. THE list SHALL take comp.list.reorder.text-min-width as grown by the factor the text is enlarged by, so that at the default text size the controls of a usual row stand beside its text and at enlarged text they stand below it. At 200% text size in a list 320 wide no text SHALL be cut or lie under a control, no control SHALL be smaller than its target, and nothing SHALL need scrolling sideways.",
-      "verify": "Fixture reorder-drag-long-text at a stage 320 wide and at 200% text size: the buttons are below the text in every row and the headline wraps. In a list 360 wide at the default text size, rows with a handle, the two move buttons and a remove button keep them beside the text; the same list stacks once comp.list.reorder.text-min-width is set wider than the text column."
-    },
-    {
-      "id": "LST-52",
-      "text": "WHILE the list is reorderable THE list SHALL leave a control in an item's trailing slot its own tokens, semantics and focus stop (LST-11), after the move buttons in reading and focus order: a button that removes the item is the product's, and so is the removal. WHEN the product takes away an item that holds keyboard focus THE list SHALL move focus to the control in the same place — the same move button, or the control of the trailing slot — of the item that now stands where that item stood, else of the item before it, and where that control is absent or disabled to the first control of that item that can take focus; WHEN the last item is taken away THE list SHALL leave focus to the product, which knows where a person adds an item. THE list SHALL announce nothing for a removal or an addition: what was removed is the product's to say.",
-      "verify": "Unit: with a remove button in every trailing slot, removing the second of three items while its remove button has focus puts focus on the remove button of the item that was third; removing the last item puts it on the remove button of the one before."
+      "text": "THE list SHALL have no words of its own: it SHALL take dragHandleLabel, dragHandleHint, moveToStartLabel, moveBeforeLabel, moveAfterLabel, moveToEndLabel, liftedText, movedText and cancelledText from the instance's prop and, WHILE that is empty, from the product's words of the same key, and from nowhere else; WHILE the list is reorderable and one of them other than dragHandleHint is empty in both, it SHALL still render and work, and in debug builds report the missing word once. IF dragHandleLabel has no place {label} THE list SHALL name every handle with it as it is written and report in debug builds that the handles of two items cannot be told apart."
     }
   ],
   "accessibility": {
@@ -569,11 +532,11 @@
     "keyboard": [
       {
         "keys": "Tab / Shift+Tab",
-        "action": "Moves focus into the list (to the item focused last, the first selected option or the first enabled item) and out of it. A list of static items is not a tab stop; focus moves through the controls in its items."
+        "action": "Moves focus into the list (to the item focused last, the first selected option or the first enabled item) and out of it. A list of static items is not a tab stop; focus moves through the controls in its items. In a reorderable list every handle is a stop, before the controls of its item."
       },
       {
-        "keys": "Down Arrow / Up Arrow",
-        "action": "Moves focus to the next or previous item, without wrapping. Does not change the selection."
+        "keys": "Arrow keys",
+        "action": "Move focus to the next or previous item along the list: Up and Down in a column, Left and Right in a line (mirrored in a right-to-left layout). In a wrapping list the arrows along the lines move in reading order and the arrows across them move to the nearest item of the next or previous line. They do not change the selection."
       },
       {
         "keys": "Home / End",
@@ -581,156 +544,242 @@
       },
       {
         "keys": "Printable characters",
-        "action": "Moves focus to the next item whose headline begins with the characters typed."
+        "action": "Moves focus to the next item whose name begins with the characters typed."
       },
       {
         "keys": "Space / Enter",
-        "action": "Activates the focused item: an interactive item emits its click; an option is selected (single) or switched (multiple). A link item is activated by Enter alone: Space does what it does on any link (on the web it scrolls the page)."
+        "action": "Activates the focused item: an interactive item emits its click; an option is selected (single) or switched (multiple). A link item is activated by Enter alone."
       },
       {
-        "keys": "Tab / Shift+Tab (a reorderable list)",
-        "action": "Moves focus through the controls of each item in reading order: the button that moves it up, the button that moves it down, then the control of its trailing slot. A disabled move button is passed. The handle is not a stop."
+        "keys": "Enter / Down Arrow (on a handle)",
+        "action": "Opens the move menu: Move to start, Move before, Move after, Move to end, in the product's words. Choosing one moves the item; focus returns to its handle."
       },
       {
-        "keys": "Space / Enter (on a move button)",
-        "action": "Moves the item one place up or down. Focus stays on the same button of the moved item, so pressing again moves it again; where the item has reached the first or the last place, focus goes to its other move button."
+        "keys": "Space (on a handle)",
+        "action": "Lifts the item. Then the arrow keys of the arrangement move it one place, Home and End to the first and last place, Space or Enter drop it there, and Escape puts it back. Each step is announced."
       },
       {
-        "keys": "Escape (while an item is dragged by a pointer)",
-        "action": "Puts the dragged item back where it was. Nothing is moved."
+        "keys": "Escape (while an item is dragged)",
+        "action": "Puts the item back where it was. Nothing is moved."
       }
     ],
-    "labeling": "An item's headline is its accessible name; its overline, supporting text and trailing text are its description. A selectable list is a listbox named by label. Icons, the mark and dividers are decorative. While target is new, a link item's targetLabel ends its description. The content of an interactive item, a link item or an option is presentational: it is read as part of the item, not as separate elements. In a reorderable list each move button is a button named by moveUpLabel or moveDownLabel and described by its item's headline; the handle is hidden. After a move the list's one live region says movedText, with the item's headline, its new position and the number of items.",
+    "labeling": "A selectable list is a listbox named by label; a reorderable list is named by label too. An interactive item, a link item or an option is named by its label or else by its content's text, and its content is presentational. While target is new, a link item is described by its targetLabel. In a reorderable list each handle is a button that opens a menu, named by dragHandleLabel with the item's name and described by dragHandleHint; the move menu's items are named by the four move words. The list's one live region says liftedText, movedText and cancelledText, with the item's name, its place and the number of items.",
     "minimumTarget": true,
     "notes": [
-      "One item kind, list-item, and four kinds of row chosen by props: static (selection none, interactive false, no href) shows content and may hold the product's own control in its trailing slot; interactive is one button inside its list item; a link item (href) is one link inside its list item; an option (selection single or multiple) is chosen. A list may mix static, interactive and link items; a selectable list holds only options.",
-      "Selection is the list's: value names the selected option of a single-select list, values those of a multiple-select list, each by the options' value.",
-      "A row whose whole width toggles a setting is a static item with a switch in its trailing slot, the switch named by the headline (label = headline, labelHidden). The row does not forward presses to the switch: the switch's own hit area is the control, as the one-control-per-focus-stop rule requires.",
+      "The list is a box: what an item shows is the product's own content, in a slot. The list owns the arrangement (a column, a line, or lines that wrap into a grid, with a gap and dividers), the semantics (list or listbox, positions and size), keyboard focus among actionable items, selection, and reordering. A row with a headline, supporting text and an icon is the product's content, or another Tanrei component placed in the item.",
+      "Four kinds of item, chosen by props: static (selection none, interactive false, no href) draws nothing of its own — its content is the item — and may hold the product's controls; interactive is one button inside its list item; a link item (href) is one link inside its list item; an option (selection single or multiple) is chosen. The last three are drawn as a padded box with every state and the minimum target; a list may mix static, interactive and link items, and a selectable list holds only options.",
       "The list does not scroll or virtualize: the product places it in its own scroll view, or builds it lazily with the platform's lazy list and states the set size where the platform needs it.",
-      "Text size does not clip an item: rows grow at 200% text size and the headline wraps.",
-      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
-      "An item with a destination is a link (a control with a destination is a link): the link role, the platform's own link, Enter and not Space, so that on the web a row of an index or of a table of contents can be opened in a new tab and its address copied. No visited state is drawn. A list of links is still a list, moved through with the arrow keys as one tab stop; a site's navigation with a current page is the navigation drawer's, not a list's.",
-      "A link item that opens a new context shows the open_in_new mark as its trailing icon and says so through targetLabel; the words are the product's.",
-      "A list is reorderable in two forms, and the first is complete by itself. buttons: two buttons in every item, which serve a keyboard, a pointer, touch, a switch, voice control and a screen reader alike and meet the requirement that anything done by dragging can be done with single presses. drag: the same buttons and a handle for a pointer or a finger. There is no keyboard mode on the handle (lift, move with the arrows, drop): it would serve the keyboard alone, would need its keys taught in words, and would keep a held item as a state that focus can leave.",
+      "Reordering meets WCAG 2.2 success criterion 2.5.7 (dragging movements) and 2.1.1 (keyboard) without move buttons on every item: the handle is a button whose menu moves the item to the start, one place before, one place after or to the end — single presses for a pointer, touch, a switch, voice control and a screen reader — and with the keyboard it lifts the item, which the arrow keys carry and Space drops, as in the drag and drop patterns of mature systems (Atlassian's and GitHub's).",
+      "The whole item can be dragged, not only the handle: a mouse lifts it after a few points of movement, a touch or a pen after a long press (so that a swipe still scrolls) or at once from the handle. The handle is the visible sign that the item can be moved, and the one part that both a pointer and the keyboard can use.",
       "The order is the product's data. The list emits move with from and to and draws the items in the order the product then gives; a product that refuses a move changes nothing and the list announces nothing.",
-      "A reorderable list holds static items only: a row that is one button, one link or an option cannot hold the move buttons (the one-control-per-focus-stop rule). A list whose rows open something and can also be reordered is left to a later revision; it needs a keyboard model in two directions.",
-      "What a reorderable item may hold besides its text and media: one control of the product's in its trailing slot, as any static item, typically a button that removes the item. The list keeps focus in the list when the item with focus is removed (LST-52).",
-      "movedText is one of the product's words with places to fill. The product writes the sentence, so the order of the words is its language's; the list fills in a name and two numbers and builds no phrase of its own.",
-      "The list is a column. Dragging is along its axis only, so a right-to-left layout changes where the handle and the buttons stand in the row and nothing about the direction of a move. A row of things that can be reordered (chips, tabs, cards) is not a list and is not covered here."
+      "A reorderable list holds static items only, and is never a listbox: an action, a link or an option is taken by a press that a drag would take. What a reorderable item may hold besides its content: the product's own controls, such as a button that removes the item; the list keeps focus in the list when the item with focus is removed (LST-46).",
+      "The four move words and the three sentences are the product's, with places to fill. The product writes the sentence, so the order of the words is its language's; the list fills in a name and two numbers and builds no phrase of its own. In a line, the product says \"Move left\" and \"Move right\" (or the reverse in a right-to-left language) where a column says \"Move up\" and \"Move down\".",
+      "A wrapping list is still one list in one order: it is read, tabbed through and counted line by line in the reading direction, and a move to another line is a move to another place in that order."
     ]
   },
   "tokens": "comp.list",
   "fixtures": [
     {
-      "id": "one-line",
+      "id": "column",
       "props": {},
       "items": [
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Inbox"
-          }
+          "props": {},
+          "content": "Apples"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Starred"
-          }
+          "props": {},
+          "content": "Bananas"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Sent"
-          }
+          "props": {},
+          "content": "Cherries"
         }
       ]
     },
     {
-      "id": "leading-icon",
-      "props": {},
+      "id": "column-gap",
+      "props": {
+        "gap": "medium"
+      },
       "items": [
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Inbox",
-            "leadingIcon": "inbox",
-            "trailingText": "12"
-          }
+          "props": {},
+          "content": "Apples"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Starred",
-            "leadingIcon": "star",
-            "trailingText": "3"
-          }
+          "props": {},
+          "content": "Bananas"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Sent",
-            "leadingIcon": "send"
-          }
+          "props": {},
+          "content": "Cherries"
         }
       ]
     },
     {
-      "id": "two-line-avatar",
-      "props": {},
+      "id": "dividers",
+      "props": {
+        "dividers": true
+      },
       "items": [
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Ada Lovelace",
-            "supportingText": "Edited the roadmap 2 hours ago",
-            "leadingMedia": "avatar"
-          }
+          "props": {},
+          "content": "Apples"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Grace Hopper",
-            "supportingText": "Commented on the budget yesterday",
-            "leadingMedia": "avatar"
-          }
+          "props": {},
+          "content": "Bananas"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Alan Turing",
-            "supportingText": "Shared a file on Monday",
-            "leadingMedia": "avatar"
-          }
+          "props": {},
+          "content": "Cherries"
         }
       ]
     },
     {
-      "id": "three-line-image",
-      "props": {},
+      "id": "line",
+      "props": {
+        "orientation": "horizontal",
+        "gap": "small"
+      },
       "items": [
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Roadmap",
-            "overline": "Engineering",
-            "supportingText": "The plan for the next quarter, with milestones, owners and the risks we already know about.",
-            "supportingMaxLines": 2,
-            "leadingMedia": "image",
-            "trailingText": "9:41"
-          }
+          "props": {},
+          "content": "One"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Budget",
-            "overline": "Finance",
-            "supportingText": "Spending so far this year against the plan, by team, with the forecast for the rest of it.",
-            "supportingMaxLines": 2,
-            "leadingMedia": "image",
-            "trailingText": "Yesterday"
-          }
+          "props": {},
+          "content": "Two"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Three"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Four"
         }
       ]
+    },
+    {
+      "id": "line-dividers",
+      "props": {
+        "orientation": "horizontal",
+        "gap": "medium",
+        "dividers": true
+      },
+      "items": [
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "One"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Two"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Three"
+        }
+      ]
+    },
+    {
+      "id": "wrap",
+      "props": {
+        "orientation": "horizontal",
+        "wrap": true,
+        "gap": "medium"
+      },
+      "items": [
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 1"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 2"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 3"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 4"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 5"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 6"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 7"
+        }
+      ]
+    },
+    {
+      "id": "wrap-rtl",
+      "props": {
+        "orientation": "horizontal",
+        "wrap": true,
+        "gap": "medium"
+      },
+      "items": [
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 1"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 2"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 3"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 4"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Photo 5"
+        }
+      ],
+      "direction": "rtl"
     },
     {
       "id": "interactive",
@@ -739,73 +788,79 @@
         {
           "kind": "list-item",
           "props": {
-            "headline": "Wi-Fi",
-            "supportingText": "Connected",
-            "leadingIcon": "wifi",
-            "trailingIcon": "chevron_right",
             "interactive": true
-          }
+          },
+          "content": "Wi-Fi"
         },
         {
           "kind": "list-item",
           "props": {
-            "headline": "Bluetooth",
-            "supportingText": "Off",
-            "leadingIcon": "bluetooth",
-            "trailingIcon": "chevron_right",
             "interactive": true
-          }
-        }
-      ]
-    },
-    {
-      "id": "dividers",
-      "props": {},
-      "items": [
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "Inbox",
-            "divider": true
-          }
+          },
+          "content": "Bluetooth"
         },
         {
           "kind": "list-item",
           "props": {
-            "headline": "Starred",
-            "divider": true
-          }
-        },
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "Sent"
-          }
-        }
-      ]
-    },
-    {
-      "id": "interactive-disabled",
-      "props": {},
-      "items": [
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "Archive",
-            "leadingIcon": "archive",
             "interactive": true,
             "disabled": true
-          }
+          },
+          "content": "Airplane mode"
+        }
+      ]
+    },
+    {
+      "id": "links",
+      "props": {},
+      "items": [
+        {
+          "kind": "list-item",
+          "props": {
+            "href": "/components/button/"
+          },
+          "content": "Button"
         },
         {
           "kind": "list-item",
           "props": {
-            "headline": "Trash",
-            "leadingIcon": "delete",
-            "interactive": true
-          }
+            "href": "https://example.com/tanrei",
+            "target": "new",
+            "targetLabel": "opens in a new tab"
+          },
+          "content": "Source"
+        },
+        {
+          "kind": "list-item",
+          "props": {
+            "href": "/archive/",
+            "disabled": true
+          },
+          "content": "Archive"
         }
       ]
+    },
+    {
+      "id": "links-rtl",
+      "props": {},
+      "items": [
+        {
+          "kind": "list-item",
+          "props": {
+            "href": "/components/button/"
+          },
+          "content": "Button"
+        },
+        {
+          "kind": "list-item",
+          "props": {
+            "href": "https://example.com/tanrei",
+            "target": "new",
+            "targetLabel": "opens in a new tab"
+          },
+          "content": "Source"
+        }
+      ],
+      "direction": "rtl"
     },
     {
       "id": "single-selected",
@@ -818,23 +873,23 @@
         {
           "kind": "list-item",
           "props": {
-            "headline": "Light",
             "value": "light"
-          }
+          },
+          "content": "Light"
         },
         {
           "kind": "list-item",
           "props": {
-            "headline": "Dark",
             "value": "dark"
-          }
+          },
+          "content": "Dark"
         },
         {
           "kind": "list-item",
           "props": {
-            "headline": "Match the system",
             "value": "system"
-          }
+          },
+          "content": "Match the system"
         }
       ]
     },
@@ -852,29 +907,23 @@
         {
           "kind": "list-item",
           "props": {
-            "headline": "Bug",
-            "supportingText": "12 open issues",
-            "leadingIcon": "label",
             "value": "bug"
-          }
+          },
+          "content": "Bug"
         },
         {
           "kind": "list-item",
           "props": {
-            "headline": "Feature",
-            "supportingText": "4 open issues",
-            "leadingIcon": "label",
             "value": "feature"
-          }
+          },
+          "content": "Feature"
         },
         {
           "kind": "list-item",
           "props": {
-            "headline": "Docs",
-            "supportingText": "7 open issues",
-            "leadingIcon": "label",
             "value": "docs"
-          }
+          },
+          "content": "Docs"
         }
       ]
     },
@@ -889,337 +938,247 @@
         {
           "kind": "list-item",
           "props": {
-            "headline": "Light",
             "value": "light",
             "disabled": true
-          }
+          },
+          "content": "Light"
         },
         {
           "kind": "list-item",
           "props": {
-            "headline": "Dark",
-            "value": "dark"
-          }
-        }
-      ]
-    },
-    {
-      "id": "unselected-disabled",
-      "props": {
-        "selection": "multiple",
-        "label": "Labels"
-      },
-      "items": [
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "Bug",
-            "value": "bug",
+            "value": "dark",
             "disabled": true
-          }
-        },
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "Feature",
-            "value": "feature"
-          }
+          },
+          "content": "Dark"
         }
       ]
     },
     {
-      "id": "links",
-      "props": {},
+      "id": "line-single-selected",
+      "props": {
+        "orientation": "horizontal",
+        "selection": "single",
+        "label": "Size",
+        "value": "m"
+      },
       "items": [
         {
           "kind": "list-item",
           "props": {
-            "headline": "Button",
-            "supportingText": "Actions and toggles",
-            "href": "/components/button/"
-          }
+            "value": "s"
+          },
+          "content": "Small"
         },
         {
           "kind": "list-item",
           "props": {
-            "headline": "Card",
-            "supportingText": "Related content, set apart",
-            "href": "/components/card/",
-            "leadingIcon": "label"
-          }
+            "value": "m"
+          },
+          "content": "Medium"
         },
         {
           "kind": "list-item",
           "props": {
-            "headline": "Source",
-            "supportingText": "The repository",
-            "href": "https://example.com/tanrei",
-            "target": "new",
-            "targetLabel": "opens in a new tab"
-          }
-        },
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "Archive",
-            "supportingText": "Earlier versions",
-            "href": "/archive/",
-            "disabled": true
-          }
+            "value": "l"
+          },
+          "content": "Large"
         }
       ]
     },
     {
-      "id": "links-rtl",
-      "props": {},
+      "id": "reorderable",
+      "props": {
+        "reorderable": true,
+        "label": "Typefaces",
+        "dragHandleLabel": "Reorder {label}",
+        "dragHandleHint": "Space lifts, arrow keys move, Space drops, Escape cancels; Enter opens the moves",
+        "moveToStartLabel": "Move to top",
+        "moveBeforeLabel": "Move up",
+        "moveAfterLabel": "Move down",
+        "moveToEndLabel": "Move to bottom",
+        "liftedText": "{label} lifted: {position} of {count}",
+        "movedText": "{label}: {position} of {count}",
+        "cancelledText": "{label} returned to {position} of {count}"
+      },
       "items": [
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Button",
-            "supportingText": "Actions and toggles",
-            "href": "/components/button/"
-          }
+          "props": {},
+          "content": "Inter"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Source",
-            "supportingText": "The repository",
-            "href": "https://example.com/tanrei",
-            "target": "new",
-            "targetLabel": "opens in a new tab"
-          }
+          "props": {},
+          "content": "Noto Sans JP"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Helvetica Neue"
+        }
+      ]
+    },
+    {
+      "id": "reorderable-rtl",
+      "props": {
+        "reorderable": true,
+        "label": "Typefaces",
+        "dragHandleLabel": "Reorder {label}",
+        "dragHandleHint": "Space lifts, arrow keys move, Space drops, Escape cancels; Enter opens the moves",
+        "moveToStartLabel": "Move to top",
+        "moveBeforeLabel": "Move up",
+        "moveAfterLabel": "Move down",
+        "moveToEndLabel": "Move to bottom",
+        "liftedText": "{label} lifted: {position} of {count}",
+        "movedText": "{label}: {position} of {count}",
+        "cancelledText": "{label} returned to {position} of {count}"
+      },
+      "items": [
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Inter"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Noto Sans JP"
+        },
+        {
+          "kind": "list-item",
+          "props": {},
+          "content": "Helvetica Neue"
         }
       ],
       "direction": "rtl"
     },
     {
-      "id": "reorder-buttons",
+      "id": "reorderable-gap",
       "props": {
-        "reorder": "buttons",
-        "moveUpLabel": "Move {headline} up",
-        "moveDownLabel": "Move {headline} down",
-        "movedText": "{headline}: {position} of {count}"
+        "reorderable": true,
+        "gap": "small",
+        "label": "Typefaces",
+        "dragHandleLabel": "Reorder {label}",
+        "dragHandleHint": "Space lifts, arrow keys move, Space drops, Escape cancels; Enter opens the moves",
+        "moveToStartLabel": "Move to top",
+        "moveBeforeLabel": "Move up",
+        "moveAfterLabel": "Move down",
+        "moveToEndLabel": "Move to bottom",
+        "liftedText": "{label} lifted: {position} of {count}",
+        "movedText": "{label}: {position} of {count}",
+        "cancelledText": "{label} returned to {position} of {count}"
       },
       "items": [
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Inter"
-          }
+          "props": {},
+          "content": "Inter"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Noto Sans JP"
-          }
+          "props": {},
+          "content": "Noto Sans JP"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Helvetica Neue"
-          }
+          "props": {},
+          "content": "Helvetica Neue"
         }
       ]
     },
     {
-      "id": "reorder-buttons-rtl",
+      "id": "reorderable-single-item",
       "props": {
-        "reorder": "buttons",
-        "moveUpLabel": "تحريك {headline} لأعلى",
-        "moveDownLabel": "تحريك {headline} لأسفل",
-        "movedText": "{headline}: {position} من {count}"
+        "reorderable": true,
+        "label": "Typefaces",
+        "dragHandleLabel": "Reorder {label}",
+        "dragHandleHint": "Space lifts, arrow keys move, Space drops, Escape cancels; Enter opens the moves",
+        "moveToStartLabel": "Move to top",
+        "moveBeforeLabel": "Move up",
+        "moveAfterLabel": "Move down",
+        "moveToEndLabel": "Move to bottom",
+        "liftedText": "{label} lifted: {position} of {count}",
+        "movedText": "{label}: {position} of {count}",
+        "cancelledText": "{label} returned to {position} of {count}"
       },
       "items": [
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Noto Naskh Arabic"
-          }
-        },
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "الخط الكوفي"
-          }
-        },
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "Inter"
-          }
-        }
-      ],
-      "direction": "rtl"
-    },
-    {
-      "id": "reorder-single-item",
-      "props": {
-        "reorder": "buttons",
-        "moveUpLabel": "Move {headline} up",
-        "moveDownLabel": "Move {headline} down",
-        "movedText": "{headline}: {position} of {count}"
-      },
-      "items": [
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "Inter"
-          }
+          "props": {},
+          "content": "Inter"
         }
       ]
     },
     {
-      "id": "reorder-buttons-two-line",
+      "id": "reorderable-wrap",
       "props": {
-        "reorder": "buttons",
-        "moveUpLabel": "Move {headline} up",
-        "moveDownLabel": "Move {headline} down",
-        "movedText": "{headline}: {position} of {count}"
+        "reorderable": true,
+        "orientation": "horizontal",
+        "wrap": true,
+        "gap": "medium",
+        "label": "Photos",
+        "dragHandleLabel": "Reorder {label}",
+        "dragHandleHint": "Space lifts, arrow keys move, Space drops, Escape cancels; Enter opens the moves",
+        "moveToStartLabel": "Move to start",
+        "moveBeforeLabel": "Move left",
+        "moveAfterLabel": "Move right",
+        "moveToEndLabel": "Move to end",
+        "liftedText": "{label} lifted: {position} of {count}",
+        "movedText": "{label}: {position} of {count}",
+        "cancelledText": "{label} returned to {position} of {count}"
       },
       "items": [
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Summary",
-            "supportingText": "Shown first on the home screen",
-            "leadingIcon": "label",
-            "divider": true
-          }
+          "props": {},
+          "content": "Photo 1"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Recent files",
-            "supportingText": "The eight files opened last",
-            "leadingIcon": "label",
-            "trailingText": "8",
-            "divider": true
-          }
+          "props": {},
+          "content": "Photo 2"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Shared with me",
-            "supportingText": "Hidden while empty",
-            "leadingIcon": "label"
-          }
-        }
-      ]
-    },
-    {
-      "id": "reorder-drag",
-      "props": {
-        "reorder": "drag",
-        "moveUpLabel": "Move {headline} up",
-        "moveDownLabel": "Move {headline} down",
-        "movedText": "{headline}: {position} of {count}"
-      },
-      "items": [
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "Inbox",
-            "leadingIcon": "inbox"
-          }
+          "props": {},
+          "content": "Photo 3"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Starred",
-            "leadingIcon": "star"
-          }
+          "props": {},
+          "content": "Photo 4"
         },
         {
           "kind": "list-item",
-          "props": {
-            "headline": "Sent",
-            "leadingIcon": "send"
-          }
-        },
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "Archive",
-            "leadingIcon": "archive"
-          }
-        }
-      ]
-    },
-    {
-      "id": "reorder-drag-rtl",
-      "props": {
-        "reorder": "drag",
-        "moveUpLabel": "تحريك {headline} لأعلى",
-        "moveDownLabel": "تحريك {headline} لأسفل",
-        "movedText": "{headline}: {position} من {count}"
-      },
-      "items": [
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "الوارد",
-            "leadingIcon": "inbox"
-          }
-        },
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "المميّزة بنجمة",
-            "leadingIcon": "star"
-          }
-        },
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "المرسلة",
-            "leadingIcon": "send"
-          }
-        }
-      ],
-      "direction": "rtl"
-    },
-    {
-      "id": "reorder-drag-long-text",
-      "props": {
-        "reorder": "drag",
-        "moveUpLabel": "Move {headline} up",
-        "moveDownLabel": "Move {headline} down",
-        "movedText": "{headline}: {position} of {count}"
-      },
-      "items": [
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "A section whose name is long enough to need more than one line beside its controls",
-            "supportingText": "Supporting text that also wraps: nothing is cut, and the buttons keep their size.",
-            "leadingMedia": "avatar"
-          }
-        },
-        {
-          "kind": "list-item",
-          "props": {
-            "headline": "Short",
-            "supportingText": "One line"
-          }
+          "props": {},
+          "content": "Photo 5"
         }
       ]
     }
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-list",
       "props": {
+        "orientation": "orientation",
+        "wrap": "wrap",
+        "gap": "gap",
+        "dividers": "dividers",
         "selection": "selection",
         "label": "label",
         "value": "value",
         "values": "values",
-        "reorder": "reorder",
-        "moveUpLabel": "moveUpLabel",
-        "moveDownLabel": "moveDownLabel",
-        "movedText": "movedText"
+        "reorderable": "reorderable",
+        "dragHandleLabel": "dragHandleLabel",
+        "dragHandleHint": "dragHandleHint",
+        "moveToStartLabel": "moveToStartLabel",
+        "moveBeforeLabel": "moveBeforeLabel",
+        "moveAfterLabel": "moveAfterLabel",
+        "moveToEndLabel": "moveToEndLabel",
+        "liftedText": "liftedText",
+        "movedText": "movedText",
+        "cancelledText": "cancelledText"
       },
       "events": {
         "change": "change",
@@ -1229,42 +1188,44 @@
         "list-item": {
           "name": "tanrei-list-item",
           "props": {
-            "headline": "headline",
-            "overline": "overline",
-            "supportingText": "supportingText",
-            "supportingMaxLines": "supportingMaxLines",
-            "trailingText": "trailingText",
-            "leadingIcon": "leadingIcon",
-            "trailingIcon": "trailingIcon",
-            "leadingMedia": "leadingMedia",
+            "label": "label",
             "interactive": "interactive",
-            "value": "value",
-            "disabled": "disabled",
-            "divider": "divider",
             "href": "href",
             "target": "target",
-            "targetLabel": "targetLabel"
+            "targetLabel": "targetLabel",
+            "value": "value",
+            "disabled": "disabled"
           },
           "events": {
             "click": "click"
           },
-          "notes": "A child element of `tanrei-list`, with kebab-case attributes (`supporting-text`, `supporting-max-lines`, `trailing-text`, `leading-icon`, `trailing-icon`, `leading-media`) and `leading` and `trailing` named slots. Its host has the role listitem or option; an interactive item draws a shadow element with role button and tabindex, as the interactive card does, and fires `click`. With `href` the item's shadow root holds an `<a>` in place of the element with role button, inside the host's list item. The link form: `href` is the item's `href` attribute; `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two; anything else is `same` and reported); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation, which is how a client-side router takes it; a modified or a middle click is the browser's. A disabled link is the anchor without `href`, with `role=\"link\"` and `aria-disabled=\"true\"`, as the navigation drawer's destination already is. Space is not handed to the press controller. `element.click()` follows the link."
+          "notes": "A child element of `tanrei-list`; its children are its content, in its default slot. Its host has the role listitem or option; an interactive item draws a shadow element with role button and tabindex, as the interactive card does, and fires `click`; with `href` the shadow root holds an `<a>` in its place, inside the host's list item. `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation. In a reorderable list the item draws its handle, a `tanrei-button`, in its shadow root before the slot."
         }
       },
-      "notes": "`tanrei-list` (selection, label, value, values) holds `tanrei-list-item` children. It sets its own `value` or `values` (an array property; the `values` attribute is not reflected) before firing `change`, as a native control does. Focus moves among items by a roving tabindex. Each item is a separate element, so the list sets `aria-posinset` and `aria-setsize` on them. Reordering: `reorder` is the `reorder` attribute; `moveUpLabel`, `moveDownLabel` and `movedText` are the attributes `move-up-label`, `move-down-label` and `moved-text`, and keys of `setWords()`. `move` is a `CustomEvent` whose `detail` is `{ from, to }`; it bubbles, is not cancelable, and the list moves no element: the product reorders the `tanrei-list-item` children (or its framework does), and the list sees it as a change of its children. The move buttons are two `tanrei-button` elements in each item's shadow root, `aria-describedby` the headline; the handle is an `aria-hidden` element with `touch-action: none` and pointer capture for the length of a drag, and the dragged item and its neighbours are moved by transforms, so the product's elements never change place under it. The live region is one visually hidden `role=\"status\"` element in the list's shadow root. Focus after a move is set on the item now at `to`, because a child that is moved in the document loses focus and a framework may give a new element. Before the element is defined (no script) the items are plain children in the order written and nothing can be moved."
+      "notes": "`tanrei-list` holds `tanrei-list-item` children. It sets its own `value` or `values` (an array property; the `values` attribute is not reflected) before firing `change`, as a native control does. Focus moves among actionable items by a roving tabindex. Each item is a separate element, so the list sets `aria-posinset` and `aria-setsize` on them. Words: the attributes `drag-handle-label`, `drag-handle-hint`, `move-to-start-label`, `move-before-label`, `move-after-label`, `move-to-end-label`, `lifted-text`, `moved-text` and `cancelled-text`, and the same keys of `setWords()`. `move` is a `CustomEvent` whose `detail` is `{ from, to }`; it bubbles, is not cancelable, and the list moves no element: the product reorders the `tanrei-list-item` children (or its framework does), and the list sees it as a change of its children. The move menu is one `tanrei-menu` in the list's shadow root, placed against the handle that opened it. A dragged item and its neighbours are moved by transforms, so the product's elements never change place under it; the item carries `touch-action: pan-x pan-y` and the handle `touch-action: none`, and a long press is told from a swipe by a non-passive `touchmove` listener that is cancelled only once the item is lifted. The live region is one visually hidden `role=\"status\"` element in the list's shadow root. Before the element is defined (no script) the items are plain children in the order written and nothing can be moved."
     },
     "swiftui": {
       "status": "lagging",
       "name": "TanreiList",
       "props": {
+        "orientation": "axis",
+        "wrap": "wraps",
+        "gap": "spacing",
+        "dividers": "dividers",
         "selection": "selection",
         "label": "label",
         "value": "selection",
         "values": "selection",
-        "reorder": "reorder",
-        "moveUpLabel": "moveUpLabel",
-        "moveDownLabel": "moveDownLabel",
-        "movedText": "movedText"
+        "reorderable": "onMove",
+        "dragHandleLabel": "dragHandleLabel",
+        "dragHandleHint": "dragHandleHint",
+        "moveToStartLabel": "moveToStartLabel",
+        "moveBeforeLabel": "moveBeforeLabel",
+        "moveAfterLabel": "moveAfterLabel",
+        "moveToEndLabel": "moveToEndLabel",
+        "liftedText": "liftedText",
+        "movedText": "movedText",
+        "cancelledText": "cancelledText"
       },
       "events": {
         "change": "selection",
@@ -1274,42 +1235,44 @@
         "list-item": {
           "name": "TanreiListItem",
           "props": {
-            "headline": "headline",
-            "overline": "overline",
-            "supportingText": "supportingText",
-            "supportingMaxLines": "supportingLineLimit",
-            "trailingText": "trailingText",
-            "leadingIcon": "leadingIcon",
-            "trailingIcon": "trailingIcon",
-            "leadingMedia": "leadingMedia",
+            "label": "label",
             "interactive": "action",
-            "value": "tag",
-            "disabled": "disabled",
-            "divider": "divider",
             "href": "destination",
             "target": "target",
-            "targetLabel": "targetLabel"
+            "targetLabel": "targetLabel",
+            "value": "tag",
+            "disabled": "disabled"
           },
           "events": {
             "click": "action"
           },
-          "notes": "`TanreiListItem(_ headline:, overline:, supportingText:, …)` in the list's view builder, tagged with `.tag(value)`. The initializer with `action:` makes it interactive, as `Button`. `leading:` and `trailing:` are view builders; `disabled` follows `.disabled(_:)`. Not built on this platform yet: the `TanreiListItem` initializer that takes `destination: URL` in place of `action:` draws the same control as a SwiftUI `Link`, so the address is opened by the environment's `openURL` — an app that routes addresses itself provides an `OpenURLAction`, which is how the navigation is cancelled — and VoiceOver reads the link trait. `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint) are parameters of that initializer alone."
+          "notes": "`TanreiListItem(label:, action:) { content }` with a view builder for the content, tagged with `.tag(value)`; `destination: URL` in place of `action:` makes it a SwiftUI `Link`."
         }
       },
-      "notes": "SwiftUI's `List(selection:)` idiom, drawn by Tanrei: `TanreiList(selection: Binding<V?>)` is single, `Binding<Set<V>>` is multiple, and the initializer without a binding is none, so the binding's type is selection and its content is value or values. An option is selected when the binding holds its tag, and writing the binding is change. `label` sets the list's `accessibilityLabel`. The rows are not `List` rows: `List`'s own row chrome and separators cannot be tokenised. Ships the previous revision of the check today (the check stroked as a path at comp.list.mark.width in a 20 box, drawn along its path when an option is selected); other parts of this spec are not built on this platform yet. Not built on this platform yet: `TanreiList(reorder: .buttons, onMove: { from, to in … })`, with the three words as parameters or from the environment's words. `onMove` receives the two indices of the spec, not SwiftUI's `IndexSet` and insertion offset; the README shows the one line that turns them into `Array.move(fromOffsets:toOffset:)`. The move buttons are also exposed as the accessibility custom actions of the row; the announcement is posted as an accessibility announcement."
+      "notes": "Ships the previous revision of the list today — rows with a headline, supporting text, leading and trailing parts and the check, selection, interactive items — and none of this revision is built on this platform yet: `TanreiList(axis: .vertical, wraps:, spacing:) { … }` laid out by a custom `Layout` (a flow layout while wrapping); `onMove: (from, to)` makes it reorderable — the handle with a `Menu` of the four moves, the whole row draggable through `onDrag`/`onDrop` or a long-press gesture, the moves also exposed as accessibility custom actions, and the sentences posted as accessibility announcements."
     },
     "compose": {
       "status": "lagging",
       "name": "TanreiList",
       "props": {
+        "orientation": "orientation",
+        "wrap": "wrap",
+        "gap": "gap",
+        "dividers": "dividers",
         "selection": "selectionMode",
         "label": "contentDescription",
         "value": "selectedValue",
         "values": "selectedValues",
-        "reorder": "reorder",
-        "moveUpLabel": "moveUpDescription",
-        "moveDownLabel": "moveDownDescription",
-        "movedText": "movedText"
+        "reorderable": "onMove",
+        "dragHandleLabel": "dragHandleLabel",
+        "dragHandleHint": "dragHandleHint",
+        "moveToStartLabel": "moveToStartLabel",
+        "moveBeforeLabel": "moveBeforeLabel",
+        "moveAfterLabel": "moveAfterLabel",
+        "moveToEndLabel": "moveToEndLabel",
+        "liftedText": "liftedText",
+        "movedText": "movedText",
+        "cancelledText": "cancelledText"
       },
       "events": {
         "change": "onSelectionChange",
@@ -1319,42 +1282,44 @@
         "list-item": {
           "name": "TanreiListItem",
           "props": {
-            "headline": "headline",
-            "overline": "overline",
-            "supportingText": "supportingText",
-            "supportingMaxLines": "supportingMaxLines",
-            "trailingText": "trailingText",
-            "leadingIcon": "leadingIcon",
-            "trailingIcon": "trailingIcon",
-            "leadingMedia": "leadingMedia",
+            "label": "label",
             "interactive": "onClick",
-            "value": "value",
-            "disabled": "enabled",
-            "divider": "divider",
             "href": "href",
             "target": "target",
-            "targetLabel": "targetLabel"
+            "targetLabel": "targetLabel",
+            "value": "value",
+            "disabled": "enabled"
           },
           "events": {
             "click": "onClick"
           },
-          "notes": "`TanreiListItem(headline, value = …, …)` called in the `TanreiList { }` content lambda. A non-null `onClick` makes it interactive; `enabled` is the inverse flag. `leadingContent` and `trailingContent` lambdas are the slots. Not built on this platform yet: a `TanreiListItem` with `href: String` (`onClick` is then optional and called first) opens the address through `LocalUriHandler.current` after `onClick`; an app that routes addresses itself provides its own `UriHandler`. Compose has no link role for a clickable element (only link annotations inside text), so the node drops `Role.Button` and carries no role, and the README says so. `target: TanreiLinkTarget = TanreiLinkTarget.Same`; `targetLabel` is appended to the node's state description."
+          "notes": "`TanreiListItem(label = …, onClick = …) { content }` in the list's content lambda; `enabled` is the inverse flag."
         }
       },
-      "notes": "`TanreiList(selectionMode, contentDescription, selectedValue | selectedValues, onSelectionChange) { TanreiListItem(…) }`, a column with `selectableGroup()` semantics; for long data the same items go into a `LazyColumn` inside `TanreiList`. State hoisting: the caller keeps `selectedValue` (single) or `selectedValues: Set<String>` (multiple) and moves it from `onSelectionChange`, which receives the new selection. Ships the previous revision of the check today (the check stroked as a path at comp.list.mark.width in a 20 box, drawn along its path when an option is selected); other parts of this spec are not built on this platform yet. Not built on this platform yet: `reorder: TanreiListReorder = TanreiListReorder.None` and `onMove: (from: Int, to: Int) -> Unit`; the caller moves the element of its hoisted list. The move buttons are also given as `customActions` of the row's semantics; the announcement is a polite live region node. Items need stable keys for the motion of LST-43."
+      "notes": "Ships the previous revision of the list today — rows with a headline, supporting text, leading and trailing parts and the check, selection, interactive items — and none of this revision is built on this platform yet: `TanreiList(orientation, wrap, gap) { … }` — a `Column`, a `Row` or a `FlowRow`/`FlowColumn` while wrapping — with `onMove: (from: Int, to: Int) -> Unit` making it reorderable: the handle opens a `DropdownMenu` of the four moves, the whole item is dragged after a long press (`detectDragGesturesAfterLongPress`) and at once from the handle, the moves are also `customActions` of the item's semantics, and the announcement is a polite live region node. Items need stable keys for the motion of LST-41."
     },
     "flutter": {
       "status": "lagging",
       "name": "TanreiList",
       "props": {
+        "orientation": "direction",
+        "wrap": "wrap",
+        "gap": "spacing",
+        "dividers": "dividers",
         "selection": "selectionMode",
         "label": "semanticLabel",
         "value": "selected",
         "values": "selected",
-        "reorder": "reorder",
-        "moveUpLabel": "moveUpSemanticLabel",
-        "moveDownLabel": "moveDownSemanticLabel",
-        "movedText": "movedText"
+        "reorderable": "onMove",
+        "dragHandleLabel": "handleSemanticLabel",
+        "dragHandleHint": "handleSemanticHint",
+        "moveToStartLabel": "moveToStartLabel",
+        "moveBeforeLabel": "moveBeforeLabel",
+        "moveAfterLabel": "moveAfterLabel",
+        "moveToEndLabel": "moveToEndLabel",
+        "liftedText": "liftedText",
+        "movedText": "movedText",
+        "cancelledText": "cancelledText"
       },
       "events": {
         "change": "onSelectionChanged",
@@ -1362,44 +1327,46 @@
       },
       "items": {
         "list-item": {
-          "name": "TanreiListTile",
+          "name": "TanreiListItem",
           "props": {
-            "headline": "title",
-            "overline": "overline",
-            "supportingText": "subtitle",
-            "supportingMaxLines": "subtitleMaxLines",
-            "trailingText": "trailingText",
-            "leadingIcon": "leadingIcon",
-            "trailingIcon": "trailingIcon",
-            "leadingMedia": "leadingMedia",
+            "label": "semanticLabel",
             "interactive": "onTap",
-            "value": "value",
-            "disabled": "enabled",
-            "divider": "divider",
             "href": "href",
             "target": "target",
-            "targetLabel": "targetSemanticLabel"
+            "targetLabel": "targetSemanticLabel",
+            "value": "value",
+            "disabled": "enabled"
           },
           "events": {
             "click": "onTap"
           },
-          "notes": "`TanreiListTile<T>(value:, title:, subtitle:, …)` widgets in the list's `children:`, with `ListTile`'s names. A non-null `onTap` makes a tile interactive; `enabled: false` disables it. `leading` and `trailing` are widgets. Not built on this platform yet: a `TanreiListTile` with `href` (a `Uri`; `onTap` is then optional and called first) has `Semantics(link: true)` with the address as its `linkUrl`. The package has no plugin dependency, so the address is opened by the nearest `TanreiLinkOpener`, an inherited widget the app provides once (calling `url_launcher`, or its own router); without one the control opens nothing and reports it in debug builds. `target` is a `TanreiLinkTarget`; `targetSemanticLabel` is the semantics hint."
+          "notes": "`TanreiListItem<T>(value:, onTap:, child:)` widgets in the list's `children:`."
         }
       },
-      "notes": "`TanreiList<T>(selectionMode:, selected: Set<T>, onSelectionChanged:, semanticLabel:, children: [TanreiListTile<T>(…)])`, as `SegmentedButton`: one `Set<T>` holds the selection, with at most one member while selectionMode is single, so `selected` is both value and values. The caller moves it from `onSelectionChanged`. Ships the previous revision of the check today (the check stroked as a path at comp.list.mark.width in a 20 box, drawn along its path when an option is selected); other parts of this spec are not built on this platform yet. Not built on this platform yet: `reorder: TanreiListReorder.none` and `onMove: (int from, int to)`. `to` is the index the item has after the move, not the insertion index of the framework's reorderable list, which is one more for a move downward: the README says so. The announcement goes through `SemanticsService.announce`. Tiles need keys."
+      "notes": "Ships the previous revision of the list today — rows with a headline, supporting text, leading and trailing parts and the check, selection, interactive items — and none of this revision is built on this platform yet: `TanreiList(direction: Axis.vertical, wrap:, spacing:, children:)` — a `Flex` or a `Wrap` — with `onMove: (int from, int to)` making it reorderable: the handle opens a `MenuAnchor` of the four moves, the whole item is a `LongPressDraggable` (a `Draggable` from the handle), the moves are also semantics custom actions, and the sentences go through `SemanticsService.announce`. `to` is the index the item has after the move, not the insertion index of the framework's reorderable list."
     },
     "react-native": {
       "status": "lagging",
       "name": "List",
       "props": {
+        "orientation": "orientation",
+        "wrap": "wrap",
+        "gap": "gap",
+        "dividers": "dividers",
         "selection": "selectionMode",
         "label": "accessibilityLabel",
         "value": "value",
         "values": "values",
-        "reorder": "reorder",
-        "moveUpLabel": "moveUpLabel",
-        "moveDownLabel": "moveDownLabel",
-        "movedText": "movedText"
+        "reorderable": "reorderable",
+        "dragHandleLabel": "dragHandleLabel",
+        "dragHandleHint": "dragHandleHint",
+        "moveToStartLabel": "moveToStartLabel",
+        "moveBeforeLabel": "moveBeforeLabel",
+        "moveAfterLabel": "moveAfterLabel",
+        "moveToEndLabel": "moveToEndLabel",
+        "liftedText": "liftedText",
+        "movedText": "movedText",
+        "cancelledText": "cancelledText"
       },
       "events": {
         "change": "onSelectionChange",
@@ -1409,29 +1376,21 @@
         "list-item": {
           "name": "ListItem",
           "props": {
-            "headline": "headline",
-            "overline": "overline",
-            "supportingText": "supportingText",
-            "supportingMaxLines": "supportingNumberOfLines",
-            "trailingText": "trailingText",
-            "leadingIcon": "leadingIcon",
-            "trailingIcon": "trailingIcon",
-            "leadingMedia": "leadingMedia",
+            "label": "label",
             "interactive": "onPress",
-            "value": "value",
-            "disabled": "disabled",
-            "divider": "divider",
             "href": "href",
             "target": "target",
-            "targetLabel": "targetLabel"
+            "targetLabel": "targetLabel",
+            "value": "value",
+            "disabled": "disabled"
           },
           "events": {
             "click": "onPress"
           },
-          "notes": "The element type of the list's `items` array: `{ headline, overline?, supportingText?, …, value?, disabled?, divider?, onPress?, leading?, trailing? }`, where `leading` and `trailing` are elements. A non-null `onPress` makes an item interactive. Not built on this platform yet: an item with `href` has `accessibilityRole=\"link\"` and opens the address with `Linking.openURL` after `onPress`, unless `onPress` called `event.preventDefault()`. `target` is `\"same\" | \"new\"`; `targetLabel` is the `accessibilityHint`."
+          "notes": "The element type of the list's `items` array: `{ key, label?, value?, disabled?, onPress?, href?, content }`, where `content` is an element."
         }
       },
-      "notes": "`<List items={ListItem[]} selectionMode value | values onSelectionChange accessibilityLabel>`; controlled, the caller moves `value` or `values` from `onSelectionChange`. The list does not scroll or virtualize (see the accessibility notes); for long data the product builds its own `FlatList` and states the set size. The roles are set with React Native's `role` prop and each option's selected state with `accessibilityState.selected`; what the native screen reader announces for a listbox is the platform's. The arrow keys work where a hardware keyboard is attached. Ships the previous revision of the check today (the check stroked as a path at comp.list.mark.width in a 20 box, drawn along its path when an option is selected); other parts of this spec are not built on this platform yet. Not built on this platform yet: `reorder=\"buttons\"` and `onMove={({ from, to }) => …}`; the caller sets its state. The move buttons are also `accessibilityActions` of the row; the announcement goes through `AccessibilityInfo.announceForAccessibility`. Dragging needs a gesture responder on the handle alone."
+      "notes": "Ships the previous revision of the list today — rows with a headline, supporting text, leading and trailing parts and the check, selection, interactive items — and none of this revision is built on this platform yet: `<List items orientation wrap gap onMove>` — a flex container with `flexWrap` — the handle opening a menu of the four moves, the whole item dragged after a long press through a gesture responder, the moves also `accessibilityActions` of the item, and the sentences announced through `AccessibilityInfo.announceForAccessibility`."
     }
   }
 }

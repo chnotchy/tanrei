@@ -7,7 +7,8 @@
   "level": "composed",
   "listing": "default",
   "builtFrom": [
-    "calendar"
+    "calendar",
+    "modal-layer"
   ],
   "uses": [
     "tabs",
@@ -16,7 +17,7 @@
   "anatomy": [
     {
       "id": "scrim",
-      "description": "The dim over everything behind a modal picker. It blocks presses, and a press on it dismisses the picker.",
+      "description": "The modal layer's scrim over everything behind a modal picker (MDL-1). It blocks presses, and a press on it dismisses the picker.",
       "optional": true
     },
     {
@@ -423,7 +424,7 @@
   "behavior": [
     {
       "id": "DTM-1",
-      "text": "WHEN open becomes true WHILE presentation is modal THE date-time picker SHALL present its container as a modal overlay in the platform's own modal presentation (named in the platform notes): centred in the window's safe area, at least comp.date-time-picker.modal.container.margin from every edge and from the on-screen keyboard, above everything in its window with a scrim of comp.date-time-picker.modal.scrim.color over the whole window behind it; it SHALL make everything outside it inert (not focusable, not pressable, hidden from assistive technology), keep the content behind it from scrolling, keep focus inside it (Tab from the last focusable element moves to the first and Shift+Tab from the first to the last) and draw the container in comp.date-time-picker.modal.container.color with comp.date-time-picker.modal.container.elevation and comp.date-time-picker.modal.container.shape corners eased by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0).",
+      "text": "WHEN open becomes true WHILE presentation is modal THE date-time picker SHALL present its container as a modal overlay on its modal layer, in the platform's own modal presentation (named in the platform notes): centred in the window's safe area, at least comp.date-time-picker.modal.container.margin from every edge and from the on-screen keyboard, above everything in its window with the layer's scrim in comp.date-time-picker.modal.scrim.color and comp.date-time-picker.modal.scrim.blur over the whole window behind it (MDL-1); it SHALL make everything outside it inert, keep the content behind it from scrolling and keep focus inside it, as its modal layer does (MDL-2, MDL-3, MDL-4), and draw the container in comp.date-time-picker.modal.container.color with comp.date-time-picker.modal.container.elevation and comp.date-time-picker.modal.container.shape corners eased by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0).",
       "verify": "Fixtures draw the open picker in place. A modal fixture renders the surface centred on a stage with the scrim over a plain surface background (on the web the viewport, elsewhere the test-only surface view each README names); a docked fixture renders the surface at its natural size centred on a stage of the surface color, with its elevation and without an anchor, placement or open motion (on the web the `inline` test attribute). The stage is 480 × 720, or 800 × 640 for a fixture whose layout is horizontal. Every fixture sets locale and value (or start and end), and every fixture with a date sets today, so month names, digits, period names, the first day of the week and today's ring are the same on every platform."
     },
     {
@@ -436,11 +437,11 @@
     },
     {
       "id": "DTM-4",
-      "text": "WHEN the date-time picker closes THE date-time picker SHALL return focus to the element that had it when the picker opened (the anchor or the opener, for a docked picker) or, where that element no longer exists or cannot take focus, to the platform's default for a closed overlay, and SHALL restore the content behind a modal picker to what it was before; focus SHALL move when it closes, not when its motion ends."
+      "text": "WHEN the date-time picker closes THE date-time picker SHALL return focus to the element that had it when the picker opened (the anchor or the opener, for a docked picker) or, where that element no longer exists or cannot take focus, to the platform's default for a closed overlay, and SHALL restore the content behind a modal picker to what it was before, as its modal layer does (MDL-2, MDL-5); focus SHALL move when it closes, not when its motion ends."
     },
     {
       "id": "DTM-5",
-      "text": "WHEN the user presses Escape or the platform's back (Android's back gesture or button, the iOS accessibility escape gesture), presses the scrim of a modal picker or outside a docked picker and its anchor, presses Tab or Shift+Tab out of a docked picker or moves focus out of it, activates Cancel or OK, or completes a choice in a docked picker that sets a date only (DTM-7) THE date-time picker SHALL emit close once with that reason (escape, back, outside, tab, focus-out, cancel, confirm or select) and SHALL be closed: through its binding or controller where open is one (SwiftUI, Flutter), and by the product setting open to false where open is a plain value (web, Compose, React Native). A close for any reason but confirm and select SHALL commit nothing, and Tab or Shift+Tab SHALL then move focus on from the anchor as they would have from it. Whether a press outside a docked picker also reaches the element under it SHALL follow the platform and be stated in its README, as for the menu."
+      "text": "WHEN the user presses Escape or the platform's back (Android's back gesture or button, the iOS accessibility escape gesture), presses the scrim of a modal picker (as its modal layer answers these, MDL-6) or outside a docked picker and its anchor, presses Tab or Shift+Tab out of a docked picker or moves focus out of it, activates Cancel or OK, or completes a choice in a docked picker that sets a date only (DTM-7) THE date-time picker SHALL emit close once with that reason (escape, back, outside, tab, focus-out, cancel, confirm or select) and SHALL be closed: through its binding or controller where open is one (SwiftUI, Flutter), and by the product setting open to false where open is a plain value (web, Compose, React Native). A close for any reason but confirm and select SHALL commit nothing, and Tab or Shift+Tab SHALL then move focus on from the anchor as they would have from it. Whether a press outside a docked picker also reaches the element under it SHALL follow the platform and be stated in its README, as for the menu."
     },
     {
       "id": "DTM-6",
@@ -569,7 +570,7 @@
     },
     {
       "id": "DTM-35",
-      "text": "WHEN a modal picker opens THE date-time picker SHALL fade its scrim in and fade its container in while growing it about its centre from comp.date-time-picker.modal.motion.enter-scale of its size to its full size, over comp.date-time-picker.modal.motion.open-duration with comp.date-time-picker.modal.motion.open-easing, and WHEN it closes fade both out over comp.date-time-picker.modal.motion.close-duration with comp.date-time-picker.modal.motion.close-easing; WHEN a docked picker opens it SHALL fade its container in and grow it from the edge that faces the anchor over comp.date-time-picker.docked.motion.open-duration with comp.date-time-picker.docked.motion.open-easing, and WHEN it closes fade it out over comp.date-time-picker.docked.motion.close-duration with comp.date-time-picker.docked.motion.close-easing. WHERE motion is reduced a modal picker SHALL fade without growing and a docked one SHALL appear and disappear at once, and both SHALL appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's)."
+      "text": "WHEN a modal picker opens THE date-time picker SHALL fade its scrim in with its container (MDL-7), and fade its container in while growing it about its centre from comp.date-time-picker.modal.motion.enter-scale of its size to its full size, over comp.date-time-picker.modal.motion.open-duration with comp.date-time-picker.modal.motion.open-easing, and WHEN it closes fade both out over comp.date-time-picker.modal.motion.close-duration with comp.date-time-picker.modal.motion.close-easing; WHEN a docked picker opens it SHALL fade its container in and grow it from the edge that faces the anchor over comp.date-time-picker.docked.motion.open-duration with comp.date-time-picker.docked.motion.open-easing, and WHEN it closes fade it out over comp.date-time-picker.docked.motion.close-duration with comp.date-time-picker.docked.motion.close-easing. WHERE motion is reduced a modal picker SHALL fade without growing and a docked one SHALL appear and disappear at once, and both SHALL appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's)."
     },
     {
       "id": "DTM-36",
@@ -577,7 +578,7 @@
     },
     {
       "id": "DTM-37",
-      "text": "THE date-time picker SHALL expose its surface as a dialog named by label — a modal dialog WHILE presentation is modal — its entry-mode tabs as a tab list with its panel (DTM-13), the period as a spin button of two values (DTM-47), the range display as a group named rangeLabel that holds its two range fields as buttons (DTM-42), each wheel and each selector as a spin button (DTM-20, DTM-22) that stays one while a number is typed into it (DTM-43), the error line as the description of the end's range field while it is shown, and Cancel and OK by their labels; the dial, its numbers and the handle SHALL be hidden from assistive technology. A docked picker SHALL expose, on the element a person presses to open it, that it opens a dialog and whether it is open, where the platform has that property: that element is its anchor unless the platform takes a separate opener, as a Text field anchors the picker and its trailing button opens it."
+      "text": "THE date-time picker SHALL expose its surface as a dialog named by label — its modal layer's modal dialog WHILE presentation is modal (MDL-10) — its entry-mode tabs as a tab list with its panel (DTM-13), the period as a spin button of two values (DTM-47), the range display as a group named rangeLabel that holds its two range fields as buttons (DTM-42), each wheel and each selector as a spin button (DTM-20, DTM-22) that stays one while a number is typed into it (DTM-43), the error line as the description of the end's range field while it is shown, and Cancel and OK by their labels; the dial, its numbers and the handle SHALL be hidden from assistive technology. A docked picker SHALL expose, on the element a person presses to open it, that it opens a dialog and whether it is open, where the platform has that property: that element is its anchor unless the platform takes a separate opener, as a Text field anchors the picker and its trailing button opens it."
     },
     {
       "id": "DTM-38",

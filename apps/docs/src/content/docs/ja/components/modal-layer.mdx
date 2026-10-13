@@ -1,0 +1,165 @@
+---
+title: モーダルレイヤー
+description: すべてのモーダルなサーフェスの下にあるレイヤーです。表示するものの背後のウィンドウを暗くし、そこにあるものをすべて操作不能にします。フォーカスを中へ移してとどめ、閉じたら返し、Escape、プラットフォームの「戻る」、暗い部分の押下で閉じるよう求めます。一度スタイルを変えれば、すべてのモーダルなサーフェスがそれに従います。
+translationOf: components/modal-layer.mdx
+sourceHash: e6ede40ce27d5047b0691b404bc90d640cff347a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="modal-layer" />
+
+<DemoFrame label="利用者側のカードを囲むモーダルレイヤー：ボタンで開きます">
+  <tanrei-button variant="outlined" onclick="document.getElementById('modal-layer-demo').open = true">写真を書き出す</tanrei-button>
+  <tanrei-modal-layer id="modal-layer-demo" label="写真を書き出す" onclose="this.open = false">
+    <tanrei-card variant="elevated" style="inline-size: 20rem; max-inline-size: calc(100vw - 2rem); padding: 1.5rem">
+      <p style="margin-block: 0 1rem">24 枚の写真を書き出す準備ができました。</p>
+      <tanrei-button autofocus onclick="this.closest('tanrei-modal-layer').open = false">完了</tanrei-button>
+    </tanrei-card>
+  </tanrei-modal-layer>
+</DemoFrame>
+
+どのモーダルなサーフェスの下にも、同じレイヤーがあります。このレイヤーはサーフェスの背後のウィンドウを暗くし、ページがいったん脇に置かれたことを伝えます。そこにあるものはすべて操作不能にします。背後のものは押すことも、フォーカスすることも、スクリーンリーダーで読むこともできず、ページはスクロールしません。フォーカスをサーフェスの中へ移し、開いている間はそこにとどめ、閉じたら返します。そして、人が Escape を押したとき、プラットフォームの「戻る」を使ったとき、暗い部分を押したときに、閉じるよう求めます。
+
+モーダルレイヤーは、このレイヤーを独立したコンポーネントにしたものです。[ダイアログ](/ja/components/dialog/)、モーダルのときの[サイドシート](/ja/components/side-sheet/)と[ボトムシート](/ja/components/bottom-sheet/)、モーダルの[ナビゲーションドロワー](/ja/components/navigation-drawer/)、[画像プレビュー](/ja/components/image-preview/)、モーダルの [DateTimePicker](/ja/components/date-time-picker/)、[検索](/ja/components/search/)のモーダルな表示は、どれもこれで組み立てられています。どれも独自の決まりを持たず、このレイヤーの決まりに従います。
+
+これは**上級者向け**のコンポーネントです。出会う場面は 2 つあります。
+
+- **すべてのモーダルなサーフェスのスタイルを一度に変える。** レイヤーのトークン `comp.modal-layer.*` は、上に挙げた各コンポーネントのスクリムとモーションのトークンの参照先です。プロダクトのレイヤでこれを設定すると、すべてのモーダルなサーフェスがそろって変わります。変わるのは、暗くする色と不透明度、背後のぼかし、レイヤーが現れて消えるまでの時間です。
+- **Tanrei にないモーダルなサーフェスを作る。** コマンドパレット、ウィンドウ全体を覆う画面、独自のビューアーなどです。サーフェスをレイヤーの中に入れれば、プロダクトのほかのモーダルなサーフェスと同じように振る舞います。
+
+判断を求めるならダイアログを使います。パネルなら、モーダルのサイドシートかボトムシートを使います。これらは自分で名前を示し、アクションを配置し、出口を用意しています。
+
+Web では `<tanrei-modal-layer>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+レイヤーは制御コンポーネントです。表示するには `open` を設定します。人が閉じるよう求めると、理由（`escape`、`back`、`scrim`）を添えて `close` を発火し、開いたままでいます。`open` を false に戻すのは利用者側です。スクリーンリーダーが読み上げる名前として、`label` を指定します。
+
+レイヤーが自分で描くのは暗い部分だけです。コンテンツは自分の色、形状、パディングを保ち、レイヤーはそれを本来の大きさのままウィンドウの中央に置きます。別の場所に置くときは、プラットフォームの手段を使います（Web では `::part(container)`）。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="open-palette" variant="text">コマンド</tanrei-button>
+
+    <tanrei-modal-layer label="コマンド">
+      <div class="palette">
+        <!-- autofocus で最初のフォーカスを示します。ないときは、フォーカスはレイヤーのコンテナへ移ります。 -->
+        <input autofocus aria-label="コマンドを検索">
+        <ul>…</ul>
+      </div>
+    </tanrei-modal-layer>
+
+    <style>
+      /* コンテナは利用者側で配置します。ここではウィンドウの上寄りに置いています。 */
+      tanrei-modal-layer::part(container) { margin-block-start: 15vh; }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/modal-layer';
+      const layer = document.querySelector('tanrei-modal-layer');
+      document.querySelector('#open-palette').addEventListener('click', () => (layer.open = true));
+      // Escape、戻る操作、暗い部分の押下。レイヤーが自分で閉じることはありません。
+      layer.addEventListener('close', (event) => {
+        console.log(event.detail.reason); // 'escape'、'back'、'scrim' のいずれか
+        layer.open = false;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ModalLayer } from '@tanrei/react';
+
+    <ModalLayer open={open} label="コマンド" onClose={() => setOpen(false)}>
+      <CommandPalette />
+    </ModalLayer>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    まだ実装していません。予定している形はビューのモディファイアー `.tanreiModalLayer(isPresented:, accessibilityLabel:, onClose:) { … }` です。
+  </TabItem>
+  <TabItem label="Compose">
+    まだ実装していません。予定している形は `TanreiModalLayer(visible, onCloseRequest, contentDescription) { … }` です。
+  </TabItem>
+  <TabItem label="Flutter">
+    まだ実装していません。予定している形は `TanreiModalLayer(open:, onClose:, semanticLabel:, child: …)` です。
+  </TabItem>
+  <TabItem label="React Native">
+    まだ実装していません。予定している形は `<ModalLayer visible onClose accessibilityLabel>…</ModalLayer>` です。
+  </TabItem>
+</Tabs>
+
+### すべてのモーダルなサーフェスのスタイルを変える
+
+プロダクトがレイヤのファイルでレイヤーのトークンを設定すると、すべてのモーダルなサーフェスがそれに従います。
+
+```json
+{
+  "tokens": {
+    "tanrei.comp.modal-layer.scrim.color": { "$value": "{tanrei.sys.color.scrim}" },
+    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "モーダルなサーフェスの背後をすりガラスのように見せます。" },
+    "tanrei.comp.modal-layer.motion.enter-duration": { "$value": "{tanrei.sys.motion.duration.medium4}" }
+  }
+}
+```
+
+暗い部分の不透明度は、その色のアルファです。明るくしたり暗くしたりするには、色か、システムの `scrim` ロールを変えます。1 つのサーフェスだけを変えたいときは、代わりにそのサーフェス自身のトークン（`comp.dialog.scrim.color`、`comp.side-sheet.motion.enter-duration`）を設定します。設定するまでは、レイヤーのトークンを参照しています。
+
+## 仕様
+
+<ComponentSpecs name="modal-layer" />
+
+## ガイドライン
+
+### レイヤーが担うことと、利用者側に任せること
+
+| レイヤー | 利用者側のコンテンツ |
+| --- | --- |
+| 背後のウィンドウを端から端まで暗くします（`scrim` をオフにすると何も描きません）。 | 自分の色、形状、影、パディング。レイヤーはどれも加えません。 |
+| 背後のすべてを操作不能にし、ページがスクロールしないようにします。 | ウィンドウより高いときの、自分のスクロール。 |
+| フォーカスを中へ移してとどめ、閉じたら返します。 | 最初にフォーカスを受け取る要素があれば、その印。 |
+| Escape、プラットフォームの「戻る」、暗い部分の押下で閉じるよう求めます。 | 閉じる、キャンセル、完了のボタンなど、自分の出口。 |
+| コンテナを、コンテンツの大きさのままウィンドウの中央に置きます。 | 中央でないなら、代わりに置く場所。 |
+
+### 暗くしないとき
+
+暗い背景の上のビューアーのように、コンテンツが自分の塗りでウィンドウ全体を覆うときは、`scrim` をオフにします。暗くするものが残っていないからです。それでもレイヤーは背後のすべてをふさぎ、コンテンツの外を押せば閉じるよう求めます。
+
+### 推奨
+
+- `label` でレイヤーに名前を付けます。フォーカスが中へ移ると、スクリーンリーダーがそれを読み上げます。
+- 目に見える出口をコンテンツに入れます。Escape を知らない人もいますし、「戻る」はどのデバイスにもあるわけではありません。
+- プロダクトのモーダルなサーフェスは `comp.modal-layer.*` で変えます。そうすれば、そろったままになります。
+
+### 非推奨
+
+- むき出しのレイヤーでダイアログやシートを作らない。見出し、アクション、その配置をすでに備えたダイアログやシートを使います。
+- コンテンツに出口がないのに `dismissible` をオフにしない。人が抜け出す手段がなくなります。
+- ページをふさぐべきでないものに使わない。ポップオーバー、メニュー、スナックバーなら、ページを使える状態のまま残せます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="modal-layer" />
+
+### コンポーネントが担うこと
+
+- コンテナは、`label` を名前とするモーダルなダイアログです。開いている間、その外側のものはすべて支援技術から隠れます。
+- レイヤーが開くと、最初から開いた状態で書かれていても、フォーカスが中へ移ります。移る先は印を付けた要素、なければコンテナなので、まず名前が読み上げられます。
+- Tab と Shift+Tab はレイヤーの中で折り返します。フォーカスが背後のページに届くことはありません。
+- 閉じると、フォーカスは元の場所へ戻ります。その要素がなくなっていれば、プラットフォームが置く場所へ移ります。
+- Escape で閉じるよう求めるのは、中のものすべてが Escape を受け取った後だけです。Escape でテキストを消すフィールドや、閉じるメニューがあれば、レイヤーは開いたままです。
+- 別のレイヤーの中から開いたレイヤーは、その上に重なります。Escape、「戻る」、暗い部分の押下に応えるのは一番上のものだけです。
+
+### 利用者側で行うこと
+
+- サーフェスが何のためのものかを伝える `label` を指定します。
+- フォームや検索フィールドがサーフェスの目的なら、最初にフォーカスする要素に印を付けます。
+- コンテンツを閉じる目に見えるコントロールを用意します。そのコントロールがない限り、`dismissible` はオンのままにします。

@@ -197,7 +197,7 @@ export function tokenDetail(ctx: Ctx, id: string, open: (id: string) => void): H
     const { token, setBy, inherited, followers } = d;
     const how = t.detail.how[setBy.how] ?? setBy.how;
     const swatches = d.schemes
-      ? h('div', { class: 'ts-schemes' }, Object.entries(d.schemes as Json).map(([scheme, color]) => h('span', { class: 'ts-scheme' }, h('i', { style: `background:${cssColor(color)}` }), h('small', { dir: 'ltr', text: `${scheme} ${format('color', color)}` }))))
+      ? h('div', { class: 'ts-schemes' }, Object.entries(d.schemes as Json).map(([scheme, color]) => h('span', { class: 'ts-scheme' }, h('tanrei-swatch', { decorative: true, size: 'small', color: cssColor(color) }), h('small', { dir: 'ltr', text: `${scheme} ${format('color', color)}` }))))
       : null;
     // Facts: an inline description list, compact, the terms in one column as wide as the widest.
     const row = (label: string, ...value: (Node | string | null | (Node | string)[])[]) => h('div', { class: 'ts-fact' }, h('dt', { text: label }), h('dd', {}, ...value));

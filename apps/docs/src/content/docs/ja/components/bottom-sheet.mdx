@@ -2,7 +2,7 @@
 title: ボトムシート
 description: 補足のコンテンツや短い作業を、画面の下端からせり上げて表示します。残りを使える状態のまま画面の下部に重ねるか、モーダルな手順として閉じるまでほかのすべてを暗くしてふさぎます。
 translationOf: components/bottom-sheet.mdx
-sourceHash: d330dd91e18b0b8796aafe0add3470ab96bfc4ad
+sourceHash: 3398e1ebae6e33be24f47bac4f66e51daf81fd8c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -210,9 +210,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-main-action-button label="新規" onclick="document.getElementById('bottom-sheet-demo-actions').open = true"><span slot="icon">add</span></tanrei-main-action-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-actions" label="新規" handle-label="シートの高さを変更" flush onclose="this.open = false">
     <tanrei-list>
-      <tanrei-list-item headline="ドキュメント" leading-icon="description" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
-      <tanrei-list-item headline="フォルダー" leading-icon="folder" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
-      <tanrei-list-item headline="ファイルをアップロード" leading-icon="upload" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+      <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">ドキュメント</tanrei-list-item>
+      <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">フォルダー</tanrei-list-item>
+      <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">ファイルをアップロード</tanrei-list-item>
     </tanrei-list>
   </tanrei-bottom-sheet>
 </DemoFrame>

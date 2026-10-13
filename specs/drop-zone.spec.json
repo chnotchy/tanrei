@@ -1,0 +1,421 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "drop-zone",
+  "title": "Drop zone",
+  "summary": "Wraps any part of a screen — a list, a table, a whole working view — so that files can be dropped anywhere on it, while everything it holds is used exactly as without it: it draws nothing at rest and adds no hover, no press, no focus stop and no role; while files are dragged over it, one overlay covers it and says they can be dropped; and on the drop it judges the files by the File picker's rule and hands the product what passed and what was refused. It keeps nothing, and it is never the only way to add a file.",
+  "category": "selection",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The zone itself: a box around the product's content, of the size its layout gives it. It draws nothing of its own, carries no state and exposes nothing."
+    },
+    {
+      "id": "content",
+      "description": "What the product places in the zone, in its default slot: laid out, styled and used as without the zone."
+    },
+    {
+      "id": "overlay",
+      "description": "Drawn only while files are dragged over the zone: one layer over the whole zone's box, above all its content — the scrim, and the edge drawn inside the box. It takes no press and no scroll.",
+      "optional": true
+    },
+    {
+      "id": "panel",
+      "description": "The raised surface at the centre of the part of the zone that is in view, holding the glyph and the message.",
+      "optional": true
+    },
+    {
+      "id": "icon",
+      "description": "The glyph in the panel: the icon set's upload glyph, or its block glyph while the zone refuses what is dragged. Decorative.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The message in the panel: dropText, or refusingText while the zone refuses what is dragged.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "multiple",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether a drop may bring more than one file, as the File picker's multiple. False: a drop of several is refused whole (reject, reason count). True: any number, up to maxFiles."
+    },
+    {
+      "name": "accept",
+      "type": "strings",
+      "default": [],
+      "description": "The kinds of file that are taken, as the File picker's accept: file name extensions with their dot (\".pdf\") and media types, a whole family as \"image/*\". A dropped file of another kind, or a folder, is refused (reject, reason type). Empty takes every kind."
+    },
+    {
+      "name": "maxSize",
+      "type": "number",
+      "default": null,
+      "description": "The largest size of one file, in bytes, as the File picker's maxSize. A larger file is refused (reject, reason size). Null sets no limit. Judged from the size the platform reports; the file is not read."
+    },
+    {
+      "name": "maxFiles",
+      "type": "number",
+      "default": null,
+      "description": "The most files one drop may bring while multiple is true, as the File picker's maxFiles: files beyond it are refused (reject, reason count). Null sets no limit; ignored while multiple is false; zero refuses every file — the room a full list has left. Nothing is counted across drops: a product that keeps a list sets this to the room that is left."
+    },
+    {
+      "name": "dropText",
+      "type": "string",
+      "default": "",
+      "words": "dropZoneText",
+      "description": "The message in the overlay while the zone will take what is dragged over it, in the product's words (\"Drop files to upload them\"). Empty reads the product's words; with neither, the panel draws the glyph alone and that is reported."
+    },
+    {
+      "name": "refusingText",
+      "type": "string",
+      "default": "",
+      "words": "dropZoneRefusingText",
+      "description": "The message in the overlay while the zone will not take what is dragged over it (\"These files cannot be added here\"). Drawn only where the platform tells before the drop that nothing dragged can be taken (DRZ-5). Empty reads the product's words; with neither, the panel draws the block glyph alone and that is reported."
+    },
+    {
+      "name": "droppedText",
+      "type": "string",
+      "default": "",
+      "words": "filesDroppedText",
+      "description": "The sentence assistive technology is told after a drop in which files passed, with the place {count} filled by how many (\"{count} files added\"). Empty reads the product's words; with neither, nothing is said for them and that is reported (DRZ-11).",
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "How many files of the drop passed and were handed to the product."
+        }
+      ]
+    },
+    {
+      "name": "refusedText",
+      "type": "string",
+      "default": "",
+      "words": "filesRefusedText",
+      "description": "The sentence assistive technology is told after a drop in which files were refused, with the place {count} filled by how many (\"{count} files could not be added\"). Empty reads the product's words; with neither, nothing is said for them and that is reported (DRZ-11).",
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "How many files of the drop were refused."
+        }
+      ]
+    },
+    {
+      "name": "silent",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the drop zone says nothing after a drop. Set it only where the product hands every dropped file to a component that says them itself — a File upload that keeps its own rows announces each file it keeps or refused — so that one drop is not said twice. It changes nothing that is drawn."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Nothing can be dropped: no overlay is drawn and nothing is emitted. It concerns dropping alone — the content is neither disabled nor dimmed, and stays as usable as it was."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The content: any part of the product's screen — a list, a table, a working view, the main region of an app shell. In fixtures the content is a sample screen: the fixture's content string as a paragraph above an outlined Button labelled \"New video\", on a surface 360 wide and 240 tall.",
+      "fixture": "text"
+    }
+  ],
+  "events": [
+    {
+      "name": "select",
+      "description": "Files were dropped on the zone and passed accept, maxSize and the count of one drop. Emitted once per drop, with those files as the platform's own handles, in the order the platform gave them — what the File picker's select carries (FPK-9). The drop zone keeps none of them and reads none: the product hands them to a File upload's way in, a list of its own, or a sending of its own."
+    },
+    {
+      "name": "reject",
+      "description": "Files of one drop were refused. Emitted once, after select where both happen, with each refused file and its reason — type (not among accept, or a folder), size (larger than maxSize) or count (more than one while multiple is false, or more than maxFiles in one drop) — what the File picker's reject carries (FPK-9). The reasons are names for the product's code: the product says what happened where a person sees it (a snackbar, a row of its list, a Field's errorText)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "dragged"
+  ],
+  "behavior": [
+    {
+      "id": "DRZ-1",
+      "text": "THE drop zone SHALL be a box of the size its layout gives it and SHALL lay out what the product places in it as the product's own styles say, as if the zone were not there. WHILE no drag of files is over it THE drop zone SHALL draw nothing of its own — no fill, no edge, no padding, no glyph, no text. THE drop zone SHALL add to what it holds no hovered, pressed, focused or selected state, no stop in the focus order, no role and no name, and SHALL change no role, name, state or focus order of its content.",
+      "verify": "On the web: at rest the element's box is its content's, its shadow root draws no pixel of its own, the accessibility tree has no node for it, and Tab reaches the content's controls in their own order."
+    },
+    {
+      "id": "DRZ-2",
+      "text": "WHILE a drag of files is over it and WHILE none is, THE drop zone SHALL leave every press, click, key, wheel, scroll, touch, text selection, drag of text or of an element, and focus inside it to its content and the platform. WHEN the zone is pressed THE drop zone SHALL do nothing — it opens no picker and moves no focus (unlike the File picker's drop area, FPK-12), because the zone is the content and every press in it is the content's."
+    },
+    {
+      "id": "DRZ-3",
+      "text": "THE drop zone SHALL answer a drag only WHERE the platform says the drag holds files (on the web, its types include Files). A drag of text, of a link, of a picture from a page or of an element SHALL be left wholly to the content and the platform: no overlay, no effect named, and nothing taken, so that a text field inside the zone still takes a drop of text.",
+      "verify": "On the web, dispatch dragenter and dragover with a DataTransfer holding text alone, then a link alone: no overlay, and neither event's default is prevented."
+    },
+    {
+      "id": "DRZ-4",
+      "text": "WHILE a drag of files is over the zone, disabled is false and no drop target inside the zone has taken it (DRZ-8), THE drop zone SHALL draw the overlay over its whole box and tell the platform that letting go here copies. The overlay SHALL be the scrim, filled with comp.drop-zone.scrim.color over the whole box; an edge comp.drop-zone.outline.width wide in comp.drop-zone.outline.color, solid, drawn inside the box and following the corners the box has of its own; and a panel (DRZ-6) filled with comp.drop-zone.panel.container.color, lifted by comp.drop-zone.panel.elevation, with corners of comp.drop-zone.panel.shape eased by sys.shape.corner-smoothing, comp.drop-zone.panel.padding-block from its top and bottom and comp.drop-zone.panel.padding-inline from its sides, holding one column centred on the inline axis: the icon set's upload glyph at comp.drop-zone.icon.size in comp.drop-zone.icon.color, with sys.icon.family.unselected, sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, then comp.drop-zone.panel.gap below it dropText in comp.drop-zone.label.typescale and comp.drop-zone.label.color, centred, on as many lines as it needs and never cut. The panel SHALL be as wide as its message needs and no wider than comp.drop-zone.panel.max-width."
+    },
+    {
+      "id": "DRZ-5",
+      "text": "WHERE the platform tells before the drop that nothing dragged can be taken — every file is of a kind accept refuses, which can be known only where accept lists media types alone, or it holds more than one file while multiple is false, as the File picker's area judges it (FPK-13) — THE drop zone SHALL draw the overlay as refusing: the scrim and the panel as in DRZ-4, the edge in comp.drop-zone.refusing.outline.color, the icon set's block glyph in place of the upload glyph in comp.drop-zone.refusing.icon.color, and refusingText in place of dropText; and SHALL tell the platform that letting go here does nothing. Where the platform cannot tell (an extension, a size, a count that maxFiles limits), the zone SHALL draw it as taking and judge at the drop (DRZ-9)."
+    },
+    {
+      "id": "DRZ-6",
+      "text": "THE drop zone SHALL draw the overlay inside its own box and above everything it holds: never outside the box, whatever the content's own stacking order; content that must stand above the overlay stands in the platform's top layer (a dialog, a popover, a menu). THE overlay SHALL take no press, pointer, wheel, touch or scroll: each SHALL reach the content or the scrolling area beneath it, as if the overlay were not there. THE drop zone SHALL draw the panel inside the part of its box that is in view — inside the window and inside every scrolling or clipping area around it — centred in that part and at least comp.drop-zone.panel.margin from its edges, so that a zone taller than the window (a whole page, the main region of an app shell) shows its message where the person is looking. WHERE the part in view is smaller than the panel, the panel SHALL be clipped at the zone's box and its glyph SHALL be kept before its message.",
+      "verify": "On the web: a child with z-index 1000 is under the overlay; the overlay's box equals the host's; elementFromPoint at the overlay's centre during a drag is the content beneath it; a zone 3000 tall in a scrolled area draws its panel inside the area's visible part."
+    },
+    {
+      "id": "DRZ-7",
+      "text": "THE condition of DRZ-4 and DRZ-5 SHALL begin when a drag of files enters the zone's box and SHALL end when the drag leaves the box, is let go anywhere, is cancelled, or leaves the window — and SHALL NOT end, flicker or begin again when the drag crosses from one part of the content to another, onto the content's own children, or over content that appears, moves or is removed during the drag.",
+      "verify": "On the web: a dragleave from one child of the content to another, or to the content beneath the overlay, does not end the condition; a dragleave whose relatedTarget is outside the zone ends it at once; a dragenter on an element outside the zone, a drop or dragend anywhere in the window, and a pointer movement in the window (which no browser sends during a drag) each end it."
+    },
+    {
+      "id": "DRZ-8",
+      "text": "WHERE a drop target inside the zone takes the drag — another drop zone, a File picker's drop area, or a target of the product's own — the innermost target SHALL take it: while the drag is over that target THE drop zone SHALL draw no overlay, name no effect and take no drop, and SHALL take the drag again as soon as it leaves that target for the rest of the zone. A disabled drop zone inside it takes nothing, so the enclosing zone takes a drag over it.",
+      "verify": "On the web: a drag event whose default was prevented before it reached the zone (the platform's way for a target to say it takes the drag) is the inner target's."
+    },
+    {
+      "id": "DRZ-9",
+      "text": "WHEN files are let go over the zone WHILE disabled is false and no drop target inside the zone took them, THE drop zone SHALL end the condition at once, take the drop so that the platform does not open or navigate to a file, and judge what was dropped exactly as the File picker judges an arrival (FPK-9) — by multiple, accept, maxSize and maxFiles, a folder refused with the reason type, in the order the platform gave them — and SHALL then emit select once with the files that passed, where there are any, and reject once with the refused files and their reasons, where there are any, in that order. A drop over a refusing zone that the platform still delivers SHALL be judged the same way; a drop that holds no file SHALL emit nothing. THE drop zone SHALL NOT move focus because of a drop."
+    },
+    {
+      "id": "DRZ-10",
+      "text": "THE drop zone SHALL keep nothing and send nothing, as the File picker (FPK-7): it SHALL open no connection, SHALL NOT read a file's bytes, copy or store a file, SHALL NOT hold a file or any record of an earlier drop beyond the turn in which it hands one drop over, and SHALL take no part in a form — no name, no value, nothing submitted, reset or restored. What is known of a file SHALL be what the platform reports of it without opening it: its name, its size and its kind.",
+      "verify": "On the web: no request, FileReader, stream or object URL is made by the element; the element is not form-associated."
+    },
+    {
+      "id": "DRZ-11",
+      "text": "THE drop zone SHALL have exactly one live region, polite and never assertive, and WHEN a drop was judged WHILE silent is false SHALL say through it, once, as one message: droppedText with {count} filled by the number of files that passed, WHERE any passed; then refusedText with {count} filled by the number refused, WHERE any were refused. It SHALL NOT announce a drag over it, the overlay, or a drop that holds no file, and SHALL NOT move keyboard or screen-reader focus to announce. IF neither the instance nor the product's words give the sentence that is needed THE drop zone SHALL say nothing for it and in debug builds report the missing word once per page or screen. WHILE silent is true THE drop zone SHALL say nothing and need neither word.",
+      "verify": "On the web: one element with aria-live=\"polite\" in the shadow root; a drop of two files that pass and one that is refused writes the two sentences in one text."
+    },
+    {
+      "id": "DRZ-12",
+      "text": "THE drop zone SHALL have no words of its own: it SHALL take dropText, refusingText, droppedText and refusedText from the instance's prop and, WHILE that is empty, from the product's words of the keys dropZoneText, dropZoneRefusingText, filesDroppedText and filesRefusedText, and from nowhere else; and SHALL need a word only where the part that shows or says it is drawn or said. IF dropText or refusingText is not given where its panel is drawn THE drop zone SHALL draw the panel with its glyph alone and in debug builds report the missing word once per page or screen. THE drop zone SHALL build no sentence from accept, maxSize, maxFiles, a count of files or a size in bytes, other than filling {count}."
+    },
+    {
+      "id": "DRZ-13",
+      "text": "THE drop zone SHALL NOT be the only way to add the files it takes: dragging files is a movement that a keyboard, a switch, a screen reader, voice control and most touch screens cannot make (WCAG 2.1.1, 2.5.7). The product SHALL offer, on the same screen and while the zone takes drops, a File picker or a File upload — or a control of its own that opens the platform's picker — that adds the same files to the same place. WHEN a drag of files first enters a zone on a page or screen that holds no file picker of any kind, THE drop zone SHALL still take it and in debug builds report that files cannot be added without a pointer.",
+      "verify": "On the web: with no input of type file in the document or in any open shadow root, the first drag over the zone reports DRZ-13; with a tanrei-file-picker anywhere on the page, nothing is reported."
+    },
+    {
+      "id": "DRZ-14",
+      "text": "WHILE disabled is true THE drop zone SHALL draw no overlay, say nothing and emit neither select nor reject, and SHALL tell the platform that letting go here does nothing; WHERE no enabled drop zone encloses it, it SHALL still take a drop of files over its box, so that a file let go by mistake does not replace the page. THE drop zone SHALL NOT disable, dim or make inert its content: disabled concerns dropping alone. WHEN disabled becomes true during a drag THE drop zone SHALL end the condition at once. The way of DRZ-15 SHALL still answer: disabled stops the person, not the product."
+    },
+    {
+      "id": "DRZ-15",
+      "text": "THE drop zone SHALL offer the product, in the platform's idiom, a way to have files judged by its rule that did not arrive by a drop on it — files pasted, dropped elsewhere, or made by the product — as one arrival, answering with the files that passed and the refused files with their reasons, each in the order given, as the File picker's way does (FPK-31); it SHALL emit neither select nor reject for them, say nothing for them, and keep none of them.",
+      "verify": "On the web: `judge(files)` returns `{ accepted: File[], refused: { file, reason }[] }` and dispatches no event; it answers the same with `disabled` set."
+    },
+    {
+      "id": "DRZ-16",
+      "text": "WHEN the overlay appears THE drop zone SHALL fade it in, and WHEN it leaves SHALL fade it out, over comp.drop-zone.motion.duration with comp.drop-zone.motion.easing, and SHALL animate a change between taking and refusing over the same; where motion is reduced it SHALL show and hide the overlay at once. The fade SHALL NOT delay the end of the condition: a drop or a press made while the overlay fades out reaches what it would reach without it."
+    },
+    {
+      "id": "DRZ-17",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE drop zone SHALL draw the edge in the platform's highlight color, solid and twice comp.drop-zone.outline.width wide, so that it does not rest on the scrim the mode removes; the panel in the platform's background color with an edge comp.drop-zone.outline.width wide in its text color; the message in its text color; and the refusing overlay with its block glyph, so that refusing is told without color.",
+      "verify": "On the web, with forced colors emulated: the edge is Highlight and the panel's edge CanvasText."
+    },
+    {
+      "id": "DRZ-18",
+      "text": "WHILE the text size is enlarged THE drop zone SHALL grow its panel with its message: the message wraps and is never cut, the glyph keeps its box, and the panel grows in height up to the part of the zone in view (DRZ-6). At 200 % in a width of 320 no word of the message SHALL be lost or lie over another part."
+    },
+    {
+      "id": "DRZ-19",
+      "text": "THE drop zone SHALL take its layout direction from where it is used and SHALL have no direction setting of its own. THE message SHALL be laid out as text of its own direction, isolated, taking the base direction of its first strong character, or the layout direction where it has none, and centred in the panel in either direction. WHERE the layout direction is right-to-left a glyph SHALL be mirrored exactly when the system's icon set marks its name as mirrored, by the icon helper; THE drop zone SHALL mirror no glyph itself."
+    },
+    {
+      "id": "DRZ-20",
+      "text": "WHEN a prop of the drop zone changes THE drop zone SHALL draw the new value at once, during a drag too, and SHALL announce nothing because of it; WHEN multiple, accept, maxSize or maxFiles changes it SHALL judge by the new value from the next drag and drop on. IF maxSize is not a number above zero THE drop zone SHALL set no limit of size; IF maxFiles is not a whole number of zero or more it SHALL set no limit of count; IF an entry of accept is neither an extension with its dot nor a media type it SHALL ignore that entry; in each case debug builds SHALL report it, as the File picker does (FPK-27)."
+    },
+    {
+      "id": "DRZ-21",
+      "text": "WHILE the system's icon set cannot yet draw the overlay's glyph (its font is still loading) THE drop zone SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box, and SHALL draw the glyph once the set can."
+    }
+  ],
+  "accessibility": {
+    "role": "none",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves through the content's own stops in their own order. The drop zone is not a stop and answers no key."
+      }
+    ],
+    "labeling": "None. The drop zone has no role, no name and no description, and adds none to its content. The overlay — scrim, panel, glyph and message — is drawn for the person who drags and is kept from assistive technology; the result of a drop is said through the zone's one polite live region (DRZ-11).",
+    "minimumTarget": true,
+    "notes": [
+      "A drop zone is never the only way to add a file (WCAG 2.1.1 Keyboard, 2.5.7 Dragging Movements): the screen it wraps also has a File picker or a File upload whose Button opens the platform's picker — in a toolbar, an app bar or an empty state — and the documentation always shows one beside the zone. A debug build reports a page that has none (DRZ-13).",
+      "The zone adds nothing a person operates. Unlike the File picker's drop area, it is not pressed to open the picker and takes no focus: the content under it — buttons, a table, fields — keeps every press, key and scroll (DRZ-2), so wrapping a screen in a zone changes nothing for a keyboard or a screen reader.",
+      "What is dragged over the zone is the pointer user's own act and is not announced. The overlay is told without color too: taking by its edge and its message, refusing by the block glyph and its own message, and under forced colors by a thicker edge in the highlight color (DRZ-5, DRZ-17).",
+      "The result of a drop is a status message (WCAG 4.1.3): one polite live region says how many files were handed over and how many were refused, in the product's words. Where the files go on to a component that says them itself — a File upload that keeps its own rows — the product sets silent, so that a drop is said once.",
+      "A refused file must be said where a person sees it too (WCAG 3.3.1): the zone's live region says that files were refused, and the product, on reject, shows which and why — a snackbar, a failed row of its list, a Field's errorText.",
+      "The overlay never takes a press or a scroll and disappears when the drag leaves, ends or drops, so it needs no dismissal, holds no focus and traps nothing (WCAG 2.1.2)."
+    ]
+  },
+  "tokens": "comp.drop-zone",
+  "fixtures": [
+    {
+      "id": "default",
+      "props": {
+        "multiple": true,
+        "dropText": "Drop files to upload them"
+      },
+      "content": "Your videos"
+    },
+    {
+      "id": "dragged",
+      "props": {
+        "multiple": true,
+        "dropText": "Drop files to upload them"
+      },
+      "content": "Your videos"
+    },
+    {
+      "id": "dragged-refusing",
+      "props": {
+        "multiple": true,
+        "accept": [
+          "image/png",
+          "image/jpeg"
+        ],
+        "dropText": "Drop images to add them",
+        "refusingText": "Only PNG and JPEG images can be added"
+      },
+      "content": "Your photos"
+    },
+    {
+      "id": "dragged-long-text",
+      "props": {
+        "multiple": true,
+        "dropText": "Drop the signed forms and every supporting document anywhere on this screen to attach them to the application"
+      },
+      "content": "Planning application"
+    },
+    {
+      "id": "dragged-disabled",
+      "props": {
+        "multiple": true,
+        "disabled": true,
+        "dropText": "Drop files to upload them"
+      },
+      "content": "Your videos"
+    },
+    {
+      "id": "dragged-rtl",
+      "props": {
+        "multiple": true,
+        "dropText": "Drop files to upload them"
+      },
+      "content": "Your videos",
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "alpha",
+      "name": "tanrei-drop-zone",
+      "props": {
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "dropText": "dropText",
+        "refusingText": "refusingText",
+        "droppedText": "droppedText",
+        "refusedText": "refusedText",
+        "silent": "silent",
+        "disabled": "disabled"
+      },
+      "events": {
+        "select": "select",
+        "reject": "reject"
+      },
+      "notes": "A custom element with a shadow root around the product's own content: `<tanrei-drop-zone multiple accept=\"video/*\" drop-text=\"Drop videos to upload them\"> … the screen … </tanrei-drop-zone>`. Attributes are kebab-case (`max-size`, `max-files`, `drop-text`, `refusing-text`, `dropped-text`, `refused-text`); `accept` is a comma-separated list, as a native file input's. The content stays in the product's light DOM in the default slot, which is `display: contents`, so the host is the content's layout box: a product lays the content out by styling the host (`display: grid`, a height, `overflow`) as it would any wrapper; the host is `display: block` by default, `position: relative` and `isolation: isolate` (DRZ-6) — a product sets no `position: static` on it. The overlay is one absolutely positioned element of the shadow root over the host's padding box, after the slot, with the greatest z-index, `pointer-events: none` and `aria-hidden=\"true\"`; its panel is placed by the element in the part of the host's box that is in view — the host's rectangle cut by the window and by every ancestor that clips or scrolls, measured on each `dragenter` and `dragover` — so a zone taller than its scrolling area shows the panel where the person looks. The element listens for `dragenter`, `dragover`, `dragleave` and `drop` on its host, in the bubbling phase: an event whose default is already prevented is an inner target's (DRZ-8); otherwise, where `dataTransfer.types` includes `Files`, it prevents the default, sets `dropEffect` to `copy` or `none`, and counts enters and leaves so that a child of the content does not end the condition; a `dragleave` whose `relatedTarget` is outside the host ends it at once, and while the condition holds the window's `dragenter` outside the host, `drop`, `dragend` and `pointermove` end it too (DRZ-7). During a drag the browser tells kinds and a count (`DataTransfer.items`), never names or sizes, so a file that is too large or of a refused extension is refused at the drop. The judging is the File picker's own, shared with it (`src/primitives/file-judge.ts`), not a copy. `select` and `reject` are CustomEvents that bubble: `detail.files` is a `File[]`, and `reject`'s `detail.files` is `{ file, reason }[]` — the File picker's details, so one listener can serve both. `judge(files: Iterable<File>)` is DRZ-15. The live region is one visually hidden `aria-live=\"polite\"` element. Not form-associated. Parts: `overlay`, `panel`, `icon`, `label`. Custom properties: `--<namespace>-comp-drop-zone-…`. Before the element is defined its content is drawn as it is and a drop of files is the browser's. Class `TanreiDropZone`. React: `DropZone`, with `onSelect`, `onReject`, and a ref with `judge()`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiDropZone",
+      "props": {
+        "multiple": "allowsMultiple",
+        "accept": "allowedContentTypes",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "dropText": "dropText",
+        "refusingText": "refusingText",
+        "droppedText": "droppedText",
+        "refusedText": "refusedText",
+        "silent": "isSilent",
+        "disabled": "disabled"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject"
+      },
+      "notes": "A modifier rather than a container, as SwiftUI attaches behaviour to any view: `VideoList().tanreiDropZone(allowedContentTypes: [.movie], onSelect: { urls in … })`. It is `dropDestination(for: URL.self)` with its `isTargeted` binding, and the overlay an `.overlay` with `allowsHitTesting(false)`; SwiftUI tells the kinds before the drop, not sizes. The innermost destination takes a drop by SwiftUI's own rule. The announcement is `AccessibilityNotification.Announcement`. DRZ-15 is the File picker's static `TanreiFilePicker.judge(_:accept:maxSize:maxFiles:multiple:)`. On iPhone a drag of files comes from another app in split view or from Files; the zone still adds nothing to the content."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiDropZone",
+      "props": {
+        "multiple": "multiple",
+        "accept": "mimeTypes",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "dropText": "dropText",
+        "refusingText": "refusingText",
+        "droppedText": "droppedText",
+        "refusedText": "refusedText",
+        "silent": "silent",
+        "disabled": "enabled"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject"
+      },
+      "notes": "`TanreiDropZone(onSelect = { uris -> … }) { VideoList() }`, a box around the content with `Modifier.dragAndDropTarget(shouldStartDragAndDrop = { it.mimeTypes().isNotEmpty() })`; the overlay is drawn in a layer that takes no pointer input. Content `Uri`s are read for name and size from the resolver's metadata, never opened, and the app requests drag-and-drop permissions for the drop as the platform asks. `disabled` is the inverse flag `enabled`. The announcement is a `liveRegion = Polite` node. DRZ-15 is the File picker's `judgeFiles(uris, limits)`."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiDropZone",
+      "props": {
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "dropText": "dropText",
+        "refusingText": "refusingText",
+        "droppedText": "droppedText",
+        "refusedText": "refusedText",
+        "silent": "silent",
+        "disabled": "enabled"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject"
+      },
+      "notes": "The framework has no drop target for files; the package depends on no plugin. `TanreiDropZone(controller: …, onSelect: …, child: VideoList())`: the product's drop plugin calls `TanreiDropZoneController.dragEntered(kinds) / dragExited() / dropped(files)` with `TanreiPickedFile(name, size, mimeType, handle)`, and the zone draws the overlay in an `IgnorePointer` layer and judges by FPK-9. Without a plugin the zone draws nothing and takes nothing; the README says so. `disabled` is the inverse flag `enabled`. The announcement is `SemanticsService.announce`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "DropZone",
+      "props": {
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "dropText": "dropText",
+        "refusingText": "refusingText",
+        "droppedText": "droppedText",
+        "refusedText": "refusedText",
+        "silent": "silent",
+        "disabled": "disabled"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject"
+      },
+      "notes": "React Native has no drop of files of its own; the package depends on no library. `<DropZone onSelect={…}>…</DropZone>` takes drops where the product's native module reports them through the zone's ref (`dragEntered`, `dragExited`, `dropped(files)`, with `{ name, size, type, uri }`), and draws the overlay with `pointerEvents=\"none\"`. On a phone with no such module it draws nothing and takes nothing; the README says so. The announcement is `AccessibilityInfo.announceForAccessibility`. A ref holds `judge(files)` (DRZ-15)."
+    }
+  }
+}

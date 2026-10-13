@@ -40,6 +40,7 @@ export {
   type TanreiWindowClass,
 } from './components/app-shell/app-shell.js';
 export { TanreiAvatar, TanreiAvatarGroup, type TanreiAvatarShape, type TanreiAvatarSize } from './components/avatar/avatar.js';
+export { TanreiSwatch, type TanreiSwatchShape, type TanreiSwatchSize } from './components/swatch/swatch.js';
 export { TanreiBadge } from './components/badge/badge.js';
 export {
   TanreiBottomSheet,
@@ -189,6 +190,7 @@ export {
 } from './components/date-time-picker/date-time-picker.js';
 export { TanreiDescriptionList, type TanreiDescriptionListDensity, type TanreiDescriptionListLayout, type TanreiDescriptionListSeparation } from './components/description-list/description-list.js';
 export { TanreiDialog, type TanreiDialogClosedBy } from './components/dialog/dialog.js';
+export { TanreiModalLayer, type TanreiModalLayerCloseDetail, type TanreiModalLayerCloseReason, type TanreiModalLayerClosedBy } from './components/modal-layer/modal-layer.js';
 export { TanreiEmptyState, type TanreiEmptyStateAlign, type TanreiEmptyStateSize } from './components/empty-state/empty-state.js';
 export { TanreiSkeleton } from './components/skeleton/skeleton.js';
 export {
@@ -218,6 +220,14 @@ export {
   type TanreiFilePickerRejectReason,
   type TanreiFilePickerSelectDetail,
 } from './components/file-picker/file-picker.js';
+export {
+  TanreiDropZone,
+  type TanreiDropZoneJudgement,
+  type TanreiDropZoneRefused,
+  type TanreiDropZoneRejectDetail,
+  type TanreiDropZoneRejectReason,
+  type TanreiDropZoneSelectDetail,
+} from './components/drop-zone/drop-zone.js';
 export { TanreiImagePreview, TanreiImagePreviewItem, type TanreiImagePreviewCloseDetail, type TanreiImagePreviewCloseReason, type TanreiImagePreviewControlsHiddenChangeDetail, type TanreiImagePreviewIndexChangeDetail, type TanreiImagePreviewLoadErrorDetail, type TanreiImagePreviewZoomChangeDetail } from './components/image-preview/image-preview.js';
 export {
   TanreiFileUpload,
@@ -237,8 +247,10 @@ export {
 export {
   TanreiList,
   type TanreiListChangeDetail,
+  type TanreiListGap,
   TanreiListItem,
-  type TanreiListLeadingMedia,
+  type TanreiListMoveDetail,
+  type TanreiListOrientation,
   type TanreiListSelection,
 } from './components/list/list.js';
 export {
@@ -320,6 +332,14 @@ export {
   type TanreiSegmentedButtonSelection,
   type TanreiSegmentedButtonSize,
 } from './components/segmented-button/segmented-button.js';
+export {
+  TanreiStepper,
+  type TanreiStepperLayout,
+  type TanreiStepperPressable,
+  type TanreiStepperSelectDetail,
+  TanreiStepperStep,
+  type TanreiStepperStepStatus,
+} from './components/stepper/stepper.js';
 export {
   TanreiSideSheet,
   type TanreiSideSheetCloseDetail,

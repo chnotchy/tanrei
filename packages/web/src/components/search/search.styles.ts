@@ -566,6 +566,7 @@ export const styles = css`
      of its own where the view is drawn in place. */
   .full.hung::backdrop {
     background: ${t('view-scrim-color')};
+    backdrop-filter: blur(${t('view-scrim-blur')});
     opacity: 0;
     transition-property: opacity, display, overlay;
     transition-duration: ${t('motion-close-duration')};
@@ -586,6 +587,7 @@ export const styles = css`
     position: absolute;
     inset: 0;
     background: ${t('view-scrim-color')};
+    backdrop-filter: blur(${t('view-scrim-blur')});
   }
   /* SRC-40: its header — the back button header.padding-inline from the start edge (as the full-screen header has it,
      in the search glyph's place), the input and the clear button, container.gap apart, the last ending

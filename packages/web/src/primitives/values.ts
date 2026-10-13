@@ -1,5 +1,5 @@
 /**
- * The `values` attribute of a component whose selection is several values (a multiple-select list, LST-26; a
+ * The `values` attribute of a component whose selection is several values (a multiple-select list, LST-25; a
  * multiple-choice segmented button, SEG-12): a JSON array (`values='["bug","docs"]'`) or whitespace-separated values
  * (`values="bug docs"`). The property is the array; this is only how the attribute is read (`converter.fromAttribute`).
  */

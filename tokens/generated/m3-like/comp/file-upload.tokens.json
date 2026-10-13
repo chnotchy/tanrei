@@ -4,11 +4,11 @@
       "file-upload": {
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product puts the place files are chosen in and the files that were chosen together, wherever it asks for files: how far the files stand below the place, and how far one stands from the next. Everything else it shows is the file picker's or the file item's.",
+            "rationale": "One product puts the place files are chosen in and the files that were chosen together, wherever it asks for files: how far the files stand below the place. The files themselves are arranged by a List, at its small gap.",
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "The two distances of a file upload's own arrangement: between its file picker and its files, and between two files. It reads nothing else of its own: the place to choose is drawn from comp.file-picker and each file from comp.file-item.",
+            "usage": "The one distance of a file upload's own: between its file picker and its files. The files are arranged by a List (comp.list.gap.small between two files); the place to choose is drawn from comp.file-picker and each file from comp.file-item.",
             "rules": [
               "A file upload never uploads, reads or stores a file. It keeps the files a person chose and lists them itself (rows own), or hands them to the product (select, reject) and draws the file items the product gives back (rows given).",
               "The trigger, the drop area and the texts around them are the file picker's: style them with comp.file-picker. A file's row or tile, its glyph, its bar and its actions are the file item's: style them with comp.file-item. Both hold for every file picker and every file item of the product at once; one file upload is set apart by setting those tokens on it.",
@@ -22,11 +22,6 @@
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space200}",
             "$description": "The space between the file picker (the area, or the trigger and its line of limits) and the first file."
-          },
-          "item-gap": {
-            "$type": "dimension",
-            "$value": "{tanrei.sys.space.space150}",
-            "$description": "The space between two files: between two rows of the column, and between two tiles of the strip along both of its directions. With a row's height it keeps the touch targets of two rows' actions apart."
           }
         }
       }

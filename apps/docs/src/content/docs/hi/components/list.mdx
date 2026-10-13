@@ -1,8 +1,8 @@
 ---
 title: लिस्ट
-description: संबंधित आइटम का एक कॉलम, जिसमें हर आइटम आइकन, अवतार या इमेज के साथ टेक्स्ट की एक या ज़्यादा लाइनें है, और जिसे लोग पढ़ते हैं, एक-एक करके खोलते हैं, जिसमें से चुनते हैं, या जिसका क्रम बदलते हैं।
+description: प्रॉडक्ट के अपने आइटम (पंक्तियाँ, टाइलें, कार्ड, फ़ाइलें) एक कॉलम, एक पंक्ति, या ग्रिड बनाती हुई मुड़ती पंक्तियों में रखती है। लोग उन्हें पढ़ते हैं, एक-एक करके खोलते हैं, उनमें से चुनते हैं, या ड्रैग करके दूसरे क्रम में रखते हैं।
 translationOf: components/list.mdx
-sourceHash: b6d8e736d3a79adf3348a2f55de05b9dbe71cbb5
+sourceHash: 44e7c407804448e2e2a34486b365e5f53b561213
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -12,73 +12,101 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 import DemoFrame from '../../../../components/DemoFrame.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
+<ListReorderProduct />
+
 ## अवलोकन
 
 <ComponentAvailability name="list" />
 
-<DemoFrame label="कुछ खोलने वाली पंक्तियाँ, और एकल चयन">
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="Wi-Fi" supporting-text="कनेक्टेड" leading-icon="wifi" trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-    <tanrei-list-item headline="Bluetooth" supporting-text="बंद" leading-icon="bluetooth" trailing-icon="chevron_right" interactive></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="single" label="थीम" value="light" style="inline-size: 20rem">
-    <tanrei-list-item headline="लाइट" value="light"></tanrei-list-item>
-    <tanrei-list-item headline="डार्क" value="dark"></tanrei-list-item>
-    <tanrei-list-item headline="सिस्टम के अनुसार" value="system"></tanrei-list-item>
+<DemoFrame label="टाइल को दूसरी जगह ड्रैग करें, या चालों के मेन्यू के लिए उसका हैंडल दबाएँ" plain>
+  <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="लिंक वाली पंक्तियाँ: हर एक अपने पते पर जाती है, और आख़िरी नया टैब खोलती है" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="बटन" supporting-text="क्रियाएँ और टॉगल" leading-icon="smart_button" href="#list-demo-button" divider></tanrei-list-item>
-    <tanrei-list-item headline="टैब" supporting-text="एक ही विषय के व्यू" leading-icon="tab" href="#list-demo-tabs" divider></tanrei-list-item>
-    <tanrei-list-item headline="सोर्स कोड" supporting-text="रिपॉज़िटरी खोलता है" leading-icon="code" href="#list-demo-source" target="new" target-label="नए टैब में खुलता है"></tanrei-list-item>
+<style>{`
+  .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
+  .demo-row { display: flex; flex-direction: column; }
+  .demo-row small { color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-body-small-font); }
+`}</style>
+
+लिस्ट एक डिब्बा है। हर आइटम में जो दिखता है वह आपका अपना कंटेंट है: टेक्स्ट, तस्वीर, कार्ड, [फ़ाइल आइटम](/hi/components/file-item/)। आइटमों के आसपास की हर चीज़ लिस्ट की है: वे कैसे रखे जाते हैं, उनके बीच की जगह और लाइनें, सहायक तकनीक के लिए वे क्या हैं, कीबोर्ड फ़ोकस उनके बीच कैसे चलता है, कौन-से चुने गए हैं, और लोग उनका क्रम कैसे बदलते हैं।
+
+<DemoFrame label="एक कॉलम, एक पंक्ति, और मुड़ने वाला ग्रिड" plain>
+  <tanrei-list gap="small" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Cherries</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" gap="small">
+    <tanrei-list-item><span class="demo-tile">One</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Two</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Three</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" wrap gap="medium" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-### इस्तेमाल
+<DemoFrame label="कुछ खोलने वाले आइटम, लिंक वाले आइटम, और एक चुनाव" plain>
+  <tanrei-list dividers style="inline-size: 16rem">
+    <tanrei-list-item interactive><span class="demo-row">Wi-Fi<small>Connected</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-button"><span class="demo-row">Button<small>Actions and toggles</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list selection="single" label="Theme" value="light" style="inline-size: 16rem">
+    <tanrei-list-item value="light">Light</tanrei-list-item>
+    <tanrei-list-item value="dark">Dark</tanrei-list-item>
+    <tanrei-list-item value="system">Match the system</tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
 
-लिस्ट में आइटम का एक ही प्रकार है, `list-item`। हर प्लैटफ़ॉर्म आइटम को उसी तरह लेता है जैसे वह दोहराए जाने वाले किसी भी चाइल्ड को लेता है। वेब चाइल्ड एलिमेंट इस्तेमाल करता है, SwiftUI व्यू बिल्डर के व्यू, Compose कॉन्टेंट लैम्ब्डा के कॉल और Flutter `children` के विजेट। React Native सादे ऑब्जेक्ट का एक `items` ऐरे लेता है। चयन लिस्ट का होता है: `value` एकल चयन वाली लिस्ट का चुना हुआ विकल्प बताता है, और `values` बहु चयन वाली लिस्ट के चुने हुए विकल्प।
+### उपयोग
 
-जो पंक्ति किसी पेज पर ले जाती है, वह `href` लेती है और लिंक है, बटन नहीं। वह ठीक इंटरैक्टिव पंक्ति की तरह बनती है, और ब्राउज़र उसे किसी भी लिंक की तरह बरतता है: उसे नए टैब में खोला जा सकता है, उसका पता कॉपी किया जा सकता है, और क्रॉलर उसे खोलता है। `target` का मान `new` होने पर वह नए टैब में खुलती है और पंक्ति पर आइकन सेट का `open_in_new` निशान लगता है; तब `targetLabel` वह है जो पंक्ति के नाम के बाद पढ़ा जाता है। लिंक वाली पंक्तियाँ आज वेब पर हैं। SwiftUI, Compose, Flutter और React Native इनमें पीछे हैं, और उनके उदाहरण बिना गंतव्य वाली पंक्तियाँ दिखाते हैं।
+लिस्ट में आइटम का एक ही प्रकार है, `list-item`, और हर आइटम आपका कंटेंट अपने चाइल्ड के रूप में रखता है। `orientation` आइटमों को कॉलम (`vertical`, डिफ़ॉल्ट) या पंक्ति (`horizontal`) में रखता है; `wrap` उन्हें अगली पंक्तियों में जाने देता है, ताकि वे ग्रिड बनाएँ; `gap` उनके बीच की जगह तय करता है (`none`, `small`, `medium`, `large`), और `dividers` न मुड़ने वाली लिस्ट में उनके बीच एक बारीक लाइन खींचता है।
+
+आइटम तब तक स्टैटिक है जब तक आप उसे कुछ और न बनाएँ। स्टैटिक आइटम ख़ुद कुछ नहीं बनाता और कोई जगह नहीं जोड़ता: उसका कंटेंट ही आइटम है, और उसमें आपके अपने कंट्रोल हो सकते हैं। `interactive` आइटम को एक बटन बनाता है; `href` उसे एक लिंक बनाता है, जिसे ब्राउज़र किसी भी लिंक की तरह बरतता है (उसे नए टैब में खोला और उसका पता कॉपी किया जा सकता है; `target="new"` नया टैब खोलता है और आइटम पर `open_in_new` का निशान लगाता है, और `targetLabel` यह बताता है)। जिस लिस्ट का `selection` `single` या `multiple` है, वह लिस्टबॉक्स है, और उसके आइटम ऑप्शन हैं जो अपने `value` से चुने जाते हैं। इंटरैक्टिव आइटम, लिंक या ऑप्शन अपने कंटेंट में पैडिंग जोड़ता है, हर स्टेट दिखाता है, और उसका नाम `label` से, या वह न हो तो कंटेंट के टेक्स्ट से आता है।
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <!-- स्टैटिक, इंटरैक्टिव और लिंक वाली पंक्तियाँ। इंटरैक्टिव पंक्ति एक बटन है; href वाली पंक्ति एक लिंक है। -->
-    <tanrei-list>
-      <tanrei-list-item headline="Wi-Fi" supporting-text="कनेक्टेड" leading-icon="wifi"
-                        trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-      <!-- स्टैटिक पंक्ति में आपका अपना कंट्रोल रहता है, जिसका नाम हेडलाइन से आता है। -->
-      <tanrei-list-item headline="हवाई जहाज़ मोड">
-        <tanrei-switch slot="trailing" label="हवाई जहाज़ मोड" label-hidden></tanrei-switch>
-      </tanrei-list-item>
-      <tanrei-list-item headline="Ada Lovelace" supporting-text="रोडमैप संपादित किया" leading-media="avatar">
-        <img slot="leading" src="ada.jpg" alt="" />
-      </tanrei-list-item>
-      <tanrei-list-item headline="निजता नीति" href="/privacy/"></tanrei-list-item>
-      <!-- target="new" अंतिम आइकन के रूप में open_in_new बनाता है; target-label नाम के बाद पढ़ा जाता है। -->
-      <tanrei-list-item headline="सोर्स कोड" href="https://example.com/tanrei"
-                        target="new" target-label="नए टैब में खुलता है"></tanrei-list-item>
+    <!-- A column of your own boxes, 8 px apart. -->
+    <tanrei-list gap="small">
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
     </tanrei-list>
 
-    <!-- लिस्टबॉक्स: हर आइटम एक विकल्प है, जो अपने value से चुना जाता है। -->
-    <tanrei-list selection="single" label="थीम" value="light">
-      <tanrei-list-item headline="लाइट" value="light"></tanrei-list-item>
-      <tanrei-list-item headline="डार्क" value="dark"></tanrei-list-item>
+    <!-- A grid of tiles: a line that wraps. -->
+    <tanrei-list orientation="horizontal" wrap gap="medium">
+      <tanrei-list-item><img src="1.jpg" alt="Harbour at dawn" /></tanrei-list-item>
+      <tanrei-list-item><img src="2.jpg" alt="Market street" /></tanrei-list-item>
     </tanrei-list>
-    <tanrei-list id="labels" selection="multiple" label="लेबल">
-      <tanrei-list-item headline="बग" value="bug"></tanrei-list-item>
-      <tanrei-list-item headline="दस्तावेज़" value="docs"></tanrei-list-item>
+
+    <!-- Items that are one button or one link each, with lines between them. -->
+    <tanrei-list dividers>
+      <tanrei-list-item interactive>Wi-Fi</tanrei-list-item>
+      <tanrei-list-item href="/privacy/">Privacy policy</tanrei-list-item>
+      <tanrei-list-item href="https://example.com/tanrei" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+    </tanrei-list>
+
+    <!-- A listbox: every item is an option, chosen by its value. -->
+    <tanrei-list selection="single" label="Theme" value="light">
+      <tanrei-list-item value="light">Light</tanrei-list-item>
+      <tanrei-list-item value="dark">Dark</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      document.querySelector('[interactive]').addEventListener('click', openWifi);
-      // लिस्ट change फ़ायर करने से पहले अपना value, या values, ख़ुद सेट करती है, और change के साथ वे आते हैं।
+      // The list sets its own value, or values, before it fires change, which carries them.
       document.querySelector('[selection="single"]').addEventListener('change', (e) => setTheme(e.detail.value));
-      // values एक ऐरे प्रॉपर्टी है; इसका ऐट्रिब्यूट रिफ़्लेक्ट नहीं होता।
-      document.querySelector('#labels').values = ['bug'];
     </script>
     ```
   </TabItem>
@@ -86,208 +114,59 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     ```tsx
     import { List, ListItem } from '@tanrei/react';
 
-    <List>
-      <ListItem headline="Wi-Fi" supportingText="कनेक्टेड" leadingIcon="wifi" trailingIcon="chevron_right" interactive onClick={openWifi} />
-      {/* href वाली पंक्ति एक लिंक है। उसके click पर preventDefault() नेविगेशन को क्लाइंट-साइड राउटर के हाथ में दे देता है। */}
-      <ListItem headline="निजता नीति" href="/privacy/" />
-      <ListItem headline="सोर्स कोड" href="https://example.com/tanrei" target="new" targetLabel="नए टैब में खुलता है" />
+    <List orientation="horizontal" wrap gap="medium">
+      {photos.map((photo) => (
+        <ListItem key={photo.id}><img src={photo.src} alt={photo.alt} /></ListItem>
+      ))}
     </List>
 
-    {/* लिस्ट change फ़ायर करने से पहले अपना value, या values, ख़ुद सेट करती है: उन्हें एलिमेंट से पढ़ें। */}
-    <List selection="single" label="थीम" value={theme} onChange={(e) => setTheme(e.currentTarget.value)}>
-      <ListItem headline="लाइट" value="light" />
-      <ListItem headline="डार्क" value="dark" />
+    <List selection="single" label="Theme" value={theme} onChange={(e) => setTheme(e.currentTarget.value)}>
+      <ListItem value="light">Light</ListItem>
+      <ListItem value="dark">Dark</ListItem>
     </List>
-    <List selection="multiple" label="लेबल" values={labels} onChange={(e) => setLabels(e.currentTarget.values)}>
-      <ListItem headline="बग" value="bug" />
-      <ListItem headline="दस्तावेज़" value="docs" />
-    </List>
-    ```
-  </TabItem>
-  <TabItem label="SwiftUI">
-    ```swift
-    import Tanrei
-
-    // action: वाला इनिशियलाइज़र एक इंटरैक्टिव पंक्ति है, Button की तरह।
-    TanreiList {
-        TanreiListItem("Wi-Fi", supportingText: "कनेक्टेड", leadingIcon: "wifi", trailingIcon: "chevron_right", action: openWifi)
-        TanreiListItem("हवाई जहाज़ मोड", trailing: { TanreiSwitch("हवाई जहाज़ मोड", isOn: $airplane).labelsHidden() })
-    }
-
-    // बाइंडिंग का टाइप ही चयन है: Binding<String?> एकल चयन है, Binding<Set<String>> बहु चयन।
-    // .tag(_:) को ख़ुद TanreiListItem पर लगाएँ, किसी भी दूसरे मॉडिफ़ायर से पहले।
-    TanreiList(selection: $theme, label: "थीम") {
-        TanreiListItem("लाइट").tag("light")
-        TanreiListItem("डार्क").tag("dark")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Compose">
-    ```kotlin
-    import io.github.chnotchy.tanrei.components.TanreiList
-    import io.github.chnotchy.tanrei.components.TanreiListItem
-    import io.github.chnotchy.tanrei.components.TanreiListLeadingMedia
-    import io.github.chnotchy.tanrei.components.TanreiListSelectionMode
-    import io.github.chnotchy.tanrei.components.TanreiSwitch
-    import io.github.chnotchy.tanrei.primitives.TanreiText
-
-    // आइटम कॉन्टेंट लैम्ब्डा के TanreiListItem कॉल हैं। onClick null न हो तो पंक्ति इंटरैक्टिव होती है।
-    TanreiList {
-        TanreiListItem(
-            "Wi-Fi",
-            supportingText = "कनेक्टेड",
-            divider = true,
-            onClick = ::openWifi,
-            leadingIcon = { TanreiText("wifi") },
-            trailingIcon = { TanreiText("chevron_right") },
-        )
-        TanreiListItem("हवाई जहाज़ मोड", trailingContent = {
-            TanreiSwitch(checked = airplane, onCheckedChange = { airplane = it }, label = "हवाई जहाज़ मोड", labelHidden = true)
-        })
-        TanreiListItem("Ada Lovelace", supportingText = "रोडमैप संपादित किया",
-            leadingMedia = TanreiListLeadingMedia.Avatar, leadingContent = { TanreiText("A") })
-    }
-
-    // चयन आप रखते हैं। onSelectionChange को नया सेट मिलता है: Single रहते एक मान।
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Single,
-        contentDescription = "थीम",
-        selectedValue = theme,
-        onSelectionChange = { theme = it.single() },
-    ) {
-        TanreiListItem("लाइट", value = "light")
-        TanreiListItem("डार्क", value = "dark")
-    }
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Multiple,
-        contentDescription = "लेबल",
-        selectedValues = labels,
-        onSelectionChange = { labels = it },
-    ) {
-        TanreiListItem("बग", value = "bug")
-        TanreiListItem("दस्तावेज़", value = "docs")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Flutter">
-    ```dart
-    import 'package:tanrei/tanrei.dart';
-
-    // आइटम TanreiListTile विजेट हैं, ListTile के नामों के साथ। onTap null न हो तो टाइल इंटरैक्टिव होती है।
-    TanreiList<String>(
-      children: <Widget>[
-        TanreiListTile<String>(
-          title: 'Wi-Fi',
-          subtitle: 'कनेक्टेड',
-          leadingIcon: const Icon(AppSymbols.wifi),
-          trailingIcon: const Icon(AppSymbols.chevronRight),
-          onTap: openWifi,
-          divider: true,
-        ),
-        TanreiListTile<String>(
-          title: 'हवाई जहाज़ मोड',
-          trailing: TanreiSwitch(value: airplane, onChanged: setAirplane, label: 'हवाई जहाज़ मोड', labelHidden: true),
-        ),
-      ],
-    );
-
-    // चयन एक Set में रहता है, जैसे SegmentedButton में: single रहते ज़्यादा से ज़्यादा एक सदस्य।
-    TanreiList<String>(
-      selectionMode: TanreiListSelectionMode.single,
-      selected: <String>{theme},
-      onSelectionChanged: (Set<String> value) => setState(() => theme = value.single),
-      semanticLabel: 'थीम',
-      children: const <Widget>[
-        TanreiListTile<String>(value: 'light', title: 'लाइट'),
-        TanreiListTile<String>(value: 'dark', title: 'डार्क'),
-      ],
-    );
-    ```
-  </TabItem>
-  <TabItem label="React Native">
-    ```tsx
-    import { List, Switch } from '@tanrei/react-native';
-
-    // आइटम डेटा हैं। onPress आइटम को इंटरैक्टिव बनाता है।
-    <List
-      items={[
-        { headline: 'Wi-Fi', supportingText: 'कनेक्टेड', leadingIcon: 'wifi', trailingIcon: 'chevron_right', onPress: openWifi, divider: true },
-        { headline: 'हवाई जहाज़ मोड', trailing: <Switch label="हवाई जहाज़ मोड" labelHidden value={airplane} onValueChange={setAirplane} /> },
-        { headline: 'Ada Lovelace', supportingText: 'रोडमैप संपादित किया', leadingMedia: 'avatar', leading: 'A' },
-      ]}
-    />
-
-    // कंट्रोल्ड: लिस्ट onSelectionChange को कॉल करती है और value, या values, आप बदलते हैं।
-    <List
-      accessibilityLabel="थीम"
-      selectionMode="single"
-      value={theme}
-      onSelectionChange={setTheme}
-      items={[{ headline: 'लाइट', value: 'light' }, { headline: 'डार्क', value: 'dark' }]}
-    />
-    <List
-      accessibilityLabel="लेबल"
-      selectionMode="multiple"
-      values={labels}
-      onSelectionChange={setLabels}
-      items={[{ headline: 'बग', value: 'bug' }, { headline: 'दस्तावेज़', value: 'docs' }]}
-    />
     ```
   </TabItem>
 </Tabs>
 
+SwiftUI, Compose, Flutter और React Native पीछे हैं: वे पुरानी लिस्ट देते हैं, जिसकी पंक्तियों में हेडलाइन, सहायक टेक्स्ट और आगे-पीछे के हिस्से होते हैं, और इस संशोधन का कुछ भी अभी नहीं।
+
 ### क्रम बदलना
 
-<ListReorderProduct />
-
-<DemoFrame label="वह लिस्ट जिसका क्रम लोग बदलते हैं: हर पंक्ति में ले जाने वाले दो बटन" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="{headline} को ऊपर ले जाएँ" move-down-label="{headline} को नीचे ले जाएँ" moved-text="{headline} अब {count} में से {position} नंबर पर है" style="inline-size: 20rem">
-    <tanrei-list-item headline="सारांश" divider></tanrei-list-item>
-    <tanrei-list-item headline="हाल की फ़ाइलें" divider></tanrei-list-item>
-    <tanrei-list-item headline="मेरे साथ शेयर की गई" divider></tanrei-list-item>
-    <tanrei-list-item headline="आर्काइव"></tanrei-list-item>
+<DemoFrame label="क्रम बदलने योग्य कॉलम, हर आइटम में पेज का अपना हटाने वाला बटन" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
+    <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="अंतिम स्लॉट में पेज के अपने हटाने वाले बटन के साथ, ले जाने वाले बटनों के बाद" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="{headline} को ऊपर ले जाएँ" move-down-label="{headline} को नीचे ले जाएँ" moved-text="{headline} अब {count} में से {position} नंबर पर है" style="inline-size: 26rem">
-    <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="Inter हटाएँ" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="Noto Sans JP हटाएँ" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="Helvetica Neue हटाएँ" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
+`reorderable` लोगों को आइटमों का क्रम बदलने देता है, कॉलम, पंक्ति या ग्रिड में। हर आइटम अपनी शुरुआत में एक हैंडल बनाता है, जो बताता है कि उसे हिलाया जा सकता है। सिर्फ़ हैंडल नहीं, पूरा आइटम ड्रैग किया जा सकता है: माउस कुछ पिक्सेल हिलते ही उसे उठा लेता है, और उँगली या पेन देर तक दबाने के बाद, ताकि स्वाइप अब भी पेज को स्क्रॉल करे (हैंडल पर टच तुरंत ड्रैग करता है)। बाक़ी आइटम रास्ते से हट जाते हैं, उठाया हुआ आइटम उनके ऊपर पॉइंटर के साथ चलता है, और छोड़ने पर अपनी जगह बैठ जाता है।
 
-`reorder` का मान `buttons` होने पर लोग आइटम का क्रम बदल सकते हैं। हर पंक्ति दो आइकन बटन बनाती है: एक उसे एक जगह ऊपर ले जाता है, दूसरा एक जगह नीचे। ये Tanrei के बटन हैं, इसलिए कीबोर्ड, पॉइंटर, टच, स्विच, वॉइस कंट्रोल और स्क्रीन रीडर, सब इन्हें एक ही तरह इस्तेमाल करते हैं, और कुछ भी ड्रैग नहीं करना पड़ता।
+ड्रैग करना कभी अकेला तरीक़ा नहीं है। हैंडल एक बटन है: उसे दबाने, या Enter, से चार चालों का मेन्यू खुलता है (शुरुआत में, एक जगह पहले, एक जगह बाद में, आख़िर में)। कीबोर्ड से, हैंडल पर Space आइटम को उठाता है, ऐरो कीज़ उसे एक-एक जगह ले जाती हैं (Home और End पहली और आख़िरी जगह), Space या Enter उसे रखता है, और Escape उसे वापस रखता है। हर क़दम घोषित किया जाता है।
 
-क्रम आपका डेटा है, इसलिए लिस्ट उसे कभी नहीं बदलती। दबाने पर `move` फ़ायर होता है, `from` के साथ, जो आइटम का इंडेक्स है, और `to` के साथ, जो वह इंडेक्स है जो आइटम को मिलना है। दोनों 0 से गिने जाते हैं। जवाब में अपने आइटम का क्रम बदलें। तब लिस्ट दोनों पंक्तियों को जगह बदलते हुए बनाती है, फ़ोकस को ले जाई गई पंक्ति के उसी बटन पर रखती है, और सहायक तकनीक को बताती है कि पंक्ति अब कहाँ है। अगर आप कुछ नहीं बदलते, तो कुछ नहीं होता: प्रॉडक्ट इसी तरह किसी पंक्ति को ले जाने से मना करता है।
+क्रम आपका डेटा है, इसलिए लिस्ट उसे कभी नहीं बदलती। हिलाने का हर तरीक़ा `move` फ़ायर करता है, जिसमें `from` आइटम का इंडेक्स है और `to` वह इंडेक्स जो उसे मिलना है, दोनों 0 से गिने जाते हैं। जवाब में अपने आइटमों का क्रम बदलें। तब लिस्ट उन्हें जगह बदलते हुए दिखाती है, फ़ोकस हिलाए गए आइटम के हैंडल पर रखती है, और सहायक तकनीक को बताती है कि वह अब कहाँ है। अगर `comp.list.motion.reorder-duration` के समय में आप कुछ नहीं बदलते, तो चाल अस्वीकार मानी जाती है: आइटम वापस जाते हैं और कुछ घोषित नहीं होता।
 
-`comp.list.motion.reorder-duration` के समय के भीतर जवाब दें। जो क्रम इसके बाद आता है, वह फिर भी बनाया जाता है, पर लिस्ट तब तक मान चुकी होती है कि ले जाने से मना किया गया है, और उसे पढ़कर नहीं सुनाती।
-
-तीनों शब्द आपके हैं। `moveUpLabel` और `moveDownLabel` बटनों को नाम देते हैं, हर एक में `{headline}` जगह होती है जिसे लिस्ट पंक्ति की हेडलाइन से भरती है (`{headline} को ऊपर ले जाएँ`), और `movedText` वह वाक्य है जो पंक्ति ले जाने के बाद पढ़कर सुनाया जाता है। पूरा वाक्य अपनी भाषा में लिखें और उसमें तीन जगहें चिह्नित करें, जिन्हें लिस्ट भरती है: `{headline}`, `{position}` (1 से गिनी हुई) और `{count}`। शब्द लिस्ट पर दें, या `setWords()` से पूरे प्रॉडक्ट के लिए एक बार।
-
-क्रम बदलने वाली लिस्ट में सिर्फ़ स्टैटिक पंक्तियाँ रहती हैं, और वह कभी लिस्टबॉक्स नहीं होती। पंक्ति अपने अंतिम स्लॉट में, ले जाने वाले बटनों के बाद, आपका एक कंट्रोल रख सकती है: आम तौर पर आइटम को हटाने वाला बटन।
-
-`reorder` का मान `drag`, जो ऐसा हैंडल जोड़ता है जिसे पॉइंटर या उँगली ड्रैग करती है, स्पेक में है और अभी बना नहीं है। वेब पर वह दोनों बटन बनाता है और कोई हैंडल नहीं। क्रम बदलना आज वेब पर है। SwiftUI, Compose, Flutter और React Native इसमें पीछे हैं।
+शब्द आपके हैं: हैंडल का नाम (`dragHandleLabel`, जिसकी जगह `{label}` को लिस्ट आइटम के नाम से भरती है), उसका विवरण (`dragHandleHint`), मेन्यू की चार चालें, और घोषित होने वाले तीन वाक्य (`liftedText`, `movedText`, `cancelledText`, जगहों `{label}`, `{position}` और `{count}` के साथ)। उन्हें लिस्ट पर दें, या `setWords()` से पूरे प्रॉडक्ट के लिए एक बार। पंक्ति में, जहाँ कॉलम "ऊपर ले जाएँ" और "नीचे ले जाएँ" कहता है, वहाँ "बाईं ओर ले जाएँ" और "दाईं ओर ले जाएँ" लिखें।
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="{headline} को ऊपर ले जाएँ" move-down-label="{headline} को नीचे ले जाएँ"
-                 moved-text="{headline} अब {count} में से {position} नंबर पर है">
-      <tanrei-list-item headline="Inter">
-        <!-- आपका अपना कंट्रोल, ले जाने वाले दोनों बटनों के बाद। उसके नाम में आइटम का नाम रखें। -->
-        <tanrei-button slot="trailing" variant="text" label="Inter हटाएँ"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
-      <tanrei-list-item headline="Noto Sans JP">
-        <tanrei-button slot="trailing" variant="text" label="Noto Sans JP हटाएँ"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
+    <tanrei-list id="fonts" reorderable label="Typefaces"
+                 drag-handle-label="Reorder {label}"
+                 drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves"
+                 move-to-start-label="Move to top" move-before-label="Move up"
+                 move-after-label="Move down" move-to-end-label="Move to bottom"
+                 lifted-text="{label} lifted: {position} of {count}"
+                 moved-text="{label}: {position} of {count}"
+                 cancelled-text="{label} returned to {position} of {count}">
+      <tanrei-list-item label="Inter">Inter</tanrei-list-item>
+      <tanrei-list-item label="Noto Sans JP">Noto Sans JP</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      import '@tanrei/web/components/button';
       const list = document.querySelector('#fonts');
-      // लिस्ट ने कुछ नहीं हिलाया है। आइटम को वहाँ रखें जहाँ उसे रखने को कहा गया: from और to 0 से गिने जाते हैं।
+      // The list has moved nothing. Put the item where it was asked to stand: from and to count from 0.
       list.addEventListener('move', ({ detail: { from, to } }) => {
         const items = [...list.children];
         list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
@@ -297,16 +176,22 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, List, ListItem } from '@tanrei/react';
+    import { List, ListItem } from '@tanrei/react';
 
     const [fonts, setFonts] = useState(['Inter', 'Noto Sans JP', 'Helvetica Neue']);
 
-    // क्रम आपका स्टेट है। आप जिस क्रम में रेंडर करते हैं, उसमें लिस्ट ले जाई गई पंक्ति को फिर ढूँढ लेती है।
+    // The order is your state. The list finds the moved item again in the order you render.
     <List
-      reorder="buttons"
-      moveUpLabel="{headline} को ऊपर ले जाएँ"
-      moveDownLabel="{headline} को नीचे ले जाएँ"
-      movedText="{headline} अब {count} में से {position} नंबर पर है"
+      reorderable
+      label="Typefaces"
+      dragHandleLabel="Reorder {label}"
+      moveToStartLabel="Move to top"
+      moveBeforeLabel="Move up"
+      moveAfterLabel="Move down"
+      moveToEndLabel="Move to bottom"
+      liftedText="{label} lifted: {position} of {count}"
+      movedText="{label}: {position} of {count}"
+      cancelledText="{label} returned to {position} of {count}"
       onMove={(e) => {
         const { from, to } = e.detail;
         setFonts((now) => {
@@ -317,31 +202,14 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
       }}
     >
       {fonts.map((font) => (
-        <ListItem key={font} headline={font}>
-          <Button slot="trailing" variant="text" label={`${font} हटाएँ`} onClick={() => setFonts((now) => now.filter((each) => each !== font))}>
-            <span slot="icon">close</span>
-          </Button>
-        </ListItem>
+        <ListItem key={font} label={font}>{font}</ListItem>
       ))}
     </List>
     ```
   </TabItem>
 </Tabs>
 
-## स्पेक
-
-<DemoFrame label="मीडिया, लाइनें, अक्षम और बहु चयन" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="Ada Lovelace" supporting-text="2 घंटे पहले रोडमैप संपादित किया" leading-media="avatar"><span slot="leading">A</span></tanrei-list-item>
-    <tanrei-list-item headline="रोडमैप" overline="इंजीनियरिंग" supporting-text="अगली तिमाही की योजना, माइलस्टोन, ज़िम्मेदार लोगों और उन जोखिमों के साथ जिनके बारे में हम पहले से जानते हैं।" supporting-max-lines="2" leading-media="image" trailing-text="9:41"></tanrei-list-item>
-    <tanrei-list-item headline="आर्काइव" leading-icon="archive" interactive disabled></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="multiple" label="लेबल" style="inline-size: 20rem">
-    <tanrei-list-item headline="बग" supporting-text="12 खुले इशू" leading-icon="label" value="bug"></tanrei-list-item>
-    <tanrei-list-item headline="फ़ीचर" supporting-text="4 खुले इशू" leading-icon="label" value="feature"></tanrei-list-item>
-    <tanrei-list-item headline="दस्तावेज़" supporting-text="7 खुले इशू" leading-icon="label" value="docs" disabled></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
+## स्पेक्स
 
 <ComponentSpecs name="list" />
 
@@ -349,123 +217,75 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 ### कब इस्तेमाल करें
 
-लिस्ट एक ही क़िस्म की चीज़ों के कॉलम के लिए इस्तेमाल करें: संदेश, लोग, फ़ाइलें, सेटिंग, या किसी पिकर के विकल्प। हर पंक्ति एक ही क़िस्म के एलिमेंट से शुरू होती है और एक ही क़िस्म के मान पर ख़त्म होती है, इसलिए कॉलम पर नज़र दौड़ाई जा सकती है। जिस एक चीज़ के बारे में ज़्यादा कहना हो, उसके लिए कार्ड इस्तेमाल करें, जब लोग कॉलम के आर-पार मानों की तुलना करते हों तो टेबल, और बटन से खुलने वाले क्रियाओं के छोटे सेट के लिए मेन्यू।
+लिस्ट एक तरह की चीज़ों के समूह के लिए है जिन्हें लोग देखते, खोलते, चुनते या सजाते हैं: संदेश, लोग, फ़ाइलें, फ़ोटो, सेटिंग्स, पिकर के विकल्प। जब लोग कॉलमों के पार मान तुलना करते हैं तो टेबल, और बटन से खुलने वाली कुछ कार्रवाइयों के लिए मेन्यू इस्तेमाल करें।
 
-लिस्ट अपना कुछ नहीं बनाती। वह न बैकग्राउंड जोड़ती है, न अपने आइटम के चारों ओर पैडिंग, न स्क्रॉल। उसे किसी सरफ़ेस पर रखें, किसी कार्ड में (ग्रुप की हुई लिस्ट के लिए `inset` बंद करके, जैसे iOS की सेटिंग में), या अपनी स्क्रीन के स्क्रॉल व्यू में।
+लिस्ट ख़ुद कुछ नहीं बनाती: न बैकग्राउंड, न आइटमों के आसपास पैडिंग, न स्क्रॉलिंग। उसे किसी सरफ़ेस पर, कार्ड में या अपनी स्क्रीन के स्क्रॉल व्यू में रखें, और हर आइटम को उसके कंटेंट में ज़रूरी रूप दें।
 
-### पंक्ति के चार प्रकार
+### आइटम के चार प्रकार
 
-पंक्ति हमेशा एक `list-item` होती है। वह क्या है, यह लिस्ट के `selection` और आइटम के `interactive` और `href` से तय होता है।
-
-| प्रकार | यह कैसे मिलता है | यह क्या है | किसके लिए |
+| प्रकार | कैसे मिलता है | यह क्या है | किसके लिए |
 | --- | --- | --- | --- |
-| स्टैटिक | `selection` none, `interactive` false | कॉन्टेंट दिखाने वाला लिस्ट आइटम। वह फ़ोकस नहीं लेता और होवर या दबाने का कोई स्टेट नहीं बनाता। | वे पंक्तियाँ जिन्हें लोग सिर्फ़ पढ़ते हैं, और वे पंक्तियाँ जिनके अंतिम स्लॉट में उनका अपना कंट्रोल होता है, जैसे स्विच। |
-| इंटरैक्टिव | `interactive` true | अपने लिस्ट आइटम के भीतर एक बटन, जिसका नाम हेडलाइन से आता है। | वे पंक्तियाँ जिनमें से हर एक वहीं कुछ बदलती या खोलती है: कोई सेटिंग, किसी पेन में कोई संदेश, कोई डायलॉग। |
-| लिंक | `href` सेट है | अपने लिस्ट आइटम के भीतर एक लिंक, जिसका नाम हेडलाइन से आता है और जो ठीक इंटरैक्टिव पंक्ति की तरह बनता है। उसे Enter सक्रिय करती है, Space नहीं। `href` को `interactive` पर तरजीह मिलती है। | वे पंक्तियाँ जिनमें से हर एक अपने अलग पते वाले पेज पर जाती है: पेजों की सूची, खोज के नतीजे, संबंधित दस्तावेज़। |
-| विकल्प | `selection` single या multiple | लिस्टबॉक्स का एक विकल्प, चयनित स्टेट के साथ। | पंक्तियों में से चुनना: कोई थीम, कोई भाषा, किसी इशू के लेबल। |
+| स्टैटिक | `selection` none, `interactive` false, कोई `href` नहीं | आपका कंटेंट जैसा है। न फ़ोकस, न होवर या दबाना। | पढ़े जाने वाले आइटम, और अपने कंट्रोल वाले आइटम। |
+| इंटरैक्टिव | `interactive` | अपने लिस्ट आइटम के अंदर एक बटन। | ऐसे आइटम जो कुछ बदलते हैं या उसे वहीं खोलते हैं। |
+| लिंक | `href` | अपने लिस्ट आइटम के अंदर एक लिंक, बिल्कुल इंटरैक्टिव आइटम जैसा। Enter उसे खोलता है, Space नहीं। | ऐसे आइटम जो अपने पते वाले पेज पर ले जाते हैं। |
+| ऑप्शन | `selection` single या multiple | लिस्टबॉक्स का एक ऑप्शन, चयनित स्टेट और चेक के साथ। | आइटमों में से चुनना। |
 
-एक लिस्ट में स्टैटिक, इंटरैक्टिव और लिंक वाली पंक्तियाँ साथ हो सकती हैं। चयन वाली लिस्ट में सिर्फ़ विकल्प रहते हैं: वहाँ `interactive` और `href` को अनदेखा किया जाता है। क्रम बदलने वाली लिस्ट में सिर्फ़ स्टैटिक पंक्तियाँ रहती हैं: वहाँ भी `interactive` और `href` को अनदेखा किया जाता है, क्योंकि जो पंक्ति ख़ुद एक बटन या एक लिंक है, वह उन बटनों को नहीं रख सकती जो उसे ले जाते हैं।
+एक लिस्ट में स्टैटिक, इंटरैक्टिव और लिंक आइटम मिले-जुले हो सकते हैं। चुनने योग्य लिस्ट में सिर्फ़ ऑप्शन होते हैं। क्रम बदलने योग्य लिस्ट में सिर्फ़ स्टैटिक आइटम होते हैं, और वह कभी लिस्टबॉक्स नहीं होती: कार्रवाई, लिंक या ऑप्शन एक दबाने से चलते हैं जिसे ड्रैग ले लेता।
 
-### वे लिस्ट जिनका क्रम लोग बदलते हैं
+### लिस्टें जिनका क्रम लोग बदलते हैं
 
-- `reorder` उस छोटी लिस्ट के लिए इस्तेमाल करें जिसके क्रम का कोई मतलब है और जिसे तय करना व्यक्ति का काम है: फ़ॉन्ट स्टैक की फ़ैमिली, होम स्क्रीन के सेक्शन, कोई क़तार। लंबी लिस्ट के लिए इसकी जगह उसे सॉर्ट करने का तरीक़ा दें। एक बार दबाने से पंक्ति एक जगह खिसकती है।
-- अपने आइटम का क्रम `move` हैंडलर में बदलें, या उसके बाद जितनी जल्दी आपका फ़्रेमवर्क रेंडर करे। आप मौजूदा एलिमेंट को हिला सकते हैं या नए रेंडर कर सकते हैं: लिस्ट ले जाई गई पंक्ति को उसकी जगह और उसकी हेडलाइन से ढूँढती है।
-- ले जाने वाले बटनों के शब्दों में पंक्ति की हेडलाइन की जगह रखें (`{headline} को ऊपर ले जाएँ`, `{headline} को नीचे ले जाएँ`)। हेडलाइन हर बटन के नाम का हिस्सा है, इसलिए पेज के बटनों की सूची में और आवाज़ से नियंत्रण में दो पंक्तियों के बटन अलग पहचाने जाते हैं।
-- `movedText` को तीनों जगहों के साथ एक पूरे वाक्य के रूप में लिखें। लिस्ट अपना कोई वाक्यांश नहीं बनाती, इसलिए शब्दों का क्रम आपकी भाषा का होता है।
-- अंतिम स्लॉट में ज़्यादा से ज़्यादा एक कंट्रोल रखें, और उसके नाम में आइटम का नाम रखें ("Inter हटाएँ"), ताकि दो पंक्तियों के हटाने वाले बटन एक-दूसरे से अलग पहचाने जाएँ।
-- लिस्ट पंक्ति का ले जाया जाना पढ़कर सुनाती है, और कुछ नहीं। जब आप कोई आइटम हटाते या जोड़ते हैं, तो क्या कहा जाए, यह आपका काम है। जब आप आख़िरी आइटम हटाते हैं, तो फ़ोकस ख़ुद वहाँ ले जाएँ जहाँ व्यक्ति नया आइटम जोड़ता है।
-- पंक्तियों को जगह दें। जहाँ ले जाने वाले बटन और अंतिम कंट्रोल टेक्स्ट को `reorder.text-min-width` (डिफ़ॉल्ट टेक्स्ट साइज़ पर 96 px, और टेक्स्ट बड़ा करने पर उसी हिसाब से ज़्यादा) से सँकरा छोड़ते, वहाँ लिस्ट की हर पंक्ति उन्हें टेक्स्ट के नीचे उनकी अपनी लाइन पर रखती है, और जहाँ वह लाइन भी छोटी पड़े, वहाँ अंतिम कंट्रोल को एक और लाइन पर। डिफ़ॉल्ट सिस्टम में जिस पंक्ति में हटाने वाला बटन है और कोई आइकन, अवतार या इमेज नहीं है, वह डिफ़ॉल्ट टेक्स्ट साइज़ पर पंक्ति के क़रीब 300 px या उससे चौड़ी होने पर बटनों को टेक्स्ट के बगल में रखती है; 200% टेक्स्ट पर वे टेक्स्ट के नीचे आ जाते हैं।
+- `reorderable` वहाँ इस्तेमाल करें जहाँ क्रम का मतलब है और उसे तय करना व्यक्ति का काम है: फ़ॉन्ट स्टैक के फ़ैमिली, होम स्क्रीन के सेक्शन, अटैचमेंट की फ़ाइलें, एक कतार। लंबी लिस्ट के लिए इसके बजाय सॉर्ट करने का तरीक़ा दें।
+- `move` हैंडलर में, या आपका फ़्रेमवर्क जितनी जल्दी दोबारा रेंडर करे, अपने आइटमों का क्रम बदलें। आप मौजूदा एलिमेंट हिला सकते हैं या नए रेंडर कर सकते हैं: लिस्ट हिलाए गए आइटम को उसकी जगह और नाम से ढूँढ लेती है।
+- जब कंटेंट का टेक्स्ट आइटम का ठीक नाम न दे, तो उसे `label` दें: नाम उसके हैंडल के नाम का हिस्सा है, ताकि दो आइटमों के हैंडल अलग पहचाने जाएँ, और घोषणाएँ भी यही कहती हैं।
+- हर वाक्य पूरा लिखें, उसकी जगहों के साथ। लिस्ट अपना कोई वाक्यांश नहीं बनाती, इसलिए शब्दों का क्रम आपकी भाषा का है।
+- आइटम में आपका कंट्रोल (उसे हटाने वाला बटन) हैंडल के बाद अपना फ़ोकस स्टॉप रखता है। उसे आइटम के नाम के साथ नाम दें ("Inter हटाएँ")। जब आप फ़ोकस वाले आइटम को हटाते हैं, तो लिस्ट फ़ोकस उसकी जगह आए आइटम के हैंडल पर ले जाती है; हटाने की बात आप ख़ुद बताएँ।
 
 ### चयन मोड चुनना
 
-| चयन | लिस्ट क्या है | विकल्प चुनने पर |
+| चयन | लिस्ट है | ऑप्शन चुनने पर |
 | --- | --- | --- |
-| None (डिफ़ॉल्ट) | एक लिस्ट | कुछ नहीं चुना जाता। इंटरैक्टिव पंक्तियाँ अपना click एमिट करती हैं। |
-| Single | एक लिस्टबॉक्स | विकल्प चयनित होता है और जो पहले चयनित था उसका चयन हट जाता है। चयनित विकल्प को दोबारा चुनकर उसका चयन नहीं हटाया जा सकता, जैसे रेडियो बटन में। अगर "कोई नहीं" एक मान्य जवाब है, तो उसके लिए एक विकल्प जोड़ें। |
-| Multiple | बहु चयन वाला लिस्टबॉक्स | विकल्प को चालू या बंद करता है। |
+| कोई नहीं (डिफ़ॉल्ट) | लिस्ट | कुछ नहीं चुना जाता। इंटरैक्टिव आइटम अपना click फ़ायर करते हैं। |
+| एक | लिस्टबॉक्स | ऑप्शन को चुनता है और पहले चुने गए को हटाता है। दोबारा चुनने से वह नहीं हटता। |
+| कई | कई-चयन वाला लिस्टबॉक्स | ऑप्शन को चालू या बंद करता है। |
 
-ऐरो कुंजियाँ सिर्फ़ फ़ोकस को आगे-पीछे ले जाती हैं। चयन तब बदलता है जब व्यक्ति Space या Enter दबाता है, या पंक्ति पर टैप करता है। यह जान-बूझकर है: लिस्ट में किसी पंक्ति को चुनना कोई धीमा काम शुरू कर सकता है, और पचास पंक्तियों से गुज़रने पर पचास बार लोड शुरू नहीं होना चाहिए।
-
-चयनित विकल्प चयन वाले फ़िल के साथ बनता है, और उसके अंत में एक चेक होता है। डिफ़ॉल्ट सिस्टम में यह फ़िल, मेन्यू के चेक किए गए आइटम की तरह, पंक्ति के अपने कंटेंट रंग की एक परत है, इसलिए किसी भी सरफ़ेस पर यह होवर की हुई पंक्ति से अलग दिखता है। चेक की जगह हर विकल्प में रखी जाती है, इसलिए टेक्स्ट एक सीध में रहता है। इस स्टेट के लिए 3:1 का कंट्रास्ट चेक पूरा करता है। अकेला फ़िल नहीं करता।
-
-### पंक्तियाँ और उनके भाग
-
-- अकेली हेडलाइन एक लाइन वाली पंक्ति देती है। ओवरलाइन, या सहायक टेक्स्ट की एक लाइन, दो लाइन वाली पंक्ति देती है। सहायक टेक्स्ट की दो या ज़्यादा लाइनें तीन लाइन वाली पंक्ति देती हैं। अपने कॉन्टेंट के साथ और बड़े टेक्स्ट के साथ पंक्तियाँ इन ऊँचाइयों से आगे बढ़ती हैं।
-- `supportingMaxLines` लंबे सहायक टेक्स्ट को एलिप्सिस के साथ काटता है, प्रीव्यू वाले कॉलम के लिए। सहायक तकनीक को फिर भी पूरा टेक्स्ट पढ़कर सुनाया जाता है।
-- पंक्ति के शुरू में शुरुआती आइकन इस्तेमाल करें, या शुरुआती मीडिया: अवतार (गोल बॉक्स, लोगों के लिए) या इमेज (बड़ा, गोल कोनों वाला चौकोर, चीज़ों के लिए)। मीडिया आइकन की जगह ले लेता है।
-- अंत में छोटा अंतिम टेक्स्ट (कोई गिनती, कोई समय), अंतिम आइकन (कुछ खोलने वाली पंक्ति के लिए शेवरॉन), और स्टैटिक पंक्ति पर अपना कंट्रोल इस्तेमाल करें। जिस लिंक वाली पंक्ति के `target` का मान `new` है, वह अपने अंतिम आइकन के रूप में `open_in_new` ख़ुद बनाती है, जब तक आप किसी और का नाम न दें।
-- आइकन डिज़ाइन सिस्टम के आइकन सेट के ग्लिफ़ के नाम हैं (`wifi`, `chevron_right`)। जो ग्लिफ़ लाइन के साथ-साथ कोई दिशा दिखाता है, वह दाएँ से बाएँ वाले लेआउट में मिरर होता है।
-- `divider` पंक्ति के नीचे एक बारीक रेखा बनाता है, जो वहाँ से शुरू होती है जहाँ से टेक्स्ट शुरू होता है, बारीक रेखा के उसी एक रंग में जिसे हर कंपोनेंट इस्तेमाल करता है। इसे आख़िरी को छोड़कर हर पंक्ति पर सेट करें, या किसी ग्रुप के अंत में। पंक्तियों के बीच आप अपना [डिवाइडर](/hi/components/divider/) नहीं जोड़ते।
+ऐरो कीज़ सिर्फ़ फ़ोकस हिलाती हैं; चयन तब बदलता है जब व्यक्ति Space या Enter दबाता है, या आइटम पर टैप करता है। चुना गया ऑप्शन चयनित फ़िल और आख़िर में चेक के साथ बनता है, और चेक की जगह हर ऑप्शन में रखी जाती है, ताकि कंटेंट एक सीध में रहे।
 
 ### करें
 
-- हेडलाइन छोटी रखें और ब्योरे सहायक टेक्स्ट में दें। हेडलाइन ही पंक्ति का नाम है।
-- चयन वाली लिस्ट को ऐसा `label` दें जो बताए कि विकल्प क्या हैं, जैसे "थीम"।
-- जो पंक्ति कोई सेटिंग चालू-बंद करती है, उसे स्टैटिक पंक्ति बनाएँ जिसके अंतिम स्लॉट में एक स्विच हो। स्विच को हेडलाइन से नाम दें और उसका दिखने वाला लेबल छिपाएँ।
-- सेक्शन बनाने के लिए दो लिस्ट के बीच एक हेडिंग रखें। लिस्ट का अपना कोई सेक्शन हेडर नहीं है।
-- जब पंक्ति किसी पेज पर जाती हो तो उसे `href` दें, और `interactive` को उस पंक्ति के लिए रखें जो वहीं कुछ करती है। जो पंक्ति click हैंडलर से नेविगेट करती है, वह लिंक नहीं है: उसे नए टैब में नहीं खोला जा सकता, और उसका पता कॉपी नहीं किया जा सकता।
+- चुनने योग्य लिस्ट को ऐसा `label` दें जो बताए कि ऑप्शन क्या हैं, और क्रम बदलने योग्य लिस्ट को ऐसा जो बताए कि आइटम क्या हैं।
+- पेज पर ले जाने वाले आइटम को `href` दें, और वहीं काम करने वाले आइटम के लिए `interactive` रखें।
+- सेक्शन बनाने के लिए दो लिस्टों के बीच हेडिंग रखें। लिस्ट का अपना सेक्शन हेडर नहीं है।
 
 ### न करें
 
-- इंटरैक्टिव पंक्ति, लिंक वाली पंक्ति या विकल्प के भीतर बटन, लिंक, स्विच या कोई और कंट्रोल न रखें। पंक्ति एक ही एलिमेंट है, इसलिए सहायक तकनीक उसके भीतर के कंट्रोल तक नहीं पहुँच सकती, और कंट्रोल पर दबाने से पंक्ति भी सक्रिय हो जाती है।
-- जो चीज़ तुरंत चलती है, उसके लिए विकल्प इस्तेमाल न करें। लिस्टबॉक्स एक मान चुनता है। क्रियाओं के लिए इंटरैक्टिव पंक्तियाँ इस्तेमाल करें।
-- स्टैटिक पंक्ति को अक्षम न करें। उसमें अक्षम करने लायक़ कोई क्रिया नहीं है, इसलिए वहाँ `disabled` को अनदेखा किया जाता है।
-- चयन दिखाने के लिए पंक्ति में चेकबॉक्स या रेडियो बटन न बनाएँ। `selection` इस्तेमाल करें, जो चेक बनाता है और स्टेट देता है।
+- इंटरैक्टिव आइटम, लिंक आइटम या ऑप्शन के अंदर बटन, लिंक, स्विच या कोई और कंट्रोल न रखें। आइटम एक ही एलिमेंट है, इसलिए सहायक तकनीक अंदर के कंट्रोल तक नहीं पहुँचती, और कंट्रोल दबाने से आइटम भी चल जाता है।
+- तुरंत चलने वाली चीज़ के लिए ऑप्शन इस्तेमाल न करें। लिस्टबॉक्स एक मान चुनता है।
+- अपना ड्रैग हैंडल या हिलाने के बटन न बनाएँ: `reorderable` हैंडल बनाता है, और उसका मेन्यू बिना ड्रैग के हिलाने का तरीक़ा है।
 
-## सुलभता
+## एक्सेसिबिलिटी
 
 <ComponentAccessibility name="list" />
 
-### कंपोनेंट क्या सँभालता है
+### कंपोनेंट क्या संभालता है
 
-- बिना चयन वाली लिस्ट एक लिस्ट के रूप में दी जाती है, और हर पंक्ति एक लिस्ट आइटम के रूप में, लिस्ट में अपनी जगह और लिस्ट के साइज़ के साथ। इंटरैक्टिव पंक्ति अपने लिस्ट आइटम के भीतर एक बटन है, और लिंक वाली पंक्ति वहाँ एक लिंक है।
-- लिंक वाली पंक्ति लिस्ट की ऐरो कुंजियों के क्रम में इंटरैक्टिव पंक्ति की तरह ही रहती है। Enter लिंक खोलती है; Space वही करती है जो वह किसी भी लिंक पर करती है, और दबाया हुआ स्टेट नहीं दिखाती। जो पंक्ति नया टैब खोलती है, वह अपने नाम और विवरण के बाद अपना `targetLabel` पढ़ती है। अक्षम लिंक वाली पंक्ति में जाने या कॉपी करने को कुछ नहीं होता, और उस तक ऐरो कुंजियों से फिर भी पहुँचा जाता है।
-- चयन वाली लिस्ट `label` के नाम वाले लिस्टबॉक्स के रूप में दी जाती है, और `selection` के multiple रहते बहु चयन वाले के रूप में। हर पंक्ति एक विकल्प है, अपने चयनित स्टेट, लिस्ट में अपनी जगह और लिस्ट के साइज़ के साथ।
-- इंटरैक्टिव पंक्ति, लिंक वाली पंक्ति या विकल्प का नाम उसकी हेडलाइन से आता है, और उसका विवरण उसकी ओवरलाइन, सहायक टेक्स्ट और अंतिम टेक्स्ट से, पढ़ने के क्रम में। आइकन, चेक, डिवाइडर और शुरुआती मीडिया छिपे रहते हैं।
-- इंटरैक्टिव पंक्तियों या विकल्पों वाली लिस्ट एक Tab स्टॉप है। Tab उस पंक्ति पर जाती है जिस पर पिछली बार फ़ोकस था, नहीं तो पहले चयनित विकल्प पर, नहीं तो पहली सक्षम पंक्ति पर। Up Arrow और Down Arrow फ़ोकस को एक पंक्ति से दूसरी पर ले जाती हैं, और सिरों पर घूमकर दूसरे सिरे पर नहीं जातीं। Home और End पहली और आख़िरी पंक्ति पर ले जाती हैं। टाइप करने पर फ़ोकस उस अगली पंक्ति पर जाता है जिसकी हेडलाइन टाइप किए गए अक्षरों से शुरू होती है। Space और Enter सक्रिय करती हैं। स्टैटिक पंक्तियाँ फ़ोकस नहीं लेतीं। स्टैटिक पंक्ति का कंट्रोल अपना Tab स्टॉप बनाए रखता है।
-- क्रम बदलने वाली लिस्ट में ले जाने वाला हर बटन एक बटन है, जिसका नाम `moveUpLabel` या `moveDownLabel` से आता है, और उसकी `{headline}` जगह में पंक्ति की हेडलाइन होती है। हर एक पढ़ने के क्रम में अपना अलग Tab स्टॉप है, पंक्ति के अंतिम कंट्रोल से पहले। वहाँ लिस्ट एक Tab स्टॉप नहीं होती, और ऐरो कुंजियाँ कुछ नहीं करतीं। पहली पंक्ति का ऊपर ले जाने वाला बटन और आख़िरी पंक्ति का नीचे ले जाने वाला बटन अक्षम होते हैं और फिर भी बनाए जाते हैं, इसलिए हर पंक्ति में वही भाग उन्हीं जगहों पर होते हैं।
-- पंक्ति ले जाने के बाद फ़ोकस उसी पंक्ति के उसी बटन पर रहता है, इसलिए कुंजी दोबारा दबाने से पंक्ति फिर खिसकती है। जहाँ पंक्ति पहली या आख़िरी बन गई है, वहाँ फ़ोकस उसके दूसरे ले जाने वाले बटन पर जाता है।
-- क्रम बदलने वाली लिस्ट में एक लाइव रीजन होता है, जो बिना टोके (polite) पढ़कर सुनाता है। पंक्ति ले जाने के बाद उसमें `movedText` होता है, पंक्ति की हेडलाइन, उसकी नई जगह और पंक्तियों की संख्या के साथ, और अगली बार ले जाने पर वह बदल जाता है। संख्याएँ वैसे लिखी जाती हैं जैसे लिस्ट की भाषा उन्हें लिखती है। पंक्ति का ले जाया जाना और कोई चीज़ पढ़कर नहीं सुनाती।
-- दो पंक्तियाँ एक छोटे मोशन के साथ जगह बदलती हैं, और जहाँ मोशन कम किया गया है वहाँ तुरंत।
-- जब आप वह पंक्ति हटाते हैं जिस पर फ़ोकस है, तो फ़ोकस उस पंक्ति के उसी कंट्रोल पर जाता है जो अब उसकी जगह है, नहीं तो उससे पहले वाली पंक्ति के।
-- जहाँ कंट्रोल टेक्स्ट को दबा देते, वहाँ वे उसके नीचे अपनी अलग लाइन पर चले जाते हैं, और कोई कंट्रोल अपने टार्गेट से छोटा नहीं होता।
-- अक्षम पंक्तियों तक ऐरो कुंजियों से फिर भी पहुँचा जा सकता है, ताकि लोग जान सकें कि वे मौजूद हैं, पर उन्हें सक्रिय नहीं किया जा सकता।
-- फ़ोकस रिंग पंक्ति के भीतर बनती है, इसलिए लिस्ट के चारों ओर का स्क्रॉल व्यू उसे काट नहीं सकता। वह सिर्फ़ कीबोर्ड फ़ोकस के लिए दिखती है।
-- इंटरैक्टिव पंक्ति या विकल्प कम से कम न्यूनतम टार्गेट जितना ऊँचा है, और पूरी पंक्ति उसका हिट एरिया है। पंक्तियों के हिट एरिया कभी एक-दूसरे पर नहीं चढ़ते।
-- पंक्तियाँ बड़े टेक्स्ट के साथ बढ़ती हैं। हेडलाइन अगली लाइन में जाती है और कभी कटती नहीं।
-- डीबग बिल्ड इन बातों की रिपोर्ट करते हैं: बिना हेडलाइन की पंक्ति, बिना लेबल की चयन वाली लिस्ट, ऐसा विकल्प जिसका मान ख़ाली या दोहराया हुआ है, ऐसा चयन जो किसी विकल्प से मेल नहीं खाता, `href` वाला विकल्प, ऐसा `href` जो `javascript:` पता है या पढ़ा नहीं जा सकता, अनजान `target`, और ऐसी लिंक वाली पंक्ति जिसके `target` का मान `new` है और जिसमें `targetLabel` नहीं है। क्रम बदलने वाली लिस्ट के लिए वे इन बातों की रिपोर्ट करते हैं: ले जाने का ऐसा शब्द जो किसी ने नहीं दिया (हर शब्द के लिए एक बार), `movedText` में ब्रेस के बीच का ऐसा टेक्स्ट जो तीनों जगहों में से कोई नहीं है, ऐसी पंक्ति जिसमें `interactive` या `href` है, और चयन वाली लिस्ट पर `reorder`।
+- बिना चयन वाली लिस्ट लिस्ट के रूप में दिखाई जाती है, और हर आइटम अपनी जगह और लिस्ट के आकार के साथ लिस्ट आइटम के रूप में। इंटरैक्टिव आइटम अपने लिस्ट आइटम के अंदर एक बटन है, और लिंक आइटम वहाँ एक लिंक। चुनने योग्य लिस्ट `label` से नामित, अपने ओरिएंटेशन वाला लिस्टबॉक्स है; हर आइटम चयनित स्टेट वाला ऑप्शन है।
+- इंटरैक्टिव आइटम, लिंक या ऑप्शन वाली लिस्ट एक Tab स्टॉप है। व्यवस्था की ऐरो कीज़ आइटमों के बीच बिना घूमे चलती हैं (कॉलम में ऊपर-नीचे, पंक्ति में बाएँ-दाएँ, दाएँ-से-बाएँ लेआउट में उलटी; ग्रिड में पंक्तियों के पार भी)। Home, End और टाइप करके खोजना काम करते हैं। स्टैटिक आइटम फ़ोकस नहीं लेते; उनके अंदर का कंट्रोल अपना Tab स्टॉप रखता है।
+- क्रम बदलने योग्य लिस्ट में हर हैंडल एक मेन्यू बटन है, जिसका नाम आपके `dragHandleLabel` में आइटम का नाम भरकर बनता है और विवरण आपका `dragHandleHint` है, और वह अपना Tab स्टॉप है। उसका मेन्यू एक-एक दबाने से आइटम हिलाता है, जो WCAG की इस आवश्यकता को पूरा करता है कि जो ड्रैग करके होता है वह बिना ड्रैग के भी हो सके (2.5.7)। Space कीबोर्ड के लिए आइटम उठाता है (2.1.1)।
+- एक विनम्र लाइव रीजन बताता है कि कीबोर्ड ने आइटम कब उठाया, हर क़दम पर वह कहाँ रखा जाएगा, चाल लागू होने पर वह कहाँ है, और Escape के बाद वह वापस गया।
+- ड्रैग किया गया आइटम ड्रैग के फ़िल और छाया के साथ पॉइंटर के साथ चलता है; बाक़ी क्रम बदलने की मोशन के साथ हट जाते हैं। कम मोशन में पॉइंटर के नीचे वाले आइटम के सिवा सब तुरंत हिलता है। फ़ोर्स्ड कलर्स में ड्रैग किया गया आइटम हाइलाइट रंग से घिरा होता है।
+- Escape ड्रैग किए गए आइटम को वापस रखता है और उस डायलॉग को बंद नहीं करता जिसमें लिस्ट है। आइटम को देर तक दबाने से ब्राउज़र का कोई मेन्यू नहीं खुलता।
+- इंटरैक्टिव आइटम, लिंक या ऑप्शन कम से कम न्यूनतम टारगेट जितना है, उसकी फ़ोकस रिंग अंदर बनती है, और वह बड़े टेक्स्ट के साथ बढ़ता है।
+- डीबग बिल्ड बताते हैं: बिना नाम का आइटम, बिना लेबल की चुनने योग्य या क्रम बदलने योग्य लिस्ट, ख़ाली या दोहराए गए मान वाला ऑप्शन, किसी ऑप्शन को न दर्शाने वाला चयन, इंटरैक्टिव आइटम या ऑप्शन के अंदर कंट्रोल, कोई शब्द जो किसी ने नहीं दिया, और चुनने योग्य लिस्ट पर `reorderable`।
 
 प्लैटफ़ॉर्म की ज्ञात कमियाँ:
 
-- Web: `reorder` का मान `drag` अभी बना नहीं है। वह ले जाने वाले दोनों बटन बनाता है और कोई हैंडल नहीं, और कुछ भी ड्रैग नहीं किया जा सकता।
-- SwiftUI, Compose, Flutter और React Native में अभी क्रम बदलने वाली लिस्ट नहीं है: न `reorder`, न `move`, न उसके तीन शब्दों में से कोई।
-- SwiftUI, Compose, Flutter और React Native में अभी लिंक वाली पंक्तियाँ नहीं हैं: न `href`, न `target`, न `targetLabel`।
-- SwiftUI में लिस्ट या लिस्टबॉक्स का कोई रोल नहीं है और बहु चयन की कोई प्रॉपर्टी नहीं है। लिस्ट `label` के नाम वाला एक कंटेनर है, हर इंटरैक्टिव पंक्ति या विकल्प एक बटन है (चुना हुआ रहने तक विकल्प में selected ट्रेट होता है), और हर एक लिस्ट में अपनी जगह को अपने मान के रूप में रखता है ("2 of 3"), सिर्फ़ अंग्रेज़ी में।
-- SwiftUI अक्षम बटन को कभी कीबोर्ड फ़ोकस नहीं देता, इसलिए ऐरो कुंजियाँ अक्षम पंक्ति तक पहुँचने की जगह उसे लाँघ जाती हैं।
-- SwiftUI शुरुआती मीडिया को हमेशा सहायक तकनीक से छिपाता है, इसलिए जिस फ़ोटो को आप नाम देते हैं वह पढ़ी नहीं जाती।
-- SwiftUI विकल्प का मान सिर्फ़ उस `.tag(_:)` से पढ़ता है जो ख़ुद `TanreiListItem` पर, किसी भी दूसरे मॉडिफ़ायर से पहले, लगाया गया हो। किसी दूसरे व्यू पर लगा टैग उस तक नहीं पहुँचता।
-- SwiftUI: ऐरो कुंजियाँ, Home, End, टाइपअहेड और Tab स्टॉप नियमों के रूप में टेस्ट किए गए हैं, असली कीबोर्ड के साथ अभी नहीं।
-- React Native में लिस्टबॉक्स का कोई रोल नहीं है और बहु चयन की कोई प्रॉपर्टी नहीं है। चयन वाली लिस्ट लिस्ट का रोल बनाए रखती है, और हर विकल्प में विकल्प का रोल और उसका चयनित स्टेट होता है। VoiceOver और TalkBack ख़ुद लिस्ट के लिए क्या पढ़कर सुनाते हैं, यह प्लैटफ़ॉर्म पर निर्भर है।
-- React Native में सेट के भीतर की जगह बताने वाली कोई प्रॉपर्टी नहीं है। इंटरैक्टिव पंक्ति या विकल्प लिस्ट में अपनी जगह को अपने मान टेक्स्ट के रूप में रखता है ("2 of 3")। स्टैटिक पंक्ति अपने आप में कोई एलिमेंट नहीं है, इसलिए उसके लिए कोई जगह पढ़कर नहीं सुनाई जाती। जगह बताने वाला टेक्स्ट अंग्रेज़ी में होता है, जब तक आप `positionText` न दें।
-- React Native: ऐरो कुंजियाँ, Home, End और टाइपअहेड एक ऐसे कुंजी इवेंट से आते हैं जो अभी हार्डवेयर कीबोर्ड वाले किसी डिवाइस पर जाँचा नहीं गया है।
-- Flutter में लिस्टबॉक्स या विकल्प का कोई रोल नहीं है, बहु चयन का कोई फ़्लैग नहीं है, और न सेट के भीतर की जगह है, न सेट का साइज़। चयन वाली लिस्ट चुने जा सकने वाले लिस्ट आइटम की लिस्ट के रूप में दी जाती है।
-- Flutter शुरुआती मीडिया को हमेशा सहायक तकनीक से छिपाता है, इसलिए जिस फ़ोटो को आप नाम देते हैं वह पढ़ी नहीं जाती।
-- Compose में लिस्ट, लिस्टबॉक्स या विकल्प का कोई रोल नहीं है और बहु चयन का कोई फ़्लैग नहीं है। लिस्ट एक कलेक्शन है, और TalkBack हर विकल्प के बारे में पढ़कर सुनाता है कि वह चयनित है या नहीं।
-- Compose: लिस्ट के भीतर के `LazyColumn` में सिर्फ़ वे पंक्तियाँ सेट के भीतर की जगह, सेट के साइज़ और ऐरो कुंजियों में गिनी जाती हैं जो कंपोज़ की गई हैं।
-- Compose शुरुआती मीडिया को हमेशा सहायक तकनीक से छिपाता है, इसलिए जिस फ़ोटो को आप नाम देते हैं वह पढ़ी नहीं जाती।
-- Compose: सिर्फ़ लिस्ट का Tab स्टॉप फ़ोकस का अनुरोध स्वीकार करता है। किसी दूसरी पंक्ति को फ़ोकस करने का कॉल, आपके कोड से हो या किसी एक्सेसिबिलिटी सर्विस से, कुछ नहीं करता।
-- Compose: प्लैटफ़ॉर्म की कुंजियों की असली हैंडलिंग से गुज़रता कीबोर्ड, और लिस्टबॉक्स पर TalkBack, सिर्फ़ Robolectric में टेस्ट किए गए हैं, किसी डिवाइस पर अभी नहीं।
-- SwiftUI, Compose, Flutter और React Native यह नहीं देख सकते कि आप पंक्ति के स्लॉट में क्या रखते हैं, इसलिए वे इंटरैक्टिव पंक्ति या विकल्प के भीतर के कंट्रोल की रिपोर्ट नहीं करते। यह नियम निभाना आपका काम है।
+- SwiftUI, Compose, Flutter और React Native पुरानी लिस्ट देते हैं और इस संशोधन का कुछ नहीं: न ओरिएंटेशन, न मुड़ना, न जगह, न कंटेंट स्लॉट, न क्रम बदलना।
 
 ### आपको क्या करना है
 
-- चयन वाली लिस्ट को `label` दें। उसके बिना लिस्टबॉक्स का कोई नाम नहीं होता।
-- ऐसी हेडलाइन लिखें जो पंक्तियों को एक-दूसरे से अलग पहचान दें। हेडलाइन वह है जो स्क्रीन रीडर सबसे पहले बोलता है, और जिससे टाइपअहेड मिलान करता है।
-- जिस लिंक वाली पंक्ति के `target` का मान `new` है, उसे अपने प्रॉडक्ट की भाषा में `targetLabel` दें, जैसे "नए टैब में खुलता है"। Tanrei अपना कोई शब्द साथ नहीं देता।
-- क्रम बदलने वाली लिस्ट को उसके तीन शब्द अपने प्रॉडक्ट की भाषा में दें: `moveUpLabel`, `moveDownLabel` और `movedText`। पहले दो के बिना बटन काम करते हैं और उनका कोई नाम नहीं होता। तीसरे के बिना पंक्ति का ले जाया जाना पढ़कर नहीं सुनाया जाता।
-- `move` फ़ायर होने पर अपने आइटम का क्रम बदलें। लिस्ट ने कुछ नहीं बदला है, और जो क्रम आप क्रम बदलने के मोशन के समय के बाद देते हैं, वह बिना पढ़कर सुनाए बनाया जाता है।
-- आइटम का हटना या जुड़ना ख़ुद बताएँ, और आख़िरी आइटम हटने पर फ़ोकस ख़ुद ले जाएँ।
-- इंटरैक्टिव पंक्तियों, लिंक वाली पंक्तियों और विकल्पों को कंट्रोल से ख़ाली रखें। जिस पंक्ति को अपना कंट्रोल चाहिए, वह स्टैटिक रहती है और उसे अंतिम स्लॉट में रखती है, और कंट्रोल का नाम हेडलाइन से आता है।
-- अगर अवतार या इमेज में ऐसा अर्थ है जो हेडलाइन में नहीं है, तो उसे सहायक टेक्स्ट में कहें। मीडिया सहायक तकनीक से छिपा रहता है जब तक आप उसे नाम न दें, और SwiftUI, Compose और Flutter उसे कभी नहीं पढ़ते।
-- लंबे डेटा के लिए अपनी लेज़ी लिस्ट बनाएँ और जहाँ प्लैटफ़ॉर्म को ज़रूरत हो वहाँ सेट का साइज़ बताएँ। लिस्ट न स्क्रॉल करती है, न वर्चुअलाइज़ करती है।
-- React Native पर `positionText` अपने प्रॉडक्ट की भाषा में दें। SwiftUI पर जगह अंग्रेज़ी में पढ़ी जाती है, और इसे बदलने का अभी कोई तरीक़ा नहीं है।
+- चुनने योग्य या क्रम बदलने योग्य लिस्ट को `label` दें।
+- क्रम बदलने योग्य लिस्ट को अपने प्रॉडक्ट की भाषा में उसके शब्द दें। उनके बिना हैंडल बिना नाम के काम करते हैं और कुछ घोषित नहीं होता।
+- `move` फ़ायर होने पर अपने आइटमों का क्रम बदलें। लिस्ट ने कुछ नहीं बदला है।
+- जिस लिंक आइटम का `target` `new` है, उसे "नए टैब में खुलता है" जैसा `targetLabel` दें।
+- इंटरैक्टिव आइटम, लिंक और ऑप्शन को कंट्रोल से मुक्त रखें। जिस आइटम को अपना कंट्रोल चाहिए, वह स्टैटिक रहता है।
+- बहुत डेटा के लिए अपनी लेज़ी लिस्ट बनाएँ और जहाँ प्लैटफ़ॉर्म को चाहिए वहाँ सेट का आकार बताएँ। लिस्ट न स्क्रॉल करती है न वर्चुअलाइज़।

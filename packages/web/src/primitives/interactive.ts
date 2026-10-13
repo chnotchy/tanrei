@@ -1,5 +1,5 @@
 /**
- * What makes an element interactive, for the rule that an action's content holds nothing interactive (CRD-15, LST-24):
+ * What makes an element interactive, for the rule that an action's content holds nothing interactive (CRD-15, LST-20):
  * natively focusable or operable elements, anything with a tabindex or editable, and the widget roles. A custom element
  * counts when its own shadow tree holds one of these.
  */

@@ -1311,6 +1311,7 @@ public data class TanreiBottomSheetTokens(
     public val motionFeedbackDuration: Int,
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
+    public val scrimBlur: Dp,
     public val scrimColor: TanreiPaint,
     public val hovered: TanreiBottomSheetStateTokens,
     public val focused: TanreiBottomSheetStateTokens,
@@ -3760,6 +3761,7 @@ public data class TanreiDateTimePickerTokens(
     public val modalMotionEnterScale: Float,
     public val modalMotionOpenDuration: Int,
     public val modalMotionOpenEasing: TanreiCubicBezier,
+    public val modalScrimBlur: Dp,
     public val modalScrimColor: TanreiPaint,
     public val motionDialDuration: Int,
     public val motionDialEasing: TanreiCubicBezier,
@@ -3933,6 +3935,7 @@ public data class TanreiDialogTokens(
     public val motionEnterScale: Float,
     public val motionExitDuration: Int,
     public val motionExitEasing: TanreiCubicBezier,
+    public val scrimBlur: Dp,
     public val scrimColor: TanreiPaint,
     public val supportingTextColor: TanreiPaint,
     public val supportingTextTypescale: TanreiTextStyle,
@@ -3963,6 +3966,41 @@ public data class TanreiDividerTokens(
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(lineColor.roles())
+    }
+}
+
+/** `comp.drop-zone`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiDropZoneTokens(
+    public val iconColor: TanreiPaint,
+    public val iconSize: Dp,
+    public val labelColor: TanreiPaint,
+    public val labelTypescale: TanreiTextStyle,
+    public val motionDuration: Int,
+    public val motionEasing: TanreiCubicBezier,
+    public val outlineColor: TanreiPaint,
+    public val outlineWidth: Dp,
+    public val panelContainerColor: TanreiPaint,
+    public val panelElevation: List<TanreiShadowLayer>,
+    public val panelGap: Dp,
+    public val panelMargin: Dp,
+    public val panelMaxWidth: Dp,
+    public val panelPaddingBlock: Dp,
+    public val panelPaddingInline: Dp,
+    public val panelShape: Dp,
+    public val refusingIconColor: TanreiPaint,
+    public val refusingOutlineColor: TanreiPaint,
+    public val scrimColor: TanreiPaint,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(iconColor.roles())
+        addAll(labelColor.roles())
+        addAll(outlineColor.roles())
+        addAll(panelContainerColor.roles())
+        panelElevation.forEach { add(it.role) }
+        addAll(refusingIconColor.roles())
+        addAll(refusingOutlineColor.roles())
+        addAll(scrimColor.roles())
     }
 }
 
@@ -5006,7 +5044,6 @@ public data class TanreiFilePickerTokens(
 @Immutable
 public data class TanreiFileUploadTokens(
     public val listGap: Dp,
-    public val listItemGap: Dp,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
     }
@@ -5767,23 +5804,13 @@ public value class TanreiListCondition(public val key: String) {
 @Immutable
 public data class TanreiListConditionStateTokens(
     public val containerColor: TanreiPaint,
-    public val headlineColor: TanreiPaint,
-    public val overlineColor: TanreiPaint,
-    public val supportingTextColor: TanreiPaint,
-    public val trailingTextColor: TanreiPaint,
-    public val leadingIconColor: TanreiPaint,
-    public val trailingIconColor: TanreiPaint,
+    public val contentColor: TanreiPaint,
     public val markColor: TanreiPaint,
     public val stateLayerColor: TanreiPaint,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(containerColor.roles())
-        addAll(headlineColor.roles())
-        addAll(overlineColor.roles())
-        addAll(supportingTextColor.roles())
-        addAll(trailingTextColor.roles())
-        addAll(leadingIconColor.roles())
-        addAll(trailingIconColor.roles())
+        addAll(contentColor.roles())
         addAll(markColor.roles())
         addAll(stateLayerColor.roles())
     }
@@ -5851,41 +5878,27 @@ public data class TanreiListStateTokens(
 /** `comp.list`. Members are flat tokens, then per-state tokens, then one holder per axis (`conditions[condition]`). */
 @Immutable
 public data class TanreiListTokens(
-    public val avatarShape: Dp,
-    public val avatarSize: Dp,
     public val containerGap: Dp,
-    public val containerHeightOneLine: Dp,
-    public val containerHeightThreeLine: Dp,
-    public val containerHeightTwoLine: Dp,
+    public val containerHeight: Dp,
     public val containerPaddingBlock: Dp,
     public val containerPaddingInlineEnd: Dp,
     public val containerPaddingInlineStart: Dp,
     public val containerShape: Dp,
+    public val contentTypescale: TanreiTextStyle,
     public val dividerColor: TanreiPaint,
     public val dividerThickness: Dp,
     public val draggedContainerColor: TanreiPaint,
     public val draggedContainerElevation: List<TanreiShadowLayer>,
-    public val handleColor: TanreiPaint,
-    public val handleSize: Dp,
-    public val headlineTypescale: TanreiTextStyle,
-    public val imageShape: Dp,
-    public val imageSize: Dp,
-    public val leadingIconSize: Dp,
+    public val gapLarge: Dp,
+    public val gapMedium: Dp,
+    public val gapSmall: Dp,
     public val markSize: Dp,
     public val markWidth: Dp,
-    public val mediaContainerColor: TanreiPaint,
-    public val mediaContentColor: TanreiPaint,
     public val motionFeedbackDuration: Int,
     public val motionReorderDuration: Int,
     public val motionReorderEasing: TanreiCubicBezier,
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
-    public val moveButtonsGap: Dp,
-    public val overlineTypescale: TanreiTextStyle,
-    public val reorderTextMinWidth: Dp,
-    public val supportingTextTypescale: TanreiTextStyle,
-    public val trailingIconSize: Dp,
-    public val trailingTextTypescale: TanreiTextStyle,
     public val hovered: TanreiListStateTokens,
     public val focused: TanreiListStateTokens,
     public val pressed: TanreiListStateTokens,
@@ -5914,9 +5927,6 @@ public data class TanreiListTokens(
         addAll(dividerColor.roles())
         addAll(draggedContainerColor.roles())
         draggedContainerElevation.forEach { add(it.role) }
-        addAll(handleColor.roles())
-        addAll(mediaContainerColor.roles())
-        addAll(mediaContentColor.roles())
         addAll(conditions.referencedRoles())
     }
 }
@@ -6515,6 +6525,21 @@ public data class TanreiMenubarTokens(
     }
 }
 
+/** `comp.modal-layer`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiModalLayerTokens(
+    public val motionEnterDuration: Int,
+    public val motionEnterEasing: TanreiCubicBezier,
+    public val motionExitDuration: Int,
+    public val motionExitEasing: TanreiCubicBezier,
+    public val scrimBlur: Dp,
+    public val scrimColor: TanreiPaint,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(scrimColor.roles())
+    }
+}
+
 /**
  * A condition of navigation-bar: the key of one entry of [TanreiNavigationBarConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
@@ -6883,6 +6908,7 @@ public data class TanreiNavigationDrawerTokens(
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val outlineWidth: Dp,
+    public val scrimBlur: Dp,
     public val scrimColor: TanreiPaint,
     public val hovered: TanreiNavigationDrawerStateTokens,
     public val focused: TanreiNavigationDrawerStateTokens,
@@ -7918,6 +7944,7 @@ public data class TanreiSearchTokens(
     public val viewOffset: Dp,
     public val viewPaddingBlock: Dp,
     public val viewPaddingInline: Dp,
+    public val viewScrimBlur: Dp,
     public val viewScrimColor: TanreiPaint,
     public val viewViewportMargin: Dp,
     public val hovered: TanreiSearchStateTokens,
@@ -8411,6 +8438,7 @@ public data class TanreiSideSheetTokens(
     public val motionExitDuration: Int,
     public val motionExitEasing: TanreiCubicBezier,
     public val outlineWidth: Dp,
+    public val scrimBlur: Dp,
     public val scrimColor: TanreiPaint,
     public val variants: TanreiSideSheetVariants,
 ) {
@@ -8952,6 +8980,175 @@ public data class TanreiSnackbarTokens(
 }
 
 /**
+ * A condition of stepper: the key of one entry of [TanreiStepperConditions]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Incomplete].
+ */
+@JvmInline
+public value class TanreiStepperCondition(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Incomplete: TanreiStepperCondition = TanreiStepperCondition("incomplete")
+        public val Current: TanreiStepperCondition = TanreiStepperCondition("current")
+        public val Complete: TanreiStepperCondition = TanreiStepperCondition("complete")
+        public val Error: TanreiStepperCondition = TanreiStepperCondition("error")
+    }
+}
+
+/** What one condition of stepper draws in one interaction state. */
+@Immutable
+public data class TanreiStepperConditionStateTokens(
+    public val containerColor: TanreiPaint,
+    public val markerColor: TanreiPaint,
+    public val markerOutlineColor: TanreiPaint,
+    public val markerContentColor: TanreiPaint,
+    public val labelColor: TanreiPaint,
+    public val descriptionColor: TanreiPaint,
+    public val stateLayerColor: TanreiPaint,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(containerColor.roles())
+        addAll(markerColor.roles())
+        addAll(markerOutlineColor.roles())
+        addAll(markerContentColor.roles())
+        addAll(labelColor.roles())
+        addAll(descriptionColor.roles())
+        addAll(stateLayerColor.roles())
+    }
+}
+
+/** One condition of stepper: a full set of tokens per interaction state. */
+@Immutable
+public data class TanreiStepperConditionTokens(
+    public val enabled: TanreiStepperConditionStateTokens,
+    public val hovered: TanreiStepperConditionStateTokens,
+    public val focused: TanreiStepperConditionStateTokens,
+    public val pressed: TanreiStepperConditionStateTokens,
+    public val disabled: TanreiStepperConditionStateTokens,
+) {
+    public operator fun get(state: TanreiInteractionState): TanreiStepperConditionStateTokens = when (state) {
+        TanreiInteractionState.Enabled -> enabled
+        TanreiInteractionState.Hovered -> hovered
+        TanreiInteractionState.Focused -> focused
+        TanreiInteractionState.Pressed -> pressed
+        TanreiInteractionState.Disabled -> disabled
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + pressed.referencedRoles() + disabled.referencedRoles()
+}
+
+/**
+ * Every condition of stepper: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiStepperConditions(
+    public val incomplete: TanreiStepperConditionTokens,
+    public val current: TanreiStepperConditionTokens,
+    public val complete: TanreiStepperConditionTokens,
+    public val error: TanreiStepperConditionTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiStepperCondition, TanreiStepperConditionTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiStepperCondition> get() = linkedSetOf(TanreiStepperCondition.Incomplete, TanreiStepperCondition.Current, TanreiStepperCondition.Complete, TanreiStepperCondition.Error) + extra.keys
+
+    public operator fun contains(key: TanreiStepperCondition): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiStepperCondition): TanreiStepperConditionTokens? = when (key) {
+        TanreiStepperCondition.Incomplete -> incomplete
+        TanreiStepperCondition.Current -> current
+        TanreiStepperCondition.Complete -> complete
+        TanreiStepperCondition.Error -> error
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [incomplete]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiStepperCondition): TanreiStepperConditionTokens = find(key) ?: incomplete
+
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(incomplete.referencedRoles())
+        addAll(current.referencedRoles())
+        addAll(complete.referencedRoles())
+        addAll(error.referencedRoles())
+        extra.values.forEach { addAll(it.referencedRoles()) }
+    }
+}
+
+/** What every variant of stepper shares in one interaction state. */
+@Immutable
+public data class TanreiStepperStateTokens(
+    public val containerShape: Dp,
+    public val opacity: Float,
+)
+
+/** `comp.stepper`. Members are flat tokens, then per-state tokens, then one holder per axis (`conditions[condition]`). */
+@Immutable
+public data class TanreiStepperTokens(
+    public val barColor: TanreiPaint,
+    public val barFilledColor: TanreiPaint,
+    public val barGap: Dp,
+    public val barShape: Dp,
+    public val barThickness: Dp,
+    public val connectorColor: TanreiPaint,
+    public val connectorCompleteColor: TanreiPaint,
+    public val connectorGap: Dp,
+    public val connectorThickness: Dp,
+    public val containerPadding: Dp,
+    public val containerShape: Dp,
+    public val descriptionGap: Dp,
+    public val descriptionTypescale: TanreiTextStyle,
+    public val labelTypescale: TanreiTextStyle,
+    public val markerGap: Dp,
+    public val markerIconSize: Dp,
+    public val markerIconWeight: Float,
+    public val markerLabelTypescale: TanreiTextStyle,
+    public val markerOutlineWidth: Dp,
+    public val markerShape: Dp,
+    public val markerSize: Dp,
+    public val motionFeedbackDuration: Int,
+    public val motionStateDuration: Int,
+    public val motionStateEasing: TanreiCubicBezier,
+    public val positionColor: TanreiPaint,
+    public val positionGap: Dp,
+    public val positionTypescale: TanreiTextStyle,
+    public val stepMinWidth: Dp,
+    public val hovered: TanreiStepperStateTokens,
+    public val focused: TanreiStepperStateTokens,
+    public val pressed: TanreiStepperStateTokens,
+    public val disabled: TanreiStepperStateTokens,
+    public val conditions: TanreiStepperConditions,
+) {
+    /** `container-shape` of [state]. */
+    public fun containerShape(state: TanreiInteractionState): Dp = when (state) {
+        TanreiInteractionState.Enabled -> containerShape
+        TanreiInteractionState.Hovered -> hovered.containerShape
+        TanreiInteractionState.Focused -> focused.containerShape
+        TanreiInteractionState.Pressed -> pressed.containerShape
+        TanreiInteractionState.Disabled -> disabled.containerShape
+    }
+
+    /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
+    public fun opacity(state: TanreiInteractionState): Float = when (state) {
+        TanreiInteractionState.Enabled -> 1f
+        TanreiInteractionState.Hovered -> hovered.opacity
+        TanreiInteractionState.Focused -> focused.opacity
+        TanreiInteractionState.Pressed -> pressed.opacity
+        TanreiInteractionState.Disabled -> disabled.opacity
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(barColor.roles())
+        addAll(barFilledColor.roles())
+        addAll(connectorColor.roles())
+        addAll(connectorCompleteColor.roles())
+        addAll(positionColor.roles())
+        addAll(conditions.referencedRoles())
+    }
+}
+
+/**
  * A size of steps: the key of one entry of [TanreiStepsSizes]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
  * A key the current system does not have draws as [Medium].
@@ -9020,6 +9217,128 @@ public data class TanreiStepsTokens(
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(connectorColor.roles())
         addAll(markerOutlineColor.roles())
+    }
+}
+
+/**
+ * A size of swatch: the key of one entry of [TanreiSwatchSizes]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Medium].
+ */
+@JvmInline
+public value class TanreiSwatchSize(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Small: TanreiSwatchSize = TanreiSwatchSize("small")
+        public val Medium: TanreiSwatchSize = TanreiSwatchSize("medium")
+        public val Large: TanreiSwatchSize = TanreiSwatchSize("large")
+    }
+}
+
+/** The tokens of one size of swatch. */
+@Immutable
+public data class TanreiSwatchSizeTokens(
+    public val containerSize: Dp,
+    public val gap: Dp,
+    public val labelTypescale: TanreiTextStyle,
+    public val supportingTextTypescale: TanreiTextStyle,
+)
+
+/**
+ * Every size of swatch: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiSwatchSizes(
+    public val small: TanreiSwatchSizeTokens,
+    public val medium: TanreiSwatchSizeTokens,
+    public val large: TanreiSwatchSizeTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiSwatchSize, TanreiSwatchSizeTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiSwatchSize> get() = linkedSetOf(TanreiSwatchSize.Small, TanreiSwatchSize.Medium, TanreiSwatchSize.Large) + extra.keys
+
+    public operator fun contains(key: TanreiSwatchSize): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiSwatchSize): TanreiSwatchSizeTokens? = when (key) {
+        TanreiSwatchSize.Small -> small
+        TanreiSwatchSize.Medium -> medium
+        TanreiSwatchSize.Large -> large
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiSwatchSize): TanreiSwatchSizeTokens = find(key) ?: medium
+}
+
+/**
+ * A shape of swatch: the key of one entry of [TanreiSwatchShapes]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Square].
+ */
+@JvmInline
+public value class TanreiSwatchShape(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Square: TanreiSwatchShape = TanreiSwatchShape("square")
+        public val Circle: TanreiSwatchShape = TanreiSwatchShape("circle")
+    }
+}
+
+/** The tokens of one shape of swatch. */
+@Immutable
+public data class TanreiSwatchShapeTokens(
+    public val containerShape: Dp,
+)
+
+/**
+ * Every shape of swatch: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiSwatchShapes(
+    public val square: TanreiSwatchShapeTokens,
+    public val circle: TanreiSwatchShapeTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiSwatchShape, TanreiSwatchShapeTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiSwatchShape> get() = linkedSetOf(TanreiSwatchShape.Square, TanreiSwatchShape.Circle) + extra.keys
+
+    public operator fun contains(key: TanreiSwatchShape): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiSwatchShape): TanreiSwatchShapeTokens? = when (key) {
+        TanreiSwatchShape.Square -> square
+        TanreiSwatchShape.Circle -> circle
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [square]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiSwatchShape): TanreiSwatchShapeTokens = find(key) ?: square
+}
+
+/** `comp.swatch`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `shapes[shape]`). */
+@Immutable
+public data class TanreiSwatchTokens(
+    public val checkerboardAlternateColor: TanreiPaint,
+    public val checkerboardColor: TanreiPaint,
+    public val checkerboardSize: Dp,
+    public val labelColor: TanreiPaint,
+    public val outlineColor: TanreiPaint,
+    public val outlineWidth: Dp,
+    public val supportingTextColor: TanreiPaint,
+    public val sizes: TanreiSwatchSizes,
+    public val shapes: TanreiSwatchShapes,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(checkerboardAlternateColor.roles())
+        addAll(checkerboardColor.roles())
+        addAll(labelColor.roles())
+        addAll(outlineColor.roles())
+        addAll(supportingTextColor.roles())
     }
 }
 
@@ -10643,6 +10962,7 @@ public data class TanreiSystem(
     public val descriptionList: TanreiDescriptionListTokens,
     public val dialog: TanreiDialogTokens,
     public val divider: TanreiDividerTokens,
+    public val dropZone: TanreiDropZoneTokens,
     public val embeddedTextInput: TanreiEmbeddedTextInputTokens,
     public val emptyState: TanreiEmptyStateTokens,
     public val fabMenu: TanreiFabMenuTokens,
@@ -10663,6 +10983,7 @@ public data class TanreiSystem(
     public val mainActionButton: TanreiMainActionButtonTokens,
     public val menu: TanreiMenuTokens,
     public val menubar: TanreiMenubarTokens,
+    public val modalLayer: TanreiModalLayerTokens,
     public val navigationBar: TanreiNavigationBarTokens,
     public val navigationDrawer: TanreiNavigationDrawerTokens,
     public val navigationRail: TanreiNavigationRailTokens,
@@ -10681,7 +11002,9 @@ public data class TanreiSystem(
     public val skeleton: TanreiSkeletonTokens,
     public val slider: TanreiSliderTokens,
     public val snackbar: TanreiSnackbarTokens,
+    public val stepper: TanreiStepperTokens,
     public val steps: TanreiStepsTokens,
+    public val swatch: TanreiSwatchTokens,
     public val switch: TanreiSwitchTokens,
     public val tabView: TanreiTabViewTokens,
     public val tableOfContents: TanreiTableOfContentsTokens,
@@ -10723,6 +11046,7 @@ public data class TanreiSystem(
         addAll(descriptionList.referencedRoles())
         addAll(dialog.referencedRoles())
         addAll(divider.referencedRoles())
+        addAll(dropZone.referencedRoles())
         addAll(embeddedTextInput.referencedRoles())
         addAll(emptyState.referencedRoles())
         addAll(fabMenu.referencedRoles())
@@ -10743,6 +11067,7 @@ public data class TanreiSystem(
         addAll(mainActionButton.referencedRoles())
         addAll(menu.referencedRoles())
         addAll(menubar.referencedRoles())
+        addAll(modalLayer.referencedRoles())
         addAll(navigationBar.referencedRoles())
         addAll(navigationDrawer.referencedRoles())
         addAll(navigationRail.referencedRoles())
@@ -10761,7 +11086,9 @@ public data class TanreiSystem(
         addAll(skeleton.referencedRoles())
         addAll(slider.referencedRoles())
         addAll(snackbar.referencedRoles())
+        addAll(stepper.referencedRoles())
         addAll(steps.referencedRoles())
+        addAll(swatch.referencedRoles())
         addAll(switch.referencedRoles())
         addAll(tabView.referencedRoles())
         addAll(tableOfContents.referencedRoles())

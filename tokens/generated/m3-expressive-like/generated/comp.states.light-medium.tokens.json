@@ -19987,7 +19987,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered",
                   "dev.tanrei.derive": {
@@ -19999,73 +19999,13 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.headline.color}",
+                "$value": "{tanrei.comp.list.unselected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -20077,7 +20017,7 @@
                 "$value": "{tanrei.comp.list.unselected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -20089,7 +20029,7 @@
                 "$value": "{tanrei.comp.list.unselected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -20112,7 +20052,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused",
                   "dev.tanrei.derive": {
@@ -20124,73 +20064,13 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.headline.color}",
+                "$value": "{tanrei.comp.list.unselected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -20202,7 +20082,7 @@
                 "$value": "{tanrei.comp.list.unselected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -20214,7 +20094,7 @@
                 "$value": "{tanrei.comp.list.unselected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -20237,7 +20117,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed",
                   "dev.tanrei.derive": {
@@ -20249,73 +20129,13 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.headline.color}",
+                "$value": "{tanrei.comp.list.unselected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -20327,7 +20147,7 @@
                 "$value": "{tanrei.comp.list.unselected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -20339,7 +20159,7 @@
                 "$value": "{tanrei.comp.list.unselected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -20353,79 +20173,19 @@
                 "$value": "{tanrei.comp.list.unselected.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.headline.color}",
+                "$value": "{tanrei.comp.list.unselected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -20437,7 +20197,7 @@
                 "$value": "{tanrei.comp.list.unselected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -20449,7 +20209,7 @@
                 "$value": "{tanrei.comp.list.unselected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -20473,7 +20233,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered",
                   "dev.tanrei.derive": {
@@ -20485,73 +20245,13 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.selected.headline.color}",
+                "$value": "{tanrei.comp.list.selected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -20563,7 +20263,7 @@
                 "$value": "{tanrei.comp.list.selected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -20575,7 +20275,7 @@
                 "$value": "{tanrei.comp.list.selected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -20597,7 +20297,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused",
                   "dev.tanrei.derive": {
@@ -20609,73 +20309,13 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.selected.headline.color}",
+                "$value": "{tanrei.comp.list.selected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -20687,7 +20327,7 @@
                 "$value": "{tanrei.comp.list.selected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -20699,7 +20339,7 @@
                 "$value": "{tanrei.comp.list.selected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -20721,7 +20361,7 @@
                 },
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed",
                   "dev.tanrei.derive": {
@@ -20733,73 +20373,13 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.selected.headline.color}",
+                "$value": "{tanrei.comp.list.selected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -20811,7 +20391,7 @@
                 "$value": "{tanrei.comp.list.selected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -20823,7 +20403,7 @@
                 "$value": "{tanrei.comp.list.selected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -20837,79 +20417,19 @@
                 "$value": "{tanrei.comp.list.selected.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.selected.headline.color}",
+                "$value": "{tanrei.comp.list.selected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -20921,7 +20441,7 @@
                 "$value": "{tanrei.comp.list.selected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -20933,7 +20453,7 @@
                 "$value": "{tanrei.comp.list.selected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -20947,7 +20467,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
               },
               "dev.tanrei.state": "hovered",
               "dev.tanrei.derive": {
@@ -20961,7 +20481,7 @@
               "$value": "{tanrei.comp.list.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                  "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                 },
                 "dev.tanrei.state": "hovered"
               }
@@ -20974,7 +20494,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
               },
               "dev.tanrei.state": "focused",
               "dev.tanrei.derive": {
@@ -20988,7 +20508,7 @@
               "$value": "{tanrei.comp.list.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                  "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                 },
                 "dev.tanrei.state": "focused"
               }
@@ -21001,7 +20521,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
               },
               "dev.tanrei.state": "pressed",
               "dev.tanrei.derive": {
@@ -21015,7 +20535,7 @@
               "$value": "{tanrei.comp.list.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                  "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                 },
                 "dev.tanrei.state": "pressed"
               }
@@ -21028,7 +20548,7 @@
             "$value": "{tanrei.sys.state.disabled-content-opacity}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
               },
               "dev.tanrei.state": "disabled"
             }
@@ -21039,7 +20559,7 @@
               "$value": "{tanrei.comp.list.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                  "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                 },
                 "dev.tanrei.state": "disabled"
               }
@@ -36682,6 +36202,1960 @@
               "$extensions": {
                 "dev.tanrei.vocabulary": {
                   "rationale": "One product lets people pick one or several of a few related options (a range, a view, days of the week) from a joined row of segments, at the heights of its buttons, some segments with icons or icon-only, some disabled."
+                },
+                "dev.tanrei.state": "disabled"
+              }
+            }
+          }
+        }
+      },
+      "stepper": {
+        "incomplete": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2392,
+                    0.2275,
+                    0.2627
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#3d3a43"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.incomplete.container.color}",
+                    "with": "{tanrei.comp.stepper.incomplete.state-layer.color}",
+                    "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.incomplete.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.incomplete.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2392,
+                    0.2275,
+                    0.2627
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#3d3a43"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.incomplete.container.color}",
+                    "with": "{tanrei.comp.stepper.incomplete.state-layer.color}",
+                    "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.incomplete.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.incomplete.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2392,
+                    0.2275,
+                    0.2627
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#3d3a43"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.incomplete.container.color}",
+                    "with": "{tanrei.comp.stepper.incomplete.state-layer.color}",
+                    "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.incomplete.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.incomplete.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.incomplete.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0784,
+                      0.0706,
+                      0.0941
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#141218"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0784,
+                      0.0706,
+                      0.0941
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#141218"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "current": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.current.container.color}",
+                    "with": "{tanrei.comp.stepper.current.state-layer.color}",
+                    "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.current.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.current.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.current.container.color}",
+                    "with": "{tanrei.comp.stepper.current.state-layer.color}",
+                    "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.current.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.current.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.current.container.color}",
+                    "with": "{tanrei.comp.stepper.current.state-layer.color}",
+                    "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.current.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.current.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.current.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0784,
+                      0.0706,
+                      0.0941
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#141218"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0784,
+                      0.0706,
+                      0.0941
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#141218"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "complete": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.complete.container.color}",
+                    "with": "{tanrei.comp.stepper.complete.state-layer.color}",
+                    "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.complete.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.complete.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.complete.container.color}",
+                    "with": "{tanrei.comp.stepper.complete.state-layer.color}",
+                    "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.complete.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.complete.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.complete.container.color}",
+                    "with": "{tanrei.comp.stepper.complete.state-layer.color}",
+                    "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.complete.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.complete.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.complete.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0784,
+                      0.0706,
+                      0.0941
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#141218"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0784,
+                      0.0706,
+                      0.0941
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#141218"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "error": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.549,
+                    0.1137,
+                    0.0941
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#8c1d18"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.error.container.color}",
+                    "with": "{tanrei.comp.stepper.error.state-layer.color}",
+                    "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.error.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.error.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.549,
+                    0.1137,
+                    0.0941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#8c1d18"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.error.container.color}",
+                    "with": "{tanrei.comp.stepper.error.state-layer.color}",
+                    "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.error.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.error.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.549,
+                    0.1137,
+                    0.0941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#8c1d18"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.stepper.error.container.color}",
+                    "with": "{tanrei.comp.stepper.error.state-layer.color}",
+                    "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.error.marker.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.stepper.error.marker.content.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.description.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.stepper.error.marker.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0784,
+                      0.0706,
+                      0.0941
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#141218"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0784,
+                      0.0706,
+                      0.0941
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#141218"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "hovered": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+              },
+              "dev.tanrei.state": "hovered",
+              "dev.tanrei.derive": {
+                "fixed": "Tanrei shows state by color, not by dimming the whole control."
+              }
+            }
+          },
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.stepper.container.shape}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                },
+                "dev.tanrei.state": "hovered"
+              }
+            }
+          }
+        },
+        "focused": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+              },
+              "dev.tanrei.state": "focused",
+              "dev.tanrei.derive": {
+                "fixed": "Tanrei shows state by color, not by dimming the whole control."
+              }
+            }
+          },
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.stepper.container.shape}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                },
+                "dev.tanrei.state": "focused"
+              }
+            }
+          }
+        },
+        "pressed": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+              },
+              "dev.tanrei.state": "pressed",
+              "dev.tanrei.derive": {
+                "fixed": "Tanrei shows state by color, not by dimming the whole control."
+              }
+            }
+          },
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.stepper.container.shape}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+                },
+                "dev.tanrei.state": "pressed"
+              }
+            }
+          }
+        },
+        "disabled": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
+              },
+              "dev.tanrei.state": "disabled",
+              "dev.tanrei.derive": {
+                "fixed": "Tanrei shows state by color, not by dimming the whole control."
+              }
+            }
+          },
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.stepper.container.shape}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product runs a flow in a fixed order of steps — a checkout, a set-up, an application — and shows the person where they are in it: which step is current, which are done, which has an error, which are still to come, with the done steps pressable to go back. It shows it as a row above the content on a wide screen, as a column beside it, and as \"Step 2 of 5\" on a narrow one."
                 },
                 "dev.tanrei.state": "disabled"
               }

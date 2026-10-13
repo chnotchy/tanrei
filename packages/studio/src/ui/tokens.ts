@@ -47,14 +47,14 @@ function tokenPanes(ctx: Ctx, state: TreeState) {
   const paint = (id: string, at: Drawn) => {
     const token = tokenOf(id);
     at.text.textContent = format(token?.type, token?.value, token);
-    if (at.dot) at.dot.style.background = cssColor(token?.value);
+    if (at.dot) at.dot.setAttribute('color', cssColor(token?.value));
     const changed = Boolean(ctx.layer().tokens?.[id] || ctx.layer().vocabulary?.[id]);
     if (changed && !at.mark) at.name.append((at.mark = h('small', { 'data-supporting-text': true, 'data-changed': true, text: t.changed })));
     else if (!changed && at.mark) at.mark = (at.mark.remove(), null);
   };
   /** A token's row: its name, "changed" beside it in words, a sample of a color, the "added" tag and the value. */
   function tokenItem(entry: Json, label: string) {
-    const at: Drawn = { text: h('span', { class: 'ts-value', 'data-trailing-text': true }), dot: tokenOf(entry.id)?.type === 'color' ? h('i', { class: 'ts-dot' }) : null, name: h('bdi', {}, label), mark: null };
+    const at: Drawn = { text: h('span', { class: 'ts-value', 'data-trailing-text': true }), dot: tokenOf(entry.id)?.type === 'color' ? h('tanrei-swatch', { class: 'ts-token-swatch', decorative: true, size: 'small', shape: 'circle' }) : null, name: h('bdi', {}, label), mark: null };
     values.set(entry.id, at);
     paint(entry.id, at);
     const marks = at.dot || entry.extension ? h('span', { 'data-trailing': true }, at.dot, entry.extension ? h('tanrei-tag', { size: 'small', variant: 'outlined', label: t.detail.extension }) : null) : null;

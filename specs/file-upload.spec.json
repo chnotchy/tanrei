@@ -11,7 +11,8 @@
     "file-item"
   ],
   "uses": [
-    "button"
+    "button",
+    "list"
   ],
   "fills": [
     "file-picker.selectionText"
@@ -27,7 +28,7 @@
     },
     {
       "id": "list",
-      "description": "The chosen files, one file item each, in the order they were kept, or in the order the product gives them: a column of rows, or a strip of tiles that wraps. Exposed as a list. The arrangement is the file upload's own part; what it arranges is not.",
+      "description": "The chosen files, one file item each, in the order they were kept, or in the order the product gives them: a List, which it uses, whose items each hold one file item — a column of rows, or lines of tiles that wrap. The List exposes the list and draws the handles and the motion of a reorderable form; the file upload decides the arrangement and the order.",
       "optional": true
     },
     {
@@ -76,6 +77,12 @@
       "from": "file-item.height"
     },
     {
+      "name": "reorderable",
+      "type": "boolean",
+      "default": false,
+      "description": "Lets people put the files in another order (FUP-59): the List that arranges the rows gives every row a handle, lets the whole row be dragged, and offers the moves in a menu and to the keyboard. While rows is own the file upload reorders the files it keeps itself and emits change; while rows is given it emits move and the product reorders its file items. Ignored while disabled."
+    },
+    {
       "name": "multiple",
       "from": "file-picker.multiple"
     },
@@ -121,6 +128,128 @@
     {
       "name": "retryLabel",
       "from": "file-item.retryLabel"
+    },
+    {
+      "name": "dragHandleLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of an item's handle: the whole name in the product's language with one place, {label}, which the list fills with the item's name (\"Reorder {label}\", \"{label}を並べ替え\"), so that the handles of two items are told apart. The product's: Tanrei has no word for it. Empty reads the product's words. Required while reorderable. Given to the List that arranges the rows (FUP-59).",
+      "words": "dragHandleLabel",
+      "places": [
+        {
+          "name": "label",
+          "kind": "text",
+          "description": "The item's name: its label, or else the text of its content.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dragHandleHint",
+      "type": "string",
+      "default": "",
+      "description": "The description of every handle: how to move an item from it with the keyboard, in the product's words (\"Press Space to lift, the arrow keys to move, Space to drop, Escape to cancel; Enter opens the moves\"). Empty reads the product's words; with neither, the handle has no description. Given to the List that arranges the rows (FUP-59).",
+      "words": "dragHandleHint"
+    },
+    {
+      "name": "moveToStartLabel",
+      "type": "string",
+      "default": "",
+      "description": "The move menu's item that moves the item to the first place (\"Move to top\", \"Move to start\"). Empty reads the product's words. Required while reorderable. Given to the List that arranges the rows (FUP-59).",
+      "words": "moveToStartLabel"
+    },
+    {
+      "name": "moveBeforeLabel",
+      "type": "string",
+      "default": "",
+      "description": "The move menu's item that moves the item one place toward the start (\"Move up\" in a column, \"Move left\" in a line). Empty reads the product's words. Required while reorderable. Given to the List that arranges the rows (FUP-59).",
+      "words": "moveBeforeLabel"
+    },
+    {
+      "name": "moveAfterLabel",
+      "type": "string",
+      "default": "",
+      "description": "The move menu's item that moves the item one place toward the end (\"Move down\", \"Move right\"). Empty reads the product's words. Required while reorderable. Given to the List that arranges the rows (FUP-59).",
+      "words": "moveAfterLabel"
+    },
+    {
+      "name": "moveToEndLabel",
+      "type": "string",
+      "default": "",
+      "description": "The move menu's item that moves the item to the last place (\"Move to bottom\", \"Move to end\"). Empty reads the product's words. Required while reorderable. Given to the List that arranges the rows (FUP-59).",
+      "words": "moveToEndLabel"
+    },
+    {
+      "name": "liftedText",
+      "type": "string",
+      "default": "",
+      "description": "The sentence assistive technology is told when the keyboard lifts an item, with three places the list fills: {label} with the item's name, {position} with its place, counted from 1, and {count} with the number of items (\"{label} lifted: {position} of {count}\"). Empty reads the product's words. Required while reorderable. Given to the List that arranges the rows (FUP-59).",
+      "words": "liftedText",
+      "places": [
+        {
+          "name": "label",
+          "kind": "text",
+          "description": "The item's name: its label, or else the text of its content."
+        },
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place the item has, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of items in the list."
+        }
+      ]
+    },
+    {
+      "name": "movedText",
+      "type": "string",
+      "default": "",
+      "description": "The sentence assistive technology is told when a lifted item reaches another place, and once a move has taken effect, whether it came from the menu, the keyboard or a pointer: {label}, {position} (the place it has, or would have if dropped now, counted from 1) and {count} (\"{label}: {position} of {count}\"). Empty reads the product's words. Required while reorderable. Given to the List that arranges the rows (FUP-59).",
+      "words": "movedText",
+      "places": [
+        {
+          "name": "label",
+          "kind": "text",
+          "description": "The item's name: its label, or else the text of its content."
+        },
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place the item has, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of items in the list."
+        }
+      ]
+    },
+    {
+      "name": "cancelledText",
+      "type": "string",
+      "default": "",
+      "description": "The sentence assistive technology is told when a move with the keyboard is cancelled and the item goes back: {label}, {position} (the place it has again) and {count} (\"{label} returned to {position} of {count}\"). Empty reads the product's words. Required while reorderable. Given to the List that arranges the rows (FUP-59).",
+      "words": "cancelledText",
+      "places": [
+        {
+          "name": "label",
+          "kind": "text",
+          "description": "The item's name: its label, or else the text of its content."
+        },
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place the item has, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of items in the list."
+        }
+      ]
     },
     {
       "name": "typeErrorText",
@@ -319,6 +448,10 @@
     {
       "name": "change",
       "description": "The files the file upload keeps changed by what a person did: a choice or a drop that kept at least one file or replaced the one kept, or a kept file removed by its row's remove action. Emitted once, after select and reject where they happen, with the files now kept, in order, as the platform's own handles. Emitted only while rows is own, and never for what the product did itself (a file handed over, the kept files cleared, a form reset, a change of rows)."
+    },
+    {
+      "name": "move",
+      "description": "While rows is given and reorderable is true: a person asked for a row to stand in another place, by the move menu, the keyboard or a drag (FUP-59). Carries from, the row's index when the move began, and to, the index it is to have, both counted from 0. Emitted once per move; the file upload has changed nothing — the product puts its file item in the new place. While rows is own the file upload makes the move itself and emits change instead."
     }
   ],
   "states": [
@@ -351,7 +484,7 @@
     },
     {
       "id": "FUP-17",
-      "text": "WHILE the file upload holds at least one row THE file upload SHALL draw each row as one file item (FUP-58) — a row of this spec is one file item, whatever its form — in the order the product gave them WHILE rows is given and in the order of FUP-44 and FUP-45 WHILE rows is own: WHILE itemForm is row as one column, comp.file-upload.list.item-gap apart, each as wide as the file upload; WHILE itemForm is tile as a strip from the start edge that wraps onto a further line where the width ends, comp.file-upload.list.item-gap apart along both directions, the tiles of one line aligned at their tops, each of the size itemWidth and itemHeight give (FIT-3). How a file item is laid out and drawn, and that the name of a row is never cut, are the file item's (FIT-2 to FIT-10). THE file upload SHALL NOT sort, group, number or count the rows, WHILE rows is given SHALL NOT add or remove one itself, SHALL draw no line and no fill between or behind them, and SHALL give them no order that a person can change: files in an order people change are file items in the rows of a List, one level down. WHILE it holds no row THE file upload SHALL draw no list, keep no room for one and expose none. WHEN itemForm names a value the file upload does not know THE file upload SHALL arrange the rows as a column and in debug builds report it."
+      "text": "WHILE the file upload holds at least one row THE file upload SHALL draw each row as one file item (FUP-58) inside one item of its List, named by the file's name — a row of this spec is one file item, whatever its form — in the order the product gave them WHILE rows is given and in the order of FUP-44 and FUP-45 WHILE rows is own: WHILE itemForm is row as a vertical List, comp.list.gap.small apart (the List's small gap), each as wide as the file upload; WHILE itemForm is tile as a horizontal List that wraps (LST-2) — lines from the start edge that wrap onto a further line where the width ends, comp.list.gap.small apart along both directions, the tiles of one line aligned at their tops, each of the size itemWidth and itemHeight give (FIT-3). How a file item is laid out and drawn, and that the name of a row is never cut, are the file item's (FIT-2 to FIT-10). THE file upload SHALL NOT sort, group, number or count the rows, WHILE rows is given SHALL NOT add or remove one itself, SHALL draw no line and no fill between or behind them, and WHILE reorderable is false SHALL give them no order a person can change. WHILE it holds no row THE file upload SHALL draw no list, keep no room for one and expose none. WHEN itemForm names a value the file upload does not know THE file upload SHALL arrange the rows as a column and in debug builds report it."
     },
     {
       "id": "FUP-21",
@@ -363,7 +496,7 @@
     },
     {
       "id": "FUP-25",
-      "text": "THE file upload SHALL expose its rows as one list that takes the group's name, and each file item as one item of that list, in the place of the group a file item is when it stands alone (FIT-19). What an item reads — the name, the format, the size, the status or the error, the progress bar while it is sent, and the actions named removeLabel and retryLabel with the file's name in them — is the file item's (FIT-19). A platform without a list role SHALL expose a container that holds the rows in order and state that in its README."
+      "text": "THE file upload SHALL expose its rows as one list that takes the group's name — its List's (LST-18) — and each row as one item of that list: the List's item, holding the file item, which is then exposed as the group it is when it stands alone (FIT-19) and not as a list item of its own. What a row reads — the name, the format, the size, the status or the error, the progress bar while it is sent, and the actions named removeLabel and retryLabel with the file's name in them — is the file item's (FIT-19). A platform without a list role SHALL expose a container that holds the rows in order and state that in its README."
     },
     {
       "id": "FUP-26",
@@ -380,11 +513,11 @@
     },
     {
       "id": "FUP-29",
-      "text": "WHEN a row is added, is removed or changes its status THE file upload SHALL draw that at once, without a motion of the file upload's own, and the rows after it SHALL take their new places at once — in a strip of tiles also where that moves a tile to another line. The changes of the drop area between states are the file picker's (FPK-20), and those of a row's body and actions the file item's (FIT-23)."
+      "text": "WHEN a row is added, is removed or changes its status THE file upload SHALL draw that at once, and WHILE reorderable is false without a motion of the file upload's own, the rows after it taking their new places at once — in a strip of tiles also where that moves a tile to another line; WHILE reorderable is true the rows that change place move as the List moves its items (LST-41). The changes of the drop area between states are the file picker's (FPK-20), and those of a row's body and actions the file item's (FIT-23)."
     },
     {
       "id": "FUP-30",
-      "text": "WHEN a row leaves the list while focus is on one of its stops THE file upload SHALL move focus to the remove action of the row that followed it, or of the row before it WHERE none follows, or to the trigger WHERE no row is left, so that a person who removes several files in a row goes on from where they were; WHERE the row it would go to has no remove action (a read-only file item), to that row's body WHERE it is pressable, and otherwise on to the next such row or the trigger. Focus within a row that stays — a retry action that leaves — is the file item's (FIT-30). THE file upload SHALL NOT move focus because a row was added or changed otherwise."
+      "text": "WHEN a row leaves the list while focus is on one of its stops THE file upload SHALL move focus to the remove action of the row that followed it, or of the row before it WHERE none follows, or to the trigger WHERE no row is left, so that a person who removes several files in a row goes on from where they were; WHERE the row it would go to has no remove action (a read-only file item), to that row's body WHERE it is pressable, and otherwise on to the next such row or the trigger. Focus within a row that stays — a retry action that leaves — is the file item's (FIT-30). THE file upload SHALL NOT move focus because a row was added or changed otherwise. WHILE reorderable is true focus after a row left goes as the List says (LST-46): to the handle of the row that now stands where it stood, else of the row before it, else to the trigger."
     },
     {
       "id": "FUP-31",
@@ -404,7 +537,7 @@
     },
     {
       "id": "FUP-35",
-      "text": "WHERE the layout direction is right-to-left THE file upload SHALL mirror its arrangement: a strip of tiles begins at the right and runs to the left on every line, and each row is mirrored inside as FIT-26 says; its file picker mirrors as FPK-24 says."
+      "text": "WHERE the layout direction is right-to-left THE file upload SHALL mirror its arrangement as its List mirrors (LST-5): a strip of tiles begins at the right and runs to the left on every line, and each row is mirrored inside as FIT-26 says; its file picker mirrors as FPK-24 says."
     },
     {
       "id": "FUP-36",
@@ -504,7 +637,11 @@
     {
       "id": "FUP-58",
       "text": "THE file upload SHALL draw every row as a file item, its member, and SHALL build no row of its own: WHILE rows is given the file items are the product's own, placed in the file upload in the platform's idiom, and WHILE rows is own the file upload makes one for each file it keeps and for each file it refused (FUP-44, FUP-45). It SHALL give every file item it holds, the product's included, form as itemForm, preview as itemPreview, fit as itemFit, nameHidden as itemNameHidden, width as itemWidth, height as itemHeight, removeLabel and retryLabel as its own, and disabled WHILE it is disabled itself, so that the rows of one file upload are of one form; a file item of the product's that sets one of these otherwise SHALL be drawn as the file upload says, and in debug builds reported. Everything else of a file item — its name, its format and its glyph, its texts, its status, the address of its picture, whether it is pressable or a link, whether it is read-only — SHALL stay the row's own. THE file upload SHALL draw a file item from the file item's own tokens and SHALL give it no look, no state and no size that a file item standing alone does not have. Everything the file item's sentences say (FIT-1 to FIT-33) SHALL hold for it inside the file upload, with three differences: it is an item of the file upload's list (FUP-25); what is said of it is said through the file upload's one live region (FUP-26, FUP-50); and WHILE rows is own its remove is answered by the file upload (FUP-46).",
-      "verify": "On the web: every row is a `tanrei-file-item`, in the light DOM while `rows` is `given` and in the shadow root while it is `own`. The twin of each fixture's list — the same `tanrei-file-item` elements written by hand with the same attributes, as a column or as a wrapping strip, comp.file-upload.list.item-gap apart — draws the same picture as the file upload's part below its file picker."
+      "verify": "On the web: every row is a `tanrei-file-item`, in the light DOM while `rows` is `given` and in the shadow root while it is `own`. The twin of each fixture's list — the same `tanrei-file-item` elements written by hand with the same attributes, each in an item of a List, vertical or horizontal and wrapping, with the List's small gap — draws the same picture as the file upload's part below its file picker."
+    },
+    {
+      "id": "FUP-59",
+      "text": "WHILE reorderable is true THE file upload SHALL make its List reorderable (LST-31 to LST-47) — a handle on every row, the whole row dragged by a pointer, the move menu from the handle and the keyboard from the handle — with the nine words given to it as they are given to the file upload, and WHEN the List emits move (LST-33, LST-35, LST-39): WHILE rows is given THE file upload SHALL emit move once with the same from and to and change nothing, the product's file items being the product's to put in their new place; WHILE rows is own THE file upload SHALL put the file in its new place among the files it keeps, draw the rows in the new order, submit the kept files in that order (FUP-49) and emit change exactly once with the files now kept (FUP-47), and SHALL change nothing for a move that would put the row of a refused file among the rows of the files it keeps, or the row of a kept file after a refused one (FUP-45), so that the List takes it as refused (LST-43). WHILE the file upload is disabled THE file upload SHALL change no order and emit no move, as it emits no other event (FUP-28)."
     }
   ],
   "accessibility": {
@@ -540,8 +677,9 @@
       "A plain form's missing file is the form's own validation (FUP-49): the message is the platform's own, as for every Tanrei control, and stands at the trigger, which takes focus as an invalid control does; the product's own sentence is the errorText of the Field around the file upload, which is what is drawn and described there. The file upload sets no error condition itself, for a missing value or for a refused file (FUP-16). Before a submission, that a file is required is said only inside a Field, whose required text joins the trigger's description: where the trigger is a button the platform gives it no required state (the web), and the file upload has no word for it. A form that must say it frames the file upload in a Field; placed alone, with required, it works and reports the missing file only when the form validates.",
       "The Field's fixture file-upload-required-error (the Field's spec) holds a file upload with no rows prop, so it is one that keeps its own files, with none kept: the trigger and the line of limits, no list and no emptyText, since none is given; the label, the required mark and the error text are the Field's, and the trigger is exposed as invalid and described by that error text (FUP-32). It is drawn as it was before rows existed. A missing file would be a missing value there (FUP-49), and what a person reads for it is the Field's errorText.",
       "A fixture whose rows is own and that holds file items cannot be drawn from props alone, because a file is no value a fixture holds: each file item stands for one file the stage hands over, in order, by the platform's way of FUP-48, before anything is recorded — its name is the file's name, and its sizeText is what the stage's size function answers for that file; no other prop of the item is read, and whether the file is kept or refused is the component's own judging of the fixture's accept, multiple and maxFiles (FUP-43). That is the mark, and the only one: the fixture format has no field for a step after the component exists, so every harness, gallery and documentation renderer reads rows and the items. A fixture whose rows is given draws its items as the product's file items, as before. A file the stage hands over is empty, so no picture of it can be drawn: a staged row of an image shows the image glyph also where itemPreview is true (FIT-6), and a picture in a fixture comes from a row's previewSrc, which only a fixture whose rows is given has.",
-      "One level down: a file picker, and file items the product arranges. The product hears the file picker's select and reject, keeps the files, places a file item for each — in a column, in a strip, or each as the content of a List's row where people change their order — judges the room itself or sets the file picker's maxFiles to it, says what was added and refused through a live region of its own, moves focus when it removes one, and sends the files or gives them to a form control of its own. What it does not get by hand, because it is the state the file upload holds: the one message for many changes (FUP-26); the focus that goes on after a removal (FUP-30); the form's value (FUP-31, FUP-49); and that no file is kept twice (FUP-43). The picture is the same: a file item is the same element alone and inside a file upload.",
-      "A strip of tiles (itemForm tile) is still one list of items in the order of the files, read and tabbed through line by line in the reading direction; wrapping changes no order. A tile whose name is hidden is named by that name (FIT-8), and its error text is drawn beneath it."
+      "One level down: a file picker, and file items the product arranges. The product hears the file picker's select and reject, keeps the files, places a file item for each — in a column, in a strip, or each as the content of an item of a reorderable List — judges the room itself or sets the file picker's maxFiles to it, says what was added and refused through a live region of its own, moves focus when it removes one, and sends the files or gives them to a form control of its own. What it does not get by hand, because it is the state the file upload holds: the one message for many changes (FUP-26); the focus that goes on after a removal (FUP-30); the form's value (FUP-31, FUP-49); and that no file is kept twice (FUP-43). The picture is the same: a file item is the same element alone and inside a file upload.",
+      "A strip of tiles (itemForm tile) is still one list of items in the order of the files, read and tabbed through line by line in the reading direction; wrapping changes no order. A tile whose name is hidden is named by that name (FIT-8), and its error text is drawn beneath it.",
+      "Files in an order people change are the file upload's own reorderable form (FUP-59): its List gives every row a handle, lets the whole row be dragged, and offers the four moves in a menu and the keyboard from the handle, so that dragging is never the only way (WCAG 2.5.7) and the keyboard can do it (WCAG 2.1.1); where the row now stands is announced by the List in the product's words."
     ]
   },
   "tokens": "comp.file-upload",
@@ -1283,6 +1421,78 @@
       ]
     },
     {
+      "id": "tiles-reorderable",
+      "props": {
+        "label": "Photos",
+        "layout": "drop-area",
+        "multiple": true,
+        "rows": "given",
+        "itemForm": "tile",
+        "itemPreview": true,
+        "dropText": "Drag photos here, or choose them",
+        "constraintsText": "PNG or JPEG, up to 10 MB each",
+        "removeLabel": "Remove {name}",
+        "retryLabel": "Retry {name}",
+        "reorderable": true,
+        "dragHandleLabel": "Reorder {label}",
+        "dragHandleHint": "Space lifts, arrow keys move, Space drops, Escape cancels; Enter opens the moves",
+        "moveToStartLabel": "Move to start",
+        "moveBeforeLabel": "Move left",
+        "moveAfterLabel": "Move right",
+        "moveToEndLabel": "Move to end",
+        "liftedText": "{label} lifted: {position} of {count}",
+        "movedText": "{label}: {position} of {count}",
+        "cancelledText": "{label} returned to {position} of {count}"
+      },
+      "slots": {
+        "trigger": "Choose photos"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "entrance.jpeg",
+            "previewSrc": "fixtures/avatar.png",
+            "status": "done",
+            "statusText": "Uploaded",
+            "interactive": true
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "floor-plan.png",
+            "previewSrc": "fixtures/avatar.png",
+            "status": "uploading",
+            "statusText": "Uploading",
+            "progress": 0.4
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "e",
+            "name": "site-photo.png",
+            "previewSrc": "fixtures/avatar.png",
+            "status": "error",
+            "errorText": "The connection was lost.",
+            "retryable": true
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "g",
+            "name": "IMG_20260914_103322_HDR_edited_copy_2.jpeg",
+            "status": "pending",
+            "statusText": "Waiting"
+          }
+        }
+      ]
+    },
+    {
       "id": "tiles-sized",
       "props": {
         "label": "Photos",
@@ -1433,12 +1643,23 @@
         "announcement": "announcement",
         "disabled": "disabled",
         "error": "error",
-        "required": "required"
+        "required": "required",
+        "reorderable": "reorderable",
+        "dragHandleLabel": "dragHandleLabel",
+        "dragHandleHint": "dragHandleHint",
+        "moveToStartLabel": "moveToStartLabel",
+        "moveBeforeLabel": "moveBeforeLabel",
+        "moveAfterLabel": "moveAfterLabel",
+        "moveToEndLabel": "moveToEndLabel",
+        "liftedText": "liftedText",
+        "movedText": "movedText",
+        "cancelledText": "cancelledText"
       },
       "events": {
         "select": "select",
         "reject": "reject",
-        "change": "change"
+        "change": "change",
+        "move": "move"
       },
       "items": {
         "file": {
@@ -1470,7 +1691,7 @@
           "notes": "A `tanrei-file-item` child in the default slot, in the order of the rows, with the attributes of its own spec. Its `file` property (a `File`, never an attribute) is what a form submits for it. `click`, `remove` and `retry` bubble, with `detail.value`. Written by the product only while `rows=\"given\"`; while `rows` is `own` the element renders the same element in its shadow root for each file it keeps."
         }
       },
-      "notes": "A row is a File item: **every row is a `tanrei-file-item`** — the product's own child in the default slot while `rows=\"given\"`, and one the element makes in its shadow root for each file it keeps or refused while `rows` is `own`. The six forwarded attributes `item-form`, `item-preview`, `item-fit`, `item-name-hidden`, `item-width`, `item-height`, with `remove-label`, `retry-label` and `disabled`, are given to every file item through an internal channel that is not part of the file item's public surface, and win over what a product's item says of them (FUP-58); through the same channel each item is told that it is an item of a list (`role=\"listitem\"`, FUP-25). The list is `<div part=\"list\" role=\"list\">` around the default slot (given) or around the made items (own): a column, or with `item-form=\"tile\"` a wrapping flex row. While `rows` is `own` each made item is given its `File` as its `file` property, and the item, not this element, makes and revokes the object URL of a picture (FIT-7, FUP-51); `item-preview` absent, none is ever made. A product's `click`, `remove` and `retry` listeners hear the items' own events, which bubble out of the light DOM; those of made items are handled inside and do not leave the shadow root. The parts of a made item leave the file upload under the prefix `item-` (`exportparts=\"container: item-container, media: item-media, icon: item-icon, preview: item-preview, headline: item-headline, supporting-text: item-supporting-text, status-icon: item-status-icon, progress: item-progress, action: item-action\"`), since three of them would collide with the file picker's; a product's own item is styled as itself. A custom element with a shadow root that holds **its member's own element**. An instance: `<tanrei-file-upload layout=\"drop-area\" multiple accept=\".pdf,image/png\" max-size=\"10000000\" drop-text=\"…\" constraints-text=\"…\" remove-label=\"…\" name=\"attachments\"><tanrei-button slot=\"trigger\" variant=\"outlined\">Choose files</tanrei-button></tanrei-file-upload>`. The shadow root is `<tanrei-file-picker exportparts=\"container, icon, label, supporting-text, selection-text\"><slot name=\"trigger\" slot=\"trigger\"></slot><slot name=\"icon\" slot=\"icon\"></slot></tanrei-file-picker>`, then the list and the live region. **Children passed on**: the product's trigger and glyph stay in the product's light DOM and reach the file picker through the two forwarding slots, so the trigger is still the product's own `tanrei-button`, focusable where it stands; the default slot is the file upload's own and holds the product's rows. **Props**: the nine forwarded attributes are reflected onto the file picker as they change; `max-files` and `label` are not set on it, and `selection-text` is set to `empty-text` (or the product's `noFileText`) while the list holds no row. **Events**: the file picker's `select` and `reject` are heard on the member and stopped there; the file upload dispatches its own `select`, `reject` and `change` from its host (FUP-57). **Focus**: no `delegatesFocus` — the one stop the file picker has is the slotted trigger, which is outside every shadow root; a press on the Field's label calls `focus()` on it (FUP-32). **The Field's connection**: the file upload is the Field's control and asks for the connection; the file picker inside asks too, and the file upload answers it in the Field's place with the description and the three states and with no name (FUP-24, FPK-21). **Parts**: the file picker's parts leave under the file picker's names; `list` is the file upload's own. **Tokens**: nothing is written on the member — `--<namespace>-comp-file-picker-…` set on the file upload or above it is inherited into the file picker. The validation message is anchored on the slotted trigger, a descendant of the host. Form-associated (`static formAssociated = true`): `ElementInternals.setFormValue` receives a `FormData` with one entry per row that has a `file`, under the `name` attribute; `setValidity({ valueMissing })` carries FUP-31 with the message of a native required file input. The live region is one visually hidden `aria-live=\"polite\"` element; row changes are collected until the task that made them is over, and then written once. The file upload keeps its own files: the attribute `rows` is `own` (the default, also when absent or unknown) or `given`; the product's rows are drawn only with `rows=\"given\"`, and a `tanrei-file-item` child while `rows` is `own` is not drawn and is reported. `<form><tanrei-file-upload name=\"attachments\" multiple remove-label=\"…\"><tanrei-button slot=\"trigger\" variant=\"outlined\">Choose files</tanrei-button></tanrei-file-upload></form>` is the whole of a plain form's markup. While `rows` is `own`: the element keeps `File` objects in a private list and renders one `tanrei-file-item` for each, and for each refused file, in its own shadow root (the same row element, so a row is built once, in the file item; their `remove` is handled inside and does not leave the shadow root); the same file is one with equal `name`, `size` and `lastModified`. `files` is a read-only property returning a new `File[]` on each read; `add(files: Iterable<File>): { file: File, reason: 'type' | 'size' | 'count' }[]` hands files over and returns the refused; `clear(): void` empties; `formatSize` is a property, never an attribute, `((bytes: number) => string) | null`, null by default — `upload.formatSize = (bytes) => megabytes.format(bytes / 1e6)`. `change` is a CustomEvent that bubbles, `detail.files` a `File[]`; `select` and `reject` keep their details. Attributes `type-error-text`, `size-error-text`, `count-error-text`; left empty they read `setWords({ fileTypeErrorText, fileSizeErrorText, fileCountErrorText })`. The form: `setFormValue(formData, null)` with one entry per kept file under `name` — the second argument null, so that the browser has no state to restore, and `formStateRestoreCallback` restores nothing; `formResetCallback` does what `clear()` does; `setValidity({ valueMissing })` while `required` and `files` is empty, anchored on the trigger, with the message of a native required file input. A native file input with no file submits one empty entry and this element submits none (FUP-49): a server that reads the field checks for both. A product that sends the files itself gives no `name`, reads `files` in its own `submit` handler, and — for a status and a bar on each row — uses `rows=\"given\"`. A drop over an area that refuses delivers no `drop` event in a browser (the file picker has set `dropEffect` to `none`), so nothing arrives and no refused row is drawn for it (FUP-45): a refused row comes from a choice in the picker, from a drop the area could not judge beforehand (a size, an extension, the room that is left) and from `add()`, which calls the file picker's `judge()` (FUP-48). A fixture whose `rows` is `own` and that holds `file` items cannot be markup alone, since a file is no attribute, and the fixture format has no field that asks for a step in script: the harness, the gallery and the documentation's live samples read `rows` and the items, and after the element is defined set `formatSize` and then call `add()` once with one `File` per `file` item, in order — named by the item's `name`, holding as many zero bytes as its place among the items (1, 2, 3 …), so that no two are the same file (FUP-43), and with one fixed `lastModified`. `formatSize` answers each of those sizes with its item's `sizeText`, and is left null where no item has one. The six `own-*` fixtures are the ones staged so; nothing is recorded before `add()` has returned and the rows are rendered. React: `FileUpload` takes `FileItem` children while the product gives the rows, and gains `rows`, `onChange`, `formatSize`, the three texts, and a ref with `files`, `add()` and `clear()`."
+      "notes": "A row is a File item: **every row is a `tanrei-file-item`** — the product's own child in the default slot while `rows=\"given\"`, and one the element makes in its shadow root for each file it keeps or refused while `rows` is `own`. The six forwarded attributes `item-form`, `item-preview`, `item-fit`, `item-name-hidden`, `item-width`, `item-height`, with `remove-label`, `retry-label` and `disabled`, are given to every file item through an internal channel that is not part of the file item's public surface, and win over what a product's item says of them (FUP-58); through the same channel each item is told that it is not an item of a list itself (`role=\"group\"`, FUP-25): the List's items are. The list is a `<tanrei-list part=\"list\">` in the shadow root, one `<tanrei-list-item>` per row named by the file's name: vertical, or with `item-form=\"tile\"` horizontal with `wrap`; its `gap` is `small`. While `rows=\"given\"` the shadow root assigns its slots by hand (`slotAssignment: \"manual\"`): each product row to a slot of its own inside its list item, the trigger and the glyph to the two forwarding slots, and anything else to nothing (FUP-41). `reorderable` and the nine words (`drag-handle-label` …) are given to the List; the List's `move` is answered inside, and while `rows=\"given\"` the file upload dispatches its own `move` (`detail: { from, to }`, bubbles). While `rows` is `own` each made item is given its `File` as its `file` property, and the item, not this element, makes and revokes the object URL of a picture (FIT-7, FUP-51); `item-preview` absent, none is ever made. A product's `click`, `remove` and `retry` listeners hear the items' own events, which bubble out of the light DOM; those of made items are handled inside and do not leave the shadow root. The parts of a made item leave the file upload under the prefix `item-` (`exportparts=\"container: item-container, media: item-media, icon: item-icon, preview: item-preview, headline: item-headline, supporting-text: item-supporting-text, status-icon: item-status-icon, progress: item-progress, action: item-action\"`), since three of them would collide with the file picker's; a product's own item is styled as itself. A custom element with a shadow root that holds **its member's own element**. An instance: `<tanrei-file-upload layout=\"drop-area\" multiple accept=\".pdf,image/png\" max-size=\"10000000\" drop-text=\"…\" constraints-text=\"…\" remove-label=\"…\" name=\"attachments\"><tanrei-button slot=\"trigger\" variant=\"outlined\">Choose files</tanrei-button></tanrei-file-upload>`. The shadow root is `<tanrei-file-picker exportparts=\"container, icon, label, supporting-text, selection-text\"><slot name=\"trigger\" slot=\"trigger\"></slot><slot name=\"icon\" slot=\"icon\"></slot></tanrei-file-picker>`, then the list and the live region. **Children passed on**: the product's trigger and glyph stay in the product's light DOM and reach the file picker through the two forwarding slots, so the trigger is still the product's own `tanrei-button`, focusable where it stands; the product's rows are assigned to slots of the file upload's own, one inside each list item. **Props**: the nine forwarded attributes are reflected onto the file picker as they change; `max-files` and `label` are not set on it, and `selection-text` is set to `empty-text` (or the product's `noFileText`) while the list holds no row. **Events**: the file picker's `select` and `reject` are heard on the member and stopped there; the file upload dispatches its own `select`, `reject` and `change` from its host (FUP-57). **Focus**: no `delegatesFocus` — the one stop the file picker has is the slotted trigger, which is outside every shadow root; a press on the Field's label calls `focus()` on it (FUP-32). **The Field's connection**: the file upload is the Field's control and asks for the connection; the file picker inside asks too, and the file upload answers it in the Field's place with the description and the three states and with no name (FUP-24, FPK-21). **Parts**: the file picker's parts leave under the file picker's names; `list` is the file upload's own. **Tokens**: nothing is written on the member — `--<namespace>-comp-file-picker-…` set on the file upload or above it is inherited into the file picker. The validation message is anchored on the slotted trigger, a descendant of the host. Form-associated (`static formAssociated = true`): `ElementInternals.setFormValue` receives a `FormData` with one entry per row that has a `file`, under the `name` attribute; `setValidity({ valueMissing })` carries FUP-31 with the message of a native required file input. The live region is one visually hidden `aria-live=\"polite\"` element; row changes are collected until the task that made them is over, and then written once. The file upload keeps its own files: the attribute `rows` is `own` (the default, also when absent or unknown) or `given`; the product's rows are drawn only with `rows=\"given\"`, and a `tanrei-file-item` child while `rows` is `own` is not drawn and is reported. `<form><tanrei-file-upload name=\"attachments\" multiple remove-label=\"…\"><tanrei-button slot=\"trigger\" variant=\"outlined\">Choose files</tanrei-button></tanrei-file-upload></form>` is the whole of a plain form's markup. While `rows` is `own`: the element keeps `File` objects in a private list and renders one `tanrei-file-item` for each, and for each refused file, in its own shadow root (the same row element, so a row is built once, in the file item; their `remove` is handled inside and does not leave the shadow root); the same file is one with equal `name`, `size` and `lastModified`. `files` is a read-only property returning a new `File[]` on each read; `add(files: Iterable<File>): { file: File, reason: 'type' | 'size' | 'count' }[]` hands files over and returns the refused; `clear(): void` empties; `formatSize` is a property, never an attribute, `((bytes: number) => string) | null`, null by default — `upload.formatSize = (bytes) => megabytes.format(bytes / 1e6)`. `change` is a CustomEvent that bubbles, `detail.files` a `File[]`; `select` and `reject` keep their details. Attributes `type-error-text`, `size-error-text`, `count-error-text`; left empty they read `setWords({ fileTypeErrorText, fileSizeErrorText, fileCountErrorText })`. The form: `setFormValue(formData, null)` with one entry per kept file under `name` — the second argument null, so that the browser has no state to restore, and `formStateRestoreCallback` restores nothing; `formResetCallback` does what `clear()` does; `setValidity({ valueMissing })` while `required` and `files` is empty, anchored on the trigger, with the message of a native required file input. A native file input with no file submits one empty entry and this element submits none (FUP-49): a server that reads the field checks for both. A product that sends the files itself gives no `name`, reads `files` in its own `submit` handler, and — for a status and a bar on each row — uses `rows=\"given\"`. A drop over an area that refuses delivers no `drop` event in a browser (the file picker has set `dropEffect` to `none`), so nothing arrives and no refused row is drawn for it (FUP-45): a refused row comes from a choice in the picker, from a drop the area could not judge beforehand (a size, an extension, the room that is left) and from `add()`, which calls the file picker's `judge()` (FUP-48). A fixture whose `rows` is `own` and that holds `file` items cannot be markup alone, since a file is no attribute, and the fixture format has no field that asks for a step in script: the harness, the gallery and the documentation's live samples read `rows` and the items, and after the element is defined set `formatSize` and then call `add()` once with one `File` per `file` item, in order — named by the item's `name`, holding as many zero bytes as its place among the items (1, 2, 3 …), so that no two are the same file (FUP-43), and with one fixed `lastModified`. `formatSize` answers each of those sizes with its item's `sizeText`, and is left null where no item has one. The six `own-*` fixtures are the ones staged so; nothing is recorded before `add()` has returned and the rows are rendered. React: `FileUpload` takes `FileItem` children while the product gives the rows, and gains `rows`, `onChange`, `formatSize`, the three texts, and a ref with `files`, `add()` and `clear()`."
     },
     "swiftui": {
       "status": "planned",
@@ -1500,12 +1721,23 @@
         "announcement": "announcement",
         "disabled": "disabled",
         "error": "isError",
-        "required": "isRequired"
+        "required": "isRequired",
+        "reorderable": "onMove",
+        "dragHandleLabel": "dragHandleLabel",
+        "dragHandleHint": "dragHandleHint",
+        "moveToStartLabel": "moveToStartLabel",
+        "moveBeforeLabel": "moveBeforeLabel",
+        "moveAfterLabel": "moveAfterLabel",
+        "moveToEndLabel": "moveToEndLabel",
+        "liftedText": "liftedText",
+        "movedText": "movedText",
+        "cancelledText": "cancelledText"
       },
       "events": {
         "select": "onSelect",
         "reject": "onReject",
-        "change": "onChange"
+        "change": "onChange",
+        "move": "onMove"
       },
       "items": {
         "file": {
@@ -1537,7 +1769,7 @@
           "notes": "A value in the `items` array, identified by `id`. The product keeps the `URL` it was handed beside it. Passed only while the product gives the rows; left out, the file upload keeps its own files and draws their rows."
         }
       },
-      "notes": "Each row is a `TanreiFileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `TanreiFilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. `TanreiFileUpload(items: [TanreiFileItem], layout: .dropArea, onSelect: { urls in … }) { TanreiButton(\"Choose files\") { } }`. The picker is `fileImporter(isPresented:allowedContentTypes:allowsMultipleSelection:)`; `accept` is a list of `UTType` (an extension or a media type is resolved to one), and the files are security-scoped `URL`s the product opens and releases. The drop area is `dropDestination(for: URL.self)` with its `isTargeted` binding for the receiving condition; SwiftUI tells the kinds before the drop, not sizes. With VoiceOver the area is a drop point named by dropText. `disabled` follows `.disabled(_:)` and the environment; the Field's name, description and states arrive through the environment. The announcement is `AccessibilityNotification.Announcement`, one per turn of the run loop. No form submission (FUP-31 does not apply). `rows` is which initialiser is used — `TanreiFileUpload(items:)` is given, also with an empty array; without `items` the view keeps its own files. `TanreiFileUpload(files: $urls) { TanreiButton(\"Choose files\") { } }` binds the kept files to the product's `[URL]` (reading them is reading the binding; handing over and clearing are writing it, judged by FUP-43), and without the binding the view keeps them in its own state for `onChange` to report. The view starts and stops security-scoped access for a URL it keeps and releases it when it lets go (FUP-51). `formatSize: ((Int64) -> String)?`; the same file is the same standardised URL. No form: FUP-49 does not apply, and a product reads the binding when it sends."
+      "notes": "Each row is a `TanreiFileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `TanreiFilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. `TanreiFileUpload(items: [TanreiFileItem], layout: .dropArea, onSelect: { urls in … }) { TanreiButton(\"Choose files\") { } }`. The picker is `fileImporter(isPresented:allowedContentTypes:allowsMultipleSelection:)`; `accept` is a list of `UTType` (an extension or a media type is resolved to one), and the files are security-scoped `URL`s the product opens and releases. The drop area is `dropDestination(for: URL.self)` with its `isTargeted` binding for the receiving condition; SwiftUI tells the kinds before the drop, not sizes. With VoiceOver the area is a drop point named by dropText. `disabled` follows `.disabled(_:)` and the environment; the Field's name, description and states arrive through the environment. The announcement is `AccessibilityNotification.Announcement`, one per turn of the run loop. No form submission (FUP-31 does not apply). `rows` is which initialiser is used — `TanreiFileUpload(items:)` is given, also with an empty array; without `items` the view keeps its own files. `TanreiFileUpload(files: $urls) { TanreiButton(\"Choose files\") { } }` binds the kept files to the product's `[URL]` (reading them is reading the binding; handing over and clearing are writing it, judged by FUP-43), and without the binding the view keeps them in its own state for `onChange` to report. The view starts and stops security-scoped access for a URL it keeps and releases it when it lets go (FUP-51). `formatSize: ((Int64) -> String)?`; the same file is the same standardised URL. No form: FUP-49 does not apply, and a product reads the binding when it sends. The rows arranged by the List and the reorderable form (FUP-59) are not built on this platform yet."
     },
     "compose": {
       "status": "planned",
@@ -1567,12 +1799,23 @@
         "announcement": "announcement",
         "disabled": "enabled",
         "error": "isError",
-        "required": "required"
+        "required": "required",
+        "reorderable": "onMove",
+        "dragHandleLabel": "dragHandleLabel",
+        "dragHandleHint": "dragHandleHint",
+        "moveToStartLabel": "moveToStartLabel",
+        "moveBeforeLabel": "moveBeforeLabel",
+        "moveAfterLabel": "moveAfterLabel",
+        "moveToEndLabel": "moveToEndLabel",
+        "liftedText": "liftedText",
+        "movedText": "movedText",
+        "cancelledText": "cancelledText"
       },
       "events": {
         "select": "onSelect",
         "reject": "onReject",
-        "change": "onChange"
+        "change": "onChange",
+        "move": "onMove"
       },
       "items": {
         "file": {
@@ -1604,7 +1847,7 @@
           "notes": "A value in the `items` list, identified by `key`. The product keeps the `Uri` beside it. Passed only while the product gives the rows; left out, the file upload keeps its own files and draws their rows."
         }
       },
-      "notes": "Each row is a `TanreiFileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `TanreiFilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. `TanreiFileUpload(items = …, onSelect = { uris -> … }, trigger = { TanreiButton(onClick = {}) { Text(\"Choose files\") } })`. The picker is `rememberLauncherForActivityResult` with `OpenDocument` or `OpenMultipleDocuments`; `accept` is given as MIME types (an extension is resolved through `MimeTypeMap`), and the files are content `Uri`s whose name and size come from the resolver's metadata, not from reading them. The drop area is `Modifier.dragAndDropTarget`, which is meaningful on large screens and with a pointer; on a phone the drop-area layout is still drawn and still pressed. `disabled` is the inverse flag `enabled`. The group is `semantics(mergeDescendants = false) { contentDescription }`; rows carry `CollectionItemInfo`; the announcement is a `liveRegion = Polite` node. No form submission. `rows` is whether `items` is passed — `items = null` (the default) is own, a list, also an empty one, is given. `TanreiFileUpload(state = rememberTanreiFileUploadState(), trigger = { … })`: the state holder has `files: List<Uri>` (a snapshot), `add(uris)` and `clear()`, and survives recomposition, not process death (FUP-49's restoration: it begins empty). `formatSize: ((Long) -> String)? = null`; the same file is the same `Uri`. A kept `Uri` is held with the read permission the picker granted, and nothing is opened. No form."
+      "notes": "Each row is a `TanreiFileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `TanreiFilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. `TanreiFileUpload(items = …, onSelect = { uris -> … }, trigger = { TanreiButton(onClick = {}) { Text(\"Choose files\") } })`. The picker is `rememberLauncherForActivityResult` with `OpenDocument` or `OpenMultipleDocuments`; `accept` is given as MIME types (an extension is resolved through `MimeTypeMap`), and the files are content `Uri`s whose name and size come from the resolver's metadata, not from reading them. The drop area is `Modifier.dragAndDropTarget`, which is meaningful on large screens and with a pointer; on a phone the drop-area layout is still drawn and still pressed. `disabled` is the inverse flag `enabled`. The group is `semantics(mergeDescendants = false) { contentDescription }`; rows carry `CollectionItemInfo`; the announcement is a `liveRegion = Polite` node. No form submission. `rows` is whether `items` is passed — `items = null` (the default) is own, a list, also an empty one, is given. `TanreiFileUpload(state = rememberTanreiFileUploadState(), trigger = { … })`: the state holder has `files: List<Uri>` (a snapshot), `add(uris)` and `clear()`, and survives recomposition, not process death (FUP-49's restoration: it begins empty). `formatSize: ((Long) -> String)? = null`; the same file is the same `Uri`. A kept `Uri` is held with the read permission the picker granted, and nothing is opened. No form. The rows arranged by the List and the reorderable form (FUP-59) are not built on this platform yet."
     },
     "flutter": {
       "status": "planned",
@@ -1634,12 +1877,23 @@
         "announcement": "announcement",
         "disabled": "enabled",
         "error": "isError",
-        "required": "required"
+        "required": "required",
+        "reorderable": "onMove",
+        "dragHandleLabel": "handleSemanticLabel",
+        "dragHandleHint": "handleSemanticHint",
+        "moveToStartLabel": "moveToStartLabel",
+        "moveBeforeLabel": "moveBeforeLabel",
+        "moveAfterLabel": "moveAfterLabel",
+        "moveToEndLabel": "moveToEndLabel",
+        "liftedText": "liftedText",
+        "movedText": "movedText",
+        "cancelledText": "cancelledText"
       },
       "events": {
         "select": "onSelect",
         "reject": "onReject",
-        "change": "onChanged"
+        "change": "onChanged",
+        "move": "onMove"
       },
       "items": {
         "file": {
@@ -1671,7 +1925,7 @@
           "notes": "A value in the `items` list, identified by `key`. Passed only while the product gives the rows; left out, the file upload keeps its own files and draws their rows."
         }
       },
-      "notes": "Each row is a `TanreiFileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `TanreiFilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. The framework has no file picker and no drop target for files; both are plugins, and the package depends on none. `TanreiFileUpload(items: …, trigger: TanreiButton(…), onPick: (request) async => …, onSelect: …)`: `onPick` is the product's function that opens whatever picker it uses with the request's `multiple` and `accept` and returns the files as `TanreiPickedFile(name, size, mimeType, handle)`; the file upload judges them by FUP-9 and emits. Drops arrive the same way: the product's drop plugin calls `TanreiFileUploadController.dragEntered / dragExited / dropped(files)`, and without it the drop-area layout is drawn and pressed and takes no drop — the README says so. `disabled` is the inverse flag `enabled`. The announcement is `SemanticsService.announce`. No form submission. Whether the package should depend on a picker plugin instead is not settled. `rows` is whether `items` is passed — null (the default) is own, a list, also an empty one, is given. The `TanreiFileUploadController` that already takes drops gains `files` (an unmodifiable view), `add(files)` and `clear()`; without a controller the widget makes its own. `formatSize: String Function(int bytes)?`; the same file is the same handle, or the same name, size and time of last change where the product's picker gives no location. No form submission: inside a `Form` it is a `FormField` whose value is the kept files, so that `reset()` clears and a validator of the product's can ask for one."
+      "notes": "Each row is a `TanreiFileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `TanreiFilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. The framework has no file picker and no drop target for files; both are plugins, and the package depends on none. `TanreiFileUpload(items: …, trigger: TanreiButton(…), onPick: (request) async => …, onSelect: …)`: `onPick` is the product's function that opens whatever picker it uses with the request's `multiple` and `accept` and returns the files as `TanreiPickedFile(name, size, mimeType, handle)`; the file upload judges them by FUP-9 and emits. Drops arrive the same way: the product's drop plugin calls `TanreiFileUploadController.dragEntered / dragExited / dropped(files)`, and without it the drop-area layout is drawn and pressed and takes no drop — the README says so. `disabled` is the inverse flag `enabled`. The announcement is `SemanticsService.announce`. No form submission. Whether the package should depend on a picker plugin instead is not settled. `rows` is whether `items` is passed — null (the default) is own, a list, also an empty one, is given. The `TanreiFileUploadController` that already takes drops gains `files` (an unmodifiable view), `add(files)` and `clear()`; without a controller the widget makes its own. `formatSize: String Function(int bytes)?`; the same file is the same handle, or the same name, size and time of last change where the product's picker gives no location. No form submission: inside a `Form` it is a `FormField` whose value is the kept files, so that `reset()` clears and a validator of the product's can ask for one. The rows arranged by the List and the reorderable form (FUP-59) are not built on this platform yet."
     },
     "react-native": {
       "status": "planned",
@@ -1701,12 +1955,23 @@
         "announcement": "announcement",
         "disabled": "disabled",
         "error": "error",
-        "required": "required"
+        "required": "required",
+        "reorderable": "reorderable",
+        "dragHandleLabel": "dragHandleLabel",
+        "dragHandleHint": "dragHandleHint",
+        "moveToStartLabel": "moveToStartLabel",
+        "moveBeforeLabel": "moveBeforeLabel",
+        "moveAfterLabel": "moveAfterLabel",
+        "moveToEndLabel": "moveToEndLabel",
+        "liftedText": "liftedText",
+        "movedText": "movedText",
+        "cancelledText": "cancelledText"
       },
       "events": {
         "select": "onSelect",
         "reject": "onReject",
-        "change": "onChange"
+        "change": "onChange",
+        "move": "onMove"
       },
       "items": {
         "file": {
@@ -1738,7 +2003,7 @@
           "notes": "An object in the `items` array, identified by `value`. Passed only while the product gives the rows; left out, the file upload keeps its own files and draws their rows."
         }
       },
-      "notes": "Each row is a `FileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `FilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. React Native has no file picker of its own; the package depends on no picker library. `<FileUpload items={…} trigger={<Button label=\"Choose files\" />} onPick={async ({ multiple, accept }) => files} onSelect={…} />`: `onPick` is the product's function that opens its picker and returns `{ name, size, type, uri }[]`; the file upload judges them by FUP-9 and emits. No drop of files on phones: the drop-area layout is drawn and pressed and takes no drop, and the README says so. The announcement is `AccessibilityInfo.announceForAccessibility`. No form submission. Whether the package should depend on a picker plugin instead is not settled. `rows` is whether `items` is passed — undefined is own, an array, also an empty one, is given. Own is the uncontrolled form: `<FileUpload ref={upload} trigger={…} onPick={…} onChange={(files) => …} />`, the ref holding `files`, `add(files)` and `clear()`. `formatSize?: (bytes: number) => string`; the same file is the same `uri`. No form."
+      "notes": "Each row is a `FileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `FilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. React Native has no file picker of its own; the package depends on no picker library. `<FileUpload items={…} trigger={<Button label=\"Choose files\" />} onPick={async ({ multiple, accept }) => files} onSelect={…} />`: `onPick` is the product's function that opens its picker and returns `{ name, size, type, uri }[]`; the file upload judges them by FUP-9 and emits. No drop of files on phones: the drop-area layout is drawn and pressed and takes no drop, and the README says so. The announcement is `AccessibilityInfo.announceForAccessibility`. No form submission. Whether the package should depend on a picker plugin instead is not settled. `rows` is whether `items` is passed — undefined is own, an array, also an empty one, is given. Own is the uncontrolled form: `<FileUpload ref={upload} trigger={…} onPick={…} onChange={(files) => …} />`, the ref holding `files`, `add(files)` and `clear()`. `formatSize?: (bytes: number) => string`; the same file is the same `uri`. No form. The rows arranged by the List and the reorderable form (FUP-59) are not built on this platform yet."
     }
   }
 }

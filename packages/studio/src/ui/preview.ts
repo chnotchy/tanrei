@@ -114,7 +114,7 @@ export function createPreview(ctx: Ctx, { contrast, onContrast }: { contrast: Co
               h(
                 'div',
                 { class: 'ts-own-row', style: font(`${typescale}label-small`), 'data-own-token': token.id },
-                token.type === 'color' ? h('i', { class: 'ts-own-swatch', style: `background: ${v(token.id)};` }) : token.type === 'dimension' ? h('i', { class: 'ts-own-bar', style: `inline-size: ${v(token.id)};` }) : h('i'),
+                token.type === 'color' ? h('tanrei-swatch', { class: 'ts-own-swatch', decorative: true, size: 'small', shape: 'circle', color: v(token.id) }) : token.type === 'dimension' ? h('i', { class: 'ts-own-bar', style: `inline-size: ${v(token.id)};` }) : h('i'),
                 h('span', { dir: 'ltr', text: token.id }),
                 h('span', { dir: 'ltr', 'data-own-value': true, text: format(token.type, token.value) }),
               ),

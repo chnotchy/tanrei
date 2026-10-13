@@ -303,6 +303,7 @@ export const styles = css`
   }
   dialog.sheet::backdrop {
     background: ${t('scrim-color')};
+    backdrop-filter: blur(${t('scrim-blur')});
     opacity: 0;
     transition-property: opacity, display, overlay;
     transition-duration: ${t('motion-exit-duration')};

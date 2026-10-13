@@ -1,0 +1,1064 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "stepper",
+  "title": "Stepper",
+  "summary": "Shows where a person is in a flow the product runs in a fixed order of steps — which step is current, which are complete, which has an error and which are still to come — and, where the product allows it, lets the person press a step to go back to it.",
+  "category": "navigation",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "root",
+      "description": "The ordered list of the flow's steps, named by label: one row of equal columns (horizontal), one column (vertical), or, in the compact form, a bar and two lines of text. It has no fill, no edge and no padding of its own."
+    },
+    {
+      "id": "step",
+      "description": "One item of the list: its marker, its label and, where it has one, its description. A step is in exactly one condition — incomplete, current, complete or error — and, while it can be pressed, in the interaction states."
+    },
+    {
+      "id": "container",
+      "description": "The area of a step that carries hover, focus and press while the step can be pressed: its marker and its text, with the container's padding around them. It has no fill at rest. A step that cannot be pressed draws its container but answers nothing."
+    },
+    {
+      "id": "marker",
+      "description": "What begins a step: a filled or ringed circle holding the step's number, the glyph check (complete) or the glyph priority_high (error). Its fill, ring and content say the step's condition; it is decorative, because the step's condition is also said in words."
+    },
+    {
+      "id": "label",
+      "description": "The step's name, in a few words (\"Shipping\"). It wraps and is never cut."
+    },
+    {
+      "id": "description",
+      "description": "A short second line under the label (\"Optional\", \"2 items\"), in a smaller and quieter style. It wraps and is never cut.",
+      "optional": true
+    },
+    {
+      "id": "connector",
+      "description": "The line from a step's marker to the next step's marker: across the column in the horizontal form, down beside the text in the vertical form. Drawn in the complete color after a complete step, so that the way already gone is one line. Decorative. The last step has none."
+    },
+    {
+      "id": "bar",
+      "description": "The compact form's row of segments, one per step, filled up to and including the current step. Decorative: the position text says the same in words.",
+      "optional": true
+    },
+    {
+      "id": "position",
+      "description": "The compact form's position in the product's words (\"Step 2 of 5\"), above the current step's label.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "The indicator shown for keyboard focus, around a pressable step's container."
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the stepper (\"Checkout progress\"), in the product's language. Not drawn. It tells the list of steps from the content it tracks, so it is required."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The value of the current step: where the person is. Empty, or a value no step has, makes no step current — before the flow begins, or once it is finished. The stepper never changes it itself: the product moves its flow and sets value."
+    },
+    {
+      "name": "layout",
+      "type": "enum",
+      "values": [
+        "horizontal",
+        "vertical",
+        "compact"
+      ],
+      "default": "horizontal",
+      "description": "horizontal: the steps side by side in equal columns, above the content they track; where the width it is given cannot hold every step at its least width, the stepper draws the compact form instead (SPR-6). vertical: the steps one under another, beside the content or in a narrow column. compact: the bar and the position in words (\"Step 2 of 5\") with the current step's label, at any width."
+    },
+    {
+      "name": "pressable",
+      "type": "enum",
+      "values": [
+        "none",
+        "visited",
+        "all"
+      ],
+      "default": "none",
+      "description": "Which steps the person can press to go to them. none: no step; the stepper only shows where the person is. visited: each step that is complete or has an error and is not current — the steps the person has been to, so that they can go back. all: every step that is not current, for a flow whose steps can be done in any order. A disabled step is never pressable, and the current step never is. The compact form presses nothing."
+    },
+    {
+      "name": "completedText",
+      "type": "string",
+      "default": "",
+      "description": "The word assistive technology hears after the label of a complete step (\"Completed\"), in the product's language. Not drawn: the check says it to the eye. The product's: Tanrei has no word for it. Empty reads the product's words. Required while a step is complete.",
+      "words": "stepCompletedText"
+    },
+    {
+      "name": "errorText",
+      "type": "string",
+      "default": "",
+      "description": "The word assistive technology hears after the label of a step with an error (\"Has an error\"), in the product's language. Not drawn: the glyph says it to the eye. The product's: Tanrei has no word for it. Empty reads the product's words. Required while a step has an error.",
+      "words": "stepErrorText"
+    },
+    {
+      "name": "positionText",
+      "type": "string",
+      "default": "",
+      "description": "The compact form's position: the whole sentence in the product's language with two places the stepper fills, {position} with the current step's place counted from 1 and {count} with the number of steps (\"Step {position} of {count}\", \"ステップ {position}/{count}\"). The product's: Tanrei has no sentence for it. Empty reads the product's words. Required while the compact form is drawn.",
+      "words": "stepPositionText",
+      "places": [
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The current step's place in the flow, counted from 1.",
+          "required": true
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of steps."
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "name": "step",
+      "summary": "One step of the flow: its value, its label, an optional description, its status and whether it can be visited.",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "Identifies the step: the stepper's value names the current step by it, and select carries it. Unique within the stepper; required."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The step's name, in a few words (\"Shipping\"). Drawn, and the start of what assistive technology hears for the step. Required."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "default": "",
+          "description": "A short second line under the label (\"Optional\", \"2 items\"). Empty draws none."
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "values": [
+            "auto",
+            "incomplete",
+            "complete",
+            "error"
+          ],
+          "default": "auto",
+          "description": "What the product knows of the step. auto: complete when it comes before the current step and incomplete when it comes after it (or when no step is current) — a flow done in order. incomplete and complete: so, wherever the step stands (a step skipped and left for later; a step done ahead in a flow of any order). error: the step needs the person's attention. The current step is drawn current whatever its status, except error, which it keeps."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "The step cannot be gone to now (it depends on an earlier choice). Only meaningful while pressable is not none: the step is drawn disabled and is not pressable. Ignored on the current step."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "select",
+      "description": "The person pressed a step to go to it, by pointer, touch, Enter, Space or assistive technology; carries the step's value. The stepper does not change value: the product goes to the step (or does not) and sets value."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "SPR-1",
+      "text": "THE stepper SHALL draw each step in exactly one condition: current WHILE value equals the step's value (the first step with that value, SPR-21) and its status is not error; error WHILE its status is error, current or not; complete WHILE its status is complete, or its status is auto and it comes before the current step; incomplete WHILE its status is incomplete, or its status is auto and it comes after the current step or no step is current. WHEN value or a step's status changes THE stepper SHALL draw every step's new condition at once, without a motion of its own beyond the state motion of SPR-17.",
+      "verify": "Fixture horizontal: value payment, the two steps before it complete by auto, the one after incomplete. Fixture horizontal-error: the step marked error keeps its glyph although it comes before the current step. Fixture finished: no value, every step marked complete."
+    },
+    {
+      "id": "SPR-2",
+      "text": "THE stepper SHALL draw each step's marker as a circle at least comp.stepper.marker.size high and wide, with corners comp.stepper.marker.shape eased by sys.shape.corner-smoothing, filled with the marker color of the step's condition and state (comp.stepper.incomplete.marker.color, comp.stepper.current.marker.color, comp.stepper.complete.marker.color, comp.stepper.error.marker.color at rest) and edged inside its size by a ring comp.stepper.marker.outline.width wide in the marker outline color of the same (comp.stepper.incomplete.marker.outline.color, and so on). An incomplete or current marker SHALL hold the step's number — its place in the flow, counted from 1 — in comp.stepper.marker.label.typescale and the marker content color of its condition, centred, as a left-to-right run whose digits are never reversed; a complete marker SHALL hold the glyph check and an error marker the glyph priority_high instead, in the marker content color of their condition, each in a box comp.stepper.marker.icon.size large through the platform's icon helper with sys.icon.family.selected, sys.icon.fill.selected, the weight comp.stepper.marker.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, unmirrored in every layout direction; THE stepper SHALL draw no mark of its own.",
+      "verify": "Under the default system: a 24 circle; incomplete a 2 ring in outline around an on-surface-variant number; current filled primary with an on-primary number; complete filled secondary-container with an on-secondary-container check; error a ring in error around an error priority_high."
+    },
+    {
+      "id": "SPR-3",
+      "text": "THE stepper SHALL draw each step's label in comp.stepper.label.typescale and the label color of its condition and state, and, WHERE the step has a description, the description comp.stepper.description.gap under the label in comp.stepper.description.typescale and the description color of the same; it SHALL wrap both where their language allows a break and, for a run with no such place that is longer than the line, inside the run, and SHALL NOT cut them, draw an ellipsis or scroll. A change of condition SHALL NOT change the label's text style, so that no step moves when the current step does.",
+      "verify": "Fixture long-labels: every label wraps inside its column, nothing is hidden, and the steps stay in one row."
+    },
+    {
+      "id": "SPR-4",
+      "text": "WHILE layout is horizontal and the full form is drawn (SPR-6) THE stepper SHALL lay its steps out in one row of columns of equal width, in order, each column a step's container: its marker at the container's start, comp.stepper.container.padding from its edges, and its label and description under the marker, comp.stepper.marker.gap below it, aligned to the start and as wide as the column less its padding; the row SHALL be exactly as wide as the place it stands in and as high as its tallest step, every step's marker on one line.",
+      "verify": "Fixture horizontal on a 600-wide stage: four columns of 150, each marker at its column's start."
+    },
+    {
+      "id": "SPR-5",
+      "text": "WHILE layout is vertical THE stepper SHALL lay its steps out in one column, in order, each step's container as wide as the stepper: its marker at the container's start, comp.stepper.container.padding from its edges, and its label and description beside the marker, comp.stepper.marker.gap from it, filling the rest of the width; the marker SHALL be centred on the label's first line, and WHERE the marker is taller than that line the stepper SHALL lower the text by half the difference, so that the marker's top is the content's top.",
+      "verify": "Fixture vertical: the label's first line and the marker share a centre line in each step."
+    },
+    {
+      "id": "SPR-6",
+      "text": "WHILE layout is compact, or layout is horizontal and the width the layout gives the stepper is less than the number of steps times comp.stepper.step.min-width, THE stepper SHALL draw the compact form instead of its steps: the bar — one segment per step in a row as wide as the stepper, comp.stepper.bar.gap apart, each comp.stepper.bar.thickness thick with corners comp.stepper.bar.shape, the segments of the current step and every step before it in comp.stepper.bar.filled.color and the others in comp.stepper.bar.color — then, comp.stepper.position.gap under it, the position in comp.stepper.position.typescale and comp.stepper.position.color, and under that the current step's label as SPR-3 draws a current step's, or an error step's where the current step has an error, preceded there by its marker's glyph priority_high at comp.stepper.marker.icon.size in the error label color. It SHALL decide by the width it is given, not by the window's, and SHALL change form at once WHEN that width crosses the threshold, keeping value. WHILE no step is current THE stepper SHALL draw the bar with no segment filled, and neither the position nor a label.",
+      "verify": "Under the default system a stepper of four steps is compact below a width of 480. Fixture compact draws the bar with two of five segments filled, \"Step 2 of 5\" and \"Shipping\". Test the switch by setting the width of the stage; a fixture cannot."
+    },
+    {
+      "id": "SPR-7",
+      "text": "THE stepper SHALL fill the position's places as the product's sentence marks them: {position} with the current step's place counted from 1 and {count} with the number of steps, each written as the platform writes a whole number in the language of the element; it SHALL do nothing else to the sentence, and SHALL draw a sentence without {position} as it is written and in debug builds report it.",
+      "verify": "Unit: \"{position}/{count}\" draws \"2/5\"; a sentence without {position} is drawn as written and reported once."
+    },
+    {
+      "id": "SPR-8",
+      "text": "WHILE a step is followed by another step and the full form is drawn THE stepper SHALL draw a connector from that step's marker to the next step's: a straight line comp.stepper.connector.thickness thick, starting comp.stepper.connector.gap after the step's marker and ending comp.stepper.connector.gap before the next step's marker — across the row on the markers' centre line in the horizontal form, down the markers' centre line in the vertical form — in comp.stepper.connector.complete.color WHILE the step is complete and comp.stepper.connector.color otherwise. No container's fill or state layer SHALL cover a connector, and the connector SHALL be hidden from assistive technology.",
+      "verify": "Fixture horizontal: the connectors after Account and Shipping are primary, the one after Payment is outline-variant; the last step has none."
+    },
+    {
+      "id": "SPR-9",
+      "text": "WHILE pressable is visited THE stepper SHALL make pressable each step that is drawn complete or error, is not current and is not disabled; WHILE pressable is all, each step that is not current and is not disabled; WHILE pressable is none, no step; and in the compact form no step, whatever pressable says. A pressable step SHALL be the platform's own button for the whole of its container, in the focus order in the order of the steps; a step that is not pressable SHALL NOT take focus, SHALL NOT answer a pointer, a press or a key, and SHALL draw no interaction state.",
+      "verify": "Fixture pressable-visited: Account and Shipping are buttons, Payment and Review are not; Tab moves Account, Shipping, then out."
+    },
+    {
+      "id": "SPR-10",
+      "text": "WHEN the person activates a pressable step by pointer, touch, Enter, Space or assistive technology THE stepper SHALL emit select exactly once with that step's value, and SHALL NOT change value or any step's condition itself: the product goes to the step and sets value, or keeps the person where they are.",
+      "verify": "On the web: a click, Enter, Space and element.click() on a pressable step each emit select once; value is unchanged after each."
+    },
+    {
+      "id": "SPR-11",
+      "text": "WHILE pressable is not none and a step's disabled is true and the step is not current THE stepper SHALL draw the step from the disabled tokens of its condition — its label, description, marker content and ring faded as disabled content, its fill kept, SHALL NOT make it pressable, and SHALL expose it as a disabled button, so that a person who reaches it hears that it cannot be gone to now; WHILE pressable is none THE stepper SHALL draw and expose a step whose disabled is true as it draws any other, because nothing is pressed and so nothing is unavailable. WHILE the current step's disabled is true THE stepper SHALL draw it current and in debug builds report it.",
+      "verify": "Fixture pressable-disabled: Review is drawn disabled and exposed as a disabled button; Account and Shipping are pressable."
+    },
+    {
+      "id": "SPR-12",
+      "text": "WHILE a pressable step is hovered, keyboard-focused or pressed THE stepper SHALL render its container, marker, marker outline, marker content, label, description and opacity from the component tokens of its condition in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state."
+    },
+    {
+      "id": "SPR-13",
+      "text": "WHEN a pressable step receives keyboard focus THE stepper SHALL show the focus ring around that step's container without animation — the system's focus indicator, sys.focus.offset from the container, sys.focus.outer-width wide in the focus-ring color, with the inner stroke of sys.focus.inner-width where the system has one; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "SPR-14",
+      "text": "WHEN a pressable step is pressed by pointer, touch, Enter or Space THE stepper SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "SPR-15",
+      "text": "WHILE pressed THE stepper SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole step and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; marker, label, description, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.stepper.motion.feedback-duration with comp.stepper.motion.state-easing, fades over comp.stepper.motion.state-duration with comp.stepper.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "SPR-16",
+      "text": "THE stepper SHALL ease its containers' corners, comp.stepper.container.shape, by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "SPR-17",
+      "text": "WHEN a step changes between interaction states or between conditions THE stepper SHALL change its colors over comp.stepper.motion.state-duration with comp.stepper.motion.state-easing, and at once where motion is reduced; a glyph or a number that replaces another in a marker SHALL be replaced at once."
+    },
+    {
+      "id": "SPR-18",
+      "text": "THE stepper SHALL make every step's container at least sys.target.pointer high and wide for fine pointers and sys.target.touch for touch input — a platform that cannot tell the input type SHALL use sys.target.touch — leaving the room it adds below and after the container's content, so that a pressable step's hit area meets the minimum target without reaching over a neighbouring step's, and so that a pressable and a plain step stand alike.",
+      "verify": "Under the default system a horizontal step's container is 68 high (8, a 24 marker, 8, a 20 label line, 8) and at least 120 wide, so nothing is added; a vertical step with a label alone is 40 high by its content (8, a 24 marker, 8) and is made 44 high for a mouse and 48 for touch."
+    },
+    {
+      "id": "SPR-19",
+      "text": "THE stepper SHALL be exposed to assistive technology as an ordered list named by label, of as many items as it has steps, each step one item holding, in this order, its label, the product's word for its condition where it has one — completedText for a complete step, errorText for a step with an error, nothing for an incomplete one — and its description; the current step SHALL be exposed as the current step of the flow (the web's aria-current=\"step\"; the platform's selected trait with its position where it has no current state). Markers, numbers, glyphs, connectors and the bar SHALL be hidden: the list gives each step its place, and the words its condition. WHILE the compact form is drawn THE stepper SHALL instead be exposed as one group named by label holding the position and the current step's label, followed by errorText where the current step has an error, so that what is heard is what is drawn.",
+      "verify": "On the web, fixture horizontal: a list named \"Checkout\" of four items; the first read as \"Account Completed\", the third with aria-current step. Fixture compact: a group named \"Checkout\" reading \"Step 2 of 5 Shipping\"."
+    },
+    {
+      "id": "SPR-20",
+      "text": "THE stepper SHALL have no words of its own: it SHALL take completedText, errorText and positionText from the instance's prop and, WHILE that is empty, from the product's words of the same keys; WHILE a word that a drawn step needs was given by nobody THE stepper SHALL expose nothing in its place, still draw the step, and record and report the missing word as the product's words do.",
+      "verify": "Unit, with no product's words set: a complete step is read as its label alone and stepCompletedText is missing; the compact form draws no position line."
+    },
+    {
+      "id": "SPR-21",
+      "text": "WHEN value names no step THE stepper SHALL make no step current; WHEN a step's value is empty or repeats another step's THE stepper SHALL still draw it and treat the first step with a value as the one that value names; WHILE label is empty, a step's label is empty, or the stepper holds fewer than two steps, THE stepper SHALL still render; in debug builds it SHALL report each of these, except an empty value, which names the time before or after the flow.",
+      "verify": "Unit: each case is reported once while it lasts; value \"\" reports nothing."
+    },
+    {
+      "id": "SPR-22",
+      "text": "WHILE the text size is enlarged THE stepper SHALL grow each label, description, number and position with it and grow each marker with its number, keeping comp.stepper.marker.size as a minimum and every gap and padding as it is, SHALL wrap and never cut text, and SHALL still choose its form by the width it is given (SPR-6).",
+      "verify": "At 200 % text size no text is cut or overlaps, and the page does not scroll sideways."
+    },
+    {
+      "id": "SPR-23",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE stepper SHALL draw every ring, connector, segment, number, glyph and text in the platform's text color — a pressable step's label in the platform's button text color — the current step's marker filled in the platform's highlight color with its number in the highlight text color, and the filled segments of the bar in the highlight color, and SHALL draw the focus ring in the platform's highlight color; nothing it draws relies on a fill alone.",
+      "verify": "On the web, with forced colors emulated: the current marker is Highlight, every ring CanvasText."
+    },
+    {
+      "id": "SPR-24",
+      "text": "THE stepper SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the stepper is shown THE stepper SHALL draw itself for the new direction at once, without a motion of its own, keeping its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "SPR-25",
+      "text": "WHERE the layout direction is right-to-left THE stepper SHALL mirror its layout by logical start and end — the first step at the right of a horizontal row, the markers at the right of a vertical column, the bar filled from the right — and SHALL keep its reading and focus order first step to last; it SHALL NOT mirror a glyph or reverse a number.",
+      "verify": "Fixture horizontal-rtl: the first step at the right, its check unmirrored; fixture compact-rtl: the bar filled from the right."
+    },
+    {
+      "id": "SPR-26",
+      "text": "THE stepper SHALL lay out each label, description and the position as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right name or a number keeps its own order in a right-to-left layout; THE stepper SHALL still place the text and align its lines by the layout direction, not by the text's own.",
+      "verify": "Fixture horizontal-rtl holds a left-to-right label among Arabic ones."
+    },
+    {
+      "id": "SPR-27",
+      "text": "IF the icon set cannot draw a marker's glyph yet (its font is still loading or failed to load) THE stepper SHALL draw nothing in the glyph's place, never the glyph's name as text, keeping the marker's size, fill and ring, and SHALL still expose the step's condition in words; it SHALL show the glyph once the icon set can draw it."
+    }
+  ],
+  "accessibility": {
+    "role": "list",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the next or previous pressable step, in the order of the steps; a step that cannot be pressed is not a stop."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Presses the focused step: the stepper emits select with its value, and the product goes there."
+      }
+    ],
+    "labeling": "An ordered list named by label (\"Checkout progress\"). Each step is an item read as its label, then its condition in the product's words (completedText, errorText), then its description; the current step is exposed as the current step (aria-current=\"step\"). The list gives each step its place (\"3 of 4\"), so the number in the marker is not read again. In the compact form the stepper is a group named by label that reads the position and the current step's label, as drawn.",
+    "minimumTarget": true,
+    "notes": [
+      "The stepper is an ordered list with the current item marked, as in the W3C's tutorial on forms in several steps: a step's place comes from the list, its condition from words the product gives, and the current step from aria-current=\"step\". It is not a landmark: it belongs to the flow's content, and a page has one.",
+      "Condition is never said by color alone (WCAG 1.4.1): the current marker is filled and holds the number, a complete marker holds a check, an error marker a different glyph, an incomplete marker is a ring; each is also said in words to assistive technology.",
+      "Contrast in the default system: the ring of an incomplete step is outline, held to 3:1 on the surface; the current marker's primary fill is held to 3:1, and its number on-primary to 4.5:1 on it; the complete marker's secondary-container fill is not held to 3:1 by itself, and does not need to be, because its check (on-secondary-container, 4.5:1) identifies it. Labels are on-surface or on-surface-variant (4.5:1), the error label error (4.5:1). The connector and the bar are decorative.",
+      "Pressing a step only asks to go there (select): the product decides, and moves value. A step that cannot be pressed is plain text and not a stop; a disabled step of a pressable stepper is a disabled button, so that a person hears it cannot be gone to now.",
+      "The compact form draws no pressable step: a person goes back with the flow's own Back control. What is drawn is what is heard: the position and the current step.",
+      "How a state looks is a value decision of the active design system; the stepper reads the state's tokens and never computes the effect itself.",
+      "Not the steps of a procedure: a set of instructions to read, with no position, is Steps, whose markers are hairline rings with no fill, no glyph and no state."
+    ]
+  },
+  "tokens": "comp.stepper",
+  "fixtures": [
+    {
+      "id": "horizontal",
+      "props": {
+        "label": "Checkout",
+        "value": "payment",
+        "completedText": "Completed",
+        "errorText": "Has an error"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "Account"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "shipping",
+            "label": "Shipping"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "payment",
+            "label": "Payment"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "review",
+            "label": "Review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "horizontal-descriptions",
+      "props": {
+        "label": "Checkout",
+        "value": "shipping",
+        "completedText": "Completed",
+        "errorText": "Has an error"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "Account",
+            "description": "Signed in"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "shipping",
+            "label": "Shipping",
+            "description": "Address and delivery"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "gift",
+            "label": "Gift wrap",
+            "description": "Optional"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "payment",
+            "label": "Payment"
+          }
+        }
+      ]
+    },
+    {
+      "id": "horizontal-error",
+      "props": {
+        "label": "Checkout",
+        "value": "payment",
+        "completedText": "Completed",
+        "errorText": "Has an error"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "Account"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "shipping",
+            "label": "Shipping",
+            "status": "error",
+            "description": "Postcode missing"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "payment",
+            "label": "Payment"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "review",
+            "label": "Review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "current-error",
+      "props": {
+        "label": "Checkout",
+        "value": "payment",
+        "completedText": "Completed",
+        "errorText": "Has an error"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "Account"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "shipping",
+            "label": "Shipping"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "payment",
+            "label": "Payment",
+            "status": "error",
+            "description": "Card declined"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "review",
+            "label": "Review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pressable-visited",
+      "props": {
+        "label": "Checkout",
+        "value": "payment",
+        "pressable": "visited",
+        "completedText": "Completed",
+        "errorText": "Has an error"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "Account"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "shipping",
+            "label": "Shipping"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "payment",
+            "label": "Payment"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "review",
+            "label": "Review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pressable-disabled",
+      "props": {
+        "label": "Set-up",
+        "value": "profile",
+        "pressable": "all",
+        "completedText": "Completed",
+        "errorText": "Has an error"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "Account"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "profile",
+            "label": "Profile"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "team",
+            "label": "Team",
+            "status": "complete"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true,
+            "description": "After a team"
+          }
+        }
+      ]
+    },
+    {
+      "id": "finished",
+      "props": {
+        "label": "Checkout",
+        "completedText": "Completed",
+        "errorText": "Has an error"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "Account",
+            "status": "complete"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "shipping",
+            "label": "Shipping",
+            "status": "complete"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "payment",
+            "label": "Payment",
+            "status": "complete"
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-labels",
+      "props": {
+        "label": "Application",
+        "value": "documents",
+        "completedText": "Completed",
+        "errorText": "Has an error"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "eligibility",
+            "label": "Check whether you can apply"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "documents",
+            "label": "Upload proof of identity and address"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "declaration",
+            "label": "Declaration"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vertical",
+      "props": {
+        "label": "Set-up",
+        "value": "profile",
+        "layout": "vertical",
+        "completedText": "Completed",
+        "errorText": "Has an error"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "Create an account",
+            "description": "Email and password"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "profile",
+            "label": "Your profile",
+            "description": "Name and photo"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "team",
+            "label": "Invite your team",
+            "description": "Optional"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "done",
+            "label": "Start working"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vertical-error",
+      "props": {
+        "label": "Set-up",
+        "value": "team",
+        "layout": "vertical",
+        "pressable": "visited",
+        "completedText": "Completed",
+        "errorText": "Has an error"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "Create an account"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "profile",
+            "label": "Your profile",
+            "status": "error",
+            "description": "Name is required"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "team",
+            "label": "Invite your team"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "done",
+            "label": "Start working"
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact",
+      "props": {
+        "label": "Checkout",
+        "value": "shipping",
+        "layout": "compact",
+        "completedText": "Completed",
+        "errorText": "Has an error",
+        "positionText": "Step {position} of {count}"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "Account"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "shipping",
+            "label": "Shipping"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "gift",
+            "label": "Gift wrap"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "payment",
+            "label": "Payment"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "review",
+            "label": "Review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact-error",
+      "props": {
+        "label": "Checkout",
+        "value": "payment",
+        "layout": "compact",
+        "completedText": "Completed",
+        "errorText": "Has an error",
+        "positionText": "Step {position} of {count}"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "Account"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "shipping",
+            "label": "Shipping"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "payment",
+            "label": "Payment",
+            "status": "error"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "review",
+            "label": "Review"
+          }
+        }
+      ]
+    },
+    {
+      "id": "horizontal-rtl",
+      "props": {
+        "label": "الدفع",
+        "value": "payment",
+        "completedText": "مكتمل",
+        "errorText": "به خطأ"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "الحساب"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "shipping",
+            "label": "الشحن",
+            "description": "DHL Express"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "payment",
+            "label": "الدفع"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "review",
+            "label": "المراجعة"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "compact-rtl",
+      "props": {
+        "label": "الدفع",
+        "value": "shipping",
+        "layout": "compact",
+        "completedText": "مكتمل",
+        "errorText": "به خطأ",
+        "positionText": "الخطوة {position} من {count}"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "value": "account",
+            "label": "الحساب"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "shipping",
+            "label": "الشحن"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "payment",
+            "label": "الدفع"
+          }
+        },
+        {
+          "kind": "step",
+          "props": {
+            "value": "review",
+            "label": "المراجعة"
+          }
+        }
+      ],
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "alpha",
+      "name": "tanrei-stepper",
+      "props": {
+        "label": "label",
+        "value": "value",
+        "layout": "layout",
+        "pressable": "pressable",
+        "completedText": "completedText",
+        "errorText": "errorText",
+        "positionText": "positionText"
+      },
+      "events": {
+        "select": "select"
+      },
+      "items": {
+        "step": {
+          "name": "tanrei-stepper-step",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "description": "description",
+            "status": "status",
+            "disabled": "disabled"
+          },
+          "notes": "A child element: `<tanrei-stepper-step value=\"shipping\" label=\"Shipping\" description=\"…\" status=\"error\" disabled>`, as `<option>` in a `<select>`."
+        }
+      },
+      "notes": "`<tanrei-stepper label=\"Checkout\" value=\"payment\" layout=\"horizontal\" pressable=\"visited\">` holds `<tanrei-stepper-step>` children, in order. The stepper is a `role=\"list\"` named by `aria-label`, each step host a `role=\"listitem\"` with `aria-current=\"step\"` on the current one; a pressable step draws a native `<button>` in its shadow root around its marker and text, a step that is not pressable the same parts in a `<div>`. The words for a condition are a visually hidden span after the label. The compact form is drawn in the stepper's own shadow root, where the steps are not displayed, and the host's role becomes `group`. The switch from horizontal to compact reads the host's width with a `ResizeObserver` against `comp.stepper.step.min-width` measured from a probe. `select` is a `CustomEvent` with `detail.value`; value is never set by the element. React: `Stepper` and `StepperStep`, generated wrappers. Fixtures fill their stage: 600 wide for a horizontal stepper, 360 for a vertical one, 320 for a compact one."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiStepper",
+      "props": {
+        "label": "label",
+        "value": "current",
+        "layout": "layout",
+        "pressable": "pressable",
+        "completedText": "completedText",
+        "errorText": "errorText",
+        "positionText": "positionText"
+      },
+      "events": {
+        "select": "onSelect"
+      },
+      "items": {
+        "step": {
+          "name": "TanreiStepperStep",
+          "props": {
+            "value": "id",
+            "label": "label",
+            "description": "description",
+            "status": "status",
+            "disabled": "disabled"
+          },
+          "notes": "`TanreiStepperStep(id:, label:, description:, status: .auto, disabled:)`, an `Identifiable` value."
+        }
+      },
+      "notes": "`TanreiStepper(_ label:, steps:, current: ID?, layout:, pressable:, onSelect:)`. Not SwiftUI's `Stepper`, which increments a value (the number input's steppers are that). The list is an accessibility container; the current step carries the `.isSelected` trait and its position as its accessibility value, because iOS has no current-step state. The compact switch reads the proposed width (`ViewThatFits`)."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiStepper",
+      "props": {
+        "label": "contentDescription",
+        "value": "current",
+        "layout": "layout",
+        "pressable": "pressable",
+        "completedText": "completedText",
+        "errorText": "errorText",
+        "positionText": "positionText"
+      },
+      "events": {
+        "select": "onSelect"
+      },
+      "items": {
+        "step": {
+          "name": "TanreiStepperStep",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "description": "description",
+            "status": "status",
+            "disabled": "enabled"
+          },
+          "notes": "A data class; `enabled` is the inverse flag."
+        }
+      },
+      "notes": "`TanreiStepper(steps, current, onSelect, layout, pressable, contentDescription, modifier)`. A `collectionInfo` list with `collectionItemInfo` per step; the current step is `selected = true` with its position in `stateDescription`, because Compose has no current-step semantics. The compact switch reads the incoming constraints (`BoxWithConstraints`)."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiStepper",
+      "props": {
+        "label": "semanticLabel",
+        "value": "current",
+        "layout": "layout",
+        "pressable": "pressable",
+        "completedText": "completedText",
+        "errorText": "errorText",
+        "positionText": "positionText"
+      },
+      "events": {
+        "select": "onSelect"
+      },
+      "items": {
+        "step": {
+          "name": "TanreiStepperStep",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "description": "description",
+            "status": "status",
+            "disabled": "enabled"
+          },
+          "notes": "A value class; `enabled` is the inverse flag."
+        }
+      },
+      "notes": "`TanreiStepper(steps:, current:, onSelect:, layout:, pressable:, semanticLabel:)`, built with the widgets library, without Material's `Stepper`. `Semantics(container: true, label:)` around a list; the current step `Semantics(selected: true)` with its position in its value. The compact switch reads the incoming constraints (`LayoutBuilder`)."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Stepper",
+      "props": {
+        "label": "accessibilityLabel",
+        "value": "value",
+        "layout": "layout",
+        "pressable": "pressable",
+        "completedText": "completedText",
+        "errorText": "errorText",
+        "positionText": "positionText"
+      },
+      "events": {
+        "select": "onSelect"
+      },
+      "items": {
+        "step": {
+          "name": "StepperStep",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "description": "description",
+            "status": "status",
+            "disabled": "disabled"
+          },
+          "notes": "The element type of the `steps` array: `{ value, label, description?, status?, disabled? }`."
+        }
+      },
+      "notes": "`<Stepper steps={StepperStep[]} value layout pressable onSelect accessibilityLabel />`. The list has `role=\"list\"` where the platform maps it, each step `role=\"listitem\"`; the current step `aria-current` on the web target and `accessibilityState.selected` with its position elsewhere. A pressable step is a `Pressable` with `role=\"button\"`. The compact switch reads `onLayout`."
+    }
+  }
+}

@@ -638,6 +638,10 @@ function slotsHtml(spec: Spec, slots: Fixture['slots'], overlay: boolean): strin
  */
 export const STAGED_FILES = 'data-fixture-files';
 
+/** A drop zone's content in a fixture: the sample screen the spec's default slot describes, as the web's harness draws it. */
+const dropZoneSample = (fixture: Fixture) =>
+  `<div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface)"><p style="margin: 0">${escape(fixture.content ?? '')}</p><tanrei-button variant="outlined">New video</tanrei-button></div>`;
+
 export function liveFixture(spec: Spec, fixture: Fixture): LiveFixture {
   const web = spec.platforms.web;
   const tag = web?.name ?? '';
@@ -902,6 +906,11 @@ export function liveFixture(spec: Spec, fixture: Fixture): LiveFixture {
     const lang = direction === 'rtl' && /[\u0600-\u06ff]/.test(JSON.stringify(fixture)) ? ' lang="ar"' : /[\u3040-\u30ff\u4e00-\u9fff]/.test(JSON.stringify(fixture)) ? ' lang="ja"' : '';
     own = `${direction ? ` dir="${direction}"` : ''}${lang}`;
   }
+  // The drop zone wraps a screen of the product's (DRZ-1): its content is the sample screen the web's harness draws —
+  // the fixture's content as a paragraph above an outlined Button, on a surface 360 × 240 — and the zone is live: a
+  // file dragged onto it from the reader's computer shows the overlay. A fixture whose id begins `dragged` is drawn at
+  // rest here, since a drag staged in script would end at the reader's first movement of the pointer (DRZ-7).
+  if (spec.name === 'drop-zone') own = ` class="not-content tanrei-not-prose" style="inline-size: 22.5rem; max-inline-size: 100%; block-size: 15rem"${fixture.direction ? ` dir="${fixture.direction}"` : ''}`;
   const element = isAvatar(spec) && fixture.items ? `${tag}-group` : tag;
   // The checkbox group (320 wide, as the field group its twins are): its checkboxes are the product's own children, the
   // Checkbox's element, and its `value` is a property and no attribute (the spec's web note) — the first value is
@@ -922,7 +931,7 @@ export function liveFixture(spec: Spec, fixture: Fixture): LiveFixture {
   }
   // A Field's entries (the twin of a chip field's fixture) are disabled chips while the Field is: written by hand.
   const heldItems = spec.name === 'field' && fixture.props.disabled === true ? items.replaceAll('<tanrei-chip slot="entries"', '<tanrei-chip slot="entries" disabled') : items;
-  const inner = isFigure(spec) ? figureHtml(fixture) : isPageHeader(spec) ? pageHeaderHtml(fixture) : isTextInput(spec) ? textInputIcons(fixture.content ?? '') : `${isTable(spec) ? '' : slotsHtml(spec, fixture.slots, presentation === 'overlay')}${heldItems}${escape(fixture.content ?? '')}`;
+  const inner = spec.name === 'drop-zone' ? dropZoneSample(fixture) : isFigure(spec) ? figureHtml(fixture) : isPageHeader(spec) ? pageHeaderHtml(fixture) : isTextInput(spec) ? textInputIcons(fixture.content ?? '') : `${isTable(spec) ? '' : slotsHtml(spec, fixture.slots, presentation === 'overlay')}${heldItems}${escape(fixture.content ?? '')}`;
   return {
     html: (isLinkCard(spec) ? LINK_CARD_PICTURES : spec.name === 'image-preview' ? IMAGE_PREVIEW_PICTURES : spec.name === 'chat-composer' ? CHAT_COMPOSER_PICTURES : []).reduce((html, [name, picture]) => html.replaceAll(name, picture), `<${element}${attributes(element, spec.props, web?.props, props)}${own}>${inner}</${element}>`.replaceAll(AVATAR_PICTURE, `src="${avatarPicture}"`).replaceAll(...AVATAR_MISSING)),
     presentation,

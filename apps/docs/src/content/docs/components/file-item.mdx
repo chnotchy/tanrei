@@ -40,7 +40,7 @@ A file item reads no byte of a file, keeps no file and sends nothing. It removes
 Use something else when:
 
 - People choose files and you list them. That is a [file upload](/components/file-upload/), which holds file items for you.
-- People put the files in an order. That is a [list](/components/list/) whose rows show the files; see [Files in an order people change](#files-in-an-order-people-change).
+- People put the files in an order. That is a reorderable [list](/components/list/) whose items hold the file items; see [Files in an order people change](#files-in-an-order-people-change).
 - People select among files. That is a [list](/components/list/) with a selection. A file item has no selected state.
 - The picture is the content, to be looked at. A file item's picture stands where a glyph would and has no alternative text.
 
@@ -251,29 +251,31 @@ The body is the glyph or the picture, and the texts. The actions stand beside it
 
 ### Files in an order people change
 
-A file item has no handle, no move buttons and no order. Reordering belongs to the [list](/components/list/). Show each file as a row of a reorderable list: the name as the headline, the size as the supporting text, a glyph or a picture in the leading place, and a button of your own to remove it in the trailing place.
+A file item has no handle and no order of its own. Reordering belongs to the [list](/components/list/): put each file item in an item of a reorderable list. The list draws the handle beside the file item, lets the whole item be dragged and opens its menu of moves from the handle; the file item keeps its glyph, its texts, its bar and its actions.
 
 <ListReorderProduct />
 
-<DemoFrame label="Files in an order people change: a reorderable list whose rows show the files" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="Move up" move-down-label="Move down" moved-text="{headline} moved to position {position} of {count}" style="inline-size: 26rem">
-    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="Remove cover-letter.pdf" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="resume.docx" supporting-text="Document · 88 KB" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="Remove resume.docx" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="portfolio.zip" supporting-text="Archive · 14 MB" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="Remove portfolio.zip" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+<DemoFrame label="Files in an order people change: file items in a reorderable list" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="Attachments" drag-handle-label="Reorder {label}" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 26rem; max-inline-size: 100%">
+    <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="resume.docx" size-text="88 KB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="portfolio.zip" size-text="14 MB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
 ```html
-<tanrei-list reorder="buttons" move-up-label="Move up" move-down-label="Move down"
-             moved-text="{headline} moved to position {position} of {count}">
-  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf">
-    <tanrei-button slot="trailing" variant="text" label="Remove cover-letter.pdf"><span slot="icon">close</span></tanrei-button>
-  </tanrei-list-item>
+<tanrei-list reorderable gap="small" label="Attachments" drag-handle-label="Reorder {label}"
+             move-to-start-label="Move to top" move-before-label="Move up"
+             move-after-label="Move down" move-to-end-label="Move to bottom"
+             lifted-text="{label} lifted: {position} of {count}"
+             moved-text="{label}: {position} of {count}"
+             cancelled-text="{label} returned to {position} of {count}">
+  <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
   …
 </tanrei-list>
 ```
 
-This draws the list's row and not the file item: you name the glyph yourself, and a row has no bar and no status mark. The list moves the rows, announces each move and keeps focus; see [Reordering](/components/list/#reordering) on the list's page. A file item as the content of a list's row, and a strip of tiles in an order people change, are not built.
+The list moves nothing itself: on `move`, put the items in the new order. It announces each move and keeps focus on the moved item's handle; see the [list](/components/list/). Name each list item by its file (the file's name is the content's text, so nothing more is needed). A [file upload](/components/file-upload/) arranges its files in the same way.
 
 ### Words
 

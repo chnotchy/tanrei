@@ -144,7 +144,7 @@ studioTest('a color is shown as it is typed and saved when it is committed; a ha
   assert.notEqual(onDisk().tokens?.[COLOR]?.$value?.hex, '#0f766e', 'not saved while it is typed');
   await page.keyboard.press('Enter');
   await saved((layer) => layer.tokens?.[COLOR]?.$value?.hex === '#0f766e', 'saved at the commit');
-  assert.equal(await page.locator(`[data-token="${COLOR}"] .ts-dot`).evaluate((el) => getComputedStyle(el).backgroundColor), 'rgb(15, 118, 110)');
+  assert.match(await page.locator(`[data-token="${COLOR}"] tanrei-swatch`).evaluate((el) => getComputedStyle(el.shadowRoot.querySelector('.sample')).backgroundImage), /rgb\(15, 118, 110\)/, 'the swatch of the row shows the color');
 });
 
 studioTest('390 wide: the panes stack, choosing moves focus to the editor’s name, and there is a way back to the row', { viewport: { width: 390, height: 844 } }, async ({ page, level, fits }) => {
