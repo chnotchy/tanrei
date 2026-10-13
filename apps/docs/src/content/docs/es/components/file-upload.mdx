@@ -2,7 +2,7 @@
 title: Subida de archivos
 description: Permite elegir archivos con un selector de archivos y muestra lo elegido como elementos de archivo, en una columna de filas o en una tira de mosaicos. Colocado en un formulario, conserva los archivos elegidos y los envía sin código; un producto que envía los archivos por su cuenta da los elementos de archivo. Nunca sube nada por sí mismo.
 translationOf: components/file-upload.mdx
-sourceHash: 92200944376e4e306774065dde5f3c738369a9a3
+sourceHash: fb899706d800e36991b2221b490a0dee56cc73df
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -18,10 +18,10 @@ import { demoPicture } from '../../../../lib/demo-picture';
 <ComponentAvailability name="file-upload" />
 
 <DemoFrame label="Un control de subida de archivos en cada disposición. Elige un archivo: aparece en la lista y se puede quitar. No se envía nada." column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Archivo adjunto" accept=".pdf" constraints-text="PDF, hasta 10 MB" max-size="10000000" empty-text="Ningún archivo elegido" remove-label="Quitar" type-error-text="Solo se pueden añadir archivos PDF." size-error-text="Supera los 10 MB.">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Archivo adjunto" accept=".pdf" constraints-text="PDF, hasta 10 MB" max-size="10000000" empty-text="Ningún archivo elegido" remove-label="Quitar {name}" type-error-text="Solo se pueden añadir archivos PDF." size-error-text="Supera los 10 MB.">
     <tanrei-button slot="trigger" variant="outlined">Elegir un archivo</tanrei-button>
   </tanrei-file-upload>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="Archivos adjuntos" accept=".pdf,image/png" max-size="10000000" drop-text="Arrastra archivos aquí o elígelos" constraints-text="PDF o PNG, hasta 10 MB cada uno" remove-label="Quitar" type-error-text="Solo se pueden añadir archivos PDF y PNG." size-error-text="Supera los 10 MB.">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="Archivos adjuntos" accept=".pdf,image/png" max-size="10000000" drop-text="Arrastra archivos aquí o elígelos" constraints-text="PDF o PNG, hasta 10 MB cada uno" remove-label="Quitar {name}" type-error-text="Solo se pueden añadir archivos PDF y PNG." size-error-text="Supera los 10 MB.">
     <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
   </tanrei-file-upload>
 </DemoFrame>
@@ -61,7 +61,7 @@ Coloca el elemento en tu formulario y dale un `name` y un activador. Eso es todo
                           accept=".pdf,image/png" max-size="10000000"
                           label="Archivos adjuntos"
                           constraints-text="PDF o PNG, hasta 10 MB cada uno"
-                          remove-label="Quitar"
+                          remove-label="Quitar {name}"
                           type-error-text="Solo se pueden añadir archivos PDF y PNG."
                           size-error-text="Supera los 10 MB.">
         <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
@@ -82,7 +82,7 @@ Coloca el elemento en tu formulario y dale un `name` y un activador. Eso es todo
         maxSize={10_000_000}
         label="Archivos adjuntos"
         constraintsText="PDF o PNG, hasta 10 MB cada uno"
-        removeLabel="Quitar"
+        removeLabel="Quitar {name}"
         typeErrorText="Solo se pueden añadir archivos PDF y PNG."
         sizeErrorText="Supera los 10 MB."
       >
@@ -134,7 +134,7 @@ Di `rows="given"` cuando tu producto envía cada archivo por su cuenta e informa
                         label="Archivos adjuntos"
                         drop-text="Arrastra archivos aquí o elígelos"
                         constraints-text="PDF o PNG, hasta 10 MB cada uno"
-                        remove-label="Quitar" retry-label="Reintentar">
+                        remove-label="Quitar {name}" retry-label="Reintentar {name}">
       <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
     </tanrei-file-upload>
 
@@ -183,8 +183,8 @@ Di `rows="given"` cuando tu producto envía cada archivo por su cuenta e informa
       label="Archivos adjuntos"
       dropText="Arrastra archivos aquí o elígelos"
       constraintsText="PDF o PNG, hasta 10 MB cada uno"
-      removeLabel="Quitar"
-      retryLabel="Reintentar"
+      removeLabel="Quitar {name}"
+      retryLabel="Reintentar {name}"
       onSelect={(event) => start(event.detail.files)}
       onReject={(event) => explain(event.detail.files)}
     >
@@ -209,7 +209,7 @@ Lo mismo, escrito a mano a partir de sus dos miembros, da la misma imagen, con l
 <!-- el control de subida de archivos -->
 <tanrei-field label="Archivos adjuntos">
   <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
-      constraints-text="PDF, 5 archivos como máximo" empty-text="Ningún archivo elegido" remove-label="Quitar" retry-label="Reintentar">
+      constraints-text="PDF, 5 archivos como máximo" empty-text="Ningún archivo elegido" remove-label="Quitar {name}" retry-label="Reintentar {name}">
     <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Subiendo" progress="0.4"></tanrei-file-item>
   </tanrei-file-upload>
@@ -224,7 +224,7 @@ Lo mismo, escrito a mano a partir de sus dos miembros, da la misma imagen, con l
 </tanrei-field>
 <ul class="my-files" aria-label="Archivos adjuntos">
   <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Subiendo" progress="0.4"
-        remove-label="Quitar" retry-label="Reintentar"></tanrei-file-item></li>
+        remove-label="Quitar {name}" retry-label="Reintentar {name}"></tanrei-file-item></li>
 </ul>
 ```
 
@@ -233,7 +233,7 @@ Lo mismo, escrito a mano a partir de sus dos miembros, da la misma imagen, con l
     <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
   </tanrei-file-picker>
   <ul class="not-content" aria-label="Archivos adjuntos" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
-    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Subiendo" progress="0.4" remove-label="Quitar" retry-label="Reintentar"></tanrei-file-item></li>
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Subiendo" progress="0.4" remove-label="Quitar {name}" retry-label="Reintentar {name}"></tanrei-file-item></li>
   </ul>
 </DemoFrame>
 
@@ -259,7 +259,7 @@ Baja a ese nivel cuando necesites una organización que el control de subida no 
 ## Especificaciones
 
 <DemoFrame label="Filas que da el producto, una de cada estado: en espera, enviada al 40%, en curso, completada, fallida y reintentable, fallida definitivamente" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="Archivos adjuntos" constraints-text="PDF o PNG, hasta 10 MB cada uno" remove-label="Quitar" retry-label="Reintentar">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="Archivos adjuntos" constraints-text="PDF o PNG, hasta 10 MB cada uno" remove-label="Quitar {name}" retry-label="Reintentar {name}">
     <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="En espera"></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" size-text="3,4 MB" status="uploading" status-text="Subiendo" progress="0.4"></tanrei-file-item>
@@ -271,7 +271,7 @@ Baja a ese nivel cuando necesites una organización que el control de subida no 
 </DemoFrame>
 
 <DemoFrame label="El mismo control de subida con mosaicos: cada archivo es un recuadro con su imagen y el nombre debajo" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="Fotos" constraints-text="Imágenes, hasta 5 MB cada una" remove-label="Quitar" retry-label="Reintentar">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="Fotos" constraints-text="Imágenes, hasta 5 MB cada una" remove-label="Quitar {name}" retry-label="Reintentar {name}">
     <tanrei-button slot="trigger" variant="outlined">Elegir fotos</tanrei-button>
     <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
@@ -384,7 +384,7 @@ Pon el control de subida en un [campo](/es/components/field/) cuando el formular
 <tanrei-field label="Archivo adjunto" requirement="required" required-text="Obligatorio"
               error error-text="Elige un PDF de 10 MB como máximo.">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
-                      constraints-text="PDF, hasta 10 MB" remove-label="Quitar">
+                      constraints-text="PDF, hasta 10 MB" remove-label="Quitar {name}">
     <tanrei-button slot="trigger" variant="outlined">Elegir un archivo</tanrei-button>
   </tanrei-file-upload>
 </tanrei-field>
@@ -413,7 +413,7 @@ El control de subida no incluye textos propios. Seis se pueden dar una sola vez 
 
 Las tres frases solo se leen con `rows="own"`, y solo una vez que se ha rechazado un archivo por ese motivo. El tamaño de un archivo no es una clave de texto: es la función `formatSize`, una propiedad de la instancia.
 
-Cada acción se describe con el nombre de su archivo. Una sola palabra, «Quitar», basta para todas las filas: una persona oye «Quitar, botón, brief.pdf».
+El nombre de cada acción lleva el nombre de su archivo: `removeLabel` y `retryLabel` son frases con el marcador `{name}`, que el elemento de archivo rellena («`Quitar {name}`»). Una frase basta para todos los archivos, y una persona oye «Quitar brief.pdf, botón» —en el orden de tu idioma—, también cuando un lector de pantalla enumera los botones de la página. Una frase sin `{name}` da el mismo nombre a la acción de cada archivo, y una compilación de depuración lo notifica.
 
 ### De derecha a izquierda
 

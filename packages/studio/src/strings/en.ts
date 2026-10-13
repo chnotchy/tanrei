@@ -162,8 +162,8 @@ const en = {
     added: (family: string) => `${family}: added to the stack`,
     suggestions: 'Suggestions',
     system: 'System font',
-    moveUp: 'Move up',
-    moveDown: 'Move down',
+    moveUp: 'Move {headline} up',
+    moveDown: 'Move {headline} down',
     // Announced by the list after a family was moved; the list fills the three places.
     moved: '{headline}: {position} of {count}',
     remove: 'Remove',

@@ -16,10 +16,10 @@ import { demoPicture } from '../../../lib/demo-picture';
 <ComponentAvailability name="file-upload" />
 
 <DemoFrame label="A file upload in each layout. Choose a file: it is listed, and can be removed. Nothing is sent." column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Attachment" accept=".pdf" constraints-text="PDF, up to 10 MB" max-size="10000000" empty-text="No file chosen" remove-label="Remove" type-error-text="Only PDF files can be added." size-error-text="Larger than 10 MB.">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Attachment" accept=".pdf" constraints-text="PDF, up to 10 MB" max-size="10000000" empty-text="No file chosen" remove-label="Remove {name}" type-error-text="Only PDF files can be added." size-error-text="Larger than 10 MB.">
     <tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button>
   </tanrei-file-upload>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="Attachments" accept=".pdf,image/png" max-size="10000000" drop-text="Drag files here, or choose them" constraints-text="PDF or PNG, up to 10 MB each" remove-label="Remove" type-error-text="Only PDF and PNG files can be added." size-error-text="Larger than 10 MB.">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="Attachments" accept=".pdf,image/png" max-size="10000000" drop-text="Drag files here, or choose them" constraints-text="PDF or PNG, up to 10 MB each" remove-label="Remove {name}" type-error-text="Only PDF and PNG files can be added." size-error-text="Larger than 10 MB.">
     <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
   </tanrei-file-upload>
 </DemoFrame>
@@ -59,7 +59,7 @@ Place the element in your form and give it a `name` and a trigger. That is all. 
                           accept=".pdf,image/png" max-size="10000000"
                           label="Attachments"
                           constraints-text="PDF or PNG, up to 10 MB each"
-                          remove-label="Remove"
+                          remove-label="Remove {name}"
                           type-error-text="Only PDF and PNG files can be added."
                           size-error-text="Larger than 10 MB.">
         <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
@@ -80,7 +80,7 @@ Place the element in your form and give it a `name` and a trigger. That is all. 
         maxSize={10_000_000}
         label="Attachments"
         constraintsText="PDF or PNG, up to 10 MB each"
-        removeLabel="Remove"
+        removeLabel="Remove {name}"
         typeErrorText="Only PDF and PNG files can be added."
         sizeErrorText="Larger than 10 MB."
       >
@@ -132,7 +132,7 @@ Say `rows="given"` when your product sends each file itself and reports on it. O
                         label="Attachments"
                         drop-text="Drag files here, or choose them"
                         constraints-text="PDF or PNG, up to 10 MB each"
-                        remove-label="Remove" retry-label="Try again">
+                        remove-label="Remove {name}" retry-label="Retry {name}">
       <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
     </tanrei-file-upload>
 
@@ -181,8 +181,8 @@ Say `rows="given"` when your product sends each file itself and reports on it. O
       label="Attachments"
       dropText="Drag files here, or choose them"
       constraintsText="PDF or PNG, up to 10 MB each"
-      removeLabel="Remove"
-      retryLabel="Try again"
+      removeLabel="Remove {name}"
+      retryLabel="Retry {name}"
       onSelect={(event) => start(event.detail.files)}
       onReject={(event) => explain(event.detail.files)}
     >
@@ -207,7 +207,7 @@ The same thing written by hand from its two members is the same picture, with th
 <!-- the file upload -->
 <tanrei-field label="Attachments">
   <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
-      constraints-text="PDF, 5 files at most" empty-text="No file chosen" remove-label="Remove" retry-label="Try again">
+      constraints-text="PDF, 5 files at most" empty-text="No file chosen" remove-label="Remove {name}" retry-label="Retry {name}">
     <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Uploading" progress="0.4"></tanrei-file-item>
   </tanrei-file-upload>
@@ -222,7 +222,7 @@ The same thing written by hand from its two members is the same picture, with th
 </tanrei-field>
 <ul class="my-files" aria-label="Attachments">
   <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Uploading" progress="0.4"
-        remove-label="Remove" retry-label="Try again"></tanrei-file-item></li>
+        remove-label="Remove {name}" retry-label="Retry {name}"></tanrei-file-item></li>
 </ul>
 ```
 
@@ -231,7 +231,7 @@ The same thing written by hand from its two members is the same picture, with th
     <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
   </tanrei-file-picker>
   <ul class="not-content" aria-label="Attachments" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
-    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Uploading" progress="0.4" remove-label="Remove" retry-label="Try again"></tanrei-file-item></li>
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Uploading" progress="0.4" remove-label="Remove {name}" retry-label="Retry {name}"></tanrei-file-item></li>
   </ul>
 </DemoFrame>
 
@@ -257,7 +257,7 @@ Go one level down when you need an arrangement the file upload does not offer:
 ## Specs
 
 <DemoFrame label="Rows given by the product, one of each status: waiting, sent to 40%, under way, done, failed and retryable, failed for good" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="Attachments" constraints-text="PDF or PNG, up to 10 MB each" remove-label="Remove" retry-label="Try again">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="Attachments" constraints-text="PDF or PNG, up to 10 MB each" remove-label="Remove {name}" retry-label="Retry {name}">
     <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="Waiting"></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="Uploading" progress="0.4"></tanrei-file-item>
@@ -269,7 +269,7 @@ Go one level down when you need an arrangement the file upload does not offer:
 </DemoFrame>
 
 <DemoFrame label="The same file upload with tiles: every file a box with its picture, and the name beneath" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="Photos" constraints-text="Pictures, up to 5 MB each" remove-label="Remove" retry-label="Try again">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="Photos" constraints-text="Pictures, up to 5 MB each" remove-label="Remove {name}" retry-label="Retry {name}">
     <tanrei-button slot="trigger" variant="outlined">Choose photos</tanrei-button>
     <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
@@ -382,7 +382,7 @@ Put the file upload in a [field](/components/field/) when the form shows a label
 <tanrei-field label="Attachment" requirement="required" required-text="Required"
               error error-text="Choose a PDF of 10 MB or less.">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
-                      constraints-text="PDF, up to 10 MB" remove-label="Remove">
+                      constraints-text="PDF, up to 10 MB" remove-label="Remove {name}">
     <tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button>
   </tanrei-file-upload>
 </tanrei-field>
@@ -411,7 +411,7 @@ The file upload has no words of its own. Six can be given once for the whole pro
 
 The three sentences are read only with `rows="own"`, and only once a file was refused for that reason. A file's size is not a word key: it is the `formatSize` function, a property of the instance.
 
-Each action is described by its file's name. One word, "Remove", is enough for every row: a person hears "Remove, button, brief.pdf".
+Each action's name holds its file's name: `removeLabel` and `retryLabel` are sentences with the place `{name}`, which the file item fills (`Remove {name}`). One sentence is enough for every file, and a person hears "Remove brief.pdf, button" — in the order of your language — also where a screen reader lists the buttons of the page. A sentence without `{name}` names every file's action alike, and a debug build reports it.
 
 ### Right to left
 

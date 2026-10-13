@@ -48,6 +48,8 @@ const INPUT = [
   'noWrap',
   'maxLength',
   'counter',
+  'counterText',
+  'counterNoLimitText',
   'prefixText',
   'suffixText',
   'autocomplete',
@@ -173,6 +175,8 @@ export class TanreiTextField extends ComposedControl<string> {
     noWrap: { type: Boolean, attribute: 'no-wrap', reflect: true },
     maxLength: { type: Number, attribute: 'maxlength' },
     counter: { type: Boolean },
+    counterText: { type: String, attribute: 'counter-text' },
+    counterNoLimitText: { type: String, attribute: 'counter-no-limit-text' },
     prefixText: { type: String, attribute: 'prefix-text' },
     suffixText: { type: String, attribute: 'suffix-text' },
     autocomplete: { type: String },
@@ -267,6 +271,12 @@ export class TanreiTextField extends ComposedControl<string> {
 
   /** @from tanrei-text-input.counter */
   counter = false;
+
+  /** @from tanrei-text-input.counterText */
+  counterText = '';
+
+  /** @from tanrei-text-input.counterNoLimitText */
+  counterNoLimitText = '';
 
   /** @from tanrei-text-input.prefixText */
   prefixText = '';
