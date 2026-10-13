@@ -10836,6 +10836,114 @@ public struct TanreiNavigationDrawerConditions: Sendable, Equatable {
   public var keys: [TanreiNavigationDrawerCondition] { TanreiNavigationDrawerCondition.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
 }
 
+/// A value of navigation-drawer's `density` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiNavigationDrawerDensity(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiNavigationDrawerDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let regular = TanreiNavigationDrawerDensity(rawValue: "regular")
+  public static let compact = TanreiNavigationDrawerDensity(rawValue: "compact")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiNavigationDrawerDensity] = [.regular, .compact]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiNavigationDrawerDensity.regular
+}
+
+/// Everything of navigation-drawer that depends on its density.
+public struct TanreiNavigationDrawerDensityTokens: Sendable, Equatable {
+  public var containerGap: CGFloat
+  public var itemContainerHeight: CGFloat
+  public var itemPaddingInline: CGFloat
+  public var itemGap: CGFloat
+  public var itemNestIndent: CGFloat
+  public var itemIconSize: CGFloat
+  public var itemIconIndicatorWidth: CGFloat
+  public var itemIconIndicatorHeight: CGFloat
+  public var itemLabelTypescale: TanreiTextStyle
+  public var itemTrailingIconSize: CGFloat
+  public var collapsedContainerWidth: CGFloat
+  public var collapsedItemContainerWidth: CGFloat
+  public var collapsedItemContainerPaddingBlock: CGFloat
+  public var headingHeight: CGFloat
+
+  public init(
+    containerGap: CGFloat,
+    itemContainerHeight: CGFloat,
+    itemPaddingInline: CGFloat,
+    itemGap: CGFloat,
+    itemNestIndent: CGFloat,
+    itemIconSize: CGFloat,
+    itemIconIndicatorWidth: CGFloat,
+    itemIconIndicatorHeight: CGFloat,
+    itemLabelTypescale: TanreiTextStyle,
+    itemTrailingIconSize: CGFloat,
+    collapsedContainerWidth: CGFloat,
+    collapsedItemContainerWidth: CGFloat,
+    collapsedItemContainerPaddingBlock: CGFloat,
+    headingHeight: CGFloat
+  ) {
+    self.containerGap = containerGap
+    self.itemContainerHeight = itemContainerHeight
+    self.itemPaddingInline = itemPaddingInline
+    self.itemGap = itemGap
+    self.itemNestIndent = itemNestIndent
+    self.itemIconSize = itemIconSize
+    self.itemIconIndicatorWidth = itemIconIndicatorWidth
+    self.itemIconIndicatorHeight = itemIconIndicatorHeight
+    self.itemLabelTypescale = itemLabelTypescale
+    self.itemTrailingIconSize = itemTrailingIconSize
+    self.collapsedContainerWidth = collapsedContainerWidth
+    self.collapsedItemContainerWidth = collapsedItemContainerWidth
+    self.collapsedItemContainerPaddingBlock = collapsedItemContainerPaddingBlock
+    self.headingHeight = headingHeight
+  }
+}
+
+/// The densitys of navigation-drawer: named fields for the core values, `extra` for what a design system added.
+/// Read one with `densitys[key]`.
+public struct TanreiNavigationDrawerDensitys: Sendable, Equatable {
+  public var regular: TanreiNavigationDrawerDensityTokens
+  public var compact: TanreiNavigationDrawerDensityTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiNavigationDrawerDensity: TanreiNavigationDrawerDensityTokens]
+
+  public init(
+    regular: TanreiNavigationDrawerDensityTokens,
+    compact: TanreiNavigationDrawerDensityTokens,
+    extra: [TanreiNavigationDrawerDensity: TanreiNavigationDrawerDensityTokens] = [:]
+  ) {
+    self.regular = regular
+    self.compact = compact
+    self.extra = extra
+  }
+
+  /// The tokens of one navigation-drawer density, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiNavigationDrawerDensity) -> TanreiNavigationDrawerDensityTokens? {
+    switch key {
+    case .regular: return regular
+    case .compact: return compact
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a navigation-drawer density this design system does not have reads the tokens of `regular`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiNavigationDrawerDensity) -> TanreiNavigationDrawerDensityTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no navigation-drawer density \"\(key.rawValue)\"; using \"regular\"")
+    return regular
+  }
+
+  /// Every navigation-drawer density of this design system: the core ones, then what it added.
+  public var keys: [TanreiNavigationDrawerDensity] { TanreiNavigationDrawerDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
 /// Values of navigation-drawer that depend on the state but not on the variant.
 public struct TanreiNavigationDrawerStateTokens: Sendable, Equatable {
   public var opacity: Double
@@ -10851,14 +10959,10 @@ public struct TanreiNavigationDrawerStateTokens: Sendable, Equatable {
 public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var breakpointCollapsed: CGFloat
   public var breakpointExpanded: CGFloat
-  public var collapsedContainerWidth: CGFloat
-  public var collapsedItemContainerPaddingBlock: CGFloat
   public var collapsedItemContainerPaddingInline: CGFloat
   public var collapsedItemContainerShape: CGFloat
-  public var collapsedItemContainerWidth: CGFloat
   public var collapsedItemGap: CGFloat
   public var collapsedItemLabelTypescale: TanreiTextStyle
-  public var containerGap: CGFloat
   public var containerPaddingBlock: CGFloat
   public var containerPaddingInline: CGFloat
   public var containerWidth: CGFloat
@@ -10867,20 +10971,10 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var headerItemGap: CGFloat
   public var headerTypescale: TanreiTextStyle
   public var headingColor: TanreiPaint
-  public var headingHeight: CGFloat
   public var headingTypescale: TanreiTextStyle
   public var itemBadgeTypescale: TanreiTextStyle
-  public var itemContainerHeight: CGFloat
   public var itemContainerShape: CGFloat
-  public var itemGap: CGFloat
-  public var itemIconIndicatorHeight: CGFloat
   public var itemIconIndicatorShape: CGFloat
-  public var itemIconIndicatorWidth: CGFloat
-  public var itemIconSize: CGFloat
-  public var itemLabelTypescale: TanreiTextStyle
-  public var itemNestIndent: CGFloat
-  public var itemPaddingInline: CGFloat
-  public var itemTrailingIconSize: CGFloat
   public var itemTrailingTextTypescale: TanreiTextStyle
   public var motionDisclosureDuration: Double
   public var motionDisclosureEasing: TanreiCubicBezier
@@ -10900,6 +10994,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var scrimColor: TanreiPaint
   public var variants: TanreiNavigationDrawerVariants
   public var conditions: TanreiNavigationDrawerConditions
+  public var densitys: TanreiNavigationDrawerDensitys
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiNavigationDrawerStateTokens
   /// Values of the focused state shared by every variant.
@@ -10912,14 +11007,10 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public init(
     breakpointCollapsed: CGFloat,
     breakpointExpanded: CGFloat,
-    collapsedContainerWidth: CGFloat,
-    collapsedItemContainerPaddingBlock: CGFloat,
     collapsedItemContainerPaddingInline: CGFloat,
     collapsedItemContainerShape: CGFloat,
-    collapsedItemContainerWidth: CGFloat,
     collapsedItemGap: CGFloat,
     collapsedItemLabelTypescale: TanreiTextStyle,
-    containerGap: CGFloat,
     containerPaddingBlock: CGFloat,
     containerPaddingInline: CGFloat,
     containerWidth: CGFloat,
@@ -10928,20 +11019,10 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     headerItemGap: CGFloat,
     headerTypescale: TanreiTextStyle,
     headingColor: TanreiPaint,
-    headingHeight: CGFloat,
     headingTypescale: TanreiTextStyle,
     itemBadgeTypescale: TanreiTextStyle,
-    itemContainerHeight: CGFloat,
     itemContainerShape: CGFloat,
-    itemGap: CGFloat,
-    itemIconIndicatorHeight: CGFloat,
     itemIconIndicatorShape: CGFloat,
-    itemIconIndicatorWidth: CGFloat,
-    itemIconSize: CGFloat,
-    itemLabelTypescale: TanreiTextStyle,
-    itemNestIndent: CGFloat,
-    itemPaddingInline: CGFloat,
-    itemTrailingIconSize: CGFloat,
     itemTrailingTextTypescale: TanreiTextStyle,
     motionDisclosureDuration: Double,
     motionDisclosureEasing: TanreiCubicBezier,
@@ -10961,6 +11042,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     scrimColor: TanreiPaint,
     variants: TanreiNavigationDrawerVariants,
     conditions: TanreiNavigationDrawerConditions,
+    densitys: TanreiNavigationDrawerDensitys,
     hovered: TanreiNavigationDrawerStateTokens,
     focused: TanreiNavigationDrawerStateTokens,
     pressed: TanreiNavigationDrawerStateTokens,
@@ -10968,14 +11050,10 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   ) {
     self.breakpointCollapsed = breakpointCollapsed
     self.breakpointExpanded = breakpointExpanded
-    self.collapsedContainerWidth = collapsedContainerWidth
-    self.collapsedItemContainerPaddingBlock = collapsedItemContainerPaddingBlock
     self.collapsedItemContainerPaddingInline = collapsedItemContainerPaddingInline
     self.collapsedItemContainerShape = collapsedItemContainerShape
-    self.collapsedItemContainerWidth = collapsedItemContainerWidth
     self.collapsedItemGap = collapsedItemGap
     self.collapsedItemLabelTypescale = collapsedItemLabelTypescale
-    self.containerGap = containerGap
     self.containerPaddingBlock = containerPaddingBlock
     self.containerPaddingInline = containerPaddingInline
     self.containerWidth = containerWidth
@@ -10984,20 +11062,10 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.headerItemGap = headerItemGap
     self.headerTypescale = headerTypescale
     self.headingColor = headingColor
-    self.headingHeight = headingHeight
     self.headingTypescale = headingTypescale
     self.itemBadgeTypescale = itemBadgeTypescale
-    self.itemContainerHeight = itemContainerHeight
     self.itemContainerShape = itemContainerShape
-    self.itemGap = itemGap
-    self.itemIconIndicatorHeight = itemIconIndicatorHeight
     self.itemIconIndicatorShape = itemIconIndicatorShape
-    self.itemIconIndicatorWidth = itemIconIndicatorWidth
-    self.itemIconSize = itemIconSize
-    self.itemLabelTypescale = itemLabelTypescale
-    self.itemNestIndent = itemNestIndent
-    self.itemPaddingInline = itemPaddingInline
-    self.itemTrailingIconSize = itemTrailingIconSize
     self.itemTrailingTextTypescale = itemTrailingTextTypescale
     self.motionDisclosureDuration = motionDisclosureDuration
     self.motionDisclosureEasing = motionDisclosureEasing
@@ -11017,6 +11085,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.scrimColor = scrimColor
     self.variants = variants
     self.conditions = conditions
+    self.densitys = densitys
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed

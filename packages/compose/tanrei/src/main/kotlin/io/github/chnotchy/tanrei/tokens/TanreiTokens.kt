@@ -6852,25 +6852,81 @@ public data class TanreiNavigationDrawerConditions(
     }
 }
 
+/**
+ * A density of navigation-drawer: the key of one entry of [TanreiNavigationDrawerDensitys]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Regular].
+ */
+@JvmInline
+public value class TanreiNavigationDrawerDensity(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Regular: TanreiNavigationDrawerDensity = TanreiNavigationDrawerDensity("regular")
+        public val Compact: TanreiNavigationDrawerDensity = TanreiNavigationDrawerDensity("compact")
+    }
+}
+
+/** The tokens of one density of navigation-drawer. */
+@Immutable
+public data class TanreiNavigationDrawerDensityTokens(
+    public val containerGap: Dp,
+    public val itemContainerHeight: Dp,
+    public val itemPaddingInline: Dp,
+    public val itemGap: Dp,
+    public val itemNestIndent: Dp,
+    public val itemIconSize: Dp,
+    public val itemIconIndicatorWidth: Dp,
+    public val itemIconIndicatorHeight: Dp,
+    public val itemLabelTypescale: TanreiTextStyle,
+    public val itemTrailingIconSize: Dp,
+    public val collapsedContainerWidth: Dp,
+    public val collapsedItemContainerWidth: Dp,
+    public val collapsedItemContainerPaddingBlock: Dp,
+    public val headingHeight: Dp,
+)
+
+/**
+ * Every density of navigation-drawer: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiNavigationDrawerDensitys(
+    public val regular: TanreiNavigationDrawerDensityTokens,
+    public val compact: TanreiNavigationDrawerDensityTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiNavigationDrawerDensity, TanreiNavigationDrawerDensityTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiNavigationDrawerDensity> get() = linkedSetOf(TanreiNavigationDrawerDensity.Regular, TanreiNavigationDrawerDensity.Compact) + extra.keys
+
+    public operator fun contains(key: TanreiNavigationDrawerDensity): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiNavigationDrawerDensity): TanreiNavigationDrawerDensityTokens? = when (key) {
+        TanreiNavigationDrawerDensity.Regular -> regular
+        TanreiNavigationDrawerDensity.Compact -> compact
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [regular]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiNavigationDrawerDensity): TanreiNavigationDrawerDensityTokens = find(key) ?: regular
+}
+
 /** What every variant of navigation-drawer shares in one interaction state. */
 @Immutable
 public data class TanreiNavigationDrawerStateTokens(
     public val opacity: Float,
 )
 
-/** `comp.navigation-drawer`. Members are flat tokens, then per-state tokens, then one holder per axis (`variants[variant]`, `conditions[condition]`). */
+/** `comp.navigation-drawer`. Members are flat tokens, then per-state tokens, then one holder per axis (`variants[variant]`, `conditions[condition]`, `densitys[density]`). */
 @Immutable
 public data class TanreiNavigationDrawerTokens(
     public val breakpointCollapsed: Dp,
     public val breakpointExpanded: Dp,
-    public val collapsedContainerWidth: Dp,
-    public val collapsedItemContainerPaddingBlock: Dp,
     public val collapsedItemContainerPaddingInline: Dp,
     public val collapsedItemContainerShape: Dp,
-    public val collapsedItemContainerWidth: Dp,
     public val collapsedItemGap: Dp,
     public val collapsedItemLabelTypescale: TanreiTextStyle,
-    public val containerGap: Dp,
     public val containerPaddingBlock: Dp,
     public val containerPaddingInline: Dp,
     public val containerWidth: Dp,
@@ -6879,20 +6935,10 @@ public data class TanreiNavigationDrawerTokens(
     public val headerItemGap: Dp,
     public val headerTypescale: TanreiTextStyle,
     public val headingColor: TanreiPaint,
-    public val headingHeight: Dp,
     public val headingTypescale: TanreiTextStyle,
     public val itemBadgeTypescale: TanreiTextStyle,
-    public val itemContainerHeight: Dp,
     public val itemContainerShape: Dp,
-    public val itemGap: Dp,
-    public val itemIconIndicatorHeight: Dp,
     public val itemIconIndicatorShape: Dp,
-    public val itemIconIndicatorWidth: Dp,
-    public val itemIconSize: Dp,
-    public val itemLabelTypescale: TanreiTextStyle,
-    public val itemNestIndent: Dp,
-    public val itemPaddingInline: Dp,
-    public val itemTrailingIconSize: Dp,
     public val itemTrailingTextTypescale: TanreiTextStyle,
     public val motionDisclosureDuration: Int,
     public val motionDisclosureEasing: TanreiCubicBezier,
@@ -6916,6 +6962,7 @@ public data class TanreiNavigationDrawerTokens(
     public val disabled: TanreiNavigationDrawerStateTokens,
     public val variants: TanreiNavigationDrawerVariants,
     public val conditions: TanreiNavigationDrawerConditions,
+    public val densitys: TanreiNavigationDrawerDensitys,
 ) {
     /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
     public fun opacity(state: TanreiInteractionState): Float = when (state) {

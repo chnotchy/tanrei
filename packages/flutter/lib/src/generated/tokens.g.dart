@@ -15725,6 +15725,157 @@ class TanreiNavigationDrawerConditions {
   }
 }
 
+/// The key of a density of navigation-drawer (`comp.navigation-drawer`, axis `density`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiNavigationDrawerDensity('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [regular].
+extension type const TanreiNavigationDrawerDensity(String name) {
+  static const regular = TanreiNavigationDrawerDensity('regular');
+  static const compact = TanreiNavigationDrawerDensity('compact');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiNavigationDrawerDensity> core = <TanreiNavigationDrawerDensity>[regular, compact];
+}
+
+/// The tokens of one navigation-drawer density.
+@immutable
+class TanreiNavigationDrawerDensityTokens {
+  const TanreiNavigationDrawerDensityTokens({
+    required this.containerGap,
+    required this.itemContainerHeight,
+    required this.itemPaddingInline,
+    required this.itemGap,
+    required this.itemNestIndent,
+    required this.itemIconSize,
+    required this.itemIconIndicatorWidth,
+    required this.itemIconIndicatorHeight,
+    required this.itemLabelTypescale,
+    required this.itemTrailingIconSize,
+    required this.collapsedContainerWidth,
+    required this.collapsedItemContainerWidth,
+    required this.collapsedItemContainerPaddingBlock,
+    required this.headingHeight,
+  });
+
+  /// `comp.navigation-drawer.container-gap.<density>`
+  final double containerGap;
+  /// `comp.navigation-drawer.item-container-height.<density>`
+  final double itemContainerHeight;
+  /// `comp.navigation-drawer.item-padding-inline.<density>`
+  final double itemPaddingInline;
+  /// `comp.navigation-drawer.item-gap.<density>`
+  final double itemGap;
+  /// `comp.navigation-drawer.item-nest-indent.<density>`
+  final double itemNestIndent;
+  /// `comp.navigation-drawer.item-icon-size.<density>`
+  final double itemIconSize;
+  /// `comp.navigation-drawer.item-icon-indicator-width.<density>`
+  final double itemIconIndicatorWidth;
+  /// `comp.navigation-drawer.item-icon-indicator-height.<density>`
+  final double itemIconIndicatorHeight;
+  /// `comp.navigation-drawer.item-label-typescale.<density>`
+  final TanreiTextStyle itemLabelTypescale;
+  /// `comp.navigation-drawer.item-trailing-icon-size.<density>`
+  final double itemTrailingIconSize;
+  /// `comp.navigation-drawer.collapsed-container-width.<density>`
+  final double collapsedContainerWidth;
+  /// `comp.navigation-drawer.collapsed-item-container-width.<density>`
+  final double collapsedItemContainerWidth;
+  /// `comp.navigation-drawer.collapsed-item-container-padding-block.<density>`
+  final double collapsedItemContainerPaddingBlock;
+  /// `comp.navigation-drawer.heading-height.<density>`
+  final double headingHeight;
+
+  /// A copy with the given tokens replaced.
+  TanreiNavigationDrawerDensityTokens copyWith({
+    double? containerGap,
+    double? itemContainerHeight,
+    double? itemPaddingInline,
+    double? itemGap,
+    double? itemNestIndent,
+    double? itemIconSize,
+    double? itemIconIndicatorWidth,
+    double? itemIconIndicatorHeight,
+    TanreiTextStyle? itemLabelTypescale,
+    double? itemTrailingIconSize,
+    double? collapsedContainerWidth,
+    double? collapsedItemContainerWidth,
+    double? collapsedItemContainerPaddingBlock,
+    double? headingHeight,
+  }) => TanreiNavigationDrawerDensityTokens(
+        containerGap: containerGap ?? this.containerGap,
+        itemContainerHeight: itemContainerHeight ?? this.itemContainerHeight,
+        itemPaddingInline: itemPaddingInline ?? this.itemPaddingInline,
+        itemGap: itemGap ?? this.itemGap,
+        itemNestIndent: itemNestIndent ?? this.itemNestIndent,
+        itemIconSize: itemIconSize ?? this.itemIconSize,
+        itemIconIndicatorWidth: itemIconIndicatorWidth ?? this.itemIconIndicatorWidth,
+        itemIconIndicatorHeight: itemIconIndicatorHeight ?? this.itemIconIndicatorHeight,
+        itemLabelTypescale: itemLabelTypescale ?? this.itemLabelTypescale,
+        itemTrailingIconSize: itemTrailingIconSize ?? this.itemTrailingIconSize,
+        collapsedContainerWidth: collapsedContainerWidth ?? this.collapsedContainerWidth,
+        collapsedItemContainerWidth: collapsedItemContainerWidth ?? this.collapsedItemContainerWidth,
+        collapsedItemContainerPaddingBlock: collapsedItemContainerPaddingBlock ?? this.collapsedItemContainerPaddingBlock,
+        headingHeight: headingHeight ?? this.headingHeight,
+      );
+}
+
+/// Every density of navigation-drawer: the core values by name, the values a design system added in [extra].
+/// Look one up with `densitys[key]`; the lookup is total.
+@immutable
+class TanreiNavigationDrawerDensitys {
+  const TanreiNavigationDrawerDensitys({
+    required this.regular,
+    required this.compact,
+    this.extra = const <TanreiNavigationDrawerDensity, TanreiNavigationDrawerDensityTokens>{},
+  });
+
+  /// `comp.navigation-drawer` density `regular`
+  final TanreiNavigationDrawerDensityTokens regular;
+  /// `comp.navigation-drawer` density `compact`
+  final TanreiNavigationDrawerDensityTokens compact;
+
+  /// The densitys a design system added to the core vocabulary.
+  final Map<TanreiNavigationDrawerDensity, TanreiNavigationDrawerDensityTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiNavigationDrawerDensitys copyWith({
+    TanreiNavigationDrawerDensityTokens? regular,
+    TanreiNavigationDrawerDensityTokens? compact,
+    Map<TanreiNavigationDrawerDensity, TanreiNavigationDrawerDensityTokens>? extra,
+  }) => TanreiNavigationDrawerDensitys(
+        regular: regular ?? this.regular,
+        compact: compact ?? this.compact,
+        extra: extra == null ? this.extra : <TanreiNavigationDrawerDensity, TanreiNavigationDrawerDensityTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [density].
+  ///
+  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiNavigationDrawerDensityTokens operator [](TanreiNavigationDrawerDensity density) => switch (density.name) {
+        'regular' => regular,
+        'compact' => compact,
+        _ => extra[density] ?? _fallback(density),
+      };
+
+  /// Whether this design system has [density].
+  bool has(TanreiNavigationDrawerDensity density) => TanreiNavigationDrawerDensity.core.contains(density) || extra.containsKey(density);
+
+  /// Every density this design system has: the core values, then the added ones.
+  List<TanreiNavigationDrawerDensity> get keys => <TanreiNavigationDrawerDensity>[...TanreiNavigationDrawerDensity.core, ...extra.keys];
+
+  TanreiNavigationDrawerDensityTokens _fallback(TanreiNavigationDrawerDensity density) {
+    assert(() {
+      debugTanreiReportUnknownValue('navigation-drawer density', density.name, 'regular');
+      return true;
+    }());
+    return regular;
+  }
+}
+
 /// The tokens of navigation-drawer that vary by interaction state but not by variant.
 @immutable
 class TanreiNavigationDrawerStateTokens {
@@ -15749,14 +15900,10 @@ class TanreiNavigationDrawerTokens {
   const TanreiNavigationDrawerTokens({
     required this.breakpointCollapsed,
     required this.breakpointExpanded,
-    required this.collapsedContainerWidth,
-    required this.collapsedItemContainerPaddingBlock,
     required this.collapsedItemContainerPaddingInline,
     required this.collapsedItemContainerShape,
-    required this.collapsedItemContainerWidth,
     required this.collapsedItemGap,
     required this.collapsedItemLabelTypescale,
-    required this.containerGap,
     required this.containerPaddingBlock,
     required this.containerPaddingInline,
     required this.containerWidth,
@@ -15765,20 +15912,10 @@ class TanreiNavigationDrawerTokens {
     required this.headerItemGap,
     required this.headerTypescale,
     required this.headingColor,
-    required this.headingHeight,
     required this.headingTypescale,
     required this.itemBadgeTypescale,
-    required this.itemContainerHeight,
     required this.itemContainerShape,
-    required this.itemGap,
-    required this.itemIconIndicatorHeight,
     required this.itemIconIndicatorShape,
-    required this.itemIconIndicatorWidth,
-    required this.itemIconSize,
-    required this.itemLabelTypescale,
-    required this.itemNestIndent,
-    required this.itemPaddingInline,
-    required this.itemTrailingIconSize,
     required this.itemTrailingTextTypescale,
     required this.motionDisclosureDuration,
     required this.motionDisclosureEasing,
@@ -15798,6 +15935,7 @@ class TanreiNavigationDrawerTokens {
     required this.scrimColor,
     required this.variants,
     required this.conditions,
+    required this.densitys,
     required this.hovered,
     required this.focused,
     required this.pressed,
@@ -15808,22 +15946,14 @@ class TanreiNavigationDrawerTokens {
   final double breakpointCollapsed;
   /// `comp.navigation-drawer.breakpoint-expanded`
   final double breakpointExpanded;
-  /// `comp.navigation-drawer.collapsed-container-width`
-  final double collapsedContainerWidth;
-  /// `comp.navigation-drawer.collapsed-item-container-padding-block`
-  final double collapsedItemContainerPaddingBlock;
   /// `comp.navigation-drawer.collapsed-item-container-padding-inline`
   final double collapsedItemContainerPaddingInline;
   /// `comp.navigation-drawer.collapsed-item-container-shape`
   final double collapsedItemContainerShape;
-  /// `comp.navigation-drawer.collapsed-item-container-width`
-  final double collapsedItemContainerWidth;
   /// `comp.navigation-drawer.collapsed-item-gap`
   final double collapsedItemGap;
   /// `comp.navigation-drawer.collapsed-item-label-typescale`
   final TanreiTextStyle collapsedItemLabelTypescale;
-  /// `comp.navigation-drawer.container-gap`
-  final double containerGap;
   /// `comp.navigation-drawer.container-padding-block`
   final double containerPaddingBlock;
   /// `comp.navigation-drawer.container-padding-inline`
@@ -15840,34 +15970,14 @@ class TanreiNavigationDrawerTokens {
   final TanreiTextStyle headerTypescale;
   /// `comp.navigation-drawer.heading-color`
   final TanreiPaint headingColor;
-  /// `comp.navigation-drawer.heading-height`
-  final double headingHeight;
   /// `comp.navigation-drawer.heading-typescale`
   final TanreiTextStyle headingTypescale;
   /// `comp.navigation-drawer.item-badge-typescale`
   final TanreiTextStyle itemBadgeTypescale;
-  /// `comp.navigation-drawer.item-container-height`
-  final double itemContainerHeight;
   /// `comp.navigation-drawer.item-container-shape`
   final double itemContainerShape;
-  /// `comp.navigation-drawer.item-gap`
-  final double itemGap;
-  /// `comp.navigation-drawer.item-icon-indicator-height`
-  final double itemIconIndicatorHeight;
   /// `comp.navigation-drawer.item-icon-indicator-shape`
   final double itemIconIndicatorShape;
-  /// `comp.navigation-drawer.item-icon-indicator-width`
-  final double itemIconIndicatorWidth;
-  /// `comp.navigation-drawer.item-icon-size`
-  final double itemIconSize;
-  /// `comp.navigation-drawer.item-label-typescale`
-  final TanreiTextStyle itemLabelTypescale;
-  /// `comp.navigation-drawer.item-nest-indent`
-  final double itemNestIndent;
-  /// `comp.navigation-drawer.item-padding-inline`
-  final double itemPaddingInline;
-  /// `comp.navigation-drawer.item-trailing-icon-size`
-  final double itemTrailingIconSize;
   /// `comp.navigation-drawer.item-trailing-text-typescale`
   final TanreiTextStyle itemTrailingTextTypescale;
   /// `comp.navigation-drawer.motion-disclosure-duration`
@@ -15906,6 +16016,8 @@ class TanreiNavigationDrawerTokens {
   final TanreiNavigationDrawerVariants variants;
   /// The `condition` axis: `conditions[condition]`.
   final TanreiNavigationDrawerConditions conditions;
+  /// The `density` axis: `densitys[density]`.
+  final TanreiNavigationDrawerDensitys densitys;
   /// `comp.navigation-drawer.hovered.*`
   final TanreiNavigationDrawerStateTokens hovered;
   /// `comp.navigation-drawer.focused.*`
@@ -15919,14 +16031,10 @@ class TanreiNavigationDrawerTokens {
   TanreiNavigationDrawerTokens copyWith({
     double? breakpointCollapsed,
     double? breakpointExpanded,
-    double? collapsedContainerWidth,
-    double? collapsedItemContainerPaddingBlock,
     double? collapsedItemContainerPaddingInline,
     double? collapsedItemContainerShape,
-    double? collapsedItemContainerWidth,
     double? collapsedItemGap,
     TanreiTextStyle? collapsedItemLabelTypescale,
-    double? containerGap,
     double? containerPaddingBlock,
     double? containerPaddingInline,
     double? containerWidth,
@@ -15935,20 +16043,10 @@ class TanreiNavigationDrawerTokens {
     double? headerItemGap,
     TanreiTextStyle? headerTypescale,
     TanreiPaint? headingColor,
-    double? headingHeight,
     TanreiTextStyle? headingTypescale,
     TanreiTextStyle? itemBadgeTypescale,
-    double? itemContainerHeight,
     double? itemContainerShape,
-    double? itemGap,
-    double? itemIconIndicatorHeight,
     double? itemIconIndicatorShape,
-    double? itemIconIndicatorWidth,
-    double? itemIconSize,
-    TanreiTextStyle? itemLabelTypescale,
-    double? itemNestIndent,
-    double? itemPaddingInline,
-    double? itemTrailingIconSize,
     TanreiTextStyle? itemTrailingTextTypescale,
     int? motionDisclosureDuration,
     TanreiCubicBezier? motionDisclosureEasing,
@@ -15968,6 +16066,7 @@ class TanreiNavigationDrawerTokens {
     TanreiPaint? scrimColor,
     TanreiNavigationDrawerVariants? variants,
     TanreiNavigationDrawerConditions? conditions,
+    TanreiNavigationDrawerDensitys? densitys,
     TanreiNavigationDrawerStateTokens? hovered,
     TanreiNavigationDrawerStateTokens? focused,
     TanreiNavigationDrawerStateTokens? pressed,
@@ -15975,14 +16074,10 @@ class TanreiNavigationDrawerTokens {
   }) => TanreiNavigationDrawerTokens(
         breakpointCollapsed: breakpointCollapsed ?? this.breakpointCollapsed,
         breakpointExpanded: breakpointExpanded ?? this.breakpointExpanded,
-        collapsedContainerWidth: collapsedContainerWidth ?? this.collapsedContainerWidth,
-        collapsedItemContainerPaddingBlock: collapsedItemContainerPaddingBlock ?? this.collapsedItemContainerPaddingBlock,
         collapsedItemContainerPaddingInline: collapsedItemContainerPaddingInline ?? this.collapsedItemContainerPaddingInline,
         collapsedItemContainerShape: collapsedItemContainerShape ?? this.collapsedItemContainerShape,
-        collapsedItemContainerWidth: collapsedItemContainerWidth ?? this.collapsedItemContainerWidth,
         collapsedItemGap: collapsedItemGap ?? this.collapsedItemGap,
         collapsedItemLabelTypescale: collapsedItemLabelTypescale ?? this.collapsedItemLabelTypescale,
-        containerGap: containerGap ?? this.containerGap,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         containerWidth: containerWidth ?? this.containerWidth,
@@ -15991,20 +16086,10 @@ class TanreiNavigationDrawerTokens {
         headerItemGap: headerItemGap ?? this.headerItemGap,
         headerTypescale: headerTypescale ?? this.headerTypescale,
         headingColor: headingColor ?? this.headingColor,
-        headingHeight: headingHeight ?? this.headingHeight,
         headingTypescale: headingTypescale ?? this.headingTypescale,
         itemBadgeTypescale: itemBadgeTypescale ?? this.itemBadgeTypescale,
-        itemContainerHeight: itemContainerHeight ?? this.itemContainerHeight,
         itemContainerShape: itemContainerShape ?? this.itemContainerShape,
-        itemGap: itemGap ?? this.itemGap,
-        itemIconIndicatorHeight: itemIconIndicatorHeight ?? this.itemIconIndicatorHeight,
         itemIconIndicatorShape: itemIconIndicatorShape ?? this.itemIconIndicatorShape,
-        itemIconIndicatorWidth: itemIconIndicatorWidth ?? this.itemIconIndicatorWidth,
-        itemIconSize: itemIconSize ?? this.itemIconSize,
-        itemLabelTypescale: itemLabelTypescale ?? this.itemLabelTypescale,
-        itemNestIndent: itemNestIndent ?? this.itemNestIndent,
-        itemPaddingInline: itemPaddingInline ?? this.itemPaddingInline,
-        itemTrailingIconSize: itemTrailingIconSize ?? this.itemTrailingIconSize,
         itemTrailingTextTypescale: itemTrailingTextTypescale ?? this.itemTrailingTextTypescale,
         motionDisclosureDuration: motionDisclosureDuration ?? this.motionDisclosureDuration,
         motionDisclosureEasing: motionDisclosureEasing ?? this.motionDisclosureEasing,
@@ -16024,6 +16109,7 @@ class TanreiNavigationDrawerTokens {
         scrimColor: scrimColor ?? this.scrimColor,
         variants: variants ?? this.variants,
         conditions: conditions ?? this.conditions,
+        densitys: densitys ?? this.densitys,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,

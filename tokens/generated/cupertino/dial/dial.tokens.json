@@ -4483,7 +4483,7 @@
             "tanrei.comp.navigation-drawer.item.container.shape": {
               "$value": "{tanrei.sys.shape.corner.medium}"
             },
-            "tanrei.comp.navigation-drawer.item.label.typescale": {
+            "tanrei.comp.navigation-drawer.item.label.typescale.regular": {
               "$value": "{tanrei.sys.typescale.body-large}",
               "reason": "An iPadOS sidebar row is set in Body (17pt), body-large here."
             },
@@ -5145,7 +5145,7 @@
               },
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.navigation-drawer.item.icon.size": {
+            "tanrei.comp.navigation-drawer.item.icon.size.regular": {
               "$value": "{tanrei.sys.icon.small}",
               "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
             },

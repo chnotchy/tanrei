@@ -4,7 +4,7 @@
       "navigation-drawer": {
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable.",
+            "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places.",
             "since": "0.1.0"
           },
           "dev.tanrei.states": {
@@ -35,7 +35,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header, and the text style and color its header slot gives what it holds; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the trailing text and glyph; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state.",
+            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header, and the text style and color its header slot gives what it holds; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; per density (regular, compact) the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the gap between cells, the collapsed column and the heading height, the trailing text and glyph; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state.",
             "rules": [
               "The selected destination is drawn from the selected parts; every other destination from the unselected parts. While the drawer is collapsed they are the collapsed-selected and collapsed-unselected parts. Never pick a look by hand.",
               "Selected must differ from unselected by more than the icon's fill: an active indicator, a stronger color, or both.",
@@ -45,6 +45,7 @@
               "The icon indicator is a box behind the glyph alone. The default system leaves it transparent in every condition; a layer that marks a collapsed destination behind its glyph only fills it in the collapsed conditions and clears the collapsed item container.",
               "Every icon sits on the same point in both forms: its center is half the collapsed width from the drawer's start edge (plus the nesting indent), and its row keeps its height. Change collapsed.container.width, not a padding, to move the icon column; in the default system it is container.padding-inline, item.padding-inline and half the icon, twice.",
               "A nested destination's content (icon and label) starts item.nest-indent further in; its item container, fill, state layer and focus indicator keep the full width of a top-level row, so that every selection has the same shape and the drawn row matches its hit area.",
+              "density is the product's choice for its drawer: regular is a menu's row, for a product used by touch as well as by pointer; compact is a tree view's compact row, for a tool used with a pointer whose drawer lists many places. Touch always gets rows of the touch target. In each density keep item.nest-indent the density's icon and item.gap, so that a nested destination's icon stands where its group's label starts, and collapsed.container.width the column the density's icon and paddings make.",
               "A look that draws no item container at rest draws none when disabled.",
               "A modal drawer is set apart by its elevation and the scrim; a standard one by its end edge.",
               "The trailing text is quieter than the label: a regular weight in the supporting-text color.",
@@ -71,6 +72,29 @@
             "condition": {
               "default": "unselected",
               "from": "states"
+            },
+            "density": {
+              "default": "regular",
+              "values": [
+                "regular",
+                "compact"
+              ],
+              "members": [
+                "container.gap",
+                "item.container.height",
+                "item.padding-inline",
+                "item.gap",
+                "item.nest-indent",
+                "item.icon.size",
+                "item.icon-indicator.width",
+                "item.icon-indicator.height",
+                "item.label.typescale",
+                "item.trailing-icon.size",
+                "collapsed.container.width",
+                "collapsed.item.container.width",
+                "collapsed.item.container.padding-block",
+                "heading.height"
+              ]
             }
           }
         },
@@ -130,8 +154,13 @@
           },
           "gap": {
             "$type": "dimension",
-            "$description": "Between two cells (a destination's or a group's), so that a selected row and a hovered neighbour stay two shapes. Each cell's hit area reaches half of it above and below.",
-            "$value": "{tanrei.sys.space.space50}"
+            "$description": "Between two cells (a destination's or a group's), so that a selected row and a hovered neighbour stay two shapes, per density. Each cell's hit area reaches half of it above and below. Compact keeps the two shapes apart by the least room, as a dense sidebar does.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space50}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.space.space25}"
+            }
           }
         },
         "collapsed": {
@@ -144,36 +173,66 @@
           "container": {
             "width": {
               "$type": "dimension",
-              "$value": {
-                "value": 72,
-                "unit": "px"
-              },
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fn": "mul",
-                  "of": "{tanrei.dial.size.unit}",
-                  "by": 18
-                }
-              },
-              "$description": "The collapsed drawer's width, not counting the system inset at its start: the icon column. Every icon's center is half of it from the start edge, in both forms. In the default system it is container.padding-inline, item.padding-inline and the icon, mirrored: 12 + 12 + 24 + 12 + 12, so that a collapsed row is the expanded one cut after its icon's padding."
-            }
-          },
-          "item": {
-            "container": {
-              "width": {
-                "$type": "dimension",
+              "$description": "The collapsed drawer's width, not counting the system inset at its start, per density: the icon column. Every icon's center is half of it from the start edge, in both forms. In the default system it is container.padding-inline, item.padding-inline and the icon, mirrored: 12 + 12 + 24 + 12 + 12 while regular and 12 + 8 + 16 + 8 + 12 while compact, so that a collapsed row is the expanded one cut after its icon's padding.",
+              "regular": {
                 "$value": {
-                  "value": 48,
+                  "value": 72,
                   "unit": "px"
                 },
                 "$extensions": {
                   "dev.tanrei.derive": {
                     "fn": "mul",
                     "of": "{tanrei.dial.size.unit}",
-                    "by": 12
+                    "by": 18
+                  }
+                }
+              },
+              "compact": {
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.size.unit}",
+                    "by": 14
+                  }
+                }
+              }
+            }
+          },
+          "item": {
+            "container": {
+              "width": {
+                "$type": "dimension",
+                "$description": "The collapsed item container's width, per density: in the default system the icon and item.padding-inline on each side, so that the collapsed cell is the expanded row cut after its icon's padding.",
+                "regular": {
+                  "$value": {
+                    "value": 48,
+                    "unit": "px"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.derive": {
+                      "fn": "mul",
+                      "of": "{tanrei.dial.size.unit}",
+                      "by": 12
+                    }
                   }
                 },
-                "$description": "The collapsed item container's width, centered in the icon column: the box around the icon, which carries hover, focus and press and is the active indicator while the destination is selected. In the default system it is the icon with item.padding-inline on each side, a square as high as the row."
+                "compact": {
+                  "$value": {
+                    "value": 32,
+                    "unit": "px"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.derive": {
+                      "fn": "mul",
+                      "of": "{tanrei.dial.size.unit}",
+                      "by": 8
+                    }
+                  }
+                }
               },
               "padding-inline": {
                 "$type": "dimension",
@@ -182,8 +241,13 @@
               },
               "padding-block": {
                 "$type": "dimension",
-                "$description": "Inside the collapsed item container, above the icon indicator and below it (below the short label where one is drawn). In the default system it equals item.padding-inline, so the icon has the same space on every side and the collapsed cell is as high as the expanded row.",
-                "$value": "{tanrei.sys.space.space150}"
+                "$description": "Above the icon indicator and below the short label (or below the icon indicator where none is drawn) inside the collapsed item container, per density; with the icon indicator it gives the expanded row's height in the default system.",
+                "regular": {
+                  "$value": "{tanrei.sys.space.space150}"
+                },
+                "compact": {
+                  "$value": "{tanrei.sys.space.space100}"
+                }
               },
               "shape": {
                 "$type": "dimension",
@@ -305,36 +369,66 @@
           },
           "height": {
             "$type": "dimension",
-            "$value": {
-              "value": 36,
-              "unit": "px"
-            },
-            "$extensions": {
-              "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 9
-              }
-            },
-            "$description": "A section heading's minimum height; its text is centered in it. The row keeps this height while the drawer is collapsed, so the cells below it do not move."
-          }
-        },
-        "item": {
-          "container": {
-            "height": {
-              "$type": "dimension",
+            "$description": "A section heading's minimum height, per density; its text is centered in it. The row keeps this height while the drawer is collapsed, so the cells below it do not move.",
+            "regular": {
               "$value": {
-                "value": 48,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.dial.size.unit}",
-                  "by": 12
+                  "by": 9
+                }
+              }
+            },
+            "compact": {
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 7
+                }
+              }
+            }
+          }
+        },
+        "item": {
+          "container": {
+            "height": {
+              "$type": "dimension",
+              "$description": "The expanded item container's least height, per density: the destination's row, which is also its active indicator and carries hover, focus and press. Regular is a menu item's height, so that a list of places and a list of commands are rows of one size, and with the default icon it leaves item.padding-inline above and below the glyph. Compact is a tree view's compact row, for a product used with a pointer whose drawer lists many places; for touch a row is never lower than the touch target, whatever this says (NVD-6). A minimum: a row grows with a label that wraps and with enlarged text.",
+              "regular": {
+                "$value": {
+                  "value": 48,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.size.unit}",
+                    "by": 12
+                  }
                 }
               },
-              "$description": "The expanded item container's least height: the destination's row, which is also its active indicator and carries hover, focus and press. A menu item's height, so that a list of places and a list of commands are rows of one size; with the default icon it leaves item.padding-inline above and below the glyph."
+              "compact": {
+                "$value": {
+                  "value": 32,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.size.unit}",
+                    "by": 8
+                  }
+                }
+              }
             },
             "shape": {
               "$type": "dimension",
@@ -344,29 +438,50 @@
           },
           "padding-inline": {
             "$type": "dimension",
-            "$description": "Inside the row: before the label of a destination without an icon, and after the trailing content; a menu item's. In the default system it is also the space an icon has on its start side, because the icon column is placed by it (collapsed.container.width).",
-            "$value": "{tanrei.sys.space.space150}"
+            "$description": "Inside the row, per density: before the label of a destination without an icon, and after the trailing content; a menu item's. In the default system it is also the space an icon has on its start side, because the icon column is placed by it (collapsed.container.width).",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.space.space100}"
+            }
           },
           "gap": {
             "$type": "dimension",
-            "$description": "Between the icon, the label and the trailing content of an expanded row.",
-            "$value": "{tanrei.sys.space.space150}"
+            "$description": "Between the icon, the label and the trailing content of an expanded row, per density.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.space.space100}"
+            }
           },
           "nest-indent": {
             "$type": "dimension",
-            "$description": "How much further toward the end a nested destination's content (its icon and label) starts, per level of nesting. Its item container, with its fill, state layer and focus indicator, keeps the full width of a top-level row. With the default icon and gap, a nested destination's label starts under its group's label.",
-            "$value": "{tanrei.sys.space.space450}",
+            "$description": "How much further toward the end a nested destination's content (its icon and label) starts, per level of nesting and per density. Its item container, with its fill, state layer and focus indicator, keeps the full width of a top-level row. In both densities of the default system it is the density's icon and gap, so that a nested destination's icon stands where its group's label starts and the icons of one level stand in one column.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product nests destinations in groups and shows the depth by indenting them; another indents them less to keep long labels on one line in a narrow drawer.",
                 "since": "0.1.0"
               }
+            },
+            "regular": {
+              "$value": "{tanrei.sys.space.space450}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.space.space300}"
             }
           },
           "icon": {
             "size": {
               "$type": "dimension",
-              "$value": "{tanrei.sys.icon.medium}"
+              "$description": "The destination's glyph, per density: the standard glyph of a row while regular, the glyph of a tree view's compact row while compact.",
+              "regular": {
+                "$value": "{tanrei.sys.icon.medium}"
+              },
+              "compact": {
+                "$value": "{tanrei.sys.icon.extra-small}"
+              }
             }
           },
           "icon-indicator": {
@@ -378,13 +493,23 @@
             },
             "width": {
               "$type": "dimension",
-              "$value": "{tanrei.comp.navigation-drawer.item.icon.size}",
-              "$description": "The icon indicator's width, centered on the icon. It is laid out in every system, transparent or not; in the default system it is the icon's own box."
+              "$description": "The width of the box behind the glyph alone, per density: the glyph's in the default system, which leaves the box transparent.",
+              "regular": {
+                "$value": "{tanrei.comp.navigation-drawer.item.icon.size.regular}"
+              },
+              "compact": {
+                "$value": "{tanrei.comp.navigation-drawer.item.icon.size.compact}"
+              }
             },
             "height": {
               "$type": "dimension",
-              "$value": "{tanrei.comp.navigation-drawer.item.icon.size}",
-              "$description": "The icon indicator's height; while collapsed, the short label sits collapsed.item.gap below it."
+              "$description": "The height of the box behind the glyph alone, per density: the glyph's in the default system. A cell's icon line is placed from it (NVD-31).",
+              "regular": {
+                "$value": "{tanrei.comp.navigation-drawer.item.icon.size.regular}"
+              },
+              "compact": {
+                "$value": "{tanrei.comp.navigation-drawer.item.icon.size.compact}"
+              }
             },
             "shape": {
               "$type": "dimension",
@@ -395,7 +520,13 @@
           "label": {
             "typescale": {
               "$type": "typography",
-              "$value": "{tanrei.sys.typescale.label}"
+              "$description": "The label's text style, per density. The default system keeps a menu item's label in both, as dense sidebars do; a system whose compact drawer sets its names smaller sets compact.",
+              "regular": {
+                "$value": "{tanrei.sys.typescale.label}"
+              },
+              "compact": {
+                "$value": "{tanrei.sys.typescale.label}"
+              }
             }
           },
           "trailing-text": {
@@ -420,8 +551,13 @@
             },
             "size": {
               "$type": "dimension",
-              "$description": "A glyph at the row's end: the trailing slot's glyph, and a group's chevron.",
-              "$value": "{tanrei.sys.icon.small}"
+              "$description": "A glyph at the end of an expanded row (open_in_new, a glyph in the trailing slot) and a group's chevron, per density: smaller than the destination's icon while regular, so that it reads as a mark; the compact icon's size while compact.",
+              "regular": {
+                "$value": "{tanrei.sys.icon.small}"
+              },
+              "compact": {
+                "$value": "{tanrei.sys.icon.extra-small}"
+              }
             }
           },
           "badge": {

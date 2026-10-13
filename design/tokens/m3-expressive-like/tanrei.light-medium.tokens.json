@@ -62579,23 +62579,39 @@
         "collapsed": {
           "container": {
             "width": {
-              "$type": "dimension",
-              "$value": {
-                "value": 80,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                }
               },
-              "$description": "The collapsed drawer's width, not counting the system inset at its start: the icon column. Every icon's center is half of it from the start edge, in both forms. In the default system it is container.padding-inline, item.padding-inline and the icon, mirrored: 12 + 12 + 24 + 12 + 12, so that a collapsed row is the expanded one cut after its icon's padding."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 80,
+                  "unit": "px"
+                }
+              }
             }
           },
           "item": {
             "container": {
               "padding-block": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 0,
-                  "unit": "px"
+                "compact": {
+                  "$type": "dimension",
+                  "$value": {
+                    "value": 8,
+                    "unit": "px"
+                  }
                 },
-                "$description": "Inside the collapsed item container, above the icon indicator and below it (below the short label where one is drawn). In the default system it equals item.padding-inline, so the icon has the same space on every side and the collapsed cell is as high as the expanded row."
+                "regular": {
+                  "$type": "dimension",
+                  "$value": {
+                    "value": 0,
+                    "unit": "px"
+                  }
+                }
               },
               "padding-inline": {
                 "$type": "dimension",
@@ -62614,12 +62630,20 @@
                 "$description": "The collapsed item container's corners, at most half its height. The expanded row's own corners: collapsing a drawer removes its labels and changes no shape."
               },
               "width": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 56,
-                  "unit": "px"
+                "compact": {
+                  "$type": "dimension",
+                  "$value": {
+                    "value": 32,
+                    "unit": "px"
+                  }
                 },
-                "$description": "The collapsed item container's width, centered in the icon column: the box around the icon, which carries hover, focus and press and is the active indicator while the destination is selected. In the default system it is the icon with item.padding-inline on each side, a square as high as the row."
+                "regular": {
+                  "$type": "dimension",
+                  "$value": {
+                    "value": 56,
+                    "unit": "px"
+                  }
+                }
               }
             },
             "gap": {
@@ -62754,12 +62778,20 @@
             }
           },
           "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 0,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              }
             },
-            "$description": "Between two cells (a destination's or a group's), so that a selected row and a hovered neighbour stay two shapes. Each cell's hit area reaches half of it above and below."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 0,
+                "unit": "px"
+              }
+            }
           },
           "padding-block": {
             "$type": "dimension",
@@ -62882,12 +62914,20 @@
             }
           },
           "height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 36,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              }
             },
-            "$description": "A section heading's minimum height; its text is centered in it. The row keeps this height while the drawer is collapsed, so the cells below it do not move."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 36,
+                "unit": "px"
+              }
+            }
           },
           "typescale": {
             "$type": "typography",
@@ -62943,12 +62983,20 @@
           },
           "container": {
             "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 56,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 32,
+                  "unit": "px"
+                }
               },
-              "$description": "The expanded item container's least height: the destination's row, which is also its active indicator and carries hover, focus and press. A menu item's height, so that a list of places and a list of commands are rows of one size; with the default icon it leaves item.padding-inline above and below the glyph."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                }
+              }
             },
             "shape": {
               "$type": "dimension",
@@ -62960,21 +63008,37 @@
             }
           },
           "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             },
-            "$description": "Between the icon, the label and the trailing content of an expanded row."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            }
           },
           "icon-indicator": {
             "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
+                  "unit": "px"
+                }
               },
-              "$description": "The icon indicator's height; while collapsed, the short label sits collapsed.item.gap below it."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 32,
+                  "unit": "px"
+                }
+              }
             },
             "shape": {
               "$type": "dimension",
@@ -62985,69 +63049,132 @@
               "$description": "The radius of the icon indicator's four corners, at most half its height."
             },
             "width": {
-              "$type": "dimension",
-              "$value": {
-                "value": 56,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
+                  "unit": "px"
+                }
               },
-              "$description": "The icon indicator's width, centered on the icon. It is laid out in every system, transparent or not; in the default system it is the icon's own box."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                }
+              }
             }
           },
           "icon": {
             "size": {
-              "$type": "dimension",
-              "$value": {
-                "value": 24,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
+                  "unit": "px"
+                }
+              },
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 24,
+                  "unit": "px"
+                }
               }
             }
           },
           "label": {
             "typescale": {
-              "$type": "typography",
-              "$value": {
-                "fontFamily": [
-                  "Roboto",
-                  "system-ui",
-                  "sans-serif"
-                ],
-                "fontSize": {
-                  "value": 14,
-                  "unit": "px"
-                },
-                "fontWeight": 500,
-                "letterSpacing": {
-                  "value": 0.1,
-                  "unit": "px"
-                },
-                "lineHeight": 1.4286
+              "compact": {
+                "$type": "typography",
+                "$value": {
+                  "fontFamily": [
+                    "Roboto",
+                    "system-ui",
+                    "sans-serif"
+                  ],
+                  "fontSize": {
+                    "value": 14,
+                    "unit": "px"
+                  },
+                  "fontWeight": 500,
+                  "letterSpacing": {
+                    "value": 0.1,
+                    "unit": "px"
+                  },
+                  "lineHeight": 1.4286
+                }
+              },
+              "regular": {
+                "$type": "typography",
+                "$value": {
+                  "fontFamily": [
+                    "Roboto",
+                    "system-ui",
+                    "sans-serif"
+                  ],
+                  "fontSize": {
+                    "value": 14,
+                    "unit": "px"
+                  },
+                  "fontWeight": 500,
+                  "letterSpacing": {
+                    "value": 0.1,
+                    "unit": "px"
+                  },
+                  "lineHeight": 1.4286
+                }
               }
             }
           },
           "nest-indent": {
-            "$type": "dimension",
-            "$value": {
-              "value": 36,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              }
             },
-            "$description": "How much further toward the end a nested destination's content (its icon and label) starts, per level of nesting. Its item container, with its fill, state layer and focus indicator, keeps the full width of a top-level row. With the default icon and gap, a nested destination's label starts under its group's label."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 36,
+                "unit": "px"
+              }
+            }
           },
           "padding-inline": {
-            "$type": "dimension",
-            "$value": {
-              "value": 16,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
             },
-            "$description": "Inside the row: before the label of a destination without an icon, and after the trailing content; a menu item's. In the default system it is also the space an icon has on its start side, because the icon column is placed by it (collapsed.container.width)."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              }
+            }
           },
           "trailing-icon": {
             "size": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
+                  "unit": "px"
+                }
               },
-              "$description": "A glyph at the row's end: the trailing slot's glyph, and a group's chevron."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
+                  "unit": "px"
+                }
+              }
             }
           },
           "trailing-text": {

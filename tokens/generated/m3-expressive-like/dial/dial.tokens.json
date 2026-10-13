@@ -5644,7 +5644,7 @@
               "$value": "{tanrei.sys.elevation.level1}",
               "reason": "Material's modal drawer rests at level1, a real shadow here."
             },
-            "tanrei.comp.navigation-drawer.item.container.height": {
+            "tanrei.comp.navigation-drawer.item.container.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -5654,13 +5654,13 @@
             "tanrei.comp.navigation-drawer.item.container.shape": {
               "$value": "{tanrei.sys.shape.corner.full}"
             },
-            "tanrei.comp.navigation-drawer.container.gap": {
+            "tanrei.comp.navigation-drawer.container.gap.regular": {
               "$value": "{tanrei.sys.space.space0}"
             },
-            "tanrei.comp.navigation-drawer.item.padding-inline": {
+            "tanrei.comp.navigation-drawer.item.padding-inline.regular": {
               "$value": "{tanrei.sys.space.space200}"
             },
-            "tanrei.comp.navigation-drawer.item.icon.size": {
+            "tanrei.comp.navigation-drawer.item.icon.size.regular": {
               "$value": "{tanrei.sys.icon.medium}"
             },
             "tanrei.comp.navigation-drawer.item.badge.typescale": {
@@ -5675,7 +5675,7 @@
               "$value": "{tanrei.sys.typescale.label}",
               "reason": "Material's drawer badge is label-large, which the fidelity map pairs with label."
             },
-            "tanrei.comp.navigation-drawer.item.icon-indicator.width": {
+            "tanrei.comp.navigation-drawer.item.icon-indicator.width.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -5683,7 +5683,7 @@
               },
               "reason": "Material 3's navigation rail, which a collapsed drawer reproduces: its active indicator is 56 wide."
             },
-            "tanrei.comp.navigation-drawer.item.icon-indicator.height": {
+            "tanrei.comp.navigation-drawer.item.icon-indicator.height.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -5695,7 +5695,7 @@
               "$value": "{tanrei.sys.space.space0}",
               "reason": "Material 3's navigation rail, which a collapsed drawer reproduces: it draws no shape around the whole destination."
             },
-            "tanrei.comp.navigation-drawer.collapsed.item.container.padding-block": {
+            "tanrei.comp.navigation-drawer.collapsed.item.container.padding-block.regular": {
               "$value": "{tanrei.sys.space.space0}",
               "reason": "Material 3's navigation rail, which a collapsed drawer reproduces: it draws no shape around the whole destination."
             },
@@ -6262,7 +6262,7 @@
               "$value": "{tanrei.sys.space.space0}",
               "reason": "Material's bar draws no shape around a whole destination, so nothing is held in from its edges: its cells share the bar's whole width."
             },
-            "tanrei.comp.navigation-drawer.collapsed.container.width": {
+            "tanrei.comp.navigation-drawer.collapsed.container.width.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
@@ -6270,7 +6270,7 @@
               },
               "reason": "Material 3's collapsed column is 80 wide; the default's narrowed with its rows."
             },
-            "tanrei.comp.navigation-drawer.collapsed.item.container.width": {
+            "tanrei.comp.navigation-drawer.collapsed.item.container.width.regular": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
