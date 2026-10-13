@@ -2,7 +2,7 @@
 title: "树视图"
 description: "由可以展开和折叠的项组成的层级结构。每深一级，行就多缩进一些；凡是包含其他项的行，开头都有一个 V 形箭头。它可以只供阅读和展开，也可以在其中选择一项或多项；它在焦点顺序中只占一个停靠点。"
 translationOf: components/tree-view.mdx
-sourceHash: 176bc2716230f0b577b66489a9f0b61d127247c3
+sourceHash: 28052c4faa3d22c7b1abecd14a506d12c439dd11
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -113,6 +113,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 标签 | 行的文本，放在一个元素里：`<bdi>`。它可以包含行内内容，例如一段行内代码。 |
 | 辅助文本 | 带 `data-supporting-text` 的元素，位于标签的元素之内、标签之后。 |
 | 图标 | 行里的一个 `.tanrei-icon`，里面是字形的名称。树自己没有代表文件夹或文件的字形。 |
+| 展开时的图标 | 父项的 `.tanrei-icon` 上的 `data-open-icon`：展开期间画的字形，比如 `folder` 旁边的 `folder_open`。 |
 | 后置内容 | 行里带 `data-trailing` 的元素：一个标签（Tag）、一个色块。树只安放它，不给它加样式。 |
 | 后置文本 | 行里带 `data-trailing-text` 的元素：一个数量、一个大小、一个值。只占一行。 |
 | 项自己的子项 | 行之后、同一个 `<li>` 之内的一个 `<ul>`。 |
@@ -131,8 +132,15 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | --- | --- | --- |
 | `change` | 用户更改了选择。在树上触发。 | 更改之后的 `value`（单选）或 `values`（多选） |
 | `toggle` | 用户或浏览器的页面内查找展开或折叠了一个父项。在 `<li>` 上触发，并且冒泡。 | `open` |
+| `rename` | 用户就地给一个项起了新名字。在 `<li>` 上触发，并且冒泡。 | `label`（去掉首尾空白的新名字）和 `previous` |
+| `create` | 用户为 `create()` 请求的新项起了名字。在树上触发。 | `label`、`parent`、`within` 和 `after`（它所在的和它之前的 `<li>`，没有则为 `null`） |
 
-你自己做出的更改，不会触发这两个事件中的任何一个。
+你自己做出的更改，不会触发这些事件中的任何一个。
+
+| 方法 | 作用 |
+| --- | --- |
+| `edit(li)` | 像 F2 一样，在一个项的名字上打开输入框。仅在树为 `editable` 时有效。 |
+| `create({ parent, icon })` | 在选中项旁边加一行新行，带一个空输入框用来起名。返回是否加上了。 |
 
 ## 规格
 
@@ -204,6 +212,69 @@ compact 的行比指针目标还矮。这是可以接受的，因为它是按名
 
 `guides` 从每个展开的父项向下画一道细线，位于它所包含的各行旁边。在很深的树里使用它，因为那里单靠缩进已经看不出哪些行是一组的。它不占空间。
 
+### 缩进
+
+<DemoFrame label="indent compact：文件夹下叶项的图标位于文件夹图标的正下方" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" indent="compact" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>src</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+        </ul>
+      </li>
+      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+| `indent` | 叶项的行 | 用于 |
+| --- | --- | --- |
+| `regular`（默认） | 保留空着的箭头框 | 同一层的图标和名字各自对齐成一列。 |
+| `compact` | 不保留箭头框 | 叶项的图标正好位于父项图标的下方，只有文件的一层不为它从不画的箭头占位置。 |
+
+每一层向里缩进多少，是各密度的令牌 `comp.tree-view.level.indent`。它的默认值是一个箭头框加一个间距，所以子项的箭头正好从父项图标开始的位置开始。在你的设计系统的层里可以把它设为任意值，所有平台都会跟随。
+
+### 会展开的文件夹
+
+<DemoFrame label="disclosure icon：文件夹字形表示展开和折叠，按下它即可展开或折叠" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" disclosure="icon" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+        </ul>
+      </li>
+      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+使用 `disclosure="icon"` 时不画箭头。图标指定了展开字形（`data-open-icon="folder_open"`）的父项，用字形表示展开和折叠；按下字形就像按下箭头一样展开或折叠它。没有展开字形的父项保留箭头，所以没有哪个父项会缺少表示状态的标记。在默认的 `disclosure="chevron"` 下，展开字形画在箭头旁边。
+
+### 重命名和新项
+
+设置 `editable` 后，双击一行的标签，或在有焦点的行上按 F2，名字会进入一个输入框，并选中扩展名之前的部分。按 Enter 或离开输入框即确定新名字；按 Escape 则放弃。树自己从不更改标签：它触发 `rename`，如果你接受这个名字，就由你来设置标签。
+
+```js
+tree.addEventListener('rename', (event) => {
+  const li = event.target;
+  if (renameFile(li.dataset.value, event.detail.label)) li.querySelector('bdi').textContent = event.detail.label;
+});
+
+newFileButton.addEventListener('click', () => tree.create({ icon: 'draft' }));
+newFolderButton.addEventListener('click', () => tree.create({ parent: true, icon: 'folder' }));
+tree.addEventListener('create', (event) => {
+  const li = makeItem(event.detail.label, event.detail.parent);
+  event.detail.after ? event.detail.after.after(li) : tree.querySelector('ul').append(li);
+});
+```
+
+`create()` 会在选中项旁边、同一层加一行树自己的行，带一个空输入框。在给出名字之前，你的数据里什么也不会加。`create` 带着这个名字，你据此加上的项会获得焦点。按 Escape 或名字为空时，什么也不会留下。用 `edit-label`（“名称”）或 `setWords({ editLabel })` 给输入框起名。
+
 ### 大型的树
 
 树给它什么就显示什么，它不滚动，也不会只绘制视野之内的行。请把它放进你自己的滚动框里。
@@ -224,7 +295,7 @@ compact 的行比指针目标还矮。这是可以接受的，因为它是按名
 
 ### 推荐
 
-- 用你的产品的语言写 `label`；只要有项可能处于加载中，也要写 `loading-label`。`loading-label` 也可以用 `setWords({ loadingLabel })` 为整个产品只给一次。
+- 用你的产品的语言写 `label`；只要有项可能处于加载中，也要写 `loading-label`；要重命名或给新项起名时，也要写 `edit-label`。`loading-label` 和 `edit-label` 也可以用 `setWords({ loadingLabel, editLabel })` 为整个产品只给一次。
 - 字形由你自己指定：文件夹和文件是你的产品里的种类，不是树的。
 - 让名称保持完整。标签会换行，绝不会被截断。
 
@@ -247,13 +318,15 @@ compact 的行比指针目标还矮。这是可以接受的，因为它是按名
 - 下方向键和上方向键在显示出来的行之间移动。右方向键展开父项，再按则进入其中。左方向键折叠它，再按则退到外面。在从右到左的布局中，左右方向键互换。
 - Home 和 End 前往第一行和最后一行。键入字母会移到标签以这些字母开头的下一行。`*` 展开与获得焦点的行同级的所有折叠着的父项。
 - Enter 和 Space 做的事与按下这一行相同。选择从不跟随焦点。
+- 设置 `editable` 时，F2 在有焦点的行的名字上打开输入框。Enter 确定名字，Escape 放弃，焦点回到这一行。输入法正在组字时，这两个键都归输入法。输入框的名称是 `edit-label`，新行是它那一层里带有输入框的树项。
+- 使用 `disclosure="icon"` 时，展开和折叠由字形和 `aria-expanded` 告知，从不只靠颜色。
 - 展开、折叠和选择都由行自己的状态来表明。不会朗读任何内容，焦点也不移动。
 - 父项折叠时如果获得焦点的行在它里面，焦点就交给这个父项。获得焦点的行被移除时，焦点交给它后面的那一行。
 - 焦点环画在行的内部，所以滚动框不会把它裁掉。在禁用的行上，焦点环仍以正常的浓度绘制：行变淡，焦点环不变淡。
 - V 形箭头、图标和引导线对辅助技术隐藏。加载行也是隐藏的：由父项说明它正忙。
 - 文本为 200% 时，标签会换行，行会增高。只有后置文本才会被截断。
 - 在强制颜色模式下，选中的行采用系统的选中颜色，并加上一道边线。
-- 调试构建会报告：空的 `label`、没有标签的项、行里的控件、不对应任何项的值、两个值相同的项，以及未知的 `density` 或 `selection`。
+- 调试构建会报告：空的 `label`、没有标签的项、行里的控件、不对应任何项的值、两个值相同的项、未知的 `density`、`selection`、`indent` 或 `disclosure`、在 `disclosure="icon"` 下没有展开字形的父项，以及没有 `edit-label` 的输入框。
 
 ### 需要你做的事
 

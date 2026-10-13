@@ -2,7 +2,7 @@
 title: العرض الشجري
 description: تسلسل هرمي من عناصر تُفتح وتُغلق. تبدأ الصفوف أبعد إلى الداخل مع كل مستوى، وفي بداية كل صف يحمل غيره سهم صغير. يُقرأ ويُفتح فقط، أو يُختار فيه عنصر واحد أو عدة عناصر، وهو موضع توقف واحد في ترتيب التركيز.
 translationOf: components/tree-view.mdx
-sourceHash: 176bc2716230f0b577b66489a9f0b61d127247c3
+sourceHash: 28052c4faa3d22c7b1abecd14a506d12c439dd11
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -113,6 +113,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | التسمية | نص الصف، في عنصر واحد: `<bdi>`. ويجوز أن تحمل محتوى مضمَّنًا كمقطع شيفرة. |
 | النص المساعد | عنصر له `data-supporting-text`، داخل عنصر التسمية، بعد التسمية. |
 | الأيقونة | عنصر له الصنف `.tanrei-icon` في الصف، يحمل اسم الرسم. وليس للشجرة رسم من عندها لمجلد أو ملف. |
+| أيقونة الفتح | السمة `data-open-icon` على عنصر `.tanrei-icon` لعنصر أب: الرسم الذي يُرسم ما دام مفتوحًا، مثل `folder_open` بجانب `folder`. |
 | محتوى النهاية | عنصر له `data-trailing` في الصف: وسم، أو عيّنة لون. يوضع في مكانه ولا يُنسَّق. |
 | نص النهاية | عنصر له `data-trailing-text` في الصف: عدد، أو حجم، أو قيمة. سطر واحد. |
 | عناصر العنصر نفسه | عنصر `<ul>` بعد الصف، داخل عنصر `<li>` نفسه. |
@@ -131,8 +132,15 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | --- | --- | --- |
 | `change` | غيّر المستخدم التحديد. يصدر على الشجرة. | `value` (للتحديد المفرد) أو `values` (للمتعدد)، بعد التغيير |
 | `toggle` | فتح المستخدم، أو البحث في الصفحة الخاص بالمتصفح، عنصرًا أبًا أو أغلقه. يصدر على عنصر `<li>`، ويصعد. | `open` |
+| `rename` | أعطى المستخدم عنصرًا اسمًا جديدًا في مكانه. يصدر على عنصر `<li>`، ويصعد. | `label` (الاسم الجديد، بلا مسافات في طرفيه) و`previous` |
+| `create` | سمّى المستخدم العنصر الجديد الذي طلبه `create()`. يصدر على الشجرة. | `label` و`parent` و`within` و`after` (عنصر `<li>` الذي يدخل فيه والذي يسبقه، أو `null`) |
 
-لا يصدر أي من الحدثين لتغيير تجريه أنت.
+لا يصدر أي من هذه الأحداث لتغيير تجريه أنت.
+
+| الدالة | ما تفعله |
+| --- | --- |
+| `edit(li)` | تفتح الحقل على اسم عنصر، كما يفعل F2. ما دامت الشجرة `editable` فقط. |
+| `create({ parent, icon })` | تضيف صفًّا جديدًا بجانب العنصر المحدَّد، فيه حقل فارغ لتسميته. وتُرجع هل أضافته. |
 
 ## المواصفات
 
@@ -204,6 +212,69 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 الخاصية `guides` ترسم خطًّا رفيعًا ينزل من كل عنصر أب مفتوح بجانب الصفوف التي يحملها. استخدمها في شجرة عميقة، حيث لم تعد الإزاحة وحدها تبيّن أي الصفوف ينتمي بعضها إلى بعض. ولا تأخذ حيّزًا.
 
+### الإزاحة
+
+<DemoFrame label="indent compact: أيقونات الأوراق تحت المجلد تقف تحت أيقونة المجلد" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="ملفات المشروع" indent="compact" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>src</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+        </ul>
+      </li>
+      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+| `indent` | صف الورقة | استخدمه لـ |
+| --- | --- | --- |
+| `regular` (الافتراضي) | يحتفظ بمربع السهم فارغًا | أن تقف أيقونات المستوى الواحد وأسماؤه كل منها في عمود واحد. |
+| `compact` | لا يحتفظ بأي مربع | أن تقف أيقونة الورقة تحت أيقونة أبيها، وألّا يأخذ مستوى من الملفات حيّزًا لسهم لا يرسمه أبدًا. |
+
+مقدار ما يدخل كل مستوى هو الرمز `comp.tree-view.level.indent` لكل كثافة. وقيمته الافتراضية مربع السهم وفجوة واحدة، فيقف سهم الابن حيث تبدأ أيقونة أبيه. اضبطه في طبقة نظام التصميم الخاص بك على أي مقدار؛ وتتبعه كل المنصات.
+
+### مجلدات تنفتح
+
+<DemoFrame label="disclosure icon: رسم المجلد يبيّن الفتح والإغلاق، والضغط عليه يفتحه ويغلقه" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="ملفات المشروع" disclosure="icon" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+        </ul>
+      </li>
+      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+مع `disclosure="icon"` لا يُرسم أي سهم. والعنصر الأب الذي تسمّي أيقونته رسمًا للفتح (`data-open-icon="folder_open"`) يبيّن بالرسم هل هو مفتوح أم مغلق، والضغطة على الرسم تفتحه وتغلقه كما تفعل الضغطة على السهم. والعنصر الأب الذي ليس له رسم للفتح يحتفظ بسهمه، فلا يبقى أب بلا علامة على حالته. ومع القيمة الافتراضية `disclosure="chevron"` يُرسم رسم الفتح بجانب السهم.
+
+### إعادة التسمية والعناصر الجديدة
+
+مع `editable`، النقر المزدوج على تسمية صف، أو F2 على الصف الذي عليه التركيز، يضع الاسم في حقل نصي، مع تحديد الجزء الذي يسبق الامتداد. والمفتاح Enter، أو مغادرة الحقل، يعطي الاسم الجديد؛ والمفتاح Escape يتخلى عنه. ولا تغيّر الشجرة أي تسمية بنفسها: بل تُصدر `rename`، وتغيّر أنت التسمية إن قبلت الاسم.
+
+```js
+tree.addEventListener('rename', (event) => {
+  const li = event.target;
+  if (renameFile(li.dataset.value, event.detail.label)) li.querySelector('bdi').textContent = event.detail.label;
+});
+
+newFileButton.addEventListener('click', () => tree.create({ icon: 'draft' }));
+newFolderButton.addEventListener('click', () => tree.create({ parent: true, icon: 'folder' }));
+tree.addEventListener('create', (event) => {
+  const li = makeItem(event.detail.label, event.detail.parent);
+  event.detail.after ? event.detail.after.after(li) : tree.querySelector('ul').append(li);
+});
+```
+
+تضيف `create()` صفًّا من صفوف الشجرة نفسها بجانب العنصر المحدَّد، في مستواه، فيه حقل فارغ. ولا يُضاف شيء إلى بياناتك حتى يُعطى اسم: يحمل `create` الاسم، والعنصر الذي تضيفه ردًّا عليه يأخذ التركيز. والمفتاح Escape، أو اسم فارغ، لا يترك شيئًا. أعطِ الحقل اسمه بالسمة `edit-label` («الاسم») أو بالاستدعاء `setWords({ editLabel })`.
+
 ### الأشجار الكبيرة
 
 تعرض الشجرة ما تُعطاه، ولا تُمرَّر، ولا تقتصر على رسم الصفوف الظاهرة. ضعها في صندوق تمرير من عندك.
@@ -224,7 +295,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### افعل
 
-- اكتب `label`، واكتب `loading-label` حيث قد يكون أي عنصر في حالة تحميل، بلغة منتجك. ويمكن أيضًا إعطاء `loading-label` مرة واحدة للمنتج كله، بالاستدعاء `setWords({ loadingLabel })`.
+- اكتب `label`، و`loading-label` حيث قد يكون أي عنصر في حالة تحميل، و`edit-label` حيث تُعاد تسمية العناصر أو تُسمّى عناصر جديدة، بلغة منتجك. ويمكن أيضًا إعطاء `loading-label` و`edit-label` مرة واحدة للمنتج كله، بالاستدعاء `setWords({ loadingLabel, editLabel })`.
 - سمِّ الرسوم بنفسك: المجلد والملف نوعان من منتجك، لا من الشجرة.
 - أبقِ الأسماء كاملة. التسمية تلتفّ ولا تُقصّ أبدًا.
 
@@ -247,13 +318,15 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - مفتاحا السهم للأسفل والسهم للأعلى ينقلان بين الصفوف المعروضة. ومفتاح السهم لليمين يفتح العنصر الأب، ثم يدخل فيه. ومفتاح السهم لليسار يغلقه، ثم يخرج منه. وفي التخطيط من اليمين إلى اليسار يتبادل مفتاحا اليسار واليمين.
 - المفتاحان Home و End يذهبان إلى الصف الأول والصف الأخير. وكتابة أحرف تنقل إلى الصف التالي الذي تبدأ تسميته بها. والمفتاح `*` يفتح كل عنصر أب مغلق في مستوى الصف الذي عليه التركيز.
 - المفتاحان Enter و Space يفعلان ما تفعله الضغطة على الصف. والتحديد لا يتبع التركيز أبدًا.
+- مع `editable`، يفتح F2 حقلًا نصيًا على اسم الصف الذي عليه التركيز. المفتاح Enter يعطي الاسم والمفتاح Escape يتخلى عنه، ويعود التركيز إلى الصف. وما دام أسلوب الإدخال يركّب النص، فالمفتاحان لأسلوب الإدخال. ويُسمّى الحقل بالسمة `edit-label`، والصف الجديد عنصر شجرة في مستواه يحمل الحقل.
+- مع `disclosure="icon"` يُعرف المفتوح والمغلق بالرسم وبالسمة `aria-expanded`، لا باللون وحده أبدًا.
 - الفتح والإغلاق والاختيار تقولها حالة الصف نفسه. لا يُعلَن شيء ولا ينتقل التركيز.
 - العنصر الأب الذي يُغلق حول الصف الذي عليه التركيز يأخذ التركيز. والصف الذي عليه التركيز ويُزال يعطي التركيز للصف الذي بعده.
 - حلقة التركيز تُرسم داخل الصف، فلا يقصّها صندوق تمرير. وعلى الصف المعطَّل تُرسم بكامل قوتها: يبهت الصف، ولا تبهت حلقته.
 - السهم الصغير والأيقونات وخطوط الإرشاد مخفية عن التقنيات المساعدة. والصف الذي يُرسم في أثناء التحميل مخفي أيضًا: العنصر الأب يقول إنه مشغول.
 - عند تكبير النص إلى 200% تلتفّ التسميات وتكبر الصفوف. ونص النهاية وحده يُقصّ.
 - في الألوان المفروضة (forced colors) يأخذ الصف المحدَّد ألوان التحديد في النظام وحافة.
-- يُبلَّغ في بنيات التنقيح عن `label` فارغة، وعن عنصر بلا تسمية، وعن عنصر تحكم في صف، وعن قيمة لا تسمّي أي عنصر، وعن عنصرين لهما قيمة واحدة، وعن قيمة غير معروفة للخاصية `density` أو `selection`.
+- يُبلَّغ في بنيات التنقيح عن `label` فارغة، وعن عنصر بلا تسمية، وعن عنصر تحكم في صف، وعن قيمة لا تسمّي أي عنصر، وعن عنصرين لهما قيمة واحدة، وعن قيمة غير معروفة للخاصية `density` أو `selection` أو `indent` أو `disclosure`، وعن عنصر أب بلا رسم للفتح مع `disclosure="icon"`، وعن حقل بلا `edit-label`.
 
 ### ما عليك فعله
 

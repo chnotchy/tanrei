@@ -2,7 +2,7 @@
 title: ツリービュー
 description: 開閉できる項目の階層です。行は段が深くなるごとに内側から始まり、ほかの項目を持つ行の先頭にはシェブロンが付きます。読んで開くだけのツリーにも、1 つまたは複数の項目を選ぶツリーにもなり、フォーカスが止まる位置は全体で 1 つです。
 translationOf: components/tree-view.mdx
-sourceHash: 176bc2716230f0b577b66489a9f0b61d127247c3
+sourceHash: 28052c4faa3d22c7b1abecd14a506d12c439dd11
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -113,6 +113,7 @@ Web では、プロダクト側の入れ子のリストを `<tanrei-tree-view>` 
 | ラベル | 行のテキスト。1 つの要素 `<bdi>` に入れます。コードなどのインラインのコンテンツも入れられます。 |
 | 補足テキスト | `data-supporting-text` を付けた要素。ラベルの要素の中、ラベルの後ろに置きます。 |
 | アイコン | 行の中の `.tanrei-icon`。グリフの名前を入れます。フォルダーやファイルのグリフをツリーは持ちません。 |
+| 開いたときのアイコン | 親の `.tanrei-icon` に付ける `data-open-icon`。開いている間に描くグリフで、`folder` に対する `folder_open` のようなものです。 |
 | 末尾のコンテンツ | 行の中の、`data-trailing` を付けた要素。タグや色見本など。配置するだけで、スタイルは付けません。 |
 | 末尾テキスト | 行の中の、`data-trailing-text` を付けた要素。件数、サイズ、値など。1 行です。 |
 | 項目の下位の項目 | 同じ `<li>` の中、行の後ろに置く `<ul>`。 |
@@ -131,8 +132,15 @@ Web では、プロダクト側の入れ子のリストを `<tanrei-tree-view>` 
 | --- | --- | --- |
 | `change` | ユーザーが選択を変えたとき。ツリーで発火します。 | 変更後の `value`（single）または `values`（multiple） |
 | `toggle` | ユーザー、またはブラウザーのページ内検索が、親を開閉したとき。`<li>` で発火し、バブリングします。 | `open` |
+| `rename` | ユーザーがその場で項目に新しい名前を付けたとき。`<li>` で発火し、バブリングします。 | `label`（前後の空白を除いた新しい名前）と `previous` |
+| `create` | `create()` で求めた新しい項目に、ユーザーが名前を付けたとき。ツリーで発火します。 | `label`、`parent`、`within` と `after`（入る先と直前の `<li>`、なければ `null`） |
 
-どちらのイベントも、利用者側のコードによる変更では発火しません。
+どのイベントも、利用者側のコードによる変更では発火しません。
+
+| メソッド | すること |
+| --- | --- |
+| `edit(li)` | F2 と同じく、項目の名前の上に入力欄を開きます。ツリーが `editable` のときだけです。 |
+| `create({ parent, icon })` | 選択中の項目の横に新しい行を加え、名前を入れる空の入力欄を開きます。加えたかどうかを返します。 |
 
 ## 仕様
 
@@ -204,6 +212,69 @@ compact の行は、ポインターのターゲットより低くなります。
 
 `guides` を設定すると、開いている親から、その下位の行の横に細い線を下へ引きます。インデントだけではどの行がまとまりなのか分かりにくい、深いツリーで使います。場所は取りません。
 
+### インデント
+
+<DemoFrame label="indent compact：フォルダーの下の葉のアイコンが、フォルダーのアイコンの真下に来る" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="プロジェクトのファイル" indent="compact" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>src</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+        </ul>
+      </li>
+      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+| `indent` | 葉の行 | 使う場面 |
+| --- | --- | --- |
+| `regular`（既定） | シェブロンの枠を空のまま保つ | 同じ段のアイコンと名前が、それぞれ 1 列にそろいます。 |
+| `compact` | 枠を保たない | 葉のアイコンが親のアイコンの真下に来て、ファイルだけの段は描かないシェブロンの場所を取りません。 |
+
+1 段ごとにどれだけ内側へ寄るかは、密度ごとのトークン `comp.tree-view.level.indent` です。既定値はシェブロンの枠と隙間 1 つ分なので、子のシェブロンは親のアイコンが始まる位置に来ます。デザインシステムのレイヤーで任意の量に変えられ、すべてのプラットフォームが従います。
+
+### 開くフォルダー
+
+<DemoFrame label="disclosure icon：フォルダーのグリフが開閉を示し、押すと開閉する" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="プロジェクトのファイル" disclosure="icon" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+        </ul>
+      </li>
+      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+`disclosure="icon"` ではシェブロンを描きません。アイコンに開いたときのグリフ（`data-open-icon="folder_open"`）を指定した親は、グリフで開閉を示し、そのグリフを押すとシェブロンと同じように開閉します。開いたときのグリフを持たない親はシェブロンを残すので、状態の印がない親はできません。既定の `disclosure="chevron"` では、開いたときのグリフはシェブロンの横に描きます。
+
+### 名前の変更と新しい項目
+
+`editable` を設定すると、行のラベルをダブルクリックするか、フォーカスのある行で F2 を押すと、名前が入力欄に入り、拡張子より前の部分が選ばれます。Enter を押すか入力欄を離れると新しい名前が確定し、Escape で取り消します。ツリーはラベルを自分では変えません。`rename` を発火し、その名前を受け入れるなら利用者側でラベルを書き換えます。
+
+```js
+tree.addEventListener('rename', (event) => {
+  const li = event.target;
+  if (renameFile(li.dataset.value, event.detail.label)) li.querySelector('bdi').textContent = event.detail.label;
+});
+
+newFileButton.addEventListener('click', () => tree.create({ icon: 'draft' }));
+newFolderButton.addEventListener('click', () => tree.create({ parent: true, icon: 'folder' }));
+tree.addEventListener('create', (event) => {
+  const li = makeItem(event.detail.label, event.detail.parent);
+  event.detail.after ? event.detail.after.after(li) : tree.querySelector('ul').append(li);
+});
+```
+
+`create()` は、選択中の項目の横、同じ段に、ツリー自身の行を加え、空の入力欄を開きます。名前が確定するまでデータには何も加わりません。`create` が名前を運び、それに応えて加えた項目にフォーカスが移ります。Escape や空の名前では何も残りません。入力欄の名前は `edit-label`（「名前」）か `setWords({ editLabel })` で渡します。
+
 ### 大きなツリー
 
 ツリーは渡されたものを表示します。自分ではスクロールせず、見えている行だけを描くこともしません。利用者側で用意した、スクロールするボックスの中に置きます。
@@ -224,7 +295,7 @@ compact の行は、ポインターのターゲットより低くなります。
 
 ### 推奨
 
-- `label` と、項目が読み込み中になりうるときの `loading-label` を、プロダクトの言語で書きます。`loading-label` は、`setWords({ loadingLabel })` でプロダクト全体に一度だけ渡すこともできます。
+- `label` と、項目が読み込み中になりうるときの `loading-label`、名前の変更や新しい項目の名付けを使うときの `edit-label` を、プロダクトの言語で書きます。`loading-label` と `edit-label` は、`setWords({ loadingLabel, editLabel })` でプロダクト全体に一度だけ渡すこともできます。
 - グリフの名前は利用者側で指定します。フォルダーやファイルはプロダクトの持つ種類で、ツリーの持つ種類ではありません。
 - 名前は全体を見せます。ラベルは折り返し、途中で切れることはありません。
 
@@ -247,13 +318,15 @@ compact の行は、ポインターのターゲットより低くなります。
 - 下矢印と上矢印は、表示されている行を順に移動します。右矢印は親を開き、開いていれば中に入ります。左矢印は親を閉じ、そうでなければ親の行に出ます。右から左のレイアウトでは左右が入れ替わります。
 - Home と End は最初と最後の行に移動します。文字を入力すると、その文字で始まるラベルの次の行に移動します。`*` は、フォーカスのある行と同じ段にある閉じた親をすべて開きます。
 - Enter と Space は、行を押したときと同じことをします。選択がフォーカスに付いて動くことはありません。
+- `editable` のとき、F2 でフォーカスのある行の名前の上に入力欄を開きます。Enter で確定、Escape で取り消し、フォーカスは行に戻ります。入力メソッドの変換中は、どちらのキーも入力メソッドのものです。入力欄の名前は `edit-label` で、新しい行は入力欄を持つ、その段のツリー項目です。
+- `disclosure="icon"` では、開閉はグリフと `aria-expanded` で伝わり、色だけで伝えることはありません。
 - 開く、閉じる、選ぶことは、行自身の状態で伝わります。何も読み上げず、フォーカスも動かしません。
 - フォーカスのある行を持つ親が閉じると、フォーカスはその親に移ります。フォーカスのある行が取り除かれると、次の行に移ります。
 - フォーカスリングは行の内側に描くので、スクロールするボックスに切られません。無効な行でも普段の濃さで描きます。行は薄くなりますが、リングは薄くなりません。
 - シェブロン、アイコン、ガイドは支援技術から隠します。読み込み中の行も隠します。親が、読み込み中であることを伝えます。
 - 文字サイズ 200% では、ラベルが折り返し、行が高くなります。切り詰められるのは末尾テキストだけです。
 - 強制カラーモードでは、選ばれた行はシステムの選択色になり、縁が付きます。
-- 空の `label`、ラベルのない項目、行の中のコントロール、どの項目の値でもない選択、同じ値を持つ 2 つの項目、未知の `density` や `selection` は、デバッグビルドで報告します。
+- 空の `label`、ラベルのない項目、行の中のコントロール、どの項目の値でもない選択、同じ値を持つ 2 つの項目、未知の `density`・`selection`・`indent`・`disclosure`、`disclosure="icon"` で開いたときのグリフを持たない親、`edit-label` のない入力欄は、デバッグビルドで報告します。
 
 ### 利用者側で行うこと
 

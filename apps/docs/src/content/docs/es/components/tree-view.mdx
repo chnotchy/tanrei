@@ -2,7 +2,7 @@
 title: Vista de árbol
 description: Una jerarquía de elementos que se abren y se cierran. Las filas empiezan más adentro en cada nivel, con un chevron al inicio de cada fila que contiene otras. Solo se lee y se abre, o bien en ella se eligen uno o varios elementos, y es una sola parada en el orden del foco.
 translationOf: components/tree-view.mdx
-sourceHash: 176bc2716230f0b577b66489a9f0b61d127247c3
+sourceHash: 28052c4faa3d22c7b1abecd14a506d12c439dd11
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -113,6 +113,7 @@ En la web es `<tanrei-tree-view>` alrededor de tus propias listas anidadas. Las 
 | La etiqueta | El texto de la fila, en un solo elemento: `<bdi>`. Puede incluir contenido en línea, como código en línea. |
 | El texto de apoyo | Un elemento con `data-supporting-text`, dentro del elemento de la etiqueta, después de la etiqueta. |
 | El icono | Un `.tanrei-icon` en la fila, que contiene el nombre del glifo. El árbol no tiene un glifo propio para una carpeta ni para un archivo. |
+| El icono abierto | `data-open-icon` en el `.tanrei-icon` de un padre: el glifo que se dibuja mientras está abierto, como `folder_open` junto a `folder`. |
 | El contenido final | Un elemento con `data-trailing` en la fila: un tag, una muestra de color. Se coloca y no se le aplica ningún estilo. |
 | El texto final | Un elemento con `data-trailing-text` en la fila: un recuento, un tamaño, un valor. Una sola línea. |
 | Los elementos propios de un elemento | Un `<ul>` después de la fila, dentro del mismo `<li>`. |
@@ -131,8 +132,15 @@ Una fila también puede contener su etiqueta como texto simple, sin un `<bdi>` a
 | --- | --- | --- |
 | `change` | La persona cambió la selección. En el árbol. | `value` (única) o `values` (múltiple), después del cambio |
 | `toggle` | La persona, o la búsqueda en la página del navegador, abrió o cerró un padre. En el `<li>`; se propaga. | `open` |
+| `rename` | La persona dio un nombre nuevo a un elemento en su sitio. En el `<li>`; se propaga. | `label` (el nombre nuevo, sin espacios en los extremos) y `previous` |
+| `create` | La persona dio nombre al elemento nuevo que pidió `create()`. En el árbol. | `label`, `parent`, `within` y `after` (el `<li>` en el que entra y el que lo precede, o `null`) |
 
-Ninguno de los dos eventos se emite por un cambio que haces tú.
+Ninguno de estos eventos se emite por un cambio que haces tú.
+
+| Método | Qué hace |
+| --- | --- |
+| `edit(li)` | Abre el campo sobre el nombre de un elemento, como F2. Solo mientras el árbol es `editable`. |
+| `create({ parent, icon })` | Añade una fila nueva junto al elemento seleccionado, con un campo vacío para darle nombre. Devuelve si la añadió. |
 
 ## Especificaciones
 
@@ -204,6 +212,69 @@ Una fila compacta es más baja que el objetivo de puntero. Se acepta porque se p
 
 `guides` dibuja una línea fina que baja desde cada padre abierto, junto a las filas que contiene. Úsalo en un árbol profundo, donde la sangría por sí sola ya no muestra qué filas van juntas. No ocupa espacio.
 
+### Sangría
+
+<DemoFrame label="indent compact: las hojas de una carpeta tienen su icono bajo el icono de la carpeta" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Archivos del proyecto" indent="compact" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>src</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+        </ul>
+      </li>
+      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+| `indent` | La fila de una hoja | Úsalo para |
+| --- | --- | --- |
+| `regular` (predeterminado) | Conserva la caja del chevron, vacía | Que los iconos y los nombres de un nivel queden cada uno en una columna. |
+| `compact` | No conserva ninguna caja | Que el icono de una hoja quede bajo el icono de su padre, y que un nivel de archivos no ocupe sitio para un chevron que nunca dibuja. |
+
+Cuánto entra cada nivel es el token `comp.tree-view.level.indent` de cada densidad. Su valor predeterminado es la caja del chevron más un espacio, de modo que el chevron de un hijo queda donde empieza el icono de su padre. Ponle cualquier valor en la capa de tu sistema de diseño; todas las plataformas lo siguen.
+
+### Carpetas que se abren
+
+<DemoFrame label="disclosure icon: el glifo de la carpeta muestra si está abierta, y una pulsación en él la abre y la cierra" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Archivos del proyecto" disclosure="icon" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+        </ul>
+      </li>
+      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+Con `disclosure="icon"` no se dibuja ningún chevron. Un padre cuyo icono nombra un glifo abierto (`data-open-icon="folder_open"`) muestra si está abierto o cerrado con su glifo, y una pulsación en el glifo lo abre y lo cierra como lo haría una pulsación en un chevron. Un padre sin glifo abierto conserva su chevron, así que ningún padre se queda sin una marca de su estado. Con el valor predeterminado `disclosure="chevron"` el glifo abierto se dibuja junto al chevron.
+
+### Cambiar nombres y elementos nuevos
+
+Con `editable`, un doble clic en la etiqueta de una fila, o F2 en una fila con el foco, pone el nombre en un campo de texto, con la parte anterior a la extensión seleccionada. Enter, o salir del campo, da el nombre nuevo; Escape lo descarta. El árbol no cambia ninguna etiqueta por sí mismo: emite `rename`, y tú pones la etiqueta si aceptas el nombre.
+
+```js
+tree.addEventListener('rename', (event) => {
+  const li = event.target;
+  if (renameFile(li.dataset.value, event.detail.label)) li.querySelector('bdi').textContent = event.detail.label;
+});
+
+newFileButton.addEventListener('click', () => tree.create({ icon: 'draft' }));
+newFolderButton.addEventListener('click', () => tree.create({ parent: true, icon: 'folder' }));
+tree.addEventListener('create', (event) => {
+  const li = makeItem(event.detail.label, event.detail.parent);
+  event.detail.after ? event.detail.after.after(li) : tree.querySelector('ul').append(li);
+});
+```
+
+`create()` añade una fila propia del árbol junto al elemento seleccionado, en su nivel, con un campo vacío. No se añade nada a tus datos hasta que se da un nombre: `create` lleva el nombre, y el elemento que añades en respuesta recibe el foco. Escape, o un nombre vacío, no deja nada. Da nombre al campo con `edit-label` («Nombre») o con `setWords({ editLabel })`.
+
 ### Árboles grandes
 
 El árbol muestra lo que se le da, no se desplaza y no dibuja solo las filas que están a la vista. Ponlo en tu propia caja de desplazamiento.
@@ -224,7 +295,7 @@ Todo se dibuja antes de que el script se cargue, salvo el relleno de selección,
 
 ### Recomendado
 
-- Escribe `label`, y `loading-label` donde algún elemento pueda estar cargándose, en el idioma de tu producto. `loading-label` también se puede dar una sola vez para todo el producto, con `setWords({ loadingLabel })`.
+- Escribe `label`, `loading-label` donde algún elemento pueda estar cargándose y `edit-label` donde se cambien nombres o se nombren elementos nuevos, en el idioma de tu producto. `loading-label` y `edit-label` también se pueden dar una sola vez para todo el producto, con `setWords({ loadingLabel, editLabel })`.
 - Nombra tú los glifos: una carpeta y un archivo son tipos de tu producto, no del árbol.
 - Mantén los nombres enteros. Una etiqueta salta de línea y nunca se corta.
 
@@ -247,13 +318,15 @@ Todo se dibuja antes de que el script se cargue, salvo el relleno de selección,
 - Flecha abajo y Flecha arriba recorren las filas que se muestran. Flecha derecha abre un padre y después entra en él. Flecha izquierda lo cierra y después sale de él. En un diseño de derecha a izquierda, Flecha izquierda y Flecha derecha se intercambian.
 - Inicio y Fin van a la primera y a la última fila. Al escribir letras, el foco pasa a la siguiente fila cuya etiqueta empieza por ellas. `*` abre todos los padres cerrados que están al mismo nivel que la fila que tiene el foco.
 - Enter y Espacio hacen lo mismo que una pulsación en la fila. La selección nunca sigue al foco.
+- Con `editable`, F2 abre un campo de texto sobre el nombre de la fila con el foco. Enter da el nombre y Escape lo descarta, y el foco vuelve a la fila. Mientras un método de entrada está componiendo, ambas teclas son del método de entrada. El campo se nombra con `edit-label`, y una fila nueva es un elemento del árbol de su nivel que contiene el campo.
+- Con `disclosure="icon"`, abierto y cerrado se comunican con el glifo y con `aria-expanded`, nunca solo con el color.
 - Abrir, cerrar y elegir se comunican mediante el propio estado de la fila. No se anuncia nada y el foco no se mueve.
 - Un padre que se cierra con la fila que tiene el foco dentro recibe el foco. Una fila con el foco que se quita da el foco a la fila que la sigue.
 - El anillo de foco se dibuja dentro de la fila, así que una caja de desplazamiento no lo recorta. En una fila deshabilitada se dibuja con toda su intensidad: la fila se atenúa, su anillo no.
 - El chevron, los iconos y las guías quedan ocultos para la tecnología de apoyo. La fila de carga también queda oculta: el padre dice que está ocupado.
 - Con el texto al 200%, las etiquetas saltan de línea y las filas crecen. Lo único que llega a cortarse es un texto final.
 - Con colores forzados, una fila seleccionada toma los colores de selección del sistema y un borde.
-- Las compilaciones de depuración notifican un `label` vacío, un elemento sin etiqueta, un control en una fila, un valor que no nombra ningún elemento, dos elementos con un mismo valor y un `density` o un `selection` desconocidos.
+- Las compilaciones de depuración notifican un `label` vacío, un elemento sin etiqueta, un control en una fila, un valor que no nombra ningún elemento, dos elementos con un mismo valor, un `density`, un `selection`, un `indent` o un `disclosure` desconocidos, un padre sin glifo abierto con `disclosure="icon"` y un campo sin `edit-label`.
 
 ### Qué debes hacer tú
 

@@ -111,6 +111,7 @@ On the web it is `<tanrei-tree-view>` around your own nested lists. The lists st
 | The label | The row's text, in one element: `<bdi>`. It may hold inline content such as a code span. |
 | The supporting text | An element with `data-supporting-text`, inside the label's element, after the label. |
 | The icon | A `.tanrei-icon` in the row, holding the glyph's name. The tree has no glyph of its own for a folder or a file. |
+| The open icon | `data-open-icon` on a parent's `.tanrei-icon`: the glyph drawn while it is open, such as `folder_open` beside `folder`. |
 | The trailing content | An element with `data-trailing` in the row: a tag, a swatch. It is placed and not styled. |
 | The trailing text | An element with `data-trailing-text` in the row: a count, a size, a value. One line. |
 | An item's own items | A `<ul>` after the row, inside the same `<li>`. |
@@ -129,8 +130,15 @@ A row may also hold its label as plain text, with no `<bdi>` around it. Use the 
 | --- | --- | --- |
 | `change` | The user changed the selection. On the tree. | `value` (single) or `values` (multiple), after the change |
 | `toggle` | The user, or the browser's find-in-page, opened or closed a parent. On the `<li>`; it bubbles. | `open` |
+| `rename` | The user gave an item a new name in place. On the `<li>`; it bubbles. | `label` (the new name, trimmed) and `previous` |
+| `create` | The user named the new item `create()` asked for. On the tree. | `label`, `parent`, `within` and `after` (the `<li>` it goes under and follows, or `null`) |
 
-Neither event fires for a change you make yourself.
+None of these fires for a change you make yourself.
+
+| Method | What it does |
+| --- | --- |
+| `edit(li)` | Opens the field on an item's name, as F2 does. Only while the tree is `editable`. |
+| `create({ parent, icon })` | Adds a new row beside the selected item, with an empty field to name it in. Returns whether it did. |
 
 ## Specs
 
@@ -202,6 +210,69 @@ A compact row is lower than the pointer target. That is accepted because it is a
 
 `guides` draws a hairline down from each open parent beside the rows it holds. Use it in a deep tree, where the indent alone no longer shows which rows belong together. It takes no space.
 
+### Indent
+
+<DemoFrame label="indent compact: the leaves under a folder have their icons under the folder's icon" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" indent="compact" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>src</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+        </ul>
+      </li>
+      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+| `indent` | A leaf's row | Use for |
+| --- | --- | --- |
+| `regular` (default) | Keeps the chevron's box, empty | Icons and names of one level each stand in one column. |
+| `compact` | Keeps no box | A leaf's icon stands under its parent's icon, and a level of files takes no room for a chevron it never draws. |
+
+How far each level steps in is the token `comp.tree-view.level.indent` of each density. Its default is the chevron's box and one gap, so a child's chevron stands where its parent's icon begins. Set it in your design system's layer to any amount; every platform follows.
+
+### Folders that open
+
+<DemoFrame label="disclosure icon: the folder glyph shows open and closed, and a press on it opens and closes" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" disclosure="icon" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+        </ul>
+      </li>
+      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+With `disclosure="icon"` no chevron is drawn. A parent whose icon names an open glyph (`data-open-icon="folder_open"`) shows open and closed by its glyph, and a press on the glyph opens and closes it as a press on a chevron does. A parent with no open glyph keeps its chevron, so no parent is left without a mark of its state. With the default `disclosure="chevron"` an open glyph is drawn beside the chevron.
+
+### Renaming and new items
+
+With `editable`, a double-click on a row's label or F2 on a focused row puts the name into a text field, with the name before its extension selected. Enter, or leaving the field, gives the new name; Escape gives it up. The tree changes no label itself: it fires `rename`, and you set the label if you accept the name.
+
+```js
+tree.addEventListener('rename', (event) => {
+  const li = event.target;
+  if (renameFile(li.dataset.value, event.detail.label)) li.querySelector('bdi').textContent = event.detail.label;
+});
+
+newFileButton.addEventListener('click', () => tree.create({ icon: 'draft' }));
+newFolderButton.addEventListener('click', () => tree.create({ parent: true, icon: 'folder' }));
+tree.addEventListener('create', (event) => {
+  const li = makeItem(event.detail.label, event.detail.parent);
+  event.detail.after ? event.detail.after.after(li) : tree.querySelector('ul').append(li);
+});
+```
+
+`create()` adds a row of the tree's own beside the selected item, at its level, with an empty field. Nothing is added to your data until a name is given: `create` carries the name, and the item you add in answer takes the focus. Escape, or an empty name, leaves nothing behind. Give the field its name with `edit-label` ("Name") or `setWords({ editLabel })`.
+
 ### Large trees
 
 The tree shows what it is given, does not scroll and does not draw only the rows in view. Place it in your own scrolling box.
@@ -222,7 +293,7 @@ Everything is drawn before the script loads except the selected fill, which appe
 
 ### Do
 
-- Write `label`, and `loading-label` where any item may be loading, in your product's language. `loading-label` can also be given once for the whole product, with `setWords({ loadingLabel })`.
+- Write `label`, `loading-label` where any item may be loading, and `edit-label` where names are edited or new items named, in your product's language. `loading-label` and `edit-label` can also be given once for the whole product, with `setWords({ loadingLabel, editLabel })`.
 - Name the glyphs yourself: a folder and a file are your product's kinds, not the tree's.
 - Keep names whole. A label wraps and is never cut.
 
@@ -245,13 +316,15 @@ Everything is drawn before the script loads except the selected fill, which appe
 - Down and Up move through the rows that are shown. Right opens a parent, then steps in. Left closes it, then steps out. In a right-to-left layout Left and Right swap.
 - Home and End go to the first and the last row. Typing letters moves to the next row whose label begins with them. `*` opens every closed parent among the focused row and its siblings.
 - Enter and Space do what a press on the row does. Selection never follows focus.
+- With `editable`, F2 opens a text field on the focused row's name. Enter gives the name and Escape gives it up, and focus goes back to the row. While an input method is composing, both keys are the input method's. The field is named by `edit-label`, and a new row is a tree item at its level holding the field.
+- With `disclosure="icon"` open and closed are told by the glyph and by `aria-expanded`, never by color.
 - Opening, closing and choosing are told by the row's own state. Nothing is announced and focus does not move.
 - A parent that closes around the focused row takes the focus. A focused row that is removed gives focus to the row after it.
 - The focus ring is drawn inside the row, so a scrolling box does not clip it. On a disabled row it is drawn at full strength: the row is faded, its ring is not.
 - The chevron, the icons and the guides are hidden from assistive technology. The loading row is hidden too: the parent says that it is busy.
 - At 200% text labels wrap and rows grow. Only a trailing text is ever cut.
 - In forced colors a selected row takes the system's selection colors and an edge.
-- An empty `label`, an item without a label, a control in a row, a value that names no item, two items with one value and an unknown `density` or `selection` are reported in debug builds.
+- An empty `label`, an item without a label, a control in a row, a value that names no item, two items with one value, an unknown `density`, `selection`, `indent` or `disclosure`, a parent with no open glyph under `disclosure="icon"` and a field without `edit-label` are reported in debug builds.
 
 ### What you need to do
 
