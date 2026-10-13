@@ -923,18 +923,20 @@ test.describe('behavior', () => {
   test('CRL-6 ripple (m3-like): the indicator and the playback control grow their pressed layer from the point of contact', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, system: 'm3-like', fixtures: only('autoplay-paused') });
     const id = 'autoplay-paused';
+    // A color is compared to four decimals: an engine may round a channel of the same color differently in the sixth.
+    const near = (color: string) => color.replace(/\d+\.\d+/g, (n) => Number(n).toFixed(4));
     for (const [control, locator] of [['indicator', indicator(page, id)], ['playback', playback(page, id)]] as const) {
       const box = await bounds(locator);
       await page.mouse.move(box.x + 6, box.y + 6);
       // Hovered, and its color arrived (CRL-22 animates it): the press is then seen to leave it as it is.
-      await expect.poll(() => css(locator, 'background-color'), control).toBe(await resolveColor(page, T(`${control}-hovered-container-color`)));
+      await expect.poll(async () => near(await css(locator, 'background-color')), control).toBe(near(await resolveColor(page, T(`${control}-hovered-container-color`))));
       await page.mouse.down();
       await expect(locator).toHaveAttribute('data-pressed', 'ripple');
       const ripple = locator.locator('.ripple');
       await expect(ripple).toHaveCount(1);
-      expect(await css(ripple, 'background-color'), control).toBe(await resolveColor(page, T(`${control}-pressed-container-color`)));
+      expect(near(await css(ripple, 'background-color')), control).toBe(near(await resolveColor(page, T(`${control}-pressed-container-color`))));
       // The container stays with the state under the press.
-      expect(await css(locator, 'background-color'), control).toBe(await resolveColor(page, T(`${control}-hovered-container-color`)));
+      expect(near(await css(locator, 'background-color')), control).toBe(near(await resolveColor(page, T(`${control}-hovered-container-color`))));
       await page.mouse.up();
       await page.mouse.move(1200, 700);
       await expect(ripple).toHaveCount(0);
@@ -1767,6 +1769,8 @@ test.describe('behavior', () => {
 
   test('CRL-27: loop scrolls without end — past the last item to the first — each item drawn once, passing to the other side at the edge slots; the track moves by whole turns at rest', async ({ page }) => {
     const id = 'loop';
+    // Read once the track has come to rest: WebKit may still be half a pixel from its first position just after mounting.
+    await atRest(page, id);
     // At rest: the last item (Dunes) fills the slot before the hero; the items at the edge slots are not drawn.
     expectNear([(await boxes(page, id))[4], (await boxes(page, id))[0], (await boxes(page, id))[1]], [[16, 76], [100, 200], [308, 76]]);
     expect([(await boxes(page, id))[2][1], (await boxes(page, id))[3][1]]).toEqual([0, 0]);
