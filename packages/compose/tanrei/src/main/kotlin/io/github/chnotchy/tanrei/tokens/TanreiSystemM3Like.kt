@@ -5855,8 +5855,10 @@ private object M3LikeSystemSource {
             containerPaddingBlock = 12.dp,
             containerPaddingInline = 12.dp,
             containerWidth = 360.dp,
+            headerColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
             headerGap = 24.dp,
             headerItemGap = 8.dp,
+            headerTypescale = typescale.heading5,
             headingColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             headingHeight = 36.dp,
             headingTypescale = typescale.heading6,
@@ -8034,6 +8036,9 @@ private object M3LikeSystemSource {
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionTransition = 0f,
+            primarySelectedLabelEmphasis = 0f,
+            secondarySelectedLabelEmphasis = 0f,
+            tonalSelectedLabelEmphasis = 200f,
             trackPadding = 0.dp,
             trackShape = 0.dp,
             trackVisible = 1f,
@@ -8395,8 +8400,8 @@ private object M3LikeSystemSource {
                 ),
             ),
             sizes = TanreiTabsSizes(
-                small = TanreiTabsSizeTokens(containerHeight = 32.dp, containerPaddingInline = 12.dp, activeIndicatorPaddingInline = 12.dp, activeIndicatorPaddingBlock = 2.dp, iconSize = 20.dp),
-                medium = TanreiTabsSizeTokens(containerHeight = 48.dp, containerPaddingInline = 16.dp, activeIndicatorPaddingInline = 16.dp, activeIndicatorPaddingBlock = 4.dp, iconSize = 24.dp),
+                small = TanreiTabsSizeTokens(containerHeight = 32.dp, containerPaddingInline = 12.dp, activeIndicatorPaddingInline = 12.dp, activeIndicatorPaddingBlock = 2.dp, iconSize = 20.dp, iconPlacement = 1f),
+                medium = TanreiTabsSizeTokens(containerHeight = 48.dp, containerPaddingInline = 16.dp, activeIndicatorPaddingInline = 16.dp, activeIndicatorPaddingBlock = 4.dp, iconSize = 24.dp, iconPlacement = 0f),
             ),
         )
 

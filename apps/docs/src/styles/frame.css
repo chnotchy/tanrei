@@ -207,6 +207,12 @@
   .docs-sidebar:not(:defined) tanrei-navigation-drawer-group:not([open]) > :where(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
     display: none;
   }
+  /* Where no script runs nothing can open a group: every group's rows are drawn. */
+  @media (scripting: none) {
+    .docs-sidebar:not(:defined) tanrei-navigation-drawer-group:not([open]) > :where(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
+      display: block;
+    }
+  }
   .docs-sidebar:not(:defined) tanrei-navigation-drawer-group::before,
   .docs-sidebar:not(:defined) tanrei-navigation-drawer-item > a {
     box-sizing: border-box;
@@ -221,15 +227,16 @@
     color: var(--tanrei-sys-color-on-surface-variant);
     text-decoration: none;
   }
+  /* A nested row's text starts one nest-indent further in per level; its row keeps the full width (NVD-13). */
   .docs-sidebar:not(:defined) tanrei-navigation-drawer-group > tanrei-navigation-drawer-item > a {
-    margin-inline-start: var(--tanrei-comp-navigation-drawer-item-nest-indent);
+    padding-inline-start: calc(var(--tanrei-comp-navigation-drawer-item-padding-inline) + var(--tanrei-comp-navigation-drawer-item-nest-indent));
   }
-  /* A group in a group — the components' categories: its row one step in, and its items two. */
+  /* A group in a group — the components' categories: its row's text one step in, and its items' two. */
   .docs-sidebar:not(:defined) tanrei-navigation-drawer-group > tanrei-navigation-drawer-group::before {
-    margin-inline-start: var(--tanrei-comp-navigation-drawer-item-nest-indent);
+    padding-inline-start: calc(var(--tanrei-comp-navigation-drawer-item-padding-inline) + var(--tanrei-comp-navigation-drawer-item-nest-indent));
   }
   .docs-sidebar:not(:defined) tanrei-navigation-drawer-group > tanrei-navigation-drawer-group > tanrei-navigation-drawer-item > a {
-    margin-inline-start: calc(2 * var(--tanrei-comp-navigation-drawer-item-nest-indent));
+    padding-inline-start: calc(var(--tanrei-comp-navigation-drawer-item-padding-inline) + 2 * var(--tanrei-comp-navigation-drawer-item-nest-indent));
   }
   /* The mark of a component a list shows on request, at the end of its row as the drawer's trailing text is. */
   .docs-sidebar:not(:defined) .docs-sidebar-mark {

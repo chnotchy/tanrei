@@ -2,7 +2,7 @@
 title: アプリシェル
 description: ページやアプリの枠組みです。ヘッダー、ナビゲーション、メインコンテンツ、アサイド、フッターを配置し、ウィンドウの幅からそれぞれの見せ方を決め、キーボードでは 1 回の操作でコンテンツに届くようにします。
 translationOf: components/app-shell.mdx
-sourceHash: 2edf8f86601639e5c955456b820082161532f975
+sourceHash: b0533c6c20102f75d922adf1e96c3bd00dd7d019
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -126,6 +126,7 @@ Web では、利用者側の領域を `<tanrei-app-shell>` で囲みます。こ
 - ふつうは `page` を使います。ページ内検索、見出しへのリンク、読んでいた位置への復帰、スマートフォンのブラウザーで折りたたまれるバーが、どれもシェルのないページと同じように働きます。
 - `headerPosition: static` にすると、ヘッダーはページと一緒にスクロールして見えなくなります。
 - Web で `scroll: main` を使うときは、アプリバーの `scroll-target` に、メインの要素の id を指定します。
+- Web で `scroll: main` を使うとき、（compact か medium のウィンドウで）メインコンテンツの上か下に描くアサイドは、メインの領域がスクロールしても動きません。いまはまだ一緒にスクロールしません。ページと一緒にスクロールさせたい内容は `<main>` の中に置きます。
 - Web では、JavaScript のプロパティは `scrolls` です。どの要素にも、すでに `scroll()` メソッドがあるためです。属性は `scroll` です。
 
 ### 見出しへのリンクはヘッダーの下で止まる

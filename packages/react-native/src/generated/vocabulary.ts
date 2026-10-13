@@ -3347,8 +3347,10 @@ export interface TanreiNavigationDrawerTokens {
   readonly containerWidth: number;
   readonly disabledOpacity: number;
   readonly focusedOpacity: number;
+  readonly headerColor: TanreiPaint;
   readonly headerGap: number;
   readonly headerItemGap: number;
+  readonly headerTypescale: TanreiTypescaleRole;
   readonly headingColor: TanreiPaint;
   readonly headingHeight: number;
   readonly headingTypescale: TanreiTypescaleRole;
@@ -4790,6 +4792,7 @@ export interface TanreiTabsSizeTokens {
   readonly activeIndicatorPaddingInline: number;
   readonly activeIndicatorPaddingBlock: number;
   readonly iconSize: number;
+  readonly iconPlacement: number;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiTabsSizes = { readonly [Key in TanreiCoreTabsSize]: TanreiTabsSizeTokens } & { readonly [Key in TanreiTabsSize]?: TanreiTabsSizeTokens };
@@ -4816,6 +4819,9 @@ export interface TanreiTabsTokens {
   readonly motionStateEasing: TanreiCubicBezier;
   readonly motionTransition: number;
   readonly pressedOpacity: number;
+  readonly primarySelectedLabelEmphasis: number;
+  readonly secondarySelectedLabelEmphasis: number;
+  readonly tonalSelectedLabelEmphasis: number;
   readonly trackPadding: number;
   readonly trackShape: number;
   readonly trackVisible: number;

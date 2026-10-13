@@ -9136,8 +9136,10 @@ export const tanrei = {
       containerWidth: 240,
       disabledOpacity: 1,
       focusedOpacity: 1,
+      headerColor: { kind: "role", role: "onSurface" },
       headerGap: 24,
       headerItemGap: 8,
+      headerTypescale: "heading5",
       headingColor: { kind: "role", role: "onSurfaceVariant" },
       headingHeight: 36,
       headingTypescale: "labelSmall",
@@ -14284,6 +14286,9 @@ export const tanrei = {
       motionStateEasing: [0.2, 0, 0, 1],
       motionTransition: 0,
       pressedOpacity: 1,
+      primarySelectedLabelEmphasis: 0,
+      secondarySelectedLabelEmphasis: 0,
+      tonalSelectedLabelEmphasis: 100,
       trackPadding: 4,
       trackShape: 9999,
       trackVisible: 1,
@@ -14310,7 +14315,7 @@ export const tanrei = {
             selectedCoveredIconColor: { kind: "role", role: "onPrimary" },
             selectedActiveIndicatorColor: { kind: "role", role: "primary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            selectedStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           hovered: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -14334,7 +14339,7 @@ export const tanrei = {
             selectedContainerColor: {
               kind: "mix",
               base: { kind: "none" },
-              with: { kind: "role", role: "onSecondaryContainer" },
+              with: { kind: "role", role: "onPrimary" },
               amount: 0.08,
             },
             selectedLabelColor: { kind: "role", role: "onSecondaryContainer" },
@@ -14343,7 +14348,7 @@ export const tanrei = {
             selectedCoveredIconColor: { kind: "role", role: "onPrimary" },
             selectedActiveIndicatorColor: { kind: "role", role: "primary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            selectedStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           focused: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -14367,7 +14372,7 @@ export const tanrei = {
             selectedContainerColor: {
               kind: "mix",
               base: { kind: "none" },
-              with: { kind: "role", role: "onSecondaryContainer" },
+              with: { kind: "role", role: "onPrimary" },
               amount: 0.1,
             },
             selectedLabelColor: { kind: "role", role: "onSecondaryContainer" },
@@ -14376,7 +14381,7 @@ export const tanrei = {
             selectedCoveredIconColor: { kind: "role", role: "onPrimary" },
             selectedActiveIndicatorColor: { kind: "role", role: "primary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            selectedStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           pressed: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -14400,7 +14405,7 @@ export const tanrei = {
             selectedContainerColor: {
               kind: "mix",
               base: { kind: "none" },
-              with: { kind: "role", role: "onSecondaryContainer" },
+              with: { kind: "role", role: "onPrimary" },
               amount: 0.1,
             },
             selectedLabelColor: { kind: "role", role: "onSecondaryContainer" },
@@ -14409,7 +14414,7 @@ export const tanrei = {
             selectedCoveredIconColor: { kind: "role", role: "onPrimary" },
             selectedActiveIndicatorColor: { kind: "role", role: "primary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            selectedStateLayerColor: { kind: "role", role: "onPrimary" },
           },
           disabled: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -14501,7 +14506,7 @@ export const tanrei = {
             selectedCoveredIconColor: { kind: "role", role: "onSecondary" },
             selectedActiveIndicatorColor: { kind: "role", role: "secondary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            selectedStateLayerColor: { kind: "role", role: "onSecondary" },
           },
           hovered: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -14525,7 +14530,7 @@ export const tanrei = {
             selectedContainerColor: {
               kind: "mix",
               base: { kind: "none" },
-              with: { kind: "role", role: "onSecondaryContainer" },
+              with: { kind: "role", role: "onSecondary" },
               amount: 0.08,
             },
             selectedLabelColor: { kind: "role", role: "onSecondaryContainer" },
@@ -14534,7 +14539,7 @@ export const tanrei = {
             selectedCoveredIconColor: { kind: "role", role: "onSecondary" },
             selectedActiveIndicatorColor: { kind: "role", role: "secondary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            selectedStateLayerColor: { kind: "role", role: "onSecondary" },
           },
           focused: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -14558,7 +14563,7 @@ export const tanrei = {
             selectedContainerColor: {
               kind: "mix",
               base: { kind: "none" },
-              with: { kind: "role", role: "onSecondaryContainer" },
+              with: { kind: "role", role: "onSecondary" },
               amount: 0.1,
             },
             selectedLabelColor: { kind: "role", role: "onSecondaryContainer" },
@@ -14567,7 +14572,7 @@ export const tanrei = {
             selectedCoveredIconColor: { kind: "role", role: "onSecondary" },
             selectedActiveIndicatorColor: { kind: "role", role: "secondary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            selectedStateLayerColor: { kind: "role", role: "onSecondary" },
           },
           pressed: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -14591,7 +14596,7 @@ export const tanrei = {
             selectedContainerColor: {
               kind: "mix",
               base: { kind: "none" },
-              with: { kind: "role", role: "onSecondaryContainer" },
+              with: { kind: "role", role: "onSecondary" },
               amount: 0.1,
             },
             selectedLabelColor: { kind: "role", role: "onSecondaryContainer" },
@@ -14600,7 +14605,7 @@ export const tanrei = {
             selectedCoveredIconColor: { kind: "role", role: "onSecondary" },
             selectedActiveIndicatorColor: { kind: "role", role: "secondary" },
             selectedUnderlineColor: { kind: "none" },
-            selectedStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+            selectedStateLayerColor: { kind: "role", role: "onSecondary" },
           },
           disabled: {
             trackColor: { kind: "role", role: "secondaryContainer" },
@@ -14879,8 +14884,8 @@ export const tanrei = {
         },
       },
       sizes: {
-        small: { containerHeight: 32, containerPaddingInline: 12, activeIndicatorPaddingInline: 12, activeIndicatorPaddingBlock: 2, iconSize: 20 },
-        medium: { containerHeight: 48, containerPaddingInline: 16, activeIndicatorPaddingInline: 16, activeIndicatorPaddingBlock: 4, iconSize: 24 },
+        small: { containerHeight: 32, containerPaddingInline: 12, activeIndicatorPaddingInline: 12, activeIndicatorPaddingBlock: 2, iconSize: 20, iconPlacement: 1 },
+        medium: { containerHeight: 48, containerPaddingInline: 16, activeIndicatorPaddingInline: 16, activeIndicatorPaddingBlock: 4, iconSize: 24, iconPlacement: 0 },
       },
     },
     tagGroup: {

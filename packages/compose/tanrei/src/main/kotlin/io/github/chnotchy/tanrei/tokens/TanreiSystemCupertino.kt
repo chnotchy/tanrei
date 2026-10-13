@@ -5724,8 +5724,10 @@ private object CupertinoSystemSource {
             containerPaddingBlock = 12.dp,
             containerPaddingInline = 12.dp,
             containerWidth = 240.dp,
+            headerColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
             headerGap = 24.dp,
             headerItemGap = 8.dp,
+            headerTypescale = typescale.heading5,
             headingColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             headingHeight = 36.dp,
             headingTypescale = typescale.labelSmall,
@@ -7903,6 +7905,9 @@ private object CupertinoSystemSource {
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             motionTransition = 0f,
+            primarySelectedLabelEmphasis = 0f,
+            secondarySelectedLabelEmphasis = 0f,
+            tonalSelectedLabelEmphasis = 200f,
             trackPadding = 4.dp,
             trackShape = 9999.dp,
             trackVisible = 1f,
@@ -7933,7 +7938,7 @@ private object CupertinoSystemSource {
                         selectedCoveredIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         selectedActiveIndicatorColor = TanreiPaint.Role(TanreiColorRole.Primary),
                         selectedUnderlineColor = TanreiPaint.None,
-                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                     ),
                     hovered = TanreiTabsVariantStateTokens(
                         trackColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
@@ -7956,7 +7961,7 @@ private object CupertinoSystemSource {
                         selectedCoveredIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         selectedActiveIndicatorColor = TanreiPaint.Role(TanreiColorRole.Primary),
                         selectedUnderlineColor = TanreiPaint.None,
-                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                     ),
                     focused = TanreiTabsVariantStateTokens(
                         trackColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
@@ -7979,7 +7984,7 @@ private object CupertinoSystemSource {
                         selectedCoveredIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         selectedActiveIndicatorColor = TanreiPaint.Role(TanreiColorRole.Primary),
                         selectedUnderlineColor = TanreiPaint.None,
-                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                     ),
                     pressed = TanreiTabsVariantStateTokens(
                         trackColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
@@ -8002,7 +8007,7 @@ private object CupertinoSystemSource {
                         selectedCoveredIconColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                         selectedActiveIndicatorColor = TanreiPaint.Role(TanreiColorRole.Primary),
                         selectedUnderlineColor = TanreiPaint.None,
-                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnPrimary),
                     ),
                     disabled = TanreiTabsVariantStateTokens(
                         trackColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
@@ -8050,7 +8055,7 @@ private object CupertinoSystemSource {
                         selectedCoveredIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondary),
                         selectedActiveIndicatorColor = TanreiPaint.Role(TanreiColorRole.Secondary),
                         selectedUnderlineColor = TanreiPaint.None,
-                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondary),
                     ),
                     hovered = TanreiTabsVariantStateTokens(
                         trackColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
@@ -8073,7 +8078,7 @@ private object CupertinoSystemSource {
                         selectedCoveredIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondary),
                         selectedActiveIndicatorColor = TanreiPaint.Role(TanreiColorRole.Secondary),
                         selectedUnderlineColor = TanreiPaint.None,
-                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondary),
                     ),
                     focused = TanreiTabsVariantStateTokens(
                         trackColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
@@ -8096,7 +8101,7 @@ private object CupertinoSystemSource {
                         selectedCoveredIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondary),
                         selectedActiveIndicatorColor = TanreiPaint.Role(TanreiColorRole.Secondary),
                         selectedUnderlineColor = TanreiPaint.None,
-                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondary),
                     ),
                     pressed = TanreiTabsVariantStateTokens(
                         trackColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
@@ -8119,7 +8124,7 @@ private object CupertinoSystemSource {
                         selectedCoveredIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondary),
                         selectedActiveIndicatorColor = TanreiPaint.Role(TanreiColorRole.Secondary),
                         selectedUnderlineColor = TanreiPaint.None,
-                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.Primary),
+                        selectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondary),
                     ),
                     disabled = TanreiTabsVariantStateTokens(
                         trackColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
@@ -8264,8 +8269,8 @@ private object CupertinoSystemSource {
                 ),
             ),
             sizes = TanreiTabsSizes(
-                small = TanreiTabsSizeTokens(containerHeight = 32.dp, containerPaddingInline = 12.dp, activeIndicatorPaddingInline = 12.dp, activeIndicatorPaddingBlock = 2.dp, iconSize = 20.dp),
-                medium = TanreiTabsSizeTokens(containerHeight = 48.dp, containerPaddingInline = 16.dp, activeIndicatorPaddingInline = 16.dp, activeIndicatorPaddingBlock = 4.dp, iconSize = 20.dp),
+                small = TanreiTabsSizeTokens(containerHeight = 32.dp, containerPaddingInline = 12.dp, activeIndicatorPaddingInline = 12.dp, activeIndicatorPaddingBlock = 2.dp, iconSize = 20.dp, iconPlacement = 1f),
+                medium = TanreiTabsSizeTokens(containerHeight = 48.dp, containerPaddingInline = 16.dp, activeIndicatorPaddingInline = 16.dp, activeIndicatorPaddingBlock = 4.dp, iconSize = 20.dp, iconPlacement = 0f),
             ),
         )
 

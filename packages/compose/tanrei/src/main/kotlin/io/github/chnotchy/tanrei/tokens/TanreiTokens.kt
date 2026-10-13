@@ -6842,8 +6842,10 @@ public data class TanreiNavigationDrawerTokens(
     public val containerPaddingBlock: Dp,
     public val containerPaddingInline: Dp,
     public val containerWidth: Dp,
+    public val headerColor: TanreiPaint,
     public val headerGap: Dp,
     public val headerItemGap: Dp,
+    public val headerTypescale: TanreiTextStyle,
     public val headingColor: TanreiPaint,
     public val headingHeight: Dp,
     public val headingTypescale: TanreiTextStyle,
@@ -6892,6 +6894,7 @@ public data class TanreiNavigationDrawerTokens(
     }
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(headerColor.roles())
         addAll(headingColor.roles())
         addAll(scrimColor.roles())
         addAll(variants.referencedRoles())
@@ -9707,6 +9710,7 @@ public data class TanreiTabsSizeTokens(
     public val activeIndicatorPaddingInline: Dp,
     public val activeIndicatorPaddingBlock: Dp,
     public val iconSize: Dp,
+    public val iconPlacement: Float,
 )
 
 /**
@@ -9757,6 +9761,9 @@ public data class TanreiTabsTokens(
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val motionTransition: Float,
+    public val primarySelectedLabelEmphasis: Float,
+    public val secondarySelectedLabelEmphasis: Float,
+    public val tonalSelectedLabelEmphasis: Float,
     public val trackPadding: Dp,
     public val trackShape: Dp,
     public val trackVisible: Float,

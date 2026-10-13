@@ -8,8 +8,10 @@
 //   and a modal drawer the header's menu button opens in a compact one (NVD-53; APS-4).
 // - Every destination is a link with the page's own address; the drawer's `value` is the address of the page
 //   being read, so that page is the one marked `aria-current="page"`, its group is open and it is in view (NVD-57, 58).
-// - The sidebar's groups are the drawer's groups, all open as they are today; the reader's closed groups and the place
-//   the list was scrolled to are kept for the session by the script below (NVD-61, 62: the drawer stores nothing).
+// - The sidebar's groups are the drawer's groups. Only the groups that hold the page being read are written open, so a
+//   long tree stays short at the drawer's full row height; the groups the reader opened or closed and the place the
+//   list was scrolled to are kept for the session by the script below (NVD-61, 62: the drawer stores nothing). Where
+//   no script runs every group's rows are drawn (styles/frame.css), since nothing could open one.
 //
 // The Components group is drawn from the specs (lib/listing.mjs, `sidebarTree`): each component in a group of its
 // category, and one a spec marks to be shown on request (`listing`) marked — with the word at the end
@@ -35,13 +37,15 @@ const base = localeBase(Astro);
 // drawer's `value` and the page's trail still read the framework's own (`sidebar`).
 const drawn = sidebarTree(sidebar, statusComponents, listings, base, (category) => t.category[category] ?? category) as Entry[];
 
+/** Whether the page being read is among a group's entries, at any depth: that group is written open. */
+const holdsCurrent = (entry: Entry): boolean => (entry.type === 'link' ? !!entry.isCurrent : entry.entries.some(holdsCurrent));
 const escape = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const cells = (entries: Entry[], top: boolean): string =>
   entries
     .map((entry) =>
       entry.type === 'link'
         ? `<tanrei-navigation-drawer-item label="${escape(entry.label)}" href="${escape(entry.href)}"${top ? ' icon="article"' : ''}${entry.onRequest ? ` ${ON_REQUEST_ATTR} trailing-text="${escape(t.listing.advanced)}"` : entry.badge ? ` trailing-text="${escape(entry.badge.text)}"` : ''}><a href="${escape(entry.href)}"${entry.isCurrent ? ' aria-current="page"' : ''}>${escape(entry.label)}${entry.onRequest ? ` <span class="docs-sidebar-mark">${escape(t.listing.advanced)}</span>` : ''}</a></tanrei-navigation-drawer-item>`
-        : `<tanrei-navigation-drawer-group label="${escape(entry.label)}"${top ? ` icon="${groupIcon(entry, base)}"` : ''}${entry.collapsed ? '' : ' open'}>${cells(entry.entries, false)}</tanrei-navigation-drawer-group>`,
+        : `<tanrei-navigation-drawer-group label="${escape(entry.label)}"${top ? ` icon="${groupIcon(entry, base)}"` : ''}${holdsCurrent(entry) ? ' open' : ''}>${cells(entry.entries, false)}</tanrei-navigation-drawer-group>`,
     )
     .join('');
 ---

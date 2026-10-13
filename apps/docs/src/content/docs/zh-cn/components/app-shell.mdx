@@ -2,7 +2,7 @@
 title: "应用外壳"
 description: "为页面或应用搭起框架。它安放页眉、导航、主内容、侧栏和页脚，根据窗口的宽度决定各自的呈现方式，并让键盘一步就能到达内容。"
 translationOf: components/app-shell.mdx
-sourceHash: 2edf8f86601639e5c955456b820082161532f975
+sourceHash: b0533c6c20102f75d922adf1e96c3bd00dd7d019
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -126,6 +126,7 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 - 优先使用 `page`。页面内查找、指向标题的链接、回到读者先前所在的位置，以及手机浏览器会收起的工具栏，都与没有外壳的页面一样工作。
 - `headerPosition: static` 让页眉随页面一起滚走。
 - 在 Web 上使用 `scroll: main` 时，请把主内容元素的 id 写进应用栏的 `scroll-target`。
+- 在 Web 上使用 `scroll: main` 时，画在主内容上方或下方的侧栏（在 compact 或 medium 窗口中）在主内容区域滚动时停在原处；它目前还不会随之滚动。应当随页面滚动的内容要放在 `<main>` 里面。
 - 在 Web 上，对应的 JavaScript 属性是 `scrolls`，因为每个元素都已经有一个 `scroll()` 方法。属性（attribute）仍是 `scroll`。
 
 ### 指向标题的链接停在页眉下方

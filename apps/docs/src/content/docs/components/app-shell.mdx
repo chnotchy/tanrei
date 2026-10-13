@@ -124,6 +124,7 @@ Put one icon-only Button in the header and mark it with `data-app-shell-menu`. T
 - Prefer `page`. Find-in-page, links to a heading, the return to where a reader was and a phone browser's collapsing bars all work as on a page without a shell.
 - `headerPosition: static` lets the header scroll away with the page.
 - With `scroll: main` on the web, name the main element's id in the app bar's `scroll-target`.
+- With `scroll: main` on the web, an aside drawn above or below the main content (in a compact or medium window) stays in place while the main region scrolls; it does not yet scroll with it. Content that should scroll with the page belongs inside the `<main>`.
 - On the web the JavaScript property is `scrolls`, because every element already has a `scroll()` method. The attribute is `scroll`.
 
 ### Links to a heading rest below the header

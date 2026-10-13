@@ -10807,8 +10807,10 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var containerPaddingBlock: CGFloat
   public var containerPaddingInline: CGFloat
   public var containerWidth: CGFloat
+  public var headerColor: TanreiPaint
   public var headerGap: CGFloat
   public var headerItemGap: CGFloat
+  public var headerTypescale: TanreiTextStyle
   public var headingColor: TanreiPaint
   public var headingHeight: CGFloat
   public var headingTypescale: TanreiTextStyle
@@ -10865,8 +10867,10 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     containerPaddingBlock: CGFloat,
     containerPaddingInline: CGFloat,
     containerWidth: CGFloat,
+    headerColor: TanreiPaint,
     headerGap: CGFloat,
     headerItemGap: CGFloat,
+    headerTypescale: TanreiTextStyle,
     headingColor: TanreiPaint,
     headingHeight: CGFloat,
     headingTypescale: TanreiTextStyle,
@@ -10918,8 +10922,10 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.containerPaddingBlock = containerPaddingBlock
     self.containerPaddingInline = containerPaddingInline
     self.containerWidth = containerWidth
+    self.headerColor = headerColor
     self.headerGap = headerGap
     self.headerItemGap = headerItemGap
+    self.headerTypescale = headerTypescale
     self.headingColor = headingColor
     self.headingHeight = headingHeight
     self.headingTypescale = headingTypescale
@@ -15579,19 +15585,22 @@ public struct TanreiTabsSizeTokens: Sendable, Equatable {
   public var activeIndicatorPaddingInline: CGFloat
   public var activeIndicatorPaddingBlock: CGFloat
   public var iconSize: CGFloat
+  public var iconPlacement: Double
 
   public init(
     containerHeight: CGFloat,
     containerPaddingInline: CGFloat,
     activeIndicatorPaddingInline: CGFloat,
     activeIndicatorPaddingBlock: CGFloat,
-    iconSize: CGFloat
+    iconSize: CGFloat,
+    iconPlacement: Double
   ) {
     self.containerHeight = containerHeight
     self.containerPaddingInline = containerPaddingInline
     self.activeIndicatorPaddingInline = activeIndicatorPaddingInline
     self.activeIndicatorPaddingBlock = activeIndicatorPaddingBlock
     self.iconSize = iconSize
+    self.iconPlacement = iconPlacement
   }
 }
 
@@ -15660,6 +15669,9 @@ public struct TanreiTabsTokens: Sendable, Equatable {
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var motionTransition: Double
+  public var primarySelectedLabelEmphasis: Double
+  public var secondarySelectedLabelEmphasis: Double
+  public var tonalSelectedLabelEmphasis: Double
   public var trackPadding: CGFloat
   public var trackShape: CGFloat
   public var trackVisible: Double
@@ -15688,6 +15700,9 @@ public struct TanreiTabsTokens: Sendable, Equatable {
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     motionTransition: Double,
+    primarySelectedLabelEmphasis: Double,
+    secondarySelectedLabelEmphasis: Double,
+    tonalSelectedLabelEmphasis: Double,
     trackPadding: CGFloat,
     trackShape: CGFloat,
     trackVisible: Double,
@@ -15711,6 +15726,9 @@ public struct TanreiTabsTokens: Sendable, Equatable {
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.motionTransition = motionTransition
+    self.primarySelectedLabelEmphasis = primarySelectedLabelEmphasis
+    self.secondarySelectedLabelEmphasis = secondarySelectedLabelEmphasis
+    self.tonalSelectedLabelEmphasis = tonalSelectedLabelEmphasis
     self.trackPadding = trackPadding
     self.trackShape = trackShape
     self.trackVisible = trackVisible
