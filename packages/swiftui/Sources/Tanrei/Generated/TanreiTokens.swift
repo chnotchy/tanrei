@@ -11327,6 +11327,7 @@ public struct TanreiOneTimeCodeInputStateTokens: Sendable, Equatable {
 
 /// Component tokens of one-time-code-input (comp.one-time-code-input).
 public struct TanreiOneTimeCodeInputTokens: Sendable, Equatable {
+  public var caretWidth: CGFloat
   public var containerGap: CGFloat
   public var containerHeight: CGFloat
   public var containerPaddingInline: CGFloat
@@ -11347,6 +11348,7 @@ public struct TanreiOneTimeCodeInputTokens: Sendable, Equatable {
   public var disabled: TanreiOneTimeCodeInputStateTokens
 
   public init(
+    caretWidth: CGFloat,
     containerGap: CGFloat,
     containerHeight: CGFloat,
     containerPaddingInline: CGFloat,
@@ -11363,6 +11365,7 @@ public struct TanreiOneTimeCodeInputTokens: Sendable, Equatable {
     focused: TanreiOneTimeCodeInputStateTokens,
     disabled: TanreiOneTimeCodeInputStateTokens
   ) {
+    self.caretWidth = caretWidth
     self.containerGap = containerGap
     self.containerHeight = containerHeight
     self.containerPaddingInline = containerPaddingInline

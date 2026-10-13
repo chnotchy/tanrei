@@ -7134,6 +7134,7 @@ public data class TanreiOneTimeCodeInputStateTokens(
 /** `comp.one-time-code-input`. Members are flat tokens, then per-state tokens, then one holder per axis (`conditions[condition]`). */
 @Immutable
 public data class TanreiOneTimeCodeInputTokens(
+    public val caretWidth: Dp,
     public val containerGap: Dp,
     public val containerHeight: Dp,
     public val containerPaddingInline: Dp,

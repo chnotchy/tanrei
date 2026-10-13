@@ -6391,6 +6391,7 @@ private let acmeNumberInputTokens = TanreiNumberInputTokens(
 )
 
 private let acmeOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
+  caretWidth: 1,
   containerGap: 6,
   containerHeight: 48,
   containerPaddingInline: 4,
@@ -6891,7 +6892,7 @@ private let acmeSearchTokens = TanreiSearchTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   resultMarkColor: .role(.onSurface),
-  resultMarkContainerColor: .none,
+  resultMarkContainerColor: .role(.secondaryContainer),
   resultMarkEmphasis: 100,
   shortcutColor: .role(.onSurfaceVariant),
   shortcutTypescale: acmeTypescale.labelSmall,

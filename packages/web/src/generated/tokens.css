@@ -5335,6 +5335,7 @@
     --tanrei-comp-number-input-motion-repeat-interval-fast: var(--tanrei-sys-motion-duration-short1);
     --tanrei-comp-number-input-stepper-gap: var(--tanrei-sys-space-space0);
     --tanrei-comp-number-input-stepper-inset: var(--tanrei-sys-space-space50);
+    --tanrei-comp-one-time-code-input-caret-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-one-time-code-input-container-gap: var(--tanrei-sys-space-space75);
     --tanrei-comp-one-time-code-input-container-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 12), 0.25px);
     --tanrei-comp-one-time-code-input-container-padding-inline: var(--tanrei-sys-space-space50);
@@ -5840,7 +5841,7 @@
     --tanrei-comp-search-pressed-opacity: 1;
     --tanrei-comp-search-pressed-outline-width: var(--tanrei-comp-search-outline-width);
     --tanrei-comp-search-result-mark-color: var(--tanrei-sys-color-on-surface);
-    --tanrei-comp-search-result-mark-container-color: rgb(0 0 0 / 0);
+    --tanrei-comp-search-result-mark-container-color: var(--tanrei-sys-color-secondary-container);
     --tanrei-comp-search-result-mark-emphasis: var(--tanrei-sys-typescale-emphasis-body);
     --tanrei-comp-search-shortcut-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-search-shortcut-typescale-font-family: var(--tanrei-sys-typescale-label-small-font-family);

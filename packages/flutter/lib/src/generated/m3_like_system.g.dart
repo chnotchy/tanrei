@@ -6376,6 +6376,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     stepperInset: 4.0,
   ),
   oneTimeCodeInput: TanreiOneTimeCodeInputTokens(
+    caretWidth: 2.0,
     containerGap: 6.0,
     containerHeight: 56.0,
     containerPaddingInline: 4.0,
@@ -6869,7 +6870,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     outlineWidth: 1.0,
     resultMarkColor: TanreiPaint.role(TanreiColorRole.onSurface),
-    resultMarkContainerColor: TanreiPaint.none(),
+    resultMarkContainerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
     resultMarkEmphasis: 100.0,
     shortcutColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     shortcutTypescale: _typescaleLabelSmall,

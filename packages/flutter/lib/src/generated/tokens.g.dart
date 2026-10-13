@@ -16424,6 +16424,7 @@ class TanreiOneTimeCodeInputStateTokens {
 @immutable
 class TanreiOneTimeCodeInputTokens {
   const TanreiOneTimeCodeInputTokens({
+    required this.caretWidth,
     required this.containerGap,
     required this.containerHeight,
     required this.containerPaddingInline,
@@ -16441,6 +16442,8 @@ class TanreiOneTimeCodeInputTokens {
     required this.disabled,
   });
 
+  /// `comp.one-time-code-input.caret-width`
+  final double caretWidth;
   /// `comp.one-time-code-input.container-gap`
   final double containerGap;
   /// `comp.one-time-code-input.container-height`
@@ -16474,6 +16477,7 @@ class TanreiOneTimeCodeInputTokens {
 
   /// A copy with the given tokens replaced.
   TanreiOneTimeCodeInputTokens copyWith({
+    double? caretWidth,
     double? containerGap,
     double? containerHeight,
     double? containerPaddingInline,
@@ -16490,6 +16494,7 @@ class TanreiOneTimeCodeInputTokens {
     TanreiOneTimeCodeInputStateTokens? focused,
     TanreiOneTimeCodeInputStateTokens? disabled,
   }) => TanreiOneTimeCodeInputTokens(
+        caretWidth: caretWidth ?? this.caretWidth,
         containerGap: containerGap ?? this.containerGap,
         containerHeight: containerHeight ?? this.containerHeight,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,

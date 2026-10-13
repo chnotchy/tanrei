@@ -492,6 +492,10 @@ test.describe('behavior', () => {
     near(mark.y + mark.height / 2, cell.y + cell.height / 2, 'caret centred down');
     const line = (await resolveToken(page, T('input-typescale-font-size'))) * Number(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n), T('input-typescale-line-height')));
     near(mark.height, line, 'one line high');
+    near(mark.width, await token(page, 'caret-width'), 'caret.width wide');
+    await rootTokens(page, { [T('caret-width')]: '3px' });
+    near((await box(caret)).width, 3, 'a system that sets caret.width draws a caret that wide');
+    await rootTokens(page, { [T('caret-width')]: '' });
     expect(await caret.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await color(page, 'standard-focused-caret-color'));
     expect(await caret.evaluate((el) => getComputedStyle(el).animationName)).toBe('caret');
     expect(await caret.evaluate((el) => getComputedStyle(el).animationIterationCount)).toBe('infinite');
@@ -1203,13 +1207,13 @@ test.describe('behavior', () => {
     };
     expect(await cells(page, 'six').nth(0).locator('.char').evaluate((el) => getComputedStyle(el).fontSize)).toBe('32px');
     // The house way to enlarge text is the root's size, which enlarges the paddings, the gaps and the mark with it (the
-    // default system's lengths are in rem). So at 288 the six cells stand in one row where they fit at their narrowest,
-    // and otherwise in two rows of three: both are what OTC-23 says, and which one it is is read from the tokens.
+    // default system's lengths are in rem). Under the default system the six cells then need more than 288 in one row,
+    // so they stand in two rows of three (OTC-23, OTC-24's verify).
     const [gap, pad, length] = [await token(page, 'container-gap'), await token(page, 'container-padding-inline'), await token(page, 'separator-width')];
     const digit = await cells(page, 'six').nth(0).locator('.char').evaluate((el) => el.getBoundingClientRect().width);
-    const needs = 6 * (digit + 2 * pad) + 4 * gap + length + 2 * gap;
+    expect(6 * (digit + 2 * pad) + 4 * gap + length + 2 * gap, 'one row would be wider than 288').toBeGreaterThan(288);
     const six = await check('six', 'six at 288');
-    expect(rowsOf(six)).toEqual(needs <= 288 ? [6] : [3, 3]);
+    expect(rowsOf(six), 'two rows of three').toEqual([3, 3]);
     await check('alpha', 'letters at 288');
     await page.addStyleTag({ content: '.stage { inline-size: 150px !important; }' });
     expect(rowsOf(await check('six', 'six at 150'))).toEqual([3, 3]);

@@ -645,24 +645,12 @@
             "container": {
               "color": {
                 "$type": "color",
-                "$description": "The fill behind a match. None in Tanrei, which marks by weight and color; a system that highlights its matches sets it, and then answers for the contrast of result.mark.color on it.",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0,
-                    0,
-                    0
-                  ],
-                  "alpha": 0,
-                  "hex": "#000000"
-                },
+                "$description": "The fill behind a match, as well as its weight and color: the quiet tonal container, so that a match is found in every script, also where the reader's font has no weight between regular and bold and the raised weight draws as the regular one. result.mark.color is read on it at the text ratio in every scheme.",
+                "$value": "{tanrei.sys.color.secondary-container}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
                     "rationale": "One product marks its matches with a highlighter's band instead of, or as well as, heavier text.",
                     "since": "0.1.0"
-                  },
-                  "dev.tanrei.derive": {
-                    "fixed": "A match has no fill in the default system: it is marked by its weight and its color."
                   }
                 }
               }

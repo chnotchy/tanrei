@@ -29,6 +29,23 @@ export function read(text: string): Reading {
   return match ? { kind: 'color', value: `#${match[1].toLowerCase()}` } : { kind: 'invalid' };
 }
 
+/** What a commit also reads as a color (CLI-19): three hexadecimal digits in either case, with or without a number sign. */
+const SHORT = /^#?([0-9a-fA-F]{3})$/;
+
+/**
+ * CLI-19: reads a text as a commit does. The rule of `read()`, and besides it the three-digit form CSS has (#fff, fff):
+ * the color whose six digits are each of the three written twice (#ffffff). Only a commit reads it: while the person
+ * types, three digits are on their way to six and read as no color (CLI-18), so the swatch does not flash a color
+ * that was never meant.
+ */
+export function readCommitted(text: string): Reading {
+  const reading = read(text);
+  if (reading.kind !== 'invalid') return reading;
+  const match = SHORT.exec(text.trim());
+  if (!match) return reading;
+  return { kind: 'color', value: `#${[...match[1].toLowerCase()].map((digit) => digit + digit).join('')}` };
+}
+
 /** CLF-17: the value a text makes — the color it reads as, or the empty string while it reads as no color. */
 export function valueOf(text: string): string {
   const reading = read(text);

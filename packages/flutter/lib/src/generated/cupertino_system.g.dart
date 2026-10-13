@@ -6345,6 +6345,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     stepperInset: 4.0,
   ),
   oneTimeCodeInput: TanreiOneTimeCodeInputTokens(
+    caretWidth: 2.0,
     containerGap: 6.0,
     containerHeight: 44.0,
     containerPaddingInline: 4.0,
@@ -6838,7 +6839,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     outlineWidth: 1.0,
     resultMarkColor: TanreiPaint.role(TanreiColorRole.onSurface),
-    resultMarkContainerColor: TanreiPaint.none(),
+    resultMarkContainerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
     resultMarkEmphasis: 200.0,
     shortcutColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     shortcutTypescale: _typescaleLabelSmall,

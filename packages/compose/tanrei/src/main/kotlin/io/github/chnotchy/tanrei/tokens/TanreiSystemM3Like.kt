@@ -6084,6 +6084,7 @@ private object M3LikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun oneTimeCodeInput(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiOneTimeCodeInputTokens =
         TanreiOneTimeCodeInputTokens(
+            caretWidth = 2.dp,
             containerGap = 6.dp,
             containerHeight = 56.dp,
             containerPaddingInline = 4.dp,
@@ -6538,7 +6539,7 @@ private object M3LikeSystemSource {
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             outlineWidth = 1.dp,
             resultMarkColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
-            resultMarkContainerColor = TanreiPaint.None,
+            resultMarkContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
             resultMarkEmphasis = 100f,
             shortcutColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             shortcutTypescale = typescale.labelSmall,
