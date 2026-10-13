@@ -2,7 +2,7 @@
 title: "应用外壳"
 description: "为页面或应用搭起框架。它安放页眉、导航、主内容、侧栏和页脚，根据窗口的宽度决定各自的呈现方式，并让键盘一步就能到达内容。"
 translationOf: components/app-shell.mdx
-sourceHash: b0533c6c20102f75d922adf1e96c3bd00dd7d019
+sourceHash: e1bbfea84771c28a26527ac4e2ebae057396b787
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -147,6 +147,12 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 - 用 `asideLabel` 为侧栏命名，使用你的语言。
 - 放在侧栏里的侧边面板保有自己的宽度和边线。请根据 `windowclasschange` 设置它的变体。
 
+### 页脚
+
+- 填写了页脚区域，页脚就会显示。不填写，就没有页脚，也没有地标。
+- `footerHidden`（`footer-hidden`）把已填写的页脚隐藏起来，而不必把它从标记中拿掉。用在一项任务而不是网站某一页的界面上：结账、登录、编辑器。这时页脚不占空间，不画线，不是地标，键盘也不会在其中停靠；导航和侧栏一直留在视野内，直到页面末尾。
+- 焦点在页脚中时隐藏页脚，焦点会移到主内容区域。
+
 ### 区域之间的线
 
 | `separation` | 绘制什么 |
@@ -180,6 +186,7 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 - Tab 按阅读顺序经过各个区域；在每一种窗口类别下，无论布局方向是从左到右还是从右到左，这个顺序都一样。没有显示的区域没有停靠点。
 - 链接的目标和获得焦点的元素，绝不会留在粘性页眉或导航栏的下面。
 - 窗口类别改变时，如果焦点原先所在的东西不再显示（例如菜单按钮），焦点会移到主内容区域。
+- 隐藏的页脚（`footerHidden`）不在无障碍树中，键盘也不会在其中停靠。空的页脚区域永远不会成为地标。
 - 在宽 320 的窗口里把文本放大到 200% 时，框架是单独一列，没有任何内容需要横向滚动。
 - 在强制颜色模式下，各条线和跳过链接的框以系统的文本颜色绘制。
 - 在从右到左的布局中，导航位于右侧，侧栏位于左侧。焦点的顺序不变。

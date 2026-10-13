@@ -145,6 +145,12 @@ The shell measures the sticky header and gives the page's scrolling view that mu
 - Name the aside with `asideLabel`, in your language.
 - A side sheet in the aside keeps its own width and edge. Set its variant from `windowclasschange`.
 
+### The footer
+
+- The footer is shown while you fill the footer region. Leave it out, and there is no footer and no landmark.
+- `footerHidden` (`footer-hidden`) hides a footer you have filled, without taking it out of the markup. Use it on a screen that is a task rather than a page of the site: a checkout, a sign-in, an editor. The footer then takes no space, draws no line, is no landmark and has no stop of the keyboard, and the navigation and the aside stay in view to the end of the page.
+- Hiding the footer while focus is in it moves focus to the main region.
+
 ### Lines between regions
 
 | `separation` | Draws |
@@ -178,6 +184,7 @@ The lines take no room. The shell draws none around the header, the navigation, 
 - Tab walks the regions in reading order, the same in every window class and in either layout direction, left-to-right or right-to-left. A region that is not shown has no stop.
 - A link's target and a focused element are never left under the sticky header or the navigation bar.
 - When the window's class changes and focus was on something that is no longer shown, such as the menu button, focus moves to the main region.
+- A hidden footer (`footerHidden`) is not in the accessibility tree and has no stop of the keyboard. An empty footer region is never a landmark.
 - With text at 200% in a window 320 wide the frame is one column and nothing scrolls sideways.
 - In forced colors the lines and the skip link's box are drawn in the system's text color.
 - In a right-to-left layout the navigation stands at the right and the aside at the left. The order of focus does not change.
