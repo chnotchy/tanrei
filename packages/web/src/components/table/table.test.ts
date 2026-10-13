@@ -2836,6 +2836,8 @@ test.describe('rows that can be chosen', () => {
   });
 
   test('TBL-58: a press anywhere on a row that can be chosen changes its checkbox — not on what a cell holds that answers a press, not at the end of a drag or a text selection, not with a modifier, a middle button or a second click, not where the product cancelled it, not on a row that cannot be chosen; the row gets no role, stop or selected state', async ({ page }) => {
+    // Some forty presses, each followed by the task in which the element decides it: longer than one test is given.
+    test.slow();
     await mountFixtures(page, spec, { fixtures: [...some('selection'), raw('press', { label: 'Press', selection: 'multiple', rowHeaders: true, selectAllLabel: 'All' }, PRESSED)] });
     const id = 'press';
     await settled(page, id);
@@ -2915,8 +2917,16 @@ test.describe('rows that can be chosen', () => {
     await page.evaluate(() => document.querySelector('[data-fixture="press"] tbody tr:nth-child(2) > td:last-child')!.addEventListener('click', (event) => event.preventDefault(), { once: true }));
     await cell(page, id, 'tbody', 2, 3).click();
     await counted(8);
-    // A double click is one press and a second click: the row changes once.
-    await cell(page, id, 'tbody', 2, 2).dblclick();
+    // A double click is one press and a second click: the first changes the row, the second (detail 2) does not. (Its
+    // two halves are sent one after the other: in a double click sent at once the engine has selected the word under it
+    // before the first click's turn comes, and that is a text selection, which chooses nothing either.)
+    await page.mouse.move(0, 0);
+    await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 800)));
+    const twice = await box(cell(page, id, 'tbody', 2, 2));
+    await page.mouse.click(twice.x + 4, twice.y + twice.height / 2);
+    await counted(9);
+    await page.mouse.down({ clickCount: 2 });
+    await page.mouse.up({ clickCount: 2 });
     await counted(9);
     expect(await chosen(page, id)).toEqual(['b']);
     await page.evaluate(() => getSelection()?.removeAllRanges());
