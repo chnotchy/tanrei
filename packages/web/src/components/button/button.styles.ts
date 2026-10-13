@@ -388,9 +388,12 @@ const buttonStyles = css`
       opacity: 0;
     }
   }
-  /* BTN-37: the polite region busyLabel is announced through, drawn nowhere. */
+  /* BTN-37: the polite region busyLabel is announced through, drawn nowhere. (Fixed to the window, so that the host
+     needs no containing block of its own and the region widens no scroll box it stands in.) */
   .live {
-    position: absolute;
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline-start: 0;
     overflow: hidden;
     inline-size: 1px;
     block-size: 1px;
