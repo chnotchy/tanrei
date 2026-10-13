@@ -54,6 +54,8 @@ import { AXES, INSET, styles } from './text-input.styles.js';
 import { runDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { fillPlaces, reportPlaces } from '../../primitives/places.js';
+import { wordPlaces } from '../../generated/words.js';
 
 /** The looks of the input box (stacked, filled, outlined), plus any a design system's generated `.d.ts` registers for the box. */
 export type TanreiTextInputVariant = keyof TanreiInputBoxVariantRegistry;
@@ -367,6 +369,8 @@ export class TanreiTextInput extends LitElement {
     resize: { type: String, reflect: true },
     resizeAxis: { type: String, attribute: 'resize-axis', reflect: true },
     resizeLabel: { type: String, attribute: 'resize-label' },
+    counterText: { type: String, attribute: 'counter-text' },
+    counterNoLimitText: { type: String, attribute: 'counter-no-limit-text' },
     noWrap: { type: Boolean, attribute: 'no-wrap', reflect: true },
     maxLength: { type: Number, attribute: 'maxlength' },
     counter: { type: Boolean },
@@ -512,6 +516,17 @@ export class TanreiTextInput extends LitElement {
 
   /** Keeps a character count (with `maxLength`, when set: "12/40"): part of the description, announced when typing pauses, and readable as `countText`. The input draws none: a Field draws it at the end of its supporting row, given it as `count-text` — which `<tanrei-text-field>` does by itself. */
   counter = false;
+
+  /**
+   * The count said to assistive technology while `counter` is set and `maxLength` is above 0 (`counter-text`): your
+   * sentence with the places `{count}`, `{limit}` and `{remaining}` ("{remaining} characters left"). Empty reads the
+   * product's words (`setWords({ characterCountText })`); with neither the count is said as its digits ("12/40"). It is
+   * drawn as digits whatever is said: `countText` stays "12/40".
+   */
+  counterText = '';
+
+  /** The count said while `counter` is set and there is no `maxLength` (`counter-no-limit-text`): your sentence with the place `{count}` ("{count} characters"). Empty reads the product's words (`setWords({ characterCountNoLimitText })`); with neither, the digits. */
+  counterNoLimitText = '';
 
   /** Fixed text before the value, not part of it (`prefix-text`). Beside one line of email, url, tel, number or password it is written before the value along the direction of the run the two affixes make — that of their first strong character, left-to-right where they have none — in every layout direction; beside any other value it stands at the field's start edge. In a code field it is code: in the code face, at the left of the value in every layout direction. Ignored for date, time and date-time. */
   prefixText = '';
@@ -1346,7 +1361,30 @@ export class TanreiTextInput extends LitElement {
   private scheduleCount() {
     if (!this.counter) return;
     clearTimeout(this.countTimer);
-    this.countTimer = setTimeout(() => this.announce(this.countText), 1000);
+    this.countTimer = setTimeout(() => this.announce(this.spokenCount), 1000);
+  }
+
+  /**
+   * TXI-19: the count as it is said — in the description and the announcement: the product's sentence with its places
+   * filled, every number in the locale's digits (`counter-text` while there is a limit, `counter-no-limit-text` while
+   * there is none); the digits of `countText` where there is no sentence, or while the value is longer than the limit
+   * (a value the product set), which a sentence of how many are left cannot say.
+   */
+  private get spokenCount(): string {
+    const digits = this.countText;
+    if (!digits) return '';
+    const limited = this.maxLength > 0 && !this.dateKind;
+    const count = this.count;
+    if (limited && count > this.maxLength) return digits;
+    const key = limited ? 'characterCountText' : 'characterCountNoLimitText';
+    const sentence = this.words.get(key, limited ? this.counterText : this.counterNoLimitText).trim();
+    if (!sentence) return digits;
+    const number = new Intl.NumberFormat(this.resolvedLocale, { maximumFractionDigits: 0 });
+    const places: Record<string, string> = limited ? { count: number.format(count), limit: number.format(this.maxLength), remaining: number.format(this.maxLength - count) } : { count: number.format(count) };
+    reportPlaces(this, 'TXI-19', limited ? 'counterText' : 'counterNoLimitText', sentence, wordPlaces[key] ?? [], 'it is said as it is written');
+    return fillPlaces(sentence, places)
+      .runs.map((run) => run.text)
+      .join('');
   }
 
   private get count() {
@@ -2068,7 +2106,7 @@ export class TanreiTextInput extends LitElement {
     const name = this.name_;
     const required = this.required_;
     const described = this.described;
-    const count = this.countText;
+    const count = this.spokenCount;
     const describedBy =
       [
         affixesShown && this.prefixText ? 'prefix' : '',

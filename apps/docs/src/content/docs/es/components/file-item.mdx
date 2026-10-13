@@ -2,7 +2,7 @@
 title: Elemento de archivo
 description: Muestra un archivo —un glifo que dice su formato o una imagen pequeña del archivo, su nombre y lo que el producto dice de él— con las acciones para quitarlo y para volver a intentarlo, como fila de una columna de archivos o como mosaico de una tira de imágenes. Se puede pulsar para abrir el archivo. Nunca lee, conserva ni envía el archivo por sí mismo.
 translationOf: components/file-item.mdx
-sourceHash: 43bdeeda9d7542e94b4587901f6ecd3777f39dfe
+sourceHash: fa3865fd939a55ffa7efbd871ad173a4fb6357ca
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,10 +19,10 @@ import { demoPicture } from '../../../../lib/demo-picture';
 <ComponentAvailability name="file-item" />
 
 <DemoFrame label="Un archivo como fila y archivos como mosaicos" column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="Quitar {name}"></tanrei-file-item>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
-    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="Quitar"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="Quitar"></tanrei-file-item>
+    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="Quitar {name}"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="Quitar {name}"></tanrei-file-item>
   </div>
 </DemoFrame>
 
@@ -58,12 +58,12 @@ Da `name` y los textos que tengas. `value` es lo que `click`, `remove` y `retry`
     <ul class="attachments" aria-label="Archivos adjuntos">
       <li>
         <tanrei-file-item value="a" name="brief.pdf" format-text="PDF" size-text="820 KB"
-                          href="/files/brief.pdf" remove-label="Quitar"></tanrei-file-item>
+                          href="/files/brief.pdf" remove-label="Quitar {name}"></tanrei-file-item>
       </li>
       <li>
         <tanrei-file-item value="b" name="floor-plan.png" size-text="3,4 MB"
                           status="uploading" status-text="Subiendo" progress="0.4"
-                          remove-label="Quitar" retry-label="Reintentar"></tanrei-file-item>
+                          remove-label="Quitar {name}" retry-label="Reintentar {name}"></tanrei-file-item>
       </li>
     </ul>
 
@@ -90,7 +90,7 @@ Da `name` y los textos que tengas. `value` es lo que `click`, `remove` y `retry`
           <FileItem value={file.id} name={file.name} sizeText={file.sizeText}
             status={file.status} statusText={file.statusText} progress={file.progress}
             errorText={file.errorText} retryable={file.retryable}
-            removeLabel="Quitar" retryLabel="Reintentar"
+            removeLabel="Quitar {name}" retryLabel="Reintentar {name}"
             onRemove={() => remove(file.id)} onRetry={() => retry(file.id)} />
         </li>
       ))}
@@ -104,12 +104,12 @@ Da `name` y los textos que tengas. `value` es lo que `click`, `remove` y `retry`
 ## Especificaciones
 
 <DemoFrame label="Una fila en cada estado: en espera, enviada al 40%, en curso, completada, fallida y reintentable, fallida definitivamente" plain column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="En espera" remove-label="Quitar"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3,4 MB" status="uploading" status-text="Subiendo" progress="0.4" remove-label="Quitar"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1,1 MB" status="uploading" status-text="Subiendo" remove-label="Quitar"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2,0 MB" status="done" status-text="Subido" remove-label="Quitar"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6,8 MB" status="error" error-text="Se perdió la conexión." retryable remove-label="Quitar" retry-label="Reintentar"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="Supera los 10 MB." remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="En espera" remove-label="Quitar {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3,4 MB" status="uploading" status-text="Subiendo" progress="0.4" remove-label="Quitar {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1,1 MB" status="uploading" status-text="Subiendo" remove-label="Quitar {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2,0 MB" status="done" status-text="Subido" remove-label="Quitar {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6,8 MB" status="error" error-text="Se perdió la conexión." retryable remove-label="Quitar {name}" retry-label="Reintentar {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="Supera los 10 MB." remove-label="Quitar {name}"></tanrei-file-item>
 </DemoFrame>
 
 <ComponentSpecs name="file-item" />
@@ -120,14 +120,14 @@ Da `name` y los textos que tengas. `value` es lo que `click`, `remove` y `retry`
 
 <DemoFrame label="Los mismos tres archivos como filas y como mosaicos" plain column>
   <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
-    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2,1 MB" preview preview-src={demoPicture} remove-label="Quitar"></tanrei-file-item>
-    <tanrei-file-item value="b" name="floor-plan.png" size-text="3,4 MB" preview preview-src={demoPicture} remove-label="Quitar"></tanrei-file-item>
-    <tanrei-file-item value="c" name="survey.pdf" size-text="1,1 MB" preview remove-label="Quitar"></tanrei-file-item>
+    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2,1 MB" preview preview-src={demoPicture} remove-label="Quitar {name}"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3,4 MB" preview preview-src={demoPicture} remove-label="Quitar {name}"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1,1 MB" preview remove-label="Quitar {name}"></tanrei-file-item>
   </div>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
-    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="Quitar"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="Quitar"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="Quitar"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="Quitar {name}"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="Quitar {name}"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="Quitar {name}"></tanrei-file-item>
   </div>
 </DemoFrame>
 
@@ -212,9 +212,9 @@ Hay diez categorías de glifo. Cada categoría tiene una lista de tipos de medio
 `fit` dice cómo llena la imagen su recuadro. `cover`, el valor predeterminado, llena el recuadro y recorta lo que no cabe; úsalo para fotografías. `contain` muestra la imagen entera sobre el fondo del recuadro; úsalo para documentos escaneados, firmas y diagramas, donde los bordes importan.
 
 <DemoFrame label="Un recuadro de 160 por 90: cover, contain y el nombre oculto" plain>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="Quitar"></tanrei-file-item>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="Quitar"></tanrei-file-item>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="Quitar {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="Quitar {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="Quitar {name}"></tanrei-file-item>
 </DemoFrame>
 
 Lo que cuesta una vista previa:
@@ -234,8 +234,8 @@ Lo que cuesta una vista previa:
 De forma predeterminada, el cuerpo de un elemento de archivo no recibe el foco y no responde a nada. El elemento solo contiene sus acciones.
 
 <DemoFrame label="Un cuerpo que es un botón, un enlace que se abre en una pestaña nueva y un archivo de solo lectura" plain column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3,4 MB" interactive remove-label="Quitar"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2,0 MB" href="#pulsable-un-enlace-o-de-solo-lectura" target="new" target-label="se abre en una pestaña nueva" remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3,4 MB" interactive remove-label="Quitar {name}"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2,0 MB" href="#pulsable-un-enlace-o-de-solo-lectura" target="new" target-label="se abre en una pestaña nueva" remove-label="Quitar {name}"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 KB" status="done" status-text="Enviado el 4 de diciembre" readonly></tanrei-file-item>
 </DemoFrame>
 
@@ -286,7 +286,7 @@ El elemento de archivo no incluye textos propios. Dos se pueden dar una sola vez
 | `removeLabel` | `removeLabel` | La acción de quitar se dibuja y no tiene nombre. Una compilación de depuración lo notifica. |
 | `retryLabel` | `retryLabel` | La acción de reintentar se dibuja y no tiene nombre. Una compilación de depuración lo notifica. |
 
-Cada acción se describe con el nombre de su archivo. Una sola palabra, «Quitar», basta para todos los archivos: una persona oye «Quitar, botón, brief.pdf».
+El nombre de cada acción lleva el nombre de su archivo: `removeLabel` y `retryLabel` son frases con el marcador `{name}`, que el elemento de archivo rellena («`Quitar {name}`»). Una frase basta para todos los archivos, y una persona oye «Quitar brief.pdf, botón» —en el orden de tu idioma—, también cuando un lector de pantalla enumera los botones de la página. Una frase sin `{name}` da el mismo nombre a la acción de cada archivo, y una compilación de depuración lo notifica.
 
 ### De derecha a izquierda
 
@@ -315,7 +315,7 @@ En un diseño de derecha a izquierda, el glifo o la imagen están a la derecha y
 
 - Por sí solo, un elemento de archivo es un grupo que recibe su nombre del nombre del archivo. En un control de subida de archivos es un elemento de la lista del control.
 - Un cuerpo pulsable es un solo botón o un solo enlace, que recibe su nombre del nombre del archivo y su descripción de la segunda línea. Va antes que las acciones en el orden del foco. Un enlace se activa con Enter y no con Espacio, y un enlace que se abre en una pestaña nueva dice `targetLabel` después de su nombre.
-- Las acciones son botones que reciben su nombre de `removeLabel` y `retryLabel` y su descripción del nombre del archivo. Reintentar va antes que quitar.
+- Las acciones son botones que reciben su nombre de `removeLabel` y `retryLabel`, con el nombre del archivo en el marcador `{name}`. Reintentar va antes que quitar.
 - La barra es una barra de progreso que recibe su nombre del archivo. Un error es el texto de la segunda línea, y se lee en el lugar del estado.
 - El glifo, la imagen y la marca de estado están ocultos para la tecnología de apoyo. Las palabras dicen lo que muestran.
 - Un elemento de archivo no anuncia nada. Quien tiene muchos tiene una única región activa para todos ellos, como la tiene el control de subida de archivos.

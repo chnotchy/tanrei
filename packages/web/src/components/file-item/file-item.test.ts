@@ -13,7 +13,7 @@ const spec = loadSpec('file-item');
 type P = Page;
 const TAG = 'tanrei-file-item';
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-const WORDS = { removeLabel: 'Remove', retryLabel: 'Try again' };
+const WORDS = { removeLabel: 'Remove {name}', retryLabel: 'Retry {name}' };
 /** The package's own small picture (112 by 112), as the bytes of a `File`. */
 const PNG = fs.readFileSync(path.join(pkg, 'test/fixtures/avatar.png')).toString('base64');
 const PICTURE = `data:image/png;base64,${PNG}`;
@@ -283,8 +283,8 @@ test.describe('behavior', () => {
       expect(b.form).toBe('tile');
       expect({ ...b, form: 'row' }, `${tile} draws what ${row} draws`).toEqual(a);
     }
-    expect(await read('row')).toEqual({ form: 'row', glyph: 'image', picture: false, name: 'floor-plan.png', second: 'PNG · 3.4 MB · Uploading', mark: null, bar: '0.4', actions: ['remove:Remove'] });
-    expect((await read('row-failed')).actions).toEqual(['retry:Try again', 'remove:Remove']);
+    expect(await read('row')).toEqual({ form: 'row', glyph: 'image', picture: false, name: 'floor-plan.png', second: 'PNG · 3.4 MB · Uploading', mark: null, bar: '0.4', actions: ['remove:Remove floor-plan.png'] });
+    expect((await read('row-failed')).actions).toEqual(['retry:Retry site-photo.png', 'remove:Remove site-photo.png']);
     expect((await read('row-picture')).picture).toBe(true);
     // A form changes where the parts stand and how large they are.
     expect((await box(own(page, 'tile', 'headline'))).y, 'a tile’s name is beneath its box').toBeGreaterThanOrEqual((await box(own(page, 'tile', 'media'))).y + (await box(own(page, 'tile', 'media'))).height);
@@ -935,7 +935,7 @@ test.describe('behavior', () => {
         const raw = Uint8Array.from(atob(data as string), (ch) => ch.charCodeAt(0));
         for (let i = 0; i < (count as number); i++) {
           const item = document.createElement('tanrei-file-item') as HTMLElement & Record<string, unknown>;
-          Object.assign(item, { form: 'tile', preview: true, value: String(i), removeLabel: 'Remove', width: 88, height: 40, nameHidden: true, file: new File([raw], `photo-${i}.png`, { type: 'image/png' }) });
+          Object.assign(item, { form: 'tile', preview: true, value: String(i), removeLabel: 'Remove {name}', width: 88, height: 40, nameHidden: true, file: new File([raw], `photo-${i}.png`, { type: 'image/png' }) });
           strip.append(item);
         }
         document.querySelector('main')!.prepend(strip);
@@ -954,7 +954,7 @@ test.describe('behavior', () => {
       const raw = Uint8Array.from(atob(data), (ch) => ch.charCodeAt(0));
       const add = (i: number) => {
         const item = document.createElement('tanrei-file-item') as HTMLElement & Record<string, unknown>;
-        Object.assign(item, { form: 'tile', preview: true, removeLabel: 'Remove', file: new File([raw], `again-${i}.png`, { type: 'image/png' }) });
+        Object.assign(item, { form: 'tile', preview: true, removeLabel: 'Remove {name}', file: new File([raw], `again-${i}.png`, { type: 'image/png' }) });
         strip.append(item);
       };
       for (let i = 0; i < 50; i++) add(i);
@@ -1000,11 +1000,11 @@ test.describe('behavior', () => {
     expect(await own(page, id, 'headline').evaluate((el) => [getComputedStyle(el).position, getComputedStyle(el).overflow, getComputedStyle(el).clipPath !== 'none'])).toEqual(['absolute', 'hidden', true]);
     near(whole.height, media.height, 'no room is kept beneath the box', 1);
     expect((await box(host(page, 'tile-preview'))).height, 'a tile that draws its name is taller').toBeGreaterThan(whole.height + 10);
-    // It stays the name: the whole of it in the tree, the group's name, and what the actions are described by.
+    // It stays the name: the whole of it in the tree, the group's name, and what fills the actions' names.
     await expect(own(page, id, 'headline')).toHaveText('floor-plan.png');
     expect(await own(page, id, 'headline').evaluate((el) => [el.closest('[aria-hidden="true"]'), getComputedStyle(el).display !== 'none', getComputedStyle(el).visibility])).toEqual([null, true, 'visible']);
     await expect(stage(page, id).getByRole('group', { name: 'floor-plan.png', exact: true })).toHaveCount(1);
-    await expect(own(page, id, 'remove')).toHaveAttribute('aria-description', 'floor-plan.png');
+    await expect(own(page, id, 'remove')).toHaveAttribute('aria-label', 'Remove floor-plan.png');
     if (browserName === 'chromium') {
       const client = await page.context().newCDPSession(page);
       await client.send('Accessibility.enable');
@@ -1103,7 +1103,7 @@ test.describe('behavior', () => {
     expect(long.text, 'the whole name, as one text, for assistive technology').toBe(NAME);
     expect([long.drawn, long.hidden], 'what is drawn is the same name in two boxes, kept from assistive technology').toEqual([NAME, 'true']);
     expect(long.whole, 'the whole name is drawn nowhere').toBeLessThanOrEqual(1);
-    expect(await host(page, id).evaluate((el: HTMLElement & { name: string }) => [el.name, el.getAttribute('name'), el.getAttribute('aria-label'), el.shadowRoot!.querySelector('.action.remove')!.getAttribute('aria-description')])).toEqual([NAME, NAME, NAME, NAME]);
+    expect(await host(page, id).evaluate((el: HTMLElement & { name: string }) => [el.name, el.getAttribute('name'), el.getAttribute('aria-label'), el.shadowRoot!.querySelector('.action.remove')!.getAttribute('aria-label')])).toEqual([NAME, NAME, NAME, `Remove ${NAME}`]);
     await expect(stage(page, id).getByRole('group', { name: NAME, exact: true })).toHaveCount(1);
     expect(await host(page, id).evaluate((el) => el.shadowRoot!.querySelector('.headline')!.textContent!.includes('…')), 'the ellipsis is a mark of the text layout, not a character').toBe(false);
     // A name that fits is not cut; with room, the long one is whole too.
@@ -2004,7 +2004,7 @@ test.describe('behavior', () => {
     }
   });
 
-  test('FIT-19: a group named by name, in every form and whatever nameHidden says, read in order — the name; the format, the size, then the status or the error; while uploading, a progress bar named by the file whose value is progress, or busy; then the retry and remove actions, buttons described by the file’s name; a pressable body is a button or a link named by name and described by the second line; held by a file upload it is an item of that list in the group’s place; the glyph, the picture and the marks are kept from assistive technology, and nothing is announced', async ({ page, browserName }) => {
+  test('FIT-19: a group named by name, in every form and whatever nameHidden says, read in order — the name; the format, the size, then the status or the error; while uploading, a progress bar named by the file whose value is progress, or busy; then the retry and remove actions, buttons whose names hold the file’s name in the product’s sentence and that carry no description; a pressable body is a button or a link named by name and described by the second line; held by a file upload it is an item of that list in the group’s place; the glyph, the picture and the marks are kept from assistive technology, and nothing is announced', async ({ page, browserName }) => {
     await mountSpec(page, 'row-format', 'row-uploading', 'row-uploading-indeterminate', 'row-done', 'row-error-retryable', 'row-interactive', 'row-link-new', 'tile-name-hidden', 'tile-uploading', 'tile-error-retryable', 'row-read-only');
     // Each is one group, named by its name, and reads in this order.
     const read = (id: string) =>
@@ -2022,15 +2022,15 @@ test.describe('behavior', () => {
         walk(el.shadowRoot!);
         return out.join(' | ');
       });
-    expect(await read('row-format')).toBe('group:brief.pdf | brief.pdf | PDF | 820 KB | Waiting | button:Remove(brief.pdf)');
-    expect(await read('row-uploading')).toBe('group:floor-plan.png | floor-plan.png | 3.4 MB | Uploading | progressbar:floor-plan.png | button:Remove(floor-plan.png)');
-    expect(await read('row-done')).toBe('group:contract.pdf | contract.pdf | 2.0 MB | Uploaded | button:Remove(contract.pdf)');
-    expect(await read('row-error-retryable')).toBe('group:site-photo.png | site-photo.png | 6.8 MB | The connection was lost. | button:Try again(site-photo.png) | button:Remove(site-photo.png)');
-    expect(await read('row-interactive')).toBe('group:floor-plan.png | button:floor-plan.png(3.4 MB) | button:Remove(floor-plan.png)');
-    expect(await read('row-link-new')).toBe('group:contract.pdf | link:contract.pdf(2.0 MB, opens in a new tab) | button:Remove(contract.pdf)');
-    expect(await read('tile-name-hidden'), 'whatever nameHidden says').toBe('group:floor-plan.png | floor-plan.png | button:Remove(floor-plan.png)');
-    expect(await read('tile-uploading')).toBe('group:floor-plan.png | floor-plan.png | Uploading | progressbar:floor-plan.png | button:Remove(floor-plan.png)');
-    expect(await read('tile-error-retryable')).toBe('group:site-photo.png | site-photo.png | The connection was lost. | button:Try again(site-photo.png) | button:Remove(site-photo.png)');
+    expect(await read('row-format')).toBe('group:brief.pdf | brief.pdf | PDF | 820 KB | Waiting | button:Remove brief.pdf(null)');
+    expect(await read('row-uploading')).toBe('group:floor-plan.png | floor-plan.png | 3.4 MB | Uploading | progressbar:floor-plan.png | button:Remove floor-plan.png(null)');
+    expect(await read('row-done')).toBe('group:contract.pdf | contract.pdf | 2.0 MB | Uploaded | button:Remove contract.pdf(null)');
+    expect(await read('row-error-retryable')).toBe('group:site-photo.png | site-photo.png | 6.8 MB | The connection was lost. | button:Retry site-photo.png(null) | button:Remove site-photo.png(null)');
+    expect(await read('row-interactive')).toBe('group:floor-plan.png | button:floor-plan.png(3.4 MB) | button:Remove floor-plan.png(null)');
+    expect(await read('row-link-new')).toBe('group:contract.pdf | link:contract.pdf(2.0 MB, opens in a new tab) | button:Remove contract.pdf(null)');
+    expect(await read('tile-name-hidden'), 'whatever nameHidden says').toBe('group:floor-plan.png | floor-plan.png | button:Remove floor-plan.png(null)');
+    expect(await read('tile-uploading')).toBe('group:floor-plan.png | floor-plan.png | Uploading | progressbar:floor-plan.png | button:Remove floor-plan.png(null)');
+    expect(await read('tile-error-retryable')).toBe('group:site-photo.png | site-photo.png | The connection was lost. | button:Retry site-photo.png(null) | button:Remove site-photo.png(null)');
     expect(await read('row-read-only')).toBe('group:contract.pdf | contract.pdf | 2.0 MB | Uploaded');
     for (const f of ['row-format', 'tile-name-hidden', 'tile-error-retryable']) await expect(stage(page, f).getByRole('group', { name: String(spec.fixtures.find((each) => each.id === f)!.props.name), exact: true })).toHaveCount(1);
     // The bar: named by the file, its value a share of 0 to 1, or busy.
@@ -2051,8 +2051,8 @@ test.describe('behavior', () => {
     await page.evaluate(() => {
       document.querySelector('main')!.insertAdjacentHTML(
         'beforeend',
-        `<div class="stage" data-fixture="own-role"><tanrei-file-item role="row" aria-label="A row of the product" name="kept.pdf" remove-label="Remove"></tanrei-file-item></div>
-         <div class="stage" data-fixture="held"><tanrei-file-upload label="Attachments" rows="given" multiple remove-label="Remove" retry-label="Try again"><tanrei-button slot="trigger">Choose files</tanrei-button>
+        `<div class="stage" data-fixture="own-role"><tanrei-file-item role="row" aria-label="A row of the product" name="kept.pdf" remove-label="Remove {name}"></tanrei-file-item></div>
+         <div class="stage" data-fixture="held"><tanrei-file-upload label="Attachments" rows="given" multiple remove-label="Remove {name}" retry-label="Retry {name}"><tanrei-button slot="trigger">Choose files</tanrei-button>
            <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="Waiting"></tanrei-file-item>
            <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="Uploading" progress="0.4"></tanrei-file-item>
            <tanrei-file-item value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="The connection was lost." retryable interactive></tanrei-file-item>
@@ -2077,7 +2077,7 @@ test.describe('behavior', () => {
       await page.evaluate(() => {
         document.querySelector('main')!.insertAdjacentHTML(
           'beforeend',
-          `<div class="stage" data-fixture="held"><tanrei-file-upload label="Attachments" rows="given" multiple remove-label="Remove" retry-label="Try again"><tanrei-button slot="trigger">Choose files</tanrei-button>
+          `<div class="stage" data-fixture="held"><tanrei-file-upload label="Attachments" rows="given" multiple remove-label="Remove {name}" retry-label="Retry {name}"><tanrei-button slot="trigger">Choose files</tanrei-button>
              <tanrei-file-item value="a" name="held.pdf" size-text="820 KB" status-text="Waiting"></tanrei-file-item>
              <tanrei-file-item value="e" name="held-photo.png" size-text="6.8 MB" status="error" error-text="The connection was lost." retryable interactive></tanrei-file-item>
            </tanrei-file-upload></div>`,
@@ -2104,19 +2104,19 @@ test.describe('behavior', () => {
         expect(found.length, `one group named ${name}`).toBe(1);
         return tree(found[0].nodeId);
       };
-      expect(groupOf('brief.pdf')).toEqual(['group:brief.pdf', 'brief.pdf', 'PDF', '820 KB', 'Waiting', 'button:Remove (brief.pdf)']);
-      expect(groupOf('site-photo.png')).toEqual(['group:site-photo.png', 'site-photo.png', '6.8 MB', 'The connection was lost.', 'button:Try again (site-photo.png)', 'button:Remove (site-photo.png)']);
-      expect(groupOf('survey.pdf')).toEqual(['group:survey.pdf', 'survey.pdf', '1.1 MB', 'Uploading', 'progressbar:survey.pdf busy', 'button:Remove (survey.pdf)']);
+      expect(groupOf('brief.pdf')).toEqual(['group:brief.pdf', 'brief.pdf', 'PDF', '820 KB', 'Waiting', 'button:Remove brief.pdf']);
+      expect(groupOf('site-photo.png')).toEqual(['group:site-photo.png', 'site-photo.png', '6.8 MB', 'The connection was lost.', 'button:Retry site-photo.png', 'button:Remove site-photo.png']);
+      expect(groupOf('survey.pdf')).toEqual(['group:survey.pdf', 'survey.pdf', '1.1 MB', 'Uploading', 'progressbar:survey.pdf busy', 'button:Remove survey.pdf']);
       // A link's own texts are read inside it, where a button's are its name alone.
-      expect(groupOf('contract.pdf')).toEqual(['group:contract.pdf', 'link:contract.pdf (2.0 MB, opens in a new tab)', 'contract.pdf', '2.0 MB', 'button:Remove (contract.pdf)']);
+      expect(groupOf('contract.pdf')).toEqual(['group:contract.pdf', 'link:contract.pdf (2.0 MB, opens in a new tab)', 'contract.pdf', '2.0 MB', 'button:Remove contract.pdf']);
       // Three fixtures are named floor-plan.png: the uploading row, the pressable row, and the two tiles.
       const plans = nodes.filter((node) => node.role?.value === 'group' && node.name?.value === 'floor-plan.png' && !node.ignored).map((node) => tree(node.nodeId));
       expect(plans).toEqual([
-        ['group:floor-plan.png', 'floor-plan.png', '3.4 MB', 'Uploading', 'progressbar:floor-plan.png 0.4', 'button:Remove (floor-plan.png)'],
+        ['group:floor-plan.png', 'floor-plan.png', '3.4 MB', 'Uploading', 'progressbar:floor-plan.png 0.4', 'button:Remove floor-plan.png'],
         // A pressable body's own texts are in the tree inside it; its name and its description are what is announced.
-        ['group:floor-plan.png', 'button:floor-plan.png (3.4 MB)', 'floor-plan.png', '3.4 MB', 'button:Remove (floor-plan.png)'],
-        ['group:floor-plan.png', 'floor-plan.png', 'button:Remove (floor-plan.png)'],
-        ['group:floor-plan.png', 'floor-plan.png', 'Uploading', 'progressbar:floor-plan.png 0.4', 'button:Remove (floor-plan.png)'],
+        ['group:floor-plan.png', 'button:floor-plan.png (3.4 MB)', 'floor-plan.png', '3.4 MB', 'button:Remove floor-plan.png'],
+        ['group:floor-plan.png', 'floor-plan.png', 'button:Remove floor-plan.png'],
+        ['group:floor-plan.png', 'floor-plan.png', 'Uploading', 'progressbar:floor-plan.png 0.4', 'button:Remove floor-plan.png'],
       ]);
       // In the upload: the list holds two items, each in the group's place, with what the upload gave every item.
       const listNode = nodes.find((node) => node.role?.value === 'list' && node.name?.value === 'Attachments')!;
@@ -2126,20 +2126,20 @@ test.describe('behavior', () => {
         return node.ignored || ['generic', 'none'].includes(String(node.role?.value)) ? (node.childIds ?? []).flatMap(items_) : [node];
       });
       expect(direct.map((node) => tree(node.nodeId))).toEqual([
-        ['listitem:', 'held.pdf', '820 KB', 'Waiting', 'button:Remove (held.pdf)'],
-        ['listitem:', 'button:held-photo.png (6.8 MB, The connection was lost.)', 'held-photo.png', '6.8 MB', 'The connection was lost.', 'button:Try again (held-photo.png)', 'button:Remove (held-photo.png)'],
+        ['listitem:', 'held.pdf', '820 KB', 'Waiting', 'button:Remove held.pdf'],
+        ['listitem:', 'button:held-photo.png (6.8 MB, The connection was lost.)', 'held-photo.png', '6.8 MB', 'The connection was lost.', 'button:Retry held-photo.png', 'button:Remove held-photo.png'],
       ]);
       expect(nodes.filter((node) => node.role?.value === 'group' && String(node.name?.value).startsWith('held')).length, 'no group in the item’s place').toBe(0);
       expect(nodes.filter((node) => ['image', 'img'].includes(String(node.role?.value)) && !node.ignored).length, 'no picture and no glyph is exposed').toBe(0);
     }
   });
 
-  test('FIT-20: removeLabel and retryLabel are the instance’s, else the product’s words, else nothing — an unnamed action is still drawn and works, described by the file’s name, and the missing word is reported once per page; every other text is the product’s alone, and no word is built from a media type, an ending or a number', async ({ page }) => {
+  test('FIT-20: removeLabel and retryLabel are the instance’s, else the product’s words, else nothing — an unnamed action is still drawn and works, and the missing word is reported once per page; the place {name} is filled by the file’s name, and a word without it is reported; every other text is the product’s alone, and no word is built from a media type, an ending or a number', async ({ page }) => {
     const warnings = logged(page);
     await mount(page, [
       ...spec.fixtures.filter((f) => f.id === 'row-without-words'),
       fx('second', { name: 'more.pdf', status: 'error', errorText: 'Lost.', retryable: true }),
-      fx('own', { name: 'site.png', status: 'error', errorText: 'Lost.', retryable: true, removeLabel: 'Take away', retryLabel: 'Once more' }),
+      fx('own', { name: 'site.png', status: 'error', errorText: 'Lost.', retryable: true, removeLabel: '{name}: take away', retryLabel: 'Once more' }),
       fx('quiet', { name: 'archive.tar.gz', mediaType: 'application/gzip', status: 'uploading', progress: 0.42, readOnly: true }),
       fx('tile', { form: 'tile', name: 'IMG_0412.HEIC', preview: true, status: 'uploading', readOnly: true }),
       fx('no-retry', { name: 'kept.pdf' }),
@@ -2147,11 +2147,11 @@ test.describe('behavior', () => {
     await turn(page);
     const id = 'row-without-words';
     const [retry, remove] = [own(page, id, 'retry'), own(page, id, 'remove')];
-    // Without the words: drawn, working, unnamed, described by the file's name.
+    // Without the words: drawn, working, unnamed — and the file's name is not said as a description either.
     for (const action of [retry, remove]) {
       await expect(action).toBeVisible();
       expect(await action.getAttribute('aria-label')).toBeNull();
-      expect(await action.getAttribute('aria-description')).toBe('site-photo.png');
+      expect(await action.getAttribute('aria-description')).toBeNull();
       expect(await action.getAttribute('title')).toBeNull();
     }
     await listen(page);
@@ -2184,19 +2184,26 @@ test.describe('behavior', () => {
     expect(await own(page, 'quiet', 'bar').evaluate((el) => [el.getAttribute('aria-valuenow'), el.getAttribute('aria-valuetext')])).toEqual(['0.42', null]);
     // The product's words.
     await setWords(page, WORDS);
-    await expect(remove).toHaveAttribute('aria-label', 'Remove');
-    await expect(retry).toHaveAttribute('aria-label', 'Try again');
-    await expect(own(page, 'second', 'remove')).toHaveAttribute('aria-label', 'Remove');
-    await expect(own(page, 'no-retry', 'remove')).toHaveAttribute('aria-label', 'Remove');
+    await expect(remove).toHaveAttribute('aria-label', 'Remove site-photo.png');
+    await expect(retry).toHaveAttribute('aria-label', 'Retry site-photo.png');
+    await expect(own(page, 'second', 'remove')).toHaveAttribute('aria-label', 'Remove more.pdf');
+    await expect(own(page, 'no-retry', 'remove')).toHaveAttribute('aria-label', 'Remove kept.pdf');
+    // The order of the words is the product's language's; the place is filled wherever it stands.
+    await setWords(page, { removeLabel: '{name}を削除', retryLabel: '{name}を再試行' });
+    await expect(remove).toHaveAttribute('aria-label', 'site-photo.pngを削除');
+    await expect(retry).toHaveAttribute('aria-label', 'site-photo.pngを再試行');
+    await setWords(page, WORDS);
     // The instance's own win.
-    await expect(own(page, 'own', 'remove')).toHaveAttribute('aria-label', 'Take away');
+    await expect(own(page, 'own', 'remove')).toHaveAttribute('aria-label', 'site.png: take away');
+    // A word without the place names every file's action alike: used as it is written, and reported.
     await expect(own(page, 'own', 'retry')).toHaveAttribute('aria-label', 'Once more');
-    await set(host(page, id), { removeLabel: 'Delete' });
-    await expect(remove).toHaveAttribute('aria-label', 'Delete');
+    expect(warnings.filter((text) => text.includes('FIT-20') && text.includes('retryLabel has no place {name}')).length, 'a word without its place is reported').toBe(1);
+    await set(host(page, id), { removeLabel: 'Delete {name}' });
+    await expect(remove).toHaveAttribute('aria-label', 'Delete site-photo.png');
     await set(host(page, id), { removeLabel: '' });
-    await expect(remove).toHaveAttribute('aria-label', 'Remove');
+    await expect(remove).toHaveAttribute('aria-label', 'Remove site-photo.png');
     // A word that is not needed is not missed: a read-only file item names no action, and one that cannot be retried no retry.
-    await mount(page, [fx('read-only', { name: 'kept.pdf', status: 'error', errorText: 'Lost.', retryable: true, readOnly: true }), fx('no-retry', { name: 'kept.pdf', removeLabel: 'Remove' })]);
+    await mount(page, [fx('read-only', { name: 'kept.pdf', status: 'error', errorText: 'Lost.', retryable: true, readOnly: true }), fx('no-retry', { name: 'kept.pdf', removeLabel: 'Remove {name}' })]);
     await turn(page);
     expect(await missingWords(page)).toEqual([]);
   });
@@ -2896,14 +2903,13 @@ test.describe('behavior', () => {
     const item = host(page, id);
     await own(page, id, 'remove').focus();
     // Every prop, drawn and exposed at once.
-    await set(item, { name: 'renamed.txt', formatText: 'Text', sizeText: '2 KB', status: 'uploading', statusText: 'Uploading', progress: 0.5, removeLabel: 'Delete' });
+    await set(item, { name: 'renamed.txt', formatText: 'Text', sizeText: '2 KB', status: 'uploading', statusText: 'Uploading', progress: 0.5, removeLabel: 'Delete {name}' });
     await expect(own(page, id, 'headline')).toHaveText('renamed.txt');
     await expect(own(page, id, 'supporting')).toHaveText(/^\s*Text\s+·\s+2 KB\s+·\s+Uploading\s*$/);
     expect(await item.getAttribute('aria-label')).toBe('renamed.txt');
     await expect(own(page, id, 'bar')).toHaveAttribute('aria-label', 'renamed.txt');
     await expect(own(page, id, 'bar')).toHaveAttribute('aria-valuenow', '0.5');
-    await expect(own(page, id, 'remove')).toHaveAttribute('aria-description', 'renamed.txt');
-    await expect(own(page, id, 'remove')).toHaveAttribute('aria-label', 'Delete');
+    await expect(own(page, id, 'remove')).toHaveAttribute('aria-label', 'Delete renamed.txt');
     await expect(own(page, id, 'icon')).toHaveText('description');
     expect(await focused(page), 'the focus is kept').toBe('tanrei-file-item[a] button.action.remove');
     await set(item, { form: 'tile', preview: true, previewSrc: PICTURE, width: 120, height: 80 });
@@ -2984,9 +2990,9 @@ test.describe('behavior', () => {
     }
     expect([await box(own(page, 'row-error-retryable', 'text')), await box(own(page, 'row-error-retryable', 'remove')), await box(host(page, 'tile'))], 'everything stands where it will stand').toEqual(places);
     // The names still reach assistive technology, and the actions still work.
-    await expect(stage(page, 'row-error-retryable').getByRole('button', { name: 'Remove' })).toHaveCount(1);
-    await expect(stage(page, 'row-error-retryable').getByRole('button', { name: 'Try again' })).toHaveCount(1);
-    await expect(stage(page, 'tile-error-retryable').getByRole('button', { name: 'Try again' })).toHaveCount(1);
+    await expect(stage(page, 'row-error-retryable').getByRole('button', { name: 'Remove site-photo.png' })).toHaveCount(1);
+    await expect(stage(page, 'row-error-retryable').getByRole('button', { name: 'Retry site-photo.png' })).toHaveCount(1);
+    await expect(stage(page, 'tile-error-retryable').getByRole('button', { name: 'Retry site-photo.png' })).toHaveCount(1);
     await listen(page);
     await own(page, 'row-error-retryable', 'remove').click();
     expect(await heard(page)).toEqual([{ type: 'remove', value: 'e' }]);
@@ -3086,7 +3092,7 @@ test.describe('behavior', () => {
     await expect(own(page, 'a', 'headline')).toHaveText('quarterly-budget.xlsx');
     await expect(own(page, 'a', 'icon')).toHaveText('table');
     expect(await host(page, 'a').getAttribute('aria-label')).toBe('quarterly-budget.xlsx');
-    await expect(own(page, 'a', 'remove')).toHaveAttribute('aria-description', 'quarterly-budget.xlsx');
+    await expect(own(page, 'a', 'remove')).toHaveAttribute('aria-label', 'Remove quarterly-budget.xlsx');
     await expect(own(page, 'a', 'supporting'), 'no size is taken from the file').toHaveText(/^\s*Uploading\s*$/);
     expect(await host(page, 'a').evaluate((el: HTMLElement & { name: string; mediaType: string }) => [el.name, el.mediaType, el.getAttribute('name')]), 'its props stay as the product left them').toEqual(['', '', '']);
     // The props win over what the file says.

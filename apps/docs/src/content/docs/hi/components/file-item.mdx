@@ -2,7 +2,7 @@
 title: फ़ाइल आइटम
 description: एक फ़ाइल दिखाता है, यानी उसका फ़ॉर्मैट बताने वाला ग्लिफ़ या उसकी छोटी तस्वीर, उसका नाम, और वह बात जो प्रॉडक्ट उसके बारे में कहता है। साथ में उसे हटाने और फिर कोशिश करने की क्रियाएँ होती हैं। वह फ़ाइलों के कॉलम की एक पंक्ति हो सकता है या तस्वीरों की क़तार की एक टाइल। फ़ाइल खोलने के लिए उसे दबाया जा सकता है। वह ख़ुद फ़ाइल को कभी नहीं पढ़ता, नहीं रखता और नहीं भेजता।
 translationOf: components/file-item.mdx
-sourceHash: 43bdeeda9d7542e94b4587901f6ecd3777f39dfe
+sourceHash: fa3865fd939a55ffa7efbd871ad173a4fb6357ca
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,10 +19,10 @@ import { demoPicture } from '../../../../lib/demo-picture';
 <ComponentAvailability name="file-item" />
 
 <DemoFrame label="एक फ़ाइल पंक्ति के रूप में, और फ़ाइलें टाइल के रूप में" column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="{name} हटाएँ"></tanrei-file-item>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
-    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="हटाएँ"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="हटाएँ"></tanrei-file-item>
+    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="{name} हटाएँ"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="{name} हटाएँ"></tanrei-file-item>
   </div>
 </DemoFrame>
 
@@ -58,12 +58,12 @@ import { demoPicture } from '../../../../lib/demo-picture';
     <ul class="attachments" aria-label="अटैचमेंट">
       <li>
         <tanrei-file-item value="a" name="brief.pdf" format-text="PDF" size-text="820 KB"
-                          href="/files/brief.pdf" remove-label="हटाएँ"></tanrei-file-item>
+                          href="/files/brief.pdf" remove-label="{name} हटाएँ"></tanrei-file-item>
       </li>
       <li>
         <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB"
                           status="uploading" status-text="अपलोड हो रही है" progress="0.4"
-                          remove-label="हटाएँ" retry-label="फिर कोशिश करें"></tanrei-file-item>
+                          remove-label="{name} हटाएँ" retry-label="{name} के लिए फिर कोशिश करें"></tanrei-file-item>
       </li>
     </ul>
 
@@ -90,7 +90,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
           <FileItem value={file.id} name={file.name} sizeText={file.sizeText}
             status={file.status} statusText={file.statusText} progress={file.progress}
             errorText={file.errorText} retryable={file.retryable}
-            removeLabel="हटाएँ" retryLabel="फिर कोशिश करें"
+            removeLabel="{name} हटाएँ" retryLabel="{name} के लिए फिर कोशिश करें"
             onRemove={() => remove(file.id)} onRetry={() => retry(file.id)} />
         </li>
       ))}
@@ -104,12 +104,12 @@ import { demoPicture } from '../../../../lib/demo-picture';
 ## स्पेक
 
 <DemoFrame label="हर स्थिति की एक पंक्ति: इंतज़ार में, 40% तक भेजी गई, भेजी जा रही, पूरी हुई, विफल और फिर कोशिश करने लायक़, हमेशा के लिए विफल" plain column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="इंतज़ार में" remove-label="हटाएँ"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="अपलोड हो रही है" progress="0.4" remove-label="हटाएँ"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="अपलोड हो रही है" remove-label="हटाएँ"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="अपलोड हो गई" remove-label="हटाएँ"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="कनेक्शन टूट गया।" retryable remove-label="हटाएँ" retry-label="फिर कोशिश करें"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="10 MB से बड़ी है।" remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="इंतज़ार में" remove-label="{name} हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="अपलोड हो रही है" progress="0.4" remove-label="{name} हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="अपलोड हो रही है" remove-label="{name} हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="अपलोड हो गई" remove-label="{name} हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="कनेक्शन टूट गया।" retryable remove-label="{name} हटाएँ" retry-label="{name} के लिए फिर कोशिश करें"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="10 MB से बड़ी है।" remove-label="{name} हटाएँ"></tanrei-file-item>
 </DemoFrame>
 
 <ComponentSpecs name="file-item" />
@@ -120,14 +120,14 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 <DemoFrame label="वही तीन फ़ाइलें, पंक्तियों के रूप में और टाइल के रूप में" plain column>
   <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
-    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 MB" preview preview-src={demoPicture} remove-label="हटाएँ"></tanrei-file-item>
-    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" preview preview-src={demoPicture} remove-label="हटाएँ"></tanrei-file-item>
-    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" preview remove-label="हटाएँ"></tanrei-file-item>
+    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 MB" preview preview-src={demoPicture} remove-label="{name} हटाएँ"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" preview preview-src={demoPicture} remove-label="{name} हटाएँ"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" preview remove-label="{name} हटाएँ"></tanrei-file-item>
   </div>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
-    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="हटाएँ"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="हटाएँ"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="हटाएँ"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="{name} हटाएँ"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="{name} हटाएँ"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="{name} हटाएँ"></tanrei-file-item>
   </div>
 </DemoFrame>
 
@@ -212,9 +212,9 @@ import { demoPicture } from '../../../../lib/demo-picture';
 `fit` बताता है कि तस्वीर अपने बॉक्स को कैसे भरती है। `cover`, जो डिफ़ॉल्ट है, बॉक्स को भर देता है और जो नहीं समाता उसे काट देता है; इसे फ़ोटो के लिए इस्तेमाल करें। `contain` पूरी तस्वीर को बॉक्स के बैकग्राउंड पर दिखाता है; इसे स्कैन, हस्ताक्षर और डायग्राम के लिए इस्तेमाल करें, जहाँ किनारे मायने रखते हैं।
 
 <DemoFrame label="160 गुणा 90 का बॉक्स: cover, contain, और छिपा हुआ नाम" plain>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="हटाएँ"></tanrei-file-item>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="हटाएँ"></tanrei-file-item>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="{name} हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="{name} हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="{name} हटाएँ"></tanrei-file-item>
 </DemoFrame>
 
 प्रीव्यू की क़ीमत:
@@ -234,8 +234,8 @@ import { demoPicture } from '../../../../lib/demo-picture';
 डिफ़ॉल्ट रूप से फ़ाइल आइटम की बॉडी न फ़ोकस लेती है, न किसी बात का जवाब देती है। आइटम में सिर्फ़ उसकी क्रियाएँ रहती हैं।
 
 <DemoFrame label="बटन वाली बॉडी, नए टैब में खुलने वाला लिंक, और सिर्फ़ पढ़ने वाली फ़ाइल" plain column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 MB" interactive remove-label="हटाएँ"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 MB" href="#दबाने-लायक़-लिंक-या-सिर्फ़-पढ़ने-के-लिए" target="new" target-label="नए टैब में खुलता है" remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 MB" interactive remove-label="{name} हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 MB" href="#दबाने-लायक़-लिंक-या-सिर्फ़-पढ़ने-के-लिए" target="new" target-label="नए टैब में खुलता है" remove-label="{name} हटाएँ"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 KB" status="done" status-text="4 दिसंबर को भेजी गई" readonly></tanrei-file-item>
 </DemoFrame>
 
@@ -286,7 +286,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 | `removeLabel` | `removeLabel` | हटाने की क्रिया दिखती है और उसका कोई नाम नहीं होता। डीबग बिल्ड इसकी रिपोर्ट करता है। |
 | `retryLabel` | `retryLabel` | फिर कोशिश करने की क्रिया दिखती है और उसका कोई नाम नहीं होता। डीबग बिल्ड इसकी रिपोर्ट करता है। |
 
-हर क्रिया का विवरण उसकी फ़ाइल का नाम है। एक शब्द, "हटाएँ", हर फ़ाइल के लिए काफ़ी है: व्यक्ति "हटाएँ, बटन, brief.pdf" सुनता है।
+हर क्रिया के नाम में उसकी फ़ाइल का नाम होता है: `removeLabel` और `retryLabel` ऐसे वाक्य हैं जिनमें `{name}` जगह है, जिसे फ़ाइल आइटम भरता है (`{name} हटाएँ`)। एक वाक्य हर फ़ाइल के लिए काफ़ी है, और व्यक्ति आपकी भाषा के क्रम में "brief.pdf हटाएँ, बटन" सुनता है — तब भी जब स्क्रीन रीडर पेज के बटनों की सूची दिखाता है। `{name}` के बिना वाक्य हर फ़ाइल की क्रिया को एक ही नाम देता है, और डीबग बिल्ड इसकी रिपोर्ट करता है।
 
 ### दाएँ से बाएँ
 
@@ -315,7 +315,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 - अकेला फ़ाइल आइटम एक ग्रुप है, जिसका नाम फ़ाइल का नाम है। फ़ाइल अपलोड में वह अपलोड की लिस्ट का एक आइटम है।
 - दबाने लायक़ बॉडी एक बटन या एक लिंक है, जिसका नाम फ़ाइल का नाम है और जिसका विवरण दूसरी लाइन है। फ़ोकस के क्रम में वह क्रियाओं से पहले आती है। लिंक Enter से सक्रिय होता है, Space से नहीं, और नए टैब में खुलने वाला लिंक अपने नाम के बाद `targetLabel` बोलता है।
-- क्रियाएँ बटन हैं, जिनके नाम `removeLabel` और `retryLabel` से आते हैं और जिनका विवरण फ़ाइल का नाम है। फिर कोशिश करना, हटाने से पहले आता है।
+- क्रियाएँ बटन हैं, जिनके नाम `removeLabel` और `retryLabel` से आते हैं, और उनकी `{name}` जगह में फ़ाइल का नाम होता है। फिर कोशिश करना, हटाने से पहले आता है।
 - पट्टी एक प्रोग्रेस बार है, जिसका नाम फ़ाइल से आता है। त्रुटि दूसरी लाइन का टेक्स्ट है, जो स्थिति की जगह पर पढ़ा जाता है।
 - ग्लिफ़, तस्वीर और स्थिति का निशान सहायक तकनीक से छिपे रहते हैं। वे जो दिखाते हैं, वह शब्द बताते हैं।
 - फ़ाइल आइटम कुछ पढ़कर नहीं सुनाता। जिसके पास कई आइटम हैं, उसके पास उन सबके लिए एक लाइव रीजन होता है, जैसा फ़ाइल अपलोड के पास है।
