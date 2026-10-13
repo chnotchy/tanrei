@@ -1174,7 +1174,8 @@
       "listing": "default",
       "builtFrom": [],
       "uses": [
-        "loading-indicator"
+        "loading-indicator",
+        "embedded-text-input"
       ],
       "hasSpec": true,
       "docs": "/components/tree-view/",
