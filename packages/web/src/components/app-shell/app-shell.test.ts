@@ -709,7 +709,7 @@ test.describe('the main region, the aside, the footer', () => {
     expect(await shown(region(page, 'footer'))).toBe(false);
     expect((await edges(region(page, 'navigation-bar'))).bottom).toBe(800);
     near((await edges(main(page))).bottom, (await edges(region(page, 'navigation-bar'))).top);
-    // An empty footer region is no footer, hidden or not: footerHidden false never draws one.
+    // An unfilled footer slot is no footer: footerHidden false never makes one.
     await mount(page, real({ footer: false }), { width: 1280 });
     await expect(page.getByRole('contentinfo')).toHaveCount(0);
     // The fixture.

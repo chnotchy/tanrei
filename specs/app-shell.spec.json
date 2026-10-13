@@ -110,7 +110,7 @@
       "name": "footerHidden",
       "type": "boolean",
       "default": false,
-      "description": "Whether the footer is left out of the frame although the product fills it: a screen that is a task rather than a page of the site (a checkout, a sign-in, an editor, a full-window map) keeps the site's footer markup and shows none. While true the footer takes no space, draws no line, is no landmark and has no stop in focus order, exactly as an empty footer region. The footer is shown only while the product fills it and this is false: there is no footer without content."
+      "description": "Whether the footer is left out of the frame although the product fills it: a screen that is a task rather than a page of the site (a checkout, a sign-in, an editor, a full-window map) keeps the site's footer markup and shows none. While true the footer takes no space, draws no line, is no landmark and has no stop in focus order, exactly as an empty footer region. The footer is shown only while the product fills the footer slot and this is false: footerHidden never makes a footer of an unfilled slot."
     },
     {
       "name": "separation",
@@ -272,7 +272,7 @@
     },
     {
       "id": "APS-31",
-      "text": "WHILE footerHidden is true THE app shell SHALL NOT show the footer, whatever the footer slot holds: the footer SHALL take no space, draw no line (APS-18), add no landmark (APS-21) and have no stop in focus order (APS-22), the regions beside it SHALL take its room, and WHILE scroll is page the navigation and the aside SHALL stay in view to the end of the page (APS-5, APS-9). WHILE footerHidden is false THE app shell SHALL show the footer exactly while the footer slot holds something (APS-1, APS-11), and SHALL NOT draw an empty footer or expose an empty content-information landmark for it. WHEN footerHidden changes THE app shell SHALL draw the new arrangement at once, without a motion of its own, SHALL keep what the footer slot holds as the product gave it, and IF keyboard focus is in the footer as it is hidden SHALL move focus to the main region.",
+      "text": "WHILE footerHidden is true THE app shell SHALL NOT show the footer, whatever the footer slot holds: the footer SHALL take no space, draw no line (APS-18), add no landmark (APS-21) and have no stop in focus order (APS-22), the regions beside it SHALL take its room, and WHILE scroll is page the navigation and the aside SHALL stay in view to the end of the page (APS-5, APS-9). WHILE footerHidden is false THE app shell SHALL show the footer exactly while the product fills the footer slot (APS-1, APS-11): it SHALL NOT draw a footer, or expose a content-information landmark, for a slot the product left unfilled. WHEN footerHidden changes THE app shell SHALL draw the new arrangement at once, without a motion of its own, SHALL keep what the footer slot holds as the product gave it, and IF keyboard focus is in the footer as it is hidden SHALL move focus to the main region.",
       "verify": "`expanded-footer-hidden` fills the footer slot and draws `expanded` without its footer: the navigation and the aside reach the bottom of the window and no hairline is drawn above where the footer was. With footerHidden true the accessibility tree has no content-information landmark and Tab goes from the last stop of the content to the navigation bar (or out of the frame)."
     },
     {
@@ -373,7 +373,7 @@
         "action": "Opens the navigation over the content and moves focus into it; Escape there closes it and returns focus to the menu button (the navigation drawer's own keys)."
       }
     ],
-    "labeling": "The shell has no role and no name. Its regions are the page's landmarks: banner (the header), navigation (named by the label of the navigation drawer or the navigation bar it holds), main (exactly one, unnamed), complementary (the aside, named by asideLabel or by the side sheet's headline) and content information (the footer, while it is shown: an empty or hidden footer is no landmark). The skip link is named by its own text and the menu button by its label, both in the product's language: Tanrei ships no words.",
+    "labeling": "The shell has no role and no name. Its regions are the page's landmarks: banner (the header), navigation (named by the label of the navigation drawer or the navigation bar it holds), main (exactly one, unnamed), complementary (the aside, named by asideLabel or by the side sheet's headline) and content information (the footer, while it is shown: an unfilled or hidden footer is no landmark). The skip link is named by its own text and the menu button by its label, both in the product's language: Tanrei ships no words.",
     "minimumTarget": true,
     "notes": [
       "The shell takes no input: the skip link is a Link and the menu button an icon-only Button, and each meets the minimum target by its own spec (LNK-17, BTN-5).",

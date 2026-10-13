@@ -2,7 +2,7 @@
 title: Estructura de la aplicación
 description: Enmarca una página o una aplicación. Coloca una cabecera, la navegación, el contenido principal, un contenido complementario y un pie, decide según el ancho de la ventana cómo se muestra cada uno y permite que el teclado llegue al contenido en un solo paso.
 translationOf: components/app-shell.mdx
-sourceHash: e1bbfea84771c28a26527ac4e2ebae057396b787
+sourceHash: dd71f17af916d5f24fc18262c73dccc55a1dc27e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -186,7 +186,7 @@ Las líneas no ocupan sitio. La estructura no dibuja ninguna alrededor de la cab
 - Tab recorre las regiones en el orden de lectura, el mismo en todas las clases de ventana y en las dos direcciones del diseño, de izquierda a derecha y de derecha a izquierda. Una región que no se muestra no tiene ninguna parada.
 - El destino de un enlace y un elemento con el foco nunca quedan debajo de la cabecera fija ni de la barra de navegación.
 - Cuando la clase de la ventana cambia y el foco estaba en algo que ya no se muestra, como el botón de menú, el foco pasa a la región principal.
-- Un pie oculto (`footerHidden`) no está en el árbol de accesibilidad y no tiene ninguna parada del teclado. Una región del pie vacía nunca es una región de referencia.
+- Un pie oculto (`footerHidden`) no está en el árbol de accesibilidad y no tiene ninguna parada del teclado.
 - Con el texto al 200% en una ventana de 320 de ancho, el marco es una sola columna y nada se desplaza hacia los lados.
 - Con colores forzados, las líneas y la caja del enlace de salto se dibujan con el color de texto del sistema.
 - En un diseño de derecha a izquierda, la navegación queda a la derecha y el contenido complementario a la izquierda. El orden del foco no cambia.

@@ -12,6 +12,6 @@ shown exactly while the product filled the footer region; a screen that is a tas
 checkout, a sign-in, an editor) can now leave the site's footer out without taking it out of the markup. While it is
 true the footer takes no space, draws no line, is no content-information landmark and has no stop of the keyboard, the
 navigation and the aside stay in view to the end of the page, and focus that was in the footer moves to the main
-region. An empty footer region is still never drawn and never a landmark. Pages that do not set it are unchanged. The
+region. A footer slot left unfilled is still never drawn and never a landmark. Pages that do not set it are unchanged. The
 spec names the prop on every platform; SwiftUI, Compose, Flutter and React Native have not implemented the app shell
 yet.
