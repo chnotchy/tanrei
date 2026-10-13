@@ -664,6 +664,61 @@ test.describe('the main region, the aside, the footer', () => {
     expect((await edges(region(page, 'footer'))).bottom).toBe(800);
   });
 
+  test('APS-31: while footerHidden is true a filled footer is not shown — no space, no line, no landmark, no focus stop — its neighbours take its room and the navigation and the aside stay in view to the end of the page; while false the footer is shown exactly while it is filled; a change is drawn at once, keeps what the slot holds, and moves focus that was in the footer to the main region', async ({ page, browserName }) => {
+    await mount(page, real({ sections: 6, props: { footerHidden: true } }), { width: 1280 });
+    const footer = region(page, 'footer');
+    await expect(shell(page)).toHaveAttribute('footer-hidden', '');
+    // Hidden, whatever it holds: no box, and so no room, no line and no landmark.
+    expect([await shown(footer), await css(footer, 'display')]).toEqual([false, 'none']);
+    await expect(page.getByRole('contentinfo')).toHaveCount(0);
+    if (browserName === 'chromium') expect(await landmarks(page)).toEqual(['banner', 'navigation "Documentation"', 'main', 'complementary "On this page"']);
+    // The page ends with the row, and the navigation and the aside stay in view to its end.
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    const end = await page.evaluate(() => document.documentElement.scrollHeight);
+    near((await edges(main(page))).bottom + (await scrollY(page)), end);
+    near((await edges(region(page, 'navigation'))).bottom, 800);
+    near((await edges(region(page, 'aside'))).bottom, 800);
+    expect(await shell(page).evaluate((el) => (el as HTMLElement).style.getPropertyValue('--_aps-footer'))).toBe('0px');
+    // No stop in focus order: from the aside's link Tab leaves the frame, and never reaches the footer's.
+    await page.locator('#aside-link').focus();
+    await page.keyboard.press('Tab');
+    expect(await active(page)).not.toBe('#footer-link');
+    // A product's own display on its footer does not bring back what it asked to hide.
+    await footer.evaluate((el) => ((el as HTMLElement).style.display = 'flex'));
+    expect(await shown(footer)).toBe(false);
+    await footer.evaluate((el) => (el as HTMLElement).style.removeProperty('display'));
+
+    // Shown again, at once and with what it held: the content information, across the frame's width, after the row.
+    await shell(page).evaluate((el) => ((el as unknown as { footerHidden: boolean }).footerHidden = false));
+    await expect(shell(page)).not.toHaveAttribute('footer-hidden');
+    expect(await shown(footer)).toBe(true);
+    await expect(page.getByRole('contentinfo')).toHaveCount(1);
+    await expect(page.locator('#footer-link')).toHaveCount(1);
+    expect(await css(footer, 'transition-duration')).toBe('0s');
+    const [box, line] = [await edges(footer), await px(footer, 'border-top-width')];
+    expect([box.left, box.width, line]).toEqual([0, 1280, await resolveToken(page, T('outline-width'))]);
+    // Hidden while focus is in it: focus goes to the main region.
+    await page.locator('#footer-link').focus();
+    expect(await active(page)).toBe('#footer-link');
+    await shell(page).evaluate((el) => el.setAttribute('footer-hidden', ''));
+    await expect.poll(() => active(page)).toBe('#main');
+    expect(await shown(footer)).toBe(false);
+
+    // scroll: main — the main region takes the footer's room, down to the navigation bar.
+    await mount(page, real({ aside: '', sections: 6, bar: true, props: { scroll: 'main', footerHidden: true } }), { width: 400 });
+    expect(await shown(region(page, 'footer'))).toBe(false);
+    expect((await edges(region(page, 'navigation-bar'))).bottom).toBe(800);
+    near((await edges(main(page))).bottom, (await edges(region(page, 'navigation-bar'))).top);
+    // An empty footer region is no footer, hidden or not: footerHidden false never draws one.
+    await mount(page, real({ footer: false }), { width: 1280 });
+    await expect(page.getByRole('contentinfo')).toHaveCount(0);
+    // The fixture.
+    await mount(page, 'expanded-footer-hidden');
+    expect(await shown(region(page, 'footer'))).toBe(false);
+    near((await edges(region(page, 'navigation'))).bottom, 800);
+    near((await edges(region(page, 'aside'))).bottom, 800);
+  });
+
   test('APS-12: the announcement stands across the frame’s whole width above the header in every class, with no inset; while scroll is page it scrolls away and a sticky header then rests at the top of the window, while scroll is main it stays above the header; what closes gives its room back at once', async ({ page }) => {
     const callout = '<div slot="announcement"><tanrei-callout id="notice" status="info" closable close-label="Dismiss">A new version is out.</tanrei-callout></div>';
     for (const width of [1280, 800, 400]) {
@@ -1077,11 +1132,11 @@ test.describe('the skip link, landmarks and focus', () => {
     expect(await shell(page).evaluate((el) => [el.tabIndex, el.hasAttribute('tabindex')])).toEqual([-1, false]);
   });
 
-  test('APS-23: a change of the window’s class is drawn at once, without a motion; scroll, headerPosition, mainWidth, asideOrder and separation stay as they are; and keyboard focus on something the new arrangement does not show — the menu button, a destination of the navigation bar — moves to the main region', async ({ page }) => {
+  test('APS-23: a change of the window’s class is drawn at once, without a motion; scroll, headerPosition, mainWidth, asideOrder, footerHidden and separation stay as they are; and keyboard focus on something the new arrangement does not show — the menu button, a destination of the navigation bar — moves to the main region', async ({ page }) => {
     await mount(page, real({ bar: true, sections: 2, props: { mainWidth: 'full', asideOrder: 'before', separation: 'gap', headerPosition: 'static' } }), { width: 400 });
-    const props = () => shell(page).evaluate((el) => ['scroll', 'header-position', 'main-width', 'aside-order', 'separation'].map((name) => el.getAttribute(name)));
+    const props = () => shell(page).evaluate((el) => ['scroll', 'header-position', 'main-width', 'aside-order', 'footer-hidden', 'separation'].map((name) => el.getAttribute(name)));
     const kept = await props();
-    expect(kept).toEqual([null, 'static', 'full', 'before', 'gap']);
+    expect(kept).toEqual([null, 'static', 'full', 'before', null, 'gap']);
     await menu(page).evaluate((el) => (el as HTMLElement).focus());
     expect(await active(page)).toContain('menu');
     await resize(page, 1280);
@@ -1382,7 +1437,7 @@ test.describe('the element and its stylesheet', () => {
 test.describe('fixtures', () => {
   test('every fixture of the spec is mounted, alone, in the window its id names', async ({ page }) => {
     test.setTimeout(120_000);
-    expect(spec.fixtures).toHaveLength(19);
+    expect(spec.fixtures).toHaveLength(20);
     for (const f of spec.fixtures) {
       await mount(page, f);
       const size = appShellWindow(f.id);
