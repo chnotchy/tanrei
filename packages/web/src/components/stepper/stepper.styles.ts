@@ -32,7 +32,10 @@ const RECOLOR = `${T('motion-state-duration')} ${T('motion-state-easing')}`;
 
 /** The stepper: the row or column of its steps, or the compact form (SPR-4, SPR-5, SPR-6). */
 export const stepperStyles = css`
+  /* A containing block for what it places itself (the probe, the compact form's word heard and not drawn), so that
+     nothing of it is laid out against a box outside it. */
   :host {
+    position: relative;
     display: block;
     min-inline-size: 0;
   }
