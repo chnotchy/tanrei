@@ -2,7 +2,7 @@
 title: Panel de navegación
 description: Muestra los destinos de un producto en un panel situado en el borde de inicio, organizados en secciones y grupos, junto al contenido en una pantalla grande o sobre él en una compacta, y puede contraerse hasta quedar en una columna de iconos.
 translationOf: components/navigation-drawer.mdx
-sourceHash: 1200db5dc3b8b23273bf2e66c4c46a1625667586
+sourceHash: e734adcaf006bdd75d1e404fd706ea526937e5ff
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="navigation-drawer" />
 
 :::note[Una especificación revisada que aún no está en todas las plataformas]
-Esta página describe el panel de navegación tal como lo define ahora la especificación. Un panel `collapsible` se estrecha hasta quedar en una columna de iconos, que sustituye al carril de navegación: el panel contraído es el expandido sin sus etiquetas, con cada fila cortada después de su icono, y su botón de menú lo vuelve a ensanchar con todos los iconos en su sitio. El texto `badge` de un destino pasa a ser `trailingText`, dibujado de forma más discreta, y un slot `trailing` contiene un glifo o un Badge; `badge` es ahora una insignia sobre el icono. Los elementos `group` abren y cierran destinos anidados. Las filas miden 48 de alto, la altura de un elemento de menú. `responsive` deja que el ancho de la ventana elija cómo se presenta el panel. Un destino con `href` es un enlace, y `revealSelected` y `scrollOffset` convierten el panel en la barra lateral de un sitio. El componente web ya hace todo esto, y las demostraciones también. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior, con filas de 44, `badge` como texto al final de la fila, sin forma contraída, grupos, destinos de enlace ni presentación adaptable, y con un carril de navegación aparte, y sus ejemplos muestran esa revisión.
+Esta página describe el panel de navegación tal como lo define ahora la especificación. Un panel `collapsible` se estrecha hasta quedar en una columna de iconos, que sustituye al carril de navegación: el panel contraído es el expandido sin sus etiquetas, con cada fila cortada después de su icono, y su botón de menú lo vuelve a ensanchar con todos los iconos en su sitio. El texto `badge` de un destino pasa a ser `trailingText`, dibujado de forma más discreta, y un slot `trailing` contiene un glifo o un Badge; `badge` es ahora una insignia sobre el icono. Los elementos `group` abren y cierran destinos anidados. Las filas miden 48 de alto, la altura de un elemento de menú. `responsive` deja que el ancho de la ventana elija cómo se presenta el panel. Un destino con `href` es un enlace, y `revealSelected` y `scrollOffset` convierten el panel en la barra lateral de un sitio. El componente web ya hace todo esto, y las demostraciones también. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior, con filas de 44, `badge` como texto al final de la fila, sin forma contraída, grupos, destinos de enlace ni presentación adaptable, y con un carril de navegación aparte, y sus ejemplos muestran esa revisión. La `density` compacta y los grupos que también son destinos (`selectableGroups`) son aún más recientes, y por ahora solo están en la web.
 :::
 
 <DemoFrame label="Un panel estándar con dos secciones">
@@ -62,6 +62,39 @@ Esta página describe el panel de navegación tal como lo define ahora la especi
   </tanrei-navigation-drawer>
 </DemoFrame>
 
+<DemoFrame label="Un panel compacto, para una herramienta que se usa con puntero: filas de 32 y glifos de 16, cada icono anidado donde empieza la etiqueta de su grupo" plain>
+  <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
+    <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-section heading="Projects">
+      <tanrei-navigation-drawer-group label="Tanrei" icon="folder" open>
+        <tanrei-navigation-drawer-item value="tokens" label="Tokens" icon="palette" trailing-text="412"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-group label="Components" icon="widgets" open>
+          <tanrei-navigation-drawer-item value="button" label="Button" icon="smart_button"></tanrei-navigation-drawer-item>
+          <tanrei-navigation-drawer-item value="tree-view" label="Tree view" icon="account_tree"></tanrei-navigation-drawer-item>
+        </tanrei-navigation-drawer-group>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer-section>
+    <tanrei-navigation-drawer-item value="settings" label="Settings" icon="settings"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="Grupos que también son destinos: con selectable-groups, la fila de un grupo lo elige y su chevron lo abre y lo cierra" plain>
+  <tanrei-navigation-drawer open selectable-groups value="components" label="Documentation" style="block-size: 22rem">
+    <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="Foundations" icon="palette" value="foundations">
+      <tanrei-navigation-drawer-item value="color" label="Color" icon="contrast"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="typography" label="Typography" icon="text_fields"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Components" icon="widgets" value="components" open>
+      <tanrei-navigation-drawer-item value="button" label="Button" icon="smart_button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="tabs" label="Tabs" icon="tab"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Resources" icon="folder">
+      <tanrei-navigation-drawer-item value="downloads" label="Downloads" icon="download"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
 ### Uso
 
 Un panel de navegación tiene cinco tipos de elemento. Un `destination` es una fila con un icono opcional, una etiqueta y, al final, un contenido final opcional; con `href` es un enlace. Un `group` es una fila que abre y cierra los destinos y grupos que contiene. Una `section` agrupa destinos y grupos bajo un `heading` opcional, con un `divider` opcional delante; las secciones no se anidan, y los grupos no contienen secciones. Un `header-button` (el primero es el botón de menú) y una `main-action` se sitúan en la cabecera. En la web son elementos hijos `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` y `<tanrei-navigation-drawer-section>`, y elementos `<tanrei-button>` de solo icono y un `<tanrei-main-action-button>` en los slots `header-button` y `main-action`. Las plataformas rezagadas reciben los destinos y las secciones según su estilo propio: vistas `TanreiNavigationDrawerItem` y `TanreiNavigationDrawerSection` en SwiftUI y llamadas con esos nombres en Compose, objetos `TanreiNavigationDrawerDestination` y `TanreiNavigationDrawerSection` dentro de `children:` en Flutter, y entradas de destino y de sección de un array `items` en React Native, donde una sección se distingue por tener sus propios `items`.
@@ -69,6 +102,10 @@ Un panel de navegación tiene cinco tipos de elemento. Un `destination` es una f
 La selección pertenece al panel y se expresa con el valor de un destino, esté donde esté ese destino. `change` y `reselect` funcionan como en la barra de navegación. Compose no tiene un valor a nivel de panel: marcas el elemento actual con `selected`, y su `onClick` hace tanto de change como de reselect. Flutter selecciona por índice, contado a través de las secciones en el orden de lectura.
 
 Un destino con `href` es un enlace y no un botón. El navegador lo sigue como sigue cualquier enlace, y el panel no lo selecciona con una pulsación: la página que llega dice qué destino es el actual, al definir el `value` del panel como el valor de ese destino o, si no tiene valor, como su `href` tal como está escrito. `change` y `reselect` se siguen emitiendo cuando un enlace se activa de la forma habitual. Llevan su `href` y se pueden cancelar, y así es como un enrutador del lado del cliente se hace cargo de la navegación. Los destinos de enlace están hoy en la web.
+
+La fila de un grupo lo abre y lo cierra, y no elige nada. Cuando un grupo es además un lugar propio (la página de resumen de una sección en un sitio, una carpeta que se muestra al elegirla), activa `selectableGroups` en el panel y dale al grupo un `value` o un `href`: su fila lo elige entonces, como la de un destino, y su chevron pasa a ser un control propio que lo abre y lo cierra. Un grupo sin ninguno de los dos sigue solo abriéndose y cerrándose. Los grupos que son destinos están hoy en la web.
+
+`density` es `regular`, el valor por defecto, o `compact`: filas de 32 con glifos de 16 y una columna de iconos más estrecha, para una herramienta que se usa con puntero y cuyo panel enumera muchos lugares. La densidad compacta está hoy en la web.
 
 El panel tiene dos variantes, y un mismo producto suele usar las dos: estándar donde la ventana es lo bastante ancha y modal donde no lo es.
 
@@ -412,6 +449,14 @@ Un sistema de diseño puede añadir variantes. Una variante que añada se compor
 - **Todos los iconos se quedan en su sitio.** Los iconos están en una misma columna y en una misma línea en las dos formas, y cada celda conserva su altura, de modo que el cambio de forma solo mueve el borde de fin: las etiquetas se desvanecen cuando el borde pasa por ellas y, en una columna con etiquetas, las etiquetas cortas aparecen con un fundido. Un grupo abierto es la única excepción: el panel contraído no dibuja sus elementos, así que las celdas de debajo suben.
 - **La selección cambia de color en su sitio.** Una nueva selección cambia el color de las filas allí donde están, expandidas o contraídas. Nada crece, se encoge ni se desliza para mostrarla.
 
+### Densidad
+
+- **`regular`**, el valor por defecto, tiene filas de 48 con glifos de 24, la altura de un elemento de [menú](/es/components/menu/), para un producto que se usa tanto con el tacto como con puntero.
+- **`compact`** tiene las filas compactas de una [vista de árbol](/es/components/tree-view/): 32 de alto con glifos de 16, 8 dentro de cada fila, 2 entre filas y 28 para un encabezado, y una columna de iconos de 56 de ancho al contraerse. Úsala en una herramienta que se usa con puntero y cuyo panel enumera muchos lugares, como un explorador de archivos o la barra lateral de un editor.
+- **Los iconos anidados se alinean en ambas densidades.** El contenido de cada nivel empieza una sangría más adentro, y la sangría es el icono y el espacio de la densidad, así que el icono de un destino anidado queda donde empieza la etiqueta de su grupo y los iconos de un nivel forman una sola columna.
+- **El tacto conserva su objetivo.** Con el tacto, una fila compacta se dibuja al menos con la altura del objetivo táctil. Con puntero, su área de pulsación es la fila y la mitad del espacio a su alrededor: menos que el objetivo de puntero, pero aún por encima de los 24 de WCAG 2.5.8.
+- Un sistema de diseño cambia lo que significa compacto, o añade una densidad, mediante los tokens `.compact` del panel, como `comp.navigation-drawer.item.container.height.compact`.
+
 ### Seguir el ancho de la ventana
 
 `responsive` deja que el ancho de la ventana elija cómo se presenta el panel, a partir de los dos puntos de ruptura de su sistema de diseño (1024 y 600 en el sistema predeterminado). En ese caso, `variant` se ignora.
@@ -445,6 +490,7 @@ Da un `href` a cada destino y, al panel, la dirección de la propia página como
 - `trailingText` es un texto corto al final de la fila, más discreto que la etiqueta: un recuento («24») o una palabra («Nuevo»). El slot `trailing` contiene cualquier otra cosa, como un glifo o un Badge; prevalece sobre `trailingText` y nunca es interactivo. Un enlace con `target` en `new` termina su fila con `open_in_new` por sí solo, así que no tienes que colocar ese glifo. El contenido final se lee después de la etiqueta y no se dibuja mientras el panel está contraído.
 - `badge` dibuja un Badge sobre el icono, en las dos formas: un punto, o `badgeCount`, con el nombre que le da `badgeLabel`.
 - La fila de un grupo abre y cierra los destinos y grupos que contiene, con el `expand_more` del conjunto de iconos girado media vuelta mientras está abierto. El icono y la etiqueta de cada nivel empiezan una sangría más adentro; su relleno, su capa de estado y su anillo de foco conservan el ancho completo de una fila de nivel superior, de modo que todas las selecciones tienen la misma forma. Un grupo cerrado que contiene el destino seleccionado se dibuja seleccionado, y lo mismo ocurre con un grupo de nivel superior mientras el panel está contraído; activar un grupo con el panel contraído expande el panel y abre el grupo. No pases de tres niveles.
+- **Un grupo que también es destino** (`selectableGroups`, y un `value` o un `href` en el grupo) divide su fila como lo hace una [vista de árbol](/es/components/tree-view/): su chevron lo abre y lo cierra, el resto de la fila lo elige, y una pulsación nunca hace ambas cosas. El chevron es un control propio, después de la fila en el orden del foco, con un área de pulsación al menos tan ancha como el objetivo de puntero. Con el panel contraído, a diferencia de otro grupo, su celda lo elige y deja el panel contraído; a sus elementos se llega expandiendo el panel. `revealSelected` también abre un grupo así cuando es la página actual, de modo que la barra lateral de un sitio muestra las páginas de la sección que se ve.
 - El título de una sección da nombre a los destinos que tiene debajo. Es un encabezado, no un control. Una sección puede no tener título, como un grupo separado por un divisor y sin nombre.
 - El `divider` de una sección dibuja un divisor delante de ella, para separarla de lo que tiene encima. Nunca colocas un divisor por tu cuenta.
 - La cabecera contiene los botones de la cabecera, apilados en la columna de iconos, y la acción principal debajo de ellos. El slot de la cabecera se sitúa junto al botón de menú mientras el panel está expandido, para un título o un selector de cuentas, y no se dibuja mientras está contraído. El texto simple que se coloca ahí se dibuja con el estilo de título del panel (`comp.navigation-drawer.header.typescale` y `comp.navigation-drawer.header.color`); un elemento tuyo que define su propio estilo lo conserva.
@@ -461,7 +507,7 @@ Da un `href` a cada destino y, al panel, la dirección de la propia página como
 
 - No uses el panel para acciones como «Cerrar sesión» o «Redactar». Sus filas son lugares.
 - No anides una sección dentro de otra ni pongas una sección dentro de un grupo. Las compilaciones de depuración lo notifican y dibujan en su lugar los destinos de la sección interior.
-- No uses la fila de un grupo como destino. Solo abre y cierra.
+- No le des a un grupo un `value` o un `href` con `selectableGroups` desactivado esperando que su fila lo elija. Solo se abre y se cierra, y las compilaciones de depuración lo notifican.
 - No uses un panel modal en una ventana lo bastante ancha para uno estándar.
 
 ## Accesibilidad
@@ -476,6 +522,7 @@ Da un `href` a cada destino y, al panel, la dirección de la propia página como
 - Un destino de enlace se dibuja exactamente igual que un destino de botón, en todos los estados, sin aspecto de enlace visitado. Conserva todo lo que un navegador da a un enlace: su menú contextual, la apertura en una pestaña nueva, el arrastre y la dirección al pasar el cursor. Uno que abre una pestaña nueva lee su `targetLabel` al final de su descripción.
 - El tooltip de una celda contraída es para las personas que ven la pantalla y usan un puntero o el teclado. Queda oculto para la tecnología de apoyo, que ya lee la etiqueta como nombre de la celda.
 - La fila de un grupo es un botón con un estado expandido que controla su lista anidada. Flecha derecha (en un diseño de izquierda a derecha) abre un grupo cerrado, Flecha izquierda cierra uno abierto, y Flecha izquierda dentro de un grupo lleva a su fila. Tab recorre todas las filas que se muestran.
+- Un grupo que también es destino es el menú de navegación desplegable con enlaces de nivel superior de las WAI-ARIA Authoring Practices: su fila es un enlace o un botón, con `aria-current="page"` mientras es la página actual, y su chevron es un botón aparte, con el nombre de la etiqueta del grupo y el estado expandido, que controla la lista anidada. Cada uno es una parada de Tab, y Flecha derecha y Flecha izquierda siguen abriendo y cerrando el grupo desde su fila.
 - Mientras el panel se puede contraer, su botón de menú se expone como expandido o contraído y como el control que gobierna el panel. Cuando la forma cambia, el foco se queda en la celda en la que estaba.
 - El título de una sección se expone como encabezado y no puede recibir el foco.
 - Tab recorre el contenido de la cabecera y todos los destinos que no están deshabilitados. Enter y Espacio activan el destino que tiene el foco (solo Enter, en el caso de un enlace en la web). Los destinos deshabilitados no reciben el foco y se anuncian como deshabilitados.
@@ -483,7 +530,7 @@ Da un `href` a cada destino y, al panel, la dirección de la propia página como
 - El anillo de foco se dibuja alrededor de la fila, solo para el foco del teclado. El foco del teclado en una fila que no está completamente a la vista la desplaza hasta dejarla a la vista con el menor recorrido posible.
 - El área de pulsación es la celda entera, en las dos formas, y nunca es menor que el objetivo mínimo.
 - Un texto más grande conserva el ancho de las dos formas y hace más altas las filas y los títulos. Las etiquetas saltan de línea; las etiquetas cortas se cortan. Los iconos no se escalan.
-- Las compilaciones de depuración notifican un destino sin etiqueta, un panel modal sin `label`, un valor que no corresponde a ningún destino, un valor usado dos veces, una sección anidada, una sección dentro de un grupo, un anidamiento de más de tres niveles, una variante que el sistema de diseño no tiene, un panel que se puede contraer sin botón de menú, un elemento que puede recibir el foco en el slot `trailing`, un `href` que es una dirección `javascript:` o que no se puede leer, un `target` desconocido y un enlace con `target` en `new` y sin `targetLabel`.
+- Las compilaciones de depuración notifican un destino sin etiqueta, un panel modal sin `label`, un valor que no corresponde a ningún destino, un valor usado dos veces, una sección anidada, una sección dentro de un grupo, un anidamiento de más de tres niveles, una variante que el sistema de diseño no tiene, un panel que se puede contraer sin botón de menú, un elemento que puede recibir el foco en el slot `trailing`, un `href` que es una dirección `javascript:` o que no se puede leer, un `target` desconocido y un enlace con `target` en `new` y sin `targetLabel`. También notifican una densidad que el sistema de diseño no tiene y un grupo con `value` o `href` mientras `selectableGroups` está desactivado.
 
 Carencias conocidas por plataforma:
 
