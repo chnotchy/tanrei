@@ -2725,6 +2725,9 @@ test.describe('entries that act', () => {
       icons: true,
       reducedMotion: true,
     });
+    // Every entry in the row: none folded into the overflow item, where it is a row of a menu instead.
+    await stageWidth(page, 'forced', 1000);
+    await expect.poll(async () => (await state(page, 'forced')).folded).toEqual([]);
     await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
     const forced = await page.evaluate(() => {
       const probe = document.body.appendChild(document.createElement('div'));
