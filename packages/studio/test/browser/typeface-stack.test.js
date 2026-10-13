@@ -40,11 +40,11 @@ studioTest('a font stack is a reorderable list: moved, and removed, by the keybo
   assert.match(await css(list.locator('[data-family="Noto Sans JP"] .headline'), 'font-family'), /^"Noto Sans JP", sans-serif/);
   await until(async () => (await list.locator('[data-family="Acme Grotesk Nowhere"]').evaluate((item) => item.supportingText)) === 'not installed here', 'the family that is not installed says so');
   assert.equal(await list.locator('[data-family="Inter"]').evaluate((item) => item.supportingText), '');
-  // The words are the Studio's: every button has a name, and a remove button names its family.
+  // The words are the Studio's: every button has a name, and each names its family.
   const drawn = await controls(list);
-  assert.deepEqual(drawn.filter((control) => control.family === 'Inter').map((control) => control.name), ['Move up', 'Move down', 'Remove: Inter']);
+  assert.deepEqual(drawn.filter((control) => control.family === 'Inter').map((control) => control.name), ['Move Inter up', 'Move Inter down', 'Remove: Inter']);
   assert.deepEqual(drawn.filter((control) => !(control.size[0] >= 24 && control.size[1] >= 24)), [], 'every control of a row is 24 by 24 at least');
-  assert.equal(await list.locator('[data-family="Inter"] .move.up').evaluate((button) => button.getAttribute('aria-description')), 'Inter');
+  assert.equal(await list.locator('[data-family="Inter"] .move.up').evaluate((button) => button.getAttribute('aria-description')), null, 'the family is in the name, and not said again');
 
   // Move up, by the keyboard, three times: to the top. The row is the same element all the way.
   await listen(list);
@@ -100,7 +100,7 @@ studioTest('ar, 390px: a family is moved and removed with a pointer — the list
   const list = brand.locator('[data-stack-list]');
   await list.scrollIntoViewIfNeeded();
   const drawn = await controls(list);
-  assert.deepEqual(drawn.filter((control) => control.family === 'Inter').map((control) => control.name), ['تحريك لأعلى', 'تحريك لأسفل', 'إزالة: Inter']);
+  assert.deepEqual(drawn.filter((control) => control.family === 'Inter').map((control) => control.name), ['تحريك Inter لأعلى', 'تحريك Inter لأسفل', 'إزالة: Inter']);
   assert.deepEqual(drawn.filter((control) => !(control.size[0] >= 24 && control.size[1] >= 24)), [], 'every control of a row is 24 by 24 at least');
   await listen(list);
   await list.locator('[data-family="Inter"] .move.down').click();

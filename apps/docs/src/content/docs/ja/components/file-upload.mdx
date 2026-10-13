@@ -2,7 +2,7 @@
 title: ファイルアップロード
 description: ファイルピッカーでファイルを選ばせ、選ばれたファイルをファイル項目として見せます。縦に並ぶ行にも、タイルの並びにもなります。フォームに置くだけで、選ばれたファイルを保持し、コードなしで送信します。ファイルを自分で送るプロダクトは、ファイル項目を自分で渡します。自身では何もアップロードしません。
 translationOf: components/file-upload.mdx
-sourceHash: 92200944376e4e306774065dde5f3c738369a9a3
+sourceHash: fb899706d800e36991b2221b490a0dee56cc73df
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -18,10 +18,10 @@ import { demoPicture } from '../../../../lib/demo-picture';
 <ComponentAvailability name="file-upload" />
 
 <DemoFrame label="2 つのレイアウトのファイルアップロード。ファイルを選ぶと一覧に並び、取り除くこともできます。何も送信されません。" column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="添付ファイル" accept=".pdf" constraints-text="PDF、10 MB まで" max-size="10000000" empty-text="ファイルが選ばれていません" remove-label="取り除く" type-error-text="追加できるのは PDF だけです。" size-error-text="10 MB を超えています。">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="添付ファイル" accept=".pdf" constraints-text="PDF、10 MB まで" max-size="10000000" empty-text="ファイルが選ばれていません" remove-label="{name} を取り除く" type-error-text="追加できるのは PDF だけです。" size-error-text="10 MB を超えています。">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
   </tanrei-file-upload>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="添付ファイル" accept=".pdf,image/png" max-size="10000000" drop-text="ここにファイルをドラッグするか、選んでください" constraints-text="PDF または PNG、1 つにつき 10 MB まで" remove-label="取り除く" type-error-text="追加できるのは PDF と PNG だけです。" size-error-text="10 MB を超えています。">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="添付ファイル" accept=".pdf,image/png" max-size="10000000" drop-text="ここにファイルをドラッグするか、選んでください" constraints-text="PDF または PNG、1 つにつき 10 MB まで" remove-label="{name} を取り除く" type-error-text="追加できるのは PDF と PNG だけです。" size-error-text="10 MB を超えています。">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
   </tanrei-file-upload>
 </DemoFrame>
@@ -61,7 +61,7 @@ Web では `<tanrei-file-upload>` です。ほかのプラットフォームは�
                           accept=".pdf,image/png" max-size="10000000"
                           label="添付ファイル"
                           constraints-text="PDF または PNG、1 つにつき 10 MB まで"
-                          remove-label="取り除く"
+                          remove-label="{name} を取り除く"
                           type-error-text="追加できるのは PDF と PNG だけです。"
                           size-error-text="10 MB を超えています。">
         <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
@@ -82,7 +82,7 @@ Web では `<tanrei-file-upload>` です。ほかのプラットフォームは�
         maxSize={10_000_000}
         label="添付ファイル"
         constraintsText="PDF または PNG、1 つにつき 10 MB まで"
-        removeLabel="取り除く"
+        removeLabel="{name} を取り除く"
         typeErrorText="追加できるのは PDF と PNG だけです。"
         sizeErrorText="10 MB を超えています。"
       >
@@ -134,7 +134,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
                         label="添付ファイル"
                         drop-text="ここにファイルをドラッグするか、選んでください"
                         constraints-text="PDF または PNG、1 つにつき 10 MB まで"
-                        remove-label="取り除く" retry-label="もう一度試す">
+                        remove-label="{name} を取り除く" retry-label="{name} をもう一度試す">
       <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
     </tanrei-file-upload>
 
@@ -183,8 +183,8 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
       label="添付ファイル"
       dropText="ここにファイルをドラッグするか、選んでください"
       constraintsText="PDF または PNG、1 つにつき 10 MB まで"
-      removeLabel="取り除く"
-      retryLabel="もう一度試す"
+      removeLabel="{name} を取り除く"
+      retryLabel="{name} をもう一度試す"
       onSelect={(event) => start(event.detail.files)}
       onReject={(event) => explain(event.detail.files)}
     >
@@ -209,7 +209,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 <!-- ファイルアップロード -->
 <tanrei-field label="添付ファイル">
   <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
-      constraints-text="PDF、5 つまで" empty-text="ファイルが選ばれていません" remove-label="取り除く" retry-label="もう一度試す">
+      constraints-text="PDF、5 つまで" empty-text="ファイルが選ばれていません" remove-label="{name} を取り除く" retry-label="{name} をもう一度試す">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="アップロード中" progress="0.4"></tanrei-file-item>
   </tanrei-file-upload>
@@ -224,7 +224,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 </tanrei-field>
 <ul class="my-files" aria-label="添付ファイル">
   <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="アップロード中" progress="0.4"
-        remove-label="取り除く" retry-label="もう一度試す"></tanrei-file-item></li>
+        remove-label="{name} を取り除く" retry-label="{name} をもう一度試す"></tanrei-file-item></li>
 </ul>
 ```
 
@@ -233,7 +233,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
   </tanrei-file-picker>
   <ul class="not-content" aria-label="添付ファイル" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
-    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="アップロード中" progress="0.4" remove-label="取り除く" retry-label="もう一度試す"></tanrei-file-item></li>
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="アップロード中" progress="0.4" remove-label="{name} を取り除く" retry-label="{name} をもう一度試す"></tanrei-file-item></li>
   </ul>
 </DemoFrame>
 
@@ -259,7 +259,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 ## 仕様
 
 <DemoFrame label="プロダクトが渡した、状態ごとの行。待機中、40% まで送信、送信中、完了、失敗して再試行できる、失敗して再試行できない" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="添付ファイル" constraints-text="PDF または PNG、1 つにつき 10 MB まで" remove-label="取り除く" retry-label="もう一度試す">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="添付ファイル" constraints-text="PDF または PNG、1 つにつき 10 MB まで" remove-label="{name} を取り除く" retry-label="{name} をもう一度試す">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="待機中"></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="アップロード中" progress="0.4"></tanrei-file-item>
@@ -271,7 +271,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 </DemoFrame>
 
 <DemoFrame label="同じファイルアップロードをタイルにしたもの。どのファイルも画像の入ったボックスで、その下に名前があります" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="写真" constraints-text="画像、1 枚につき 5 MB まで" remove-label="取り除く" retry-label="もう一度試す">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="写真" constraints-text="画像、1 枚につき 5 MB まで" remove-label="{name} を取り除く" retry-label="{name} をもう一度試す">
     <tanrei-button slot="trigger" variant="outlined">写真を選ぶ</tanrei-button>
     <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
@@ -384,7 +384,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 <tanrei-field label="添付ファイル" requirement="required" required-text="必須"
               error error-text="10 MB 以下の PDF を選んでください。">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
-                      constraints-text="PDF、10 MB まで" remove-label="取り除く">
+                      constraints-text="PDF、10 MB まで" remove-label="{name} を取り除く">
     <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
   </tanrei-file-upload>
 </tanrei-field>
@@ -413,7 +413,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 
 3 つの文が読まれるのは、`rows="own"` のときだけで、その理由でファイルが断られた後だけです。ファイルのサイズは、言葉のキーではありません。`formatSize` という関数で、インスタンスのプロパティです。
 
-それぞれのアクションは、そのファイルの名前で説明されます。「取り除く」という 1 語があれば、すべての行に足ります。利用者には「取り除く、ボタン、brief.pdf」と聞こえます。
+それぞれのアクションの名前には、そのファイルの名前が入ります。`removeLabel` と `retryLabel` は場所 `{name}` を持つ文で、ファイル項目がファイルの名前を入れます（「`{name} を取り除く`」）。1 つの文ですべてのファイルに足り、利用者には言語の語順のまま「brief.pdf を取り除く、ボタン」と聞こえます。スクリーンリーダーがページのボタンを一覧にしたときも同じです。`{name}` のない文は、どのファイルのアクションも同じ名前にしてしまうので、デバッグビルドが報告します。
 
 ### 右から左
 
