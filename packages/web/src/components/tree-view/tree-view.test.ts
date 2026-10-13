@@ -2038,6 +2038,210 @@ test.describe('indent and disclosure', () => {
   });
 });
 
+test.describe('editing in place', () => {
+  /** Every `rename` and `create` on the page, in order. */
+  const watchEdits = (page: P) =>
+    page.evaluate(() => {
+      const w = window as unknown as { __edits: string[] };
+      w.__edits = [];
+      document.addEventListener('rename', (event) => {
+        const d = (event as CustomEvent<{ label: string; previous: string }>).detail;
+        w.__edits.push(`rename:${(event.target as Element).getAttribute('data-t')}:${d.label}:${d.previous}`);
+      });
+      document.addEventListener('create', (event) => {
+        const d = (event as CustomEvent<{ label: string; parent: boolean; within: Element | null; after: Element | null }>).detail;
+        w.__edits.push(`create:${d.label}:${d.parent}:${d.within?.getAttribute('data-t') ?? null}:${d.after?.getAttribute('data-t') ?? null}`);
+      });
+    });
+  const edits = (page: P) => page.evaluate(() => (window as unknown as { __edits: string[] }).__edits.splice(0));
+  const field = (page: P, id: string) => host(page, id).locator('tanrei-embedded-text-input');
+  /** The native input of the open field, and what of it is selected. */
+  const typed = (page: P, id: string) =>
+    field(page, id).evaluate((el) => {
+      const input = el.shadowRoot!.querySelector('input')!;
+      return { value: input.value, selected: input.value.slice(input.selectionStart ?? 0, input.selectionEnd ?? 0), focused: el.shadowRoot!.activeElement === input, name: input.getAttribute('aria-label') };
+    });
+  const editable = (props: Fixture['props']) => ({ editable: true, editLabel: 'Name', ...props });
+
+  test('TRV-45: while editable, a double-click on a row’s label, F2 on a focused row and edit() each open the field on its name; not on a disabled item or one whose label is inline content; while not editable none of them does', async ({ page }) => {
+    const inline = '<ul><li data-value="x"><span><span><code>x</code> code</span></span></li><li data-value="y"><span>Yankee</span></li></ul>';
+    await mount(page, { fixtures: [raw('small', editable({ label: 'Small', selection: 'single' }), SMALL), raw('fixed', { label: 'Fixed', selection: 'single' }, SMALL), raw('inline', editable({ label: 'Inline' }), inline)] });
+    await nameItems(page);
+    await watch(page);
+    // A double-click on the label: the two presses are answered as presses (one change), then the field opens.
+    const onText = async (id: string, label: string) => {
+      await row(page, id, label).scrollIntoViewIfNeeded();
+      const text = (await drawn(row(page, id, label))).text!;
+      await page.mouse.dblclick((text.left + text.right) / 2, (text.top + text.bottom) / 2);
+    };
+    await onText('small', 'Delta');
+    await expect(field(page, 'small')).toHaveCount(1);
+    expect(await events(page)).toEqual(['change:{"value":"d"}']);
+    await page.keyboard.press('Escape');
+    await expect(field(page, 'small')).toHaveCount(0);
+    // F2 on the focused row.
+    expect(await focused(page)).toBe('Delta');
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('F2');
+    await expect(field(page, 'small')).toHaveCount(1);
+    await expect(row(page, 'small', 'Gamma')).toHaveAttribute('data-tanrei-editing', '');
+    await page.keyboard.press('Escape');
+    // The method.
+    expect(await host(page, 'small').evaluate((tree: HTMLElement & { edit(li: Element): boolean }) => tree.edit(tree.querySelector('li[data-t="Apple"]')!))).toBe(true);
+    await expect(row(page, 'small', 'Apple')).toHaveAttribute('data-tanrei-editing', '');
+    await page.keyboard.press('Escape');
+    // Not on a disabled item, nor on a label of inline content.
+    expect(await host(page, 'small').evaluate((tree: HTMLElement & { edit(li: Element): boolean }) => tree.edit(tree.querySelector('li[data-t="Avocado"]')!))).toBe(false);
+    await row(page, 'small', 'Avocado').focus();
+    await page.keyboard.press('F2');
+    await expect(field(page, 'small')).toHaveCount(0);
+    expect(await host(page, 'inline').evaluate((tree: HTMLElement & { edit(li: Element): boolean }) => tree.edit(tree.querySelector('li[data-value="x"]')!))).toBe(false);
+    expect(await host(page, 'inline').evaluate((tree: HTMLElement & { edit(li: Element): boolean }) => tree.edit(tree.querySelector('li[data-value="y"]')!))).toBe(true);
+    await page.keyboard.press('Escape');
+    // Not editable: none of the three.
+    await onText('fixed', 'Delta');
+    await page.keyboard.press('F2');
+    expect(await host(page, 'fixed').evaluate((tree: HTMLElement & { edit(li: Element): boolean }) => tree.edit(tree.querySelector('li[data-t="Apple"]')!))).toBe(false);
+    await expect(field(page, 'fixed')).toHaveCount(0);
+  });
+
+  test('TRV-46, TRV-47: the field holds the label in the label’s text style with the name before its extension selected and the focus indicator around it; Enter emits one rename and keeps the old label drawn, focus back on the row; Escape and an empty or unchanged name emit nothing; leaving the field commits; the tree’s keys are the field’s; the selection and every open stay', async ({ page }) => {
+    const files = '<ul><li data-value="src" data-open><span>src</span><ul><li data-value="button.ts"><span>button.ts</span></li><li data-value=".env"><span>.env</span></li></ul></li><li data-value="readme"><span>README</span></li></ul>';
+    await mount(page, { fixtures: [raw('files', editable({ label: 'Files', selection: 'single', value: 'readme' }), files), raw('nameless', { label: 'Nameless', editable: true }, files)] });
+    await nameItems(page);
+    await watch(page);
+    await watchEdits(page);
+    const tree = host(page, 'files');
+    const edit = (label: string) => tree.evaluate((el: HTMLElement & { edit(li: Element): boolean }, l) => el.edit(el.querySelector(`li[data-t="${l}"]`)!), label);
+    await edit('button.ts');
+    await expect.poll(async () => (await typed(page, 'files')).focused).toBe(true);
+    const open = await typed(page, 'files');
+    expect(open).toMatchObject({ value: 'button.ts', selected: 'button', name: 'Name' });
+    // The label's text style, over the label's first line; the focus indicator around the field's box.
+    const input = field(page, 'files');
+    const inner = input.evaluate((el) => {
+      const s = getComputedStyle(el.shadowRoot!.querySelector('input')!);
+      return { size: s.fontSize, family: s.fontFamily };
+    });
+    expect((await inner).size).toBe(await css(row(page, 'files', 'button.ts'), 'font-size'));
+    expect(unquoted((await inner).family)).toBe(unquoted(await css(row(page, 'files', 'button.ts'), 'font-family')));
+    expect(await css(host(page, 'files').locator('[data-tanrei-edit]'), 'box-shadow')).toContain(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+    // The tree's keys are the field's: the arrows move the caret, type-ahead types.
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.type('x');
+    expect((await typed(page, 'files')).value).toBe('buttonx.ts');
+    expect(await focused(page)).toBe('tanrei-embedded-text-input');
+    await page.keyboard.press('Control+A');
+    await page.keyboard.press('Meta+A');
+    await page.keyboard.type('  toggle.ts ');
+    await page.keyboard.press('Enter');
+    expect(await edits(page)).toEqual(['rename:button.ts:toggle.ts:button.ts']);
+    await expect(input).toHaveCount(0);
+    expect(await focused(page)).toBe('button.ts');
+    // The tree changed no label, no selection and no open.
+    await expect(row(page, 'files', 'button.ts')).toHaveText('button.ts');
+    expect(await events(page)).toEqual([]);
+    await expect(row(page, 'files', 'README')).toHaveAttribute('aria-selected', 'true');
+    // A label the product sets in answer is drawn at once.
+    await item(page, 'files', 'button.ts').evaluate((li) => (li.firstElementChild!.textContent = 'toggle.ts'));
+    await expect(row(page, 'files', 'button.ts')).toHaveText('toggle.ts');
+    // A name without an extension (a dot first is no extension): the whole label is selected.
+    await edit('.env');
+    await expect.poll(async () => (await typed(page, 'files')).selected).toBe('.env');
+    // Escape gives nothing; focus back on the row.
+    await page.keyboard.type('other');
+    await page.keyboard.press('Escape');
+    expect(await edits(page)).toEqual([]);
+    expect(await focused(page)).toBe('.env');
+    // White space alone, and the same name, give nothing.
+    await page.keyboard.press('F2');
+    await expect.poll(async () => (await typed(page, 'files')).focused).toBe(true);
+    await page.keyboard.type('   ');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('F2');
+    await expect.poll(async () => (await typed(page, 'files')).focused).toBe(true);
+    await page.keyboard.press('Enter');
+    expect(await edits(page)).toEqual([]);
+    // Leaving the field by a press elsewhere gives the name, and focus stays where it went.
+    await edit('README');
+    await expect.poll(async () => (await typed(page, 'files')).focused).toBe(true);
+    await page.keyboard.type('NOTES');
+    await page.mouse.click(2, 2);
+    expect(await edits(page)).toEqual(['rename:README:NOTES:README']);
+    await expect(input).toHaveCount(0);
+    // A parent that closes around the field closes it, giving nothing.
+    await edit('.env');
+    await expect.poll(async () => (await typed(page, 'files')).focused).toBe(true);
+    await item(page, 'files', 'src').evaluate((li) => li.removeAttribute('data-open'));
+    await expect(input).toHaveCount(0);
+    expect(await edits(page)).toEqual([]);
+    // TRV-32: without the product's words the field still opens, and a debug build says it has no name.
+    await host(page, 'nameless').evaluate((el: HTMLElement & { edit(li: Element): boolean }) => el.edit(el.querySelector('li[data-t="README"]')!));
+    await expect(field(page, 'nameless')).toHaveCount(1);
+    await expect.poll(() => missingWords(page)).toContain('editLabel');
+  });
+
+  test('TRV-48: create() adds a new row after the selected item at its level, with an empty focused field; a name emits one create and takes the row away, and an item the product adds takes the focus; Escape and an empty name leave nothing; with no selection and no focus the row is the last of the first level; a new item is asked for whatever editable says', async ({ page }) => {
+    await mount(page, { fixtures: [some('single')[0], raw('plain', { label: 'Plain' }, SMALL)] });
+    await nameItems(page);
+    await watch(page);
+    await watchEdits(page);
+    const id = 'single';
+    const ask = (which: string, options: object) => host(page, which).evaluate((el: HTMLElement & { create(o: object): boolean }, o) => el.create(o), options);
+    // The product adds what it is told, in the place it is told.
+    await host(page, id).evaluate((tree) =>
+      tree.addEventListener('create', (event) => {
+        const d = (event as CustomEvent<{ label: string; after: Element | null }>).detail;
+        const li = document.createElement('li');
+        li.setAttribute('data-value', d.label);
+        li.setAttribute('data-t', d.label);
+        li.innerHTML = `<span>${d.label}</span>`;
+        d.after!.after(li);
+      }),
+    );
+    expect(await ask(id, { icon: 'draft' })).toBe(true);
+    const fresh = host(page, id).locator('li[data-tanrei-new]');
+    await expect(fresh).toHaveCount(1);
+    // After checkbox.ts (the selected item), at its level, with the glyph named.
+    expect(await fresh.evaluate((li) => li.previousElementSibling?.getAttribute('data-t'))).toBe('checkbox.ts');
+    near((await edges(fresh.locator('> span'))).left, (await edges(row(page, id, 'checkbox.ts'))).left);
+    expect(await fresh.locator('.tanrei-icon').textContent()).toBe('draft');
+    await expect.poll(async () => (await typed(page, id)).focused).toBe(true);
+    expect((await typed(page, id)).value).toBe('');
+    // Not an item: the tree's rows are what they were.
+    await expect(fresh.locator('> span')).toHaveAttribute('role', 'treeitem');
+    await page.keyboard.type('switch.ts');
+    await page.keyboard.press('Enter');
+    expect(await edits(page)).toEqual(['create:switch.ts:false:components:checkbox.ts']);
+    await expect(fresh).toHaveCount(0);
+    expect(await focused(page)).toBe('switch.ts');
+    expect(await events(page)).toEqual([]);
+    // A parent: a closed chevron in its row. Escape leaves nothing and focus goes back.
+    expect(await ask(id, { parent: true })).toBe(true);
+    expect((await drawn(fresh.locator('> span'))).chevron.content).toContain('chevron_right');
+    await expect.poll(async () => (await typed(page, id)).focused).toBe(true);
+    await page.keyboard.type('folder');
+    await page.keyboard.press('Escape');
+    await expect(fresh).toHaveCount(0);
+    expect(await edits(page)).toEqual([]);
+    expect(await focused(page)).toBe('switch.ts');
+    // An empty name leaves nothing.
+    await ask(id, {});
+    await expect.poll(async () => (await typed(page, id)).focused).toBe(true);
+    await page.keyboard.press('Enter');
+    await expect(fresh).toHaveCount(0);
+    expect(await edits(page)).toEqual([]);
+    // No selection and no focus: the last row of the first level. (The tree is not editable.)
+    expect(await ask('plain', {})).toBe(true);
+    expect(await host(page, 'plain').locator('li[data-tanrei-new]').evaluate((li) => [li.parentElement!.parentElement!.localName, li.previousElementSibling?.getAttribute('data-t')])).toEqual(['tanrei-tree-view', 'Epsilon']);
+    await expect.poll(async () => (await typed(page, 'plain')).focused).toBe(true);
+    await page.keyboard.type('Zeta');
+    await page.keyboard.press('Enter');
+    expect(await edits(page)).toEqual(['create:Zeta:false:null:Epsilon']);
+    await expect(host(page, 'plain').locator('li[data-tanrei-new]')).toHaveCount(0);
+  });
+});
+
 test.describe('before the element is defined, without script, in a shadow root', () => {
   test('TRV-1, TRV-9: the stylesheet alone draws the whole look — the indent, the chevrons and their turn, closed rows not shown, the guides, the room of a loading row — and nothing moves when the element is defined', async ({ page }) => {
     const fixtures = some('all-parts', 'compact-guides', 'disabled', 'loading', 'deep', 'rtl', 'long-labels', 'studio-tokens');

@@ -56,6 +56,9 @@
  *   data-tanrei-at-once (on an li)         this change of open is drawn without motion (TRV-9, TRV-14, TRV-42)
  *   hidden="until-found" (on a list)       a closed list the browser's find-in-page may still search (TRV-14)
  *   li[data-tanrei-loading]                the loading row, the last item of a loading parent's list (TRV-13)
+ *   li[data-tanrei-new]                    a new row, while a new item is named in it (TRV-48)
+ *   data-tanrei-editing (on a row)         its label gives its place to an edit field (TRV-46)
+ *   [data-tanrei-edit] (in a row)          the edit field's box, around a <tanrei-embedded-text-input> (TRV-46)
  *
  * Every value is a `--tanrei-comp-tree-view-*` token, or the system's focus, target and icon tokens.
  *
@@ -107,6 +110,8 @@
     --_trv-indent: var(--tanrei-comp-tree-view-level-indent-regular);
     --_trv-label-font: var(--tanrei-comp-tree-view-label-typescale-regular-font);
     --_trv-label-tracking: var(--tanrei-comp-tree-view-label-typescale-regular-letter-spacing);
+    --_trv-label-size: var(--tanrei-comp-tree-view-label-typescale-regular-font-size);
+    --_trv-label-line: var(--tanrei-comp-tree-view-label-typescale-regular-line-height);
     --_trv-icon-size: var(--tanrei-comp-tree-view-icon-size-regular);
     --_trv-chevron-size: var(--tanrei-comp-tree-view-chevron-size-regular);
     /* TRV-26: for a fine pointer a regular row is at least the pointer target high. */
@@ -154,6 +159,8 @@
     --_trv-indent: var(--tanrei-comp-tree-view-level-indent-compact);
     --_trv-label-font: var(--tanrei-comp-tree-view-label-typescale-compact-font);
     --_trv-label-tracking: var(--tanrei-comp-tree-view-label-typescale-compact-letter-spacing);
+    --_trv-label-size: var(--tanrei-comp-tree-view-label-typescale-compact-font-size);
+    --_trv-label-line: var(--tanrei-comp-tree-view-label-typescale-compact-line-height);
     --_trv-icon-size: var(--tanrei-comp-tree-view-icon-size-compact);
     --_trv-chevron-size: var(--tanrei-comp-tree-view-chevron-size-compact);
     /* TRV-26: the one place where a row is lower than the pointer target. */
@@ -581,6 +588,70 @@
     color: var(--tanrei-comp-tree-view-unselected-supporting-text-color);
   }
 
+  /* ── Editing in place (TRV-46, TRV-48): a field in the label's place, the focus indicator around it ─────────── */
+  /* The label and the supporting text give their place to the field: not drawn, and still laid out, so that the row
+     keeps its height. The product's trailing content keeps the color it had from the row. */
+  :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-editing]) {
+    color: transparent;
+  }
+  :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-editing]) :where([data-supporting-text]) {
+    color: transparent;
+  }
+  :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-editing]) > :where([data-trailing]) {
+    color: var(--_trv-now-label);
+  }
+  /* The field's box: over the label's first line, from the text column's start to its end, reaching half a gap past
+     the text on each side so that the indicator does not touch it while the text stays where the label's was. */
+  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where([data-tanrei-edit]) {
+    /* The label's text style and color in the field (the embedded text input draws the typing in its own tokens,
+       which its holder points here). */
+    --tanrei-comp-embedded-text-input-input-typescale-font: var(--_trv-label-font);
+    --tanrei-comp-embedded-text-input-input-typescale-letter-spacing: var(--_trv-label-tracking);
+    --tanrei-comp-embedded-text-input-input-typescale-font-size: var(--_trv-label-size);
+    --tanrei-comp-embedded-text-input-input-typescale-line-height: var(--_trv-label-line);
+    --tanrei-comp-embedded-text-input-standard-input-color: var(--_trv-label);
+    --tanrei-corner-radius: var(--tanrei-comp-tree-view-container-shape);
+    --tanrei-corner-pill: var(--tanrei-comp-tree-view-container-shape-pill, 0);
+    grid-column: text;
+    grid-row: 1;
+    position: absolute;
+    z-index: 1;
+    inset-block-start: calc(var(--_trv-pad-block) / -2);
+    inset-inline: calc(var(--_trv-gap) / -2);
+    display: block;
+    box-sizing: border-box;
+    padding-block: calc(var(--_trv-pad-block) / 2);
+    padding-inline: calc(var(--_trv-gap) / 2);
+    border-radius: var(--tanrei-corner-radius);
+    /* TRV-25: the focus indicator, the outer stroke on the box's edge and the inner one within it. */
+    box-shadow:
+      inset 0 0 0 var(--tanrei-sys-focus-outer-width) var(--tanrei-sys-color-focus-ring),
+      inset 0 0 0 calc(var(--tanrei-sys-focus-outer-width) + var(--tanrei-sys-focus-inner-width)) var(--tanrei-sys-color-focus-ring-inner);
+    /* (Transparent: forced colors repaint it, where a box-shadow is dropped.) */
+    outline: var(--tanrei-sys-focus-outer-width) solid transparent;
+    outline-offset: calc(var(--tanrei-sys-focus-outer-width) * -1);
+    cursor: text;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  /* TRV-30, focus-style glow: the same two colors as a halo inside the box. */
+  @container style(--tanrei-sys-behavior-focus-style: glow) {
+    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where([data-tanrei-edit]) {
+      box-shadow:
+        inset 0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+        inset 0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+    }
+  }
+  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)[data-focus-style='glow']) > :where([data-tanrei-edit]) {
+    box-shadow:
+      inset 0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+      inset 0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+  }
+  /* TRV-48: a new row draws no fill and answers no pointer of its own: it is its field. */
+  :where(tanrei-tree-view) :where(li[data-tanrei-new]) > :where(:first-child) {
+    cursor: default;
+  }
+
   /* ── States (TRV-24): pressed over focused over hovered, each from its own tokens ───────────────────────────── */
   /* TRV-18: a row answers a pointer where its item opens (a parent) or can be chosen; any other answers nothing. */
   :where(tanrei-tree-view) :where(li:not([data-disabled], [data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)),
@@ -814,6 +885,12 @@
     :where(tanrei-tree-view) :where(li[data-disabled]) > :where(:first-child:not(ul, ol)) {
       --_trv-forced: GrayText;
       opacity: 1;
+    }
+    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where([data-tanrei-edit]) {
+      outline-color: Highlight;
+    }
+    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)[data-tanrei-editing]) {
+      color: transparent;
     }
     :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):focus-visible)::after {
       inset: 0;

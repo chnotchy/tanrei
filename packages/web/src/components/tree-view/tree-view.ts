@@ -5,6 +5,8 @@ import { debugBuild } from '../../primitives/report.js';
 import { WordsController } from '../../primitives/words.js';
 import type { TanreiTreeViewDensityRegistry } from '../../registry.js';
 import '../loading-indicator/loading-indicator.js';
+import '../embedded-text-input/embedded-text-input.js';
+import type { TanreiEmbeddedTextInput } from '../embedded-text-input/embedded-text-input.js';
 import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 
 /** Whether people choose items: none (read and opened), single (one item), multiple (any number, each by itself). */
@@ -23,6 +25,23 @@ export interface TanreiTreeViewChangeDetail {
 /** What an item's `toggle` carries: its new open state. */
 export interface TanreiTreeViewToggleDetail {
   open: boolean;
+}
+/** What an item's `rename` carries: the name the user gave (not empty, trimmed, not the old one) and the label it had. */
+export interface TanreiTreeViewRenameDetail {
+  label: string;
+  previous: string;
+}
+/** What `create` carries: the new item's name, whether it is a parent, and the items it goes under and follows (or null). */
+export interface TanreiTreeViewCreateDetail {
+  label: string;
+  parent: boolean;
+  within: HTMLLIElement | null;
+  after: HTMLLIElement | null;
+}
+/** What `create()` takes: whether the new item is a parent (a folder) or a leaf, and the glyph its new row shows. */
+export interface TanreiTreeViewCreateOptions {
+  parent?: boolean;
+  icon?: string;
 }
 
 // The text of src/styles/tree-view.css — the stylesheet that draws the tree — written in by the build
@@ -53,6 +72,8 @@ const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
   ['--_trv-indent', 'level-indent-*'],
   ['--_trv-label-font', 'label-typescale-*-font'],
   ['--_trv-label-tracking', 'label-typescale-*-letter-spacing'],
+  ['--_trv-label-size', 'label-typescale-*-font-size'],
+  ['--_trv-label-line', 'label-typescale-*-line-height'],
   ['--_trv-icon-size', 'icon-size-*'],
   ['--_trv-chevron-size', 'chevron-size-*'],
 ];
@@ -64,6 +85,10 @@ const AT_ONCE = 'data-tanrei-at-once';
 const LEAF = 'data-tanrei-leaf';
 const LOADING = 'data-tanrei-loading';
 const OWN_LIST = 'data-tanrei-loading-list';
+/** The new row the element adds while a new item is named (TRV-48), the edit field's box, and a row that holds one (TRV-46). */
+const NEW = 'data-tanrei-new';
+const EDIT = 'data-tanrei-edit';
+const EDITING = 'data-tanrei-editing';
 /** The parts of a row that are not its label. */
 const PARTS = '.tanrei-icon, [data-supporting-text], [data-trailing], [data-trailing-text], [data-tanrei-loading-box], .ripple';
 /** What an item says: a change of any is read again. */
@@ -71,6 +96,15 @@ const ITEM_ATTRIBUTES = ['data-open', 'data-value', 'data-disabled', 'data-loadi
 
 type Root = Document | ShadowRoot;
 type Item = HTMLLIElement;
+/** An open edit field (TRV-46): the `<li>` it stands in, the item it renames (null in a new row), and for a new row what `create` will say (TRV-48). */
+interface Editing {
+  li: HTMLLIElement;
+  item: Item | null;
+  box: HTMLElement;
+  field: TanreiEmbeddedTextInput;
+  previous: string;
+  create?: { parent: boolean; within: Item | null; after: Item | null; back: Item | null };
+}
 
 const sheets = new Map<string, CSSStyleSheet>();
 /** A stylesheet of the page, made once and shared by every root that needs it. */
@@ -120,7 +154,7 @@ const UNTIL_FOUND = typeof HTMLElement !== 'undefined' && 'onbeforematch' in HTM
 
 const isList = (node: EventTarget | null | undefined): node is HTMLElement => node instanceof HTMLElement && (node.localName === 'ul' || node.localName === 'ol');
 /** An item: an `<li>` of the product's. The loading row is an `<li>` of the element's own and is not one (TRV-13). */
-const isItem = (node: EventTarget | null | undefined): node is Item => node instanceof HTMLLIElement && !node.hasAttribute(LOADING);
+const isItem = (node: EventTarget | null | undefined): node is Item => node instanceof HTMLLIElement && !node.hasAttribute(LOADING) && !node.hasAttribute(NEW);
 /** An item's row: its first child element, where that is not a list. */
 const rowOf = (item: Element): HTMLElement | null => {
   const first = item.firstElementChild;
@@ -215,7 +249,8 @@ let descriptions = 0;
  * whole look before this script runs; the element adds the same sheet to the root it is connected to. The script adds
  * what a stylesheet cannot: the tree's roles and states, the single tab stop and the keys, the selection, `change` and
  * `toggle`, the answer to a press, the motion of a list that is revealed or hidden, the loading row, opening for the
- * browser's find-in-page, and the debug reports. Only the rows that are shown are read: a closed parent's items are
+ * browser's find-in-page, editing names in place and naming new items (`editable`, `edit()`, `create()`), and the debug
+ * reports. Only the rows that are shown are read: a closed parent's items are
  * read when it first opens, so a tree costs what it shows.
  *
  * The ROW is the tree item (`role="treeitem"`, `aria-selected`, `aria-expanded`, the tab stop and the focus); its
@@ -227,6 +262,8 @@ let descriptions = 0;
  * @slot - The items: the product's own nested lists (`<ul>` of `<li>`). They are children in the document, not slotted nodes: the element has no shadow root.
  * @fires {CustomEvent<TanreiTreeViewChangeDetail>} change - The user changed the selection: `detail.value` (single) or `detail.values` (multiple) after the change.
  * @fires {CustomEvent<TanreiTreeViewToggleDetail>} toggle - Dispatched on an item's `<li>` (it bubbles): the user, or the browser's find-in-page, opened or closed it; `detail.open` is its new state. The moment to give the items of an `data-expandable` parent.
+ * @fires {CustomEvent<TanreiTreeViewRenameDetail>} rename - Dispatched on an item's `<li>` (it bubbles): the user gave it a new name in place; `detail.label` is the name (trimmed, not empty, not the old one) and `detail.previous` the label it had. The tree changes no label: set it to rename the item.
+ * @fires {CustomEvent<TanreiTreeViewCreateDetail>} create - The user named the new item `create()` asked for: `detail.label`, `detail.parent`, and the `<li>` it goes under (`detail.within`, null at the first level) and follows (`detail.after`, null where it is first). The tree's own row is gone; add the item, and the tree moves focus to it.
  */
 export class TanreiTreeView extends ReactiveElement {
   private readonly availability = new AvailabilityController(this, 'tree-view');
@@ -254,6 +291,8 @@ export class TanreiTreeView extends ReactiveElement {
     guides: { type: Boolean, reflect: true },
     indent: { type: String, reflect: true, useDefault: true },
     disclosure: { type: String, reflect: true, useDefault: true },
+    editable: { type: Boolean, reflect: true },
+    editLabel: { type: String, attribute: 'edit-label' },
     loadingLabel: { type: String, attribute: 'loading-label' },
   };
 
@@ -280,6 +319,12 @@ export class TanreiTreeView extends ReactiveElement {
 
   /** How a parent shows that it is open: chevron (the chevron at the start of its row), icon (a parent that names an open icon shows it while open, and its icon is what opens and closes it). */
   disclosure: TanreiTreeViewDisclosure = 'chevron';
+
+  /** Lets people rename items in place: a double-click on a row's label, or F2, opens a text field; the tree emits `rename` and the product sets the label. */
+  editable = false;
+
+  /** The accessible name of the field in which a name is edited or a new item named ("Name"). Tanrei ships none. */
+  editLabel = '';
 
   /** The words of a loading row ("Loading…"), and the name of its indicator. Tanrei ships none. */
   loadingLabel = '';
@@ -371,6 +416,9 @@ export class TanreiTreeView extends ReactiveElement {
     if (changed.has('loadingLabel') || changed.size === 0) for (const loader of this.querySelectorAll<HTMLLIElement>(`li[${LOADING}]`)) this.writeLoader(loader);
     // TRV-41: the new form at once, every parent's open and the focus kept, and no change for it.
     if (changed.has('selection')) this.restate();
+    // TRV-46: a field on an item's name closes, giving nothing, when the tree stops being editable.
+    if (changed.has('editable') && !this.editable && this.editing?.item) this.closeEdit(false);
+    if (changed.has('editLabel') && this.editing) this.nameField(this.editing.field);
     this.read();
     if (changed.has('selection') || changed.has('value') || changed.has('values')) this.readSelection();
   }
@@ -712,7 +760,7 @@ export class TanreiTreeView extends ReactiveElement {
   // ── What the observer saw ─────────────────────────────────────────────────────────────────────────────────────
 
   private mutated(records: MutationRecord[]) {
-    const own = (node: Node) => isGlyphProbe(node) || (node instanceof Element && (node.classList.contains('ripple') || node.hasAttribute(LOADING) || node.hasAttribute(OWN_LIST)));
+    const own = (node: Node) => isGlyphProbe(node) || (node instanceof Element && (node.classList.contains('ripple') || node.hasAttribute(LOADING) || node.hasAttribute(OWN_LIST) || node.hasAttribute(NEW) || node.hasAttribute(EDIT)));
     const items = new Set<Item>();
     let structure = false;
     for (const record of records) {
@@ -758,6 +806,9 @@ export class TanreiTreeView extends ReactiveElement {
         } else if (!this.motions.has(list)) this.rest(list, false);
       }
     }
+    // TRV-46: the item whose name is edited went away, or became disabled: the field closes, giving nothing.
+    const edited = this.editing?.item;
+    if (edited && (!edited.isConnected || !this.contains(edited) || isDisabled(edited))) this.closeEdit(false);
     if (!structure && !items.size) return;
     if (structure) {
       this.depthChecked = false;
@@ -815,6 +866,8 @@ export class TanreiTreeView extends ReactiveElement {
     this.readState(item);
     const list = listOf(item);
     if (open && list) this.readList(list, true);
+    // TRV-46: a parent that closes around an open field closes it, giving nothing.
+    if (!open && list && this.editing && list.contains(this.editing.li)) this.closeEdit(false);
     // TRV-12: a parent that closes around the focus takes it.
     if (!open && list) {
       if (this.active && this.active !== item && item.contains(this.active)) this.focusRow(item, false);
@@ -962,6 +1015,198 @@ export class TanreiTreeView extends ReactiveElement {
     if (words && words.textContent !== loading) words.textContent = loading;
   }
 
+  // ── Editing in place (TRV-45 to TRV-48) ──────────────────────────────────────────────────────────────────────
+
+  /** The field that is open, on an item's name or on a new row's: one at a time. */
+  private editing: Editing | null = null;
+
+  /**
+   * Opens the edit field on an item's name (TRV-45), as F2 and a double-click on its label do: only while the tree is
+   * `editable`, and not on a disabled item or one whose label is the product's own inline content. Returns whether it
+   * opened one.
+   */
+  edit(item: HTMLLIElement): boolean {
+    if (!this.editable || !isItem(item) || item.closest(TAG) !== this || isDisabled(item) || !this.shown(item)) return false;
+    const row = rowOf(item);
+    if (!row || !plainLabel(row)) return false;
+    if (this.editing?.item === item) return true;
+    if (this.editing) this.commitEdit(false);
+    const previous = labelOf(item);
+    const field = this.openField(item, row, previous, item);
+    // The name without its extension, for a leaf whose label has one (Finder, Explorer, VS Code); else the whole label.
+    const dot = isParent(item) ? -1 : previous.lastIndexOf('.');
+    void field.updateComplete.then(() => {
+      if (this.editing?.field !== field) return;
+      if (dot > 0) field.setSelectionRange(0, dot);
+      else field.select();
+    });
+    return true;
+  }
+
+  /**
+   * Asks for a new item (TRV-48): a row of the tree's own, at the level of the selected item and after its rows, with
+   * an empty field in which the user names it. `create` carries the name; the product adds the item. Returns whether
+   * the row was added (a tree with no list has nowhere to put it).
+   */
+  create(options: TanreiTreeViewCreateOptions = {}): boolean {
+    if (this.editing) this.commitEdit(false);
+    const reference = this.reference();
+    const list = reference ? reference.parentElement : (this.roots()[0] ?? null);
+    if (!list) return false;
+    const parent = !!options.parent;
+    const back = this.active ?? this.last;
+    const li = document.createElement('li');
+    li.setAttribute(NEW, '');
+    li.setAttribute('role', 'none');
+    if (parent) li.setAttribute('data-expandable', '');
+    const row = document.createElement('span');
+    row.setAttribute('role', 'treeitem');
+    if (parent) row.setAttribute('aria-expanded', 'false');
+    if (options.icon) {
+      const icon = document.createElement('span');
+      icon.className = 'tanrei-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = options.icon;
+      row.append(icon);
+    }
+    li.append(row);
+    // After the rows the reference shows: its own `<li>` holds them. (Before a loading row, which stays last.)
+    if (reference) list.insertBefore(li, reference.nextSibling);
+    else list.insertBefore(li, list.querySelector(`:scope > li[${LOADING}]`));
+    // (The item it follows: the reference, or else the last item of the first level.)
+    const after = reference ?? lastItem(list);
+    this.openField(li, row, '', null, { parent, within: reference ? this.parentOf(reference) : null, after: after === li ? null : after, back });
+    return true;
+  }
+
+  /**
+   * TRV-48: the item a new row stands beside — the first of these that is shown: the selected item (single: the one
+   * value names; multiple: the focused row where it is selected, else the first selected in the order drawn), the row
+   * that has or last had focus, and none.
+   */
+  private reference(): Item | null {
+    const mode = this.mode;
+    if (mode === 'multiple' && this.last && this.selected.has(this.last) && this.shown(this.last)) return this.last;
+    if (mode !== 'none') {
+      let first: Item | null = null;
+      for (const item of this.selected) {
+        if (!this.shown(item)) continue;
+        if (!first || item.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING) first = item as Item;
+      }
+      if (first) return first;
+    }
+    const focused = this.active ?? this.last;
+    return this.shown(focused) ? focused : null;
+  }
+
+  /** Puts an edit field in a row: in the label's place, with focus, named by the product's words (TRV-46, TRV-32). */
+  private openField(li: HTMLLIElement, row: HTMLElement, text: string, item: Item | null, create?: Editing['create']): TanreiEmbeddedTextInput {
+    const box = document.createElement('span');
+    box.setAttribute(EDIT, '');
+    const field = document.createElement('tanrei-embedded-text-input') as TanreiEmbeddedTextInput;
+    field.value = text;
+    field.autocomplete = 'off';
+    this.nameField(field);
+    box.append(field);
+    row.append(box);
+    row.setAttribute(EDITING, '');
+    this.editing = { li, item, box, field, previous: text, create };
+    // The field's own events stay in its row: its `change` is not the tree's.
+    for (const type of ['change', 'input', 'rowschange']) box.addEventListener(type, (event) => event.stopPropagation());
+    box.addEventListener('action', (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      if (this.editing?.box === box) this.commitEdit(true);
+    });
+    box.addEventListener('keydown', (event) => {
+      const key = event as KeyboardEvent;
+      if (key.key !== 'Escape' || key.isComposing) return;
+      key.preventDefault();
+      key.stopPropagation();
+      if (this.editing?.box === box) this.takeField(true);
+    });
+    // Leaving the field by any other means gives the name (TRV-46): Tab, a press elsewhere, the window losing focus.
+    box.addEventListener('focusout', (event) => {
+      const to = (event as FocusEvent).relatedTarget;
+      if (to instanceof Node && box.contains(to)) return;
+      if (this.editing?.box === box) this.commitEdit(false);
+    });
+    void field.updateComplete.then(() => {
+      if (this.editing?.field === field) field.focus();
+    });
+    return field;
+  }
+
+  /** The field's name: the product's words (TRV-32). Opened all the same without them, and a debug build says so. */
+  private nameField(field: TanreiEmbeddedTextInput) {
+    const name = this.words.get('editLabel', this.editLabel);
+    field.label = name;
+    if (!name) this.words.missing('editLabel', { id: 'TRV-32', effect: 'the edit field opens and works, and has no accessible name' });
+  }
+
+  /**
+   * Takes the field away (and a new row with it). On Enter or Escape focus goes back to the item's row (TRV-46), or
+   * from a new row to the row that had it (TRV-48); a field that lost focus leaves focus where it went.
+   */
+  private takeField(back: boolean): Editing | null {
+    const editing = this.editing;
+    if (!editing) return null;
+    this.editing = null;
+    const row = editing.box.parentElement;
+    const hadFocus = editing.box.contains(document.activeElement);
+    const to = editing.item ?? editing.create?.back ?? null;
+    if (back && hadFocus && to && this.shown(to)) this.focusRow(to, false);
+    editing.box.remove();
+    row?.removeAttribute(EDITING);
+    if (!editing.item) editing.li.remove();
+    return editing;
+  }
+
+  /** A field that must close, giving nothing (TRV-46): its item went, became disabled or hidden, or the tree stopped being editable. */
+  private closeEdit(back: boolean) {
+    this.takeField(back);
+  }
+
+  /** Enter, or focus that left the field: the name is given where it is one (TRV-46, TRV-48). */
+  private commitEdit(back: boolean) {
+    const editing = this.editing;
+    if (!editing) return;
+    const label = editing.field.value.trim();
+    if (editing.item) {
+      const item = editing.item;
+      this.takeField(back);
+      if (label && label !== editing.previous) item.dispatchEvent(new CustomEvent<TanreiTreeViewRenameDetail>('rename', { bubbles: true, detail: { label, previous: editing.previous } }));
+      return;
+    }
+    const create = editing.create!;
+    // An empty name gives nothing: the row goes, and focus goes back to where it was.
+    if (!label) {
+      this.takeField(back);
+      return;
+    }
+    const list = editing.li.parentElement;
+    const before = new Set(list ? [...list.children] : []);
+    const hadFocus = editing.box.contains(document.activeElement);
+    this.takeField(false);
+    this.dispatchEvent(new CustomEvent<TanreiTreeViewCreateDetail>('create', { bubbles: true, detail: { label, parent: create.parent, within: create.within, after: create.after } }));
+    // The item the product added in the new row's place, in answer, takes the focus the field had.
+    const added = list ? [...list.children].find((child): child is Item => !before.has(child) && isItem(child)) : undefined;
+    if (added && hadFocus) {
+      if (this.mutations) this.mutated(this.mutations.takeRecords());
+      if (this.shown(added)) this.focusRow(added);
+    } else if (back && hadFocus && create.back && this.shown(create.back)) this.focusRow(create.back, false);
+  }
+
+  /** TRV-45: a double-click on a row's label opens the field on its name, where the tree is editable. */
+  private readonly onDoubleClick = (event: Event) => {
+    if (!this.editable || inField(event.target)) return;
+    const click = event as MouseEvent;
+    const item = this.itemOf(event.target);
+    const row = item ? rowOf(item) : null;
+    if (!item || !row || !onLabel(row, click.clientX, click.clientY)) return;
+    this.edit(item);
+  };
+
   // ── Focus (TRV-12, TRV-19) ────────────────────────────────────────────────────────────────────────────────────
 
   /** Moves focus to an item's row, and brings the row into view by the least distance that shows it whole (TRV-12). */
@@ -1016,6 +1261,12 @@ export class TanreiTreeView extends ReactiveElement {
       key.preventDefault();
       if (to && to !== item) this.focusRow(to);
     };
+    // TRV-45: F2 opens the field on the focused row's name, where the tree is editable.
+    if (key.key === 'F2' && !key.shiftKey && this.editable) {
+      key.preventDefault();
+      this.edit(item);
+      return;
+    }
     if (!key.shiftKey) {
       switch (key.key) {
         case 'ArrowDown':
@@ -1157,6 +1408,8 @@ export class TanreiTreeView extends ReactiveElement {
 
   private readonly onPointerDown = (event: Event) => {
     const pointer = event as PointerEvent;
+    // TRV-46: a press in the edit field is the field's.
+    if (inField(event.target)) return;
     const item = this.itemOf(event.target);
     const row = item ? rowOf(item) : null;
     if (!item || !row || (pointer.button !== 0 && pointer.pointerType === 'mouse')) return;
@@ -1175,6 +1428,7 @@ export class TanreiTreeView extends ReactiveElement {
 
   private readonly onClick = (event: Event) => {
     const click = event as MouseEvent;
+    if (inField(event.target)) return;
     const item = this.itemOf(event.target);
     const row = item ? rowOf(item) : null;
     if (!item || !row || click.button !== 0 || !this.answers(item)) return;
@@ -1203,8 +1457,30 @@ export class TanreiTreeView extends ReactiveElement {
     ['focusin', this.onFocusIn],
     ['focusout', this.onFocusOut],
     ['beforematch', this.onBeforeMatch],
+    ['dblclick', this.onDoubleClick],
   ];
 }
+
+/** The nodes of a row that are its label: what is not one of its other parts (TRV-6). */
+const labelNodes = (row: Element) => [...row.childNodes].filter((node) => (node.nodeType === Node.TEXT_NODE && !!node.nodeValue?.trim()) || (node instanceof Element && !node.matches(`${PARTS}, [${EDIT}]`)));
+
+/** TRV-45: a label of plain text — the row's own text, or one element around text — and not the product's inline content. */
+function plainLabel(row: Element): boolean {
+  return labelNodes(row).every((node) => !(node instanceof Element) || [...node.children].every((child) => child.hasAttribute('data-supporting-text')));
+}
+
+/** TRV-45: whether a point is on the text of a row's label (its supporting text included: the same block of text). */
+function onLabel(row: Element, x: number, y: number): boolean {
+  const range = document.createRange();
+  for (const node of labelNodes(row)) {
+    range.selectNodeContents(node);
+    for (const rect of range.getClientRects()) if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) return true;
+  }
+  return false;
+}
+
+/** Whether an event happened in an edit field's box (TRV-46): the field's, not the row's. */
+const inField = (target: EventTarget | null) => target instanceof Element && !!target.closest(`[${EDIT}]`);
 
 /** The order a row's parts are read in as its description (TRV-32): supporting text, trailing content, trailing text. */
 function order(part: Element): number {

@@ -87477,7 +87477,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A hierarchy of items that open and close: rows that begin further in at each level, a chevron at the start of every\nrow that holds others; read and opened only, or with one item or several chosen. One stop in the focus order, moved\nthrough with the arrow keys. A file tree in a page, the tokens of a design system, the folders of a product.\n\nContract: specs/tree-view.spec.json. The element has **no shadow root**: its items are the product's own nested\nlists, which stay in the document. Without script the page shows the whole hierarchy as the nested list\nit is.\n\n```html\n<tanrei-tree-view label=\"Project files\" selection=\"single\" value=\"src/index.ts\">\n  <ul>\n    <li data-value=\"src\" data-open>\n      <span>\n        <i class=\"tanrei-icon\">folder</i>\n        <bdi>src<small data-supporting-text>what is published</small></bdi>\n        <span data-trailing-text>12 files</span>\n      </span>\n      <ul>\n        <li data-value=\"src/index.ts\"><span>index.ts</span></li>\n      </ul>\n    </li>\n    <li data-expandable><span>node_modules</span></li>\n  </ul>\n</tanrei-tree-view>\n```\n\nAn item is an `<li>` whose FIRST child element is its row and whose `<ul>` holds its items. In the row, a\n`.tanrei-icon` is the icon, an element with `data-trailing` the trailing content, one with `data-trailing-text` the\ntrailing text, and the rest is the label: the row's own text, or ONE element around it (a `<bdi>`: text with inline\ncontent, a name whose direction is not the layout's). An element with `data-supporting-text` is the supporting text,\ninside the label's element or directly in the row. On the `<li>`: `data-value` (what identifies it; without one it\ncannot be chosen), `data-open`, `data-expandable` (it will hold items: give them at `toggle`), `data-loading`,\n`data-disabled`. The element sets and removes `data-open` itself when the user opens or closes a parent.\n\nEverything drawn is `@tanrei/web/tree-view.css` — every value a `--tanrei-comp-tree-view-*` token — which draws the\nwhole look before this script runs; the element adds the same sheet to the root it is connected to. The script adds\nwhat a stylesheet cannot: the tree's roles and states, the single tab stop and the keys, the selection, `change` and\n`toggle`, the answer to a press, the motion of a list that is revealed or hidden, the loading row, opening for the\nbrowser's find-in-page, and the debug reports. Only the rows that are shown are read: a closed parent's items are\nread when it first opens, so a tree costs what it shows.\n\nThe ROW is the tree item (`role=\"treeitem\"`, `aria-selected`, `aria-expanded`, the tab stop and the focus); its\n`<li>` has no role and a nested list is a `group`, so the level comes from the nesting. An `<li>` holds every row\nunder it, so what changes while the tree is used is said on the row: one row's change styles that row alone. A\nserver that draws the selection in the first frame writes `aria-selected=\"true\"` on the row.",
+          "description": "A hierarchy of items that open and close: rows that begin further in at each level, a chevron at the start of every\nrow that holds others; read and opened only, or with one item or several chosen. One stop in the focus order, moved\nthrough with the arrow keys. A file tree in a page, the tokens of a design system, the folders of a product.\n\nContract: specs/tree-view.spec.json. The element has **no shadow root**: its items are the product's own nested\nlists, which stay in the document. Without script the page shows the whole hierarchy as the nested list\nit is.\n\n```html\n<tanrei-tree-view label=\"Project files\" selection=\"single\" value=\"src/index.ts\">\n  <ul>\n    <li data-value=\"src\" data-open>\n      <span>\n        <i class=\"tanrei-icon\">folder</i>\n        <bdi>src<small data-supporting-text>what is published</small></bdi>\n        <span data-trailing-text>12 files</span>\n      </span>\n      <ul>\n        <li data-value=\"src/index.ts\"><span>index.ts</span></li>\n      </ul>\n    </li>\n    <li data-expandable><span>node_modules</span></li>\n  </ul>\n</tanrei-tree-view>\n```\n\nAn item is an `<li>` whose FIRST child element is its row and whose `<ul>` holds its items. In the row, a\n`.tanrei-icon` is the icon, an element with `data-trailing` the trailing content, one with `data-trailing-text` the\ntrailing text, and the rest is the label: the row's own text, or ONE element around it (a `<bdi>`: text with inline\ncontent, a name whose direction is not the layout's). An element with `data-supporting-text` is the supporting text,\ninside the label's element or directly in the row. On the `<li>`: `data-value` (what identifies it; without one it\ncannot be chosen), `data-open`, `data-expandable` (it will hold items: give them at `toggle`), `data-loading`,\n`data-disabled`. The element sets and removes `data-open` itself when the user opens or closes a parent.\n\nEverything drawn is `@tanrei/web/tree-view.css` — every value a `--tanrei-comp-tree-view-*` token — which draws the\nwhole look before this script runs; the element adds the same sheet to the root it is connected to. The script adds\nwhat a stylesheet cannot: the tree's roles and states, the single tab stop and the keys, the selection, `change` and\n`toggle`, the answer to a press, the motion of a list that is revealed or hidden, the loading row, opening for the\nbrowser's find-in-page, editing names in place and naming new items (`editable`, `edit()`, `create()`), and the debug\nreports. Only the rows that are shown are read: a closed parent's items are\nread when it first opens, so a tree costs what it shows.\n\nThe ROW is the tree item (`role=\"treeitem\"`, `aria-selected`, `aria-expanded`, the tab stop and the focus); its\n`<li>` has no role and a nested list is a `group`, so the level comes from the nesting. An `<li>` holds every row\nunder it, so what changes while the tree is used is said on the row: one row's change styles that row alone. A\nserver that draws the selection in the first frame writes `aria-selected=\"true\"` on the row.",
           "name": "TanreiTreeView",
           "slots": [
             {
@@ -87593,6 +87593,29 @@
               "description": "How a parent shows that it is open: chevron (the chevron at the start of its row), icon (a parent that names an open icon shows it while open, and its icon is what opens and closes it).",
               "attribute": "disclosure",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "editable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets people rename items in place: a double-click on a row's label, or F2, opens a text field; the tree emits `rename` and the product sets the label.",
+              "attribute": "editable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "editLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the field in which a name is edited or a new item named (\"Name\"). Tanrei ships none.",
+              "attribute": "edit-label"
             },
             {
               "kind": "field",
@@ -88345,6 +88368,176 @@
               "description": "The words of a loading row, and the name of its indicator: the tree's `loadingLabel`."
             },
             {
+              "kind": "field",
+              "name": "editing",
+              "type": {
+                "text": "Editing | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "The field that is open, on an item's name or on a new row's: one at a time."
+            },
+            {
+              "kind": "method",
+              "name": "edit",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "HTMLLIElement"
+                  }
+                }
+              ],
+              "description": "Opens the edit field on an item's name (TRV-45), as F2 and a double-click on its label do: only while the tree is\n`editable`, and not on a disabled item or one whose label is the product's own inline content. Returns whether it\nopened one."
+            },
+            {
+              "kind": "method",
+              "name": "create",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "options",
+                  "default": "{}",
+                  "type": {
+                    "text": "TanreiTreeViewCreateOptions"
+                  }
+                }
+              ],
+              "description": "Asks for a new item (TRV-48): a row of the tree's own, at the level of the selected item and after its rows, with\nan empty field in which the user names it. `create` carries the name; the product adds the item. Returns whether\nthe row was added (a tree with no list has nowhere to put it)."
+            },
+            {
+              "kind": "method",
+              "name": "reference",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Item | null"
+                }
+              },
+              "description": "TRV-48: the item a new row stands beside — the first of these that is shown: the selected item (single: the one\nvalue names; multiple: the focused row where it is selected, else the first selected in the order drawn), the row\nthat has or last had focus, and none."
+            },
+            {
+              "kind": "method",
+              "name": "openField",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TanreiEmbeddedTextInput"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "li",
+                  "type": {
+                    "text": "HTMLLIElement"
+                  }
+                },
+                {
+                  "name": "row",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "Item | null"
+                  }
+                },
+                {
+                  "name": "create",
+                  "optional": true,
+                  "type": {
+                    "text": "Editing['create']"
+                  }
+                }
+              ],
+              "description": "Puts an edit field in a row: in the label's place, with focus, named by the product's words (TRV-46, TRV-32)."
+            },
+            {
+              "kind": "method",
+              "name": "nameField",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "text": "TanreiEmbeddedTextInput"
+                  }
+                }
+              ],
+              "description": "The field's name: the product's words (TRV-32). Opened all the same without them, and a debug build says so."
+            },
+            {
+              "kind": "method",
+              "name": "takeField",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Editing | null"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "back",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "Takes the field away (and a new row with it). On Enter or Escape focus goes back to the item's row (TRV-46), or\nfrom a new row to the row that had it (TRV-48); a field that lost focus leaves focus where it went."
+            },
+            {
+              "kind": "method",
+              "name": "closeEdit",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "back",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "A field that must close, giving nothing (TRV-46): its item went, became disabled or hidden, or the tree stopped being editable."
+            },
+            {
+              "kind": "method",
+              "name": "commitEdit",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "back",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "Enter, or focus that left the field: the name is given where it is one (TRV-46, TRV-48)."
+            },
+            {
+              "kind": "field",
+              "name": "onDoubleClick",
+              "privacy": "private",
+              "readonly": true,
+              "description": "TRV-45: a double-click on a row's label opens the field on its name, where the tree is editable."
+            },
+            {
               "kind": "method",
               "name": "focusRow",
               "privacy": "private",
@@ -88533,10 +88726,17 @@
               },
               "privacy": "private",
               "readonly": true,
-              "default": "[ ['pointerdown', this.onPointerDown], ['pointerup', this.releasePress], ['pointercancel', this.releasePress], ['pointerout', this.onPointerOut], ['dragstart', this.releasePress], ['click', this.onClick], ['keydown', this.onKeyDown], ['keyup', this.onKeyUp], ['focusin', this.onFocusIn], ['focusout', this.onFocusOut], ['beforematch', this.onBeforeMatch], ]"
+              "default": "[ ['pointerdown', this.onPointerDown], ['pointerup', this.releasePress], ['pointercancel', this.releasePress], ['pointerout', this.onPointerOut], ['dragstart', this.releasePress], ['click', this.onClick], ['keydown', this.onKeyDown], ['keyup', this.onKeyUp], ['focusin', this.onFocusIn], ['focusout', this.onFocusOut], ['beforematch', this.onBeforeMatch], ['dblclick', this.onDoubleClick], ]"
             }
           ],
           "events": [
+            {
+              "name": "create",
+              "type": {
+                "text": "CustomEvent<TanreiTreeViewCreateDetail>"
+              },
+              "description": "The user named the new item `create()` asked for: `detail.label`, `detail.parent`, and the `<li>` it goes under (`detail.within`, null at the first level) and follows (`detail.after`, null where it is first). The tree's own row is gone; add the item, and the tree moves focus to it."
+            },
             {
               "name": "change",
               "type": {
@@ -88550,6 +88750,13 @@
               },
               "description": "Dispatched on an item's `<li>` (it bubbles): the user, or the browser's find-in-page, opened or closed it; `detail.open` is its new state. The moment to give the items of an `data-expandable` parent.",
               "name": "toggle"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<TanreiTreeViewRenameDetail>"
+              },
+              "description": "Dispatched on an item's `<li>` (it bubbles): the user gave it a new name in place; `detail.label` is the name (trimmed, not empty, not the old one) and `detail.previous` the label it had. The tree changes no label: set it to rename the item.",
+              "name": "rename"
             }
           ],
           "attributes": [
@@ -88624,6 +88831,24 @@
               "default": "'chevron'",
               "description": "How a parent shows that it is open: chevron (the chevron at the start of its row), icon (a parent that names an open icon shows it while open, and its icon is what opens and closes it).",
               "fieldName": "disclosure"
+            },
+            {
+              "name": "editable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets people rename items in place: a double-click on a row's label, or F2, opens a text field; the tree emits `rename` and the product sets the label.",
+              "fieldName": "editable"
+            },
+            {
+              "name": "edit-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the field in which a name is edited or a new item named (\"Name\"). Tanrei ships none.",
+              "fieldName": "editLabel"
             },
             {
               "name": "loading-label",
