@@ -2,7 +2,7 @@
 title: Botón de opción
 description: Permite elegir exactamente una opción de un grupo pequeño que se muestra entero a la vez.
 translationOf: components/radio-button.mdx
-sourceHash: 86a9706a425713af31a7ad37854bd59acf65704c
+sourceHash: 75fabd1dc1d5852c84f2905cd64938216d9b6b8a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -135,7 +135,7 @@ La revisión que dio al botón de opción sus tamaños actuales y un anillo que 
   </div>
 </DemoFrame>
 
-En el sistema predeterminado, el botón de opción es un anillo de 20 con un trazo de 2, sobre una capa de estado redonda de 40. Una opción seleccionada no dibuja ningún punto. Su anillo se engrosa hacia dentro hasta la mitad del radio, y el disco que queda en el interior se rellena con el color del anillo a la mitad de opacidad. El anillo conserva su tamaño exterior en las dos condiciones. El anillo y el relleno son una sola forma: nada de lo que hay detrás del botón de opción se ve entre ellos, con ningún nivel de zoom ni densidad de pantalla, ni en ningún fotograma del cambio. Cuando la selección cambia, el trazo se engrosa o se afina mientras el color del anillo cambia y el relleno aparece o desaparece con un fundido; el relleno nunca crece desde el centro. Un cambio que llega antes de que termine el movimiento da la vuelta desde donde está y, donde el movimiento está reducido, la nueva condición se muestra de inmediato y por completo.
+En el sistema predeterminado, el botón de opción es un anillo de 20 con un trazo de 2, sobre una capa de estado redonda de 40. Una opción seleccionada no dibuja ningún punto. Su anillo se engrosa hacia dentro hasta la mitad del radio, y el disco que queda en el interior se rellena con el color del anillo al 16 % de opacidad: un tinte claro, que se mantiene al menos a 3:1 del anillo. El anillo conserva su tamaño exterior en las dos condiciones. El anillo y el relleno son una sola forma: nada de lo que hay detrás del botón de opción se ve entre ellos, con ningún nivel de zoom ni densidad de pantalla, ni en ningún fotograma del cambio. Cuando la selección cambia, el trazo se engrosa o se afina mientras el color del anillo cambia y el relleno aparece o desaparece con un fundido; el relleno nunca crece desde el centro. Un cambio que llega antes de que termine el movimiento da la vuelta desde donde está y, donde el movimiento está reducido, la nueva condición se muestra de inmediato y por completo.
 
 Cada opción ocupa en el diseño al menos 48 de alto, el tamaño del objetivo, con la capa de estado centrada en él. Por eso, las opciones apiladas sin separación entre ellas nunca comparten área de objetivo. Un producto que quiera colocar sus opciones más juntas reduce `option.min-height` en su propia capa y acepta que los objetivos se solapen.
 
@@ -185,7 +185,7 @@ Un grupo puede empezar con una opción seleccionada cuando esa opción sea una r
 - Espacio selecciona la opción que tiene el foco. Enter la selecciona solo donde la plataforma activa con Enter cualquier control con foco (Android, tvOS); en la web, Enter envía el formulario.
 - Seleccionar una opción deja las demás sin seleccionar. Solo la opción que pasa a estar seleccionada notifica el cambio, y activar la opción seleccionada no hace nada.
 - Un clic o un toque en la etiqueta selecciona la opción. La etiqueta forma parte del área de pulsación, y el área de pulsación cumple el objetivo mínimo. Cada opción reserva en el diseño la altura del objetivo, de modo que las opciones apiladas conservan objetivos completos y separados.
-- La selección la transmite el anillo por sí solo: el anillo seleccionado mantiene un contraste de 3:1 frente a todas las superficies del sistema predeterminado, y es dos veces y media más grueso que el no seleccionado. El relleno translúcido es decoración y no se tiene en cuenta.
+- La selección la transmite el anillo por sí solo: el anillo seleccionado mantiene un contraste de 3:1 frente a todas las superficies del sistema predeterminado, y es dos veces y media más grueso que el no seleccionado. El relleno translúcido no cuenta para eso, pero se mantiene a 3:1 del anillo con el que se toca, en cada estado, sobre cada superficie y en cada esquema (WCAG 1.4.11), de modo que el centro de la opción elegida también se ve.
 - Muestra el indicador de foco solo para el foco del teclado.
 - Donde el movimiento está reducido, la nueva condición se muestra de inmediato y por completo.
 - Las compilaciones de depuración notifican la falta de etiqueta.
