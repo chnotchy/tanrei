@@ -48,6 +48,9 @@ function flowTogether(field: TanreiField) {
   toFlow.add(field);
 }
 
+/** FLD-7: where the error text stands beside the help — `comp.field.error-text.placement`, by name; the first is what an unknown one behaves as. */
+const PLACEMENTS = ['replace', 'append'] as const;
+
 /** What a control that takes only the field's `disabled` is given. */
 const ONLY_DISABLED = (disabled: boolean): FieldState => ({ label: '', description: '', invalid: false, required: false, requiredText: '', disabled });
 
@@ -70,9 +73,10 @@ const ONLY_DISABLED = (disabled: boolean): FieldState => ({ label: '', descripti
  *
  * `requirement="required"` exposes the control as required and draws the required mark beside the label — a small
  * filled tag, an asterisk or nothing, as the design system or `required-mark` says; `requirement="optional"` draws the
- * optional tag. Neither validates: `error` is the product's to set, and `error-text` says what is wrong in words. The
- * help stays while the field is in error and the error text is drawn below it, so the field is taller by that text
- * while it is in error; a field without help has its error text where the help would be. An error that appears while
+ * optional tag. Neither validates: `error` is the product's to set, and `error-text` says what is wrong in words. While
+ * the field is in error the error text takes the help's place, so a form in error is no taller than at rest; a design
+ * system whose `--tanrei-comp-field-error-text-placement` is `append` keeps the help and draws the error text below
+ * it. A disabled field draws its requirement tag as a tag inside something disabled. An error that appears while
  * focus is inside the field is announced once, politely — the error text alone, never the help again.
  *
  * A press on the label moves focus to the control and never operates it; a press on the help, the error or the count
@@ -85,7 +89,7 @@ const ONLY_DISABLED = (disabled: boolean): FieldState => ({ label: '', descripti
  * draws the label itself, floating in its own box — the field then draws no label row and gives the control the name,
  * whether it is hidden, and an asterisk or none for a required one (FLD-25); how far its content is inset — the
  * supporting row starts and ends there (FLD-26); and that it refused what was entered, with its words — the field is
- * then in its error condition and shows them as its error text, below the help (FLD-28); and that it is drawn focused though focus is elsewhere — a
+ * then in its error condition and shows them as its error text (FLD-28); and that it is drawn focused though focus is elsewhere — a
  * combobox or a select for as long as its list is open — so that the field's rows are drawn focused with it (FLD-13).
  * `count-text` is a count about the control's value as it is to
  * be drawn ("12/40"), at the end of the supporting row: the field draws it, never counts, and keeps it from assistive
@@ -101,8 +105,8 @@ const ONLY_DISABLED = (disabled: boolean): FieldState => ({ label: '', descripti
  * @csspart label-icon - The box of the label's glyph.
  * @csspart requirement-label - The required or optional tag after the label, or the required asterisk.
  * @csspart value-text - The control's value in words the field is given (`value-text`), at the end of the label row.
- * @csspart supporting-text - The help below the control; it stays while the field is in error.
- * @csspart error-text - The error text, below the help or, where the field has no help, directly below the control; there only while the field is in error and has words for it.
+ * @csspart supporting-text - The help below the control; not drawn while the error text stands in its place.
+ * @csspart error-text - The error text: in the help's place, directly below the control, or below the help where the design system keeps both (`--tanrei-comp-field-error-text-placement: append`); there only while the field is in error and has words for it.
  * @csspart counter - The count the field is given (`count-text`), at the end of the supporting row's first line.
  */
 export class TanreiField extends LitElement {
@@ -141,10 +145,10 @@ export class TanreiField extends LitElement {
   /** Does not draw the label, which stays the accessible name (`label-hidden`). For a control whose visible label is elsewhere. */
   labelHidden = false;
 
-  /** Help shown below the control and given to assistive technology as the control's description (`supporting-text`). It stays while `error` is true. */
+  /** Help shown below the control and given to assistive technology as the control's description (`supporting-text`). While the field is in error it gives way to `errorText`, unless the design system keeps both (`--tanrei-comp-field-error-text-placement: append`). */
   supportingText = '';
 
-  /** Shown below `supportingText`, which stays, while `error` is true: what is wrong with this answer and how to put it right, in words (`error-text`). It need not repeat the help. */
+  /** Shown while `error` is true, in `supportingText`'s place (below it, which stays, where the design system says `append`): what is wrong with this answer and how to put it right, in words (`error-text`). */
   errorText = '';
 
   /** Puts the field in the error condition: the error text is drawn, the control is exposed as invalid and, where it has an error condition of its own, drawn in it. The field never sets this itself. */
@@ -234,12 +238,23 @@ export class TanreiField extends LitElement {
   }
 
   /**
-   * FLD-31, FLD-28: the error text the supporting row shows below the help, which stays — a refusal's own words,
+   * FLD-31, FLD-28: the error text the supporting row shows (where FLD-7 puts it) — a refusal's own words,
    * `errorText` while it has none; `errorText` while `error` is true; nothing while the field is not in error, or is in
    * error without words.
    */
   private shownError(said: FieldSays): string {
     return said.refusal ? said.refusal.text || this.errorText : frameErrorText(this);
+  }
+
+  /**
+   * FLD-7, FLD-11: the help as the supporting row draws it — not while the error text stands in its place
+   * (`comp.field.error-text.placement` replace, the first value); always under append. The design system's choice is
+   * read from the cascade only where the field has both a help and an error text, and read again at every render: the
+   * field draws again when the system is switched.
+   */
+  private shownHelp(error: string): string {
+    if (!this.supportingText || !error) return this.supportingText;
+    return compChoice(this, `${PREFIX}-error-text-placement`, PLACEMENTS) === 'append' ? this.supportingText : '';
   }
 
   /**
@@ -258,16 +273,20 @@ export class TanreiField extends LitElement {
   private get given(): FieldState {
     const framed = this.framed;
     const said = this.said;
+    const wrong = this.shownError(said);
     return {
       label: this.label,
-      // FLD-11: the help, then the error text, then the optional text — the order in which a field group describes its set.
-      description: [this.supportingText, this.shownError(said), frameOptionalText(framed)].filter(Boolean).join(' '),
+      // FLD-11: what the supporting row draws — the help, the error text in its place or after it — then the optional
+      // text: the order in which a field group describes its set.
+      description: [this.shownHelp(wrong), wrong, frameOptionalText(framed)].filter(Boolean).join(' '),
       invalid: this.inError(said),
       required: frameRequirement(this) === 'required',
       requiredText: framed.requiredText,
       disabled: this.isDisabled,
       labelHidden: this.labelHidden,
       requiredMark: this.givenMark(said),
+      // FLD-25: the optional word, which a control that draws the label itself draws after it.
+      optionalText: said.drawsLabel && frameLabelled(this) ? frameOptionalText(framed) : '',
     };
   }
 
@@ -350,10 +369,6 @@ export class TanreiField extends LitElement {
     if (!labelled && this.querySelector(':scope > [slot="label-icon"]')) {
       report(this, 'FLD-3', floats ? 'the label-icon slot is not drawn where the control draws the label itself, floating in its own box; remove the glyph' : 'the label-icon slot is not drawn while the label is not drawn; give the field a label, or remove the glyph');
     }
-    // FLD-25: an optional requirement has no place beside a label the control draws; its text stays in the description.
-    if (floats && frameLabelled(this) && frameRequirement(this) === 'optional') {
-      report(this, 'FLD-25', 'the optional tag cannot be drawn where the control draws the label itself, floating in its own box; its text is still part of the description');
-    }
     // FLD-28: a refusal neither the control nor the field has words for is still marked, and reported.
     if (said.refusal && !said.refusal.text && !this.errorText) {
       report(this, 'FLD-28', 'the control refused what was entered and neither it nor the field has words for it; give the control the words of its refusal, or the field an errorText');
@@ -397,9 +412,10 @@ export class TanreiField extends LitElement {
   protected override render() {
     const disabled = this.isDisabled;
     const said = this.said;
-    // FLD-7, FLD-31: the help, which stays, and below it the error text while the field is in error and has words.
-    const help = this.supportingText;
+    // FLD-7, FLD-31: the error text while the field is in error and has words — in the help's place, or below the help,
+    // which then stays, as comp.field.error-text.placement names.
     const wrong = this.shownError(said);
+    const help = this.shownHelp(wrong);
     const framed = this.framed;
     // FLD-26: the supporting row starts and ends where the control says its content does.
     const inset = said.inset ? `--_inset-start: ${said.inset.start}; --_inset-end: ${said.inset.end}` : undefined;

@@ -2,7 +2,7 @@
 title: "标签（Tag）"
 description: "用一段简短的静态文字标出类别或状态，外观可以是柔和填充、带轮廓或实色填充；有语义状态时采用该状态的颜色。它是文本，从不是控件。"
 translationOf: components/tag.mdx
-sourceHash: fe967cfb476e3d4571ebf0fdbe8939c0c7803905
+sourceHash: c3a34569bea95920f34e80e1409983493e6a838f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -137,6 +137,17 @@ Tag 自己不绘制任何表示状态的图标。在有帮助的地方请自己�
 
 [字段](/zh-cn/components/field/)和[字段组](/zh-cn/components/field-group/)的“必填”和“选填”小标签，就是小号的这个组件：必填用 filled，选填用 tonal。它们读取 Tag 的令牌，没有自己的令牌，所以重新设定小号 Tag 样式的设计系统，也就同时重新设定了它们的样式。
 
+### 位于禁用元素之中
+
+Tag 没有自己的状态，但它可以位于一个被禁用的元素之中：禁用字段的标签、列表中禁用的一行、菜单中禁用的一项。`disabled` 用它所属外观的禁用颜色（`comp.tag.<variant>.disabled.*`）来绘制它，无论语义状态如何，让它随所在的元素一起变淡，而不是看起来像其中唯一可用的部分。除此之外它什么都不改变：Tag 保持自己的尺寸和文字，不接受输入，也不获得焦点。字段和字段组在禁用时会为它们的必填和选填小标签设置它；你把 Tag 放进自己的禁用元素时，请自己设置。
+
+<DemoFrame label="常态的 Tag，以及位于禁用元素之中的 Tag" plain>
+  <tanrei-tag size="small" variant="filled" label="必填"></tanrei-tag>
+  <tanrei-tag size="small" variant="filled" label="必填" disabled></tanrei-tag>
+  <tanrei-tag size="small" label="选填"></tanrei-tag>
+  <tanrei-tag size="small" label="选填" disabled></tanrei-tag>
+</DemoFrame>
+
 ### 推荐
 
 - 用文字说出状态。“失败”无需更多说明；以错误颜色显示“3 个构建”的 Tag 则需要 `statusLabel`。
@@ -161,7 +172,8 @@ Tag 自己不绘制任何表示状态的图标。在有帮助的地方请自己�
 - 图标和圆点对辅助技术隐藏。
 - 它不接受输入，也不获得焦点，所以不会给焦点顺序增加停靠点，也不会给一行增加目标。
 - 被截断的标签文字仍然会完整朗读。
-- 在强制颜色模式下，每种外观都会多出一道文本颜色的边线，标签文字、图标和圆点也都采用这个颜色。
+- 在强制颜色模式下，每种外观都会多出一道文本颜色的边线，标签文字、图标和圆点也都采用这个颜色；禁用的 Tag 则采用禁用文本的颜色。
+- `disabled` 不暴露任何东西：说明自己被禁用的，是 Tag 所在的那个元素。
 - 在从右到左的布局中，图标或圆点移到标签文字的右侧，图标集标记为需要镜像的图标会被镜像，从左到右书写的标签文字保持自己的顺序，并在它自己的末尾截断。
 - 未知的变体、尺寸或语义状态，空的标签文字，以及没有语义状态却设置了的 `statusLabel`，会在调试构建中报告。
 
@@ -169,4 +181,5 @@ Tag 自己不绘制任何表示状态的图标。在有帮助的地方请自己�
 
 - 检查每个 Tag 的文字是否说出了它的状态。组件无法判断“3 个构建”是好消息还是坏消息。
 - 用页面的语言来写 `statusLabel`。
+- 只在位于禁用元素之中的 Tag 上设置 `disabled`，并确保那个元素说明了这一点（一个禁用的控件，或 `aria-disabled`）：变淡的 Tag 依赖于它。
 - 如果某个变化必须在发生时就朗读出来（例如用户正看着的构建完成了），请把 Tag 放进实时区域（live region），或者用消息条（Snackbar）来报告这个变化。Tag 自己不会朗读。

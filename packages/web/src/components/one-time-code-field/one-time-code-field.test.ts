@@ -154,7 +154,7 @@ test.describe('one-time-code field', () => {
       return { role: found.role?.value, name: found.name?.value, description: found.description?.value, ...Object.fromEntries((found.properties ?? []).map((p) => [p.name, p.value.value])) } as Record<string, unknown>;
     };
     expect(await node('supporting')).toMatchObject({ role: 'textbox', name: 'Verification code', description: 'Enter the 6-digit code we sent to your phone.' });
-    expect(await node('error')).toMatchObject({ role: 'textbox', name: 'Verification code', description: 'Enter the 6-digit code we sent to your phone. That code is not right. Check the message and try again.', invalid: 'true' });
+    expect(await node('error')).toMatchObject({ role: 'textbox', name: 'Verification code', description: 'That code is not right. Check the message and try again.', invalid: 'true' });
     expect(await node('disabled')).toMatchObject({ name: 'Verification code', disabled: true });
     expect(await node('required-rtl')).toMatchObject({ name: 'رمز التحقق', required: true });
     expect(await node('hidden-optional')).toMatchObject({ name: 'Verification code', description: 'Help Optional' });

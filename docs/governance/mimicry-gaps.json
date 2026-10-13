@@ -589,6 +589,18 @@
       "proposal": "A choice-of-kind token for the period's place in the horizontal layout would close what remains, but one product has no use for it."
     },
     {
+      "id": "field-error-text-placement",
+      "systems": [
+        "Material 3",
+        "Carbon",
+        "GOV.UK"
+      ],
+      "kind": "behavior",
+      "status": "resolved",
+      "trait": "Where a field's error text stands beside its help. Material 3 and Carbon put the error text in the help's place while the field is in error; GOV.UK keeps the hint and shows the error message as well. One frame that did one of the two could not imitate the other.",
+      "proposal": "Implemented: the choice of kind `comp.field.error-text.placement` — replace | append — read by the Field (FLD-7, FLD-31). The default system and every shipped preset use replace; a layer imitating a system that keeps the help sets append."
+    },
+    {
       "id": "select-chevron-flips-open",
       "systems": [
         "Material 3"

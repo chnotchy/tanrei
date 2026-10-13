@@ -10308,6 +10308,7 @@ class TanreiFieldGroupConditions {
 class TanreiFieldGroupTokens {
   const TanreiFieldGroupTokens({
     required this.errorTextGap,
+    required this.fieldMinWidth,
     required this.gapInline,
     required this.labelGap,
     required this.labelTypescale,
@@ -10322,6 +10323,8 @@ class TanreiFieldGroupTokens {
 
   /// `comp.field-group.error-text-gap`
   final double errorTextGap;
+  /// `comp.field-group.field-min-width`
+  final double fieldMinWidth;
   /// `comp.field-group.gap-inline`
   final double gapInline;
   /// `comp.field-group.label-gap`
@@ -10346,6 +10349,7 @@ class TanreiFieldGroupTokens {
   /// A copy with the given tokens replaced.
   TanreiFieldGroupTokens copyWith({
     double? errorTextGap,
+    double? fieldMinWidth,
     double? gapInline,
     double? labelGap,
     TanreiTextStyle? labelTypescale,
@@ -10358,6 +10362,7 @@ class TanreiFieldGroupTokens {
     TanreiFieldGroupConditions? conditions,
   }) => TanreiFieldGroupTokens(
         errorTextGap: errorTextGap ?? this.errorTextGap,
+        fieldMinWidth: fieldMinWidth ?? this.fieldMinWidth,
         gapInline: gapInline ?? this.gapInline,
         labelGap: labelGap ?? this.labelGap,
         labelTypescale: labelTypescale ?? this.labelTypescale,
@@ -10551,6 +10556,7 @@ class TanreiFieldTokens {
   const TanreiFieldTokens({
     required this.counterGap,
     required this.errorTextGap,
+    required this.errorTextPlacement,
     required this.labelIconGap,
     required this.labelIconSize,
     required this.labelGap,
@@ -10571,6 +10577,8 @@ class TanreiFieldTokens {
   final double counterGap;
   /// `comp.field.error-text-gap`
   final double errorTextGap;
+  /// `comp.field.error-text-placement`
+  final double errorTextPlacement;
   /// `comp.field.label-icon-gap`
   final double labelIconGap;
   /// `comp.field.label-icon-size`
@@ -10604,6 +10612,7 @@ class TanreiFieldTokens {
   TanreiFieldTokens copyWith({
     double? counterGap,
     double? errorTextGap,
+    double? errorTextPlacement,
     double? labelIconGap,
     double? labelIconSize,
     double? labelGap,
@@ -10621,6 +10630,7 @@ class TanreiFieldTokens {
   }) => TanreiFieldTokens(
         counterGap: counterGap ?? this.counterGap,
         errorTextGap: errorTextGap ?? this.errorTextGap,
+        errorTextPlacement: errorTextPlacement ?? this.errorTextPlacement,
         labelIconGap: labelIconGap ?? this.labelIconGap,
         labelIconSize: labelIconSize ?? this.labelIconSize,
         labelGap: labelGap ?? this.labelGap,
@@ -23036,10 +23046,10 @@ extension type const TanreiTagVariant(String name) {
   static const List<TanreiTagVariant> core = <TanreiTagVariant>[tonal, outlined, filled];
 }
 
-/// The tokens of one tag variant.
+/// What one variant of tag looks like in one interaction state.
 @immutable
-class TanreiTagVariantTokens {
-  const TanreiTagVariantTokens({
+class TanreiTagVariantStateTokens {
+  const TanreiTagVariantStateTokens({
     required this.containerColor,
     required this.labelColor,
     required this.iconColor,
@@ -23057,39 +23067,39 @@ class TanreiTagVariantTokens {
     required this.successIconColor,
   });
 
-  /// `comp.tag.container-color.<variant>`
+  /// `comp.tag.<variant>.<state>.container-color`
   final TanreiPaint containerColor;
-  /// `comp.tag.label-color.<variant>`
+  /// `comp.tag.<variant>.<state>.label-color`
   final TanreiPaint labelColor;
-  /// `comp.tag.icon-color.<variant>`
+  /// `comp.tag.<variant>.<state>.icon-color`
   final TanreiPaint iconColor;
-  /// `comp.tag.info-container-color.<variant>`
+  /// `comp.tag.<variant>.<state>.info-container-color`
   final TanreiPaint infoContainerColor;
-  /// `comp.tag.info-label-color.<variant>`
+  /// `comp.tag.<variant>.<state>.info-label-color`
   final TanreiPaint infoLabelColor;
-  /// `comp.tag.info-icon-color.<variant>`
+  /// `comp.tag.<variant>.<state>.info-icon-color`
   final TanreiPaint infoIconColor;
-  /// `comp.tag.warning-container-color.<variant>`
+  /// `comp.tag.<variant>.<state>.warning-container-color`
   final TanreiPaint warningContainerColor;
-  /// `comp.tag.warning-label-color.<variant>`
+  /// `comp.tag.<variant>.<state>.warning-label-color`
   final TanreiPaint warningLabelColor;
-  /// `comp.tag.warning-icon-color.<variant>`
+  /// `comp.tag.<variant>.<state>.warning-icon-color`
   final TanreiPaint warningIconColor;
-  /// `comp.tag.error-container-color.<variant>`
+  /// `comp.tag.<variant>.<state>.error-container-color`
   final TanreiPaint errorContainerColor;
-  /// `comp.tag.error-label-color.<variant>`
+  /// `comp.tag.<variant>.<state>.error-label-color`
   final TanreiPaint errorLabelColor;
-  /// `comp.tag.error-icon-color.<variant>`
+  /// `comp.tag.<variant>.<state>.error-icon-color`
   final TanreiPaint errorIconColor;
-  /// `comp.tag.success-container-color.<variant>`
+  /// `comp.tag.<variant>.<state>.success-container-color`
   final TanreiPaint successContainerColor;
-  /// `comp.tag.success-label-color.<variant>`
+  /// `comp.tag.<variant>.<state>.success-label-color`
   final TanreiPaint successLabelColor;
-  /// `comp.tag.success-icon-color.<variant>`
+  /// `comp.tag.<variant>.<state>.success-icon-color`
   final TanreiPaint successIconColor;
 
   /// A copy with the given tokens replaced.
-  TanreiTagVariantTokens copyWith({
+  TanreiTagVariantStateTokens copyWith({
     TanreiPaint? containerColor,
     TanreiPaint? labelColor,
     TanreiPaint? iconColor,
@@ -23105,7 +23115,7 @@ class TanreiTagVariantTokens {
     TanreiPaint? successContainerColor,
     TanreiPaint? successLabelColor,
     TanreiPaint? successIconColor,
-  }) => TanreiTagVariantTokens(
+  }) => TanreiTagVariantStateTokens(
         containerColor: containerColor ?? this.containerColor,
         labelColor: labelColor ?? this.labelColor,
         iconColor: iconColor ?? this.iconColor,
@@ -23122,6 +23132,37 @@ class TanreiTagVariantTokens {
         successLabelColor: successLabelColor ?? this.successLabelColor,
         successIconColor: successIconColor ?? this.successIconColor,
       );
+}
+
+/// The per-state tokens of one tag variant. How a state looks is a value of the design system;
+/// the widget only selects the state.
+@immutable
+class TanreiTagVariantTokens {
+  const TanreiTagVariantTokens({
+    required this.enabled,
+    required this.disabled,
+  });
+
+  final TanreiTagVariantStateTokens enabled;
+  final TanreiTagVariantStateTokens disabled;
+
+  /// A copy with the given tokens replaced.
+  TanreiTagVariantTokens copyWith({
+    TanreiTagVariantStateTokens? enabled,
+    TanreiTagVariantStateTokens? disabled,
+  }) => TanreiTagVariantTokens(
+        enabled: enabled ?? this.enabled,
+        disabled: disabled ?? this.disabled,
+      );
+
+  /// The tokens of [state]; a state this component does not have resolves to `enabled`.
+  TanreiTagVariantStateTokens of(TanreiInteractionState state) => switch (state) {
+        TanreiInteractionState.enabled => enabled,
+        TanreiInteractionState.hovered => enabled,
+        TanreiInteractionState.focused => enabled,
+        TanreiInteractionState.pressed => enabled,
+        TanreiInteractionState.disabled => disabled,
+      };
 }
 
 /// Every variant of tag: the core values by name, the values a design system added in [extra].

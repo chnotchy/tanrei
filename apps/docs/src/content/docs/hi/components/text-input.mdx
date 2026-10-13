@@ -2,7 +2,7 @@
 title: टेक्स्ट इनपुट
 description: वह बॉक्स जिसमें लोग टाइप करते हैं, और उसमें टाइप की जाने वाली हर चीज़ — एक पंक्ति या कई पंक्तियाँ, तारीख़ या समय, कोड — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस जगह के लिए जहाँ लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/text-input.mdx
-sourceHash: 3749647f72d1b3f46c616d54c6d99f6c792e4633
+sourceHash: 06b01bf09709b58b9d0db57bc6adde3c204610d9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -122,11 +122,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ## स्पेक
 
-<DemoFrame label="अकेले इनपुट: त्रुटि में, अक्षम, सिर्फ़ पढ़ने के लिए, प्रीफ़िक्स और सफ़िक्स के साथ, और large" plain column>
+<DemoFrame label="अकेले इनपुट: त्रुटि में, अक्षम, सिर्फ़ पढ़ने के लिए, प्रीफ़िक्स और सफ़िक्स के साथ, small और large" plain column>
   <tanrei-text-input class="not-content" label="ईमेल" value="ada@" error></tanrei-text-input>
   <tanrei-text-input class="not-content" label="ईमेल" value="ada@example.com" disabled></tanrei-text-input>
   <tanrei-text-input class="not-content" label="ईमेल" value="ada@example.com" readonly></tanrei-text-input>
   <tanrei-text-input class="not-content" label="राशि" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
+  <tanrei-text-input class="not-content" size="small" label="खोजें" value="tokens"></tanrei-text-input>
   <tanrei-text-input class="not-content" size="large" label="ईमेल" value="ada@example.com"></tanrei-text-input>
 </DemoFrame>
 
@@ -152,6 +153,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **आधी भरी छोड़ी गई तारीख़ या समय**, या ऐसा मान जो उपलब्ध नहीं है, बॉक्स को त्रुटि में दिखाता है और `entryError` एमिट करता है। `invalidText` या `unavailableText` इनपुट के विवरण में जुड़ जाता है; उसे कोई नहीं दिखाता।
 - **गिनती** रखी जाती है, विवरण में दी जाती है और पढ़कर सुनाई जाती है, पर दिखाई नहीं जाती। `countText` टेक्स्ट के रूप में गिनती है ("12/40"), ताकि आप उसे दिखा सकें।
 - **ज़रूरी होना** बताना फ़ील्ड का काम है। अकेले इनपुट में ज़रूरी होने की कोई सेटिंग नहीं है: जहाँ फ़ॉर्म को जवाब चाहिए, वहाँ उसे ख़ुद जाँचें।
+- **Small** (40, उसका टेक्स्ट 14) ऐप बार, टूलबार या कंट्रोल की घनी पंक्ति में रखे इनपुट के लिए है: वह छोटे [सिलेक्ट](/hi/components/select/) या छोटे बटन के बग़ल में एक ही ऊँचाई पर खड़ा होता है। `medium` (48) और `large` (56) फ़ॉर्म के लिए हैं। हर साइज़ पर उसका हिट एरिया न्यूनतम टार्गेट पूरा करता है।
+- **दाएँ से बाएँ वाले पेज में प्रीफ़िक्स।** ईमेल, URL, फ़ोन, संख्या या पासवर्ड इनपुट का मान बाएँ से दाएँ लिखा जाता है। प्रीफ़िक्स हो तो मान उससे सटकर खड़ा होता है, ताकि दाएँ से बाएँ वाले पेज में भी `https://` और पता एक ही स्ट्रिंग की तरह पढ़े जाएँ; प्रीफ़िक्स न हो तो वह इनपुट के शुरुआती किनारे पर खड़ा होता है।
 
 ### जो पहले दर्ज किया जा चुका है
 

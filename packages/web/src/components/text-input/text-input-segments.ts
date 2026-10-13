@@ -144,18 +144,16 @@ export function shownOf(row: Row, segments: Segments, unit: SegmentUnit): string
 }
 
 /**
- * What a segment's cell is as wide as (TXF-42): the widest of these copies, none of which is drawn. Its filled form —
- * two digits, four for a year, either name of a day period — so that it keeps that width while it is half typed and
- * while it is empty; and, while it is empty, its placeholder, because "mm" is wider than two digits in most faces and
- * would otherwise run into the separators beside it (so a row shifts by that difference, and by no more, when such a
- * segment takes its first digit). An hour is written as the locale writes it, one digit or two: a filled one is as wide
- * as itself, so the row starts where the input text starts ("2:30 PM").
+ * What a segment's cell is as wide as (TXI-42): the widest of these copies, none of which is drawn — its widest filled
+ * form (four digits for a year, two for the month, the day, the hour and the minute, either name of a day period) and
+ * its placeholder, whatever it holds now. "mm" is wider than two digits in most faces: a cell as wide as the digits
+ * alone would let the placeholder run into the separators, and one that changed with what it holds would shift the row
+ * at the first digit typed. So the row never moves as it fills or empties; an hour of one digit stands at the end of
+ * its cell ("2:30 PM").
  */
-export function sizersOf(row: Row, segments: Segments, unit: SegmentUnit): string[] {
+export function sizersOf(row: Row, _segments: Segments, unit: SegmentUnit): string[] {
   if (unit === 'period') return [...periodNames(row.locale)];
-  if (unit === 'hour' && segments.hour !== null) return [shownOf(row, segments, unit)];
-  const filled = numberText(row.locale, 0, unit === 'year' ? 4 : 2);
-  return holds(segments, unit) ? [filled] : [filled, placeholderOf(row, unit)];
+  return [numberText(row.locale, 0, unit === 'year' ? 4 : 2), placeholderOf(row, unit)];
 }
 
 /** TXF-29, TXF-30: the row's text as drawn — the locale's form, an empty segment's placeholder left out. */

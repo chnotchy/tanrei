@@ -5,7 +5,8 @@ import { cornerRadius, shape } from '../../styles/shape.js';
 
 // Every visual value is a token (tokens/comp/tag.tokens.json). A tag is text, not a control (TAG-9): it has no state, so
 // there is no state rule, no state layer, no ripple, no focus indicator, no minimum target and no transition here. What
-// changes what it draws is its variant, its status and its size, each read from that look's own tokens.
+// changes what it draws is its variant, its status and its size, each read from that look's own tokens — and whether it
+// stands inside something disabled (TAG-21), which only recolors it.
 /** The values every design system has. A layer may add more; those get their styles on demand. */
 export const CORE_VARIANTS = ['tonal', 'outlined', 'filled'] as const;
 export const CORE_SIZES = ['small', 'medium'] as const;
@@ -31,10 +32,17 @@ const ref = (name: (key: string) => string, key: string, fallback: string | null
 
 // Per variant, the three parts with no status and under each status, as private custom properties (`--_c` = the fill,
 // `--_error-i` = the mark of an error tag). The token is `<variant>-[<status>-]<part>`.
-const variantBlock = (variant: string, selector: string, fallback: string | null = null) =>
+//
+// TAG-21: a tag drawn as part of something disabled takes the same parts from its look's disabled tokens,
+// `<variant>-disabled-[<status>-]<part>`, under the same selector with `[disabled]` added — more specific than every
+// resting block, so it wins whatever order the blocks are in (a variant a layer adds gets both on demand).
+const disabledOf = (selector: string) => (selector === ':host' ? ':host([disabled])' : selector.replace(/^:host\((.*)\)$/, ':host($1[disabled])'));
+const partsBlock = (variant: string, selector: string, state: string, fallback: string | null) =>
   `${selector} {\n${['', ...STATUSES]
-    .flatMap((status) => Object.entries(PARTS).map(([key, part]) => `  --_${status ? `${status}-` : ''}${key}: ${ref((v) => `${PREFIX}-${v}-${status ? `${status}-` : ''}${part}`, variant, fallback)};`))
+    .flatMap((status) => Object.entries(PARTS).map(([key, part]) => `  --_${status ? `${status}-` : ''}${key}: ${ref((v) => `${PREFIX}-${v}-${state}${status ? `${status}-` : ''}${part}`, variant, fallback)};`))
     .join('\n')}\n}`;
+const variantBlock = (variant: string, selector: string, fallback: string | null = null) =>
+  `${partsBlock(variant, selector, '', fallback)}\n${partsBlock(variant, disabledOf(selector), 'disabled-', fallback)}`;
 
 // The label's text role is used whole: its font shorthand and its letter spacing.
 const sizeBlock = (size: string, selector: string, fallback: string | null = null) =>
@@ -220,6 +228,15 @@ export const styles = css`
     .dot {
       forced-color-adjust: none;
       background: CanvasText;
+    }
+    /* TAG-21: drawn as part of something disabled, in the mode's color for disabled text. */
+    :host([disabled]) .container {
+      border-color: GrayText;
+      color: GrayText;
+      --_mark: GrayText;
+    }
+    :host([disabled]) .dot {
+      background: GrayText;
     }
   }
 `;

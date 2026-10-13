@@ -449,11 +449,11 @@ describe('the text input, the text field and the field around a text input', () 
     assert.equal(frame.platforms.web.items['text-input'].name, INPUT);
   });
 
-  test('every fixture of the three is drawn: the text input\'s 78, the text field\'s 95 and the field\'s 95 twins, one for each fixture of the text field', () => {
-    assert.equal(input.fixtures.length, 78);
-    // Ninety, and the five with a help and an error text together.
-    assert.equal(field.fixtures.length, 95);
-    assert.equal(twins.length, 95);
+  test('every fixture of the three is drawn: the text input\'s 79, the text field\'s 97 and the field\'s 97 twins, one for each fixture of the text field', () => {
+    assert.equal(input.fixtures.length, 79);
+    // Ninety, the five with a help and an error text together, the small one and the optional word in an outlined field.
+    assert.equal(field.fixtures.length, 97);
+    assert.equal(twins.length, 97);
     assert.equal(around.length - twins.length, chipTwins.size, 'every other field around a text input is a twin of the chip field');
     assert.deepEqual(twins.map((each) => `field.${each.id}`), field.fixtures.map((each) => each.twin), 'the twins are the text field\'s, in its order');
     for (const [spec, fixtures] of [[input, input.fixtures], [field, field.fixtures], [frame, twins]]) {

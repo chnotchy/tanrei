@@ -865,7 +865,10 @@ for (const written of COMPOSED) {
       // Each instance draws some of the parts; together they draw every part an instance can draw.
       const instances = [driven.allParts].flat();
       const id = (index: number) => (index === 0 ? 'composed' : `composed-${index}`);
-      await mount(page, instances.map((one, index) => `<${tag} id="${id(index)}" ${one.attributes}>${one.children}</${tag}>`).join('\n'), tag);
+      // An instance with a help and an error text draws both under the design system's `append` (FLD-7): the default,
+      // `replace`, draws the error text in the help's place.
+      const append = '<style>:root { --tanrei-comp-field-error-text-placement: append; }</style>';
+      await mount(page, append + instances.map((one, index) => `<${tag} id="${id(index)}" ${one.attributes}>${one.children}</${tag}>`).join('\n'), tag);
       for (const [index, one] of instances.entries()) await one.act?.(page, page.locator(`#${id(index)}`));
       await settle(page);
       // One name at a time: a part exported under two names would take the later of two rules.

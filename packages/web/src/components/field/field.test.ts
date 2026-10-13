@@ -60,6 +60,26 @@ const frames = (page: P, count = 3) =>
   page.evaluate(async (n) => {
     for (let i = 0; i < n; i++) await new Promise((resolve) => requestAnimationFrame(resolve));
   }, count);
+/**
+ * FLD-7: the design system's error text placement, set for the page — `append` keeps the help and draws the error text
+ * below it; `replace`, the default, puts the error text in the help's place — and every field drawn again, Fields
+ * inside composed fields too, as a switch of the system draws them: a field reads the choice at each render.
+ */
+const placement = async (page: P, value: 'replace' | 'append') => {
+  await override(page, { [T('error-text-placement')]: value });
+  await page.evaluate(async () => {
+    const fields: (HTMLElement & { requestUpdate(): void; updateComplete: Promise<unknown> })[] = [];
+    const walk = (root: Document | ShadowRoot) => {
+      for (const element of root.querySelectorAll('*')) {
+        if (element.localName === 'tanrei-field') fields.push(element as (typeof fields)[number]);
+        if (element.shadowRoot) walk(element.shadowRoot);
+      }
+    };
+    walk(document);
+    for (const field of fields) field.requestUpdate();
+    await Promise.all(fields.map((field) => field.updateComplete));
+  });
+};
 /** A press of the pointer at the centre of `target`, whatever is drawn over it (a slider's handle lies under its rail's hit area). */
 const press = async (target: Locator) => {
   const b = (await target.boundingBox())!;
@@ -251,7 +271,7 @@ test.describe('behavior', () => {
     expect(seen.filter((w) => w.includes('FLD-3'))).toHaveLength(1);
   });
 
-  test('FLD-4: requirement none says and draws nothing; required exposes the control as required and draws the required mark; optional draws the optional tag and adds optionalText to the description; it never validates, and a disabled field keeps its mark — the asterisk from the disabled tokens, the tag as at rest', async ({ page }) => {
+  test('FLD-4: requirement none says and draws nothing; required exposes the control as required and draws the required mark; optional draws the optional tag and adds optionalText to the description; it never validates, and a disabled field keeps its mark — the asterisk from the disabled tokens, the tag drawn as a tag inside something disabled', async ({ page }) => {
     await mount(page, [
       fx('none', { label: 'Notifications' }, toggle()),
       fx('required', { label: 'Notifications', requirement: 'required' }, toggle()),
@@ -270,18 +290,19 @@ test.describe('behavior', () => {
     expect(await semantics(page, 'empty-value')).toMatchObject({ required: true, invalid: false });
     await expect(part(page, 'empty-value', '.supporting-text, .error-text')).toHaveCount(0);
     expect(await host(page, 'empty-value').evaluate((el: HTMLElement & { error: boolean }) => el.error)).toBe(false);
-    // Disabled: the mark stays — the tag as it is at rest, because a tag has no states (TAG-9) …
+    // Disabled: the mark stays — the tag drawn as a tag inside something disabled, from the Tag's own disabled tokens
+    // (TAG-21), so that it fades with the label …
     const tag = part(page, 'disabled', '.required-tag').locator('.container');
     await expect(tag).toBeVisible();
-    const atRest = part(page, 'required', '.required-tag').locator('.container');
-    expect(await css(tag, 'background-color')).toBe(await css(atRest, 'background-color'));
-    expect(await css(tag, 'color')).toBe(await css(atRest, 'color'));
-    expect(await css(tag, 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-container-color'));
+    expect(await part(page, 'disabled', '.required-tag').evaluate((el) => el.hasAttribute('disabled'))).toBe(true);
+    expect(await part(page, 'required', '.required-tag').evaluate((el) => el.hasAttribute('disabled'))).toBe(false);
+    expect(await css(tag, 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-disabled-container-color'));
+    expect(await css(tag, 'color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-disabled-label-color'));
     // … and the asterisk, which is the field's own, from the disabled tokens.
     expect(await css(part(page, 'disabled-asterisk', '.asterisk'), 'color')).toBe(await color(page, 'standard-disabled-required-asterisk-color'));
   });
 
-  test('FLD-5: the requirement tag is the Tag component at its small size — filled for required, tonal for optional — after the label’s text, requirement.gap from it and centred on its line, drawn as every small tag is, from the Tag’s own tokens: the field has no token for it and sets none, so what restyles small tags restyles it, and it is the same at rest, focused, in error and disabled; it is text, never a control, never makes the row taller, moves whole to a line of its own when the label wraps, is not drawn with an empty text, and is kept from assistive technology', async ({ page }) => {
+  test('FLD-5: the requirement tag is the Tag component at its small size — filled for required, tonal for optional — after the label’s text, requirement.gap from it and centred on its line, drawn as every small tag is, from the Tag’s own tokens: the field has no token for it and sets none, so what restyles small tags restyles it, and it is the same at rest, focused and in error, and drawn as a tag inside something disabled while the field is disabled; it is text, never a control, never makes the row taller, moves whole to a line of its own when the label wraps, is not drawn with an empty text, and is kept from assistive technology', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
       ...spec.fixtures.filter((f) => ['slider', 'slider-required', 'slider-optional', 'long-label', 'slider-required-error', 'slider-required-disabled'].includes(f.id)),
@@ -290,7 +311,7 @@ test.describe('behavior', () => {
       fx('no-required-text', { label: 'Volume', requirement: 'required', requiredText: '' }),
       fx('no-optional-text', { label: 'Volume', requirement: 'optional', optionalText: '' }),
       // The tag's own fixtures, to lay the two over each other.
-      fx('tags', {}, '<tanrei-tag id="small-filled" size="small" variant="filled" label="Required"></tanrei-tag><tanrei-tag id="small-tonal" size="small" variant="tonal" label="Optional"></tanrei-tag>'),
+      fx('tags', {}, '<tanrei-tag id="small-filled" size="small" variant="filled" label="Required"></tanrei-tag><tanrei-tag id="small-tonal" size="small" variant="tonal" label="Optional"></tanrei-tag><tanrei-tag id="small-filled-disabled" size="small" variant="filled" label="Required" disabled></tanrei-tag><tanrei-tag id="small-tonal-disabled" size="small" variant="tonal" label="Optional" disabled></tanrei-tag>'),
     ]);
     for (const [id, kind, variant, text] of [
       ['slider-required', 'required', 'filled', 'Required'],
@@ -332,29 +353,33 @@ test.describe('behavior', () => {
         expect(await css(container, property), `${id} ${property}`).toBe(await css(own.locator('.container'), property));
       }
     }
-    // The same at rest, focused, in error and disabled: a tag has no states.
+    // The same at rest, focused and in error: a tag has no states. Disabled, the tag fixtures drawn inside something
+    // disabled (TAG-21).
     const look = (locator: Locator) => locator.locator('.container').evaluate((el) => ['background-color', 'color', 'font', 'padding', 'border-radius', 'box-shadow', 'opacity'].map((property) => getComputedStyle(el).getPropertyValue(property)).join('|'));
     const [filled, tonal] = [await look(page.locator('#small-filled')), await look(page.locator('#small-tonal'))];
-    for (const id of ['slider-required', 'slider-required-error', 'slider-required-disabled']) expect(await look(part(page, id, '.required-tag')), id).toBe(filled);
-    for (const id of ['slider-optional', 'optional-error', 'optional-disabled']) expect(await look(part(page, id, '.optional-tag')), id).toBe(tonal);
+    for (const id of ['slider-required', 'slider-required-error']) expect(await look(part(page, id, '.required-tag')), id).toBe(filled);
+    for (const id of ['slider-optional', 'optional-error']) expect(await look(part(page, id, '.optional-tag')), id).toBe(tonal);
+    expect(await look(part(page, 'slider-required-disabled', '.required-tag')), 'slider-required-disabled').toBe(await look(page.locator('#small-filled-disabled')));
+    expect(await look(part(page, 'optional-disabled', '.optional-tag')), 'optional-disabled').toBe(await look(page.locator('#small-tonal-disabled')));
+    expect(filled, 'disabled is a look of its own').not.toBe(await look(page.locator('#small-filled-disabled')));
     await tabTo(page, control(page, 'slider-required'));
     await frames(page);
     expect(await look(part(page, 'slider-required', '.required-tag')), 'focused').toBe(filled);
     expect(await css(part(page, 'slider-required', '.required-tag').locator('.container'), 'transition-property'), 'the tag changes no color, so nothing eases').not.toContain('background-color');
     await page.locator('body').click({ position: { x: 700, y: 5 } });
     // What restyles small tags for the page restyles the requirement tags with them — and nothing restyles them alone.
-    await override(page, { '--tanrei-comp-tag-tonal-container-color': 'rgb(1, 2, 3)', '--tanrei-comp-tag-filled-container-color': 'rgb(4, 5, 6)', '--tanrei-comp-tag-container-shape': '2px', '--tanrei-comp-tag-container-shape-pill': '0' });
+    await override(page, { '--tanrei-comp-tag-tonal-container-color': 'rgb(1, 2, 3)', '--tanrei-comp-tag-filled-container-color': 'rgb(4, 5, 6)', '--tanrei-comp-tag-filled-disabled-container-color': 'rgb(7, 8, 9)', '--tanrei-comp-tag-container-shape': '2px', '--tanrei-comp-tag-container-shape-pill': '0' });
     for (const [mine, own, fill] of [
       [part(page, 'slider-optional', '.optional-tag'), page.locator('#small-tonal'), 'rgb(1, 2, 3)'],
       [part(page, 'slider-required', '.required-tag'), page.locator('#small-filled'), 'rgb(4, 5, 6)'],
-      [part(page, 'slider-required-disabled', '.required-tag'), page.locator('#small-filled'), 'rgb(4, 5, 6)'],
+      [part(page, 'slider-required-disabled', '.required-tag'), page.locator('#small-filled-disabled'), 'rgb(7, 8, 9)'],
     ] as const) {
       expect(await css(mine.locator('.container'), 'background-color')).toBe(fill);
       expect(await css(own.locator('.container'), 'background-color')).toBe(fill);
       expect(await css(mine.locator('.container'), 'border-top-left-radius')).toBe(await css(own.locator('.container'), 'border-top-left-radius'));
     }
     expect(Number.parseFloat(await css(page.locator('#small-tonal .container'), 'border-top-left-radius')), 'the page’s shape reached the tags').toBeLessThanOrEqual(2.5);
-    await rootTokens(page, { '--tanrei-comp-tag-tonal-container-color': '', '--tanrei-comp-tag-filled-container-color': '', '--tanrei-comp-tag-container-shape': '', '--tanrei-comp-tag-container-shape-pill': '' });
+    await rootTokens(page, { '--tanrei-comp-tag-tonal-container-color': '', '--tanrei-comp-tag-filled-container-color': '', '--tanrei-comp-tag-filled-disabled-container-color': '', '--tanrei-comp-tag-container-shape': '', '--tanrei-comp-tag-container-shape-pill': '' });
     // A tag taller than the label's line reaches equally above and below it, and the row is no taller.
     await override(page, { '--tanrei-comp-tag-container-height-small': '40px' });
     await frames(page);
@@ -444,8 +469,28 @@ test.describe('behavior', () => {
     for (const id of [...marks, 'hidden']) expect((await semantics(page, id)).description, id).toBe('Required');
   });
 
-  test('FLD-7: the supporting row holds, from top to bottom, the help — in supporting-text.typescale and its color, kept in its place and its words while the field is in error — and below it the error text; each wraps and is never cut; with no text there is no row, no gap and no room', async ({ page }) => {
+  test('FLD-7: the supporting row holds the help — in supporting-text.typescale and its color — and the error text: under the default system (error-text.placement replace) the error text stands in the help’s place and the help comes back where it was when it goes; under append the help keeps its place and its words and the error text is added below it; each wraps and is never cut; with no text there is no row, no gap and no room', async ({ page }) => {
     await mountSpec(page, 'slider', 'slider-supporting', 'slider-error', 'slider-error-without-text', 'long-label');
+    // The default system: the error text in the help's place — the row's first line, where the help stands out of error.
+    expect(await page.evaluate((name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim(), T('error-text-placement'))).toBe('replace');
+    await expect(part(page, 'slider-error', '.supporting-text')).toHaveCount(0);
+    await expect(part(page, 'slider-error', '.error-text')).toHaveText('Choose a level above 0.');
+    {
+      const [wrong, help] = [await box(part(page, 'slider-error', '.error-text')), await box(part(page, 'slider-supporting', '.supporting-text'))];
+      near(wrong.y - (await box(host(page, 'slider-error'))).y, help.y - (await box(host(page, 'slider-supporting'))).y, 'in the help’s place');
+      near((await box(host(page, 'slider-error'))).height, (await box(host(page, 'slider-supporting'))).height, 'no taller in error than at rest');
+    }
+    // Without words the help stays, in its resting place and color.
+    await expect(part(page, 'slider-error-without-text', '.supporting-text')).toHaveText('Applies to alerts and media.');
+    {
+      await set(page, 'slider-supporting', { error: true, errorText: 'Too quiet.' });
+      await expect(part(page, 'slider-supporting', '.supporting-text')).toHaveCount(0);
+      await set(page, 'slider-supporting', { error: false });
+      await expect(part(page, 'slider-supporting', '.supporting-text'), 'the help comes back').toHaveText('Applies to alerts and media.');
+      await expect(part(page, 'slider-supporting', '.error-text')).toHaveCount(0);
+    }
+    // append: the help keeps its place and its words, and the error text is added below it.
+    await placement(page, 'append');
     await expect(part(page, 'slider', '.supporting-text')).toHaveCount(0);
     near((await box(host(page, 'slider'))).height, (await box(part(page, 'slider', '.label-row'))).height + (await token(page, 'label-gap')) + (await box(control(page, 'slider'))).height, 'no room for a row that is not drawn');
     const row = part(page, 'slider-supporting', '.supporting-text');
@@ -492,7 +537,7 @@ test.describe('behavior', () => {
     near((await box(host(page, 'slider'))).height, before, 'and returns');
   });
 
-  test('FLD-31: the error text is drawn error-text.gap below the help’s last line, or as the row’s first line supporting-text.gap below the control where there is no help; it starts where the help starts, wraps and is never cut; a field with a help is taller in error by the gap and the error text’s lines and keeps no room for an error before; it comes and goes at once, with no motion of its own, and an error without words draws none', async ({ page }) => {
+  test('FLD-31: under the default system (replace) the error text is the row’s first line, supporting-text.gap below the control, in the help’s place, and a field in error is as tall as at rest; under append it is drawn error-text.gap below the help’s last line, or as the row’s first line where there is no help; it starts where the help starts, wraps and is never cut; under append a field with a help is taller in error by the gap and the error text’s lines; no room is kept for an error before; it comes and goes at once, with no motion of its own, and an error without words draws none', async ({ page }) => {
     await mount(page, [
       ...spec.fixtures.filter((f) => ['text-stacked-supporting-error', 'text-outlined-supporting-error', 'text-stacked-supporting-error-long', 'text-stacked-supporting-error-rtl', 'slider-error-without-text'].includes(f.id)),
       fx('both', { label: 'Volume', supportingText: 'Help.', error: true, errorText: 'Wrong.' }),
@@ -501,7 +546,17 @@ test.describe('behavior', () => {
       fx('wordless', { label: 'Volume', supportingText: 'Help.', error: true }),
     ]);
     const [gap, rowGap] = [await token(page, 'error-text-gap'), await token(page, 'supporting-text-gap')];
-    // Below the control: the row's gap, the help, error-text.gap, the error text.
+    // Under the default system: 4, one line of error text (16), and no help; out of error, the help there instead.
+    {
+      const [framed, wrong, field] = [await box(control(page, 'both')), await box(part(page, 'both', '.error-text')), await box(host(page, 'both'))];
+      await expect(part(page, 'both', '.supporting-text')).toHaveCount(0);
+      near(wrong.y - (framed.y + framed.height), rowGap, 'replace: supporting-text.gap below the control');
+      expect([rowGap, Math.round(wrong.height)]).toEqual([4, 16]);
+      near(field.height, (await box(host(page, 'help'))).height, 'replace: as tall as the field out of error');
+      near(wrong.y - field.y, (await box(part(page, 'help', '.supporting-text'))).y - (await box(host(page, 'help'))).y, 'replace: where the help stands');
+    }
+    // append: below the control the row's gap, the help, error-text.gap, the error text.
+    await placement(page, 'append');
     const [framed, help, wrong, field] = [await box(control(page, 'both')), await box(part(page, 'both', '.supporting-text')), await box(part(page, 'both', '.error-text')), await box(host(page, 'both'))];
     near(help.y - (framed.y + framed.height), rowGap, 'the help supporting-text.gap below the control');
     near(wrong.y - (help.y + help.height), gap, 'the error text error-text.gap below the help');
@@ -575,6 +630,7 @@ test.describe('behavior', () => {
       fx('helped', { label: 'Volume', requirement: 'required', requiredMark: 'asterisk', supportingText: 'Help.' }, slider(), { slots: { 'label-icon': 'volume_up' } }),
       fx('helped-error', { label: 'Volume', requirement: 'required', requiredMark: 'asterisk', supportingText: 'Help.', error: true, errorText: 'Wrong.' }, slider(), { slots: { 'label-icon': 'volume_up' } }),
     ]);
+    await placement(page, 'append');
     const id = 'slider-required-error';
     expect(await css(part(page, id, '.label'), 'color')).toBe(await color(page, 'standard-error-label-color'));
     expect(await css(part(page, id, '.error-text'), 'color')).toBe(await color(page, 'standard-error-text-color'));
@@ -627,8 +683,9 @@ test.describe('behavior', () => {
     expect(await announced(page, 'a')).toBe('');
     await set(page, 'a', { error: true, errorText: 'Choose a level above 0.' });
     await expect.poll(() => announced(page, 'a')).toBe('Choose a level above 0.');
-    // The help stays in the row and is not said again: the live region never holds it.
-    await expect(part(page, 'a', '.supporting-text')).toHaveText('New help.');
+    // The help is not said again — the live region never holds it — whether the error text takes its place (the default)
+    // or stands below it (append).
+    await expect(part(page, 'a', '.supporting-text')).toHaveCount(0);
     expect(await announced(page, 'a')).not.toContain('New help.');
     expect(await activeInside(page, 'a'), 'focus stays').toBe(true);
     await set(page, 'a', { errorText: 'Choose a level between 1 and 10.' });
@@ -681,15 +738,15 @@ test.describe('behavior', () => {
     expect(seen.filter((w) => w.includes('SWT-16'))).toHaveLength(0);
   });
 
-  test('FLD-11: the description of the control is, in this order and after any description it has of its own, the help, the error text while the field is in error, and optionalText while the control is optional, drawn label or not; the help stays in it in error; a change is exposed at once; the glyph, the tag and the asterisk are not exposed', async ({ page }) => {
+  test('FLD-11: the description of the control is, in this order and after any description it has of its own, what the supporting row draws — the help, the error text while the field is in error, in the help’s place under the default system and after it under append — and optionalText while the control is optional, drawn label or not; a change is exposed at once; the glyph, the tag and the asterisk are not exposed', async ({ page }) => {
     await mount(page, [
       ...spec.fixtures.filter((f) => ['slider-supporting', 'slider-error', 'slider-label-hidden', 'switch-optional', 'slider-error-rtl'].includes(f.id)),
       fx('own', { label: 'City', supportingText: 'As written on your mail.', requirement: 'optional' }, '<input aria-description="Autofilled." />'),
       fx('hidden-optional', { label: 'Volume', labelHidden: true, requirement: 'optional', supportingText: 'Help.' }),
     ]);
     expect((await semantics(page, 'slider-supporting')).description).toBe('Applies to alerts and media.');
-    // In error: the help first, then the error text.
-    expect((await semantics(page, 'slider-error')).description).toBe('Applies to alerts and media. Choose a level above 0.');
+    // In error, under the default system: the error text in the help's place, as the row draws it.
+    expect((await semantics(page, 'slider-error')).description).toBe('Choose a level above 0.');
     expect((await semantics(page, 'slider-label-hidden')).description).toBe('Applies to alerts and media.');
     expect((await semantics(page, 'switch-optional')).description).toBe('Optional');
     expect((await semantics(page, 'slider-error-rtl')).description).toBe('יש לבחור רמה מעל 0. רשות');
@@ -701,16 +758,21 @@ test.describe('behavior', () => {
     await set(page, 'slider-supporting', { supportingText: 'Applies to media only.' });
     expect((await semantics(page, 'slider-supporting')).description).toBe('Applies to media only.');
     await set(page, 'slider-supporting', { error: true, errorText: 'Too loud.' });
-    expect((await semantics(page, 'slider-supporting')).description).toBe('Applies to media only. Too loud.');
+    expect((await semantics(page, 'slider-supporting')).description).toBe('Too loud.');
     await set(page, 'slider-supporting', { error: false });
     expect((await semantics(page, 'slider-supporting')).description).toBe('Applies to media only.');
     await set(page, 'slider-supporting', { error: true, supportingText: '' });
     expect((await semantics(page, 'slider-supporting')).description).toBe('Too loud.');
     await set(page, 'slider-supporting', { error: false });
     expect((await semantics(page, 'slider-supporting')).description).toBeNull();
-    // With the control's own description, a help, an error and the optional text: all four, in that order.
+    // With the control's own description, a help, an error and the optional text: its own, the error text in the help's
+    // place, the optional text — and under append all four, in that order.
     await set(page, 'own', { error: true, errorText: 'No such city.' });
+    expect(await control(page, 'own').getAttribute('aria-description')).toBe('Autofilled. No such city. Optional');
+    await placement(page, 'append');
     expect(await control(page, 'own').getAttribute('aria-description')).toBe('Autofilled. As written on your mail. No such city. Optional');
+    expect((await semantics(page, 'slider-error')).description).toBe('Applies to alerts and media. Choose a level above 0.');
+    await placement(page, 'replace');
     await set(page, 'own', { error: false });
     await set(page, 'own', { supportingText: '', requirement: 'none' });
     expect(await control(page, 'own').getAttribute('aria-description')).toBe('Autofilled.');
@@ -757,6 +819,7 @@ test.describe('behavior', () => {
 
   test('FLD-13: while focus is inside the field — gained by pointer or by keyboard — the label, the glyph, the mark and the supporting row are drawn from the focused tokens, their error parts while error is true; the field draws no focus indicator; the colors change over motion.state-duration, and at once where motion is reduced', async ({ page }) => {
     await mount(page, [fx('a', { label: 'Volume', requirement: 'required', requiredMark: 'asterisk', supportingText: 'Help.' }, slider(), { slots: { 'label-icon': 'volume_up' } }), fx('error', { label: 'Volume', supportingText: 'Help.', error: true, errorText: 'Too loud.' })], { system: 'm3-like' });
+    await placement(page, 'append');
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const read = async (id: string) => ({
       label: await css(part(page, id, '.label'), 'color'),
@@ -863,7 +926,7 @@ test.describe('behavior', () => {
     expect(await css(part(page, 'a', '.label'), 'color')).toBe(await color(page, 'standard-disabled-label-color'));
   });
 
-  test('FLD-14: disabled draws every part of the field’s own from its disabled tokens and its requirement tag as at rest, makes the control disabled as its own disabled does — not focusable, not operable, exposed as disabled — and answers no press on its label; an enabled field does not enable a control the product disabled; its texts stay readable', async ({ page }) => {
+  test('FLD-14: disabled draws every part of the field’s own from its disabled tokens and its requirement tag as a tag inside something disabled, makes the control disabled as its own disabled does — not focusable, not operable, exposed as disabled — and answers no press on its label; an enabled field does not enable a control the product disabled; its texts stay readable', async ({ page }) => {
     await mount(page, [
       ...spec.fixtures.filter((f) => ['slider-disabled', 'slider-required-disabled'].includes(f.id)),
       fx('switch', { label: 'Notifications', disabled: true, supportingText: 'Help.' }, toggle()),
@@ -874,15 +937,17 @@ test.describe('behavior', () => {
       fx('asterisk', { label: 'Volume', requirement: 'required', requiredMark: 'asterisk', disabled: true }),
       fx('enabled', { label: 'Volume' }),
     ]);
+    await placement(page, 'append');
     const id = 'slider-disabled';
     expect(await css(part(page, id, '.label'), 'color')).toBe(await color(page, 'standard-disabled-label-color'));
     expect(await css(part(page, id, '.supporting-text'), 'color')).toBe(await color(page, 'standard-disabled-supporting-text-color'));
     expect(await css(part(page, 'error', '.supporting-text'), 'color')).toBe(await color(page, 'standard-disabled-error-supporting-text-color'));
     expect(await css(part(page, 'error', '.error-text'), 'color')).toBe(await color(page, 'standard-disabled-error-text-color'));
     expect(await css(part(page, 'asterisk', '.asterisk'), 'color')).toBe(await color(page, 'standard-disabled-required-asterisk-color'));
-    // The requirement tag is no part of the field's own: a tag has no disabled look, and it is drawn as at rest (FLD-5).
-    expect(await css(part(page, 'slider-required-disabled', '.required-tag').locator('.container'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-container-color'));
-    expect(await css(part(page, 'slider-required-disabled', '.required-tag').locator('.container'), 'color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-label-color'));
+    // The requirement tag is no part of the field's own: it is drawn as a tag inside something disabled, from the Tag's
+    // own disabled tokens (FLD-5, TAG-21).
+    expect(await css(part(page, 'slider-required-disabled', '.required-tag').locator('.container'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-disabled-container-color'));
+    expect(await css(part(page, 'slider-required-disabled', '.required-tag').locator('.container'), 'color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-disabled-label-color'));
     // The control: disabled as its own `disabled` does.
     expect(await semantics(page, id)).toMatchObject({ disabled: true, focusable: false });
     expect(await semantics(page, 'switch')).toMatchObject({ disabled: true, focusable: false });
@@ -995,6 +1060,7 @@ test.describe('behavior', () => {
     const fixtures = [...spec.fixtures.filter((f) => ['slider-required', 'slider-optional', 'slider-supporting', 'slider-error', 'slider-required-disabled'].includes(f.id)), fx('asterisk', { label: 'Volume', requirement: 'required', requiredMark: 'asterisk' })];
     expect(fixtures).toHaveLength(6);
     await mount(page, fixtures);
+    await placement(page, 'append');
     await expect(part(page, 'asterisk', '.asterisk')).toHaveCount(1);
     await forcedColorsHold(page, fixtures);
     // The error and the help look alike: the words and the invalid state carry the error.
@@ -1207,7 +1273,7 @@ test.describe('behavior', () => {
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       return states;
     });
-    expect(told.at(-1)).toEqual({ label: 'Level', description: 'From 1 to 10.', invalid: true, required: false, requiredText: 'Required', disabled: false, labelHidden: false, requiredMark: 'none' });
+    expect(told.at(-1)).toEqual({ label: 'Level', description: 'From 1 to 10.', invalid: true, required: false, requiredText: 'Required', disabled: false, labelHidden: false, requiredMark: 'none', optionalText: '' });
     expect(await control(page, 'asks').getAttribute('aria-label')).toBeNull();
   });
 
@@ -1346,7 +1412,7 @@ test.describe('a control that is a box: a text input', () => {
   const floating = (id: string) => input(id).locator('label.label');
   const I = (page: P, name: string) => resolveToken(page, `--tanrei-comp-input-box-${name}`);
 
-  test('FLD-25: while its control draws the label itself the field draws no label row, no gap, no glyph and no tag, still names the control, and gives it whether the label is hidden and the required mark — an asterisk for its tag and its asterisk alike, none otherwise; its supporting row, its error and the description stay; an optional requirement and a label glyph are reported; a press on that label is the control’s; and the row goes or comes at once when the control starts or stops', async ({ page }) => {
+  test('FLD-25: while its control draws the label itself the field draws no label row, no gap, no glyph and no tag, still names the control, and gives it whether the label is hidden and the required mark — an asterisk for its tag and its asterisk alike, none otherwise; and the optional word while the control is optional; its supporting row, its error and the description stay; a label glyph is reported; a press on that label is the control’s; and the row goes or comes at once when the control starts or stops', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
       fx('floats', { label: 'Email', supportingText: 'Help.', requirement: 'required' }, textInput({ variant: 'outlined' })),
@@ -1359,7 +1425,7 @@ test.describe('a control that is a box: a text input', () => {
       fx('slider', { label: 'Volume', requirement: 'required' }),
     ]);
     // No label row and no gap: the control stands at the field's top, and floats the field's label in its own box.
-    for (const [id, label] of [['floats', 'Email*'], ['asterisk', 'Email*'], ['none', 'Email'], ['optional', 'Company'], ['glyph', 'Name']] as const) {
+    for (const [id, label] of [['floats', 'Email*'], ['asterisk', 'Email*'], ['none', 'Email'], ['optional', 'Company Optional'], ['glyph', 'Name']] as const) {
       await expect(part(page, id, '.label-row'), id).toHaveCount(0);
       await expect(part(page, id, '.label-icon, .requirement-tag'), id).toHaveCount(0);
       near((await box(input(id))).y, (await box(host(page, id))).y, `${id}: nothing above the control`);
@@ -1382,10 +1448,14 @@ test.describe('a control that is a box: a text input', () => {
     await expect(part(page, 'optional', '.error-text')).toHaveText('Wrong.');
     expect(await css(part(page, 'optional', '.error-text'), 'color')).toBe(await color(page, 'standard-error-text-color'));
     await expect(typed('optional')).toHaveAttribute('aria-invalid', 'true');
-    // Optional: its text stays in the description, and that it cannot be drawn is reported; so is the glyph (FLD-3).
+    // Optional: the control is given the optional word, which it draws after its floating label, kept from assistive
+    // technology — its text stays in the description; nothing is reported. The glyph is (FLD-3).
+    await expect(floating('optional').locator('.optional')).toHaveText('Optional');
+    expect(await floating('optional').locator('.optional').getAttribute('aria-hidden')).toBe('true');
+    await expect(floating('floats').locator('.optional')).toHaveCount(0);
     await expect(input('optional').getByRole('textbox')).toHaveAccessibleDescription('Wrong. Optional');
-    await expect.poll(() => seen.filter((w) => w.includes('FLD-25')).length).toBe(1);
-    expect(seen.filter((w) => w.includes('FLD-3') && w.includes('draws the label itself'))).toHaveLength(1);
+    await expect.poll(() => seen.filter((w) => w.includes('FLD-3') && w.includes('draws the label itself')).length).toBe(1);
+    expect(seen.filter((w) => w.includes('FLD-25'))).toHaveLength(0);
     // A control that floats nothing, and a control that says nothing, are framed as before.
     await expect(part(page, 'stacked', '.label-row')).toHaveCount(1);
     await expect(part(page, 'stacked', '.required-tag')).toHaveCount(1);
@@ -1455,6 +1525,7 @@ test.describe('a control that is a box: a text input', () => {
       fx('off', { label: 'Bio', disabled: true, supportingText: 'Help.', countText: '1/2' }, textInput({ value: 'H' })),
       fx('rtl', { label: 'Volume', supportingText: 'Help.', countText: '3/9' }, slider(), { direction: 'rtl' }),
     ]);
+    await placement(page, 'append');
     const counter = (id: string) => part(page, id, '.counter');
     await expect(counter('text-stacked-counter')).toHaveText('12/40');
     await expect(counter('text-outlined-counter')).toHaveText('12/40');
@@ -1533,13 +1604,14 @@ test.describe('a control that is a box: a text input', () => {
     await expect(part(page, 'rtl', '.supporting-text')).toHaveText('Help.');
   });
 
-  test('FLD-28: while its control reports that it refused an entry the field is in its error condition exactly as while error is true — its error parts, the control invalid, and as its error text, below the help, which stays, the control’s words, or errorText where it gives none; with no words from either it draws no error text — announces the error text while focus is inside, returns at once when the control withdraws the report, and forgets it when the control is replaced; it never sets error itself', async ({ page }) => {
+  test('FLD-28: while its control reports that it refused an entry the field is in its error condition exactly as while error is true — its error parts, the control invalid, and as its error text, where any error text stands (here under append: below the help, which stays), the control’s words, or errorText where it gives none; with no words from either it draws no error text — announces the error text while focus is inside, returns at once when the control withdraws the report, and forgets it when the control is replaced; it never sets error itself', async ({ page }) => {
     const date = (props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'text-input', props: { type: 'date', locale: 'en-US', segmentEmptyText: 'Empty', ...props } });
     await mount(page, [
       fx('own', { label: 'Due', supportingText: 'By the end of the year.', errorText: 'Check the date.' }, date({ invalidText: 'Finish the date.', unavailableText: 'Too late.', max: '2026-12-31' })),
       fx('fields', { label: 'Due', supportingText: 'By the end of the year.', errorText: 'Check the date.' }, date()),
       fx('help', { label: 'Due', supportingText: 'By the end of the year.' }, date()),
     ]);
+    await placement(page, 'append');
     const segment = (id: string, unit: string) => input(id).locator(`.segment[data-unit="${unit}"]`);
     const blur = () => page.locator('body').click({ position: { x: 700, y: 5 } });
     const refuse = async (id: string) => {
@@ -1935,9 +2007,11 @@ test.describe('accessibility', () => {
     }
   });
 
-  test('Chromium’s accessibility tree computes the name, the description and the states of a control inside a field — a slider, a switch, a checkbox and a native input — with the help and then the error text as the description while the field is in error', async ({ page, browserName }) => {
+  test('Chromium’s accessibility tree computes the name, the description and the states of a control inside a field — a slider, a switch, a checkbox and a native input — with the error text in the help’s place as the description while the field is in error, and under append the help and then the error text', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'the accessibility tree is read over the DevTools protocol');
     await mount(page, [...spec.fixtures.filter((f) => ['slider-supporting', 'slider-error'].includes(f.id))]);
+    expect(await axNode(page, 'slider', 1)).toMatchObject({ name: 'Volume', description: 'Choose a level above 0.', invalid: 'true' });
+    await placement(page, 'append');
     expect(await axNode(page, 'slider', 0)).toMatchObject({ name: 'Volume', description: 'Applies to alerts and media.' });
     expect(await axNode(page, 'slider', 1)).toMatchObject({ name: 'Volume', description: 'Applies to alerts and media. Choose a level above 0.', invalid: 'true' });
     // The error set later reaches the tree at once, after the help.
@@ -1947,6 +2021,7 @@ test.describe('accessibility', () => {
       ...spec.fixtures.filter((f) => ['switch-optional', 'checkbox-own-label-error', 'slider-label-hidden', 'slider-required-disabled'].includes(f.id)),
       fx('native', { label: 'City', supportingText: 'As written on your mail.', requirement: 'required', error: true, errorText: 'Enter a city.' }, '<input />'),
     ]);
+    await placement(page, 'append');
     expect(await axNode(page, 'switch')).toMatchObject({ name: 'Notifications', description: 'Optional' });
     expect(await axNode(page, 'checkbox')).toMatchObject({ name: 'I accept the terms of use', description: 'You can withdraw at any time. Accept the terms to continue.', invalid: 'true' });
     expect(await axNode(page, 'slider', 0)).toMatchObject({ name: 'Volume', description: 'Required', disabled: true });
@@ -1974,8 +2049,10 @@ test.describe('fixtures', () => {
     // picker's; the twins of every other field — the 60 `combobox-…`, the twins of the combobox field's fixtures around a
     // combobox, and the 57 `select-…`, the twins of the select field's around a select; the four `number-…-rtl`, the twins
     // of the number field's fixtures of a number and its unit in a right-to-left layout; and the five
-    // `text-…-supporting-error…`, a help and an error text together.
-    expect(spec.fixtures).toHaveLength(366);
+    // `text-…-supporting-error…`, a help and an error text together (the error text in the help's place under the default
+    // system); `text-stacked-small` and `text-outlined-optional`, the twins of the text field's small size and of the
+    // optional word after a floating label.
+    expect(spec.fixtures).toHaveLength(368);
     expect(PARTS.flatMap((p) => p.fixtures.map((f) => f.id)).sort()).toEqual(spec.fixtures.map((f) => f.id).sort());
     for (const p of PARTS) expect(p.fixtures.length, p.name).toBeLessThanOrEqual(PART);
     expect(new Set(PARTS.map((p) => p.name)).size).toBe(PARTS.length);
@@ -2000,10 +2077,11 @@ test.describe('fixtures', () => {
         const tag = labelled && (requirement === 'optional' || (requirement === 'required' && mark !== 'asterisk'));
         expect(await part(page, f.id, '.requirement-tag').count(), `${f.id} tag`).toBe(tag ? 1 : 0);
         if (tag) await expect(part(page, f.id, '.requirement-tag').locator('.label'), f.id).toHaveText(String(requirement === 'required' ? f.props.requiredText : f.props.optionalText));
-        const shown = f.props.supportingText;
+        const wrong = f.props.error && f.props.errorText ? f.props.errorText : '';
+        // FLD-7: under the default system the error text stands in the help's place.
+        const shown = wrong ? '' : f.props.supportingText;
         expect(await part(page, f.id, '.supporting-text').count(), `${f.id} supporting row`).toBe(shown ? 1 : 0);
         if (shown) await expect(part(page, f.id, '.supporting-text'), f.id).toHaveText(String(shown));
-        const wrong = f.props.error && f.props.errorText ? f.props.errorText : '';
         expect(await part(page, f.id, '.error-text').count(), `${f.id} error text`).toBe(wrong ? 1 : 0);
         if (wrong) await expect(part(page, f.id, '.error-text'), f.id).toHaveText(String(wrong));
         if (f.slots?.['label-icon']) await expect.poll(() => host(page, f.id).locator('[slot="label-icon"]').evaluate((el) => el.getBoundingClientRect().width > 0), { message: f.id }).toBe(true);

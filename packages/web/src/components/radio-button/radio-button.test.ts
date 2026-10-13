@@ -507,7 +507,7 @@ test.describe('behavior', () => {
     // Disabled wins: the disabled option of the group in error is drawn from the disabled tokens, which show no error color.
     expect((await read('fg'))[2]!.ring).toBe(await resolveColor(page, T('unselected-disabled-ring-color')));
     // A field in error marks its control the same way (FLD-8), and still describes it; the option is never invalid.
-    expect((await read('fd')).map((o) => [o.drawn, o.prop, o.invalid, o.description])).toEqual([[true, false, null, 'Help. Wrong.']]);
+    expect((await read('fd')).map((o) => [o.drawn, o.prop, o.invalid, o.description])).toEqual([[true, false, null, 'Wrong.']]);
     // With no error on the frame an option keeps the error the product gave it, and its neighbour none.
     expect((await read('ok')).map((o) => [o.drawn, o.prop])).toEqual([[true, true], [false, false]]);
     // The frame's error going takes the error form away; coming back, it returns — no property of the option changes.

@@ -250,7 +250,7 @@ test.describe('behavior', () => {
     near((await box(member(page, 'fields', 1).locator('.label-row'))).y - ((await box(member(page, 'fields', 0).locator('.field > .container'))).y + (await box(member(page, 'fields', 0).locator('.field > .container'))).height), fieldsGap, 'from the first one’s container to the second one’s label');
   });
 
-  test('FGR-4: requirement none says and draws nothing; required draws the required mark and says so in the group’s description; optional draws the optional tag and adds optionalText to the description; it never validates, and a disabled group keeps its mark — the asterisk from the disabled tokens, the tag as at rest', async ({ page }) => {
+  test('FGR-4: requirement none says and draws nothing; required draws the required mark and says so in the group’s description; optional draws the optional tag and adds optionalText to the description; it never validates, and a disabled group keeps its mark — the asterisk from the disabled tokens, the tag drawn as a tag inside something disabled', async ({ page }) => {
     await mount(page, [...spec.fixtures.filter((f) => ['checkboxes', 'checkboxes-required', 'checkboxes-optional', 'checkboxes-disabled'].includes(f.id)), fx('disabled-asterisk', { label: 'Notify me by', requirement: 'required', requiredMark: 'asterisk', disabled: true })]);
     await expect(part(page, 'checkboxes', '.requirement-tag, .asterisk')).toHaveCount(0);
     expect((await group(page, 'checkboxes')).described).toEqual([]);
@@ -263,25 +263,26 @@ test.describe('behavior', () => {
     expect(await host(page, 'checkboxes-optional').evaluate((el: HTMLElement & { error: boolean }) => el.error)).toBe(false);
     await expect(part(page, 'checkboxes-optional', '.error-text')).toHaveCount(0);
     for (const control of await members(page, 'checkboxes-optional').all()) expect((await semantics(control)).invalid).toBe(false);
-    // Disabled: the mark stays — the tag as it is at rest, because a tag has no states (TAG-9) …
+    // Disabled: the mark stays — the tag drawn as a tag inside something disabled, from the Tag's own disabled tokens
+    // (TAG-21), so that it fades with the label …
     const tag = part(page, 'checkboxes-disabled', '.required-tag').locator('.container');
     await expect(tag).toBeVisible();
-    const atRest = part(page, 'checkboxes-required', '.required-tag').locator('.container');
-    expect(await css(tag, 'background-color')).toBe(await css(atRest, 'background-color'));
-    expect(await css(tag, 'color')).toBe(await css(atRest, 'color'));
-    expect(await css(tag, 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-container-color'));
+    expect(await part(page, 'checkboxes-disabled', '.required-tag').evaluate((el) => el.hasAttribute('disabled'))).toBe(true);
+    expect(await part(page, 'checkboxes-required', '.required-tag').evaluate((el) => el.hasAttribute('disabled'))).toBe(false);
+    expect(await css(tag, 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-disabled-container-color'));
+    expect(await css(tag, 'color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-disabled-label-color'));
     // … and the asterisk, which is the group's own, from the disabled tokens.
     expect(await css(part(page, 'disabled-asterisk', '.asterisk'), 'color')).toBe(await color(page, 'standard-disabled-required-asterisk-color'));
   });
 
-  test('FGR-5: the requirement tag is the Tag component at its small size — filled for required, tonal for optional — after the label’s text, requirement.gap from it and centred on its line, drawn as every small tag is, from the Tag’s own tokens: the group has no token for it and sets none, so what restyles small tags restyles it, and it is the same at rest, in error and disabled; it is text, never a control, never makes the row taller, moves whole to a line of its own when the label wraps, is not drawn with an empty text, is hidden as a drawn part, and lies over the field’s tag', async ({ page }) => {
+  test('FGR-5: the requirement tag is the Tag component at its small size — filled for required, tonal for optional — after the label’s text, requirement.gap from it and centred on its line, drawn as every small tag is, from the Tag’s own tokens: the group has no token for it and sets none, so what restyles small tags restyles it, and it is the same at rest and in error, and drawn as a tag inside something disabled while the group is disabled; it is text, never a control, never makes the row taller, moves whole to a line of its own when the label wraps, is not drawn with an empty text, is hidden as a drawn part, and lies over the field’s tag', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [
       ...spec.fixtures.filter((f) => ['checkboxes', 'checkboxes-required', 'checkboxes-optional', 'long-label', 'checkboxes-error', 'checkboxes-disabled'].includes(f.id)),
       fx('optional-error', { label: 'Notify me by', requirement: 'optional', error: true, errorText: 'Wrong.' }),
       fx('optional-disabled', { label: 'Notify me by', requirement: 'optional', disabled: true }),
       // A bare tag of each look, to compare with.
-      fx('tags', { label: 'Tags' }, '<tanrei-tag id="small-filled" size="small" variant="filled" label="Required"></tanrei-tag><tanrei-tag id="small-tonal" size="small" variant="tonal" label="Optional"></tanrei-tag>'),
+      fx('tags', { label: 'Tags' }, '<tanrei-tag id="small-filled" size="small" variant="filled" label="Required"></tanrei-tag><tanrei-tag id="small-tonal" size="small" variant="tonal" label="Optional"></tanrei-tag><tanrei-tag id="small-filled-disabled" size="small" variant="filled" label="Required" disabled></tanrei-tag><tanrei-tag id="small-tonal-disabled" size="small" variant="tonal" label="Optional" disabled></tanrei-tag>'),
       fx('no-required-text', { label: 'Notify me by', requirement: 'required', requiredText: '' }),
       fx('no-optional-text', { label: 'Notify me by', requirement: 'optional', optionalText: '' }),
       // The field's own tags, to lay the two over each other.
@@ -323,25 +324,27 @@ test.describe('behavior', () => {
         expect(await css(container, property), `${id} ${property}`).toBe(await css(ofField.locator('.container'), property));
       }
     }
-    // The same at rest, in error and disabled: a tag has no states.
+    // The same at rest and in error: a tag has no states. Disabled, the tag fixtures drawn inside something disabled (TAG-21).
     const look = (locator: Locator) => locator.locator('.container').evaluate((el) => ['background-color', 'color', 'font', 'padding', 'border-radius', 'box-shadow', 'opacity'].map((property) => getComputedStyle(el).getPropertyValue(property)).join('|'));
     const [filled, tonal] = [await look(page.locator('#small-filled')), await look(page.locator('#small-tonal'))];
-    for (const id of ['checkboxes-required', 'checkboxes-error', 'checkboxes-disabled']) expect(await look(part(page, id, '.required-tag')), id).toBe(filled);
-    for (const id of ['checkboxes-optional', 'optional-error', 'optional-disabled']) expect(await look(part(page, id, '.optional-tag')), id).toBe(tonal);
+    for (const id of ['checkboxes-required', 'checkboxes-error']) expect(await look(part(page, id, '.required-tag')), id).toBe(filled);
+    for (const id of ['checkboxes-optional', 'optional-error']) expect(await look(part(page, id, '.optional-tag')), id).toBe(tonal);
+    expect(await look(part(page, 'checkboxes-disabled', '.required-tag')), 'checkboxes-disabled').toBe(await look(page.locator('#small-filled-disabled')));
+    expect(await look(part(page, 'optional-disabled', '.optional-tag')), 'optional-disabled').toBe(await look(page.locator('#small-tonal-disabled')));
     // What restyles small tags for the page restyles the requirement tags with them — the group's, the field's and a
     // bare tag alike — and nothing restyles them alone.
-    await override(page, { '--tanrei-comp-tag-tonal-container-color': 'rgb(1, 2, 3)', '--tanrei-comp-tag-filled-container-color': 'rgb(4, 5, 6)', '--tanrei-comp-tag-container-shape': '2px', '--tanrei-comp-tag-container-shape-pill': '0' });
+    await override(page, { '--tanrei-comp-tag-tonal-container-color': 'rgb(1, 2, 3)', '--tanrei-comp-tag-filled-container-color': 'rgb(4, 5, 6)', '--tanrei-comp-tag-filled-disabled-container-color': 'rgb(7, 8, 9)', '--tanrei-comp-tag-container-shape': '2px', '--tanrei-comp-tag-container-shape-pill': '0' });
     for (const [mine, own, fill] of [
       [part(page, 'checkboxes-optional', '.optional-tag'), page.locator('#small-tonal'), 'rgb(1, 2, 3)'],
       [part(page, 'checkboxes-required', '.required-tag'), page.locator('#small-filled'), 'rgb(4, 5, 6)'],
-      [part(page, 'checkboxes-disabled', '.required-tag'), page.locator('#small-filled'), 'rgb(4, 5, 6)'],
+      [part(page, 'checkboxes-disabled', '.required-tag'), page.locator('#small-filled-disabled'), 'rgb(7, 8, 9)'],
       [page.locator('#field-required').locator('.label-row > .requirement-box > .required-tag'), page.locator('#small-filled'), 'rgb(4, 5, 6)'],
     ] as const) {
       expect(await css(mine.locator('.container'), 'background-color')).toBe(fill);
       expect(await css(own.locator('.container'), 'background-color')).toBe(fill);
       expect(await css(mine.locator('.container'), 'border-top-left-radius')).toBe(await css(own.locator('.container'), 'border-top-left-radius'));
     }
-    await rootTokens(page, { '--tanrei-comp-tag-tonal-container-color': '', '--tanrei-comp-tag-filled-container-color': '', '--tanrei-comp-tag-container-shape': '', '--tanrei-comp-tag-container-shape-pill': '' });
+    await rootTokens(page, { '--tanrei-comp-tag-tonal-container-color': '', '--tanrei-comp-tag-filled-container-color': '', '--tanrei-comp-tag-filled-disabled-container-color': '', '--tanrei-comp-tag-container-shape': '', '--tanrei-comp-tag-container-shape-pill': '' });
     await frames(page);
     // The label and the tag do not fit on one line: the tag stands, whole, after the label's last line.
     const [label, tag] = [await box(part(page, 'long-label', '.label')), await box(part(page, 'long-label', '.required-tag'))];
@@ -618,7 +621,7 @@ test.describe('behavior', () => {
     expect(await member(page, 'b', 2).evaluate((el: HTMLElement & { checked: boolean }) => el.checked)).toBe(true);
   });
 
-  test('FGR-13: horizontal lays the controls out in a row from the start edge, gap-inline apart, their first lines aligned — a selection control as wide as it needs, fields an equal share each, aligned at their tops — and wraps onto further lines gap.<spacing> apart, cutting, scrolling and narrowing no control; at 200 % text a row becomes a column without overlap', async ({ page }) => {
+  test('FGR-13: horizontal lays the controls out in a row from the start edge, gap-inline apart, their first lines aligned — a selection control as wide as it needs, fields an equal share each and never less than field.min-width, aligned at their tops — and wraps onto further lines gap.<spacing> apart, cutting, scrolling and narrowing no control; at 200 % text a row becomes a column without overlap', async ({ page }) => {
     await mount(page, [...spec.fixtures.filter((f) => ['checkboxes-horizontal', 'checkboxes-horizontal-many', 'fields-horizontal'].includes(f.id)), fx('narrow', { label: 'Notify me by', orientation: 'horizontal' }, [checkbox('Email'), checkbox('Text'), checkbox('Push')])]);
     const [inline, controlsGap] = [await token(page, 'gap-inline'), await token(page, 'gap-controls')];
     const row = await Promise.all((await members(page, 'checkboxes-horizontal').all()).map(box));
@@ -634,6 +637,33 @@ test.describe('behavior', () => {
     near(b.x - (a.x + a.width), inline, 'gap-inline');
     near(a.y, b.y, 'aligned at their tops');
     near((await box(member(page, 'fields-horizontal', 0).locator('.label-row > .label'))).y, (await box(member(page, 'fields-horizontal', 1).locator('.label-row > .label'))).y, 'their labels on one line');
+    // Never narrower than field.min-width: 400 wide, two fields share the row; 280 wide — less than two of them and
+    // gap-inline — the second takes a line of its own, gap.fields below, and each is as wide as the group.
+    {
+      const [least, fieldsGap] = [await token(page, 'field-min-width'), await token(page, 'gap-fields')];
+      expect(least, 'derived from the size scale: 36 units at the dial’s default').toBe(144);
+      await host(page, 'fields-horizontal').evaluate((el) => (el.style.inlineSize = '400px'));
+      await frames(page);
+      const [wa, wb] = [await box(member(page, 'fields-horizontal', 0)), await box(member(page, 'fields-horizontal', 1))];
+      near(wa.y, wb.y, '400: one line');
+      near(wa.width, (400 - inline) / 2, '400: an equal share');
+      await host(page, 'fields-horizontal').evaluate((el) => (el.style.inlineSize = `${2 * 144 + 16 - 24}px`));
+      await frames(page);
+      const width = (await box(host(page, 'fields-horizontal'))).width;
+      expect(width, 'narrower than two fields of the least width').toBeLessThan(2 * least + inline);
+      const [na, nb] = [await box(member(page, 'fields-horizontal', 0)), await box(member(page, 'fields-horizontal', 1))];
+      near(nb.y - (na.y + na.height), fieldsGap, 'the second field on a line of its own, gap.fields below');
+      near(na.width, width, 'the first as wide as the group');
+      near(nb.width, width, 'the second as wide as the group');
+      near(nb.x, na.x, 'both from the start edge');
+      // A product's least width is followed.
+      await override(page, { [T('field-min-width')]: '100px' });
+      await frames(page);
+      near((await box(member(page, 'fields-horizontal', 1))).y, (await box(member(page, 'fields-horizontal', 0))).y, 'with a least width of 100 the two share the row again');
+      await override(page, { [T('field-min-width')]: '' });
+      await host(page, 'fields-horizontal').evaluate((el) => (el.style.inlineSize = ''));
+      await frames(page);
+    }
     // The many-option fixture wraps in the stage: several lines, gap.controls apart, nothing cut or outside the group.
     const many = await Promise.all((await members(page, 'checkboxes-horizontal-many').all()).map(box));
     const group_ = await box(host(page, 'checkboxes-horizontal-many'));
@@ -656,7 +686,7 @@ test.describe('behavior', () => {
     for (let i = 1; i < large.length; i++) expect(large[i].y).toBeGreaterThanOrEqual(large[i - 1].y + large[i - 1].height - 0.5);
   });
 
-  test('FGR-14: disabled draws the label, the asterisk, the description and the error text from the disabled tokens and the requirement tag as at rest, makes every control it holds disabled as its own disabled does, and exposes the group as disabled; an enabled group does not enable a control the product disabled; its texts stay readable', async ({ page }) => {
+  test('FGR-14: disabled draws the label, the asterisk, the description and the error text from the disabled tokens and the requirement tag as a tag inside something disabled, makes every control it holds disabled as its own disabled does, and exposes the group as disabled; an enabled group does not enable a control the product disabled; its texts stay readable', async ({ page }) => {
     await mount(page, [
       ...spec.fixtures.filter((f) => ['checkboxes-disabled', 'checkboxes-one-disabled'].includes(f.id)),
       fx('mixed', { label: 'Mixed', disabled: true, error: true, errorText: 'Wrong.', supportingText: 'Help.', spacing: 'fields' }, '<tanrei-checkbox label="Email"></tanrei-checkbox><tanrei-switch label="Share"></tanrei-switch><tanrei-text-field label="Street"></tanrei-text-field><tanrei-slider label="Volume"></tanrei-slider><input aria-label="Native" /><button type="button">Press</button>'),
@@ -666,9 +696,10 @@ test.describe('behavior', () => {
     expect(await css(part(page, id, '.supporting-text'), 'color')).toBe(await color(page, 'standard-disabled-supporting-text-color'));
     expect(await css(part(page, 'mixed', '.error-text'), 'color')).toBe(await color(page, 'standard-disabled-error-text-color'));
     expect(await css(part(page, 'mixed', '.supporting-text'), 'color')).toBe(await color(page, 'standard-disabled-error-supporting-text-color'));
-    // The requirement tag is no part of the group's own: a tag has no disabled look, and it is drawn as at rest (FGR-5).
-    expect(await css(part(page, id, '.required-tag').locator('.container'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-container-color'));
-    expect(await css(part(page, id, '.required-tag').locator('.container'), 'color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-label-color'));
+    // The requirement tag is no part of the group's own: it is drawn as a tag inside something disabled, from the Tag's
+    // own disabled tokens (FGR-5, TAG-21).
+    expect(await css(part(page, id, '.required-tag').locator('.container'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-disabled-container-color'));
+    expect(await css(part(page, id, '.required-tag').locator('.container'), 'color')).toBe(await resolveColor(page, '--tanrei-comp-tag-filled-disabled-label-color'));
     expect((await group(page, id)).disabled).toBe(true);
     for (const control of await members(page, id).all()) {
       expect((await semantics(control)).disabled).toBe(true);

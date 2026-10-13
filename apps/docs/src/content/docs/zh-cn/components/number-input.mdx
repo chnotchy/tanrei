@@ -2,7 +2,7 @@
 title: "数字输入框"
 description: "放数字的那个方框——按所在区域设置的写法键入，或者用按键或按钮步进；数字被限制在范围之内，单位就在旁边——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的数字，或者放进产品自己组合的字段里。"
 translationOf: components/number-input.mdx
-sourceHash: 5343e6c25b1c6a18445ab4e07a08112a4321524c
+sourceHash: 460094edc2d24cabbbfc27e3d6b6b7965206a6af
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -147,7 +147,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 保存 | 值、范围和步长、它在表单中的位置、事件 | 什么都不保存 |
 | 告诉辅助技术 | 一个微调按钮（spin button）：它的值、它的范围、它的值文本 | 名称、帮助文本或错误文本、必填、无效、禁用 |
 
-三种变体和两种尺寸——`medium`（48）和 `large`（56）——都是文本输入框的；方框的绘制方式和尺寸，与同一变体、同一尺寸的[文本输入框](/zh-cn/components/text-input/)相同。默认系统只提供 `stacked`。
+三种变体和三种尺寸——`small`（40）、`medium`（48）和 `large`（56）——都是文本输入框的；方框的绘制方式和尺寸，与同一变体、同一尺寸的[文本输入框](/zh-cn/components/text-input/)相同。默认系统只提供 `stacked`。
 
 两个步进按钮是并排的 medium 尺寸 text 按钮。在默认系统下，它们占方框宽度中的 88，每一个都是完整的触摸目标。它们绝不会画得更小，也绝不会上下叠放：一行里放不下它们的地方，就把它们关掉。按键仍然可以步进。它们用 Button 自己的令牌绘制，绝不会处于错误状态。
 

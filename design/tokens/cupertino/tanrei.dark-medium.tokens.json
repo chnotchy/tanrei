@@ -36821,6 +36821,16 @@
             "$description": "Distance between the last control and the error text: a field's distance between its control and its supporting row."
           }
         },
+        "field": {
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 144,
+              "unit": "px"
+            },
+            "$description": "The least width of a field in a horizontal row of fields (FGR-13): the fields share the row equally and never less than this, and a field that would be narrower moves, with those after it, to the next line. A field whose content needs more keeps what its content needs."
+          }
+        },
         "gap-inline": {
           "$type": "dimension",
           "$value": {
@@ -37179,7 +37189,12 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "Distance between the help's last line and the error text below it, while the field shows both: the frame's distance between two rows of small text, the one a field group keeps between its label and its description. A field without help has its error text supporting-text.gap below the control, and this token is not read."
+            "$description": "Distance between the help's last line and the error text below it, while the field shows both — under error-text.placement append: the frame's distance between two rows of small text, the one a field group keeps between its label and its description. A field without help, and every field under replace, has its error text supporting-text.gap below the control, and this token is not read."
+          },
+          "placement": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "Where the error text stands while the field is in error and has words for it (FLD-7, FLD-31). replace: in the help's place — the help is not drawn, and the error text is the supporting row's first line, supporting-text.gap below the control. append: below the help, which stays, error-text.gap from its last line. A field without help draws its error text in the same place under both. The value is an index into dev.tanrei.enum.values; platforms receive the name."
           }
         },
         "label-icon": {
@@ -88976,6 +88991,241 @@
               "$description": "The fill of the tag that marks the chosen one among its neighbours (the default among values, the required among fields): primary, the fill the text field's required label has."
             }
           },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            }
+          },
           "error": {
             "container": {
               "color": {
@@ -89299,6 +89549,241 @@
               "$description": "An outlined tag has no fill: the surface behind shows through, inside the one hairline (outline.color)."
             }
           },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            }
+          },
           "error": {
             "container": {
               "color": {
@@ -89546,6 +90031,241 @@
                 "alpha": 1
               },
               "$description": "The quiet fill of a tag that names a category or a neutral state: the tonal role, the fill the text field's optional label has."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
             }
           },
           "error": {

@@ -21,7 +21,7 @@ import { cornerRadius, shape } from '../../styles/shape.js';
 
 /** The values every design system has. A layer may add more; those get their styles on demand. */
 export const CORE_VARIANTS = ['stacked', 'filled', 'outlined'] as const;
-export const CORE_SIZES = ['medium', 'large'] as const;
+export const CORE_SIZES = ['small', 'medium', 'large'] as const;
 const DEFAULT_VARIANT = 'stacked';
 const DEFAULT_SIZE = 'medium';
 /** Every part of the field a state recolors (the state-layer color is read only through the container's state tokens). */

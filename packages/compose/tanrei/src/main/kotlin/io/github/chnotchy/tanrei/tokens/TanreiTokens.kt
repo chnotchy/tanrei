@@ -4462,6 +4462,7 @@ public data class TanreiFieldGroupConditions(
 @Immutable
 public data class TanreiFieldGroupTokens(
     public val errorTextGap: Dp,
+    public val fieldMinWidth: Dp,
     public val gapInline: Dp,
     public val labelGap: Dp,
     public val labelTypescale: TanreiTextStyle,
@@ -4578,6 +4579,7 @@ public data class TanreiFieldConditions(
 public data class TanreiFieldTokens(
     public val counterGap: Dp,
     public val errorTextGap: Dp,
+    public val errorTextPlacement: Float,
     public val labelIconGap: Dp,
     public val labelIconSize: Dp,
     public val labelGap: Dp,
@@ -9913,9 +9915,9 @@ public value class TanreiTagVariant(public val key: String) {
     }
 }
 
-/** The tokens of one variant of tag. */
+/** What one variant of tag draws in one interaction state. */
 @Immutable
-public data class TanreiTagVariantTokens(
+public data class TanreiTagVariantStateTokens(
     public val containerColor: TanreiPaint,
     public val labelColor: TanreiPaint,
     public val iconColor: TanreiPaint,
@@ -9949,6 +9951,23 @@ public data class TanreiTagVariantTokens(
         addAll(successLabelColor.roles())
         addAll(successIconColor.roles())
     }
+}
+
+/** One variant of tag: a full set of tokens per interaction state. */
+@Immutable
+public data class TanreiTagVariantTokens(
+    public val enabled: TanreiTagVariantStateTokens,
+    public val disabled: TanreiTagVariantStateTokens,
+) {
+    public operator fun get(state: TanreiInteractionState): TanreiTagVariantStateTokens = when (state) {
+        TanreiInteractionState.Enabled -> enabled
+        TanreiInteractionState.Hovered -> enabled
+        TanreiInteractionState.Focused -> enabled
+        TanreiInteractionState.Pressed -> enabled
+        TanreiInteractionState.Disabled -> disabled
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + disabled.referencedRoles()
 }
 
 /**

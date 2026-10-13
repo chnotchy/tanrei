@@ -17,7 +17,7 @@ import type { ReactiveController, ReactiveControllerHost } from 'lit';
 //
 // The exchange runs both ways (and its three conditions). Beside the name, the
 // description and the states, a frame gives a control that draws the label itself whether the label is hidden and
-// whether an asterisk follows it (`labelHidden`, `requiredMark`: FLD-25). And a control may say of itself what only
+// whether an asterisk or the optional word follows it (`labelHidden`, `requiredMark`, `optionalText`: FLD-25). And a control may say of itself what only
 // it knows (`FieldSays`, through `FieldConnection.says`): that it draws the label (`drawsLabel`, FLD-25), how far its
 // content is inset from its own edges (`inset`, FLD-26), and that it refused what was entered, with its words
 // (`refusal`, FLD-28), and that it is drawn focused though focus may be elsewhere (`drawnFocused`, FLD-13: a list that
@@ -54,6 +54,8 @@ export interface FieldState {
   labelHidden?: boolean;
   /** FLD-25: the required mark a control that draws the label itself draws after it: an asterisk, or none. */
   requiredMark?: 'asterisk' | 'none';
+  /** FLD-25: the optional word a control that draws the label itself draws after it, while the frame's requirement is optional; empty otherwise. */
+  optionalText?: string;
 }
 
 /** What a control says of itself to the frame around it (FLD-13, FLD-25, FLD-26, FLD-28). Every member may be left out. */
@@ -114,7 +116,7 @@ export interface FieldControlOptions {
 const saysKey = (says: FieldSays | undefined) => (says ? JSON.stringify([!!says.drawsLabel, says.inset?.start ?? null, says.inset?.end ?? null, says.refusal ? says.refusal.text : null, !!says.drawnFocused]) : '');
 
 const same = (a: FieldState | null, b: FieldState | null) =>
-  a === b || (!!a && !!b && a.label === b.label && a.description === b.description && a.invalid === b.invalid && a.required === b.required && a.requiredText === b.requiredText && a.disabled === b.disabled && !!a.labelHidden === !!b.labelHidden && (a.requiredMark ?? 'none') === (b.requiredMark ?? 'none'));
+  a === b || (!!a && !!b && a.label === b.label && a.description === b.description && a.invalid === b.invalid && a.required === b.required && a.requiredText === b.requiredText && a.disabled === b.disabled && !!a.labelHidden === !!b.labelHidden && (a.requiredMark ?? 'none') === (b.requiredMark ?? 'none') && (a.optionalText ?? '') === (b.optionalText ?? ''));
 
 /**
  * The control's side: asks the nearest frame when the host is connected, keeps what it is told, renders the host again
@@ -230,6 +232,11 @@ export class FieldControlController implements ReactiveController {
   /** The required mark a control that draws the label itself draws after it (FLD-25); none outside a frame, or in one that names none. */
   get requiredMark(): 'asterisk' | 'none' {
     return this.all?.requiredMark ?? 'none';
+  }
+
+  /** The optional word a control that draws the label itself draws after it (FLD-25); empty outside a frame, or where the requirement is not optional. */
+  get optionalText(): string {
+    return this.all?.optionalText ?? '';
   }
 
   /** Whether a frame that gives everything a field gives frames the host. */

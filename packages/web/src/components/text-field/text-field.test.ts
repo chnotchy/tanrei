@@ -170,7 +170,7 @@ test.describe('behavior', () => {
     await page.keyboard.type('0927');
     await blurAll(page);
     await expect(field(due).locator('.error-text')).toHaveText('Finish the date.');
-    await expect(field(due).locator('.supporting-text'), 'the help stays above the error text (FLD-7)').toHaveText('By the end of the year.');
+    await expect(field(due).locator('.supporting-text'), 'the error text stands in the help’s place (FLD-7)').toHaveCount(0);
     await expect(field(due).locator('.frame')).toHaveAttribute('data-error', '');
     expect(await due.evaluate((el) => [(el as HTMLElement & { error: boolean }).error, (el as HTMLElement & { value: string }).value]), 'error stays the product’s').toEqual([false, '']);
     await box(due).locator('.segment[data-unit="year"]').click();

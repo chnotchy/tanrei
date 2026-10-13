@@ -2,7 +2,7 @@
 title: Campo de color
 description: Permite definir un color como un campo de formulario (un valor de texto que se puede leer, escribir y pegar, una muestra del color junto al texto y un botón que pide un selector) que tiene el aspecto y las medidas de un campo de texto.
 translationOf: components/color-field.mdx
-sourceHash: e052f116b388d9781f28037bf243ad5861d3c527
+sourceHash: c2d03843c22e17c381fe97ae9eae9f18542ab6d5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -124,9 +124,9 @@ Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name` y `value` 
 | Muestra | Una muestra del valor al inicio del contenedor: un cuadrado pequeño relleno exactamente con el color del valor, dentro de una línea fina. Vacía, es solo la línea fina. No es un control |
 | Entrada | El valor como texto. Una sola línea, que se desplaza |
 | Botón del selector | Con `picker`: un botón de la variante `text` y de solo icono al final, que recibe su nombre de `pickerLabel` |
-| Texto de apoyo | Una línea de ayuda, que empieza donde empieza el texto del valor, después de la muestra. Se queda mientras el campo está en error: el texto de error se dibuja debajo de ella, y es `errorText` mientras `error` es true e `invalidText` mientras el texto confirmado no es un color, o `errorText` donde `invalidText` está vacío |
+| Texto de apoyo | Una línea de ayuda, que empieza donde empieza el texto del valor, después de la muestra. Mientras el campo está en error, el texto de error ocupa su lugar (o va debajo de ella, donde el sistema de diseño conserva las dos), y es `errorText` mientras `error` es true e `invalidText` mientras el texto confirmado no es un color, o `errorText` donde `invalidText` está vacío |
 
-Las tres variantes y los dos tamaños, `medium` (48) y `large` (56), son los del campo de texto. El sistema predeterminado solo incluye `stacked`. La muestra está donde está el icono inicial de un campo de texto, con el tamaño de ese icono, de modo que un campo de color situado debajo de un campo de texto con icono inicial comparte con él los bordes de inicio.
+Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (56), son los del campo de texto. El sistema predeterminado solo incluye `stacked`. La muestra está donde está el icono inicial de un campo de texto, con el tamaño de ese icono, de modo que un campo de color situado debajo de un campo de texto con icono inicial comparte con él los bordes de inicio.
 
 Nada se mezcla con la muestra: ni el paso del cursor, ni un tinte de error, ni una sombra. Una muestra que cambia bajo el puntero es una muestra incorrecta. Deshabilitada, su relleno se dibuja más tenue y su borde se conserva.
 

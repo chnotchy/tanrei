@@ -270,10 +270,29 @@
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space50}",
-            "$description": "Distance between the help's last line and the error text below it, while the field shows both: the frame's distance between two rows of small text, the one a field group keeps between its label and its description. A field without help has its error text supporting-text.gap below the control, and this token is not read.",
+            "$description": "Distance between the help's last line and the error text below it, while the field shows both — under error-text.placement append: the frame's distance between two rows of small text, the one a field group keeps between its label and its description. A field without help, and every field under replace, has its error text supporting-text.gap below the control, and this token is not read.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product shows the reason an answer was refused under the help that says how to answer; the two are separate sentences and need a distance of their own, which a product that sets its help close under the control may still want wider, so that a wrapped help and a wrapped error do not read as one paragraph."
+              }
+            }
+          },
+          "placement": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "Where the error text stands while the field is in error and has words for it (FLD-7, FLD-31). replace: in the help's place — the help is not drawn, and the error text is the supporting row's first line, supporting-text.gap below the control. append: below the help, which stays, error-text.gap from its last line. A field without help draws its error text in the same place under both. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once, for every field of its forms, whether the reason an answer was refused takes the place of the help or is added below it: the first keeps a form in error no taller than at rest and gives the eye one line to read, the second keeps the help that says how to answer in view while the person corrects it. Both are in wide use and a product picks one."
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "replace",
+                  "append"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A choice of kind; no dial scales it."
               }
             }
           }

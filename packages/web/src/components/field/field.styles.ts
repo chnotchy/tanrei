@@ -46,8 +46,9 @@ export const styles = css`
 
   /* FLD-7, FLD-26, FLD-27, FLD-31: the supporting row — its texts from its start, the count at the end of its first
      line, at least counter.gap apart — supporting-text.gap below the control. The texts are one column that takes the
-     room beside the count: the help, which stays while the field is in error, and the error text error-text.gap below
-     it; where there is no help the error text is the column's first line, where it has always stood. The row starts
+     room beside the count: the help, and while the field is in error the error text — in the help's place, which the
+     element then does not render (error-text.placement replace), or error-text.gap below it (append); where there is
+     no help the error text is the column's first line. The row starts
      and ends where the control says its content does (--_inset-start / --_inset-end, which the element writes from
      what the control said; a control that says nothing has the row at the field's edges). The texts wrap; the count
      stays whole on one line, in figures of one width, in the supporting text's style and its own color, and is never

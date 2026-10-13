@@ -7023,6 +7023,7 @@ public struct TanreiFieldGroupConditions: Sendable, Equatable {
 /// Component tokens of field-group (comp.field-group).
 public struct TanreiFieldGroupTokens: Sendable, Equatable {
   public var errorTextGap: CGFloat
+  public var fieldMinWidth: CGFloat
   public var gapInline: CGFloat
   public var labelGap: CGFloat
   public var labelTypescale: TanreiTextStyle
@@ -7036,6 +7037,7 @@ public struct TanreiFieldGroupTokens: Sendable, Equatable {
 
   public init(
     errorTextGap: CGFloat,
+    fieldMinWidth: CGFloat,
     gapInline: CGFloat,
     labelGap: CGFloat,
     labelTypescale: TanreiTextStyle,
@@ -7048,6 +7050,7 @@ public struct TanreiFieldGroupTokens: Sendable, Equatable {
     conditions: TanreiFieldGroupConditions
   ) {
     self.errorTextGap = errorTextGap
+    self.fieldMinWidth = fieldMinWidth
     self.gapInline = gapInline
     self.labelGap = labelGap
     self.labelTypescale = labelTypescale
@@ -7195,6 +7198,7 @@ public struct TanreiFieldConditions: Sendable, Equatable {
 public struct TanreiFieldTokens: Sendable, Equatable {
   public var counterGap: CGFloat
   public var errorTextGap: CGFloat
+  public var errorTextPlacement: Double
   public var labelIconGap: CGFloat
   public var labelIconSize: CGFloat
   public var labelGap: CGFloat
@@ -7213,6 +7217,7 @@ public struct TanreiFieldTokens: Sendable, Equatable {
   public init(
     counterGap: CGFloat,
     errorTextGap: CGFloat,
+    errorTextPlacement: Double,
     labelIconGap: CGFloat,
     labelIconSize: CGFloat,
     labelGap: CGFloat,
@@ -7230,6 +7235,7 @@ public struct TanreiFieldTokens: Sendable, Equatable {
   ) {
     self.counterGap = counterGap
     self.errorTextGap = errorTextGap
+    self.errorTextPlacement = errorTextPlacement
     self.labelIconGap = labelIconGap
     self.labelIconSize = labelIconSize
     self.labelGap = labelGap
@@ -15937,8 +15943,8 @@ public struct TanreiTagVariant: RawRepresentable, Hashable, Sendable, CustomStri
   public static let fallback = TanreiTagVariant.tonal
 }
 
-/// Everything of tag that depends on its variant.
-public struct TanreiTagVariantTokens: Sendable, Equatable {
+/// How one variant of tag is drawn in one state.
+public struct TanreiTagVariantStateTokens: Sendable, Equatable {
   public var containerColor: TanreiPaint
   public var labelColor: TanreiPaint
   public var iconColor: TanreiPaint
@@ -15987,6 +15993,33 @@ public struct TanreiTagVariantTokens: Sendable, Equatable {
     self.successContainerColor = successContainerColor
     self.successLabelColor = successLabelColor
     self.successIconColor = successIconColor
+  }
+}
+
+/// One variant of tag: a complete set of values per state. A component draws a state from that
+/// state's tokens and never computes how a state looks. Read one with `[state: …]`.
+public struct TanreiTagVariantTokens: Sendable, Equatable {
+  public var enabled: TanreiTagVariantStateTokens
+  public var disabled: TanreiTagVariantStateTokens
+
+  public init(
+    enabled: TanreiTagVariantStateTokens,
+    disabled: TanreiTagVariantStateTokens
+  ) {
+    self.enabled = enabled
+    self.disabled = disabled
+  }
+
+  /// The tokens of this variant of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
+  /// `nil` for `hovered`, `focused`, `pressed`, which tag has no group for.
+  public subscript(state state: TanreiInteraction) -> TanreiTagVariantStateTokens? {
+    switch state {
+    case .enabled: return enabled
+    case .hovered: return nil
+    case .focused: return nil
+    case .pressed: return nil
+    case .disabled: return disabled
+    }
   }
 }
 

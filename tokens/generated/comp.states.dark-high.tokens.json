@@ -45674,6 +45674,1144 @@
           }
         }
       },
+      "tag": {
+        "tonal": {
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#ffffff"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "outlined": {
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.tag.outlined.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.tag.outlined.info.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.tag.outlined.warning.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.tag.outlined.error.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.tag.outlined.success.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "filled": {
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#ffffff"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "link": {
         "standard": {
           "hovered": {
