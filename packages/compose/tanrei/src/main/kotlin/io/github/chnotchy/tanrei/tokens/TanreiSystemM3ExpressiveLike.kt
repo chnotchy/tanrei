@@ -101,6 +101,7 @@ private object M3ExpressiveLikeSystemSource {
             mainActionButton = mainActionButton(typescale, elevation),
             menu = menu(typescale, elevation),
             menubar = menubar(typescale, elevation),
+            modalLayer = modalLayer(typescale, elevation),
             navigationBar = navigationBar(typescale, elevation),
             navigationDrawer = navigationDrawer(typescale, elevation),
             navigationRail = navigationRail(typescale, elevation),
@@ -988,6 +989,7 @@ private object M3ExpressiveLikeSystemSource {
             motionFeedbackDuration = 450,
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            scrimBlur = 0.dp,
             scrimColor = TanreiPaint.Role(TanreiColorRole.Scrim),
             hovered = TanreiBottomSheetStateTokens(opacity = 1f),
             focused = TanreiBottomSheetStateTokens(opacity = 1f),
@@ -3405,6 +3407,7 @@ private object M3ExpressiveLikeSystemSource {
             modalMotionEnterScale = 0.95f,
             modalMotionOpenDuration = 300,
             modalMotionOpenEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
+            modalScrimBlur = 0.dp,
             modalScrimColor = TanreiPaint.Role(TanreiColorRole.Scrim),
             motionDialDuration = 250,
             motionDialEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
@@ -3553,6 +3556,7 @@ private object M3ExpressiveLikeSystemSource {
             motionEnterScale = 0.95f,
             motionExitDuration = 200,
             motionExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
+            scrimBlur = 0.dp,
             scrimColor = TanreiPaint.Role(TanreiColorRole.Scrim),
             supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             supportingTextTypescale = typescale.body,
@@ -5614,6 +5618,17 @@ private object M3ExpressiveLikeSystemSource {
         )
 
     @Suppress("UNUSED_PARAMETER")
+    fun modalLayer(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiModalLayerTokens =
+        TanreiModalLayerTokens(
+            motionEnterDuration = 300,
+            motionEnterEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
+            motionExitDuration = 200,
+            motionExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
+            scrimBlur = 0.dp,
+            scrimColor = TanreiPaint.Role(TanreiColorRole.Scrim),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
     fun navigationBar(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiNavigationBarTokens =
         TanreiNavigationBarTokens(
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainer),
@@ -5884,6 +5899,7 @@ private object M3ExpressiveLikeSystemSource {
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             outlineWidth = 1.dp,
+            scrimBlur = 0.dp,
             scrimColor = TanreiPaint.Role(TanreiColorRole.Scrim),
             hovered = TanreiNavigationDrawerStateTokens(opacity = 1f),
             focused = TanreiNavigationDrawerStateTokens(opacity = 1f),
@@ -6696,6 +6712,7 @@ private object M3ExpressiveLikeSystemSource {
             viewOffset = 4.dp,
             viewPaddingBlock = 4.dp,
             viewPaddingInline = 4.dp,
+            viewScrimBlur = 0.dp,
             viewScrimColor = TanreiPaint.Role(TanreiColorRole.Scrim),
             viewViewportMargin = 8.dp,
             hovered = TanreiSearchStateTokens(opacity = 1f, outlineWidth = 1.dp),
@@ -7157,6 +7174,7 @@ private object M3ExpressiveLikeSystemSource {
             motionExitDuration = 200,
             motionExitEasing = TanreiCubicBezier(x1 = 0.3f, y1 = 0f, x2 = 0.8f, y2 = 0.15f),
             outlineWidth = 1.dp,
+            scrimBlur = 0.dp,
             scrimColor = TanreiPaint.Role(TanreiColorRole.Scrim),
             variants = TanreiSideSheetVariants(
                 standard = TanreiSideSheetVariantTokens(containerColor = TanreiPaint.Role(TanreiColorRole.Surface), containerElevation = elevation.level0, containerShape = 0.dp, outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant)),

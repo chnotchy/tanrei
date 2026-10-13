@@ -61,6 +61,7 @@ import { TanreiMenuRadioItem as TanreiMenuRadioItemElement } from '@tanrei/web/c
 import { TanreiMenubar as TanreiMenubarElement } from '@tanrei/web/components/menubar';
 import { TanreiMenubarItem as TanreiMenubarItemElement } from '@tanrei/web/components/menubar';
 import { TanreiMenubarMenu as TanreiMenubarMenuElement, type TanreiMenubarMenuToggleDetail } from '@tanrei/web/components/menubar';
+import { TanreiModalLayer as TanreiModalLayerElement, type TanreiModalLayerCloseDetail } from '@tanrei/web/components/modal-layer';
 import { TanreiNavigationBar as TanreiNavigationBarElement, type TanreiNavigationChangeDetail } from '@tanrei/web/components/navigation-bar';
 import { TanreiNavigationBarItem as TanreiNavigationBarItemElement } from '@tanrei/web/components/navigation-bar';
 import { TanreiNavigationDrawer as TanreiNavigationDrawerElement, type TanreiNavigationDrawerExpandedChangeDetail, type TanreiNavigationDrawerPresentationChangeDetail } from '@tanrei/web/components/navigation-drawer';
@@ -1156,6 +1157,24 @@ export const MenubarMenu = createComponent({
   react: React,
   events: {
     onToggle: 'toggle' as EventName<TanreiEvent<TanreiMenubarMenuElement, CustomEvent<TanreiMenubarMenuToggleDetail>>>,
+  },
+});
+
+/**
+ * The layer under every modal surface: it dims the window behind what it presents, makes everything there inert, moves focus in, keeps it there and gives it back, and asks to close on Escape, the platform's back or a press on the dim. The dialog, the modal sheets, the modal drawer, the image preview, the modal picker and the search's modal views are built from it; use it alone for a modal surface Tanrei does not have (a command palette, a takeover of the window).
+ *
+ * Children, by their `slot`:
+ * - default — The content: the surface you present modally. The layer draws, styles and sizes nothing of it.
+ *
+ * Events:
+ * - `onClose` (`close`) — The layer asks to be closed: `detail.reason` is `escape`, `back` or `scrim`. Set `open` to false. Only while `closedby` is not `none`.
+ */
+export const ModalLayer = createComponent({
+  tagName: 'tanrei-modal-layer',
+  elementClass: TanreiModalLayerElement,
+  react: React,
+  events: {
+    onClose: 'close' as EventName<TanreiEvent<TanreiModalLayerElement, CustomEvent<TanreiModalLayerCloseDetail>>>,
   },
 });
 

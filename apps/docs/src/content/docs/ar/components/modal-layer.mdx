@@ -1,0 +1,165 @@
+---
+title: الطبقة النمطية
+description: الطبقة التي تحت كل سطح نمطي. تعتّم النافذة خلف ما تعرضه، وتجعل كل ما هناك خاملًا، وتنقل التركيز إلى الداخل وتُبقيه فيه ثم تعيده، وتطلب الإغلاق بالمفتاح Escape أو بالرجوع في المنصة أو بالضغط على الحجاب. غيّر مظهرها مرة واحدة فتتبعها كل الأسطح النمطية.
+translationOf: components/modal-layer.mdx
+sourceHash: e6ede40ce27d5047b0691b404bc90d640cff347a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="modal-layer" />
+
+<DemoFrame label="طبقة نمطية حول بطاقة من عندك: افتحها بالزر">
+  <tanrei-button variant="outlined" onclick="document.getElementById('modal-layer-demo').open = true">تصدير الصور</tanrei-button>
+  <tanrei-modal-layer id="modal-layer-demo" label="تصدير الصور" onclose="this.open = false">
+    <tanrei-card variant="elevated" style="inline-size: 20rem; max-inline-size: calc(100vw - 2rem); padding: 1.5rem">
+      <p style="margin-block: 0 1rem">24 صورة جاهزة للتصدير.</p>
+      <tanrei-button autofocus onclick="this.closest('tanrei-modal-layer').open = false">تم</tanrei-button>
+    </tanrei-card>
+  </tanrei-modal-layer>
+</DemoFrame>
+
+تحت كل سطح نمطي (modal) الطبقة نفسها. فهي تعتّم النافذة خلف السطح، فتبدو الصفحة كأنها وُضعت جانبًا. وتجعل كل ما هناك خاملًا (inert): لا شيء خلفها يمكن ضغطه أو التركيز عليه أو قراءته بقارئ الشاشة، ولا تُمرَّر الصفحة. وتنقل التركيز إلى داخل السطح، وتُبقيه هناك ما دام السطح مفتوحًا، وتعيده حين يُغلق. وتطلب الإغلاق حين يضغط الشخص المفتاح Escape، أو يستخدم الرجوع في المنصة، أو يضغط على الحجاب (scrim).
+
+والطبقة النمطية هي تلك الطبقة، في صورة مكوّن مستقل. فكلٌّ من [مربع الحوار](/ar/components/dialog/)، و[اللوحة الجانبية](/ar/components/side-sheet/) و[اللوحة السفلية](/ar/components/bottom-sheet/) حين تكونان نمطيتين، و[درج التنقل](/ar/components/navigation-drawer/) النمطي، و[معاينة الصور](/ar/components/image-preview/) (image preview)، و[منتقي التاريخ والوقت](/ar/components/date-time-picker/) النمطي، والعروض النمطية في [البحث](/ar/components/search/)، مبنيّ منها. وكل واحد منها يتبع قواعدها بدل أن تكون له قواعد خاصة به.
+
+هي مكوّن **متقدم**. وتلقاها في حالتين:
+
+- **لتغيير مظهر كل الأسطح النمطية دفعة واحدة.** رموز التصميم (tokens) الخاصة بالطبقة، `comp.modal-layer.*`، هي ما تشير إليه رموز الحجاب والحركة في كل واحد من تلك المكوّنات. اضبطها في طبقة منتجك فتتغير كل الأسطح النمطية معًا: لون الحجاب وعتامته، وتمويه ما يقع خلفه، والمدة التي تستغرقها الطبقة في الظهور والاختفاء.
+- **لبناء سطح نمطي ليس في Tanrei**: لوحة أوامر، أو عرض يستولي على النافذة كلها، أو عارض من عندك. ضع سطحك داخل الطبقة فيتصرف كأي سطح نمطي آخر في منتجك.
+
+للقرار، استخدم مربع الحوار. وللوحة، استخدم اللوحة الجانبية أو اللوحة السفلية النمطيتين. فهي تسمّي نفسها، وتضع إجراءاتها في مواضعها، وتعطي مخرجًا.
+
+على الويب هي `<tanrei-modal-layer>`. ولم تنفّذها المنصات الأخرى بعد.
+
+### الاستخدام
+
+الطبقة مُتحكَّم بها (controlled). اضبط الخاصية `open` لتُظهرها. وحين يطلب الشخص إغلاقها، تُصدر الحدث `close` مع السبب (`escape` أو `back` أو `scrim`) وتبقى مفتوحة: أنت من يعيد `open` إلى القيمة false. وأعطها تسمية في الخاصية `label`، وهي الاسم الذي يُعلنه قارئ الشاشة.
+
+لا ترسم الطبقة شيئًا من عندها سوى الحجاب. يحتفظ محتواك بلونه وشكله وحشوه، وتوسّطه الطبقة في النافذة بحجمه هو. وضعه في مكان آخر بوسائل المنصة نفسها (على الويب، `::part(container)`).
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="open-palette" variant="text">الأوامر</tanrei-button>
+
+    <tanrei-modal-layer label="الأوامر">
+      <div class="palette">
+        <!-- autofocus يعلّم التركيز الأولي. ومن دونه يذهب التركيز إلى حاوية الطبقة. -->
+        <input autofocus aria-label="ابحث في الأوامر">
+        <ul>…</ul>
+      </div>
+    </tanrei-modal-layer>
+
+    <style>
+      /* ضع الحاوية بنفسك: هنا، قرب أعلى النافذة. */
+      tanrei-modal-layer::part(container) { margin-block-start: 15vh; }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/modal-layer';
+      const layer = document.querySelector('tanrei-modal-layer');
+      document.querySelector('#open-palette').addEventListener('click', () => (layer.open = true));
+      // المفتاح Escape أو الرجوع أو الضغط على الحجاب. الطبقة لا تُغلق من تلقاء نفسها أبدًا.
+      layer.addEventListener('close', (event) => {
+        console.log(event.detail.reason); // 'escape' أو 'back' أو 'scrim'
+        layer.open = false;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ModalLayer } from '@tanrei/react';
+
+    <ModalLayer open={open} label="الأوامر" onClose={() => setOpen(false)}>
+      <CommandPalette />
+    </ModalLayer>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    لم تُنفَّذ بعد. والصورة المخطط لها مُعدِّل عرض: `.tanreiModalLayer(isPresented:, accessibilityLabel:, onClose:) { … }`.
+  </TabItem>
+  <TabItem label="Compose">
+    لم تُنفَّذ بعد. والصورة المخطط لها `TanreiModalLayer(visible, onCloseRequest, contentDescription) { … }`.
+  </TabItem>
+  <TabItem label="Flutter">
+    لم تُنفَّذ بعد. والصورة المخطط لها `TanreiModalLayer(open:, onClose:, semanticLabel:, child: …)`.
+  </TabItem>
+  <TabItem label="React Native">
+    لم تُنفَّذ بعد. والصورة المخطط لها `<ModalLayer visible onClose accessibilityLabel>…</ModalLayer>`.
+  </TabItem>
+</Tabs>
+
+### تغيير مظهر كل الأسطح النمطية
+
+يضبط المنتج رموز الطبقة في ملف طبقته، فتتبعها كل الأسطح النمطية:
+
+```json
+{
+  "tokens": {
+    "tanrei.comp.modal-layer.scrim.color": { "$value": "{tanrei.sys.color.scrim}" },
+    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "أسطحنا النمطية تُغشّي ما يقع خلفها كالزجاج المصنفر." },
+    "tanrei.comp.modal-layer.motion.enter-duration": { "$value": "{tanrei.sys.motion.duration.medium4}" }
+  }
+}
+```
+
+عتامة الحجاب هي قيمة ألفا في لونه: غيّر اللون، أو الدور `scrim` في النظام، لتجعله أفتح أو أغمق. ولتميّز سطحًا واحدًا، اضبط الرمز الخاص بذلك السطح بدلًا من ذلك (`comp.dialog.scrim.color`، `comp.side-sheet.motion.enter-duration`). فهو يشير إلى رمز الطبقة إلى أن تفعل.
+
+## المواصفات
+
+<ComponentSpecs name="modal-layer" />
+
+## الإرشادات
+
+### ما تفعله الطبقة وما تتركه لك
+
+| الطبقة | محتواك |
+| --- | --- |
+| تعتّم النافذة خلفها حتى كل الحواف (أو لا ترسم شيئًا حين تُطفأ الخاصية `scrim`). | لونه وشكله وظله وحشوه. الطبقة لا تضيف شيئًا منها. |
+| تجعل كل ما خلفها خاملًا وتمنع الصفحة من التمرير. | تمريره الخاص، حين يكون أطول من النافذة. |
+| تنقل التركيز إلى الداخل، وتُبقيه هناك، وتعيده عند الإغلاق. | يعلّم العنصر الذي ينبغي أن ينال التركيز أولًا، إن وُجد. |
+| تطلب الإغلاق بالمفتاح Escape وبالرجوع في المنصة وبالضغط على الحجاب. | مخرج خاص به: زر «إغلاق» أو «إلغاء» أو «تم». |
+| توسّط الحاوية في النافذة بحجم محتواها. | مكانه البديل، إن لم يكن الوسط. |
+
+### من دون الحجاب
+
+أطفئ الخاصية `scrim` لمحتوى يغطي النافذة كلها بتعبئة خاصة به، مثل عارض فوق خلفية داكنة. فلا يبقى ما يُعتَّم. وتظل الطبقة تحجب كل ما خلفها، ويظل الضغط خارج محتواك يطلب الإغلاق.
+
+### افعل
+
+- سمِّ الطبقة بالخاصية `label`. يُعلن قارئ الشاشة هذا الاسم حين ينتقل التركيز إلى الداخل.
+- ضع في المحتوى مخرجًا مرئيًّا. فليس كل أحد يعرف المفتاح Escape، والرجوع ليس موجودًا على كل جهاز.
+- غيّر الأسطح النمطية في المنتج عبر `comp.modal-layer.*`، لتبقى متشابهة.
+
+### لا تفعل
+
+- لا تبنِ مربع حوار أو لوحة من الطبقة المجرَّدة. استخدم مربع الحوار أو اللوحة، فهما يعطيان أصلًا عنوانًا رئيسيًّا وإجراءات ومواضعها.
+- لا تطفئ الخاصية `dismissible` من دون مخرج في المحتوى. فلن يبقى للشخص سبيل إلى المغادرة.
+- لا تستخدمها لشيء لا ينبغي أن يحجب الصفحة. فاللوحة المنبثقة وقائمة الخيارات وشريط الإشعار تترك الصفحة قابلة للاستخدام.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="modal-layer" />
+
+### ما يتكفل به المكوّن
+
+- الحاوية مربع حوار نمطي، اسمه ما في `label`. وكل ما هو خارجها مخفي عن التقنيات المساعدة ما دامت مفتوحة.
+- ينتقل التركيز إلى داخل الطبقة حين تُفتح، حتى حين تُكتب مفتوحة من البداية. فيذهب إلى العنصر الذي علّمته، وإلا فإلى الحاوية، ليُقرأ الاسم أولًا.
+- المفتاحان Tab و Shift+Tab يدوران داخل الطبقة. ولا يصل التركيز أبدًا إلى الصفحة التي خلفها.
+- الإغلاق يعيد التركيز إلى حيث كان. وإن كان ذلك العنصر قد زال، يذهب التركيز حيث تضعه المنصة.
+- لا يطلب المفتاح Escape الإغلاق إلا بعد أن يتلقاه كل ما في الداخل. فالحقل الذي يمحو نصه بالمفتاح Escape، أو قائمة الخيارات التي تُغلق، يُبقي الطبقة مفتوحة.
+- الطبقة التي تُفتح من داخل طبقة أخرى تتكدّس فوقها. ولا تستجيب للمفتاح Escape وللرجوع ولحجابها إلا العليا.
+
+### ما عليك فعله
+
+- أعطِ الخاصية `label` اسمًا يقول الغرض من السطح.
+- علِّم أول عنصر ينال التركيز حين يكون نموذج أو حقل بحث هو سبب وجود السطح.
+- أعطِ المحتوى عنصر تحكم مرئيًّا يغلقه، وأبقِ الخاصية `dismissible` مفعَّلة ما لم يوجد ذلك العنصر.

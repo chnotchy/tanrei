@@ -6,6 +6,9 @@
   "category": "containment",
   "level": "feature",
   "listing": "default",
+  "builtFrom": [
+    "modal-layer"
+  ],
   "uses": [
     "button",
     "skeleton"
@@ -13,7 +16,7 @@
   "anatomy": [
     {
       "id": "container",
-      "description": "The surface that fills the window and holds everything else. It is the modal layer: everything behind it is inert. No scrim is drawn, because it leaves nothing uncovered."
+      "description": "The surface that fills the window and holds everything else. It stands on the modal layer, which makes everything behind it inert, and the layer draws no scrim (its scrim is false), because the container leaves nothing uncovered."
     },
     {
       "id": "stage",
@@ -257,7 +260,7 @@
   "behavior": [
     {
       "id": "IMP-1",
-      "text": "WHEN open becomes true and there is at least one image THE image preview SHALL present its container above everything in its window and over the whole of it, filled with comp.image-preview.container.color, SHALL make everything outside it inert (not focusable, not pressable, hidden from assistive technology) and SHALL keep the content behind it from scrolling, until it closes; it SHALL be presented by the platform's own modal presentation, and it draws no scrim, because nothing of the window is left uncovered."
+      "text": "WHEN open becomes true and there is at least one image THE image preview SHALL present its container on its modal layer without the layer's scrim (MDL-1 WHILE scrim is false, MDL-2): above everything in its window and over the whole of it, filled with comp.image-preview.container.color, with everything outside it inert and the content behind it kept from scrolling, until it closes; it SHALL be presented by the platform's own modal presentation, and it draws no scrim, because nothing of the window is left uncovered."
     },
     {
       "id": "IMP-2",
@@ -265,23 +268,23 @@
     },
     {
       "id": "IMP-3",
-      "text": "WHILE the image preview is open THE image preview SHALL keep focus inside it: Tab SHALL move through the zoom-out control, the zoom-in control, the close control, the previous control, the stage, the next control and the caption where it scrolls (IMP-26), in that order in either layout direction, leaving out what is not drawn for want of a second image or of a caption; Tab from the last SHALL move to the first and Shift+Tab from the first to the last, and screen-reader navigation SHALL NOT leave it."
+      "text": "WHILE the image preview is open THE image preview SHALL keep focus inside it, as its modal layer does (MDL-4): Tab SHALL move through the zoom-out control, the zoom-in control, the close control, the previous control, the stage, the next control and the caption where it scrolls (IMP-26), in that order in either layout direction, leaving out what is not drawn for want of a second image or of a caption; Tab from the last SHALL move to the first and Shift+Tab from the first to the last, and screen-reader navigation SHALL NOT leave it."
     },
     {
       "id": "IMP-4",
-      "text": "WHEN the image preview closes THE image preview SHALL return focus to the element that had it when the preview opened or, where that element no longer exists or cannot take focus, to the platform's default for a closed overlay, and SHALL restore the content behind it to what it was before; it SHALL NOT look for the product's thumbnail of the image last shown, which it does not know — a product that wants focus there moves it after the preview has closed. Focus SHALL move when the preview closes, not when its motion ends."
+      "text": "WHEN the image preview closes THE image preview SHALL return focus to the element that had it when the preview opened or, where that element no longer exists or cannot take focus, to the platform's default for a closed overlay, and SHALL restore the content behind it to what it was before, as its modal layer does (MDL-2, MDL-5); it SHALL NOT look for the product's thumbnail of the image last shown, which it does not know — a product that wants focus there moves it after the preview has closed. Focus SHALL move when the preview closes, not when its motion ends."
     },
     {
       "id": "IMP-5",
-      "text": "WHEN the user activates the close control, presses Escape, uses the platform's back (Android's back gesture or button, the iOS accessibility escape gesture) or completes the downward drag of IMP-22 THE image preview SHALL emit close exactly once with the reason button, escape, back or swipe, whatever the zoom is; it SHALL then be closed through its binding where open is one (SwiftUI), and by the product setting open to false where open is a plain value (web, Compose, Flutter, React Native). THE image preview SHALL have no setting that takes these ways out away from the person: it asks nothing of the person."
+      "text": "WHEN the user activates the close control, presses Escape, uses the platform's back (as its modal layer answers them, MDL-6) or completes the downward drag of IMP-22 THE image preview SHALL emit close exactly once with the reason button, escape, back or swipe, whatever the zoom is; it SHALL then be closed through its binding where open is one (SwiftUI), and by the product setting open to false where open is a plain value (web, Compose, Flutter, React Native). THE image preview SHALL have no setting that takes these ways out away from the person: it asks nothing of the person."
     },
     {
       "id": "IMP-6",
-      "text": "WHEN the image preview opens while a dialog or a modal sheet is open THE image preview SHALL stack above it, make it inert as well, and on closing return focus to the element inside it that had focus; WHEN another overlay opens from the image preview THE image preview SHALL stay below it and receive back the focus that overlay returns; Escape SHALL close only the topmost overlay."
+      "text": "WHEN the image preview opens while a dialog or a modal sheet is open THE image preview SHALL stack above it, make it inert as well, and on closing return focus to the element inside it that had focus, as modal layers stack (MDL-8); WHEN another overlay opens from the image preview THE image preview SHALL stay below it and receive back the focus that overlay returns; Escape SHALL close only the topmost overlay."
     },
     {
       "id": "IMP-7",
-      "text": "THE image preview SHALL expose its container as a modal dialog named by label; WHILE label is empty it SHALL still open, and in debug builds SHALL report that it has no accessible name. THE image preview SHALL NOT add to, replace or read the window's navigation history or its address: where a product wants its own Back control to close the preview, the product writes that entry and sets open to false when it is left."
+      "text": "THE image preview SHALL expose its container as its modal layer's modal dialog (MDL-10), named by label; WHILE label is empty it SHALL still open, and in debug builds SHALL report that it has no accessible name. THE image preview SHALL NOT add to, replace or read the window's navigation history or its address: where a product wants its own Back control to close the preview, the product writes that entry and sets open to false when it is left."
     },
     {
       "id": "IMP-8",
@@ -387,7 +390,7 @@
     },
     {
       "id": "IMP-33",
-      "text": "WHEN the image preview opens THE image preview SHALL fade its container, bar, controls and caption in while the image grows about its centre from comp.image-preview.motion.enter-scale of its size at fit to that size, over comp.image-preview.motion.enter-duration with comp.image-preview.motion.enter-easing; WHEN it closes it SHALL fade all of it out over comp.image-preview.motion.exit-duration with comp.image-preview.motion.exit-easing. It SHALL NOT fly the image from or to the place of the product's thumbnail."
+      "text": "WHEN the image preview opens THE image preview SHALL fade its container, bar, controls and caption in while the image grows about its centre from comp.image-preview.motion.enter-scale of its size at fit to that size, over comp.image-preview.motion.enter-duration with comp.image-preview.motion.enter-easing (its modal layer's tempo, MDL-7); WHEN it closes it SHALL fade all of it out over comp.image-preview.motion.exit-duration with comp.image-preview.motion.exit-easing. It SHALL NOT fly the image from or to the place of the product's thumbnail."
     },
     {
       "id": "IMP-34",

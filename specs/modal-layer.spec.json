@@ -1,0 +1,227 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "modal-layer",
+  "title": "Modal layer",
+  "summary": "The layer under every modal surface: it dims the window behind what it presents, makes everything there inert, moves focus in, keeps it there and gives it back, and asks to close on Escape, the platform's back or a press on the dim — so that every modal surface of a product behaves as one and is restyled in one place.",
+  "category": "containment",
+  "level": "base",
+  "listing": "advanced",
+  "anatomy": [
+    {
+      "id": "scrim",
+      "description": "The dim over the whole window behind the container, to every edge and under every system inset. It blocks presses and, while the layer is dismissible, a press on it asks the layer to close. Not drawn while scrim is false.",
+      "optional": true
+    },
+    {
+      "id": "container",
+      "description": "The box the content is in, placed in the window's safe area. It draws nothing of its own — no color, edge, shadow, shape or padding — takes focus when nothing in the content is marked for it, and is the modal dialog assistive technology reads."
+    }
+  ],
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the layer is presented. The product opens it, and closes it in answer to close (or from its content's own controls); on SwiftUI, where it is a binding, the layer writes false itself."
+    },
+    {
+      "name": "dismissible",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether Escape, the platform's back and a press on the scrim ask the layer to close (MDL-6). Set it to false only when the person must finish with one of the content's own controls, and give the content one."
+    },
+    {
+      "name": "scrim",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the layer dims what lies behind its container. False for content that covers the whole window with a fill of its own (a full-window preview): the layer then draws nothing behind it and still blocks everything there (MDL-2)."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the container for assistive technology (\"Export photos\"): the modal dialog's name. Never drawn. Required."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The content: the surface the product presents modally (a panel, a card, a view over the whole window). The layer places its container (MDL-11) and draws, styles and sizes nothing of the content. A fixture's content string is plain text."
+    }
+  ],
+  "events": [
+    {
+      "name": "close",
+      "description": "The layer asks to be closed: Escape, the platform's back or a press on the scrim. Carries which of these it was, named escape, back or scrim (in the platform's casing). Emitted only while dismissible is true."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "MDL-1",
+      "text": "WHEN open becomes true THE modal layer SHALL present its container above everything in its window — every region, every overlay not opened from inside it (MDL-9) and every modal layer opened before it (MDL-8) — and, WHILE scrim is true, SHALL draw its scrim over the whole window behind the container, to every edge and under every system inset, filled with comp.modal-layer.scrim.color (its alpha is the dim) and, WHILE comp.modal-layer.scrim.blur is above 0, with what lies behind it blurred by a Gaussian blur of that radius (the radius of CSS's blur()); WHERE the platform cannot blur what lies behind a window it SHALL draw the color alone. WHILE scrim is false it SHALL draw nothing behind the container and SHALL still block what is behind as MDL-2 says. A component built from the modal layer draws the scrim from its own scrim tokens, which alias these two (comp.dialog.scrim.color and comp.dialog.scrim.blur, and so on).",
+      "verify": "Fixtures render in a 640 × 640 window over a surface page; the picture is the window, since the layer is above everything. The blur is observed under a fixture system that sets comp.modal-layer.scrim.blur above 0."
+    },
+    {
+      "id": "MDL-2",
+      "text": "WHILE open is true THE modal layer SHALL make everything outside its container inert — not focusable, not pressable, hidden from assistive technology — and SHALL keep the content behind it from scrolling, so that a press, a scroll or a key anywhere outside the container reaches nothing behind it; WHEN it closes THE modal layer SHALL restore what is behind to what it was before: its scroll position, and what was focusable, pressable and exposed."
+    },
+    {
+      "id": "MDL-3",
+      "text": "WHEN open changes from false to true, and WHEN the layer is mounted with open true, THE modal layer SHALL move focus to the element in its content that the product marked for initial focus (the platform's own mark, named in the platform notes) or, without one, to the element the component built from it names (the navigation drawer's selected destination, NVD-19) or else to its container, so that assistive technology reads its name first and the next Tab reaches the first focusable element. Focus SHALL move when the layer opens, not when its motion ends."
+    },
+    {
+      "id": "MDL-4",
+      "text": "WHILE open is true THE modal layer SHALL keep focus inside its container: Tab from the last focusable element in it SHALL move to the first, Shift+Tab from the first (or from the container itself) SHALL move to the last, the container SHALL keep focus WHILE nothing in it is focusable, and screen-reader navigation SHALL NOT leave it."
+    },
+    {
+      "id": "MDL-5",
+      "text": "WHEN the layer closes THE modal layer SHALL return focus to the element that had it when the layer opened or, where that element no longer exists, cannot take focus or is inert, to the platform's default for a closed overlay; focus SHALL move when the layer closes, not when its motion ends."
+    },
+    {
+      "id": "MDL-6",
+      "text": "WHILE dismissible is true and open is true, WHEN the user presses Escape, uses the platform's back (Android's back gesture or button, the iOS accessibility escape gesture) or presses the scrim — a press that starts and ends outside the container — THE modal layer SHALL emit close exactly once with the reason escape, back or scrim, and SHALL stay open until open becomes false: the product sets it from close (through the binding where open is one, SwiftUI), unless the component built from the modal layer closes itself as its own spec says (DLG-5, NVD-20). Escape SHALL reach the layer only after everything inside its container has heard it: a key an element inside takes (a field clearing its text, a menu closing) SHALL NOT also ask the layer to close. WHILE dismissible is false THE modal layer SHALL ignore these inputs and emit nothing, and a press on the scrim SHALL still reach nothing behind it."
+    },
+    {
+      "id": "MDL-7",
+      "text": "WHEN the layer opens THE modal layer SHALL fade its scrim and its container in from transparent over comp.modal-layer.motion.enter-duration with comp.modal-layer.motion.enter-easing, and WHEN it closes SHALL fade both out over comp.modal-layer.motion.exit-duration with comp.modal-layer.motion.exit-easing, keeping them drawn until the fade ends. A component built from the modal layer SHALL fade the scrim in step with its own surface, over its own enter and exit motion, whose tokens alias these four so that one value sets the tempo of every modal surface of a product, and moves its surface as its own spec says (a dialog grows, a sheet slides). WHERE motion is reduced THE modal layer SHALL fade without moving or growing anything, or SHALL appear and disappear at once WHERE the component built from it says so or on a platform whose reduced-motion setting removes every animation (Android's)."
+    },
+    {
+      "id": "MDL-8",
+      "text": "WHEN a modal layer opens while another is open THE modal layer SHALL stack above it with its own scrim, make the first one inert with the rest of the window, and WHEN it closes return focus to the element inside the first one that had it; Escape, the platform's back and a press on the scrim SHALL reach only the topmost layer."
+    },
+    {
+      "id": "MDL-9",
+      "text": "WHEN an overlay that is not modal opens from an element inside the container — a menu, a tooltip, a popover, a select's list, a docked picker — THE modal layer SHALL let it be presented above the layer and operated while the rest of the window is inert, and SHALL NOT count a press inside it as a press on the scrim: the overlay belongs to the layer as POP-25 says."
+    },
+    {
+      "id": "MDL-10",
+      "text": "THE modal layer SHALL expose its container as a modal dialog named by label, everything outside it being hidden (MDL-2); a component built from it names the dialog by its own headline or label and may expose it as an alert dialog (DLG-14). WHILE label is empty THE modal layer SHALL still open, and in debug builds SHALL report that it has no accessible name."
+    },
+    {
+      "id": "MDL-11",
+      "text": "THE modal layer SHALL draw nothing of its own but the scrim: its container has no color, edge, shadow, shape or padding and hands its content no color or text style, so that plain text given as content takes what the window around it gives. It SHALL lay the container out at the size of its content, centred in the window's safe area and above the on-screen keyboard while one is shown, and never larger than that area, the content scrolling inside it where it is larger; the product places or sizes the container otherwise in the platform's own way (named in the platform notes). A component built from the modal layer places and draws its own surface (DLG-7, SSH-7, BSH-6, IMP-1).",
+      "verify": "The fixtures' content is one line of plain text, centred in the 640 × 640 window."
+    },
+    {
+      "id": "MDL-12",
+      "text": "THE modal layer SHALL take its layout direction from where it is used and SHALL have no direction setting of its own; it SHALL mirror nothing itself, and its content follows the direction."
+    }
+  ],
+  "accessibility": {
+    "role": "dialog",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Move focus through the focusable elements in the container, wrapping from the last to the first and back; focus never leaves the layer."
+      },
+      {
+        "keys": "Escape",
+        "action": "Asks the layer to close (close, reason escape) while dismissible is true; with stacked layers, only the topmost. A key an element inside takes first goes no further."
+      }
+    ],
+    "labeling": "The container is a modal dialog named by label; everything outside it is hidden from assistive technology while the layer is open. The scrim is not exposed. A component built from the modal layer names the dialog by its own headline or label, and the dialog may be an alert dialog.",
+    "minimumTarget": true,
+    "notes": [
+      "The modal layer is what every modal surface of Tanrei has in common: the dialog, the modal side sheet, the modal bottom sheet, the modal navigation drawer, the image preview, the modal date-time picker and the search's modal views are each built from it and cite its rules. Restyle their scrim and their tempo once, through comp.modal-layer.*.",
+      "Use it alone for a modal surface Tanrei does not have — a command palette, a takeover over the whole window, a viewer of your own. For a decision use the Dialog; for a panel, the modal side sheet or bottom sheet: they already hold focus, name themselves and place their actions.",
+      "Give the content a way out of its own (a Close, Cancel or Done button). Escape, back and the scrim are not found by everyone, and with dismissible false they do nothing.",
+      "The layer has no target of its own; what the product puts in it meets the minimum target itself.",
+      "Inert, focus moved in, kept and given back: the WAI-ARIA Authoring Practices' modal dialog pattern and HTML's modal dialog. The web presents the container with a modal <dialog> element (showModal gives the top layer and inertness); the other platforms present it in a window or a route of its own with the system's dim switched off, so that every platform draws the layer's own scrim."
+    ]
+  },
+  "tokens": "comp.modal-layer",
+  "fixtures": [
+    {
+      "id": "open",
+      "props": {
+        "open": true,
+        "label": "Export photos"
+      },
+      "content": "Exporting 24 photos…"
+    },
+    {
+      "id": "no-scrim",
+      "props": {
+        "open": true,
+        "scrim": false,
+        "label": "Export photos"
+      },
+      "content": "Exporting 24 photos…"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-modal-layer",
+      "props": {
+        "open": "open",
+        "dismissible": "closedby",
+        "scrim": "scrim",
+        "label": "label"
+      },
+      "events": {
+        "close": "close"
+      },
+      "notes": "`dismissible` is HTML's own `closedby` attribute, as on `<tanrei-dialog>` and `<tanrei-bottom-sheet>`: `any` (the default) or `none`. `scrim` is a boolean property that defaults to true; its attribute is the inverse `no-scrim` (an HTML boolean attribute cannot default to true). `close` is a CustomEvent whose `detail.reason` is `escape`, `scrim` or `back` (`back` when the native `cancel` arrives without an Escape key, as Android's back gesture sends it); the product sets `open` to false from it. The content is the default slot. The container is a native `<dialog>` in the shadow root opened with `showModal()`, in the top layer over `::backdrop`, the scrim (`backdrop-filter` blurs what is behind it); it is the `container` part, which a product places or sizes with `::part(container)` (MDL-11). The fade out (MDL-7) keeps the closed `<dialog>` in the top layer with the `overlay` transition; a browser without it (Firefox and Safari at the time of writing) removes the layer at once on closing, as it does every Tanrei modal overlay. The `autofocus` attribute on a slotted element marks initial focus. Debug builds (`import.meta.env.DEV` or the package's dev export) report an empty label (MDL-10). Snapshot harness: a 640 × 640 viewport with a `surface` page, the layer opened by `open`; the screenshot is the viewport."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "tanreiModalLayer",
+      "props": {
+        "open": "isPresented",
+        "dismissible": "dismissible",
+        "scrim": "scrim",
+        "label": "accessibilityLabel"
+      },
+      "events": {
+        "close": "onClose"
+      },
+      "notes": "Planned: a view modifier, as `.sheet` is: `.tanreiModalLayer(isPresented: Binding<Bool>, dismissible:, scrim:, accessibilityLabel:, onClose:, content:)`, presented as `tanreiDialog` is (on iOS `.fullScreenCover` with a clear presentation background and the system transition off; Tanrei draws the scrim and the fade; on macOS an overlay of the modified view with the modal trait). Closing writes false to `isPresented` and then calls `onClose` with the reason. Initial focus is `.defaultFocus`; Escape is `.onKeyPress(.escape)` and the escape gesture `.accessibilityAction(.escape)`. The blur is a material behind the scrim where the radius is above 0. The container is placed with the content's own frame and alignment."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiModalLayer",
+      "props": {
+        "open": "visible",
+        "dismissible": "dismissible",
+        "scrim": "scrim",
+        "label": "contentDescription"
+      },
+      "events": {
+        "close": "onCloseRequest"
+      },
+      "notes": "Planned: `TanreiModalLayer(visible, onCloseRequest: (TanreiModalLayerCloseReason) -> Unit, dismissible, scrim, contentDescription, content)`, drawn in a `Dialog` window of its own (as `TanreiDialog` and the modal sheets are) with the window's own dim off and `usePlatformDefaultWidth = false`; the window traps focus, answers back and hides what is behind from TalkBack. The blur is the window's blur-behind radius on Android 12 and later, and none before (MDL-1). The caller sets `visible` to false from `onCloseRequest`. The container is placed with a `Modifier` on the content."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiModalLayer",
+      "props": {
+        "open": "open",
+        "dismissible": "dismissible",
+        "scrim": "scrim",
+        "label": "semanticLabel"
+      },
+      "events": {
+        "close": "onClose"
+      },
+      "notes": "Planned: `TanreiModalLayer(open:, onClose:, dismissible:, scrim:, semanticLabel:, child:)`, a controlled overlay in the `Overlay` over the page with a `ModalBarrier` drawn in the layer's color and a `BackdropFilter` for the blur, a `FocusScope` that traps focus, `BlockSemantics` behind it and a `PopScope` for back. The container is placed with the child's own `Align`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "ModalLayer",
+      "props": {
+        "open": "visible",
+        "dismissible": "dismissible",
+        "scrim": "scrim",
+        "label": "accessibilityLabel"
+      },
+      "events": {
+        "close": "onClose"
+      },
+      "notes": "Planned: `<ModalLayer visible onClose dismissible scrim accessibilityLabel>{content}</ModalLayer>`, presented in a transparent `Modal` with `animationType=\"none\"`, `statusBarTranslucent` and `navigationBarTranslucent`; `onRequestClose` (Android's back, and Escape on a hardware keyboard) is close with the reason back or escape. React Native cannot blur what is behind a window without a native module of its own, so the scrim is the color alone (MDL-1). The container is placed with the content's own style."
+    }
+  }
+}

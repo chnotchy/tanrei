@@ -93,10 +93,17 @@
       "listing": "default"
     },
     {
+      "name": "modal-layer",
+      "title": "Modal layer",
+      "category": "containment",
+      "level": "base",
+      "listing": "advanced"
+    },
+    {
       "name": "dialog",
       "title": "Dialog",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default"
     },
     {
@@ -173,7 +180,7 @@
       "name": "navigation-drawer",
       "title": "Navigation drawer",
       "category": "navigation",
-      "level": "base",
+      "level": "composed",
       "listing": "default"
     },
     {
@@ -201,14 +208,14 @@
       "name": "bottom-sheet",
       "title": "Bottom sheet",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default"
     },
     {
       "name": "side-sheet",
       "title": "Side sheet",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default"
     },
     {

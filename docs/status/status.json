@@ -269,12 +269,32 @@
       }
     },
     {
+      "name": "modal-layer",
+      "title": "Modal layer",
+      "category": "containment",
+      "level": "base",
+      "listing": "advanced",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/modal-layer/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
       "name": "dialog",
       "title": "Dialog",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [
         "button"
       ],
@@ -486,9 +506,11 @@
       "name": "navigation-drawer",
       "title": "Navigation drawer",
       "category": "navigation",
-      "level": "base",
+      "level": "composed",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [
         "badge",
         "divider",
@@ -551,7 +573,9 @@
       "category": "navigation",
       "level": "feature",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [
         "button",
         "keyboard-shortcut",
@@ -571,9 +595,11 @@
       "name": "bottom-sheet",
       "title": "Bottom sheet",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [],
       "hasSpec": true,
       "docs": "/components/bottom-sheet/",
@@ -589,9 +615,11 @@
       "name": "side-sheet",
       "title": "Side sheet",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [
         "button"
       ],
@@ -746,7 +774,8 @@
       "level": "composed",
       "listing": "default",
       "builtFrom": [
-        "calendar"
+        "calendar",
+        "modal-layer"
       ],
       "uses": [
         "tabs",
@@ -1600,7 +1629,9 @@
       "category": "containment",
       "level": "feature",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [
         "button",
         "skeleton"
@@ -1700,14 +1731,14 @@
   "totals": {
     "web": {
       "planned": 0,
-      "lagging": 84,
+      "lagging": 85,
       "alpha": 0,
       "beta": 0,
       "stable": 0,
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 55,
+      "planned": 56,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1715,7 +1746,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 55,
+      "planned": 56,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1723,7 +1754,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 55,
+      "planned": 56,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1731,7 +1762,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 55,
+      "planned": 56,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,

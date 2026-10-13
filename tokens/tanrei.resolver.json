@@ -112,6 +112,9 @@
           "$ref": "comp/snackbar.tokens.json"
         },
         {
+          "$ref": "comp/modal-layer.tokens.json"
+        },
+        {
           "$ref": "comp/dialog.tokens.json"
         },
         {

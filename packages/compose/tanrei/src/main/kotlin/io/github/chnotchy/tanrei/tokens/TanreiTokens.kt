@@ -1311,6 +1311,7 @@ public data class TanreiBottomSheetTokens(
     public val motionFeedbackDuration: Int,
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
+    public val scrimBlur: Dp,
     public val scrimColor: TanreiPaint,
     public val hovered: TanreiBottomSheetStateTokens,
     public val focused: TanreiBottomSheetStateTokens,
@@ -3760,6 +3761,7 @@ public data class TanreiDateTimePickerTokens(
     public val modalMotionEnterScale: Float,
     public val modalMotionOpenDuration: Int,
     public val modalMotionOpenEasing: TanreiCubicBezier,
+    public val modalScrimBlur: Dp,
     public val modalScrimColor: TanreiPaint,
     public val motionDialDuration: Int,
     public val motionDialEasing: TanreiCubicBezier,
@@ -3933,6 +3935,7 @@ public data class TanreiDialogTokens(
     public val motionEnterScale: Float,
     public val motionExitDuration: Int,
     public val motionExitEasing: TanreiCubicBezier,
+    public val scrimBlur: Dp,
     public val scrimColor: TanreiPaint,
     public val supportingTextColor: TanreiPaint,
     public val supportingTextTypescale: TanreiTextStyle,
@@ -6515,6 +6518,21 @@ public data class TanreiMenubarTokens(
     }
 }
 
+/** `comp.modal-layer`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiModalLayerTokens(
+    public val motionEnterDuration: Int,
+    public val motionEnterEasing: TanreiCubicBezier,
+    public val motionExitDuration: Int,
+    public val motionExitEasing: TanreiCubicBezier,
+    public val scrimBlur: Dp,
+    public val scrimColor: TanreiPaint,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(scrimColor.roles())
+    }
+}
+
 /**
  * A condition of navigation-bar: the key of one entry of [TanreiNavigationBarConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
@@ -6883,6 +6901,7 @@ public data class TanreiNavigationDrawerTokens(
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val outlineWidth: Dp,
+    public val scrimBlur: Dp,
     public val scrimColor: TanreiPaint,
     public val hovered: TanreiNavigationDrawerStateTokens,
     public val focused: TanreiNavigationDrawerStateTokens,
@@ -7918,6 +7937,7 @@ public data class TanreiSearchTokens(
     public val viewOffset: Dp,
     public val viewPaddingBlock: Dp,
     public val viewPaddingInline: Dp,
+    public val viewScrimBlur: Dp,
     public val viewScrimColor: TanreiPaint,
     public val viewViewportMargin: Dp,
     public val hovered: TanreiSearchStateTokens,
@@ -8411,6 +8431,7 @@ public data class TanreiSideSheetTokens(
     public val motionExitDuration: Int,
     public val motionExitEasing: TanreiCubicBezier,
     public val outlineWidth: Dp,
+    public val scrimBlur: Dp,
     public val scrimColor: TanreiPaint,
     public val variants: TanreiSideSheetVariants,
 ) {
@@ -10663,6 +10684,7 @@ public data class TanreiSystem(
     public val mainActionButton: TanreiMainActionButtonTokens,
     public val menu: TanreiMenuTokens,
     public val menubar: TanreiMenubarTokens,
+    public val modalLayer: TanreiModalLayerTokens,
     public val navigationBar: TanreiNavigationBarTokens,
     public val navigationDrawer: TanreiNavigationDrawerTokens,
     public val navigationRail: TanreiNavigationRailTokens,
@@ -10743,6 +10765,7 @@ public data class TanreiSystem(
         addAll(mainActionButton.referencedRoles())
         addAll(menu.referencedRoles())
         addAll(menubar.referencedRoles())
+        addAll(modalLayer.referencedRoles())
         addAll(navigationBar.referencedRoles())
         addAll(navigationDrawer.referencedRoles())
         addAll(navigationRail.referencedRoles())

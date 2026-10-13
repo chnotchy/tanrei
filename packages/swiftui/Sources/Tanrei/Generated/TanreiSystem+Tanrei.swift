@@ -693,6 +693,7 @@ private let tanreiBottomSheetTokens = TanreiBottomSheetTokens(
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   controls: TanreiBottomSheetControls(
     dragHandle: TanreiBottomSheetControlTokens(
@@ -3380,6 +3381,7 @@ private let tanreiDateTimePickerTokens = TanreiDateTimePickerTokens(
   modalMotionEnterScale: 0.95,
   modalMotionOpenDuration: 300,
   modalMotionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  modalScrimBlur: 0,
   modalScrimColor: .role(.scrim),
   motionDialDuration: 250,
   motionDialEasing: TanreiCubicBezier(0.2, 0, 0, 1),
@@ -3542,6 +3544,7 @@ private let tanreiDialogTokens = TanreiDialogTokens(
   motionEnterScale: 0.95,
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurfaceVariant),
   supportingTextTypescale: tanreiTypescale.body
@@ -5782,6 +5785,15 @@ private let tanreiMenubarTokens = TanreiMenubarTokens(
   )
 )
 
+private let tanreiModalLayerTokens = TanreiModalLayerTokens(
+  motionEnterDuration: 300,
+  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionExitDuration: 200,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  scrimBlur: 0,
+  scrimColor: .role(.scrim)
+)
+
 private let tanreiNavigationBarTokens = TanreiNavigationBarTokens(
   containerColor: .role(.surface),
   containerElevation: tanreiElevation.level0,
@@ -6057,6 +6069,7 @@ private let tanreiNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   variants: TanreiNavigationDrawerVariants(
     standard: TanreiNavigationDrawerVariantTokens(
@@ -6935,6 +6948,7 @@ private let tanreiSearchTokens = TanreiSearchTokens(
   viewOffset: 4,
   viewPaddingBlock: 4,
   viewPaddingInline: 4,
+  viewScrimBlur: 0,
   viewScrimColor: .role(.scrim),
   viewViewportMargin: 8,
   conditions: TanreiSearchConditions(
@@ -7446,6 +7460,7 @@ private let tanreiSideSheetTokens = TanreiSideSheetTokens(
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
   outlineWidth: 1,
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   variants: TanreiSideSheetVariants(
     standard: TanreiSideSheetVariantTokens(
@@ -9445,6 +9460,7 @@ extension TanreiSystem {
     mainActionButton: tanreiMainActionButtonTokens,
     menu: tanreiMenuTokens,
     menubar: tanreiMenubarTokens,
+    modalLayer: tanreiModalLayerTokens,
     navigationBar: tanreiNavigationBarTokens,
     navigationDrawer: tanreiNavigationDrawerTokens,
     navigationRail: tanreiNavigationRailTokens,

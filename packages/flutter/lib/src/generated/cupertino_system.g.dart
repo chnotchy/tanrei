@@ -815,6 +815,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     motionFeedbackDuration: 450,
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    scrimBlur: 0.0,
     scrimColor: TanreiPaint.role(TanreiColorRole.scrim),
     controls: TanreiBottomSheetControls(
       dragHandle: TanreiBottomSheetControlTokens(
@@ -3486,6 +3487,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     modalMotionEnterScale: 0.95,
     modalMotionOpenDuration: 300,
     modalMotionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),
+    modalScrimBlur: 0.0,
     modalScrimColor: TanreiPaint.role(TanreiColorRole.scrim),
     motionDialDuration: 250,
     motionDialEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
@@ -3646,6 +3648,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     motionEnterScale: 0.95,
     motionExitDuration: 200,
     motionExitEasing: TanreiCubicBezier(0.3, 0.0, 0.8, 0.15),
+    scrimBlur: 0.0,
     scrimColor: TanreiPaint.role(TanreiColorRole.scrim),
     supportingTextColor: TanreiPaint.role(TanreiColorRole.onSurface),
     supportingTextTypescale: _typescaleBody,
@@ -5864,6 +5867,14 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
       opacity: 1.0,
     ),
   ),
+  modalLayer: TanreiModalLayerTokens(
+    motionEnterDuration: 300,
+    motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),
+    motionExitDuration: 200,
+    motionExitEasing: TanreiCubicBezier(0.3, 0.0, 0.8, 0.15),
+    scrimBlur: 0.0,
+    scrimColor: TanreiPaint.role(TanreiColorRole.scrim),
+  ),
   navigationBar: TanreiNavigationBarTokens(
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceContainerLow),
     containerElevation: _elevationLevel0,
@@ -6138,6 +6149,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     outlineWidth: 1.0,
+    scrimBlur: 0.0,
     scrimColor: TanreiPaint.role(TanreiColorRole.scrim),
     variants: TanreiNavigationDrawerVariants(
       standard: TanreiNavigationDrawerVariantTokens(
@@ -7006,6 +7018,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     viewOffset: 4.0,
     viewPaddingBlock: 4.0,
     viewPaddingInline: 4.0,
+    viewScrimBlur: 0.0,
     viewScrimColor: TanreiPaint.role(TanreiColorRole.scrim),
     viewViewportMargin: 8.0,
     conditions: TanreiSearchConditions(
@@ -7514,6 +7527,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     motionExitDuration: 200,
     motionExitEasing: TanreiCubicBezier(0.3, 0.0, 0.8, 0.15),
     outlineWidth: 1.0,
+    scrimBlur: 0.0,
     scrimColor: TanreiPaint.role(TanreiColorRole.scrim),
     variants: TanreiSideSheetVariants(
       standard: TanreiSideSheetVariantTokens(

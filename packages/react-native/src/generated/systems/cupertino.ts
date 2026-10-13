@@ -1030,6 +1030,7 @@ export const cupertino = {
       motionStateDuration: 150,
       motionStateEasing: [0.2, 0, 0, 1],
       pressedOpacity: 0.7,
+      scrimBlur: 0,
       scrimColor: { kind: "role", role: "scrim" },
       controls: {
         dragHandle: {
@@ -4250,6 +4251,7 @@ export const cupertino = {
       modalMotionEnterScale: 0.95,
       modalMotionOpenDuration: 300,
       modalMotionOpenEasing: [0.05, 0.7, 0.1, 1],
+      modalScrimBlur: 0,
       modalScrimColor: { kind: "role", role: "scrim" },
       motionDialDuration: 250,
       motionDialEasing: [0.2, 0, 0, 1],
@@ -4390,6 +4392,7 @@ export const cupertino = {
       motionEnterScale: 0.95,
       motionExitDuration: 200,
       motionExitEasing: [0.3, 0, 0.8, 0.15],
+      scrimBlur: 0,
       scrimColor: { kind: "role", role: "scrim" },
       supportingTextColor: { kind: "role", role: "onSurface" },
       supportingTextTypescale: "body",
@@ -7179,6 +7182,14 @@ export const cupertino = {
         },
       },
     },
+    modalLayer: {
+      motionEnterDuration: 300,
+      motionEnterEasing: [0.05, 0.7, 0.1, 1],
+      motionExitDuration: 200,
+      motionExitEasing: [0.3, 0, 0.8, 0.15],
+      scrimBlur: 0,
+      scrimColor: { kind: "role", role: "scrim" },
+    },
     navigationBar: {
       containerColor: { kind: "role", role: "surfaceContainerLow" },
       containerElevation: "level0",
@@ -7529,6 +7540,7 @@ export const cupertino = {
       motionStateEasing: [0.2, 0, 0, 1],
       outlineWidth: 1,
       pressedOpacity: 0.7,
+      scrimBlur: 0,
       scrimColor: { kind: "role", role: "scrim" },
       variants: {
         standard: {
@@ -8534,6 +8546,7 @@ export const cupertino = {
       viewOffset: 4,
       viewPaddingBlock: 4,
       viewPaddingInline: 4,
+      viewScrimBlur: 0,
       viewScrimColor: { kind: "role", role: "scrim" },
       viewViewportMargin: 8,
       conditions: {
@@ -9154,6 +9167,7 @@ export const cupertino = {
       motionExitDuration: 200,
       motionExitEasing: [0.3, 0, 0.8, 0.15],
       outlineWidth: 1,
+      scrimBlur: 0,
       scrimColor: { kind: "role", role: "scrim" },
       variants: {
         standard: {

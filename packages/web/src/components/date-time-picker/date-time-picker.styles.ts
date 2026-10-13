@@ -109,9 +109,10 @@ export const styles = css`
       scale: ${t('modal-motion-enter-scale')};
     }
   }
-  /* DTM-1: the scrim, over the whole window behind the picker, fading with it. */
+  /* DTM-1, MDL-1: the modal layer's scrim, over the whole window behind the picker (its color and blur), fading with it. */
   .surface.modal::backdrop {
     background: ${t('modal-scrim-color')};
+    backdrop-filter: blur(${t('modal-scrim-blur')});
     opacity: 0;
     transition-property: opacity, display, overlay;
     transition-duration: ${t('modal-motion-close-duration')};

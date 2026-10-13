@@ -74,6 +74,9 @@ const SUBJECTS = [
   // The icon fixture: the container's color, corners and elevation over the scrim, the icon and the headline as the
   // preset places them, and the actions in the preset's arrangement and variant. Its baseline is the 640 × 640 window.
   subject('dialog', (fixture) => fixture.id === 'icon', { icons: true, window: { width: 640, height: 640 }, wholeWindow: true }),
+  // The layer alone, open, over the page: the preset's scrim (its color and alpha, and its blur where it sets one) around
+  // one line of the page's own text. Its baseline is the 640 × 640 window.
+  subject('modal-layer', (fixture) => fixture.id === 'open', { window: { width: 640, height: 640 }, wholeWindow: true }),
   // Modal, a date and time side by side: the surface's color, corners and elevation over the scrim, the title row and the
   // value line, the divider, the calendar, the time as the preset sets it (wheels with the entry-mode tabs in the default,
   // the dial in m3-like, the wheels alone in cupertino), the period beside the time and the actions in the preset's arrangement and

@@ -1101,6 +1101,16 @@ const STAGING: Record<string, Staging> = {
     props: ({ dismissible, ...props }) => (dismissible === false ? { ...props, closedby: 'none' } : props),
     itemAttributes: () => 'slot="actions"',
   },
+  // A modal layer is in the top layer too: its fixtures are drawn one at a time in a 640 × 640 window (MDL-1's verify),
+  // and the baseline is the window. `scrim: false` is the inverse attribute `no-scrim`, `dismissible: false` HTML's
+  // `closedby="none"`.
+  'modal-layer': {
+    props: ({ scrim, dismissible, ...props }) => ({
+      ...props,
+      ...(scrim === false ? { noScrim: true } : {}),
+      ...(dismissible === false ? { closedby: 'none' } : {}),
+    }),
+  },
   // A tooltip's stage is 320 × 200 with its anchor at the centre: a medium icon-only text Button showing the fixture's
   // glyph and labelled after it (the spec's web note). Its tooltip is open, drawn in the top layer beside it.
   tooltip: {

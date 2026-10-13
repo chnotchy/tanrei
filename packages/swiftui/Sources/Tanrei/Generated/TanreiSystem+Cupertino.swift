@@ -671,6 +671,7 @@ private let cupertinoBottomSheetTokens = TanreiBottomSheetTokens(
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   controls: TanreiBottomSheetControls(
     dragHandle: TanreiBottomSheetControlTokens(
@@ -3358,6 +3359,7 @@ private let cupertinoDateTimePickerTokens = TanreiDateTimePickerTokens(
   modalMotionEnterScale: 0.95,
   modalMotionOpenDuration: 300,
   modalMotionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  modalScrimBlur: 0,
   modalScrimColor: .role(.scrim),
   motionDialDuration: 250,
   motionDialEasing: TanreiCubicBezier(0.2, 0, 0, 1),
@@ -3520,6 +3522,7 @@ private let cupertinoDialogTokens = TanreiDialogTokens(
   motionEnterScale: 0.95,
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurface),
   supportingTextTypescale: cupertinoTypescale.body
@@ -5760,6 +5763,15 @@ private let cupertinoMenubarTokens = TanreiMenubarTokens(
   )
 )
 
+private let cupertinoModalLayerTokens = TanreiModalLayerTokens(
+  motionEnterDuration: 300,
+  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionExitDuration: 200,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  scrimBlur: 0,
+  scrimColor: .role(.scrim)
+)
+
 private let cupertinoNavigationBarTokens = TanreiNavigationBarTokens(
   containerColor: .role(.surfaceContainerLow),
   containerElevation: cupertinoElevation.level0,
@@ -6035,6 +6047,7 @@ private let cupertinoNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   variants: TanreiNavigationDrawerVariants(
     standard: TanreiNavigationDrawerVariantTokens(
@@ -6913,6 +6926,7 @@ private let cupertinoSearchTokens = TanreiSearchTokens(
   viewOffset: 4,
   viewPaddingBlock: 4,
   viewPaddingInline: 4,
+  viewScrimBlur: 0,
   viewScrimColor: .role(.scrim),
   viewViewportMargin: 8,
   conditions: TanreiSearchConditions(
@@ -7424,6 +7438,7 @@ private let cupertinoSideSheetTokens = TanreiSideSheetTokens(
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
   outlineWidth: 1,
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   variants: TanreiSideSheetVariants(
     standard: TanreiSideSheetVariantTokens(
@@ -9423,6 +9438,7 @@ extension TanreiSystem {
     mainActionButton: cupertinoMainActionButtonTokens,
     menu: cupertinoMenuTokens,
     menubar: cupertinoMenubarTokens,
+    modalLayer: cupertinoModalLayerTokens,
     navigationBar: cupertinoNavigationBarTokens,
     navigationDrawer: cupertinoNavigationDrawerTokens,
     navigationRail: cupertinoNavigationRailTokens,

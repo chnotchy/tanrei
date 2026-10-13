@@ -729,6 +729,7 @@ export interface TanreiBottomSheetTokens {
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedOpacity: number;
+  readonly scrimBlur: number;
   readonly scrimColor: TanreiPaint;
   readonly controls: TanreiBottomSheetControls;
 }
@@ -1856,6 +1857,7 @@ export interface TanreiDateTimePickerTokens {
   readonly modalMotionEnterScale: number;
   readonly modalMotionOpenDuration: number;
   readonly modalMotionOpenEasing: TanreiCubicBezier;
+  readonly modalScrimBlur: number;
   readonly modalScrimColor: TanreiPaint;
   readonly motionDialDuration: number;
   readonly motionDialEasing: TanreiCubicBezier;
@@ -1965,6 +1967,7 @@ export interface TanreiDialogTokens {
   readonly motionEnterScale: number;
   readonly motionExitDuration: number;
   readonly motionExitEasing: TanreiCubicBezier;
+  readonly scrimBlur: number;
   readonly scrimColor: TanreiPaint;
   readonly supportingTextColor: TanreiPaint;
   readonly supportingTextTypescale: TanreiTypescaleRole;
@@ -3206,6 +3209,19 @@ export interface TanreiMenubarTokens {
 }
 
 /**
+ * `comp.modal-layer`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiModalLayerTokens {
+  readonly motionEnterDuration: number;
+  readonly motionEnterEasing: TanreiCubicBezier;
+  readonly motionExitDuration: number;
+  readonly motionExitEasing: TanreiCubicBezier;
+  readonly scrimBlur: number;
+  readonly scrimColor: TanreiPaint;
+}
+
+/**
  * Every value of `comp.navigation-bar`'s `condition` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `unselected` (with a dev-only warning).
@@ -3388,6 +3404,7 @@ export interface TanreiNavigationDrawerTokens {
   readonly motionStateEasing: TanreiCubicBezier;
   readonly outlineWidth: number;
   readonly pressedOpacity: number;
+  readonly scrimBlur: number;
   readonly scrimColor: TanreiPaint;
   readonly variants: TanreiNavigationDrawerVariants;
   readonly conditions: TanreiNavigationDrawerConditions;
@@ -3932,6 +3949,7 @@ export interface TanreiSearchTokens {
   readonly viewOffset: number;
   readonly viewPaddingBlock: number;
   readonly viewPaddingInline: number;
+  readonly viewScrimBlur: number;
   readonly viewScrimColor: TanreiPaint;
   readonly viewViewportMargin: number;
   readonly conditions: TanreiSearchConditions;
@@ -4157,6 +4175,7 @@ export interface TanreiSideSheetTokens {
   readonly motionExitDuration: number;
   readonly motionExitEasing: TanreiCubicBezier;
   readonly outlineWidth: number;
+  readonly scrimBlur: number;
   readonly scrimColor: TanreiPaint;
   readonly variants: TanreiSideSheetVariants;
 }
@@ -5270,6 +5289,7 @@ export interface TanreiComponents {
   readonly mainActionButton: TanreiMainActionButtonTokens;
   readonly menu: TanreiMenuTokens;
   readonly menubar: TanreiMenubarTokens;
+  readonly modalLayer: TanreiModalLayerTokens;
   readonly navigationBar: TanreiNavigationBarTokens;
   readonly navigationDrawer: TanreiNavigationDrawerTokens;
   readonly navigationRail: TanreiNavigationRailTokens;

@@ -3163,6 +3163,7 @@ class TanreiBottomSheetTokens {
     required this.motionFeedbackDuration,
     required this.motionStateDuration,
     required this.motionStateEasing,
+    required this.scrimBlur,
     required this.scrimColor,
     required this.controls,
     required this.hovered,
@@ -3214,6 +3215,8 @@ class TanreiBottomSheetTokens {
   final int motionStateDuration;
   /// `comp.bottom-sheet.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
+  /// `comp.bottom-sheet.scrim-blur`
+  final double scrimBlur;
   /// `comp.bottom-sheet.scrim-color`
   final TanreiPaint scrimColor;
   /// The `control` axis: `controls[control]`.
@@ -3249,6 +3252,7 @@ class TanreiBottomSheetTokens {
     int? motionFeedbackDuration,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
+    double? scrimBlur,
     TanreiPaint? scrimColor,
     TanreiBottomSheetControls? controls,
     TanreiBottomSheetStateTokens? hovered,
@@ -3277,6 +3281,7 @@ class TanreiBottomSheetTokens {
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        scrimBlur: scrimBlur ?? this.scrimBlur,
         scrimColor: scrimColor ?? this.scrimColor,
         controls: controls ?? this.controls,
         hovered: hovered ?? this.hovered,
@@ -8515,6 +8520,7 @@ class TanreiDateTimePickerTokens {
     required this.modalMotionEnterScale,
     required this.modalMotionOpenDuration,
     required this.modalMotionOpenEasing,
+    required this.modalScrimBlur,
     required this.modalScrimColor,
     required this.motionDialDuration,
     required this.motionDialEasing,
@@ -8652,6 +8658,8 @@ class TanreiDateTimePickerTokens {
   final int modalMotionOpenDuration;
   /// `comp.date-time-picker.modal-motion-open-easing`
   final TanreiCubicBezier modalMotionOpenEasing;
+  /// `comp.date-time-picker.modal-scrim-blur`
+  final double modalScrimBlur;
   /// `comp.date-time-picker.modal-scrim-color`
   final TanreiPaint modalScrimColor;
   /// `comp.date-time-picker.motion-dial-duration`
@@ -8778,6 +8786,7 @@ class TanreiDateTimePickerTokens {
     double? modalMotionEnterScale,
     int? modalMotionOpenDuration,
     TanreiCubicBezier? modalMotionOpenEasing,
+    double? modalScrimBlur,
     TanreiPaint? modalScrimColor,
     int? motionDialDuration,
     TanreiCubicBezier? motionDialEasing,
@@ -8865,6 +8874,7 @@ class TanreiDateTimePickerTokens {
         modalMotionEnterScale: modalMotionEnterScale ?? this.modalMotionEnterScale,
         modalMotionOpenDuration: modalMotionOpenDuration ?? this.modalMotionOpenDuration,
         modalMotionOpenEasing: modalMotionOpenEasing ?? this.modalMotionOpenEasing,
+        modalScrimBlur: modalScrimBlur ?? this.modalScrimBlur,
         modalScrimColor: modalScrimColor ?? this.modalScrimColor,
         motionDialDuration: motionDialDuration ?? this.motionDialDuration,
         motionDialEasing: motionDialEasing ?? this.motionDialEasing,
@@ -9111,6 +9121,7 @@ class TanreiDialogTokens {
     required this.motionEnterScale,
     required this.motionExitDuration,
     required this.motionExitEasing,
+    required this.scrimBlur,
     required this.scrimColor,
     required this.supportingTextColor,
     required this.supportingTextTypescale,
@@ -9172,6 +9183,8 @@ class TanreiDialogTokens {
   final int motionExitDuration;
   /// `comp.dialog.motion-exit-easing`
   final TanreiCubicBezier motionExitEasing;
+  /// `comp.dialog.scrim-blur`
+  final double scrimBlur;
   /// `comp.dialog.scrim-color`
   final TanreiPaint scrimColor;
   /// `comp.dialog.supporting-text-color`
@@ -9209,6 +9222,7 @@ class TanreiDialogTokens {
     double? motionEnterScale,
     int? motionExitDuration,
     TanreiCubicBezier? motionExitEasing,
+    double? scrimBlur,
     TanreiPaint? scrimColor,
     TanreiPaint? supportingTextColor,
     TanreiTextStyle? supportingTextTypescale,
@@ -9241,6 +9255,7 @@ class TanreiDialogTokens {
         motionEnterScale: motionEnterScale ?? this.motionEnterScale,
         motionExitDuration: motionExitDuration ?? this.motionExitDuration,
         motionExitEasing: motionExitEasing ?? this.motionExitEasing,
+        scrimBlur: scrimBlur ?? this.scrimBlur,
         scrimColor: scrimColor ?? this.scrimColor,
         supportingTextColor: supportingTextColor ?? this.supportingTextColor,
         supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
@@ -15031,6 +15046,49 @@ class TanreiMenubarTokens {
       };
 }
 
+/// `comp.modal-layer.*`
+@immutable
+class TanreiModalLayerTokens {
+  const TanreiModalLayerTokens({
+    required this.motionEnterDuration,
+    required this.motionEnterEasing,
+    required this.motionExitDuration,
+    required this.motionExitEasing,
+    required this.scrimBlur,
+    required this.scrimColor,
+  });
+
+  /// `comp.modal-layer.motion-enter-duration`
+  final int motionEnterDuration;
+  /// `comp.modal-layer.motion-enter-easing`
+  final TanreiCubicBezier motionEnterEasing;
+  /// `comp.modal-layer.motion-exit-duration`
+  final int motionExitDuration;
+  /// `comp.modal-layer.motion-exit-easing`
+  final TanreiCubicBezier motionExitEasing;
+  /// `comp.modal-layer.scrim-blur`
+  final double scrimBlur;
+  /// `comp.modal-layer.scrim-color`
+  final TanreiPaint scrimColor;
+
+  /// A copy with the given tokens replaced.
+  TanreiModalLayerTokens copyWith({
+    int? motionEnterDuration,
+    TanreiCubicBezier? motionEnterEasing,
+    int? motionExitDuration,
+    TanreiCubicBezier? motionExitEasing,
+    double? scrimBlur,
+    TanreiPaint? scrimColor,
+  }) => TanreiModalLayerTokens(
+        motionEnterDuration: motionEnterDuration ?? this.motionEnterDuration,
+        motionEnterEasing: motionEnterEasing ?? this.motionEnterEasing,
+        motionExitDuration: motionExitDuration ?? this.motionExitDuration,
+        motionExitEasing: motionExitEasing ?? this.motionExitEasing,
+        scrimBlur: scrimBlur ?? this.scrimBlur,
+        scrimColor: scrimColor ?? this.scrimColor,
+      );
+}
+
 /// The key of a condition of navigation-bar (`comp.navigation-bar`, axis `condition`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -15728,6 +15786,7 @@ class TanreiNavigationDrawerTokens {
     required this.motionStateDuration,
     required this.motionStateEasing,
     required this.outlineWidth,
+    required this.scrimBlur,
     required this.scrimColor,
     required this.variants,
     required this.conditions,
@@ -15831,6 +15890,8 @@ class TanreiNavigationDrawerTokens {
   final TanreiCubicBezier motionStateEasing;
   /// `comp.navigation-drawer.outline-width`
   final double outlineWidth;
+  /// `comp.navigation-drawer.scrim-blur`
+  final double scrimBlur;
   /// `comp.navigation-drawer.scrim-color`
   final TanreiPaint scrimColor;
   /// The `variant` axis: `variants[variant]`.
@@ -15895,6 +15956,7 @@ class TanreiNavigationDrawerTokens {
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     double? outlineWidth,
+    double? scrimBlur,
     TanreiPaint? scrimColor,
     TanreiNavigationDrawerVariants? variants,
     TanreiNavigationDrawerConditions? conditions,
@@ -15950,6 +16012,7 @@ class TanreiNavigationDrawerTokens {
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         outlineWidth: outlineWidth ?? this.outlineWidth,
+        scrimBlur: scrimBlur ?? this.scrimBlur,
         scrimColor: scrimColor ?? this.scrimColor,
         variants: variants ?? this.variants,
         conditions: conditions ?? this.conditions,
@@ -18251,6 +18314,7 @@ class TanreiSearchTokens {
     required this.viewOffset,
     required this.viewPaddingBlock,
     required this.viewPaddingInline,
+    required this.viewScrimBlur,
     required this.viewScrimColor,
     required this.viewViewportMargin,
     required this.conditions,
@@ -18366,6 +18430,8 @@ class TanreiSearchTokens {
   final double viewPaddingBlock;
   /// `comp.search.view-padding-inline`
   final double viewPaddingInline;
+  /// `comp.search.view-scrim-blur`
+  final double viewScrimBlur;
   /// `comp.search.view-scrim-color`
   final TanreiPaint viewScrimColor;
   /// `comp.search.view-viewport-margin`
@@ -18436,6 +18502,7 @@ class TanreiSearchTokens {
     double? viewOffset,
     double? viewPaddingBlock,
     double? viewPaddingInline,
+    double? viewScrimBlur,
     TanreiPaint? viewScrimColor,
     double? viewViewportMargin,
     TanreiSearchConditions? conditions,
@@ -18497,6 +18564,7 @@ class TanreiSearchTokens {
         viewOffset: viewOffset ?? this.viewOffset,
         viewPaddingBlock: viewPaddingBlock ?? this.viewPaddingBlock,
         viewPaddingInline: viewPaddingInline ?? this.viewPaddingInline,
+        viewScrimBlur: viewScrimBlur ?? this.viewScrimBlur,
         viewScrimColor: viewScrimColor ?? this.viewScrimColor,
         viewViewportMargin: viewViewportMargin ?? this.viewViewportMargin,
         conditions: conditions ?? this.conditions,
@@ -19483,6 +19551,7 @@ class TanreiSideSheetTokens {
     required this.motionExitDuration,
     required this.motionExitEasing,
     required this.outlineWidth,
+    required this.scrimBlur,
     required this.scrimColor,
     required this.variants,
   });
@@ -19529,6 +19598,8 @@ class TanreiSideSheetTokens {
   final TanreiCubicBezier motionExitEasing;
   /// `comp.side-sheet.outline-width`
   final double outlineWidth;
+  /// `comp.side-sheet.scrim-blur`
+  final double scrimBlur;
   /// `comp.side-sheet.scrim-color`
   final TanreiPaint scrimColor;
   /// The `variant` axis: `variants[variant]`.
@@ -19557,6 +19628,7 @@ class TanreiSideSheetTokens {
     int? motionExitDuration,
     TanreiCubicBezier? motionExitEasing,
     double? outlineWidth,
+    double? scrimBlur,
     TanreiPaint? scrimColor,
     TanreiSideSheetVariants? variants,
   }) => TanreiSideSheetTokens(
@@ -19581,6 +19653,7 @@ class TanreiSideSheetTokens {
         motionExitDuration: motionExitDuration ?? this.motionExitDuration,
         motionExitEasing: motionExitEasing ?? this.motionExitEasing,
         outlineWidth: outlineWidth ?? this.outlineWidth,
+        scrimBlur: scrimBlur ?? this.scrimBlur,
         scrimColor: scrimColor ?? this.scrimColor,
         variants: variants ?? this.variants,
       );
@@ -24656,6 +24729,7 @@ class TanreiSystem {
     required this.mainActionButton,
     required this.menu,
     required this.menubar,
+    required this.modalLayer,
     required this.navigationBar,
     required this.navigationDrawer,
     required this.navigationRail,
@@ -24749,6 +24823,7 @@ class TanreiSystem {
   final TanreiMainActionButtonTokens mainActionButton;
   final TanreiMenuTokens menu;
   final TanreiMenubarTokens menubar;
+  final TanreiModalLayerTokens modalLayer;
   final TanreiNavigationBarTokens navigationBar;
   final TanreiNavigationDrawerTokens navigationDrawer;
   final TanreiNavigationRailTokens navigationRail;
@@ -24841,6 +24916,7 @@ class TanreiSystem {
     TanreiMainActionButtonTokens? mainActionButton,
     TanreiMenuTokens? menu,
     TanreiMenubarTokens? menubar,
+    TanreiModalLayerTokens? modalLayer,
     TanreiNavigationBarTokens? navigationBar,
     TanreiNavigationDrawerTokens? navigationDrawer,
     TanreiNavigationRailTokens? navigationRail,
@@ -24931,6 +25007,7 @@ class TanreiSystem {
         mainActionButton: mainActionButton ?? this.mainActionButton,
         menu: menu ?? this.menu,
         menubar: menubar ?? this.menubar,
+        modalLayer: modalLayer ?? this.modalLayer,
         navigationBar: navigationBar ?? this.navigationBar,
         navigationDrawer: navigationDrawer ?? this.navigationDrawer,
         navigationRail: navigationRail ?? this.navigationRail,

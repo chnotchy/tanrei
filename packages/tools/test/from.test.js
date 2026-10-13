@@ -265,7 +265,8 @@ test('the one-time-code field is the first composed field: every entry forwarded
   // The color input is the fifth.
   // The combobox is the sixth: the bare control of the combobox field.
   // The embedded text input is the seventh: the typing area of the chat composer, which is listed.
-  assert.deepEqual(specs.filter(({ spec }) => spec.listing === LISTINGS.onRequest).map(({ spec }) => spec.name).sort(), ['color-input', 'combobox', 'embedded-text-input', 'file-picker', 'number-input', 'one-time-code-input', 'text-input']);
+  // The modal layer is the eighth: the layer under the dialog and every other modal surface, which are listed.
+  assert.deepEqual(specs.filter(({ spec }) => spec.listing === LISTINGS.onRequest).map(({ spec }) => spec.name).sort(), ['color-input', 'combobox', 'embedded-text-input', 'file-picker', 'modal-layer', 'number-input', 'one-time-code-input', 'text-input']);
 });
 
 test('a composed component reads no key of the product\'s words itself: the list of readers is made from the specs as written', () => {

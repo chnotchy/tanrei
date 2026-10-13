@@ -2785,7 +2785,7 @@
               "value": 300,
               "unit": "ms"
             },
-            "$description": "How long the sheet takes to rise into place (and a modal sheet's scrim to fade in), to move to another height, or to settle after a drag."
+            "$description": "How long the sheet takes to rise into place (and a modal sheet's scrim to fade in), to move to another height, or to settle after a drag: the modal layer's, so that every modal surface of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
@@ -2802,7 +2802,7 @@
               "value": 200,
               "unit": "ms"
             },
-            "$description": "How long the sheet takes to leave below the bottom edge (and a modal sheet's scrim to fade out)."
+            "$description": "How long the sheet takes to leave below the bottom edge (and a modal sheet's scrim to fade out): the modal layer's."
           },
           "exit-easing": {
             "$type": "cubicBezier",
@@ -2845,6 +2845,14 @@
           }
         },
         "scrim": {
+          "blur": {
+            "$type": "dimension",
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$description": "How much the scrim behind a modal sheet blurs what lies behind it: the modal layer's (0, none, in the default system)."
+          },
           "color": {
             "$type": "color",
             "$value": {
@@ -2857,7 +2865,7 @@
               "alpha": 0.32,
               "hex": "#000000"
             },
-            "$description": "The dim over everything behind a modal sheet, alpha included (the scrim role is the overlay as drawn). A standard sheet draws none."
+            "$description": "The dim over everything behind a modal sheet, alpha included: the modal layer's, unless a system sets the bottom sheet apart. A standard sheet draws none."
           }
         }
       },
@@ -32102,6 +32110,14 @@
             }
           },
           "scrim": {
+            "blur": {
+              "$type": "dimension",
+              "$value": {
+                "value": 0,
+                "unit": "px"
+              },
+              "$description": "How much the scrim behind a modal picker blurs what lies behind it: the modal layer's, as a dialog's."
+            },
             "color": {
               "$type": "color",
               "$value": {
@@ -32114,7 +32130,7 @@
                 "alpha": 0.32,
                 "hex": "#000000"
               },
-              "$description": "The dim over everything behind a modal picker, alpha included, as a dialog's."
+              "$description": "The dim over everything behind a modal picker, alpha included: the modal layer's, as a dialog's."
             }
           }
         },
@@ -33648,6 +33664,14 @@
           }
         },
         "scrim": {
+          "blur": {
+            "$type": "dimension",
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$description": "How much the scrim behind the dialog blurs what lies behind it: the modal layer's (0, none, in the default system)."
+          },
           "color": {
             "$type": "color",
             "$value": {
@@ -33660,7 +33684,7 @@
               "alpha": 0.32,
               "hex": "#000000"
             },
-            "$description": "The dim over everything behind the dialog, alpha included (the scrim role is the overlay as drawn)."
+            "$description": "The dim over everything behind the dialog, alpha included: the modal layer's, unless a system sets the dialog apart."
           }
         },
         "supporting-text": {
@@ -59442,6 +59466,70 @@
           }
         }
       },
+      "modal-layer": {
+        "motion": {
+          "enter-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$description": "How long the scrim takes to fade in as a modal surface opens. Each modal overlay's own enter duration aliases this one, so that its surface arrives with its scrim."
+          },
+          "enter-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.05,
+              0.7,
+              0.1,
+              1
+            ],
+            "$description": "The curve of the scrim's fade in; each modal overlay's own enter easing aliases it."
+          },
+          "exit-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 200,
+              "unit": "ms"
+            },
+            "$description": "How long the scrim takes to fade out as a modal surface closes. Each modal overlay's own exit duration aliases this one, so that its surface leaves with its scrim."
+          },
+          "exit-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.3,
+              0,
+              0.8,
+              0.15
+            ],
+            "$description": "The curve of the scrim's fade out; each modal overlay's own exit easing aliases it."
+          }
+        },
+        "scrim": {
+          "blur": {
+            "$type": "dimension",
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$description": "How much the scrim blurs what lies behind it: the radius of a Gaussian blur, with the meaning of CSS's blur() (the standard deviation). 0 dims without blurring. A platform that cannot blur what is behind a window draws the color alone. Each modal overlay's own scrim blur aliases this one."
+          },
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0.32,
+              "hex": "#000000"
+            },
+            "$description": "The dim over everything behind a modal surface, alpha included (the scrim role is the overlay as drawn). Each modal overlay's own scrim color aliases this one."
+          }
+        }
+      },
       "navigation-bar": {
         "container": {
           "color": {
@@ -63667,7 +63755,7 @@
               "value": 300,
               "unit": "ms"
             },
-            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout."
+            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
@@ -63684,7 +63772,7 @@
               "value": 200,
               "unit": "ms"
             },
-            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout."
+            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout: the modal layer's."
           },
           "exit-easing": {
             "$type": "cubicBezier",
@@ -63799,6 +63887,14 @@
           }
         },
         "scrim": {
+          "blur": {
+            "$type": "dimension",
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$description": "How much the scrim behind a modal drawer blurs what lies behind it: the modal layer's (0, none, in the default system)."
+          },
           "color": {
             "$type": "color",
             "$value": {
@@ -63811,7 +63907,7 @@
               "alpha": 0.32,
               "hex": "#000000"
             },
-            "$description": "Dims the content behind a modal drawer."
+            "$description": "Dims the content behind a modal drawer: the modal layer's scrim, unless a system sets the drawer apart."
           }
         },
         "selected": {
@@ -72118,6 +72214,14 @@
             }
           },
           "scrim": {
+            "blur": {
+              "$type": "dimension",
+              "$value": {
+                "value": 0,
+                "unit": "px"
+              },
+              "$description": "How much the scrim behind the dialog view blurs what lies behind it: the modal layer's, as the dialog's."
+            },
             "color": {
               "$type": "color",
               "$value": {
@@ -72130,7 +72234,7 @@
                 "alpha": 0.32,
                 "hex": "#000000"
               },
-              "$description": "The dim over everything behind the dialog view, alpha included, as the dialog's."
+              "$description": "The dim over everything behind the dialog view, alpha included: the modal layer's, as the dialog's."
             }
           },
           "viewport-margin": {
@@ -76488,7 +76592,7 @@
               "value": 300,
               "unit": "ms"
             },
-            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout."
+            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
@@ -76505,7 +76609,7 @@
               "value": 200,
               "unit": "ms"
             },
-            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout."
+            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
           },
           "exit-easing": {
             "$type": "cubicBezier",
@@ -76555,6 +76659,14 @@
           }
         },
         "scrim": {
+          "blur": {
+            "$type": "dimension",
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$description": "How much the scrim behind a modal sheet blurs what lies behind it: the modal layer's (0, none, in the default system)."
+          },
           "color": {
             "$type": "color",
             "$value": {
@@ -76567,7 +76679,7 @@
               "alpha": 0.32,
               "hex": "#000000"
             },
-            "$description": "The dim over everything behind a modal sheet, alpha included (the scrim role is the overlay as drawn)."
+            "$description": "The dim over everything behind a modal sheet, alpha included: the modal layer's, unless a system sets the side sheet apart."
           }
         }
       },

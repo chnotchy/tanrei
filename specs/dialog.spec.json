@@ -4,15 +4,18 @@
   "title": "Dialog",
   "summary": "Stops a person for a decision or a few details that the task cannot go on without, in a surface that dims and blocks everything behind it and always offers at least one answer, until one is chosen or the dialog is dismissed.",
   "category": "containment",
-  "level": "base",
+  "level": "composed",
   "listing": "default",
+  "builtFrom": [
+    "modal-layer"
+  ],
   "uses": [
     "button"
   ],
   "anatomy": [
     {
       "id": "scrim",
-      "description": "The dim over everything behind the dialog. It blocks presses and, when the dialog is dismissible, dismisses it when pressed."
+      "description": "The modal layer's scrim over everything behind the dialog (MDL-1). It blocks presses and, when the dialog is dismissible, dismisses it when pressed."
     },
     {
       "id": "container",
@@ -155,23 +158,23 @@
   "behavior": [
     {
       "id": "DLG-1",
-      "text": "WHEN open becomes true THE dialog SHALL present its container above everything in its window, with its scrim of comp.dialog.scrim.color over the whole window behind it, SHALL make everything outside it inert (not focusable, not pressable, hidden from assistive technology) and SHALL keep the content behind it from scrolling, until it closes."
+      "text": "WHEN open becomes true THE dialog SHALL present its container on its modal layer (MDL-1, MDL-2): above everything in its window, with the layer's scrim in comp.dialog.scrim.color and comp.dialog.scrim.blur over the whole window behind it, everything outside it inert and the content behind it kept from scrolling, until it closes."
     },
     {
       "id": "DLG-2",
-      "text": "WHEN the dialog opens THE dialog SHALL move focus to the element in it that the product marked for initial focus (the platform's own mark, named in the platform notes) or, without one, to its container, so that assistive technology reads the headline first and the next Tab reaches the first focusable element."
+      "text": "WHEN the dialog opens THE dialog SHALL move focus as its modal layer does (MDL-3): to the element in it that the product marked for initial focus (the platform's own mark, named in the platform notes) or, without one, to its container, so that assistive technology reads the headline first and the next Tab reaches the first focusable element."
     },
     {
       "id": "DLG-3",
-      "text": "WHILE the dialog is open THE dialog SHALL keep focus inside it: Tab from its last focusable element SHALL move to its first, Shift+Tab from its first SHALL move to its last, and screen-reader navigation SHALL NOT leave it."
+      "text": "WHILE the dialog is open THE dialog SHALL keep focus inside it as its modal layer does (MDL-4): Tab and Shift+Tab wrap between its last and first focusable elements, and screen-reader navigation does not leave it."
     },
     {
       "id": "DLG-4",
-      "text": "WHEN the dialog closes THE dialog SHALL return focus to the element that had it when the dialog opened or, where that element no longer exists or cannot take focus, to the platform's default for a closed overlay, and SHALL restore the content behind it to what it was before."
+      "text": "WHEN the dialog closes THE dialog SHALL return focus and restore the content behind it as its modal layer does (MDL-2, MDL-5)."
     },
     {
       "id": "DLG-5",
-      "text": "WHILE dismissible is true, WHEN the user presses Escape, uses the platform's back (Android's back gesture or button, the iOS accessibility escape gesture) or presses the scrim THE dialog SHALL emit dismiss once; the product closes it by setting open to false, except on the web, where the dialog closes itself unless dismiss is cancelled, as a native dialog does. WHILE dismissible is false THE dialog SHALL ignore these inputs and emit nothing."
+      "text": "WHILE dismissible is true, WHEN the user presses Escape, uses the platform's back or presses the scrim, as its modal layer answers them (MDL-6), THE dialog SHALL emit dismiss once; the product closes it by setting open to false, except on the web, where the dialog closes itself unless dismiss is cancelled, as a native dialog does. WHILE dismissible is false THE dialog SHALL ignore these inputs and emit nothing."
     },
     {
       "id": "DLG-6",
@@ -206,15 +209,15 @@
     },
     {
       "id": "DLG-13",
-      "text": "WHEN the dialog opens centred in the window (DLG-7) THE dialog SHALL fade its scrim in and fade its container in while growing it about its centre from comp.dialog.motion.enter-scale of its size to its full size, over comp.dialog.motion.enter-duration with comp.dialog.motion.enter-easing; WHEN it closes there it SHALL fade both out over comp.dialog.motion.exit-duration with comp.dialog.motion.exit-easing. WHERE motion is reduced it SHALL fade without growing, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). Focus SHALL move (DLG-2, DLG-4) when the dialog opens or closes, not when the motion ends."
+      "text": "WHEN the dialog opens centred in the window (DLG-7) THE dialog SHALL fade its scrim in with its container, as its modal layer says (MDL-7), and fade its container in while growing it about its centre from comp.dialog.motion.enter-scale of its size to its full size, over comp.dialog.motion.enter-duration with comp.dialog.motion.enter-easing; WHEN it closes there it SHALL fade both out over comp.dialog.motion.exit-duration with comp.dialog.motion.exit-easing. WHERE motion is reduced it SHALL fade without growing, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). Focus SHALL move (DLG-2, DLG-4) when the dialog opens or closes, not when the motion ends."
     },
     {
       "id": "DLG-14",
-      "text": "THE dialog SHALL expose its container as a modal dialog — an alert dialog WHILE alert is true — named by headline and described by supportingText; WHEN alert is true and the dialog opens it SHALL have assistive technology read the headline and the supporting text at once; WHILE headline is empty it SHALL still open, and in debug builds SHALL report that it has no accessible name."
+      "text": "THE dialog SHALL expose its container as its modal layer's modal dialog (MDL-10) — an alert dialog WHILE alert is true — named by headline and described by supportingText; WHEN alert is true and the dialog opens it SHALL have assistive technology read the headline and the supporting text at once; WHILE headline is empty it SHALL still open, and in debug builds SHALL report that it has no accessible name."
     },
     {
       "id": "DLG-15",
-      "text": "WHEN a dialog opens while another is open THE dialog SHALL stack above it with its own scrim, make the first one inert as well, and on closing return focus to the element inside the first dialog that had it; Escape SHALL dismiss only the topmost dialog."
+      "text": "WHEN a dialog opens while another is open THE dialog SHALL stack above it as modal layers stack (MDL-8): with its own scrim, the first one inert as well, focus returned on closing to the element inside the first dialog that had it, and Escape dismissing only the topmost dialog."
     },
     {
       "id": "DLG-16",
@@ -227,7 +230,7 @@
     },
     {
       "id": "DLG-18",
-      "text": "WHEN the dialog opens at the bottom of a compact window (DLG-17) THE dialog SHALL fade its scrim in and fade its container in while moving it up from comp.dialog.motion.enter-offset below its place to its place, without growing, over comp.dialog.motion.enter-duration with comp.dialog.motion.enter-easing; WHEN it closes there it SHALL fade both out while moving the container down by comp.dialog.motion.enter-offset, over comp.dialog.motion.exit-duration with comp.dialog.motion.exit-easing. WHERE motion is reduced it SHALL fade without moving, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). Focus SHALL move as DLG-13 says."
+      "text": "WHEN the dialog opens at the bottom of a compact window (DLG-17) THE dialog SHALL fade its scrim in with its container (MDL-7), and fade its container in while moving it up from comp.dialog.motion.enter-offset below its place to its place, without growing, over comp.dialog.motion.enter-duration with comp.dialog.motion.enter-easing; WHEN it closes there it SHALL fade both out while moving the container down by comp.dialog.motion.enter-offset, over comp.dialog.motion.exit-duration with comp.dialog.motion.exit-easing. WHERE motion is reduced it SHALL fade without moving, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). Focus SHALL move as DLG-13 says."
     },
     {
       "id": "DLG-19",

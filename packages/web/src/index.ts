@@ -189,6 +189,7 @@ export {
 } from './components/date-time-picker/date-time-picker.js';
 export { TanreiDescriptionList, type TanreiDescriptionListDensity, type TanreiDescriptionListLayout, type TanreiDescriptionListSeparation } from './components/description-list/description-list.js';
 export { TanreiDialog, type TanreiDialogClosedBy } from './components/dialog/dialog.js';
+export { TanreiModalLayer, type TanreiModalLayerCloseDetail, type TanreiModalLayerCloseReason, type TanreiModalLayerClosedBy } from './components/modal-layer/modal-layer.js';
 export { TanreiEmptyState, type TanreiEmptyStateAlign, type TanreiEmptyStateSize } from './components/empty-state/empty-state.js';
 export { TanreiSkeleton } from './components/skeleton/skeleton.js';
 export {

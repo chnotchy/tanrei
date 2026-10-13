@@ -197,14 +197,19 @@
           "scrim": {
             "color": {
               "$type": "color",
-              "$description": "The dim over everything behind the dialog view, alpha included, as the dialog's.",
-              "$value": "{tanrei.sys.color.scrim}",
+              "$description": "The dim over everything behind the dialog view, alpha included: the modal layer's, as the dialog's.",
+              "$value": "{tanrei.comp.modal-layer.scrim.color}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
                   "rationale": "One product may dim the page less behind its search than behind a question it must answer, so that the place the person searches from stays readable.",
                   "since": "0.1.0"
                 }
               }
+            },
+            "blur": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.modal-layer.scrim.blur}",
+              "$description": "How much the scrim behind the dialog view blurs what lies behind it: the modal layer's, as the dialog's."
             }
           }
         },

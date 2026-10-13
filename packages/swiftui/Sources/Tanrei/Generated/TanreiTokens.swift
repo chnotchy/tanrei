@@ -1975,6 +1975,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
   public var motionFeedbackDuration: Double
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
+  public var scrimBlur: CGFloat
   public var scrimColor: TanreiPaint
   public var controls: TanreiBottomSheetControls
   /// Values of the hovered state shared by every variant.
@@ -2007,6 +2008,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     motionFeedbackDuration: Double,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
+    scrimBlur: CGFloat,
     scrimColor: TanreiPaint,
     controls: TanreiBottomSheetControls,
     hovered: TanreiBottomSheetStateTokens,
@@ -2035,6 +2037,7 @@ public struct TanreiBottomSheetTokens: Sendable, Equatable {
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
+    self.scrimBlur = scrimBlur
     self.scrimColor = scrimColor
     self.controls = controls
     self.hovered = hovered
@@ -5798,6 +5801,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
   public var modalMotionEnterScale: Double
   public var modalMotionOpenDuration: Double
   public var modalMotionOpenEasing: TanreiCubicBezier
+  public var modalScrimBlur: CGFloat
   public var modalScrimColor: TanreiPaint
   public var motionDialDuration: Double
   public var motionDialEasing: TanreiCubicBezier
@@ -5889,6 +5893,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
     modalMotionEnterScale: Double,
     modalMotionOpenDuration: Double,
     modalMotionOpenEasing: TanreiCubicBezier,
+    modalScrimBlur: CGFloat,
     modalScrimColor: TanreiPaint,
     motionDialDuration: Double,
     motionDialEasing: TanreiCubicBezier,
@@ -5976,6 +5981,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
     self.modalMotionEnterScale = modalMotionEnterScale
     self.modalMotionOpenDuration = modalMotionOpenDuration
     self.modalMotionOpenEasing = modalMotionOpenEasing
+    self.modalScrimBlur = modalScrimBlur
     self.modalScrimColor = modalScrimColor
     self.motionDialDuration = motionDialDuration
     self.motionDialEasing = motionDialEasing
@@ -6174,6 +6180,7 @@ public struct TanreiDialogTokens: Sendable, Equatable {
   public var motionEnterScale: Double
   public var motionExitDuration: Double
   public var motionExitEasing: TanreiCubicBezier
+  public var scrimBlur: CGFloat
   public var scrimColor: TanreiPaint
   public var supportingTextColor: TanreiPaint
   public var supportingTextTypescale: TanreiTextStyle
@@ -6207,6 +6214,7 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     motionEnterScale: Double,
     motionExitDuration: Double,
     motionExitEasing: TanreiCubicBezier,
+    scrimBlur: CGFloat,
     scrimColor: TanreiPaint,
     supportingTextColor: TanreiPaint,
     supportingTextTypescale: TanreiTextStyle
@@ -6239,6 +6247,7 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     self.motionEnterScale = motionEnterScale
     self.motionExitDuration = motionExitDuration
     self.motionExitEasing = motionExitEasing
+    self.scrimBlur = scrimBlur
     self.scrimColor = scrimColor
     self.supportingTextColor = supportingTextColor
     self.supportingTextTypescale = supportingTextTypescale
@@ -10335,6 +10344,32 @@ public struct TanreiMenubarTokens: Sendable, Equatable {
   }
 }
 
+/// Component tokens of modal-layer (comp.modal-layer).
+public struct TanreiModalLayerTokens: Sendable, Equatable {
+  public var motionEnterDuration: Double
+  public var motionEnterEasing: TanreiCubicBezier
+  public var motionExitDuration: Double
+  public var motionExitEasing: TanreiCubicBezier
+  public var scrimBlur: CGFloat
+  public var scrimColor: TanreiPaint
+
+  public init(
+    motionEnterDuration: Double,
+    motionEnterEasing: TanreiCubicBezier,
+    motionExitDuration: Double,
+    motionExitEasing: TanreiCubicBezier,
+    scrimBlur: CGFloat,
+    scrimColor: TanreiPaint
+  ) {
+    self.motionEnterDuration = motionEnterDuration
+    self.motionEnterEasing = motionEnterEasing
+    self.motionExitDuration = motionExitDuration
+    self.motionExitEasing = motionExitEasing
+    self.scrimBlur = scrimBlur
+    self.scrimColor = scrimColor
+  }
+}
+
 /// A value of navigation-bar's `condition` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
@@ -10856,6 +10891,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var outlineWidth: CGFloat
+  public var scrimBlur: CGFloat
   public var scrimColor: TanreiPaint
   public var variants: TanreiNavigationDrawerVariants
   public var conditions: TanreiNavigationDrawerConditions
@@ -10916,6 +10952,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     outlineWidth: CGFloat,
+    scrimBlur: CGFloat,
     scrimColor: TanreiPaint,
     variants: TanreiNavigationDrawerVariants,
     conditions: TanreiNavigationDrawerConditions,
@@ -10971,6 +11008,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.outlineWidth = outlineWidth
+    self.scrimBlur = scrimBlur
     self.scrimColor = scrimColor
     self.variants = variants
     self.conditions = conditions
@@ -12610,6 +12648,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
   public var viewOffset: CGFloat
   public var viewPaddingBlock: CGFloat
   public var viewPaddingInline: CGFloat
+  public var viewScrimBlur: CGFloat
   public var viewScrimColor: TanreiPaint
   public var viewViewportMargin: CGFloat
   public var conditions: TanreiSearchConditions
@@ -12676,6 +12715,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
     viewOffset: CGFloat,
     viewPaddingBlock: CGFloat,
     viewPaddingInline: CGFloat,
+    viewScrimBlur: CGFloat,
     viewScrimColor: TanreiPaint,
     viewViewportMargin: CGFloat,
     conditions: TanreiSearchConditions,
@@ -12737,6 +12777,7 @@ public struct TanreiSearchTokens: Sendable, Equatable {
     self.viewOffset = viewOffset
     self.viewPaddingBlock = viewPaddingBlock
     self.viewPaddingInline = viewPaddingInline
+    self.viewScrimBlur = viewScrimBlur
     self.viewScrimColor = viewScrimColor
     self.viewViewportMargin = viewViewportMargin
     self.conditions = conditions
@@ -13457,6 +13498,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
   public var motionExitDuration: Double
   public var motionExitEasing: TanreiCubicBezier
   public var outlineWidth: CGFloat
+  public var scrimBlur: CGFloat
   public var scrimColor: TanreiPaint
   public var variants: TanreiSideSheetVariants
 
@@ -13482,6 +13524,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
     motionExitDuration: Double,
     motionExitEasing: TanreiCubicBezier,
     outlineWidth: CGFloat,
+    scrimBlur: CGFloat,
     scrimColor: TanreiPaint,
     variants: TanreiSideSheetVariants
   ) {
@@ -13506,6 +13549,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
     self.motionExitDuration = motionExitDuration
     self.motionExitEasing = motionExitEasing
     self.outlineWidth = outlineWidth
+    self.scrimBlur = scrimBlur
     self.scrimColor = scrimColor
     self.variants = variants
   }
@@ -17219,6 +17263,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _menubar.value }
     set { _menubar.value = newValue }
   }
+  public var modalLayer: TanreiModalLayerTokens {
+    get { _modalLayer.value }
+    set { _modalLayer.value = newValue }
+  }
   public var navigationBar: TanreiNavigationBarTokens {
     get { _navigationBar.value }
     set { _navigationBar.value = newValue }
@@ -17388,6 +17436,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _mainActionButton: TanreiBox<TanreiMainActionButtonTokens>
   private var _menu: TanreiBox<TanreiMenuTokens>
   private var _menubar: TanreiBox<TanreiMenubarTokens>
+  private var _modalLayer: TanreiBox<TanreiModalLayerTokens>
   private var _navigationBar: TanreiBox<TanreiNavigationBarTokens>
   private var _navigationDrawer: TanreiBox<TanreiNavigationDrawerTokens>
   private var _navigationRail: TanreiBox<TanreiNavigationRailTokens>
@@ -17479,6 +17528,7 @@ public struct TanreiSystem: Sendable, Equatable {
     mainActionButton: TanreiMainActionButtonTokens,
     menu: TanreiMenuTokens,
     menubar: TanreiMenubarTokens,
+    modalLayer: TanreiModalLayerTokens,
     navigationBar: TanreiNavigationBarTokens,
     navigationDrawer: TanreiNavigationDrawerTokens,
     navigationRail: TanreiNavigationRailTokens,
@@ -17569,6 +17619,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._mainActionButton = TanreiBox(mainActionButton)
     self._menu = TanreiBox(menu)
     self._menubar = TanreiBox(menubar)
+    self._modalLayer = TanreiBox(modalLayer)
     self._navigationBar = TanreiBox(navigationBar)
     self._navigationDrawer = TanreiBox(navigationDrawer)
     self._navigationRail = TanreiBox(navigationRail)

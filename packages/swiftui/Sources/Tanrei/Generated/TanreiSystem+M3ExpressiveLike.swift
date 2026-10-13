@@ -786,6 +786,7 @@ private let m3ExpressiveLikeBottomSheetTokens = TanreiBottomSheetTokens(
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   controls: TanreiBottomSheetControls(
     dragHandle: TanreiBottomSheetControlTokens(
@@ -3505,6 +3506,7 @@ private let m3ExpressiveLikeDateTimePickerTokens = TanreiDateTimePickerTokens(
   modalMotionEnterScale: 0.95,
   modalMotionOpenDuration: 300,
   modalMotionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  modalScrimBlur: 0,
   modalScrimColor: .role(.scrim),
   motionDialDuration: 250,
   motionDialEasing: TanreiCubicBezier(0.2, 0, 0, 1),
@@ -3667,6 +3669,7 @@ private let m3ExpressiveLikeDialogTokens = TanreiDialogTokens(
   motionEnterScale: 0.95,
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurfaceVariant),
   supportingTextTypescale: m3ExpressiveLikeTypescale.body
@@ -5907,6 +5910,15 @@ private let m3ExpressiveLikeMenubarTokens = TanreiMenubarTokens(
   )
 )
 
+private let m3ExpressiveLikeModalLayerTokens = TanreiModalLayerTokens(
+  motionEnterDuration: 300,
+  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionExitDuration: 200,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  scrimBlur: 0,
+  scrimColor: .role(.scrim)
+)
+
 private let m3ExpressiveLikeNavigationBarTokens = TanreiNavigationBarTokens(
   containerColor: .role(.surfaceContainer),
   containerElevation: m3ExpressiveLikeElevation.level0,
@@ -6182,6 +6194,7 @@ private let m3ExpressiveLikeNavigationDrawerTokens = TanreiNavigationDrawerToken
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   variants: TanreiNavigationDrawerVariants(
     standard: TanreiNavigationDrawerVariantTokens(
@@ -7060,6 +7073,7 @@ private let m3ExpressiveLikeSearchTokens = TanreiSearchTokens(
   viewOffset: 4,
   viewPaddingBlock: 4,
   viewPaddingInline: 4,
+  viewScrimBlur: 0,
   viewScrimColor: .role(.scrim),
   viewViewportMargin: 8,
   conditions: TanreiSearchConditions(
@@ -7571,6 +7585,7 @@ private let m3ExpressiveLikeSideSheetTokens = TanreiSideSheetTokens(
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
   outlineWidth: 1,
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   variants: TanreiSideSheetVariants(
     standard: TanreiSideSheetVariantTokens(
@@ -9570,6 +9585,7 @@ extension TanreiSystem {
     mainActionButton: m3ExpressiveLikeMainActionButtonTokens,
     menu: m3ExpressiveLikeMenuTokens,
     menubar: m3ExpressiveLikeMenubarTokens,
+    modalLayer: m3ExpressiveLikeModalLayerTokens,
     navigationBar: m3ExpressiveLikeNavigationBarTokens,
     navigationDrawer: m3ExpressiveLikeNavigationDrawerTokens,
     navigationRail: m3ExpressiveLikeNavigationRailTokens,

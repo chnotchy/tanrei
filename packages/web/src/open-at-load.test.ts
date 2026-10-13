@@ -73,8 +73,9 @@ const UNDECIDED: Subject[] = [
   { spec: 'date-time-picker', form: 'a docked picker', pick: (f) => f.props.presentation === 'docked', change: (f) => withProps({ inline: false, anchor: `anchor-${f.id}` })(f) },
 ];
 
-/** Modal, written open: focus moves in as if it had just opened (SSH-3, BSH-3), one to a page. */
+/** Modal, written open: focus moves in as if it had just opened (MDL-3, SSH-3, BSH-3), one to a page. */
 const MODAL: Subject[] = [
+  { spec: 'modal-layer', form: 'a modal layer', pick: opened },
   { spec: 'dialog', form: 'a dialog', pick: opened },
   { spec: 'side-sheet', form: 'a modal sheet', pick: (f) => opened(f) && f.props.variant === 'modal' },
   { spec: 'bottom-sheet', form: 'a modal sheet', pick: (f) => opened(f) && f.props.variant !== 'standard' },

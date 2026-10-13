@@ -1092,6 +1092,7 @@ export const acme = {
       motionStateDuration: 150,
       motionStateEasing: [0.2, 0, 0, 1],
       pressedOpacity: 1,
+      scrimBlur: 0,
       scrimColor: { kind: "role", role: "scrim" },
       controls: {
         dragHandle: {
@@ -5489,6 +5490,7 @@ export const acme = {
       modalMotionEnterScale: 0.95,
       modalMotionOpenDuration: 300,
       modalMotionOpenEasing: [0.05, 0.7, 0.1, 1],
+      modalScrimBlur: 0,
       modalScrimColor: { kind: "role", role: "scrim" },
       motionDialDuration: 250,
       motionDialEasing: [0.2, 0, 0, 1],
@@ -5659,6 +5661,7 @@ export const acme = {
       motionEnterScale: 0.95,
       motionExitDuration: 200,
       motionExitEasing: [0.3, 0, 0.8, 0.15],
+      scrimBlur: 0,
       scrimColor: { kind: "role", role: "scrim" },
       supportingTextColor: { kind: "role", role: "onSurfaceVariant" },
       supportingTextTypescale: "body",
@@ -9006,6 +9009,14 @@ export const acme = {
         },
       },
     },
+    modalLayer: {
+      motionEnterDuration: 300,
+      motionEnterEasing: [0.05, 0.7, 0.1, 1],
+      motionExitDuration: 200,
+      motionExitEasing: [0.3, 0, 0.8, 0.15],
+      scrimBlur: 0,
+      scrimColor: { kind: "role", role: "scrim" },
+    },
     navigationBar: {
       containerColor: { kind: "role", role: "surface" },
       containerElevation: "level0",
@@ -9420,6 +9431,7 @@ export const acme = {
       motionStateEasing: [0.2, 0, 0, 1],
       outlineWidth: 1,
       pressedOpacity: 1,
+      scrimBlur: 0,
       scrimColor: { kind: "role", role: "scrim" },
       variants: {
         standard: {
@@ -10600,6 +10612,7 @@ export const acme = {
       viewOffset: 4,
       viewPaddingBlock: 4,
       viewPaddingInline: 4,
+      viewScrimBlur: 0,
       viewScrimColor: { kind: "role", role: "scrim" },
       viewViewportMargin: 8,
       conditions: {
@@ -11429,6 +11442,7 @@ export const acme = {
       motionExitDuration: 200,
       motionExitEasing: [0.3, 0, 0.8, 0.15],
       outlineWidth: 1,
+      scrimBlur: 0,
       scrimColor: { kind: "role", role: "scrim" },
       variants: {
         standard: {
