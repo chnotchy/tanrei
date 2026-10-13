@@ -666,22 +666,23 @@ test.describe('behavior', () => {
       const want = async (state: string) => [await resolveColor(page, T(`outlined-${state}${parts}-container-color`)), await resolveColor(page, T(`outlined-${state}${parts}-icon-color`))];
       await host(page, id).scrollIntoViewIfNeeded();
       expect(await paint()).toEqual(await want(''));
+      // The chip's own paint is read once it has settled: a state it left goes back to rest over the state duration.
       const chipAtRest = await expected(page, 'outlined', '');
       await remove.hover();
       await expect.poll(paint).toEqual(await want('hovered-'));
-      expect(await drawn(page, id)).toEqual(chipAtRest);
+      await expect.poll(() => drawn(page, id)).toEqual(chipAtRest);
       await page.mouse.down();
       await expect.poll(paint).toEqual(await want('pressed-'));
       expect(await pressed(remove)).toBe('overlay');
       expect(await pressed(inner(page, id))).toBeNull();
-      expect(await drawn(page, id)).toEqual(chipAtRest);
+      await expect.poll(() => drawn(page, id)).toEqual(chipAtRest);
       await page.mouse.move(0, 0);
       await page.mouse.up();
       await keyFocusRemove(page, id);
       await expect.poll(paint).toEqual(await want('focused-'));
       await expect(remove).toHaveCSS('outline-style', 'solid');
       await expect(inner(page, id)).toHaveCSS('outline-style', 'none');
-      expect(await drawn(page, id)).toEqual(chipAtRest);
+      await expect.poll(() => drawn(page, id)).toEqual(chipAtRest);
       // And the other way round: hovering the chip leaves the remove action at rest.
       await page.locator('body').click({ position: { x: 1, y: 1 } });
       await labelOf(page, id).hover();
