@@ -345,7 +345,7 @@
             "$description": "The icon box of an icon-only button, per size. The same as the icon beside a label by default.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product draws a glyph that stands alone larger than one that sits beside a label: alone it carries the whole meaning of the action, beside text it only reinforces it. Material draws 18 beside a label and 24 alone in the same 40 height; an Apple-style product draws 16 and 20.",
+                "rationale": "One product draws a glyph that stands alone larger than one that sits beside a label: alone it carries the whole meaning of the action, beside text it only reinforces it. For example, 18 beside a label and 24 alone.",
                 "since": "0.1.0"
               }
             },

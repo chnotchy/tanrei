@@ -174,14 +174,16 @@
   font-size: var(--ts-text-xs);
   color: var(--tanrei-sys-color-on-surface-variant);
 }
+/* A label beside a value (`writes: {…}`): the label is words, in the text face — a sentence in another script set in
+   the code face opens gaps between its words — and only the value is code. */
 .ts-writes {
   margin: 0;
   overflow-wrap: anywhere;
-  font-family: var(--ts-font-mono);
   font-size: var(--ts-text-2xs);
   color: var(--tanrei-sys-color-on-surface-variant);
 }
 .ts-writes b {
+  font-family: var(--ts-font-mono);
   font-weight: 500;
   color: var(--tanrei-sys-color-on-surface);
 }

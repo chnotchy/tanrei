@@ -182,6 +182,8 @@
     unicode-bidi: plaintext;
     text-align: left;
   }
+  /* TML-4: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  /* script-tracking: :where(.tanrei-timeline) > :where(li) > :where(.tanrei-timeline-title, :is(h2, h3, h4, h5, h6):is(:first-child, :is(.tanrei-timeline-marker, .tanrei-timeline-status, .tanrei-timeline-time) + *)) | var(--_timeline-title-tracking) */
   :where(.tanrei-timeline) > :where(li) > :where(.tanrei-timeline-title, :is(h2, h3, h4, h5, h6):is(:first-child, :is(.tanrei-timeline-marker, .tanrei-timeline-status, .tanrei-timeline-time) + *)):where(:dir(rtl)) {
     text-align: right;
   }

@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "links": {},
+  "icons": {
+    "https://fonts.google.com": {
+      "ok": false,
+      "reason": "not-a-picture"
+    },
+    "https://github.com": {
+      "ok": true,
+      "file": "505e17bbb5b149c35ab2433d5cef581b.png",
+      "digest": "505e17bbb5b149c35ab2433d5cef581b6380c0ae037f65f70a9b3c116f84b3b5",
+      "width": 32,
+      "height": 32,
+      "type": "image/png"
+    },
+    "https://modelcontextprotocol.io": {
+      "ok": true,
+      "file": "eaaa23635c90ec3bcc028be9fa64f896.png",
+      "digest": "eaaa23635c90ec3bcc028be9fa64f896f1f965e0c301496aa4fe60e1a806378d",
+      "width": 32,
+      "height": 32,
+      "type": "image/png"
+    },
+    "https://www.designtokens.org": {
+      "ok": false,
+      "reason": "image-step-failed"
+    }
+  }
+}

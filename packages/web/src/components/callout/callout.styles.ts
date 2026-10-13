@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { type OpenAxis, focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/callout.tokens.json). The callout itself has no state (CLO-14): what
 // changes what it draws is its variant, its status and its size, each read from that form's own tokens. The close
@@ -244,6 +245,8 @@ export const styles = css`
     color: var(--_title);
     overflow-wrap: break-word;
   }
+  /* CLO-7: the title's letter-spacing follows its script (src/styles/script-tracking.ts); a title the product gives in the slot, by its own language. */
+  ${unsafeCSS(scriptTracking('.title', 'var(--_title-tracking)', { shadow: true }))}
   .container:not(.titled) .title {
     display: none;
   }
@@ -254,6 +257,8 @@ export const styles = css`
     letter-spacing: inherit;
     color: inherit;
   }
+  /* CLO-7: a title the product gives in the slot follows its own language. */
+  ${unsafeCSS(scriptTracking('', 'var(--_title-tracking)', { slotted: "[slot='title']" }))}
   /* CLO-28: a title given as text is text of its own direction, isolated, its lines aligned by the layout's. */
   ${productText('.headline', { align: 'start' })}
   .headline {

@@ -6364,6 +6364,7 @@ private let tanreiNumberInputTokens = TanreiNumberInputTokens(
 )
 
 private let tanreiOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
+  caretWidth: 1,
   containerGap: 6,
   containerHeight: 48,
   containerPaddingInline: 4,
@@ -6864,7 +6865,7 @@ private let tanreiSearchTokens = TanreiSearchTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   resultMarkColor: .role(.onSurface),
-  resultMarkContainerColor: .none,
+  resultMarkContainerColor: .role(.secondaryContainer),
   resultMarkEmphasis: 100,
   shortcutColor: .role(.onSurfaceVariant),
   shortcutTypescale: tanreiTypescale.labelSmall,
@@ -7139,6 +7140,7 @@ private let tanreiSelectTokens = TanreiSelectTokens(
   listColor: .role(.surfaceBright),
   listElevation: tanreiElevation.level2,
   listMaxHeight: 320,
+  listMaxWidth: 320,
   listMinWidth: 160,
   listOffset: 4,
   listPaddingBlock: 4,

@@ -6342,6 +6342,7 @@ private let cupertinoNumberInputTokens = TanreiNumberInputTokens(
 )
 
 private let cupertinoOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
+  caretWidth: 2,
   containerGap: 6,
   containerHeight: 44,
   containerPaddingInline: 4,
@@ -6842,7 +6843,7 @@ private let cupertinoSearchTokens = TanreiSearchTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   resultMarkColor: .role(.onSurface),
-  resultMarkContainerColor: .none,
+  resultMarkContainerColor: .role(.secondaryContainer),
   resultMarkEmphasis: 200,
   shortcutColor: .role(.onSurfaceVariant),
   shortcutTypescale: cupertinoTypescale.labelSmall,
@@ -7117,6 +7118,7 @@ private let cupertinoSelectTokens = TanreiSelectTokens(
   listColor: .role(.surfaceContainerLowest),
   listElevation: cupertinoElevation.level2,
   listMaxHeight: 320,
+  listMaxWidth: 320,
   listMinWidth: 160,
   listOffset: 4,
   listPaddingBlock: 4,

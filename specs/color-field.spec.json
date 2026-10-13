@@ -379,7 +379,7 @@
         "requiredText": "必須",
         "value": "#0f766e",
         "picker": true,
-        "pickerLabel": "色を選ぶ"
+        "pickerLabel": "色を選択"
       },
       "twin": "field.color-stacked-required-ja"
     },

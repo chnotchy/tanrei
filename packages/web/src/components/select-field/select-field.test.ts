@@ -551,7 +551,12 @@ test.describe('fixtures', () => {
         // SEL-24, in a Field as bare: list.offset below the container, the start edges together. (The Field's frame is
         // a positioned box of another shadow root: the list is placed in it, not in the box a script sees.)
         near(l.y - (c.y + c.height), await resolveToken(page, '--tanrei-comp-select-list-offset'), `${f.id}: list.offset below the container`);
-        if (f.direction === 'rtl') near(l.x + l.width, c.x + c.width, `${f.id}: the start edges together`);
+        // A list its options make wider than the container (SEL-25) is shifted along it to stay in the window, which
+        // the stage stands for here; any other has the start edges together.
+        if (l.width > c.width + 0.6) {
+          expect(l.x, `${f.id}: wider than its container, inside its stage`).toBeGreaterThanOrEqual(s.x - 0.6);
+          expect(l.x + l.width, `${f.id}: wider than its container, inside its stage`).toBeLessThanOrEqual(s.x + s.width + 0.6);
+        } else if (f.direction === 'rtl') near(l.x + l.width, c.x + c.width, `${f.id}: the start edges together`);
         else near(l.x, c.x, `${f.id}: the start edges together`);
       }
     }

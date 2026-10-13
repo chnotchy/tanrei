@@ -184,19 +184,23 @@ test('English and Japanese counted and named sentences say what a plain concaten
 // The Studio's code writes no separator between two pieces of text: `': '`, `' (12)'`, `' — '`,
 // `' · '` and the space between two sentences are the dictionary's (labelled, withCount, named, listed, sentences),
 // and a label beside a value is a sentence of its own. Each line below is what a plain concatenation would
-// produce, written out: English and Japanese say it to the byte. (Japanese was not reviewed for these: its
-// `add.added` still reads as the tail of a sentence, and a space still follows its full-width colon.)
-test('English and Japanese say what plain concatenation would: separators, counts in brackets, labels beside values', () => {
+// produce, written out: English says it to the byte. Japanese writes its own sentences: the full-width colon with no
+// space after it, no space between two sentences, and a message that names a thing puts the name first, as Japanese
+// word order does (`… を語彙に追加しました`), never a label glued to the tail of a sentence.
+test('English says what plain concatenation would, Japanese writes its own sentences: separators, counts in brackets, labels beside values', () => {
   const [en, ja] = [studioStrings('en'), studioStrings('ja')];
   for (const t of [en, ja]) {
-    // The five compositions are the same in both: they are what the code wrote for every language.
-    assert.equal(t.labelled('a', 'b'), 'a: b');
-    assert.equal(t.labelled('a', ''), 'a: ', 'a label before elements (Sizes: …) keeps its colon and its space');
+    // Three compositions are the same in both.
     assert.equal(t.withCount('a', 12), 'a (12)');
     assert.equal(t.named('a', 'b'), 'a — b');
     assert.equal(t.listed('a', 'b'), 'a · b');
-    assert.equal(t.sentences('a', 'b'), 'a b');
   }
+  assert.equal(en.labelled('a', 'b'), 'a: b');
+  assert.equal(en.labelled('a', ''), 'a: ', 'a label before elements (Sizes: …) keeps its colon and its space');
+  assert.equal(en.sentences('a', 'b'), 'a b');
+  assert.equal(ja.labelled('a', 'b'), 'a：b');
+  assert.equal(ja.labelled('a', ''), 'a：', 'a label before elements keeps its full-width colon, with no space after it');
+  assert.equal(ja.sentences('a。', 'b。'), 'a。b。');
   const same = [
     // [what the dictionary says now, what the code composed before]
     [en.labelled(en.reset, 'Text size'), 'Reset: Text size'],
@@ -226,31 +230,31 @@ test('English and Japanese say what plain concatenation would: separators, count
     [en.export.put('design/acme.system.json'), 'Save the file as design/acme.system.json'],
     [en.rules.help('$1', '$2'), 'How interaction states look, for every component at once. * matches one id segment and is available as $1, $2… An explicit entry under "tokens" beats a pattern; fewer wildcards beat more; the later layer wins a tie.'],
 
-    [ja.labelled(ja.reset, '文字の大きさ'), 'リセット: 文字の大きさ'],
-    [ja.labelled(ja.editor.writes, ja.editor.nothing), '書き込み: なし — トークンは継承されます'],
-    [ja.labelled(ja.import.invalidJson, 'Unexpected token'), '有効な JSON ではありません: Unexpected token'],
+    [ja.labelled(ja.reset, '文字の大きさ'), 'リセット：文字の大きさ'],
+    [ja.labelled(ja.editor.writes, ja.editor.nothing), '書き込み：なし — トークンは継承されます'],
+    [ja.labelled(ja.import.invalidJson, 'Unexpected token'), '有効な JSON ではありません：Unexpected token'],
     [ja.withCount(ja.tokens.more, 60), 'さらに表示 (60)'],
     [ja.withCount(ja.a11y.all, 0), 'tanrei build が報告する内容のすべて (0)'],
     [ja.named('文字の基準サイズ', ja.dials.value), '文字の基準サイズ — 値'],
     [ja.listed(ja.color.declared, ja.inherited), '宣言パレット · 継承'],
-    [ja.listed(ja.changed, ja.shape.baseSays('0.6')), '変更済み · ベースの値: 0.6'],
-    [ja.sentences(ja.essentials.more, ja.listed(ja.listed(ja.levels.groups, ja.levels.tokens), ja.levels.source)), `もっと細かく： ${ja.levels.groups} · ${ja.levels.tokens} · ${ja.levels.source}`],
-    [ja.color.addedPalette('correct'), 'correct: このレイヤーで追加'],
-    [ja.color.addedPalette('correct'), `correct: ${ja.color.added}`],
+    [ja.listed(ja.changed, ja.shape.baseSays('0.6')), '変更済み · ベースの値：0.6'],
+    [ja.sentences(ja.essentials.more, ja.listed(ja.listed(ja.levels.groups, ja.levels.tokens), ja.levels.source)), `もっと細かく：${ja.levels.groups} · ${ja.levels.tokens} · ${ja.levels.source}`],
+    [ja.color.addedPalette('correct'), 'correct：このレイヤーで追加'],
+    [ja.color.addedPalette('correct'), `correct：${ja.color.added}`],
     [ja.tones.toneOf('primary', 40), 'primary — トーン 40'],
-    [ja.tones.added('primary', 40), 'primary 40: 固定しました'],
-    [ja.fonts.added('Inter'), 'Inter: スタックに追加しました'],
+    [ja.tones.added('primary', 40), 'primary 40 を固定しました'],
+    [ja.fonts.added('Inter'), 'Inter をスタックに追加しました'],
     [ja.fonts.missing('Inter'), 'Inter はこの環境にインストールされていません。プレビューはフォールバックで表示されます。プロダクト側で読み込んでください。'],
-    [ja.shape.baseSays('0.6'), 'ベースの値: 0.6'],
-    [ja.behavior.baseSays('ripple'), 'ベースの値: ripple'],
+    [ja.shape.baseSays('0.6'), 'ベースの値：0.6'],
+    [ja.behavior.baseSays('ripple'), 'ベースの値：ripple'],
     [ja.add.fromSource('large × 1.5'), '複製元 large × 1.5'],
     [ja.add.fromSource('large'), `${ja.add.from} large`],
-    [ja.add.added('tanrei.comp.button.size.3x'), 'tanrei.comp.button.size.3x: を語彙に追加しました'],
+    [ja.add.added('tanrei.comp.button.size.3x'), 'tanrei.comp.button.size.3x を語彙に追加しました'],
     [ja.source.line(3), '行 3'],
     [ja.a11y.text('≥ 4.5:1'), '≥ 4.5:1 テキスト'],
     [ja.a11y.nonText('≥ 3:1'), '≥ 3:1 非テキスト'],
-    [ja.export.downloaded('acme.system.json'), 'ダウンロードしました： acme.system.json'],
-    [ja.export.put('design/acme.system.json'), 'ファイルの保存先： design/acme.system.json'],
+    [ja.export.downloaded('acme.system.json'), 'acme.system.json をダウンロードしました'],
+    [ja.export.put('design/acme.system.json'), 'ファイルの保存先：design/acme.system.json'],
     [ja.rules.help('$1', '$2'), 'インタラクション状態の見え方を、全コンポーネントまとめて決めます。* は id の1セグメントに一致し、$1、$2… として使えます。"tokens" の明示的な指定はパターンに勝ち、ワイルドカードが少ない方が勝ち、同点なら後のレイヤーが勝ちます。'],
   ];
   for (const [now, before] of same) assert.equal(now, before);

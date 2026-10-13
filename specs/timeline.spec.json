@@ -146,7 +146,7 @@
     },
     {
       "id": "TML-4",
-      "text": "WHERE an event has a title THE timeline SHALL draw it after the time, in comp.timeline.title.typescale.medium for medium (comp.timeline.title.typescale.large for large) and the content color of the surface the timeline sits on, SHALL wrap it and never cut it, and SHALL begin the event's body comp.timeline.title.gap below it. A title given as text SHALL be exposed as text of its event and SHALL NOT be a heading; WHERE the product gives the title as content of its own in the event's title slot THE timeline SHALL draw it as any title, in the same text style whatever its level, in place of the title prop, and SHALL change neither its role nor its level, nor the roles of what it holds (a link, a tag)."
+      "text": "WHERE an event has a title THE timeline SHALL draw it after the time, in comp.timeline.title.typescale.medium for medium (comp.timeline.title.typescale.large for large) and the content color of the surface the timeline sits on, SHALL wrap it and never cut it, and SHALL begin the event's body comp.timeline.title.gap below it. A title given as text SHALL be exposed as text of its event and SHALL NOT be a heading; WHERE the product gives the title as content of its own in the event's title slot THE timeline SHALL draw it as any title, in the same text style whatever its level, in place of the title prop, and SHALL change neither its role nor its level, nor the roles of what it holds (a link, a tag). THE timeline SHALL set the title's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them."
     },
     {
       "id": "TML-5",

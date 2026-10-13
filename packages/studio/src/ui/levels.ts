@@ -372,7 +372,12 @@ function componentBody(ctx: Ctx, component: string, NS: string) {
   // sample follows the sheet by itself), so a drag elsewhere costs this row nothing.
   const sizeTags = h('tanrei-tag-group', { label: t.components.sizes, 'data-sizes': true });
   const variantTags = h('tanrei-tag-group', { label: t.components.variants, 'data-variants': true });
-  const summary = h('tanrei-description-list', { class: 'ts-axis-summary', layout: 'inline', density: 'compact', separation: 'gap' }, h('dl', {}, h('div', {}, h('dt', { text: t.components.sizes }), h('dd', {}, sizeTags)), h('div', {}, h('dt', { text: t.components.variants }), h('dd', {}, variantTags))));
+  // A row with nothing in it is not drawn: a component with no size axis (or no variants) shows no empty "Sizes:".
+  // The row is left out of the list rather than hidden, because the list draws each of its rows as a grid.
+  const sizeRow = h('div', { 'data-axis-row': 'sizes' }, h('dt', { text: t.components.sizes }), h('dd', {}, sizeTags));
+  const variantRow = h('div', { 'data-axis-row': 'variants' }, h('dt', { text: t.components.variants }), h('dd', {}, variantTags));
+  const rows = h('dl', {});
+  const summary = h('tanrei-description-list', { class: 'ts-axis-summary', layout: 'inline', density: 'compact', separation: 'gap' }, rows);
   let shown = '';
   const refresh = () => {
     const model = ctx.view().model;
@@ -383,6 +388,8 @@ function componentBody(ctx: Ctx, component: string, NS: string) {
     const key = JSON.stringify([sizes, variants]);
     if (key === shown) return;
     shown = key;
+    rows.replaceChildren(...(sizes.length ? [sizeRow] : []), ...(variants.length ? [variantRow] : []));
+    summary.hidden = !sizes.length && !variants.length;
     sizeTags.replaceChildren(...sizes.map(([value, height]) => h('tanrei-tag', { size: 'small', variant: 'outlined', label: `${value} ${height}` })));
     variantTags.replaceChildren(...variants.map((value) => h('tanrei-tag', { size: 'small', variant: 'outlined', label: value }, h('i', { slot: 'icon', class: 'ts-dot', style: `background: var(${studio.cssVar(`${boxOf()}.${value}.container.color`)}); border-color: var(${studio.cssVar(`${boxOf()}.${value}.outline.color`)})` }))));
   };

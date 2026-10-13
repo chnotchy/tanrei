@@ -1,6 +1,7 @@
 import { css, unsafeCSS } from 'lit';
 import { actionBoxStyles, anchoredSurfaceStyles, arrowOutlineStyles, arrowStyles, cornerRadius, focusRing, quietFocus, shape, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/popover.tokens.json). The popover paints one container — it has no
 // variants and answers no state of its own (POP-6) — and lays out a header, the content and the actions in it. Its
@@ -134,6 +135,8 @@ export const styles = css`
     color: ${t('headline-color')};
     overflow-wrap: break-word;
   }
+  /* POP-12: the headline's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing')), { shadow: true }))}
   /* POP-11: beside a close button taller than its line, the headline's first line is centred on the button. */
   .header.closable .headline {
     padding-block: max(0px, calc((var(--tanrei-comp-button-container-height-small) - 1lh) / 2));

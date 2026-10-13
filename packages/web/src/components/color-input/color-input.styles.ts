@@ -165,7 +165,7 @@ export const styles = css`
      inside its size and over the fill: a border, which a background runs under. Filled, it is exactly the value: no
      state layer, no tint, no opacity, no elevation, and no motion when the value changes (CLI-26). Empty, it is the
      edge alone and the container shows through. It is not a control: no pointer answer of its own, and a press on it
-     is a press on the container. */
+     is a press on the container — or, while the picker button is shown, on the picker button (below). */
   .swatch {
     position: relative;
     box-sizing: border-box;
@@ -179,6 +179,12 @@ export const styles = css`
   }
   .swatch[data-filled] {
     background-color: var(--_value);
+  }
+  /* CLI-25: while the picker button is shown, a press on the swatch is the picker button's: the swatch takes the press
+     itself, and still draws no answer to it (the element passes it on). */
+  .field[data-picker]:not([data-disabled]) .swatch {
+    pointer-events: auto;
+    cursor: default;
   }
   /* CLI-31: a disabled color input draws the swatch's fill at the disabled content opacity, and keeps its edge. */
   ${unsafeCSS(DISABLED)} .swatch[data-filled] {

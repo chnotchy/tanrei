@@ -315,7 +315,7 @@ export const styles = css`
   ${shape}
 
   /* SEL-24 … SEL-45: the list (src/primitives/option-list.ts). */
-  ${optionListStyles({ prefix: PREFIX, variants: [DEFAULT_VARIANT, ...CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT)], minWidth: `var(${PREFIX}-list-min-width)` })}
+  ${optionListStyles({ prefix: PREFIX, variants: [DEFAULT_VARIANT, ...CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT)], minWidth: `var(${PREFIX}-list-min-width)`, maxWidth: `var(${PREFIX}-list-max-width)` })}
 
   /* SEL-15, SEL-20: where motion is reduced, the label and the states change at once. */
   @media (prefers-reduced-motion: reduce) {

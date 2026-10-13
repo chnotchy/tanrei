@@ -2,7 +2,7 @@
 title: テキストフィールド
 description: 1 行のテキスト、文章に合わせて伸びるか手で大きさを変えられる複数行のテキスト、ロケールの書き方で単位ごとに入力する日付・時刻、書かれたとおりに保持するコードを入力・編集します。必須か任意かを示せるラベル、アイコン、接頭辞と接尾辞、補足テキスト、文字数カウンター、ピッカーボタンを添えられます。
 translationOf: components/text-field.mdx
-sourceHash: c0d7d41a28bea90a5bfaa91ba43e5749d3b5a27b
+sourceHash: 37d9ec3a2071b9fd5f620660c5b89813ef434286
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -21,7 +21,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="既定の Stacked：必須のフィールドと、ピッカーボタン付きの日付" column>
   <tanrei-text-field label="メールアドレス" type="email" requirement="required" required-text="必須" supporting-text="サインインにだけ使います。"></tanrei-text-field>
-  <tanrei-text-field label="開始日" type="date" locale="ja-JP" value="2026-09-27" picker picker-label="開始日を選ぶ" segment-empty-text="未入力"></tanrei-text-field>
+  <tanrei-text-field label="開始日" type="date" locale="ja-JP" value="2026-09-27" picker picker-label="開始日を選択" segment-empty-text="未入力"></tanrei-text-field>
 </DemoFrame>
 
 テキストフィールドは、フォームがテキストを求めるところで使います。ラベル、ボックス、1 行の補足、値が違うときの言葉、文字数という、いつもの組み合わせが、そのまま使える形でそろっています。
@@ -59,7 +59,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <!-- ロケールの順に単位ごとに入力し、2026-09-27 の形で保持する日付。ピッカーボタン付き。 -->
     <tanrei-text-field id="start" label="開始日" type="date" min="2026-01-01" disabled-dates="2026-05-01 2026-12-25"
       invalid-text="日付を最後まで入力してください。" unavailable-text="2026 年以降の営業日を選んでください。"
-      picker picker-label="開始日を選ぶ" segment-empty-text="未入力"></tanrei-text-field>
+      picker picker-label="開始日を選択" segment-empty-text="未入力"></tanrei-text-field>
     <tanrei-date-time-picker id="start-picker" presentation="docked" anchor="start" label="開始日"></tanrei-date-time-picker>
 
     <script type="module">
@@ -112,7 +112,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       unavailableText="2026 年以降の日付を選んでください。"
       segmentEmptyText="未入力"
       picker
-      pickerLabel="開始日を選ぶ"
+      pickerLabel="開始日を選択"
       onChange={(e) => setStart(e.currentTarget.value)}
       onEntryerror={(e) => report(e.detail.reason)}
       onPickerrequest={() => setPickerOpen(true)}
@@ -282,7 +282,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 </DemoFrame>
 
 <DemoFrame label="セグメントで入力する日付、時刻、日時。Tab、矢印キー、数字で埋めます" plain column>
-  <tanrei-text-field label="開始日" type="date" locale="ja-JP" picker picker-label="開始日を選ぶ" invalid-text="日付を最後まで入力してください。" segment-empty-text="未入力"></tanrei-text-field>
+  <tanrei-text-field label="開始日" type="date" locale="ja-JP" picker picker-label="開始日を選択" invalid-text="日付を最後まで入力してください。" segment-empty-text="未入力"></tanrei-text-field>
   <tanrei-text-field label="開始時刻" type="time" locale="ja-JP" value="14:30" segment-empty-text="未入力"></tanrei-text-field>
   <tanrei-text-field label="出発" type="date-time" locale="ja-JP" value="2026-09-27T14:30" min="2026-09-01T00:00" unavailable-text="2026 年 9 月以降の日時を選んでください。" segment-empty-text="未入力"></tanrei-text-field>
 </DemoFrame>
@@ -344,7 +344,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 既定値はプリセットを含むすべてのシステムで stacked です。Material の浮き上がるラベルを使いたい Material のプロダクトは、フィールドの `variant` を `outlined` か `filled` に設定します。Tanrei システムでも `filled` と `outlined` は動作しますが、開発時に警告が出ます。
 
-`medium`（48）は Material の密度を上げたフィールド、`large`（56）は Material の標準のフィールドにあたります。絞り込みや密度の高い設定画面には `medium`、サインインや購入手続きのフォームには `large` が向いています。既定のシステムでは、入力の文字はどちらのサイズでも 16 です。高さは最小値で、文字を大きくするとフィールドも大きくなります。
+`medium`（48）は密度を上げたフィールド、`large`（56）は標準のフィールドです。絞り込みや密度の高い設定画面には `medium`、サインインや購入手続きのフォームには `large` が向いています。既定のシステムでは、入力の文字はどちらのサイズでも 16 です。高さは最小値で、文字を大きくするとフィールドも大きくなります。
 
 ### ラベルとプレースホルダー
 

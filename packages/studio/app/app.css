@@ -12,8 +12,10 @@
    in their Japanese forms and leave the rest to another font, two designs in one line; for Hindi and Arabic it has
    nothing, and the reader gets whatever comes last. "A product adds the family of each further script it ships"
    (ref.typeface.brand): the app is that product for the language it speaks (main.ts writes it on the root), with the
-   faces the reader's system already has — no font is downloaded for them. Inter stays first, for Latin text and
-   Western digits. The preview is not touched: its scope holds the stacks of the system being edited. */
+   faces the reader's system already has — no font is downloaded for them, except Arabic's: the faces systems have for
+   it are drawn smaller and thinner than the text around them, so the app loads Noto Sans Arabic (fonts.generated.css,
+   registered for the Arabic subset alone) and names it first. Inter stays first, for Latin text and Western digits.
+   The preview is not touched: its scope holds the stacks of the system being edited. */
 :root[lang^='zh'] {
   --app-script-faces: 'PingFang SC', 'Noto Sans SC', 'Noto Sans CJK SC', 'Source Han Sans SC', 'Microsoft YaHei';
 }
@@ -21,7 +23,7 @@
   --app-script-faces: 'Kohinoor Devanagari', 'Noto Sans Devanagari', 'Nirmala UI', 'Devanagari Sangam MN', 'Mangal';
 }
 :root[lang='ar'] {
-  --app-script-faces: 'SF Arabic', 'Noto Sans Arabic', 'Segoe UI', 'Geeza Pro', 'Noto Naskh Arabic', 'Tahoma';
+  --app-script-faces: 'Noto Sans Arabic', 'SF Arabic', 'Segoe UI', 'Geeza Pro', 'Noto Naskh Arabic', 'Tahoma';
 }
 :root:is([lang^='zh'], [lang='hi'], [lang='ar']) {
   --tanrei-ref-typeface-brand: Inter, var(--app-script-faces), system-ui, sans-serif;
