@@ -336,7 +336,7 @@ test.describe('the navigation', () => {
     await expect.poll(presentation).toBe('column');
     const column = await edges(drawer(page));
     expect([column.left, column.width]).toEqual([0, 72]);
-    expect(column.width).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width'));
+    expect(column.width).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-collapsed-container-width-regular'));
     expect((await edges(main(page))).left).toBe(72);
 
     await resize(page, 400);
@@ -1165,7 +1165,7 @@ test.describe('before its code runs, text size, forced colors, insets, direction
   });
 
   test('APS-24: before the element is defined a drawer in the navigation region keeps its place — its width beside the content in an expanded window, its column’s in a medium one while it is collapsible, none in a compact one — and the menu button is shown by the class alone; no event is emitted until the class is decided', async ({ page: first }) => {
-    const places = { 1280: '--tanrei-comp-navigation-drawer-container-width', 800: '--tanrei-comp-navigation-drawer-collapsed-container-width' } as const;
+    const places = { 1280: '--tanrei-comp-navigation-drawer-container-width', 800: '--tanrei-comp-navigation-drawer-collapsed-container-width-regular' } as const;
     for (const width of [1280, 800, 400] as const) {
       const page = await withoutScript(first, real(), width);
       const expected = width === 400 ? 0 : await resolveToken(page, places[width]);

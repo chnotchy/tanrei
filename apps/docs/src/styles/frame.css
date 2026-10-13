@@ -194,9 +194,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    inline-size: var(--tanrei-comp-navigation-drawer-item-container-height);
-    block-size: var(--tanrei-comp-navigation-drawer-item-container-height);
-    margin-block-end: var(--tanrei-comp-navigation-drawer-container-gap);
+    inline-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
+    block-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
+    margin-block-end: var(--tanrei-comp-navigation-drawer-container-gap-regular);
   }
   .docs-sidebar:not(:defined) :is(tanrei-navigation-drawer-group, tanrei-navigation-drawer-item) {
     display: block;
@@ -218,30 +218,30 @@
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    min-block-size: var(--tanrei-comp-navigation-drawer-item-container-height);
-    margin-block-end: var(--tanrei-comp-navigation-drawer-container-gap);
-    padding-inline: var(--tanrei-comp-navigation-drawer-item-padding-inline);
+    min-block-size: var(--tanrei-comp-navigation-drawer-item-container-height-regular);
+    margin-block-end: var(--tanrei-comp-navigation-drawer-container-gap-regular);
+    padding-inline: var(--tanrei-comp-navigation-drawer-item-padding-inline-regular);
     border-radius: var(--tanrei-comp-navigation-drawer-item-container-shape);
-    font: var(--tanrei-comp-navigation-drawer-item-label-typescale-font);
-    letter-spacing: var(--tanrei-comp-navigation-drawer-item-label-typescale-letter-spacing);
+    font: var(--tanrei-comp-navigation-drawer-item-label-typescale-regular-font);
+    letter-spacing: var(--tanrei-comp-navigation-drawer-item-label-typescale-regular-letter-spacing);
     color: var(--tanrei-sys-color-on-surface-variant);
     text-decoration: none;
   }
   /* A nested row's text starts one nest-indent further in per level; its row keeps the full width (NVD-13). */
   .docs-sidebar:not(:defined) tanrei-navigation-drawer-group > tanrei-navigation-drawer-item > a {
-    padding-inline-start: calc(var(--tanrei-comp-navigation-drawer-item-padding-inline) + var(--tanrei-comp-navigation-drawer-item-nest-indent));
+    padding-inline-start: calc(var(--tanrei-comp-navigation-drawer-item-padding-inline-regular) + var(--tanrei-comp-navigation-drawer-item-nest-indent-regular));
   }
   /* A group in a group — the components' categories: its row's text one step in, and its items' two. */
   .docs-sidebar:not(:defined) tanrei-navigation-drawer-group > tanrei-navigation-drawer-group::before {
-    padding-inline-start: calc(var(--tanrei-comp-navigation-drawer-item-padding-inline) + var(--tanrei-comp-navigation-drawer-item-nest-indent));
+    padding-inline-start: calc(var(--tanrei-comp-navigation-drawer-item-padding-inline-regular) + var(--tanrei-comp-navigation-drawer-item-nest-indent-regular));
   }
   .docs-sidebar:not(:defined) tanrei-navigation-drawer-group > tanrei-navigation-drawer-group > tanrei-navigation-drawer-item > a {
-    padding-inline-start: calc(var(--tanrei-comp-navigation-drawer-item-padding-inline) + 2 * var(--tanrei-comp-navigation-drawer-item-nest-indent));
+    padding-inline-start: calc(var(--tanrei-comp-navigation-drawer-item-padding-inline-regular) + 2 * var(--tanrei-comp-navigation-drawer-item-nest-indent-regular));
   }
   /* The mark of a component a list shows on request, at the end of its row as the drawer's trailing text is. */
   .docs-sidebar:not(:defined) .docs-sidebar-mark {
     margin-inline-start: auto;
-    padding-inline-start: var(--tanrei-comp-navigation-drawer-item-gap);
+    padding-inline-start: var(--tanrei-comp-navigation-drawer-item-gap-regular);
     font: var(--tanrei-comp-navigation-drawer-item-trailing-text-typescale-font);
     letter-spacing: var(--tanrei-comp-navigation-drawer-item-trailing-text-typescale-letter-spacing);
     white-space: nowrap;

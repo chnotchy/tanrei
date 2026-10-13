@@ -39,6 +39,9 @@ export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
 /** The core variants (standard, modal), plus any a design system adds: only `modal` is presented as a modal overlay. */
 export type TanreiNavigationDrawerVariant = 'standard' | 'modal' | (string & {});
 
+/** The core densities (regular, compact), plus any a design system adds (NVD-65). */
+export type TanreiNavigationDrawerDensity = 'regular' | 'compact' | (string & {});
+
 /** Which cells draw their short label while the drawer is collapsed: all of them, only the selected one's, or none. */
 export type TanreiNavigationDrawerCollapsedLabels = 'always' | 'selected' | 'never';
 
@@ -936,6 +939,7 @@ export class TanreiNavigationDrawer extends LitElement {
       converter: { fromAttribute: (value: string | null) => value !== 'false', toAttribute: (value: boolean) => (value ? '' : 'false') },
     },
     collapsedLabels: { type: String, attribute: 'collapsed-labels', reflect: true },
+    density: { type: String, reflect: true },
     responsive: { type: Boolean, reflect: true },
     decided: { state: true },
     value: { type: String },
@@ -964,6 +968,15 @@ export class TanreiNavigationDrawer extends LitElement {
 
   /** Which cells draw their short label under the icon while collapsed: `never` (the default: a collapsed drawer is the expanded one with its labels gone), `selected` or `always` (anything else is `never`). */
   collapsedLabels: TanreiNavigationDrawerCollapsedLabels = 'never';
+
+  /**
+   * How much room a row takes (NVD-65): `regular`, a menu item's row, for a product used by touch as well as by pointer;
+   * `compact`, a tree view's compact row, for a tool used with a pointer whose drawer lists many places. The rows, the
+   * headings, the gaps, the nesting indent and the collapsed column follow it; for touch a row is never lower than the
+   * touch target. A value a design system added is drawn from its own tokens; one the active system lacks is drawn as
+   * `regular` and reported (NVD-26). Reflected.
+   */
+  density: TanreiNavigationDrawerDensity = 'regular';
 
   /** Lets the window's width choose the drawer's presentation (NVD-53): standard where it is wide, its column where it is narrower (while `collapsible`), modal where it is narrow. Reflected. */
   responsive = false;
@@ -1798,7 +1811,7 @@ export class TanreiNavigationDrawer extends LitElement {
     const [button] = this.headerButtons;
     const [main] = this.mainActions;
     const next: Record<string, string> = {};
-    if (button?.offsetWidth) next['--_lead'] = `calc(var(--tanrei-comp-navigation-drawer-collapsed-container-width) / 2 + ${button.offsetWidth / 2}px)`;
+    if (button?.offsetWidth) next['--_lead'] = `calc(var(--_nvd-column) / 2 + ${button.offsetWidth / 2}px)`;
     if (main?.offsetHeight) next['--_main-size'] = `${main.offsetHeight}px`;
     const now = this.measured;
     if (Object.keys(next).length !== Object.keys(now).length || Object.entries(next).some(([key, value]) => now[key] !== value)) this.measured = next;
@@ -1850,6 +1863,8 @@ export class TanreiNavigationDrawer extends LitElement {
       if (changed.has('responsive')) this.watchWidths();
       else this.decide();
     } else if (this.responsive && !this.widths) this.watchWidths(); // its system's widths had not arrived yet
+    // NVD-65: a change of density is drawn at once, without the motions of a change of form, a selection or a group.
+    if (changed.has('density') && this.hasUpdated) this.drawAtOnce();
     const instant = this.hasAttribute('data-instant');
     const collapsed = this.collapsed;
     // NVD-35: a change of form takes the change's motion, for as long as it lasts; the collapsed attribute reflects it.
