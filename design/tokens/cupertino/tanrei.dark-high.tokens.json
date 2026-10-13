@@ -51570,6 +51570,769 @@
             }
           }
         },
+        "current": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8784,
+                  0.9098,
+                  1
+                ],
+                "alpha": 0.16,
+                "hex": "#e0e8ff"
+              },
+              "$description": "The fill of the link item that names the page the person is on (MNU-58): it has no mark, so this fill tells it from its neighbours, in every contrast scheme. The default system values it as a layer of the row's own content color (current.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json); the menubar's current link item draws the same fill."
+            }
+          },
+          "control-mark": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              }
+            }
+          },
+          "control": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "control-mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "control": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "alpha": 0.16,
+                  "hex": "#e0e8ff"
+                }
+              }
+            },
+            "control-mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "control": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "alpha": 0.16,
+                  "hex": "#e0e8ff"
+                }
+              }
+            },
+            "control-mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "control": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8784,
+                  0.9098,
+                  1
+                ],
+                "hex": "#e0e8ff",
+                "alpha": 1
+              }
+            }
+          },
+          "leading-icon": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8784,
+                  0.9098,
+                  1
+                ],
+                "hex": "#e0e8ff",
+                "alpha": 1
+              }
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "alpha": 0.16,
+                  "hex": "#e0e8ff"
+                }
+              }
+            },
+            "control-mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "control": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8784,
+                  0.9098,
+                  1
+                ],
+                "hex": "#e0e8ff",
+                "alpha": 1
+              },
+              "$description": "The color hover, focus and press mix into the item's row: the label's color."
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8784,
+                  0.9098,
+                  1
+                ],
+                "hex": "#e0e8ff",
+                "alpha": 1
+              },
+              "$description": "On the fill every part of the content takes the fill's own content role, so that none of it loses contrast when the row is hovered or pressed."
+            }
+          },
+          "trailing-icon": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8784,
+                  0.9098,
+                  1
+                ],
+                "hex": "#e0e8ff",
+                "alpha": 1
+              }
+            }
+          },
+          "trailing-text": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8784,
+                  0.9098,
+                  1
+                ],
+                "hex": "#e0e8ff",
+                "alpha": 1
+              }
+            }
+          }
+        },
         "destructive": {
           "container": {
             "color": {
@@ -53380,7 +54143,7 @@
                 "alpha": 0,
                 "hex": "#000000"
               },
-              "$description": "The fill of a checked item's row, drawn over the menu's sheet (MNU-37). The role named here is the quiet selection's; the default system does not draw that tone on the sheet — it values this token as a layer of the row's own content color (selected.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json), so that the fill is seen by the same step on whatever the sheet is. A design system that sets this token draws what it sets. A mark is always drawn with the fill; the fill never carries the choice alone."
+              "$description": "The fill of a checked item's row, drawn over the menu's sheet (MNU-37). A checked item is told by its mark; this fill only supports it. The role named here is the quiet selection's; the default system does not draw that tone on the sheet — it values this token as a layer of the row's own content color (selected.state-layer.color), none at standard contrast and 16% at medium and high contrast (tokens/systems/tanrei.system.json), so that a person who asks for more contrast is given the fill as a second cue. A design system that sets this token draws what it sets."
             }
           },
           "control-mark": {
@@ -55603,14 +56366,14 @@
               "$value": {
                 "colorSpace": "srgb",
                 "components": [
-                  0,
-                  0,
-                  0
+                  0.8784,
+                  0.9098,
+                  1
                 ],
-                "alpha": 0,
-                "hex": "#000000"
+                "alpha": 0.16,
+                "hex": "#e0e8ff"
               },
-              "$description": "The fill of the link item that names the page the person is on (MBR-38): the menu's selected row's fill, so that the current place is drawn the same in the bar and in a menu. A design system that sets the menu's sets this one with it."
+              "$description": "The fill of the link item that names the page the person is on (MBR-38): the fill of the menu's current link item, so that the current place is drawn the same in the bar and in a menu. A design system that sets the menu's sets this one with it."
             }
           },
           "disabled": {
@@ -55620,12 +56383,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0,
-                    0,
-                    0
+                    0.8784,
+                    0.9098,
+                    1
                   ],
-                  "alpha": 0,
-                  "hex": "#000000"
+                  "alpha": 0.16,
+                  "hex": "#e0e8ff"
                 }
               }
             },
@@ -55682,12 +56445,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0,
-                    0,
-                    0
+                    0.8784,
+                    0.9098,
+                    1
                   ],
-                  "alpha": 0,
-                  "hex": "#000000"
+                  "alpha": 0.16,
+                  "hex": "#e0e8ff"
                 }
               }
             },
@@ -55697,11 +56460,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    1,
-                    1,
+                    0.8784,
+                    0.9098,
                     1
                   ],
-                  "hex": "#ffffff",
+                  "hex": "#e0e8ff",
                   "alpha": 1
                 }
               }
@@ -55712,11 +56475,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    1,
-                    1,
+                    0.8784,
+                    0.9098,
                     1
                   ],
-                  "hex": "#ffffff",
+                  "hex": "#e0e8ff",
                   "alpha": 1
                 }
               }
@@ -55727,11 +56490,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    1,
-                    1,
+                    0.8784,
+                    0.9098,
                     1
                   ],
-                  "hex": "#ffffff",
+                  "hex": "#e0e8ff",
                   "alpha": 1
                 }
               }
@@ -55744,12 +56507,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0,
-                    0,
-                    0
+                    0.8784,
+                    0.9098,
+                    1
                   ],
-                  "alpha": 0,
-                  "hex": "#000000"
+                  "alpha": 0.16,
+                  "hex": "#e0e8ff"
                 }
               }
             },
@@ -55759,11 +56522,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    1,
-                    1,
+                    0.8784,
+                    0.9098,
                     1
                   ],
-                  "hex": "#ffffff",
+                  "hex": "#e0e8ff",
                   "alpha": 1
                 }
               }
@@ -55774,11 +56537,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    1,
-                    1,
+                    0.8784,
+                    0.9098,
                     1
                   ],
-                  "hex": "#ffffff",
+                  "hex": "#e0e8ff",
                   "alpha": 1
                 }
               }
@@ -55789,11 +56552,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    1,
-                    1,
+                    0.8784,
+                    0.9098,
                     1
                   ],
-                  "hex": "#ffffff",
+                  "hex": "#e0e8ff",
                   "alpha": 1
                 }
               }
@@ -55805,14 +56568,14 @@
               "$value": {
                 "colorSpace": "srgb",
                 "components": [
-                  1,
-                  1,
+                  0.8784,
+                  0.9098,
                   1
                 ],
-                "hex": "#ffffff",
+                "hex": "#e0e8ff",
                 "alpha": 1
               },
-              "$description": "The new-context mark of a current link item, in the color of the selected row's glyphs."
+              "$description": "The new-context mark of a current link item, in the color of the menu's current row's glyphs."
             }
           },
           "label": {
@@ -55821,11 +56584,11 @@
               "$value": {
                 "colorSpace": "srgb",
                 "components": [
-                  1,
-                  1,
+                  0.8784,
+                  0.9098,
                   1
                 ],
-                "hex": "#ffffff",
+                "hex": "#e0e8ff",
                 "alpha": 1
               }
             }
@@ -55837,12 +56600,12 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0,
-                    0,
-                    0
+                    0.8784,
+                    0.9098,
+                    1
                   ],
-                  "alpha": 0,
-                  "hex": "#000000"
+                  "alpha": 0.16,
+                  "hex": "#e0e8ff"
                 }
               }
             },
@@ -55852,11 +56615,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    1,
-                    1,
+                    0.8784,
+                    0.9098,
                     1
                   ],
-                  "hex": "#ffffff",
+                  "hex": "#e0e8ff",
                   "alpha": 1
                 }
               }
@@ -55867,11 +56630,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    1,
-                    1,
+                    0.8784,
+                    0.9098,
                     1
                   ],
-                  "hex": "#ffffff",
+                  "hex": "#e0e8ff",
                   "alpha": 1
                 }
               }
@@ -55882,11 +56645,11 @@
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    1,
-                    1,
+                    0.8784,
+                    0.9098,
                     1
                   ],
-                  "hex": "#ffffff",
+                  "hex": "#e0e8ff",
                   "alpha": 1
                 }
               }
@@ -55898,11 +56661,11 @@
               "$value": {
                 "colorSpace": "srgb",
                 "components": [
-                  1,
-                  1,
+                  0.8784,
+                  0.9098,
                   1
                 ],
-                "hex": "#ffffff",
+                "hex": "#e0e8ff",
                 "alpha": 1
               },
               "$description": "The color hover, focus and press mix into the current link item's container: the label's color."

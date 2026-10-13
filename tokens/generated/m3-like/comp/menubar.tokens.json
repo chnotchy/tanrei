@@ -34,7 +34,7 @@
             "usage": "Everything a menubar draws of its own: the bar (its fill, paddings and the gap between titles), a title or a bar item (its height, padding, corners, text style, the size of the glyph an entry may draw — the overflow item's, a link item's new-context mark — and the gap between a label and that mark), the size of the indicator a menu's title ends in while the bar mixes menus with bar items, the colors of a title in each condition (unselected, selected = the current link item, expanded = the title whose menu is open) and state, and the motion of a title's state change and press. The surfaces the titles open are Menus and read comp.menu.* — nothing here restyles them.",
             "rules": [
               "A menubar holds menus and, beside them, a few bar items that act by themselves: an action that runs at once, or a link. It holds no field, no toggle and no checkbox or radio entry: a choice that is switched belongs in a menu. A row of bar items with no menu is not a menubar: actions alone are a toolbar, and a row of links to a site's pages is navigation.",
-              "A bar item is drawn from the unselected condition, exactly as a title, except the current link item: it is drawn from the selected condition, whose colors alias the menu's selected row (comp.menu.selected.*), so that the place the person is on looks the same in the bar and in a menu. A link item that opens a new context is told by the mark open_in_new, container.gap after its label, at icon.size in the condition's icon.color. While the bar mixes menus with bar items, each menu's title ends in the indicator expand_more, container.gap after its label, at indicator.size.",
+              "A bar item is drawn from the unselected condition, exactly as a title, except the current link item: it is drawn from the selected condition, whose colors alias the menu's current link item (comp.menu.current.*), so that the place the person is on looks the same in the bar and in a menu. A link item that opens a new context is told by the mark open_in_new, container.gap after its label, at icon.size in the condition's icon.color. While the bar mixes menus with bar items, each menu's title ends in the indicator expand_more, container.gap after its label, at indicator.size.",
               "Use a menubar only for an application's commands, and only when there are enough of them to need several named menus. A short set of options belongs in one Menu opened from a button.",
               "Each condition's state-layer.color is the color hover, focus and press mix into a title's container; it aliases that condition's label color.",
               "The title of the open menu is drawn from the expanded condition. Never mark it by color alone in a way that could be read as a selection: nothing in a menubar is selected.",
@@ -202,21 +202,21 @@
           "container": {
             "color": {
               "$type": "color",
-              "$value": "{tanrei.comp.menu.selected.container.color}",
-              "$description": "The fill of the link item that names the page the person is on (MBR-38): the menu's selected row's fill, so that the current place is drawn the same in the bar and in a menu. A design system that sets the menu's sets this one with it."
+              "$value": "{tanrei.comp.menu.current.container.color}",
+              "$description": "The fill of the link item that names the page the person is on (MBR-38): the fill of the menu's current link item, so that the current place is drawn the same in the bar and in a menu. A design system that sets the menu's sets this one with it."
             }
           },
           "label": {
             "color": {
               "$type": "color",
-              "$value": "{tanrei.comp.menu.selected.label.color}"
+              "$value": "{tanrei.comp.menu.current.label.color}"
             }
           },
           "icon": {
             "color": {
               "$type": "color",
-              "$value": "{tanrei.comp.menu.selected.leading-icon.color}",
-              "$description": "The new-context mark of a current link item, in the color of the selected row's glyphs."
+              "$value": "{tanrei.comp.menu.current.leading-icon.color}",
+              "$description": "The new-context mark of a current link item, in the color of the menu's current row's glyphs."
             }
           },
           "state-layer": {

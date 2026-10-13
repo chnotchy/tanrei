@@ -4984,9 +4984,39 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+              },
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5006,14 +5036,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.06,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5033,14 +5118,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.12,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5060,14 +5200,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.2,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5098,9 +5293,39 @@ export const acme = {
               amount: 0.38,
             },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.12,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+              },
             },
             selectedOptionLabelColor: {
               kind: "alpha",
@@ -5137,9 +5362,39 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+              },
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5159,14 +5414,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.06,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5186,14 +5496,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.12,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5213,14 +5578,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.2,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5251,9 +5671,39 @@ export const acme = {
               amount: 0.38,
             },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.12,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+              },
             },
             selectedOptionLabelColor: {
               kind: "alpha",
@@ -5290,9 +5740,39 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+              },
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5312,14 +5792,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.06,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5339,14 +5874,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.12,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5366,14 +5956,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.2,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -5404,9 +6049,39 @@ export const acme = {
               amount: 0.38,
             },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.12,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+              },
             },
             selectedOptionLabelColor: {
               kind: "alpha",
@@ -8383,9 +9058,39 @@ export const acme = {
         selected: {
           enabled: {
             containerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+              },
             },
             labelColor: { kind: "role", role: "onSecondaryContainer" },
             supportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -8395,6 +9100,330 @@ export const acme = {
             markColor: { kind: "role", role: "primary" },
             controlColor: { kind: "role", role: "primary" },
             controlMarkColor: { kind: "role", role: "onPrimary" },
+            stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+          },
+          hovered: {
+            containerColor: {
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+              },
+            },
+            labelColor: { kind: "role", role: "onSecondaryContainer" },
+            supportingTextColor: { kind: "role", role: "onSecondaryContainer" },
+            trailingTextColor: { kind: "role", role: "onSecondaryContainer" },
+            leadingIconColor: { kind: "role", role: "onSecondaryContainer" },
+            trailingIconColor: { kind: "role", role: "onSecondaryContainer" },
+            markColor: { kind: "role", role: "primary" },
+            controlColor: { kind: "role", role: "primary" },
+            controlMarkColor: { kind: "role", role: "onPrimary" },
+            stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+          },
+          focused: {
+            containerColor: {
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+              },
+            },
+            labelColor: { kind: "role", role: "onSecondaryContainer" },
+            supportingTextColor: { kind: "role", role: "onSecondaryContainer" },
+            trailingTextColor: { kind: "role", role: "onSecondaryContainer" },
+            leadingIconColor: { kind: "role", role: "onSecondaryContainer" },
+            trailingIconColor: { kind: "role", role: "onSecondaryContainer" },
+            markColor: { kind: "role", role: "primary" },
+            controlColor: { kind: "role", role: "primary" },
+            controlMarkColor: { kind: "role", role: "onPrimary" },
+            stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+          },
+          pressed: {
+            containerColor: {
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+              },
+            },
+            labelColor: { kind: "role", role: "onSecondaryContainer" },
+            supportingTextColor: { kind: "role", role: "onSecondaryContainer" },
+            trailingTextColor: { kind: "role", role: "onSecondaryContainer" },
+            leadingIconColor: { kind: "role", role: "onSecondaryContainer" },
+            trailingIconColor: { kind: "role", role: "onSecondaryContainer" },
+            markColor: { kind: "role", role: "primary" },
+            controlColor: { kind: "role", role: "primary" },
+            controlMarkColor: { kind: "role", role: "onPrimary" },
+            stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
+          },
+          disabled: {
+            containerColor: {
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+              },
+            },
+            labelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            supportingTextColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            trailingTextColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            leadingIconColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            trailingIconColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            markColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            controlColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            controlMarkColor: { kind: "role", role: "surfaceBright" },
+            stateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+          },
+        },
+        current: {
+          enabled: {
+            containerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSecondaryContainer" },
+              amount: 0.16,
+            },
+            labelColor: { kind: "role", role: "onSecondaryContainer" },
+            supportingTextColor: { kind: "role", role: "onSecondaryContainer" },
+            trailingTextColor: { kind: "role", role: "onSecondaryContainer" },
+            leadingIconColor: { kind: "role", role: "onSecondaryContainer" },
+            trailingIconColor: { kind: "role", role: "onSecondaryContainer" },
+            markColor: { kind: "none" },
+            controlColor: { kind: "none" },
+            controlMarkColor: { kind: "none" },
             stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           hovered: {
@@ -8413,9 +9442,9 @@ export const acme = {
             trailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             leadingIconColor: { kind: "role", role: "onSecondaryContainer" },
             trailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            markColor: { kind: "role", role: "primary" },
-            controlColor: { kind: "role", role: "primary" },
-            controlMarkColor: { kind: "role", role: "onPrimary" },
+            markColor: { kind: "none" },
+            controlColor: { kind: "none" },
+            controlMarkColor: { kind: "none" },
             stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           focused: {
@@ -8434,9 +9463,9 @@ export const acme = {
             trailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             leadingIconColor: { kind: "role", role: "onSecondaryContainer" },
             trailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            markColor: { kind: "role", role: "primary" },
-            controlColor: { kind: "role", role: "primary" },
-            controlMarkColor: { kind: "role", role: "onPrimary" },
+            markColor: { kind: "none" },
+            controlColor: { kind: "none" },
+            controlMarkColor: { kind: "none" },
             stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           pressed: {
@@ -8455,9 +9484,9 @@ export const acme = {
             trailingTextColor: { kind: "role", role: "onSecondaryContainer" },
             leadingIconColor: { kind: "role", role: "onSecondaryContainer" },
             trailingIconColor: { kind: "role", role: "onSecondaryContainer" },
-            markColor: { kind: "role", role: "primary" },
-            controlColor: { kind: "role", role: "primary" },
-            controlMarkColor: { kind: "role", role: "onPrimary" },
+            markColor: { kind: "none" },
+            controlColor: { kind: "none" },
+            controlMarkColor: { kind: "none" },
             stateLayerColor: { kind: "role", role: "onSecondaryContainer" },
           },
           disabled: {
@@ -8501,7 +9530,11 @@ export const acme = {
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
             },
-            controlMarkColor: { kind: "role", role: "surfaceBright" },
+            controlMarkColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
             stateLayerColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
@@ -10924,9 +11957,39 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+              },
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -10946,14 +12009,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.06,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -10973,14 +12091,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.12,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -11000,14 +12173,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.2,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -11038,9 +12266,39 @@ export const acme = {
               amount: 0.38,
             },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.12,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+              },
             },
             selectedOptionLabelColor: {
               kind: "alpha",
@@ -11077,9 +12335,39 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+              },
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -11099,14 +12387,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.06,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -11126,14 +12469,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.12,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -11153,14 +12551,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.2,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -11191,9 +12644,39 @@ export const acme = {
               amount: 0.38,
             },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.12,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+              },
             },
             selectedOptionLabelColor: {
               kind: "alpha",
@@ -11230,9 +12713,39 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.16,
+                },
+              },
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -11252,14 +12765,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.06,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.06,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -11279,14 +12847,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.12,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.12,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -11306,14 +12929,69 @@ export const acme = {
             optionLeadingIconColor: { kind: "role", role: "onSurfaceVariant" },
             optionStateLayerColor: { kind: "role", role: "onSurface" },
             selectedOptionContainerColor: {
-              kind: "mix",
-              base: {
-                kind: "alpha",
-                of: { kind: "role", role: "onSecondaryContainer" },
-                amount: 0.16,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                lightHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                dark: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkMedium: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
+                darkHigh: {
+                  kind: "mix",
+                  base: {
+                    kind: "alpha",
+                    of: { kind: "role", role: "onSecondaryContainer" },
+                    amount: 0.16,
+                  },
+                  with: { kind: "role", role: "onSecondaryContainer" },
+                  amount: 0.2,
+                },
               },
-              with: { kind: "role", role: "onSecondaryContainer" },
-              amount: 0.2,
             },
             selectedOptionLabelColor: { kind: "role", role: "onSecondaryContainer" },
             selectedOptionSupportingTextColor: { kind: "role", role: "onSecondaryContainer" },
@@ -11344,9 +13022,39 @@ export const acme = {
               amount: 0.38,
             },
             selectedOptionContainerColor: {
-              kind: "alpha",
-              of: { kind: "role", role: "onSurface" },
-              amount: 0.12,
+              kind: "scheme",
+              by: {
+                light: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                lightMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                lightHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                dark: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0,
+                },
+                darkMedium: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+                darkHigh: {
+                  kind: "alpha",
+                  of: { kind: "role", role: "onSurface" },
+                  amount: 0.12,
+                },
+              },
             },
             selectedOptionLabelColor: {
               kind: "alpha",

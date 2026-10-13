@@ -6199,6 +6199,7 @@ public value class TanreiMenuCondition(public val key: String) {
     public companion object {
         public val Unselected: TanreiMenuCondition = TanreiMenuCondition("unselected")
         public val Selected: TanreiMenuCondition = TanreiMenuCondition("selected")
+        public val Current: TanreiMenuCondition = TanreiMenuCondition("current")
         public val Destructive: TanreiMenuCondition = TanreiMenuCondition("destructive")
         public val Expanded: TanreiMenuCondition = TanreiMenuCondition("expanded")
     }
@@ -6259,13 +6260,14 @@ public data class TanreiMenuConditionTokens(
 public data class TanreiMenuConditions(
     public val unselected: TanreiMenuConditionTokens,
     public val selected: TanreiMenuConditionTokens,
+    public val current: TanreiMenuConditionTokens,
     public val destructive: TanreiMenuConditionTokens,
     public val expanded: TanreiMenuConditionTokens,
     /** Values a design system added to the vocabulary, by key. */
     public val extra: Map<TanreiMenuCondition, TanreiMenuConditionTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiMenuCondition> get() = linkedSetOf(TanreiMenuCondition.Unselected, TanreiMenuCondition.Selected, TanreiMenuCondition.Destructive, TanreiMenuCondition.Expanded) + extra.keys
+    public val keys: Set<TanreiMenuCondition> get() = linkedSetOf(TanreiMenuCondition.Unselected, TanreiMenuCondition.Selected, TanreiMenuCondition.Current, TanreiMenuCondition.Destructive, TanreiMenuCondition.Expanded) + extra.keys
 
     public operator fun contains(key: TanreiMenuCondition): Boolean = find(key) != null
 
@@ -6273,6 +6275,7 @@ public data class TanreiMenuConditions(
     public fun find(key: TanreiMenuCondition): TanreiMenuConditionTokens? = when (key) {
         TanreiMenuCondition.Unselected -> unselected
         TanreiMenuCondition.Selected -> selected
+        TanreiMenuCondition.Current -> current
         TanreiMenuCondition.Destructive -> destructive
         TanreiMenuCondition.Expanded -> expanded
         else -> extra[key]
@@ -6284,6 +6287,7 @@ public data class TanreiMenuConditions(
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(unselected.referencedRoles())
         addAll(selected.referencedRoles())
+        addAll(current.referencedRoles())
         addAll(destructive.referencedRoles())
         addAll(expanded.referencedRoles())
         extra.values.forEach { addAll(it.referencedRoles()) }

@@ -14256,11 +14256,12 @@ class TanreiMainActionButtonTokens {
 extension type const TanreiMenuCondition(String name) {
   static const unselected = TanreiMenuCondition('unselected');
   static const selected = TanreiMenuCondition('selected');
+  static const current = TanreiMenuCondition('current');
   static const destructive = TanreiMenuCondition('destructive');
   static const expanded = TanreiMenuCondition('expanded');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiMenuCondition> core = <TanreiMenuCondition>[unselected, selected, destructive, expanded];
+  static const List<TanreiMenuCondition> core = <TanreiMenuCondition>[unselected, selected, current, destructive, expanded];
 }
 
 /// What one condition of menu looks like in one interaction state.
@@ -14376,6 +14377,7 @@ class TanreiMenuConditions {
   const TanreiMenuConditions({
     required this.unselected,
     required this.selected,
+    required this.current,
     required this.destructive,
     required this.expanded,
     this.extra = const <TanreiMenuCondition, TanreiMenuConditionTokens>{},
@@ -14385,6 +14387,8 @@ class TanreiMenuConditions {
   final TanreiMenuConditionTokens unselected;
   /// `comp.menu` condition `selected`
   final TanreiMenuConditionTokens selected;
+  /// `comp.menu` condition `current`
+  final TanreiMenuConditionTokens current;
   /// `comp.menu` condition `destructive`
   final TanreiMenuConditionTokens destructive;
   /// `comp.menu` condition `expanded`
@@ -14398,12 +14402,14 @@ class TanreiMenuConditions {
   TanreiMenuConditions copyWith({
     TanreiMenuConditionTokens? unselected,
     TanreiMenuConditionTokens? selected,
+    TanreiMenuConditionTokens? current,
     TanreiMenuConditionTokens? destructive,
     TanreiMenuConditionTokens? expanded,
     Map<TanreiMenuCondition, TanreiMenuConditionTokens>? extra,
   }) => TanreiMenuConditions(
         unselected: unselected ?? this.unselected,
         selected: selected ?? this.selected,
+        current: current ?? this.current,
         destructive: destructive ?? this.destructive,
         expanded: expanded ?? this.expanded,
         extra: extra == null ? this.extra : <TanreiMenuCondition, TanreiMenuConditionTokens>{...this.extra, ...extra},
@@ -14416,6 +14422,7 @@ class TanreiMenuConditions {
   TanreiMenuConditionTokens operator [](TanreiMenuCondition condition) => switch (condition.name) {
         'unselected' => unselected,
         'selected' => selected,
+        'current' => current,
         'destructive' => destructive,
         'expanded' => expanded,
         _ => extra[condition] ?? _fallback(condition),

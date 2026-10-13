@@ -917,9 +917,20 @@
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.sys.color.on-surface}",
+                "amount": [
+                  0,
+                  "{tanrei.sys.state.disabled-container-opacity}"
+                ]
+              },
+              "reason": "A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
+            },
+            "tanrei.comp.menu.current.disabled.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.sys.color.on-surface}",
                 "amount": "{tanrei.sys.state.disabled-container-opacity}"
               },
-              "reason": "A disabled checked item keeps a fill, so that the choice still shows, but loses its tint as every disabled fill does; the menu's rule for the other conditions keeps a row that has no fill without one."
+              "reason": "A disabled current link item keeps a fill, so that where the person is still shows, but loses its tint as every disabled fill does."
             },
             "tanrei.comp.menu.selected.disabled.control-mark.color": {
               "$value": "{tanrei.comp.menu.surface.color}",
@@ -1077,9 +1088,20 @@
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.comp.menu.selected.state-layer.color}",
+                "amount": [
+                  0,
+                  0.16
+                ]
+              },
+              "reason": "A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
+            },
+            "tanrei.comp.menu.current.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.menu.current.state-layer.color}",
                 "amount": 0.16
               },
-              "reason": "A checked row's fill is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
+              "reason": "The current link item has no mark: its fill alone tells the row the person is on from its neighbours, in every contrast scheme. It is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
             },
             "tanrei.comp.list.selected.container.color": {
               "derive": {
@@ -1087,7 +1109,7 @@
                 "of": "{tanrei.comp.list.selected.state-layer.color}",
                 "amount": 0.16
               },
-              "reason": "A selected option's fill is a layer of the row's own content color, twice the hover layer, as the menu's checked row is, so that the quiet selection looks the same in a list and in a menu and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+              "reason": "A selected option's fill is a layer of the row's own content color, twice the hover layer, as the menu's current link item is (and its checked row at medium and high contrast), so that the quiet selection looks the same in a list and in a menu and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
             },
             "tanrei.comp.menu.expanded.container.color": {
               "derive": {
@@ -1123,7 +1145,7 @@
                 "of": "{tanrei.comp.tabs.tonal.selected.state-layer.color}",
                 "amount": 0.16
               },
-              "reason": "The tonal tabs' active indicator is a layer of the selected tab's own content color, twice the hover layer, laid over the track or over whatever surface a row without a track stands on, so that it is seen by the same step everywhere (1.36:1 to 1.37:1 in light and 1.38:1 to 1.55:1 in dark, on the track and on every surface role). The tonal container itself is a tone chosen against the page: on the page it is 1.16:1 in light, on a surface-container fill 1.07:1, and on the track, which is that same tone, it cannot be seen at all. It follows tanrei.comp.menu.selected.container.color."
+              "reason": "The tonal tabs' active indicator is a layer of the selected tab's own content color, twice the hover layer, laid over the track or over whatever surface a row without a track stands on, so that it is seen by the same step everywhere (1.36:1 to 1.37:1 in light and 1.38:1 to 1.55:1 in dark, on the track and on every surface role). The tonal container itself is a tone chosen against the page: on the page it is 1.16:1 in light, on a surface-container fill 1.07:1, and on the track, which is that same tone, it cannot be seen at all. It follows tanrei.comp.menu.current.container.color."
             },
             "tanrei.comp.menubar.expanded.container.color": {
               "derive": {
@@ -1594,97 +1616,133 @@
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.sys.color.on-surface}",
-                "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                "amount": [
+                  0,
+                  "{tanrei.sys.state.disabled-container-opacity}"
+                ]
               },
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps a fill, so that the choice still shows, but loses its tint as every disabled fill does; the menu's rule for the other conditions keeps a row that has no fill without one."
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
             },
             "tanrei.comp.select.filled.disabled.selected-option.container.color": {
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.sys.color.on-surface}",
-                "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                "amount": [
+                  0,
+                  "{tanrei.sys.state.disabled-container-opacity}"
+                ]
               },
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps a fill, so that the choice still shows, but loses its tint as every disabled fill does; the menu's rule for the other conditions keeps a row that has no fill without one."
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
             },
             "tanrei.comp.select.outlined.disabled.selected-option.container.color": {
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.sys.color.on-surface}",
-                "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                "amount": [
+                  0,
+                  "{tanrei.sys.state.disabled-container-opacity}"
+                ]
               },
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps a fill, so that the choice still shows, but loses its tint as every disabled fill does; the menu's rule for the other conditions keeps a row that has no fill without one."
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
             },
             "tanrei.comp.select.stacked.selected-option.container.color": {
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.comp.select.stacked.selected-option.state-layer.color}",
-                "amount": 0.16
+                "amount": [
+                  0,
+                  0.16
+                ]
               },
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: A checked row's fill is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
+              "reason": "So that a select resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
             },
             "tanrei.comp.select.filled.selected-option.container.color": {
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.comp.select.filled.selected-option.state-layer.color}",
-                "amount": 0.16
+                "amount": [
+                  0,
+                  0.16
+                ]
               },
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: A checked row's fill is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
+              "reason": "So that a select resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
             },
             "tanrei.comp.select.outlined.selected-option.container.color": {
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.comp.select.outlined.selected-option.state-layer.color}",
-                "amount": 0.16
+                "amount": [
+                  0,
+                  0.16
+                ]
               },
-              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: A checked row's fill is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
+              "reason": "So that a select resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
             },
             "tanrei.comp.combobox.stacked.disabled.selected-option.container.color": {
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.sys.color.on-surface}",
-                "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                "amount": [
+                  0,
+                  "{tanrei.sys.state.disabled-container-opacity}"
+                ]
               },
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps a fill, so that the choice still shows, but loses its tint as every disabled fill does; the menu's rule for the other conditions keeps a row that has no fill without one."
+              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
             },
             "tanrei.comp.combobox.filled.disabled.selected-option.container.color": {
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.sys.color.on-surface}",
-                "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                "amount": [
+                  0,
+                  "{tanrei.sys.state.disabled-container-opacity}"
+                ]
               },
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps a fill, so that the choice still shows, but loses its tint as every disabled fill does; the menu's rule for the other conditions keeps a row that has no fill without one."
+              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
             },
             "tanrei.comp.combobox.outlined.disabled.selected-option.container.color": {
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.sys.color.on-surface}",
-                "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                "amount": [
+                  0,
+                  "{tanrei.sys.state.disabled-container-opacity}"
+                ]
               },
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps a fill, so that the choice still shows, but loses its tint as every disabled fill does; the menu's rule for the other conditions keeps a row that has no fill without one."
+              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: A disabled checked item keeps the fill its condition has — none at standard contrast, a neutral fill at medium and high contrast — and loses its tint there as every disabled fill does; its mark still shows the choice. The menu's rule for the other conditions keeps a row that has no fill without one."
             },
             "tanrei.comp.combobox.stacked.selected-option.container.color": {
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.comp.combobox.stacked.selected-option.state-layer.color}",
-                "amount": 0.16
+                "amount": [
+                  0,
+                  0.16
+                ]
               },
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: A checked row's fill is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
+              "reason": "So that a combobox resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
             },
             "tanrei.comp.combobox.filled.selected-option.container.color": {
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.comp.combobox.filled.selected-option.state-layer.color}",
-                "amount": 0.16
+                "amount": [
+                  0,
+                  0.16
+                ]
               },
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: A checked row's fill is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
+              "reason": "So that a combobox resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
             },
             "tanrei.comp.combobox.outlined.selected-option.container.color": {
               "derive": {
                 "fn": "alpha",
                 "of": "{tanrei.comp.combobox.outlined.selected-option.state-layer.color}",
-                "amount": 0.16
+                "amount": [
+                  0,
+                  0.16
+                ]
               },
-              "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.container.color: A checked row's fill is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
+              "reason": "So that a combobox resolves as the menu does: its chosen option carries the check. It restates tanrei.comp.menu.selected.container.color: A checked row is told by its mark, the check or the control look, which a person reads as the choice; at standard contrast it is drawn with no fill, as the menus of macOS, iOS and Fluent 2 draw theirs, so that the one row with a fill is the row the person is on (the current link item). A person who asks for more contrast is given the fill as a second cue: at medium and high contrast the row is a layer of its own content color, twice the hover layer, seen by the same step on whatever the sheet is and as far from a hovered row as a hovered row stands from one at rest."
             },
             "tanrei.comp.one-time-code-input.standard.focused.outline.color": {
               "$value": "{tanrei.sys.color.focus-ring}",
