@@ -2,7 +2,7 @@
 title: عنصر الملف
 description: يعرض ملفًا واحدًا، برسم أيقونة يقول صيغته أو صورة صغيرة له، وباسمه، وبما يقوله المنتج عنه، ومعه إجراءا إزالته وإعادة المحاولة، في هيئة صف من عمود ملفات أو بلاطة من سلسلة صور. ويمكن ضغطه لفتح الملف. وهو لا يقرأ الملف ولا يحتفظ به ولا يرسله بنفسه أبدًا.
 translationOf: components/file-item.mdx
-sourceHash: fa3865fd939a55ffa7efbd871ad173a4fb6357ca
+sourceHash: d28c31a8db7cd09eab202ce5126a728ce24942af
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -42,7 +42,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 استخدم شيئًا آخر حين:
 
 - يختار الأشخاص ملفات وأنت تسردها. فذلك [مكوّن رفع الملفات](/ar/components/file-upload/)، وهو يحتفظ بعناصر الملفات عنك.
-- يضع الأشخاص الملفات في ترتيب. فتلك [قائمة](/ar/components/list/) تعرض صفوفها الملفات؛ انظر [ملفات بترتيب يغيّره الأشخاص](#ملفات-بترتيب-يغيّره-الأشخاص).
+- يضع الأشخاص الملفات في ترتيب. فتلك [قائمة](/ar/components/list/) قابلة لإعادة الترتيب تحمل عناصرها عناصر الملفات؛ انظر [ملفات بترتيب يغيّره الأشخاص](#ملفات-بترتيب-يغيّره-الأشخاص).
 - يحدّد الأشخاص من بين ملفات. فتلك [قائمة](/ar/components/list/) فيها تحديد. وليس لعنصر الملف حالة «محدَّد».
 - تكون الصورة هي المحتوى الذي يُنظر إليه. فصورة عنصر الملف تقف حيث يقف الرسم، وليس لها نص بديل.
 
@@ -253,29 +253,31 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 ### ملفات بترتيب يغيّره الأشخاص
 
-ليس لعنصر الملف مقبض ولا أزرار نقل ولا ترتيب. فإعادة الترتيب شأن [القائمة (list)](/ar/components/list/). اعرض كل ملف صفًّا في قائمة قابلة لإعادة الترتيب: الاسم عنوانًا رئيسيًّا، والحجم نصًّا مساعدًا، ورسم أو صورة في موضع البداية، وزر من عندك لإزالته في موضع النهاية.
+ليس لعنصر الملف مقبض ولا ترتيب خاص به. فإعادة الترتيب شأن [القائمة (list)](/ar/components/list/): ضع كل عنصر ملف في عنصر من قائمة قابلة لإعادة الترتيب. ترسم القائمة المقبض بجوار عنصر الملف، وتسمح بسحب العنصر كله، وتفتح من المقبض قائمة الحركات؛ ويحتفظ عنصر الملف برسمه ونصوصه وشريطه وإجراءاته.
 
 <ListReorderProduct />
 
-<DemoFrame label="ملفات بترتيب يغيّره الأشخاص: قائمة قابلة لإعادة الترتيب تعرض صفوفها الملفات" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="نقل لأعلى" move-down-label="نقل لأسفل" moved-text="تم نقل {headline} إلى الموضع {position} من {count}" style="inline-size: 26rem">
-    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 كيلوبايت" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="إزالة cover-letter.pdf" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="resume.docx" supporting-text="مستند · 88 كيلوبايت" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="إزالة resume.docx" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="portfolio.zip" supporting-text="أرشيف · 14 ميغابايت" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="إزالة portfolio.zip" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+<DemoFrame label="ملفات بترتيب يغيّره الأشخاص: عناصر ملفات في قائمة قابلة لإعادة الترتيب" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="المرفقات" drag-handle-label="إعادة ترتيب {label}" move-to-start-label="النقل إلى الأعلى" move-before-label="نقل لأعلى" move-after-label="نقل لأسفل" move-to-end-label="النقل إلى الأسفل" lifted-text="رُفع {label}: الموضع {position} من {count}" moved-text="{label}: الموضع {position} من {count}" cancelled-text="عاد {label} إلى الموضع {position} من {count}" style="inline-size: 26rem; max-inline-size: 100%">
+    <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="إزالة {name}"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="resume.docx" size-text="88 KB" remove-label="إزالة {name}"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="portfolio.zip" size-text="14 MB" remove-label="إزالة {name}"></tanrei-file-item></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
 ```html
-<tanrei-list reorder="buttons" move-up-label="نقل لأعلى" move-down-label="نقل لأسفل"
-             moved-text="تم نقل {headline} إلى الموضع {position} من {count}">
-  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 كيلوبايت" leading-icon="picture_as_pdf">
-    <tanrei-button slot="trailing" variant="text" label="إزالة cover-letter.pdf"><span slot="icon">close</span></tanrei-button>
-  </tanrei-list-item>
+<tanrei-list reorderable gap="small" label="Attachments" drag-handle-label="Reorder {label}"
+             move-to-start-label="Move to top" move-before-label="Move up"
+             move-after-label="Move down" move-to-end-label="Move to bottom"
+             lifted-text="{label} lifted: {position} of {count}"
+             moved-text="{label}: {position} of {count}"
+             cancelled-text="{label} returned to {position} of {count}">
+  <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
   …
 </tanrei-list>
 ```
 
-هذا يرسم صف القائمة لا عنصر الملف: فأنت تسمّي الرسم بنفسك، والصف لا شريط له ولا علامة حالة. والقائمة تنقل الصفوف، وتعلن كل نقل، وتحفظ التركيز؛ انظر [إعادة الترتيب](/ar/components/list/#إعادة-الترتيب) في صفحة القائمة. أما عنصر الملف بوصفه محتوى صف في قائمة، وسلسلة البلاطات التي يغيّر الأشخاص ترتيبها، فلم يُبنيا بعد.
+لا تحرّك القائمة شيئًا بنفسها: عند `move` ضع العناصر في الترتيب الجديد. وهي تعلن كل حركة وتُبقي التركيز على مقبض العنصر المنقول؛ راجع [القائمة (list)](/ar/components/list/). ويُسمّى كل عنصر في القائمة بملفه (اسم الملف هو نص المحتوى، فلا حاجة إلى شيء آخر). ويرتّب [رفع الملفات](/ar/components/file-upload/) ملفاته بالطريقة نفسها.
 
 ### الكلمات
 

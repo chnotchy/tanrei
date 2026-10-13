@@ -1,8 +1,8 @@
 ---
 title: Lista
-description: Una columna de elementos relacionados, cada uno con una o más líneas de texto y un icono, un avatar o una imagen, que las personas leen, abren uno a uno, entre los que eligen o que ponen en otro orden.
+description: Contiene un conjunto de elementos propios del producto (filas, mosaicos, tarjetas, archivos) en una columna, una fila o filas que se ajustan formando una cuadrícula. Las personas los leen, los abren uno a uno, eligen entre ellos o los arrastran a otro orden.
 translationOf: components/list.mdx
-sourceHash: b6d8e736d3a79adf3348a2f55de05b9dbe71cbb5
+sourceHash: 44e7c407804448e2e2a34486b365e5f53b561213
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -12,73 +12,101 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 import DemoFrame from '../../../../components/DemoFrame.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
+<ListReorderProduct />
+
 ## Descripción general
 
 <ComponentAvailability name="list" />
 
-<DemoFrame label="Filas que abren algo y una elección única">
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="Wi-Fi" supporting-text="Conectado" leading-icon="wifi" trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-    <tanrei-list-item headline="Bluetooth" supporting-text="Desactivado" leading-icon="bluetooth" trailing-icon="chevron_right" interactive></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="single" label="Tema" value="light" style="inline-size: 20rem">
-    <tanrei-list-item headline="Claro" value="light"></tanrei-list-item>
-    <tanrei-list-item headline="Oscuro" value="dark"></tanrei-list-item>
-    <tanrei-list-item headline="Igual que el sistema" value="system"></tanrei-list-item>
+<DemoFrame label="Arrastra un mosaico a otro lugar, o pulsa su tirador para ver un menú de movimientos" plain>
+  <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="Filas que son enlaces: cada una va a su propia dirección y la última abre una pestaña nueva" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="Botón" supporting-text="Acciones y conmutadores" leading-icon="smart_button" href="#list-demo-button" divider></tanrei-list-item>
-    <tanrei-list-item headline="Pestañas" supporting-text="Vistas de un mismo tema" leading-icon="tab" href="#list-demo-tabs" divider></tanrei-list-item>
-    <tanrei-list-item headline="Código fuente" supporting-text="Abre el repositorio" leading-icon="code" href="#list-demo-source" target="new" target-label="se abre en una pestaña nueva"></tanrei-list-item>
+<style>{`
+  .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
+  .demo-row { display: flex; flex-direction: column; }
+  .demo-row small { color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-body-small-font); }
+`}</style>
+
+Una lista es una caja. Lo que muestra cada elemento es tu propio contenido: texto, una imagen, una tarjeta, un [elemento de archivo](/es/components/file-item/). La lista se ocupa de todo lo que rodea a los elementos: cómo se disponen, el espacio y las líneas entre ellos, qué son para la tecnología de asistencia, cómo se mueve el foco del teclado entre ellos, cuáles están elegidos y cómo las personas los ponen en otro orden.
+
+<DemoFrame label="Una columna, una fila y una cuadrícula que se ajusta" plain>
+  <tanrei-list gap="small" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Cherries</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" gap="small">
+    <tanrei-list-item><span class="demo-tile">One</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Two</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Three</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" wrap gap="medium" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+<DemoFrame label="Elementos que abren algo, elementos que son enlaces y una elección única" plain>
+  <tanrei-list dividers style="inline-size: 16rem">
+    <tanrei-list-item interactive><span class="demo-row">Wi-Fi<small>Connected</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-button"><span class="demo-row">Button<small>Actions and toggles</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list selection="single" label="Theme" value="light" style="inline-size: 16rem">
+    <tanrei-list-item value="light">Light</tanrei-list-item>
+    <tanrei-list-item value="dark">Dark</tanrei-list-item>
+    <tanrei-list-item value="system">Match the system</tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
 ### Uso
 
-Una lista tiene un solo tipo de elemento, `list-item`. Cada plataforma recibe los elementos como recibe cualquier conjunto de hijos repetidos. La web usa elementos hijos; SwiftUI, vistas en un view builder; Compose, llamadas en una lambda de contenido, y Flutter, widgets en `children`. React Native recibe un array `items` de objetos planos. La selección pertenece a la lista: `value` nombra la opción elegida de una lista de elección única, y `values`, las opciones elegidas de una lista de elección múltiple.
+Una lista tiene un único tipo de elemento, `list-item`, y cada elemento contiene tu contenido como hijos. `orientation` dispone los elementos en una columna (`vertical`, el valor predeterminado) o en una fila (`horizontal`); `wrap` les permite pasar a filas siguientes, de modo que formen una cuadrícula; `gap` fija el espacio entre ellos (`none`, `small`, `medium`, `large`), y `dividers` dibuja una línea fina entre ellos en una lista que no se ajusta.
 
-Una fila que lleva a una página recibe un `href` y es un enlace, no un botón. Se dibuja exactamente igual que una fila interactiva, y el navegador la trata como cualquier enlace: se puede abrir en una pestaña nueva, se puede copiar su dirección y un rastreador la sigue. Dar a `target` el valor `new` la abre en una pestaña nueva y marca la fila con el `open_in_new` del conjunto de iconos; `targetLabel` es entonces lo que se lee después del nombre de la fila. Las filas de enlace existen hoy en la web. SwiftUI, Compose, Flutter y React Native van rezagados en esto, y sus ejemplos muestran filas sin destino.
+Un elemento es estático salvo que lo conviertas en algo más. Un elemento estático no dibuja nada ni añade espacio: su contenido es el elemento, y puede contener tus propios controles. `interactive` convierte el elemento en un botón; `href`, en un enlace, que el navegador trata como cualquier enlace (se puede abrir en una pestaña nueva y copiar su dirección; `target="new"` abre una pestaña nueva y marca el elemento con `open_in_new`, y `targetLabel` lo dice). Una lista cuya `selection` es `single` o `multiple` es un cuadro de lista, y sus elementos son opciones que se eligen por su `value`. Un elemento interactivo, un enlace o una opción añade relleno a su contenido, muestra todos los estados y toma su nombre de `label` o, si no lo hay, del texto de su contenido.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <!-- Filas estáticas, interactivas y de enlace. Una fila interactiva es un solo botón; una fila con href es un solo enlace. -->
-    <tanrei-list>
-      <tanrei-list-item headline="Wi-Fi" supporting-text="Conectado" leading-icon="wifi"
-                        trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-      <!-- Una fila estática contiene tu propio control, que recibe su nombre del titular. -->
-      <tanrei-list-item headline="Modo avión">
-        <tanrei-switch slot="trailing" label="Modo avión" label-hidden></tanrei-switch>
-      </tanrei-list-item>
-      <tanrei-list-item headline="Ada Lovelace" supporting-text="Editó la hoja de ruta" leading-media="avatar">
-        <img slot="leading" src="ada.jpg" alt="" />
-      </tanrei-list-item>
-      <tanrei-list-item headline="Política de privacidad" href="/privacy/"></tanrei-list-item>
-      <!-- target="new" dibuja open_in_new como icono final; target-label se lee después del nombre. -->
-      <tanrei-list-item headline="Código fuente" href="https://example.com/tanrei"
-                        target="new" target-label="se abre en una pestaña nueva"></tanrei-list-item>
+    <!-- A column of your own boxes, 8 px apart. -->
+    <tanrei-list gap="small">
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
     </tanrei-list>
 
-    <!-- Un cuadro de lista: cada elemento es una opción, que se elige por su value. -->
-    <tanrei-list selection="single" label="Tema" value="light">
-      <tanrei-list-item headline="Claro" value="light"></tanrei-list-item>
-      <tanrei-list-item headline="Oscuro" value="dark"></tanrei-list-item>
+    <!-- A grid of tiles: a line that wraps. -->
+    <tanrei-list orientation="horizontal" wrap gap="medium">
+      <tanrei-list-item><img src="1.jpg" alt="Harbour at dawn" /></tanrei-list-item>
+      <tanrei-list-item><img src="2.jpg" alt="Market street" /></tanrei-list-item>
     </tanrei-list>
-    <tanrei-list id="labels" selection="multiple" label="Etiquetas">
-      <tanrei-list-item headline="Error" value="bug"></tanrei-list-item>
-      <tanrei-list-item headline="Documentación" value="docs"></tanrei-list-item>
+
+    <!-- Items that are one button or one link each, with lines between them. -->
+    <tanrei-list dividers>
+      <tanrei-list-item interactive>Wi-Fi</tanrei-list-item>
+      <tanrei-list-item href="/privacy/">Privacy policy</tanrei-list-item>
+      <tanrei-list-item href="https://example.com/tanrei" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+    </tanrei-list>
+
+    <!-- A listbox: every item is an option, chosen by its value. -->
+    <tanrei-list selection="single" label="Theme" value="light">
+      <tanrei-list-item value="light">Light</tanrei-list-item>
+      <tanrei-list-item value="dark">Dark</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      document.querySelector('[interactive]').addEventListener('click', openWifi);
-      // La lista define su propio value, o sus values, antes de emitir change, que los lleva consigo.
+      // The list sets its own value, or values, before it fires change, which carries them.
       document.querySelector('[selection="single"]').addEventListener('change', (e) => setTheme(e.detail.value));
-      // values es una propiedad de tipo array; no se refleja en un atributo.
-      document.querySelector('#labels').values = ['bug'];
     </script>
     ```
   </TabItem>
@@ -86,208 +114,59 @@ Una fila que lleva a una página recibe un `href` y es un enlace, no un botón. 
     ```tsx
     import { List, ListItem } from '@tanrei/react';
 
-    <List>
-      <ListItem headline="Wi-Fi" supportingText="Conectado" leadingIcon="wifi" trailingIcon="chevron_right" interactive onClick={openWifi} />
-      {/* Una fila con href es un enlace. preventDefault() en su click cede la navegación a un enrutador del lado del cliente. */}
-      <ListItem headline="Política de privacidad" href="/privacy/" />
-      <ListItem headline="Código fuente" href="https://example.com/tanrei" target="new" targetLabel="se abre en una pestaña nueva" />
+    <List orientation="horizontal" wrap gap="medium">
+      {photos.map((photo) => (
+        <ListItem key={photo.id}><img src={photo.src} alt={photo.alt} /></ListItem>
+      ))}
     </List>
 
-    {/* La lista define su propio value, o sus values, antes de emitir change: léelos del elemento. */}
-    <List selection="single" label="Tema" value={theme} onChange={(e) => setTheme(e.currentTarget.value)}>
-      <ListItem headline="Claro" value="light" />
-      <ListItem headline="Oscuro" value="dark" />
+    <List selection="single" label="Theme" value={theme} onChange={(e) => setTheme(e.currentTarget.value)}>
+      <ListItem value="light">Light</ListItem>
+      <ListItem value="dark">Dark</ListItem>
     </List>
-    <List selection="multiple" label="Etiquetas" values={labels} onChange={(e) => setLabels(e.currentTarget.values)}>
-      <ListItem headline="Error" value="bug" />
-      <ListItem headline="Documentación" value="docs" />
-    </List>
-    ```
-  </TabItem>
-  <TabItem label="SwiftUI">
-    ```swift
-    import Tanrei
-
-    // El inicializador con action: es una fila interactiva, como en Button.
-    TanreiList {
-        TanreiListItem("Wi-Fi", supportingText: "Conectado", leadingIcon: "wifi", trailingIcon: "chevron_right", action: openWifi)
-        TanreiListItem("Modo avión", trailing: { TanreiSwitch("Modo avión", isOn: $airplane).labelsHidden() })
-    }
-
-    // El tipo del binding es la selección: Binding<String?> es única; Binding<Set<String>>, múltiple.
-    // Aplica .tag(_:) al propio TanreiListItem, antes que cualquier otro modificador.
-    TanreiList(selection: $theme, label: "Tema") {
-        TanreiListItem("Claro").tag("light")
-        TanreiListItem("Oscuro").tag("dark")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Compose">
-    ```kotlin
-    import io.github.chnotchy.tanrei.components.TanreiList
-    import io.github.chnotchy.tanrei.components.TanreiListItem
-    import io.github.chnotchy.tanrei.components.TanreiListLeadingMedia
-    import io.github.chnotchy.tanrei.components.TanreiListSelectionMode
-    import io.github.chnotchy.tanrei.components.TanreiSwitch
-    import io.github.chnotchy.tanrei.primitives.TanreiText
-
-    // Los elementos son llamadas a TanreiListItem en la lambda de contenido. Un onClick no nulo hace interactiva una fila.
-    TanreiList {
-        TanreiListItem(
-            "Wi-Fi",
-            supportingText = "Conectado",
-            divider = true,
-            onClick = ::openWifi,
-            leadingIcon = { TanreiText("wifi") },
-            trailingIcon = { TanreiText("chevron_right") },
-        )
-        TanreiListItem("Modo avión", trailingContent = {
-            TanreiSwitch(checked = airplane, onCheckedChange = { airplane = it }, label = "Modo avión", labelHidden = true)
-        })
-        TanreiListItem("Ada Lovelace", supportingText = "Editó la hoja de ruta",
-            leadingMedia = TanreiListLeadingMedia.Avatar, leadingContent = { TanreiText("A") })
-    }
-
-    // La selección la guardas tú. onSelectionChange recibe el conjunto nuevo: un solo valor mientras sea Single.
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Single,
-        contentDescription = "Tema",
-        selectedValue = theme,
-        onSelectionChange = { theme = it.single() },
-    ) {
-        TanreiListItem("Claro", value = "light")
-        TanreiListItem("Oscuro", value = "dark")
-    }
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Multiple,
-        contentDescription = "Etiquetas",
-        selectedValues = labels,
-        onSelectionChange = { labels = it },
-    ) {
-        TanreiListItem("Error", value = "bug")
-        TanreiListItem("Documentación", value = "docs")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Flutter">
-    ```dart
-    import 'package:tanrei/tanrei.dart';
-
-    // Los elementos son widgets TanreiListTile, con los nombres de ListTile. Un onTap no nulo hace interactiva una fila.
-    TanreiList<String>(
-      children: <Widget>[
-        TanreiListTile<String>(
-          title: 'Wi-Fi',
-          subtitle: 'Conectado',
-          leadingIcon: const Icon(AppSymbols.wifi),
-          trailingIcon: const Icon(AppSymbols.chevronRight),
-          onTap: openWifi,
-          divider: true,
-        ),
-        TanreiListTile<String>(
-          title: 'Modo avión',
-          trailing: TanreiSwitch(value: airplane, onChanged: setAirplane, label: 'Modo avión', labelHidden: true),
-        ),
-      ],
-    );
-
-    // Un solo Set guarda la selección, como en SegmentedButton: como máximo un miembro mientras sea single.
-    TanreiList<String>(
-      selectionMode: TanreiListSelectionMode.single,
-      selected: <String>{theme},
-      onSelectionChanged: (Set<String> value) => setState(() => theme = value.single),
-      semanticLabel: 'Tema',
-      children: const <Widget>[
-        TanreiListTile<String>(value: 'light', title: 'Claro'),
-        TanreiListTile<String>(value: 'dark', title: 'Oscuro'),
-      ],
-    );
-    ```
-  </TabItem>
-  <TabItem label="React Native">
-    ```tsx
-    import { List, Switch } from '@tanrei/react-native';
-
-    // Los elementos son datos. onPress hace interactivo un elemento.
-    <List
-      items={[
-        { headline: 'Wi-Fi', supportingText: 'Conectado', leadingIcon: 'wifi', trailingIcon: 'chevron_right', onPress: openWifi, divider: true },
-        { headline: 'Modo avión', trailing: <Switch label="Modo avión" labelHidden value={airplane} onValueChange={setAirplane} /> },
-        { headline: 'Ada Lovelace', supportingText: 'Editó la hoja de ruta', leadingMedia: 'avatar', leading: 'A' },
-      ]}
-    />
-
-    // Controlada: la lista llama a onSelectionChange y tú cambias value, o values.
-    <List
-      accessibilityLabel="Tema"
-      selectionMode="single"
-      value={theme}
-      onSelectionChange={setTheme}
-      items={[{ headline: 'Claro', value: 'light' }, { headline: 'Oscuro', value: 'dark' }]}
-    />
-    <List
-      accessibilityLabel="Etiquetas"
-      selectionMode="multiple"
-      values={labels}
-      onSelectionChange={setLabels}
-      items={[{ headline: 'Error', value: 'bug' }, { headline: 'Documentación', value: 'docs' }]}
-    />
     ```
   </TabItem>
 </Tabs>
 
+SwiftUI, Compose, Flutter y React Native van con retraso: ofrecen la lista anterior, cuyas filas tienen un título, un texto de apoyo y partes al principio y al final, y todavía nada de esta revisión.
+
 ### Reordenar
 
-<ListReorderProduct />
-
-<DemoFrame label="Una lista que las personas ponen en otro orden: dos botones de mover en cada fila" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="Mover {headline} hacia arriba" move-down-label="Mover {headline} hacia abajo" moved-text="{headline}, ahora en la posición {position} de {count}" style="inline-size: 20rem">
-    <tanrei-list-item headline="Resumen" divider></tanrei-list-item>
-    <tanrei-list-item headline="Archivos recientes" divider></tanrei-list-item>
-    <tanrei-list-item headline="Compartido conmigo" divider></tanrei-list-item>
-    <tanrei-list-item headline="Archivo"></tanrei-list-item>
+<DemoFrame label="Una columna que se puede reordenar, cada elemento con un botón de eliminar de la propia página" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
+    <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="Con un botón de quitar propio de la página en el slot final, después de los botones de mover" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="Mover {headline} hacia arriba" move-down-label="Mover {headline} hacia abajo" moved-text="{headline}, ahora en la posición {position} de {count}" style="inline-size: 26rem">
-    <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="Quitar Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="Quitar Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="Quitar Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
+`reorderable` permite a las personas poner los elementos en otro orden, en una columna, una fila o una cuadrícula. Cada elemento dibuja un tirador al principio, la señal de que se puede mover. Se puede arrastrar el elemento entero, no solo el tirador: el ratón lo toma en cuanto se mueve unos píxeles, y un dedo o un lápiz tras una pulsación larga, de modo que un deslizamiento sigue desplazando la página (un toque en el tirador arrastra al instante). Los demás elementos se apartan, el elemento sigue al puntero por encima de ellos y se asienta en su sitio al soltarlo.
 
-Dar a `reorder` el valor `buttons` permite que las personas pongan los elementos en otro orden. Cada fila dibuja dos botones de icono: uno la sube un puesto y el otro la baja. Son botones de Tanrei, así que un teclado, un puntero, el tacto, un pulsador, el control por voz y un lector de pantalla los usan todos de la misma manera, y no hay que arrastrar nada.
+Arrastrar nunca es la única forma. El tirador es un botón: pulsarlo, o Intro, abre un menú con cuatro movimientos (al principio, un lugar antes, un lugar después, al final). Con el teclado, Espacio sobre el tirador levanta el elemento, las teclas de flecha lo llevan de un lugar en otro (Inicio y Fin, al primero y al último), Espacio o Intro lo sueltan y Escape lo devuelve. Cada paso se anuncia.
 
-El orden son tus datos, así que la lista nunca lo cambia. Una pulsación emite `move` con `from`, el índice del elemento, y `to`, el índice que debe tener, ambos contados desde 0. Reordena tus elementos como respuesta. La lista dibuja entonces las dos filas cambiando de lugar, mantiene el foco en el mismo botón de la fila movida y dice a la tecnología de apoyo dónde está ahora la fila. Si no cambias nada, no ocurre nada: así es como un producto rechaza un movimiento.
+El orden son tus datos, así que la lista nunca lo cambia. Toda forma de mover dispara `move` con `from`, el índice del elemento, y `to`, el índice que debe tener, ambos contados desde 0. Reordena tus elementos en respuesta. La lista dibuja entonces cómo cambian de lugar, mantiene el foco en el tirador del elemento movido y comunica a la tecnología de asistencia dónde queda. Si no cambias nada en el tiempo de `comp.list.motion.reorder-duration`, el movimiento se rechazó: los elementos vuelven y no se anuncia nada.
 
-Responde dentro del tiempo de `comp.list.motion.reorder-duration`. Un orden que llega más tarde se dibuja igualmente, pero la lista ya ha dado el movimiento por rechazado y no lo anuncia.
-
-Los tres textos son tuyos. `moveUpLabel` y `moveDownLabel` dan nombre a los botones, cada uno con el marcador `{headline}`, que la lista rellena con el titular de su fila («`Mover {headline} hacia arriba`»), y `movedText` es la frase que se anuncia después de un movimiento. Escribe la frase entera en tu idioma y marca tres lugares, que la lista rellena: `{headline}`, `{position}` (contada desde 1) y `{count}`. Da los textos en la lista, o una sola vez para todo el producto con `setWords()`.
-
-Una lista reordenable solo contiene filas estáticas y nunca es un cuadro de lista. Una fila puede contener un control tuyo en su slot final, después de los botones de mover: lo habitual es un botón que quita el elemento.
-
-El valor `drag` de `reorder`, que añade un tirador que se arrastra con un puntero o con un dedo, está en la especificación y todavía no está construido. En la web dibuja los dos botones y ningún tirador. Reordenar existe hoy en la web. SwiftUI, Compose, Flutter y React Native van rezagados en esto.
+Las palabras son tuyas: el nombre del tirador (`dragHandleLabel`, con el lugar `{label}` que la lista rellena con el nombre del elemento), su descripción (`dragHandleHint`), los cuatro movimientos del menú y las tres frases que se anuncian (`liftedText`, `movedText`, `cancelledText`, con los lugares `{label}`, `{position}` y `{count}`). Indícalas en la lista o una sola vez para el producto con `setWords()`. En una fila, escribe «Mover a la izquierda» y «Mover a la derecha» donde una columna dice «Mover hacia arriba» y «Mover hacia abajo».
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="Mover {headline} hacia arriba" move-down-label="Mover {headline} hacia abajo"
-                 moved-text="{headline}, ahora en la posición {position} de {count}">
-      <tanrei-list-item headline="Inter">
-        <!-- Tu propio control, después de los dos botones de mover. Dale un nombre que incluya el elemento. -->
-        <tanrei-button slot="trailing" variant="text" label="Quitar Inter"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
-      <tanrei-list-item headline="Noto Sans JP">
-        <tanrei-button slot="trailing" variant="text" label="Quitar Noto Sans JP"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
+    <tanrei-list id="fonts" reorderable label="Typefaces"
+                 drag-handle-label="Reorder {label}"
+                 drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves"
+                 move-to-start-label="Move to top" move-before-label="Move up"
+                 move-after-label="Move down" move-to-end-label="Move to bottom"
+                 lifted-text="{label} lifted: {position} of {count}"
+                 moved-text="{label}: {position} of {count}"
+                 cancelled-text="{label} returned to {position} of {count}">
+      <tanrei-list-item label="Inter">Inter</tanrei-list-item>
+      <tanrei-list-item label="Noto Sans JP">Noto Sans JP</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      import '@tanrei/web/components/button';
       const list = document.querySelector('#fonts');
-      // La lista no ha movido nada. Pon el elemento donde se pidió que estuviera: from y to cuentan desde 0.
+      // The list has moved nothing. Put the item where it was asked to stand: from and to count from 0.
       list.addEventListener('move', ({ detail: { from, to } }) => {
         const items = [...list.children];
         list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
@@ -297,16 +176,22 @@ El valor `drag` de `reorder`, que añade un tirador que se arrastra con un punte
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, List, ListItem } from '@tanrei/react';
+    import { List, ListItem } from '@tanrei/react';
 
     const [fonts, setFonts] = useState(['Inter', 'Noto Sans JP', 'Helvetica Neue']);
 
-    // El orden es tu estado. La lista vuelve a encontrar la fila movida en el orden que renderizas.
+    // The order is your state. The list finds the moved item again in the order you render.
     <List
-      reorder="buttons"
-      moveUpLabel="Mover {headline} hacia arriba"
-      moveDownLabel="Mover {headline} hacia abajo"
-      movedText="{headline}, ahora en la posición {position} de {count}"
+      reorderable
+      label="Typefaces"
+      dragHandleLabel="Reorder {label}"
+      moveToStartLabel="Move to top"
+      moveBeforeLabel="Move up"
+      moveAfterLabel="Move down"
+      moveToEndLabel="Move to bottom"
+      liftedText="{label} lifted: {position} of {count}"
+      movedText="{label}: {position} of {count}"
+      cancelledText="{label} returned to {position} of {count}"
       onMove={(e) => {
         const { from, to } = e.detail;
         setFonts((now) => {
@@ -317,11 +202,7 @@ El valor `drag` de `reorder`, que añade un tirador que se arrastra con un punte
       }}
     >
       {fonts.map((font) => (
-        <ListItem key={font} headline={font}>
-          <Button slot="trailing" variant="text" label={`Quitar ${font}`} onClick={() => setFonts((now) => now.filter((each) => each !== font))}>
-            <span slot="icon">close</span>
-          </Button>
-        </ListItem>
+        <ListItem key={font} label={font}>{font}</ListItem>
       ))}
     </List>
     ```
@@ -330,142 +211,81 @@ El valor `drag` de `reorder`, que añade un tirador que se arrastra con un punte
 
 ## Especificaciones
 
-<DemoFrame label="Contenido multimedia, líneas, estado deshabilitado y elección múltiple" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="Ada Lovelace" supporting-text="Editó la hoja de ruta hace 2 horas" leading-media="avatar"><span slot="leading">A</span></tanrei-list-item>
-    <tanrei-list-item headline="Hoja de ruta" overline="Ingeniería" supporting-text="El plan del próximo trimestre, con los hitos, los responsables y los riesgos que ya conocemos." supporting-max-lines="2" leading-media="image" trailing-text="9:41"></tanrei-list-item>
-    <tanrei-list-item headline="Archivar" leading-icon="archive" interactive disabled></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="multiple" label="Etiquetas" style="inline-size: 20rem">
-    <tanrei-list-item headline="Error" supporting-text="12 incidencias abiertas" leading-icon="label" value="bug"></tanrei-list-item>
-    <tanrei-list-item headline="Función" supporting-text="4 incidencias abiertas" leading-icon="label" value="feature"></tanrei-list-item>
-    <tanrei-list-item headline="Documentación" supporting-text="7 incidencias abiertas" leading-icon="label" value="docs" disabled></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
-
 <ComponentSpecs name="list" />
 
 ## Pautas
 
-### Cuándo usarlo
+### Cuándo usarla
 
-Usa una lista para una columna de cosas del mismo tipo: mensajes, personas, archivos, ajustes o las opciones de un selector. Cada fila empieza con el mismo tipo de elemento y termina con el mismo tipo de valor, de modo que la columna se puede recorrer con la vista. Usa una tarjeta para una sola cosa sobre la que hay más que decir, una tabla cuando las personas comparan valores entre columnas y un menú para un conjunto corto de acciones que se abre desde un botón.
+Usa una lista para un conjunto de cosas de un mismo tipo que las personas recorren, abren, eligen u ordenan: mensajes, personas, archivos, fotos, ajustes, las opciones de un selector. Usa una tabla cuando se comparan valores entre columnas, y un menú para un conjunto breve de acciones que se abre desde un botón.
 
-La lista no dibuja nada por sí misma. No añade fondo, ni margen interior alrededor de sus elementos, ni desplazamiento. Ponla sobre una superficie, en una tarjeta (con `inset` desactivado para una lista agrupada, como en los ajustes de iOS) o en la vista de desplazamiento de tu pantalla.
+La lista no dibuja nada propio: ni fondo, ni relleno alrededor de sus elementos, ni desplazamiento. Colócala sobre una superficie, en una tarjeta o en la vista desplazable de tu pantalla, y da a cada elemento el aspecto que necesita en su contenido.
 
-### Los cuatro tipos de fila
+### Los cuatro tipos de elemento
 
-Una fila es siempre un `list-item`. Lo que es se deduce del `selection` de la lista y de `interactive` y `href` del elemento.
-
-| Tipo | Cómo se obtiene | Qué es | Úsalo para |
+| Tipo | Cómo se obtiene | Qué es | Para qué |
 | --- | --- | --- | --- |
-| Estática | `selection` en none, `interactive` en false | Un elemento de lista que muestra contenido. No recibe el foco y no dibuja el paso del cursor ni la pulsación. | Filas que solo se leen y filas que contienen su propio control en el slot final, como un interruptor. |
-| Interactiva | `interactive` en true | Un solo botón dentro de su elemento de lista, que recibe su nombre del titular. | Filas que cambian algo o lo abren en el mismo lugar: un ajuste, un mensaje en un panel, un diálogo. |
-| Enlace | `href` definido | Un solo enlace dentro de su elemento de lista, que recibe su nombre del titular y se dibuja exactamente igual que una fila interactiva. Enter lo activa y Espacio no. `href` prevalece sobre `interactive`. | Filas que llevan cada una a una página con dirección propia: un índice de páginas, resultados de búsqueda, documentos relacionados. |
-| Opción | `selection` en single o multiple | Una opción de un cuadro de lista, con un estado seleccionado. | Elegir entre las filas: un tema, un idioma, las etiquetas de una incidencia. |
+| Estático | `selection` none, `interactive` false, sin `href` | Tu contenido tal cual. Sin foco, sin paso del cursor ni pulsación. | Elementos que solo se leen y elementos que contienen sus propios controles. |
+| Interactivo | `interactive` | Un botón dentro de su elemento de lista. | Elementos que cambian algo o lo abren en el sitio. |
+| Enlace | `href` | Un enlace dentro de su elemento de lista, dibujado exactamente como un elemento interactivo. Intro lo sigue y Espacio no. | Elementos que llevan cada uno a una página con dirección propia. |
+| Opción | `selection` single o multiple | Una opción de un cuadro de lista, con estado de selección y una marca de verificación. | Elegir entre los elementos. |
 
-Una lista puede mezclar filas estáticas, interactivas y de enlace. Una lista seleccionable solo contiene opciones: ahí se ignoran `interactive` y `href`. Una lista reordenable solo contiene filas estáticas: ahí también se ignoran `interactive` y `href`, porque una fila que es ella misma un solo botón o un solo enlace no puede contener los botones que la mueven.
+Una lista puede mezclar elementos estáticos, interactivos y de enlace. Una lista seleccionable solo contiene opciones. Una lista reordenable solo contiene elementos estáticos y nunca es un cuadro de lista: una acción, un enlace o una opción se usan con una pulsación que el arrastre se llevaría.
 
 ### Listas que las personas reordenan
 
-- Usa `reorder` para una lista corta cuyo orden significa algo y lo decide la persona: las familias de una pila de fuentes, las secciones de una pantalla de inicio, una cola. Para una lista larga, ofrece en su lugar una forma de ordenarla por un criterio. Una pulsación mueve una fila un puesto.
-- Reordena tus elementos en el controlador de `move`, o justo después, en cuanto renderice tu framework. Puedes mover los elementos que tienes o renderizar otros nuevos: la lista encuentra la fila movida por su lugar y su titular.
-- Escribe los textos de los botones de mover con el titular de la fila dentro («`Mover {headline} hacia arriba`», «`Mover {headline} hacia abajo`»). El titular forma parte del nombre de cada botón, así que los botones de dos filas se distinguen en una lista de los botones de la página y por control por voz.
-- Escribe `movedText` como una frase entera con los tres lugares. La lista no compone ninguna frase propia, así que el orden de las palabras es el de tu idioma.
-- Pon como máximo un control en el slot final y dale un nombre que incluya el elemento («Quitar Inter»), para que los botones de quitar de dos filas se distingan.
-- La lista anuncia un movimiento y nada más. Cuando quitas o añades un elemento, lo que se dice depende de ti. Cuando quites el último elemento, mueve tú el foco adonde una persona añade uno.
-- Da espacio a las filas. Donde los botones de mover y el control final dejarían el texto más estrecho que `reorder.text-min-width` (96 px con el tamaño de texto predeterminado, y más a medida que el texto se amplía), todas las filas de la lista los colocan en una línea propia debajo del texto, y el control final en otra línea más donde esa no basta. En el sistema predeterminado, una fila con un botón de quitar y sin icono, avatar ni imagen los mantiene junto al texto donde la fila mide unos 300 px de ancho o más con el tamaño de texto predeterminado; con el texto al 200 % pasan debajo.
+- Usa `reorderable` cuando el orden significa algo y le corresponde decidirlo a la persona: las familias de una pila de fuentes, las secciones de una pantalla de inicio, los archivos de un adjunto, una cola. Para una lista larga, ofrece en su lugar una forma de ordenarla.
+- Reordena tus elementos en el controlador de `move`, o en cuanto tu framework vuelva a renderizar. Puedes mover los elementos que tienes o renderizar otros nuevos: la lista encuentra el elemento movido por su lugar y su nombre.
+- Da a cada elemento un `label` cuando el texto de su contenido no lo nombra bien: el nombre forma parte del nombre de su tirador, para que se distingan los tiradores de dos elementos, y es lo que dicen los anuncios.
+- Escribe cada frase entera, con sus lugares. La lista no construye frases propias, así que el orden de las palabras es el de tu idioma.
+- Un control tuyo dentro de un elemento (un botón que lo elimina) conserva su propia parada de tabulación, después del tirador. Nómbralo con el elemento («Eliminar Inter»). Cuando eliminas el elemento que tiene el foco, la lista lleva el foco al tirador del elemento que ocupa su lugar; la eliminación la dices tú.
 
-### Cómo elegir un modo de selección
+### Elegir un modo de selección
 
 | Selección | La lista es | Al elegir una opción |
 | --- | --- | --- |
-| Ninguna (predeterminada) | Una lista | No se elige nada. Las filas interactivas emiten su propio clic. |
-| Única | Un cuadro de lista | Selecciona la opción y deselecciona la que estaba seleccionada. La opción seleccionada no se puede deseleccionar eligiéndola de nuevo, igual que con los botones de opción. Si «ninguna» es una respuesta válida, añade una opción para ella. |
+| Ninguna (predeterminada) | Una lista | No se elige nada. Los elementos interactivos emiten su propio click. |
+| Única | Un cuadro de lista | Selecciona la opción y quita la que estaba seleccionada. No se quita eligiéndola otra vez. |
 | Múltiple | Un cuadro de lista de selección múltiple | Activa o desactiva la opción. |
 
-Las teclas de flecha solo mueven el foco. La selección cambia cuando la persona pulsa Espacio o Enter, o toca la fila. Es deliberado: en una lista, elegir una fila puede iniciar algo lento, y recorrer cincuenta filas no debe iniciar cincuenta cargas.
-
-Una opción seleccionada se dibuja con el relleno de selección y una marca de verificación al final. En el sistema predeterminado el relleno es una capa del propio color del contenido de la fila, como el de un elemento marcado de un menú, así que se distingue de una fila con el cursor encima sobre cualquier superficie. El espacio de la marca se reserva en todas las opciones, de modo que el texto queda alineado. La marca es lo que cumple el contraste de 3:1 para el estado. El relleno por sí solo no lo cumple.
-
-### Las filas y sus partes
-
-- Un titular solo da una fila de una línea. Un sobretítulo, o una línea de texto de apoyo, da una fila de dos líneas. Dos o más líneas de texto de apoyo dan una fila de tres líneas. Las filas crecen más allá de estas alturas con su contenido y con un texto más grande.
-- `supportingMaxLines` corta el texto de apoyo largo con puntos suspensivos, para una columna de vista previa. La tecnología de apoyo sigue leyendo el texto completo.
-- Al inicio de una fila, usa un icono inicial o contenido multimedia inicial: un avatar (un recuadro redondo, para personas) o una imagen (un cuadrado redondeado más grande, para cosas). El contenido multimedia sustituye al icono.
-- Al final, usa un texto final corto (un recuento, una hora), un icono final (un chevron para una fila que abre algo) y, en una fila estática, tu propio control. Una fila de enlace cuyo `target` tiene el valor `new` dibuja por sí sola `open_in_new` como icono final, salvo que indiques otro.
-- Los iconos son nombres de glifos del conjunto de iconos del sistema de diseño (`wifi`, `chevron_right`). Un glifo que muestra una dirección a lo largo de la línea se refleja en un diseño de derecha a izquierda.
-- `divider` dibuja una línea fina bajo la fila, que empieza donde empieza el texto, en el único color de línea fina que usan todos los componentes. Defínelo en todas las filas menos la última, o al final de un grupo. No añadas un [divisor](/es/components/divider/) propio entre las filas.
+Las teclas de flecha solo mueven el foco; la selección cambia cuando la persona pulsa Espacio o Intro, o toca el elemento. Una opción seleccionada se dibuja con el relleno de selección y una marca de verificación al final, y el espacio de la marca se reserva en todas las opciones, para que el contenido quede alineado.
 
 ### Recomendado
 
-- Mantén corto el titular y pon los detalles en el texto de apoyo. El titular es el nombre de la fila.
-- Da a una lista seleccionable un `label` que diga qué son las opciones, como «Tema».
-- Haz que una fila que cambia un ajuste sea una fila estática con un interruptor en su slot final. Da nombre al interruptor con el titular y oculta su etiqueta visible.
-- Pon un encabezado entre dos listas para formar secciones. La lista no tiene una cabecera de sección propia.
-- Da un `href` a una fila cuando lleve a una página y reserva `interactive` para una fila que actúa en el mismo lugar. Una fila que navega desde un controlador de clic no es un enlace: no se puede abrir en una pestaña nueva ni se puede copiar su dirección.
+- Da a una lista seleccionable un `label` que diga qué son las opciones, y a una lista reordenable uno que diga qué son los elementos.
+- Da un `href` al elemento que lleva a una página, y reserva `interactive` para el que actúa en el sitio.
+- Pon un encabezado entre dos listas para formar secciones. La lista no tiene encabezado de sección propio.
 
-### Evita
+### No recomendado
 
-- No pongas un botón, un enlace, un interruptor ni ningún otro control dentro de una fila interactiva, una fila de enlace o una opción. La fila es un solo elemento, así que la tecnología de apoyo no puede llegar a un control que esté dentro, y una pulsación sobre el control también activa la fila.
-- No uses una opción para algo que se ejecuta de inmediato. Un cuadro de lista elige un valor. Usa filas interactivas para las acciones.
-- No deshabilites una fila estática. No tiene ninguna acción que deshabilitar, así que ahí `disabled` se ignora.
-- No dibujes una casilla de verificación ni un botón de opción en una fila para mostrar la selección. Usa `selection`, que dibuja la marca y expone el estado.
+- No pongas un botón, un enlace, un interruptor ni ningún otro control dentro de un elemento interactivo, un elemento de enlace o una opción. El elemento es uno solo, así que la tecnología de asistencia no llega al control de dentro, y pulsar el control también activa el elemento.
+- No uses una opción para algo que se ejecuta al instante. Un cuadro de lista elige un valor.
+- No dibujes tu propio tirador de arrastre ni botones de mover: `reorderable` dibuja el tirador, y su menú es la forma de mover que no necesita arrastrar.
 
 ## Accesibilidad
 
 <ComponentAccessibility name="list" />
 
-### De qué se encarga el componente
+### Lo que resuelve el componente
 
-- Una lista sin selección se expone como una lista, y cada fila, como un elemento de lista con su posición y el tamaño de la lista. Una fila interactiva es un solo botón dentro de su elemento de lista, y una fila de enlace es un solo enlace ahí.
-- Una fila de enlace forma parte del orden de las teclas de flecha de la lista, como una fila interactiva. Enter la sigue; Espacio hace lo mismo que en cualquier enlace y no muestra el estado pulsado. La que abre una pestaña nueva lee su `targetLabel` después de su nombre y su descripción. Una fila de enlace deshabilitada no tiene nada que seguir ni que copiar, y se sigue alcanzando con las teclas de flecha.
-- Una lista seleccionable se expone como un cuadro de lista que recibe su nombre de `label`, de selección múltiple mientras `selection` sea multiple. Cada fila es una opción con su estado seleccionado, su posición y el tamaño de la lista.
-- Una fila interactiva, una fila de enlace o una opción recibe su nombre del titular y su descripción del sobretítulo, el texto de apoyo y el texto final, en orden de lectura. Los iconos, la marca, el divisor y el contenido multimedia inicial quedan ocultos.
-- Una lista con filas interactivas u opciones es una sola parada de tabulación. Tab va a la última fila que tuvo el foco; si no la hay, a la primera opción seleccionada, y si tampoco, a la primera fila habilitada. Flecha arriba y Flecha abajo se mueven entre las filas sin dar la vuelta. Inicio y Fin van a la primera y a la última fila. Al escribir, el foco pasa a la siguiente fila cuyo titular empieza por las letras escritas. Espacio y Enter activan. Las filas estáticas no reciben el foco. Un control en una fila estática conserva su propia parada de tabulación.
-- En una lista reordenable, cada botón de mover es un botón que recibe su nombre de `moveUpLabel` o de `moveDownLabel`, con el titular de su fila en el marcador `{headline}`. Cada uno es una parada de tabulación propia en orden de lectura, antes del control final de la fila. Ahí la lista no es una sola parada de tabulación, y las teclas de flecha no hacen nada. El botón de subir de la primera fila y el de bajar de la última están deshabilitados y se siguen dibujando, de modo que todas las filas tienen las mismas partes en los mismos lugares.
-- Después de un movimiento, el foco se queda en el mismo botón de la fila movida, así que pulsar la tecla otra vez mueve la fila otra vez. Donde la fila ha pasado a ser la primera o la última, el foco va a su otro botón de mover.
-- Una lista reordenable tiene una sola región activa, que se lee de forma cortés. Después de un movimiento contiene `movedText` con el titular de la fila, su nueva posición y el número de filas, y un movimiento posterior sustituye ese texto. Los números se escriben como los escribe el idioma de la lista. Nada más anuncia un movimiento.
-- Dos filas cambian de lugar con una animación breve, y de inmediato donde el movimiento está reducido.
-- Cuando quitas la fila que tiene el foco, el foco va al mismo control de la fila que ahora ocupa su lugar y, si no la hay, al de la fila anterior.
-- Donde los controles apretarían el texto, pasan a una línea propia debajo de él, y ningún control se hace más pequeño que su objetivo.
-- Las filas deshabilitadas se siguen alcanzando con las teclas de flecha, para que las personas sepan que existen, pero no se pueden activar.
-- El anillo de foco se dibuja dentro de la fila, así que una vista de desplazamiento alrededor de la lista no puede recortarlo. Solo se muestra para el foco del teclado.
-- Una fila interactiva o una opción tiene como mínimo la altura del objetivo mínimo, y toda la fila es su área de pulsación. Las áreas de pulsación de las filas nunca se solapan.
-- Las filas crecen con un texto más grande. El titular salta de línea y nunca se corta.
-- Las compilaciones de depuración notifican una fila sin titular, una lista seleccionable sin etiqueta, una opción cuyo valor está vacío o repetido, una selección que no nombra ninguna opción, una opción que tiene un `href`, un `href` que es una dirección `javascript:` o que no se puede leer, un `target` desconocido y una fila de enlace cuyo `target` tiene el valor `new` y que no tiene `targetLabel`. En una lista reordenable notifican cualquiera de los tres textos que nadie dio (una vez por texto), un texto entre llaves en `movedText` que no es ninguno de los tres lugares, una fila que tiene `interactive` o un `href`, y `reorder` en una lista seleccionable.
+- Una lista sin selección se expone como lista, y cada elemento como elemento de lista con su posición y el tamaño de la lista. Un elemento interactivo es un botón dentro de su elemento de lista, y un elemento de enlace, un enlace. Una lista seleccionable es un cuadro de lista nombrado por `label`, con su orientación; cada elemento es una opción con su estado de selección.
+- Una lista con elementos interactivos, enlaces u opciones es una sola parada de tabulación. Las teclas de flecha de la disposición mueven entre elementos sin dar la vuelta (arriba y abajo en una columna, izquierda y derecha en una fila, invertidas en una disposición de derecha a izquierda; en una cuadrícula, también entre filas). Inicio, Fin y la búsqueda por escritura funcionan. Los elementos estáticos no reciben el foco; un control dentro de ellos conserva su propia parada.
+- En una lista reordenable, cada tirador es un botón de menú nombrado por tu `dragHandleLabel` con el nombre del elemento, descrito por tu `dragHandleHint`, y una parada de tabulación propia. Su menú mueve el elemento con pulsaciones simples, lo que cumple el requisito de WCAG de que lo que se hace arrastrando pueda hacerse sin arrastrar (2.5.7). Espacio levanta el elemento para el teclado (2.1.1).
+- Una única región en vivo, de forma cortés, dice cuándo el teclado levanta un elemento, dónde quedaría en cada paso, dónde queda una vez aplicado el movimiento, y que volvió tras Escape.
+- Un elemento arrastrado sigue al puntero con el relleno y la sombra de arrastre; los demás se apartan con el movimiento de reordenación. Con movimiento reducido, todo salvo el elemento bajo el puntero se mueve al instante. En colores forzados, el elemento arrastrado se contornea con el color de resaltado.
+- Escape devuelve un elemento arrastrado y no cierra además el diálogo en que está la lista. Una pulsación larga sobre un elemento no abre ningún menú del navegador.
+- Un elemento interactivo, un enlace o una opción alcanza al menos el objetivo mínimo, su anillo de foco se dibuja por dentro y crece con el texto más grande.
+- Las compilaciones de depuración informan de un elemento sin nombre, una lista seleccionable o reordenable sin etiqueta, una opción con un valor vacío o repetido, una selección que no nombra ninguna opción, un control dentro de un elemento interactivo o una opción, una palabra que nadie dio y `reorderable` en una lista seleccionable.
 
-Carencias conocidas por plataforma:
+Limitaciones conocidas de las plataformas:
 
-- Web: el valor `drag` de `reorder` no está construido. Dibuja los dos botones de mover y ningún tirador, y no se puede arrastrar nada.
-- SwiftUI, Compose, Flutter y React Native aún no tienen lista reordenable: no hay `reorder`, ni `move`, ni ninguno de sus tres textos.
-- SwiftUI, Compose, Flutter y React Native aún no tienen filas de enlace: no hay `href`, `target` ni `targetLabel`.
-- SwiftUI no tiene rol de lista ni de cuadro de lista, ni propiedad de selección múltiple. La lista es un contenedor que recibe su nombre de `label`, cada fila interactiva u opción es un botón (una opción tiene el rasgo de seleccionado mientras está elegida) y cada una lleva su posición como valor («2 of 3»), solo en inglés.
-- SwiftUI nunca da el foco del teclado a un botón deshabilitado, así que las teclas de flecha pasan por alto una fila deshabilitada en lugar de llegar a ella.
-- SwiftUI siempre oculta el contenido multimedia inicial a la tecnología de apoyo, así que una foto a la que das nombre no se lee.
-- SwiftUI lee el valor de una opción solo de un `.tag(_:)` aplicado al propio `TanreiListItem`, antes que cualquier otro modificador. Un `tag` puesto en otra vista no le llega.
-- SwiftUI: las teclas de flecha, Inicio, Fin, la escritura anticipada y la parada de tabulación se prueban como reglas, todavía no con un teclado real.
-- React Native no tiene rol de cuadro de lista ni propiedad de selección múltiple. Una lista seleccionable conserva el rol de lista, y cada opción tiene el rol de opción y su estado seleccionado. Lo que VoiceOver y TalkBack anuncian para la lista en sí depende de la plataforma.
-- React Native no tiene propiedad de posición en el conjunto. Una fila interactiva o una opción lleva su posición como texto de valor («2 of 3»). Una fila estática no es un elemento por sí misma, así que no se anuncia ninguna posición para ella. El texto de la posición está en inglés salvo que pases `positionText`.
-- React Native: las teclas de flecha, Inicio, Fin y la escritura anticipada llegan a través de un evento de teclado que aún no se ha comprobado en un dispositivo con teclado físico.
-- Flutter no tiene rol de cuadro de lista ni de opción, ni indicador de selección múltiple, ni posición o tamaño del conjunto. Una lista seleccionable se expone como una lista de elementos de lista seleccionables.
-- Flutter siempre oculta el contenido multimedia inicial a la tecnología de apoyo, así que una foto a la que das nombre no se lee.
-- Compose no tiene rol de lista, de cuadro de lista ni de opción, ni indicador de selección múltiple. La lista es una colección, y TalkBack anuncia cada opción como seleccionada o no.
-- Compose: dentro de un `LazyColumn` en la lista, solo las filas que están compuestas cuentan para la posición, el tamaño del conjunto y las teclas de flecha.
-- Compose siempre oculta el contenido multimedia inicial a la tecnología de apoyo, así que una foto a la que das nombre no se lee.
-- Compose: solo la parada de tabulación de la lista acepta una petición de foco. Una llamada para dar el foco a otra fila, desde tu código o desde un servicio de accesibilidad, no hace nada.
-- Compose: el teclado a través del manejo real de teclas de la plataforma, y TalkBack en un cuadro de lista, solo se han probado con Robolectric, todavía no en un dispositivo.
-- SwiftUI, Compose, Flutter y React Native no pueden inspeccionar lo que pones en los slots de una fila, así que no notifican un control dentro de una fila interactiva o de una opción. Cumplir la regla depende de ti.
+- SwiftUI, Compose, Flutter y React Native ofrecen la lista anterior y nada de esta revisión: ni orientación, ni ajuste, ni espacio, ni ranura de contenido, ni reordenación.
 
-### Qué debes hacer tú
+### Lo que debes hacer
 
-- Da un `label` a una lista seleccionable. Sin él, el cuadro de lista no tiene nombre.
-- Escribe titulares que distingan unas filas de otras. El titular es lo primero que dice un lector de pantalla y lo que busca la escritura anticipada.
-- Da a una fila de enlace cuyo `target` tiene el valor `new` un `targetLabel` en el idioma de tu producto, como «se abre en una pestaña nueva». Tanrei no incluye textos propios.
-- Da a una lista reordenable sus tres textos en el idioma de tu producto: `moveUpLabel`, `moveDownLabel` y `movedText`. Sin los dos primeros, los botones funcionan y no tienen nombre. Sin el tercero, un movimiento no se anuncia.
-- Reordena tus elementos cuando se emita `move`. La lista no ha cambiado nada, y un orden que das una vez pasada la duración de la animación de reordenación se dibuja sin anuncio.
-- Di tú cuándo se quita o se añade un elemento, y mueve tú el foco cuando se quite el último elemento.
-- Mantén las filas interactivas, las filas de enlace y las opciones sin controles. Una fila que necesita su propio control sigue siendo estática y lo contiene en el slot final, con el control nombrado por el titular.
-- Si un avatar o una imagen transmite un significado que el titular no transmite, dilo en el texto de apoyo. El contenido multimedia queda oculto para la tecnología de apoyo salvo que le des nombre, y SwiftUI, Compose y Flutter nunca lo leen.
-- Para datos largos, construye tu propia lista diferida e indica el tamaño del conjunto donde la plataforma lo necesite. La lista no se desplaza ni virtualiza.
-- En React Native, pasa `positionText` en el idioma de tu producto. En SwiftUI la posición se lee en inglés, y todavía no hay forma de cambiarlo.
+- Da a una lista seleccionable o reordenable un `label`.
+- Da a una lista reordenable sus palabras en el idioma de tu producto. Sin ellas, los tiradores funcionan sin nombre y no se anuncia nada.
+- Reordena tus elementos cuando se dispare `move`. La lista no ha cambiado nada.
+- Da a un elemento de enlace cuyo `target` es `new` un `targetLabel`, como «se abre en una pestaña nueva».
+- Mantén los elementos interactivos, los enlaces y las opciones sin controles. Un elemento que necesita su propio control sigue siendo estático.
+- Para muchos datos, construye tu propia lista diferida e indica el tamaño del conjunto donde la plataforma lo necesite. La lista no se desplaza ni virtualiza.

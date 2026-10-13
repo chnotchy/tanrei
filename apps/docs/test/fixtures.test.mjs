@@ -48,9 +48,7 @@ const drawn = Object.values(specs).filter((spec) => definedTags.has(spec.platfor
  * build that reads the props, and a fixture that is not on it and is not drawn is a defect of the renderer.
  */
 const WAITING = {
-  list: {
-    fixtures: ['reorder-drag', 'reorder-drag-rtl', 'reorder-drag-long-text'],
-  },
+  // (The list's fixtures are drawn: the web reads every prop of its current revision.)
   // The list is in the order of the Field's fixtures. (The Field's fixture around a File picker, its
   // ninety around a Text input, and the twenty-one that give it a value text — the twins
   // of the slider field's fixtures — are drawn: all three are built.)

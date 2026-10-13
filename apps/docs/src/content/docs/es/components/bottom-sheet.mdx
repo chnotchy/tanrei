@@ -2,7 +2,7 @@
 title: Hoja inferior
 description: Hace subir desde el borde inferior un contenido complementario o una tarea breve, ya sea sobre la parte baja de la pantalla mientras el resto sigue siendo utilizable, o como un paso modal que atenúa y bloquea todo lo demás hasta que se descarta.
 translationOf: components/bottom-sheet.mdx
-sourceHash: d330dd91e18b0b8796aafe0add3470ab96bfc4ad
+sourceHash: 3398e1ebae6e33be24f47bac4f66e51daf81fd8c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -210,9 +210,9 @@ Usa una [hoja lateral](/es/components/side-sheet/) para el mismo tipo de conteni
   <tanrei-main-action-button label="Nuevo" onclick="document.getElementById('bottom-sheet-demo-actions').open = true"><span slot="icon">add</span></tanrei-main-action-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-actions" label="Nuevo" handle-label="Cambiar el tamaño de la hoja" flush onclose="this.open = false">
     <tanrei-list>
-      <tanrei-list-item headline="Documento" leading-icon="description" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
-      <tanrei-list-item headline="Carpeta" leading-icon="folder" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
-      <tanrei-list-item headline="Subir un archivo" leading-icon="upload" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+      <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">Documento</tanrei-list-item>
+      <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">Carpeta</tanrei-list-item>
+      <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">Subir un archivo</tanrei-list-item>
     </tanrei-list>
   </tanrei-bottom-sheet>
 </DemoFrame>

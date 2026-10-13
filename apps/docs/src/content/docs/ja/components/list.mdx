@@ -1,8 +1,8 @@
 ---
 title: リスト
-description: アイコン、アバター、画像を添えた 1 行以上のテキストを縦に並べ、読んだり、1 つずつ開いたり、選んだり、順番を並べ替えたりできるようにします。
+description: 行、タイル、カード、ファイルなど、プロダクト自身の項目を 1 列、1 行、または折り返してグリッドになる行に並べて保持します。読む、1 つずつ開く、選ぶ、ドラッグして並べ替える、といった操作に使います。
 translationOf: components/list.mdx
-sourceHash: b6d8e736d3a79adf3348a2f55de05b9dbe71cbb5
+sourceHash: 44e7c407804448e2e2a34486b365e5f53b561213
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -12,73 +12,101 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 import DemoFrame from '../../../../components/DemoFrame.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
+<ListReorderProduct />
+
 ## 概要
 
 <ComponentAvailability name="list" />
 
-<DemoFrame label="開く行と、1 つを選ぶリスト">
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="Wi-Fi" supporting-text="接続済み" leading-icon="wifi" trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-    <tanrei-list-item headline="Bluetooth" supporting-text="オフ" leading-icon="bluetooth" trailing-icon="chevron_right" interactive></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="single" label="テーマ" value="light" style="inline-size: 20rem">
-    <tanrei-list-item headline="ライト" value="light"></tanrei-list-item>
-    <tanrei-list-item headline="ダーク" value="dark"></tanrei-list-item>
-    <tanrei-list-item headline="システムに合わせる" value="system"></tanrei-list-item>
+<DemoFrame label="タイルを別の場所へドラッグするか、ハンドルを押して移動のメニューを開きます" plain>
+  <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="リンクの行：それぞれが自分のアドレスへ移り、最後の行は新しいタブで開きます" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="ボタン" supporting-text="アクションとトグル" leading-icon="smart_button" href="#list-demo-button" divider></tanrei-list-item>
-    <tanrei-list-item headline="タブ" supporting-text="1 つの主題の見せ方を切り替える" leading-icon="tab" href="#list-demo-tabs" divider></tanrei-list-item>
-    <tanrei-list-item headline="ソースコード" supporting-text="リポジトリを開きます" leading-icon="code" href="#list-demo-source" target="new" target-label="新しいタブで開きます"></tanrei-list-item>
+<style>{`
+  .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
+  .demo-row { display: flex; flex-direction: column; }
+  .demo-row small { color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-body-small-font); }
+`}</style>
+
+リストは箱です。各項目に表示するのはプロダクト自身のコンテンツ（テキスト、画像、カード、[ファイル項目](/ja/components/file-item/)）です。リストが担うのは項目のまわりのすべてです。項目の並べ方、項目間の余白と線、支援技術にとっての意味、項目間のキーボードフォーカスの移動、どれが選ばれているか、そして並べ替えです。
+
+<DemoFrame label="列、行、折り返すグリッド" plain>
+  <tanrei-list gap="small" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Cherries</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" gap="small">
+    <tanrei-list-item><span class="demo-tile">One</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Two</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Three</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" wrap gap="medium" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+<DemoFrame label="何かを開く項目、リンクの項目、1 つを選ぶリスト" plain>
+  <tanrei-list dividers style="inline-size: 16rem">
+    <tanrei-list-item interactive><span class="demo-row">Wi-Fi<small>Connected</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-button"><span class="demo-row">Button<small>Actions and toggles</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list selection="single" label="Theme" value="light" style="inline-size: 16rem">
+    <tanrei-list-item value="light">Light</tanrei-list-item>
+    <tanrei-list-item value="dark">Dark</tanrei-list-item>
+    <tanrei-list-item value="system">Match the system</tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
 ### 使い方
 
-リストの項目の種類は `list-item` の 1 つだけです。項目の渡し方は、各プラットフォームで繰り返しの子要素を渡すときの流儀に従います。Web では子要素、SwiftUI ではビュービルダーの中のビュー、Compose ではコンテンツラムダの中の呼び出し、Flutter では `children` のウィジェットです。React Native だけは、プレーンなオブジェクトの配列を `items` に渡します。選択状態はリストが持ちます。1 つを選ぶリストでは `value` が、複数を選ぶリストでは `values` が、選ばれている選択肢を値で指します。
+リストの項目は 1 種類、`list-item` で、各項目はプロダクトのコンテンツを子要素として持ちます。`orientation` は項目を列（`vertical`、既定）または行（`horizontal`）に並べ、`wrap` は項目を次の行へ折り返してグリッドにします。`gap` は項目間の余白（`none`、`small`、`medium`、`large`）を、`dividers` は折り返さないリストで項目間にヘアラインを引きます。
 
-ページへ移る行には `href` を付けます。その行はリンクであり、ボタンではありません。見た目は操作できる行とまったく同じで、ブラウザーはほかのリンクと同じように扱います。新しいタブで開け、アドレスをコピーでき、クローラーもたどれます。`target` に `new` を指定すると新しいタブで開き、行にアイコンセットの `open_in_new` を描きます。このとき、行の名前の後に `targetLabel` を読み上げます。リンクの行は、今のところ Web で使えます。SwiftUI、Compose、Flutter、React Native は追従待ちで、これらの例は行き先のない行を示しています。
+項目は、何も指定しなければ静的です。静的な項目は自分では何も描かず余白も加えません。コンテンツがそのまま項目であり、プロダクト自身のコントロールを含められます。`interactive` を付けると項目全体が 1 つのボタンに、`href` を付けると 1 つのリンクになります。リンクはブラウザーのほかのリンクと同じく扱われ、新しいタブで開いたりアドレスをコピーしたりできます（`target="new"` は新しいタブで開き、項目に `open_in_new` の印を付けます。そのことは `targetLabel` で伝えます）。`selection` が `single` または `multiple` のリストはリストボックスになり、その項目は `value` で選ばれるオプションになります。インタラクティブな項目、リンク、オプションはコンテンツに余白を付け、すべての状態を描き、`label`、なければコンテンツのテキストを名前にします。
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <!-- 静的な行、操作できる行、リンクの行。操作できる行は 1 つのボタンで、href を持つ行は 1 つのリンクです。 -->
-    <tanrei-list>
-      <tanrei-list-item headline="Wi-Fi" supporting-text="接続済み" leading-icon="wifi"
-                        trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-      <!-- 静的な行には自前のコントロールを置けます。名前は見出しと同じにします。 -->
-      <tanrei-list-item headline="機内モード">
-        <tanrei-switch slot="trailing" label="機内モード" label-hidden></tanrei-switch>
-      </tanrei-list-item>
-      <tanrei-list-item headline="山田 花子" supporting-text="ロードマップを編集" leading-media="avatar">
-        <img slot="leading" src="ada.jpg" alt="" />
-      </tanrei-list-item>
-      <tanrei-list-item headline="プライバシーポリシー" href="/privacy/"></tanrei-list-item>
-      <!-- target="new" は末尾アイコンとして open_in_new を描き、名前の後に target-label を読み上げます。 -->
-      <tanrei-list-item headline="ソースコード" href="https://example.com/tanrei"
-                        target="new" target-label="新しいタブで開きます"></tanrei-list-item>
+    <!-- A column of your own boxes, 8 px apart. -->
+    <tanrei-list gap="small">
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
     </tanrei-list>
 
-    <!-- リストボックス。どの項目も選択肢になり、value で選ばれます。 -->
-    <tanrei-list selection="single" label="テーマ" value="light">
-      <tanrei-list-item headline="ライト" value="light"></tanrei-list-item>
-      <tanrei-list-item headline="ダーク" value="dark"></tanrei-list-item>
+    <!-- A grid of tiles: a line that wraps. -->
+    <tanrei-list orientation="horizontal" wrap gap="medium">
+      <tanrei-list-item><img src="1.jpg" alt="Harbour at dawn" /></tanrei-list-item>
+      <tanrei-list-item><img src="2.jpg" alt="Market street" /></tanrei-list-item>
     </tanrei-list>
-    <tanrei-list id="labels" selection="multiple" label="ラベル">
-      <tanrei-list-item headline="バグ" value="bug"></tanrei-list-item>
-      <tanrei-list-item headline="ドキュメント" value="docs"></tanrei-list-item>
+
+    <!-- Items that are one button or one link each, with lines between them. -->
+    <tanrei-list dividers>
+      <tanrei-list-item interactive>Wi-Fi</tanrei-list-item>
+      <tanrei-list-item href="/privacy/">Privacy policy</tanrei-list-item>
+      <tanrei-list-item href="https://example.com/tanrei" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+    </tanrei-list>
+
+    <!-- A listbox: every item is an option, chosen by its value. -->
+    <tanrei-list selection="single" label="Theme" value="light">
+      <tanrei-list-item value="light">Light</tanrei-list-item>
+      <tanrei-list-item value="dark">Dark</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      document.querySelector('[interactive]').addEventListener('click', openWifi);
-      // リストは自分の value（または values）を更新してから change を発火し、その値を渡します。
+      // The list sets its own value, or values, before it fires change, which carries them.
       document.querySelector('[selection="single"]').addEventListener('change', (e) => setTheme(e.detail.value));
-      // values は配列のプロパティです。属性には反映されません。
-      document.querySelector('#labels').values = ['bug'];
     </script>
     ```
   </TabItem>
@@ -86,208 +114,59 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     ```tsx
     import { List, ListItem } from '@tanrei/react';
 
-    <List>
-      <ListItem headline="Wi-Fi" supportingText="接続済み" leadingIcon="wifi" trailingIcon="chevron_right" interactive onClick={openWifi} />
-      {/* href を持つ行はリンクです。その click で preventDefault() を呼ぶと、クライアントサイドのルーターが遷移を引き取れます。 */}
-      <ListItem headline="プライバシーポリシー" href="/privacy/" />
-      <ListItem headline="ソースコード" href="https://example.com/tanrei" target="new" targetLabel="新しいタブで開きます" />
+    <List orientation="horizontal" wrap gap="medium">
+      {photos.map((photo) => (
+        <ListItem key={photo.id}><img src={photo.src} alt={photo.alt} /></ListItem>
+      ))}
     </List>
 
-    {/* リストは自分の value（または values）を更新してから change を発火します。値は要素から読み取ります。 */}
-    <List selection="single" label="テーマ" value={theme} onChange={(e) => setTheme(e.currentTarget.value)}>
-      <ListItem headline="ライト" value="light" />
-      <ListItem headline="ダーク" value="dark" />
+    <List selection="single" label="Theme" value={theme} onChange={(e) => setTheme(e.currentTarget.value)}>
+      <ListItem value="light">Light</ListItem>
+      <ListItem value="dark">Dark</ListItem>
     </List>
-    <List selection="multiple" label="ラベル" values={labels} onChange={(e) => setLabels(e.currentTarget.values)}>
-      <ListItem headline="バグ" value="bug" />
-      <ListItem headline="ドキュメント" value="docs" />
-    </List>
-    ```
-  </TabItem>
-  <TabItem label="SwiftUI">
-    ```swift
-    import Tanrei
-
-    // action: を取るイニシャライザーが、Button と同じく操作できる行になります。
-    TanreiList {
-        TanreiListItem("Wi-Fi", supportingText: "接続済み", leadingIcon: "wifi", trailingIcon: "chevron_right", action: openWifi)
-        TanreiListItem("機内モード", trailing: { TanreiSwitch("機内モード", isOn: $airplane).labelsHidden() })
-    }
-
-    // バインディングの型で選択の種類が決まります。Binding<String?> なら 1 つ、Binding<Set<String>> なら複数です。
-    // .tag(_:) は、ほかのモディファイアーより先に、TanreiListItem そのものに付けます。
-    TanreiList(selection: $theme, label: "テーマ") {
-        TanreiListItem("ライト").tag("light")
-        TanreiListItem("ダーク").tag("dark")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Compose">
-    ```kotlin
-    import io.github.chnotchy.tanrei.components.TanreiList
-    import io.github.chnotchy.tanrei.components.TanreiListItem
-    import io.github.chnotchy.tanrei.components.TanreiListLeadingMedia
-    import io.github.chnotchy.tanrei.components.TanreiListSelectionMode
-    import io.github.chnotchy.tanrei.components.TanreiSwitch
-    import io.github.chnotchy.tanrei.primitives.TanreiText
-
-    // 項目はコンテンツラムダの中で TanreiListItem を呼んで並べます。onClick を渡すと操作できる行になります。
-    TanreiList {
-        TanreiListItem(
-            "Wi-Fi",
-            supportingText = "接続済み",
-            divider = true,
-            onClick = ::openWifi,
-            leadingIcon = { TanreiText("wifi") },
-            trailingIcon = { TanreiText("chevron_right") },
-        )
-        TanreiListItem("機内モード", trailingContent = {
-            TanreiSwitch(checked = airplane, onCheckedChange = { airplane = it }, label = "機内モード", labelHidden = true)
-        })
-        TanreiListItem("山田 花子", supportingText = "ロードマップを編集",
-            leadingMedia = TanreiListLeadingMedia.Avatar, leadingContent = { TanreiText("山") })
-    }
-
-    // 選択状態は呼び出し側で持ちます。onSelectionChange には新しい集合が届きます（Single では要素 1 つ）。
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Single,
-        contentDescription = "テーマ",
-        selectedValue = theme,
-        onSelectionChange = { theme = it.single() },
-    ) {
-        TanreiListItem("ライト", value = "light")
-        TanreiListItem("ダーク", value = "dark")
-    }
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Multiple,
-        contentDescription = "ラベル",
-        selectedValues = labels,
-        onSelectionChange = { labels = it },
-    ) {
-        TanreiListItem("バグ", value = "bug")
-        TanreiListItem("ドキュメント", value = "docs")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Flutter">
-    ```dart
-    import 'package:tanrei/tanrei.dart';
-
-    // 項目は ListTile と同じ名前を持つ TanreiListTile です。onTap を渡すと操作できる行になります。
-    TanreiList<String>(
-      children: <Widget>[
-        TanreiListTile<String>(
-          title: 'Wi-Fi',
-          subtitle: '接続済み',
-          leadingIcon: const Icon(AppSymbols.wifi),
-          trailingIcon: const Icon(AppSymbols.chevronRight),
-          onTap: openWifi,
-          divider: true,
-        ),
-        TanreiListTile<String>(
-          title: '機内モード',
-          trailing: TanreiSwitch(value: airplane, onChanged: setAirplane, label: '機内モード', labelHidden: true),
-        ),
-      ],
-    );
-
-    // SegmentedButton と同じく、選択状態は 1 つの Set で持ちます。single のときの要素は多くても 1 つです。
-    TanreiList<String>(
-      selectionMode: TanreiListSelectionMode.single,
-      selected: <String>{theme},
-      onSelectionChanged: (Set<String> value) => setState(() => theme = value.single),
-      semanticLabel: 'テーマ',
-      children: const <Widget>[
-        TanreiListTile<String>(value: 'light', title: 'ライト'),
-        TanreiListTile<String>(value: 'dark', title: 'ダーク'),
-      ],
-    );
-    ```
-  </TabItem>
-  <TabItem label="React Native">
-    ```tsx
-    import { List, Switch } from '@tanrei/react-native';
-
-    // 項目はデータです。onPress を渡すと操作できる行になります。
-    <List
-      items={[
-        { headline: 'Wi-Fi', supportingText: '接続済み', leadingIcon: 'wifi', trailingIcon: 'chevron_right', onPress: openWifi, divider: true },
-        { headline: '機内モード', trailing: <Switch label="機内モード" labelHidden value={airplane} onValueChange={setAirplane} /> },
-        { headline: '山田 花子', supportingText: 'ロードマップを編集', leadingMedia: 'avatar', leading: '山' },
-      ]}
-    />
-
-    // 制御コンポーネントです。onSelectionChange を受けて value（または values）を更新します。
-    <List
-      accessibilityLabel="テーマ"
-      selectionMode="single"
-      value={theme}
-      onSelectionChange={setTheme}
-      items={[{ headline: 'ライト', value: 'light' }, { headline: 'ダーク', value: 'dark' }]}
-    />
-    <List
-      accessibilityLabel="ラベル"
-      selectionMode="multiple"
-      values={labels}
-      onSelectionChange={setLabels}
-      items={[{ headline: 'バグ', value: 'bug' }, { headline: 'ドキュメント', value: 'docs' }]}
-    />
     ```
   </TabItem>
 </Tabs>
 
+SwiftUI、Compose、Flutter、React Native は追随中です。見出し、補足テキスト、先頭と末尾の要素を持つ以前のリストを提供しており、この改訂の内容はまだありません。
+
 ### 並べ替え
 
-<ListReorderProduct />
-
-<DemoFrame label="順番を並べ替えられるリスト：どの行にも 2 つの移動ボタンがあります" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="{headline}を上へ移動" move-down-label="{headline}を下へ移動" moved-text="{headline}を{count}件中{position}番目に移動しました" style="inline-size: 20rem">
-    <tanrei-list-item headline="概要" divider></tanrei-list-item>
-    <tanrei-list-item headline="最近使ったファイル" divider></tanrei-list-item>
-    <tanrei-list-item headline="共有アイテム" divider></tanrei-list-item>
-    <tanrei-list-item headline="アーカイブ"></tanrei-list-item>
+<DemoFrame label="並べ替えられる列。各項目にページ側の削除ボタンがあります" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
+    <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="末尾のスロットにページ側の削除ボタンを置いた例：移動ボタンの後に並びます" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="{headline}を上へ移動" move-down-label="{headline}を下へ移動" moved-text="{headline}を{count}件中{position}番目に移動しました" style="inline-size: 26rem">
-    <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="Inter を削除" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="Noto Sans JP を削除" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="Helvetica Neue を削除" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
+`reorderable` を付けると、列でも行でもグリッドでも項目を並べ替えられます。各項目は先頭にハンドルを描き、動かせることを示します。ドラッグできるのはハンドルだけでなく項目全体です。マウスでは数ピクセル動かした時点で、指やペンでは長押しで持ち上がるため、スワイプはこれまでどおりページをスクロールします（ハンドルへのタッチはすぐにドラッグになります）。ほかの項目は道を空けるように滑り、持ち上げた項目はそれらの上でポインターについていき、離すと自分の位置に収まります。
 
-`reorder` に `buttons` を指定すると、項目の順番を並べ替えられるようになります。どの行にも 2 つのアイコンボタンを描きます。1 つは行を 1 つ上へ、もう 1 つは 1 つ下へ移します。どちらも Tanrei のボタンなので、キーボード、ポインター、タッチ、スイッチ、音声コントロール、スクリーンリーダーのどれでも同じように使え、ドラッグは要りません。
+ドラッグだけが手段になることはありません。ハンドルはボタンです。押すか Enter を押すと、4 つの移動（先頭へ、1 つ前へ、1 つ後ろへ、末尾へ）のメニューが開きます。キーボードでは、ハンドルで Space を押すと項目が持ち上がり、矢印キーで 1 つずつ運び（Home と End で先頭と末尾へ）、Space か Enter で置き、Escape で元に戻します。1 歩ごとに読み上げられます。
 
-順番は利用者側のデータなので、リストが順番を変えることはありません。ボタンを押すと `move` が発生し、`from` に項目のインデックス、`to` に移動後のインデックスが入ります。どちらも 0 から数えます。これを受けて、利用者側で項目を並べ替えます。するとリストは、2 つの行が入れ替わる様子を描き、動かした行の同じボタンにフォーカスを保ち、行が今どこにあるかを支援技術に伝えます。何も変えなければ、何も起きません。プロダクトが移動を断るときは、そうします。
+順番はプロダクトのデータなので、リストが自分で変えることはありません。どの方法で動かしても `move` が発火し、`from` に項目のインデックス、`to` に移動後のインデックスが入ります（どちらも 0 から数えます）。それに応えて項目を並べ替えてください。するとリストは項目が入れ替わる様子を描き、動かした項目のハンドルにフォーカスを保ち、新しい位置を支援技術に伝えます。`comp.list.motion.reorder-duration` の時間内に何も変えなければ、その移動は拒否されたものとして扱われ、項目は元に戻り、何も読み上げられません。
 
-並べ替えは `comp.list.motion.reorder-duration` の時間内に行います。それより遅れて届いた順番も描きますが、リストはすでに移動が断られたものとして扱っているので、読み上げはしません。
-
-3 つの文言は利用者側で用意します。`moveUpLabel` と `moveDownLabel` はボタンの名前で、リストが行の見出しを入れる場所 `{headline}` を持ちます（「`{headline}を上へ移動`」）。`movedText` は移動の後に読み上げる文です。文全体をプロダクトの言語で書き、リストが埋める 3 つの場所に印を付けます。`{headline}`、`{position}`（1 から数えます）、`{count}` です。文言はリストに付けるか、`setWords()` でプロダクト全体に一度だけ渡します。
-
-並べ替えられるリストに入るのは静的な行だけで、リストボックスにはなりません。行の末尾のスロットには、移動ボタンの後に、自前のコントロールを 1 つ置けます。多くの場合、項目を削除するボタンです。
-
-`reorder` の `drag` は、ポインターや指でドラッグするハンドルを加える値で、仕様にはありますが、まだ実装されていません。Web では 2 つのボタンを描き、ハンドルは描きません。並べ替えは現在 Web で使えます。SwiftUI、Compose、Flutter、React Native は、まだ追いついていません。
+言葉はプロダクトのものです。ハンドルの名前（`dragHandleLabel`。場所 `{label}` にリストが項目の名前を入れます）、その説明（`dragHandleHint`）、メニューの 4 つの移動、そして読み上げられる 3 つの文（`liftedText`、`movedText`、`cancelledText`。場所は `{label}`、`{position}`、`{count}`）です。リストに指定するか、`setWords()` でプロダクト全体に一度だけ指定します。行のリストでは、列で「上へ移動」「下へ移動」と書くところを「左へ移動」「右へ移動」と書きます。
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="{headline}を上へ移動" move-down-label="{headline}を下へ移動"
-                 moved-text="{headline}を{count}件中{position}番目に移動しました">
-      <tanrei-list-item headline="Inter">
-        <!-- 自前のコントロールは 2 つの移動ボタンの後に並びます。名前には項目を入れます。 -->
-        <tanrei-button slot="trailing" variant="text" label="Inter を削除"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
-      <tanrei-list-item headline="Noto Sans JP">
-        <tanrei-button slot="trailing" variant="text" label="Noto Sans JP を削除"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
+    <tanrei-list id="fonts" reorderable label="Typefaces"
+                 drag-handle-label="Reorder {label}"
+                 drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves"
+                 move-to-start-label="Move to top" move-before-label="Move up"
+                 move-after-label="Move down" move-to-end-label="Move to bottom"
+                 lifted-text="{label} lifted: {position} of {count}"
+                 moved-text="{label}: {position} of {count}"
+                 cancelled-text="{label} returned to {position} of {count}">
+      <tanrei-list-item label="Inter">Inter</tanrei-list-item>
+      <tanrei-list-item label="Noto Sans JP">Noto Sans JP</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      import '@tanrei/web/components/button';
       const list = document.querySelector('#fonts');
-      // リストは何も動かしていません。項目を求められた場所へ置きます。from と to は 0 から数えます。
+      // The list has moved nothing. Put the item where it was asked to stand: from and to count from 0.
       list.addEventListener('move', ({ detail: { from, to } }) => {
         const items = [...list.children];
         list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
@@ -297,16 +176,22 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, List, ListItem } from '@tanrei/react';
+    import { List, ListItem } from '@tanrei/react';
 
     const [fonts, setFonts] = useState(['Inter', 'Noto Sans JP', 'Helvetica Neue']);
 
-    // 順番は利用者側の状態です。リストは、描画された順番の中から動かした行を見つけ直します。
+    // The order is your state. The list finds the moved item again in the order you render.
     <List
-      reorder="buttons"
-      moveUpLabel="{headline}を上へ移動"
-      moveDownLabel="{headline}を下へ移動"
-      movedText="{headline}を{count}件中{position}番目に移動しました"
+      reorderable
+      label="Typefaces"
+      dragHandleLabel="Reorder {label}"
+      moveToStartLabel="Move to top"
+      moveBeforeLabel="Move up"
+      moveAfterLabel="Move down"
+      moveToEndLabel="Move to bottom"
+      liftedText="{label} lifted: {position} of {count}"
+      movedText="{label}: {position} of {count}"
+      cancelledText="{label} returned to {position} of {count}"
       onMove={(e) => {
         const { from, to } = e.detail;
         setFonts((now) => {
@@ -317,11 +202,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
       }}
     >
       {fonts.map((font) => (
-        <ListItem key={font} headline={font}>
-          <Button slot="trailing" variant="text" label={`${font} を削除`} onClick={() => setFonts((now) => now.filter((each) => each !== font))}>
-            <span slot="icon">close</span>
-          </Button>
-        </ListItem>
+        <ListItem key={font} label={font}>{font}</ListItem>
       ))}
     </List>
     ```
@@ -330,87 +211,56 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 ## 仕様
 
-<DemoFrame label="メディア、行数、無効状態、複数選択" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="山田 花子" supporting-text="2 時間前にロードマップを編集" leading-media="avatar"><span slot="leading">山</span></tanrei-list-item>
-    <tanrei-list-item headline="ロードマップ" overline="開発" supporting-text="次の四半期の計画。マイルストーン、担当者、すでに分かっているリスクをまとめています。" supporting-max-lines="2" leading-media="image" trailing-text="9:41"></tanrei-list-item>
-    <tanrei-list-item headline="アーカイブ" leading-icon="archive" interactive disabled></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="multiple" label="ラベル" style="inline-size: 20rem">
-    <tanrei-list-item headline="バグ" supporting-text="未解決 12 件" leading-icon="label" value="bug"></tanrei-list-item>
-    <tanrei-list-item headline="機能" supporting-text="未解決 4 件" leading-icon="label" value="feature"></tanrei-list-item>
-    <tanrei-list-item headline="ドキュメント" supporting-text="未解決 7 件" leading-icon="label" value="docs" disabled></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
-
 <ComponentSpecs name="list" />
 
 ## ガイドライン
 
 ### 使う場面
 
-メッセージ、人、ファイル、設定項目、ピッカーの選択肢など、同じ種類のものを縦に並べるときに使います。どの行も同じ種類の要素で始まり、同じ種類の値で終わるので、上から下へ目で追えます。1 つのものについて多くを伝えるならカード、列をまたいで値を比べるなら表、ボタンから開く短いアクションの一覧ならメニューを使います。
+1 種類のものの集まりで、目を通す、開く、選ぶ、並べる対象に使います。メッセージ、人、ファイル、写真、設定、ピッカーの選択肢などです。列をまたいで値を比べるなら表を、ボタンから開く短い操作の集まりならメニューを使います。
 
-リストは自分では何も描きません。背景も、項目の周りの余白も、スクロールもありません。サーフェスの上に置くか、カードに入れるか（iOS の設定画面のようなグループ化されたリストは、`inset` をオフにしたカードに入れます）、画面のスクロールビューの中に置きます。
+リストは自分では何も描きません。背景も、項目のまわりの余白も、スクロールもありません。サーフェス、カード、画面のスクロールビューの中に置き、各項目の見た目はコンテンツで整えてください。
 
-### 4 種類の行
+### 4 種類の項目
 
-行はいつも `list-item` です。どの種類の行になるかは、リストの `selection` と、項目の `interactive` と `href` で決まります。
-
-| 種類 | 条件 | 何か | 用途 |
+| 種類 | 指定方法 | 実体 | 用途 |
 | --- | --- | --- | --- |
-| 静的 | `selection` が none で、`interactive` が false | 内容を見せるリスト項目。フォーカスを受けず、ホバーや押下にも反応しません。 | 読むだけの行や、スイッチなどのコントロールを末尾のスロットに持つ行。 |
-| 操作できる行 | `interactive` が true | リスト項目の中にある 1 つのボタン。見出しが名前になります。 | 設定、ペインに開くメッセージ、ダイアログなど、行ごとに何かを変える場合や、その場で開く場合。 |
-| リンクの行 | `href` を指定 | リスト項目の中にある 1 つのリンク。見出しが名前になり、操作できる行とまったく同じように描きます。Enter で実行し、Space では実行しません。`href` は `interactive` より優先されます。 | ページの索引、検索結果、関連する文書など、行ごとに自分のアドレスを持つページへ移る場合。 |
-| 選択肢 | `selection` が single か multiple | リストボックスの選択肢。選択状態を持ちます。 | テーマ、言語、課題のラベルなど、行の中から選ぶ場合。 |
+| 静的 | `selection` が none、`interactive` が false、`href` なし | コンテンツそのもの。フォーカスもホバーも押下もありません。 | 読むだけの項目、自前のコントロールを持つ項目。 |
+| インタラクティブ | `interactive` | リスト項目の中の 1 つのボタン。 | それぞれが何かを変える、またはその場で開く項目。 |
+| リンク | `href` | リスト項目の中の 1 つのリンク。インタラクティブな項目とまったく同じ見た目です。Enter で開き、Space では開きません。 | それぞれ固有のアドレスを持つページへ移る項目。 |
+| オプション | `selection` が single か multiple | リストボックスのオプション。選択状態とチェックを持ちます。 | 項目から選ぶ。 |
 
-1 つのリストに、静的な行、操作できる行、リンクの行を混ぜられます。選べるリストに入るのは選択肢だけで、`interactive` と `href` は無視されます。並べ替えられるリストに入るのは静的な行だけで、ここでも `interactive` と `href` は無視されます。行そのものが 1 つのボタンや 1 つのリンクだと、その行を動かすボタンを中に持てないからです。
+静的、インタラクティブ、リンクの項目は 1 つのリストに混在できます。選択できるリストはオプションだけを持ちます。並べ替えられるリストは静的な項目だけを持ち、リストボックスにはなりません。操作、リンク、オプションは、ドラッグが奪ってしまう押下で使われるからです。
 
 ### 並べ替えられるリスト
 
-- `reorder` は、順番に意味があり、その順番を使う人が決める短いリストに使います。フォントスタックのファミリー、ホーム画面のセクション、キューなどです。長いリストには、並べ替えの代わりにソートの手段を用意します。1 回押すと、行は 1 つ分だけ動きます。
-- 項目の並べ替えは、`move` のハンドラーの中か、その後フレームワークが描画し次第すぐに行います。今ある要素を動かしても、新しい要素を描画してもかまいません。リストは、動かした行を位置と見出しで見つけます。
-- 移動ボタンの文言には、行の見出しの場所を入れます（「`{headline}を上へ移動`」「`{headline}を下へ移動`」）。見出しがそれぞれのボタンの名前に入るので、ページのボタンの一覧でも音声での操作でも、行ごとのボタンを区別できます。
-- `movedText` は、3 つの場所を含む 1 つの完結した文として書きます。リストは自分で語句を組み立てないので、語順はプロダクトの言語のものになります。
-- 末尾のスロットに置くコントロールは 1 つまでにし、名前には項目を入れます（「Inter を削除」）。2 つの行の削除ボタンを聞き分けられるようにするためです。
-- リストが読み上げるのは移動だけです。項目を削除したり追加したりしたときに何を伝えるかは、利用者側で決めます。最後の項目を削除したときは、項目を追加する場所へ、利用者側でフォーカスを移します。
-- 行には幅の余裕を持たせます。移動ボタンと末尾のコントロールを並べるとテキストが `reorder.text-min-width`（標準の文字の大きさで 96 px、文字を拡大するとそれに応じて広がる）より狭くなる場合、リストはすべての行で、これらをテキストの下の独立した行に置きます。その行にも収まらなければ、末尾のコントロールはさらに下の行に置きます。既定のシステムでは、削除ボタンがあり、アイコンもアバターも画像もない行は、標準の文字の大きさなら行の幅がおよそ 300 px 以上あればテキストの横に並び、文字 200% ではテキストの下に置かれます。
+- 順番に意味があり、その順番を決めるのが利用者である場面で `reorderable` を使います。フォントスタックのファミリー、ホーム画面のセクション、添付ファイル、キューなどです。長いリストには、代わりに並べ替え（ソート）の手段を用意してください。
+- `move` のハンドラーの中で、またはフレームワークが描画し直す直後に項目を並べ替えます。今ある要素を動かしても、新しい要素を描画しても構いません。リストは位置と名前で動かした項目を見つけます。
+- コンテンツのテキストが項目をうまく名指さない場合は `label` を付けます。名前はハンドルの名前の一部になるので 2 つの項目のハンドルを区別でき、読み上げられる内容にもなります。
+- それぞれの文は場所を含めて文全体を書きます。リストは自分で句を組み立てないため、語順はその言語のものになります。
+- 項目の中に置いたプロダクトのコントロール（項目を削除するボタンなど）は、ハンドルの後に独自のフォーカス位置を保ちます。項目名を含めた名前を付けてください（「Inter を削除」）。フォーカスを持つ項目を削除すると、リストはその位置に来た項目のハンドルへフォーカスを移します。削除したことはプロダクトが伝えてください。
 
 ### 選択の種類
 
-| `selection` | リストの役割 | 選択肢を選ぶと |
+| 選択 | リストの役割 | オプションを選ぶと |
 | --- | --- | --- |
-| None（既定） | リスト | 何も選ばれません。操作できる行は、それぞれ自分のクリックを発火します。 |
-| Single | リストボックス | その選択肢が選ばれ、それまで選ばれていたものは外れます。ラジオボタンと同じく、選ばれている選択肢をもう一度選んでも外れません。「なし」も答えになるなら、そのための選択肢を加えます。 |
-| Multiple | 複数選択のリストボックス | その選択肢のオンとオフを切り替えます。 |
+| なし（既定） | リスト | 何も選ばれません。インタラクティブな項目は自分の click を発火します。 |
+| 単一 | リストボックス | そのオプションを選び、選ばれていたものを外します。もう一度選んでも外れません。 |
+| 複数 | 複数選択のリストボックス | オプションのオンとオフを切り替えます。 |
 
-矢印キーはフォーカスを動かすだけです。選択が変わるのは、Space か Enter を押すか、行をタップしたときです。これは意図した動きです。リストでは行を選ぶと重い処理が始まることがあり、50 行を矢印キーで通り過ぎるたびに 50 回読み込みが走っては困ります。
-
-選ばれた選択肢は、選択時の塗りと、末尾のチェックで示します。既定のシステムでは、塗りはメニューのチェックされた項目と同じく行の内容の色の層なので、どのサーフェスの上でもホバーした行と見分けられます。チェックの場所はどの選択肢でも空けておくので、テキストの位置がそろいます。状態を示すのに必要な 3:1 のコントラストを満たすのはチェックのほうで、塗りだけでは満たしません。
-
-### 行と構成要素
-
-- 見出しだけなら 1 行の行、オーバーラインか 1 行の補足テキストが加われば 2 行の行、補足テキストが 2 行以上なら 3 行の行になります。内容や文字の拡大に合わせて、これらの高さより伸びます。
-- `supportingMaxLines` を指定すると、長い補足テキストを省略記号で切ります。プレビューの列に向いています。切っても、支援技術には全文が伝わります。
-- 行の先頭には、先頭アイコンか、先頭メディアを置きます。メディアは、人を表すアバター（丸い枠）か、ものを表す画像（ひと回り大きい角丸の四角）です。メディアを置くとアイコンは描かれません。
-- 行の末尾には、短いテキスト（件数、時刻）、末尾アイコン（何かを開く行ならシェブロン）、静的な行なら自前のコントロールを置きます。`target` の値が `new` のリンクの行は、ほかのアイコンを指定していなければ、自分で末尾アイコンとして `open_in_new` を描きます。
-- アイコンは、デザインシステムのアイコンセットにあるグリフの名前（`wifi`、`chevron_right`）で指定します。行に沿った向きを示すグリフは、右から左のレイアウトでは反転します。
-- `divider` は、テキストの開始位置から行の下に細い線を引きます。色は、すべてのコンポーネントが使う 1 つの細い線の色です。最後の行以外すべてに付けるか、まとまりの区切りに付けます。行の間に、自前の[区切り線](/ja/components/divider/)を足すことはありません。
+矢印キーはフォーカスを動かすだけです。選択は、Space か Enter を押すか項目をタップしたときに変わります。選ばれたオプションは選択時の塗りと末尾のチェックで描かれ、チェックの場所はどのオプションにも確保されるので、コンテンツの位置がそろいます。
 
 ### 推奨
 
-- 見出しは短くし、詳しいことは補足テキストに書きます。見出しがその行の名前です。
-- 選べるリストには、何を選ぶのかが分かる `label` を付けます。「テーマ」などです。
-- 設定を切り替える行は、末尾のスロットにスイッチを持つ静的な行にします。スイッチの名前は見出しと同じにし、見えるラベルは隠します。
-- セクションに分けたいときは、2 つのリストの間に見出しを置きます。リスト自体にはセクション見出しの機能がありません。
-- ページへ移る行には `href` を付け、`interactive` はその場で何かをする行に使います。クリックのハンドラーから遷移する行はリンクではありません。新しいタブで開けず、アドレスもコピーできません。
+- 選択できるリストにはオプションが何かを示す `label` を、並べ替えられるリストには項目が何かを示す `label` を付けます。
+- ページへ移る項目には `href` を付け、その場で動作する項目には `interactive` を使います。
+- 2 つのリストの間に見出しを置いてセクションを作ります。リストには独自のセクション見出しはありません。
 
 ### 非推奨
 
-- 操作できる行、リンクの行、選択肢の中に、ボタン、リンク、スイッチなどのコントロールを入れない。行は 1 つの要素なので支援技術は中のコントロールに届かず、コントロールを押すと行も反応してしまいます。
-- その場で何かを実行するものを選択肢にしない。リストボックスは値を選ぶものです。アクションには操作できる行を使います。
-- 静的な行を無効にしない。無効にするアクションがないので、`disabled` は無視されます。
-- 選択を示すために行の中にチェックボックスやラジオボタンを描かない。`selection` を使えば、チェックが描かれ、状態も支援技術に伝わります。
+- インタラクティブな項目、リンク項目、オプションの中にボタン、リンク、スイッチなどのコントロールを入れないでください。項目は 1 つの要素なので、支援技術は中のコントロールに届かず、コントロールを押すと項目も作動してしまいます。
+- すぐに実行されるものにオプションを使わないでください。リストボックスは値を選ぶものです。
+- 自前のドラッグハンドルや移動ボタンを描かないでください。`reorderable` がハンドルを描き、そのメニューがドラッグを使わない移動手段になります。
 
 ## アクセシビリティ
 
@@ -418,54 +268,24 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 ### コンポーネントが担うこと
 
-- 選択のないリストはリストとして、各行はリスト項目として、位置とリスト全体の件数とともに伝えます。操作できる行は、リスト項目の中の 1 つのボタンで、リンクの行は、そこにある 1 つのリンクです。
-- リンクの行は、操作できる行と同じく、リストの矢印キーの順番に入ります。Enter でリンクをたどります。Space は、ほかのリンクの上と同じ働きをし、押下の状態は表示しません。新しいタブで開く行は、名前と説明の後に `targetLabel` を読み上げます。無効なリンクの行には、たどるものもコピーするものもありませんが、矢印キーでは届きます。
-- 選べるリストは、`label` を名前とするリストボックスとして伝えます。`selection` が multiple のときは複数選択できることも伝えます。各行は、選択状態、位置、件数を持つ選択肢です。
-- 操作できる行、リンクの行、選択肢は、見出しを名前とし、オーバーライン、補足テキスト、末尾のテキストを、この読み順で説明として伝えます。アイコン、チェック、区切り線、先頭メディアは支援技術から隠します。
-- 操作できる行か選択肢を含むリストは、Tab で止まる位置が 1 つです。最後にフォーカスがあった行、なければ最初に選ばれている選択肢、それもなければ最初の有効な行に止まります。上下の矢印キーで行の間を移動し、端で折り返しません。Home と End で最初と最後の行へ、文字を打つと見出しがその文字で始まる次の行へ移ります。Space と Enter で実行します。静的な行はフォーカスを受けませんが、静的な行の中のコントロールは自分の Tab で止まる位置を持ったままです。
-- 並べ替えられるリストでは、移動ボタンはそれぞれ、`moveUpLabel` か `moveDownLabel` を名前とし、その場所 `{headline}` に行の見出しが入るボタンです。どのボタンも、読み順のとおりに、行の末尾のコントロールより前で、自分の Tab で止まる位置を持ちます。このときリストは Tab で止まる位置が 1 つではなく、矢印キーは何もしません。最初の行の上へ移動するボタンと、最後の行の下へ移動するボタンは無効になりますが、描いたままにします。どの行にも同じ部品が同じ場所に並びます。
-- 移動の後、フォーカスは動かした行の同じボタンに残るので、もう一度キーを押せば、行はもう一度動きます。行が最初か最後になったときは、その行のもう一方の移動ボタンへフォーカスが移ります。
-- 並べ替えられるリストは、読み上げ中の内容に割り込まないライブリージョンを 1 つ持ちます。移動の後、そこに `movedText` が、行の見出し、新しい位置、行の件数を埋めた形で入ります。次の移動があると、内容は置き換わります。数字は、リストの言語の書き方で書きます。移動を読み上げるものは、ほかにありません。
-- 2 つの行は短い動きで入れ替わります。動きを減らす設定では、すぐに入れ替わります。
-- フォーカスのある行を利用者側で削除すると、フォーカスは、その場所に来た行の同じコントロールへ移ります。そこに行がなければ、1 つ前の行の同じコントロールへ移ります。
-- コントロールがテキストを圧迫する幅では、コントロールはテキストの下の独立した行へ移ります。どのコントロールも、ターゲットより小さくなることはありません。
-- 無効な行にも矢印キーで届くので、そこに行があることは分かります。実行はできません。
-- フォーカスリングは行の内側に描くので、リストを囲むスクロールビューに切られません。キーボードフォーカスのときだけ表示します。
-- 操作できる行と選択肢の高さは最小ターゲット以上で、行全体がヒット領域です。行同士のヒット領域は重なりません。
-- 文字を大きくすると行は伸びます。見出しは折り返し、切れることはありません。
-- 見出しのない行、ラベルのない選べるリスト、値が空または重複している選択肢、どの選択肢も指していない選択値、`href` を持つ選択肢、`javascript:` のアドレスや読み取れない `href`、定義にない `target`、`target` の値が `new` なのに `targetLabel` のないリンクの行は、デバッグビルドで報告します。並べ替えられるリストについては、誰も渡していない移動の文言（文言ごとに 1 回）、`movedText` の中の波かっこで囲まれたテキストのうち 3 つの場所のどれでもないもの、`interactive` や `href` を持つ行、選べるリストに指定した `reorder` を報告します。
+- 選択のないリストはリストとして公開され、各項目は位置とリストの件数を持つリスト項目になります。インタラクティブな項目はリスト項目の中の 1 つのボタン、リンク項目はそこにある 1 つのリンクです。選択できるリストは `label` で名付けられた、向きを持つリストボックスで、各項目は選択状態を持つオプションです。
+- インタラクティブな項目、リンク、オプションを持つリストは 1 つの Tab 位置です。並べ方に応じた矢印キー（列では上下、行では左右。右から左のレイアウトでは反転し、グリッドでは行をまたぐ方向にも動きます）で、端で折り返さずに項目間を移動します。Home、End、タイプアヘッドも使えます。静的な項目はフォーカスを受けず、その中のコントロールは独自の Tab 位置を保ちます。
+- 並べ替えられるリストでは、各ハンドルはメニューボタンで、`dragHandleLabel` に項目名を入れた名前と `dragHandleHint` の説明を持ち、独自の Tab 位置になります。そのメニューは 1 回ずつの押下で項目を動かせるため、ドラッグでできることはドラッグなしでもできるという WCAG の要件（2.5.7）を満たします。Space はキーボードのために項目を持ち上げます（2.1.1）。
+- 1 つの控えめなライブリージョンが、キーボードで項目を持ち上げたこと、1 歩ごとに置かれる位置、移動が反映された後の位置、Escape で元に戻したことを伝えます。
+- ドラッグ中の項目はドラッグ時の塗りと影をまとってポインターについていき、ほかの項目は並べ替えのモーションで道を空けます。モーションを減らす設定では、ポインターの下の項目以外はすべて即座に動きます。強制カラーでは、ドラッグ中の項目はハイライト色で縁取られます。
+- Escape はドラッグ中の項目を元に戻し、リストを含むダイアログまで閉じることはありません。項目を長押ししてもブラウザーのメニューは開きません。
+- インタラクティブな項目、リンク、オプションは最小ターゲット以上の大きさで、フォーカスリングは内側に描かれ、文字が大きくなると項目も大きくなります。
+- デバッグビルドは、名前のない項目、ラベルのない選択できるリストや並べ替えられるリスト、空または重複した値のオプション、どのオプションも指さない選択、インタラクティブな項目やオプションの中のコントロール、誰も指定していない言葉、選択できるリストへの `reorderable` を報告します。
 
-プラットフォームごとの既知の制約：
+プラットフォームの既知の制約：
 
-- Web：`reorder` の `drag` は実装されていません。2 つの移動ボタンを描き、ハンドルは描かず、ドラッグはできません。
-- SwiftUI、Compose、Flutter、React Native には、まだ並べ替えられるリストがありません。`reorder` も、`move` も、3 つの文言もありません。
-- SwiftUI、Compose、Flutter、React Native には、まだリンクの行がありません。`href`、`target`、`targetLabel` はありません。
-- SwiftUI には、リストやリストボックスのロールも、複数選択のプロパティもありません。リストは `label` を名前とするコンテナで、操作できる行と選択肢はボタンです（選択肢は選ばれている間、選択済みのトレイトを持ちます）。それぞれ位置を値（「2 of 3」）として持ちますが、英語でしか読み上げられません。
-- SwiftUI は無効なボタンにキーボードフォーカスを渡さないため、矢印キーは無効な行に止まらず、飛ばして進みます。
-- SwiftUI は先頭メディアを常に支援技術から隠すため、名前を付けた写真も読み上げられません。
-- SwiftUI は、選択肢の値を、ほかのモディファイアーより先に `TanreiListItem` そのものに付けた `.tag(_:)` からしか読めません。別のビューに付けたタグは届きません。
-- SwiftUI：矢印キー、Home、End、先頭文字での移動、Tab で止まる位置は、規則としてテストしているだけで、実際のキーボードではまだ確かめていません。
-- React Native にはリストボックスのロールも、複数選択のプロパティもありません。選べるリストもロールはリストのままで、各選択肢が選択肢のロールと選択状態を持ちます。リスト自体を VoiceOver と TalkBack がどう読み上げるかは、プラットフォームしだいです。
-- React Native には、集合の中の位置を表すプロパティがありません。操作できる行と選択肢は、位置を値のテキスト（「2 of 3」）として持ちます。静的な行はそれ自体が要素ではないため、位置は読み上げられません。位置のテキストは、`positionText` を渡さない限り英語です。
-- React Native：矢印キー、Home、End、先頭文字での移動はキーイベントで受け取っていますが、ハードウェアキーボードをつないだ実機ではまだ確かめていません。
-- Flutter には、リストボックスや選択肢のロールも、複数選択のフラグも、位置と件数のプロパティもありません。選べるリストは、選択できるリスト項目を並べたリストとして伝わります。
-- Flutter は先頭メディアを常に支援技術から隠すため、名前を付けた写真も読み上げられません。
-- Compose には、リスト、リストボックス、選択肢のロールも、複数選択のフラグもありません。リストはコレクションとして伝わり、TalkBack は各選択肢が選ばれているかどうかを読み上げます。
-- Compose：リストの中に `LazyColumn` を置くと、位置、件数、矢印キーの対象になるのは、コンポーズ済みの行だけです。
-- Compose も先頭メディアを常に支援技術から隠すため、名前を付けた写真は読み上げられません。
-- Compose：フォーカスの要求を受け付けるのは、リストの Tab で止まる位置になっている行だけです。コードやユーザー補助サービスがほかの行にフォーカスを移そうとしても、何も起きません。
-- Compose：プラットフォーム本来のキー処理を通したキーボード操作と、リストボックスでの TalkBack は、Robolectric でしか確かめておらず、実機ではまだです。
-- SwiftUI、Compose、Flutter、React Native は行のスロットの中身を調べられないため、操作できる行や選択肢の中にコントロールがあっても報告しません。このルールは利用者側で守ってください。
+- SwiftUI、Compose、Flutter、React Native は以前のリストを提供しており、この改訂の内容はありません。向き、折り返し、間隔、コンテンツのスロット、並べ替えはまだ使えません。
 
 ### 利用者側で行うこと
 
-- 選べるリストには `label` を付けます。付けないと、リストボックスに名前がありません。
-- 行どうしを見分けられる見出しを書きます。スクリーンリーダーが最初に読むのも、先頭文字での移動が照らし合わせるのも見出しです。
-- `target` の値が `new` のリンクの行には、「新しいタブで開きます」のように、プロダクトの言語で `targetLabel` を付けます。Tanrei は言葉を同梱しません。
-- 並べ替えられるリストには、3 つの文言をプロダクトの言語で付けます。`moveUpLabel`、`moveDownLabel`、`movedText` です。最初の 2 つがないと、ボタンは動きますが名前がありません。3 つ目がないと、移動は読み上げられません。
-- `move` が発生したら、項目を並べ替えます。リストは何も変えていません。並べ替えの動きの時間より後に渡した順番は描きますが、読み上げはしません。
-- 削除や追加は利用者側で伝え、最後の項目を削除したときは、利用者側でフォーカスを移します。
-- 操作できる行、リンクの行、選択肢にはコントロールを入れません。自前のコントロールが必要な行は静的な行にして、末尾のスロットに置き、コントロールの名前を見出しと同じにします。
-- アバターや画像に見出しにない意味があるなら、それを補足テキストに書きます。メディアは名前を付けない限り支援技術から隠され、SwiftUI、Compose、Flutter では名前を付けても読み上げられません。
-- 件数の多いデータは、各プラットフォームの遅延リストで自分で組み、必要なら件数を伝えます。リストはスクロールも仮想化もしません。
-- React Native では、プロダクトの言語で `positionText` を渡します。SwiftUI では位置は英語で読み上げられ、今のところ変える方法はありません。
+- 選択できるリストと並べ替えられるリストには `label` を付けます。
+- 並べ替えられるリストには、プロダクトの言語で言葉を指定します。指定しないとハンドルは名前のないまま動作し、何も読み上げられません。
+- `move` が発火したら項目を並べ替えます。リストは何も変えていません。
+- `target` が `new` のリンク項目には、「新しいタブで開きます」のような `targetLabel` を付けます。
+- インタラクティブな項目、リンク、オプションにはコントロールを入れません。自前のコントロールが必要な項目は静的にします。
+- 大量のデータでは自前の遅延リストを作り、プラットフォームが必要とする場合は件数を伝えます。リストはスクロールも仮想化もしません。

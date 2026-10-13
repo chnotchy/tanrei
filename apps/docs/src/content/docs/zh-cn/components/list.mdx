@@ -1,8 +1,8 @@
 ---
 title: "列表"
-description: "由相关的项排成的一列，每项是一行或多行文本，配有图标、头像或图片，供用户阅读、逐个打开、从中选择，或者调整顺序。"
+description: 把产品自己的项（行、磁贴、卡片、文件）排成一列、一行，或折行成网格。用户可以阅读它们、逐个打开、从中选择，或拖动调整顺序。
 translationOf: components/list.mdx
-sourceHash: b6d8e736d3a79adf3348a2f55de05b9dbe71cbb5
+sourceHash: 44e7c407804448e2e2a34486b365e5f53b561213
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -12,73 +12,101 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 import DemoFrame from '../../../../components/DemoFrame.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
+<ListReorderProduct />
+
 ## 概览
 
 <ComponentAvailability name="list" />
 
-<DemoFrame label="会打开内容的行，以及单选列表">
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="WLAN" supporting-text="已连接" leading-icon="wifi" trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-    <tanrei-list-item headline="蓝牙" supporting-text="已关闭" leading-icon="bluetooth" trailing-icon="chevron_right" interactive></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="single" label="主题" value="light" style="inline-size: 20rem">
-    <tanrei-list-item headline="浅色" value="light"></tanrei-list-item>
-    <tanrei-list-item headline="深色" value="dark"></tanrei-list-item>
-    <tanrei-list-item headline="跟随系统" value="system"></tanrei-list-item>
+<DemoFrame label="把磁贴拖到别处，或按下它的手柄打开移动菜单" plain>
+  <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="作为链接的行：每一行前往自己的地址，最后一行在新标签页中打开" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="按钮" supporting-text="操作与切换" leading-icon="smart_button" href="#list-demo-button" divider></tanrei-list-item>
-    <tanrei-list-item headline="标签页" supporting-text="同一主题的不同视图" leading-icon="tab" href="#list-demo-tabs" divider></tanrei-list-item>
-    <tanrei-list-item headline="源代码" supporting-text="打开仓库" leading-icon="code" href="#list-demo-source" target="new" target-label="在新标签页中打开"></tanrei-list-item>
+<style>{`
+  .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
+  .demo-row { display: flex; flex-direction: column; }
+  .demo-row small { color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-body-small-font); }
+`}</style>
+
+列表是一个容器。每一项显示的是产品自己的内容：文本、图片、卡片、[文件项](/zh-cn/components/file-item/)。列表负责项周围的一切：项如何排列、项之间的间距和分隔线、它们对辅助技术意味着什么、键盘焦点如何在项之间移动、哪些项被选中，以及如何调整顺序。
+
+<DemoFrame label="一列、一行和折行的网格" plain>
+  <tanrei-list gap="small" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Cherries</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" gap="small">
+    <tanrei-list-item><span class="demo-tile">One</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Two</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Three</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" wrap gap="medium" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+<DemoFrame label="打开某物的项、作为链接的项，以及单选" plain>
+  <tanrei-list dividers style="inline-size: 16rem">
+    <tanrei-list-item interactive><span class="demo-row">Wi-Fi<small>Connected</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-button"><span class="demo-row">Button<small>Actions and toggles</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list selection="single" label="Theme" value="light" style="inline-size: 16rem">
+    <tanrei-list-item value="light">Light</tanrei-list-item>
+    <tanrei-list-item value="dark">Dark</tanrei-list-item>
+    <tanrei-list-item value="system">Match the system</tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
 ### 用法
 
-列表只有一种项：`list-item`。每个平台接收这些项的方式，与它接收任何重复子项的方式相同。Web 使用子元素，SwiftUI 使用视图构建器中的视图，Compose 使用内容 lambda 中的调用，Flutter 使用 `children` 中的 widget。React Native 接收一个由普通对象组成的 `items` 数组。选择归列表所有：`value` 指明单选列表中被选中的选项，`values` 指明多选列表中被选中的各个选项。
+列表只有一种项 `list-item`，每一项把产品的内容作为子元素。`orientation` 把项排成一列（`vertical`，默认）或一行（`horizontal`）；`wrap` 让项折到下一行，形成网格；`gap` 设置项之间的间距（`none`、`small`、`medium`、`large`）；`dividers` 在不折行的列表中于项之间绘制细线。
 
-前往某个页面的行带有 `href`，它是链接，而不是按钮。它的画法与可交互的行完全相同，浏览器则把它当作普通链接对待：可以在新标签页中打开，可以复制它的地址，爬虫也会跟随它。`target` 为 `new` 时，它在新标签页中打开，并且行上会标出图标集的 `open_in_new`；这时 `targetLabel` 就是在行的名称之后朗读的内容。链接行目前只在 Web 上提供。SwiftUI、Compose、Flutter 和 React Native 在这一点上待跟进，它们的示例展示的是没有目的地的行。
+项默认是静态的。静态项自身不绘制任何东西，也不添加间距：内容就是项本身，并且可以包含产品自己的控件。`interactive` 使项成为一个按钮；`href` 使项成为一个链接，浏览器像对待任何链接一样对待它（可以在新标签页中打开、复制其地址；`target="new"` 在新标签页中打开并为项加上 `open_in_new` 标记，由 `targetLabel` 说明这一点）。`selection` 为 `single` 或 `multiple` 的列表是列表框，其项是按 `value` 选择的选项。交互项、链接和选项会为内容加内边距、绘制所有状态，并以 `label`（若为空则以内容的文本）命名。
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <!-- 静态行、可交互的行和链接行。可交互的行是一个按钮；带 href 的行是一个链接。 -->
-    <tanrei-list>
-      <tanrei-list-item headline="WLAN" supporting-text="已连接" leading-icon="wifi"
-                        trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-      <!-- 静态行容纳你自己的控件，控件以标题命名。 -->
-      <tanrei-list-item headline="飞行模式">
-        <tanrei-switch slot="trailing" label="飞行模式" label-hidden></tanrei-switch>
-      </tanrei-list-item>
-      <tanrei-list-item headline="李华" supporting-text="编辑了路线图" leading-media="avatar">
-        <img slot="leading" src="ada.jpg" alt="" />
-      </tanrei-list-item>
-      <tanrei-list-item headline="隐私政策" href="/privacy/"></tanrei-list-item>
-      <!-- target="new" 会把 open_in_new 画成后置图标；target-label 在名称之后朗读。 -->
-      <tanrei-list-item headline="源代码" href="https://example.com/tanrei"
-                        target="new" target-label="在新标签页中打开"></tanrei-list-item>
+    <!-- A column of your own boxes, 8 px apart. -->
+    <tanrei-list gap="small">
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
     </tanrei-list>
 
-    <!-- 列表框：每一项都是一个选项，通过它的值来选择。 -->
-    <tanrei-list selection="single" label="主题" value="light">
-      <tanrei-list-item headline="浅色" value="light"></tanrei-list-item>
-      <tanrei-list-item headline="深色" value="dark"></tanrei-list-item>
+    <!-- A grid of tiles: a line that wraps. -->
+    <tanrei-list orientation="horizontal" wrap gap="medium">
+      <tanrei-list-item><img src="1.jpg" alt="Harbour at dawn" /></tanrei-list-item>
+      <tanrei-list-item><img src="2.jpg" alt="Market street" /></tanrei-list-item>
     </tanrei-list>
-    <tanrei-list id="labels" selection="multiple" label="标签">
-      <tanrei-list-item headline="缺陷" value="bug"></tanrei-list-item>
-      <tanrei-list-item headline="文档" value="docs"></tanrei-list-item>
+
+    <!-- Items that are one button or one link each, with lines between them. -->
+    <tanrei-list dividers>
+      <tanrei-list-item interactive>Wi-Fi</tanrei-list-item>
+      <tanrei-list-item href="/privacy/">Privacy policy</tanrei-list-item>
+      <tanrei-list-item href="https://example.com/tanrei" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+    </tanrei-list>
+
+    <!-- A listbox: every item is an option, chosen by its value. -->
+    <tanrei-list selection="single" label="Theme" value="light">
+      <tanrei-list-item value="light">Light</tanrei-list-item>
+      <tanrei-list-item value="dark">Dark</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      document.querySelector('[interactive]').addEventListener('click', openWifi);
-      // 列表先设置自己的 value 或 values，再触发 change，事件中带有这些值。
+      // The list sets its own value, or values, before it fires change, which carries them.
       document.querySelector('[selection="single"]').addEventListener('change', (e) => setTheme(e.detail.value));
-      // values 是数组属性；它不会反映为 HTML 属性。
-      document.querySelector('#labels').values = ['bug'];
     </script>
     ```
   </TabItem>
@@ -86,208 +114,59 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     ```tsx
     import { List, ListItem } from '@tanrei/react';
 
-    <List>
-      <ListItem headline="WLAN" supportingText="已连接" leadingIcon="wifi" trailingIcon="chevron_right" interactive onClick={openWifi} />
-      {/* 带 href 的行是链接。在它的 click 上调用 preventDefault()，就把导航交给客户端路由。 */}
-      <ListItem headline="隐私政策" href="/privacy/" />
-      <ListItem headline="源代码" href="https://example.com/tanrei" target="new" targetLabel="在新标签页中打开" />
+    <List orientation="horizontal" wrap gap="medium">
+      {photos.map((photo) => (
+        <ListItem key={photo.id}><img src={photo.src} alt={photo.alt} /></ListItem>
+      ))}
     </List>
 
-    {/* 列表先设置自己的 value 或 values，再触发 change：请从元素上读取这些值。 */}
-    <List selection="single" label="主题" value={theme} onChange={(e) => setTheme(e.currentTarget.value)}>
-      <ListItem headline="浅色" value="light" />
-      <ListItem headline="深色" value="dark" />
+    <List selection="single" label="Theme" value={theme} onChange={(e) => setTheme(e.currentTarget.value)}>
+      <ListItem value="light">Light</ListItem>
+      <ListItem value="dark">Dark</ListItem>
     </List>
-    <List selection="multiple" label="标签" values={labels} onChange={(e) => setLabels(e.currentTarget.values)}>
-      <ListItem headline="缺陷" value="bug" />
-      <ListItem headline="文档" value="docs" />
-    </List>
-    ```
-  </TabItem>
-  <TabItem label="SwiftUI">
-    ```swift
-    import Tanrei
-
-    // 带 action: 的构造器得到可交互的行，与 Button 一样。
-    TanreiList {
-        TanreiListItem("WLAN", supportingText: "已连接", leadingIcon: "wifi", trailingIcon: "chevron_right", action: openWifi)
-        TanreiListItem("飞行模式", trailing: { TanreiSwitch("飞行模式", isOn: $airplane).labelsHidden() })
-    }
-
-    // 绑定的类型决定选择方式：Binding<String?> 是单选，Binding<Set<String>> 是多选。
-    // 把 .tag(_:) 直接加在 TanreiListItem 上，并放在其他修饰符之前。
-    TanreiList(selection: $theme, label: "主题") {
-        TanreiListItem("浅色").tag("light")
-        TanreiListItem("深色").tag("dark")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Compose">
-    ```kotlin
-    import io.github.chnotchy.tanrei.components.TanreiList
-    import io.github.chnotchy.tanrei.components.TanreiListItem
-    import io.github.chnotchy.tanrei.components.TanreiListLeadingMedia
-    import io.github.chnotchy.tanrei.components.TanreiListSelectionMode
-    import io.github.chnotchy.tanrei.components.TanreiSwitch
-    import io.github.chnotchy.tanrei.primitives.TanreiText
-
-    // 项是内容 lambda 中的 TanreiListItem 调用。onClick 不为 null 时，行就是可交互的。
-    TanreiList {
-        TanreiListItem(
-            "WLAN",
-            supportingText = "已连接",
-            divider = true,
-            onClick = ::openWifi,
-            leadingIcon = { TanreiText("wifi") },
-            trailingIcon = { TanreiText("chevron_right") },
-        )
-        TanreiListItem("飞行模式", trailingContent = {
-            TanreiSwitch(checked = airplane, onCheckedChange = { airplane = it }, label = "飞行模式", labelHidden = true)
-        })
-        TanreiListItem("李华", supportingText = "编辑了路线图",
-            leadingMedia = TanreiListLeadingMedia.Avatar, leadingContent = { TanreiText("李") })
-    }
-
-    // 选择由你保存。onSelectionChange 收到新的集合：Single 时其中只有一个值。
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Single,
-        contentDescription = "主题",
-        selectedValue = theme,
-        onSelectionChange = { theme = it.single() },
-    ) {
-        TanreiListItem("浅色", value = "light")
-        TanreiListItem("深色", value = "dark")
-    }
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Multiple,
-        contentDescription = "标签",
-        selectedValues = labels,
-        onSelectionChange = { labels = it },
-    ) {
-        TanreiListItem("缺陷", value = "bug")
-        TanreiListItem("文档", value = "docs")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Flutter">
-    ```dart
-    import 'package:tanrei/tanrei.dart';
-
-    // 项是 TanreiListTile widget，沿用 ListTile 的命名。onTap 不为 null 时，这一项就是可交互的。
-    TanreiList<String>(
-      children: <Widget>[
-        TanreiListTile<String>(
-          title: 'WLAN',
-          subtitle: '已连接',
-          leadingIcon: const Icon(AppSymbols.wifi),
-          trailingIcon: const Icon(AppSymbols.chevronRight),
-          onTap: openWifi,
-          divider: true,
-        ),
-        TanreiListTile<String>(
-          title: '飞行模式',
-          trailing: TanreiSwitch(value: airplane, onChanged: setAirplane, label: '飞行模式', labelHidden: true),
-        ),
-      ],
-    );
-
-    // 选择保存在一个 Set 中，与 SegmentedButton 一样：single 时最多只有一个成员。
-    TanreiList<String>(
-      selectionMode: TanreiListSelectionMode.single,
-      selected: <String>{theme},
-      onSelectionChanged: (Set<String> value) => setState(() => theme = value.single),
-      semanticLabel: '主题',
-      children: const <Widget>[
-        TanreiListTile<String>(value: 'light', title: '浅色'),
-        TanreiListTile<String>(value: 'dark', title: '深色'),
-      ],
-    );
-    ```
-  </TabItem>
-  <TabItem label="React Native">
-    ```tsx
-    import { List, Switch } from '@tanrei/react-native';
-
-    // 项是数据。有 onPress 的项就是可交互的。
-    <List
-      items={[
-        { headline: 'WLAN', supportingText: '已连接', leadingIcon: 'wifi', trailingIcon: 'chevron_right', onPress: openWifi, divider: true },
-        { headline: '飞行模式', trailing: <Switch label="飞行模式" labelHidden value={airplane} onValueChange={setAirplane} /> },
-        { headline: '李华', supportingText: '编辑了路线图', leadingMedia: 'avatar', leading: '李' },
-      ]}
-    />
-
-    // 受控：列表调用 onSelectionChange，由你来更新 value 或 values。
-    <List
-      accessibilityLabel="主题"
-      selectionMode="single"
-      value={theme}
-      onSelectionChange={setTheme}
-      items={[{ headline: '浅色', value: 'light' }, { headline: '深色', value: 'dark' }]}
-    />
-    <List
-      accessibilityLabel="标签"
-      selectionMode="multiple"
-      values={labels}
-      onSelectionChange={setLabels}
-      items={[{ headline: '缺陷', value: 'bug' }, { headline: '文档', value: 'docs' }]}
-    />
     ```
   </TabItem>
 </Tabs>
 
+SwiftUI、Compose、Flutter 和 React Native 尚在追赶：它们提供的是旧版列表，其行带有标题、辅助文本以及前后部件，还没有本次修订的内容。
+
 ### 调整顺序
 
-<ListReorderProduct />
-
-<DemoFrame label="供用户调整顺序的列表：每一行有两个移动按钮" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="上移 {headline}" move-down-label="下移 {headline}" moved-text="“{headline}”已移到第 {position} 位，共 {count} 项" style="inline-size: 20rem">
-    <tanrei-list-item headline="摘要" divider></tanrei-list-item>
-    <tanrei-list-item headline="最近使用的文件" divider></tanrei-list-item>
-    <tanrei-list-item headline="与我共享" divider></tanrei-list-item>
-    <tanrei-list-item headline="归档"></tanrei-list-item>
+<DemoFrame label="可调整顺序的一列，每一项都带有页面自己的删除按钮" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
+    <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="后置插槽中放有页面自己的移除按钮，排在移动按钮之后" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="上移 {headline}" move-down-label="下移 {headline}" moved-text="“{headline}”已移到第 {position} 位，共 {count} 项" style="inline-size: 26rem">
-    <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="移除 Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="移除 Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="移除 Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
+`reorderable` 让用户调整项的顺序，无论是一列、一行还是网格。每一项在开头绘制一个手柄，表示它可以移动。可拖动的不只是手柄，而是整个项：鼠标移动几个像素后即拿起，手指或触控笔则需长按，因此滑动仍会滚动页面（触摸手柄会立即开始拖动）。其他项会滑开让路，被拿起的项浮在它们上方跟随指针，放下时落入自己的位置。
 
-`reorder` 为 `buttons` 时，用户可以调整各项的顺序。每一行画出两个图标按钮：一个把这一行上移一位，另一个把它下移一位。它们是 Tanrei 的按钮，所以键盘、指针、触摸、切换控制、语音控制和屏幕阅读器都以同样的方式使用它们，而且什么都不必拖动。
+拖动从来不是唯一的方式。手柄是一个按钮：按下它或按 Enter 会打开一个包含四种移动的菜单（移到开头、前移一位、后移一位、移到末尾）。使用键盘时，在手柄上按 Space 拿起项，方向键每次移动一位（Home 和 End 移到第一位和最后一位），Space 或 Enter 放下，Escape 放回原处。每一步都会播报。
 
-顺序是你的数据，所以列表从不改变它。按下按钮会触发 `move`，其中 `from` 是该项的索引，`to` 是它应当移到的索引，两者都从 0 算起。请据此调整各项的顺序。随后列表会画出两行交换位置，把焦点保持在被移动那一行的同一个按钮上，并告诉辅助技术这一行现在排在哪里。如果你什么都不改，就什么都不会发生：产品就是这样拒绝一次移动的。
+顺序是产品的数据，所以列表从不自行改变它。每种移动方式都会触发 `move`，其中 `from` 是项的索引，`to` 是它要到达的索引，均从 0 开始计数。请据此重新排列你的项。随后列表会绘制项交换位置的过程，让焦点保持在被移动项的手柄上，并告诉辅助技术它现在的位置。如果在 `comp.list.motion.reorder-duration` 的时间内你没有做任何改变，这次移动即被视为拒绝：项回到原位，也不会播报。
 
-请在 `comp.list.motion.reorder-duration` 的时间之内作出回应。更晚到达的顺序仍然会被画出来，但列表已经把这次移动当作被拒绝，不会朗读它。
-
-这三段文字由你提供。`moveUpLabel` 和 `moveDownLabel` 为按钮命名，各带一个占位符 `{headline}`，由列表填入所在行的标题（“`上移 {headline}`”）；`movedText` 是移动之后朗读的句子。用你的语言写出整个句子，并标出三个由列表填入的位置：`{headline}`、`{position}`（从 1 算起）和 `{count}`。这些文字可以写在列表上，也可以用 `setWords()` 为整个产品只给一次。
-
-可调整顺序的列表只包含静态行，并且绝不是列表框。行的后置插槽中可以放一个你自己的控件，排在移动按钮之后：通常是移除该项的按钮。
-
-`reorder` 为 `drag` 时，会增加一个供指针或手指拖动的手柄；它已在规格之中，但尚未实现。在 Web 上，它画出两个按钮，不画手柄。调整顺序目前在 Web 上提供。SwiftUI、Compose、Flutter 和 React Native 在这一点上待跟进。
+文字由产品提供：手柄的名称（`dragHandleLabel`，列表会在占位符 `{label}` 处填入项的名称）、它的说明（`dragHandleHint`）、菜单中的四种移动，以及要播报的三句话（`liftedText`、`movedText`、`cancelledText`，占位符为 `{label}`、`{position}` 和 `{count}`）。可以在列表上提供，也可以用 `setWords()` 为整个产品提供一次。在一行的列表中，把一列中的“上移”“下移”写成“左移”“右移”。
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="上移 {headline}" move-down-label="下移 {headline}"
-                 moved-text="“{headline}”已移到第 {position} 位，共 {count} 项">
-      <tanrei-list-item headline="Inter">
-        <!-- 你自己的控件，排在两个移动按钮之后。用该项为它命名。 -->
-        <tanrei-button slot="trailing" variant="text" label="移除 Inter"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
-      <tanrei-list-item headline="Noto Sans JP">
-        <tanrei-button slot="trailing" variant="text" label="移除 Noto Sans JP"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
+    <tanrei-list id="fonts" reorderable label="Typefaces"
+                 drag-handle-label="Reorder {label}"
+                 drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves"
+                 move-to-start-label="Move to top" move-before-label="Move up"
+                 move-after-label="Move down" move-to-end-label="Move to bottom"
+                 lifted-text="{label} lifted: {position} of {count}"
+                 moved-text="{label}: {position} of {count}"
+                 cancelled-text="{label} returned to {position} of {count}">
+      <tanrei-list-item label="Inter">Inter</tanrei-list-item>
+      <tanrei-list-item label="Noto Sans JP">Noto Sans JP</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      import '@tanrei/web/components/button';
       const list = document.querySelector('#fonts');
-      // 列表什么都没有移动。把该项放到它被要求去的位置：from 和 to 都从 0 算起。
+      // The list has moved nothing. Put the item where it was asked to stand: from and to count from 0.
       list.addEventListener('move', ({ detail: { from, to } }) => {
         const items = [...list.children];
         list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
@@ -297,16 +176,22 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, List, ListItem } from '@tanrei/react';
+    import { List, ListItem } from '@tanrei/react';
 
     const [fonts, setFonts] = useState(['Inter', 'Noto Sans JP', 'Helvetica Neue']);
 
-    // 顺序是你的状态。列表会在你渲染出的顺序中重新找到被移动的那一行。
+    // The order is your state. The list finds the moved item again in the order you render.
     <List
-      reorder="buttons"
-      moveUpLabel="上移 {headline}"
-      moveDownLabel="下移 {headline}"
-      movedText="“{headline}”已移到第 {position} 位，共 {count} 项"
+      reorderable
+      label="Typefaces"
+      dragHandleLabel="Reorder {label}"
+      moveToStartLabel="Move to top"
+      moveBeforeLabel="Move up"
+      moveAfterLabel="Move down"
+      moveToEndLabel="Move to bottom"
+      liftedText="{label} lifted: {position} of {count}"
+      movedText="{label}: {position} of {count}"
+      cancelledText="{label} returned to {position} of {count}"
       onMove={(e) => {
         const { from, to } = e.detail;
         setFonts((now) => {
@@ -317,11 +202,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
       }}
     >
       {fonts.map((font) => (
-        <ListItem key={font} headline={font}>
-          <Button slot="trailing" variant="text" label={`移除 ${font}`} onClick={() => setFonts((now) => now.filter((each) => each !== font))}>
-            <span slot="icon">close</span>
-          </Button>
-        </ListItem>
+        <ListItem key={font} label={font}>{font}</ListItem>
       ))}
     </List>
     ```
@@ -330,142 +211,81 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 ## 规格
 
-<DemoFrame label="媒体、行数、禁用和多选" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="李华" supporting-text="2 小时前编辑了路线图" leading-media="avatar"><span slot="leading">李</span></tanrei-list-item>
-    <tanrei-list-item headline="路线图" overline="工程" supporting-text="下个季度的计划，包括里程碑、负责人以及我们已经知道的风险。" supporting-max-lines="2" leading-media="image" trailing-text="9:41"></tanrei-list-item>
-    <tanrei-list-item headline="归档" leading-icon="archive" interactive disabled></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="multiple" label="标签" style="inline-size: 20rem">
-    <tanrei-list-item headline="缺陷" supporting-text="12 个未解决的问题" leading-icon="label" value="bug"></tanrei-list-item>
-    <tanrei-list-item headline="功能" supporting-text="4 个未解决的问题" leading-icon="label" value="feature"></tanrei-list-item>
-    <tanrei-list-item headline="文档" supporting-text="7 个未解决的问题" leading-icon="label" value="docs" disabled></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
-
 <ComponentSpecs name="list" />
 
 ## 指南
 
 ### 何时使用
 
-列表用于排成一列的同类事物：消息、联系人、文件、设置，或者选择器中的选项。每一行都以同一类元素开头、以同一类值结尾，所以整列可以一眼扫过。如果是一件需要更多篇幅来说明的事物，用卡片；如果用户要跨列比较数值，用表格；如果是从按钮打开的一小组操作，用菜单。
+列表用于一组同类事物，供用户浏览、打开、选择或排列：消息、人员、文件、照片、设置、选择器的选项。需要跨列比较数值时用表格；从按钮打开的一小组操作用菜单。
 
-列表自己什么也不画。它不加背景，不在项的周围加内边距，也不滚动。请把它放在某个表面上、放进卡片里（要做成 iOS 设置那样的分组列表，就关闭 `inset`），或者放进屏幕的滚动视图中。
+列表自身不绘制任何东西：没有背景，项周围没有内边距，也不滚动。把它放在表面上、卡片中或屏幕的滚动视图里，并通过内容赋予每一项所需的外观。
 
-### 四种行
+### 四种项
 
-行始终是一个 `list-item`。它是哪一种，取决于列表的 `selection` 以及项的 `interactive` 和 `href`。
-
-| 种类 | 如何得到 | 它是什么 | 用途 |
+| 种类 | 如何得到 | 它是什么 | 用于 |
 | --- | --- | --- | --- |
-| 静态 | `selection` 为 none，`interactive` 为 false | 展示内容的列表项。它不接受焦点，也不画悬停或按下的效果。 | 只供阅读的行，以及在后置插槽中放有自己控件（例如开关）的行。 |
-| 可交互 | `interactive` 为 true | 列表项内的一个按钮，以标题命名。 | 每一行各自更改某项内容或就地打开某项内容：一项设置、窗格中的一条消息、一个对话框。 |
-| 链接 | 设置了 `href` | 列表项内的一个链接，以标题命名，画法与可交互的行完全相同。Enter 激活它，Space 不激活。`href` 优先于 `interactive`。 | 每一行各自前往一个有自己地址的页面：页面索引、搜索结果、相关文档。 |
-| 选项 | `selection` 为 single 或 multiple | 列表框的一个选项，带有选中状态。 | 从这些行中做选择：主题、语言、某个问题的标签。 |
+| 静态 | `selection` 为 none、`interactive` 为 false、没有 `href` | 内容本身。没有焦点，也没有悬停或按下。 | 只供阅读的项，以及包含自己控件的项。 |
+| 交互 | `interactive` | 列表项中的一个按钮。 | 每一项都会改变某些东西或就地打开它。 |
+| 链接 | `href` | 列表项中的一个链接，外观与交互项完全相同。Enter 打开它，Space 不会。 | 每一项都前往一个有自己地址的页面。 |
+| 选项 | `selection` 为 single 或 multiple | 列表框的一个选项，带有选中状态和对勾。 | 从项中选择。 |
 
-一个列表可以混用静态行、可交互的行和链接行。可选择的列表只包含选项：在那里 `interactive` 和 `href` 会被忽略。可调整顺序的列表只包含静态行：在那里 `interactive` 和 `href` 同样会被忽略，因为本身就是一个按钮或一个链接的行，容纳不了用来移动它的按钮。
+一个列表可以混合静态项、交互项和链接项。可选列表只包含选项。可调整顺序的列表只包含静态项，且永远不是列表框：操作、链接或选项靠按下来使用，而按下会被拖动占用。
 
-### 供用户调整顺序的列表
+### 可调整顺序的列表
 
-- `reorder` 用于顺序有含义、并且由用户自己决定的短列表：字体栈中的各个字体族、主屏幕的各个板块、一个队列。对于长列表，请改为提供排序的办法。每按一次，行移动一位。
-- 在 `move` 的处理函数中调整各项的顺序，或者在它之后、你的框架一渲染就调整。你可以移动已有的元素，也可以渲染新的元素：列表凭位置和标题找到被移动的那一行。
-- 移动按钮的文字里要包含行标题的位置（“`上移 {headline}`”“`下移 {headline}`”）。标题成为每个按钮名称的一部分，所以在页面按钮列表里和语音控制中都能分清不同行的按钮。
-- 把 `movedText` 写成带有三个位置的一个完整句子。列表自己不拼任何短语，所以词序就是你的语言的词序。
-- 后置插槽中最多放一个控件，并用该项为它命名（“移除 Inter”），这样两行的移除按钮才能区分开。
-- 列表只朗读移动，别的都不朗读。移除或添加一项时，说什么由你决定。移除最后一项时，请自己把焦点移到用户添加新项的地方。
-- 给行留出空间。如果移动按钮和后置控件会让文本窄于 `reorder.text-min-width`（默认文字大小下为 96 px，文字放大时随之变宽），列表的每一行都会把它们放到文本下方单独的一行上；那一行也放不下时，后置控件再放到下一行。在默认系统中，带移除按钮而没有图标、头像或图片的行，在默认文字大小下，行宽约 300 px 及以上时按钮留在文本旁边；文字为 200% 时则放到文本下方。
+- 当顺序有意义且由用户决定时使用 `reorderable`：字体栈中的字族、主屏幕上的版块、附件中的文件、队列。对于很长的列表，请改为提供排序方式。
+- 在 `move` 处理函数中，或在框架重新渲染后尽快重新排列你的项。你可以移动已有的元素，也可以渲染新的元素：列表会按位置和名称找到被移动的项。
+- 当内容的文本不能很好地命名项时，为它设置 `label`：名称是手柄名称的一部分，因此两个项的手柄可以区分开，而且它也是播报的内容。
+- 每句话都要完整书写，并包含其占位符。列表不会自行拼接短语，所以词序遵循你的语言。
+- 你放在项中的控件（例如删除该项的按钮）在手柄之后保留自己的焦点位置。请用项的名称为它命名（“删除 Inter”）。删除拥有焦点的项时，列表会把焦点移到接替其位置的项的手柄上；删除这件事请由产品自己告知。
 
-### 如何选择选择模式
+### 选择模式
 
 | 选择 | 列表是 | 选择一个选项时 |
 | --- | --- | --- |
-| None（默认） | 列表 | 不选中任何内容。可交互的行触发各自的 click。 |
-| Single | 列表框 | 选中该选项，并清除原先选中的那个。与单选按钮一样，再次选择已选中的选项并不能取消它。如果“无”是一个有效的答案，就为它加一个选项。 |
-| Multiple | 可多选的列表框 | 打开或关闭该选项。 |
+| 无（默认） | 列表 | 不选中任何东西。交互项触发自己的 click。 |
+| 单选 | 列表框 | 选中该选项并取消之前选中的项。再次选择它不会取消选中。 |
+| 多选 | 多选列表框 | 切换该选项的开和关。 |
 
-方向键只移动焦点。只有当用户按下 Space 或 Enter，或者轻点该行时，选择才会改变。这是有意为之：在列表中，选择一行可能会启动一个耗时的操作，而划过五十行绝不应该启动五十次加载。
+方向键只移动焦点；当用户按 Space 或 Enter，或轻点项时，选择才会改变。选中的选项以选中填充色和末尾的对勾绘制，每个选项都会保留对勾的空间，使内容对齐。
 
-选中的选项以选中填充绘制，末尾还有一个对勾。在默认系统中，这个填充和菜单中勾选的项一样，是行内容颜色的一层，因此在任何表面上都能与悬停的行区分开。每个选项都为对勾留出了位置，所以文本是对齐的。让这个状态达到 3:1 对比度的是对勾，仅凭填充达不到。
+### 推荐做法
 
-### 行及其部件
+- 为可选列表设置说明选项是什么的 `label`，为可调整顺序的列表设置说明项是什么的 `label`。
+- 前往页面的项使用 `href`，就地执行的项使用 `interactive`。
+- 在两个列表之间放一个标题来划分区块。列表没有自己的区块标题。
 
-- 只有标题时是单行的行。加上眉标，或加上一行辅助文本，是两行的行。辅助文本有两行或更多时，是三行的行。内容更多或文本更大时，行会超出这些高度继续增高。
-- `supportingMaxLines` 会把过长的辅助文本以省略号截断，适用于预览列。辅助技术读到的仍是完整文本。
-- 在行的起始侧，使用前置图标或前置媒体：头像（圆形的框，用于人）或图片（更大的圆角方形，用于物）。媒体会取代图标。
-- 在行的末尾侧，使用简短的后置文本（数量、时间）、后置图标（会打开内容的行用箭头），静态行还可以放你自己的控件。`target` 的值为 `new` 的链接行会自行把 `open_in_new` 画成后置图标，除非你指定了别的图标。
-- 图标是设计系统图标集中图标的名称（`wifi`、`chevron_right`）。表示沿行方向的图标，在从右到左的布局中会被镜像。
-- `divider` 在行的下方画一条细线，从文本开始的位置画起，颜色是所有组件共用的那一种细线颜色。除最后一行外的每一行都设置它，或者只在一组的末尾设置。不要自己在行与行之间加[分隔线](/zh-cn/components/divider/)。
+### 避免的做法
 
-### 推荐
-
-- 标题保持简短，细节放进辅助文本。标题就是这一行的名称。
-- 给可选择的列表一个说明这些选项是什么的 `label`，例如“主题”。
-- 用来切换某项设置的行，应做成静态行，并在后置插槽中放一个开关。用标题为开关命名，并隐藏开关的可见标签。
-- 要分出章节，就在两个列表之间放一个标题。列表自己没有章节标题。
-- 前往某个页面的行，给它 `href`；就地执行操作的行，才使用 `interactive`。在点击处理函数中进行导航的行不是链接：它不能在新标签页中打开，它的地址也无法复制。
-
-### 避免
-
-- 不要在可交互的行、链接行或选项中放按钮、链接、开关或其他任何控件。行是一个元素，所以辅助技术够不到其中的控件，而且按下控件也会激活这一行。
-- 不要把选项用于立即执行的事情。列表框是用来选值的。操作请使用可交互的行。
-- 不要禁用静态行。它没有可以禁用的操作，所以 `disabled` 在那里会被忽略。
-- 不要在行中画复选框或单选按钮来表示选中。请使用 `selection`，它会画出对勾并暴露状态。
+- 不要在交互项、链接项或选项中放入按钮、链接、开关或任何其他控件。项是一个元素，辅助技术无法到达其中的控件，而且按下控件也会激活该项。
+- 不要把选项用于立即执行的操作。列表框用于选择值。
+- 不要自己绘制拖动手柄或移动按钮：`reorderable` 会绘制手柄，它的菜单就是无需拖动的移动方式。
 
 ## 无障碍
 
 <ComponentAccessibility name="list" />
 
-### 组件负责的部分
+### 组件负责的事项
 
-- 没有选择功能的列表作为列表暴露，每一行作为列表项暴露，并带有它的位置和列表的大小。可交互的行是其列表项内的一个按钮，链接行是其列表项内的一个链接。
-- 链接行与可交互的行一样，在列表的方向键顺序之内。Enter 跟随链接；Space 的作用与在任何链接上相同，也不显示按下状态。在新标签页中打开的链接行，会在名称和描述之后朗读它的 `targetLabel`。禁用的链接行没有可以跟随或复制的内容，但仍然可以用方向键到达。
-- 可选择的列表作为列表框暴露，以 `label` 命名；`selection` 为 multiple 时它是可多选的。每一行是一个选项，带有选中状态、它的位置和列表的大小。
-- 可交互的行、链接行或选项以标题命名，并按阅读顺序以眉标、辅助文本和后置文本作为描述。图标、对勾、分隔线和前置媒体是隐藏的。
-- 含有可交互的行或选项的列表是一个 Tab 停靠点。Tab 会前往上次聚焦的行，否则前往第一个选中的选项，再否则前往第一个启用的行。上、下方向键在行之间移动，到头不循环。Home 和 End 前往第一行和最后一行。键入字符会移到标题以所键入字母开头的下一行。Space 和 Enter 激活。静态行不接受焦点。静态行中的控件保留自己的 Tab 停靠点。
-- 在可调整顺序的列表中，每个移动按钮都是一个按钮，以 `moveUpLabel` 或 `moveDownLabel` 命名，所在行的标题填在占位符 `{headline}` 中。每个按钮各是一个 Tab 停靠点，按阅读顺序排在行的后置控件之前。这时列表不是单独一个 Tab 停靠点，方向键也不起作用。第一行的上移按钮和最后一行的下移按钮是禁用的，但仍然绘制，所以每一行在相同的位置上都有相同的部件。
-- 移动之后，焦点留在被移动那一行的同一个按钮上，所以再按一次键就会再移动一次。如果这一行成了第一行或最后一行，焦点会移到它的另一个移动按钮上。
-- 可调整顺序的列表有一个礼貌（polite）的实时区域（live region）。移动之后，其中是填入了行的标题、新位置和行数的 `movedText`，之后的移动会替换它。数字按列表的语言的写法书写。除此之外没有任何东西朗读移动。
-- 两行以一段短促的动效交换位置；减弱动态效果时则立即交换。
-- 移除持有焦点的那一行时，焦点会移到现在占据它位置的那一行的同一个控件上，否则移到前一行的同一个控件上。
-- 如果控件会挤压文本，它们就移到文本下方单独的一行上，任何控件都不会变得比它的目标更小。
-- 禁用的行仍然可以用方向键到达，这样用户能知道它们存在，但它们无法被激活。
-- 焦点环画在行的内部，所以列表外面的滚动视图不会把它裁掉。它只在键盘聚焦时显示。
-- 可交互的行或选项的高度不小于最小目标，整行都是它的点击区域。各行的点击区域绝不相互重叠。
-- 文本变大时，行随之增高。标题会换行，绝不会被截断。
-- 调试构建会报告：没有标题的行、没有标签的可选择列表、值为空或重复的选项、没有指向任何选项的选择、带有 `href` 的选项、是 `javascript:` 地址或无法读取的 `href`、未知的 `target`，以及 `target` 的值为 `new` 却没有 `targetLabel` 的链接行。对于可调整顺序的列表，它们会报告：没有人给出的移动文字（每段文字报告一次）、`movedText` 中花括号里不属于那三个位置的文本、带有 `interactive` 或 `href` 的行，以及用在可选择列表上的 `reorder`。
+- 没有选择的列表以列表公开，每一项是带有位置和列表项数的列表项。交互项是列表项中的一个按钮，链接项是其中的一个链接。可选列表是以 `label` 命名、带有方向的列表框；每一项是带有选中状态的选项。
+- 含有交互项、链接或选项的列表是一个 Tab 停靠点。按排列方式对应的方向键（一列中上下、一行中左右，在从右到左的布局中反转；网格中也可跨行移动）在项之间移动，不会循环。Home、End 和输入查找都可用。静态项不获得焦点；其中的控件保留自己的 Tab 停靠点。
+- 在可调整顺序的列表中，每个手柄都是一个菜单按钮，名称为填入项名称的 `dragHandleLabel`，说明为 `dragHandleHint`，并且是独立的 Tab 停靠点。它的菜单只需单次按下就能移动项，满足 WCAG 关于凡是能拖动完成的操作都能不拖动完成的要求（2.5.7）。Space 为键盘拿起项（2.1.1）。
+- 一个礼貌的实时区域会播报：键盘拿起了项、每一步将放下的位置、移动生效后的位置，以及按 Escape 后放回原处。
+- 被拖动的项带着拖动时的填充色和阴影跟随指针；其他项以重排动效滑开。在减少动效的设置下，除指针下的项外，其余一切都立即移动。在强制颜色模式下，被拖动的项以高亮色描边。
+- Escape 把被拖动的项放回原处，不会同时关闭包含列表的对话框。长按项不会打开浏览器的菜单。
+- 交互项、链接和选项不小于最小目标尺寸，焦点环绘制在其内部，并随文字放大而变大。
+- 调试版本会报告：没有名称的项、没有标签的可选列表或可调整顺序的列表、值为空或重复的选项、不指向任何选项的选择、交互项或选项中的控件、没人提供的文字，以及可选列表上的 `reorderable`。
 
-已知的平台差距：
+已知的平台差异：
 
-- Web：`reorder` 为 `drag` 的形式尚未实现。它画出两个移动按钮，不画手柄，也没有任何东西可以拖动。
-- SwiftUI、Compose、Flutter 和 React Native 还没有可调整顺序的列表：没有 `reorder`、`move`，也没有那三段文字。
-- SwiftUI、Compose、Flutter 和 React Native 还没有链接行：没有 `href`、`target` 和 `targetLabel`。
-- SwiftUI 没有列表或列表框角色，也没有可多选属性。列表是一个以 `label` 命名的容器，每个可交互的行或选项是一个按钮（选项被选中时带有选中特征），并且各自把位置作为自己的值（“2 of 3”），只有英文。
-- SwiftUI 从不把键盘焦点交给禁用的按钮，所以方向键会跳过禁用的行，而不是到达它。
-- SwiftUI 始终对辅助技术隐藏前置媒体，所以你命名过的照片不会被朗读。
-- SwiftUI 只从直接加在 `TanreiListItem` 上、并且位于其他修饰符之前的 `.tag(_:)` 读取选项的值。加在其他视图上的 tag 传不到它那里。
-- SwiftUI：方向键、Home、End、键入查找和 Tab 停靠点是作为规则来测试的，还没有用真实键盘测试。
-- React Native 没有列表框角色，也没有可多选属性。可选择的列表保留列表角色，每个选项有选项角色和选中状态。VoiceOver 和 TalkBack 对列表本身朗读什么，由平台决定。
-- React Native 没有“在集合中的位置”属性。可交互的行或选项把位置作为自己的值文本（“2 of 3”）。静态行不是一个独立的元素，所以不会为它朗读位置。除非你传入 `positionText`，否则位置文本是英文的。
-- React Native：方向键、Home、End 和键入查找通过一个按键事件传入，这个事件还没有在带硬件键盘的设备上检查过。
-- Flutter 没有列表框或选项角色，没有可多选标志，也没有位置或集合大小。可选择的列表作为由可选择的列表项组成的列表暴露。
-- Flutter 始终对辅助技术隐藏前置媒体，所以你命名过的照片不会被朗读。
-- Compose 没有列表、列表框或选项角色，也没有可多选标志。列表是一个集合，TalkBack 会朗读每个选项是否被选中。
-- Compose：列表中有 `LazyColumn` 时，只有已经组合的行才计入位置、集合大小和方向键的范围。
-- Compose 始终对辅助技术隐藏前置媒体，所以你命名过的照片不会被朗读。
-- Compose：只有列表的 Tab 停靠点接受焦点请求。无论来自你的代码还是无障碍服务，让另一行获得焦点的调用都不起作用。
-- Compose：经由平台真实按键处理的键盘操作，以及 TalkBack 在列表框上的表现，只在 Robolectric 下测试过，还没有在真机上测试。
-- SwiftUI、Compose、Flutter 和 React Native 无法检查你放进行的插槽里的内容，所以它们不会报告可交互的行或选项中的控件。这条规则要由你来遵守。
+- SwiftUI、Compose、Flutter 和 React Native 提供的是旧版列表，没有本次修订的内容：还没有方向、折行、间距、内容插槽或调整顺序。
 
-### 需要你做的事
+### 你需要做的事
 
-- 给可选择的列表一个 `label`。没有它，列表框就没有名称。
-- 标题要能把各行区分开。标题是屏幕阅读器最先读出的内容，也是键入查找所匹配的内容。
-- 给 `target` 的值为 `new` 的链接行一个使用你的产品语言的 `targetLabel`，例如“在新标签页中打开”。Tanrei 自己不附带任何文字。
-- 用你的产品语言给可调整顺序的列表提供它的三段文字：`moveUpLabel`、`moveDownLabel` 和 `movedText`。没有前两段，按钮可以工作，但没有名称。没有第三段，移动不会被朗读。
-- 在 `move` 触发时调整各项的顺序。列表什么都没有改变，而晚于调整顺序动效时长才给出的顺序，会被画出来但不朗读。
-- 移除或添加要由你自己来说明，最后一项被移除时也要由你自己移动焦点。
-- 可交互的行、链接行和选项中不要放控件。需要自己控件的行应保持静态，把控件放在后置插槽中，并用标题为控件命名。
-- 如果头像或图片带有标题没有表达的含义，就在辅助文本中说出来。除非你为媒体命名，否则它对辅助技术是隐藏的，而 SwiftUI、Compose 和 Flutter 从不朗读它。
-- 对于很长的数据，请自己构建惰性加载的列表，并在平台需要的地方声明集合大小。列表不滚动，也不做虚拟化。
-- 在 React Native 上，传入使用你的产品语言的 `positionText`。在 SwiftUI 上，位置以英文朗读，目前还没有办法更改。
+- 为可选列表和可调整顺序的列表设置 `label`。
+- 用产品的语言为可调整顺序的列表提供文字。没有它们，手柄仍可使用但没有名称，也不会播报任何内容。
+- `move` 触发时重新排列你的项。列表没有改变任何东西。
+- 为 `target` 为 `new` 的链接项设置 `targetLabel`，例如“在新标签页中打开”。
+- 不要在交互项、链接和选项中放入控件。需要自己控件的项保持静态。
+- 数据量大时，自行构建延迟加载的列表，并在平台需要时说明项数。列表不滚动，也不虚拟化。
