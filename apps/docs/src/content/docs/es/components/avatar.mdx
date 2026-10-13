@@ -2,7 +2,7 @@
 title: Avatar
 description: Representa a una persona, un equipo o un proyecto con una imagen pequeña, o con iniciales o un glifo donde no la hay, en un círculo o en un cuadrado redondeado de tres tamaños. Varios se muestran como un solo grupo superpuesto que cuenta el resto. Es una imagen, nunca un control.
 translationOf: components/avatar.mdx
-sourceHash: 3fba4dba17faacf3912404f2c65a411b7cfa585a
+sourceHash: 0dc89fe7806ced38df57f747d4c563da8486504b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
   <tanrei-avatar label="Alguien sin imagen"></tanrei-avatar>
   <tanrei-avatar label="Equipo de diseño" initials="ED" shape="square"></tanrei-avatar>
-  <tanrei-avatar-group label="Revisores" max="4" overflow-label="y 3 más">
+  <tanrei-avatar-group label="Revisores" max="4" overflow-label="y {count} más">
     <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
     <tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar>
     <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
@@ -51,7 +51,7 @@ En la web es `<tanrei-avatar>`, y varios juntos son `<tanrei-avatar-group>`. Las
     <tanrei-avatar label="Servicio de compilación" shape="square"><span slot="icon">smart_toy</span></tanrei-avatar>
 
     <!-- Seis miembros y cuatro cajas como máximo: tres miembros y «+3». -->
-    <tanrei-avatar-group label="Revisores" max="4" overflow-label="y 3 más">
+    <tanrei-avatar-group label="Revisores" max="4" overflow-label="y {count} más">
       <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
       <tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar>
       <!-- … -->
@@ -70,7 +70,7 @@ En la web es `<tanrei-avatar>`, y varios juntos son `<tanrei-avatar-group>`. Las
 
     <Avatar label={person.name} initials={person.initials} src={person.picture} />
 
-    <AvatarGroup label="Revisores" max={4} total={reviewerCount} overflowLabel={`y ${reviewerCount - 3} más`}>
+    <AvatarGroup label="Revisores" max={4} total={reviewerCount} overflowLabel="y {count} más">
       {reviewers.slice(0, 3).map((person) => (
         <Avatar key={person.id} label={person.name} initials={person.initials} src={person.picture} />
       ))}
@@ -165,7 +165,7 @@ Todos los respaldos tienen el mismo relleno discreto. No hay un color por person
 Un grupo dibuja sus miembros en una sola fila. Cada uno se superpone al anterior un cuarto de su lado, con una separación del color de la superficie alrededor de cada uno.
 
 <DemoFrame label="Un grupo que cuenta lo que no se le dio" plain>
-  <tanrei-avatar-group label="Miembros" max="4" total="240" overflow-label="y 237 más">
+  <tanrei-avatar-group label="Miembros" max="4" total="240" overflow-label="y {count} más">
     <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
     <tanrei-avatar label="Grace Hopper"></tanrei-avatar>
     <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
@@ -218,6 +218,6 @@ Un grupo con `max` muestra todos los miembros que le diste hasta que el script l
 ### Qué debes hacer tú
 
 - Decide para cada avatar si tiene nombre o es decorativo. La regla: si al eliminar el avatar se pierde un nombre, tiene nombre. Si no, es decorativo.
-- Escribe `overflowLabel` en el idioma de la página, con el número dentro («y 3 más»). Sin él, «+3» se lee tal como se dibuja.
+- Escribe `overflowLabel` una vez, en el idioma de la página, con el marcador `{count}` donde va el número («`y {count} más`»): en el grupo o para todo el producto con `setWords({ avatarGroupOverflowLabel })`. El grupo pone el número que no dibuja, completo aunque dibuje 999+. Escribe una frase correcta para cualquier número, o cámbiala según el número donde tu idioma necesite otra forma. Sin él, «+3» se lee tal como se dibuja.
 - Da a un avatar pequeño que esté dentro de un enlace sitio suficiente para pulsarlo. El avatar mide 24 de ancho; el enlace debe cumplir por sí mismo el objetivo mínimo.
 - Una imagen trae sus propios colores. Donde las imágenes suelan ser pálidas en el borde, da un tono a la superficie que tienen detrás.
