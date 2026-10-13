@@ -1,7 +1,9 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { keyed } from 'lit/directives/keyed.js';
-import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, OpenAxesController, hostAria, report } from '../../primitives/index.js';
+import { wordPlaces } from '../../generated/words.js';
+import { AvailabilityController, GlyphDrawnController, GlyphMirrorController, OpenAxesController, WordsController, hostAria, report } from '../../primitives/index.js';
+import { fillPlaces, placeFaults, reportPlaces } from '../../primitives/places.js';
 import type { TanreiAvatarShapeRegistry, TanreiAvatarSizeRegistry } from '../../registry.js';
 import { AXES, GROUP_AXES, groupStyles, styles } from './avatar.styles.js';
 
@@ -250,7 +252,8 @@ export class TanreiAvatar extends LitElement {
  * not a member and is not drawn.
  *
  * It is a group named by `label`, holding one named image per member it draws and then the overflow's text
- * (`overflow-label`, or the drawn count). The overflow box is text, not a control: showing the people it counts is a
+ * (`overflow-label` or the product's words `avatarGroupOverflowLabel`, with `{count}` filled by the number not drawn;
+ * else the drawn count). The overflow box is text, not a control: showing the people it counts is a
  * link or a Button beside the group.
  *
  * @tag tanrei-avatar-group
@@ -260,6 +263,7 @@ export class TanreiAvatar extends LitElement {
  */
 export class TanreiAvatarGroup extends LitElement {
   private readonly availability = new AvailabilityController(this, 'avatar');
+  private readonly words = new WordsController(this);
   static override styles = groupStyles;
   /** The group decides which of its children are drawn (AVT-17): the others stay in the document, assigned to no slot. */
   static override shadowRootOptions: ShadowRootInit = { ...LitElement.shadowRootOptions, slotAssignment: 'manual' };
@@ -283,7 +287,11 @@ export class TanreiAvatarGroup extends LitElement {
   /** How many members there are, where the product gives the group fewer than exist. Null (no attribute) counts the members given. */
   total: number | null = null;
 
-  /** What assistive technology reads for the overflow box, in the product's language and with the number in it ("and 12 more"). Empty reads the drawn text ("+12"). */
+  /**
+   * What assistive technology reads for the overflow box: your sentence with the place `{count}`, which the group fills
+   * with the number of members not drawn, in full ("{count} more"). Empty reads the product's words
+   * (`setWords({ avatarGroupOverflowLabel })`); with neither, the drawn text ("+12").
+   */
   overflowLabel = '';
 
   /** The size of every member and of the overflow box. */
@@ -341,6 +349,20 @@ export class TanreiAvatarGroup extends LitElement {
     } catch {
       return undefined;
     }
+  }
+
+  /**
+   * AVT-19: what assistive technology reads for the overflow box — the product's sentence with `{count}` filled by the
+   * number not drawn, in full and in the locale's digits without grouping (never cut at 999 as the drawn text is); empty
+   * where there is no sentence.
+   */
+  private spoken(hidden: number): string {
+    const sentence = (this.words.get('avatarGroupOverflowLabel', this.overflowLabel ?? '') ?? '').trim();
+    if (!sentence) return '';
+    const count = new Intl.NumberFormat(this.locale(), { useGrouping: false, maximumFractionDigits: 0 }).format(hidden);
+    return fillPlaces(sentence, { count })
+      .runs.map((run) => run.text)
+      .join('');
   }
 
   /** AVT-17, AVT-18: the overflow box's text — a plus sign and the number not drawn, in the locale's digits without grouping; above 999, 999 and a plus sign. */
@@ -401,6 +423,13 @@ export class TanreiAvatarGroup extends LitElement {
     if ((has('total') || has('members')) && this.total !== null && this.total !== undefined && this.count !== this.total) {
       report(this, 'AVT-22', `total ${this.total} is not a whole number of at least the ${this.members.length} members given; the members given are counted`);
     }
+    // AVT-19: what of the sentence is not its place, and a sentence that does not say how many.
+    const sentence = shown && this.count > this.drawn ? (this.words.get('avatarGroupOverflowLabel', this.overflowLabel ?? '') ?? '').trim() : '';
+    if (sentence) {
+      const declared = wordPlaces.avatarGroupOverflowLabel ?? [];
+      reportPlaces(this, 'AVT-19', 'overflowLabel', sentence, declared, 'it is read as it is written');
+      for (const name of placeFaults(sentence, declared).absent) report(this, 'AVT-19', `overflow-label has no place {${name}}, so it does not say how many are not drawn; write it as "{${name}} more"`);
+    }
     // AVT-23: a group's props with no members to count.
     if (!shown && (this.max !== 0 || (this.total !== null && this.total !== undefined) || (this.overflowLabel ?? '') !== '')) {
       report(this, 'AVT-23', 'max, total or overflow-label is set on a group that has no members; it draws nothing');
@@ -409,8 +438,8 @@ export class TanreiAvatarGroup extends LitElement {
 
   protected override render() {
     const hidden = this.count - this.drawn;
-    const spoken = (this.overflowLabel ?? '').trim();
-    // AVT-19: the members in the order given, then the overflow's text — overflow-label, or the text as drawn.
+    const spoken = hidden > 0 ? this.spoken(hidden) : '';
+    // AVT-19: the members in the order given, then the overflow's text — the product's sentence, or the text as drawn.
     return html`
       <span class="row" ?hidden=${this.members.length === 0}>
         <slot></slot>

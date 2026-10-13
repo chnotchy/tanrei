@@ -2,7 +2,7 @@
 title: ファイル項目
 description: 1 つのファイルを見せます。形式を表すグリフか小さな画像、名前、そしてプロダクトがそのファイルについて伝えることを描き、取り除くアクションともう一度試すアクションが付きます。縦に並ぶファイルの行にも、画像の並びのタイルにもなります。押してファイルを開くこともできます。自身がファイルを読むことも、保持することも、送ることもありません。
 translationOf: components/file-item.mdx
-sourceHash: 7d87ffe88f4c926c993c8b2d399a647f70ab8368
+sourceHash: cc5762baeef8ad3e53caec5261135b190bb30fad
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,10 +19,10 @@ import { demoPicture } from '../../../../lib/demo-picture';
 <ComponentAvailability name="file-item" />
 
 <DemoFrame label="行にした 1 つのファイルと、タイルにしたファイル" column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="{name} を取り除く"></tanrei-file-item>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
-    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="取り除く"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="取り除く"></tanrei-file-item>
+    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="{name} を取り除く"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="{name} を取り除く"></tanrei-file-item>
   </div>
 </DemoFrame>
 
@@ -58,12 +58,12 @@ Web では `<tanrei-file-item>` です。ほかのプラットフォームはま
     <ul class="attachments" aria-label="添付ファイル">
       <li>
         <tanrei-file-item value="a" name="brief.pdf" format-text="PDF" size-text="820 KB"
-                          href="/files/brief.pdf" remove-label="取り除く"></tanrei-file-item>
+                          href="/files/brief.pdf" remove-label="{name} を取り除く"></tanrei-file-item>
       </li>
       <li>
         <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB"
                           status="uploading" status-text="アップロード中" progress="0.4"
-                          remove-label="取り除く" retry-label="もう一度試す"></tanrei-file-item>
+                          remove-label="{name} を取り除く" retry-label="{name} をもう一度試す"></tanrei-file-item>
       </li>
     </ul>
 
@@ -90,7 +90,7 @@ Web では `<tanrei-file-item>` です。ほかのプラットフォームはま
           <FileItem value={file.id} name={file.name} sizeText={file.sizeText}
             status={file.status} statusText={file.statusText} progress={file.progress}
             errorText={file.errorText} retryable={file.retryable}
-            removeLabel="取り除く" retryLabel="もう一度試す"
+            removeLabel="{name} を取り除く" retryLabel="{name} をもう一度試す"
             onRemove={() => remove(file.id)} onRetry={() => retry(file.id)} />
         </li>
       ))}
@@ -104,12 +104,12 @@ Web では `<tanrei-file-item>` です。ほかのプラットフォームはま
 ## 仕様
 
 <DemoFrame label="状態ごとの行。待機中、40% まで送信、送信中、完了、失敗して再試行できる、失敗して再試行できない" plain column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="待機中" remove-label="取り除く"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="アップロード中" progress="0.4" remove-label="取り除く"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="アップロード中" remove-label="取り除く"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="アップロード済み" remove-label="取り除く"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="接続が切れました。" retryable remove-label="取り除く" retry-label="もう一度試す"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="10 MB を超えています。" remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="待機中" remove-label="{name} を取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="アップロード中" progress="0.4" remove-label="{name} を取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="アップロード中" remove-label="{name} を取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="アップロード済み" remove-label="{name} を取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="接続が切れました。" retryable remove-label="{name} を取り除く" retry-label="{name} をもう一度試す"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="10 MB を超えています。" remove-label="{name} を取り除く"></tanrei-file-item>
 </DemoFrame>
 
 <ComponentSpecs name="file-item" />
@@ -120,14 +120,14 @@ Web では `<tanrei-file-item>` です。ほかのプラットフォームはま
 
 <DemoFrame label="同じ 3 つのファイルを、行とタイルで" plain column>
   <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
-    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 MB" preview preview-src={demoPicture} remove-label="取り除く"></tanrei-file-item>
-    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" preview preview-src={demoPicture} remove-label="取り除く"></tanrei-file-item>
-    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" preview remove-label="取り除く"></tanrei-file-item>
+    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 MB" preview preview-src={demoPicture} remove-label="{name} を取り除く"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" preview preview-src={demoPicture} remove-label="{name} を取り除く"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" preview remove-label="{name} を取り除く"></tanrei-file-item>
   </div>
   <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
-    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="取り除く"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="取り除く"></tanrei-file-item>
-    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="取り除く"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="{name} を取り除く"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="{name} を取り除く"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="{name} を取り除く"></tanrei-file-item>
   </div>
 </DemoFrame>
 
@@ -212,9 +212,9 @@ Web では `<tanrei-file-item>` です。ほかのプラットフォームはま
 `fit` は、画像がボックスをどう埋めるかを決めます。`cover`（既定）は、ボックスを埋め、収まらない部分を切り落とします。写真に使います。`contain` は、ボックスの地の上に画像の全体を見せます。スキャン、署名、図のように、端が大事なものに使います。
 
 <DemoFrame label="160 × 90 のボックス。cover、contain、名前を隠したもの" plain>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="取り除く"></tanrei-file-item>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="取り除く"></tanrei-file-item>
-  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="{name} を取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="{name} を取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="{name} を取り除く"></tanrei-file-item>
 </DemoFrame>
 
 プレビューのコストは次のとおりです。
@@ -234,8 +234,8 @@ Web では `<tanrei-file-item>` です。ほかのプラットフォームはま
 既定では、ファイル項目の本体はフォーカスを受け取らず、何にも応えません。項目は、アクションを持つだけです。
 
 <DemoFrame label="ボタンである本体、新しいタブで開くリンク、読み取り専用のファイル" plain column>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 MB" interactive remove-label="取り除く"></tanrei-file-item>
-  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 MB" href="#押せる本体リンク読み取り専用" target="new" target-label="新しいタブで開きます" remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 MB" interactive remove-label="{name} を取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 MB" href="#押せる本体リンク読み取り専用" target="new" target-label="新しいタブで開きます" remove-label="{name} を取り除く"></tanrei-file-item>
   <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 KB" status="done" status-text="12 月 4 日に送信" readonly></tanrei-file-item>
 </DemoFrame>
 
@@ -286,7 +286,7 @@ Web では `<tanrei-file-item>` です。ほかのプラットフォームはま
 | `removeLabel` | `removeLabel` | 取り除くアクションは描かれますが、名前がありません。デバッグビルドが報告します。 |
 | `retryLabel` | `retryLabel` | 再試行のアクションは描かれますが、名前がありません。デバッグビルドが報告します。 |
 
-それぞれのアクションは、そのファイルの名前で説明されます。「取り除く」という 1 語があれば、すべてのファイルに足ります。利用者には「取り除く、ボタン、brief.pdf」と聞こえます。
+それぞれのアクションの名前には、そのファイルの名前が入ります。`removeLabel` と `retryLabel` は場所 `{name}` を持つ文で、ファイル項目がファイルの名前を入れます（「`{name} を取り除く`」）。1 つの文ですべてのファイルに足り、利用者には言語の語順のまま「brief.pdf を取り除く、ボタン」と聞こえます。スクリーンリーダーがページのボタンを一覧にしたときも同じです。`{name}` のない文は、どのファイルのアクションも同じ名前にしてしまうので、デバッグビルドが報告します。
 
 ### 右から左
 
@@ -315,7 +315,7 @@ Web では `<tanrei-file-item>` です。ほかのプラットフォームはま
 
 - 単独のファイル項目は、ファイルの名前が付いたグループです。ファイルアップロードの中では、そのリストの項目です。
 - 押せる本体は、1 つのボタンまたは 1 つのリンクです。ファイルの名前が名前になり、2 行目が説明になります。フォーカス順では、アクションより前です。リンクは Enter で動作し、Space では動作しません。新しいタブで開くリンクは、名前の後に `targetLabel` を伝えます。
-- アクションはボタンです。`removeLabel` と `retryLabel` が名前になり、ファイルの名前が説明になります。再試行が、取り除くより前です。
+- アクションはボタンです。`removeLabel` と `retryLabel` が名前になり、その場所 `{name}` にファイルの名前が入ります。再試行が、取り除くより前です。
 - バーは、そのファイルの名前が付いたプログレスバーです。エラーは 2 行目のテキストで、状態の場所で読まれます。
 - グリフ、画像、状態の印は、支援技術から隠されています。それらが示すことは、言葉が伝えます。
 - ファイル項目は、何も読み上げません。多くのファイル項目を持つ側が、全体のためのライブリージョンを 1 つ持ちます。ファイルアップロードがそうしています。
