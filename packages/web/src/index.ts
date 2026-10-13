@@ -218,6 +218,14 @@ export {
   type TanreiFilePickerRejectReason,
   type TanreiFilePickerSelectDetail,
 } from './components/file-picker/file-picker.js';
+export {
+  TanreiDropZone,
+  type TanreiDropZoneJudgement,
+  type TanreiDropZoneRefused,
+  type TanreiDropZoneRejectDetail,
+  type TanreiDropZoneRejectReason,
+  type TanreiDropZoneSelectDetail,
+} from './components/drop-zone/drop-zone.js';
 export { TanreiImagePreview, TanreiImagePreviewItem, type TanreiImagePreviewCloseDetail, type TanreiImagePreviewCloseReason, type TanreiImagePreviewControlsHiddenChangeDetail, type TanreiImagePreviewIndexChangeDetail, type TanreiImagePreviewLoadErrorDetail, type TanreiImagePreviewZoomChangeDetail } from './components/image-preview/image-preview.js';
 export {
   TanreiFileUpload,

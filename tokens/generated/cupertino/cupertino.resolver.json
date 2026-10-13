@@ -274,6 +274,9 @@
           "$ref": "comp/file-item.tokens.json"
         },
         {
+          "$ref": "comp/drop-zone.tokens.json"
+        },
+        {
           "$ref": "comp/embedded-text-input.tokens.json"
         },
         {

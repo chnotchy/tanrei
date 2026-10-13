@@ -576,6 +576,13 @@
       "listing": "default"
     },
     {
+      "name": "drop-zone",
+      "title": "Drop zone",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
+    },
+    {
       "name": "embedded-text-input",
       "title": "Embedded text input",
       "category": "text-inputs",

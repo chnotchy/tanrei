@@ -35,6 +35,7 @@ import { TanreiDateTimePicker as TanreiDateTimePickerElement, type TanreiDateTim
 import { TanreiDescriptionList as TanreiDescriptionListElement } from '@tanrei/web/components/description-list';
 import { TanreiDialog as TanreiDialogElement } from '@tanrei/web/components/dialog';
 import { TanreiDivider as TanreiDividerElement } from '@tanrei/web/components/divider';
+import { TanreiDropZone as TanreiDropZoneElement } from '@tanrei/web/components/drop-zone';
 import { TanreiEmbeddedTextInput as TanreiEmbeddedTextInputElement, type TanreiEmbeddedTextInputActionDetail, type TanreiEmbeddedTextInputRowsChangeDetail } from '@tanrei/web/components/embedded-text-input';
 import { TanreiEmptyState as TanreiEmptyStateElement } from '@tanrei/web/components/empty-state';
 import { TanreiFabMenu as TanreiFabMenuElement, type TanreiFabMenuCloseDetail, type TanreiFabMenuToggleDetail } from '@tanrei/web/components/fab-menu';
@@ -727,6 +728,26 @@ export const Divider = createComponent({
   elementClass: TanreiDividerElement,
   react: React,
   events: {},
+});
+
+/**
+ * Wraps any part of a screen so that files can be dropped anywhere on it, while what it holds is used exactly as without it: it draws nothing at rest and adds no hover, no press, no focus stop and no role (DRZ-1, DRZ-2). While files are dragged over it, one overlay covers it and says they can be dropped (DRZ-4); on the drop it judges them by the File picker's rule and hands over what passed and what was refused (DRZ-9). It keeps nothing (DRZ-10), and it is never the only way to add a file: the page also has a File picker or a File upload (DRZ-13).
+ *
+ * Children, by their `slot`:
+ * - default — The content: any part of the product's screen.
+ *
+ * Events:
+ * - `onSelect` (`select`) — Files were dropped and passed. Once per drop; `detail.files` is a `File[]`. Bubbles.
+ * - `onReject` (`reject`) — Files of one drop were refused. Once, after `select` where both happen; `detail.files` is `{ file, reason }[]`, the reason `type`, `size` or `count`. Bubbles.
+ */
+export const DropZone = createComponent({
+  tagName: 'tanrei-drop-zone',
+  elementClass: TanreiDropZoneElement,
+  react: React,
+  events: {
+    onSelect: 'select' as EventName<TanreiEvent<TanreiDropZoneElement>>,
+    onReject: 'reject' as EventName<TanreiEvent<TanreiDropZoneElement>>,
+  },
 });
 
 /** The attributes of `<tanrei-embedded-text-input>` that are not properties of the element, as props of `EmbeddedTextInput`. */

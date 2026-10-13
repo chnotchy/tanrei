@@ -2,7 +2,7 @@
 title: "文件选择器"
 description: "让用户通过平台自己的选择器来选择文件：可以从一个按钮打开，在位置足够的地方还可以把文件拖到一块区域上。它在选择之前用文字说明限制，对选中的内容作出判定，再把它接受的文件和它拒绝的文件交给你的产品。它什么都不保留，什么都不列出，也不参与表单。"
 translationOf: components/file-picker.mdx
-sourceHash: 14fb2e7bfc0977e6a6a7e2555e9e35a3a2843c1a
+sourceHash: ac3dfd53a1c0d1fa06df9c4d546b5bdcc1b5e3aa
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -35,6 +35,8 @@ import Callout from '../../../../components/Callout.astro';
 - 一个文件当场读取，不予保留：导入设置文件、导入有若干行数据的电子表格、选一张要裁剪的图片。
 - 文件显示在别处：作为正在撰写的消息里的附件、显示在画布上、显示在你自己的表格里。
 - 工具栏里的一个添加附件按钮，没有区域，也没有文本。
+
+要接收放到整个界面任何位置的文件，就用[放置区](/zh-cn/components/drop-zone/)把这个界面包起来，并在这个界面上保留一个文件选择器，作为不用拖动也能选择文件的途径。
 
 <Callout type="caution" title="它什么都不保留">
 `select` 之后，文件选择器就已经忘了这些文件。第二次选择会像第一次那样判定。如果你的产品不保留 `select` 交给它的东西，就没有谁会保留。

@@ -1986,6 +1986,32 @@ export interface TanreiDividerTokens {
 }
 
 /**
+ * `comp.drop-zone`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis, keyed by the axis value.
+ */
+export interface TanreiDropZoneTokens {
+  readonly iconColor: TanreiPaint;
+  readonly iconSize: number;
+  readonly labelColor: TanreiPaint;
+  readonly labelTypescale: TanreiTypescaleRole;
+  readonly motionDuration: number;
+  readonly motionEasing: TanreiCubicBezier;
+  readonly outlineColor: TanreiPaint;
+  readonly outlineWidth: number;
+  readonly panelContainerColor: TanreiPaint;
+  readonly panelElevation: TanreiElevationLevel;
+  readonly panelGap: number;
+  readonly panelMargin: number;
+  readonly panelMaxWidth: number;
+  readonly panelPaddingBlock: number;
+  readonly panelPaddingInline: number;
+  readonly panelShape: number;
+  readonly refusingIconColor: TanreiPaint;
+  readonly refusingOutlineColor: TanreiPaint;
+  readonly scrimColor: TanreiPaint;
+}
+
+/**
  * Every value of `comp.embedded-text-input`'s `condition` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `standard` (with a dev-only warning).
@@ -5250,6 +5276,7 @@ export interface TanreiComponents {
   readonly descriptionList: TanreiDescriptionListTokens;
   readonly dialog: TanreiDialogTokens;
   readonly divider: TanreiDividerTokens;
+  readonly dropZone: TanreiDropZoneTokens;
   readonly embeddedTextInput: TanreiEmbeddedTextInputTokens;
   readonly emptyState: TanreiEmptyStateTokens;
   readonly fabMenu: TanreiFabMenuTokens;

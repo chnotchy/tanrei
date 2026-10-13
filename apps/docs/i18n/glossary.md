@@ -194,6 +194,7 @@ As common nouns: page titles, headings, running text.
 | Figure | 図 | 图示 |
 | File item | ファイル項目 | 文件项 |
 | File picker (the component; the platform's own picker stays ピッカー, ファイルピッカー in running text) | ファイルピッカー | 文件选择器 — the platform's own picker is 平台的文件选择器, short 选择器 |
+| Drop zone (a wrapper that takes files dropped anywhere on it; not the File picker's drop area, ドロップ領域 / 拖放区域) | ドロップゾーン | 放置区 |
 | File upload | ファイルアップロード | 文件上传 |
 | Inline code | インラインコード | 行内代码 |
 | Keyboard shortcut | キーボードショートカット | 键盘快捷键 |
@@ -412,6 +413,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | Field group | Grupo de campos | फ़ील्ड ग्रुप | مجموعة الحقول |
 | File item | Elemento de archivo | फ़ाइल आइटम (masculine) | عنصر الملف, with `(file item)` on the page's first mention; plural `عناصر الملفات`; short `العنصر` |
 | File picker (the component) | Selector de archivos — the platform's own is «el selector de archivos de la plataforma» | फ़ाइल पिकर — the platform's own is प्लैटफ़ॉर्म का फ़ाइल पिकर | منتقي الملفات, with `(file picker)` on the page's first mention; the platform's own is `منتقي الملفات الخاص بالمنصة`, short `المنتقي` |
+| Drop zone (a wrapper that takes files dropped anywhere on it; not the File picker's drop area) | Zona de soltar archivos — feminine, short «la zona»; the picker's drop area stays «la zona para soltar del selector de archivos» | ड्रॉप ज़ोन — masculine, short ज़ोन; not ड्रॉप एरिया | ساحة الإفلات, with `(drop zone)` on the page's first mention, short `الساحة`, feminine; not `منطقة الإفلات` |
 | File upload | Subida de archivos — in running text «el control de subida de archivos», short «el control de subida»; «carga» is loading (Indicador de carga), and the product verb is «Subir» | फ़ाइल अपलोड | رفع الملفات — in running text «مكوّن رفع الملفات», short «المكوّن»; «التحميل» is loading (مؤشر التحميل) |
 | Figure | Figura | फ़िगर | الشكل التوضيحي — always the full compound: الشكل alone is shape |
 | Image preview | Vista previa de imágenes — in running text «la vista previa de imágenes», short «la vista previa» (feminine) | इमेज प्रीव्यू (masculine), short प्रीव्यू | معاينة الصور, with `(image preview)` on the page's first mention; short `المعاينة` (feminine) |

@@ -227,6 +227,24 @@
       ]
     },
     {
+      "key": "dropZoneRefusingText",
+      "readers": [
+        {
+          "component": "drop-zone",
+          "prop": "refusingText"
+        }
+      ]
+    },
+    {
+      "key": "dropZoneText",
+      "readers": [
+        {
+          "component": "drop-zone",
+          "prop": "dropText"
+        }
+      ]
+    },
+    {
       "key": "duplicateEntryText",
       "readers": [
         {
@@ -398,6 +416,38 @@
         {
           "component": "file-upload",
           "prop": "typeErrorText"
+        }
+      ]
+    },
+    {
+      "key": "filesDroppedText",
+      "readers": [
+        {
+          "component": "drop-zone",
+          "prop": "droppedText"
+        }
+      ],
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "How many files of the drop passed and were handed to the product."
+        }
+      ]
+    },
+    {
+      "key": "filesRefusedText",
+      "readers": [
+        {
+          "component": "drop-zone",
+          "prop": "refusedText"
+        }
+      ],
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "How many files of the drop were refused."
         }
       ]
     },

@@ -172,6 +172,9 @@ const SUBJECTS = [
   // picture in it, the retry and the remove action at its corner, and the error mark before its sentence.
   subject('file-picker', (fixture) => fixture.id === 'drop-area-error', { icons: true, reducedMotion: true }),
   subject('file-item', (fixture) => fixture.id === 'tile-error-retryable', { icons: true, reducedMotion: true }),
+  // While a drag of files is over it: the scrim in the preset's role, the edge in its primary and stroke, the panel on
+  // its raised surface with its corners (eased in cupertino) and elevation, its upload glyph and its message's text role.
+  subject('drop-zone', (fixture) => fixture.id === 'dragged', { icons: true, reducedMotion: true }),
   // A refused answer: the field group's frame around the preset's own radio buttons — the label and the preset's
   // required mark, the description that stays, the rings as they are (the selected one unchanged), the distance the
   // preset keeps between two options, and the error text below.

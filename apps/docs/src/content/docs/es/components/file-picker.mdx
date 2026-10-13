@@ -2,7 +2,7 @@
 title: Selector de archivos
 description: Permite elegir archivos con el selector propio de la plataforma —desde un botón y, donde hay sitio, desde un lugar al que también se pueden arrastrar—, dice los límites con palabras antes de la elección, juzga lo elegido y entrega a tu producto lo que se aceptó y lo que se rechazó. No conserva nada, no enumera nada y no participa en ningún formulario.
 translationOf: components/file-picker.mdx
-sourceHash: 14fb2e7bfc0977e6a6a7e2555e9e35a3a2843c1a
+sourceHash: ac3dfd53a1c0d1fa06df9c4d546b5bdcc1b5e3aa
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -35,6 +35,8 @@ Es un componente **avanzado**: el control sin nada más, para un producto que co
 - Un archivo se lee en el momento y no se conserva: importar un archivo de configuración, una hoja de cálculo con filas, una imagen para recortar.
 - Los archivos se muestran en otra parte: como adjuntos dentro de un mensaje que se está escribiendo, en un lienzo, en una tabla tuya.
 - Un botón de adjuntar sin zona y sin textos, en una barra de herramientas.
+
+Para recibir archivos soltados en cualquier punto de una pantalla entera, envuelve la pantalla en una [zona de soltar archivos](/es/components/drop-zone/), y deja un selector de archivos en esa pantalla como la forma de elegir sin arrastrar.
 
 <Callout type="caution" title="No conserva nada">
 Después de `select`, el selector de archivos ya ha olvidado los archivos. Una segunda elección se juzga como si fuera la primera. Si tu producto no conserva lo que `select` le da, nadie lo conserva.

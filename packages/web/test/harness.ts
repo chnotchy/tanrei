@@ -1752,6 +1752,32 @@ const STAGING: Record<string, Staging> = {
     css: () => `.stage > tanrei-file-picker { inline-size: 360px; }`,
     props: ({ accept, ...props }) => ({ ...props, ...(Array.isArray(accept) ? { accept: accept.join(',') } : {}) }),
   },
+  // A drop zone wraps a screen of the product's (DRZ-1): its content is a sample screen — the fixture's content as a
+  // paragraph above an outlined Button, on a surface 360 × 240 (the spec's default slot) — so that a picture shows the
+  // overlay over real content. A fixture whose id begins `dragged` is drawn while a drag of one PDF is over the zone: the
+  // step dispatches a dragenter and a dragover that carry it on the paragraph, as a browser does when a file from the
+  // desktop enters it; nothing moves the pointer afterwards, so the drag stays (DRZ-7). `accept` is the
+  // comma-separated list a native file input takes (the spec's web note).
+  'drop-zone': {
+    css: () => `.stage > tanrei-drop-zone { inline-size: 360px; block-size: 240px; }
+      .drop-zone-sample { box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px;
+        background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); }
+      .drop-zone-sample > p { margin: 0; font: var(--tanrei-sys-typescale-body-font); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); }`,
+    props: ({ accept, ...props }) => ({ ...props, ...(Array.isArray(accept) ? { accept: accept.join(',') } : {}) }),
+    content: (content) => `<div class="drop-zone-sample"><p>${content}</p><tanrei-button variant="outlined">New video</tanrei-button></div>`,
+    after: async (element, fixture) => {
+      if (!fixture.id.startsWith('dragged')) return;
+      const data = new DataTransfer();
+      data.items.add(new File([new Uint8Array(4)], 'brief.pdf', { type: 'application/pdf' }));
+      const drag = (type: string, on: Element) => on.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, composed: true, dataTransfer: data }));
+      drag('dragenter', element.querySelector('p') ?? element);
+      // A drag that enters one zone has left every other (DRZ-7): on a page of several fixtures, the zones staged
+      // before this one are dragged over again, as a pointer that stood over each of them would.
+      const staged = [...document.querySelectorAll('[data-fixture^="dragged"] > tanrei-drop-zone')] as (HTMLElement & { updateComplete: Promise<unknown> })[];
+      for (const zone of staged) drag('dragover', zone.querySelector('p') ?? zone);
+      await Promise.all(staged.map((zone) => zone.updateComplete));
+    },
+  },
   // A file item in the row form is as wide as its layout gives it (FIT-2): its stage is the file upload's column, 360
   // wide, so that a row alone is the same picture as a row of a file upload (FUP-58); a tile is as wide as its box
   // (FIT-3). A fixture names its picture as

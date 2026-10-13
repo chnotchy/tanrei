@@ -29264,6 +29264,586 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/drop-zone/drop-zone.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "PREFIX",
+          "type": {
+            "text": "string"
+          },
+          "default": "'--tanrei-comp-drop-zone'"
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "default": "css` /* DRZ-1: a box of the size its layout gives it; the product lays its content out by styling the host. DRZ-6: the host is the overlay's containing block and one stacking context of its own, so the overlay — last, at the greatest z-index — stands above everything the content stacks, and inside the host's box. */ :host { display: block; position: relative; isolation: isolate; } :host([hidden]) { display: none; } /* DRZ-4, DRZ-6: one layer over the host's padding box: the scrim. It takes no press, pointer, wheel or scroll — they reach the content beneath it — and follows the host's own corners. DRZ-16: it fades in and out; visibility follows the fade out, so it is hidden only once it has faded. */ .overlay { position: absolute; inset: 0; z-index: 2147483647; pointer-events: none; border-radius: inherit; overflow: hidden; background-color: ${t('scrim-color')}; visibility: hidden; opacity: 0; transition: opacity ${t('motion-duration')} ${t('motion-easing')}, visibility 0s linear ${t('motion-duration')}; --_edge: ${t('outline-color')}; --_icon: ${t('icon-color')}; } .overlay[data-drag] { visibility: visible; opacity: 1; transition: opacity ${t('motion-duration')} ${t('motion-easing')}, visibility 0s; } /* DRZ-5: refusing changes the edge and the glyph alone. */ .overlay[data-drag='refusing'] { --_edge: ${t('refusing-outline-color')}; --_icon: ${t('refusing-icon-color')}; } /* DRZ-4: the edge, solid, drawn inside the box. */ .edge { position: absolute; inset: 0; box-sizing: border-box; border: ${t('outline-width')} solid var(--_edge); border-radius: inherit; transition: border-color ${t('motion-duration')} ${t('motion-easing')}; } /* DRZ-6: the part of the box that is in view, written by the element on each drag event (the whole box until then); the panel is centred in it, panel.margin from its edges, and clipped by it where it is the smaller. */ .view { position: absolute; box-sizing: border-box; /* Physical: the element measures the part in view on the screen's axes. */ top: var(--_view-top, 0px); left: var(--_view-left, 0px); width: var(--_view-width, 100%); height: var(--_view-height, 100%); padding: ${t('panel-margin')}; display: grid; place-items: center; overflow: hidden; } /* DRZ-4: the panel — its fill, lift and eased corners, its paddings, one centred column of the glyph and the message. */ .panel { box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: ${t('panel-gap')}; max-inline-size: min(100%, ${t('panel-max-width')}); max-block-size: 100%; padding-block: ${t('panel-padding-block')}; padding-inline: ${t('panel-padding-inline')}; background-color: ${t('panel-container-color')}; box-shadow: ${t('panel-elevation')}; ${unsafeCSS(cornerRadius(`${PREFIX}-panel-shape`))} text-align: center; } ${iconGlyph('.icon', { size: `${PREFIX}-icon-size`, selected: ':not(*)' })} .icon { color: var(--_icon); transition: color ${t('motion-duration')} ${t('motion-easing')}; } .ink { display: inline-block; vertical-align: top; } /* DRZ-21: nothing in the glyph's place until the icon set can draw it; the box keeps its size. */ .icon:not([data-drawn]) { visibility: hidden; } /* DRZ-4, DRZ-18: the message, centred, on as many lines as it needs and never cut. */ .label { font: ${t('label-typescale-font')}; letter-spacing: ${t('label-typescale-letter-spacing')}; color: ${t('label-color')}; max-inline-size: 100%; overflow-wrap: anywhere; } /* DRZ-19: the message is text of its own direction, isolated; its lines are centred in either direction. */ ${productText('.label')} ${shape} /* DRZ-11: the one live region, read and never seen. */ .announcer { position: absolute; inline-size: 1px; block-size: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; } /* DRZ-16: where motion is reduced, the overlay is shown and hidden at once. */ @media (prefers-reduced-motion: reduce) { .overlay, .overlay[data-drag], .edge, .icon { transition: none; } } /* DRZ-17: forced colors remove the scrim and the panel's fill and lift. The edge is drawn twice as wide, solid, in the highlight color; the panel on the background color with an edge in the text color; the message in the text color. Refusing keeps its block glyph. */ @media (forced-colors: active) { .edge { border-width: calc(${t('outline-width')} * 2); border-color: Highlight; } .panel { background-color: Canvas; border: ${t('outline-width')} solid CanvasText; } .label, .icon { color: CanvasText; } } `"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "PREFIX",
+          "declaration": {
+            "name": "PREFIX",
+            "module": "src/components/drop-zone/drop-zone.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/drop-zone/drop-zone.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/drop-zone/drop-zone.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Wraps any part of a screen so that files can be dropped anywhere on it, while what it holds is used exactly as\nwithout it: it draws nothing at rest and adds no hover, no press, no focus stop and no role (DRZ-1, DRZ-2). While\nfiles are dragged over it, one overlay covers it and says they can be dropped (DRZ-4); on the drop it judges them by\nthe File picker's rule and hands over what passed and what was refused (DRZ-9). It keeps nothing (DRZ-10), and it is\nnever the only way to add a file: the page also has a File picker or a File upload (DRZ-13).\n\nContract: specs/drop-zone.spec.json. `<tanrei-drop-zone multiple accept=\"video/*\" drop-text=\"Drop videos to upload\nthem\"> … the screen … </tanrei-drop-zone>`. The content stays in the product's light DOM and is laid out by styling\nthe host, which is `display: block`, `position: relative` and one stacking context of its own (DRZ-6).\n`select` and `reject` carry the File picker's details, so one listener serves both; `judge(files)` judges files that\ncame another way and emits nothing (DRZ-15).",
+          "name": "TanreiDropZone",
+          "cssParts": [
+            {
+              "description": "The layer drawn over the whole zone while files are dragged over it: the scrim and the edge.",
+              "name": "overlay"
+            },
+            {
+              "description": "The raised surface that holds the glyph and the message.",
+              "name": "panel"
+            },
+            {
+              "description": "The box of the glyph.",
+              "name": "icon"
+            },
+            {
+              "description": "The message.",
+              "name": "label"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The content: any part of the product's screen.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "availability",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new AvailabilityController(this, 'drop-zone')"
+            },
+            {
+              "kind": "field",
+              "name": "multiple",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether a drop may bring more than one file. False: a drop of several is refused whole.",
+              "attribute": "multiple",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "accept",
+              "privacy": "public",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The kinds of file that are taken: extensions with their dot (\".pdf\") and media types (\"image/png\", a family as \"image/*\"). The attribute is a comma-separated list, as a native file input's. Empty takes every kind.",
+              "attribute": "accept"
+            },
+            {
+              "kind": "field",
+              "name": "maxSize",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The largest size of one file, in bytes (`max-size`). Null sets no limit. Judged from the size the browser reports; the file is not read.",
+              "attribute": "max-size"
+            },
+            {
+              "kind": "field",
+              "name": "maxFiles",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The most files one drop may bring, while `multiple` is set (`max-files`). Null sets no limit; zero refuses every file. Nothing is counted across drops.",
+              "attribute": "max-files"
+            },
+            {
+              "kind": "field",
+              "name": "dropText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The message in the overlay while the zone takes what is dragged over it (`drop-text`). Empty reads the product's words (`dropZoneText`).",
+              "attribute": "drop-text"
+            },
+            {
+              "kind": "field",
+              "name": "refusingText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The message in the overlay while the zone refuses what is dragged over it (`refusing-text`). Empty reads the product's words (`dropZoneRefusingText`).",
+              "attribute": "refusing-text"
+            },
+            {
+              "kind": "field",
+              "name": "droppedText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What assistive technology is told after a drop in which files passed, with `{count}` (`dropped-text`). Empty reads the product's words (`filesDroppedText`).",
+              "attribute": "dropped-text"
+            },
+            {
+              "kind": "field",
+              "name": "refusedText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What assistive technology is told after a drop in which files were refused, with `{count}` (`refused-text`). Empty reads the product's words (`filesRefusedText`).",
+              "attribute": "refused-text"
+            },
+            {
+              "kind": "field",
+              "name": "silent",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Says nothing after a drop: for a zone that hands its files to a component that says them itself (a File upload that keeps its own rows).",
+              "attribute": "silent",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Nothing can be dropped: no overlay, no event. The content is neither disabled nor dimmed.",
+              "attribute": "disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "drag",
+              "privacy": "protected",
+              "type": {
+                "text": "'' | 'receiving' | 'refusing'"
+              },
+              "default": "''",
+              "description": "DRZ-4, DRZ-5: the drag over the zone can be taken (receiving), cannot (refusing), or none is over it."
+            },
+            {
+              "kind": "field",
+              "name": "words",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new WordsController(this)"
+            },
+            {
+              "kind": "field",
+              "name": "mirror",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new GlyphMirrorController(this, { drawn: '.icon' })",
+              "description": "DRZ-19: the glyph the element writes is marked where the icon set mirrors its name."
+            },
+            {
+              "kind": "field",
+              "name": "glyphs",
+              "privacy": "protected",
+              "readonly": true,
+              "default": "new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.icon') ?? [])",
+              "description": "DRZ-21: the glyph box carries `data-drawn` while the icon set can draw its ligature."
+            },
+            {
+              "kind": "field",
+              "name": "depth",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0",
+              "description": "DRZ-7: enters less leaves, within the zone — a child of the content entered is the zone still."
+            },
+            {
+              "kind": "field",
+              "name": "watching",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "DRZ-7: the window is listened to while a drag of files is within the zone."
+            },
+            {
+              "kind": "field",
+              "name": "pickerChecked",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "DRZ-13: told once per element."
+            },
+            {
+              "kind": "field",
+              "name": "view",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''",
+              "description": "DRZ-6: the part of the box in view, as the custom properties of `.view`."
+            },
+            {
+              "kind": "method",
+              "name": "within",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "node",
+                  "type": {
+                    "text": "Node | null"
+                  }
+                }
+              ],
+              "description": "Whether `node` stands in the zone: in its content, in its shadow root, or the host itself."
+            },
+            {
+              "kind": "field",
+              "name": "enclosed",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "description": "DRZ-8, DRZ-14: an enabled drop zone encloses this one, and takes what this one, disabled, does not.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "effect",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "DragEvent"
+                  }
+                },
+                {
+                  "name": "effect",
+                  "type": {
+                    "text": "'copy' | 'none'"
+                  }
+                }
+              ],
+              "description": "Tells the browser what letting go here does: copy, or nothing."
+            },
+            {
+              "kind": "method",
+              "name": "answerDrag",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "DragEvent"
+                  }
+                }
+              ],
+              "description": "DRZ-3, DRZ-8, DRZ-14: one dragenter or dragover of files that reached the host. An event whose default a target\ninside the zone prevented is that target's: the zone draws nothing for it. Disabled, the zone takes nothing — but\nwhere no enabled zone encloses it, it still keeps the browser from opening a file let go over it."
+            },
+            {
+              "kind": "field",
+              "name": "onDragEnter",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onDragOver",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onDragLeave",
+              "privacy": "private",
+              "readonly": true,
+              "description": "DRZ-7: a leave to a node outside the zone ends the condition at once; otherwise the count says whether it is still within."
+            },
+            {
+              "kind": "field",
+              "name": "onDrop",
+              "privacy": "private",
+              "readonly": true,
+              "description": "DRZ-9, DRZ-14: the condition ends at once and the drop is taken, so that the browser does not open the file; what\nwas dropped is judged as the File picker judges an arrival. A drop an inner target took is its own."
+            },
+            {
+              "kind": "field",
+              "name": "onWindowDragEnter",
+              "privacy": "private",
+              "readonly": true,
+              "description": "DRZ-7: the drag entered something outside the zone."
+            },
+            {
+              "kind": "field",
+              "name": "onWindowEnd",
+              "privacy": "private",
+              "readonly": true,
+              "description": "DRZ-7: the drag was let go, or ended, anywhere; or the pointer moved, which no browser tells during a drag."
+            },
+            {
+              "kind": "method",
+              "name": "watch",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "on",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "DRZ-7: the window is listened to only while a drag of files is within the zone."
+            },
+            {
+              "kind": "method",
+              "name": "end",
+              "privacy": "private",
+              "description": "DRZ-7: the condition ends — the drag left, ended or was let go."
+            },
+            {
+              "kind": "method",
+              "name": "placeView",
+              "privacy": "private",
+              "description": "DRZ-6: the part of the zone's box that is in view — the box cut by the window and by every ancestor that clips or\nscrolls — where the panel is centred. The whole box where none of it is in view."
+            },
+            {
+              "kind": "method",
+              "name": "announce",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "passed",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "refusedCount",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "DRZ-11: one message after a drop — how many passed, then how many were refused — in the product's words."
+            },
+            {
+              "kind": "method",
+              "name": "checkPicker",
+              "privacy": "private",
+              "description": "DRZ-13: the first drag over the zone, on a page with no way to choose a file without a pointer, is reported."
+            },
+            {
+              "kind": "method",
+              "name": "judge",
+              "return": {
+                "type": {
+                  "text": "TanreiDropZoneJudgement"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "files",
+                  "type": {
+                    "text": "Iterable<File>"
+                  }
+                }
+              ],
+              "description": "DRZ-15: judges files that did not arrive by a drop on the zone — pasted, dropped elsewhere, made by the product —\nas one arrival, by the File picker's rule. Answers with the files that passed and the refused files with their\nreasons, each in the order given. Emits nothing, says nothing and keeps nothing. Works while disabled."
+            },
+            {
+              "kind": "method",
+              "name": "reports",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "changed",
+                  "type": {
+                    "text": "PropertyValues<this>"
+                  }
+                }
+              ],
+              "description": "DRZ-20: a value that sets no limit, and an entry of accept that says no kind, are reported."
+            }
+          ],
+          "events": [
+            {
+              "description": "Files were dropped and passed. Once per drop; `detail.files` is a `File[]`. Bubbles.",
+              "name": "select"
+            },
+            {
+              "description": "Files of one drop were refused. Once, after `select` where both happen; `detail.files` is `{ file, reason }[]`, the reason `type`, `size` or `count`. Bubbles.",
+              "name": "reject"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "multiple",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether a drop may bring more than one file. False: a drop of several is refused whole.",
+              "fieldName": "multiple"
+            },
+            {
+              "name": "accept",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "The kinds of file that are taken: extensions with their dot (\".pdf\") and media types (\"image/png\", a family as \"image/*\"). The attribute is a comma-separated list, as a native file input's. Empty takes every kind.",
+              "fieldName": "accept"
+            },
+            {
+              "name": "max-size",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The largest size of one file, in bytes (`max-size`). Null sets no limit. Judged from the size the browser reports; the file is not read.",
+              "fieldName": "maxSize"
+            },
+            {
+              "name": "max-files",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The most files one drop may bring, while `multiple` is set (`max-files`). Null sets no limit; zero refuses every file. Nothing is counted across drops.",
+              "fieldName": "maxFiles"
+            },
+            {
+              "name": "drop-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The message in the overlay while the zone takes what is dragged over it (`drop-text`). Empty reads the product's words (`dropZoneText`).",
+              "fieldName": "dropText"
+            },
+            {
+              "name": "refusing-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The message in the overlay while the zone refuses what is dragged over it (`refusing-text`). Empty reads the product's words (`dropZoneRefusingText`).",
+              "fieldName": "refusingText"
+            },
+            {
+              "name": "dropped-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What assistive technology is told after a drop in which files passed, with `{count}` (`dropped-text`). Empty reads the product's words (`filesDroppedText`).",
+              "fieldName": "droppedText"
+            },
+            {
+              "name": "refused-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What assistive technology is told after a drop in which files were refused, with `{count}` (`refused-text`). Empty reads the product's words (`filesRefusedText`).",
+              "fieldName": "refusedText"
+            },
+            {
+              "name": "silent",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Says nothing after a drop: for a zone that hands its files to a component that says them itself (a File upload that keeps its own rows).",
+              "fieldName": "silent"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Nothing can be dropped: no overlay, no event. The content is neither disabled nor dimmed.",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "tanrei-drop-zone",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiDropZone",
+          "declaration": {
+            "name": "TanreiDropZone",
+            "module": "src/components/drop-zone/drop-zone.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-drop-zone",
+          "declaration": {
+            "name": "TanreiDropZone",
+            "module": "src/components/drop-zone/drop-zone.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/embedded-text-input/embedded-text-input.styles.ts",
       "declarations": [
         {
@@ -34911,7 +35491,7 @@
                   }
                 }
               ],
-              "description": "FPK-9: the rule itself — what passed and what was refused, each in the order given."
+              "description": "FPK-9: the rule itself (src/primitives/file-judge.ts, shared with the drop zone) — what passed and what was refused, each in the order given."
             },
             {
               "kind": "method",

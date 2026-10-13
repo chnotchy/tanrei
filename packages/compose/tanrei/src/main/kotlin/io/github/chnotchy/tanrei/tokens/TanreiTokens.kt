@@ -3966,6 +3966,41 @@ public data class TanreiDividerTokens(
     }
 }
 
+/** `comp.drop-zone`. Members are flat tokens, then per-state tokens, then one holder per axis (). */
+@Immutable
+public data class TanreiDropZoneTokens(
+    public val iconColor: TanreiPaint,
+    public val iconSize: Dp,
+    public val labelColor: TanreiPaint,
+    public val labelTypescale: TanreiTextStyle,
+    public val motionDuration: Int,
+    public val motionEasing: TanreiCubicBezier,
+    public val outlineColor: TanreiPaint,
+    public val outlineWidth: Dp,
+    public val panelContainerColor: TanreiPaint,
+    public val panelElevation: List<TanreiShadowLayer>,
+    public val panelGap: Dp,
+    public val panelMargin: Dp,
+    public val panelMaxWidth: Dp,
+    public val panelPaddingBlock: Dp,
+    public val panelPaddingInline: Dp,
+    public val panelShape: Dp,
+    public val refusingIconColor: TanreiPaint,
+    public val refusingOutlineColor: TanreiPaint,
+    public val scrimColor: TanreiPaint,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(iconColor.roles())
+        addAll(labelColor.roles())
+        addAll(outlineColor.roles())
+        addAll(panelContainerColor.roles())
+        panelElevation.forEach { add(it.role) }
+        addAll(refusingIconColor.roles())
+        addAll(refusingOutlineColor.roles())
+        addAll(scrimColor.roles())
+    }
+}
+
 /**
  * A condition of embedded-text-input: the key of one entry of [TanreiEmbeddedTextInputConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
@@ -10643,6 +10678,7 @@ public data class TanreiSystem(
     public val descriptionList: TanreiDescriptionListTokens,
     public val dialog: TanreiDialogTokens,
     public val divider: TanreiDividerTokens,
+    public val dropZone: TanreiDropZoneTokens,
     public val embeddedTextInput: TanreiEmbeddedTextInputTokens,
     public val emptyState: TanreiEmptyStateTokens,
     public val fabMenu: TanreiFabMenuTokens,
@@ -10723,6 +10759,7 @@ public data class TanreiSystem(
         addAll(descriptionList.referencedRoles())
         addAll(dialog.referencedRoles())
         addAll(divider.referencedRoles())
+        addAll(dropZone.referencedRoles())
         addAll(embeddedTextInput.referencedRoles())
         addAll(emptyState.referencedRoles())
         addAll(fabMenu.referencedRoles())

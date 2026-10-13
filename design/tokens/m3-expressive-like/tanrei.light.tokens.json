@@ -33778,6 +33778,293 @@
           }
         }
       },
+      "drop-zone": {
+        "icon": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.4039,
+                0.3137,
+                0.6431
+              ],
+              "hex": "#6750a4",
+              "alpha": 1
+            },
+            "$description": "The glyph while the zone will take what is dragged over it: the color of its edge."
+          },
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 32,
+              "unit": "px"
+            },
+            "$description": "The glyph above the message: the largest step of the icon scale, as the File picker's drop area's."
+          }
+        },
+        "label": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.1137,
+                0.1059,
+                0.1255
+              ],
+              "hex": "#1d1b20",
+              "alpha": 1
+            },
+            "$description": "The message on the panel: the surface's text color."
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Roboto",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 16,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0.5,
+                "unit": "px"
+              },
+              "lineHeight": 1.5
+            },
+            "$description": "The message: running text one step larger than the interface's, because it is read at a glance during a drag."
+          }
+        },
+        "motion": {
+          "duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            },
+            "$description": "How long the overlay takes to fade in when a drag of files enters the zone, and to fade out when it leaves, ends or drops; and how long a change between taking and refusing takes."
+          },
+          "easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$description": "The curve of that fade."
+          }
+        },
+        "outline": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.4039,
+                0.3137,
+                0.6431
+              ],
+              "hex": "#6750a4",
+              "alpha": 1
+            },
+            "$description": "That edge while the zone will take what is dragged over it."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 2,
+              "unit": "px"
+            },
+            "$description": "The edge drawn inside the zone's box while files are dragged over it: the heavier stroke, the mark of what is selected, because the whole zone is the place now chosen."
+          }
+        },
+        "panel": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.9255,
+                  0.902,
+                  0.9412
+                ],
+                "hex": "#ece6f0",
+                "alpha": 1
+              },
+              "$description": "The panel that holds the glyph and the message, over the scrim: a raised surface, so that the message is read on its own ground whatever content lies under the scrim."
+            }
+          },
+          "elevation": {
+            "$type": "shadow",
+            "$value": [
+              {
+                "offsetX": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "offsetY": {
+                  "value": 1,
+                  "unit": "px"
+                },
+                "blur": {
+                  "value": 2,
+                  "unit": "px"
+                },
+                "spread": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "color": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.3,
+                  "hex": "#000000"
+                },
+                "inset": false
+              },
+              {
+                "offsetX": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "offsetY": {
+                  "value": 2,
+                  "unit": "px"
+                },
+                "blur": {
+                  "value": 6,
+                  "unit": "px"
+                },
+                "spread": {
+                  "value": 2,
+                  "unit": "px"
+                },
+                "color": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.15,
+                  "hex": "#000000"
+                },
+                "inset": false
+              }
+            ],
+            "$description": "The panel's lift over the scrim."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 12,
+              "unit": "px"
+            },
+            "$description": "The space between the glyph and the message."
+          },
+          "margin": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "The least distance between the panel and the zone's edges: the panel never touches the edge, and never leaves the zone."
+          },
+          "max-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 360,
+              "unit": "px"
+            },
+            "$description": "The widest the panel draws; a longer message wraps. A narrower zone gives the panel its own width less panel.margin on each side."
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "The room above the glyph and below the message."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "The room at the panel's start and end."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "Every corner of the panel: the step of a surface raised over the content, as a dialog's."
+          }
+        },
+        "refusing": {
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.702,
+                  0.149,
+                  0.1176
+                ],
+                "hex": "#b3261e",
+                "alpha": 1
+              },
+              "$description": "The glyph, which becomes the icon set's block glyph, in the same role."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.702,
+                  0.149,
+                  0.1176
+                ],
+                "hex": "#b3261e",
+                "alpha": 1
+              },
+              "$description": "The edge while the zone will not take what is dragged over it: the error role, because letting go here fails."
+            }
+          }
+        },
+        "scrim": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0.32,
+              "hex": "#000000"
+            },
+            "$description": "The dim over the zone's content while files are dragged over it, alpha included (the scrim role is the overlay as drawn): the content is still there, and not what is pointed at now."
+          }
+        }
+      },
       "embedded-text-input": {
         "input": {
           "typescale": {

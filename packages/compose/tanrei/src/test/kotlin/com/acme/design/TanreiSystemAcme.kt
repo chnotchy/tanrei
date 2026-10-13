@@ -107,6 +107,7 @@ private object AcmeSystemSource {
             descriptionList = descriptionList(typescale, elevation),
             dialog = dialog(typescale, elevation),
             divider = divider(typescale, elevation),
+            dropZone = dropZone(typescale, elevation),
             embeddedTextInput = embeddedTextInput(typescale, elevation),
             emptyState = emptyState(typescale, elevation),
             fabMenu = fabMenu(typescale, elevation),
@@ -3620,6 +3621,30 @@ private object AcmeSystemSource {
             lineThickness = 1.dp,
             lineWaveAmplitude = 2.dp,
             lineWaveWavelength = 16.dp,
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun dropZone(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiDropZoneTokens =
+        TanreiDropZoneTokens(
+            iconColor = TanreiPaint.Role(TanreiColorRole.Primary),
+            iconSize = 32.dp,
+            labelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            labelTypescale = typescale.bodyLarge,
+            motionDuration = 150,
+            motionEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            outlineColor = TanreiPaint.Role(TanreiColorRole.Primary),
+            outlineWidth = 2.dp,
+            panelContainerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerHigh),
+            panelElevation = elevation.level2,
+            panelGap = 12.dp,
+            panelMargin = 16.dp,
+            panelMaxWidth = 360.dp,
+            panelPaddingBlock = 24.dp,
+            panelPaddingInline = 24.dp,
+            panelShape = 12.dp,
+            refusingIconColor = TanreiPaint.Role(TanreiColorRole.Error),
+            refusingOutlineColor = TanreiPaint.Role(TanreiColorRole.Error),
+            scrimColor = TanreiPaint.Role(TanreiColorRole.Scrim),
         )
 
     @Suppress("UNUSED_PARAMETER")

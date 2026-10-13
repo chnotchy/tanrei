@@ -1,0 +1,162 @@
+---
+title: Drop zone
+description: Wraps any part of a screen so that files can be dropped anywhere on it, while everything it holds works as before. It draws nothing until files are dragged over it, then covers the whole area with one message, and hands your product the files it accepted and the files it refused.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import Callout from '../../../components/Callout.astro';
+
+## Overview
+
+<ComponentAvailability name="drop-zone" />
+
+<DemoFrame label="A screen of videos inside a drop zone. Drag a file from your computer anywhere onto it: the whole screen shows that it can be dropped. Dropping changes nothing here: the page keeps no file." column>
+  <tanrei-drop-zone class="not-content" style="inline-size: 30rem; max-inline-size: 100%; block-size: 16rem; border-radius: var(--tanrei-sys-shape-corner-medium)" multiple accept="video/*,image/*" drop-text="Drop videos to upload them" refusing-text="Only videos and pictures can be uploaded" dropped-text="{count} files received" refused-text="{count} files could not be received">
+    <div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); border-radius: inherit">
+      <tanrei-file-picker multiple accept="video/*,image/*" constraints-text="Videos or pictures">
+        <tanrei-button slot="trigger" variant="outlined">Upload videos</tanrei-button>
+      </tanrei-file-picker>
+      <span>Channel trailer · 1:24</span>
+      <span>Spring update · 8:03</span>
+      <span>Behind the scenes · 12:47</span>
+    </div>
+  </tanrei-drop-zone>
+</DemoFrame>
+
+A drop zone turns a whole screen, or any part of it, into a place where files can be dropped. Wrap it around a list of documents, a library of videos, a conversation or your app's main region. Everything inside keeps working as before: buttons, tables and fields are pressed, scrolled and reached by keyboard as if the zone were not there. The zone adds no hover, no press, no focus stop and no role.
+
+While files are dragged over it, one overlay covers the zone: a dim over the content, an edge around it and a panel with an upload glyph and your message. When the files are dropped, the zone judges them by the same rule as the [file picker](/components/file-picker/) and hands them to you: the accepted files with `select`, the refused ones with `reject`. Hand them to a [file upload](/components/file-upload/), or to a list of your own.
+
+<Callout type="caution" title="Never the only way">
+Dragging a file is a pointer movement that a keyboard, a screen reader, voice control and most touch screens cannot make. A screen with a drop zone always offers a [file picker](/components/file-picker/) or a [file upload](/components/file-upload/) as well — in a toolbar, an app bar or an empty state. A debug build reports a page that has neither.
+</Callout>
+
+Use the file picker's drop-area layout instead when the place to drop is a bounded area inside a form, which is also pressed to open the picker.
+
+On the web it is `<tanrei-drop-zone>`. The other platforms have not implemented it yet.
+
+### Usage
+
+Wrap the content, and listen to `select`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-drop-zone id="zone" multiple accept="video/*" max-size="2000000000"
+                      drop-text="Drop videos to upload them" silent>
+      <tanrei-file-upload id="uploads" multiple accept="video/*" max-size="2000000000"
+                          constraints-text="Videos, up to 2 GB each">
+        <tanrei-button slot="trigger" variant="outlined">Upload videos</tanrei-button>
+      </tanrei-file-upload>
+      <tanrei-table>…the channel's videos…</tanrei-table>
+    </tanrei-drop-zone>
+
+    <script type="module">
+      import '@tanrei/web/components/drop-zone';
+      import '@tanrei/web/components/file-upload';
+      import '@tanrei/web/components/button';
+
+      const uploads = document.querySelector('#uploads');
+      // The file upload lists the dropped files and says each one, so the zone is silent.
+      document.querySelector('#zone').addEventListener('select', ({ detail }) => uploads.add(detail.files));
+      // A refused file has a reason that is a name, not a sentence. Say it in your own words.
+      document.querySelector('#zone').addEventListener('reject', ({ detail }) => showRefused(detail.files));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, DropZone, FileUpload } from '@tanrei/react';
+
+    <DropZone multiple accept={['video/*']} dropText="Drop videos to upload them" silent
+      onSelect={(event) => uploads.current?.add(event.detail.files)}
+      onReject={(event) => showRefused(event.detail.files)}>
+      <FileUpload ref={uploads} multiple accept={['video/*']} constraintsText="Videos, up to 2 GB each">
+        <Button slot="trigger" variant="outlined">Upload videos</Button>
+      </FileUpload>
+      <VideoTable />
+    </DropZone>
+    ```
+  </TabItem>
+</Tabs>
+
+The zone's box is the content's layout box. Style it as you would any wrapper: a height, `display: grid`, `overflow`.
+
+## Specs
+
+<ComponentSpecs name="drop-zone" />
+
+## Guidelines
+
+### Where to put it
+
+| Wrap | When |
+| --- | --- |
+| Your app's main region | The screen's main task is to hold files: a library, a drive, a list of documents. Files can be dropped anywhere the person is working. |
+| One panel or list | Only one part of the screen takes files: the attachments of one record, one conversation. |
+| A [file picker](/components/file-picker/)'s drop area instead | The place to drop is a bounded area in a form, which is also pressed to open the picker. |
+
+A zone inside another zone takes the drop itself while the drag is over it, and so does a file picker's drop area inside a zone. The innermost place always wins.
+
+### The overlay
+
+The overlay appears only while files are dragged over the zone, and only for files: dragged text and links are left to the content, so a text field inside the zone still takes them. It disappears when the drag leaves the zone, is dropped or is cancelled. It never takes a press or a scroll, so it never needs to be closed.
+
+- The panel stands in the middle of the part of the zone that is in view. A zone taller than the window still shows its message where the person is looking.
+- The overlay stays inside the zone's box and above everything in it. Content that must stand above it — a dialog, a menu, a popover — is in the platform's top layer, as Tanrei's overlays are.
+- Where the browser can tell before the drop that nothing dragged can be taken — several files where one is asked, or only kinds a list of media types leaves out — the overlay refuses: a block glyph, an edge in the error color and `refusingText`. A browser tells kinds and a count, never names or sizes, so a file that is too large, or of a refused extension, is refused at the drop.
+
+### Limits and messages
+
+`accept`, `maxSize`, `maxFiles` and `multiple` work exactly as the file picker's. Say the limits in words next to the file picker or file upload on the same screen: that is where a person reads them.
+
+| Prop | What it says | Read from your words when empty |
+| --- | --- | --- |
+| `dropText` | The message in the overlay: "Drop files to upload them". | `dropZoneText` |
+| `refusingText` | The message while the zone refuses what is dragged. | `dropZoneRefusingText` |
+| `droppedText` | What assistive technology hears after a drop, with `{count}`: "{count} files added". | `filesDroppedText` |
+| `refusedText` | What it hears when files were refused, with `{count}`. | `filesRefusedText` |
+
+Set these words once for your whole product with `setWords()`. Tanrei ships no words.
+
+If the dropped files go to a file upload that keeps its own rows, set `silent`: the file upload already says each file it kept or refused, and one drop should be said once.
+
+### Disabled
+
+`disabled` stops dropping and nothing else: no overlay and no event, while the content stays as usable as before. A disabled zone with no enabled zone around it still keeps the browser from opening a file dropped on it by mistake.
+
+### Do
+
+- Offer a file picker or file upload on the same screen, always.
+- Hand what `select` gives you to the place that shows the files, at once.
+- Say every refusal where the person is looking: a snackbar, a row of your list.
+
+### Don't
+
+- Don't make the drop zone the only way to add files.
+- Don't put a drop zone around a single small control. Use the file picker's drop area.
+- Don't expect a form to submit what was dropped. The zone keeps nothing and takes no part in a form.
+
+## Accessibility
+
+<ComponentAccessibility name="drop-zone" />
+
+### What the component handles
+
+- The zone adds nothing to the content: no role, no name, no stop in the focus order, no key. A keyboard or screen reader user meets the content exactly as without it.
+- The overlay is drawn for the person who drags and is hidden from assistive technology.
+- After a drop, one polite live region says how many files were accepted and how many were refused, in your words.
+- The overlay is told without color too: refusing has its own glyph and message, and in forced colors the edge is drawn thicker in the highlight color.
+- At 200% text the message wraps and is never cut.
+
+How it is built on the web: the content stays in your DOM, in the default slot. The host is `position: relative` and a stacking context of its own, so do not set `position: static` on it. `select` and `reject` bubble with the file picker's details.
+
+### What you need to do
+
+- Offer a [file picker](/components/file-picker/) or a [file upload](/components/file-upload/) on the same screen, for everyone who cannot drag.
+- Give `droppedText` and `refusedText`, or set `silent` where a file upload says the files.
+- Say every refusal in words that a person can see.

@@ -1,0 +1,164 @@
+---
+title: "放置区"
+description: "包住界面的任意一部分，让文件可以放到它上面的任何位置，而它包住的一切照常工作。在有文件拖到它上面之前，它什么都不绘制；有文件拖来时，它用一条消息盖住整个区域，再把它接受的文件和它拒绝的文件交给你的产品。"
+translationOf: components/drop-zone.mdx
+sourceHash: 66087d25c7f3588823e93e170e15ddaec708d5ef
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## 概览
+
+<ComponentAvailability name="drop-zone" />
+
+<DemoFrame label="放在放置区里的一个视频界面。从你的电脑上把一个文件拖到它上面的任何位置：整个界面都会显示可以放下。在这里放下不会带来任何变化：页面不保留任何文件。" column>
+  <tanrei-drop-zone class="not-content" style="inline-size: 30rem; max-inline-size: 100%; block-size: 16rem; border-radius: var(--tanrei-sys-shape-corner-medium)" multiple accept="video/*,image/*" drop-text="放下视频即可上传" refusing-text="只能上传视频和图片" dropped-text="已收到 {count} 个文件" refused-text="有 {count} 个文件无法接收">
+    <div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); border-radius: inherit">
+      <tanrei-file-picker multiple accept="video/*,image/*" constraints-text="视频或图片">
+        <tanrei-button slot="trigger" variant="outlined">上传视频</tanrei-button>
+      </tanrei-file-picker>
+      <span>频道预告片 · 1:24</span>
+      <span>春季更新 · 8:03</span>
+      <span>幕后花絮 · 12:47</span>
+    </div>
+  </tanrei-drop-zone>
+</DemoFrame>
+
+放置区把整个界面或其中任意一部分，变成可以放下文件的地方。用它包住一个文档列表、一个视频库、一段对话，或者你的应用的主区域。里面的一切照常工作：按钮、表格和字段的按下、滚动和键盘操作，都和没有放置区时一样。放置区不添加悬停，不添加按下，不添加焦点停靠点，也不添加角色。
+
+有文件拖到它上面时，一个浮层盖住放置区：内容上方的一层暗色、围着它的一道边线，以及一块带有上传字形和你的消息的面板。文件放下后，放置区按与[文件选择器](/zh-cn/components/file-picker/)相同的规则判定它们，再交给你：被接受的文件随 `select` 交出，被拒绝的文件随 `reject` 交出。把它们交给[文件上传](/zh-cn/components/file-upload/)，或者交给你自己的列表。
+
+<Callout type="caution" title="绝不能是唯一的途径">
+拖动文件是一个指针动作，键盘、屏幕阅读器、语音控制和大多数触摸屏都做不到。有放置区的界面，始终还要提供一个[文件选择器](/zh-cn/components/file-picker/)或[文件上传](/zh-cn/components/file-upload/)——放在工具栏、应用栏或空状态里。两者都没有的页面，调试构建会报告出来。
+</Callout>
+
+如果放下文件的地方是表单里一块有边界的区域，并且按下它也会打开选择器，就改用文件选择器的拖放区域布局。
+
+在 Web 上它是 `<tanrei-drop-zone>`。其他平台尚未实现。
+
+### 用法
+
+包住内容，并监听 `select`。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-drop-zone id="zone" multiple accept="video/*" max-size="2000000000"
+                      drop-text="放下视频即可上传" silent>
+      <tanrei-file-upload id="uploads" multiple accept="video/*" max-size="2000000000"
+                          constraints-text="视频，每个不超过 2 GB">
+        <tanrei-button slot="trigger" variant="outlined">上传视频</tanrei-button>
+      </tanrei-file-upload>
+      <tanrei-table>…频道的视频…</tanrei-table>
+    </tanrei-drop-zone>
+
+    <script type="module">
+      import '@tanrei/web/components/drop-zone';
+      import '@tanrei/web/components/file-upload';
+      import '@tanrei/web/components/button';
+
+      const uploads = document.querySelector('#uploads');
+      // 文件上传会列出放下的文件，并逐个说明，所以放置区保持安静。
+      document.querySelector('#zone').addEventListener('select', ({ detail }) => uploads.add(detail.files));
+      // 被拒绝的文件带有一个原因，它是一个名称，而不是一句话。请用你自己的话来说。
+      document.querySelector('#zone').addEventListener('reject', ({ detail }) => showRefused(detail.files));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, DropZone, FileUpload } from '@tanrei/react';
+
+    <DropZone multiple accept={['video/*']} dropText="放下视频即可上传" silent
+      onSelect={(event) => uploads.current?.add(event.detail.files)}
+      onReject={(event) => showRefused(event.detail.files)}>
+      <FileUpload ref={uploads} multiple accept={['video/*']} constraintsText="视频，每个不超过 2 GB">
+        <Button slot="trigger" variant="outlined">上传视频</Button>
+      </FileUpload>
+      <VideoTable />
+    </DropZone>
+    ```
+  </TabItem>
+</Tabs>
+
+放置区的盒子就是内容的布局盒子。像给任何包裹元素设置样式那样设置它：高度、`display: grid`、`overflow`。
+
+## 规格
+
+<ComponentSpecs name="drop-zone" />
+
+## 指南
+
+### 放在哪里
+
+| 包住什么 | 何时 |
+| --- | --- |
+| 你的应用的主区域 | 界面的主要任务是存放文件：一个媒体库、一个云盘、一个文档列表。用户在哪里工作，文件就可以放在哪里。 |
+| 一个面板或一个列表 | 界面上只有一部分接收文件：一条记录的附件、一段对话。 |
+| 改用[文件选择器](/zh-cn/components/file-picker/)的拖放区域 | 放下文件的地方是表单里一块有边界的区域，并且按下它也会打开选择器。 |
+
+放置区里的另一个放置区，在拖动经过它上方时由它自己接收放下的文件；放置区里的文件选择器拖放区域也是如此。始终由最里层的地方接收。
+
+### 浮层
+
+浮层只在有文件拖到放置区上方时出现，而且只针对文件：拖动的文本和链接留给内容处理，所以放置区里的文本字段照样能接收它们。拖动离开放置区、放下或取消时，浮层消失。它从不接收按下或滚动，所以从不需要关闭。
+
+- 面板位于放置区中可见部分的中央。比窗口还高的放置区，也会在用户正看着的地方显示它的消息。
+- 浮层留在放置区的盒子里，并位于其中一切内容之上。必须位于它之上的内容——对话框、菜单、弹出框——位于平台的顶层（top layer），Tanrei 的浮层就是这样。
+- 如果浏览器在放下之前就能判断拖来的东西都不能接收——只要一个时拖来了多个文件，或者只有媒体类型列表排除的种类——浮层就显示拒绝：一个禁止字形、一道错误颜色的边线，以及 `refusingText`。浏览器只告知种类和数量，从不告知名称或大小，所以过大的文件，或扩展名被拒绝的文件，会在放下时被拒绝。
+
+### 限制和消息
+
+`accept`、`maxSize`、`maxFiles` 和 `multiple` 的作用与文件选择器的完全相同。请在同一界面上的文件选择器或文件上传旁边，用文字说明这些限制：用户是在那里读到它们的。
+
+| 属性 | 它说什么 | 为空时从你的文字中读取 |
+| --- | --- | --- |
+| `dropText` | 浮层里的消息：“放下文件即可上传”。 | `dropZoneText` |
+| `refusingText` | 放置区拒绝拖来的东西时显示的消息。 | `dropZoneRefusingText` |
+| `droppedText` | 放下后辅助技术听到的内容，带有 `{count}`：“已添加 {count} 个文件”。 | `filesDroppedText` |
+| `refusedText` | 有文件被拒绝时它听到的内容，带有 `{count}`。 | `filesRefusedText` |
+
+用 `setWords()` 为整个产品只给一次这些文字。Tanrei 不自带任何文字。
+
+如果放下的文件交给一个自己保留各行的文件上传，就设置 `silent`：文件上传已经会逐个说明它保留或拒绝的文件，而一次放下只应说一次。
+
+### 禁用
+
+`disabled` 只停止放下，不影响别的：没有浮层，也没有事件，而内容照样可以使用。即使外面没有启用的放置区，被禁用的放置区也仍会阻止浏览器打开误放到它上面的文件。
+
+### 推荐
+
+- 始终在同一界面上提供文件选择器或文件上传。
+- 立即把 `select` 交给你的东西交给显示文件的地方。
+- 每一次拒绝都要在用户正看着的地方说明：消息条，或者你的列表里的一行。
+
+### 避免
+
+- 不要让放置区成为添加文件的唯一途径。
+- 不要用放置区包住单个小控件。请使用文件选择器的拖放区域。
+- 不要指望表单提交放下的内容。放置区什么都不保留，也不参与表单。
+
+## 无障碍
+
+<ComponentAccessibility name="drop-zone" />
+
+### 组件负责的部分
+
+- 放置区不给内容添加任何东西：没有角色，没有名称，在焦点顺序中没有停靠点，也没有按键。键盘或屏幕阅读器用户遇到的内容，和没有放置区时完全一样。
+- 浮层是为拖动的人绘制的，对辅助技术隐藏。
+- 放下之后，一个以礼貌（polite）的方式朗读的实时区域，用你的文字说明有多少个文件被接受、多少个被拒绝。
+- 浮层不只靠颜色来表达：拒绝有自己的字形和消息；在强制颜色模式下，边线用高亮颜色画得更粗。
+- 文本放大到 200% 时，消息会换行，从不被截断。
+
+它在 Web 上的构造方式：内容留在你的 DOM 里，位于默认插槽中。宿主元素是 `position: relative`，并自成一个层叠上下文，所以不要给它设置 `position: static`。`select` 和 `reject` 会冒泡，带有与文件选择器相同的 detail。
+
+### 需要你做的事
+
+- 为所有无法拖动的人，在同一界面上提供一个[文件选择器](/zh-cn/components/file-picker/)或[文件上传](/zh-cn/components/file-upload/)。
+- 给出 `droppedText` 和 `refusedText`；在由文件上传说明文件的地方，则设置 `silent`。
+- 每一次拒绝都要用用户看得见的文字说明。

@@ -3683,6 +3683,28 @@ private let m3ExpressiveLikeDividerTokens = TanreiDividerTokens(
   lineWaveWavelength: 16
 )
 
+private let m3ExpressiveLikeDropZoneTokens = TanreiDropZoneTokens(
+  iconColor: .role(.primary),
+  iconSize: 32,
+  labelColor: .role(.onSurface),
+  labelTypescale: m3ExpressiveLikeTypescale.bodyLarge,
+  motionDuration: 150,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  outlineColor: .role(.primary),
+  outlineWidth: 2,
+  panelContainerColor: .role(.surfaceContainerHigh),
+  panelElevation: m3ExpressiveLikeElevation.level2,
+  panelGap: 12,
+  panelMargin: 16,
+  panelMaxWidth: 360,
+  panelPaddingBlock: 24,
+  panelPaddingInline: 24,
+  panelShape: 16,
+  refusingIconColor: .role(.error),
+  refusingOutlineColor: .role(.error),
+  scrimColor: .role(.scrim)
+)
+
 private let m3ExpressiveLikeEmbeddedTextInputTokens = TanreiEmbeddedTextInputTokens(
   inputTypescale: m3ExpressiveLikeTypescale.bodyLarge,
   motionResizeDuration: 200,
@@ -9550,6 +9572,7 @@ extension TanreiSystem {
     descriptionList: m3ExpressiveLikeDescriptionListTokens,
     dialog: m3ExpressiveLikeDialogTokens,
     divider: m3ExpressiveLikeDividerTokens,
+    dropZone: m3ExpressiveLikeDropZoneTokens,
     embeddedTextInput: m3ExpressiveLikeEmbeddedTextInputTokens,
     emptyState: m3ExpressiveLikeEmptyStateTokens,
     fabMenu: m3ExpressiveLikeFabMenuTokens,

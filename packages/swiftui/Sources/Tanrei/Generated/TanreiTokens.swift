@@ -6277,6 +6277,71 @@ public struct TanreiDividerTokens: Sendable, Equatable {
   }
 }
 
+/// Component tokens of drop-zone (comp.drop-zone).
+public struct TanreiDropZoneTokens: Sendable, Equatable {
+  public var iconColor: TanreiPaint
+  public var iconSize: CGFloat
+  public var labelColor: TanreiPaint
+  public var labelTypescale: TanreiTextStyle
+  public var motionDuration: Double
+  public var motionEasing: TanreiCubicBezier
+  public var outlineColor: TanreiPaint
+  public var outlineWidth: CGFloat
+  public var panelContainerColor: TanreiPaint
+  public var panelElevation: [TanreiShadowLayer]
+  public var panelGap: CGFloat
+  public var panelMargin: CGFloat
+  public var panelMaxWidth: CGFloat
+  public var panelPaddingBlock: CGFloat
+  public var panelPaddingInline: CGFloat
+  public var panelShape: CGFloat
+  public var refusingIconColor: TanreiPaint
+  public var refusingOutlineColor: TanreiPaint
+  public var scrimColor: TanreiPaint
+
+  public init(
+    iconColor: TanreiPaint,
+    iconSize: CGFloat,
+    labelColor: TanreiPaint,
+    labelTypescale: TanreiTextStyle,
+    motionDuration: Double,
+    motionEasing: TanreiCubicBezier,
+    outlineColor: TanreiPaint,
+    outlineWidth: CGFloat,
+    panelContainerColor: TanreiPaint,
+    panelElevation: [TanreiShadowLayer],
+    panelGap: CGFloat,
+    panelMargin: CGFloat,
+    panelMaxWidth: CGFloat,
+    panelPaddingBlock: CGFloat,
+    panelPaddingInline: CGFloat,
+    panelShape: CGFloat,
+    refusingIconColor: TanreiPaint,
+    refusingOutlineColor: TanreiPaint,
+    scrimColor: TanreiPaint
+  ) {
+    self.iconColor = iconColor
+    self.iconSize = iconSize
+    self.labelColor = labelColor
+    self.labelTypescale = labelTypescale
+    self.motionDuration = motionDuration
+    self.motionEasing = motionEasing
+    self.outlineColor = outlineColor
+    self.outlineWidth = outlineWidth
+    self.panelContainerColor = panelContainerColor
+    self.panelElevation = panelElevation
+    self.panelGap = panelGap
+    self.panelMargin = panelMargin
+    self.panelMaxWidth = panelMaxWidth
+    self.panelPaddingBlock = panelPaddingBlock
+    self.panelPaddingInline = panelPaddingInline
+    self.panelShape = panelShape
+    self.refusingIconColor = refusingIconColor
+    self.refusingOutlineColor = refusingOutlineColor
+    self.scrimColor = scrimColor
+  }
+}
+
 /// A value of embedded-text-input's `condition` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
@@ -17139,6 +17204,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _divider.value }
     set { _divider.value = newValue }
   }
+  public var dropZone: TanreiDropZoneTokens {
+    get { _dropZone.value }
+    set { _dropZone.value = newValue }
+  }
   public var embeddedTextInput: TanreiEmbeddedTextInputTokens {
     get { _embeddedTextInput.value }
     set { _embeddedTextInput.value = newValue }
@@ -17368,6 +17437,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _descriptionList: TanreiBox<TanreiDescriptionListTokens>
   private var _dialog: TanreiBox<TanreiDialogTokens>
   private var _divider: TanreiBox<TanreiDividerTokens>
+  private var _dropZone: TanreiBox<TanreiDropZoneTokens>
   private var _embeddedTextInput: TanreiBox<TanreiEmbeddedTextInputTokens>
   private var _emptyState: TanreiBox<TanreiEmptyStateTokens>
   private var _fabMenu: TanreiBox<TanreiFabMenuTokens>
@@ -17459,6 +17529,7 @@ public struct TanreiSystem: Sendable, Equatable {
     descriptionList: TanreiDescriptionListTokens,
     dialog: TanreiDialogTokens,
     divider: TanreiDividerTokens,
+    dropZone: TanreiDropZoneTokens,
     embeddedTextInput: TanreiEmbeddedTextInputTokens,
     emptyState: TanreiEmptyStateTokens,
     fabMenu: TanreiFabMenuTokens,
@@ -17549,6 +17620,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._descriptionList = TanreiBox(descriptionList)
     self._dialog = TanreiBox(dialog)
     self._divider = TanreiBox(divider)
+    self._dropZone = TanreiBox(dropZone)
     self._embeddedTextInput = TanreiBox(embeddedTextInput)
     self._emptyState = TanreiBox(emptyState)
     self._fabMenu = TanreiBox(fabMenu)

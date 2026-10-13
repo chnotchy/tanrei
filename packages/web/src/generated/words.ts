@@ -40,6 +40,10 @@ export interface TanreiWords {
   decrementLabel?: string;
   /** Read by `date-time-picker.dialLabel`. */
   dialLabel?: string;
+  /** Read by `drop-zone.refusingText`. */
+  dropZoneRefusingText?: string;
+  /** Read by `drop-zone.dropText`. */
+  dropZoneText?: string;
   /** Read by `chip-field.duplicateText`. */
   duplicateEntryText?: string;
   /** Read by `combobox.emptyText`. */
@@ -68,6 +72,10 @@ export interface TanreiWords {
   fileSizeErrorText?: string;
   /** Read by `chat-composer.typeErrorText`, `file-upload.typeErrorText`. */
   fileTypeErrorText?: string;
+  /** Read by `drop-zone.droppedText`. A word with places: `{count}` (number). */
+  filesDroppedText?: string;
+  /** Read by `drop-zone.refusedText`. A word with places: `{count}` (number). */
+  filesRefusedText?: string;
   /** Read by `bottom-sheet.handleLabel`. */
   handleLabel?: string;
   /** Read by `code-block.highlightedLabel`. */
@@ -158,7 +166,7 @@ export interface TanreiWords {
 export type WordKey = keyof TanreiWords;
 
 /** Every key of the product's words, in alphabetical order. */
-export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'duplicateEntryText', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveDownLabel', 'moveUpLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextMonthLabel', 'noFileText', 'optionalText', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousMonthLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stopLabel', 'targetLabel', 'todayLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
+export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'dropZoneRefusingText', 'dropZoneText', 'duplicateEntryText', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'filesDroppedText', 'filesRefusedText', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveDownLabel', 'moveUpLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextMonthLabel', 'noFileText', 'optionalText', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousMonthLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stopLabel', 'targetLabel', 'todayLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
 
 /** The props that read each key, as `<component>.<prop>` and, for an item kind, `<component>/<kind>.<prop>`. */
 export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
@@ -180,6 +188,8 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   dateLabel: ['date-time-picker.dateLabel'],
   decrementLabel: ['number-input.decrementLabel'],
   dialLabel: ['date-time-picker.dialLabel'],
+  dropZoneRefusingText: ['drop-zone.refusingText'],
+  dropZoneText: ['drop-zone.dropText'],
   duplicateEntryText: ['chip-field.duplicateText'],
   emptyText: ['combobox.emptyText'],
   endLabel: ['calendar.endLabel', 'date-time-picker.endLabel'],
@@ -194,6 +204,8 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   fileCountErrorText: ['chat-composer.countErrorText', 'file-upload.countErrorText'],
   fileSizeErrorText: ['chat-composer.sizeErrorText', 'file-upload.sizeErrorText'],
   fileTypeErrorText: ['chat-composer.typeErrorText', 'file-upload.typeErrorText'],
+  filesDroppedText: ['drop-zone.droppedText'],
+  filesRefusedText: ['drop-zone.refusedText'],
   handleLabel: ['bottom-sheet.handleLabel'],
   highlightedLabel: ['code-block.highlightedLabel'],
   hourLabel: ['date-time-picker.hourLabel'],
@@ -258,6 +270,8 @@ export const wordPlaces: Readonly<Partial<Record<WordKey, readonly WordPlace[]>>
   entryAddedText: [{ name: 'entry', kind: 'text' }],
   entryRemoveLabel: [{ name: 'entry', kind: 'text', required: true }],
   entryRemovedText: [{ name: 'entry', kind: 'text' }],
+  filesDroppedText: [{ name: 'count', kind: 'number' }],
+  filesRefusedText: [{ name: 'count', kind: 'number' }],
   imageCountText: [{ name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
   moveDownLabel: [{ name: 'headline', kind: 'text', required: true }],
   moveUpLabel: [{ name: 'headline', kind: 'text', required: true }],

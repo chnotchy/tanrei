@@ -9300,6 +9300,114 @@ class TanreiDividerTokens {
       );
 }
 
+/// `comp.drop-zone.*`
+@immutable
+class TanreiDropZoneTokens {
+  const TanreiDropZoneTokens({
+    required this.iconColor,
+    required this.iconSize,
+    required this.labelColor,
+    required this.labelTypescale,
+    required this.motionDuration,
+    required this.motionEasing,
+    required this.outlineColor,
+    required this.outlineWidth,
+    required this.panelContainerColor,
+    required this.panelElevation,
+    required this.panelGap,
+    required this.panelMargin,
+    required this.panelMaxWidth,
+    required this.panelPaddingBlock,
+    required this.panelPaddingInline,
+    required this.panelShape,
+    required this.refusingIconColor,
+    required this.refusingOutlineColor,
+    required this.scrimColor,
+  });
+
+  /// `comp.drop-zone.icon-color`
+  final TanreiPaint iconColor;
+  /// `comp.drop-zone.icon-size`
+  final double iconSize;
+  /// `comp.drop-zone.label-color`
+  final TanreiPaint labelColor;
+  /// `comp.drop-zone.label-typescale`
+  final TanreiTextStyle labelTypescale;
+  /// `comp.drop-zone.motion-duration`
+  final int motionDuration;
+  /// `comp.drop-zone.motion-easing`
+  final TanreiCubicBezier motionEasing;
+  /// `comp.drop-zone.outline-color`
+  final TanreiPaint outlineColor;
+  /// `comp.drop-zone.outline-width`
+  final double outlineWidth;
+  /// `comp.drop-zone.panel-container-color`
+  final TanreiPaint panelContainerColor;
+  /// `comp.drop-zone.panel-elevation`
+  final List<TanreiShadowLayer> panelElevation;
+  /// `comp.drop-zone.panel-gap`
+  final double panelGap;
+  /// `comp.drop-zone.panel-margin`
+  final double panelMargin;
+  /// `comp.drop-zone.panel-max-width`
+  final double panelMaxWidth;
+  /// `comp.drop-zone.panel-padding-block`
+  final double panelPaddingBlock;
+  /// `comp.drop-zone.panel-padding-inline`
+  final double panelPaddingInline;
+  /// `comp.drop-zone.panel-shape`
+  final double panelShape;
+  /// `comp.drop-zone.refusing-icon-color`
+  final TanreiPaint refusingIconColor;
+  /// `comp.drop-zone.refusing-outline-color`
+  final TanreiPaint refusingOutlineColor;
+  /// `comp.drop-zone.scrim-color`
+  final TanreiPaint scrimColor;
+
+  /// A copy with the given tokens replaced.
+  TanreiDropZoneTokens copyWith({
+    TanreiPaint? iconColor,
+    double? iconSize,
+    TanreiPaint? labelColor,
+    TanreiTextStyle? labelTypescale,
+    int? motionDuration,
+    TanreiCubicBezier? motionEasing,
+    TanreiPaint? outlineColor,
+    double? outlineWidth,
+    TanreiPaint? panelContainerColor,
+    List<TanreiShadowLayer>? panelElevation,
+    double? panelGap,
+    double? panelMargin,
+    double? panelMaxWidth,
+    double? panelPaddingBlock,
+    double? panelPaddingInline,
+    double? panelShape,
+    TanreiPaint? refusingIconColor,
+    TanreiPaint? refusingOutlineColor,
+    TanreiPaint? scrimColor,
+  }) => TanreiDropZoneTokens(
+        iconColor: iconColor ?? this.iconColor,
+        iconSize: iconSize ?? this.iconSize,
+        labelColor: labelColor ?? this.labelColor,
+        labelTypescale: labelTypescale ?? this.labelTypescale,
+        motionDuration: motionDuration ?? this.motionDuration,
+        motionEasing: motionEasing ?? this.motionEasing,
+        outlineColor: outlineColor ?? this.outlineColor,
+        outlineWidth: outlineWidth ?? this.outlineWidth,
+        panelContainerColor: panelContainerColor ?? this.panelContainerColor,
+        panelElevation: panelElevation ?? this.panelElevation,
+        panelGap: panelGap ?? this.panelGap,
+        panelMargin: panelMargin ?? this.panelMargin,
+        panelMaxWidth: panelMaxWidth ?? this.panelMaxWidth,
+        panelPaddingBlock: panelPaddingBlock ?? this.panelPaddingBlock,
+        panelPaddingInline: panelPaddingInline ?? this.panelPaddingInline,
+        panelShape: panelShape ?? this.panelShape,
+        refusingIconColor: refusingIconColor ?? this.refusingIconColor,
+        refusingOutlineColor: refusingOutlineColor ?? this.refusingOutlineColor,
+        scrimColor: scrimColor ?? this.scrimColor,
+      );
+}
+
 /// The key of a condition of embedded-text-input (`comp.embedded-text-input`, axis `condition`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -24636,6 +24744,7 @@ class TanreiSystem {
     required this.descriptionList,
     required this.dialog,
     required this.divider,
+    required this.dropZone,
     required this.embeddedTextInput,
     required this.emptyState,
     required this.fabMenu,
@@ -24729,6 +24838,7 @@ class TanreiSystem {
   final TanreiDescriptionListTokens descriptionList;
   final TanreiDialogTokens dialog;
   final TanreiDividerTokens divider;
+  final TanreiDropZoneTokens dropZone;
   final TanreiEmbeddedTextInputTokens embeddedTextInput;
   final TanreiEmptyStateTokens emptyState;
   final TanreiFabMenuTokens fabMenu;
@@ -24821,6 +24931,7 @@ class TanreiSystem {
     TanreiDescriptionListTokens? descriptionList,
     TanreiDialogTokens? dialog,
     TanreiDividerTokens? divider,
+    TanreiDropZoneTokens? dropZone,
     TanreiEmbeddedTextInputTokens? embeddedTextInput,
     TanreiEmptyStateTokens? emptyState,
     TanreiFabMenuTokens? fabMenu,
@@ -24911,6 +25022,7 @@ class TanreiSystem {
         descriptionList: descriptionList ?? this.descriptionList,
         dialog: dialog ?? this.dialog,
         divider: divider ?? this.divider,
+        dropZone: dropZone ?? this.dropZone,
         embeddedTextInput: embeddedTextInput ?? this.embeddedTextInput,
         emptyState: emptyState ?? this.emptyState,
         fabMenu: fabMenu ?? this.fabMenu,

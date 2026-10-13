@@ -3514,6 +3514,78 @@ Method: `judge(files: Iterable<File>): { accepted: File[], refused: { file, reas
 - **Without script**, and until the element is defined, the trigger is a button that opens nothing. A page that must
   take files where script does not run writes a native `<input type="file">` in its own form.
 
+## `<tanrei-drop-zone>`
+
+Wraps any part of a screen so that files can be dropped anywhere on it, while what it holds is used exactly as without
+it (`specs/drop-zone.spec.json`, DRZ-1…21): **it draws nothing at rest and adds no hover, no press, no focus stop and
+no role**. While files are dragged over it, one overlay covers it — the scrim, an edge inside its box and a panel with
+the upload glyph and the product's message — and on the drop it judges the files by the File picker's rule and emits
+the File picker's `select` and `reject`. It keeps nothing, and **it is never the only way to add a file**: the screen
+also has a `<tanrei-file-picker>` or a `<tanrei-file-upload>` (a debug build reports a page with neither, DRZ-13).
+
+```html
+<tanrei-drop-zone multiple accept="video/*" max-size="2000000000" drop-text="Drop videos to upload them" silent>
+  <tanrei-file-upload id="uploads" multiple accept="video/*" max-size="2000000000" constraints-text="Videos, up to 2 GB each">
+    <tanrei-button slot="trigger" variant="outlined">Upload videos</tanrei-button>
+  </tanrei-file-upload>
+  <tanrei-table>…the channel's videos…</tanrei-table>
+</tanrei-drop-zone>
+```
+
+```js
+zone.addEventListener('select', ({ detail }) => uploads.add(detail.files)); // the File upload judges, lists and says them
+zone.addEventListener('reject', ({ detail }) => { /* [{ file, reason: 'type' | 'size' | 'count' }] — say it in your words */ });
+```
+
+| `<tanrei-drop-zone>` | Type | Default | |
+|---|---|---|---|
+| `multiple` | boolean | `false` | one file per drop, or any number; several where one is asked are refused whole (`count`); reflected |
+| `accept` | string[] (attribute: a comma-separated list) | `[]` | extensions with their dot and media types (`image/*` for a family); anything else is refused (`type`) |
+| `maxSize` / `max-size` | number \| null | `null` | bytes; a larger file is refused (`size`) |
+| `maxFiles` / `max-files` | number \| null | `null` | the most files one drop may bring, while `multiple`; `0` refuses every file |
+| `dropText` / `drop-text` | string | `""` | the overlay's message; empty reads `setWords({ dropZoneText })` |
+| `refusingText` / `refusing-text` | string | `""` | the message while the zone refuses what is dragged; empty reads `dropZoneRefusingText` |
+| `droppedText` / `dropped-text` | string | `""` | said after a drop, `{count}` files passed; empty reads `filesDroppedText` |
+| `refusedText` / `refused-text` | string | `""` | said after a drop, `{count}` files refused; empty reads `filesRefusedText` |
+| `silent` | boolean | `false` | says nothing after a drop: for a zone whose files go to a component that says them itself; reflected |
+| `disabled` | boolean | `false` | no overlay, no event; the content is neither disabled nor dimmed; reflected |
+
+Method: `judge(files: Iterable<File>): { accepted: File[], refused: { file, reason }[] }`, the File picker's own rule,
+emits nothing (DRZ-15). Events: `select` (`detail.files`: `File[]`), then `reject` (`detail.files`: `{ file, reason }[]`);
+both bubble and neither is composed.
+
+- **The content is the product's**, in its light DOM, in the default slot (`display: contents`): the host is its layout
+  box. It is `display: block` by default — style it as any wrapper (`display: grid`, a height, `overflow`). It is
+  `position: relative` and `isolation: isolate`, one stacking context of its own, so the overlay, at the greatest
+  z-index, stands above everything the content stacks and inside the host's box; content that must stand above it is
+  in the top layer (a dialog, a popover, a menu), as Tanrei's overlays are. Do not set `position: static` on it.
+- **The overlay** takes no pointer (`pointer-events: none`), so a press, a wheel or a scroll during a drag reaches
+  the content beneath it, and it is `aria-hidden`. Its panel is placed in the part of the host's box that is in view —
+  the box cut by the window and by every ancestor that clips or scrolls, measured on each `dragenter` and `dragover` —
+  so a zone taller than its scrolling area (a whole page, an app shell's main region) shows its message where the
+  person looks.
+- **A drag** (DRZ-3, DRZ-7, DRZ-8) is heard on the host in the bubbling phase. It answers only a drag whose
+  `dataTransfer.types` includes `Files`: text and links are left to the content. An event whose default a target
+  inside already prevented — a nested zone, a File picker's drop area, a target of the product's — is that target's.
+  Enters and leaves are counted so that a child of the content does not end the condition; a `dragleave` toward an
+  element outside ends it at once, and while a drag is within, the window's `dragenter` outside the host, `drop`,
+  `dragend` and `pointermove` end it too. As for the File picker, a drag tells kinds and a count, never names or
+  sizes: the overlay refuses only what it can know (several where one is asked, or only kinds a media-type-only
+  `accept` does not list), and the rest is judged at the drop. A disabled zone with no enabled zone around it still
+  takes a drop of files, so the browser never opens one let go by mistake.
+- **Judging** is the File picker's, from one shared module (`src/primitives/file-judge.ts`), not a copy.
+- **One live region**, polite: after a drop, `dropped-text` and then `refused-text`, with `{count}` filled; nothing for
+  the drag itself. `silent` says nothing — set it where the files go to a `<tanrei-file-upload>` that keeps its own
+  rows, which says each one.
+- **Not form-associated** (DRZ-10): no `name`, no value; no file is read, copied or kept.
+- **What a debug build is told**: DRZ-11 and DRZ-12 (a word that is needed and given by nobody), DRZ-13 (no file
+  input anywhere on the page, at the first drag), DRZ-20 (a `max-size` or `max-files` that sets no limit, an entry of
+  `accept` that says no kind).
+- **Parts**: `overlay`, `panel`, `icon`, `label`. **Tokens** are `--tanrei-comp-drop-zone-…`: `scrim-color`,
+  `outline-*`, `panel-*`, `icon-*`, `label-*`, `refusing-*` and `motion-*`.
+- **Without script**, and until the element is defined, the content is drawn as it is and a drop of files is the
+  browser's.
+
 ## `<tanrei-file-upload>`
 
 Lets people choose files and lists what was chosen (`specs/file-upload.spec.json`, FUP-1…58). It is a

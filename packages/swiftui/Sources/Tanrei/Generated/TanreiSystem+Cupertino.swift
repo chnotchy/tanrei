@@ -3536,6 +3536,28 @@ private let cupertinoDividerTokens = TanreiDividerTokens(
   lineWaveWavelength: 16
 )
 
+private let cupertinoDropZoneTokens = TanreiDropZoneTokens(
+  iconColor: .role(.primary),
+  iconSize: 32,
+  labelColor: .role(.onSurface),
+  labelTypescale: cupertinoTypescale.bodyLarge,
+  motionDuration: 150,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  outlineColor: .role(.primary),
+  outlineWidth: 2,
+  panelContainerColor: .role(.surfaceContainerHigh),
+  panelElevation: cupertinoElevation.level2,
+  panelGap: 12,
+  panelMargin: 16,
+  panelMaxWidth: 360,
+  panelPaddingBlock: 24,
+  panelPaddingInline: 24,
+  panelShape: 14,
+  refusingIconColor: .role(.error),
+  refusingOutlineColor: .role(.error),
+  scrimColor: .role(.scrim)
+)
+
 private let cupertinoEmbeddedTextInputTokens = TanreiEmbeddedTextInputTokens(
   inputTypescale: cupertinoTypescale.bodyLarge,
   motionResizeDuration: 200,
@@ -9403,6 +9425,7 @@ extension TanreiSystem {
     descriptionList: cupertinoDescriptionListTokens,
     dialog: cupertinoDialogTokens,
     divider: cupertinoDividerTokens,
+    dropZone: cupertinoDropZoneTokens,
     embeddedTextInput: cupertinoEmbeddedTextInputTokens,
     emptyState: cupertinoEmptyStateTokens,
     fabMenu: cupertinoFabMenuTokens,
