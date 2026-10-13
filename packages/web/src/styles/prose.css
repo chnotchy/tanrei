@@ -157,10 +157,14 @@
       letter-spacing: var(--tanrei-sys-typescale-heading-6-letter-spacing);
       scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-6-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
     }
-    /* PRS-20: no negative tracking for a heading in Chinese, Japanese or Korean — zero. */
-    :where(h1, h2, h3, h4, h5, h6, .tanrei-prose-heading):where(:lang(ja), :lang(zh), :lang(ko)) {
-      letter-spacing: 0;
-    }
+    /* PRS-20: a heading's letter-spacing follows its script (src/styles/script-tracking.ts): no negative tracking in
+       Chinese, Japanese or Korean, none at all in a script that joins its letters or stacks marks on them. */
+    /* script-tracking: :where(h1, .tanrei-prose-heading:has(> h1)) | var(--tanrei-sys-typescale-heading-1-letter-spacing) */
+    /* script-tracking: :where(h2, .tanrei-prose-heading:has(> h2)) | var(--tanrei-sys-typescale-heading-2-letter-spacing) */
+    /* script-tracking: :where(h3, .tanrei-prose-heading:has(> h3)) | var(--tanrei-sys-typescale-heading-3-letter-spacing) */
+    /* script-tracking: :where(h4, .tanrei-prose-heading:has(> h4)) | var(--tanrei-sys-typescale-heading-4-letter-spacing) */
+    /* script-tracking: :where(h5, .tanrei-prose-heading:has(> h5)) | var(--tanrei-sys-typescale-heading-5-letter-spacing) */
+    /* script-tracking: :where(h6, .tanrei-prose-heading:has(> h6)) | var(--tanrei-sys-typescale-heading-6-letter-spacing) */
     /* PRS-19: a heading's lines are balanced, a paragraph's avoid a short last line, where the browser knows how. */
     :where(h1, h2, h3, h4, h5, h6) {
       text-wrap: balance;

@@ -172,7 +172,7 @@
     },
     {
       "id": "FIG-8",
-      "text": "THE figure SHALL draw its title — the content of the title slot where it holds any, and the title prop otherwise — in comp.figure.title.typescale and comp.figure.title.color, wrapping and never cut; the title prop SHALL be exposed as plain text and never as a heading, and content given in the title slot SHALL keep the role and the level the product gave it (a heading stays the heading it is) while it is drawn in the title's style. IF both the prop and the slot are given THE slot SHALL be drawn and the prop ignored.",
+      "text": "THE figure SHALL draw its title — the content of the title slot where it holds any, and the title prop otherwise — in comp.figure.title.typescale and comp.figure.title.color, wrapping and never cut; the title prop SHALL be exposed as plain text and never as a heading, and content given in the title slot SHALL keep the role and the level the product gave it (a heading stays the heading it is) while it is drawn in the title's style. IF both the prop and the slot are given THE slot SHALL be drawn and the prop ignored. THE figure SHALL set the title's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them.",
       "verify": "The fixture title-slot draws the same as the fixture title. A test puts a level 3 heading in the slot and reads a level 3 heading from the accessibility tree, drawn at the title's size."
     },
     {

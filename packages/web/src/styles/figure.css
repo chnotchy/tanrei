@@ -179,6 +179,8 @@
         /* Never cut; a word is not broken while it fits a row of its own — the actions move below it first (FIG-7). */
         overflow-wrap: break-word;
       }
+      /* FIG-8: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
+      /* script-tracking: & > :where([data-part='title']) | var(--tanrei-comp-figure-title-typescale-letter-spacing) */
       /* A heading inside a title the element built (the `title` slot) is drawn in the title's style too. */
       & > :where([data-part='title']) > :where(h1, h2, h3, h4, h5, h6) {
         margin: 0;

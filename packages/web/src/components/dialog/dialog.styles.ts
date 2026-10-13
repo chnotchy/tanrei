@@ -2,6 +2,7 @@ import { css, unsafeCSS } from 'lit';
 import { actionBoxStyles, focusRing, iconGlyph, whenChosen as chosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
+import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/dialog.tokens.json). The dialog answers no state; its actions are Tanrei
 // Buttons with their own tokens, which it places (and, while they set none, gives its variant, DLG-20) and never restyles.
@@ -236,6 +237,8 @@ export const styles = css`
     color: ${t('headline-color')};
     overflow-wrap: break-word;
   }
+  /* DLG-8: the headline's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  ${unsafeCSS(scriptTracking('.headline', String(t('headline-typescale-letter-spacing')), { shadow: true }))}
   .supporting {
     margin: 0;
     font: ${t('supporting-text-typescale-font')};
