@@ -2,7 +2,7 @@
 title: "滑块"
 description: "让用户沿轨道拖动手柄，以连续或步进的方式选择一个值或一个取值范围。"
 translationOf: components/slider.mdx
-sourceHash: 39176fadfe7f25e466cebc49d5889a32184219cc
+sourceHash: f8e90fd380943ae7d0e08ad6a1bd99f61a83ba8b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -305,4 +305,5 @@ document.querySelector('[name="price"]').formatValue = (value) => dollars.format
 - 数字本身不够清楚时设置 `valueText`，并让它与值保持同步。
 - 把变化的结果显示在用户看得到的地方；如果某次变化无法应用，用文本告诉用户。滑块只朗读它自己的值。
 - 在 `cupertino` 下，手柄是白色的，轨道末端也没有圆点，所以只要可以，就不要把滑块放在纯白的表面上。
+- 在最高容器色调的表面上（例如填充卡片），非活动轨道几乎是同一色调，很难看清。滑块放在这样的表面上时，请在图层中把 `comp.slider.standard.track.color` 指向更强的角色。手柄和活动轨道仍然显示数值。
 - 在 Web 上，给滑块一个 `name`，它的值才会随表单提交。

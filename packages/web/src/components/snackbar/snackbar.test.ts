@@ -590,7 +590,7 @@ function shownTimeouts(page: P) {
 }
 
 test.describe('the bar', () => {
-  test('SNK-14: at least its minimum height, as wide as its content within its bounds and the space it has; its form’s color, elevation and corners; its paddings — below the text padding-block, above it at least as much', async ({ page }) => {
+  test('SNK-14: at least its minimum height, as wide as its content within its bounds and the space it has; its form’s color, elevation and corners; its paddings — below the text padding-block, above it at least as much; after the text padding-inline-end where no control follows it on its row, the action on its own row included', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     const [minH, minW, maxW] = await Promise.all(['container-min-height', 'container-min-width', 'container-max-width'].map((n) => resolveToken(page, T(n))));
     const b = part(page, 'message', 'bar');
@@ -615,6 +615,11 @@ test.describe('the bar', () => {
     const withClose = await bounds(part(page, 'closable', 'bar'));
     const close = await bounds(part(page, 'closable', 'close'));
     expect(withClose.x + withClose.width - (close.x + close.width)).toBeCloseTo(endControls, 0);
+    // The action on its own row, nothing after the text on the first: the text ends padding-inline-end from the end edge,
+    // as without controls; the action row keeps the controls' inset.
+    const ownRow = await bounds(part(page, 'action-own-row', 'bar'));
+    const ownText = await bounds(part(page, 'action-own-row', 'text'));
+    expect(ownRow.x + ownRow.width - (ownText.x + ownText.width)).toBeCloseTo(end, 0);
     // A status form: its own container color, and the start padding before the glyph.
     const info = part(page, 'info', 'bar');
     expect(await css(info, 'background-color')).toBe(await resolveColor(page, T('info-container-color')));

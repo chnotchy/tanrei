@@ -3990,7 +3990,7 @@ private object TanreiSystemSource {
                     disabled = TanreiFileItemFormStateTokens(
                         containerColor = TanreiPaint.None,
                         stateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
-                        actionContainerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.12f),
+                        actionContainerColor = TanreiPaint.None,
                         actionIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         actionStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                     ),

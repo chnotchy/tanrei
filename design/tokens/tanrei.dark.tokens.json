@@ -41778,7 +41778,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "The space between the two actions: with their size it puts their centres one touch target apart."
+            "$description": "The least space between the two actions. Where the minimum target in force exceeds action.size by more than half of it, they stand twice that excess apart, so that each hit area reaches the minimum target on its own half of the space between them (FIT-18)."
           },
           "icon": {
             "size": {
@@ -42175,12 +42175,12 @@
                   "$value": {
                     "colorSpace": "srgb",
                     "components": [
-                      0.9216,
-                      0.9216,
-                      0.9216
+                      0,
+                      0,
+                      0
                     ],
-                    "alpha": 0.12,
-                    "hex": "#ebebeb"
+                    "alpha": 0,
+                    "hex": "#000000"
                   }
                 }
               },

@@ -237,6 +237,22 @@
       ]
     },
     {
+      "id": "text-lines-on-container-highest",
+      "props": {
+        "label": "Loading the article",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "lines": 3
+          }
+        }
+      ],
+      "surface": "surface-container-highest"
+    },
+    {
       "id": "text-short",
       "props": {
         "label": "Loading the name",
@@ -533,7 +549,7 @@
           "notes": "`TanreiSkeletonPlaceholder(.text, lines: 3)`, `TanreiSkeletonPlaceholder(.circle, height: 40)`; a `.frame` or an `.aspectRatio` the product applies is a size its layout gives. The text style is the font of the environment (`.font(...)` on an ancestor), measured with the reader's text size."
         }
       },
-      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiSkeleton(\"Loading projects\", isDecorative:, showDelay:) { … }`, a view builder that holds placeholders directly (stacked, SKL-1) or inside the product's own stacks and grids. Not the platform's own redaction of a view, whose look is the platform's and which needs the real view to exist: the same idea drawn from Tanrei's tokens. Exposed as one accessibility element with the label, the progress trait's indeterminate form (`updatesFrequently` is not set) and its children ignored; `accessibilityHidden` while decorative or waiting. `accessibilityReduceMotion` stops the animation; the show delay is a task, not an animation."
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiSkeleton(\"Loading projects\", isDecorative:, showDelay:) { … }`, a view builder that holds placeholders directly (stacked, SKL-1) or inside the product's own stacks and grids. Not the platform's own redaction of a view, whose look is the platform's and which needs the real view to exist: the same idea drawn from Tanrei's tokens. Exposed as one accessibility element with the label, the progress trait's indeterminate form (`updatesFrequently` is not set) and its children ignored; `accessibilityHidden` while decorative or waiting. `accessibilityReduceMotion` stops the animation; the show delay is a task, not an animation. Not built on this platform yet: the stage color a fixture's surface names, which the text-lines-on-container-highest fixture draws on."
     },
     "compose": {
       "status": "planned",
@@ -555,7 +571,7 @@
           "notes": "`TanreiSkeletonPlaceholder(shape, lines, width, height, modifier)` inside the skeleton's scope; a size from `modifier` is a size the layout gives. The text style is `LocalTextStyle`, measured with the font scale."
         }
       },
-      "notes": "`TanreiSkeleton(label, decorative, showDelay) { … }`, a column scope. `clearAndSetSemantics { contentDescription = label; progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate }` once shown, and `clearAndSetSemantics { }` with `invisibleToUser()` while decorative or waiting. The animation reads the system's animator duration scale: where it is 0 the placeholders are still, and the show delay is a coroutine delay that the scale does not shorten (SKL-10)."
+      "notes": "`TanreiSkeleton(label, decorative, showDelay) { … }`, a column scope. `clearAndSetSemantics { contentDescription = label; progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate }` once shown, and `clearAndSetSemantics { }` with `invisibleToUser()` while decorative or waiting. The animation reads the system's animator duration scale: where it is 0 the placeholders are still, and the show delay is a coroutine delay that the scale does not shorten (SKL-10). Not built on this platform yet: the stage color a fixture's surface names, which the text-lines-on-container-highest fixture draws on."
     },
     "flutter": {
       "status": "planned",
@@ -577,7 +593,7 @@
           "notes": "`TanreiSkeletonPlaceholder.text(lines: 3)`, `.block(height: 160)`, `.circle(size: 40)`; inside an `Expanded`, a `SizedBox` or an `AspectRatio` it takes that size. The text style is `DefaultTextStyle`, with `MediaQuery.textScalerOf`."
         }
       },
-      "notes": "`TanreiSkeleton(label: …, decorative:, showDelay:, children: […])`, or `child:` for a layout of the product's own. `Semantics(label: label, excludeSemantics: true)` with the progress indicator's indeterminate semantics once shown; `ExcludeSemantics` and `IgnorePointer` around everything it holds. `MediaQuery.disableAnimationsOf` stops the animation; the show delay is a `Timer`."
+      "notes": "`TanreiSkeleton(label: …, decorative:, showDelay:, children: […])`, or `child:` for a layout of the product's own. `Semantics(label: label, excludeSemantics: true)` with the progress indicator's indeterminate semantics once shown; `ExcludeSemantics` and `IgnorePointer` around everything it holds. `MediaQuery.disableAnimationsOf` stops the animation; the show delay is a `Timer`. Not built on this platform yet: the stage color a fixture's surface names, which the text-lines-on-container-highest fixture draws on."
     },
     "react-native": {
       "status": "planned",
@@ -599,7 +615,7 @@
           "notes": "`<SkeletonPlaceholder shape=\"text\" lines={3} />`; `style` gives a size the layout gives (`flex`, a percentage, `aspectRatio`). React Native has no inherited text style, so the product passes one of Tanrei's text styles as `textStyle`, and the body style is used where it gives none (SKL-3)."
         }
       },
-      "notes": "`<Skeleton label=\"Loading projects\">…</Skeleton>`. `accessible`, `accessibilityRole=\"progressbar\"`, `accessibilityLabel` and `accessibilityState={{ busy: true }}` once shown; `importantForAccessibility=\"no-hide-descendants\"` and `accessibilityElementsHidden` while decorative or waiting; `pointerEvents=\"none\"`. `AccessibilityInfo.isReduceMotionEnabled` stops the animation. Follows the app's direction where an ancestor's is not known."
+      "notes": "`<Skeleton label=\"Loading projects\">…</Skeleton>`. `accessible`, `accessibilityRole=\"progressbar\"`, `accessibilityLabel` and `accessibilityState={{ busy: true }}` once shown; `importantForAccessibility=\"no-hide-descendants\"` and `accessibilityElementsHidden` while decorative or waiting; `pointerEvents=\"none\"`. `AccessibilityInfo.isReduceMotionEnabled` stops the animation. Follows the app's direction where an ancestor's is not known. Not built on this platform yet: the stage color a fixture's surface names, which the text-lines-on-container-highest fixture draws on."
     }
   }
 }

@@ -263,7 +263,8 @@ const noteHtml = (notes: string | undefined) => (notes ?? '').replace(/&/g, '&am
                 data-close-events={lf.closeEvents.join(' ')}
                 data-toggle-events={lf.toggleEvents.join(' ')}
               >
-                <div class="fixture-element" set:html={lf.html} />
+                {/* The fixture's stage color, where it names one (the schema's `surface`): the element stands on that surface. */}
+                <div class="fixture-element" style={(f as { surface?: string }).surface ? `background: var(--tanrei-sys-color-${(f as { surface?: string }).surface}); padding: 1rem` : undefined} set:html={lf.html} />
                 {lf.presentation !== 'none' && (
                   <Button class="fixture-opener" variant="outlined" label={`${t.open} ${f.id}`}>{t.open}</Button>
                 )}

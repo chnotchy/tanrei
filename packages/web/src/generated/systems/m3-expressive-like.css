@@ -3431,7 +3431,7 @@
     --tanrei-comp-file-item-row-container-outset: var(--tanrei-sys-space-space50);
     --tanrei-comp-file-item-row-container-shape: var(--tanrei-sys-shape-corner-small);
     --tanrei-comp-file-item-row-container-shape-pill: 0;
-    --tanrei-comp-file-item-row-disabled-action-container-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-container-opacity) * 100%), transparent);
+    --tanrei-comp-file-item-row-disabled-action-container-color: var(--tanrei-comp-file-item-row-action-container-color);
     --tanrei-comp-file-item-row-disabled-action-icon-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-file-item-row-disabled-action-state-layer-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-file-item-row-disabled-container-color: var(--tanrei-comp-file-item-row-container-color);

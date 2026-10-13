@@ -2,7 +2,7 @@
 title: スライダー
 description: トラックに沿ってハンドルをドラッグし、値または値の範囲を選びます。連続的にも、刻みごとにも選べます。
 translationOf: components/slider.mdx
-sourceHash: 39176fadfe7f25e466cebc49d5889a32184219cc
+sourceHash: f8e90fd380943ae7d0e08ad6a1bd99f61a83ba8b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -305,4 +305,5 @@ document.querySelector('[name="price"]').formatValue = (value) => yen.format(val
 - 数字だけでは分かりにくいときは `valueText` を設定し、値に合わせて更新します。
 - 変更の結果は見える場所に表し、変更を反映できなかったときはテキストで知らせます。スライダーが読み上げるのは自分の値だけです。
 - `cupertino` では、ハンドルが白く、トラックの端に目盛りの点もないので、できれば真っ白なサーフェスの上にスライダーを置かないようにします。
+- 塗りつぶしのカードのような、最も高いコンテナのトーンの面の上では、非アクティブなトラックはほぼ同じトーンなので見えにくくなります。そうした面の上に置くときは、レイヤーで `comp.slider.standard.track.color` をより強いロールに付け替えます。値は、それでもハンドルとアクティブトラックが示します。
 - Web でフォームと一緒に値を送るときは、スライダーに `name` を付けます。

@@ -2,7 +2,7 @@
 title: Grupo de botones de opción
 description: Hace una pregunta que tiene exactamente una respuesta entre unas pocas opciones que se muestran todas a la vez. Es un conjunto de botones de opción que guarda el valor elegido, bajo una etiqueta que puede decir si la respuesta es obligatoria u opcional, con una descripción y un único error para el conjunto.
 translationOf: components/radio-group.mdx
-sourceHash: a3b0be7452dc859db3012eadbd2af528ebb21eed
+sourceHash: 3acaf21d866775ed8947b13d2537e747c103a871
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -234,12 +234,12 @@ Un cambio de valor no quita el error. Quítalo cuando la respuesta sea aceptable
 
 Carencias conocidas en la web:
 
-- La validación propia del formulario muestra el mensaje del navegador para un conjunto de botones de opción sin responder, no `errorText`.
 - Antes de que el elemento esté definido, los botones de opción están en la página sin la etiqueta, la descripción, la disposición ni la selección del grupo.
 
 ### Qué debes hacer tú
 
 - Da un `label` al grupo.
 - Valida tú la respuesta, activa `error` y escribe `errorText` de modo que diga cómo corregir la respuesta.
+- Un grupo obligatorio sin responder lo rechaza la validación propia del formulario con las palabras del navegador, como a un select. Para decirlo con las palabras de tu producto, haz como GOV.UK: pon `novalidate` en el formulario y, cuando se envíe, activa `error` y `errorText` en el grupo.
 - Da los textos de la obligatoriedad: `required-text` y `optional-text` en el grupo, o una sola vez para todo el producto con `setWords({ requiredText, optionalText })`. Tanrei no incluye ninguno: sin `requiredText`, un asterisco ocupa el lugar del tag, y sin `optionalText` no se dibuja ningún tag ni se dice nada. Consulta [Los textos del producto](/es/foundations/words/).
 - Después de un envío fallido, di además, encima del formulario, qué se rechazó y enlaza al grupo: un [callout](/es/components/callout/) activo con el estado de error.

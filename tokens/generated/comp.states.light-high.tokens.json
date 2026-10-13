@@ -60492,26 +60492,12 @@
               "container": {
                 "color": {
                   "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0.12,
-                    "hex": "#000000"
-                  },
+                  "$value": "{tanrei.comp.file-item.row.action.container.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
                       "rationale": "One product shows a file in more places than it asks for one: the documents attached to a form, each on a line with its size and how far its sending has come; the pictures attached to a message, as a strip of small tiles; a record's attachments, read and opened and no longer removed. It is the same file each time — a glyph that says its format or a small picture of it, its name, what is known of it, and the actions to take it back or try it again — drawn alike wherever it stands."
                     },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
-                    }
+                    "dev.tanrei.state": "disabled"
                   }
                 }
               },

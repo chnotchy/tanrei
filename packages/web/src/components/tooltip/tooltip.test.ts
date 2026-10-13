@@ -524,7 +524,7 @@ test.describe('placement in numbers', () => {
     expect(rtl('auto', short).side).toBe('left');
   });
 
-  test('TIP-9: it flips to the opposite side keeping its alignment, takes the roomier side when neither has room, shifts along the side as far as the margin asks, and rather than leave a window smaller than itself stands over the anchor, top and start edges first', () => {
+  test('TIP-9: it flips to the opposite side keeping its alignment, takes the roomier side when neither has room, shifts along the side as far as the margin asks, and larger than the room on its side stands over the anchor, still the margin inside the window — a window smaller than itself keeps the margin at its top and start edges', () => {
     // Flip: no room above, room below — the same edges still meet.
     expect(place('top-start', { anchor: at(180, 20) })).toMatchObject({ side: 'bottom', left: 180, top: 64, held: false });
     expect(place('top-end', { anchor: at(180, 20) })).toMatchObject({ side: 'bottom', left: 120 });
@@ -545,23 +545,24 @@ test.describe('placement in numbers', () => {
         }
       }
     }
-    // Neither side has room: the one with more, standing in the margin before it would cover the anchor.
+    // Neither side has room: the one with more, still the margin inside the window's edge — over the anchor rather than in the margin.
     const low = { viewport: { width: 400, height: 100 } };
-    expect(place('top', { ...low, anchor: at(180, 36) })).toMatchObject({ side: 'top', top: 2, held: false });
-    expect(place('top', { ...low, anchor: at(180, 24) })).toMatchObject({ side: 'bottom', top: 68, held: false });
+    expect(place('top', { ...low, anchor: at(180, 36) })).toMatchObject({ side: 'top', top: 8, held: true });
+    expect(place('top', { ...low, anchor: at(180, 24) })).toMatchObject({ side: 'bottom', top: 62, held: true });
     // Shift: as far as the margin asks, and no farther.
     expect(place('top', { anchor: at(2, 130) }).left).toBe(8);
     expect(place('top', { anchor: at(358, 130) }).left).toBe(292);
     expect(place('end', { anchor: at(180, 2) }).top).toBe(8);
     expect(place('end', { anchor: at(180, 258) }).top).toBe(262);
     expect(place('top', { anchor: at(100, 130) }).left).toBe(70); // room enough: it is not moved
-    // A window smaller than the container on its side: back inside the window, over the anchor — top and start edges first.
+    // Larger than the room on its side: the margin inside the window, over the anchor; a window smaller than the
+    // container gives up the margin at its bottom and end edges — its top and start edges keep it.
     const small = { viewport: { width: 90, height: 60 }, anchor: at(30, 10) };
-    expect(place('top', small)).toMatchObject({ side: 'top', top: 0, left: 8, held: true });
-    expect(place('top', { ...small, rtl: true })).toMatchObject({ top: 0, left: -18, held: true });
-    expect(place('top', { ...small, viewport: { width: 90, height: 20 } })).toMatchObject({ top: 0, held: true });
-    expect(place('end', small)).toMatchObject({ side: 'left', left: 0, held: true });
-    expect(place('start', { ...small, rtl: true })).toMatchObject({ side: 'left', left: -10, held: true });
+    expect(place('top', small)).toMatchObject({ side: 'top', top: 8, left: 8, held: true });
+    expect(place('top', { ...small, rtl: true })).toMatchObject({ top: 8, left: -18, held: true });
+    expect(place('top', { ...small, viewport: { width: 90, height: 20 } })).toMatchObject({ top: 8, held: true });
+    expect(place('end', small)).toMatchObject({ side: 'left', left: 8, held: true });
+    expect(place('start', { ...small, rtl: true })).toMatchObject({ side: 'left', left: -18, held: true });
   });
 
   test('TIP-9: it keeps the side it is on for as long as that side has room, and decides again only when it has none', () => {
@@ -704,15 +705,18 @@ test.describe('placement', () => {
     const [, s] = await openIt(page, 'a');
     // Taller than the room above or below the anchor: it is back inside the window, over the anchor.
     expect(s.height).toBeGreaterThan(40);
-    expect(s.y).toBeGreaterThanOrEqual(0);
-    expect(s.y + s.height).toBeLessThanOrEqual(120.5);
+    const margin = await resolveToken(page, T('window-margin'));
+    expect(s.y).toBeGreaterThanOrEqual(margin - 0.5);
+    // The margin kept at the bottom too where the window has room for it; else the top edge keeps it first.
+    if (s.height <= 120 - 2 * margin) expect(s.y + s.height).toBeLessThanOrEqual(120.5 - margin);
+    else expect(s.y).toBeCloseTo(margin, 0);
     expect(s.x).toBeGreaterThanOrEqual(await resolveToken(page, T('window-margin')) - 0.5);
     await expect(arrow(page, 'a')).toBeHidden();
-    // Smaller still — shorter than the tooltip itself: its top edge stays in the window.
+    // Smaller still — shorter than the tooltip itself: its top edge keeps the margin, and the bottom gives it up.
     await page.setViewportSize({ width: 240, height: 48 });
     await settle(page);
     expect(await isOpen(page, 'a')).toBe(true);
-    expect((await bounds(surface(page, 'a'))).y).toBeCloseTo(0, 0);
+    expect((await bounds(surface(page, 'a'))).y).toBeCloseTo(await resolveToken(page, T('window-margin')), 0);
   });
 
   test('TIP-9: it closes when the anchor is hidden, scrolled out of the window, removed, or scrolled out of sight inside a scrolling ancestor', async ({ page }) => {

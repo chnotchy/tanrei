@@ -2,7 +2,7 @@
 title: ラジオグループ
 description: すべて見えている少数の選択肢からちょうど 1 つを答える質問を尋ねます。選ばれた値を持つラジオボタンの集まりに、必須か任意かを示せるラベル、説明、集まり全体に対する 1 つのエラーを与えます。
 translationOf: components/radio-group.mdx
-sourceHash: a3b0be7452dc859db3012eadbd2af528ebb21eed
+sourceHash: 3acaf21d866775ed8947b13d2537e747c103a871
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -234,12 +234,12 @@ Web では `<tanrei-radio-group>` です。ほかのプラットフォームは�
 
 Web での既知の制約：
 
-- フォーム自身の検証が表示するのは、未回答のラジオボタンの集まりに対するブラウザーのメッセージで、`errorText` ではありません。
 - 要素が定義されるまでは、ラジオボタンがグループのラベル、説明、レイアウト、選択のない状態でページに置かれます。
 
 ### 利用者側で行うこと
 
 - グループに `label` を指定します。
 - 回答は利用者側で検証し、`error` を設定して、どう直せばよいかが分かる `errorText` を書きます。
+- 必須で未回答のグループは、セレクトと同じく、フォーム自身の検証がブラウザーの言葉で拒みます。製品の言葉で伝えたいときは、GOV.UK と同じく、フォームに `novalidate` を付け、送信されたときにグループの `error` と `errorText` を設定します。
 - 必須・任意の言葉を渡します。`required-text` と `optional-text` をグループに書くか、`setWords({ requiredText, optionalText })` でプロダクト全体に一度だけ渡します。Tanrei は言葉を同梱しません。`requiredText` がなければタグの位置にアスタリスクを描き、`optionalText` がなければタグを描かず、何も伝えません。[プロダクトの言葉](/ja/foundations/words/)を参照してください。
 - 送信に失敗したあとは、何が受け付けられなかったかをフォームの上でも伝え、グループへのリンクを置きます。エラーステータスのライブの[コールアウト](/ja/components/callout/)を使います。
