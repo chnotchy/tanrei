@@ -2,7 +2,7 @@
 title: "图示"
 description: "把一样供人观看的东西——图片、图表、样张或实时示例——放在它自己的展示区里，可以带外框，也可以不带；配一段说明文字说出它展示的是什么，还可以在上方加标题和你自己的控件，在下方接一个相连的块。"
 translationOf: components/figure.mdx
-sourceHash: 73569d4fce0f2d7484ec464c4bd25f4c23fa4f05
+sourceHash: 2b6611651835c6319c8a04774015c79b761f6871
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -169,6 +169,35 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </tanrei-figure>
 </DemoFrame>
 
+<DemoFrame label="网格、点阵、向中心淡出的网格，以及棋盘格" pattern="none" plain column>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
+    <tanrei-figure pattern="grid">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>grid：每隔 24 一条线。</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="dots">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>dots：同样间距的点。</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="grid-fade">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>grid-fade：中心周围留空的网格。</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="checkerboard">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>checkerboard：用于可能带透明部分的图片。</figcaption>
+      </figure>
+    </tanrei-figure>
+  </div>
+</DemoFrame>
+
 <ComponentSpecs name="figure" />
 
 ## 指南
@@ -209,6 +238,21 @@ outlined 外观用表面颜色填充，而不是留空。无论图示放在什�
 - 比带外框的展示区更窄的内容会居中。在 plain 外观下，它从文本的边缘开始。
 - 展示区与其中的内容一样高。几个示例在里面怎样排列，是你的布局的事。
 
+### 所展示内容的底纹
+
+| `pattern` | 绘制什么 | 用于 |
+| --- | --- | --- |
+| `none`（默认） | 只有外观本身的填充。 | 大多数图示；铺满展示区的图片。 |
+| `grid` | 横竖每隔 24 一条细线。 | 对照网格展示的组件或布局。 |
+| `dots` | 在该网格的每个交点上画一个点。 | 放在更安静底纹上的绘图或图解。 |
+| `grid-fade` | 中心周围留空、向四角逐渐加深的网格。 | 大展示区中央的样本。本站的实时示例就用它。 |
+| `checkerboard` | 边长 8 的方格，填充色和底纹颜色交替。 | 可能带透明部分的图片或图标。 |
+
+- 底纹是装饰。它画在内容后面，用表面层级中一种安静的颜色，提高对比度时也不会变得更醒目。
+- 内容横向滚动时它保持不动，两种书写方向下都一样。
+- plain 外观没有可以绘制底纹的展示区，所以不画。强制颜色模式会去掉它。
+- 不要在展示区周围自己画底纹。从这里选择一种，或者通过 `comp.figure.pattern` 令牌改变它的样式。
+
 ### 在页面中
 
 - 图示占满得到的宽度，不带任何外部间距。在长文排版中，它按块来留间距，并占满长文排版的整个宽度，而它的说明文字像文本块一样受行长限制。
@@ -239,8 +283,8 @@ outlined 外观用表面颜色填充，而不是留空。无论图示放在什�
 - 页眉、展示区、附加块和说明文字里的一切都仍然可以操作，并保持各自的焦点顺序。
 - 文本放大到 200% 时，标题和说明文字会变大并换行，操作会移到标题下方。
 - 在从右到左的布局中，页眉会镜像，说明文字从右侧开始。展示区里展示的东西绝不镜像。
-- 在强制颜色模式下，outlined 和 filled 外观都有一道文本颜色的边线。plain 外观没有。
-- 没有名称的图示、展示区为空的图示，以及未知的变体或分隔方式，会在调试构建中报告。
+- 在强制颜色模式下，outlined 和 filled 外观都有一道文本颜色的边线。plain 外观没有。任何外观都不画底纹。
+- 没有名称的图示、展示区为空的图示，以及未知的变体、分隔方式或底纹，会在调试构建中报告。
 
 ### 需要你做的事
 

@@ -22,8 +22,13 @@ interface Props {
    * variant the default system leaves out, so the demo shows it where it ships, without the warning.
    */
   system?: string;
+  /**
+   * The Figure's ground pattern behind the examples: the grid that fades toward the centre unless a page asks for
+   * another — `none` where the examples are figures with patterns of their own.
+   */
+  pattern?: 'none' | 'grid' | 'dots' | 'grid-fade' | 'checkerboard';
 }
-const { label, column = false, plain = false, system } = Astro.props;
+const { label, column = false, plain = false, system, pattern = 'grid-fade' } = Astro.props;
 
 // One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]; linked only by the frames that ask.
 const stylesheets = import.meta.glob<string>('../../../../packages/web/src/generated/systems/*.css', { eager: true, query: '?url', import: 'default' });
@@ -37,7 +42,7 @@ const id = figureId(Astro);
 ---
 
 {stylesheet && <link rel="stylesheet" href={stylesheet} />}
-<tanrei-figure class="demo not-content" data-tanrei-demo>
+<tanrei-figure class="demo not-content" pattern={pattern} data-tanrei-demo>
   <figure aria-labelledby={`${id}-title`} aria-describedby={system ? `${id}-caption` : undefined}>
     <div data-part="frame">
       <header>
@@ -61,11 +66,10 @@ const id = figureId(Astro);
 </script>
 
 <style>
-  /* The frame, the header, the stage's box and the caption are the Figure's (`@tanrei/web/figure.css`, which draws them
-     before the element is defined). What follows is the site's own: how several examples are arranged in the stage,
-     the grid behind them, and the scope of a preset. */
+  /* The frame, the header, the stage's box, the grid behind the examples (the `grid-fade` pattern) and the caption are
+     the Figure's (`@tanrei/web/figure.css`, which draws them before the element is defined). What follows is the site's
+     own: how several examples are arranged in the stage, and the scope of a preset. */
   .stage {
-    position: relative;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
@@ -73,26 +77,10 @@ const id = figureId(Astro);
     justify-content: safe center;
     gap: 1rem 0.75rem;
   }
-  /* Structural grid: decoration only, drawn with the hairline token. */
-  .stage::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(to right, var(--tanrei-sys-color-outline-variant) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--tanrei-sys-color-outline-variant) 1px, transparent 1px);
-    background-size: 24px 24px;
-    background-position: center;
-    mask-image: radial-gradient(ellipse at center, transparent 30%, #000 100%);
-  }
-  .stage > :global(*) {
-    position: relative;
-  }
   /* A preset's scope sets its own color-scheme (following the OS); the stage follows the site's theme instead,
-     and draws the preset's surface. */
+     and draws the preset's surface (under the Figure's pattern, which is read in the preset's scope too). */
   .stage[data-tanrei-system] {
-    background: var(--tanrei-sys-color-surface);
+    background-color: var(--tanrei-sys-color-surface);
     color: var(--tanrei-sys-color-on-surface);
   }
   :global(:root[data-theme='light']) .stage[data-tanrei-system] {
@@ -116,9 +104,4 @@ const id = figureId(Astro);
   /* Custom elements have no meaningful rendering until they upgrade. */
   .stage :global(:not(:defined)) {
     visibility: hidden;
-  }
-  /* Decoration must not get louder when contrast is raised. */
-  :global(:root[data-tanrei-contrast]) .stage::before {
-    opacity: 0.3;
-  }
-</style>
+  }</style>

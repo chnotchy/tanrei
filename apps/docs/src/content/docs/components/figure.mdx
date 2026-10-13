@@ -167,6 +167,35 @@ This form is shorter, and it is drawn only once the script has run. Write the pa
   </tanrei-figure>
 </DemoFrame>
 
+<DemoFrame label="Grid, dots, a grid that fades toward the centre, and a checkerboard" pattern="none" plain column>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
+    <tanrei-figure pattern="grid">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Save</tanrei-button></div></div>
+        <figcaption>grid: lines every 24.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="dots">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Save</tanrei-button></div></div>
+        <figcaption>dots: a dot at the same spacing.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="grid-fade">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Save</tanrei-button></div></div>
+        <figcaption>grid-fade: the grid, clear around the centre.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="checkerboard">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Save</tanrei-button></div></div>
+        <figcaption>checkerboard: where a picture may be transparent.</figcaption>
+      </figure>
+    </tanrei-figure>
+  </div>
+</DemoFrame>
+
 <ComponentSpecs name="figure" />
 
 ## Guidelines
@@ -207,6 +236,21 @@ The outlined look is filled with the surface color, not left empty. Your own com
 - Content narrower than a framed stage is centred. In the plain look it starts at the text's edge.
 - The stage is as tall as its content. How several examples are arranged in it is your layout.
 
+### A ground behind what is shown
+
+| `pattern` | Draws | Use for |
+| --- | --- | --- |
+| `none` (default) | The look's fill alone. | Most figures; a picture that fills the stage. |
+| `grid` | A hairline every 24, across and down. | A component or a layout shown against a grid. |
+| `dots` | A dot at every crossing of that grid. | A drawing or a diagram, on a quieter ground. |
+| `grid-fade` | The grid, clear around the centre and growing toward the corners. | A specimen at the centre of a large stage. The live examples on this site use it. |
+| `checkerboard` | Squares of 8, the fill and the pattern's color in turn. | A picture or an icon that may be transparent. |
+
+- The pattern is decoration. It is drawn behind the content, in one quiet color of the surface ladder, and it does not get louder when contrast is raised.
+- It stays in place while the content scrolls sideways, and it is the same in either direction.
+- The plain look draws none, because it has no stage to draw one on. Forced colors remove it.
+- Don't draw a pattern of your own around the stage. Choose one here, or restyle these through the `comp.figure.pattern` tokens.
+
 ### In a page
 
 - A figure fills the width it is given and brings no outer space. In prose it is spaced as a block and runs the prose's full width, while its caption is kept to the measure like a text block.
@@ -237,8 +281,8 @@ The outlined look is filled with the surface color, not left empty. Your own com
 - Everything in the header, the stage, the attachment and the caption stays operable and keeps its focus order.
 - At 200% text the title and the caption grow and wrap, and the actions move below the title.
 - In a right-to-left layout the header is mirrored and the caption starts at the right. What is shown in the stage is never mirrored.
-- In forced colors the outlined and filled looks have an edge in the text color. The plain look has none.
-- A figure with no name, a figure whose stage is empty, and an unknown variant or separation are reported in debug builds.
+- In forced colors the outlined and filled looks have an edge in the text color. The plain look has none, and no look draws a pattern.
+- A figure with no name, a figure whose stage is empty, and an unknown variant, separation or pattern are reported in debug builds.
 
 ### What you need to do
 

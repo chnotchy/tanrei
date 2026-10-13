@@ -58,7 +58,7 @@ const specimenTitle = `${figureId(Astro)}-title`;
     )}
   </tanrei-page-header>
 
-  <tanrei-figure class="specimen" aria-hidden={tag ? undefined : 'true'}>
+  <tanrei-figure class="specimen" pattern="grid-fade" aria-hidden={tag ? undefined : 'true'}>
     <figure aria-labelledby={specimenTitle}>
       <div data-part="frame">
         <header>
@@ -137,10 +137,12 @@ const specimenTitle = `${figureId(Astro)}-title`;
   }
 
   /* The specimen's frame, header, stage box and the line above the swatches are the Figure's
-     (`@tanrei/web/figure.css`). The site's own: the larger corner and the shadow that lift it off the landing page,
-     the two names at either end of its title, the row of Buttons on the grid, and the strip of roles. */
+     (`@tanrei/web/figure.css`), and so is the grid behind the Buttons (its `grid-fade` pattern). The site's own: the
+     larger corner and the shadow that lift it off the landing page, a wider clear centre for the grid, the two names at
+     either end of its title, the row of Buttons, and the strip of roles. */
   .specimen {
     --tanrei-comp-figure-container-shape: var(--tanrei-sys-shape-corner-large);
+    --tanrei-comp-figure-pattern-clear-extent: 0.35;
   }
   .specimen :global([data-part='frame']) {
     box-shadow: var(--tanrei-sys-elevation-level2);
@@ -152,26 +154,10 @@ const specimenTitle = `${figureId(Astro)}-title`;
     gap: 0 var(--tanrei-comp-figure-header-gap);
   }
   .specimen-stage {
-    position: relative;
     flex-direction: row;
     flex-wrap: wrap;
     gap: 0.75rem;
     min-block-size: 9rem;
-  }
-  .specimen-stage::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image:
-      linear-gradient(to right, var(--tanrei-sys-color-outline-variant) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--tanrei-sys-color-outline-variant) 1px, transparent 1px);
-    background-size: 24px 24px;
-    background-position: center;
-    mask-image: radial-gradient(ellipse at center, transparent 35%, #000 100%);
-  }
-  .specimen-stage > :global(*) {
-    position: relative;
   }
   .specimen-stage :global(:not(:defined)) {
     visibility: hidden;
@@ -211,10 +197,5 @@ const specimenTitle = `${figureId(Astro)}-title`;
       text-align: start;
       border-inline-start: 0;
     }
-  }
-
-  /* Decoration must not get louder when contrast is raised. */
-  :global(:root[data-tanrei-contrast]) .specimen-stage::before {
-    opacity: 0.3;
   }
 </style>
