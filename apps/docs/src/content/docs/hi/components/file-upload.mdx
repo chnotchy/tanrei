@@ -2,7 +2,7 @@
 title: फ़ाइल अपलोड
 description: लोगों को फ़ाइल पिकर से फ़ाइलें चुनने देता है और जो चुना गया उसे फ़ाइल आइटम के रूप में दिखाता है, पंक्तियों के कॉलम में या टाइल की क़तार में। फ़ॉर्म में रखने पर वह चुनी गई फ़ाइलें अपने पास रखता है और बिना किसी कोड के उन्हें सबमिट करता है; जो प्रॉडक्ट फ़ाइलें ख़ुद भेजता है, वह फ़ाइल आइटम ख़ुद देता है। वह ख़ुद कभी कुछ अपलोड नहीं करता।
 translationOf: components/file-upload.mdx
-sourceHash: 65c8a37179df4778d5e78c0137b71fdda15d1b57
+sourceHash: 67264060c8d6ff2b2e7ccea18067fef9dac9238e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -285,7 +285,7 @@ React में यही तीनों ref पर मिलते हैं: 
 | प्रॉपर्टी | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight` (आइटम के `form`, `preview`, `fit`, `nameHidden`, `width`, `height`), `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
 | इवेंट | — | आपके दिए फ़ाइल आइटम के `click`, `remove`, `retry` | `select`, `reject`, `change` |
 | स्लॉट | `trigger`, `icon` | — | डिफ़ॉल्ट स्लॉट: `rows="given"` के साथ आपके फ़ाइल आइटम |
-| टोकन | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.file-upload.list.item-gap` |
+| टोकन | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.list.gap.small` |
 
 फ़ाइल पिकर के अपने `label`, `maxFiles` और `selectionText` होते हैं। वे आगे नहीं भेजे जाते: फ़ाइल अपलोड का `label` पिकर और लिस्ट दोनों को एक साथ नाम देता है, उसका `maxFiles` लिस्ट की हर फ़ाइल को गिनता है, और जब तक लिस्ट ख़ाली है, वह पिकर का `selectionText` `emptyText` से लिखता है।
 

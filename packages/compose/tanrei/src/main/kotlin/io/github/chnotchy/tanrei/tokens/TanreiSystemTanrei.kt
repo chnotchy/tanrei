@@ -4127,7 +4127,6 @@ private object TanreiSystemSource {
     fun fileUpload(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiFileUploadTokens =
         TanreiFileUploadTokens(
             listGap = 16.dp,
-            listItemGap = 12.dp,
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -4799,7 +4798,7 @@ private object TanreiSystemSource {
             draggedContainerElevation = elevation.level3,
             gapLarge = 24.dp,
             gapMedium = 16.dp,
-            gapSmall = 8.dp,
+            gapSmall = 12.dp,
             markSize = 24.dp,
             markWidth = 2.dp,
             motionFeedbackDuration = 450,

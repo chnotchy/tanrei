@@ -4346,8 +4346,7 @@ private let m3LikeFilePickerTokens = TanreiFilePickerTokens(
 )
 
 private let m3LikeFileUploadTokens = TanreiFileUploadTokens(
-  listGap: 16,
-  listItemGap: 12
+  listGap: 16
 )
 
 private let m3LikeImagePreviewTokens = TanreiImagePreviewTokens(
@@ -5082,7 +5081,7 @@ private let m3LikeListTokens = TanreiListTokens(
   draggedContainerElevation: m3LikeElevation.level3,
   gapLarge: 24,
   gapMedium: 16,
-  gapSmall: 8,
+  gapSmall: 12,
   markSize: 24,
   markWidth: 2,
   motionFeedbackDuration: 450,

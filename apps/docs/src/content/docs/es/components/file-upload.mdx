@@ -2,7 +2,7 @@
 title: Subida de archivos
 description: Permite elegir archivos con un selector de archivos y muestra lo elegido como elementos de archivo, en una columna de filas o en una tira de mosaicos. Colocado en un formulario, conserva los archivos elegidos y los envía sin código; un producto que envía los archivos por su cuenta da los elementos de archivo. Nunca sube nada por sí mismo.
 translationOf: components/file-upload.mdx
-sourceHash: 65c8a37179df4778d5e78c0137b71fdda15d1b57
+sourceHash: 67264060c8d6ff2b2e7ccea18067fef9dac9238e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -285,7 +285,7 @@ Baja a ese nivel cuando necesites una organización que el control de subida no 
 | Propiedades | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight` (los `form`, `preview`, `fit`, `nameHidden`, `width`, `height` del elemento), `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
 | Eventos | — | `click`, `remove`, `retry`, de los elementos de archivo que das tú | `select`, `reject`, `change` |
 | Slots | `trigger`, `icon` | — | El slot predeterminado: tus elementos de archivo, con `rows="given"` |
-| Tokens | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.file-upload.list.item-gap` |
+| Tokens | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.list.gap.small` |
 
 El selector de archivos tiene un `label`, un `maxFiles` y un `selectionText` propios. No se le reenvían: el `label` del control de subida nombra el selector y la lista juntos, su `maxFiles` cuenta todos los archivos de la lista, y es él quien escribe el `selectionText` del selector a partir de `emptyText` mientras la lista está vacía.
 

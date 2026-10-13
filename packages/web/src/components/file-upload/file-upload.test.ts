@@ -389,7 +389,7 @@ test.describe('behavior', () => {
       for (const [index, one] of each.entries()) {
         near(one.x, whole.x, `${id} row ${index}: from the start edge`);
         near(one.width, whole.width, `${id} row ${index}: as wide as the file upload`);
-        if (index) near(one.y - (each[index - 1]!.y + each[index - 1]!.height), gap, `${id} row ${index}: list.item-gap`);
+        if (index) near(one.y - (each[index - 1]!.y + each[index - 1]!.height), gap, `${id} row ${index}: comp.list.gap.small`);
       }
       await expect(list(page, id)).toHaveAttribute('data-form', 'row');
     }
@@ -406,11 +406,11 @@ test.describe('behavior', () => {
       near(each[0]!.x, whole.x, 'the strip begins at the start edge');
       for (const index of [1, 2]) {
         near(each[index]!.y, each[0]!.y, `tile ${index}: aligned at the top`);
-        near(each[index]!.x - (each[index - 1]!.x + each[index - 1]!.width), gap, `tile ${index}: list.item-gap along the line`);
+        near(each[index]!.x - (each[index - 1]!.x + each[index - 1]!.width), gap, `tile ${index}: comp.list.gap.small along the line`);
       }
       expect(each[2]!.x + each[2]!.width, 'never past the width').toBeLessThanOrEqual(whole.x + whole.width + 0.6);
       near(each[3]!.x, whole.x, 'the next line begins at the start edge');
-      near(each[3]!.y - Math.max(...each.slice(0, 3).map((one) => one.y + one.height)), gap, 'list.item-gap between the lines');
+      near(each[3]!.y - Math.max(...each.slice(0, 3).map((one) => one.y + one.height)), gap, 'comp.list.gap.small between the lines');
       // The tiles of one line are not stretched to the tallest.
       expect(new Set(each.slice(0, 3).map((one) => Math.round(one.height))).size, 'a tile is as tall as itself').toBeGreaterThan(1);
       await expect(list(page, id)).toHaveAttribute('data-form', 'tile');
@@ -2374,7 +2374,7 @@ test.describe('its own rows', () => {
     near(each[0]!.x, whole.x, 'from the start edge');
     for (const index of [1, 2]) {
       near(each[index]!.y, each[0]!.y, `tile ${index}: aligned at the top`);
-      near(each[index]!.x - (each[index - 1]!.x + each[index - 1]!.width), gap, `tile ${index}: list.item-gap`);
+      near(each[index]!.x - (each[index - 1]!.x + each[index - 1]!.width), gap, `tile ${index}: comp.list.gap.small`);
     }
     expect(await ownRows(page, id).evaluateAll((els) => els.map((el) => el.shadowRoot!.querySelector('.item')!.getAttribute('data-form')))).toEqual(['tile', 'tile', 'tile']);
     // FUP-45: a refused file is given no handle, so no picture of it is asked for.

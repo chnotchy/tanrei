@@ -6594,7 +6594,7 @@ export const tonePerState = {
         },
       },
     },
-    fileUpload: { listGap: 16, listItemGap: 12 },
+    fileUpload: { listGap: 16 },
     imagePreview: {
       barButtonVariant: 4,
       barContainerColor: { kind: "role", role: "surface" },
@@ -7656,7 +7656,7 @@ export const tonePerState = {
       focusedOpacity: 1,
       gapLarge: 24,
       gapMedium: 16,
-      gapSmall: 8,
+      gapSmall: 12,
       hoveredContainerShape: 0,
       hoveredOpacity: 1,
       markSize: 24,

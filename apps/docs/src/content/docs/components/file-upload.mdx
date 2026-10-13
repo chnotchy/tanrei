@@ -283,7 +283,7 @@ Go one level down when you need an arrangement the file upload does not offer:
 | Properties | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight` (the item's `form`, `preview`, `fit`, `nameHidden`, `width`, `height`), `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
 | Events | — | `click`, `remove`, `retry`, of the file items you give | `select`, `reject`, `change` |
 | Slots | `trigger`, `icon` | — | The default slot: your file items, with `rows="given"` |
-| Tokens | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.file-upload.list.item-gap` |
+| Tokens | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.list.gap.small` |
 
 The file picker has a `label`, a `maxFiles` and a `selectionText` of its own. They are not forwarded: the file upload's `label` names the picker and the list together, its `maxFiles` counts every file of the list, and it writes the picker's `selectionText` from `emptyText` while the list is empty.
 

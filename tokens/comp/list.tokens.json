@@ -101,7 +101,7 @@
           "$description": "The space between two neighbouring items, and between two lines of a wrapping list, by the gap value (none: touching).",
           "small": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.space.space100}"
+            "$value": "{tanrei.sys.space.space150}"
           },
           "medium": {
             "$type": "dimension",

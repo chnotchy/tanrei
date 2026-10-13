@@ -2,7 +2,7 @@
 title: ファイルアップロード
 description: ファイルピッカーでファイルを選ばせ、選ばれたファイルをファイル項目として見せます。縦に並ぶ行にも、タイルの並びにもなります。フォームに置くだけで、選ばれたファイルを保持し、コードなしで送信します。ファイルを自分で送るプロダクトは、ファイル項目を自分で渡します。自身では何もアップロードしません。
 translationOf: components/file-upload.mdx
-sourceHash: 65c8a37179df4778d5e78c0137b71fdda15d1b57
+sourceHash: 67264060c8d6ff2b2e7ccea18067fef9dac9238e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -285,7 +285,7 @@ React では、同じ 3 つを ref から使います。`ref.current.files`、`r
 | プロパティ | `layout`、`multiple`、`accept`、`maxSize`、`constraintsText`、`dropText`、`disabled`、`error`、`required` | `itemForm`、`itemPreview`、`itemFit`、`itemNameHidden`、`itemWidth`、`itemHeight`（項目の `form`、`preview`、`fit`、`nameHidden`、`width`、`height`）、`removeLabel`、`retryLabel` | `rows`、`maxFiles`、`label`、`emptyText`、`typeErrorText`、`sizeErrorText`、`countErrorText`、`announcement` |
 | イベント | — | 利用者側が渡したファイル項目の `click`、`remove`、`retry` | `select`、`reject`、`change` |
 | スロット | `trigger`、`icon` | — | 既定のスロット。`rows="given"` のときの、利用者側のファイル項目です |
-| トークン | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`、`comp.file-upload.list.item-gap` |
+| トークン | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`、`comp.list.gap.small` |
 
 ファイルピッカーは、自分の `label`、`maxFiles`、`selectionText` を持っています。これらは、そのまま渡されません。ファイルアップロードの `label` は、ピッカーと一覧の両方に名前を付けます。`maxFiles` は、一覧のすべてのファイルを数えます。ピッカーの `selectionText` は、一覧が空の間、ファイルアップロードが `emptyText` から書きます。
 

@@ -42713,14 +42713,6 @@
               "unit": "px"
             },
             "$description": "The space between the file picker (the area, or the trigger and its line of limits) and the first file."
-          },
-          "item-gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
-            },
-            "$description": "The space between two files: between two rows of the column, and between two tiles of the strip along both of its directions. With a row's height it keeps the touch targets of two rows' actions apart."
           }
         }
       },
@@ -50988,7 +50980,7 @@
           "small": {
             "$type": "dimension",
             "$value": {
-              "value": 8,
+              "value": 12,
               "unit": "px"
             }
           }

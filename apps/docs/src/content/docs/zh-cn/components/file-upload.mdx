@@ -2,7 +2,7 @@
 title: "文件上传"
 description: "让用户通过文件选择器选择文件，并把选中的文件显示为文件项：以行排成一列，或以图块排成一排。放进表单时，它保留已选的文件，无需代码即可提交；自己发送文件的产品则自己给出文件项。它自己绝不上传任何东西。"
 translationOf: components/file-upload.mdx
-sourceHash: 65c8a37179df4778d5e78c0137b71fdda15d1b57
+sourceHash: 67264060c8d6ff2b2e7ccea18067fef9dac9238e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -285,7 +285,7 @@ upload.clear();
 | 属性 | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight`（对应文件项的 `form`, `preview`, `fit`, `nameHidden`, `width`, `height`）, `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
 | 事件 | — | 你给出的文件项的 `click`, `remove`, `retry` | `select`, `reject`, `change` |
 | 插槽 | `trigger`, `icon` | — | 默认插槽：`rows="given"` 时放你的文件项 |
-| 令牌 | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.file-upload.list.item-gap` |
+| 令牌 | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.list.gap.small` |
 
 文件选择器有它自己的 `label`、`maxFiles` 和 `selectionText`。这三项不会原样转交：文件上传的 `label` 同时为选择器和列表命名，它的 `maxFiles` 计入列表里的每一个文件，而选择器的 `selectionText` 则在列表为空时由文件上传根据 `emptyText` 写入。
 

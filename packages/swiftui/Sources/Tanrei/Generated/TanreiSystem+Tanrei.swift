@@ -4253,8 +4253,7 @@ private let tanreiFilePickerTokens = TanreiFilePickerTokens(
 )
 
 private let tanreiFileUploadTokens = TanreiFileUploadTokens(
-  listGap: 16,
-  listItemGap: 12
+  listGap: 16
 )
 
 private let tanreiImagePreviewTokens = TanreiImagePreviewTokens(
@@ -4989,7 +4988,7 @@ private let tanreiListTokens = TanreiListTokens(
   draggedContainerElevation: tanreiElevation.level3,
   gapLarge: 24,
   gapMedium: 16,
-  gapSmall: 8,
+  gapSmall: 12,
   markSize: 24,
   markWidth: 2,
   motionFeedbackDuration: 450,

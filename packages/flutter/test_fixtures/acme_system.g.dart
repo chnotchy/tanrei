@@ -4485,7 +4485,6 @@ const TanreiSystem acmeSystem = TanreiSystem(
   ),
   fileUpload: TanreiFileUploadTokens(
     listGap: 16.0,
-    listItemGap: 12.0,
   ),
   imagePreview: TanreiImagePreviewTokens(
     barButtonVariant: 4.0,
@@ -5213,7 +5212,7 @@ const TanreiSystem acmeSystem = TanreiSystem(
     draggedContainerElevation: _elevationLevel3,
     gapLarge: 24.0,
     gapMedium: 16.0,
-    gapSmall: 8.0,
+    gapSmall: 12.0,
     markSize: 24.0,
     markWidth: 2.0,
     motionFeedbackDuration: 450,

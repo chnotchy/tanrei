@@ -2482,7 +2482,6 @@ export interface TanreiFilePickerTokens {
  */
 export interface TanreiFileUploadTokens {
   readonly listGap: number;
-  readonly listItemGap: number;
 }
 
 /**

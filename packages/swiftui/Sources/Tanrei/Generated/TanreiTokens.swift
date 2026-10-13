@@ -7917,14 +7917,11 @@ public struct TanreiFilePickerTokens: Sendable, Equatable {
 /// Component tokens of file-upload (comp.file-upload).
 public struct TanreiFileUploadTokens: Sendable, Equatable {
   public var listGap: CGFloat
-  public var listItemGap: CGFloat
 
   public init(
-    listGap: CGFloat,
-    listItemGap: CGFloat
+    listGap: CGFloat
   ) {
     self.listGap = listGap
-    self.listItemGap = listItemGap
   }
 }
 

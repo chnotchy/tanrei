@@ -3548,7 +3548,6 @@
     --tanrei-comp-file-picker-supporting-text-typescale-font: var(--tanrei-sys-typescale-body-small-font);
     --tanrei-comp-file-picker-trigger-gap: var(--tanrei-sys-space-space150);
     --tanrei-comp-file-upload-list-gap: var(--tanrei-sys-space-space200);
-    --tanrei-comp-file-upload-list-item-gap: var(--tanrei-sys-space-space150);
     --tanrei-comp-image-preview-bar-button-variant: text;
     --tanrei-comp-image-preview-bar-container-color: var(--tanrei-sys-color-surface);
     --tanrei-comp-image-preview-bar-gap: var(--tanrei-sys-space-space50);
@@ -4269,7 +4268,7 @@
     --tanrei-comp-list-focused-opacity: 1;
     --tanrei-comp-list-gap-large: var(--tanrei-sys-space-space300);
     --tanrei-comp-list-gap-medium: var(--tanrei-sys-space-space200);
-    --tanrei-comp-list-gap-small: var(--tanrei-sys-space-space100);
+    --tanrei-comp-list-gap-small: var(--tanrei-sys-space-space150);
     --tanrei-comp-list-hovered-container-shape: var(--tanrei-comp-list-container-shape);
     --tanrei-comp-list-hovered-container-shape-pill: 0;
     --tanrei-comp-list-hovered-opacity: 1;

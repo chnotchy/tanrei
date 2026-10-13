@@ -5006,7 +5006,6 @@ public data class TanreiFilePickerTokens(
 @Immutable
 public data class TanreiFileUploadTokens(
     public val listGap: Dp,
-    public val listItemGap: Dp,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
     }

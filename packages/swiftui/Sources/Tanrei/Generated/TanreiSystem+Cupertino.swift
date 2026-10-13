@@ -4231,8 +4231,7 @@ private let cupertinoFilePickerTokens = TanreiFilePickerTokens(
 )
 
 private let cupertinoFileUploadTokens = TanreiFileUploadTokens(
-  listGap: 16,
-  listItemGap: 12
+  listGap: 16
 )
 
 private let cupertinoImagePreviewTokens = TanreiImagePreviewTokens(
@@ -4967,7 +4966,7 @@ private let cupertinoListTokens = TanreiListTokens(
   draggedContainerElevation: cupertinoElevation.level3,
   gapLarge: 24,
   gapMedium: 16,
-  gapSmall: 8,
+  gapSmall: 12,
   markSize: 20,
   markWidth: 2,
   motionFeedbackDuration: 450,

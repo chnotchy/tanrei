@@ -35,7 +35,7 @@ export const styles = css`
   }
 
   /* ── The list (FUP-17) ── a List, list.gap below the file picker: vertical for rows, horizontal and wrapping for
-     tiles, list.item-gap apart along both directions (the List's small gap, set to the file upload's distance). With no
+     tiles, comp.list.gap.small apart along both directions (the List's small gap). With no
      row there is no list and no room for one. What is not a file item is assigned to no slot and so not drawn (FUP-41). */
   .list {
     margin-block-start: ${t('list-gap')};

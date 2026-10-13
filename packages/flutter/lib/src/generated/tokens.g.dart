@@ -11602,21 +11602,16 @@ class TanreiFilePickerTokens {
 class TanreiFileUploadTokens {
   const TanreiFileUploadTokens({
     required this.listGap,
-    required this.listItemGap,
   });
 
   /// `comp.file-upload.list-gap`
   final double listGap;
-  /// `comp.file-upload.list-item-gap`
-  final double listItemGap;
 
   /// A copy with the given tokens replaced.
   TanreiFileUploadTokens copyWith({
     double? listGap,
-    double? listItemGap,
   }) => TanreiFileUploadTokens(
         listGap: listGap ?? this.listGap,
-        listItemGap: listItemGap ?? this.listItemGap,
       );
 }
 

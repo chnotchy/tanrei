@@ -4377,8 +4377,7 @@ private let acmeFilePickerTokens = TanreiFilePickerTokens(
 )
 
 private let acmeFileUploadTokens = TanreiFileUploadTokens(
-  listGap: 16,
-  listItemGap: 12
+  listGap: 16
 )
 
 private let acmeImagePreviewTokens = TanreiImagePreviewTokens(
@@ -5113,7 +5112,7 @@ private let acmeListTokens = TanreiListTokens(
   draggedContainerElevation: acmeElevation.level3,
   gapLarge: 24,
   gapMedium: 16,
-  gapSmall: 8,
+  gapSmall: 12,
   markSize: 24,
   markWidth: 2,
   motionFeedbackDuration: 450,
