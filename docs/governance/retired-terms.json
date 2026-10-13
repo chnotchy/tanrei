@@ -1606,6 +1606,26 @@
         ".changeset/",
         "CHANGELOG.md"
       ]
+    },
+    {
+      "term": "comp.button.inline",
+      "since": "2026-10-14",
+      "reason": "the Button's inline variant was withdrawn: an action drawn as a link that is not a link only confuses; an action inside text is a text Button, and a destination is a Link",
+      "replacedBy": "comp.button.text.* (a text Button), or the Link component where it navigates",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-button-inline",
+      "since": "2026-10-14",
+      "reason": "the custom properties of the withdrawn inline Button went with its tokens",
+      "replacedBy": "--tanrei-comp-button-text-* (a text Button), or the Link component",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
     }
   ]
 }

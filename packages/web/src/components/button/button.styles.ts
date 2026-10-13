@@ -7,7 +7,7 @@ import { cornerRadius, shape } from '../../styles/shape.js';
 // computes how a state looks. Whether hover is a state-layer mix, an explicit color, a dim, or
 // nothing at all is decided by the active design system's values.
 /** The values every design system has. A layer may add more; those get their styles on demand. */
-export const CORE_VARIANTS = ['filled', 'tonal', 'elevated', 'outlined', 'text', 'inline'] as const;
+export const CORE_VARIANTS = ['filled', 'tonal', 'elevated', 'outlined', 'text'] as const;
 export const CORE_SIZES = ['small', 'medium', 'large'] as const;
 const DEFAULT_VARIANT = 'filled';
 const DEFAULT_SIZE = 'medium';
@@ -96,8 +96,7 @@ const paintContent = (suffix: string) => `
     --_shadow: inset 0 0 0 var(--_outline-width) var(--_o${suffix}), var(--_e${suffix});
     box-shadow: var(--_own-shadow, var(--_shadow));`;
 const paint = (suffix: string) => `
-    background: var(--_c${suffix});
-    --_now-c: var(--_c${suffix});${paintContent(suffix)}`;
+    background: var(--_c${suffix});${paintContent(suffix)}`;
 
 // The pieces every control shares (src/primitives): the state rules and their precedence, the ripple, the focus
 // indicator (ring or glow), the minimum target and the carrier of press-hold, plus the one corner rule
@@ -197,6 +196,22 @@ const buttonStyles = css`
     --_pad-inline-end: 0px;
     inline-size: calc(var(--_width) + var(--_add-start) + var(--_add-end));
     min-inline-size: calc(var(--_width) + var(--_add-start) + var(--_add-end));
+  }
+  /* BTN-39: full width — the host is as wide as its container and the container fills it, its content centred; a label
+     that does not fit wraps, its lines centred, down to its longest word. An icon-only button centres its glyph and
+     ignores width. Under the custom state \`placed\` a host lays the button out and gives it its width, so none of this
+     applies (the button draws no full-width class then either). */
+  :host([full-width]:not(:state(placed))) {
+    display: flex;
+    inline-size: 100%;
+  }
+  button.full-width {
+    flex: 1 1 auto;
+    white-space: normal;
+    text-align: center;
+  }
+  button.full-width.icon-only {
+    inline-size: auto;
   }
   button.icon-only .label,
   button:not(.has-icon) .icon {
@@ -401,76 +416,6 @@ const buttonStyles = css`
     white-space: nowrap;
   }
 
-  /* BTN-35: inline — a phrase of the sentence it stands in. The host is inline and the container takes the text's own
-     font and line height, with no padding, no height and no minimum target of its own (WCAG 2.5.8's exception for a
-     target in a sentence). A native button is one box on its line (an inline-block however it is displayed), so its
-     words stay on one line, and the line keeps its height: the box is the line's height and no more. A state's
-     container is painted on the label's own box — the text's, as a link's is (LNK-5) — not on the line-high button. */
-  :host([variant='inline']) {
-    display: inline;
-    vertical-align: baseline;
-  }
-  :host([variant='inline']) button {
-    display: inline-block;
-    vertical-align: baseline;
-    padding: 0;
-    min-block-size: 0;
-    min-inline-size: 0;
-    inline-size: auto;
-    font: inherit;
-    letter-spacing: inherit;
-    line-height: inherit;
-    white-space: nowrap;
-    --_glyph: 1em;
-  }
-  :host([variant='inline']) button[part] {
-    background: none;
-  }
-  :host([variant='inline']) button::before {
-    content: none;
-  }
-  :host([variant='inline']) .label {
-    display: inline;
-    background: var(--_now-c);
-    border-radius: inherit;
-    transition: background-color var(--tanrei-comp-button-motion-state-duration) var(--tanrei-comp-button-motion-state-easing);
-  }
-  :host([variant='inline']) button.has-icon .icon {
-    display: inline-flex;
-    vertical-align: middle;
-  }
-  :host([variant='inline']) button.with-icon .icon {
-    margin-inline-end: var(--_gap);
-  }
-  :host([variant='inline']) button.with-trailing-icon .icon {
-    margin-inline-start: var(--_gap);
-  }
-  /* BTN-35: underlined as comp.button.inline.underline.visibility chooses — the system's choice for links: always, only
-     while hovered, focused from the keyboard or pressed, or never. */
-  :host([variant='inline']) .label {
-    text-decoration-line: underline;
-    text-decoration-color: currentColor;
-    text-decoration-thickness: var(--tanrei-comp-button-inline-underline-width);
-    text-underline-offset: var(--tanrei-comp-button-inline-underline-offset);
-  }
-  @container style(--tanrei-comp-button-inline-underline-visibility: hover) {
-    @media (hover: hover) {
-      :host([variant='inline']) button:not(:hover, :focus-visible, [data-pressed]:not([data-pressed='none'])) .label {
-        text-decoration-line: none;
-      }
-    }
-    @media not (hover: hover) {
-      :host([variant='inline']) button:not(:focus-visible, [data-pressed]:not([data-pressed='none'])) .label {
-        text-decoration-line: none;
-      }
-    }
-  }
-  @container style(--tanrei-comp-button-inline-underline-visibility: never) {
-    :host([variant='inline']) .label {
-      text-decoration-line: none;
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     button {
       transition: none;
@@ -487,13 +432,6 @@ const buttonStyles = css`
   @media (forced-colors: active) {
     button {
       border: var(--_outline-width) solid ButtonText;
-    }
-    /* BTN-35: an inline button is text in forced colors too: no border, always its underline. */
-    :host([variant='inline']) button {
-      border: 0;
-    }
-    :host([variant='inline']) .label {
-      text-decoration-line: underline;
     }
     button${unsafeCSS(DISABLED)} {
       border-color: GrayText;

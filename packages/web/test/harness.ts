@@ -1045,7 +1045,9 @@ const STAGING: Record<string, Staging> = {
   // below the container than the stage's padding, so the stage leaves room for it — a baseline shows the whole shadow
   // (MAB-17). `extended: false` is the `collapsed` attribute on the web (an HTML boolean cannot default to true).
   'main-action-button': {
-    css: () => `.stage:has(> tanrei-main-action-button) { padding-block-end: 32px; }`,
+    // MAB-24: a full-width fixture is staged in a container of a width, 360 wide (the spec's verify).
+    css: () => `.stage:has(> tanrei-main-action-button) { padding-block-end: 32px; }
+      .stage:has(> tanrei-main-action-button[full-width]) { inline-size: 360px; }`,
     props: ({ extended, ...props }) => (extended === false ? { ...props, collapsed: true } : props),
   },
   // A FAB menu's toggle sits at the inline-end bottom corner of a 320 × 320 stage, 16 from both edges (FBM-13's verify).
@@ -1229,6 +1231,11 @@ const STAGING: Record<string, Staging> = {
   'tag-group': {
     css: () => `.stage:has(> tanrei-tag-group) { box-sizing: border-box; inline-size: 760px; }`,
     wrap: (element, f) => framedLanguage(element, f, 'tanrei-tag-group'),
+  },
+  // BTN-39: a full-width Button takes its container's width, so its fixture is staged in a container 320 wide (the
+  // spec's verify).
+  button: {
+    css: () => `.stage:has(> tanrei-button[full-width]) { inline-size: 320px; }`,
   },
   'button-group': {
     css: () => `.stage:has(> tanrei-button-group) { display: flex; align-items: center; inline-size: 400px; block-size: 96px; }
