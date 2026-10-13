@@ -1,4 +1,4 @@
-// <tanrei-table> and table.css, driven by specs/table.spec.json: every behaviour id (TBL-1…57) is cited by a test title,
+// <tanrei-table> and table.css, driven by specs/table.spec.json: every behaviour id (TBL-1…59) is cited by a test title,
 // every fixture has a baseline, and every length and color is read back from the tokens — never from a number written
 // here (the two row heights of TBL-4's verify are the spec's own numbers for the default system).
 import fs from 'node:fs';
@@ -580,7 +580,7 @@ test.describe('caption, footer, cells', () => {
     expect(await page.evaluate(() => (window as unknown as { pressed: number }).pressed)).toBe(2);
   });
 
-  test('TBL-16: the table, its rows and its cells take no input and change nothing they draw under a pointer, a press or focus; while no column is sortable the table listens for no press and emits no event', async ({ page }) => {
+  test('TBL-16: the table, its cells and rows that cannot be chosen take no input and change nothing they draw under a pointer, a press or focus; while no column is sortable the table listens for no press and emits no event', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: some('striped') });
     const paint = () =>
       table(page, 'striped').evaluate((el) =>
@@ -2404,6 +2404,16 @@ const NATIVE = `<table><thead><tr><td data-part="selection"><input type="checkbo
   </tbody></table>`;
 const native = (id: string, props: Fixture['props'] = {}) => raw(id, { label: id, selection: 'multiple', selectAllLabel: 'Select all products', ...props }, NATIVE);
 const settled = (page: P, id: string) => host(page, id).evaluate(async (el) => { await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete; await Promise.all([...el.querySelectorAll('tanrei-checkbox')].map((c) => (c as unknown as { updateComplete: Promise<unknown> }).updateComplete)); });
+/** TBL-58, TBL-59: rows whose cells hold what answers a press itself, a row of text, rows that cannot be chosen, a table in a cell. */
+const PRESSED = `<table><thead><tr><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="col">Name</th><th scope="col">Note</th></tr></thead><tbody>
+  <tr data-value="a"><td data-part="selection"><tanrei-checkbox label-hidden label="A"></tanrei-checkbox></td><th scope="row">Kettle</th><td>Pour <a href="#notes" class="p-link">notes</a> <button type="button" class="p-button">Edit</button> <input class="p-field" aria-label="Note" value="slow"> <label class="p-label"><input type="radio" name="pressed-radio"> Pick</label> <span class="p-own" style="cursor: pointer">open</span> <tanrei-button variant="text">Do</tanrei-button></td></tr>
+  <tr data-value="b"><td data-part="selection"><tanrei-checkbox label-hidden label="B"></tanrei-checkbox></td><th scope="row">Scale</th><td>Weighs to the tenth of a gram</td></tr>
+  <tr><td data-part="selection"></td><th scope="row">Discontinued</th><td>No value, so no checkbox</td></tr>
+  <tr data-placeholder data-value="p"><td data-part="selection"></td><td></td><td></td></tr>
+  <tr data-value="n"><td data-part="selection"><tanrei-checkbox label-hidden label="N"></tanrei-checkbox></td><th scope="row">Nested</th><td><table><tbody><tr><td>inner</td></tr></tbody></table></td></tr>
+  </tbody><tfoot><tr data-value="f"><td data-part="selection"></td><th scope="row">Total</th><td>2</td></tr></tfoot></table>`;
+/** The color of each layer of an element's background image, the top one first. */
+const layers = (locator: Locator) => locator.evaluate((el) => [...getComputedStyle(el).backgroundImage.matchAll(/linear-gradient\((rgba?\([^)]*\)|color\([^)]*\)|transparent)/g)].map((m) => m[1]));
 
 test.describe('rows that can be chosen', () => {
   test('TBL-42: while selection is multiple a selection column stands before the first column — the checkbox for every row in the header row, a row’s own in each body row that has a value, an empty cell in a row without one and in a footer row — as wide as the checkbox and a cell’s paddings, the checkbox on the cell’s first line and the row no taller for it; it is no column of data', async ({ page }) => {
@@ -2534,7 +2544,7 @@ test.describe('rows that can be chosen', () => {
     const cells = await table(page, id).locator('> tbody > tr:nth-child(2) > *').all();
     expect(cells).toHaveLength(4);
     for (const [index, c] of cells.entries()) {
-      expect(await css(c, 'background-repeat')).toBe('no-repeat');
+      expect(await css(c, 'background-repeat')).toMatch(/^no-repeat(, no-repeat)*$/);
       sameColor(await css(c, 'color'), text, `cell ${index}`);
       if (index) near((await box(c)).x, (await box(cells[index - 1])).x + (await box(cells[index - 1])).width, 0.1);
     }
@@ -2563,7 +2573,7 @@ test.describe('rows that can be chosen', () => {
     expect(await rows('held')).toEqual(['chosen', 'plain', 'plain', 'plain']);
   });
 
-  test('TBL-44: a change of a row’s checkbox — by a press, or by Space while it has focus — sets its selected and emits selectionChange exactly once with the values of every chosen row in row order; a press on the row outside the checkbox’s cell chooses nothing; what the product sets is drawn and not emitted; rows given again in another order are each chosen by their own selected, and nothing is carried over to a row the table is not given', async ({ page }) => {
+  test('TBL-44: a change of a row’s checkbox — by a press, or by Space while it has focus — sets its selected and emits selectionChange exactly once with the values of every chosen row in row order; a press on the row outside the checkbox’s cell changes it as TBL-58 says; what the product sets is drawn and not emitted; rows given again in another order are each chosen by their own selected, and nothing is carried over to a row the table is not given', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [...some('selection'), native('native')] });
     for (const id of ['selection', 'native']) {
       await settled(page, id);
@@ -2585,10 +2595,14 @@ test.describe('rows that can be chosen', () => {
       await expect.poll(() => choices(page)).toHaveLength(2);
       expect((await choices(page))[1].values).toEqual(order.filter((value) => start.includes(value)));
       expect(await chosen(page, id)).toEqual(start);
-      // A press on the row outside its checkbox's cell chooses nothing (TBL-16).
+      // A press on the row outside its checkbox's cell changes the checkbox (TBL-58), with one event each time.
       await cell(page, id, 'tbody', 2, 2).click();
+      await expect.poll(() => choices(page)).toHaveLength(3);
+      expect(await chosen(page, id)).toEqual(after);
+      await page.mouse.move(0, 0);
       await cell(page, id, 'tbody', 2, 3).click();
-      expect(await choices(page)).toHaveLength(2);
+      await expect.poll(() => choices(page)).toHaveLength(4);
+      expect((await choices(page))[3].values).toEqual(order.filter((value) => start.includes(value)));
       expect(await chosen(page, id)).toEqual(start);
       // The product sets a row's selected: drawn, its checkbox checked, nothing emitted — and takes it back.
       await table(page, id).locator('> tbody > tr').nth(1).evaluate((el) => el.setAttribute('data-selected', ''));
@@ -2596,7 +2610,7 @@ test.describe('rows that can be chosen', () => {
       await table(page, id).locator('> tbody > tr').nth(0).evaluate((el) => el.removeAttribute('data-selected'));
       await expect.poll(() => said(check(page, id, 'tbody', 1))).toBe('unchecked enabled');
       await frame(page);
-      expect(await choices(page)).toHaveLength(2);
+      expect(await choices(page)).toHaveLength(4);
       // The rows given again in another order: each is drawn by its own selected.
       const now = await chosen(page, id);
       await table(page, id).evaluate((el) => el.tBodies[0].append(...[...el.tBodies[0].rows].reverse()));
@@ -2615,7 +2629,7 @@ test.describe('rows that can be chosen', () => {
       await frame(page);
       expect(await chosen(page, id)).toEqual([]);
       expect(await said(check(page, id, 'thead', 1))).toBe('unchecked enabled');
-      expect(await choices(page)).toHaveLength(2);
+      expect(await choices(page)).toHaveLength(4);
     }
   });
 
@@ -2819,6 +2833,234 @@ test.describe('rows that can be chosen', () => {
     const gap = await resolveToken(page, T('row-gap'));
     expect((await box(table(page, 'selection-striped').locator('> tbody > tr').first())).height).toBeGreaterThanOrEqual(touch + gap);
     await context.close();
+  });
+
+  test('TBL-58: a press anywhere on a row that can be chosen changes its checkbox — not on what a cell holds that answers a press, not at the end of a drag or a text selection, not with a modifier, a middle button or a second click, not where the product cancelled it, not on a row that cannot be chosen; the row gets no role, stop or selected state', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [...some('selection'), raw('press', { label: 'Press', selection: 'multiple', rowHeaders: true, selectAllLabel: 'All' }, PRESSED)] });
+    const id = 'press';
+    await settled(page, id);
+    await settled(page, 'selection');
+    await hearChoices(page);
+    const counted = async (n: number) => {
+      await expect.poll(() => choices(page)).toHaveLength(n);
+      // The click is decided a task after it: give a click that should change nothing the time to have done so.
+      await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 50)));
+      expect(await choices(page)).toHaveLength(n);
+    };
+    // The verify: the row's text, its padding and its row header choose the row with one event; a second click lets it go.
+    await cell(page, id, 'tbody', 2, 3).click();
+    await counted(1);
+    expect((await choices(page))[0].values).toEqual(['b']);
+    expect(await chosen(page, id)).toEqual(['b']);
+    await cell(page, id, 'tbody', 2, 3).click();
+    await counted(2);
+    expect(await chosen(page, id)).toEqual([]);
+    const text = await box(cell(page, id, 'tbody', 2, 3));
+    await page.mouse.click(text.x + text.width - 2, text.y + text.height - 2);
+    await counted(3);
+    await cell(page, id, 'tbody', 2, 2).click();
+    await counted(4);
+    expect(await chosen(page, id)).toEqual([]);
+    // The fixture selection: a row header that is a th, and a row that is chosen let go.
+    await cell(page, 'selection', 'tbody', 1, 3).click();
+    await counted(5);
+    expect(await chosen(page, 'selection')).not.toContain('paper');
+    await cell(page, 'selection', 'tbody', 1, 2).click();
+    await counted(6);
+    expect(await chosen(page, 'selection')).toContain('paper');
+    // What a cell holds that answers a press keeps it: the link (its default prevented), the button, the field, the
+    // label, an element the product gave the pointer cursor, a Tanrei button.
+    await page.evaluate(() => document.querySelector('.p-link')!.addEventListener('click', (event) => event.preventDefault()));
+    const row = (r: number) => table(page, id).locator('> tbody > tr').nth(r - 1);
+    for (const own of ['.p-link', '.p-button', '.p-field', '.p-label', '.p-own', 'tanrei-button']) {
+      await row(1).locator(own).click();
+      await counted(6);
+    }
+    expect(await chosen(page, id)).toEqual([]);
+    // A drag of 20 px, which also selects text, chooses nothing; a press moved by 4 px chooses.
+    const drag = async (by: number) => {
+      const at = await box(cell(page, id, 'tbody', 2, 3));
+      // From the cell's padding: a press moved by 4 px there selects no text.
+      await page.mouse.move(at.x + 3, at.y + at.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(at.x + 3 + by, at.y + at.height / 2, { steps: 4 });
+      await page.mouse.up();
+    };
+    await drag(20);
+    await counted(6);
+    await page.evaluate(() => getSelection()?.removeAllRanges());
+    await drag(4);
+    await counted(7);
+    await drag(4);
+    await counted(8);
+    await page.evaluate(() => getSelection()?.removeAllRanges());
+    // A release that ends a text selection in the row chooses nothing.
+    await page.evaluate(() => {
+      const td = document.querySelector('[data-fixture="press"] tbody tr:nth-child(2) > td:last-child')!;
+      window.addEventListener('mouseup', () => getSelection()!.selectAllChildren(td), { capture: true, once: true });
+    });
+    await cell(page, id, 'tbody', 2, 3).click();
+    await counted(8);
+    await page.evaluate(() => getSelection()?.removeAllRanges());
+    // A modifier key, the middle button, a script's click() on a cell, a click the product cancels.
+    for (const modifier of ['Control', 'Meta', 'Shift', 'Alt'] as const) {
+      await cell(page, id, 'tbody', 2, 3).click({ modifiers: [modifier] });
+      await counted(8);
+      await page.evaluate(() => getSelection()?.removeAllRanges());
+    }
+    await cell(page, id, 'tbody', 2, 3).click({ button: 'middle' });
+    await counted(8);
+    await cell(page, id, 'tbody', 2, 3).evaluate((el) => (el as HTMLElement).click());
+    await counted(8);
+    await page.evaluate(() => document.querySelector('[data-fixture="press"] tbody tr:nth-child(2) > td:last-child')!.addEventListener('click', (event) => event.preventDefault(), { once: true }));
+    await cell(page, id, 'tbody', 2, 3).click();
+    await counted(8);
+    // A double click is one press and a second click: the row changes once.
+    await cell(page, id, 'tbody', 2, 2).dblclick();
+    await counted(9);
+    expect(await chosen(page, id)).toEqual(['b']);
+    await page.evaluate(() => getSelection()?.removeAllRanges());
+    // A row without a value, a placeholder row, a footer row, the header row outside its checkbox, and a table nested in
+    // a cell take no such press.
+    await cell(page, id, 'tbody', 3, 3).click();
+    await cell(page, id, 'tbody', 4, 3).click({ force: true });
+    await cell(page, id, 'tfoot', 1, 3).click();
+    await cell(page, id, 'thead', 1, 2).click();
+    await row(5).locator('table td').click();
+    await counted(9);
+    // A row whose checkbox is disabled takes none either.
+    await row(2).locator('tanrei-checkbox').evaluate((el) => ((el as HTMLInputElement).disabled = true));
+    await cell(page, id, 'tbody', 2, 3).click();
+    await counted(9);
+    // The row is no control: no role, no tab index, no selected state, and Tab reaches the checkboxes as before.
+    expect(await table(page, id).evaluate((el) => [...el.querySelectorAll(':scope > tbody > tr')].map((tr) => ['role', 'tabindex', 'aria-selected'].filter((a) => tr.hasAttribute(a))).flat())).toEqual([]);
+    await tabTo(page, check(page, id, 'tbody', 1));
+    await tab(page);
+    expect(await page.evaluate(() => document.activeElement?.classList.contains('p-link'))).toBe(true);
+  });
+
+  test('TBL-59: a fine pointer over a row that can be chosen draws it hovered as one target — its condition’s hovered fill over its stripe or its chosen fill, its text, the pointer cursor — and at rest over what answers a press itself; a press draws it pressed without delay for press-hold, as the system’s feedback names (ripple as overlay, dim, none); a key on the checkbox does not; forced colors take the fills', async ({ page }) => {
+    const pressed = raw('press', { label: 'Press', selection: 'multiple', rowHeaders: true, selectAllLabel: 'All' }, PRESSED);
+    await mountFixtures(page, spec, { fixtures: [...some('selection-striped'), pressed] });
+    const id = 'selection-striped';
+    await settled(page, id);
+    const tr = (r: number, at = id) => table(page, at).locator('> tbody > tr').nth(r - 1);
+    const [stripe, unselected, selected, unselectedText, selectedText, unselectedPressed] = await Promise.all(
+      ['stripe-container-color', 'row-unselected-hovered-container-color', 'row-selected-hovered-container-color', 'row-unselected-hovered-text-color', 'row-selected-hovered-text-color', 'row-unselected-pressed-container-color'].map((name) => resolveColor(page, T(name))),
+    );
+    const fill = await resolveColor(page, T('row-selected-container-color'));
+    // The verify: over the text of the fourth row, every cell of it in the hovered fill over its stripe, and the pointer.
+    await cell(page, id, 'tbody', 4, 2).hover();
+    await expect(tr(4)).toHaveAttribute('data-tanrei-hit', '');
+    for (const c of await tr(4).locator('> *').all()) {
+      const [state, rest] = await layers(c);
+      sameColor(state, unselected, 'hovered');
+      sameColor(rest, stripe, 'stripe');
+      sameColor(await css(c, 'color'), unselectedText, 'text');
+    }
+    expect(await css(cell(page, id, 'tbody', 4, 2), 'cursor')).toBe('pointer');
+    expect(channels(unselected)[3]).toBeGreaterThan(0);
+    // Over the second row, which is chosen, the chosen condition's.
+    await cell(page, id, 'tbody', 2, 3).hover();
+    await expect(tr(4)).not.toHaveAttribute('data-tanrei-hit');
+    await expect(tr(2)).toHaveAttribute('data-tanrei-hit', '');
+    for (const c of await tr(2).locator('> *').all()) {
+      const [state, rest] = await layers(c);
+      sameColor(state, selected, 'hovered');
+      sameColor(rest, fill, 'chosen');
+      sameColor(await css(c, 'color'), selectedText, 'text');
+      // Short of the gap between rows, as the fill under it.
+      const gap = await resolveToken(page, T('row-gap'));
+      for (const size of (await css(c, 'background-size')).split(',')) expect(size).toContain(`${gap}px`);
+    }
+    // The selection cell and the checkbox in it are the row's too.
+    await check(page, id, 'tbody', 3).hover();
+    await expect(tr(3)).toHaveAttribute('data-tanrei-hit', '');
+    // Over what a cell holds that answers a press itself the row is at rest, and the thing keeps its own cursor.
+    await settled(page, 'press');
+    await table(page, 'press').locator('.p-link').hover();
+    await expect(tr(1, 'press')).not.toHaveAttribute('data-tanrei-hit');
+    sameColor((await layers(cell(page, 'press', 'tbody', 1, 3)))[0], 'rgba(0, 0, 0, 0)');
+    expect(await css(table(page, 'press').locator('.p-link'), 'cursor')).toBe('pointer');
+    await table(page, 'press').locator('.p-field').hover();
+    await expect(tr(1, 'press')).not.toHaveAttribute('data-tanrei-hit');
+    await cell(page, 'press', 'tbody', 1, 2).hover();
+    await expect(tr(1, 'press')).toHaveAttribute('data-tanrei-hit', '');
+    // A row that cannot be chosen is never hovered; off the table no row is.
+    await cell(page, 'press', 'tbody', 3, 3).hover();
+    await expect(table(page, 'press').locator('tr[data-tanrei-hit]')).toHaveCount(0);
+    await cell(page, id, 'tbody', 1, 2).hover();
+    await page.mouse.move(0, 0);
+    await expect(page.locator('tr[data-tanrei-hit]')).toHaveCount(0);
+    // A press: the pressed fill at once, held for press-hold however quick the release.
+    const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+    await watchPress(tr(1));
+    await cell(page, id, 'tbody', 1, 2).click();
+    expect((await expectPressShownAndHeld(page, hold, 'a click on a row')).feedback).toBe('overlay');
+    const at = await box(cell(page, id, 'tbody', 3, 2));
+    await page.mouse.move(at.x + 10, at.y + 10);
+    await page.mouse.down();
+    await expect(tr(3)).toHaveAttribute('data-pressed', 'overlay');
+    sameColor((await layers(cell(page, id, 'tbody', 3, 2)))[0], unselectedPressed, 'pressed');
+    await page.mouse.up();
+    await expect.poll(() => tr(3).getAttribute('data-pressed')).toBeNull();
+    // A press in the selection cell, on the checkbox itself, presses the row too; a key on the checkbox does not.
+    await watchPress(tr(4));
+    await check(page, id, 'tbody', 4).click();
+    expect((await expectPressShownAndHeld(page, hold, 'a click on the checkbox')).feedback).toBe('overlay');
+    await page.mouse.move(0, 0);
+    await check(page, id, 'tbody', 4).focus();
+    await page.keyboard.down('Space');
+    expect(await tr(4).getAttribute('data-pressed')).toBeNull();
+    await page.keyboard.up('Space');
+    // Forced colors take the fills, as they take the chosen one (TBL-54).
+    await cell(page, id, 'tbody', 1, 2).hover();
+    await page.emulateMedia({ forcedColors: 'active' });
+    expect(await css(cell(page, id, 'tbody', 1, 2), 'background-image')).toBe('none');
+    await page.emulateMedia({ forcedColors: 'none' });
+    await page.mouse.move(0, 0);
+    // ripple (m3-like) is drawn as overlay: no layer of its own in a row.
+    const down = async () => {
+      const where = await box(cell(page, id, 'tbody', 1, 2));
+      await page.mouse.move(where.x + 10, where.y + 10);
+      await page.mouse.down();
+    };
+    const up = async () => {
+      await page.mouse.up();
+      await page.mouse.move(0, 0);
+      await expect.poll(() => tr(1).getAttribute('data-pressed')).toBeNull();
+    };
+    await mountFixtures(page, spec, { fixtures: some('selection-striped'), system: 'm3-like' });
+    await settled(page, id);
+    await down();
+    await expect(tr(1)).toHaveAttribute('data-pressed', 'overlay');
+    sameColor((await layers(cell(page, id, 'tbody', 1, 2)))[0], await resolveColor(page, T('row-unselected-pressed-container-color')), 'm3-like pressed');
+    await expect(tr(1).locator('.ripple')).toHaveCount(0);
+    await up();
+    // dim (cupertino): no hover, and a press dims the row whole while its fill stays at rest.
+    await mountFixtures(page, spec, { fixtures: some('selection-striped'), system: 'cupertino' });
+    await settled(page, id);
+    await cell(page, id, 'tbody', 1, 2).hover();
+    await expect(tr(1)).toHaveAttribute('data-tanrei-hit', '');
+    sameColor((await layers(cell(page, id, 'tbody', 1, 2)))[0], 'rgba(0, 0, 0, 0)', 'cupertino hovered');
+    await down();
+    await expect(tr(1)).toHaveAttribute('data-pressed', 'dim');
+    const opacity = Number(await page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n), T('pressed-opacity')));
+    expect(opacity).toBeLessThan(1);
+    expect(Number(await css(tr(1), 'opacity'))).toBeCloseTo(opacity, 2);
+    sameColor((await layers(cell(page, id, 'tbody', 1, 2)))[0], 'rgba(0, 0, 0, 0)', 'cupertino pressed');
+    await up();
+    // none: nothing changes under the press.
+    await mountFixtures(page, spec, { fixtures: some('selection-striped') });
+    await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'none' });
+    await settled(page, id);
+    await cell(page, id, 'tbody', 1, 2).hover();
+    const paint = () => tr(1).evaluate((el) => [...el.children].map((c) => [getComputedStyle(c).backgroundImage, getComputedStyle(c).color, getComputedStyle(el).opacity].join('|')));
+    const hovered = await paint();
+    await down();
+    await expect(tr(1)).toHaveAttribute('data-pressed', 'none');
+    expect(await paint()).toEqual(hovered);
+    await up();
   });
 
   test('TBL-25: rows that are replaced because the product ordered or fetched them keep keyboard focus on the checkbox that had it — the checkbox of the row with the same value — and a checkbox that takes focus under a header row or a status line kept in view is brought out from under it', async ({ page }) => {
@@ -3034,7 +3276,7 @@ test.describe('chosen rows and a loading body in other conditions', () => {
     expect(s.width).toBeGreaterThan(s.clientWidth);
   });
 
-  test('TBL-57: with scripting off the selection column, a chosen row — by data-selected or by a native checkbox that is checked — and placeholder rows are drawn from the product’s markup as with it, and native checkboxes inside the product’s form work as the browser makes them work', async ({ page: off }) => {
+  test('TBL-57: with scripting off the selection column, a chosen row — by data-selected or by a native checkbox that is checked — and placeholder rows are drawn from the product’s markup as with it, native checkboxes inside the product’s form work as the browser makes them work, and a row shows no state and no pointer and a press on it changes nothing', async ({ page: off }) => {
     const NATIVE_FORM = NATIVE.replace('<input type="checkbox">', '<input type="checkbox" aria-label="Select all products">');
     const placeholders = raw('placeholders', { label: 'Placeholders', selection: 'multiple', loading: true }, '<table aria-busy="true"><thead><tr><td data-part="selection"><input type="checkbox" aria-label="All" disabled></td><th scope="col">Name</th></tr></thead><tbody><tr data-placeholder aria-hidden="true"><td data-part="selection"></td><td></td></tr><tr data-placeholder aria-hidden="true"><td data-part="selection"></td><td><span class="tanrei-skeleton-placeholder"></span></td></tr><tr data-part="empty"><td colspan="2"><div>None</div></td></tr></tbody></table>');
     const fixtures = [raw('form', { label: 'form', selection: 'multiple', rowHeaders: true, striped: true }, NATIVE_FORM), placeholders, ...some('basic')];
@@ -3072,6 +3314,15 @@ test.describe('chosen rows and a loading body in other conditions', () => {
     expect(await image(2)).toContain(fill);
     await check(off, 'form', 'tbody', 1).click();
     expect(await image(1)).not.toContain(fill);
+    // TBL-58, TBL-59: without script a row answers no press, so it shows neither a state nor the pointer cursor, and a
+    // press on it beside its checkbox changes nothing.
+    const before = await check(off, 'form', 'tbody', 3).isChecked();
+    await cell(off, 'form', 'tbody', 3, 2).hover();
+    expect(await off.locator('tr[data-tanrei-hit], tr[data-pressed]').count()).toBe(0);
+    for (const c of [1, 2, 3]) expect(await css(cell(off, 'form', 'tbody', 3, c), 'cursor'), `cell ${c}`).toBe('auto');
+    await cell(off, 'form', 'tbody', 3, 2).click();
+    expect(await check(off, 'form', 'tbody', 3).isChecked()).toBe(before);
+    await off.mouse.move(0, 0);
     // Placeholder rows: one line tall, however little they hold; the empty content is not drawn in a busy table.
     const line = (await box(off.locator('[data-fixture="basic"] tbody tr').first())).height;
     for (const r of [1, 2]) near((await box(off.locator('[data-fixture="placeholders"] tbody tr').nth(r - 1))).height, line, 0.1);
