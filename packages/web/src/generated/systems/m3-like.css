@@ -3372,6 +3372,12 @@
     --tanrei-comp-figure-outline-color: var(--tanrei-sys-color-outline-variant);
     --tanrei-comp-figure-outline-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-figure-outlined-container-color: var(--tanrei-sys-color-surface);
+    --tanrei-comp-figure-pattern-checkerboard-size: var(--tanrei-sys-space-space100);
+    --tanrei-comp-figure-pattern-clear-extent: 0.3;
+    --tanrei-comp-figure-pattern-color: var(--tanrei-sys-color-surface-container-highest);
+    --tanrei-comp-figure-pattern-dot-size: round(nearest, calc(var(--tanrei-dial-stroke-unit) * 3), 0.25px);
+    --tanrei-comp-figure-pattern-line-thickness: var(--tanrei-sys-border-hairline);
+    --tanrei-comp-figure-pattern-spacing: var(--tanrei-sys-space-space300);
     --tanrei-comp-figure-plain-container-color: rgb(0 0 0 / 0);
     --tanrei-comp-figure-separation: var(--tanrei-sys-behavior-separation);
     --tanrei-comp-figure-stage-padding-block: var(--tanrei-sys-space-space400);

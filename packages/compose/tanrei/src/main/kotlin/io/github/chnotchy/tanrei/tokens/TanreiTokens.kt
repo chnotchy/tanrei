@@ -4720,6 +4720,12 @@ public data class TanreiFigureTokens(
     public val headerPaddingInlineEndWithActions: Dp,
     public val outlineColor: TanreiPaint,
     public val outlineWidth: Dp,
+    public val patternCheckerboardSize: Dp,
+    public val patternClearExtent: Float,
+    public val patternColor: TanreiPaint,
+    public val patternDotSize: Dp,
+    public val patternLineThickness: Dp,
+    public val patternSpacing: Dp,
     public val separation: Float,
     public val stagePaddingBlock: Dp,
     public val stagePaddingInline: Dp,
@@ -4732,6 +4738,7 @@ public data class TanreiFigureTokens(
         addAll(contentColor.roles())
         addAll(dividerColor.roles())
         addAll(outlineColor.roles())
+        addAll(patternColor.roles())
         addAll(titleColor.roles())
         addAll(variants.referencedRoles())
     }

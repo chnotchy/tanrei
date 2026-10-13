@@ -10892,6 +10892,12 @@ class TanreiFigureTokens {
     required this.headerPaddingInlineEndWithActions,
     required this.outlineColor,
     required this.outlineWidth,
+    required this.patternCheckerboardSize,
+    required this.patternClearExtent,
+    required this.patternColor,
+    required this.patternDotSize,
+    required this.patternLineThickness,
+    required this.patternSpacing,
     required this.separation,
     required this.stagePaddingBlock,
     required this.stagePaddingInline,
@@ -10928,6 +10934,18 @@ class TanreiFigureTokens {
   final TanreiPaint outlineColor;
   /// `comp.figure.outline-width`
   final double outlineWidth;
+  /// `comp.figure.pattern-checkerboard-size`
+  final double patternCheckerboardSize;
+  /// `comp.figure.pattern-clear-extent`
+  final double patternClearExtent;
+  /// `comp.figure.pattern-color`
+  final TanreiPaint patternColor;
+  /// `comp.figure.pattern-dot-size`
+  final double patternDotSize;
+  /// `comp.figure.pattern-line-thickness`
+  final double patternLineThickness;
+  /// `comp.figure.pattern-spacing`
+  final double patternSpacing;
   /// `comp.figure.separation`
   final double separation;
   /// `comp.figure.stage-padding-block`
@@ -10957,6 +10975,12 @@ class TanreiFigureTokens {
     double? headerPaddingInlineEndWithActions,
     TanreiPaint? outlineColor,
     double? outlineWidth,
+    double? patternCheckerboardSize,
+    double? patternClearExtent,
+    TanreiPaint? patternColor,
+    double? patternDotSize,
+    double? patternLineThickness,
+    double? patternSpacing,
     double? separation,
     double? stagePaddingBlock,
     double? stagePaddingInline,
@@ -10978,6 +11002,12 @@ class TanreiFigureTokens {
         headerPaddingInlineEndWithActions: headerPaddingInlineEndWithActions ?? this.headerPaddingInlineEndWithActions,
         outlineColor: outlineColor ?? this.outlineColor,
         outlineWidth: outlineWidth ?? this.outlineWidth,
+        patternCheckerboardSize: patternCheckerboardSize ?? this.patternCheckerboardSize,
+        patternClearExtent: patternClearExtent ?? this.patternClearExtent,
+        patternColor: patternColor ?? this.patternColor,
+        patternDotSize: patternDotSize ?? this.patternDotSize,
+        patternLineThickness: patternLineThickness ?? this.patternLineThickness,
+        patternSpacing: patternSpacing ?? this.patternSpacing,
         separation: separation ?? this.separation,
         stagePaddingBlock: stagePaddingBlock ?? this.stagePaddingBlock,
         stagePaddingInline: stagePaddingInline ?? this.stagePaddingInline,

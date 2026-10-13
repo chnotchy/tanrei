@@ -2350,6 +2350,12 @@ export interface TanreiFigureTokens {
   readonly headerPaddingInlineEndWithActions: number;
   readonly outlineColor: TanreiPaint;
   readonly outlineWidth: number;
+  readonly patternCheckerboardSize: number;
+  readonly patternClearExtent: number;
+  readonly patternColor: TanreiPaint;
+  readonly patternDotSize: number;
+  readonly patternLineThickness: number;
+  readonly patternSpacing: number;
   readonly separation: number;
   readonly stagePaddingBlock: number;
   readonly stagePaddingInline: number;
