@@ -130,6 +130,9 @@
           "$ref": "comp/segmented-button.tokens.json"
         },
         {
+          "$ref": "comp/stepper.tokens.json"
+        },
+        {
           "$ref": "comp/button-group.tokens.json"
         },
         {

@@ -806,6 +806,46 @@
       ]
     },
     {
+      "key": "stepCompletedText",
+      "readers": [
+        {
+          "component": "stepper",
+          "prop": "completedText"
+        }
+      ]
+    },
+    {
+      "key": "stepErrorText",
+      "readers": [
+        {
+          "component": "stepper",
+          "prop": "errorText"
+        }
+      ]
+    },
+    {
+      "key": "stepPositionText",
+      "readers": [
+        {
+          "component": "stepper",
+          "prop": "positionText"
+        }
+      ],
+      "places": [
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The current step's place in the flow, counted from 1.",
+          "required": true
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of steps."
+        }
+      ]
+    },
+    {
       "key": "stopLabel",
       "readers": [
         {

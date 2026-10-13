@@ -14,6 +14,7 @@ const SUBJECTS: readonly (readonly [component: string, fixture: string, pressed:
   ['button', 'filled-medium', 'button', 'BTN-8'],
   ['chip', 'action-outlined', '.container', 'CHP-8'],
   ['segmented-button', 'single', '.container', 'SEG-9'],
+  ['stepper', 'pressable-visited', 'button.container', 'SPR-14'],
   ['button-with-menu', 'filled-medium', 'button', 'SPB-9'],
   ['fab-menu', 'filled-closed', '.toggle', 'FBM-8'],
   ['snackbar', 'action', '.control', 'SNK-5'],

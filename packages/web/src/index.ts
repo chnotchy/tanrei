@@ -321,6 +321,14 @@ export {
   type TanreiSegmentedButtonSize,
 } from './components/segmented-button/segmented-button.js';
 export {
+  TanreiStepper,
+  type TanreiStepperLayout,
+  type TanreiStepperPressable,
+  type TanreiStepperSelectDetail,
+  TanreiStepperStep,
+  type TanreiStepperStepStatus,
+} from './components/stepper/stepper.js';
+export {
   TanreiSideSheet,
   type TanreiSideSheetCloseDetail,
   type TanreiSideSheetCloseReason,

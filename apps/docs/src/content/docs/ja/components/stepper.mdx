@@ -1,0 +1,171 @@
+---
+title: ステッパー
+description: プロダクトが決まった順序のステップで進めるフローの中で、いまどこにいるかを示します。どのステップが現在で、どれが完了し、どれにエラーがあり、どれがこれからなのかを示し、ステップを押してそこへ戻れるようにします。
+translationOf: components/stepper.mdx
+sourceHash: 6f6aced00c2b6ebab565e04f4136b2fd6ad660ee
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="stepper" />
+
+<DemoFrame label="横向き、エラーのあるステップを含む" column>
+  <tanrei-stepper label="購入手続きの進み具合" value="payment" pressable="visited" completed-text="完了" error-text="エラーあり" style="inline-size: 100%">
+    <tanrei-stepper-step value="account" label="アカウント"></tanrei-stepper-step>
+    <tanrei-stepper-step value="shipping" label="配送" status="error" description="郵便番号が未入力"></tanrei-stepper-step>
+    <tanrei-stepper-step value="payment" label="支払い"></tanrei-stepper-step>
+    <tanrei-stepper-step value="review" label="確認"></tanrei-stepper-step>
+  </tanrei-stepper>
+</DemoFrame>
+
+ステッパーは、購入手続き、初期設定、いくつかの部分に分かれた申し込みのように、いまの位置があるフローのコンテンツの上か横に置きます。1 つのステップが現在のステップで、その前のステップは完了しています。1 つがその人の対応を必要としていることがあり、残りはこれからのステップです。
+
+### 使い方
+
+ステップは子要素の `<tanrei-stepper-step>` で、順番に並べます。`value` は現在のステップを指します。ステッパーが自分で `value` を動かすことはありません。その人がステップを押すと、そのステップの値を持つ `select` を発火します。そこへ移るかどうかはプロダクト側のフローが決め、移るなら `value` を設定します。
+
+SwiftUI、Compose、Flutter、React Native は計画中です。このページの冒頭で各プラットフォームに添えた名前は仕様が定めたもので、まだ提供していません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-stepper id="checkout" label="購入手続きの進み具合" value="shipping" pressable="visited"
+      completed-text="完了" error-text="エラーあり" position-text="ステップ {position}/{count}">
+      <tanrei-stepper-step value="account" label="アカウント"></tanrei-stepper-step>
+      <tanrei-stepper-step value="shipping" label="配送" description="住所と配送方法"></tanrei-stepper-step>
+      <tanrei-stepper-step value="gift" label="ギフト包装" description="任意"></tanrei-stepper-step>
+      <tanrei-stepper-step value="payment" label="支払い"></tanrei-stepper-step>
+    </tanrei-stepper>
+
+    <script type="module">
+      import '@tanrei/web/components/stepper';
+      const stepper = document.querySelector('#checkout');
+      // ステップを押すと、そこへ移りたいという要求になります。フローが判断してから value を動かします。
+      stepper.addEventListener('select', (e) => {
+        if (goTo(e.detail.value)) stepper.value = e.detail.value;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Stepper, StepperStep } from '@tanrei/react';
+
+    <Stepper
+      label="購入手続きの進み具合"
+      value={step}
+      pressable="visited"
+      completedText="完了"
+      errorText="エラーあり"
+      positionText="ステップ {position}/{count}"
+      onSelect={(e) => setStep(e.detail.value)}
+    >
+      <StepperStep value="account" label="アカウント" />
+      <StepperStep value="shipping" label="配送" status={shippingError ? 'error' : 'auto'} />
+      <StepperStep value="payment" label="支払い" />
+      <StepperStep value="review" label="確認" />
+    </Stepper>
+    ```
+  </TabItem>
+</Tabs>
+
+文言は利用者側で用意します。`completed-text` と `error-text` は、支援技術がステップのラベルの後に読み上げる言葉です。`position-text` はコンパクトな形に表示する 1 行で、`{position}` と `{count}` の箇所を含みます。`setWords({ stepCompletedText, stepErrorText, stepPositionText })` を使えば、すべてのステッパーに一度だけ渡せます。
+
+## 仕様
+
+<DemoFrame label="縦向きと、コンパクトな形" plain>
+  <tanrei-stepper label="初期設定" value="profile" layout="vertical" completed-text="完了" error-text="エラーあり" style="inline-size: 320px">
+    <tanrei-stepper-step value="account" label="アカウントを作成" description="メールアドレスとパスワード"></tanrei-stepper-step>
+    <tanrei-stepper-step value="profile" label="プロフィール" description="名前と写真"></tanrei-stepper-step>
+    <tanrei-stepper-step value="team" label="チームを招待" description="任意"></tanrei-stepper-step>
+    <tanrei-stepper-step value="done" label="作業を始める"></tanrei-stepper-step>
+  </tanrei-stepper>
+  <tanrei-stepper label="購入手続きの進み具合" value="shipping" layout="compact" completed-text="完了" error-text="エラーあり" position-text="ステップ {position}/{count}" style="inline-size: 280px">
+    <tanrei-stepper-step value="account" label="アカウント"></tanrei-stepper-step>
+    <tanrei-stepper-step value="shipping" label="配送"></tanrei-stepper-step>
+    <tanrei-stepper-step value="gift" label="ギフト包装"></tanrei-stepper-step>
+    <tanrei-stepper-step value="payment" label="支払い"></tanrei-stepper-step>
+    <tanrei-stepper-step value="review" label="確認"></tanrei-stepper-step>
+  </tanrei-stepper>
+</DemoFrame>
+
+<ComponentSpecs name="stepper" />
+
+## ガイドライン
+
+### 使う場面
+
+プロダクトが決めた順序で 3〜7 個のステップを進むフローで、いまどこにいて、あとどれだけ残っているかが分かると最後まで進みやすくなるときに使います。購入手続き、いくつかの部分に分かれた登録、申し込みなどです。ステップのコンテンツの上に置くか（横向き）、その横に縦の列として置きます（縦向き）。
+
+次の場合は、ステッパーを使いません。
+
+- 読み手が自分で順に進める手順。これは[ステップ](/ja/components/steps/)です。位置を持たない番号付きの手順で、マーカーはただの輪であり、進み具合を示すことはありません。
+- 2 つのステップしかないフロー、または位置を示しても何も伝わらないほど短いフロー。このページが何のためのものかを言う見出しで足ります。
+- どんな順序でも進められる、互いに独立したタスクの長いリスト。これはタスクリストです。タスクごとに状態を添えた行を 1 つ置き、それぞれをリンクにします。
+- フロー自身のナビゲーションの代わり。「戻る」ボタンと「続ける」ボタンは残してください。ステッパーはその人がどこにいるかを示すもので、ほとんどの人が移動に使う手段ではありません。
+
+### 状態
+
+| 状態 | 意味 | 描き方 |
+| --- | --- | --- |
+| 現在 | その人がいる場所。 | ステップの番号が入った、塗りつぶしのマーカー。 |
+| 完了 | 済んだステップ。既定では、現在のステップより前のすべてのステップ。 | チェックの入ったマーカー。 |
+| エラー | どこにあっても、その人の対応が必要なステップ。 | 輪と優先度を示すグリフ。ラベルはエラーの色。 |
+| 未完了 | これからのステップ。既定では、現在のステップより後のすべてのステップ。 | ステップの番号が入った輪。 |
+
+ステップの `status` は既定で `auto` です。現在のステップより前は完了、後は未完了になります。フローがそれ以上のことを知っているときに設定します。直す必要のあるステップには `error`、順序どおりでなく済んだステップには `complete`、飛ばしたけれどまだ済ませる必要のあるステップには `incomplete` を指定します。どの状態も、色だけでなくマーカーの形で見分けられます。
+
+フローが終わったら、`value` を空にして、すべてのステップに `complete` を指定します。
+
+### ステップに戻る
+
+- `pressable="visited"` にすると、その人が訪れたステップ（完了したステップやエラーのあるステップ）を押して戻れます。ほとんどのフローにはこれが合います。
+- `pressable="all"` にすると、現在のステップ以外のどのステップでも押せます。どんな順序でも進められるステップから成るフロー向けです。
+- `pressable="none"`（既定）は、位置を示すだけです。
+
+多くのシステムと同じく、押せるステップは、ホバーやフォーカスを受けるまで押せないステップと同じ見た目です。利用者にもっと手がかりが必要なら、ステッパーの近くにそう書いてください（「ステップを選んで変更」など）。現在のステップが押せることはありません。まだ進めないステップ（前の選択に左右されるもの）は `disabled` にします。薄く描かれ、利用できないことが読み上げられます。
+
+### 狭い画面
+
+横向きのステッパーは、すべてのステップをそれぞれの最小幅で並べられない幅になると、自動でコンパクトな形に変わります。現在のステップまで塗られた区切りのあるバー、プロダクトの言葉による位置（「ステップ 2/5」）、現在のステップのラベルを描きます。`layout="compact"` を指定すると、どの幅でもこの形になります。コンパクトな形は押せません。その役目はフローの「戻る」ボタンが担います。すべてのステップを見せたままにしたいときは、`layout="vertical"` で縦の列にします。
+
+### 推奨
+
+- ステップには、その人がすることや渡すものを 1〜2 語で名前を付けます。アカウント、配送、支払い、確認などです。
+- ステップの数は最初から最後まで変えません。ときどきしか当てはまらないステップは、途中で加えるのではなく、表示しておいて飛ばします。
+- エラーは、その人が直せるステップに付け、何が問題なのかを短い説明で添えます。
+
+### 非推奨
+
+- ステッパーを、先へ進む唯一の手段にしない。
+- ラベルに番号を書かない。番号はマーカーが示し、リストが読み上げます。
+- ページのセクションやタブにステッパーを使わない。それらは[タブ](/ja/components/tabs/)か目次です。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="stepper" />
+
+### コンポーネントが担うこと
+
+- ステッパーは、`label` を名前とする順序付きリストです。各ステップは項目で、ラベル、状態を表す言葉（`completed-text`、`error-text`）、説明の順に読まれます。リストが各ステップの位置（「4 項目中 3 番目」など）を伝えるので、マーカーの番号を重ねて読むことはありません。
+- 現在のステップは、現在のステップとして伝えます（`aria-current="step"`）。
+- 押せるステップはネイティブのボタンで、ステップの順に Tab で止まる位置になります。Enter と Space で押せます。押せないステップはただのテキストで、Tab で止まりません。押せるステッパーの中の無効なステップは、無効なボタンです。
+- マーカー、グリフ、コネクター、バーは、支援技術からは隠されます。
+- 状態は色だけでなく形でも見分けられます。塗りつぶしのマーカー、チェック、優先度を示すグリフ、輪です。
+- コンパクトな形では、ステッパーはラベルを名前とする 1 つのグループになり、描かれているものを読みます。位置と現在のステップのラベル、現在のステップにエラーがあればエラーの言葉です。
+- ラベルと説明は折り返し、途中で切れることはありません。文字サイズを大きくするとすべてが大きくなり、ステッパーは与えられた幅に応じてコンパクトな形に変わります。
+- 強制カラーモードでは、現在のマーカーはハイライトの色に、それ以外はすべてテキストの色になります。
+- ラベルがない場合、どのステップも指さない値、空の値や重複したステップの値、ラベルのないステップ、ステップが 2 つ未満のステッパー、無効と指定された現在のステップ、`{position}` を含まない位置の文、言葉が足りない場合は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- どのフローを追うものかを言う `label` をステッパーに付けます（「購入手続きの進み具合」）。
+- `completed-text`、`error-text`、`position-text` をプロダクトの言語で指定するか、`setWords()` で一度だけ渡します。
+- フロー自身の「戻る」ボタンと「続ける」ボタンを残し、ステップが変わったら新しいステップの見出しにフォーカスを移します。スクリーンリーダーの利用者が、いまどこにいるかを聞けるようにするためです。
+- ステップにエラーがあるときは、エラーそのものもステップのコンテンツの中に示します。ステッパーが伝えるのは、そのステップに対応が必要だということだけです。

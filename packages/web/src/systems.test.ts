@@ -102,6 +102,9 @@ const SUBJECTS = [
   // Icons, Grid selected: the set's fill, outline, corners and padding, the dividers, the selected fill and elevation, the
   // check in place of the icon (none in cupertino, whose selection is raised), the heights and the label's role.
   subject('segmented-button', (fixture) => fixture.id === 'icons', { icons: true }),
+  // An error on a step before the current one: every condition at once — the complete marker's fill and check, the
+  // current marker's fill and number, the error ring and glyph, the incomplete ring — the connectors, the text roles.
+  subject('stepper', (fixture) => fixture.id === 'horizontal-error', { icons: true }),
   // Modal, with its close button and actions: the scrim, the panel's color, elevation (m3-like's own level1) and start
   // corners (eased in cupertino), the headline's role and color (heading-4 in m3-like), the body text, the divider and the
   // text Buttons. Its baseline is the 720 × 480 window; axe checks each fixture alone (two standard sheets are two

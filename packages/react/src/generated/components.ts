@@ -92,6 +92,8 @@ import { TanreiSlider as TanreiSliderElement, type TanreiSliderChangeDetail } fr
 import { TanreiSliderField as TanreiSliderFieldElement } from '@tanrei/web/components/slider-field';
 import { TanreiSnackbar as TanreiSnackbarElement, type TanreiSnackbarDismissDetail, type TanreiSnackbarExpandedChangeDetail } from '@tanrei/web/components/snackbar';
 import { TanreiSnackbarHost as TanreiSnackbarHostElement } from '@tanrei/web/components/snackbar';
+import { TanreiStepper as TanreiStepperElement, type TanreiStepperSelectDetail } from '@tanrei/web/components/stepper';
+import { TanreiStepperStep as TanreiStepperStepElement } from '@tanrei/web/components/stepper';
 import { TanreiSubmenu as TanreiSubmenuElement, type TanreiSubmenuToggleDetail } from '@tanrei/web/components/menu';
 import { TanreiSwitch as TanreiSwitchElement, type TanreiSwitchChangeDetail } from '@tanrei/web/components/switch';
 import { TanreiTab as TanreiTabElement } from '@tanrei/web/components/tabs';
@@ -1749,6 +1751,34 @@ export const Snackbar = createComponent({
 export const SnackbarHost = createComponent({
   tagName: 'tanrei-snackbar-host',
   elementClass: TanreiSnackbarHostElement,
+  react: React,
+  events: {},
+});
+
+/**
+ * Shows where a person is in a flow the product runs in a fixed order of steps — which step is current, which are complete, which has an error and which are still to come — and, where the product allows it, lets the person press a step to go back to it.
+ *
+ * Children, by their `slot`:
+ * - default — `<tanrei-stepper-step>` children: the steps.
+ *
+ * Events:
+ * - `onSelect` (`select`) — The person pressed a step to go to it: `detail.value` is its value. The stepper does not change `value`.
+ */
+export const Stepper = createComponent({
+  tagName: 'tanrei-stepper',
+  elementClass: TanreiStepperElement,
+  react: React,
+  events: {
+    onSelect: 'select' as EventName<TanreiEvent<TanreiStepperElement, CustomEvent<TanreiStepperSelectDetail>>>,
+  },
+});
+
+/**
+ * One step of a stepper — the spec's item kind `step`: its value, its label, an optional description, its status and whether it can be gone to. Placed as a child of `<tanrei-stepper>`, as `<option>` in a `<select>`; the stepper decides its condition, its number and whether it can be pressed.
+ */
+export const StepperStep = createComponent({
+  tagName: 'tanrei-stepper-step',
+  elementClass: TanreiStepperStepElement,
   react: React,
   events: {},
 });

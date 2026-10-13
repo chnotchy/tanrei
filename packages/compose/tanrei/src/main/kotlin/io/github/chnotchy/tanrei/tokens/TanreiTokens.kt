@@ -8952,6 +8952,175 @@ public data class TanreiSnackbarTokens(
 }
 
 /**
+ * A condition of stepper: the key of one entry of [TanreiStepperConditions]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Incomplete].
+ */
+@JvmInline
+public value class TanreiStepperCondition(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Incomplete: TanreiStepperCondition = TanreiStepperCondition("incomplete")
+        public val Current: TanreiStepperCondition = TanreiStepperCondition("current")
+        public val Complete: TanreiStepperCondition = TanreiStepperCondition("complete")
+        public val Error: TanreiStepperCondition = TanreiStepperCondition("error")
+    }
+}
+
+/** What one condition of stepper draws in one interaction state. */
+@Immutable
+public data class TanreiStepperConditionStateTokens(
+    public val containerColor: TanreiPaint,
+    public val markerColor: TanreiPaint,
+    public val markerOutlineColor: TanreiPaint,
+    public val markerContentColor: TanreiPaint,
+    public val labelColor: TanreiPaint,
+    public val descriptionColor: TanreiPaint,
+    public val stateLayerColor: TanreiPaint,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(containerColor.roles())
+        addAll(markerColor.roles())
+        addAll(markerOutlineColor.roles())
+        addAll(markerContentColor.roles())
+        addAll(labelColor.roles())
+        addAll(descriptionColor.roles())
+        addAll(stateLayerColor.roles())
+    }
+}
+
+/** One condition of stepper: a full set of tokens per interaction state. */
+@Immutable
+public data class TanreiStepperConditionTokens(
+    public val enabled: TanreiStepperConditionStateTokens,
+    public val hovered: TanreiStepperConditionStateTokens,
+    public val focused: TanreiStepperConditionStateTokens,
+    public val pressed: TanreiStepperConditionStateTokens,
+    public val disabled: TanreiStepperConditionStateTokens,
+) {
+    public operator fun get(state: TanreiInteractionState): TanreiStepperConditionStateTokens = when (state) {
+        TanreiInteractionState.Enabled -> enabled
+        TanreiInteractionState.Hovered -> hovered
+        TanreiInteractionState.Focused -> focused
+        TanreiInteractionState.Pressed -> pressed
+        TanreiInteractionState.Disabled -> disabled
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + pressed.referencedRoles() + disabled.referencedRoles()
+}
+
+/**
+ * Every condition of stepper: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiStepperConditions(
+    public val incomplete: TanreiStepperConditionTokens,
+    public val current: TanreiStepperConditionTokens,
+    public val complete: TanreiStepperConditionTokens,
+    public val error: TanreiStepperConditionTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiStepperCondition, TanreiStepperConditionTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiStepperCondition> get() = linkedSetOf(TanreiStepperCondition.Incomplete, TanreiStepperCondition.Current, TanreiStepperCondition.Complete, TanreiStepperCondition.Error) + extra.keys
+
+    public operator fun contains(key: TanreiStepperCondition): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiStepperCondition): TanreiStepperConditionTokens? = when (key) {
+        TanreiStepperCondition.Incomplete -> incomplete
+        TanreiStepperCondition.Current -> current
+        TanreiStepperCondition.Complete -> complete
+        TanreiStepperCondition.Error -> error
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [incomplete]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiStepperCondition): TanreiStepperConditionTokens = find(key) ?: incomplete
+
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(incomplete.referencedRoles())
+        addAll(current.referencedRoles())
+        addAll(complete.referencedRoles())
+        addAll(error.referencedRoles())
+        extra.values.forEach { addAll(it.referencedRoles()) }
+    }
+}
+
+/** What every variant of stepper shares in one interaction state. */
+@Immutable
+public data class TanreiStepperStateTokens(
+    public val containerShape: Dp,
+    public val opacity: Float,
+)
+
+/** `comp.stepper`. Members are flat tokens, then per-state tokens, then one holder per axis (`conditions[condition]`). */
+@Immutable
+public data class TanreiStepperTokens(
+    public val barColor: TanreiPaint,
+    public val barFilledColor: TanreiPaint,
+    public val barGap: Dp,
+    public val barShape: Dp,
+    public val barThickness: Dp,
+    public val connectorColor: TanreiPaint,
+    public val connectorCompleteColor: TanreiPaint,
+    public val connectorGap: Dp,
+    public val connectorThickness: Dp,
+    public val containerPadding: Dp,
+    public val containerShape: Dp,
+    public val descriptionGap: Dp,
+    public val descriptionTypescale: TanreiTextStyle,
+    public val labelTypescale: TanreiTextStyle,
+    public val markerGap: Dp,
+    public val markerIconSize: Dp,
+    public val markerIconWeight: Float,
+    public val markerLabelTypescale: TanreiTextStyle,
+    public val markerOutlineWidth: Dp,
+    public val markerShape: Dp,
+    public val markerSize: Dp,
+    public val motionFeedbackDuration: Int,
+    public val motionStateDuration: Int,
+    public val motionStateEasing: TanreiCubicBezier,
+    public val positionColor: TanreiPaint,
+    public val positionGap: Dp,
+    public val positionTypescale: TanreiTextStyle,
+    public val stepMinWidth: Dp,
+    public val hovered: TanreiStepperStateTokens,
+    public val focused: TanreiStepperStateTokens,
+    public val pressed: TanreiStepperStateTokens,
+    public val disabled: TanreiStepperStateTokens,
+    public val conditions: TanreiStepperConditions,
+) {
+    /** `container-shape` of [state]. */
+    public fun containerShape(state: TanreiInteractionState): Dp = when (state) {
+        TanreiInteractionState.Enabled -> containerShape
+        TanreiInteractionState.Hovered -> hovered.containerShape
+        TanreiInteractionState.Focused -> focused.containerShape
+        TanreiInteractionState.Pressed -> pressed.containerShape
+        TanreiInteractionState.Disabled -> disabled.containerShape
+    }
+
+    /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
+    public fun opacity(state: TanreiInteractionState): Float = when (state) {
+        TanreiInteractionState.Enabled -> 1f
+        TanreiInteractionState.Hovered -> hovered.opacity
+        TanreiInteractionState.Focused -> focused.opacity
+        TanreiInteractionState.Pressed -> pressed.opacity
+        TanreiInteractionState.Disabled -> disabled.opacity
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(barColor.roles())
+        addAll(barFilledColor.roles())
+        addAll(connectorColor.roles())
+        addAll(connectorCompleteColor.roles())
+        addAll(positionColor.roles())
+        addAll(conditions.referencedRoles())
+    }
+}
+
+/**
  * A size of steps: the key of one entry of [TanreiStepsSizes]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
  * A key the current system does not have draws as [Medium].
@@ -10681,6 +10850,7 @@ public data class TanreiSystem(
     public val skeleton: TanreiSkeletonTokens,
     public val slider: TanreiSliderTokens,
     public val snackbar: TanreiSnackbarTokens,
+    public val stepper: TanreiStepperTokens,
     public val steps: TanreiStepsTokens,
     public val switch: TanreiSwitchTokens,
     public val tabView: TanreiTabViewTokens,
@@ -10761,6 +10931,7 @@ public data class TanreiSystem(
         addAll(skeleton.referencedRoles())
         addAll(slider.referencedRoles())
         addAll(snackbar.referencedRoles())
+        addAll(stepper.referencedRoles())
         addAll(steps.referencedRoles())
         addAll(switch.referencedRoles())
         addAll(tabView.referencedRoles())

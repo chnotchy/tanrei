@@ -140,13 +140,13 @@ test('a spec may name another component\'s token group only where it is built fr
   assert.match(problemsOf([spec('part', LEVELS.single, { uses: ['member'], tokens: 'comp.member' }), member]).join('\n'), /tokens names "comp\.member"/);
 });
 
-test('the repository as it is today: 65 single parts, 15 put together, 4 that coordinate — and which', () => {
+test('the repository as it is today: 66 single parts, 15 put together, 4 that coordinate — and which', () => {
   const specs = loadSpecs().map(({ spec: each }) => each);
-  assert.equal(specs.length, 84);
+  assert.equal(specs.length, 85);
   const of = (level) => specs.filter((each) => each.level === level).map((each) => each.name).sort();
   assert.deepEqual(of(LEVELS.completes), ['button-with-menu', 'checkbox-group', 'chip-field', 'color-field', 'combobox-field', 'copy-button', 'date-time-picker', 'menubar', 'number-field', 'one-time-code-field', 'radio-group', 'select-field', 'slider-field', 'tab-view', 'text-field']);
   assert.deepEqual(of(LEVELS.coordinates), ['chat-composer', 'file-upload', 'image-preview', 'search']);
-  assert.equal(of(LEVELS.single).length, 65);
+  assert.equal(of(LEVELS.single).length, 66);
   // No name was lost when the one list became two: 40 specs named another component, in one list or the other; the
   // one-time-code field is the forty-first, and the image preview the forty-second; the file picker (the product's Button is its
   // trigger) and the file item (its bar is a Progress indicator) make forty-four, and the file upload,
@@ -170,6 +170,7 @@ test('the repository as it is today: 65 single parts, 15 put together, 4 that co
   // The embedded text input is a single part that names none; the chat composer, a
   // feature built from it, the File picker, the File item and the Button, is the fifty-second that names another
   // component and the fourth that coordinates.
+  // The stepper is a single part that names no other component (its pressable steps and its glyphs are its own): 66.
   assert.equal(specs.filter((each) => namedComponents(each).length).length, 52);
   assert.deepEqual(specs.find((each) => each.name === 'text-field').builtFrom, ['field', 'text-input']);
   assert.deepEqual(specs.find((each) => each.name === 'text-input').uses, ['button']);

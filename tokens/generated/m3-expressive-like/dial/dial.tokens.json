@@ -2422,6 +2422,16 @@
               "match": "tanrei.comp.chat-composer.*.outline.width",
               "$value": "{tanrei.comp.chat-composer.outline.width}",
               "reason": "The resting edge width in every state unless named; a dimension has no fallback."
+            },
+            {
+              "match": "tanrei.comp.stepper.*.disabled.container.color",
+              "$value": "{tanrei.comp.stepper.$1.container.color}",
+              "reason": "A step has no fill at rest; disabled, it grows none, and is shown by its faded marker content, ring and text."
+            },
+            {
+              "match": "tanrei.comp.stepper.*.disabled.marker.color",
+              "$value": "{tanrei.comp.stepper.$1.marker.color}",
+              "reason": "A marker keeps the fill of its condition when its step is disabled (none stays none), so that its condition is still seen; its faded content and ring say it cannot be gone to."
             }
           ]
         },

@@ -8088,6 +8088,243 @@ private let acmeSnackbarTokens = TanreiSnackbarTokens(
   )
 )
 
+private let acmeStepperTokens = TanreiStepperTokens(
+  barColor: .role(.outlineVariant),
+  barFilledColor: .role(.primary),
+  barGap: 4,
+  barShape: 9999,
+  barThickness: 4,
+  connectorColor: .role(.outlineVariant),
+  connectorCompleteColor: .role(.primary),
+  connectorGap: 4,
+  connectorThickness: 2,
+  containerPadding: 8,
+  containerShape: 6,
+  descriptionGap: 2,
+  descriptionTypescale: acmeTypescale.bodySmall,
+  labelTypescale: acmeTypescale.label,
+  markerGap: 8,
+  markerIconSize: 16,
+  markerIconWeight: 400,
+  markerLabelTypescale: acmeTypescale.labelSmall,
+  markerOutlineWidth: 2,
+  markerShape: 9999,
+  markerSize: 24,
+  motionFeedbackDuration: 450,
+  motionStateDuration: 150,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  positionColor: .role(.onSurfaceVariant),
+  positionGap: 8,
+  positionTypescale: acmeTypescale.labelSmall,
+  stepMinWidth: 120,
+  conditions: TanreiStepperConditions(
+    incomplete: TanreiStepperConditionTokens(
+      enabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .none,
+        markerOutlineColor: .role(.outline),
+        markerContentColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurfaceVariant),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurfaceVariant)
+      ),
+      hovered: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.06),
+        markerColor: .none,
+        markerOutlineColor: .role(.outline),
+        markerContentColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurfaceVariant),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurfaceVariant)
+      ),
+      focused: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.12),
+        markerColor: .none,
+        markerOutlineColor: .role(.outline),
+        markerContentColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurfaceVariant),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurfaceVariant)
+      ),
+      pressed: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.2),
+        markerColor: .none,
+        markerOutlineColor: .role(.outline),
+        markerContentColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurfaceVariant),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurfaceVariant)
+      ),
+      disabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .none,
+        markerOutlineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        markerContentColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        descriptionColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    current: TanreiStepperConditionTokens(
+      enabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .role(.primary),
+        markerOutlineColor: .role(.primary),
+        markerContentColor: .role(.onPrimary),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      hovered: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.06),
+        markerColor: .role(.primary),
+        markerOutlineColor: .role(.primary),
+        markerContentColor: .role(.onPrimary),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      focused: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
+        markerColor: .role(.primary),
+        markerOutlineColor: .role(.primary),
+        markerContentColor: .role(.onPrimary),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      pressed: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.2),
+        markerColor: .role(.primary),
+        markerOutlineColor: .role(.primary),
+        markerContentColor: .role(.onPrimary),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      disabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .role(.primary),
+        markerOutlineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        markerContentColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        descriptionColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    complete: TanreiStepperConditionTokens(
+      enabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .role(.secondaryContainer),
+        markerOutlineColor: .role(.secondaryContainer),
+        markerContentColor: .role(.onSecondaryContainer),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      hovered: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.06),
+        markerColor: .role(.secondaryContainer),
+        markerOutlineColor: .role(.secondaryContainer),
+        markerContentColor: .role(.onSecondaryContainer),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      focused: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
+        markerColor: .role(.secondaryContainer),
+        markerOutlineColor: .role(.secondaryContainer),
+        markerContentColor: .role(.onSecondaryContainer),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      pressed: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.2),
+        markerColor: .role(.secondaryContainer),
+        markerOutlineColor: .role(.secondaryContainer),
+        markerContentColor: .role(.onSecondaryContainer),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      disabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .role(.secondaryContainer),
+        markerOutlineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        markerContentColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        descriptionColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    error: TanreiStepperConditionTokens(
+      enabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .none,
+        markerOutlineColor: .role(.error),
+        markerContentColor: .role(.error),
+        labelColor: .role(.error),
+        descriptionColor: .role(.error),
+        stateLayerColor: .role(.error)
+      ),
+      hovered: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.error), amount: 0.06),
+        markerColor: .none,
+        markerOutlineColor: .role(.error),
+        markerContentColor: .role(.error),
+        labelColor: .role(.error),
+        descriptionColor: .role(.error),
+        stateLayerColor: .role(.error)
+      ),
+      focused: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.error), amount: 0.12),
+        markerColor: .none,
+        markerOutlineColor: .role(.error),
+        markerContentColor: .role(.error),
+        labelColor: .role(.error),
+        descriptionColor: .role(.error),
+        stateLayerColor: .role(.error)
+      ),
+      pressed: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.error), amount: 0.2),
+        markerColor: .none,
+        markerOutlineColor: .role(.error),
+        markerContentColor: .role(.error),
+        labelColor: .role(.error),
+        descriptionColor: .role(.error),
+        stateLayerColor: .role(.error)
+      ),
+      disabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .none,
+        markerOutlineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        markerContentColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        descriptionColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    )
+  ),
+  hovered: TanreiStepperStateTokens(
+    containerShape: 6,
+    opacity: 1
+  ),
+  focused: TanreiStepperStateTokens(
+    containerShape: 6,
+    opacity: 1
+  ),
+  pressed: TanreiStepperStateTokens(
+    containerShape: 6,
+    opacity: 1
+  ),
+  disabled: TanreiStepperStateTokens(
+    containerShape: 6,
+    opacity: 1
+  )
+)
+
 private let acmeStepsTokens = TanreiStepsTokens(
   bodyGap: 8,
   connectorColor: .role(.outlineVariant),
@@ -9596,6 +9833,7 @@ extension TanreiSystem {
     skeleton: acmeSkeletonTokens,
     slider: acmeSliderTokens,
     snackbar: acmeSnackbarTokens,
+    stepper: acmeStepperTokens,
     steps: acmeStepsTokens,
     switch: acmeSwitchTokens,
     tabView: acmeTabViewTokens,

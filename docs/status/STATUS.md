@@ -3,9 +3,9 @@
 
 Legend: · planned · ◌ lagging · ◔ alpha · ◑ beta · ● stable · ✕ deprecated
 
-Level: 65 base · 15 composed · 4 feature. A component of the first level is a single part with one job; one of the second is put together from other components to complete one value or one job; one of the third holds several controls, each with a value or an action of its own, and coordinates them by state of its own. A cell names the members a component is built from.
+Level: 66 base · 15 composed · 4 feature. A component of the first level is a single part with one job; one of the second is put together from other components to complete one value or one job; one of the third holds several controls, each with a value or an action of its own, and coordinates them by state of its own. A cell names the members a component is built from.
 
-Listing: 77 default · 7 advanced. A component of the first value is shown wherever components are listed; one of the second is a bare control that most products meet inside a higher level, listed only when everything is asked for. This matrix shows every component, whatever its listing.
+Listing: 78 default · 7 advanced. A component of the first value is shown wherever components are listed; one of the second is a bare control that most products meet inside a higher level, listed only when everything is asked for. This matrix shows every component, whatever its listing.
 
 | Component | Level | Listing | Category | Spec | Web Components | SwiftUI | Jetpack Compose | Flutter | React Native |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -61,6 +61,7 @@ Listing: 77 default · 7 advanced. A component of the first value is shown where
 | Description list | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Figure | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Pagination | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| Stepper | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Breadcrumbs | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | App shell | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Page header | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |

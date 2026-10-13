@@ -4431,6 +4431,85 @@ export interface TanreiSnackbarTokens {
 }
 
 /**
+ * Every value of `comp.stepper`'s `condition` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `incomplete` (with a dev-only warning).
+ */
+export interface TanreiStepperConditionRegistry {
+  incomplete: true;
+  current: true;
+  complete: true;
+  error: true;
+}
+export type TanreiStepperCondition = keyof TanreiStepperConditionRegistry;
+export type TanreiCoreStepperCondition = "incomplete" | "current" | "complete" | "error";
+
+/** What one `condition` of `comp.stepper` is drawn from in ONE interaction state. */
+export interface TanreiStepperConditionStateTokens {
+  readonly containerColor: TanreiPaint;
+  readonly markerColor: TanreiPaint;
+  readonly markerOutlineColor: TanreiPaint;
+  readonly markerContentColor: TanreiPaint;
+  readonly labelColor: TanreiPaint;
+  readonly descriptionColor: TanreiPaint;
+  readonly stateLayerColor: TanreiPaint;
+}
+/** One `condition`: the resting state (`enabled`) and every interaction state. States are not extensible. */
+export interface TanreiStepperConditionTokens {
+  readonly enabled: TanreiStepperConditionStateTokens;
+  readonly hovered: TanreiStepperConditionStateTokens;
+  readonly focused: TanreiStepperConditionStateTokens;
+  readonly pressed: TanreiStepperConditionStateTokens;
+  readonly disabled: TanreiStepperConditionStateTokens;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiStepperConditions = { readonly [Key in TanreiCoreStepperCondition]: TanreiStepperConditionTokens } & { readonly [Key in TanreiStepperCondition]?: TanreiStepperConditionTokens };
+
+/**
+ * `comp.stepper`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis (`conditions`), keyed by the axis value.
+ */
+export interface TanreiStepperTokens {
+  readonly barColor: TanreiPaint;
+  readonly barFilledColor: TanreiPaint;
+  readonly barGap: number;
+  readonly barShape: number;
+  readonly barThickness: number;
+  readonly connectorColor: TanreiPaint;
+  readonly connectorCompleteColor: TanreiPaint;
+  readonly connectorGap: number;
+  readonly connectorThickness: number;
+  readonly containerPadding: number;
+  readonly containerShape: number;
+  readonly descriptionGap: number;
+  readonly descriptionTypescale: TanreiTypescaleRole;
+  readonly disabledContainerShape: number;
+  readonly disabledOpacity: number;
+  readonly focusedContainerShape: number;
+  readonly focusedOpacity: number;
+  readonly hoveredContainerShape: number;
+  readonly hoveredOpacity: number;
+  readonly labelTypescale: TanreiTypescaleRole;
+  readonly markerGap: number;
+  readonly markerIconSize: number;
+  readonly markerIconWeight: number;
+  readonly markerLabelTypescale: TanreiTypescaleRole;
+  readonly markerOutlineWidth: number;
+  readonly markerShape: number;
+  readonly markerSize: number;
+  readonly motionFeedbackDuration: number;
+  readonly motionStateDuration: number;
+  readonly motionStateEasing: TanreiCubicBezier;
+  readonly positionColor: TanreiPaint;
+  readonly positionGap: number;
+  readonly positionTypescale: TanreiTypescaleRole;
+  readonly pressedContainerShape: number;
+  readonly pressedOpacity: number;
+  readonly stepMinWidth: number;
+  readonly conditions: TanreiStepperConditions;
+}
+
+/**
  * Every value of `comp.steps`'s `size` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `medium` (with a dev-only warning).
@@ -5288,6 +5367,7 @@ export interface TanreiComponents {
   readonly skeleton: TanreiSkeletonTokens;
   readonly slider: TanreiSliderTokens;
   readonly snackbar: TanreiSnackbarTokens;
+  readonly stepper: TanreiStepperTokens;
   readonly steps: TanreiStepsTokens;
   readonly switch: TanreiSwitchTokens;
   readonly tabView: TanreiTabViewTokens;
@@ -5407,6 +5487,7 @@ declare module './vocabulary' {
   interface TanreiSliderSizeRegistry {}
   interface TanreiSliderConditionRegistry {}
   interface TanreiSnackbarControlRegistry {}
+  interface TanreiStepperConditionRegistry {}
   interface TanreiStepsSizeRegistry {}
   interface TanreiSwitchConditionRegistry {}
   interface TanreiTableOfContentsPartRegistry {}

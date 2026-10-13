@@ -14391,6 +14391,275 @@ public struct TanreiSnackbarTokens: Sendable, Equatable {
   }
 }
 
+/// A value of stepper's `condition` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiStepperCondition(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiStepperCondition: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let incomplete = TanreiStepperCondition(rawValue: "incomplete")
+  public static let current = TanreiStepperCondition(rawValue: "current")
+  public static let complete = TanreiStepperCondition(rawValue: "complete")
+  public static let error = TanreiStepperCondition(rawValue: "error")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiStepperCondition] = [.incomplete, .current, .complete, .error]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiStepperCondition.incomplete
+}
+
+/// How one condition of stepper is drawn in one state.
+public struct TanreiStepperConditionStateTokens: Sendable, Equatable {
+  public var containerColor: TanreiPaint
+  public var markerColor: TanreiPaint
+  public var markerOutlineColor: TanreiPaint
+  public var markerContentColor: TanreiPaint
+  public var labelColor: TanreiPaint
+  public var descriptionColor: TanreiPaint
+  public var stateLayerColor: TanreiPaint
+
+  public init(
+    containerColor: TanreiPaint,
+    markerColor: TanreiPaint,
+    markerOutlineColor: TanreiPaint,
+    markerContentColor: TanreiPaint,
+    labelColor: TanreiPaint,
+    descriptionColor: TanreiPaint,
+    stateLayerColor: TanreiPaint
+  ) {
+    self.containerColor = containerColor
+    self.markerColor = markerColor
+    self.markerOutlineColor = markerOutlineColor
+    self.markerContentColor = markerContentColor
+    self.labelColor = labelColor
+    self.descriptionColor = descriptionColor
+    self.stateLayerColor = stateLayerColor
+  }
+}
+
+/// One condition of stepper: a complete set of values per state. A component draws a state from that
+/// state's tokens and never computes how a state looks. Read one with `[state: …]`.
+public struct TanreiStepperConditionTokens: Sendable, Equatable {
+  public var enabled: TanreiStepperConditionStateTokens
+  public var hovered: TanreiStepperConditionStateTokens
+  public var focused: TanreiStepperConditionStateTokens
+  public var pressed: TanreiStepperConditionStateTokens
+  public var disabled: TanreiStepperConditionStateTokens
+
+  public init(
+    enabled: TanreiStepperConditionStateTokens,
+    hovered: TanreiStepperConditionStateTokens,
+    focused: TanreiStepperConditionStateTokens,
+    pressed: TanreiStepperConditionStateTokens,
+    disabled: TanreiStepperConditionStateTokens
+  ) {
+    self.enabled = enabled
+    self.hovered = hovered
+    self.focused = focused
+    self.pressed = pressed
+    self.disabled = disabled
+  }
+
+  /// The tokens of this condition of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
+  public subscript(state state: TanreiInteraction) -> TanreiStepperConditionStateTokens {
+    switch state {
+    case .enabled: return enabled
+    case .hovered: return hovered
+    case .focused: return focused
+    case .pressed: return pressed
+    case .disabled: return disabled
+    }
+  }
+}
+
+/// The conditions of stepper: named fields for the core values, `extra` for what a design system added.
+/// Read one with `conditions[key]`.
+public struct TanreiStepperConditions: Sendable, Equatable {
+  public var incomplete: TanreiStepperConditionTokens
+  public var current: TanreiStepperConditionTokens
+  public var complete: TanreiStepperConditionTokens
+  public var error: TanreiStepperConditionTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiStepperCondition: TanreiStepperConditionTokens]
+
+  public init(
+    incomplete: TanreiStepperConditionTokens,
+    current: TanreiStepperConditionTokens,
+    complete: TanreiStepperConditionTokens,
+    error: TanreiStepperConditionTokens,
+    extra: [TanreiStepperCondition: TanreiStepperConditionTokens] = [:]
+  ) {
+    self.incomplete = incomplete
+    self.current = current
+    self.complete = complete
+    self.error = error
+    self.extra = extra
+  }
+
+  /// The tokens of one stepper condition, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiStepperCondition) -> TanreiStepperConditionTokens? {
+    switch key {
+    case .incomplete: return incomplete
+    case .current: return current
+    case .complete: return complete
+    case .error: return error
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a stepper condition this design system does not have reads the tokens of `incomplete`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiStepperCondition) -> TanreiStepperConditionTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no stepper condition \"\(key.rawValue)\"; using \"incomplete\"")
+    return incomplete
+  }
+
+  /// Every stepper condition of this design system: the core ones, then what it added.
+  public var keys: [TanreiStepperCondition] { TanreiStepperCondition.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
+/// Values of stepper that depend on the state but not on the variant.
+public struct TanreiStepperStateTokens: Sendable, Equatable {
+  public var containerShape: CGFloat
+  public var opacity: Double
+
+  public init(
+    containerShape: CGFloat,
+    opacity: Double
+  ) {
+    self.containerShape = containerShape
+    self.opacity = opacity
+  }
+}
+
+/// Component tokens of stepper (comp.stepper).
+public struct TanreiStepperTokens: Sendable, Equatable {
+  public var barColor: TanreiPaint
+  public var barFilledColor: TanreiPaint
+  public var barGap: CGFloat
+  public var barShape: CGFloat
+  public var barThickness: CGFloat
+  public var connectorColor: TanreiPaint
+  public var connectorCompleteColor: TanreiPaint
+  public var connectorGap: CGFloat
+  public var connectorThickness: CGFloat
+  public var containerPadding: CGFloat
+  public var containerShape: CGFloat
+  public var descriptionGap: CGFloat
+  public var descriptionTypescale: TanreiTextStyle
+  public var labelTypescale: TanreiTextStyle
+  public var markerGap: CGFloat
+  public var markerIconSize: CGFloat
+  public var markerIconWeight: Double
+  public var markerLabelTypescale: TanreiTextStyle
+  public var markerOutlineWidth: CGFloat
+  public var markerShape: CGFloat
+  public var markerSize: CGFloat
+  public var motionFeedbackDuration: Double
+  public var motionStateDuration: Double
+  public var motionStateEasing: TanreiCubicBezier
+  public var positionColor: TanreiPaint
+  public var positionGap: CGFloat
+  public var positionTypescale: TanreiTextStyle
+  public var stepMinWidth: CGFloat
+  public var conditions: TanreiStepperConditions
+  /// Values of the hovered state shared by every variant.
+  public var hovered: TanreiStepperStateTokens
+  /// Values of the focused state shared by every variant.
+  public var focused: TanreiStepperStateTokens
+  /// Values of the pressed state shared by every variant.
+  public var pressed: TanreiStepperStateTokens
+  /// Values of the disabled state shared by every variant.
+  public var disabled: TanreiStepperStateTokens
+
+  public init(
+    barColor: TanreiPaint,
+    barFilledColor: TanreiPaint,
+    barGap: CGFloat,
+    barShape: CGFloat,
+    barThickness: CGFloat,
+    connectorColor: TanreiPaint,
+    connectorCompleteColor: TanreiPaint,
+    connectorGap: CGFloat,
+    connectorThickness: CGFloat,
+    containerPadding: CGFloat,
+    containerShape: CGFloat,
+    descriptionGap: CGFloat,
+    descriptionTypescale: TanreiTextStyle,
+    labelTypescale: TanreiTextStyle,
+    markerGap: CGFloat,
+    markerIconSize: CGFloat,
+    markerIconWeight: Double,
+    markerLabelTypescale: TanreiTextStyle,
+    markerOutlineWidth: CGFloat,
+    markerShape: CGFloat,
+    markerSize: CGFloat,
+    motionFeedbackDuration: Double,
+    motionStateDuration: Double,
+    motionStateEasing: TanreiCubicBezier,
+    positionColor: TanreiPaint,
+    positionGap: CGFloat,
+    positionTypescale: TanreiTextStyle,
+    stepMinWidth: CGFloat,
+    conditions: TanreiStepperConditions,
+    hovered: TanreiStepperStateTokens,
+    focused: TanreiStepperStateTokens,
+    pressed: TanreiStepperStateTokens,
+    disabled: TanreiStepperStateTokens
+  ) {
+    self.barColor = barColor
+    self.barFilledColor = barFilledColor
+    self.barGap = barGap
+    self.barShape = barShape
+    self.barThickness = barThickness
+    self.connectorColor = connectorColor
+    self.connectorCompleteColor = connectorCompleteColor
+    self.connectorGap = connectorGap
+    self.connectorThickness = connectorThickness
+    self.containerPadding = containerPadding
+    self.containerShape = containerShape
+    self.descriptionGap = descriptionGap
+    self.descriptionTypescale = descriptionTypescale
+    self.labelTypescale = labelTypescale
+    self.markerGap = markerGap
+    self.markerIconSize = markerIconSize
+    self.markerIconWeight = markerIconWeight
+    self.markerLabelTypescale = markerLabelTypescale
+    self.markerOutlineWidth = markerOutlineWidth
+    self.markerShape = markerShape
+    self.markerSize = markerSize
+    self.motionFeedbackDuration = motionFeedbackDuration
+    self.motionStateDuration = motionStateDuration
+    self.motionStateEasing = motionStateEasing
+    self.positionColor = positionColor
+    self.positionGap = positionGap
+    self.positionTypescale = positionTypescale
+    self.stepMinWidth = stepMinWidth
+    self.conditions = conditions
+    self.hovered = hovered
+    self.focused = focused
+    self.pressed = pressed
+    self.disabled = disabled
+  }
+
+  /// The values shared by every variant of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
+  /// `nil` for `enabled`, which stepper has no group for.
+  public subscript(state state: TanreiInteraction) -> TanreiStepperStateTokens? {
+    switch state {
+    case .enabled: return nil
+    case .hovered: return hovered
+    case .focused: return focused
+    case .pressed: return pressed
+    case .disabled: return disabled
+    }
+  }
+}
+
 /// A value of steps's `size` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
@@ -17291,6 +17560,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _snackbar.value }
     set { _snackbar.value = newValue }
   }
+  public var stepper: TanreiStepperTokens {
+    get { _stepper.value }
+    set { _stepper.value = newValue }
+  }
   public var steps: TanreiStepsTokens {
     get { _steps.value }
     set { _steps.value = newValue }
@@ -17406,6 +17679,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _skeleton: TanreiBox<TanreiSkeletonTokens>
   private var _slider: TanreiBox<TanreiSliderTokens>
   private var _snackbar: TanreiBox<TanreiSnackbarTokens>
+  private var _stepper: TanreiBox<TanreiStepperTokens>
   private var _steps: TanreiBox<TanreiStepsTokens>
   private var _switch: TanreiBox<TanreiSwitchTokens>
   private var _tabView: TanreiBox<TanreiTabViewTokens>
@@ -17497,6 +17771,7 @@ public struct TanreiSystem: Sendable, Equatable {
     skeleton: TanreiSkeletonTokens,
     slider: TanreiSliderTokens,
     snackbar: TanreiSnackbarTokens,
+    stepper: TanreiStepperTokens,
     steps: TanreiStepsTokens,
     `switch`: TanreiSwitchTokens,
     tabView: TanreiTabViewTokens,
@@ -17587,6 +17862,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._skeleton = TanreiBox(skeleton)
     self._slider = TanreiBox(slider)
     self._snackbar = TanreiBox(snackbar)
+    self._stepper = TanreiBox(stepper)
     self._steps = TanreiBox(steps)
     self._switch = TanreiBox(`switch`)
     self._tabView = TanreiBox(tabView)

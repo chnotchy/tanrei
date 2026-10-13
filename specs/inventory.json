@@ -366,6 +366,13 @@
       "listing": "default"
     },
     {
+      "name": "stepper",
+      "title": "Stepper",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
       "name": "breadcrumbs",
       "title": "Breadcrumbs",
       "category": "navigation",

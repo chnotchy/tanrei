@@ -6913,6 +6913,66 @@ one amount per box on the web: an end item whose outer corner is a pill is drawn
 corners are circular rather than eased under gap — while a middle item's inner corners are eased. The fixtures are drawn by the test harness (`test/harness.ts`) on a 400 × 96
 stage, and the vertical ones on a 400 × 240 stage.
 
+## `<tanrei-stepper>` and `<tanrei-stepper-step>`
+
+Where a person is in a flow the product runs in a fixed order of steps: the current step, the complete ones, one with an
+error, the ones to come — and, where the product allows it, the steps they can press to go back to
+(`specs/stepper.spec.json`, SPR-1…27).
+
+```html
+<tanrei-stepper label="Checkout progress" value="payment" pressable="visited"
+  completed-text="Completed" error-text="Has an error" position-text="Step {position} of {count}">
+  <tanrei-stepper-step value="account" label="Account"></tanrei-stepper-step>
+  <tanrei-stepper-step value="shipping" label="Shipping" status="error" description="Postcode missing"></tanrei-stepper-step>
+  <tanrei-stepper-step value="payment" label="Payment"></tanrei-stepper-step>
+  <tanrei-stepper-step value="review" label="Review"></tanrei-stepper-step>
+</tanrei-stepper>
+<script type="module">
+  const stepper = document.querySelector('tanrei-stepper');
+  stepper.addEventListener('select', (e) => (stepper.value = e.detail.value));
+</script>
+```
+
+| `<tanrei-stepper>` | Type | Default | |
+|---|---|---|---|
+| `label` | string | `""` | the list's accessible name, not drawn (an empty one is reported, SPR-21) |
+| `value` | string | `""` | the current step's value; empty, or a value no step has, makes none current. Never set by the element |
+| `layout` | `horizontal` \| `vertical` \| `compact` | `horizontal` | horizontal turns compact by itself below the number of steps × `step.min-width` (SPR-6); reflected |
+| `pressable` | `none` \| `visited` \| `all` | `none` | which steps are buttons: none; the complete and error ones that are not current; every one that is not current (SPR-9); reflected |
+| `completedText` / `completed-text` | string | `""` | heard after a complete step's label; empty reads the product's words (`stepCompletedText`) |
+| `errorText` / `error-text` | string | `""` | heard after the label of a step with an error; empty reads `stepErrorText` |
+| `positionText` / `position-text` | string | `""` | the compact form's line, with `{position}` and `{count}`; empty reads `stepPositionText` |
+
+| `<tanrei-stepper-step>` | Type | Default | |
+|---|---|---|---|
+| `value` | string | `""` | identifies the step (empty and repeated values are reported); reflected |
+| `label` | string | `""` | the step's name |
+| `description` | string | `""` | a second line under the label |
+| `status` | `auto` \| `incomplete` \| `complete` \| `error` | `auto` | auto is complete before the current step and incomplete after it; error is kept on the current step (SPR-1); reflected |
+| `disabled` | boolean | `false` | while `pressable` is not none: drawn disabled and a disabled button; ignored on the current step; reflected |
+
+| Event (on the stepper) | When |
+|---|---|
+| `select` | `CustomEvent<{ value }>`, bubbling and composed: a pressable step was pressed — pointer, Enter, Space or `step.click()`. `value` is not changed |
+
+**Semantics (SPR-19).** The host is `role="list"` named by `aria-label`; each step's host is `role="listitem"`, the
+current one with `aria-current="step"`. A pressable step draws a native `<button>` in its shadow root around its marker and
+text; a step that is not pressable the same parts in a `<div>`. The word for a condition is a visually hidden span after
+the label. The marker, the connector and the bar are `aria-hidden`. In the compact form the steps are assigned to no slot
+(not drawn, not exposed) and the host becomes `role="group"`, reading the position and the current step's label.
+
+**Layout (SPR-4, SPR-5, SPR-6, SPR-8, SPR-18).** Horizontal: the steps are equal flex columns, each container
+`container.padding` in, the marker at its start and the text under it `marker.gap` below. Vertical: one column, the text
+beside the marker, the marker centred on the label's first line. Every container is at least the minimum target. The
+connector is each step's absolutely placed `part="connector"`, from `connector.gap` after its marker to the same before
+the next one, above every container. The width threshold of the compact form is measured with a `ResizeObserver` against
+a probe of `step.min-width`.
+
+**Motion (SPR-17).** Colors move over `motion.state-*`. When a step's container changes element (a button becomes plain
+when the step becomes current), the old colors are carried over and run out with the Web Animations API over the same
+motion. Parts: `steps`, `compact`, `bar`, `position` (stepper); `container`, `marker`, `label`, `description`,
+`connector` (step).
+
 ## `<tanrei-search>`, `<tanrei-search-suggestion>`, `<tanrei-search-result>` and `<tanrei-search-result-group>`
 
 Lets people search the product from a bar or a compact trigger, and offers suggestions and results while they type in a

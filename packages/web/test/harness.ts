@@ -1177,6 +1177,13 @@ const STAGING: Record<string, Staging> = {
   'segmented-button': {
     css: () => `.stage:has(> tanrei-segmented-button) { display: flex; align-items: center; inline-size: 400px; block-size: 96px; }`,
   },
+  // A stepper fills its stage, as a stepper above a flow's content does (the spec's web note): 600 wide for a horizontal
+  // one (four columns of 150), 360 for a vertical one, 320 for a compact one.
+  stepper: {
+    css: () => `.stage:has(> tanrei-stepper) { inline-size: 600px; }
+      .stage:has(> tanrei-stepper[layout='vertical']) { inline-size: 360px; }
+      .stage:has(> tanrei-stepper[layout='compact']) { inline-size: 320px; }`,
+  },
   // A side sheet's stage is a 720 × 480 surface that stands for the window (the spec's web note): a standard sheet at the
   // end of a row whose other child fills the rest of the width, a modal one at the window's end edge, in the top layer.
   // Its action items are `tanrei-button` children in the `actions` slot.

@@ -80351,6 +80351,2576 @@
           }
         }
       },
+      "stepper": {
+        "bar": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                1,
+                1,
+                1
+              ],
+              "alpha": 0.4,
+              "hex": "#ffffff"
+            },
+            "$description": "The compact form's segments after the current step. Decorative: the position says the same in words."
+          },
+          "filled": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.7961,
+                  0.8549,
+                  1
+                ],
+                "hex": "#cbdaff",
+                "alpha": 1
+              },
+              "$description": "The compact form's segments of the current step and every step before it."
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$description": "The space between two segments of the bar."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 9999,
+              "unit": "px"
+            },
+            "$description": "The corners of a segment of the bar."
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$description": "The thickness of a segment of the compact form's bar."
+          }
+        },
+        "complete": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "A step's fill. None at rest: it is where hover, focus and press are drawn on a pressable step."
+            }
+          },
+          "description": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8941,
+                  0.8863,
+                  0.8902
+                ],
+                "hex": "#e4e2e3",
+                "alpha": 1
+              },
+              "$description": "A complete step's description."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2078,
+                    0.2039,
+                    0.2118
+                  ],
+                  "hex": "#353436",
+                  "alpha": 1
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2078,
+                    0.2039,
+                    0.2118
+                  ],
+                  "hex": "#353436",
+                  "alpha": 1
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.8784,
+                      0.9098,
+                      1
+                    ],
+                    "hex": "#e0e8ff",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2078,
+                      0.2039,
+                      0.2118
+                    ],
+                    "hex": "#353436",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2078,
+                    0.2039,
+                    0.2118
+                  ],
+                  "hex": "#353436",
+                  "alpha": 1
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.8784,
+                      0.9098,
+                      1
+                    ],
+                    "hex": "#e0e8ff",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2078,
+                      0.2039,
+                      0.2118
+                    ],
+                    "hex": "#353436",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  1,
+                  1
+                ],
+                "hex": "#ffffff",
+                "alpha": 1
+              },
+              "$description": "A complete step's label."
+            }
+          },
+          "marker": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.2078,
+                  0.2039,
+                  0.2118
+                ],
+                "hex": "#353436",
+                "alpha": 1
+              },
+              "$description": "The marker of a complete step: a quiet fill under its check, so that the current step stays the strongest mark."
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8784,
+                    0.9098,
+                    1
+                  ],
+                  "hex": "#e0e8ff",
+                  "alpha": 1
+                },
+                "$description": "The check on a complete marker."
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2078,
+                    0.2039,
+                    0.2118
+                  ],
+                  "hex": "#353436",
+                  "alpha": 1
+                },
+                "$description": "A complete marker's ring: its fill's color."
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2078,
+                    0.2039,
+                    0.2118
+                  ],
+                  "hex": "#353436",
+                  "alpha": 1
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.8784,
+                      0.9098,
+                      1
+                    ],
+                    "hex": "#e0e8ff",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2078,
+                      0.2039,
+                      0.2118
+                    ],
+                    "hex": "#353436",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  1,
+                  1
+                ],
+                "hex": "#ffffff",
+                "alpha": 1
+              },
+              "$description": "The color hover, focus and press mix into a pressable step's container: its label's."
+            }
+          }
+        },
+        "connector": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                1,
+                1,
+                1
+              ],
+              "alpha": 0.4,
+              "hex": "#ffffff"
+            },
+            "$description": "The line from a step's marker to the next, after a step that is not complete: the system's hairline color. Decorative."
+          },
+          "complete": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.7961,
+                  0.8549,
+                  1
+                ],
+                "hex": "#cbdaff",
+                "alpha": 1
+              },
+              "$description": "The line after a complete step: the way already gone, drawn in the current marker's color. Decorative."
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$description": "The space the connector keeps from the marker it leaves and from the marker it reaches."
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$value": {
+              "value": 2,
+              "unit": "px"
+            },
+            "$description": "The connector's thickness. Zero draws no connector."
+          }
+        },
+        "container": {
+          "padding": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The space between a step's container edge and its marker and text, on every side. Two steps' paddings are the space between them."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The corners of a step's container, where hover, focus and press are drawn, and of its focus ring."
+          }
+        },
+        "current": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "A step's fill. None at rest: it is where hover, focus and press are drawn on a pressable step."
+            }
+          },
+          "description": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8941,
+                  0.8863,
+                  0.8902
+                ],
+                "hex": "#e4e2e3",
+                "alpha": 1
+              },
+              "$description": "The current step's description."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.7961,
+                    0.8549,
+                    1
+                  ],
+                  "hex": "#cbdaff",
+                  "alpha": 1
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.7961,
+                    0.8549,
+                    1
+                  ],
+                  "hex": "#cbdaff",
+                  "alpha": 1
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "hex": "#000000",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.7961,
+                      0.8549,
+                      1
+                    ],
+                    "hex": "#cbdaff",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.7961,
+                    0.8549,
+                    1
+                  ],
+                  "hex": "#cbdaff",
+                  "alpha": 1
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "hex": "#000000",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.7961,
+                      0.8549,
+                      1
+                    ],
+                    "hex": "#cbdaff",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  1,
+                  1
+                ],
+                "hex": "#ffffff",
+                "alpha": 1
+              },
+              "$description": "The current step's label."
+            }
+          },
+          "marker": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.7961,
+                  0.8549,
+                  1
+                ],
+                "hex": "#cbdaff",
+                "alpha": 1
+              },
+              "$description": "The marker of the current step: filled, the strongest mark of the row."
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hex": "#000000",
+                  "alpha": 1
+                },
+                "$description": "The number on the current marker's fill."
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.7961,
+                    0.8549,
+                    1
+                  ],
+                  "hex": "#cbdaff",
+                  "alpha": 1
+                },
+                "$description": "The current marker's ring: its fill's color."
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.7961,
+                    0.8549,
+                    1
+                  ],
+                  "hex": "#cbdaff",
+                  "alpha": 1
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "hex": "#000000",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.7961,
+                      0.8549,
+                      1
+                    ],
+                    "hex": "#cbdaff",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  1,
+                  1
+                ],
+                "hex": "#ffffff",
+                "alpha": 1
+              },
+              "$description": "The color hover, focus and press mix into a pressable step's container: its label's."
+            }
+          }
+        },
+        "description": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 2,
+              "unit": "px"
+            },
+            "$description": "The space between a step's label and its description."
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "system-ui",
+                "Inter",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 13,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0,
+                "unit": "px"
+              },
+              "lineHeight": 1.3846
+            },
+            "$description": "The text style of a step's description, under its label."
+          }
+        },
+        "disabled": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "error": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "A step's fill. None at rest: it is where hover, focus and press are drawn on a pressable step."
+            }
+          },
+          "description": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  0.8118,
+                  0.7843
+                ],
+                "hex": "#ffcfc8",
+                "alpha": 1
+              },
+              "$description": "The description of a step with an error: often what the error is."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    0.8118,
+                    0.7843
+                  ],
+                  "hex": "#ffcfc8",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    0.8118,
+                    0.7843
+                  ],
+                  "hex": "#ffcfc8",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      0.8118,
+                      0.7843
+                    ],
+                    "hex": "#ffcfc8",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      0.8118,
+                      0.7843
+                    ],
+                    "hex": "#ffcfc8",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    0.8118,
+                    0.7843
+                  ],
+                  "hex": "#ffcfc8",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    0.8118,
+                    0.7843
+                  ],
+                  "hex": "#ffcfc8",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    0.8118,
+                    0.7843
+                  ],
+                  "hex": "#ffcfc8",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      0.8118,
+                      0.7843
+                    ],
+                    "hex": "#ffcfc8",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      0.8118,
+                      0.7843
+                    ],
+                    "hex": "#ffcfc8",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    0.8118,
+                    0.7843
+                  ],
+                  "hex": "#ffcfc8",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  0.8118,
+                  0.7843
+                ],
+                "hex": "#ffcfc8",
+                "alpha": 1
+              },
+              "$description": "The label of a step with an error."
+            }
+          },
+          "marker": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "The marker of a step with an error: no fill, a ring in the error color."
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    0.8118,
+                    0.7843
+                  ],
+                  "hex": "#ffcfc8",
+                  "alpha": 1
+                },
+                "$description": "The glyph priority_high in a step with an error."
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    0.8118,
+                    0.7843
+                  ],
+                  "hex": "#ffcfc8",
+                  "alpha": 1
+                },
+                "$description": "The ring of a step with an error."
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    0.8118,
+                    0.7843
+                  ],
+                  "hex": "#ffcfc8",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    0.8118,
+                    0.7843
+                  ],
+                  "hex": "#ffcfc8",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      0.8118,
+                      0.7843
+                    ],
+                    "hex": "#ffcfc8",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      0.8118,
+                      0.7843
+                    ],
+                    "hex": "#ffcfc8",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    0.8118,
+                    0.7843
+                  ],
+                  "hex": "#ffcfc8",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  0.8118,
+                  0.7843
+                ],
+                "hex": "#ffcfc8",
+                "alpha": 1
+              },
+              "$description": "The color hover, focus and press mix into a pressable step's container: its label's."
+            }
+          }
+        },
+        "focused": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "hovered": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "incomplete": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "A step's fill. None at rest: it is where hover, focus and press are drawn on a pressable step."
+            }
+          },
+          "description": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8941,
+                  0.8863,
+                  0.8902
+                ],
+                "hex": "#e4e2e3",
+                "alpha": 1
+              },
+              "$description": "The description of a step still to come."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#ffffff"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#ffffff"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.8941,
+                      0.8863,
+                      0.8902
+                    ],
+                    "hex": "#e4e2e3",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.7843,
+                      0.7765,
+                      0.7804
+                    ],
+                    "hex": "#c8c6c7",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.8941,
+                      0.8863,
+                      0.8902
+                    ],
+                    "hex": "#e4e2e3",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.7843,
+                      0.7765,
+                      0.7804
+                    ],
+                    "hex": "#c8c6c7",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8941,
+                  0.8863,
+                  0.8902
+                ],
+                "hex": "#e4e2e3",
+                "alpha": 1
+              },
+              "$description": "The label of a step still to come: secondary text."
+            }
+          },
+          "marker": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "The marker of a step still to come: no fill, a ring."
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                },
+                "$description": "The number in the marker of a step still to come."
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.7843,
+                    0.7765,
+                    0.7804
+                  ],
+                  "hex": "#c8c6c7",
+                  "alpha": 1
+                },
+                "$description": "The ring of a step still to come: the input's edge color, held to 3:1, because it is the marker's only mark besides its number."
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "description": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            },
+            "marker": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              },
+              "content": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.8941,
+                      0.8863,
+                      0.8902
+                    ],
+                    "hex": "#e4e2e3",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.7843,
+                      0.7765,
+                      0.7804
+                    ],
+                    "hex": "#c8c6c7",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8941,
+                    0.8863,
+                    0.8902
+                  ],
+                  "hex": "#e4e2e3",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.8941,
+                  0.8863,
+                  0.8902
+                ],
+                "hex": "#e4e2e3",
+                "alpha": 1
+              },
+              "$description": "The color hover, focus and press mix into a pressable step's container: its label's."
+            }
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "system-ui",
+                "Inter",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 17,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0,
+                "unit": "px"
+              },
+              "lineHeight": 1.2941
+            },
+            "$description": "The text style of a step's label, the same in every condition, so that no step moves when the current step does."
+          }
+        },
+        "marker": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The space between the marker and the step's text: under the marker in the horizontal form, beside it in the vertical form."
+          },
+          "icon": {
+            "size": {
+              "$type": "dimension",
+              "$value": {
+                "value": 16,
+                "unit": "px"
+              },
+              "$description": "The box of the check and of priority_high in a marker."
+            },
+            "weight": {
+              "$type": "number",
+              "$value": 300,
+              "$description": "The stroke weight of the marker's glyphs: a control's own mark, drawn at the mark weight as a checkbox's check is, not at sys.icon.weight."
+            }
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "-apple-system",
+                  "BlinkMacSystemFont",
+                  "system-ui",
+                  "Inter",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 13,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3846
+              },
+              "$description": "The text style of the step's number in the marker."
+            }
+          },
+          "outline": {
+            "width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$description": "The ring's width, drawn inside the marker's size. Thicker than the hairline of Steps' rings, because here the ring says a condition."
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 9999,
+              "unit": "px"
+            },
+            "$description": "The marker's corners: a circle in the default system. Never larger than half the marker's height."
+          },
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "The marker's least height and width: a circle that holds a two-digit number or a glyph of marker.icon.size with room around it. A minimum: it grows with enlarged text."
+          }
+        },
+        "motion": {
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 450,
+              "unit": "ms"
+            },
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
+          },
+          "state-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            },
+            "$description": "How long a step's colors take to change between states and conditions."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        "position": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.8941,
+                0.8863,
+                0.8902
+              ],
+              "hex": "#e4e2e3",
+              "alpha": 1
+            },
+            "$description": "The color of the compact form's position: secondary text."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The space between the compact form's bar and its position line."
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "system-ui",
+                "Inter",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 13,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0,
+                "unit": "px"
+              },
+              "lineHeight": 1.3846
+            },
+            "$description": "The text style of the compact form's position (\"Step 2 of 5\")."
+          }
+        },
+        "pressed": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 0.7
+          }
+        },
+        "step": {
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 120,
+              "unit": "px"
+            },
+            "$description": "The least width of a step's column in the horizontal form. Where the layout gives the stepper less than the number of steps times this, a horizontal stepper draws its compact form."
+          }
+        }
+      },
       "steps": {
         "body": {
           "gap": {

@@ -1,0 +1,171 @@
+---
+title: Indicador de pasos
+description: Muestra dónde está una persona en un flujo que el producto recorre en un orden fijo de pasos (qué paso es el actual, cuáles están completados, cuál tiene un error y cuáles faltan todavía) y le permite pulsar un paso para volver a él.
+translationOf: components/stepper.mdx
+sourceHash: 6f6aced00c2b6ebab565e04f4136b2fd6ad660ee
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="stepper" />
+
+<DemoFrame label="Horizontal, con un paso que tiene un error" column>
+  <tanrei-stepper label="Progreso de la compra" value="payment" pressable="visited" completed-text="Completado" error-text="Tiene un error" style="inline-size: 100%">
+    <tanrei-stepper-step value="account" label="Cuenta"></tanrei-stepper-step>
+    <tanrei-stepper-step value="shipping" label="Envío" status="error" description="Falta el código postal"></tanrei-stepper-step>
+    <tanrei-stepper-step value="payment" label="Pago"></tanrei-stepper-step>
+    <tanrei-stepper-step value="review" label="Revisión"></tanrei-stepper-step>
+  </tanrei-stepper>
+</DemoFrame>
+
+El indicador de pasos (stepper) se coloca encima o al lado del contenido de un flujo que tiene una posición: una compra, una configuración inicial, una solicitud en varias partes. Un paso es el actual, los anteriores están completados, uno puede necesitar la atención de la persona y el resto faltan todavía.
+
+### Uso
+
+Los pasos son hijos `<tanrei-stepper-step>`, en orden. `value` indica el paso actual. El indicador nunca mueve `value` por sí mismo: cuando la persona pulsa un paso, emite `select` con el valor de ese paso, y tu flujo va allí (o no) y establece `value`.
+
+SwiftUI, Compose, Flutter y React Native están planificados: los nombres que figuran junto a cada plataforma al principio de esta página son los que les da la especificación, y todavía no se distribuye nada para ellos.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-stepper id="checkout" label="Progreso de la compra" value="shipping" pressable="visited"
+      completed-text="Completado" error-text="Tiene un error" position-text="Paso {position} de {count}">
+      <tanrei-stepper-step value="account" label="Cuenta"></tanrei-stepper-step>
+      <tanrei-stepper-step value="shipping" label="Envío" description="Dirección y entrega"></tanrei-stepper-step>
+      <tanrei-stepper-step value="gift" label="Envoltorio de regalo" description="Opcional"></tanrei-stepper-step>
+      <tanrei-stepper-step value="payment" label="Pago"></tanrei-stepper-step>
+    </tanrei-stepper>
+
+    <script type="module">
+      import '@tanrei/web/components/stepper';
+      const stepper = document.querySelector('#checkout');
+      // Pulsar un paso es pedir ir allí. El flujo decide y luego mueve value.
+      stepper.addEventListener('select', (e) => {
+        if (goTo(e.detail.value)) stepper.value = e.detail.value;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Stepper, StepperStep } from '@tanrei/react';
+
+    <Stepper
+      label="Progreso de la compra"
+      value={step}
+      pressable="visited"
+      completedText="Completado"
+      errorText="Tiene un error"
+      positionText="Paso {position} de {count}"
+      onSelect={(e) => setStep(e.detail.value)}
+    >
+      <StepperStep value="account" label="Cuenta" />
+      <StepperStep value="shipping" label="Envío" status={shippingError ? 'error' : 'auto'} />
+      <StepperStep value="payment" label="Pago" />
+      <StepperStep value="review" label="Revisión" />
+    </Stepper>
+    ```
+  </TabItem>
+</Tabs>
+
+Los textos son tuyos: `completed-text` y `error-text` son lo que la tecnología de apoyo oye después de la etiqueta de un paso, y `position-text` es la línea de la forma compacta, con los huecos `{position}` y `{count}`. Dalos una sola vez para todos los indicadores de pasos con `setWords({ stepCompletedText, stepErrorText, stepPositionText })`.
+
+## Especificaciones
+
+<DemoFrame label="Vertical y compacto" plain>
+  <tanrei-stepper label="Configuración" value="profile" layout="vertical" completed-text="Completado" error-text="Tiene un error" style="inline-size: 320px">
+    <tanrei-stepper-step value="account" label="Crear una cuenta" description="Correo electrónico y contraseña"></tanrei-stepper-step>
+    <tanrei-stepper-step value="profile" label="Tu perfil" description="Nombre y foto"></tanrei-stepper-step>
+    <tanrei-stepper-step value="team" label="Invitar a tu equipo" description="Opcional"></tanrei-stepper-step>
+    <tanrei-stepper-step value="done" label="Empezar a trabajar"></tanrei-stepper-step>
+  </tanrei-stepper>
+  <tanrei-stepper label="Progreso de la compra" value="shipping" layout="compact" completed-text="Completado" error-text="Tiene un error" position-text="Paso {position} de {count}" style="inline-size: 280px">
+    <tanrei-stepper-step value="account" label="Cuenta"></tanrei-stepper-step>
+    <tanrei-stepper-step value="shipping" label="Envío"></tanrei-stepper-step>
+    <tanrei-stepper-step value="gift" label="Envoltorio de regalo"></tanrei-stepper-step>
+    <tanrei-stepper-step value="payment" label="Pago"></tanrei-stepper-step>
+    <tanrei-stepper-step value="review" label="Revisión"></tanrei-stepper-step>
+  </tanrei-stepper>
+</DemoFrame>
+
+<ComponentSpecs name="stepper" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un indicador de pasos cuando una persona recorre un flujo de tres a siete pasos en un orden que fija el producto, y saber dónde está y cuánto le queda la ayuda a terminar: una compra, un registro en varias partes, una solicitud. Muéstralo encima del contenido del paso (horizontal) o a su lado, en una columna (vertical).
+
+No uses un indicador de pasos:
+
+- para instrucciones que un lector sigue por su cuenta. Eso es [Pasos](/es/components/steps/): un procedimiento numerado sin posición, cuyos marcadores son anillos simples y nunca muestran el progreso.
+- para un flujo de dos pasos, o uno tan corto que la posición no dice nada. Basta un encabezado que diga para qué sirve esta página.
+- para una lista larga de tareas independientes que se hacen en cualquier orden. Eso es una lista de tareas: una fila por tarea con su estado, cada una un enlace.
+- en lugar de la navegación propia del flujo. Mantén los botones Atrás y Continuar. El indicador de pasos dice dónde está la persona; no es la forma en que se mueve la mayoría.
+
+### Estados
+
+| Estado | Qué significa | Cómo se dibuja |
+| --- | --- | --- |
+| Actual | Donde está la persona. | Un marcador relleno con el número del paso. |
+| Completado | Hecho. De forma predeterminada, todos los pasos anteriores al actual. | Un marcador con una marca de verificación. |
+| Error | Necesita la atención de la persona, esté donde esté. | Un anillo y un glifo de prioridad, y la etiqueta en el color de error. |
+| Incompleto | Falta todavía. De forma predeterminada, todos los pasos posteriores al actual. | Un anillo con el número del paso. |
+
+`status` en un paso es `auto` de forma predeterminada: completado antes del paso actual, incompleto después. Establécelo cuando tu flujo sepa más: `error` para un paso que hay que corregir, `complete` para un paso hecho fuera de orden, `incomplete` para un paso que se saltó y todavía hay que hacer. Cada estado se distingue por la forma de su marcador, no solo por el color.
+
+Cuando el flujo termina, deja `value` vacío y marca todos los pasos como `complete`.
+
+### Volver a un paso
+
+- `pressable="visited"` permite a la persona pulsar los pasos por los que ya pasó (completados o con un error) para volver a ellos. La mayoría de los flujos quieren esto.
+- `pressable="all"` le permite pulsar cualquier paso que no sea el actual, para un flujo cuyos pasos pueden hacerse en cualquier orden.
+- `pressable="none"` (el predeterminado) solo muestra la posición.
+
+Un paso pulsable se ve igual que uno que no lo es hasta que tiene el cursor encima o recibe el foco, como en la mayoría de los sistemas. Si tus usuarios necesitan más pistas, dilo cerca del indicador («Selecciona un paso para cambiarlo»). El paso actual nunca es pulsable. Un paso al que todavía no se puede ir (depende de una elección anterior) es `disabled`: se dibuja atenuado y se anuncia como no disponible.
+
+### Pantallas estrechas
+
+Un indicador de pasos horizontal se vuelve compacto por sí solo cuando su ancho no admite todos los pasos con su ancho mínimo: una barra de segmentos rellena hasta el paso actual, la posición con tus textos («Paso 2 de 5») y la etiqueta del paso actual. `layout="compact"` pide esa forma con cualquier ancho. La forma compacta no se puede pulsar: de eso se encarga el botón Atrás del flujo. `layout="vertical"`, en cambio, mantiene todos los pasos visibles en una columna.
+
+### Recomendado
+
+- Nombra los pasos por lo que la persona hace o aporta, en una o dos palabras: Cuenta, Envío, Pago, Revisión.
+- Mantén el mismo número de pasos de principio a fin. Si un paso solo aplica a veces, muéstralo y sáltalo, en lugar de añadirlo a mitad de camino.
+- Pon el error en el paso donde la persona puede corregirlo, con una descripción breve de lo que está mal.
+
+### Evita
+
+- No uses el indicador de pasos como la única forma de avanzar.
+- No escribas números en las etiquetas. El marcador muestra el número y la lista lo anuncia.
+- No uses un indicador de pasos para las secciones de una página ni como pestañas. Para eso están las [Pestañas](/es/components/tabs/) o una tabla de contenido.
+
+## Accesibilidad
+
+<ComponentAccessibility name="stepper" />
+
+### De qué se encarga el componente
+
+- El indicador de pasos es una lista ordenada con el nombre de su `label`. Cada paso es un elemento que se lee como su etiqueta, luego el texto de su estado (`completed-text`, `error-text`) y luego su descripción. La lista da a cada paso su lugar («3 de 4»), así que el número del marcador no se vuelve a leer.
+- El paso actual se expone como el paso actual (`aria-current="step"`).
+- Un paso pulsable es un botón nativo y una parada de tabulación, en el orden de los pasos. Enter y Espacio lo pulsan. Un paso que no se puede pulsar es texto simple y no es una parada. Un paso deshabilitado de un indicador pulsable es un botón deshabilitado.
+- Los marcadores, los glifos, los conectores y la barra quedan ocultos para la tecnología de apoyo.
+- Los estados se distinguen por la forma además de por el color: un marcador relleno, una marca de verificación, un glifo de prioridad, un anillo.
+- En la forma compacta, el indicador es un único grupo con el nombre de su etiqueta, que lee lo que se dibuja: la posición y la etiqueta del paso actual, y el texto de error cuando el paso actual tiene uno.
+- Las etiquetas y las descripciones saltan de línea y nunca se cortan. Con tamaños de texto mayores todo crece, y el indicador sigue volviéndose compacto según el ancho del que dispone.
+- Con colores forzados, el marcador actual toma el color de resaltado y todo lo demás el color del texto.
+- Las compilaciones de depuración notifican una etiqueta que falta, un valor que no nombra ningún paso, un valor de paso vacío o repetido, un paso sin etiqueta, un indicador con menos de dos pasos, un paso actual marcado como deshabilitado, una frase de posición sin `{position}` y un texto que falta.
+
+### Qué debes hacer tú
+
+- Da al indicador de pasos un `label` que diga qué flujo sigue («Progreso de la compra»).
+- Da `completed-text`, `error-text` y `position-text` en tu idioma, o una sola vez con `setWords()`.
+- Mantén los botones Atrás y Continuar propios del flujo, y mueve el foco al encabezado del nuevo paso cuando el paso cambie, para que quien usa un lector de pantalla oiga dónde está.
+- Cuando un paso tiene un error, muestra también el error en sí en el contenido del paso. El indicador de pasos solo dice que el paso necesita atención.

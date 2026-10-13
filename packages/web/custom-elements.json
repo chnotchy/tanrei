@@ -71838,6 +71838,814 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/stepper/stepper.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "PREFIX",
+          "type": {
+            "text": "string"
+          },
+          "default": "'--tanrei-comp-stepper'"
+        },
+        {
+          "kind": "variable",
+          "name": "CONDITIONS",
+          "type": {
+            "text": "['incomplete', 'current', 'complete', 'error']"
+          },
+          "default": "['incomplete', 'current', 'complete', 'error']",
+          "description": "The four conditions (SPR-1), as the token names say them."
+        },
+        {
+          "kind": "variable",
+          "name": "stepperStyles",
+          "default": "css` :host { display: block; min-inline-size: 0; } :host([hidden]) { display: none; } ${shape} .steps { display: flex; min-inline-size: 0; } .steps[hidden] { display: none; } /* SPR-4: one row of equal columns. */ .steps.horizontal ::slotted(*) { flex: 1 1 0; min-inline-size: 0; } /* SPR-5: one column. */ .steps.vertical { flex-direction: column; } /* SPR-6: the measure of a column's least width, read by the element: a probe of no height in a box of no size, so that it never widens what holds the stepper. */ .probe-box { position: absolute; inline-size: 0; block-size: 0; overflow: hidden; visibility: hidden; pointer-events: none; } .probe { display: block; inline-size: ${t('step-min-width')}; block-size: 0; } /* SPR-6: the compact form — the bar, then the position, then the current step's label. */ .compact { display: flex; flex-direction: column; min-inline-size: 0; } .bar { display: flex; gap: ${t('bar-gap')}; } .segment { flex: 1 1 0; min-inline-size: 0; block-size: ${t('bar-thickness')}; ${unsafeCSS(cornerRadius(`${PREFIX}-bar-shape`))} background: ${t('bar-color')}; transition: background-color ${unsafeCSS(RECOLOR)}; } .segment.filled { background: ${t('bar-filled-color')}; } .position { margin-block-start: ${t('position-gap')}; font: ${t('position-typescale-font')}; letter-spacing: ${t('position-typescale-letter-spacing')}; color: ${t('position-color')}; overflow-wrap: anywhere; } ${productText('.position', { align: 'start' })} .current { display: flex; align-items: flex-start; gap: ${t('marker-gap')}; font: ${t('label-typescale-font')}; letter-spacing: ${t('label-typescale-letter-spacing')}; color: ${t('current-label-color')}; } .current.error { color: ${t('error-label-color')}; } .current .label { min-inline-size: 0; overflow-wrap: anywhere; } ${productText('.current .label', { align: 'start' })} .current .glyph-line { display: flex; align-items: center; block-size: 1lh; } ${iconGlyph('.glyph', { size: `${PREFIX}-marker-icon-size`, selected: '.current', weight: `${PREFIX}-marker-icon-weight` })} .glyph { visibility: hidden; } .glyph[data-drawn] { visibility: visible; } .ink { display: inline-block; vertical-align: top; } .status { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } @media (prefers-reduced-motion: reduce) { .segment { transition: none; } } @media (forced-colors: active) { .segment { forced-color-adjust: none; background: CanvasText; } .segment.filled { background: Highlight; } .position, .current, .current.error { color: CanvasText; } } `",
+          "description": "The stepper: the row or column of its steps, or the compact form (SPR-4, SPR-5, SPR-6)."
+        },
+        {
+          "kind": "variable",
+          "name": "stepStyles",
+          "default": "css` :host { display: block; min-inline-size: 0; outline: none; /* SPR-18: a step's container is at least the minimum target. */ --_target: var(--tanrei-sys-target-pointer); --_pad: ${t('container-padding')}; --_marker: ${t('marker-size')}; --_gap: ${t('connector-gap')}; --_thick: ${t('connector-thickness')}; } @media (pointer: coarse) { :host { --_target: var(--tanrei-sys-target-touch); } } :host([hidden]) { display: none; } ${unsafeCSS(CONDITIONS.map((condition) => conditionBlock(PREFIX, condition, PARTS, condition === 'incomplete' ? '.container' : `.container.${condition}`)).join('\\n'))} .step { position: relative; display: flex; block-size: 100%; min-inline-size: 0; } .container { all: unset; box-sizing: border-box; position: relative; /* Its own stacking context, so the ripple sits above the container color and below the content. */ isolation: isolate; display: flex; flex: 1 1 auto; min-inline-size: 0; min-block-size: var(--_target); padding: var(--_pad); ${unsafeCSS(cornerRadius('--_shape'))} background: var(--_c); color: var(--_l); font: ${t('label-typescale-font')}; letter-spacing: ${t('label-typescale-letter-spacing')}; text-align: start; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; transition-property: background-color, color, opacity; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } button.container { cursor: pointer; } ${shape} /* SPR-4: the horizontal form — the marker at the start, the text under it. */ .step.horizontal .container { flex-direction: column; align-items: flex-start; gap: ${t('marker-gap')}; min-inline-size: var(--_target); } /* SPR-5: the vertical form — the marker at the start, the text beside it, the marker centred on the label's first line. */ .step.vertical .container { flex-direction: row; align-items: flex-start; gap: ${t('marker-gap')}; } .step.vertical .marker-cell { display: flex; flex: none; margin-block-start: max(0px, calc((1lh - var(--_marker)) / 2)); } .step.vertical .text { padding-block-start: max(0px, calc((var(--_marker) - 1lh) / 2)); } /* SPR-12, SPR-15: each state paints from that state's tokens of the step's condition; pressed > focused > hovered, disabled over all — on a native button only. */ ${unsafeCSS(conditionStates(PREFIX, PARTS, { container: 'c', root: '.container', on }))} /* A press is shown without a transition in, on every part the pressed tokens color. */ button.container[data-pressed]:not([data-pressed='none']) :is(.marker, .description) { transition-duration: 0s; } /* SPR-15 ripple: the pressed container color of the step's condition, grown over motion.feedback-duration and faded over motion.state-duration, both with motion.state-easing, clipped to the container's corners. */ ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} /* SPR-13, SPR-16: the ring (or the glow) around the container, for keyboard focus only, never animated. */ ${focusRing((focus) => `button.container${focus}`)} /* SPR-18: the hit area, never smaller than the container (which is already at least the target). */ ${minimumTarget('button.container')} /* SPR-2: the marker — a circle at least marker.size, its fill, ring and content those of the step's condition. */ .marker-cell { display: flex; } .marker { box-sizing: border-box; display: inline-flex; flex: none; align-items: center; justify-content: center; min-inline-size: var(--_marker); min-block-size: var(--_marker); ${unsafeCSS(cornerRadius(`${PREFIX}-marker-shape`))} background: var(--_m); border: ${t('marker-outline-width')} solid var(--_o); color: var(--_k); font: ${t('marker-label-typescale-font')}; letter-spacing: ${t('marker-label-typescale-letter-spacing')}; transition-property: background-color, border-color, color; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } /* The number is a left-to-right run, never reversed (SPR-2, SPR-25). */ .number { direction: ltr; unicode-bidi: isolate; } ${iconGlyph('.glyph', { size: `${PREFIX}-marker-icon-size`, selected: '.marker', weight: `${PREFIX}-marker-icon-weight` })} /* SPR-27: nothing in the glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn). */ .glyph { visibility: hidden; } .glyph[data-drawn] { visibility: visible; } .ink { display: inline-block; vertical-align: top; } /* SPR-3: the label and the description, wrapping and never cut. */ .text { display: flex; flex-direction: column; gap: ${t('description-gap')}; min-inline-size: 0; max-inline-size: 100%; } .step.horizontal .text { align-self: stretch; } .label { overflow-wrap: anywhere; } .description { font: ${t('description-typescale-font')}; letter-spacing: ${t('description-typescale-letter-spacing')}; color: var(--_d); overflow-wrap: anywhere; transition: color ${unsafeCSS(RECOLOR)}; } ${productText('.label', { align: 'start' })} ${productText('.description', { align: 'start' })} /* SPR-19: the word for the step's condition, heard and not drawn. */ .status { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } /* SPR-8: the connector, from comp.stepper.connector.gap after this marker to the same before the next one (which stands container.padding inside the next step), over every container. */ .connector { position: absolute; z-index: 1; background: ${t('connector-color')}; pointer-events: none; transition: background-color ${unsafeCSS(RECOLOR)}; } .connector.complete { background: ${t('connector-complete-color')}; } .step.horizontal .connector { block-size: var(--_thick); inset-block-start: calc(var(--_pad) + (var(--_marker) - var(--_thick)) / 2); inset-inline-start: calc(var(--_pad) + var(--_marker) + var(--_gap)); inset-inline-end: calc(var(--_gap) - var(--_pad)); } .step.vertical .connector { inline-size: var(--_thick); inset-inline-start: calc(var(--_pad) + (var(--_marker) - var(--_thick)) / 2); inset-block-start: calc(var(--_pad) + var(--_marker) + var(--_gap)); inset-block-end: calc(var(--_gap) - var(--_pad)); } /* SPR-14: an element that is always rendered carries press-hold for PressController. */ ${pressHold('.hold')} .hold { display: none; } /* The first condition a step is told is drawn, not animated (until two frames after it connected). */ .still, .still *, .still ~ .connector { transition: none !important; } @media (prefers-reduced-motion: reduce) { .container, .marker, .label, .description, .connector { transition: none; } } /* SPR-23: forced colors. */ @media (forced-colors: active) { .container, .label, .description, .marker, .glyph { color: CanvasText; } button.container .label { color: ButtonText; } .marker { forced-color-adjust: none; background: Canvas; border-color: CanvasText; } .container.current .marker { background: Highlight; border-color: Highlight; color: HighlightText; } .connector, .connector.complete { forced-color-adjust: none; background: CanvasText; } button.container:focus-visible { outline-color: Highlight; } button.container:disabled, button.container:disabled .label, button.container:disabled .description, button.container:disabled .marker { color: GrayText; } } `",
+          "description": "One step (SPR-2…5, SPR-8, SPR-9, SPR-11…18, SPR-22, SPR-23, SPR-25…27): its container — a native button while it can\nbe pressed, a `div` otherwise — holding the marker and the text, and the connector to the next step."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "PREFIX",
+          "declaration": {
+            "name": "PREFIX",
+            "module": "src/components/stepper/stepper.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "CONDITIONS",
+          "declaration": {
+            "name": "CONDITIONS",
+            "module": "src/components/stepper/stepper.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "stepperStyles",
+          "declaration": {
+            "name": "stepperStyles",
+            "module": "src/components/stepper/stepper.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "stepStyles",
+          "declaration": {
+            "name": "stepStyles",
+            "module": "src/components/stepper/stepper.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/stepper/stepper.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "One step of a stepper — the spec's item kind `step`: its value, its label, an optional description, its status and\nwhether it can be gone to. Placed as a child of `<tanrei-stepper>`, as `<option>` in a `<select>`; the stepper decides\nits condition, its number and whether it can be pressed.\n\nThe host is an item of the stepper's list (`role=\"listitem\"`), with `aria-current=\"step\"` while it is the current\nstep. While it can be pressed its parts are drawn in a native `<button>`; otherwise in a `<div>`.",
+          "name": "TanreiStepperStep",
+          "cssParts": [
+            {
+              "description": "The step's button, or its box while it cannot be pressed: its fill, corners, every state, the ripple and the focus ring.",
+              "name": "container"
+            },
+            {
+              "description": "The circle with the step's number, or the check or priority_high glyph (hidden from assistive technology).",
+              "name": "marker"
+            },
+            {
+              "description": "The step's label.",
+              "name": "label"
+            },
+            {
+              "description": "The step's description, where it has one.",
+              "name": "description"
+            },
+            {
+              "description": "The line to the next step's marker (not drawn after the last; hidden from assistive technology).",
+              "name": "connector"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...LitElement.shadowRootOptions, delegatesFocus: true }"
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Identifies the step: the stepper's `value` names the current step by it, and `select` carries it. Unique; required.",
+              "attribute": "value",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The step's name, in a few words (\"Shipping\"). Required.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "description",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A short second line under the label (\"Optional\"). Empty draws none.",
+              "attribute": "description"
+            },
+            {
+              "kind": "field",
+              "name": "status",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiStepperStepStatus"
+              },
+              "default": "'auto'",
+              "description": "`auto` (complete before the current step, incomplete after it), `incomplete`, `complete` or `error`.",
+              "attribute": "status",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The step cannot be gone to now. Only meaningful while the stepper's `pressable` is not `none`; ignored on the current step.",
+              "attribute": "disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "context",
+              "privacy": "private",
+              "type": {
+                "text": "StepContext"
+              },
+              "default": "{ condition: 'incomplete', current: false, pressable: false, unavailable: false, number: 0, vertical: false, last: true, statusText: '' }"
+            },
+            {
+              "kind": "field",
+              "name": "still",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "true",
+              "description": "The first frames after it connected, when the stepper's first word is drawn without motion."
+            },
+            {
+              "kind": "field",
+              "name": "press",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new PressController(this, { container: () => this.button, holdCarrier: () => this.renderRoot?.querySelector('.hold') ?? null, disabled: () => !this.context.pressable, })",
+              "description": "SPR-14, SPR-15: the step's pressed state, press-hold and the answer the system chooses (src/primitives/press.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "drawnGlyphs",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.glyph'))",
+              "description": "SPR-27: a marker's glyph is drawn only while the icon set can draw it (src/primitives/glyph.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "button",
+              "type": {
+                "text": "HTMLButtonElement | null"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "condition",
+              "type": {
+                "text": "StepCondition"
+              },
+              "description": "The condition the stepper draws this step in (SPR-1).",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "pressable",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the person can press this step now (SPR-9).",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "click",
+              "description": "`element.click()` presses the step as a person would, through its native button; a step that cannot be pressed does nothing."
+            },
+            {
+              "kind": "field",
+              "name": "onFocus",
+              "privacy": "private",
+              "readonly": true,
+              "description": "SPR-13, SPR-16: where style queries are missing, the focus style is read when focus arrives."
+            },
+            {
+              "kind": "field",
+              "name": "carried",
+              "type": {
+                "text": "Map<string, Keyframe> | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "SPR-17: what the parts looked like before the step's container changed element (a button became a plain box when\nthe step became current, or the other way round). The new element has no old colors to run a transition from, so\nthe old ones are carried over and run out over the same motion."
+            },
+            {
+              "kind": "method",
+              "name": "marker",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "content",
+              "privacy": "private"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Identifies the step: the stepper's `value` names the current step by it, and `select` carries it. Unique; required.",
+              "fieldName": "value"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The step's name, in a few words (\"Shipping\"). Required.",
+              "fieldName": "label"
+            },
+            {
+              "name": "description",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A short second line under the label (\"Optional\"). Empty draws none.",
+              "fieldName": "description"
+            },
+            {
+              "name": "status",
+              "type": {
+                "text": "TanreiStepperStepStatus"
+              },
+              "default": "'auto'",
+              "description": "`auto` (complete before the current step, incomplete after it), `incomplete`, `complete` or `error`.",
+              "fieldName": "status"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The step cannot be gone to now. Only meaningful while the stepper's `pressable` is not `none`; ignored on the current step.",
+              "fieldName": "disabled"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "tanrei-stepper-step",
+          "customElement": true
+        },
+        {
+          "kind": "class",
+          "description": "Shows where a person is in a flow the product runs in a fixed order of steps — which step is current, which are\ncomplete, which has an error and which are still to come — and, where the product allows it, lets the person press a\nstep to go back to it.\n\nContract: specs/stepper.spec.json. `<tanrei-stepper-step>` children are the steps, in order. `value` names the current\nstep; the stepper never sets it: pressing a step fires `select` with the step's value, and the product goes there\n(or does not) and sets `value`.\n\nEvery visual value comes from `--tanrei-comp-stepper-*` tokens: the marker, the container, the label and\ndescription styles, the connector, the compact form's bar and position, and per condition (incomplete, current,\ncomplete, error) and state each step's colors. How a press is answered and how keyboard focus is drawn are the\nsystem's choices of kind (`--tanrei-sys-behavior-*`), read from the cascade.",
+          "name": "TanreiStepper",
+          "cssParts": [
+            {
+              "description": "The row or column of the steps (not displayed in the compact form, where the steps are in no slot).",
+              "name": "steps"
+            },
+            {
+              "description": "The compact form: the bar, the position and the current step's label.",
+              "name": "compact"
+            },
+            {
+              "description": "The compact form's row of segments (hidden from assistive technology).",
+              "name": "bar"
+            },
+            {
+              "description": "The compact form's position (\"Step 2 of 5\").",
+              "name": "position"
+            }
+          ],
+          "slots": [
+            {
+              "description": "`<tanrei-stepper-step>` children: the steps.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "availability",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new AvailabilityController(this, 'stepper')"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the stepper (\"Checkout progress\"). Not drawn. Required.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The value of the current step. Empty, or a value no step has, makes no step current. Never set by the stepper.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "layout",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiStepperLayout"
+              },
+              "default": "'horizontal'",
+              "description": "`horizontal` (compact where it is too narrow for every step), `vertical`, or `compact`.",
+              "attribute": "layout",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "pressable",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiStepperPressable"
+              },
+              "default": "'none'",
+              "description": "`none`, `visited` (each complete or error step that is not current) or `all` (every step that is not current).",
+              "attribute": "pressable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "completedText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The word assistive technology hears after a complete step's label (\"Completed\"). Empty reads the product's words.",
+              "attribute": "completed-text"
+            },
+            {
+              "kind": "field",
+              "name": "errorText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The word assistive technology hears after the label of a step with an error (\"Has an error\"). Empty reads the product's words.",
+              "attribute": "error-text"
+            },
+            {
+              "kind": "field",
+              "name": "positionText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The compact form's position, with the places {position} and {count} (\"Step {position} of {count}\"). Empty reads the product's words.",
+              "attribute": "position-text"
+            },
+            {
+              "kind": "field",
+              "name": "narrow",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "SPR-6: whether the width given is less than the steps' least widths (measured)."
+            },
+            {
+              "kind": "field",
+              "name": "words",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new WordsController(this)"
+            },
+            {
+              "kind": "field",
+              "name": "children$",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new MutationObserver(() => this.requestUpdate())"
+            },
+            {
+              "kind": "field",
+              "name": "size$",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "reported",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new Set<string>()"
+            },
+            {
+              "kind": "field",
+              "name": "drawnGlyphs",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.glyph'))",
+              "description": "SPR-27: the compact form's glyph is drawn only while the icon set can draw it."
+            },
+            {
+              "kind": "field",
+              "name": "steps",
+              "type": {
+                "text": "TanreiStepperStep[]"
+              },
+              "description": "The stepper's steps, in order.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "layoutName",
+              "type": {
+                "text": "TanreiStepperLayout"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "pressableName",
+              "type": {
+                "text": "TanreiStepperPressable"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "compact",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "description": "SPR-6: the compact form is drawn — asked for, or horizontal without the room for every step.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "currentIndex",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "steps",
+                  "type": {
+                    "text": "TanreiStepperStep[]"
+                  }
+                }
+              ],
+              "description": "SPR-1, SPR-21: the index of the current step — the first with the value — or -1."
+            },
+            {
+              "kind": "method",
+              "name": "conditionOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "StepCondition"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "step",
+                  "type": {
+                    "text": "TanreiStepperStep"
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "current",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "SPR-1: the condition of the step at `index`."
+            },
+            {
+              "kind": "method",
+              "name": "measure",
+              "privacy": "private",
+              "description": "SPR-6: the least width of every step, against the width given."
+            },
+            {
+              "kind": "field",
+              "name": "onClick",
+              "privacy": "private",
+              "readonly": true,
+              "description": "SPR-10: a press on a pressable step — its click, from a pointer, Enter, Space or `step.click()` — fires select once."
+            },
+            {
+              "kind": "method",
+              "name": "locale",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string | undefined"
+                }
+              },
+              "description": "The current locale: the nearest `lang`, else the browser's."
+            },
+            {
+              "kind": "method",
+              "name": "reportOnce",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "seen",
+                  "type": {
+                    "text": "Set<string>"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "message",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "A debug report, once per problem while it lasts (it is reported again after it went away and came back)."
+            },
+            {
+              "kind": "method",
+              "name": "statusWord",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "condition",
+                  "type": {
+                    "text": "StepCondition"
+                  }
+                }
+              ],
+              "description": "SPR-20: the product's word for a condition, recorded as missing where a drawn step needs it and nobody gave it."
+            },
+            {
+              "kind": "method",
+              "name": "position",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "at",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "count",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "SPR-6, SPR-7: the position, its places filled; empty where there is no sentence."
+            },
+            {
+              "kind": "method",
+              "name": "sync",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "steps",
+                  "type": {
+                    "text": "TanreiStepperStep[]"
+                  }
+                },
+                {
+                  "name": "compact",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "Tells every step what it is now (SPR-1, SPR-9, SPR-11, SPR-19), and reports what a debug build should (SPR-11, SPR-21)."
+            },
+            {
+              "kind": "method",
+              "name": "compactForm",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "steps",
+                  "type": {
+                    "text": "TanreiStepperStep[]"
+                  }
+                }
+              ]
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<TanreiStepperSelectDetail>"
+              },
+              "description": "The person pressed a step to go to it: `detail.value` is its value. The stepper does not change `value`.",
+              "name": "select"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the stepper (\"Checkout progress\"). Not drawn. Required.",
+              "fieldName": "label"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The value of the current step. Empty, or a value no step has, makes no step current. Never set by the stepper.",
+              "fieldName": "value"
+            },
+            {
+              "name": "layout",
+              "type": {
+                "text": "TanreiStepperLayout"
+              },
+              "default": "'horizontal'",
+              "description": "`horizontal` (compact where it is too narrow for every step), `vertical`, or `compact`.",
+              "fieldName": "layout"
+            },
+            {
+              "name": "pressable",
+              "type": {
+                "text": "TanreiStepperPressable"
+              },
+              "default": "'none'",
+              "description": "`none`, `visited` (each complete or error step that is not current) or `all` (every step that is not current).",
+              "fieldName": "pressable"
+            },
+            {
+              "name": "completed-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The word assistive technology hears after a complete step's label (\"Completed\"). Empty reads the product's words.",
+              "fieldName": "completedText"
+            },
+            {
+              "name": "error-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The word assistive technology hears after the label of a step with an error (\"Has an error\"). Empty reads the product's words.",
+              "fieldName": "errorText"
+            },
+            {
+              "name": "position-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The compact form's position, with the places {position} and {count} (\"Step {position} of {count}\"). Empty reads the product's words.",
+              "fieldName": "positionText"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "tanrei-stepper",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiStepperStep",
+          "declaration": {
+            "name": "TanreiStepperStep",
+            "module": "src/components/stepper/stepper.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiStepper",
+          "declaration": {
+            "name": "TanreiStepper",
+            "module": "src/components/stepper/stepper.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-stepper-step",
+          "declaration": {
+            "name": "TanreiStepperStep",
+            "module": "src/components/stepper/stepper.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-stepper",
+          "declaration": {
+            "name": "TanreiStepper",
+            "module": "src/components/stepper/stepper.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/switch/switch.styles.ts",
       "declarations": [
         {

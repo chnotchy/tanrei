@@ -20901,6 +20901,390 @@ class TanreiSnackbarTokens {
       };
 }
 
+/// The key of a condition of stepper (`comp.stepper`, axis `condition`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiStepperCondition('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [incomplete].
+extension type const TanreiStepperCondition(String name) {
+  static const incomplete = TanreiStepperCondition('incomplete');
+  static const current = TanreiStepperCondition('current');
+  static const complete = TanreiStepperCondition('complete');
+  static const error = TanreiStepperCondition('error');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiStepperCondition> core = <TanreiStepperCondition>[incomplete, current, complete, error];
+}
+
+/// What one condition of stepper looks like in one interaction state.
+@immutable
+class TanreiStepperConditionStateTokens {
+  const TanreiStepperConditionStateTokens({
+    required this.containerColor,
+    required this.markerColor,
+    required this.markerOutlineColor,
+    required this.markerContentColor,
+    required this.labelColor,
+    required this.descriptionColor,
+    required this.stateLayerColor,
+  });
+
+  /// `comp.stepper.<condition>.<state>.container-color`
+  final TanreiPaint containerColor;
+  /// `comp.stepper.<condition>.<state>.marker-color`
+  final TanreiPaint markerColor;
+  /// `comp.stepper.<condition>.<state>.marker-outline-color`
+  final TanreiPaint markerOutlineColor;
+  /// `comp.stepper.<condition>.<state>.marker-content-color`
+  final TanreiPaint markerContentColor;
+  /// `comp.stepper.<condition>.<state>.label-color`
+  final TanreiPaint labelColor;
+  /// `comp.stepper.<condition>.<state>.description-color`
+  final TanreiPaint descriptionColor;
+  /// `comp.stepper.<condition>.<state>.state-layer-color`
+  final TanreiPaint stateLayerColor;
+
+  /// A copy with the given tokens replaced.
+  TanreiStepperConditionStateTokens copyWith({
+    TanreiPaint? containerColor,
+    TanreiPaint? markerColor,
+    TanreiPaint? markerOutlineColor,
+    TanreiPaint? markerContentColor,
+    TanreiPaint? labelColor,
+    TanreiPaint? descriptionColor,
+    TanreiPaint? stateLayerColor,
+  }) => TanreiStepperConditionStateTokens(
+        containerColor: containerColor ?? this.containerColor,
+        markerColor: markerColor ?? this.markerColor,
+        markerOutlineColor: markerOutlineColor ?? this.markerOutlineColor,
+        markerContentColor: markerContentColor ?? this.markerContentColor,
+        labelColor: labelColor ?? this.labelColor,
+        descriptionColor: descriptionColor ?? this.descriptionColor,
+        stateLayerColor: stateLayerColor ?? this.stateLayerColor,
+      );
+}
+
+/// The per-state tokens of one stepper condition. How a state looks is a value of the design system;
+/// the widget only selects the state.
+@immutable
+class TanreiStepperConditionTokens {
+  const TanreiStepperConditionTokens({
+    required this.enabled,
+    required this.hovered,
+    required this.focused,
+    required this.pressed,
+    required this.disabled,
+  });
+
+  final TanreiStepperConditionStateTokens enabled;
+  final TanreiStepperConditionStateTokens hovered;
+  final TanreiStepperConditionStateTokens focused;
+  final TanreiStepperConditionStateTokens pressed;
+  final TanreiStepperConditionStateTokens disabled;
+
+  /// A copy with the given tokens replaced.
+  TanreiStepperConditionTokens copyWith({
+    TanreiStepperConditionStateTokens? enabled,
+    TanreiStepperConditionStateTokens? hovered,
+    TanreiStepperConditionStateTokens? focused,
+    TanreiStepperConditionStateTokens? pressed,
+    TanreiStepperConditionStateTokens? disabled,
+  }) => TanreiStepperConditionTokens(
+        enabled: enabled ?? this.enabled,
+        hovered: hovered ?? this.hovered,
+        focused: focused ?? this.focused,
+        pressed: pressed ?? this.pressed,
+        disabled: disabled ?? this.disabled,
+      );
+
+  /// The tokens of [state]; a state this component does not have resolves to `enabled`.
+  TanreiStepperConditionStateTokens of(TanreiInteractionState state) => switch (state) {
+        TanreiInteractionState.enabled => enabled,
+        TanreiInteractionState.hovered => hovered,
+        TanreiInteractionState.focused => focused,
+        TanreiInteractionState.pressed => pressed,
+        TanreiInteractionState.disabled => disabled,
+      };
+}
+
+/// Every condition of stepper: the core values by name, the values a design system added in [extra].
+/// Look one up with `conditions[key]`; the lookup is total.
+@immutable
+class TanreiStepperConditions {
+  const TanreiStepperConditions({
+    required this.incomplete,
+    required this.current,
+    required this.complete,
+    required this.error,
+    this.extra = const <TanreiStepperCondition, TanreiStepperConditionTokens>{},
+  });
+
+  /// `comp.stepper` condition `incomplete`
+  final TanreiStepperConditionTokens incomplete;
+  /// `comp.stepper` condition `current`
+  final TanreiStepperConditionTokens current;
+  /// `comp.stepper` condition `complete`
+  final TanreiStepperConditionTokens complete;
+  /// `comp.stepper` condition `error`
+  final TanreiStepperConditionTokens error;
+
+  /// The conditions a design system added to the core vocabulary.
+  final Map<TanreiStepperCondition, TanreiStepperConditionTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiStepperConditions copyWith({
+    TanreiStepperConditionTokens? incomplete,
+    TanreiStepperConditionTokens? current,
+    TanreiStepperConditionTokens? complete,
+    TanreiStepperConditionTokens? error,
+    Map<TanreiStepperCondition, TanreiStepperConditionTokens>? extra,
+  }) => TanreiStepperConditions(
+        incomplete: incomplete ?? this.incomplete,
+        current: current ?? this.current,
+        complete: complete ?? this.complete,
+        error: error ?? this.error,
+        extra: extra == null ? this.extra : <TanreiStepperCondition, TanreiStepperConditionTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [condition].
+  ///
+  /// A condition this design system does not have resolves to [incomplete], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiStepperConditionTokens operator [](TanreiStepperCondition condition) => switch (condition.name) {
+        'incomplete' => incomplete,
+        'current' => current,
+        'complete' => complete,
+        'error' => error,
+        _ => extra[condition] ?? _fallback(condition),
+      };
+
+  /// Whether this design system has [condition].
+  bool has(TanreiStepperCondition condition) => TanreiStepperCondition.core.contains(condition) || extra.containsKey(condition);
+
+  /// Every condition this design system has: the core values, then the added ones.
+  List<TanreiStepperCondition> get keys => <TanreiStepperCondition>[...TanreiStepperCondition.core, ...extra.keys];
+
+  TanreiStepperConditionTokens _fallback(TanreiStepperCondition condition) {
+    assert(() {
+      debugTanreiReportUnknownValue('stepper condition', condition.name, 'incomplete');
+      return true;
+    }());
+    return incomplete;
+  }
+}
+
+/// The tokens of stepper that vary by interaction state but not by variant.
+@immutable
+class TanreiStepperStateTokens {
+  const TanreiStepperStateTokens({
+    required this.containerShape,
+    required this.opacity,
+  });
+
+  /// `comp.stepper.<state>.container-shape`
+  final double containerShape;
+  /// `comp.stepper.<state>.opacity`
+  final double opacity;
+
+  /// A copy with the given tokens replaced.
+  TanreiStepperStateTokens copyWith({
+    double? containerShape,
+    double? opacity,
+  }) => TanreiStepperStateTokens(
+        containerShape: containerShape ?? this.containerShape,
+        opacity: opacity ?? this.opacity,
+      );
+}
+
+/// `comp.stepper.*`
+@immutable
+class TanreiStepperTokens {
+  const TanreiStepperTokens({
+    required this.barColor,
+    required this.barFilledColor,
+    required this.barGap,
+    required this.barShape,
+    required this.barThickness,
+    required this.connectorColor,
+    required this.connectorCompleteColor,
+    required this.connectorGap,
+    required this.connectorThickness,
+    required this.containerPadding,
+    required this.containerShape,
+    required this.descriptionGap,
+    required this.descriptionTypescale,
+    required this.labelTypescale,
+    required this.markerGap,
+    required this.markerIconSize,
+    required this.markerIconWeight,
+    required this.markerLabelTypescale,
+    required this.markerOutlineWidth,
+    required this.markerShape,
+    required this.markerSize,
+    required this.motionFeedbackDuration,
+    required this.motionStateDuration,
+    required this.motionStateEasing,
+    required this.positionColor,
+    required this.positionGap,
+    required this.positionTypescale,
+    required this.stepMinWidth,
+    required this.conditions,
+    required this.hovered,
+    required this.focused,
+    required this.pressed,
+    required this.disabled,
+  });
+
+  /// `comp.stepper.bar-color`
+  final TanreiPaint barColor;
+  /// `comp.stepper.bar-filled-color`
+  final TanreiPaint barFilledColor;
+  /// `comp.stepper.bar-gap`
+  final double barGap;
+  /// `comp.stepper.bar-shape`
+  final double barShape;
+  /// `comp.stepper.bar-thickness`
+  final double barThickness;
+  /// `comp.stepper.connector-color`
+  final TanreiPaint connectorColor;
+  /// `comp.stepper.connector-complete-color`
+  final TanreiPaint connectorCompleteColor;
+  /// `comp.stepper.connector-gap`
+  final double connectorGap;
+  /// `comp.stepper.connector-thickness`
+  final double connectorThickness;
+  /// `comp.stepper.container-padding`
+  final double containerPadding;
+  /// `comp.stepper.container-shape`
+  final double containerShape;
+  /// `comp.stepper.description-gap`
+  final double descriptionGap;
+  /// `comp.stepper.description-typescale`
+  final TanreiTextStyle descriptionTypescale;
+  /// `comp.stepper.label-typescale`
+  final TanreiTextStyle labelTypescale;
+  /// `comp.stepper.marker-gap`
+  final double markerGap;
+  /// `comp.stepper.marker-icon-size`
+  final double markerIconSize;
+  /// `comp.stepper.marker-icon-weight`
+  final double markerIconWeight;
+  /// `comp.stepper.marker-label-typescale`
+  final TanreiTextStyle markerLabelTypescale;
+  /// `comp.stepper.marker-outline-width`
+  final double markerOutlineWidth;
+  /// `comp.stepper.marker-shape`
+  final double markerShape;
+  /// `comp.stepper.marker-size`
+  final double markerSize;
+  /// `comp.stepper.motion-feedback-duration`
+  final int motionFeedbackDuration;
+  /// `comp.stepper.motion-state-duration`
+  final int motionStateDuration;
+  /// `comp.stepper.motion-state-easing`
+  final TanreiCubicBezier motionStateEasing;
+  /// `comp.stepper.position-color`
+  final TanreiPaint positionColor;
+  /// `comp.stepper.position-gap`
+  final double positionGap;
+  /// `comp.stepper.position-typescale`
+  final TanreiTextStyle positionTypescale;
+  /// `comp.stepper.step-min-width`
+  final double stepMinWidth;
+  /// The `condition` axis: `conditions[condition]`.
+  final TanreiStepperConditions conditions;
+  /// `comp.stepper.hovered.*`
+  final TanreiStepperStateTokens hovered;
+  /// `comp.stepper.focused.*`
+  final TanreiStepperStateTokens focused;
+  /// `comp.stepper.pressed.*`
+  final TanreiStepperStateTokens pressed;
+  /// `comp.stepper.disabled.*`
+  final TanreiStepperStateTokens disabled;
+
+  /// A copy with the given tokens replaced.
+  TanreiStepperTokens copyWith({
+    TanreiPaint? barColor,
+    TanreiPaint? barFilledColor,
+    double? barGap,
+    double? barShape,
+    double? barThickness,
+    TanreiPaint? connectorColor,
+    TanreiPaint? connectorCompleteColor,
+    double? connectorGap,
+    double? connectorThickness,
+    double? containerPadding,
+    double? containerShape,
+    double? descriptionGap,
+    TanreiTextStyle? descriptionTypescale,
+    TanreiTextStyle? labelTypescale,
+    double? markerGap,
+    double? markerIconSize,
+    double? markerIconWeight,
+    TanreiTextStyle? markerLabelTypescale,
+    double? markerOutlineWidth,
+    double? markerShape,
+    double? markerSize,
+    int? motionFeedbackDuration,
+    int? motionStateDuration,
+    TanreiCubicBezier? motionStateEasing,
+    TanreiPaint? positionColor,
+    double? positionGap,
+    TanreiTextStyle? positionTypescale,
+    double? stepMinWidth,
+    TanreiStepperConditions? conditions,
+    TanreiStepperStateTokens? hovered,
+    TanreiStepperStateTokens? focused,
+    TanreiStepperStateTokens? pressed,
+    TanreiStepperStateTokens? disabled,
+  }) => TanreiStepperTokens(
+        barColor: barColor ?? this.barColor,
+        barFilledColor: barFilledColor ?? this.barFilledColor,
+        barGap: barGap ?? this.barGap,
+        barShape: barShape ?? this.barShape,
+        barThickness: barThickness ?? this.barThickness,
+        connectorColor: connectorColor ?? this.connectorColor,
+        connectorCompleteColor: connectorCompleteColor ?? this.connectorCompleteColor,
+        connectorGap: connectorGap ?? this.connectorGap,
+        connectorThickness: connectorThickness ?? this.connectorThickness,
+        containerPadding: containerPadding ?? this.containerPadding,
+        containerShape: containerShape ?? this.containerShape,
+        descriptionGap: descriptionGap ?? this.descriptionGap,
+        descriptionTypescale: descriptionTypescale ?? this.descriptionTypescale,
+        labelTypescale: labelTypescale ?? this.labelTypescale,
+        markerGap: markerGap ?? this.markerGap,
+        markerIconSize: markerIconSize ?? this.markerIconSize,
+        markerIconWeight: markerIconWeight ?? this.markerIconWeight,
+        markerLabelTypescale: markerLabelTypescale ?? this.markerLabelTypescale,
+        markerOutlineWidth: markerOutlineWidth ?? this.markerOutlineWidth,
+        markerShape: markerShape ?? this.markerShape,
+        markerSize: markerSize ?? this.markerSize,
+        motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
+        motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        positionColor: positionColor ?? this.positionColor,
+        positionGap: positionGap ?? this.positionGap,
+        positionTypescale: positionTypescale ?? this.positionTypescale,
+        stepMinWidth: stepMinWidth ?? this.stepMinWidth,
+        conditions: conditions ?? this.conditions,
+        hovered: hovered ?? this.hovered,
+        focused: focused ?? this.focused,
+        pressed: pressed ?? this.pressed,
+        disabled: disabled ?? this.disabled,
+      );
+
+  /// The variant-independent tokens of [state], or null for a state that has none (`enabled`: the
+  /// resting tokens of this class apply).
+  TanreiStepperStateTokens? stateTokens(TanreiInteractionState state) => switch (state) {
+        TanreiInteractionState.enabled => null,
+        TanreiInteractionState.hovered => hovered,
+        TanreiInteractionState.focused => focused,
+        TanreiInteractionState.pressed => pressed,
+        TanreiInteractionState.disabled => disabled,
+      };
+}
+
 /// The key of a size of steps (`comp.steps`, axis `size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -24674,6 +25058,7 @@ class TanreiSystem {
     required this.skeleton,
     required this.slider,
     required this.snackbar,
+    required this.stepper,
     required this.steps,
     required this.switch_,
     required this.tabView,
@@ -24767,6 +25152,7 @@ class TanreiSystem {
   final TanreiSkeletonTokens skeleton;
   final TanreiSliderTokens slider;
   final TanreiSnackbarTokens snackbar;
+  final TanreiStepperTokens stepper;
   final TanreiStepsTokens steps;
   final TanreiSwitchTokens switch_;
   final TanreiTabViewTokens tabView;
@@ -24859,6 +25245,7 @@ class TanreiSystem {
     TanreiSkeletonTokens? skeleton,
     TanreiSliderTokens? slider,
     TanreiSnackbarTokens? snackbar,
+    TanreiStepperTokens? stepper,
     TanreiStepsTokens? steps,
     TanreiSwitchTokens? switch_,
     TanreiTabViewTokens? tabView,
@@ -24949,6 +25336,7 @@ class TanreiSystem {
         skeleton: skeleton ?? this.skeleton,
         slider: slider ?? this.slider,
         snackbar: snackbar ?? this.snackbar,
+        stepper: stepper ?? this.stepper,
         steps: steps ?? this.steps,
         switch_: switch_ ?? this.switch_,
         tabView: tabView ?? this.tabView,
