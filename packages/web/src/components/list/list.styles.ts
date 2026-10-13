@@ -272,8 +272,15 @@ export const itemStyles = css`
   /* LST-14: corner smoothing on the box (data-tanrei-shape). */
   ${shape}
 
-  /* LST-12: the content carries press-hold for PressController; it has no transition of its own. */
-  ${pressHold('.content')}
+  /* LST-12: an empty box carries press-hold for PressController; it draws nothing and has no transition of its own. */
+  .hold {
+    position: absolute;
+    inline-size: 0;
+    block-size: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  ${pressHold('.hold')}
 
   @media (forced-colors: active) {
     .row.p.d {

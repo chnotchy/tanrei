@@ -193,8 +193,9 @@ export class TanreiListItem extends LitElement {
   /** What the list says about this item. */
   private context: ItemContext = { selectable: false, selected: false, tabStop: false, position: 0, size: 0, reorder: false, orientation: 'vertical', divider: 'none', handleLabel: '', handleHint: '', moves: NO_MOVES };
 
-  /** LST-33: whether the move menu is open. */
+  /** LST-33: whether the move menu is open, and whether it has been drawn yet (it is drawn the first time it opens). */
   private menuOpen = false;
+  private menuDrawn = false;
 
   /** LST-26 … LST-30: the link the item is while it has a destination and is neither an option nor in a reorderable list (src/primitives/link.ts). */
   private readonly link = new LinkController(this, {
@@ -206,7 +207,7 @@ export class TanreiListItem extends LitElement {
   /** LST-12 / LST-13: the pressed state, press-hold and the answer the system chooses (src/primitives/press.ts). LST-27: a link item is pressed by Enter alone. */
   private readonly press = new PressController(this, {
     container: () => this.row,
-    holdCarrier: () => this.renderRoot.querySelector('.content'),
+    holdCarrier: () => this.renderRoot.querySelector('.hold'),
     disabled: () => !this.active,
     keys: () => this.link.pressKeys,
   });
@@ -299,6 +300,7 @@ export class TanreiListItem extends LitElement {
   /** @internal LST-33: opens the move menu. */
   openMenu() {
     if (!this.context.reorder || this.context.size < 2) return;
+    this.menuDrawn = true;
     this.menuOpen = true;
   }
 
@@ -409,6 +411,16 @@ export class TanreiListItem extends LitElement {
     }
   }
 
+  /** LST-32: the handle's native button says that it opens a menu, and whether it is open. */
+  private async markHandle() {
+    const handle = this.handle;
+    await handle?.updateComplete;
+    const button = handle?.shadowRoot?.querySelector('button');
+    if (!button) return;
+    button.setAttribute('aria-haspopup', 'menu');
+    button.setAttribute('aria-expanded', String(this.menuOpen && this.context.size > 1));
+  }
+
   /** LST-33: the handle was pressed — by pointer, touch, Enter or assistive technology, as a Button is. */
   private onHandleClick(event: Event) {
     const list = this.parentElement;
@@ -450,6 +462,9 @@ export class TanreiListItem extends LitElement {
       tabindex: option ? (tabStop ? '0' : '-1') : null,
     });
     const contextChanged = (changed as Map<PropertyKey, unknown>).has('context');
+    // LST-32: the handle is a button that opens a menu, with its expanded state — said before the menu is first drawn
+    // (the menu says it of its anchor itself once it is).
+    if (this.context.reorder) void this.markHandle();
     if (changed.has('interactive') || changed.has('href') || contextChanged) void this.inspectContent();
     if (changed.has('label') || changed.has('interactive') || changed.has('href') || contextChanged) this.reportName();
     if (changed.has('disabled') && this.disabled) this.spaceDown = false;
@@ -511,15 +526,17 @@ export class TanreiListItem extends LitElement {
               label=${handleName}
               .forwardedDescription=${this.context.handleHint || null}
               ?disabled=${lone}
+              focusable-when-disabled
               @click=${this.onHandleClick}
               ><span slot="icon" class="handle-glyph" data-mirror="never"><span class="ink">${HANDLE_GLYPH}</span></span></tanrei-button
             >`
           : nothing}
         <span part="content" class="content"><slot @slotchange=${this.onContentChange}></slot></span>
+        <span class="hold" aria-hidden="true"></span>
         ${link?.opensNew ? html`<span part="new-context" class="new-context" aria-hidden="true"><span class="ink">${LINK_MARK}</span></span>` : nothing}
         ${this.context.selectable ? html`<span part="mark" class="mark" aria-hidden="true"><span class="ink">${CHECK_GLYPH}</span></span>` : nothing}
       </${tag}>
-      ${reorder
+      ${reorder && this.menuDrawn
         ? html`<tanrei-menu anchor="handle" placement="bottom-start" .open=${this.menuOpen && !lone} @close=${this.onMenuClose}>
             ${MOVES.map(
               (move) =>
@@ -734,7 +751,6 @@ export class TanreiList extends LitElement {
   private places = new Map<TanreiListItem, Box & { name: string }>();
   private readonly motions = new Map<TanreiListItem, Animation>();
   private resize?: ResizeObserver;
-  private recordFrame = 0;
   private scrollFrame = 0;
 
   constructor() {
@@ -1003,12 +1019,14 @@ export class TanreiList extends LitElement {
     this.places = new Map(items.map((item) => [item, { ...this.laidOut(item, origin), name: item.name }]));
   }
 
+  /** Where every item is laid out is read a frame later, with every other list that asked in this turn: one layout for all. */
   private scheduleRecord() {
-    if (this.recordFrame) return;
-    this.recordFrame = requestAnimationFrame(() => {
-      this.recordFrame = 0;
-      this.recordPlaces();
-    });
+    recordTogether(this);
+  }
+
+  /** @internal Called by `recordTogether()`. */
+  recordNow() {
+    this.recordPlaces();
   }
 
   /**
@@ -1603,7 +1621,7 @@ export class TanreiList extends LitElement {
   private readonly onFocusIn = (event: FocusEvent) => {
     const item = itemOf(this, event);
     if (this.isReorderable) {
-      this.heldFocus = item && item.fromHandle(event) ? { item, index: this.items.indexOf(item) } : null;
+      this.heldFocus = item ? { item, index: this.items.indexOf(item) } : null;
       return;
     }
     if (!item || event.composedPath()[0] !== item.focusTarget || item === this.lastFocused) return;
@@ -1638,9 +1656,13 @@ export class TanreiList extends LitElement {
    */
   private keepFocus() {
     const held = this.heldFocus;
-    if (!held || !this.isReorderable || this.pending) return;
+    if (!held || !this.isReorderable) return;
+    if (this.pending && this.items.includes(held.item)) return;
     const items = this.items;
-    if (items.includes(held.item)) return;
+    if (items.includes(held.item)) {
+      held.index = items.indexOf(held.item);
+      return;
+    }
     const active = deepActive();
     if (active && active !== document.body && active !== document.documentElement && active.isConnected) return;
     if (!items.length) {
@@ -1695,8 +1717,7 @@ export class TanreiList extends LitElement {
     for (const motion of this.motions.values()) motion.cancel();
     this.motions.clear();
     this.places.clear();
-    if (this.recordFrame) cancelAnimationFrame(this.recordFrame);
-    this.recordFrame = 0;
+    toRecord.delete(this);
   }
 
   protected override willUpdate(changed: PropertyValues<this>) {
@@ -1762,7 +1783,7 @@ export class TanreiList extends LitElement {
         role=${reorder ? 'list' : 'presentation'}
         aria-label=${reorder && this.label ? this.label : nothing}
       ><slot @slotchange=${this.onSlotChange}></slot></div
-      ><span class="quiet"><span class="announcer" role="status" aria-live="polite"></span></span>`;
+      >${reorder ? html`<span class="quiet"><span class="announcer" role="status" aria-live="polite"></span></span>` : nothing}`;
   }
 }
 
@@ -1789,6 +1810,23 @@ function nearestAcross(slots: readonly Box[], at: number, step: 1 | -1, vertical
   let best = other[0];
   for (const index of other) if (Math.abs(alongCentre(slots[index]) - c) < Math.abs(alongCentre(slots[best]) - c)) best = index;
   return best;
+}
+
+/**
+ * LST-41: the lists whose places are read in the next frame, read together — reads only, one after another, so that the
+ * page is laid out once for all of them and not once for each.
+ */
+const toRecord = new Set<TanreiList>();
+let recordFrame = 0;
+function recordTogether(list: TanreiList) {
+  toRecord.add(list);
+  if (recordFrame) return;
+  recordFrame = requestAnimationFrame(() => {
+    recordFrame = 0;
+    const lists = [...toRecord];
+    toRecord.clear();
+    for (const each of lists) each.recordNow();
+  });
 }
 
 /** The nearest ancestor of `element` that scrolls, across shadow roots; null for the document's own scrolling. */

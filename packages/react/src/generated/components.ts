@@ -976,13 +976,13 @@ export const LinkCard = createComponent({
 });
 
 /**
- * Shows a column of related items that people read, open one by one, choose from, or put in another order.
+ * Holds a set of your own items in one column, one line, or lines that wrap into a grid; people read them, open them one by one, choose from them, or drag them into another order.
  *
  * Children, by their `slot`:
  * - default — The items: `<tanrei-list-item>` children.
  *
  * Events:
- * - `onMove` (`move`) — The user asked for an item to stand in another place, by a move button: `detail.from` is the item's index and `detail.to` the index it is to have, both from 0. Fired once per move; it bubbles and cannot be cancelled. The list has moved nothing: reorder your items.
+ * - `onMove` (`move`) — The user asked for an item to stand in another place — by the move menu, the keyboard or a drag: `detail.from` is the item's index and `detail.to` the index it is to have, both from 0. Fired once per move; it bubbles and cannot be cancelled. The list has moved nothing: reorder your items.
  * - `onChange` (`change`) — The user changed the selection: `detail.value` (single) or `detail.values` (multiple) after the change, which the list already holds.
  */
 export const List = createComponent({
@@ -996,11 +996,10 @@ export const List = createComponent({
 });
 
 /**
- * One row of a list — the spec's item kind `list-item`: a headline with an optional overline, supporting text, leading icon or media and trailing text, icon or control. Placed as a child of `<tanrei-list>`, which decides whether it is an option; otherwise it is static, one action with `interactive`, or a link with `href`.
+ * One item of a list — the spec's item kind `list-item`: a box around your own content (its children). Placed as a child of `<tanrei-list>`, which decides whether it is an option; otherwise it is static, one action with `interactive`, or a link with `href`.
  *
  * Children, by their `slot`:
- * - `leading` — The avatar's or the image's content (an `<img>`, or a monogram for an avatar), drawn only while `leading-media` is `avatar` or `image`. Hidden from assistive technology unless it is named (an `alt`, an `aria-label`).
- * - `trailing` — A control of your own at the end of a static item: a switch, a checkbox, an icon button. It keeps its own tokens, semantics and focus stop. An interactive item or an option must hold no interactive element (reported in debug builds). In a reorderable list it stands after the two move buttons: one control, typically the button that removes the item.
+ * - default — The item's content: your own — text, an image, a card, a file item. An interactive item, a link item or an option must hold no interactive element (reported in debug builds); a static item may hold your controls, which keep their own semantics and focus.
  */
 export const ListItem = createComponent({
   tagName: 'tanrei-list-item',

@@ -322,7 +322,7 @@
       "hasSpec": true,
       "docs": "/components/list/",
       "platforms": {
-        "web": "alpha",
+        "web": "lagging",
         "swiftui": "lagging",
         "compose": "lagging",
         "flutter": "lagging",
@@ -1701,8 +1701,8 @@
   "totals": {
     "web": {
       "planned": 0,
-      "lagging": 83,
-      "alpha": 1,
+      "lagging": 84,
+      "alpha": 0,
       "beta": 0,
       "stable": 0,
       "deprecated": 0

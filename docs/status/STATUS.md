@@ -24,7 +24,7 @@ Listing: 77 default · 7 advanced. A component of the first value is shown where
 | Chip | base | default | selection | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Dialog | base | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Menu | base | default | selection | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| List | base | default | containment | ✓ | ◔ alpha | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| List | base | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Tabs | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Tab view | composed: Tabs | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Snackbar | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |

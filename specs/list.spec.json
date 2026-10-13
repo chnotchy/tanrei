@@ -464,7 +464,7 @@
     },
     {
       "id": "LST-32",
-      "text": "WHILE the list is reorderable THE list SHALL draw in every item, at its start edge and before its content, comp.list.container.gap from it and centred across the item, a handle: an icon-only Tanrei Button of the text variant at Button's small size showing the glyph drag_indicator of the system's icon set, drawn and answering hover, focus and press from Button's tokens, the list's handle in every item the same. THE list SHALL name it by dragHandleLabel with its place {label} filled by the item's name (LST-19), describe it by dragHandleHint, expose it as a button that opens a menu, with its expanded state, and SHALL disable it, as Button disables, WHILE the list holds one item, which has nowhere to go. The handle SHALL be a Tab stop of its own in every item, before the controls of the item's content."
+      "text": "WHILE the list is reorderable THE list SHALL draw in every item, at its start edge and before its content, comp.list.container.gap from it and centred across the item, a handle: an icon-only Tanrei Button of the text variant at Button's small size showing the glyph drag_indicator of the system's icon set, drawn and answering hover, focus and press from Button's tokens, the list's handle in every item the same. THE list SHALL name it by dragHandleLabel with its place {label} filled by the item's name (LST-19), describe it by dragHandleHint, expose it as a button that opens a menu, with its expanded state, and SHALL disable it WHILE the list holds one item, which has nowhere to go — as Button disables a control that stays reachable (focusableWhenDisabled), so that focus that comes to it after the other items were taken away is not lost. The handle SHALL be a Tab stop of its own in every item, before the controls of the item's content."
     },
     {
       "id": "LST-33",
@@ -500,7 +500,7 @@
     },
     {
       "id": "LST-41",
-      "text": "WHEN the order of the items of a reorderable list changes — after a move, or because the product changed it — THE list SHALL move every item whose place changed from where it was drawn to its new place over comp.list.motion.reorder-duration with comp.list.motion.reorder-easing, in both directions where the list wraps, without fading or scaling it, the focus ring travelling with the item that holds focus; an item that is new or gone SHALL appear or leave at once, and an item that was just dropped SHALL not move again."
+      "text": "WHEN the order of the items of a reorderable list changes — after a move, or because the product changed it — THE list SHALL move every item whose place changed from where it was drawn to its new place over comp.list.motion.reorder-duration with comp.list.motion.reorder-easing, in both directions where the list wraps, without fading or scaling it, the focus ring travelling with the item that holds focus; an item that is new or gone SHALL appear or leave at once, and an item that was just dropped SHALL go on from where it is drawn into its place."
     },
     {
       "id": "LST-42",
