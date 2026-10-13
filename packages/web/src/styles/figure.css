@@ -27,7 +27,8 @@
  * a stage or such a picture that is a child of the `figure` itself, with no frame around it, is its own frame.
  *
  * Attributes of the wrapper: `variant` (outlined | filled | plain), `flush` (the stage is not padded), `separation`
- * (auto | divider | gap), `label`, and — for a figure the element builds — `headline` and `caption`.
+ * (auto | divider | gap), `pattern` (none | grid | dots | grid-fade | checkerboard: the ground behind what is shown),
+ * `label`, and — for a figure the element builds — `headline` and `caption`.
  *
  * This stylesheet draws everything, before and without script (an element that is not yet defined is still an
  * element), so a page of figures does not move when the script arrives. The element
@@ -348,8 +349,84 @@
     --_figure-attachment-gap: var(--tanrei-comp-figure-attachment-gap);
   }
 
+  /* ── The ground pattern (FIG-26): decoration behind what is shown, drawn as the stage's own background ─────────────
+     The stage's background, and not an element or a pseudo-element of the figure's: it takes no input and no place in
+     the accessibility tree, the content covers it, it stays in place while the stage scrolls (a background is drawn
+     on the scroll container's box), and a lone picture in place of the stage shows it through its transparent parts.
+     Every value is read on the stage itself, so that a stage scoped to another system draws that system's pattern on
+     that system's fill. The plain look has no stage to draw one on, and a value the figure does not define draws nothing. */
+  :where(tanrei-figure:is([pattern='grid'], [pattern='dots'], [pattern='grid-fade'], [pattern='checkerboard']):not([variant='plain'])) > :where(figure) {
+    & > :where([data-part='frame']) > :where([data-part='stage'], img, picture, video, svg, canvas),
+    & > :where([data-part='stage'], img, picture, video, svg, canvas) {
+      --_figure-ground: var(--tanrei-comp-figure-outlined-container-color);
+      --_figure-ink: var(--tanrei-comp-figure-pattern-color);
+      --_figure-spacing: var(--tanrei-comp-figure-pattern-spacing);
+      --_figure-thickness: var(--tanrei-comp-figure-pattern-line-thickness);
+      --_figure-grid:
+        linear-gradient(to right, var(--_figure-ink) var(--_figure-thickness), transparent var(--_figure-thickness)),
+        linear-gradient(to bottom, var(--_figure-ink) var(--_figure-thickness), transparent var(--_figure-thickness));
+      background-color: var(--_figure-ground);
+      background-position: center;
+      background-repeat: repeat;
+    }
+  }
+  :where(tanrei-figure[variant='filled']:is([pattern='grid'], [pattern='dots'], [pattern='grid-fade'], [pattern='checkerboard'])) > :where(figure) {
+    & > :where([data-part='frame']) > :where([data-part='stage'], img, picture, video, svg, canvas),
+    & > :where([data-part='stage'], img, picture, video, svg, canvas) {
+      --_figure-ground: var(--tanrei-comp-figure-filled-container-color);
+    }
+  }
+  /* grid: a hairline every spacing, across and down. */
+  :where(tanrei-figure[pattern='grid']:not([variant='plain'])) > :where(figure) {
+    & > :where([data-part='frame']) > :where([data-part='stage'], img, picture, video, svg, canvas),
+    & > :where([data-part='stage'], img, picture, video, svg, canvas) {
+      background-image: var(--_figure-grid);
+      background-size: var(--_figure-spacing) var(--_figure-spacing);
+    }
+  }
+  /* dots: a dot at every crossing of that grid — the centre of each cell, so that one stands at the stage's centre. */
+  :where(tanrei-figure[pattern='dots']:not([variant='plain'])) > :where(figure) {
+    & > :where([data-part='frame']) > :where([data-part='stage'], img, picture, video, svg, canvas),
+    & > :where([data-part='stage'], img, picture, video, svg, canvas) {
+      background-image: radial-gradient(
+        circle,
+        var(--_figure-ink) calc(var(--tanrei-comp-figure-pattern-dot-size) / 2),
+        transparent calc(var(--tanrei-comp-figure-pattern-dot-size) / 2)
+      );
+      background-size: var(--_figure-spacing) var(--_figure-spacing);
+    }
+  }
+  /* grid-fade: the grid under the fill, which is whole at the centre and gone at the corners — the grid is clear to
+     clear-extent of the way from the centre and grows to full strength at the corners. */
+  :where(tanrei-figure[pattern='grid-fade']:not([variant='plain'])) > :where(figure) {
+    & > :where([data-part='frame']) > :where([data-part='stage'], img, picture, video, svg, canvas),
+    & > :where([data-part='stage'], img, picture, video, svg, canvas) {
+      background-image:
+        radial-gradient(ellipse at center, var(--_figure-ground) calc(var(--tanrei-comp-figure-pattern-clear-extent) * 100%), transparent 100%),
+        var(--_figure-grid);
+      background-size:
+        100% 100%,
+        var(--_figure-spacing) var(--_figure-spacing),
+        var(--_figure-spacing) var(--_figure-spacing);
+      background-repeat: no-repeat, repeat, repeat;
+    }
+  }
+  /* checkerboard: squares of checkerboard-size, the fill and the pattern's color in turn. */
+  :where(tanrei-figure[pattern='checkerboard']:not([variant='plain'])) > :where(figure) {
+    & > :where([data-part='frame']) > :where([data-part='stage'], img, picture, video, svg, canvas),
+    & > :where([data-part='stage'], img, picture, video, svg, canvas) {
+      background-image: conic-gradient(var(--_figure-ink) 25%, transparent 0 50%, var(--_figure-ink) 0 75%, transparent 0);
+      background-size: calc(var(--tanrei-comp-figure-pattern-checkerboard-size) * 2) calc(var(--tanrei-comp-figure-pattern-checkerboard-size) * 2);
+    }
+  }
+
   /* ── Forced colors (FIG-20): an edge in the text color in the outlined and the filled looks, none in the plain ── */
   @media (forced-colors: active) {
+    /* FIG-20, FIG-26: no ground pattern — nothing but the person's own background behind the content. */
+    :where(tanrei-figure) > :where(figure) > :where([data-part='frame']) > :where([data-part='stage'], img, picture, video, svg, canvas),
+    :where(tanrei-figure) > :where(figure) > :where([data-part='stage'], img, picture, video, svg, canvas) {
+      background-image: none;
+    }
     :where(tanrei-figure) {
       --_figure-edge: var(--tanrei-comp-figure-outline-width);
       --_figure-edge-color: CanvasText;

@@ -8,6 +8,11 @@ import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
 export type TanreiFigureVariant = keyof TanreiFigureVariantRegistry;
 /** How the parts inside the frame are told apart (FIG-12): `auto` takes `comp.figure.separation`. */
 export type TanreiFigureSeparation = SeparationProp;
+/** The ground pattern behind what is shown (FIG-26). */
+export type TanreiFigurePattern = 'none' | 'grid' | 'dots' | 'grid-fade' | 'checkerboard';
+const PATTERNS: readonly string[] = ['none', 'grid', 'dots', 'grid-fade', 'checkerboard'];
+/** The figures that draw a pattern, as figure.css selects them. */
+const PATTERNED = `:is(${PATTERNS.slice(1).map((pattern) => `[pattern='${pattern}']`).join(', ')})`;
 
 // The text of src/styles/figure.css — the stylesheet that draws the figure — written in by the build
 // (scripts/build.js), so the element can add it to whichever root it is connected to. A build that wrote nothing
@@ -57,10 +62,17 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
 }
 
 /**
- * FIG-24: a look a design system added — the default's rules with that look's fill. In no cascade layer, so
- * that it also wins over a copy of figure.css a page loads into a layer of its own.
+ * FIG-24: a look a design system added — the default's rules with that look's fill, which is also the ground a
+ * pattern is drawn on (FIG-26), read on the stage. In no cascade layer, so that it also wins over a copy of figure.css
+ * a page loads into a layer of its own.
  */
-const variantRules = (variant: string) => `:where(${TAG}[variant='${variant}']) { --_figure-fill: var(${PREFIX}-${variant}-container-color, var(${PREFIX}-${DEFAULT_VARIANT}-container-color)); }`;
+const variantRules = (variant: string) => {
+  const fill = `var(${PREFIX}-${variant}-container-color, var(${PREFIX}-${DEFAULT_VARIANT}-container-color))`;
+  const stages = `:is([data-part='stage'], img, picture, video, svg, canvas)`;
+  return `:where(${TAG}[variant='${variant}']) { --_figure-fill: ${fill}; }
+:where(${TAG}[variant='${variant}']${PATTERNED}) > :where(figure) > :where([data-part='frame']) > :where(${stages}),
+:where(${TAG}[variant='${variant}']${PATTERNED}) > :where(figure) > :where(${stages}) { --_figure-ground: ${fill}; }`;
+};
 
 /** Writes an attribute only when it differs: what is written here is observed, and must settle. */
 function mark(element: Element, name: string, value: string | null) {
@@ -140,6 +152,7 @@ export class TanreiFigure extends ReactiveElement {
       converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
     },
     separation: { type: String, reflect: true, useDefault: true },
+    pattern: { type: String, reflect: true, useDefault: true },
   };
 
   /**
@@ -163,6 +176,9 @@ export class TanreiFigure extends ReactiveElement {
 
   /** How the parts inside the frame are told apart: `divider` draws a line under the header and above the attachment, `gap` draws none and stands the attachment inside the frame; `auto` takes `comp.figure.separation`, the design system's answer. */
   separation: TanreiFigureSeparation = 'auto';
+
+  /** The ground pattern behind what is shown, across the stage: `none`, `grid` (lines), `dots` (a dot grid), `grid-fade` (the grid, clear around the centre) or `checkerboard` (where a picture may be transparent). Decoration only; the plain look and forced colors draw none. */
+  pattern: TanreiFigurePattern = 'none';
 
   private readonly resizes = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure());
   private readonly mutations = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.read());
@@ -201,6 +217,10 @@ export class TanreiFigure extends ReactiveElement {
     // FIG-12: a separation the figure does not define is auto (no rule matches the attribute); a debug build says so.
     if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'FIG-12', `separation "${this.separation}" is not a value the figure defines; it is drawn as "auto"`);
+    }
+    // FIG-26: a pattern the figure does not define draws none (no rule draws it); a debug build says so.
+    if (changed.has('pattern') && !PATTERNS.includes(String(this.pattern ?? ''))) {
+      report(this, 'FIG-26', `pattern "${this.pattern}" is not a value the figure defines; no pattern is drawn`);
     }
     if (changed.has('variant')) this.readVariant();
     this.read();
