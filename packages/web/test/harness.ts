@@ -2209,7 +2209,7 @@ export async function mountFixtureAsInAll(page: Page, spec: Spec, fixture: Fixtu
 }
 
 /**
- * A glyph's missing-font rule (CHK-19, LST-27, SEG-25, SRC-30, FBM-24) observed on any machine: the icon set names a
+ * A glyph's missing-font rule (CHK-19, LST-22, SEG-25, SRC-30, FBM-24) observed on any machine: the icon set names a
  * family no machine has (the default's may be installed locally), so its font is missing, as on a page that has not
  * loaded it (yet); another `family` names another missing one. Returns the family, for `iconFaceArrives()`.
  */

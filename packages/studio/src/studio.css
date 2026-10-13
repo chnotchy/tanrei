@@ -1149,8 +1149,30 @@
 .ts-stack-empty[hidden] {
   display: none;
 }
-.ts-stack-list > tanrei-list-item::part(headline) {
+.ts-stack-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-block-size: 3rem;
+  padding-inline-end: 0.25rem;
+}
+.ts-stack-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+.ts-stack-family {
   font-family: var(--ts-stack-face);
+  font-size: var(--ts-text-sm);
+}
+.ts-stack-missing {
+  font-size: var(--ts-text-xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-stack-missing[hidden] {
+  display: none;
 }
 .ts-stack-empty {
   display: flex;

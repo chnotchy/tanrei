@@ -3,7 +3,6 @@
 import { argbToColor, hexToArgb } from '@tanrei/token-engine';
 import { HEX_PATTERN, MIN_REASON } from '../core.js';
 import { GENERIC_CHOICES, SUGGESTED_FAMILIES, composeStack, cssFontFamily, familyName, inferredGeneric, parseStack, systemKeywordFor } from '../fonts.js';
-import { moveItem } from '../keys.js';
 import { type Ctx, type Json, choice, codeField, format, h, isolated, rich, short, trim } from './dom';
 import { fontAvailable } from './fonts';
 
@@ -163,10 +162,11 @@ export function availabilityNote(ctx: Ctx, attrs: Json = {}) {
 export function stackWidget(ctx: Ctx, { label, value, kind = 'text', onchange }: { label: string; value: string[]; kind?: 'text' | 'mono'; onchange: Change }): Widget<string[]> & { set(value: string[]): void } {
   const { t } = ctx;
   let model = parseStack(value);
-  // The families are a reorderable List (LST-36): the order is the Studio's data, so the list asks (`move`) and the
-  // Studio answers — it reorders the stack and draws it. The two move buttons, where focus stands after a move or a
-  // removal, and what is announced are the list's; the three words are the Studio's, given once (ui.ts).
-  const list = h('tanrei-list', { class: 'ts-stack-list', reorder: 'buttons', label: t.named(label, t.fonts.families), 'data-stack-list': true });
+  // The families are a reorderable List (LST-31): the order is the Studio's data, so the list asks (`move`) and the
+  // Studio answers — it reorders the stack and draws it. The handle with its menu of moves, dragging, the keyboard's
+  // lift, where focus stands after a move or a removal, and what is announced are the list's; the words are the
+  // Studio's, given once (ui.ts).
+  const list = h('tanrei-list', { class: 'ts-stack-list', reorderable: true, dividers: true, label: t.named(label, t.fonts.families), 'data-stack-list': true });
   const empty = h('p', { class: 'ts-stack-empty', 'data-stack-empty': true, hidden: true });
   const note = availabilityNote(ctx, { 'data-font-note': true });
   const sample = h('p', { class: 'ts-stack-sample', 'aria-hidden': 'true', 'data-stack-sample': true, text: t.fonts.sample });
@@ -187,24 +187,33 @@ export function stackWidget(ctx: Ctx, { label, value, kind = 'text', onchange }:
   list.addEventListener('move', (event) => {
     if (event.target !== list) return;
     const { from, to } = (event as CustomEvent<{ from: number; to: number }>).detail;
-    model = { ...model, families: moveItem(model.families, from, to - from) };
+    // A move may cross several places (the menu's start and end, the keyboard, a drag): the family is taken out and put back at `to`.
+    const families = [...model.families];
+    const [moved] = families.splice(from, 1);
+    if (moved === undefined) return;
+    families.splice(to, 0, moved);
+    model = { ...model, families };
     changed();
   });
-  /** One family: an item named by it and drawn in its own face, with the button that removes it after the move buttons. */
+  /** One family: an item named by it, its name drawn in its own face, with the button that removes it at its end. */
   function row(family: string) {
-    const item = h('tanrei-list-item', { headline: family, 'data-family': family });
+    const missing = h('span', { class: 'ts-stack-missing', 'data-stack-missing': true, hidden: true, text: t.fonts.missingShort });
+    const item = h('tanrei-list-item', { label: family, 'data-family': family });
     item.append(
-      h('tanrei-button', { slot: 'trailing', variant: 'text', label: t.labelled(t.fonts.remove, family), 'data-act': 'remove', onclick: () => {
-        // The row is found where it stands now: it may have been moved since it was drawn.
-        const index = [...list.children].indexOf(item);
-        model = { ...model, families: model.families.filter((_, i) => i !== index) };
-        changed();
-        // The list puts focus on the remove button of the row that took this one's place (LST-52); with no row left
-        // it is the Studio's, and goes to the field that adds one.
-        if (!model.families.length) input.focus();
-      } }, h('span', { slot: 'icon', text: 'close' })),
+      h('span', { class: 'ts-stack-row' },
+        h('span', { class: 'ts-stack-text' }, h('span', { class: 'ts-stack-family', text: family }), missing),
+        h('tanrei-button', { variant: 'text', label: t.labelled(t.fonts.remove, family), 'data-act': 'remove', onclick: () => {
+          // The item is found where it stands now: it may have been moved since it was drawn.
+          const index = [...list.children].indexOf(item);
+          model = { ...model, families: model.families.filter((_, i) => i !== index) };
+          changed();
+          // The list puts focus on the handle of the item that took this one's place (LST-46); with no item left it is
+          // the Studio's, and goes to the field that adds one.
+          if (!model.families.length) input.focus();
+        } }, h('span', { slot: 'icon', text: 'close' })),
+      ),
     );
-    fontAvailable(family).then((available) => (item.supportingText = available ? '' : t.fonts.missingShort));
+    fontAvailable(family).then((available) => (missing.hidden = available));
     return item;
   }
   function add(raw: string) {
@@ -227,7 +236,6 @@ export function stackWidget(ctx: Ctx, { label, value, kind = 'text', onchange }:
       const item = ([...list.children] as HTMLElement[]).slice(index).find((each) => each.dataset.family === family) ?? row(family);
       if (list.children[index] !== item) list.insertBefore(item, list.children[index] ?? null);
       item.style.setProperty('--ts-stack-face', cssFontFamily([family, fallback]));
-      item.toggleAttribute('divider', index < model.families.length - 1);
     });
     while (list.children.length > model.families.length) list.lastElementChild!.remove();
     list.hidden = !model.families.length;

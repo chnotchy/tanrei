@@ -50,7 +50,7 @@ const glow = (selector: string, color = SYSTEM_COLOR) => `
  *
  * `inside` draws the whole indicator inside the element instead — the outer stroke on its edge, the inner stroke within
  * it, the content beyond — for an element whose parent would clip what it draws outside (a list row in a scrolling
- * list, a menu item in its surface: LST-4, MNU-11). It is the ring drawn around the element shrunk by the ring's
+ * list, a menu item in its surface: LST-10, MNU-11). It is the ring drawn around the element shrunk by the ring's
  * extent, so its corners stay concentric; the glow likewise starts that far inside and spreads out to the edge.
  * Never name an element that scrolls: the inner stroke and the glow are its `::after`, which would move away with what
  * it scrolls. Name a box over it that does not scroll — `(focus) => \`.scroll${focus} ~ .focus\`` — as the code block,

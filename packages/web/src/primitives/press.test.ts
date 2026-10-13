@@ -23,7 +23,7 @@ const SUBJECTS: readonly (readonly [component: string, fixture: string, pressed:
   ['search', 'trigger', '.trigger', 'SRC-19'],
   ['navigation-bar', 'four-destinations', '.cell', 'NVB-8'],
   ['navigation-drawer', 'standard', '.cell', 'NVD-8'],
-  ['list', 'interactive', '.row.p', 'LST-8'],
+  ['list', 'interactive', '.row.p', 'LST-12'],
   ['checkbox', 'unselected', '.root', 'CHK-9'],
   ['radio-button', 'unselected', '.root', 'RAD-11'],
   ['switch', 'unselected', '.root', 'SWT-7'],

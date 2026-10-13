@@ -130,7 +130,7 @@ export function mountStudio(root: HTMLElement, { lang = 'en', adapter, links = {
   // A language written right-to-left is laid out so. A host that already is — a page in that language —
   // is left alone; one that is not gets the direction on the Studio's root, for the Studio alone.
   if (studioDirection(speaks) === 'rtl' && getComputedStyle(root).direction !== 'rtl') root.dir = 'rtl';
-  setWords({ requiredText: t.words.required, optionalText: t.words.optional, incrementLabel: t.words.increase, decrementLabel: t.words.decrease, clearLabel: t.words.clear, emptyText: t.words.noMatches, moveUpLabel: t.fonts.moveUp, moveDownLabel: t.fonts.moveDown, movedText: t.fonts.moved }, { lang: root.lang });
+  setWords({ requiredText: t.words.required, optionalText: t.words.optional, incrementLabel: t.words.increase, decrementLabel: t.words.decrease, clearLabel: t.words.clear, emptyText: t.words.noMatches, dragHandleLabel: t.fonts.reorder, dragHandleHint: t.fonts.reorderHint, moveToStartLabel: t.fonts.toStart, moveBeforeLabel: t.fonts.before, moveAfterLabel: t.fonts.after, moveToEndLabel: t.fonts.toEnd, liftedText: t.fonts.lifted, movedText: t.fonts.moved, cancelledText: t.fonts.cancelled }, { lang: root.lang });
   const status = h('p', { class: 'ts-status', role: 'status', 'aria-live': 'polite', 'data-status': true });
   const controls = h('div', { class: 'ts-controls', 'data-controls': true });
   const preview = createPreview(ctx, { contrast, onContrast: (next) => ((contrast = next), update()) });

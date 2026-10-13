@@ -81,7 +81,7 @@ export function itemRowStyles({ prefix, parts, conditions, on, paints }: ItemRow
 }
 
 /**
- * LST-5, MNU-12: a pressable row is at least `sys.target.pointer` tall for a fine pointer and `sys.target.touch` for a
+ * LST-11, MNU-12: a pressable row is at least `sys.target.pointer` tall for a fine pointer and `sys.target.touch` for a
  * coarse one — rows that touch cannot extend a hit area over each other, so the row itself grows — and at least `height`
  * (its own minimum) whatever the pointer.
  */

@@ -364,9 +364,12 @@ test('NMI-26: a stepper pressed by pointer to the limit is disabled and focus ha
   expect(await heard(page)).toEqual([]);
 });
 
-const LIST = `<tanrei-list id="host" reorder="buttons" move-up-label="Move up" move-down-label="Move down" moved-text="{headline}: {position} of {count}">${['Inbox', 'Starred', 'Sent'].map((headline) => `<tanrei-list-item headline="${headline}"></tanrei-list-item>`).join('')}</tanrei-list>`;
+const LIST = `<tanrei-list id="host" reorderable label="Folders" drag-handle-label="Reorder {label}" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned">${['Inbox', 'Starred', 'Sent'].map((name) => `<tanrei-list-item label="${name}">${name}</tanrei-list-item>`).join('')}</tanrei-list>`;
 
-test('LST-40, LST-41: a move by the keyboard to the last place disables the button focus was on and puts focus on the item’s other move button, and a page hears no focus go nowhere on the way — whether the product reorders in the handler or a turn later, and with new items for the same content focus arrives there too', async ({ page }) => {
+// The list once disabled the move button focus was on at the end of the list; its handle is never disabled by a move,
+// so what is held here is the other half of that case: the focused handle's item changes place in the document (or is
+// replaced) under the keyboard, and focus arrives on the moved item's handle without going nowhere on the way.
+test('LST-35, LST-43: a move by the keyboard to the last place keeps focus on the moved item’s handle, and a page hears no focus go nowhere on the way — whether the product reorders in the handler or a turn later, and with new items for the same content focus arrives there too', async ({ page }) => {
   for (const product of ['in the handler', 'a turn later', 'new items'] as const) {
     await mount(page, `<div id="editor">${LIST}</div>`);
     await page.evaluate((product) => {
@@ -379,7 +382,7 @@ test('LST-40, LST-41: a move by the keyboard to the last place disables the butt
           if (product === 'new items') {
             const [moved] = items.splice(from, 1);
             items.splice(to, 0, moved!);
-            list.innerHTML = items.map((item) => `<tanrei-list-item headline="${item.getAttribute('headline')}"></tanrei-list-item>`).join('');
+            list.innerHTML = items.map((item) => `<tanrei-list-item label="${item.getAttribute('label')}">${item.getAttribute('label')}</tanrei-list-item>`).join('');
           } else if (to > from) list.insertBefore(items[to]!, items[from]!);
           else list.insertBefore(items[from]!, items[to]!);
         };
@@ -387,15 +390,17 @@ test('LST-40, LST-41: a move by the keyboard to the last place disables the butt
         else reorder();
       });
     }, product);
-    await page.locator('#host').evaluate((el) => (el.children[1]!.shadowRoot!.querySelector('.move.down') as HTMLElement).focus());
+    await page.locator('#host').evaluate((el) => (el.children[1]!.shadowRoot!.querySelector('.handle') as HTMLElement).focus());
     await frames(page);
     await heard(page);
-    await page.keyboard.press('Enter');
+    await page.keyboard.press('Space');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Space');
     await page.evaluate(() => window.probe.settle());
     await frames(page, 6);
-    expect(await page.locator('#host').evaluate((el) => [...el.children].map((item) => item.getAttribute('headline'))), product).toEqual(['Inbox', 'Sent', 'Starred']);
-    expect(await deep(page), product).toMatch(/^tanrei-list-item > tanrei-button\.move\.up/);
-    expect(await page.evaluate(() => (document.activeElement as HTMLElement).getAttribute('headline')), product).toBe('Starred');
+    expect(await page.locator('#host').evaluate((el) => [...el.children].map((item) => item.getAttribute('label'))), product).toEqual(['Inbox', 'Sent', 'Starred']);
+    expect(await deep(page), product).toMatch(/^tanrei-list-item > tanrei-button[^ ]*\.handle/);
+    expect(await page.evaluate(() => (document.activeElement as HTMLElement).getAttribute('label')), product).toBe('Starred');
     // New elements for the same content: the focused one is gone, which is the product's doing and may be heard.
     if (product !== 'new items') expect((await heard(page)).filter((entry) => entry.endsWith('->nowhere')), product).toEqual([]);
   }

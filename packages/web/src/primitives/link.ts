@@ -173,8 +173,8 @@ export const linkAttributes = directive(LinkAttributesDirective);
 export interface LinkOptions {
   /**
    * The behaviour ids a debug report cites: `refused` — the sentence that says which forms take no destination, that an
-   * unknown `target` is `same` and which addresses are refused (BTN-26, CRD-23, CHP-37, LST-35); `newContext` — the one
-   * that says a link which opens a new context says so through `targetLabel` (BTN-24, CRD-21, CHP-35, LST-33).
+   * unknown `target` is `same` and which addresses are refused (BTN-26, CRD-23, CHP-37, LST-30); `newContext` — the one
+   * that says a link which opens a new context says so through `targetLabel` (BTN-24, CRD-21, CHP-35, LST-28).
    */
   ids: { refused: string; newContext: string };
   /** Whether the control is disabled now (D9). */
