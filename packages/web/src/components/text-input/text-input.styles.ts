@@ -444,13 +444,14 @@ export const styles = css`
   /* TXI-67: beside a prefix, the value of an always left-to-right type — and an empty field's placeholder — stands
      against the prefix, at the start of the run (the row's own dir), in every layout direction: "https://" and the
      address after it are one string, not set apart by the width of the field. Without a prefix it stays at the field's
-     start edge (above). The prefix is drawn only where its text is (OUT_OF_LINE). */
-  :host ${unsafeCSS(OUT_OF_LINE)} .body[dir='ltr'] .prefix:not(:empty) ~ .input,
-  :host ${unsafeCSS(OUT_OF_LINE)} .body[dir='ltr'] .prefix:not(:empty) ~ .input::placeholder {
+     start edge (above). (While a floating label rests in the input line the prefix is not drawn, and there is then no
+     value and no placeholder to place.) */
+  :host .body[dir='ltr'] .prefix:not(:empty) ~ .input,
+  :host .body[dir='ltr'] .prefix:not(:empty) ~ .input::placeholder {
     text-align: left;
   }
-  :host ${unsafeCSS(OUT_OF_LINE)} .body[dir='rtl'] .prefix:not(:empty) ~ .input,
-  :host ${unsafeCSS(OUT_OF_LINE)} .body[dir='rtl'] .prefix:not(:empty) ~ .input::placeholder {
+  :host .body[dir='rtl'] .prefix:not(:empty) ~ .input,
+  :host .body[dir='rtl'] .prefix:not(:empty) ~ .input::placeholder {
     text-align: right;
   }
   /* TXI-24: in a multiline field each paragraph takes the direction, and the alignment, of its own first strong

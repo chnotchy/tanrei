@@ -179,8 +179,9 @@ test('the text field has no group of its own: the box is the one set, the text i
   assert.deepEqual(Object.keys(model.tokens).filter((id) => id.startsWith(`${TEXT_INPUT}.`) && model.tokens[`${INPUT_BOX}.${id.slice(TEXT_INPUT.length + 1)}`]), []);
   // 70 with the count's three, and eight for the value text: four written, and the
   // focused and disabled values of its two colors. Four more for the error text (its gap, and its color
-  // at rest, focused and disabled), and 28 fewer since the requirement tag is the Tag's.
-  assert.equal(count('field'), 54);
+  // at rest, focused and disabled), 28 fewer since the requirement tag is the Tag's, and one for where the error text
+  // stands beside the help (error-text.placement).
+  assert.equal(count('field'), 55);
 });
 
 test('a split field has no group of its own: the box is the one set, its input has what it alone draws, the Field the rows', async () => {
