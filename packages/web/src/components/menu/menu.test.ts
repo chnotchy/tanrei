@@ -170,13 +170,21 @@ const drawn = (page: P, id: string, n: number) =>
     const r = getComputedStyle(root.querySelector('.row')!);
     return { bg: r.backgroundColor, label: getComputedStyle(root.querySelector('.label')!).color, opacity: r.opacity };
   });
-const expected = async (page: P, condition: 'unselected' | 'selected' | 'destructive' | 'expanded', state = '') => {
+const expected = async (page: P, condition: 'unselected' | 'selected' | 'current' | 'destructive' | 'expanded', state = '') => {
   const name = (part: string) => T(`${condition}-${state ? `${state}-` : ''}${part}`);
   return {
     bg: await resolveColor(page, name('container-color')),
     label: await resolveColor(page, name('label-color')),
     opacity: state ? await token(page, T(`${state}-opacity`)) : '1',
   };
+};
+/**
+ * The document in a contrast scheme, as a person's setting or the product puts it there: `data-tanrei-contrast` on
+ * <html>. The menu reads its tokens in that scheme and decides nothing by it (MNU-37). Resolves once the tokens follow.
+ */
+const inContrast = async (page: P, level: 'medium' | 'high' | null) => {
+  await page.evaluate((l) => (l ? document.documentElement.setAttribute('data-tanrei-contrast', l) : document.documentElement.removeAttribute('data-tanrei-contrast')), level);
+  await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
 };
 
 const EDIT = [it('Cut', { shortcut: ['mod+x'] }), it('Copy', { shortcut: ['mod+c'] }), it('Paste', { disabled: true }), it('Select all')];
@@ -2012,8 +2020,8 @@ test.describe('submenus', () => {
     expect(await css(own, 'animation-name')).toBe('none');
   });
 
-  test('MNU-50: over the sheet the open item’s fill is the color of a hovered plain row, with the pointer elsewhere and with the pointer on it, in light and in dark; under keyboard focus and under a press it takes the plain row’s focused and pressed colors; it is never the color of a checked row', async ({ page }) => {
-    const fixtures = spec.fixtures.filter((fixture) => ['actions', 'checkbox-checked', 'submenu-open'].includes(fixture.id));
+  test('MNU-50: over the sheet the open item’s fill is the color of a hovered plain row, with the pointer elsewhere and with the pointer on it, in light and in dark; under keyboard focus and under a press it takes the plain row’s focused and pressed colors; it is never the color of the current link item’s row', async ({ page }) => {
+    const fixtures = spec.fixtures.filter((fixture) => ['actions', 'links-current', 'submenu-open'].includes(fixture.id));
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true, fixtures });
       const host = labelled(page, 'submenu-open', 'Open recent');
@@ -2032,11 +2040,11 @@ test.describe('submenus', () => {
       await expect(open).toHaveClass(/expanded/);
       expect(sameColor(await paintedIn(page, open), fill), theme).toBe(true);
       expect(await settledCss(open, 'background-color'), theme).toBe(await resolveColor(page, T('expanded-hovered-container-color')));
-      // Never a checked row's color: that one is a step stronger.
+      // Never the color of the row the person is on (the one filled row at rest, MNU-58): that one is a step stronger.
       await page.mouse.move(0, 0);
-      const checked = await paintedIn(page, row(page, 'checkbox-checked', 0));
-      expect(contrast(checked, fill), theme).toBeGreaterThanOrEqual(1.1);
-      expect(contrast(checked, sheet), theme).toBeGreaterThan(contrast(fill, sheet));
+      const current = await paintedIn(page, row(page, 'links-current', 1));
+      expect(contrast(current, fill), theme).toBeGreaterThanOrEqual(1.1);
+      expect(contrast(current, sheet), theme).toBeGreaterThan(contrast(fill, sheet));
       // Under a press, and under keyboard focus: the plain row's pressed and focused colors, as they are painted.
       await open.hover();
       await page.mouse.down();
@@ -2457,11 +2465,21 @@ test.describe('separation, selection and marks', () => {
     await expect(nested.locator('.divider')).toBeHidden();
   });
 
-  test('MNU-37: a checked row is filled with the selected container color within its own corners, its label, supporting text, trailing text and icons in the selected colors; checked rows next to each other are not joined; the choice is never the fill alone', async ({ page }) => {
-    const selected = await expected(page, 'selected');
-    expect(selected.bg).not.toBe((await expected(page, 'unselected')).bg);
+  test('MNU-37: a checked row is filled with the selected container color of the scheme it is drawn in within its own corners — none at standard contrast in the default system, a fill at medium and high — its label, supporting text, trailing text and icons in the selected colors; checked rows next to each other are not joined; the choice is never the fill alone', async ({ page }) => {
+    // Standard contrast: the default system gives a checked row no fill; its mark tells it.
+    let selected = await expected(page, 'selected');
+    expect(selected.bg, 'no fill: alpha 0').toMatch(/(\/ ?0|, ?0)\)$/);
     for (const [id, n] of [['checkbox-checked', 0], ['radio-checked', 0], ['selected-supporting-text', 0]] as const) await expect.poll(() => drawn(page, id, n), id).toEqual(selected);
     await expect.poll(() => drawn(page, 'checkbox-checked', 1)).toEqual(await expected(page, 'unselected'));
+    // Medium and high contrast: the same token gives the fill, and the menu draws it.
+    for (const level of ['medium', 'high'] as const) {
+      await inContrast(page, level);
+      selected = await expected(page, 'selected');
+      expect(selected.bg, level).not.toBe((await expected(page, 'unselected')).bg);
+      for (const [id, n] of [['checkbox-checked', 0], ['radio-checked', 0], ['selected-supporting-text', 0]] as const) await expect.poll(() => drawn(page, id, n), `${level} ${id}`).toEqual(selected);
+      await expect.poll(() => drawn(page, 'checkbox-checked', 1), level).toEqual(await expected(page, 'unselected'));
+    }
+    await inContrast(page, null);
     const chosen = row(page, 'selected-supporting-text', 0);
     expect(await settledCss(chosen.locator('.supporting'), 'color')).toBe(await resolveColor(page, T('selected-supporting-text-color')));
     expect(await settledCss(chosen.locator('.trailing-text'), 'color')).toBe(await resolveColor(page, T('selected-trailing-text-color')));
@@ -2483,10 +2501,30 @@ test.describe('separation, selection and marks', () => {
     }
   });
 
-  test('MNU-37: over the sheet an unchecked row at rest, a hovered unchecked row, a checked row and a hovered checked row are four colors in that order of strength, each at least 1.1:1 from the one before, in light and in dark, the checked row’s content keeping 4.5:1 on its fill in every state; the fill follows a sheet a layer has recolored, and fades in without a color between that is neither', async ({ page }) => {
+  test('MNU-37: at standard contrast a checked row at rest is the sheet and a hovered one a hovered unchecked row, in light and in dark', async ({ page }) => {
     const fixtures = spec.fixtures.filter((fixture) => fixture.id === 'checkbox-checked');
     for (const theme of ['light', 'dark'] as const) {
       await mountFixtures(page, spec, { theme, icons: true, fixtures });
+      const [checked, unchecked] = [row(page, 'checkbox-checked', 0), row(page, 'checkbox-checked', 1)];
+      await page.mouse.move(0, 0);
+      const sheet = await paintedIn(page, unchecked);
+      expect(sameColor(await paintedIn(page, checked), sheet), `${theme} at rest`).toBe(true);
+      await unchecked.hover();
+      const hovered = await paintedIn(page, unchecked);
+      await checked.hover();
+      expect(sameColor(await paintedIn(page, checked), hovered), `${theme} hovered`).toBe(true);
+      // The mark tells it, and its label keeps 4.5:1 on the sheet.
+      await expect(checked.locator('.box')).toBeVisible();
+      await page.mouse.move(0, 0);
+      expect(contrast(rgbOf(await settledCss(checked.locator('.label'), 'color')), sheet), theme).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  test('MNU-37: at high contrast, over the sheet an unchecked row at rest, a hovered unchecked row, a checked row and a hovered checked row are four colors in that order of strength, each at least 1.1:1 from the one before, in light and in dark, the checked row’s content keeping 4.5:1 on its fill in every state; the fill follows a sheet a layer has recolored, and fades in without a color between that is neither', async ({ page }) => {
+    const fixtures = spec.fixtures.filter((fixture) => fixture.id === 'checkbox-checked');
+    for (const theme of ['light', 'dark'] as const) {
+      await mountFixtures(page, spec, { theme, icons: true, fixtures });
+      await inContrast(page, 'high');
       const [checked, unchecked] = [row(page, 'checkbox-checked', 0), row(page, 'checkbox-checked', 1)];
       expect(await resolveToken(page, T('container-padding-inline')), 'the sampled pixel is in the row’s padding').toBeGreaterThan(IN_PADDING);
       await page.mouse.move(0, 0);
@@ -2531,6 +2569,7 @@ test.describe('separation, selection and marks', () => {
     // A layer that recolors the sheet: the checked row is that sheet with the same layer over it — still apart from it.
     for (const [theme, ground] of [['light', 'rgb(255, 236, 200)'], ['dark', 'rgb(20, 40, 80)']] as const) {
       await mountFixtures(page, spec, { theme, icons: true, fixtures });
+      await inContrast(page, 'high');
       await page.mouse.move(0, 0);
       const before = await paintedIn(page, row(page, 'checkbox-checked', 0));
       await override(page, { [T('surface-color')]: ground });
@@ -2542,6 +2581,7 @@ test.describe('separation, selection and marks', () => {
     // MNU-27: an unfilled row becoming a filled one passes through nothing but what lies between the two — both ends are
     // translucent, and a fade that went by way of an opaque or a darker color would show here.
     await mountFixtures(page, spec, { icons: true, fixtures });
+    await inContrast(page, 'high');
     // (60 s: the fade is found and then held in later answers, and a slow runner's answers come half a second apart.)
     await override(page, { [T('motion-state-duration')]: '60s', [T('motion-state-easing')]: 'linear' });
     await page.mouse.move(0, 0);
@@ -3010,7 +3050,7 @@ test.describe('link items', () => {
     expect(await labelled(page, 'links', 'Guides').evaluate((el) => [...el.shadowRoot!.adoptedStyleSheets].some((sheet) => [...sheet.cssRules].some((rule) => rule.cssText.includes(':visited'))))).toBe(false);
   });
 
-  test('MNU-58: a link item that is current is exposed as the current page on its anchor, still a menu item, and drawn from the selected condition — a checked row’s fill and colors — with no mark and its label’s own weight; current without a destination is ignored and reported; the menu never sets it', async ({ page }) => {
+  test('MNU-58: a link item that is current is exposed as the current page on its anchor, still a menu item, and drawn from the current condition — the fill of the row the person is on, in every contrast scheme, apart from a checked row’s — with no mark and its label’s own weight; current without a destination is ignored and reported; the menu never sets it', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'links-current') });
     const [guides, components] = [linkRow(page, 'links-current', 'Guides'), linkRow(page, 'links-current', 'Components')];
@@ -3021,10 +3061,18 @@ test.describe('link items', () => {
     const fixture = page.locator('[data-fixture="links-current"]');
     await expect(fixture.getByRole('menuitem')).toHaveCount(3);
     await expect(fixture.getByRole('link')).toHaveCount(0);
-    // The selected condition: the fill of a checked row and its colors, and the other rows as actions are drawn.
+    // The current condition: its own fill and colors, and the other rows as actions are drawn. Its fill is not a
+    // checked row's: at standard contrast the default system gives a checked row none and keeps this one (MNU-37).
     await page.mouse.move(0, 0);
-    await expect.poll(() => drawn(page, 'links-current', 1)).toEqual(await expected(page, 'selected'));
-    await expect.poll(() => drawn(page, 'links-current', 0)).toEqual(await expected(page, 'unselected'));
+    for (const level of [null, 'medium', 'high'] as const) {
+      await inContrast(page, level);
+      const current = await expected(page, 'current');
+      expect(current.bg, `${level ?? 'standard'}: filled`).not.toBe((await expected(page, 'unselected')).bg);
+      await expect.poll(() => drawn(page, 'links-current', 1), level ?? 'standard').toEqual(current);
+      await expect.poll(() => drawn(page, 'links-current', 0), level ?? 'standard').toEqual(await expected(page, 'unselected'));
+    }
+    await inContrast(page, null);
+    expect((await expected(page, 'current')).bg).not.toBe((await expected(page, 'selected')).bg);
     // No mark, and the label's own weight: a fill, never a check or a heavier label.
     await expect(components.locator('.check')).toHaveCount(0);
     expect(await css(components.locator('.label'), 'font-weight')).toBe(await css(guides.locator('.label'), 'font-weight'));
@@ -3035,7 +3083,7 @@ test.describe('link items', () => {
     await labelled(page, 'links-current', 'Guides').evaluate((el: any) => (el.current = true));
     await expect(guides).toHaveAttribute('aria-current', 'page');
     await expect(components).not.toHaveAttribute('aria-current');
-    await expect.poll(() => drawn(page, 'links-current', 0)).toEqual(await expected(page, 'selected'));
+    await expect.poll(() => drawn(page, 'links-current', 0)).toEqual(await expected(page, 'current'));
     // Without a destination current is ignored — no state, no fill — and a debug build says so.
     await labelled(page, 'links-current', 'Guides').evaluate((el: any) => (el.href = ''));
     await expect.poll(() => seen.some((text) => text.includes('MNU-58') && text.includes('no destination'))).toBe(true);

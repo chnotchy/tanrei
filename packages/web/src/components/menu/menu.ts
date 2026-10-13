@@ -64,7 +64,7 @@ export interface TanreiSubmenuToggleDetail {
 /** How the menu tells a group from what is next to it (MNU-35): `auto` takes `comp.menu.separation`. */
 export type TanreiMenuSeparation = SeparationProp;
 
-type Condition = 'unselected' | 'selected' | 'destructive' | 'expanded';
+type Condition = 'unselected' | 'selected' | 'current' | 'destructive' | 'expanded';
 
 /** What the menu tells each item: where it is in its surface, and which columns that surface reserves. */
 interface ItemContext {
@@ -368,7 +368,7 @@ export abstract class TanreiMenuRowBase extends LitElement {
     return {};
   }
 
-  /** MNU-58: whether the row is a link item that names the destination the person is at (drawn from the selected condition, with no mark). */
+  /** MNU-58: whether the row is a link item that names the destination the person is at (drawn from the current condition, with no mark). */
   protected get currentRow(): boolean {
     return false;
   }
@@ -809,7 +809,7 @@ export class TanreiMenuItem extends TanreiMenuItemBase {
 
   /**
    * Marks a link item as the destination the person is at now (MNU-58): its anchor says `aria-current="page"` and its
-   * row is drawn from the selected condition — the fill of the row the person is on — with no mark and no change of
+   * row is drawn from the current condition — the fill of the row the person is on — with no mark and no change of
    * weight. You set it; the menu never does. Ignored without `href`, and reported. A menubar sets it on the row a folded
    * current link item draws of itself (MBR-43).
    */
@@ -860,9 +860,9 @@ export class TanreiMenuItem extends TanreiMenuItemBase {
     return this.current && this.isLink;
   }
 
-  /** MNU-58: a current link item is drawn from the selected condition — the fill of the row the person is on, and its colors. */
+  /** MNU-58: a current link item is drawn from the current condition — the fill of the row the person is on, and its colors. */
   protected override get condition(): Condition {
-    if (this.currentRow) return 'selected';
+    if (this.currentRow) return 'current';
     return this.destructive ? 'destructive' : 'unselected';
   }
 
@@ -1280,7 +1280,7 @@ type FocusReturn = 'key' | 'pointer' | 'stay';
  * `comp.menu.group.gap`; `auto` takes `comp.menu.separation`, which follows the design system's choice.
  *
  * Every visual value comes from `--tanrei-comp-menu-*` tokens, the items' by condition (unselected, selected,
- * destructive, expanded) and state. The `inline` attribute, for tests and documentation, draws the open surface in place
+ * current, destructive, expanded) and state. The `inline` attribute, for tests and documentation, draws the open surface in place
  * instead: at its natural size, with its elevation, without an anchor, placement, open motion, focus on opening or light
  * dismiss, each open submenu beside its item.
  *

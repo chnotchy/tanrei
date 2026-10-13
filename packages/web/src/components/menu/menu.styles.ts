@@ -3,10 +3,10 @@ import { focusRing, iconGlyph, itemRowStyles, pressHold, rowTarget, separationHo
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
-// Every visual value is a token (tokens/comp/menu.tokens.json). An item's four conditions — unselected, selected (a
-// checked checkbox or radio item), destructive and expanded (a submenu item whose submenu is open) — are its state
-// variants: each colors the row and every part in every state, and the item only says which condition and
-// which state's tokens are drawn.
+// Every visual value is a token (tokens/comp/menu.tokens.json). An item's five conditions — unselected, selected (a
+// checked checkbox or radio item), current (the link item of the page the person is on), destructive and expanded (a
+// submenu item whose submenu is open) — are its state variants: each colors the row and every part in every state, and
+// the item only says which condition and which state's tokens are drawn.
 const PREFIX = '--tanrei-comp-menu';
 const T = (name: string) => `var(${PREFIX}-${name})`;
 const t = (name: string) => unsafeCSS(T(name));
@@ -302,23 +302,24 @@ export const itemStyles = css`
     outline: none;
   }
 
-  /* MNU-21: the glyphs, at their sizes, in the family and fill of the item's condition. MNU-22: the check, always in the
+  /* MNU-21: the glyphs, at their sizes, in the family and fill of the item's condition — the selected ones for a checked
+     item and for the current link item (MNU-58). MNU-22: the check, always in the
      selected family and fill (its column is the ancestor that says so). MNU-33: iconGlyph() mirrors the leading and
      trailing glyphs GlyphMirrorController marked, in right-to-left, in their own boxes; the check is never marked. */
-  ${iconGlyph('.leading-icon', { size: '--tanrei-comp-menu-leading-icon-size', selected: '.row.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.leading-icon', { size: '--tanrei-comp-menu-leading-icon-size', selected: ':is(.row.selected, .row.current)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   ${iconGlyph('.check', { size: '--tanrei-comp-menu-mark-size', selected: '.mark', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   /* MNU-39: the check in the box of the checkbox look is a control's own mark, drawn at comp.menu.control.mark.weight
      (not sys.icon.weight, which the check of the glyph look keeps, MNU-22) in a glyph box of control.mark.size. It
      names no motion here: the transition is .check's own, below. */
   ${iconGlyph('.check.box-check', { size: '--tanrei-comp-menu-control-mark-size', weight: '--tanrei-comp-menu-control-mark-weight', selected: '.mark' })}
-  ${iconGlyph('.trailing-icon', { size: '--tanrei-comp-menu-trailing-icon-size', selected: '.row.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.trailing-icon', { size: '--tanrei-comp-menu-trailing-icon-size', selected: ':is(.row.selected, .row.current)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
 
   /* MNU-10, MNU-13, MNU-15, MNU-16, MNU-18, MNU-27: the conditions, the states and their precedence, the paints, the
      ripple and the state motion (src/primitives/item-row.ts). */
   ${itemRowStyles({
     prefix: PREFIX,
     parts: PARTS,
-    conditions: { unselected: '.row', selected: '.row.selected', destructive: '.row.destructive', expanded: '.row.expanded' },
+    conditions: { unselected: '.row', selected: '.row.selected', current: '.row.current', destructive: '.row.destructive', expanded: '.row.expanded' },
     on,
     paints: { '.label': 'l', '.supporting': 's', '.trailing-text': 't', '.shortcut': 't', '.leading-icon': 'li', '.trailing-icon': 'ti' },
   })}
