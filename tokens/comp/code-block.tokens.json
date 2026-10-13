@@ -259,7 +259,7 @@
         "line": {
           "$extensions": {
             "dev.tanrei.vocabulary": {
-              "rationale": "One product points at lines inside a block of code — the line its text talks about, the lines a change adds and the lines it takes away — without relying on color alone.",
+              "rationale": "One product points at lines inside a block of code — the line its text talks about, the lines a change adds and the lines it takes away — with a band a reader scanning the block sees at once, and never by color alone.",
               "since": "0.1.0"
             }
           },
@@ -287,6 +287,13 @@
             }
           },
           "added": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.success-container}",
+                "$description": "The band behind an added line, from the block's left edge to its right: a faint tint of the success color, so that the line reads as added at a glance whatever the colors of its code. Its code keeps its syntax colors, held on this band at the code's contrast. Never the only mark: the bar and the plus sign are drawn with it, and in forced colors the band is not drawn."
+              }
+            },
             "mark": {
               "color": {
                 "$type": "color",
@@ -296,6 +303,13 @@
             }
           },
           "removed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error-container}",
+                "$description": "The band behind a removed line, from the block's left edge to its right: a faint tint of the error color, so that the line reads as removed at a glance whatever the colors of its code. Its code keeps its syntax colors, held on this band at the code's contrast. Never the only mark: the bar and the minus sign are drawn with it, and in forced colors the band is not drawn."
+              }
+            },
             "mark": {
               "color": {
                 "$type": "color",

@@ -1265,6 +1265,36 @@ test.describe('states', () => {
     await expect(row(page, 'disabled', 'themes')).toHaveAttribute('aria-selected', 'true');
   });
 
+  test('TRV-25, TRV-27: a disabled row that the arrow keys reach draws its focus ring at full strength — the disabled opacity is taken into its colors, not laid over the ring — and looks as faded as it did without focus', async ({ page }) => {
+    await mount(page, { fixtures: some('disabled') });
+    await page.addStyleTag({ content: still });
+    const off = row(page, 'disabled', 'typeface');
+    const opacity = Number(await css(off, 'opacity'));
+    expect(opacity).toBeLessThan(1);
+    const label = await resolveColor(page, T('unselected-disabled-label-color'));
+    await row(page, 'disabled', 'palette').focus();
+    await page.keyboard.press('ArrowDown');
+    expect(await focused(page)).toBe('typeface');
+    // The row is opaque, so the ring is not faded: its stroke is the focus ring's own color.
+    expect(Number(await css(off, 'opacity'))).toBe(1);
+    expect(await px(off, 'border-top-width', '::after')).toBe(await resolveToken(page, '--tanrei-sys-focus-outer-width'));
+    expect(await css(off, 'border-top-color', '::after')).toBe(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+    // Its text carries the opacity itself: the disabled label color at the disabled opacity.
+    const [drawnLabel, expected] = await off.evaluate((el, [color, alpha]) => {
+      const probe = document.createElement('div');
+      probe.style.color = `color-mix(in srgb, ${color} ${alpha * 100}%, transparent)`;
+      document.body.append(probe);
+      const want = getComputedStyle(probe).color;
+      probe.remove();
+      return [getComputedStyle(el).color, want];
+    }, [label, opacity] as const);
+    expect(drawnLabel).toBe(expected);
+    // Focus gone, the row is faded as a whole again.
+    await page.keyboard.press('ArrowUp');
+    expect(Number(await css(off, 'opacity'))).toBe(opacity);
+    expect(await css(off, 'color')).toBe(label);
+  });
+
   test('TRV-28: a press by pointer, Enter or Space shows the pressed state without delay and keeps it for at least sys.motion.duration.press-hold, even when the press ends sooner', async ({ page }) => {
     await mount(page, { fixtures: some('single') });
     const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');

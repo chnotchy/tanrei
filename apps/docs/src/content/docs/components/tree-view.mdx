@@ -247,7 +247,7 @@ Everything is drawn before the script loads except the selected fill, which appe
 - Enter and Space do what a press on the row does. Selection never follows focus.
 - Opening, closing and choosing are told by the row's own state. Nothing is announced and focus does not move.
 - A parent that closes around the focused row takes the focus. A focused row that is removed gives focus to the row after it.
-- The focus ring is drawn inside the row, so a scrolling box does not clip it.
+- The focus ring is drawn inside the row, so a scrolling box does not clip it. On a disabled row it is drawn at full strength: the row is faded, its ring is not.
 - The chevron, the icons and the guides are hidden from assistive technology. The loading row is hidden too: the parent says that it is busy.
 - At 200% text labels wrap and rows grow. Only a trailing text is ever cut.
 - In forced colors a selected row takes the system's selection colors and an edge.

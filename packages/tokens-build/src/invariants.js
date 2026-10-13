@@ -323,8 +323,8 @@ export function checkInvariants(model) {
     }
   }
 
-  // Code. What is read in a code block is held against the block's fill and against the band of a
-  // highlighted line, and inline code's text against its fill: text at 4.5:1 (7:1 in the high-contrast schemes), the
+  // Code. What is read in a code block is held against the block's fill and against the bands of a
+  // highlighted, an added and a removed line, and inline code's text against its fill: text at 4.5:1 (7:1 in the high-contrast schemes), the
   // bars of marked lines at 3:1. In the shipped systems each of these is a role on a surface, held above; this check
   // is for a layer that re-points a syntax role (or the fill) at a color no role pair holds at that ratio. A pair
   // the role pairs already hold is left to them, so a system is not told the same thing twice.
@@ -340,7 +340,11 @@ export function checkInvariants(model) {
     ...CODE_TEXT.flatMap((part) => [
       [`${codeBlock}.${part}`, `${codeBlock}.filled.container.color`, TEXT, 'code on the block\'s fill'],
       [`${codeBlock}.${part}`, `${codeBlock}.line.highlighted.container.color`, TEXT, 'code on a highlighted line\'s band'],
+      [`${codeBlock}.${part}`, `${codeBlock}.line.added.container.color`, TEXT, 'code on an added line\'s band'],
+      [`${codeBlock}.${part}`, `${codeBlock}.line.removed.container.color`, TEXT, 'code on a removed line\'s band'],
     ]),
+    [`${codeBlock}.line.added.mark.color`, `${codeBlock}.line.added.container.color`, NON_TEXT, 'an added line\'s bar and sign on its band'],
+    [`${codeBlock}.line.removed.mark.color`, `${codeBlock}.line.removed.container.color`, NON_TEXT, 'a removed line\'s bar and sign on its band'],
     ...CODE_MARKS.map((part) => [`${codeBlock}.${part}`, `${codeBlock}.filled.container.color`, NON_TEXT, 'a marked line\'s bar on the block\'s fill']),
     // An outlined block has no fill: its code is read on the surface it is placed on, so a syntax color is held on
     // every surface role. The other text colors of the block are roles the role pairs hold there.

@@ -157,15 +157,15 @@
           },
           "overlap": {
             "$type": "dimension",
-            "$description": "How far each avatar of a group lies over the one before it, per size: a quarter of the box's side in the default system, so three quarters of every face stays in view.",
+            "$description": "How far each avatar of a group lies over the one before it, per size: a small step of the space scale in the default system (2, 4 and 8, a twelfth to a seventh of the box's side), so that two initials beside one another stay whole and are not misread, and a face shows nearly whole.",
             "small": {
-              "$value": "{tanrei.sys.space.space75}"
+              "$value": "{tanrei.sys.space.space25}"
             },
             "medium": {
-              "$value": "{tanrei.sys.space.space125}"
+              "$value": "{tanrei.sys.space.space50}"
             },
             "large": {
-              "$value": "{tanrei.sys.space.space175}"
+              "$value": "{tanrei.sys.space.space100}"
             }
           },
           "outline": {

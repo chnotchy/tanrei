@@ -326,7 +326,7 @@
     },
     {
       "id": "TRV-25",
-      "text": "WHEN a row receives keyboard focus THE tree view SHALL show the focus ring inside the row's container, following comp.tree-view.container.shape, so that neither a neighbouring row nor a scrolling ancestor cuts it, without animation; focus gained by pointer or touch SHALL NOT show it."
+      "text": "WHEN a row receives keyboard focus THE tree view SHALL show the focus ring inside the row's container, following comp.tree-view.container.shape, so that neither a neighbouring row nor a scrolling ancestor cuts it, without animation, and at full strength on a disabled row too (TRV-27); focus gained by pointer or touch SHALL NOT show it."
     },
     {
       "id": "TRV-26",
@@ -335,7 +335,7 @@
     },
     {
       "id": "TRV-27",
-      "text": "WHILE an item's disabled is true THE tree view SHALL render its container, label, supporting text, trailing text, icon, chevron and opacity from the disabled component tokens of its condition, and SHALL apply that opacity to the whole row, its trailing content included; SHALL NOT emit change or toggle for a press, a key or a touch on it; SHALL draw no hover and no press answer on it; and SHALL expose it as disabled. The arrow keys SHALL still reach it, so that people learn it exists. The item SHALL keep its place, its selection and its open: a disabled parent that is open still shows the items it holds, which keep their own disabled, and the product MAY still set its open and select it. A row that draws no fill at rest SHALL draw none while disabled.",
+      "text": "WHILE an item's disabled is true THE tree view SHALL render its container, label, supporting text, trailing text, icon, chevron and opacity from the disabled component tokens of its condition, and SHALL apply that opacity to the whole row, its trailing content included, and to nothing else: the focus ring of TRV-25 SHALL be drawn at full strength on a disabled row that has keyboard focus, because the arrow keys reach it and the ring says where focus is; SHALL NOT emit change or toggle for a press, a key or a touch on it; SHALL draw no hover and no press answer on it; and SHALL expose it as disabled. The arrow keys SHALL still reach it, so that people learn it exists. The item SHALL keep its place, its selection and its open: a disabled parent that is open still shows the items it holds, which keep their own disabled, and the product MAY still set its open and select it. A row that draws no fill at rest SHALL draw none while disabled.",
       "verify": "The fixture disabled: the closed parent \"generated\" is disabled and cannot be opened; the open parent \"themes\" is disabled and its two items can still be chosen."
     },
     {

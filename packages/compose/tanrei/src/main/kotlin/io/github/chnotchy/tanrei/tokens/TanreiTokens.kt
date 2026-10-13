@@ -3390,10 +3390,12 @@ public data class TanreiCodeBlockTokens(
     public val languageTypescale: TanreiTextStyle,
     public val lineNumberColor: TanreiPaint,
     public val lineNumberGap: Dp,
+    public val lineAddedContainerColor: TanreiPaint,
     public val lineAddedMarkColor: TanreiPaint,
     public val lineHighlightedContainerColor: TanreiPaint,
     public val lineHighlightedMarkColor: TanreiPaint,
     public val lineMarkWidth: Dp,
+    public val lineRemovedContainerColor: TanreiPaint,
     public val lineRemovedMarkColor: TanreiPaint,
     public val outlineColor: TanreiPaint,
     public val outlineWidth: Dp,
@@ -3409,9 +3411,11 @@ public data class TanreiCodeBlockTokens(
         addAll(codeColor.roles())
         addAll(languageColor.roles())
         addAll(lineNumberColor.roles())
+        addAll(lineAddedContainerColor.roles())
         addAll(lineAddedMarkColor.roles())
         addAll(lineHighlightedContainerColor.roles())
         addAll(lineHighlightedMarkColor.roles())
+        addAll(lineRemovedContainerColor.roles())
         addAll(lineRemovedMarkColor.roles())
         addAll(outlineColor.roles())
         addAll(promptColor.roles())
@@ -5878,6 +5882,7 @@ public data class TanreiListTokens(
     public val motionStateEasing: TanreiCubicBezier,
     public val moveButtonsGap: Dp,
     public val overlineTypescale: TanreiTextStyle,
+    public val reorderTextMinWidth: Dp,
     public val supportingTextTypescale: TanreiTextStyle,
     public val trailingIconSize: Dp,
     public val trailingTextTypescale: TanreiTextStyle,
@@ -7589,6 +7594,7 @@ public data class TanreiProseTokens(
     public val heading6GapAfter: Dp,
     public val heading6GapBefore: Dp,
     public val itemGap: Dp,
+    public val japaneseLineHeight: Float,
     public val leadTypescale: TanreiTextStyle,
     public val listIndent: Dp,
     public val measure: Float,

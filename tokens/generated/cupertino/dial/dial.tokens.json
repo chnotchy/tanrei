@@ -983,6 +983,14 @@
               },
               "reason": "A checked row's fill is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
             },
+            "tanrei.comp.list.selected.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.list.selected.state-layer.color}",
+                "amount": 0.16
+              },
+              "reason": "A selected option's fill is a layer of the row's own content color, twice the hover layer, as the menu's checked row is, so that the quiet selection looks the same in a list and in a menu and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+            },
             "tanrei.comp.menu.expanded.container.color": {
               "derive": {
                 "fn": "alpha",
@@ -4132,6 +4140,32 @@
               "$value": "{tanrei.sys.typescale.body-large}",
               "reason": "Apple's list rows set their title in Body (17pt), which is body-large here; cupertino's body is 15pt."
             },
+            "tanrei.comp.code-block.line.added.container.color": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "reason": "This preset draws no band behind an added line: its secondary label color, which its comments, line numbers and prompts take, falls under 4.5:1 on the faint status tints of its palette (4.1:1 to 4.4:1). The bar and the sign still mark the line."
+            },
+            "tanrei.comp.code-block.line.removed.container.color": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "reason": "This preset draws no band behind a removed line: its secondary label color, which its comments, line numbers and prompts take, falls under 4.5:1 on the faint status tints of its palette (4.1:1 to 4.4:1). The bar and the sign still mark the line."
+            },
             "tanrei.comp.list.selected.container.color": {
               "$value": {
                 "colorSpace": "srgb",
@@ -4144,6 +4178,22 @@
                 "hex": "#000000"
               },
               "reason": "Apple shows a chosen row by a check in the tint, with no fill."
+            },
+            "tanrei.comp.list.selected.overline.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
+            },
+            "tanrei.comp.list.selected.supporting-text.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
+            },
+            "tanrei.comp.list.selected.trailing-text.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
+            },
+            "tanrei.comp.list.selected.trailing-icon.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
             },
             "tanrei.comp.menu.surface.color": {
               "$value": "{tanrei.sys.color.surface-container-lowest}"

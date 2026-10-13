@@ -183,10 +183,15 @@ export const itemStyles = css`
   .move-glyph:not([data-drawn]) {
     visibility: hidden;
   }
-  /* LST-51: where the controls would leave the text less than half the row (the list measures, and says so for every
-     item at once), they stand on a line of their own below the text column, at the row's end and in the same order,
+  /* LST-51: where the controls would leave the text narrower than reorder.text-min-width (the list measures, and says
+     so for every item at once), they stand on a line of their own below the text column, at the row's end and in the same order,
      container.padding-block below the text; the row grows with them. The text column takes what the first line has
      left, and wraps there. */
+  /* The least width of the text column, computed by a property that draws nothing on a row that does not scroll —
+     the script reads it back as a length, grown with the text. */
+  .row {
+    scroll-padding-top: ${unsafeCSS(T('reorder-text-min-width'))};
+  }
   .row.stacked {
     flex-wrap: wrap;
     row-gap: ${unsafeCSS(T('container-padding-block'))};

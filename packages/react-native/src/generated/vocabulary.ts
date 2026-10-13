@@ -1647,10 +1647,12 @@ export interface TanreiCodeBlockTokens {
   readonly languageTypescale: TanreiTypescaleRole;
   readonly lineNumberColor: TanreiPaint;
   readonly lineNumberGap: number;
+  readonly lineAddedContainerColor: TanreiPaint;
   readonly lineAddedMarkColor: TanreiPaint;
   readonly lineHighlightedContainerColor: TanreiPaint;
   readonly lineHighlightedMarkColor: TanreiPaint;
   readonly lineMarkWidth: number;
+  readonly lineRemovedContainerColor: TanreiPaint;
   readonly lineRemovedMarkColor: TanreiPaint;
   readonly outlineColor: TanreiPaint;
   readonly outlineWidth: number;
@@ -2912,6 +2914,7 @@ export interface TanreiListTokens {
   readonly overlineTypescale: TanreiTypescaleRole;
   readonly pressedContainerShape: number;
   readonly pressedOpacity: number;
+  readonly reorderTextMinWidth: number;
   readonly supportingTextTypescale: TanreiTypescaleRole;
   readonly trailingIconSize: number;
   readonly trailingTextTypescale: TanreiTypescaleRole;
@@ -3748,6 +3751,7 @@ export interface TanreiProseTokens {
   readonly heading6GapAfter: number;
   readonly heading6GapBefore: number;
   readonly itemGap: number;
+  readonly japaneseLineHeight: number;
   readonly leadTypescale: TanreiTypescaleRole;
   readonly listIndent: number;
   readonly measure: number;

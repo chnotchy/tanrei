@@ -724,19 +724,19 @@ private let m3ExpressiveLikeAvatarTokens = TanreiAvatarTokens(
       containerSize: 24,
       labelTypescale: m3ExpressiveLikeTypescale.caption,
       iconSize: 16,
-      groupOverlap: 6
+      groupOverlap: 2
     ),
     medium: TanreiAvatarSizeTokens(
       containerSize: 40,
       labelTypescale: m3ExpressiveLikeTypescale.label,
       iconSize: 24,
-      groupOverlap: 10
+      groupOverlap: 4
     ),
     large: TanreiAvatarSizeTokens(
       containerSize: 56,
       labelTypescale: m3ExpressiveLikeTypescale.heading3,
       iconSize: 32,
-      groupOverlap: 14
+      groupOverlap: 8
     )
   ),
   shapes: TanreiAvatarShapes(
@@ -3117,10 +3117,12 @@ private let m3ExpressiveLikeCodeBlockTokens = TanreiCodeBlockTokens(
   languageTypescale: m3ExpressiveLikeTypescale.labelSmall,
   lineNumberColor: .role(.onSurfaceVariant),
   lineNumberGap: 16,
+  lineAddedContainerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.5804, green: 0.9765, blue: 0.6235, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.5804, green: 0.9765, blue: 0.6235, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.5804, green: 0.9765, blue: 0.6235, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0, green: 0.3255, blue: 0.1176, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0, green: 0.3255, blue: 0.1176, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0, green: 0.2745, blue: 0.0941, opacity: 1))]),
   lineAddedMarkColor: .role(.success),
   lineHighlightedContainerColor: .role(.surfaceContainerHighest),
   lineHighlightedMarkColor: .role(.primary),
   lineMarkWidth: 2,
+  lineRemovedContainerColor: .scheme(by: [.light: .literal(TanreiColorValue(red: 0.9765, green: 0.8706, blue: 0.8627, opacity: 1)), .lightMedium: .literal(TanreiColorValue(red: 0.9765, green: 0.8706, blue: 0.8627, opacity: 1)), .lightHigh: .literal(TanreiColorValue(red: 0.9765, green: 0.8706, blue: 0.8627, opacity: 1)), .dark: .literal(TanreiColorValue(red: 0.549, green: 0.1137, blue: 0.0941, opacity: 1)), .darkMedium: .literal(TanreiColorValue(red: 0.549, green: 0.1137, blue: 0.0941, opacity: 1)), .darkHigh: .literal(TanreiColorValue(red: 0.4941, green: 0, blue: 0.0157, opacity: 1))]),
   lineRemovedMarkColor: .role(.error),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
@@ -5130,6 +5132,7 @@ private let m3ExpressiveLikeListTokens = TanreiListTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   moveButtonsGap: 0,
   overlineTypescale: m3ExpressiveLikeTypescale.labelSmall,
+  reorderTextMinWidth: 96,
   supportingTextTypescale: m3ExpressiveLikeTypescale.body,
   trailingIconSize: 24,
   trailingTextTypescale: m3ExpressiveLikeTypescale.labelSmall,
@@ -6797,6 +6800,7 @@ private let m3ExpressiveLikeProseTokens = TanreiProseTokens(
   heading6GapAfter: 8,
   heading6GapBefore: 24,
   itemGap: 4,
+  japaneseLineHeight: 1.85,
   leadTypescale: m3ExpressiveLikeTypescale.bodyLarge,
   listIndent: 32,
   measure: 36,

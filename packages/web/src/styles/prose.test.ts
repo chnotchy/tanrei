@@ -955,6 +955,32 @@ test.describe('measure, wrapping, languages', () => {
     expect(await tracking('#en')).toBeLessThan(0);
     for (const id of ['ja', 'ko', 'zh']) expect(await tracking(`#${id}`), id).toBe(0);
   });
+
+  test('PRS-31 Japanese running text is set at comp.prose.japanese.line-height times its size, on the prose and on one paragraph of an English prose; headings, the lead and English text keep their own line heights', async ({ page }) => {
+    const lineHeight = (selector: string, nth = 0) =>
+      page.locator(selector).nth(nth).evaluate((el) => {
+        const cs = getComputedStyle(el);
+        return [Number.parseFloat(cs.lineHeight), Number.parseFloat(cs.fontSize)];
+      });
+    await mount(page, '<p class="tanrei-prose-lead">リード文です。</p><h2>見出し</h2><p>本文の段落です。</p><ul><li>項目</li></ul>', { lang: 'ja' });
+    const want = Number(await page.evaluate(() => getComputedStyle(document.querySelector('.tanrei-prose')!).getPropertyValue('--tanrei-comp-prose-japanese-line-height')));
+    expect(want).toBe(1.85);
+    for (const selector of ['.tanrei-prose p:not(.tanrei-prose-lead)', '.tanrei-prose li']) {
+      const [line, size] = await lineHeight(selector);
+      near(line, size * want, selector);
+    }
+    // The verify: 25.9 at medium, for the default system's 14 px running text.
+    near((await lineHeight('.tanrei-prose p:not(.tanrei-prose-lead)'))[0], 25.9, 'medium');
+    const [h2, h2size] = await lineHeight('.tanrei-prose h2');
+    expect(h2 / h2size).toBeLessThan(want);
+    const [lead, leadSize] = await lineHeight('.tanrei-prose .tanrei-prose-lead');
+    expect(lead / leadSize).toBeLessThan(want);
+    await mount(page, '<p id="en">English running text.</p><p id="ja" lang="ja">日本語の段落です。</p>');
+    const [en, enSize] = await lineHeight('#en');
+    expect(en / enSize).toBeLessThan(want);
+    const [ja, jaSize] = await lineHeight('#ja');
+    near(ja, jaSize * want, 'a Japanese paragraph in an English prose');
+  });
 });
 
 test.describe('a heading’s anchor', () => {

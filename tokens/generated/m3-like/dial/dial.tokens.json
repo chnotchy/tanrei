@@ -1081,6 +1081,14 @@
               },
               "reason": "A checked row's fill is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
             },
+            "tanrei.comp.list.selected.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.list.selected.state-layer.color}",
+                "amount": 0.16
+              },
+              "reason": "A selected option's fill is a layer of the row's own content color, twice the hover layer, as the menu's checked row is, so that the quiet selection looks the same in a list and in a menu and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+            },
             "tanrei.comp.menu.expanded.container.color": {
               "derive": {
                 "fn": "alpha",
@@ -5043,6 +5051,60 @@
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
               }
+            },
+            "tanrei.comp.code-block.line.added.container.color": {
+              "derive": {
+                "fn": "tone",
+                "palette": "success",
+                "tone": {
+                  "light": [
+                    90
+                  ],
+                  "dark": [
+                    30,
+                    30,
+                    25
+                  ]
+                }
+              },
+              "reason": "The band behind an added line is this preset's success-container, a step darker in the high-contrast dark scheme, so that this preset's syntax colors keep 7:1 on it there (6.9:1 on the container itself)."
+            },
+            "tanrei.comp.code-block.line.removed.container.color": {
+              "derive": {
+                "fn": "tone",
+                "palette": "error",
+                "tone": {
+                  "light": [
+                    90
+                  ],
+                  "dark": [
+                    30,
+                    30,
+                    25
+                  ]
+                }
+              },
+              "reason": "The band behind a removed line is this preset's error-container, a step darker in the high-contrast dark scheme, so that this preset's syntax colors keep 7:1 on it there (6.9:1 on the container itself)."
+            },
+            "tanrei.comp.list.selected.container.color": {
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "reason": "This preset keeps Material's selected list item, a secondary-container fill, where the default system lays a layer of the content color; whether Material's fill is told from a hovered row on the preset's surfaces is a fidelity decision for this preset."
+            },
+            "tanrei.comp.list.selected.overline.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset keeps its selected row's secondary content in the quiet content color, as before the default system moved it onto the fill's own content role."
+            },
+            "tanrei.comp.list.selected.supporting-text.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset keeps its selected row's secondary content in the quiet content color, as before the default system moved it onto the fill's own content role."
+            },
+            "tanrei.comp.list.selected.trailing-text.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset keeps its selected row's secondary content in the quiet content color, as before the default system moved it onto the fill's own content role."
+            },
+            "tanrei.comp.list.selected.trailing-icon.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset keeps its selected row's secondary content in the quiet content color, as before the default system moved it onto the fill's own content role."
             },
             "tanrei.comp.menu.surface.color": {
               "$value": "{tanrei.sys.color.surface-container}"

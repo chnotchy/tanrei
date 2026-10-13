@@ -2,7 +2,7 @@
 title: コードブロック
 description: 読み、比べ、コピーするための複数行のコードです。コード用の書体で描き、ブロックの中でスクロールするか折り返します。ヘッダー、行番号、行のマーク、プロンプト、コピーボタンを付けられます。コードとその言語を渡すと、コードブロックが自分でハイライトします。
 translationOf: components/code-block.mdx
-sourceHash: 3f2cb34d6a6385776faace656f870690072e864d
+sourceHash: c4fe6cef35324f5127fdb081065d9e09553db29c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,8 +132,8 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 | 行 | 左端のバー | 帯 | 記号 | 行の前に読み上げる文言 |
 | --- | --- | --- | --- | --- |
 | 強調 | あり | あり | | `highlighted-label` |
-| 追加 | あり | | + | `added-label` |
-| 削除 | あり | | − | `removed-label` |
+| 追加 | あり | 薄い緑 | + | `added-label` |
+| 削除 | あり | 薄い赤 | − | `removed-label` |
 
 行の指定は、コンマで区切った番号と範囲です（`"3, 7-9"`）。番号は、読み手に見える番号、つまり `start-line` から数えた番号です。
 
