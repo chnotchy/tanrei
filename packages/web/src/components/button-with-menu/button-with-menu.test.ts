@@ -266,10 +266,10 @@ test.describe('behavior', () => {
       expect(hb.end, id).toBeCloseTo(b.x + b.width + Math.max(0, target - b.width - inward), 1);
       expect(ha.start, id).toBeCloseTo(a.x - Math.max(0, target - a.width - Math.min(between, Math.max(0, (target - a.width) / 2))), 1);
     }
-    // A narrow trailing half is narrower than the target at every size (28 / 32 / 32 under the default system)
-    // and is drawn at its own width: under a divider it can reach nothing toward the seam, so the whole of what
-    // it lacks is past its end edge, and under gap all but half the gap.
-    for (const [id, width] of [['filled-narrow-small', 28], ['filled-narrow', 32], ['filled-narrow-large', 32], ['filled-gap-narrow', 32]] as const) {
+    // A narrow trailing half is narrower than the target at every size (32 / 36 / 36 under the default system, its
+    // outer padding included) and is drawn at its own width: under a divider it can reach nothing toward the seam, so
+    // the whole of what it lacks is past its end edge, and under gap all but half the gap.
+    for (const [id, width] of [['filled-narrow-small', 32], ['filled-narrow', 36], ['filled-narrow-large', 36], ['filled-gap-narrow', 36]] as const) {
       const b = await bounds(trailing(page, id));
       expect(b.width, id).toBe(width);
       expect(b.width, id).toBeLessThan(target);
@@ -520,7 +520,7 @@ test.describe('behavior', () => {
     expect(await shadows(page, 'filled-medium', 'leading')).not.toContain(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
   });
 
-  test('SPB-12: one row, never stacked: the leading half at its size’s height, padded by its tokens (the with-icon start with an icon), icon and label gap apart; the trailing half as tall, the chevron between its paddings — the narrow ones while narrow; each then takes the outer padding of SPB-32, which a narrow trailing half does not; start-aligned and centred on the stage', async ({ page }) => {
+  test('SPB-12: one row, never stacked: the leading half at its size’s height, padded by its tokens (the with-icon start with an icon), icon and label gap apart; the trailing half as tall, the chevron between its paddings — the narrow ones while narrow; each then takes the outer padding of SPB-32, a narrow trailing half too; start-aligned and centred on the stage', async ({ page }) => {
     const outer = await resolveToken(page, T('container-outer-inset'));
     /** How far a part is from the left and right of what is seen of its half. */
     const insets = async (id: string, half: 'leading' | 'trailing', part: string) => {
@@ -559,22 +559,22 @@ test.describe('behavior', () => {
       expect((await bounds(host(page, id).locator('.turn .chevron'))).width, id).toBe(icon);
       // SPB-12's verify: under the default system the chevron is held in a square of the height, 4 wider for the outer padding.
       expect(b.width - outer, id).toBeCloseTo(b.height, 1);
-      // Narrow: between trailing.padding-inline-narrow, with no outer padding (SPB-32) — 28 / 32 / 32 in the default
-      // system: the chevron and 4 on each side. It reads its own token, and where that agrees with the Button's, as
-      // here, the half is exactly as wide as a narrow icon-only Button of its size (BTN-12).
+      // Narrow: between trailing.padding-inline-narrow, then the outer padding at its end (SPB-32) — 32 / 36 / 36 in
+      // the default system: the chevron, 4 on each side and 4 more at the end. It reads its own token, and where that
+      // agrees with the Button's, as here, the half is a narrow icon-only Button of its size (BTN-12) and the outer padding.
       const narrow = `filled-narrow${size === 'medium' ? '' : `-${size}`}`;
       const narrowPad = await resolveToken(page, T(`trailing-padding-inline-narrow-${size}`));
       expect(narrowPad, narrow).toBeLessThan(pad);
       const slim = await insets(narrow, 'trailing', '.turn .chevron');
       expect(slim.left, narrow).toBeCloseTo(narrowPad, 1);
-      expect(slim.right, narrow).toBeCloseTo(narrowPad, 1);
+      expect(slim.right, narrow).toBeCloseTo(narrowPad + outer, 1);
       const slimBox = await bounds(trailing(page, narrow));
-      expect(slimBox.width, narrow).toBeCloseTo(icon + 2 * narrowPad, 1);
-      expect(slimBox.width, narrow).toBe({ small: 28, medium: 32, large: 32 }[size]);
-      expect(slimBox.width, `${narrow}: a narrow icon-only Button's width, by its tokens`).toBe(
+      expect(slimBox.width, narrow).toBeCloseTo(icon + 2 * narrowPad + outer, 1);
+      expect(slimBox.width, narrow).toBe({ small: 32, medium: 36, large: 36 }[size]);
+      expect(slimBox.width - outer, `${narrow}: a narrow icon-only Button's width, by its tokens, and the outer padding`).toBe(
         (await resolveToken(page, `--tanrei-comp-button-icon-size-without-label-${size}`)) + 2 * (await resolveToken(page, `--tanrei-comp-button-container-padding-inline-narrow-${size}`)),
       );
-      expect(slimBox.width, `${narrow}: and as a narrow icon-only Button is drawn`).toBe(await narrowButton(size));
+      expect(slimBox.width - outer, `${narrow}: and as a narrow icon-only Button is drawn`).toBe(await narrowButton(size));
       expect(slimBox.height, narrow).toBe(b.height);
       // The leading half is the same at either trailing width.
       expect((await bounds(leading(page, narrow))).width, narrow).toBeCloseTo(a.width, 1);
@@ -953,9 +953,9 @@ test.describe('behavior', () => {
     expect(await page.locator('.stage[dir]').evaluateAll((stages) => stages.map((el) => [el.getAttribute('data-fixture'), el.getAttribute('dir')]))).toEqual([[id, 'rtl']]);
     expect(spec.fixtures.filter((f) => f.direction).map((f) => f.id)).toEqual([id]);
     const [a, b] = [await bounds(leading(page, id)), await bounds(trailing(page, id))];
-    // The narrow half is at the left, 32 wide as in left-to-right, and the leading half begins where it ends.
+    // The narrow half is at the left, 36 wide as in left-to-right, and the leading half begins where it ends.
     expect(b.x).toBeLessThan(a.x);
-    expect(b.width).toBe(32);
+    expect(b.width).toBe(36);
     expect(b.width).toBe((await bounds(trailing(page, 'filled-narrow'))).width);
     expect(a.width).toBeCloseTo((await bounds(leading(page, 'filled-narrow'))).width, 2);
     expect(b.x + b.width).toBeCloseTo(a.x, 2);
@@ -976,9 +976,9 @@ test.describe('behavior', () => {
     expect(rule.x).toBeCloseTo(b.x + b.width, 2);
     expect(rule.width).toBe(0);
     expect(rule.thickness).toBe(await resolveToken(page, T('divider-thickness')));
-    // The chevron at the half's centre, with no outer padding at the left end: 16 from the end edge and from the seam.
+    // The chevron 16 from the seam, and the outer padding at the left end: 20 from the end edge.
     const chevron = await bounds(host(page, id).locator('.turn .chevron'));
-    expect(chevron.x + chevron.width / 2 - b.x).toBeCloseTo(16, 2);
+    expect(chevron.x + chevron.width / 2 - b.x).toBeCloseTo(20, 2);
     expect(b.x + b.width - chevron.x - chevron.width / 2).toBeCloseTo(16, 2);
     expect(await host(page, id).locator('.turn .chevron').evaluate((el) => getComputedStyle(el.parentElement!).transform)).toBe('none');
     // The label's outer padding is at the right: start padding and container.outer-inset from the right edge.
@@ -1646,7 +1646,7 @@ test.describe('separation', () => {
     expect(await bounds(host(page, 'filled-medium').locator('.turn .chevron'))).toEqual(chevron);
   });
 
-  test('SPB-32: container.outer-inset is added to the leading half’s start padding, under either separation and at either trailing width, and to the trailing half’s end padding at the default width; a narrow trailing half takes none — the chevron’s box and trailing.padding-inline-narrow on each side, the chevron at its centre, the width of a narrow icon-only Button; mirrored in right-to-left; a system sets it to 0', async ({ page }) => {
+  test('SPB-32: container.outer-inset is added to the leading half’s start padding, under either separation and at either trailing width, and to the trailing half’s end padding at either width; a narrow trailing half is the chevron’s box, trailing.padding-inline-narrow on each side and the outer padding — a narrow icon-only Button’s width and the outer padding; mirrored in right-to-left; a system sets it to 0', async ({ page }) => {
     const outer = await resolveToken(page, T('container-outer-inset'));
     expect(outer).toBeGreaterThan(0);
     const [start, end, pad, narrowPad, icon] = await Promise.all(['leading-padding-inline-start-medium', 'leading-padding-inline-end-medium', 'trailing-padding-inline-medium', 'trailing-padding-inline-narrow-medium', 'icon-size-medium'].map((name) => resolveToken(page, T(name))));
@@ -1666,15 +1666,15 @@ test.describe('separation', () => {
     // trailing half 44 wide, its chevron's centre 20 from the seam and 24 from the end edge.
     const wide = { labelFromStart: start + outer, labelFromSeam: end, trailing: icon + 2 * pad + outer, chevronFromSeam: pad + icon / 2, chevronFromEnd: pad + icon / 2 + outer };
     expect(wide).toEqual({ labelFromStart: 20, labelFromSeam: 16, trailing: 44, chevronFromSeam: 20, chevronFromEnd: 24 });
-    // filled-narrow, outlined-narrow, filled-gap-narrow and outlined-gap-narrow: the trailing half is 32 wide — no
-    // outer padding — and its chevron's centre 16 from the seam (or from the gap) and 16 from the end edge; the leading
-    // half is as in filled-medium.
-    const narrow = { ...wide, trailing: icon + 2 * narrowPad, chevronFromSeam: narrowPad + icon / 2, chevronFromEnd: narrowPad + icon / 2 };
-    expect(narrow).toEqual({ labelFromStart: 20, labelFromSeam: 16, trailing: 32, chevronFromSeam: 16, chevronFromEnd: 16 });
+    // filled-narrow, outlined-narrow, filled-gap-narrow and outlined-gap-narrow: the trailing half is 36 wide — the
+    // outer padding included — and its chevron's centre 16 from the seam (or from the gap) and 20 from the end edge; the
+    // leading half is as in filled-medium.
+    const narrow = { ...wide, trailing: icon + 2 * narrowPad + outer, chevronFromSeam: narrowPad + icon / 2, chevronFromEnd: narrowPad + icon / 2 + outer };
+    expect(narrow).toEqual({ labelFromStart: 20, labelFromSeam: 16, trailing: 36, chevronFromSeam: 16, chevronFromEnd: 20 });
     for (const id of ['filled-medium', 'filled-divider', 'filled-gap', 'outlined-medium', 'outlined-gap', 'filled-open', 'filled-disabled']) expect(await measure(id), id).toEqual(wide);
     for (const id of ['filled-narrow', 'outlined-narrow', 'filled-gap-narrow', 'outlined-gap-narrow', 'filled-narrow-open']) expect(await measure(id), id).toEqual(narrow);
-    // The width of the Button fixture filled-icon-narrow: glyph and inset twice, by the Button's own tokens.
-    expect(narrow.trailing).toBe((await resolveToken(page, '--tanrei-comp-button-icon-size-without-label-medium')) + 2 * (await resolveToken(page, '--tanrei-comp-button-container-padding-inline-narrow-medium')));
+    // The width of the Button fixture filled-icon-narrow — glyph and inset twice, by the Button's own tokens — and the outer padding.
+    expect(narrow.trailing - outer).toBe((await resolveToken(page, '--tanrei-comp-button-icon-size-without-label-medium')) + 2 * (await resolveToken(page, '--tanrei-comp-button-container-padding-inline-narrow-medium')));
     // The two separations draw it at one width; under gap the halves stand inner-gap apart and the narrow half's inner
     // corners are the inner shape, its outline closed on its own (outlined-gap-narrow).
     {
@@ -1691,17 +1691,18 @@ test.describe('separation', () => {
       expect(await css(page, 'outlined-gap-narrow', 'trailing', '--tanrei-group-seam-start')).toBe('');
       expect(await shadows(page, 'outlined-gap-narrow', 'trailing')).toContain('inset');
     }
-    // The narrow half is the same whatever the outer padding is: it takes none. The leading half follows the token.
+    // The narrow half follows the outer padding as the leading half does: at 0 it is a narrow icon-only Button's width.
     {
       const name = T('container-outer-inset');
+      const slim = (value: number) => ({ ...narrow, labelFromStart: start + value, trailing: icon + 2 * narrowPad + value, chevronFromEnd: narrowPad + icon / 2 + value });
       await host(page, 'filled-narrow').evaluate((el, n) => (el as HTMLElement).style.setProperty(n, '12px'), name);
-      expect(await measure('filled-narrow')).toEqual({ ...narrow, labelFromStart: start + 12 });
+      expect(await measure('filled-narrow')).toEqual(slim(12));
       await host(page, 'filled-narrow').evaluate((el, n) => (el as HTMLElement).style.setProperty(n, '0px'), name);
-      expect(await measure('filled-narrow')).toEqual({ ...narrow, labelFromStart: start });
+      expect(await measure('filled-narrow')).toEqual(slim(0));
       await host(page, 'filled-narrow').evaluate((el, n) => (el as HTMLElement).style.removeProperty(n), name);
       // Its inset is its own token: a system that wants a wider handle raises it, and the chevron stays at the centre.
       await host(page, 'filled-narrow').evaluate((el, n) => (el as HTMLElement).style.setProperty(n, '10px'), T('trailing-padding-inline-narrow-medium'));
-      expect(await measure('filled-narrow')).toEqual({ ...narrow, trailing: icon + 20, chevronFromSeam: 10 + icon / 2, chevronFromEnd: 10 + icon / 2 });
+      expect(await measure('filled-narrow')).toEqual({ ...narrow, trailing: icon + 20 + outer, chevronFromSeam: 10 + icon / 2, chevronFromEnd: 10 + icon / 2 + outer });
       await host(page, 'filled-narrow').evaluate((el, n) => (el as HTMLElement).style.removeProperty(n), T('trailing-padding-inline-narrow-medium'));
     }
     // filled-narrow-rtl: the same, mirrored — the start is the right, the narrow half at the left.
@@ -1757,8 +1758,8 @@ test.describe('seams', () => {
     // The elevation's ring is inside each half (SPB-26): it runs through the seam with the outline.
     divided('seam-elevated', { variant: 'elevated' }),
     divided('seam-elevated-disabled', { variant: 'elevated', disabled: true }),
-    // The narrow trailing half (SPB-32): 28 / 32 / 32 wide with no outer padding, its round end
-    // beginning 12 past the seam at small and medium and 4 past it at large.
+    // The narrow trailing half (SPB-32): 32 / 36 / 36 wide with its outer padding, its round end
+    // beginning 16 past the seam at small and medium and 8 past it at large.
     divided('seam-outlined-narrow', { variant: 'outlined', trailingWidth: 'narrow' }),
     divided('seam-filled-narrow', { variant: 'filled', trailingWidth: 'narrow' }),
     divided('seam-filled-narrow-disabled', { variant: 'filled', trailingWidth: 'narrow', disabled: true }),
@@ -1788,7 +1789,7 @@ test.describe('seams', () => {
       const [first, second] = [await shot.box(leading(page, f.id)), await shot.box(trailing(page, f.id))];
       // A half is straight from the seam to where its outer end begins to turn: its width less its outer corner's
       // radius (a round cap's is half its height). A part's own color is read no further from the seam than that: a
-      // large narrow trailing half of the default system (32 wide, 56 high) is straight for 4, and a preset's narrow
+      // large narrow trailing half of the default system (36 wide, 56 high) is straight for 8, and a preset's narrow
       // half (26 wide, 40 high under m3-like) for 6.
       const straight = await host(page, f.id).evaluate((el) =>
         Math.min(
