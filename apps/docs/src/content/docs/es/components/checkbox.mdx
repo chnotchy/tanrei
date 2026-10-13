@@ -2,7 +2,7 @@
 title: Casilla de verificación
 description: Permite activar o desactivar una elección independiente, mostrar una elección principal que solo está activada en parte y señalar una elección obligatoria que ha quedado sin hacer.
 translationOf: components/checkbox.mdx
-sourceHash: ca7b2e0456302b1067eb231313b74e6591fc6fad
+sourceHash: 5f5b384760649426cba12f3085fb27fa6c7a5c97
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -26,7 +26,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### Uso
 
-La revisión que dio a la casilla de verificación los tamaños de Material 3 y los glifos del conjunto de iconos solo cambió su aspecto y su movimiento, así que todos los ejemplos siguientes están al día. La web la dibuja y la anima como dice la especificación. SwiftUI, Compose, Flutter y React Native van rezagados: ya adoptan los nuevos tamaños, pero siguen dibujando la marca de verificación y el guion como marcas propias y animándolos a su manera hasta que se pongan al día. Dos refinamientos posteriores están por ahora solo en la web: la marca de verificación y el guion tienen un peso propio, más grueso, y el contorno y el relleno del recuadro se dibujan como una sola forma.
+La revisión que dio a la casilla de verificación sus tamaños actuales y los glifos del conjunto de iconos solo cambió su aspecto y su movimiento, así que todos los ejemplos siguientes están al día. La web la dibuja y la anima como dice la especificación. SwiftUI, Compose, Flutter y React Native van rezagados: ya adoptan los nuevos tamaños, pero siguen dibujando la marca de verificación y el guion como marcas propias y animándolos a su manera hasta que se pongan al día. Dos refinamientos posteriores están por ahora solo en la web: la marca de verificación y el guion tienen un peso propio, más grueso, y el contorno y el relleno del recuadro se dibujan como una sola forma.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -151,7 +151,7 @@ La revisión que dio a la casilla de verificación los tamaños de Material 3 y 
   <tanrei-checkbox checked label-hidden label="Seleccionar fila"></tanrei-checkbox>
 </DemoFrame>
 
-En el sistema predeterminado, la casilla de verificación toma las medidas de Material 3: un recuadro de 18 con un contorno de 2 y una esquina de 2, sobre una capa de estado redonda de 40, con un objetivo de 48. Con etiqueta mide 40 de alto. La marca de verificación y el guion son los glifos `check` y `remove` del conjunto de iconos del sistema, dibujados a 20 sobre el recuadro. Tienen un peso propio, más grueso que el de los demás iconos del sistema: 500 en el sistema predeterminado, donde los iconos son de 300. A este tamaño, un trazo con el peso de los iconos mide alrededor de un píxel de ancho y cuesta verlo, así que la marca es más gruesa mientras su tamaño sigue igual. Un preajuste conserva su propio peso de icono. La casilla de verificación no dibuja ninguna marca propia, de modo que un sistema de diseño que cambia su conjunto de iconos cambia estos glifos junto con todos los demás. El contorno y el relleno del recuadro son una sola forma: nada de lo que hay detrás del recuadro se ve entre ellos con ningún nivel de zoom ni densidad de pantalla, y un recuadro marcado es de un solo color uniforme desde su borde hasta su marca. Con `cupertino`, la casilla de verificación conserva su recuadro más pequeño y un glifo de 16.
+En el sistema predeterminado, la casilla de verificación es un recuadro de 18 con un contorno de 2 y una esquina de 2, sobre una capa de estado redonda de 40, con un objetivo de 48. Con etiqueta mide 40 de alto. La marca de verificación y el guion son los glifos `check` y `remove` del conjunto de iconos del sistema, dibujados a 20 sobre el recuadro. Tienen un peso propio, más grueso que el de los demás iconos del sistema: 500 en el sistema predeterminado, donde los iconos son de 300. A este tamaño, un trazo con el peso de los iconos mide alrededor de un píxel de ancho y cuesta verlo, así que la marca es más gruesa mientras su tamaño sigue igual. Un preajuste conserva su propio peso de icono. La casilla de verificación no dibuja ninguna marca propia, de modo que un sistema de diseño que cambia su conjunto de iconos cambia estos glifos junto con todos los demás. El contorno y el relleno del recuadro son una sola forma: nada de lo que hay detrás del recuadro se ve entre ellos con ningún nivel de zoom ni densidad de pantalla, y un recuadro marcado es de un solo color uniforme desde su borde hasta su marca. Con `cupertino`, la casilla de verificación conserva su recuadro más pequeño y un glifo de 16.
 
 Cuando la casilla de verificación cambia, el recuadro, el contorno y el glifo cambian de color, y un glifo que aparece lo hace con un fundido mientras crece desde la mitad de su tamaño, y se asienta tras sobrepasarlo ligeramente. Un glifo que se va se desvanece y se encoge del mismo modo, y entre marcada e indeterminada la marca de verificación se va mientras llega el guion. Solo se mueve el glifo: el recuadro nunca cambia de tamaño ni de posición. Una casilla de verificación que se dibuja por primera vez muestra su condición de inmediato, así que una página que se carga con casillas marcadas no las anima. Cuando el movimiento está reducido, la nueva condición se dibuja completa en el fotograma siguiente.
 

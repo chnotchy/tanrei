@@ -159,6 +159,8 @@ studioTest('Components: the input box is an item of its own — its sizes, looks
   await until(async () => (await inside.count()) > 0 && (await select.locator('[data-variants] tanrei-tag').count()) > 0, 'the select’s item is drawn once it is open');
   assert.equal(await inside.count(), 1);
   assert.equal(await select.locator('> :not(summary) [data-sizes] tanrei-tag').count(), 0, 'the select has no size of its own: a size is a measure of the box');
+  assert.equal(await select.locator('> :not(summary) [data-axis-row="sizes"]').count(), 0, 'a row with nothing in it is not drawn: no empty "Sizes:"');
+  assert.equal(await select.locator('> :not(summary) [data-axis-row="variants"]').count(), 1, 'the row that has tags is drawn');
   assert.equal(await select.locator('[data-variants] tanrei-tag [slot="icon"]').first().evaluate((dot) => getComputedStyle(dot).backgroundColor !== 'rgba(0, 0, 0, 0)'), true, 'a look’s sample is the box’s color');
   await inside.locator('> summary').click();
   await until(async () => (await inside.locator('[data-common]').count()) > 0, 'the box’s item inside the select’s is drawn once it is open');

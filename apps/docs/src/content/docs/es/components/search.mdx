@@ -2,7 +2,7 @@
 title: Búsqueda
 description: Una barra de búsqueda, o un activador compacto que la sustituye, que ofrece sugerencias y resultados mientras se escribe, en una vista acoplada bajo la barra, en un diálogo o sobre toda la pantalla.
 translationOf: components/search.mdx
-sourceHash: 16c14a0a1b37985bcc782ea5ca22d118c87dd619
+sourceHash: dff91514d103fc191272197ef2ffe65ccaa3f058
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -323,7 +323,7 @@ Los dos vienen incluidos, porque su comportamiento pertenece a la búsqueda: el 
 - **Una sugerencia es algo que se elige; un resultado es un lugar al que ir.** Una sugerencia ayuda a terminar la consulta o salta a algo conocido, y las teclas de flecha la convierten en la activa mientras el foco se queda en el campo de entrada. Un resultado es algo que tu búsqueda ha encontrado: un enlace que recibe el foco él mismo.
 - Usa el icono inicial para distinguir los tipos: el del historial para una consulta anterior, una carpeta, una página, una sección.
 - Escribe titulares cortos y pon el detalle en el texto de apoyo o en el extracto: «Facturas» y, después, «Carpeta · 24 mensajes». Saltan de línea en lugar de cortarse.
-- Marca en el extracto lo que ha coincidido. La marca es la del sistema, un color y un peso mayor, de modo que las coincidencias se ven igual en todas partes.
+- Marca en el extracto lo que ha coincidido. La marca es la del sistema, un color, un peso mayor y un relleno suave detrás de la coincidencia, de modo que las coincidencias se ven igual en todas partes y se encuentran en cualquier escritura, también donde la fuente no tiene un peso entre el normal y la negrita.
 - Agrupa los resultados cuando vayan juntos: las secciones bajo su página, los mensajes bajo «Mensajes». El título de un grupo es un enlace cuando el propio grupo es un lugar.
 - Da un `href` a un resultado siempre que tenga una dirección. Así, una persona puede abrirlo en una pestaña nueva, copiar su dirección y ver adónde lleva. Usa `select` sin `href` solo para un resultado que tu producto abre por sí mismo.
 - El orden de la vista es fijo: las sugerencias, la fila de estado, los resultados y, después, tu propio contenido, como un botón «Cargar más resultados» o un enlace a una página con todos los resultados.
@@ -341,6 +341,7 @@ Los dos vienen incluidos, porque su comportamiento pertenece a la búsqueda: el 
 - Usa un atajo que las personas ya conozcan para buscar en tu tipo de producto, y escríbelo con `mod` para que sea correcto en todos los teclados.
 - Activa `bindShortcut` en una sola búsqueda por pantalla. De dos búsquedas que vinculan las mismas teclas, la que se muestra primero se las queda, y las compilaciones de depuración notifican la otra.
 - Un atajo sin modificador, como `/`, se ignora mientras el foco está en un campo de entrada de texto, para que la persona pueda escribir el carácter.
+- Si vinculas una sola tecla de carácter sin modificador, como `/`, ofrece una forma de desactivarla o de cambiarla (WCAG 2.1.4, atajos de teclado con caracteres). `bindShortcut` está desactivado por defecto.
 - Sin `bindShortcut`, la indicación solo muestra las teclas: vincúlalas tú, o deja `shortcut` vacío.
 
 ### Recomendado

@@ -623,6 +623,7 @@
     "tanrei.comp.combobox.outlined.disabled.selected-option.container.color": {"$value": "{tanrei.comp.combobox.outlined.selected-option.container.color}", "reason": "So that a combobox resolves as the menu does. It restates tanrei.comp.menu.selected.disabled.container.color: This preset's checked item has no fill, so a disabled one grows none (the default system gives its own a neutral disabled fill)."},
     "tanrei.comp.one-time-code-input.container.height": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 11}, "reason": "This preset's large field height (44), the platform's touch target; its 34 field is too low for a cell a finger aims at."},
     "tanrei.comp.one-time-code-input.container.shape": {"$value": "{tanrei.sys.shape.corner.medium}", "reason": "This preset's field corners."},
+    "tanrei.comp.one-time-code-input.caret.width": {"$value": "{tanrei.sys.border.thick}", "reason": "The platform's text caret is 2 pt wide (UIKit draws the insertion point of a text field 2 pt wide), wider than its hairlines."},
     "tanrei.comp.one-time-code-input.standard.container.color": {"$value": "{tanrei.sys.color.surface-container-high}", "reason": "This preset's field fill."},
     "tanrei.comp.one-time-code-input.standard.error.container.color": {"$value": "{tanrei.sys.color.surface-container-high}", "reason": "This preset's field fill, in error too."}
   },

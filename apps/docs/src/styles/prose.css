@@ -29,6 +29,10 @@
    figures of the splash page and every live example's frame are in their final place when the page is first painted. */
 @import '@tanrei/web/description-list.css' layer(docs.description-list);
 @import '@tanrei/web/figure.css' layer(docs.figure);
+/* The link cards of the landing pages (components/cards/LinkCard.astro) are Tanrei's Link card, whose stylesheet draws
+   the whole card before its element is defined: it is loaded here, after Starlight's layers, so that their reset does
+   not take the card's own spacing. */
+@import '@tanrei/web/link-card.css' layer(docs.link-card);
 /* The skeleton is its stylesheet: what a page shows before its script has run (the shapes, the show delay, the pulse). */
 @import '@tanrei/web/skeleton.css' layer(docs.skeleton);
 /* The Table's one stylesheet (it has no shadow root), and the box a Callout has before its element is defined: both

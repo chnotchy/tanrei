@@ -163,7 +163,7 @@
     },
     {
       "id": "APB-5",
-      "text": "THE app bar SHALL draw a title in the top row on one line in comp.app-bar.title.typescale.small and comp.app-bar.title.color, and WHILE subtitle is not empty the subtitle on one line below it in comp.app-bar.subtitle.typescale.small and comp.app-bar.subtitle.color, the two vertically centered as a block; each SHALL be truncated at the end with an ellipsis when it does not fit."
+      "text": "THE app bar SHALL draw a title in the top row on one line in comp.app-bar.title.typescale.small and comp.app-bar.title.color, and WHILE subtitle is not empty the subtitle on one line below it in comp.app-bar.subtitle.typescale.small and comp.app-bar.subtitle.color, the two vertically centered as a block; each SHALL be truncated at the end with an ellipsis when it does not fit. THE app bar SHALL set the title's letter-spacing, in every size, by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them."
     },
     {
       "id": "APB-6",
@@ -489,7 +489,7 @@
         "titleAlignment": "titleAlignment",
         "scrolled": "isScrolled"
       },
-      "notes": "`TanreiAppBar(_ title:, subtitle:, size:, titleAlignment:, isScrolled: Bool? = nil) { navigation } actions: { … }`, placed with `.safeAreaInset(edge: .top)` in a `NavigationStack` whose system bar is hidden; the system bar's heights, title font and edge cannot be set from the tokens. Hiding it must not lose the interactive back swipe: the implementation keeps it working. The connected scroll view is the one marked `.tanreiAppBarScrollSource()`, applied after the `.safeAreaInset` that holds the bar (the inset's content sees only the environment where the inset is applied); it connects on iOS 18 and macOS 15 and later. `isScrolled: nil` follows it, a value overrides it.",
+      "notes": "`TanreiAppBar(_ title:, subtitle:, size:, titleAlignment:, isScrolled: Bool? = nil) { navigation } actions: { … }`, placed with `.safeAreaInset(edge: .top)` in a `NavigationStack` whose system bar is hidden; the system bar's heights, title font and edge cannot be set from the tokens. Hiding it must not lose the interactive back swipe: the implementation keeps it working. The connected scroll view is the one marked `.tanreiAppBarScrollSource()`, applied after the `.safeAreaInset` that holds the bar (the inset's content sees only the environment where the inset is applied); it connects on iOS 18 and macOS 15 and later. `isScrolled: nil` follows it, a value overrides it. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20).",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -523,7 +523,7 @@
         "titleAlignment": "titleAlignment",
         "scrolled": "scrollBehavior"
       },
-      "notes": "Compose idiom (as `TopAppBar`): `TanreiAppBar(title, navigationIcon = { … }, actions = { … }, subtitle, size, titleAlignment, scrollBehavior, windowInsets)`. `scrollBehavior` (`TanreiAppBarDefaults.pinnedScrollBehavior()` for small, `.collapseScrollBehavior()` for large) is connected with `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)`, and its state carries scrolled and the collapse; without one the bar is flat and expanded, and a state created with a given offset draws the scrolled fixtures. `windowInsets` defaults to the status bars plus the horizontal display cutout.",
+      "notes": "Compose idiom (as `TopAppBar`): `TanreiAppBar(title, navigationIcon = { … }, actions = { … }, subtitle, size, titleAlignment, scrollBehavior, windowInsets)`. `scrollBehavior` (`TanreiAppBarDefaults.pinnedScrollBehavior()` for small, `.collapseScrollBehavior()` for large) is connected with `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)`, and its state carries scrolled and the collapse; without one the bar is flat and expanded, and a state created with a given offset draws the scrolled fixtures. `windowInsets` defaults to the status bars plus the horizontal display cutout. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20).",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -557,7 +557,7 @@
         "titleAlignment": "centerTitle",
         "scrolled": "scrolledUnder"
       },
-      "notes": "Flutter idiom (as `AppBar` and `SliverAppBar.large`): `TanreiAppBar` is a `PreferredSizeWidget` for `Scaffold.appBar`, with `leading`, `actions`, `title` (a String), `subtitle`, `size` and `centerTitle` (true for center). `scrolledUnder: null` follows the `ScrollNotification`s of the scaffold's body, as `AppBar`'s scrolled-under state does; a bool overrides it. A large bar that collapses is `TanreiSliverAppBar` inside a `CustomScrollView`. Insets through `SafeArea`/`MediaQuery.padding`.",
+      "notes": "Flutter idiom (as `AppBar` and `SliverAppBar.large`): `TanreiAppBar` is a `PreferredSizeWidget` for `Scaffold.appBar`, with `leading`, `actions`, `title` (a String), `subtitle`, `size` and `centerTitle` (true for center). `scrolledUnder: null` follows the `ScrollNotification`s of the scaffold's body, as `AppBar`'s scrolled-under state does; a bool overrides it. A large bar that collapses is `TanreiSliverAppBar` inside a `CustomScrollView`. Insets through `SafeArea`/`MediaQuery.padding`. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20).",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -591,7 +591,7 @@
         "titleAlignment": "titleAlignment",
         "scrolled": "scrolled"
       },
-      "notes": "`navigation` and `actions` are React nodes (an icon-only `Button`, and a fragment of up to three). The scroll connection is a hook: `const scroll = useAppBarScroll()` gives `scroll.onScroll` for a `ScrollView` or `FlatList` and `scroll.state` for the bar's `scrollState` prop, which sets scrolled and the collapse; without it the bar draws what `scrolled` says. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either.",
+      "notes": "`navigation` and `actions` are React nodes (an icon-only `Button`, and a fragment of up to three). The scroll connection is a hook: `const scroll = useAppBarScroll()` gives `scroll.onScroll` for a `ScrollView` or `FlatList` and `scroll.state` for the bar's `scrollState` prop, which sets scrolled and the collapse; without it the bar draws what `scrolled` says. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20).",
       "items": {
         "navigation": {
           "name": "Button",

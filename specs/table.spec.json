@@ -7891,7 +7891,7 @@
         "caption": "商品",
         "selection": "multiple",
         "rowHeaders": true,
-        "status": "4 件中 1 件を選択",
+        "status": "4 件中 1 件を選択中",
         "selectAllLabel": "すべての商品を選択",
         "sortedAscendingLabel": "昇順で並べ替え済み",
         "sortedDescendingLabel": "降順で並べ替え済み"

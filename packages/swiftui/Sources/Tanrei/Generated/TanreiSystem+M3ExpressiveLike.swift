@@ -6395,6 +6395,7 @@ private let m3ExpressiveLikeNumberInputTokens = TanreiNumberInputTokens(
 )
 
 private let m3ExpressiveLikeOneTimeCodeInputTokens = TanreiOneTimeCodeInputTokens(
+  caretWidth: 2,
   containerGap: 6,
   containerHeight: 56,
   containerPaddingInline: 4,
@@ -6896,7 +6897,7 @@ private let m3ExpressiveLikeSearchTokens = TanreiSearchTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
   resultMarkColor: .role(.onSurface),
-  resultMarkContainerColor: .none,
+  resultMarkContainerColor: .role(.secondaryContainer),
   resultMarkEmphasis: 100,
   shortcutColor: .role(.onSurfaceVariant),
   shortcutTypescale: m3ExpressiveLikeTypescale.labelSmall,
@@ -7171,6 +7172,7 @@ private let m3ExpressiveLikeSelectTokens = TanreiSelectTokens(
   listColor: .role(.surfaceContainer),
   listElevation: m3ExpressiveLikeElevation.level2,
   listMaxHeight: 320,
+  listMaxWidth: 280,
   listMinWidth: 112,
   listOffset: 4,
   listPaddingBlock: 8,

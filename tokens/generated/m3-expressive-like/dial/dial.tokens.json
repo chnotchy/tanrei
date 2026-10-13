@@ -4837,14 +4837,16 @@
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 10
-              }
+              },
+              "reason": "Collapsed, the main action button is Material 3's small FAB (40dp). Material 3 has no extended FAB of this height: its extended FAB is 56dp, where the extended main action button keeps the height of its size."
             },
             "tanrei.comp.main-action-button.container.height.medium": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
-              }
+              },
+              "reason": "Material 3's FAB and extended FAB are both 56dp."
             },
             "tanrei.comp.main-action-button.container.height.large": {
               "derive": {
@@ -6768,6 +6770,14 @@
               },
               "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.surface.min-width."
             },
+            "tanrei.comp.select.list.max-width": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 70
+              },
+              "reason": "So that a select resolves as the menu does. It restates tanrei.comp.menu.surface.max-width."
+            },
             "tanrei.comp.select.option.height": {
               "derive": {
                 "fn": "mul",
@@ -6959,6 +6969,10 @@
                 "by": 14
               },
               "reason": "This preset's fields are 56 high; a code input stands beside them."
+            },
+            "tanrei.comp.one-time-code-input.caret.width": {
+              "$value": "{tanrei.sys.border.thick}",
+              "reason": "Material's text field cursor is 2 dp wide (Flutter TextField.cursorWidth 2.0; Compose draws its cursor 2 dp wide), apart from its hairlines."
             },
             "tanrei.comp.one-time-code-input.container.shape": {
               "$value": "{tanrei.sys.shape.corner.extra-small}",

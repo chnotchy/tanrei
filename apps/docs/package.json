@@ -13,7 +13,8 @@
     "preview": "astro preview",
     "test:node": "node --test \"test/*.test.mjs\"",
     "test": "pnpm test:node && node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css --check-systems && astro build",
-    "fonts": "node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css"
+    "fonts": "node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css",
+    "links": "tanrei-links update"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.0",

@@ -67,4 +67,7 @@
     font: var(--tanrei-comp-empty-state-title-typescale-large-font);
     letter-spacing: var(--tanrei-comp-empty-state-title-typescale-large-letter-spacing);
   }
+  /* EMP-4: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  /* script-tracking: :where(tanrei-empty-state:not(:defined)) > :where([slot='title']) | var(--tanrei-comp-empty-state-title-typescale-medium-letter-spacing) */
+  /* script-tracking: :where(tanrei-empty-state[size='large']:not(:defined)) > :where([slot='title']) | var(--tanrei-comp-empty-state-title-typescale-large-letter-spacing) */
 }

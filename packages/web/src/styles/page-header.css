@@ -163,33 +163,10 @@
   :where(tanrei-page-header) > :where(h1, h2, h3, h4, h5, h6, [data-part='title'], p:not([data-part], p:not([data-part]) ~ p), [data-part='description']):where(:lang(ja), :lang(zh)) {
     line-break: strict;
   }
-  /* PGH-4: no tracking in a script a tracked word falls apart in — the title's negative one, and the eyebrow's. */
-  :where(tanrei-page-header) > :where(h1, h2, h3, h4, h5, h6, [data-part='title'], [data-part='eyebrow']):where(
-      :lang(ja),
-      :lang(zh),
-      :lang(ko),
-      :lang(ar),
-      :lang(fa),
-      :lang(ur),
-      :lang(ps),
-      :lang(hi),
-      :lang(mr),
-      :lang(ne),
-      :lang(bn),
-      :lang(pa),
-      :lang(gu),
-      :lang(ta),
-      :lang(te),
-      :lang(kn),
-      :lang(ml),
-      :lang(si),
-      :lang(th),
-      :lang(lo),
-      :lang(km),
-      :lang(my)
-    ) {
-    letter-spacing: 0;
-  }
+  /* PGH-4: the title's and the eyebrow's letter-spacing follow their script (src/styles/script-tracking.ts): no
+     negative tracking in Chinese, Japanese or Korean, none at all in a script that joins its letters or stacks marks. */
+  /* script-tracking: :where(tanrei-page-header) > :where(h1, h2, h3, h4, h5, h6, [data-part='title']) | var(--_pgh-title-tracking) */
+  /* script-tracking: :where(tanrei-page-header) > :where([data-part='eyebrow']) | var(--tanrei-comp-page-header-eyebrow-typescale-letter-spacing) */
 
   /* ── The description (PGH-7): a lead under the title, no longer than a line of reading text ─────────────────── */
   :where(tanrei-page-header) > :where(p:not([data-part], p:not([data-part]) ~ p), [data-part='description']) {

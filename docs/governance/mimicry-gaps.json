@@ -587,6 +587,16 @@
       "status": "open",
       "trait": "Material draws AM and PM beside the time selectors in portrait and below them, as a row, in landscape. Tanrei's period is a part of the time and stands beside the selectors again — after the minute, or before the hour where the locale writes it first (DTM-14) — at Material's width and distance under m3-like (two pins). What remains: in Material's horizontal layout the period lies under the selectors as a row; in Tanrei it stays beside them in every layout.",
       "proposal": "A choice-of-kind token for the period's place in the horizontal layout would close what remains, but one product has no use for it."
+    },
+    {
+      "id": "select-chevron-flips-open",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "Material's web select swaps its arrow while the menu is open: a downward arrow while closed, an upward one while open. It is swapped, not turned.",
+      "kind": "behavior",
+      "status": "open",
+      "proposal": "Tanrei's select draws one chevron that neither turns nor swaps (the state is told by aria-expanded and by the open list), as the native select and Apple's pop-up button do, so m3-like keeps a downward chevron while open. A small choice of kind for the chevron while open (none | swap | turn) would close the gap; whether one product needs it is not yet shown."
     }
   ]
 }

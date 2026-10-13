@@ -5911,6 +5911,10 @@
               "$value": "{tanrei.sys.shape.corner.medium}",
               "reason": "This preset's field corners."
             },
+            "tanrei.comp.one-time-code-input.caret.width": {
+              "$value": "{tanrei.sys.border.thick}",
+              "reason": "The platform's text caret is 2 pt wide (UIKit draws the insertion point of a text field 2 pt wide), wider than its hairlines."
+            },
             "tanrei.comp.one-time-code-input.standard.container.color": {
               "$value": "{tanrei.sys.color.surface-container-high}",
               "reason": "This preset's field fill."

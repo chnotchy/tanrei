@@ -72,7 +72,7 @@ On the web it is a class from `@tanrei/web/prose.css`. This page is drawn by it.
 - **No text color.** Prose takes the content color of the surface it sits on, so the same text reads on a page, in a card and in a callout.
 - **Components stay themselves.** What is inside a Tanrei element, or inside a part marked `tanrei-not-prose`, is not styled by prose; prose only spaces it.
 - **Links are underlined at rest**, so that color alone never tells a link from the text beside it.
-- **Languages.** Japanese and Chinese lines break by their own rules; emphasis in Chinese, Japanese and Korean is upright at the emphasized weight, because those scripts have no italic; their headings are set without the negative tracking of the Latin headings. Japanese running text is set looser, at a line height of 1.85, so that the space between two lines is near one character, as the Japanese layout requirements (JLREQ) recommend for lines as long as the measure's. Direction is the place's: a right-to-left layout puts list insets, a quote's line and the text's edge on the right.
+- **Languages.** Japanese and Chinese lines break by their own rules; emphasis in Chinese, Japanese and Korean is upright at the emphasized weight, because those scripts have no italic; their headings, and every component's title, are set without the negative tracking of the Latin headings (a positive tracking stays), and a script that joins its letters or stacks marks on them takes no tracking at all. Japanese running text is set looser, at a line height of 1.85, so that the space between two lines is near one character, as the Japanese layout requirements (JLREQ) recommend for lines as long as the measure's. Direction is the place's: a right-to-left layout puts list insets, a quote's line and the text's edge on the right.
 
 A heading can carry an anchor — a link to itself, after the end of its text, shown when the heading is hovered or the link is focused and always shown where there is no hover:
 
@@ -166,7 +166,7 @@ A role a preset adds is an ordinary token on every platform: `m3-like`'s `displa
 
 ## Languages
 
-Line heights are chosen so that mixed Latin and CJK text does not clip, and Japanese inherits the same roles. Negative tracking is a Latin-script device; when a heading is mostly Japanese, prefer neutral tracking, as this site does.
+Line heights are chosen so that mixed Latin and CJK text does not clip, and Japanese inherits the same roles. Negative tracking is a Latin-script device: wherever the text's `lang` is Chinese, Japanese or Korean — in prose, in the text classes and in every component's title — Tanrei sets the heading solid, without it. Set `lang`, and the heading needs nothing else.
 
 ## Scaling
 

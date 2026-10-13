@@ -174,8 +174,8 @@
     },
     {
       "id": "PRS-20",
-      "text": "WHERE the language of a heading is Chinese, Japanese or Korean THE prose SHALL NOT apply a negative letter-spacing of the heading's text style, and SHALL draw it at a letter-spacing of zero.",
-      "verify": "The default system's heading-1 to heading-5 have negative letter-spacing; test with lang=\"ja\" on the prose and on one heading inside an English prose."
+      "text": "WHERE the language of a heading is Chinese, Japanese or Korean THE prose SHALL NOT apply a negative letter-spacing of the heading's text style: it SHALL draw the heading at a letter-spacing of zero, or at the style's own where that is positive. WHERE the script of a heading joins its letters or stacks marks on them (Arabic, Persian, Urdu and Pashto; Hindi, Marathi, Nepali, Bengali, Punjabi, Gujarati, Tamil, Telugu, Kannada, Malayalam and Sinhala; Thai, Lao, Khmer and Burmese) THE prose SHALL draw it at a letter-spacing of zero. The language is the text's own, on the prose or on the heading. No design system chooses this, so it is not a token, and it is the rule every component's title follows (component conventions: text follows its script).",
+      "verify": "The default system's heading-1 to heading-5 have negative letter-spacing; test with lang=\"ja\" on the prose and on one heading inside an English prose (zero), with a product's positive letter-spacing on a Japanese heading (kept), and with lang=\"ar\" and lang=\"hi\" (zero)."
     },
     {
       "id": "PRS-31",

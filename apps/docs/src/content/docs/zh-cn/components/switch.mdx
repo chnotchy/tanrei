@@ -2,7 +2,7 @@
 title: "开关"
 description: "打开或关闭一项设置，并立即生效。"
 translationOf: components/switch.mdx
-sourceHash: 4674336ed8349bdca12f31e1bd12b4a65a5467c0
+sourceHash: 7fe7d717955307e35dbb07daa20092587a8b1a83
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="switch" />
 
 :::note[规格已修订，但尚未在所有平台上实现]
-本页描述的是规格当前所定的开关：采用 Material Design 3 的尺寸，滑块在按下时变大，图标只取自图标集，滑块跟随拖动，滑块里的图标有自己的、更粗的字重。Web 组件已经全部做到，演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版，只响应轻点，不跟随拖动。
+本页描述的是规格当前所定的开关：52 × 32 的轨道，滑块在按下时变大，图标只取自图标集，滑块跟随拖动，滑块里的图标有自己的、更粗的字重。Web 组件已经全部做到，演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版，只响应轻点，不跟随拖动。
 :::
 
 <DemoFrame label="关和开">
@@ -152,7 +152,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 尺寸与按下
 
-在默认系统中，开关采用 Material Design 3 的尺寸：52 × 32 的轨道，轮廓为 2；滑块在关闭时为 16，在打开或带图标时为 24。无论在哪个位置，按下都会让滑块立即变大，填满轨道。按下结束后，它按状态动效恢复原来的大小；在减弱动态效果时，则立即恢复。对按下不作任何反馈的系统，滑块的大小保持不变。
+在默认系统中，开关是 52 × 32 的轨道，轮廓为 2；滑块在关闭时为 16，在打开或带图标时为 24。无论在哪个位置，按下都会让滑块立即变大，填满轨道。按下结束后，它按状态动效恢复原来的大小；在减弱动态效果时，则立即恢复。对按下不作任何反馈的系统，滑块的大小保持不变。
 
 ### 与标签页相同的滑块
 
