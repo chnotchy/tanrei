@@ -1,8 +1,8 @@
 ---
 title: "复制按钮"
-description: "按一次就复制给定文本并加以确认的按钮；复制不了时也会说明。它由 Button 绘制，绝不会让布局移动。"
+description: "按一次就复制给定文本并加以确认的按钮；复制不了时也会说明。它由 Button 绘制，默认绝不会让布局移动。"
 translationOf: components/copy-button.mdx
-sourceHash: 012770de698440e0cbe97e03a67aa5abd3c3a7f7
+sourceHash: 83b0e3b2e8515dd2490be056fdab9151e53d9e9e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -53,6 +53,16 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
       failed-label="无法复制"
     ></tanrei-copy-button>
 
+    <!-- 带标签，宽度随文字变化：只用在一行的末尾。 -->
+    <tanrei-copy-button
+      icon-only="false"
+      label-width="fit"
+      text="sk-test-0000"
+      label="复制"
+      copied-label="已复制到剪贴板"
+      failed-label="无法复制"
+    ></tanrei-copy-button>
+
     <script type="module">
       import '@tanrei/web';
 
@@ -86,9 +96,15 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
   <tanrei-button variant="text">不会移动的相邻按钮</tanrei-button>
 </DemoFrame>
 
+<DemoFrame label="label-width 为 fit 时，宽度随文字变化" plain>
+  <tanrei-copy-button icon-only="false" label-width="fit" variant="outlined" text="sk-test-0000" label="复制" copied-label="已复制到剪贴板" failed-label="无法复制"></tanrei-copy-button>
+</DemoFrame>
+
+设置 `label-width="fit"` 后，带标签的形式与它显示的文字一样宽。文字变化时，宽度会在 `comp.copy-button.motion.resize-duration` 内平滑地变为新文字的宽度；在减弱动态效果时则立即变化。默认值仍是 `widest`，因为在用户正要按下时移动的控件容易被误按。只有在按钮后面没有用户接下来可能按的东西时（例如一行的末尾），才使用 `fit`。
+
 按钮有三种形态：静止（字形 `content_copy`）、已复制（`check`）和失败（`error`）。只有在浏览器确认复制完成之后，它才显示已复制形态，并在 `comp.copy-button.confirmation.duration`（2 秒）之后回到静止形态。在它显示确认期间再按一次，会再复制一次、再确认一次。
 
-形态变化时任何东西都不会移动。三个字形画在同一个框里。带标签的形式始终保持最宽那段文字的宽度。
+形态变化时任何东西都不会移动。三个字形画在同一个框里。带标签的形式默认始终保持最宽那段文字的宽度；设置 `label-width="fit"` 后，宽度会像上面那样随文字变化。
 
 字形立即变化，不带动效。这两秒是留给用户注意到的时间，所以在减弱动态效果时依然保留。
 
@@ -117,6 +133,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 - 如果从位置上看不出复制的是什么，就在标签里说出来：“复制链接”“复制 JSON”。
 - 如果用户无论如何都得拿到这段文本，请监听 `copyfailed`，并显示一样会留在那里的东西，例如在字段里选中这段文本。
 - 放在内容旁边的复制按钮保持 text 变体。复制是视图的主要操作时，再选别的变体。
+- 如果带标签的复制按钮后面有用户接下来可能按的东西，请保持默认宽度。只有后面什么都没有时，才选择 `label-width="fit"`。
 
 ### 避免
 
@@ -136,6 +153,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 - 在确认持续期间，纯图标的形式还会把这些文字显示在一个画成 plain [工具提示](/zh-cn/components/tooltip/)的气泡里。它不获取焦点，不会被再读一遍，按 Escape 即可关闭。
 - 确认靠的是形状和文字，而不是颜色。
 - 在从右到左的布局中，复制字形会按图标集的标记镜像。对勾和错误标记不镜像。
+- 带标签的形式默认保持宽度不变，所以正要按下的指针下面不会有东西移动。设置 `label-width="fit"` 时，宽度会平滑地变为新文字的宽度，在减弱动态效果时立即变化。
 
 ### 需要你做的事
 
