@@ -2,7 +2,7 @@
 title: "头像"
 description: "用一张小图片代表一个人、一个团队或一个项目；没有图片时，用姓名缩写或一个字形；形状是圆形或圆角方形，有三种尺寸。多个头像可以显示成相互交叠的一组，并数出其余的数量。它是一张图片，从不是控件。"
 translationOf: components/avatar.mdx
-sourceHash: 3fba4dba17faacf3912404f2c65a411b7cfa585a
+sourceHash: 0dc89fe7806ced38df57f747d4c563da8486504b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -19,7 +19,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
   <tanrei-avatar label="没有图片的用户"></tanrei-avatar>
   <tanrei-avatar label="设计团队" initials="设" shape="square"></tanrei-avatar>
-  <tanrei-avatar-group label="评审人" max="4" overflow-label="还有 3 人">
+  <tanrei-avatar-group label="评审人" max="4" overflow-label="还有 {count} 人">
     <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
     <tanrei-avatar label="王芳" initials="王"></tanrei-avatar>
     <tanrei-avatar label="张伟" initials="张"></tanrei-avatar>
@@ -51,7 +51,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-avatar label="构建服务" shape="square"><span slot="icon">smart_toy</span></tanrei-avatar>
 
     <!-- 六名成员，最多四个方框：三名成员和“+3”。 -->
-    <tanrei-avatar-group label="评审人" max="4" overflow-label="还有 3 人">
+    <tanrei-avatar-group label="评审人" max="4" overflow-label="还有 {count} 人">
       <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
       <tanrei-avatar label="王芳" initials="王"></tanrei-avatar>
       <!-- … -->
@@ -70,7 +70,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <Avatar label={person.name} initials={person.initials} src={person.picture} />
 
-    <AvatarGroup label="评审人" max={4} total={reviewerCount} overflowLabel={`还有 ${reviewerCount - 3} 人`}>
+    <AvatarGroup label="评审人" max={4} total={reviewerCount} overflowLabel="还有 {count} 人">
       {reviewers.slice(0, 3).map((person) => (
         <Avatar key={person.id} label={person.name} initials={person.initials} src={person.picture} />
       ))}
@@ -165,7 +165,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 组把它的成员画成一行。每个成员压在前一个成员上，压住的宽度是边长的四分之一，每个成员周围都有一圈表面颜色的间隙。
 
 <DemoFrame label="把没有交给它的成员也数进去的组" plain>
-  <tanrei-avatar-group label="成员" max="4" total="240" overflow-label="还有 237 人">
+  <tanrei-avatar-group label="成员" max="4" total="240" overflow-label="还有 {count} 人">
     <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
     <tanrei-avatar label="王芳"></tanrei-avatar>
     <tanrei-avatar label="张伟" initials="张"></tanrei-avatar>
@@ -218,6 +218,6 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### 需要你做的事
 
 - 为每个头像决定它是有名称的，还是装饰性的。规则是：如果删掉这个头像会丢掉一个姓名，它就是有名称的；否则就是装饰性的。
-- 用页面所用的语言编写 `overflowLabel`，并把数字写在里面（“还有 3 人”）。没有它时，“+3”会按画出来的样子朗读。
+- 用页面所用的语言编写一次 `overflowLabel`，在数字的位置写上占位符 `{count}`（“`还有 {count} 人`”）——写在组上，或用 `setWords({ avatarGroupOverflowLabel })` 为整个产品设置。组会填入未画出的人数，即使画的是 999+，填入的也是实际人数。请写出对任何数字都正确的句子；如果语言需要按数字变换形式，就按数字替换。没有它时，“+3”会按画出来的样子朗读。
 - 给链接里的小头像留出足够的按压空间。头像宽 24；链接自己必须满足最小目标。
 - 图片带有它自己的颜色。图片的边缘常常偏浅的地方，给它们背后的表面加一层色调。

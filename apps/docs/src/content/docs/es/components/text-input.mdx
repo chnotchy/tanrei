@@ -2,7 +2,7 @@
 title: Entrada de texto
 description: La caja en la que se escribe, y todo lo que se escribe en ella (una línea o varias, una fecha o una hora, código), sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/text-input.mdx
-sourceHash: 41060d677b15780066c1fdc5516c3677bbb2c047
+sourceHash: 06b01bf09709b58b9d0db57bc6adde3c204610d9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -221,7 +221,7 @@ La entrada no da a estos elementos ningún rol, ningún lugar en el orden del fo
 - Su nombre es su propio `label`, o la etiqueta del campo que la rodea donde no tiene ninguno. El marcador de posición nunca es el nombre.
 - Su descripción es el prefijo y el sufijo mientras se muestran, después el recuento y después lo que da su campo: la ayuda o el texto de error.
 - Se expone como no válida mientras está en error, como obligatoria mientras su campo lo dice, y como de solo lectura y deshabilitada.
-- El recuento se anuncia tal como está («12/40») cuando la escritura se detiene durante un segundo, nunca con cada tecla, lo dibuje algo o no.
+- El recuento se anuncia cuando la escritura se detiene durante un segundo, nunca con cada tecla, lo dibuje algo o no. Se dice tal como está («12/40») o, si das una, con tu frase: `counterText` mientras hay `maxLength`, con los marcadores `{count}`, `{limit}` y `{remaining}` («`quedan {remaining} caracteres`»), y `counterNoLimitText` mientras no lo hay, con `{count}`. Dalas en el elemento o una sola vez con `setWords({ characterCountText, characterCountNoLimitText })`. Un valor más largo que el límite, que solo puedes poner tú, se dice en cifras. La misma frase es la descripción del campo; lo que se dibuja siguen siendo las cifras.
 - El foco lo muestra el propio borde de la caja, tanto desde el teclado como desde un puntero. El área de pulsación cumple el objetivo mínimo.
 - El asterisco que sigue a una etiqueta flotante queda oculto para la tecnología de apoyo: el estado de obligatorio ya lo dice.
 - Las compilaciones de depuración notifican que falta un nombre.

@@ -2516,7 +2516,7 @@
         },
         {
           "kind": "class",
-          "description": "Several avatars drawn as one row in which each lies a little over the one before it, with a gap around each, and a\nlast box that counts the members it does not draw: the avatar's group form.\n\nContract: specs/avatar.spec.json (AVT-16…AVT-23). `<tanrei-avatar-group label=\"Reviewers\" max=\"4\">` around\n`<tanrei-avatar>` members. The group gives its `size` and `shape` to every member and makes each one named, whatever\nits `decorative` says. `max` is the most boxes drawn, the overflow box included (six members with `max=\"4\"` are three\nmembers and \"+3\"); `total` is the real count where the product gives fewer members than exist. The members it does not\ndraw stay in the document as its children and are not drawn or exposed. Anything that is not a `<tanrei-avatar>` is\nnot a member and is not drawn.\n\nIt is a group named by `label`, holding one named image per member it draws and then the overflow's text\n(`overflow-label`, or the drawn count). The overflow box is text, not a control: showing the people it counts is a\nlink or a Button beside the group.",
+          "description": "Several avatars drawn as one row in which each lies a little over the one before it, with a gap around each, and a\nlast box that counts the members it does not draw: the avatar's group form.\n\nContract: specs/avatar.spec.json (AVT-16…AVT-23). `<tanrei-avatar-group label=\"Reviewers\" max=\"4\">` around\n`<tanrei-avatar>` members. The group gives its `size` and `shape` to every member and makes each one named, whatever\nits `decorative` says. `max` is the most boxes drawn, the overflow box included (six members with `max=\"4\"` are three\nmembers and \"+3\"); `total` is the real count where the product gives fewer members than exist. The members it does not\ndraw stay in the document as its children and are not drawn or exposed. Anything that is not a `<tanrei-avatar>` is\nnot a member and is not drawn.\n\nIt is a group named by `label`, holding one named image per member it draws and then the overflow's text\n(`overflow-label` or the product's words `avatarGroupOverflowLabel`, with `{count}` filled by the number not drawn;\nelse the drawn count). The overflow box is text, not a control: showing the people it counts is a\nlink or a Button beside the group.",
           "name": "TanreiAvatarGroup",
           "cssParts": [
             {
@@ -2541,6 +2541,13 @@
               "privacy": "private",
               "readonly": true,
               "default": "new AvailabilityController(this, 'avatar')"
+            },
+            {
+              "kind": "field",
+              "name": "words",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new WordsController(this)"
             },
             {
               "kind": "field",
@@ -2593,7 +2600,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "What assistive technology reads for the overflow box, in the product's language and with the number in it (\"and 12 more\"). Empty reads the drawn text (\"+12\").",
+              "description": "What assistive technology reads for the overflow box: your sentence with the place `{count}`, which the group fills\nwith the number of members not drawn, in full (\"{count} more\"). Empty reads the product's words\n(`setWords({ avatarGroupOverflowLabel })`); with neither, the drawn text (\"+12\").",
               "attribute": "overflow-label"
             },
             {
@@ -2706,6 +2713,25 @@
             },
             {
               "kind": "method",
+              "name": "spoken",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "hidden",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "AVT-19: what assistive technology reads for the overflow box — the product's sentence with `{count}` filled by the\nnumber not drawn, in full and in the locale's digits without grouping (never cut at 999 as the drawn text is); empty\nwhere there is no sentence."
+            },
+            {
+              "kind": "method",
               "name": "text",
               "privacy": "private",
               "return": {
@@ -2758,7 +2784,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "What assistive technology reads for the overflow box, in the product's language and with the number in it (\"and 12 more\"). Empty reads the drawn text (\"+12\").",
+              "description": "What assistive technology reads for the overflow box: your sentence with the place `{count}`, which the group fills\nwith the number of members not drawn, in full (\"{count} more\"). Empty reads the product's words\n(`setWords({ avatarGroupOverflowLabel })`); with neither, the drawn text (\"+12\").",
               "fieldName": "overflowLabel"
             },
             {
@@ -12078,7 +12104,7 @@
               },
               "default": "''",
               "attribute": "remove-label",
-              "description": "The accessible name of the remove action (`remove-label`): this instance's words, else the product's (`setWords({ removeLabel })`). The file's name is the action's description."
+              "description": "The accessible name of the remove action (`remove-label`): your sentence with the place `{name}`, which the file item fills with the file's name (\"Remove {name}\"). This instance's words, else the product's (`setWords({ removeLabel })`)."
             },
             {
               "kind": "field",
@@ -12089,7 +12115,7 @@
               },
               "default": "''",
               "attribute": "retry-label",
-              "description": "The accessible name of the retry action (`retry-label`): this instance's words, else the product's (`setWords({ retryLabel })`)."
+              "description": "The accessible name of the retry action (`retry-label`), with the place `{name}` filled by the file's name (\"Retry {name}\"). This instance's words, else the product's (`setWords({ retryLabel })`)."
             },
             {
               "kind": "field",
@@ -13724,7 +13750,7 @@
               },
               "default": "''",
               "fieldName": "removeLabel",
-              "description": "The accessible name of the remove action (`remove-label`): this instance's words, else the product's (`setWords({ removeLabel })`). The file's name is the action's description."
+              "description": "The accessible name of the remove action (`remove-label`): your sentence with the place `{name}`, which the file item fills with the file's name (\"Remove {name}\"). This instance's words, else the product's (`setWords({ removeLabel })`)."
             },
             {
               "name": "retry-label",
@@ -13733,7 +13759,7 @@
               },
               "default": "''",
               "fieldName": "retryLabel",
-              "description": "The accessible name of the retry action (`retry-label`): this instance's words, else the product's (`setWords({ retryLabel })`)."
+              "description": "The accessible name of the retry action (`retry-label`), with the place `{name}` filled by the file's name (\"Retry {name}\"). This instance's words, else the product's (`setWords({ retryLabel })`)."
             },
             {
               "name": "type-error-text",
@@ -33251,7 +33277,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the remove action (`remove-label`): this instance's words, else the product's (`setWords({ removeLabel })`). The file's name is the action's description.",
+              "description": "The accessible name of the remove action (`remove-label`): your sentence with the place `{name}`, which the file item fills with the file's name (\"Remove {name}\"). This instance's words, else the product's (`setWords({ removeLabel })`).",
               "attribute": "remove-label"
             },
             {
@@ -33262,7 +33288,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the retry action (`retry-label`): this instance's words, else the product's (`setWords({ retryLabel })`).",
+              "description": "The accessible name of the retry action (`retry-label`), with the place `{name}` filled by the file's name (\"Retry {name}\"). This instance's words, else the product's (`setWords({ retryLabel })`).",
               "attribute": "retry-label"
             },
             {
@@ -33704,6 +33730,26 @@
               "description": "What a debug build is told; the file item still renders."
             },
             {
+              "kind": "method",
+              "name": "reportName",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "text": "'removeLabel' | 'retryLabel'"
+                  }
+                },
+                {
+                  "name": "sentence",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "FIT-20: what of an action's sentence is not its place, and a sentence without the file's name."
+            },
+            {
               "kind": "field",
               "name": "hasUpdatedOnce",
               "type": {
@@ -33724,6 +33770,25 @@
                 }
               ],
               "description": "FIT-29: whether the icon set draws the glyph `glyph` names is known once the set's font can draw at all — which\nanother glyph of this file item shows (an action's, a mark's: each a name the set has, FIT-5's `verify`). A box that\nstays empty beside a glyph that is drawn names a glyph the set does not have. The marks are written after the\nrender, in its turn (GlyphDrawnController), and again when the face arrives: looked at after each, never at rest.\nA file item with no other glyph (read-only, with no status mark) has nothing to compare with and reports nothing."
+            },
+            {
+              "kind": "method",
+              "name": "actionName",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "sentence",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "FIT-19: an action's name — the product's sentence with its place `{name}` filled by the file's name, so that two\nfiles' actions are told apart by their names. A plain string: the name is not described a second time."
             },
             {
               "kind": "method",
@@ -33970,7 +34035,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the remove action (`remove-label`): this instance's words, else the product's (`setWords({ removeLabel })`). The file's name is the action's description.",
+              "description": "The accessible name of the remove action (`remove-label`): your sentence with the place `{name}`, which the file item fills with the file's name (\"Remove {name}\"). This instance's words, else the product's (`setWords({ removeLabel })`).",
               "fieldName": "removeLabel"
             },
             {
@@ -33979,7 +34044,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the retry action (`retry-label`): this instance's words, else the product's (`setWords({ retryLabel })`).",
+              "description": "The accessible name of the retry action (`retry-label`), with the place `{name}` filled by the file's name (\"Retry {name}\"). This instance's words, else the product's (`setWords({ retryLabel })`).",
               "fieldName": "retryLabel"
             },
             {
@@ -35192,7 +35257,7 @@
               },
               "default": "''",
               "attribute": "remove-label",
-              "description": "The accessible name of the remove action (`remove-label`): this instance's words, else the product's (`setWords({ removeLabel })`). The file's name is the action's description."
+              "description": "The accessible name of the remove action (`remove-label`): your sentence with the place `{name}`, which the file item fills with the file's name (\"Remove {name}\"). This instance's words, else the product's (`setWords({ removeLabel })`)."
             },
             {
               "kind": "field",
@@ -35203,7 +35268,7 @@
               },
               "default": "''",
               "attribute": "retry-label",
-              "description": "The accessible name of the retry action (`retry-label`): this instance's words, else the product's (`setWords({ retryLabel })`)."
+              "description": "The accessible name of the retry action (`retry-label`), with the place `{name}` filled by the file's name (\"Retry {name}\"). This instance's words, else the product's (`setWords({ retryLabel })`)."
             },
             {
               "kind": "field",
@@ -36434,7 +36499,7 @@
               },
               "default": "''",
               "fieldName": "removeLabel",
-              "description": "The accessible name of the remove action (`remove-label`): this instance's words, else the product's (`setWords({ removeLabel })`). The file's name is the action's description."
+              "description": "The accessible name of the remove action (`remove-label`): your sentence with the place `{name}`, which the file item fills with the file's name (\"Remove {name}\"). This instance's words, else the product's (`setWords({ removeLabel })`)."
             },
             {
               "name": "retry-label",
@@ -36443,7 +36508,7 @@
               },
               "default": "''",
               "fieldName": "retryLabel",
-              "description": "The accessible name of the retry action (`retry-label`): this instance's words, else the product's (`setWords({ retryLabel })`)."
+              "description": "The accessible name of the retry action (`retry-label`), with the place `{name}` filled by the file's name (\"Retry {name}\"). This instance's words, else the product's (`setWords({ retryLabel })`)."
             },
             {
               "name": "announcement",
@@ -40273,7 +40338,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the button that moves an item up by one place, in your language. The item's headline is its description, so the words need not name the item. Empty reads the product's words (`setWords({ moveUpLabel })`); Tanrei has none, and without them the button works unnamed (LST-38).",
+              "description": "The accessible name of the button that moves an item up by one place: your sentence with the place `{headline}`, which the list fills with the item's headline (\"Move {headline} up\"). Empty reads the product's words (`setWords({ moveUpLabel })`); Tanrei has none, and without them the button works unnamed (LST-38).",
               "attribute": "move-up-label"
             },
             {
@@ -40284,7 +40349,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the button that moves an item down by one place. As `moveUpLabel`.",
+              "description": "The accessible name of the button that moves an item down by one place (\"Move {headline} down\"). As `moveUpLabel`.",
               "attribute": "move-down-label"
             },
             {
@@ -40710,7 +40775,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the button that moves an item up by one place, in your language. The item's headline is its description, so the words need not name the item. Empty reads the product's words (`setWords({ moveUpLabel })`); Tanrei has none, and without them the button works unnamed (LST-38).",
+              "description": "The accessible name of the button that moves an item up by one place: your sentence with the place `{headline}`, which the list fills with the item's headline (\"Move {headline} up\"). Empty reads the product's words (`setWords({ moveUpLabel })`); Tanrei has none, and without them the button works unnamed (LST-38).",
               "fieldName": "moveUpLabel"
             },
             {
@@ -40719,7 +40784,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the button that moves an item down by one place. As `moveUpLabel`.",
+              "description": "The accessible name of the button that moves an item down by one place (\"Move {headline} down\"). As `moveUpLabel`.",
               "fieldName": "moveDownLabel"
             },
             {
@@ -78311,6 +78376,28 @@
             },
             {
               "kind": "field",
+              "name": "counterText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "attribute": "counter-text",
+              "description": "The count said to assistive technology while `counter` is set and `maxLength` is above 0 (`counter-text`): your\nsentence with the places `{count}`, `{limit}` and `{remaining}` (\"{remaining} characters left\"). Empty reads the\nproduct's words (`setWords({ characterCountText })`); with neither the count is said as its digits (\"12/40\"). It is\ndrawn as digits whatever is said: `countText` stays \"12/40\"."
+            },
+            {
+              "kind": "field",
+              "name": "counterNoLimitText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "attribute": "counter-no-limit-text",
+              "description": "The count said while `counter` is set and there is no `maxLength` (`counter-no-limit-text`): your sentence with the place `{count}` (\"{count} characters\"). Empty reads the product's words (`setWords({ characterCountNoLimitText })`); with neither, the digits."
+            },
+            {
+              "kind": "field",
               "name": "prefixText",
               "privacy": "public",
               "type": {
@@ -79205,6 +79292,24 @@
               "default": "false",
               "fieldName": "counter",
               "description": "Keeps a character count (with `maxLength`, when set: \"12/40\"): part of the description, announced when typing pauses, and readable as `countText`. The input draws none: a Field draws it at the end of its supporting row, given it as `count-text` — which `<tanrei-text-field>` does by itself."
+            },
+            {
+              "name": "counter-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "fieldName": "counterText",
+              "description": "The count said to assistive technology while `counter` is set and `maxLength` is above 0 (`counter-text`): your\nsentence with the places `{count}`, `{limit}` and `{remaining}` (\"{remaining} characters left\"). Empty reads the\nproduct's words (`setWords({ characterCountText })`); with neither the count is said as its digits (\"12/40\"). It is\ndrawn as digits whatever is said: `countText` stays \"12/40\"."
+            },
+            {
+              "name": "counter-no-limit-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "fieldName": "counterNoLimitText",
+              "description": "The count said while `counter` is set and there is no `maxLength` (`counter-no-limit-text`): your sentence with the place `{count}` (\"{count} characters\"). Empty reads the product's words (`setWords({ characterCountNoLimitText })`); with neither, the digits."
             },
             {
               "name": "prefix-text",
@@ -80592,6 +80697,28 @@
             },
             {
               "kind": "field",
+              "name": "counterText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The count said to assistive technology while `counter` is set and `maxLength` is above 0 (`counter-text`): your\nsentence with the places `{count}`, `{limit}` and `{remaining}` (\"{remaining} characters left\"). Empty reads the\nproduct's words (`setWords({ characterCountText })`); with neither the count is said as its digits (\"12/40\"). It is\ndrawn as digits whatever is said: `countText` stays \"12/40\".",
+              "attribute": "counter-text"
+            },
+            {
+              "kind": "field",
+              "name": "counterNoLimitText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The count said while `counter` is set and there is no `maxLength` (`counter-no-limit-text`): your sentence with the place `{count}` (\"{count} characters\"). Empty reads the product's words (`setWords({ characterCountNoLimitText })`); with neither, the digits.",
+              "attribute": "counter-no-limit-text"
+            },
+            {
+              "kind": "field",
               "name": "prefixText",
               "privacy": "public",
               "type": {
@@ -81880,6 +82007,16 @@
             },
             {
               "kind": "field",
+              "name": "spokenCount",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "description": "TXI-19: the count as it is said — in the description and the announcement: the product's sentence with its places\nfilled, every number in the locale's digits (`counter-text` while there is a limit, `counter-no-limit-text` while\nthere is none); the digits of `countText` where there is no sentence, or while the value is longer than the limit\n(a value the product set), which a sentence of how many are left cannot say.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
               "name": "count",
               "privacy": "private",
               "readonly": true
@@ -82524,6 +82661,24 @@
               "default": "''",
               "description": "The accessible name of the resize grip (`resize-label`): this instance's words, else the product's (`setWords({ resizeLabel })`). Tanrei has none: without them the grip is drawn and works, and has no name.",
               "fieldName": "resizeLabel"
+            },
+            {
+              "name": "counter-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The count said to assistive technology while `counter` is set and `maxLength` is above 0 (`counter-text`): your\nsentence with the places `{count}`, `{limit}` and `{remaining}` (\"{remaining} characters left\"). Empty reads the\nproduct's words (`setWords({ characterCountText })`); with neither the count is said as its digits (\"12/40\"). It is\ndrawn as digits whatever is said: `countText` stays \"12/40\".",
+              "fieldName": "counterText"
+            },
+            {
+              "name": "counter-no-limit-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The count said while `counter` is set and there is no `maxLength` (`counter-no-limit-text`): your sentence with the place `{count}` (\"{count} characters\"). Empty reads the product's words (`setWords({ characterCountNoLimitText })`); with neither, the digits.",
+              "fieldName": "counterNoLimitText"
             },
             {
               "name": "no-wrap",

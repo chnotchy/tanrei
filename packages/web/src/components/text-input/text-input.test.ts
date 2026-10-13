@@ -978,6 +978,43 @@ test.describe('behavior', () => {
     await expect(host(page, 'count').getByRole('textbox')).toHaveAccessibleDescription('3/10');
   });
 
+  test('TXI-19: with the product’s sentence the count is said as a sentence — counterText with {count}, {limit} and {remaining} while there is a limit, counterNoLimitText with {count} while there is none, from the prop or the product’s words, numbers in the locale’s digits — in the description and the announcement, while countText stays the digits; past the limit, and without a sentence, the digits are said', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, {
+      fixtures: [
+        fixture('limited', { label: 'Display name', value: 'Ada Lovelace', maxLength: 40, counter: true }),
+        fixture('open', { label: 'Notes', value: 'abc', counter: true }),
+        fixture('own', { label: 'Bio', value: 'Hi', maxLength: 40, counter: true, counterText: '{limit}文字中{count}文字' }),
+        fixture('arabic', { label: 'الاسم', value: 'abc', maxLength: 40, counter: true, locale: 'ar-EG', counterText: '{remaining} متبقية' }),
+      ],
+    });
+    // Without a sentence: the digits, as before.
+    await expect(host(page, 'limited').getByRole('textbox')).toHaveAccessibleDescription('12/40');
+    // The product's words, written once.
+    await setWords(page, { characterCountText: '{remaining} characters left', characterCountNoLimitText: '{count} characters' });
+    await expect(host(page, 'limited').getByRole('textbox')).toHaveAccessibleDescription('28 characters left');
+    await expect(host(page, 'open').getByRole('textbox')).toHaveAccessibleDescription('3 characters');
+    // The instance's own wins, in its language's order; the numbers are written in the input's locale.
+    await expect(host(page, 'own').getByRole('textbox')).toHaveAccessibleDescription('40文字中2文字');
+    const arabic = await host(page, 'arabic').evaluate(() => new Intl.NumberFormat('ar-EG').format(37));
+    await expect(host(page, 'arabic').getByRole('textbox')).toHaveAccessibleDescription(`${arabic} متبقية`);
+    // What a holder reads, and the Field draws, stays the digits.
+    expect(await host(page, 'limited').evaluate((el) => (el as any).countText)).toBe('12/40');
+    // The announcement is the sentence, once, after the pause.
+    const announcer = part(page, 'limited', '.announcer');
+    await input(page, 'limited').click();
+    await page.keyboard.press('End');
+    await page.keyboard.type('!');
+    await expect(announcer).toHaveText('27 characters left', { timeout: 3000 });
+    // A value the product set past the limit: a sentence of what is left cannot say it, so the digits are said.
+    await host(page, 'limited').evaluate((el) => Object.assign(el, { value: 'x'.repeat(45) }));
+    await expect(host(page, 'limited').getByRole('textbox')).toHaveAccessibleDescription('45/40');
+    // Another text between braces is said as written, and reported.
+    await host(page, 'own').evaluate((el) => Object.assign(el, { counterText: '{used} of {limit}' }));
+    await expect(host(page, 'own').getByRole('textbox')).toHaveAccessibleDescription('{used} of 40');
+    await expect.poll(() => seen.filter((text) => text.includes('TXI-19') && text.includes('{used}')).length).toBe(1);
+  });
+
   test('TXI-20: each type gets its keyboard and semantics, and the value stays the string typed; a date or a time asks for the numeric keypad on each number segment', async ({ page }) => {
     const types = ['text', 'email', 'password', 'number', 'search', 'tel', 'url', 'code', 'date', 'time', 'date-time'] as const;
     await mountFixtures(page, spec, { fixtures: types.map((type) => fixture(type, { type, label: type, locale: 'en-US' })) });

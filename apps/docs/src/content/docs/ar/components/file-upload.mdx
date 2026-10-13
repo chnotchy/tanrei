@@ -2,7 +2,7 @@
 title: رفع الملفات
 description: يتيح للأشخاص اختيار ملفات بمنتقي ملفات، ويعرض ما اختير عناصر ملفات، في عمود من الصفوف أو في سلسلة من البلاطات. إذا وُضع في نموذج احتفظ بالملفات المختارة وأرسلها بلا شيفرة؛ والمنتج الذي يرسل الملفات بنفسه يعطي عناصر الملفات. وهو لا يرفع شيئًا بنفسه أبدًا.
 translationOf: components/file-upload.mdx
-sourceHash: 92200944376e4e306774065dde5f3c738369a9a3
+sourceHash: fb899706d800e36991b2221b490a0dee56cc73df
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -18,10 +18,10 @@ import { demoPicture } from '../../../../lib/demo-picture';
 <ComponentAvailability name="file-upload" />
 
 <DemoFrame label="رفع الملفات بكل تخطيط. اختر ملفًا: يُسرد، ويمكن أن يُزال. ولا يُرسل شيء." column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="المرفق" accept=".pdf" constraints-text="ملف PDF، حتى 10 ميغابايت" max-size="10000000" empty-text="لم يُختر أي ملف" remove-label="إزالة" type-error-text="يمكن إضافة ملفات PDF فقط." size-error-text="الحجم أكبر من 10 ميغابايت.">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="المرفق" accept=".pdf" constraints-text="ملف PDF، حتى 10 ميغابايت" max-size="10000000" empty-text="لم يُختر أي ملف" remove-label="إزالة {name}" type-error-text="يمكن إضافة ملفات PDF فقط." size-error-text="الحجم أكبر من 10 ميغابايت.">
     <tanrei-button slot="trigger" variant="outlined">اختيار ملف</tanrei-button>
   </tanrei-file-upload>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="المرفقات" accept=".pdf,image/png" max-size="10000000" drop-text="اسحب الملفات إلى هنا، أو اخترها" constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف" remove-label="إزالة" type-error-text="يمكن إضافة ملفات PDF و PNG فقط." size-error-text="الحجم أكبر من 10 ميغابايت.">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="المرفقات" accept=".pdf,image/png" max-size="10000000" drop-text="اسحب الملفات إلى هنا، أو اخترها" constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف" remove-label="إزالة {name}" type-error-text="يمكن إضافة ملفات PDF و PNG فقط." size-error-text="الحجم أكبر من 10 ميغابايت.">
     <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
   </tanrei-file-upload>
 </DemoFrame>
@@ -61,7 +61,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
                           accept=".pdf,image/png" max-size="10000000"
                           label="المرفقات"
                           constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف"
-                          remove-label="إزالة"
+                          remove-label="إزالة {name}"
                           type-error-text="يمكن إضافة ملفات PDF و PNG فقط."
                           size-error-text="الحجم أكبر من 10 ميغابايت.">
         <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
@@ -82,7 +82,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
         maxSize={10_000_000}
         label="المرفقات"
         constraintsText="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف"
-        removeLabel="إزالة"
+        removeLabel="إزالة {name}"
         typeErrorText="يمكن إضافة ملفات PDF و PNG فقط."
         sizeErrorText="الحجم أكبر من 10 ميغابايت."
       >
@@ -134,7 +134,7 @@ upload.clear();
                         label="المرفقات"
                         drop-text="اسحب الملفات إلى هنا، أو اخترها"
                         constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف"
-                        remove-label="إزالة" retry-label="إعادة المحاولة">
+                        remove-label="إزالة {name}" retry-label="إعادة محاولة {name}">
       <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
     </tanrei-file-upload>
 
@@ -183,8 +183,8 @@ upload.clear();
       label="المرفقات"
       dropText="اسحب الملفات إلى هنا، أو اخترها"
       constraintsText="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف"
-      removeLabel="إزالة"
-      retryLabel="إعادة المحاولة"
+      removeLabel="إزالة {name}"
+      retryLabel="إعادة محاولة {name}"
       onSelect={(event) => start(event.detail.files)}
       onReject={(event) => explain(event.detail.files)}
     >
@@ -209,7 +209,7 @@ upload.clear();
 <!-- مكوّن رفع الملفات -->
 <tanrei-field label="المرفقات">
   <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
-      constraints-text="ملفات PDF، 5 ملفات على الأكثر" empty-text="لم يُختر أي ملف" remove-label="إزالة" retry-label="إعادة المحاولة">
+      constraints-text="ملفات PDF، 5 ملفات على الأكثر" empty-text="لم يُختر أي ملف" remove-label="إزالة {name}" retry-label="إعادة محاولة {name}">
     <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status="uploading" status-text="جارٍ الرفع" progress="0.4"></tanrei-file-item>
   </tanrei-file-upload>
@@ -224,7 +224,7 @@ upload.clear();
 </tanrei-field>
 <ul class="my-files" aria-label="المرفقات">
   <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status="uploading" status-text="جارٍ الرفع" progress="0.4"
-        remove-label="إزالة" retry-label="إعادة المحاولة"></tanrei-file-item></li>
+        remove-label="إزالة {name}" retry-label="إعادة محاولة {name}"></tanrei-file-item></li>
 </ul>
 ```
 
@@ -233,7 +233,7 @@ upload.clear();
     <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
   </tanrei-file-picker>
   <ul class="not-content" aria-label="المرفقات" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
-    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status="uploading" status-text="جارٍ الرفع" progress="0.4" remove-label="إزالة" retry-label="إعادة المحاولة"></tanrei-file-item></li>
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status="uploading" status-text="جارٍ الرفع" progress="0.4" remove-label="إزالة {name}" retry-label="إعادة محاولة {name}"></tanrei-file-item></li>
   </ul>
 </DemoFrame>
 
@@ -259,7 +259,7 @@ upload.clear();
 ## المواصفات
 
 <DemoFrame label="صفوف يعطيها المنتج، صف لكل حالة: في الانتظار، وأُرسل منه 40%، وجارٍ إرساله، ومكتمل، وفشل ويمكن إعادة محاولته، وفشل نهائيًّا" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="المرفقات" constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف" remove-label="إزالة" retry-label="إعادة المحاولة">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="المرفقات" constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف" remove-label="إزالة {name}" retry-label="إعادة محاولة {name}">
     <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
     <tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status-text="في الانتظار"></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 ميغابايت" status="uploading" status-text="جارٍ الرفع" progress="0.4"></tanrei-file-item>
@@ -271,7 +271,7 @@ upload.clear();
 </DemoFrame>
 
 <DemoFrame label="مكوّن رفع الملفات نفسه ببلاطات: كل ملف صندوق فيه صورته، والاسم تحته" plain column>
-  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="الصور" constraints-text="صور، حتى 5 ميغابايت لكل صورة" remove-label="إزالة" retry-label="إعادة المحاولة">
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="الصور" constraints-text="صور، حتى 5 ميغابايت لكل صورة" remove-label="إزالة {name}" retry-label="إعادة محاولة {name}">
     <tanrei-button slot="trigger" variant="outlined">اختيار صور</tanrei-button>
     <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
     <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
@@ -384,7 +384,7 @@ upload.clear();
 <tanrei-field label="المرفق" requirement="required" required-text="مطلوب"
               error error-text="اختر ملف PDF لا يتجاوز حجمه 10 ميغابايت.">
   <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
-                      constraints-text="ملف PDF، حتى 10 ميغابايت" remove-label="إزالة">
+                      constraints-text="ملف PDF، حتى 10 ميغابايت" remove-label="إزالة {name}">
     <tanrei-button slot="trigger" variant="outlined">اختيار ملف</tanrei-button>
   </tanrei-file-upload>
 </tanrei-field>
@@ -413,7 +413,7 @@ upload.clear();
 
 الجمل الثلاث لا تُقرأ إلا مع `rows="own"`، ولا تُقرأ الواحدة منها إلا بعد أن يُرفض ملف لسببها. وحجم الملف ليس مفتاحًا من مفاتيح الكلمات: هو الدالة `formatSize`، وهي خاصية للمثيل.
 
-كل إجراء يصفه اسم ملفه. فكلمة واحدة، «إزالة»، تكفي لكل الصفوف: يسمع الشخص «إزالة، زر، brief.pdf».
+يحمل اسم كل إجراء اسمَ ملفه: الخاصيتان `removeLabel` و `retryLabel` جملتان فيهما الموضع `{name}`، يملؤه عنصر الملف باسم الملف («`إزالة {name}`»). تكفي جملة واحدة لكل الملفات، ويسمع الشخص «إزالة brief.pdf، زر» بترتيب لغتك، وكذلك حين يعدّد قارئ الشاشة أزرار الصفحة. والجملة التي لا موضع `{name}` فيها تعطي إجراء كل ملف الاسم نفسه، وتبلّغ عنها بنيات التنقيح.
 
 ### من اليمين إلى اليسار
 

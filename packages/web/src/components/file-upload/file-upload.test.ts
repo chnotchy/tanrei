@@ -509,7 +509,7 @@ test.describe('behavior', () => {
         return node.ignored || ['generic', 'none', 'StaticText', 'InlineTextBox'].includes(role) ? below(child) : [`${role}:${node.name?.value ?? ''}`, ...below(child).map((line) => `  ${line}`)];
       });
       const named = nodes.filter((node) => node.role?.value === 'group' && node.name?.value === 'Attachment');
-      expect(named.map((node) => below(node.nodeId))).toEqual([['button:Choose a file'], ['button:Choose a file', 'list:Attachment', '  listitem:', '    button:Remove']]);
+      expect(named.map((node) => below(node.nodeId))).toEqual([['button:Choose a file'], ['button:Choose a file', 'list:Attachment', '  listitem:', '    button:Remove brief.pdf']]);
     }
     await turn(page);
     expect(warnings.filter((text) => text.includes('<tanrei-file-upload>') && text.includes('FUP-24') && text.includes('no accessible name'))).toHaveLength(1);
@@ -534,9 +534,10 @@ test.describe('behavior', () => {
       const items = (node: (typeof nodes)[number]): string[] => (node.childIds ?? []).flatMap((child) => (byId.get(child)!.ignored || byId.get(child)!.role?.value === 'generic' ? items(byId.get(child)!) : [String(byId.get(child)!.role?.value)]));
       const lists = nodes.filter((node) => node.role?.value === 'list' && node.name?.value === 'Attachments');
       expect(lists.map((node) => items(node)), 'the items of each list, in order').toEqual([Array(6).fill('listitem'), Array(4).fill('listitem')]);
-      // What an item reads is the file item's: the remove actions are described by their files, in the order of the rows.
-      const removes = nodes.filter((node) => node.role?.value === 'button' && node.name?.value === 'Remove').map((node) => node.description?.value);
-      expect(removes).toEqual(['brief.pdf', 'floor-plan.png', 'survey.pdf', 'contract.pdf', 'site-photo.png', 'scan-archive.pdf', 'brief.pdf', 'survey.pdf', 'holiday.mov', 'notes.pdf']);
+      // What an item reads is the file item's: each remove action is named with its file, in the order of the rows, and carries no description.
+      const removes = nodes.filter((node) => node.role?.value === 'button' && String(node.name?.value ?? '').startsWith('Remove '));
+      expect(removes.map((node) => node.name?.value)).toEqual(['brief.pdf', 'floor-plan.png', 'survey.pdf', 'contract.pdf', 'site-photo.png', 'scan-archive.pdf', 'brief.pdf', 'survey.pdf', 'holiday.mov', 'notes.pdf'].map((name) => `Remove ${name}`));
+      expect(removes.map((node) => node.description?.value ?? '')).toEqual(Array(10).fill(''));
     }
   });
 
@@ -1390,7 +1391,7 @@ test.describe('behavior', () => {
 
 // ── Its own rows: FUP-42 to FUP-55, and the six ids that hold "WHILE rows is given" ──────────────────
 // A fixture made by `ownFx` gives no `rows`: it is a file upload that keeps its own files, as one placed in a form is.
-const ownFx = (id: string, props: Fixture['props'] = {}, extra: Extra = {}): Fixture => ({ id, props: { label: 'Attachments', removeLabel: 'Remove', ...props }, slots: { trigger: 'Choose files' }, ...extra });
+const ownFx = (id: string, props: Fixture['props'] = {}, extra: Extra = {}): Fixture => ({ id, props: { label: 'Attachments', removeLabel: 'Remove {name}', ...props }, slots: { trigger: 'Choose files' }, ...extra });
 /** The rows the file upload drew itself: in its shadow root, in the list. */
 const ownRows = (page: P, id: string) => host(page, id).locator(`.group > .list > .rows > ${ITEM}`);
 const ownRow = (page: P, id: string, index: number) => ownRows(page, id).nth(index);
@@ -2132,8 +2133,7 @@ test.describe('its own rows', () => {
     // FUP-25: a list of as many items, each read with its name.
     await expect(stage(page, id).getByRole('list')).toHaveCount(1);
     await expect(stage(page, id).getByRole('listitem')).toHaveCount(3);
-    await expect(inRow(ownRow(page, id, 1), 'remove')).toHaveAttribute('aria-label', 'Remove');
-    await expect(inRow(ownRow(page, id, 1), 'remove')).toHaveAttribute('aria-description', 'b.pdf');
+    await expect(inRow(ownRow(page, id, 1), 'remove')).toHaveAttribute('aria-label', 'Remove b.pdf');
     // FUP-29: a row appears and leaves at once, without a motion.
     expect(await ownRow(page, id, 1).evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(0);
     // FUP-34: in forced colors the rows are drawn in the system's colors.
