@@ -89,6 +89,10 @@
       "$value": 0.2,
       "reason": "Acme tells hovered, focused and pressed apart by three different strengths."
     },
+    "tanrei.comp.radio-button.fill.opacity": {
+      "$value": 0.08,
+      "reason": "Acme's pressed layer is twice the default's and shows through a chosen radio's translucent center: a quieter fill keeps that center 3:1 apart from its ring while pressed, on every surface (2.76:1 at the default system's 16 %, the error form on surface-container-highest in light)."
+    },
     "tanrei.sys.behavior.focus-style": {
       "$value": 1,
       "reason": "Acme shows keyboard focus as a glow."

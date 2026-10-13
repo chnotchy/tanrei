@@ -6878,7 +6878,7 @@ const TanreiSystem acmeSystem = TanreiSystem(
     containerShape: 9999.0,
     containerSize: 40.0,
     fillInset: 0.0,
-    fillOpacity: 0.16,
+    fillOpacity: 0.08,
     labelGap: 4.0,
     labelTypescale: _typescaleBody,
     motionFeedbackDuration: 450,

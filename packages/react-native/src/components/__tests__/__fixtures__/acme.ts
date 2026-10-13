@@ -10222,7 +10222,7 @@ export const acme = {
       disabledContainerShape: 9999,
       disabledOpacity: 1,
       fillInset: 0,
-      fillOpacity: 0.16,
+      fillOpacity: 0.08,
       focusedContainerShape: 9999,
       focusedOpacity: 1,
       hoveredContainerShape: 9999,

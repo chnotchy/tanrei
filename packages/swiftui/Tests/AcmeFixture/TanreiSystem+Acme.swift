@@ -6795,7 +6795,7 @@ private let acmeRadioButtonTokens = TanreiRadioButtonTokens(
   containerShape: 9999,
   containerSize: 40,
   fillInset: 0,
-  fillOpacity: 0.16,
+  fillOpacity: 0.08,
   labelGap: 4,
   labelTypescale: acmeTypescale.body,
   motionFeedbackDuration: 450,

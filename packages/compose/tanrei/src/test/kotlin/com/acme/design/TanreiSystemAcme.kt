@@ -6501,7 +6501,7 @@ private object AcmeSystemSource {
             containerShape = 9999.dp,
             containerSize = 40.dp,
             fillInset = 0.dp,
-            fillOpacity = 0.16f,
+            fillOpacity = 0.08f,
             labelGap = 4.dp,
             labelTypescale = typescale.body,
             motionFeedbackDuration = 450,
