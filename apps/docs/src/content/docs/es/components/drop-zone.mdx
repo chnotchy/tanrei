@@ -2,7 +2,7 @@
 title: Zona de soltar archivos
 description: Envuelve cualquier parte de una pantalla para que se puedan soltar archivos en cualquier punto de ella, mientras todo lo que contiene funciona como antes. No dibuja nada hasta que se arrastran archivos sobre ella; entonces cubre toda la zona con un único mensaje y entrega a tu producto los archivos que aceptó y los que rechazó.
 translationOf: components/drop-zone.mdx
-sourceHash: 66087d25c7f3588823e93e170e15ddaec708d5ef
+sourceHash: a96e90c3c5f7b4c3242c447e16ce8a353e6d79ca
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -120,7 +120,7 @@ La superposición aparece solo mientras se arrastran archivos sobre la zona, y s
 | --- | --- | --- |
 | `dropText` | El mensaje de la superposición: «Suelta archivos para subirlos». | `dropZoneText` |
 | `refusingText` | El mensaje mientras la zona rechaza lo que se arrastra. | `dropZoneRefusingText` |
-| `droppedText` | Lo que oye la tecnología de apoyo después de soltar, con `{count}`: «Se añadieron {count} archivos». | `filesDroppedText` |
+| `droppedText` | Lo que oye la tecnología de apoyo después de soltar, con `{count}`: «Se añadieron \{count} archivos». | `filesDroppedText` |
 | `refusedText` | Lo que oye cuando se rechazaron archivos, con `{count}`. | `filesRefusedText` |
 
 Define estos textos una sola vez para todo el producto con `setWords()`. Tanrei no incluye textos propios.

@@ -2,7 +2,7 @@
 title: ड्रॉप ज़ोन
 description: स्क्रीन के किसी भी हिस्से को घेर लेता है, ताकि उस पर कहीं भी फ़ाइलें ड्रॉप की जा सकें, और उसके भीतर की हर चीज़ पहले की तरह काम करती रहे। जब तक उस पर फ़ाइलें ड्रैग नहीं की जातीं, वह कुछ नहीं दिखाता; फिर पूरे हिस्से को एक संदेश से ढक देता है, और आपके प्रॉडक्ट को वे फ़ाइलें सौंपता है जो उसने स्वीकार कीं और वे जो उसने अस्वीकार कीं।
 translationOf: components/drop-zone.mdx
-sourceHash: 66087d25c7f3588823e93e170e15ddaec708d5ef
+sourceHash: a96e90c3c5f7b4c3242c447e16ce8a353e6d79ca
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -120,7 +120,7 @@ import Callout from '../../../../components/Callout.astro';
 | --- | --- | --- |
 | `dropText` | ओवरले का संदेश: "अपलोड करने के लिए फ़ाइलें यहाँ छोड़ें"। | `dropZoneText` |
 | `refusingText` | वह संदेश जो तब दिखता है जब ज़ोन ड्रैग की जा रही चीज़ को अस्वीकार करता है। | `dropZoneRefusingText` |
-| `droppedText` | ड्रॉप के बाद सहायक तकनीक क्या सुनाती है, `{count}` के साथ: "{count} फ़ाइलें जोड़ी गईं"। | `filesDroppedText` |
+| `droppedText` | ड्रॉप के बाद सहायक तकनीक क्या सुनाती है, `{count}` के साथ: "\{count} फ़ाइलें जोड़ी गईं"। | `filesDroppedText` |
 | `refusedText` | फ़ाइलें अस्वीकार होने पर वह क्या सुनाती है, `{count}` के साथ। | `filesRefusedText` |
 
 ये शब्द `setWords()` से पूरे प्रॉडक्ट के लिए एक बार सेट करें। Tanrei अपना कोई शब्द साथ नहीं देता।

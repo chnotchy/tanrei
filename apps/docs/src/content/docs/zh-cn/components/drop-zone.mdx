@@ -2,7 +2,7 @@
 title: "放置区"
 description: "包住界面的任意一部分，让文件可以放到它上面的任何位置，而它包住的一切照常工作。在有文件拖到它上面之前，它什么都不绘制；有文件拖来时，它用一条消息盖住整个区域，再把它接受的文件和它拒绝的文件交给你的产品。"
 translationOf: components/drop-zone.mdx
-sourceHash: 66087d25c7f3588823e93e170e15ddaec708d5ef
+sourceHash: a96e90c3c5f7b4c3242c447e16ce8a353e6d79ca
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -120,7 +120,7 @@ import Callout from '../../../../components/Callout.astro';
 | --- | --- | --- |
 | `dropText` | 浮层里的消息：“放下文件即可上传”。 | `dropZoneText` |
 | `refusingText` | 放置区拒绝拖来的东西时显示的消息。 | `dropZoneRefusingText` |
-| `droppedText` | 放下后辅助技术听到的内容，带有 `{count}`：“已添加 {count} 个文件”。 | `filesDroppedText` |
+| `droppedText` | 放下后辅助技术听到的内容，带有 `{count}`：“已添加 \{count} 个文件”。 | `filesDroppedText` |
 | `refusedText` | 有文件被拒绝时它听到的内容，带有 `{count}`。 | `filesRefusedText` |
 
 用 `setWords()` 为整个产品只给一次这些文字。Tanrei 不自带任何文字。

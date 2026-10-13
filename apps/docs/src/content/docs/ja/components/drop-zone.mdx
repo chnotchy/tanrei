@@ -2,7 +2,7 @@
 title: ドロップゾーン
 description: 画面の任意の部分を包み、その上のどこにでもファイルをドロップできるようにします。中にあるものは、すべてこれまでどおりに動きます。ファイルがドラッグされてくるまで何も描かず、ドラッグされると領域全体を 1 つのメッセージで覆い、受け取ったファイルと断ったファイルをプロダクトに渡します。
 translationOf: components/drop-zone.mdx
-sourceHash: 66087d25c7f3588823e93e170e15ddaec708d5ef
+sourceHash: a96e90c3c5f7b4c3242c447e16ce8a353e6d79ca
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -120,7 +120,7 @@ Web では `<tanrei-drop-zone>` です。ほかのプラットフォームはま
 | --- | --- | --- |
 | `dropText` | オーバーレイの中のメッセージ。「ドロップしてファイルをアップロード」。 | `dropZoneText` |
 | `refusingText` | ドラッグされたものをゾーンが断っている間のメッセージ。 | `dropZoneRefusingText` |
-| `droppedText` | ドロップの後に支援技術が伝える内容で、`{count}` を含みます。「{count} 個のファイルを追加しました」。 | `filesDroppedText` |
+| `droppedText` | ドロップの後に支援技術が伝える内容で、`{count}` を含みます。「\{count} 個のファイルを追加しました」。 | `filesDroppedText` |
 | `refusedText` | ファイルが断られたときに伝える内容で、`{count}` を含みます。 | `filesRefusedText` |
 
 これらの言葉は、`setWords()` を使ってプロダクト全体で一度だけ設定します。Tanrei は言葉を同梱しません。

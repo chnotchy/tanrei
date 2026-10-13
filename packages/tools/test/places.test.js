@@ -162,13 +162,13 @@ test('a forwarded prop and a forwarded item kind are not read: their places are 
   assert.deepEqual(problemsOf(composed), []);
 });
 
-test('the repository: fourteen props of seven specs declare places, seven names of two kinds, and `validate` has nothing to report', () => {
+test('the repository: sixteen props of eight specs declare places, seven names of two kinds, and `validate` has nothing to report', () => {
   assert.deepEqual(validatePlaces(), []);
   const declared = loadSpecs().flatMap(({ spec: each }) => [
     ...each.props.filter((p) => p.places).map((p) => `${each.name}.${p.name}`),
     ...(each.items ?? []).flatMap((kind) => (kind.props ?? []).filter((p) => p.places).map((p) => `${each.name}/${kind.name}.${p.name}`)),
   ]);
-  assert.deepEqual(declared.sort(), ['avatar.overflowLabel', 'chip-field.addedCountText', 'chip-field.addedText', 'chip-field.removeLabel', 'chip-field.removedText', 'field/text-input.entryRemoveLabel', 'file-item.removeLabel', 'file-item.retryLabel', 'image-preview.countText', 'list.moveDownLabel', 'list.moveUpLabel', 'list.movedText', 'text-input.counterNoLimitText', 'text-input.counterText']);
+  assert.deepEqual(declared.sort(), ['avatar.overflowLabel', 'chip-field.addedCountText', 'chip-field.addedText', 'chip-field.removeLabel', 'chip-field.removedText', 'drop-zone.droppedText', 'drop-zone.refusedText', 'field/text-input.entryRemoveLabel', 'file-item.removeLabel', 'file-item.retryLabel', 'image-preview.countText', 'list.moveDownLabel', 'list.moveUpLabel', 'list.movedText', 'text-input.counterNoLimitText', 'text-input.counterText']);
   const kinds = new Map(loadSpecs().flatMap(({ spec: each }) => [...each.props, ...(each.items ?? []).flatMap((kind) => kind.props ?? [])].flatMap((p) => p.places ?? []).map((p) => [p.name, p.kind])));
   assert.deepEqual([...kinds].sort(), [['count', 'number'], ['entry', 'text'], ['headline', 'text'], ['limit', 'number'], ['name', 'text'], ['position', 'number'], ['remaining', 'number']]);
   // The places that are needed: the row an action acts on (an entry, a file, an item), and the count an overflow says.
