@@ -37,6 +37,8 @@ export interface Fixture {
    * component, which has no direction prop. Left out, the stage carries no `dir` and takes the document's.
    */
   direction?: 'ltr' | 'rtl';
+  /** The color role its stage is painted in (`surface-container-highest` for a filled card); left out, the stage's own surface. */
+  surface?: string;
   /** The fixture of a member that is the same thing made by hand, one level down: `"<member>.<fixture id>"`. */
   twin?: string;
 }
@@ -2054,7 +2056,9 @@ function stageMarkup(spec: Spec, f: Fixture, mark: string): string {
   const attrs = attributes(spec.props, spec.platforms.web.props, staging.props ? staging.props(f.props, f) : f.props);
   const own = staging.tag?.(f) ?? spec.platforms.web.name;
   const element = staging.element ? staging.element(f, attrs) : `<${own} ${attrs}>${children}${slotsMarkup(spec, f.slots)}${content}</${own}>`;
-  return `<div class="stage" ${mark}${f.direction ? ` dir="${f.direction}"` : ''}>${staging.wrap ? staging.wrap(element, f) : element}</div>`;
+  // The stage's color, where the fixture names a surface role for it: an ancestor of the component, as its direction is.
+  const surface = f.surface ? ` style="background: var(--tanrei-sys-color-${f.surface})"` : '';
+  return `<div class="stage" ${mark}${f.direction ? ` dir="${f.direction}"` : ''}${surface}>${staging.wrap ? staging.wrap(element, f) : element}</div>`;
 }
 
 /**

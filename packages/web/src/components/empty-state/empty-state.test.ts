@@ -288,7 +288,7 @@ test.describe('behavior', () => {
     await expect(part(page, 'title', '.media')).toHaveClass(/glyph/);
   });
 
-  test('EMP-4: the title is drawn in the text style of its size and in title.color, wrapped and never cut; content in the title slot is drawn in its place, style and color and keeps its role and its level — a title given as text is never a heading, a heading the product gives stays one', async ({
+  test('EMP-4: the title is drawn in the text style of its size and in title.color, wrapped and never cut; content in the title slot is drawn in its place, style and color and keeps its role and its level — a title given as text is a heading of the level level gives (2, and 2 for a level that is not one), a heading the product gives stays one', async ({
     page,
   }) => {
     await mount(page, [
@@ -308,9 +308,19 @@ test.describe('behavior', () => {
     expect([await css(title, 'overflow'), await css(title, 'text-overflow'), await css(title, 'white-space-collapse'), await css(title, '-webkit-line-clamp')]).toEqual(['visible', 'clip', 'collapse', 'none']);
     expect(await title.evaluate((el) => el.scrollWidth <= el.clientWidth + 1 && el.scrollHeight <= el.clientHeight + 1)).toBe(true);
     await expect(part(page, 'long-text', '.headline')).toHaveText(String(of('long-text')[0].props.title));
-    // A title given as text is plain text, never a heading.
-    expect(await host(page, 'title').evaluate((el) => el.shadowRoot!.querySelectorAll('h1, h2, h3, h4, h5, h6, [role="heading"]').length)).toBe(0);
-    await expect(stage(page, 'title').getByRole('heading')).toHaveCount(0);
+    // A title given as text is a heading — it is drawn as one — of the level level gives: 2 by default, and 2 for a level that is not a heading's.
+    await expect(stage(page, 'title').getByRole('heading', { level: 2, name: 'No projects yet', exact: true })).toHaveCount(1);
+    await expect(stage(page, 'title').getByRole('heading')).toHaveCount(1);
+    for (const [level, shown] of [[4, 4], [1, 1], [6, 6], [0, 2], [7, 2], [2.5, 2]] as const) {
+      await host(page, 'title').evaluate(async (el: HTMLElement & { level: number; updateComplete: Promise<unknown> }, value) => {
+        el.level = value;
+        await el.updateComplete;
+      }, level);
+      await expect(stage(page, 'title').getByRole('heading', { level: shown, name: 'No projects yet', exact: true }), `level ${level}`).toHaveCount(1);
+    }
+    await host(page, 'title').evaluate((el) => el.setAttribute('level', '3'));
+    await expect(stage(page, 'title').getByRole('heading', { level: 3, name: 'No projects yet', exact: true }), 'the level attribute').toHaveCount(1);
+    // Text the product gives in the title slot stays text.
     await expect(stage(page, 'title-slot').getByRole('heading')).toHaveCount(0);
     // The slot's content in the title's place, style and color — in place of the title prop.
     for (const [id, selector, size] of [['title-slot', '> [slot="title"]', 'large'], ['heading', '#h', 'large'], ['heading-medium', '> h3', 'medium'], ['rich', '#rich', 'medium']] as const) {
@@ -479,7 +489,7 @@ test.describe('behavior', () => {
     const target = host(page, 'controls');
     // No tabindex, no role, no control of its own, no listener it would need a cursor for.
     expect(await target.getAttribute('tabindex')).toBeNull();
-    expect(await target.evaluate((el) => el.shadowRoot!.querySelectorAll('[tabindex], button, a, input, [role]:not(.announce)').length)).toBe(0);
+    expect(await target.evaluate((el) => el.shadowRoot!.querySelectorAll('[tabindex], button, a, input, [role]:not(.announce):not([role="heading"])').length)).toBe(0);
     expect(await target.evaluate((el) => (el as HTMLElement).tabIndex)).toBe(-1);
     // The focus order: what the product placed, in the order drawn; the empty state itself is never a stop.
     await page.locator('#before').focus();
@@ -523,7 +533,7 @@ test.describe('behavior', () => {
     expect(selected).toContain(TEXT);
   });
 
-  test('EMP-8: not live, the empty state is plain content read where it stands — the title as text or as the heading the product gave, the description, the actions as the controls they are — with no role and no name of its own; it is not announced when shown or changed, moves no focus, and is not exposed as an alert, a status, a dialog or a note', async ({
+  test('EMP-8: not live, the empty state is plain content read where it stands — the title as a heading of the level level gives or as the product gave it, the description, the actions as the controls they are — with no role and no name of its own; it is not announced when shown or changed, moves no focus, and is not exposed as an alert, a status, a dialog or a note', async ({
     page,
     browserName,
   }) => {
@@ -534,12 +544,13 @@ test.describe('behavior', () => {
       const target = host(page, id);
       expect(await target.evaluate((el) => el.getAttributeNames().filter((name) => name === 'role' || name.startsWith('aria-') || name === 'tabindex' || name === 'title')), id).toEqual([]);
       // No live region, no role of any kind in its shadow root.
-      expect(await target.evaluate((el) => el.shadowRoot!.querySelectorAll('[role], [aria-live], [aria-label], [aria-labelledby], output').length), id).toBe(0);
+      expect(await target.evaluate((el) => el.shadowRoot!.querySelectorAll('[role]:not([role="heading"]), [aria-live], [aria-label], [aria-labelledby], output').length), id).toBe(0);
     }
     for (const name of ['status', 'alert', 'dialog', 'alertdialog', 'note', 'region', 'group'] as const) await expect(page.getByRole(name), name).toHaveCount(0);
     // Reading order: the title, the description, the actions; the glyph is not there.
     await expect(host(page, 'actions')).toMatchAriaSnapshot(`
-      - text: No projects yet ${TEXT}
+      - heading "No projects yet" [level=2]
+      - text: ${TEXT}
       - button "New project"
       - button "Import a layer"
     `);
@@ -570,7 +581,11 @@ test.describe('behavior', () => {
     for (const name of ['status', 'alert', 'dialog', 'alertdialog', 'note', 'region', 'group', 'log']) expect(roles.has(name), `no ${name} is exposed`).toBe(false);
     const names = exposed.map((node) => String(node.name?.value ?? ''));
     expect(names.some((name) => name.includes('folder_open')), 'the glyph is not exposed').toBe(false);
-    expect(exposed.filter((node) => node.role?.value === 'heading').map((node) => [node.name?.value, node.properties?.find((p) => p.name === 'level')?.value.value])).toEqual([['This page does not exist', 2]]);
+    expect(exposed.filter((node) => node.role?.value === 'heading').map((node) => [node.name?.value, node.properties?.find((p) => p.name === 'level')?.value.value])).toEqual([
+      ['Changed', 2],
+      ['Nothing differs from the base yet', 2],
+      ['This page does not exist', 2],
+    ]);
     expect(exposed.filter((node) => node.role?.value === 'button').map((node) => node.name?.value)).toEqual(['start', 'New project', 'Import a layer', 'New project']);
     expect(exposed.filter((node) => node.role?.value === 'StaticText').map((node) => node.name?.value)).toEqual(expect.arrayContaining(['Changed', 'No projects yet', 'Nothing differs from the base yet', 'Change a value on the left and it is listed here.']));
   });
@@ -684,7 +699,7 @@ test.describe('behavior', () => {
     await target.evaluate((el: HTMLElement & { headline: string }) => (el.headline = 'No layers yet'));
     await settle();
     await expect(part(page, 'title', '.headline')).toHaveText('No layers yet');
-    await expect(host(page, 'title')).toMatchAriaSnapshot(`- text: No layers yet`);
+    await expect(host(page, 'title')).toMatchAriaSnapshot(`- heading "No layers yet" [level=2]`);
     // A description, a glyph and an action, given later.
     await target.evaluate((el) => el.append('Add a layer to begin.'));
     await settle();
@@ -694,7 +709,8 @@ test.describe('behavior', () => {
     await expect(part(page, 'title', '.media')).toBeVisible();
     await expect(part(page, 'title', '.actions')).toBeVisible();
     await expect(host(page, 'title')).toMatchAriaSnapshot(`
-      - text: No layers yet Add a layer to begin.
+      - heading "No layers yet" [level=2]
+      - text: Add a layer to begin.
       - button "New layer"
     `);
     // The title slot's content takes the prop's place, and a change inside it is drawn where it is.
@@ -1126,7 +1142,7 @@ test.describe('accessibility', () => {
     }
   });
 
-  test('every fixture is plain content in reading order — the title, the description, the actions — with its glyph hidden, no role and no name of its own, and a status region only where it is live', async ({ page }) => {
+  test('every fixture is plain content in reading order — the title (a heading where it is given as text), the description, the actions — with its glyph hidden, no role and no name of its own, and a status region only where it is live', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     for (const f of spec.fixtures) {
       const target = host(page, f.id);
@@ -1135,8 +1151,9 @@ test.describe('accessibility', () => {
       expect(await target.evaluate((el) => el.shadowRoot!.querySelectorAll('[role="status"]').length), f.id).toBe(f.props.live ? 1 : 0);
       const title = String(f.slots?.title ?? f.props.title);
       const names = ([] as string[]).concat(f.slots?.actions ?? []);
-      const text = [title, f.content].filter(Boolean).join(' ');
-      await expect(target, f.id).toMatchAriaSnapshot(`- text: ${JSON.stringify(text)}\n${names.map((name) => `- button ${JSON.stringify(name)}`).join('\n')}`);
+      // A title given as text is a heading of level 2; text in the title slot stays text.
+      const lead = f.slots?.title ? [`- text: ${JSON.stringify([title, f.content].filter(Boolean).join(' '))}`] : [`- heading ${JSON.stringify(title)} [level=2]`, ...(f.content ? [`- text: ${JSON.stringify(f.content)}`] : [])];
+      await expect(target, f.id).toMatchAriaSnapshot([...lead, ...names.map((name) => `- button ${JSON.stringify(name)}`)].join('\n'));
     }
   });
 });

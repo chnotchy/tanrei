@@ -28,7 +28,7 @@ import {
 import type { TanreiTabsSizeRegistry, TanreiTabsVariantRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
-import { AXES, INLINE_VARIANTS, TRACK_CHOICE, TRACK_PROPERTY, TRANSITION_CHOICE, TRANSITION_PROPERTY, TRANSITION_VALUES, panelStyles, tabStyles, tabsStyles } from './tabs.styles.js';
+import { AXES, ICON_PLACEMENT, INLINE_VARIANTS, TRACK_CHOICE, TRACK_PROPERTY, TRANSITION_CHOICE, TRANSITION_PROPERTY, TRANSITION_VALUES, panelStyles, tabStyles, tabsStyles } from './tabs.styles.js';
 
 /** The core variants (primary, secondary, tonal), plus any a design system's generated `.d.ts` registers. */
 export type TanreiTabsVariant = keyof TanreiTabsVariantRegistry | (string & {});
@@ -83,8 +83,6 @@ interface TabContext {
   size: number;
   /** The secondary structure (icon before the label, the underline as wide as the tab): secondary's and tonal's; anything else is primary's. */
   secondary: boolean;
-  /** TAB-18, TAB-44: the row is small, so no tab stacks its icon above its label. */
-  small: boolean;
   /** The row fills (`fullWidth`): the indicator's box is the tab's whole share (TAB-16). */
   fill: boolean;
   /** The selected tab is disabled, so the indicator is drawn in its disabled color wherever it passes (TAB-6). */
@@ -275,7 +273,7 @@ export class TanreiTab extends LitElement {
   disabled = false;
 
   /** What the row says about this tab. */
-  private context: TabContext = { selected: false, tabStop: false, position: 0, size: 0, secondary: false, small: false, fill: false, pillDisabled: false };
+  private context: TabContext = { selected: false, tabStop: false, position: 0, size: 0, secondary: false, fill: false, pillDisabled: false };
 
   /** TAB-25: the drawn label does not fit its tab, so it is truncated and the tooltip shows it whole. */
   private truncated = false;
@@ -530,8 +528,8 @@ export class TanreiTab extends LitElement {
 
   /** TAB-25: whether the drawn label is cut short by its tab. */
   private measureTruncation() {
-    const label = this.renderRoot?.querySelector<HTMLElement>('.tab > .content > .label');
-    this.truncated = !!label && label.scrollWidth > label.clientWidth;
+    const text = this.renderRoot?.querySelector<HTMLElement>('.tab > .content > .label > .text');
+    this.truncated = !!text && text.scrollWidth > text.clientWidth;
     return this.truncated;
   }
 
@@ -628,17 +626,21 @@ export class TanreiTab extends LitElement {
   }
 
   protected override render() {
-    const { selected, secondary, small, fill, pillDisabled, position, size } = this.context;
+    const { selected, secondary, fill, pillDisabled, position, size } = this.context;
+    // TAB-18: where style queries are missing, the size's icon placement is read here for the same rules.
+    const placement = styleQueries() ? null : compChoice(this, '--_size-icon-placement', ICON_PLACEMENT);
     const label = this.drawsLabel;
     const icon = !!this.icon;
     const glyph = (named: boolean) => (icon ? html`<span part=${named ? 'icon' : nothing} class="icon" aria-hidden="true">${this.icon}</span>` : nothing);
     // TAB-33, TAB-21: the box that cuts the label has the label's own direction, so it is cut at its own end in every engine.
-    const text = (named: boolean) => (label ? html`<span part=${named ? 'label' : nothing} class="label" dir=${ownDirection(this.label)}>${this.label}</span>` : nothing);
+    // TAB-16, TAB-50: the label keeps the width it needs at the selected weight (the copy its ::after draws, unseen).
+    const text = (named: boolean) => (label ? html`<span part=${named ? 'label' : nothing} class="label" dir=${ownDirection(this.label)} data-label=${this.label}><span class="text">${this.label}</span></span>` : nothing);
     // TAB-13, TAB-24, TAB-25: the tab is named by its host's aria-label; the covered copy and the tooltip are hidden from
     // assistive technology, so each label is exposed once.
     return html`
       <div
-        class=${classMap({ tab: true, p: true, d: this.disabled, selected, wide: secondary, fill, first: position === 1, last: position > 0 && position === size, 'pill-disabled': pillDisabled, stacked: !secondary && !small && icon && label })}
+        class=${classMap({ tab: true, p: true, d: this.disabled, selected, wide: secondary, fill, first: position === 1, last: position > 0 && position === size, 'pill-disabled': pillDisabled, stacked: !secondary && icon && label })}
+        data-placement=${placement ?? nothing}
         @pointerdown=${this.press.onPointerDown}
         @pointerup=${this.press.release}
         @pointercancel=${this.press.release}
@@ -797,8 +799,9 @@ export class TanreiTabs extends LitElement {
 
   /**
    * The row's height (small 32 / medium 48) and what shrinks with it: a tab's padding, the active indicator's margins
-   * and the icon. A small row puts a tab's icon before its label in every variant, and its tabs still answer a press
-   * within the minimum target.
+   * and the icon. A primary tab stacks its icon above its label or puts it before it as the size's
+   * `comp.tabs.icon.placement` says (medium stacks and small does not, in the default system), and a small row's tabs
+   * still answer a press within the minimum target.
    */
   size: TanreiTabsSize = 'medium';
 
@@ -1343,7 +1346,6 @@ export class TanreiTabs extends LitElement {
     // TAB-2, TAB-12: one Tab stop — the selected tab, or the first enabled tab when that is disabled or there is none.
     const stop = selected && !selected.disabled ? selected : (tabs.find((tab) => !tab.disabled) ?? null);
     const secondary = INLINE_VARIANTS.includes(this.variant);
-    const small = this.size === 'small';
     const fill = this.fullWidth;
     // TAB-30: the product set the selection, or removed or disabled a tab the indicator lies between: the drag is over
     // and the indicator goes to the selected tab — the one just set — from where it is.
@@ -1363,7 +1365,7 @@ export class TanreiTabs extends LitElement {
     const ownPanelOf = (tab: TanreiTab) => (tab.value ? panels.find((panel) => panel.value === tab.value) : undefined);
     const panelOf = (tab: TanreiTab) => (view ? (tab.value ? (view.panelFor(tab.value) ?? undefined) : undefined) : ownPanelOf(tab));
     tabs.forEach((tab, index) => {
-      tab.setTabsContext({ selected: tab === selected, tabStop: tab === stop, position: index + 1, size: tabs.length, secondary, small, fill, pillDisabled });
+      tab.setTabsContext({ selected: tab === selected, tabStop: tab === stop, position: index + 1, size: tabs.length, secondary, fill, pillDisabled });
       hostAria(tab, { 'aria-controls': panelOf(tab)?.id ?? null });
     });
     // TAB-13: the selected tab's panel, named by its tab; the others hidden; a panel with nothing focusable is a Tab stop.

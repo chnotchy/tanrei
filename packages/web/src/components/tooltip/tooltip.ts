@@ -137,6 +137,7 @@ export class TanreiTooltip extends LitElement {
     hideDelay: { attribute: 'hide-delay', converter: numeric },
     touchTimeout: { attribute: 'touch-timeout', converter: numeric },
     layers: { state: true },
+    confirming: { attribute: false },
   };
 
   /** Plain is one short phrase, by default on the inverse surface; rich an optional title and a few sentences, by default on a raised surface. */
@@ -193,6 +194,15 @@ export class TanreiTooltip extends LitElement {
 
   /** Whether the tooltip is showing. It opens and closes itself and fires `toggle`; set it to show a tooltip on your own. */
   open = false;
+
+  /**
+   * A confirmation its host shows for a moment (a copy button's "Copied", CPY-18): opened and closed by `open` alone —
+   * hover, focus, a long press, an activation and leaving the anchor neither open it nor close it — still closed by
+   * Escape and by another tooltip that opens, and kept from assistive technology, because the host announces the same
+   * words itself. Internal between Tanrei elements.
+   * @internal
+   */
+  confirming = false;
 
   /**
    * How long, in ms, a fine pointer rests on the anchor before it opens; 0 opens it at once. Null takes
@@ -364,7 +374,7 @@ export class TanreiTooltip extends LitElement {
 
   /** TIP-7: opens or closes by itself, and says so. */
   private setBySelf(open: boolean) {
-    if (open && !this.hasText) return;
+    if (open && (!this.hasText || this.confirming)) return;
     if (this.open === open) return;
     if (open) this.tookOver = this.takesOver;
     // TIP-8: the other tooltip closes first, at once.
@@ -375,7 +385,7 @@ export class TanreiTooltip extends LitElement {
 
   /** TIP-28: closes because the pointer or the keyboard focus left the anchor: the next tooltip finds this window warm. */
   private leave() {
-    if (!this.open) return;
+    if (!this.open || this.confirming) return;
     this.left = true;
     this.setBySelf(false);
   }
@@ -477,7 +487,7 @@ export class TanreiTooltip extends LitElement {
 
   /** TIP-6: an activation of the anchor closes the tooltip, which stays closed until the pointer comes back. */
   private readonly onActivate = (event: MouseEvent) => {
-    if (this.surface && event.composedPath().includes(this.surface)) return;
+    if (this.confirming || (this.surface && event.composedPath().includes(this.surface))) return;
     this.dismiss();
   };
 
@@ -511,7 +521,7 @@ export class TanreiTooltip extends LitElement {
   };
 
   private readonly onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') this.dismiss();
+    if ((event.key === 'Enter' || event.key === ' ') && !this.confirming) this.dismiss();
   };
 
   /** TIP-4: Escape closes an open tooltip without moving focus, and goes no further (an enclosing dialog stays open). */
@@ -526,7 +536,7 @@ export class TanreiTooltip extends LitElement {
 
   /** A touch long-press is the platform's `contextmenu`: the tooltip opens instead of a menu, and the anchor is not activated. */
   private readonly onContextMenu = (event: MouseEvent) => {
-    if ((event as PointerEvent).pointerType !== 'touch' || !this.hasText) return;
+    if ((event as PointerEvent).pointerType !== 'touch' || !this.hasText || this.confirming) return;
     event.preventDefault();
     this.clearTimers();
     this.dismissed = false;
@@ -912,7 +922,7 @@ export class TanreiTooltip extends LitElement {
         class="surface"
         popover="manual"
         role="tooltip"
-        aria-hidden=${this.describes && this.hasText ? 'true' : nothing}
+        aria-hidden=${(this.describes && this.hasText) || this.confirming ? 'true' : nothing}
         @pointerenter=${() => clearTimeout(this.hideTimer)}
         @click=${this.swallow}
         @mousedown=${this.swallow}

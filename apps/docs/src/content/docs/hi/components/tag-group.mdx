@@ -2,7 +2,7 @@
 title: टैग ग्रुप
 description: टैग या चिप के सेट को ऐसी पंक्ति में रखता है जो अगली पंक्तियों में जा सकती है, सेट में जो रखा है उसके हिसाब से दूरी देता है, और सेट को नाम वाली एक लिस्ट के रूप में देता है। सदस्य जैसे हैं वैसे ही रहते हैं, और किसी चिप के हटने के बाद फ़ोकस अगली चिप पर जाता है।
 translationOf: components/tag-group.mdx
-sourceHash: deb4197699e52e94905bf63f9f02e8759a6bda39
+sourceHash: dfd5a40f6573b0faf035063e9e49568a6050b0e4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="tag-group" />
 
 <DemoFrame label="टैग का एक सेट, और फ़िल्टर की एक पंक्ति" column>
-  <tanrei-tag-group class="not-content" label="टैग">
+  <tanrei-tag-group class="not-content" spacing="tags" label="टैग">
     <tanrei-tag label="डिज़ाइन टोकन"></tanrei-tag>
     <tanrei-tag label="सुलभता"></tanrei-tag>
     <tanrei-tag label="दाएँ से बाएँ"></tanrei-tag>
@@ -40,13 +40,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-tag-group label="टैग">
+    <!-- स्थिर टैग का सेट यह बात बताता है: उसकी पंक्तियाँ उतनी ही पास रहती हैं जितने उसके टैग। -->
+    <tanrei-tag-group spacing="tags" label="टैग">
       <tanrei-tag label="डिज़ाइन टोकन"></tanrei-tag>
       <tanrei-tag label="सुलभता"></tanrei-tag>
     </tanrei-tag-group>
 
-    <!-- चिप का सेट यह बात बताता है: उसकी पंक्तियाँ ज़्यादा दूर रहती हैं। -->
-    <tanrei-tag-group id="recipients" spacing="chips" label="प्राप्तकर्ता">
+    <!-- चिप का सेट डिफ़ॉल्ट स्पेसिंग लेता है: उसकी पंक्तियाँ इतनी दूर रहती हैं कि हर चिप का टच टार्गेट बना रहे। -->
+    <tanrei-tag-group id="recipients" label="प्राप्तकर्ता">
       <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Ada Lovelace को हटाएँ"></tanrei-chip>
       <tanrei-chip kind="input" label="Grace Hopper" remove-label="Grace Hopper को हटाएँ"></tanrei-chip>
     </tanrei-tag-group>
@@ -70,7 +71,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```tsx
     import { Chip, TagGroup } from '@tanrei/react';
 
-    <TagGroup spacing="chips" label="प्राप्तकर्ता">
+    <TagGroup label="प्राप्तकर्ता">
       {recipients.map((person) => (
         <Chip key={person.id} kind="input" label={person.name} removeLabel={`${person.name} को हटाएँ`} onRemove={() => remove(person.id)} />
       ))}
@@ -82,7 +83,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## स्पेक
 
 <DemoFrame label="अगली पंक्ति में जाने वाले टैग, स्थिति वाले टैग, हर टैग के पेज के लिंक, और डाले गए आइटम" plain column>
-  <tanrei-tag-group class="not-content" style="inline-size: 22rem; max-inline-size: 100%" label="टैग">
+  <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="टैग">
     <tanrei-tag label="डिज़ाइन टोकन"></tanrei-tag>
     <tanrei-tag label="सुलभता"></tanrei-tag>
     <tanrei-tag label="दाएँ से बाएँ"></tanrei-tag>
@@ -90,7 +91,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-tag label="रंग"></tanrei-tag>
     <tanrei-tag label="मोशन"></tanrei-tag>
   </tanrei-tag-group>
-  <tanrei-tag-group class="not-content" label="प्लैटफ़ॉर्म">
+  <tanrei-tag-group class="not-content" spacing="tags" label="प्लैटफ़ॉर्म">
     <tanrei-tag label="Web: Stable" status="success" size="small"></tanrei-tag>
     <tanrei-tag label="SwiftUI: Beta" size="small"></tanrei-tag>
     <tanrei-tag label="Flutter: पीछे" status="warning" variant="outlined" size="small"></tanrei-tag>
@@ -115,9 +116,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | सेट | क्या इस्तेमाल करें |
 | --- | --- |
-| स्थिर टैग: किसी लेख की श्रेणियाँ, वे मान जो कोई सेटिंग ले सकती है, स्थितियों की एक पंक्ति | टैग ग्रुप। |
-| वे टैग जो हर टैग के अपने पेज पर ले जाते हैं | `spacing="chips"` वाला टैग ग्रुप, जिसमें `href` वाली चिप हों। टैग टेक्स्ट है और लिंक नहीं हो सकता। |
-| लिस्ट के ऊपर के फ़िल्टर, फ़ील्ड के नीचे के सुझाव, वे आइटम जो व्यक्ति ने डाले हैं | `spacing="chips"` वाला टैग ग्रुप। |
+| स्थिर टैग: किसी लेख की श्रेणियाँ, वे मान जो कोई सेटिंग ले सकती है, स्थितियों की एक पंक्ति | `spacing="tags"` वाला टैग ग्रुप। |
+| वे टैग जो हर टैग के अपने पेज पर ले जाते हैं | `href` वाली चिप का टैग ग्रुप। टैग टेक्स्ट है और लिंक नहीं हो सकता। |
+| लिस्ट के ऊपर के फ़िल्टर, फ़ील्ड के नीचे के सुझाव, वे आइटम जो व्यक्ति ने डाले हैं | चिप का टैग ग्रुप। |
+| फ़िल्टर की लंबी पंक्ति जिसे पार करने में Tab एक ही बार दबानी पड़े | टॉगल बटन का [टूलबार](/hi/components/toolbar/) (नीचे)। |
 | दो से चार अलग-अलग क्रियाएँ | [बटन ग्रुप](/hi/components/button-group/)। |
 | कई में से एक विकल्प | [रेडियो ग्रुप](/hi/components/radio-group/), [टैब](/hi/components/tabs/) या [सेगमेंटेड बटन](/hi/components/segmented-button/)। |
 | वे कंट्रोल जिन्हें दिखने वाला लेबल, ज़रूरी या वैकल्पिक का निशान और त्रुटि चाहिए | [फ़ील्ड ग्रुप](/hi/components/field-group/)। |
@@ -127,10 +129,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `spacing` बताता है कि सेट में क्या है, और दो दूरियाँ तय करता है: एक पंक्ति के दो सदस्यों के बीच की, और दो पंक्तियों के बीच की।
 
-- `tags` (डिफ़ॉल्ट) स्थिर टैग के लिए है। पंक्तियाँ एक-दूसरे से उतनी ही पास रहती हैं जितने एक पंक्ति के टैग, इसलिए कई पंक्तियों में गया सेट एक ही ब्लॉक लगता है।
-- `chips` चिप के लिए है। चिप अपने दिखने वाले किनारे के बाहर भी, टच टार्गेट की हद तक, दबाना लेती है। पंक्तियाँ इतनी दूर रहती हैं कि हर medium चिप वह पूरा टार्गेट बनाए रखे, और जहाँ दो चिप के एरिया एक-दूसरे पर चढ़ते, वहाँ वे गैप के बीचोबीच मिलते हैं।
+- `chips` (डिफ़ॉल्ट) चिप के लिए है। चिप अपने दिखने वाले किनारे के बाहर भी, टच टार्गेट की हद तक, दबाना लेती है। पंक्तियाँ इतनी दूर रहती हैं कि हर medium चिप वह पूरा टार्गेट बनाए रखे, और जहाँ दो चिप के एरिया एक-दूसरे पर चढ़ते, वहाँ वे गैप के बीचोबीच मिलते हैं।
+- `tags` स्थिर टैग के लिए है। पंक्तियाँ एक-दूसरे से उतनी ही पास रहती हैं जितने एक पंक्ति के टैग, इसलिए कई पंक्तियों में गया सेट एक ही ब्लॉक लगता है।
 
-`tags` पर छोड़ा गया चिप का सेट फिर भी काम करता है। उसकी पंक्तियाँ टच टार्गेट की ऊँचाई से ज़्यादा पास होती हैं, और डीबग बिल्ड इसकी रिपोर्ट करता है।
+डिफ़ॉल्ट सुरक्षित पक्ष है। `chips` पर छोड़ा गया टैग का सेट बस थोड़ा ज़्यादा दूर-दूर रहता है। `tags` पर सेट किया गया चिप का सेट फिर भी काम करता है, लेकिन उसकी पंक्तियाँ टच टार्गेट की ऊँचाई से ज़्यादा पास होती हैं, और डीबग बिल्ड इसकी रिपोर्ट करता है।
 
 small चिप उस घनी जगह के लिए हैं जहाँ सेट एक ही पंक्ति में रहता है। कई पंक्तियों में जाने पर उनके टच टार्गेट पूरे साइज़ तक पहुँचने से पहले ही पंक्तियों के बीच मिल जाते हैं। टच स्क्रीन पर जो सेट अगली पंक्ति में जाता है, उसके लिए medium चिप इस्तेमाल करें।
 
@@ -144,6 +146,26 @@ small चिप उस घनी जगह के लिए हैं जहा�
 - सेट शुरुआती किनारे से शुरू होता है। उसे किसी पंक्ति के अंत में या बीच में रखने के लिए ग्रुप को उसके आसपास के लेआउट से रखें।
 - हर सदस्य को एक ही साइज़ दें। अलग-अलग साइज़ के सदस्य अपनी पंक्ति के बीच की सीध में रहते हैं।
 - बिना सदस्य वाला ग्रुप कुछ नहीं बनाता और कोई जगह नहीं लेता। बिना टैग वाली पोस्ट के लिए कोई अलग इंतज़ाम नहीं चाहिए।
+
+### फ़िल्टर की पंक्ति के लिए एक Tab स्टॉप
+
+टैग ग्रुप हर चिप को उसका अपना Tab स्टॉप देता है, जैसे बटन ग्रुप का हर बटन अपना Tab स्टॉप होता है, और व्यक्ति Tab से चिप के बीच आगे बढ़ता है। जहाँ फ़िल्टर की लंबी पंक्ति को पार करने में Tab एक ही बार दबानी पड़नी चाहिए, वहाँ फ़िल्टर को इसके बजाय टॉगल बटन के रूप में [टूलबार](/hi/components/toolbar/) में रखें। टूलबार एक Tab स्टॉप है, ऐरो कुंजियाँ फ़ोकस को उसके बटनों के बीच ले जाती हैं, और हर बटन अपना दबा हुआ स्टेट बनाए रखता है। टूलबार एक ही पंक्ति है: वह अगली पंक्ति में नहीं जाता।
+
+<DemoFrame label="एक Tab स्टॉप के रूप में फ़िल्टर: टॉगल बटन का टूलबार">
+  <tanrei-toolbar class="not-content" label="फ़िल्टर">
+    <tanrei-button variant="outlined" toggle selected label="खुले"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="मुझे सौंपे गए"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="समीक्षा बाक़ी"></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+```html
+<tanrei-toolbar label="फ़िल्टर">
+  <tanrei-button variant="outlined" toggle selected label="खुले"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="मुझे सौंपे गए"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="समीक्षा बाक़ी"></tanrei-button>
+</tanrei-toolbar>
+```
 
 ### लेबल
 
@@ -164,7 +186,7 @@ small चिप उस घनी जगह के लिए हैं जहा�
 
 ### करें
 
-- चिप के सेट के लिए `spacing="chips"` सेट करें।
+- स्थिर टैग के सेट के लिए `spacing="tags"` सेट करें।
 - सेट को `label` दें, पेज की भाषा में।
 - एक सेट में एक ही तरह के सदस्य रखें। डाले गए आइटम के बाद एक "जोड़ें" चिप इसका अपवाद है।
 
@@ -201,11 +223,11 @@ small चिप उस घनी जगह के लिए हैं जहा�
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+    gap: var(--tanrei-comp-tag-group-row-gap-chips) var(--tanrei-comp-tag-group-gap-chips);
   }
   ```
 
-- किसी सेट की चिप के बीच ऐरो कुंजियाँ नहीं दी जातीं। फ़िल्टर की जो लंबी पंक्ति एक ही Tab स्टॉप होनी चाहिए, वह चिप वाला [टूलबार](/hi/components/toolbar/) है।
+- किसी सेट की चिप के बीच ऐरो कुंजियाँ नहीं दी जातीं: हर चिप एक Tab स्टॉप है। फ़िल्टर की जो लंबी पंक्ति एक ही Tab स्टॉप होनी चाहिए, वह टॉगल बटन का [टूलबार](/hi/components/toolbar/) है, जैसा "फ़िल्टर की पंक्ति के लिए एक Tab स्टॉप" में दिखाया गया है।
 
 ### आपको क्या करना है
 

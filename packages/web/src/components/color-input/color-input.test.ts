@@ -337,8 +337,8 @@ test.describe('the reading of a text (color-text.ts)', () => {
 
 test.describe('behavior: the box, its name and its Field', () => {
   test('CLI-1: the container is at least container.height of its size tall, its corners container.shape (a filled one’s bottom corners shape-bottom), and holds one centred row — the swatch padding-inline-with-icon from the start edge, the input container.gap after it, and the picker button at the end, container.gap after the input; without the button the input ends padding-inline from the end edge; the field is as wide as its layout gives it', async ({ page }) => {
-    await mountSpec(page, ['stacked-filled', 'stacked-large', 'stacked-picker', 'stacked-picker-large', 'filled-filled']);
-    for (const [id, size] of [['stacked-filled', 'medium'], ['stacked-large', 'large'], ['stacked-picker', 'medium'], ['stacked-picker-large', 'large']] as const) {
+    await mountSpec(page, ['stacked-filled', 'stacked-large', 'stacked-small', 'stacked-picker', 'stacked-picker-large', 'filled-filled']);
+    for (const [id, size] of [['stacked-filled', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small'], ['stacked-picker', 'medium'], ['stacked-picker-large', 'large']] as const) {
       const [c, s, field] = [await box(container(page, id)), await box(swatch(page, id)), await box(input(page, id))];
       near(c.height, await token(page, `container-height-${size}`), `${id} height`);
       near(s.x - c.x, await token(page, `container-padding-inline-with-icon-${size}`), `${id}: the swatch from the start edge`);
@@ -386,7 +386,7 @@ test.describe('behavior: the box, its name and its Field', () => {
   });
 
   test('CLI-2: a color field and a text field with a leading icon, of the same variant, size, label, value and supporting text, in one row share the tops and bottoms of their labels, containers, input lines and supporting rows — both rows are the one Field’s — the swatch stands where the leading icon stands and at its size, and the value starts where the text input’s text starts, in its text style', async ({ page }) => {
-    for (const [system, variant, size] of [[undefined, 'stacked', 'medium'], [undefined, 'stacked', 'large'], ['m3-like', 'filled', 'medium'], ['m3-like', 'outlined', 'large'], ['cupertino', 'stacked', 'medium']] as const) {
+    for (const [system, variant, size] of [[undefined, 'stacked', 'small'], [undefined, 'stacked', 'medium'], [undefined, 'stacked', 'large'], ['m3-like', 'filled', 'small'], ['m3-like', 'filled', 'medium'], ['m3-like', 'outlined', 'large'], ['cupertino', 'stacked', 'medium']] as const) {
       await mount(page, [fx('pair', {})], { system, reducedMotion: true });
       await page.evaluate(
         ([v, s]) => {
@@ -568,7 +568,7 @@ test.describe('behavior: the box, its name and its Field', () => {
     // The description is what the Field gives, as a value: the shown text, then the optional text.
     expect([await input(page, 'framed').getAttribute('aria-describedby'), await description(page, 'framed')]).toEqual(['description', 'Six hexadecimal digits. Optional']);
     await setField(page, 'framed', { error: true, errorText: 'Too light.' });
-    expect(await description(page, 'framed'), 'a change of the shown text is exposed at once: the help, then the error text').toBe('Six hexadecimal digits. Too light. Optional');
+    expect(await description(page, 'framed'), 'a change of the shown text is exposed at once: the error text in the help’s place (FLD-11)').toBe('Too light. Optional');
     expect([await input(page, 'own').getAttribute('aria-describedby'), await description(page, 'own')], 'bare: no description of its own').toEqual([null, '']);
     // Neither name: it renders, and is reported — once, and never for an input a Field frames.
     await expect(input(page, 'unnamed')).toBeVisible();
@@ -931,11 +931,12 @@ test.describe('behavior: the value and its text', () => {
     expect(await heard(page)).toEqual([`entryerror #0f76e|${WORDS}`]);
     await expect(part(page, 'one', '.field')).toHaveAttribute('data-error', '');
     await expect(row(page, 'one', '.frame'), 'the Field is in its error condition').toHaveAttribute('data-error', '');
-    expect(await css(row(page, 'one', '.supporting-text'), 'color'), 'drawn exactly as while error is true').toBe(await resolveColor(page, '--tanrei-comp-field-standard-error-supporting-text-color'));
+    expect(await css(row(page, 'one', '.error-text'), 'color'), 'drawn exactly as while error is true').toBe(await resolveColor(page, '--tanrei-comp-field-standard-error-text-color'));
+    await expect(row(page, 'one', '.supporting-text'), 'in the help’s place (FLD-7)').toHaveCount(0);
     expect(await css(part(page, 'one', '.edge'), 'border-top-color')).toBe(await color(page, 'stacked-error-outline-color'));
     expect(await host(page, 'one').evaluate((el) => [(el as HTMLElement & { error: boolean }).error, el.hasAttribute('error')]), 'it never sets error').toEqual([false, false]);
     expect(await fieldOf(page, 'one').evaluate((el) => [(el as HTMLElement & { error: boolean }).error, el.hasAttribute('error')]), 'nor its Field’s').toEqual([false, false]);
-    expect(await description(page, 'one'), 'the Field gives the words back in the description, once, after its help').toBe(`The color of the buttons. ${WORDS}`);
+    expect(await description(page, 'one'), 'the Field gives the words back in the description, once, in its help’s place').toBe(WORDS);
     const validity = () => host(page, 'one').evaluate((el) => { const v = (el as unknown as HTMLInputElement).validity; return { bad: v.badInput, missing: v.valueMissing, message: (el as unknown as HTMLInputElement).validationMessage }; });
     expect(await validity(), 'badInput while it lasts').toEqual({ bad: true, missing: true, message: WORDS });
     // Entering and leaving again without an edit raises nothing more.
@@ -1504,7 +1505,7 @@ test.describe('behavior: the swatch and the picker', () => {
     await blurInput(page, 'one');
     await settle(page, 'one');
     [box_] = await axNodes(page, 'textbox');
-    expect(box_).toMatchObject({ required: true, invalid: 'true', description: 'Six hexadecimal digits. Enter six hexadecimal digits.', value: '#0f76e' });
+    expect(box_).toMatchObject({ required: true, invalid: 'true', description: 'Enter six hexadecimal digits.', value: '#0f76e' });
     await set(page, 'one', { value: '#000000' });
     await setField(page, 'one', { labelHidden: true, disabled: true });
     await settle(page, 'one');
@@ -1983,7 +1984,7 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
     await setField(page, 'one', { requirement: 'required', requiredMark: 'asterisk', error: true, errorText: 'Too light.' });
     await settle(page, 'one');
     expect(await part(page, 'one', '.floating').textContent()).toBe('Brand color*');
-    expect([await input(page, 'one').getAttribute('aria-required'), await input(page, 'one').getAttribute('aria-invalid'), await description(page, 'one')]).toEqual(['true', 'true', 'Six hexadecimal digits, like #0f766e. Too light.']);
+    expect([await input(page, 'one').getAttribute('aria-required'), await input(page, 'one').getAttribute('aria-invalid'), await description(page, 'one')]).toEqual(['true', 'true', 'Too light.']);
     await setField(page, 'one', { labelHidden: true, disabled: true });
     await settle(page, 'one');
     await expect(part(page, 'one', '.floating')).toHaveCount(0);
@@ -2103,7 +2104,7 @@ test.describe('accessibility', () => {
 test.describe('fixtures', () => {
   test('every fixture is mounted and visible, with its name, the value as text and as the swatch’s color, the floating label where its look floats one, and the picker button the spec gives it; it is as wide as its column and as tall as its box', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    expect(spec.fixtures).toHaveLength(25);
+    expect(spec.fixtures).toHaveLength(26);
     for (const f of spec.fixtures) {
       await expect(host(page, f.id), f.id).toBeVisible();
       await expect(container(page, f.id), f.id).toBeVisible();

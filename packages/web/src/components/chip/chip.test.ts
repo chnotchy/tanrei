@@ -425,7 +425,7 @@ test.describe('behavior', () => {
     await expect(checkOf(page, 'filter-unselected')).toHaveCSS('opacity', '0');
   });
 
-  test('CHP-14: the icon, the check and the remove glyph are drawn at the size’s icon size; icon and check in the family and fill of the selection, the remove glyph always filled; each in the colors of its parts', async ({ page }) => {
+  test('CHP-14: the icon, the check and the remove glyph are drawn at the size’s icon size, the check at its own mark weight; icon and check in the family and fill of the selection, the remove glyph always filled; each in the colors of its parts', async ({ page }) => {
     for (const [id, size] of [['action-outlined', 'medium'], ['action-small', 'small']] as const) {
       const side = await resolveToken(page, T(`icon-size-${size}`));
       const box = await bounds(iconOf(page, id));
@@ -449,7 +449,12 @@ test.describe('behavior', () => {
     // The optical size is the box's, clamped to sys.icon.optical-size (test/icons.ts).
     expect(await axes(iconOf(page, 'action-outlined'))).toEqual({ FILL: offFill, wght: weight, GRAD: 0, opsz: await opticalSize(page, side) });
     expect((await axes(iconOf(page, 'action-small'))).opsz).toBe(await opticalSize(page, await resolveToken(page, T('icon-size-small'))));
-    expect((await axes(checkOf(page, 'filter-selected'))).FILL).toBe(onFill);
+    // The check is a control's own mark (comp.chip.check.weight): in the default system the checkbox's mark weight,
+    // heavier than sys.icon.weight, which the icon and the remove glyph keep.
+    const checkWeight = Number(await token(page, T('check-weight')));
+    expect(checkWeight).toBe(Number(await token(page, '--tanrei-comp-checkbox-mark-weight')));
+    expect(checkWeight).toBeGreaterThan(weight);
+    expect(await axes(checkOf(page, 'filter-selected'))).toEqual({ FILL: onFill, wght: checkWeight, GRAD: 0, opsz: await opticalSize(page, side) });
     expect(await family(checkOf(page, 'filter-selected'))).toBe(await familyToken(page, '--tanrei-sys-icon-family-selected'));
     // The remove glyph is always filled, in the selected family — on a chip that is never selected — with or without destructiveRemove.
     for (const id of ['input', 'input-plain-remove', 'input-small']) {
@@ -661,22 +666,23 @@ test.describe('behavior', () => {
       const want = async (state: string) => [await resolveColor(page, T(`outlined-${state}${parts}-container-color`)), await resolveColor(page, T(`outlined-${state}${parts}-icon-color`))];
       await host(page, id).scrollIntoViewIfNeeded();
       expect(await paint()).toEqual(await want(''));
+      // The chip's own paint is read once it has settled: a state it left goes back to rest over the state duration.
       const chipAtRest = await expected(page, 'outlined', '');
       await remove.hover();
       await expect.poll(paint).toEqual(await want('hovered-'));
-      expect(await drawn(page, id)).toEqual(chipAtRest);
+      await expect.poll(() => drawn(page, id)).toEqual(chipAtRest);
       await page.mouse.down();
       await expect.poll(paint).toEqual(await want('pressed-'));
       expect(await pressed(remove)).toBe('overlay');
       expect(await pressed(inner(page, id))).toBeNull();
-      expect(await drawn(page, id)).toEqual(chipAtRest);
+      await expect.poll(() => drawn(page, id)).toEqual(chipAtRest);
       await page.mouse.move(0, 0);
       await page.mouse.up();
       await keyFocusRemove(page, id);
       await expect.poll(paint).toEqual(await want('focused-'));
       await expect(remove).toHaveCSS('outline-style', 'solid');
       await expect(inner(page, id)).toHaveCSS('outline-style', 'none');
-      expect(await drawn(page, id)).toEqual(chipAtRest);
+      await expect.poll(() => drawn(page, id)).toEqual(chipAtRest);
       // And the other way round: hovering the chip leaves the remove action at rest.
       await page.locator('body').click({ position: { x: 1, y: 1 } });
       await labelOf(page, id).hover();

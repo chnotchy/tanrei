@@ -1405,7 +1405,8 @@ test.describe('behavior', () => {
     // The error condition, and the requirement: a button's role has no required state, so the field's word is said
     // in the description (sentences the spec leaves open: the description, the invalid state
     // and disabled are written on the trigger's host, which a Button carries to its native button).
-    await expect.poll(() => button('error').getAttribute('aria-description')).toBe('PDF, up to 10 MB We keep it for a year. Choose a PDF of 10 MB or less. Required');
+    // (In error the field's error text stands in its help's place, FLD-7.)
+    await expect.poll(() => button('error').getAttribute('aria-description')).toBe('PDF, up to 10 MB Choose a PDF of 10 MB or less. Required');
     await expect(button('error')).toHaveAttribute('aria-invalid', 'true');
     expect(await button('error').getAttribute('aria-required')).toBeNull();
     expect(await inside('error').locator('.group > .chooser').getAttribute('data-error')).not.toBeNull();

@@ -2,7 +2,7 @@
 title: Accesibilidad
 description: Los requisitos de accesibilidad que Tanrei incorpora en los tokens y en las especificaciones de los componentes, y las comprobaciones que los imponen.
 translationOf: foundations/accessibility.mdx
-sourceHash: e94f88f875361d6db6bddce65fd01e14b10dc758
+sourceHash: a2c14cfcd30a37f95bfe67ab8c79acd0f27b54b4
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -27,6 +27,7 @@ Se cumplen en todos los temas y en todos los niveles de contraste, seis combinac
 
 - cada par de roles `(X, on-X)` es de al menos 4.5:1;
 - `outline` es de al menos 3:1 frente a todos los roles de superficie;
+- en el sistema predeterminado, con contraste medio y alto, `outline-variant` es de al menos 3:1 y 4.5:1 frente a todos los roles de superficie, y `outline` sigue siendo más fuerte;
 - `focus-ring` es de al menos 3:1 frente a las superficies.
 
 Las reglas del proyecto prohíben rebajar un umbral para que una comprobación pase.

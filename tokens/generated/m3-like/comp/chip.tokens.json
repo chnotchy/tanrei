@@ -226,6 +226,19 @@
             }
           }
         },
+        "check": {
+          "weight": {
+            "$type": "number",
+            "$value": "{tanrei.sys.icon.mark.weight}",
+            "$description": "The weight a selected filter chip's check is drawn at (the `wght` axis of the icon font): the system's weight for a control's own mark, as the checkbox draws its own, because the check is drawn on the chip's selected fill only while it is on and is what tells on from off beside the fill's color. The check's box (icon.size) does not change with it; only the stroke does. The leading icon and the remove glyph keep sys.icon.weight.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product needs the check of a filter chip that is on seen at a glance at the weight its checkboxes draw theirs, since at 20 or 24 a light stroke reads fainter than its color; a product with dense filter rows draws it lighter without touching its icons.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        },
         "avatar": {
           "size": {
             "$type": "dimension",

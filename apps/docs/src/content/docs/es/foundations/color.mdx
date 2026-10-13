@@ -2,7 +2,7 @@
 title: Color
 description: Los roles de color, el primario monocromo, el único acento, y cómo se genera y se comprueba cada esquema.
 translationOf: foundations/color.mdx
-sourceHash: 6188eaa54a20c724a48e433b085dce1ebe056728
+sourceHash: 7374c20d700ebcfe43e183446e02015a6653fe66
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -36,7 +36,7 @@ Los dos roles de contorno se parecen y cumplen funciones opuestas.
 | Rol | Propósito | Contraste |
 | --- | --- | --- |
 | `outline` | Un **límite funcional**: lo único que muestra dónde está un control, como en un campo de texto vacío, una casilla de verificación sin marcar o un botón con contorno. | Al menos 3:1 frente a todos los roles de superficie |
-| `outline-variant` | Una **línea fina decorativa**: divisores, bordes de tarjetas, el anillo de la elevación. Quitarla no debe ocultar ninguna información. | Sin requisito; es un negro o un blanco con poco alfa |
+| `outline-variant` | Una **línea fina decorativa**: divisores, bordes de tarjetas, el anillo de la elevación. Quitarla no debe ocultar ninguna información. | Ninguno con el contraste estándar, donde es un negro o un blanco con poco alfa. Al menos 3:1 con contraste medio y 4.5:1 con alto, frente a todos los roles de superficie, y siempre más débil que `outline` |
 
 <Callout type="caution">
   Si un borde es la única señal de que existe un control, debe usar `outline`. Una línea fina con un 8% de alfa resulta agradable, y es invisible para muchas personas.

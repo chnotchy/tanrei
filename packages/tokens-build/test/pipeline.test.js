@@ -83,6 +83,8 @@ test('resolved values still equal the oracle, except where they differ on purpos
       // palettes of their own, so the tones of the status palettes that only those roles read are no longer written.
       /\.sys\.color\.(on-)?(info|warning|error|success)-container$/.test(id) ||
       (/\.ref\.palette\.(info|warning|error|success)\.(15|22|88|89|91|92|93|96)$/.test(id) && !(id in after)) ||
+      // The hairline is raised in the raised-contrast schemes: 3:1 at medium, 4.5:1 at high, against every surface.
+      (/-(medium|high)$/.test(scheme) && /\.sys\.color\.outline-variant$/.test(id)) ||
       false;
     // The text styles are named by level. The VALUE of each must not have moved: the new role resolves to
     // what the old one did (family aside — eyebrow moved from mono to plain on purpose).
@@ -105,9 +107,10 @@ test('resolved values still equal the oracle, except where they differ on purpos
       assert.deepEqual(sansFamily(after[renamed(id)]), sansFamily(value), `${scheme}: ${id} changed${renamed(id) !== id ? ` (now ${renamed(id)})` : ''}`);
       compared++;
     }
-    // A floor so this test cannot pass vacuously. It drops only when tokens are removed
-    // on purpose; every remaining value still equals the oracle's.
-    assert.ok(compared >= 246, `compared ${compared}`);
+    // A floor so this test cannot pass vacuously. It drops only when tokens are removed or changed
+    // on purpose; every remaining value still equals the oracle's. (245 in the raised-contrast schemes, whose hairline
+    // was raised on purpose.)
+    assert.ok(compared >= 245, `compared ${compared}`);
   }
 });
 
@@ -285,11 +288,11 @@ test('the syntax colors are read from the axis, and the default system tones sev
     }
   }
   // The value held is the tone in force in that scheme, not the alias the component's file authors: a string as pale
-  // as the hairline fails on the fill, on the band and on the eight surfaces, in the one scheme where it is.
+  // as the hairline fails on the fill, on the three bands (a highlighted, an added and a removed line) and on the eight surfaces, in the one scheme where it is.
   const pale = breakable(model);
   pale.componentColors.light[id('syntax.color.string')].value = model.colors.light['outline-variant'].value;
   const paleFailures = checkInvariants(pale).filter((f) => CODE_FAILURE.test(f));
-  assert.equal(paleFailures.length, 10, paleFailures.join('\n'));
+  assert.equal(paleFailures.length, 12, paleFailures.join('\n'));
   assert.ok(paleFailures.every((f) => f.startsWith('[light] comp.code-block.syntax.color.string on ')), paleFailures.join('\n'));
   // A role a layer adds to the axis is held without a line of code naming it: an `operator` in the hairline's color fails.
   const extended = breakable(model);

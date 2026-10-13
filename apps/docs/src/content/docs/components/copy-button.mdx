@@ -107,7 +107,7 @@ The events are `copied` and `copyfailed`. They are not named `copy`, because `co
 
 | Form | Shows | Use it when |
 | --- | --- | --- |
-| **Icon-only** | The glyph alone. A sighted person sees the check and no words | Beside the thing it copies: a command, a code block, a value in a row |
+| **Icon-only** | The glyph, and while it shows the check, the words in a small bubble above it | Beside the thing it copies: a command, a code block, a value in a row |
 | **Labelled** | The glyph and the words, which change with the form | The copy is one of the view's actions, or the words matter to everyone |
 
 ### Do
@@ -119,7 +119,7 @@ The events are `copied` and `copyfailed`. They are not named `copy`, because `co
 ### Don't
 
 - Don't show the button only on hover. It cannot be found by touch then.
-- Don't open a tooltip or a snackbar for a successful copy. The button already confirms it.
+- Don't open a tooltip or a snackbar of your own for a successful copy. The button already confirms it, in words too.
 - Don't use it to copy anything but text.
 
 ## Accessibility
@@ -131,6 +131,7 @@ The events are `copied` and `copyfailed`. They are not named `copy`, because `co
 - It is a button, with the Button's focus indicator, its minimum target and its keys (Enter and Space).
 - The icon-only form is named by `label` in every form. The name does not change when the glyph does.
 - The result is announced through a live region: `copied-label` politely, `failed-label` assertively, on every press, without moving focus.
+- The icon-only form also shows those words in a bubble drawn as a plain [tooltip](/components/tooltip/), for as long as the confirmation lasts. It takes no focus, is not read a second time, and Escape closes it.
 - The confirmation is a shape and words, not a color.
 - In a right-to-left layout the copy glyph is mirrored, as the icon set says. The check and the error mark are not.
 

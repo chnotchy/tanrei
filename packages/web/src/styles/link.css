@@ -211,9 +211,10 @@
     /* LNK-10: the corners, eased by sys.shape.corner-smoothing. */
     /* link:shape */
 
-    /* LNK-26: a link that stands by itself is text of its own direction, by its first strong character. (Not one
-       with a glyph, the mark or the marks of an external link: each is placed from where the text's own order puts
-       it, which must be the layout's — README, "Link".) */
+    /* LNK-26: a link that stands by itself is text of its own direction, by its first strong character. The script
+       writes that direction as `dir` (link.ts), and the glyphs follow the direction it resolves to; without the script,
+       this — and not for one with a glyph, the mark or the marks of an external link, each placed from where the
+       text's own order puts it, which is then the layout's (README, "Link"). */
     &:where([data-standalone]:not([data-standalone='false'], :has(> .tanrei-icon), [target='_blank' i], [data-external]:not([data-external='false']))) {
       unicode-bidi: plaintext;
     }
@@ -441,6 +442,44 @@
         margin-right: var(--_link-gap);
         margin-left: calc(-1em - var(--_link-gap));
         vertical-align: top;
+      }
+    }
+
+    /* ── A label of the other direction than the text it stands in (LNK-14, LNK-31, LNK-13) ─────────────────────── */
+    /* A link whose own direction is left to right inside right-to-left text — a standalone link whose label begins with
+       a left-to-right character (the script writes `dir` on it, LNK-26), or a phrase the page marked with `dir`
+       — draws its glyphs at the ends of its label in ITS direction: the leading glyph and the site's picture before its
+       first word, a trailing glyph and the mark after its last word, unmirrored. Out of the line, as everywhere: here
+       WebKit and Gecko place it rightly from the edges of the link itself (the left edge of its first part, the right
+       edge of its last, as CSS defines that box for a left-to-right inline box), and Blink only where it would have
+       stood. A link of right-to-left text in left-to-right text needs nothing more: the rules above are right there in
+       the three engines. link.test.ts ("its own direction") measures both at every width. */
+    :where(:dir(rtl)) > &:where(:dir(ltr)) > .tanrei-icon.tanrei-icon,
+    :where(:dir(rtl)) > &:where(:dir(ltr)) > :where(img.tanrei-link-site-icon) {
+      left: 0;
+      margin-inline: 0;
+    }
+    :where(:dir(rtl)) > &:where([data-icon-position='trailing']:dir(ltr)) > .tanrei-icon.tanrei-icon,
+    :where(:dir(rtl)) > &:where(:is([target='_blank' i], [data-external]:not([data-external='false'])):dir(ltr))::after {
+      left: auto;
+      right: 0;
+      margin-inline: 0;
+    }
+    @supports (-webkit-app-region: none) {
+      /* Blink: where it would have stood — the room before the first character, the gap after the last. */
+      :where(:dir(rtl)) > &:where(:dir(ltr)) > .tanrei-icon.tanrei-icon {
+        left: auto;
+        margin-inline: calc(-1 * var(--_link-room)) 0;
+      }
+      :where(:dir(rtl)) > &:where(:dir(ltr)) > :where(img.tanrei-link-site-icon) {
+        left: auto;
+        margin-inline: calc(-1 * var(--_link-picture-room)) 0;
+      }
+      :where(:dir(rtl)) > &:where([data-icon-position='trailing']:dir(ltr)) > .tanrei-icon.tanrei-icon,
+      :where(:dir(rtl)) > &:where(:is([target='_blank' i], [data-external]:not([data-external='false'])):dir(ltr))::after {
+        left: auto;
+        right: auto;
+        margin-inline: var(--_link-gap) 0;
       }
     }
 

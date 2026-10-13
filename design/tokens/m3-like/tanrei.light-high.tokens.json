@@ -2127,21 +2127,21 @@
             "large": {
               "$type": "dimension",
               "$value": {
-                "value": 14,
+                "value": 8,
                 "unit": "px"
               }
             },
             "medium": {
               "$type": "dimension",
               "$value": {
-                "value": 10,
+                "value": 4,
                 "unit": "px"
               }
             },
             "small": {
               "$type": "dimension",
               "$value": {
-                "value": 6,
+                "value": 2,
                 "unit": "px"
               }
             }
@@ -6220,6 +6220,18 @@
         }
       },
       "button": {
+        "busy": {
+          "indicator": {
+            "thickness": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$description": "The arc's stroke: the small loading indicator's."
+            }
+          }
+        },
         "container": {
           "gap": {
             "large": {
@@ -9181,6 +9193,1207 @@
             }
           }
         },
+        "inline": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              }
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": []
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": []
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#381e72"
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": []
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#381e72"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#381e72"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#381e72"
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": []
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "alpha": 0.08,
+                    "hex": "#381e72"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "alpha": 0.08,
+                    "hex": "#381e72"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              }
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.2196,
+                  0.1176,
+                  0.4471
+                ],
+                "hex": "#381e72",
+                "alpha": 1
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.2196,
+                  0.1176,
+                  0.4471
+                ],
+                "hex": "#381e72",
+                "alpha": 1
+              },
+              "$description": "The color of a link: the action is told from the words beside it by this and by the underline, never by color alone."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#381e72"
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": []
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#381e72"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#381e72"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2196,
+                      0.1176,
+                      0.4471
+                    ],
+                    "hex": "#381e72",
+                    "alpha": 1
+                  }
+                }
+              }
+            }
+          },
+          "selected": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                },
+                "$description": "An inline toggle that is on is told by its filled glyph; its words keep the link's color."
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.2196,
+                  0.1176,
+                  0.4471
+                ],
+                "hex": "#381e72",
+                "alpha": 1
+              },
+              "$description": "The color hover, focus and press mix into the container, drawn on the text's own box as a link's is."
+            }
+          },
+          "underline": {
+            "offset": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              },
+              "$description": "How far below the baseline the underline is drawn, as a link's."
+            },
+            "visibility": {
+              "$type": "number",
+              "$value": 0,
+              "$description": "When the underline is drawn: the system's choice for links, so an inline action and a link in the same sentence are underlined alike. always: at rest and in every state. hover: while hovered, focused from the keyboard or pressed. never: in no state; then the label color alone tells it, as it tells a link. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+            },
+            "width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 1,
+                "unit": "px"
+              },
+              "$description": "The underline's thickness, as a link's."
+            }
+          },
+          "unselected": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.2196,
+                    0.1176,
+                    0.4471
+                  ],
+                  "hex": "#381e72",
+                  "alpha": 1
+                }
+              }
+            }
+          }
+        },
         "label": {
           "typescale": {
             "large": {
@@ -9246,6 +10459,14 @@
           }
         },
         "motion": {
+          "busy-cycle-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 1000,
+              "unit": "ms"
+            },
+            "$description": "One turn of the busy arc (BTN-36): the loading indicator's. Under reduced motion it does not turn, and its opacity eases once per this time instead."
+          },
           "feedback-duration": {
             "$type": "duration",
             "$value": {
@@ -22978,6 +24199,13 @@
             }
           }
         },
+        "check": {
+          "weight": {
+            "$type": "number",
+            "$value": 400,
+            "$description": "The weight a selected filter chip's check is drawn at (the `wght` axis of the icon font): the system's weight for a control's own mark, as the checkbox draws its own, because the check is drawn on the chip's selected fill only while it is on and is what tells on from off beside the fill's color. The check's box (icon.size) does not change with it; only the stroke does. The leading icon and the remove glyph keep sys.icon.weight."
+          }
+        },
         "container": {
           "gap": {
             "medium": {
@@ -26524,6 +27752,22 @@
         },
         "line": {
           "added": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.5804,
+                    0.9765,
+                    0.6235
+                  ],
+                  "hex": "#94f99f",
+                  "alpha": 1
+                },
+                "$description": "The band behind an added line, from the block's left edge to its right: a faint tint of the success color, so that the line reads as added at a glance whatever the colors of its code. Its code keeps its syntax colors, held on this band at the code's contrast. Never the only mark: the bar and the plus sign are drawn with it, and in forced colors the band is not drawn."
+              }
+            },
             "mark": {
               "color": {
                 "$type": "color",
@@ -26586,6 +27830,22 @@
             }
           },
           "removed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.9765,
+                    0.8706,
+                    0.8627
+                  ],
+                  "hex": "#f9dedc",
+                  "alpha": 1
+                },
+                "$description": "The band behind a removed line, from the block's left edge to its right: a faint tint of the error color, so that the line reads as removed at a glance whatever the colors of its code. Its code keeps its syntax colors, held on this band at the code's contrast. Never the only mark: the bar and the minus sign are drawn with it, and in forced colors the band is not drawn."
+              }
+            },
             "mark": {
               "color": {
                 "$type": "color",
@@ -37646,6 +38906,16 @@
             "$description": "Distance between the last control and the error text: a field's distance between its control and its supporting row."
           }
         },
+        "field": {
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 144,
+              "unit": "px"
+            },
+            "$description": "The least width of a field in a horizontal row of fields (FGR-13): the fields share the row equally and never less than this, and a field that would be narrower moves, with those after it, to the next line. A field whose content needs more keeps what its content needs."
+          }
+        },
         "gap-inline": {
           "$type": "dimension",
           "$value": {
@@ -38000,7 +39270,12 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "Distance between the help's last line and the error text below it, while the field shows both: the frame's distance between two rows of small text, the one a field group keeps between its label and its description. A field without help has its error text supporting-text.gap below the control, and this token is not read."
+            "$description": "Distance between the help's last line and the error text below it, while the field shows both — under error-text.placement append: the frame's distance between two rows of small text, the one a field group keeps between its label and its description. A field without help, and every field under replace, has its error text supporting-text.gap below the control, and this token is not read."
+          },
+          "placement": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "Where the error text stands while the field is in error and has words for it (FLD-7, FLD-31). replace: in the help's place — the help is not drawn, and the error text is the supporting row's first line, supporting-text.gap below the control. append: below the help, which stays, error-text.gap from its last line. A field without help draws its error text in the same place under both. The value is an index into dev.tanrei.enum.values; platforms receive the name."
           }
         },
         "label-icon": {
@@ -39051,7 +40326,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "The space between the two actions: with their size it puts their centres one touch target apart."
+            "$description": "The least space between the two actions. Where the minimum target in force exceeds action.size by more than half of it, they stand twice that excess apart, so that each hit area reaches the minimum target on its own half of the space between them (FIT-18)."
           },
           "icon": {
             "size": {
@@ -39450,7 +40725,7 @@
                       0,
                       0
                     ],
-                    "alpha": 0.12,
+                    "alpha": 0,
                     "hex": "#000000"
                   }
                 }
@@ -49725,6 +51000,16 @@
             "$value": 1
           }
         },
+        "reorder": {
+          "text-min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 96,
+              "unit": "px"
+            },
+            "$description": "The least width the text column of a reorderable item keeps beside its handle, its move buttons and its trailing control. Where those would leave the text narrower than this, the controls of every item go to a line of their own below the text (LST-51). It grows with enlarged text, so that the controls stay beside the text at the default text size and stand below it when the text is large."
+          }
+        },
         "selected": {
           "container": {
             "color": {
@@ -49738,7 +51023,8 @@
                 ],
                 "hex": "#e8def8",
                 "alpha": 1
-              }
+              },
+              "$description": "The fill of a selected option's row, drawn over whatever the list stands on and under the row's content (LST-26). The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the row's own content color (selected.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json), as the menu values its checked row, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered row. A design system that sets this token draws what it sets. The check is always drawn with the fill; the fill never carries the choice alone."
             }
           },
           "disabled": {
@@ -56912,7 +58198,7 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "Distance between a bar item's label and the mark after it: the glyph open_in_new of a link item that opens a new context (MBR-37). 4 in the default system, so that the word and its mark read as one entry: the mark stands much nearer its own word than the next entry's, which is two paddings and bar.gap away."
+            "$description": "Distance between an entry's label and the glyph after it: the mark open_in_new of a link item that opens a new context (MBR-37), and the indicator expand_more of a menu's title while the bar mixes menus with bar items (MBR-32). 4 in the default system, so that the word and its mark read as one entry: the mark stands much nearer its own word than the next entry's, which is two paddings and bar.gap away."
           },
           "height": {
             "$type": "dimension",
@@ -57307,6 +58593,16 @@
             "$description": "The glyph box of a glyph an entry draws: the overflow item's more_horiz, and the new-context mark open_in_new after a link item's label (MBR-37)."
           }
         },
+        "indicator": {
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 20,
+              "unit": "px"
+            },
+            "$description": "The glyph box of the indicator expand_more that a menu's title ends in while the bar mixes menus with bar items (MBR-32), container.gap after the label. One step smaller than icon.size, as a disclosure glyph beside a word is: it marks the title, it is not a second word."
+          }
+        },
         "label": {
           "typescale": {
             "$type": "typography",
@@ -57369,6 +58665,319 @@
           "opacity": {
             "$type": "number",
             "$value": 1
+          }
+        },
+        "selected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "The fill of the link item that names the page the person is on (MBR-38): the menu's selected row's fill, so that the current place is drawn the same in the bar and in a menu. A design system that sets the menu's sets this one with it."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hex": "#000000",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hex": "#000000",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hex": "#000000",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hex": "#000000",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hex": "#000000",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hex": "#000000",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "hex": "#000000",
+                "alpha": 1
+              },
+              "$description": "The new-context mark of a current link item, in the color of the selected row's glyphs."
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "hex": "#000000",
+                "alpha": 1
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hex": "#000000",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hex": "#000000",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "hex": "#000000",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "hex": "#000000",
+                "alpha": 1
+              },
+              "$description": "The color hover, focus and press mix into the current link item's container: the label's color."
+            }
           }
         },
         "unselected": {
@@ -61626,6 +63235,20 @@
           }
         },
         "header": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "hex": "#000000",
+              "alpha": 1
+            },
+            "$description": "The color the header slot gives what it holds, inherited as its text style is: the content color of the drawer's surface."
+          },
           "gap": {
             "$type": "dimension",
             "$value": {
@@ -61641,6 +63264,27 @@
               "unit": "px"
             },
             "$description": "Between two rows of the header: two header buttons, or a header button and the main action."
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Roboto",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 16,
+                "unit": "px"
+              },
+              "fontWeight": 500,
+              "letterSpacing": {
+                "value": 0.1504,
+                "unit": "px"
+              },
+              "lineHeight": 1.5
+            },
+            "$description": "The text style the header slot gives what it holds (NVD-38): the drawer's title, such as the product's name. It is inherited, so plain text placed in the slot is drawn in it, and an element of the product's that sets its own style keeps it."
           }
         },
         "heading": {
@@ -61806,7 +63450,7 @@
               "value": 36,
               "unit": "px"
             },
-            "$description": "How much further toward the end a nested destination's row starts, per level of nesting: its item container, with its fill, state layer and focus indicator, and its content with it. With the default icon and gap, a nested destination's label starts under its group's label."
+            "$description": "How much further toward the end a nested destination's content (its icon and label) starts, per level of nesting. Its item container, with its fill, state layer and focus indicator, keeps the full width of a top-level row. With the default icon and gap, a nested destination's label starts under its group's label."
           },
           "padding-inline": {
             "$type": "dimension",
@@ -66710,6 +68354,13 @@
             "$description": "Space between the items of a list, between an item's text and a list nested in it, and between a term and its description."
           }
         },
+        "japanese": {
+          "line-height": {
+            "$type": "number",
+            "$value": 1.85,
+            "$description": "The line height of running text whose language is Japanese, as a multiple of the running text's size (PRS-31): the space between two lines is 0.85 of a character, near the whole character that the Japanese layout requirements (W3C JLREQ) recommend for lines longer than 35 characters, as the measure's 36 are. Latin text keeps the running text style's own line height."
+          }
+        },
         "lead": {
           "typescale": {
             "$type": "typography",
@@ -70367,6 +72018,11 @@
                 "unit": "px"
               }
             }
+          },
+          "weight": {
+            "$type": "number",
+            "$value": 400,
+            "$description": "The weight the check of a selected segment is drawn at (the `wght` axis of the icon font): the system's weight for a control's own mark, as the checkbox draws its own, because the check is a thin stroke drawn on the segment's selected fill and is what tells selected from unselected beside the fill's color. The check's box (check.size) does not change with it; only the stroke does. A segment's icon keeps sys.icon.weight."
           }
         },
         "container": {
@@ -84731,6 +86387,16 @@
           }
         },
         "icon": {
+          "placement": {
+            "medium": {
+              "$type": "number",
+              "$value": 0
+            },
+            "small": {
+              "$type": "number",
+              "$value": 1
+            }
+          },
           "size": {
             "medium": {
               "$type": "dimension",
@@ -86175,6 +87841,11 @@
                   "alpha": 1
                 },
                 "$description": "The selected tab's label outside the active indicator, on the track: seen while the indicator is on its way or follows a finger, and wherever a layer's indicator does not cover the label."
+              },
+              "emphasis": {
+                "$type": "number",
+                "$value": 0,
+                "$description": "How much weight the selected tab's label gains, added to the weight of label.typescale: none, because the filled active indicator already tells the selection by more than a difference of color. Every tab keeps the width its label would need at the heavier weight, so a layer that sets a weight here moves nothing when the selection does."
               }
             },
             "state-layer": {
@@ -87623,6 +89294,11 @@
                   "alpha": 1
                 },
                 "$description": "The selected tab's label outside the active indicator, on the track: seen while the indicator is on its way or follows a finger, and wherever a layer's indicator does not cover the label."
+              },
+              "emphasis": {
+                "$type": "number",
+                "$value": 0,
+                "$description": "How much weight the selected tab's label gains, added to the weight of label.typescale: none, because the filled active indicator already tells the selection by more than a difference of color. Every tab keeps the width its label would need at the heavier weight, so a layer that sets a weight here moves nothing when the selection does."
               }
             },
             "state-layer": {
@@ -89071,6 +90747,11 @@
                   "alpha": 1
                 },
                 "$description": "The selected tab's label outside the active indicator: seen while the indicator is on its way or follows a finger. It stays the quiet color there, so that the darker label is always the one under the indicator."
+              },
+              "emphasis": {
+                "$type": "number",
+                "$value": 200,
+                "$description": "How much weight the selected tab's label gains, added to the weight of label.typescale, in both of its copies (where the active indicator covers it and where it does not). The tonal row's indicator is a faint layer, so its selection is also told by weight, not by color alone; every tab keeps the width its label needs at the heavier weight, so nothing moves when the selection does."
               }
             },
             "state-layer": {
@@ -89335,6 +91016,241 @@
                 "alpha": 1
               },
               "$description": "The fill of the tag that marks the chosen one among its neighbours (the default among values, the required among fields): primary, the fill the text field's required label has."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
             }
           },
           "error": {
@@ -89656,6 +91572,241 @@
               "$description": "An outlined tag has no fill: the surface behind shows through, inside the one hairline (outline.color)."
             }
           },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            }
+          },
           "error": {
             "container": {
               "color": {
@@ -89903,6 +92054,241 @@
                 "alpha": 1
               },
               "$description": "The quiet fill of a tag that names a category or a neutral state: the tonal role, the fill the text field's optional label has."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              }
             }
           },
           "error": {

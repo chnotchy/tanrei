@@ -22,7 +22,7 @@ const t = strings(contentLang(Astro));
   <div class="values">
     {/* A space between the two (a flex row draws none): the search index reads each as a word. */}
     <span class="docs-eyebrow" aria-hidden="true">{t.choiceValues}</span>{' '}
-    <tanrei-tag-group class="docs-name-tags" label={t.choiceValues}>
+    <tanrei-tag-group class="docs-name-tags" spacing="tags" label={t.choiceValues}>
       {values.map((name, index) => <><NameTag label={name} variant={index === 0 ? 'tonal' : 'outlined'} />{' '}</>)}
     </tanrei-tag-group>
   </div>

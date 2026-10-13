@@ -790,12 +790,12 @@ as one named list (`specs/tag-group.spec.json`, TGR-1…16). It draws nothing of
 keeps no selection and fires no event; it supplies no words — the name of the set is the instance's `label`.
 
 ```html
-<tanrei-tag-group label="Tags">
+<tanrei-tag-group spacing="tags" label="Tags">
   <tanrei-tag label="Design tokens"></tanrei-tag>
   <tanrei-tag label="Accessibility"></tanrei-tag>
 </tanrei-tag-group>
 
-<tanrei-tag-group spacing="chips" label="Filters">
+<tanrei-tag-group label="Filters">
   <tanrei-chip kind="filter" label="Open" selected></tanrei-chip>
   <tanrei-chip kind="filter" label="Blocked"></tanrei-chip>
 </tanrei-tag-group>
@@ -803,7 +803,7 @@ keeps no selection and fires no event; it supplies no words — the name of the 
 
 | Property / attribute | Type | Default | |
 |---|---|---|---|
-| `spacing` | `tags` \| `chips` (open) | `tags` | what the set holds, which decides the gap along a line and between two lines (`--tanrei-comp-tag-group-gap-<spacing>`, `-row-gap-<spacing>`); reflected. A value a layer adds gets its styles on demand; one the active system lacks is drawn as `tags` and reported (TGR-16) |
+| `spacing` | `tags` \| `chips` (open) | `chips` | what the set holds, which decides the gap along a line and between two lines (`--tanrei-comp-tag-group-gap-<spacing>`, `-row-gap-<spacing>`); reflected. The default is the safe side: tags at `chips` only stand further apart, chips at `tags` lose part of their touch targets. A value a layer adds gets its styles on demand; one the active system lacks is drawn as `chips` and reported (TGR-16) |
 | `label` | string | `""` | the accessible name of the list; never drawn. Empty, the list is exposed unnamed |
 
 Default slot: the members. No parts, no events, no custom properties of its own.
@@ -851,7 +851,7 @@ unknown `spacing` (TGR-16). An empty group reports nothing.
 
 **Before the element is defined** the members are inline elements in source order, separated by the white space
 between them. A page that wants the layout from the first paint adds
-`tanrei-tag-group:not(:defined) { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags); }`.
+`tanrei-tag-group:not(:defined) { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tanrei-comp-tag-group-row-gap-chips) var(--tanrei-comp-tag-group-gap-chips); }` (the `-tags` tokens for a set of tags).
 
 ## `<tanrei-keyboard-shortcut>`
 
@@ -1797,7 +1797,7 @@ component's own markup, and only the controls are the product's. The host is `di
 | `label` | string | `""` | the name: of the control (a field), of the set (a group). A field's may be empty for a control that names itself |
 | `labelHidden` / `label-hidden` | boolean | `false` | draws no label row; the label stays the name; reflected |
 | `supportingText` / `supporting-text` | string | `""` | a field: help below the control. A group: the description under the label, before the controls, staying while in error |
-| `errorText` / `error-text` | string | `""` | a field: below the help, which stays, while `error` (FLD-7, FLD-31); where the field has no help, in the row's first line. A group: a row of its own below the last control |
+| `errorText` / `error-text` | string | `""` | a field: while `error`, in the help's place — the row's first line — or below the help, which then stays, where `--tanrei-comp-field-error-text-placement` is `append` (FLD-7, FLD-31). A group: a row of its own below the last control |
 | `error` | boolean | `false` | the error condition; the product's to set; reflected |
 | `disabled` | boolean | `false` | disables the control, or every control, and draws the frame as disabled; reflected |
 | `requirement` | `none` \| `required` \| `optional` | `none` | reflected; another value behaves as `none` and is reported |
@@ -1811,17 +1811,23 @@ Slots: the default slot (the control; the controls) and, on a field, `label-icon
 `requirement-label`, `value-text` and `counter` (field), `supporting-text`, `error-text`. No events.
 
 **A field's supporting row** (FLD-7, FLD-27, FLD-31) is a flex row of one column of texts and the
-count. The column holds the help (`part="supporting-text"`), which stays while the field is in error, and below it the
-error text (`part="error-text"`), `--tanrei-comp-field-error-text-gap` away, rendered only while the field is in error
-and has words — `error-text`, or the words of its control's own refusal (FLD-28). With no help the error text is the
-column's first line. The count is aligned to the first line and does not move when the
-error text comes or goes. Nothing is animated: the error text comes and goes with the layout. The description given to
-the control is the help, the error text, the optional text, in that order; the live region is given the error text
-alone. `::part(supporting-text)` does not reach the error text: use `::part(error-text)`.
+count. The column holds the help (`part="supporting-text"`) and the error text (`part="error-text"`), rendered only
+while the field is in error and has words — `error-text`, or the words of its control's own refusal (FLD-28). Where the
+error text stands is the design system's choice, `--tanrei-comp-field-error-text-placement`, read by name from the
+cascade at each render (and again when the system is switched): `replace`, the first value and the default, does not
+render the help while the error text is there, which is then the column's first line; `append` keeps the help and
+draws the error text below it, `--tanrei-comp-field-error-text-gap` away. A product that sets the token on an element
+of its own after the fields have drawn calls `requestUpdate()` on them. With no help the error text is the column's
+first line under both. The count is aligned to the first line and does not move when the error text comes or goes.
+Nothing is animated: the error text comes and goes with the layout. The description given to the control is what the
+row draws — the help, the error text, or the two in that order — and the optional text; the live region is given the
+error text alone. `::part(supporting-text)` does not reach the error text: use `::part(error-text)`.
 
-The requirement tag is a `<tanrei-tag size="small">` (`filled` for required, `tonal` for optional) with nothing of the
-frame's set on it: it reads `--tanrei-comp-tag-*` as every tag where the frame stands
-does, so what restyles small tags restyles it, and it is the same in a focused, an erroneous and a disabled frame. The
+The requirement tag is a `<tanrei-tag size="small">` (`filled` for required, `tonal` for optional, `disabled` while the
+frame is) with nothing else of the frame's set on it: it reads `--tanrei-comp-tag-*` as every tag where the frame stands
+does, so what restyles small tags restyles it. It is the same in a focused and an erroneous frame, and in a disabled one
+it is drawn from the Tag's disabled tokens (`--tanrei-comp-tag-<variant>-disabled-*`, TAG-21), so it fades with the
+label. The
 frame lays out a box one label line high around it (`.requirement-box`), in which the tag is centred: its height is
 never read, and a tag taller than the label's line reaches equally above and below it. Under
 `required-mark="auto"` the tag and the asterisk are both in the row and a style query on the component's
@@ -3995,7 +4001,8 @@ with an ellipsis only when the layout gives the chip less width (`max-inline-siz
 still the name. All logical, so RTL mirrors: the remove action sits at the left (CHP-25).
 
 **Glyphs (CHP-13, CHP-14, CHP-18).** The icon (`icon` slot), the check and the remove glyph are drawn at
-`icon.size.<size>` with `sys.icon.weight`, at the optical size of their box. The icon and the check take the family and
+`icon.size.<size>`, at the optical size of their box: the icon and the remove glyph with `sys.icon.weight`, the check —
+a control's own mark — with `check.weight` (`sys.icon.mark.weight` in the default system). The icon and the check take the family and
 fill of the chip's selection (selected only on a filter chip that is on); the remove glyph is always filled, in
 `sys.icon.family.selected` / `sys.icon.fill.selected`. The check and the remove mark are the glyphs the spec names,
 `check` and `cancel`, written as ligature text for the system's icon font — the chip draws no path of its own; a system
@@ -4261,6 +4268,10 @@ a new tab by a modified or a middle click and the status bar are the browser's o
   mirrored in right-to-left, hidden, nothing drawn until the icon set can draw it) unless `trailing-icon` names a glyph;
   a shortcut or trailing text keeps its own column before it, and the mark reserves the column for its surface.
   `target-label` ends the item's description either way; an empty one is reported (MNU-55).
+- **`current`** (boolean, reflected): the link item of the page the person is on — `aria-current="page"` on its anchor,
+  the row drawn from the `selected` condition (the fill and colors of a checked row) with no mark and its label's own
+  weight; in forced colors a line of `sys.border.thick` in `LinkText` inside the row marks it. The menu never sets it;
+  without `href` it is ignored and reported (MNU-58).
 - **Disabled.** The anchor without `href`, with `aria-disabled="true"` and the menu item role: reached by the arrow keys
   as any disabled item, no `click`, no `close`, nothing to follow (MNU-56).
 - **No destination.** An `href` attribute on a checkbox item, a radio item or a submenu item is ignored and reported;
@@ -4346,7 +4357,9 @@ item's own shadow root; the surface is the item's descendant in the accessibilit
 divider (`role="separator"`) and the gap — and the cascade answers which is rendered: `--_separation` on the host is the
 `separation` attribute, else `--tanrei-comp-menu-separation`, read with a style container query (and, where a browser has
 none, by script when the menu renders or the system is switched). Under gap the divider is not rendered at all, so no
-separator is exposed. Submenus inherit their menu's.
+separator is exposed, and each group — and each run of items outside a group — is a `.tile` (part `tile`) drawn as a sheet
+of its own (the surface's color, corners, padding, and its elevation with the ring inside the edge), the surface itself
+drawing no sheet around them; under divider the tiles are `display: contents`. Submenus inherit their menu's.
 
 **Items (MNU-10…22, MNU-26…30, MNU-37).** Four conditions — `unselected`, `selected` (a checked checkbox or radio item),
 `destructive`, `expanded` (a submenu item whose submenu is open) — each color the row and every part in every state. A
@@ -4474,8 +4487,9 @@ navigation, drawn, working and reported (MBR-44).
   anchor and gives the anchor the whole of the title's hit area, so what a browser gives a link it gives anywhere on
   the title. `click` is the anchor's: `preventDefault()` cancels the navigation (a router's own link component as
   the child needs nothing more); a click with a modifier key or the middle button and Enter with a modifier key are
-  the browser's; Space follows the link as Enter does (MBR-36). The current page is drawn at the emphasized weight
-  and with no fill (MBR-38).
+  the browser's; Space follows the link as Enter does (MBR-36). The current page is drawn from the `selected`
+  condition — the fill and colors of the menu's selected row, at the label's own weight (MBR-38). While the bar holds
+  both menus and bar items, each menu's title ends in the icon set's `expand_more` (part `indicator`, MBR-47).
 - **Two orders, on purpose.** In the row the menu that is open is another entry's: it closes, with its `toggle`,
   before the bar item's `click` reaches you. Folded, the bar item is an item of the overflow item's menu: `click`
   first, while that menu is shown, then it closes. In both, focus rests where your handler put it (MBR-33, MBR-43).
@@ -6755,7 +6769,7 @@ the check) in every state. Everything else is Button's: the precedence, press-ho
 (the ripple is clipped to the segment's corners), ring or glow **drawn inside the segment** — a keyboard-focused segment
 is lifted above the set's outline, so nothing covers it — corner smoothing, and the state motion for colors, elevation
 and opacity. A selected segment whose label is drawn shows the icon set's `check` glyph (SEG-16: always in the selected
-family and fill, never mirrored — no mark of its own) in its leading position at `check.size`, in place of its icon,
+family and fill at `check.weight`, a control's own mark, never mirrored — no mark of its own) in its leading position at `check.size`, in place of its icon,
 fading in and out; until the icon set can draw it nothing is drawn in its place — never the word "check" — and the room
 SEG-14 measured is kept, so no width changes when the font arrives (SEG-25, `GlyphDrawnController`; it then appears
 without the selection motion); an icon-only segment keeps its icon, filled, and shows no check. The set
@@ -8901,10 +8915,11 @@ What the web draws differently, and what a browser cannot do:
 - **The inner focus stroke** (`sys.focus.inner-width`, 0 in the default system) is drawn from the container out to
   the outer stroke: an inline box has no second ring to draw it with.
 - **A glyph, the picture and the mark** are placed out of the line, in room the anchor keeps (so no line break parts
-  them from the word beside them, and no underline runs under them), from where the text's own order puts them. So a
-  standalone link **with a glyph, the mark or the marks of an external link** lays its label out in the layout's
-  direction (`unicode-bidi: isolate`), not by its own first strong character as LNK-26 asks of a standalone link; one
-  without any of them does (`plaintext`).
+  them from the word beside them, and no underline runs under them), from where the text's own order puts them. A
+  standalone link takes the direction of its label's first strong character (LNK-26) through `dir`, which the script
+  writes from that character where the page gave the anchor none; without the script, a standalone link with a glyph, the mark
+  or the marks of an external link lays its label out in the layout's direction (`unicode-bidi: isolate`), and one
+  without any of them by its own first strong character (`plaintext`).
   In a right-to-left layout they stand at the edge of the link's own box instead (the browsers do not agree on the
   place an out-of-line element would have had there). At the link's start — a leading glyph, the picture — that edge
   is where every engine says it is. At its end — a trailing glyph, the mark — it is not, for a link that begins late
@@ -8914,9 +8929,12 @@ What the web draws differently, and what a browser cannot do:
   defines it; Blink (`@supports (-webkit-app-region: none)`) the place the glyph would have had in the line; Gecko
   (`@supports (-moz-appearance: none)`) the glyph IN the line, taking no room, where it parts no word from what
   follows it. A browser that is none of the three has the first. The glyph is then beside the last line of the
-  label at every width, in either direction of the layout and whatever the direction of the label's own words; the
-  layout's direction — not the label's — says which side that is (LNK-14), so a left-to-right label in a
-  right-to-left paragraph has its mark at the left of its last line. In Gecko the label must not end in white space
+  label at every width, in either direction of the layout and whatever the direction of the label's own words. The
+  link's own direction says which side that is (LNK-14): a standalone link's label's, and a phrase's in a sentence
+  the sentence's — unless the page marked the phrase with a `dir` of its own. So a left-to-right standalone label in
+  a right-to-left paragraph has its glyphs at the ends of its own words (its mark at the right of its last line,
+  unmirrored), placed from the edges of the link in WebKit and Gecko and where it would have stood in Blink; a
+  left-to-right phrase in a right-to-left sentence, not marked, has its mark at the left of its last line. In Gecko the label must not end in white space
   inside the anchor (`…Group </a>`): a line could then break before the glyph.
 - **Ripple** (LNK-9's fallback): a link that runs over several lines has no one box to grow a ripple in and answers
   with the overlay. Without the script every press is the overlay.

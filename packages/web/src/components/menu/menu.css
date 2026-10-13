@@ -14,7 +14,7 @@
  * - each row — an item of any kind, a submenu's item — at the container's height or the pointer's target, whichever is
  *   more, with a line of the label, and a line of the supporting text where the row has one;
  * - a group's title, and between a group and what is next to it the divider's space or, where the separation is gap
- *   (the attribute over comp.menu.separation), the group's gap.
+ *   (the attribute over comp.menu.separation), the group's gap and the padding of the two tiles it parts.
  *
  * What it does not give: anything drawn (no fill, no word, no glyph — the words are attributes until the elements
  * draw them); the surface's inline size, which is as wide as its widest row's words; a label or a supporting text
@@ -77,17 +77,18 @@
   :where(tanrei-menu[inline][open]:not(:defined)) > :where(tanrei-menu-group:not(:first-child), tanrei-menu-group + :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)) {
     margin-block-start: calc(2 * var(--tanrei-comp-menu-divider-space) + var(--tanrei-comp-menu-divider-thickness));
   }
-  /* MNU-35, MNU-36: the gap form — the token's, then the attribute's. */
+  /* MNU-35, MNU-36: the gap form — the token's, then the attribute's: the gap, and the padding of the tile that ends
+     above it and of the tile that starts below it. */
   @container style(--tanrei-comp-menu-separation: gap) {
     :where(tanrei-menu[inline][open]:not(:defined)) > :where(tanrei-menu-group:not(:first-child), tanrei-menu-group + :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)) {
-      margin-block-start: var(--tanrei-comp-menu-group-gap);
+      margin-block-start: calc(var(--tanrei-comp-menu-group-gap) + 2 * var(--tanrei-comp-menu-surface-padding-block));
     }
   }
   :where(tanrei-menu[inline][open][separation='divider']:not(:defined)) > :where(tanrei-menu-group:not(:first-child), tanrei-menu-group + :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)) {
     margin-block-start: calc(2 * var(--tanrei-comp-menu-divider-space) + var(--tanrei-comp-menu-divider-thickness));
   }
   :where(tanrei-menu[inline][open][separation='gap']:not(:defined)) > :where(tanrei-menu-group:not(:first-child), tanrei-menu-group + :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)) {
-    margin-block-start: var(--tanrei-comp-menu-group-gap);
+    margin-block-start: calc(var(--tanrei-comp-menu-group-gap) + 2 * var(--tanrei-comp-menu-surface-padding-block));
   }
   @media (pointer: coarse) {
     :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu) {

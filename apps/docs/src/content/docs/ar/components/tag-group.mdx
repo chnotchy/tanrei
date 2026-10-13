@@ -2,7 +2,7 @@
 title: مجموعة الوسوم
 description: ترتّب مجموعة من الوسوم أو الرقاقات في أسطر تلتفّ، بتباعد يناسب ما تحمله، وتعرضها قائمةً واحدة لها اسم. تبقى الأعضاء على ما هي عليه، وبعد إزالة رقاقة ينتقل التركيز إلى التي تليها.
 translationOf: components/tag-group.mdx
-sourceHash: deb4197699e52e94905bf63f9f02e8759a6bda39
+sourceHash: dfd5a40f6573b0faf035063e9e49568a6050b0e4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="tag-group" />
 
 <DemoFrame label="مجموعة من الوسوم، ثم صف من عوامل التصفية" column>
-  <tanrei-tag-group class="not-content" label="الوسوم">
+  <tanrei-tag-group class="not-content" spacing="tags" label="الوسوم">
     <tanrei-tag label="رموز التصميم"></tanrei-tag>
     <tanrei-tag label="إمكانية الوصول"></tanrei-tag>
     <tanrei-tag label="من اليمين إلى اليسار"></tanrei-tag>
@@ -40,13 +40,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-tag-group label="الوسوم">
+    <!-- مجموعة الوسوم الثابتة تقول ذلك: تتقارب أسطرها بقدر تقارب وسومها. -->
+    <tanrei-tag-group spacing="tags" label="الوسوم">
       <tanrei-tag label="رموز التصميم"></tanrei-tag>
       <tanrei-tag label="إمكانية الوصول"></tanrei-tag>
     </tanrei-tag-group>
 
-    <!-- مجموعة الرقاقات تقول ذلك: أسطرها أكثر تباعدًا. -->
-    <tanrei-tag-group id="recipients" spacing="chips" label="المستلمون">
+    <!-- مجموعة الرقاقات تأخذ التباعد الافتراضي: تتباعد أسطرها بما يكفي لهدف اللمس الخاص بكل رقاقة. -->
+    <tanrei-tag-group id="recipients" label="المستلمون">
       <tanrei-chip kind="input" label="Ada Lovelace" remove-label="إزالة Ada Lovelace"></tanrei-chip>
       <tanrei-chip kind="input" label="Grace Hopper" remove-label="إزالة Grace Hopper"></tanrei-chip>
     </tanrei-tag-group>
@@ -70,7 +71,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```tsx
     import { Chip, TagGroup } from '@tanrei/react';
 
-    <TagGroup spacing="chips" label="المستلمون">
+    <TagGroup label="المستلمون">
       {recipients.map((person) => (
         <Chip key={person.id} kind="input" label={person.name} removeLabel={`إزالة ${person.name}`} onRemove={() => remove(person.id)} />
       ))}
@@ -82,7 +83,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## المواصفات
 
 <DemoFrame label="وسوم تلتفّ، ووسوم حالة، وروابط إلى صفحة كل وسم، وعناصر مُدخلة" plain column>
-  <tanrei-tag-group class="not-content" style="inline-size: 22rem; max-inline-size: 100%" label="الوسوم">
+  <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="الوسوم">
     <tanrei-tag label="رموز التصميم"></tanrei-tag>
     <tanrei-tag label="إمكانية الوصول"></tanrei-tag>
     <tanrei-tag label="من اليمين إلى اليسار"></tanrei-tag>
@@ -90,7 +91,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-tag label="اللون"></tanrei-tag>
     <tanrei-tag label="الحركة"></tanrei-tag>
   </tanrei-tag-group>
-  <tanrei-tag-group class="not-content" label="المنصات">
+  <tanrei-tag-group class="not-content" spacing="tags" label="المنصات">
     <tanrei-tag label="الويب: مستقر" status="success" size="small"></tanrei-tag>
     <tanrei-tag label="منصة SwiftUI: بيتا" size="small"></tanrei-tag>
     <tanrei-tag label="منصة Flutter: متأخرة" status="warning" variant="outlined" size="small"></tanrei-tag>
@@ -115,9 +116,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | المجموعة | استخدم |
 | --- | --- |
-| وسوم ثابتة: فئات مقال، القيم التي يقبلها إعداد، صف من الحالات | مجموعة وسوم. |
-| وسوم يقود كل منها إلى صفحته | مجموعة وسوم مع `spacing="chips"` من رقاقات لها `href`. الوسم نص ولا يمكن أن يكون رابطًا. |
-| عوامل تصفية فوق قائمة، اقتراحات تحت حقل، عناصر أدخلها الشخص | مجموعة وسوم مع `spacing="chips"`. |
+| وسوم ثابتة: فئات مقال، القيم التي يقبلها إعداد، صف من الحالات | مجموعة وسوم مع `spacing="tags"`. |
+| وسوم يقود كل منها إلى صفحته | مجموعة وسوم من رقاقات لها `href`. الوسم نص ولا يمكن أن يكون رابطًا. |
+| عوامل تصفية فوق قائمة، اقتراحات تحت حقل، عناصر أدخلها الشخص | مجموعة وسوم من الرقاقات. |
+| صف طويل من عوامل التصفية ينبغي أن يكلّف عبوره ضغطة واحدة على Tab | [شريط أدوات](/ar/components/toolbar/) من أزرار التبديل (أدناه). |
 | إجراءان إلى أربعة إجراءات مختلفة | [مجموعة أزرار](/ar/components/button-group/). |
 | اختيار واحد من عدة | [مجموعة أزرار اختيار](/ar/components/radio-group/) أو [علامات تبويب](/ar/components/tabs/) أو [زر مقسَّم](/ar/components/segmented-button/). |
 | عناصر تحكم تحتاج إلى تسمية مرئية، وإلى ما يقول هل هي مطلوبة، وإلى خطأ | [مجموعة حقول](/ar/components/field-group/). |
@@ -127,10 +129,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 الخاصية `spacing` تقول ما تحمله المجموعة، وتحدّد مسافتين: بين عضوين على سطر واحد، وبين سطرين.
 
-- القيمة `tags` (الافتراضية) للوسوم الثابتة. تتقارب الأسطر بقدر تقارب الوسوم على السطر، فتُقرأ المجموعة الملتفّة كتلةً واحدة.
-- القيمة `chips` للرقاقات. الرقاقة تستقبل الضغط خارج حافتها المرئية، إلى حدّ هدف اللمس. وتتباعد الأسطر بما يكفي لتحتفظ كل رقاقة متوسطة بذلك الهدف كاملًا، وحيث تتداخل مساحتا رقاقتين تلتقيان في منتصف الفجوة.
+- القيمة `chips` (الافتراضية) للرقاقات. الرقاقة تستقبل الضغط خارج حافتها المرئية، إلى حدّ هدف اللمس. وتتباعد الأسطر بما يكفي لتحتفظ كل رقاقة متوسطة بذلك الهدف كاملًا، وحيث تتداخل مساحتا رقاقتين تلتقيان في منتصف الفجوة.
+- القيمة `tags` للوسوم الثابتة. تتقارب الأسطر بقدر تقارب الوسوم على السطر، فتُقرأ المجموعة الملتفّة كتلةً واحدة.
 
-مجموعة الرقاقات التي تُترك على `tags` تعمل مع ذلك. لكن أسطرها أقرب من ارتفاع هدف اللمس، وبنية التنقيح (debug) تقول ذلك.
+القيمة الافتراضية هي الجانب الآمن. مجموعة الوسوم التي تُترك على `chips` لا تزيد على أن تتباعد قليلًا. أما مجموعة الرقاقات التي تُضبط على `tags` فتعمل مع ذلك، لكن أسطرها أقرب من ارتفاع هدف اللمس، وبنية التنقيح (debug) تقول ذلك.
 
 الرقاقات الصغيرة لموضع كثيف تقف فيه المجموعة على سطر واحد. وعلى الأسطر الملتفّة تلتقي أهداف اللمس الخاصة بها بين الأسطر قبل أن تبلغ حجمها الكامل. استخدم الرقاقات المتوسطة لمجموعة تلتفّ على شاشة لمس.
 
@@ -144,6 +146,26 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - تبدأ الأعضاء من حافة البداية. ولوضعها في النهاية أو في وسط صف، ضع المجموعة بالتخطيط الذي حولها.
 - أعطِ كل الأعضاء الحجم نفسه. الأعضاء المختلفة الأحجام تُوسَّط على سطرها.
 - المجموعة التي بلا عضو لا ترسم شيئًا ولا تأخذ حيّزًا. فالمنشور الذي بلا وسوم لا يحتاج إلى معالجة خاصة.
+
+### موضع توقف واحد لصف من عوامل التصفية
+
+تعطي مجموعة الوسوم كل رقاقة موضع توقف خاصًّا بها للمفتاح Tab، كما لكل زر في مجموعة الأزرار، وينتقل الشخص بين الرقاقات بالمفتاح Tab. وحيث ينبغي أن يكلّف عبور صف طويل من عوامل التصفية ضغطة واحدة على Tab، ضع عوامل التصفية في [شريط أدوات](/ar/components/toolbar/) أزرارَ تبديل بدلًا من ذلك. شريط الأدوات موضع توقف واحد، ومفاتيح الأسهم تنتقل بين أزراره، وكل زر يحتفظ بحالة الضغط الخاصة به. وشريط الأدوات صف واحد: لا يلتفّ.
+
+<DemoFrame label="عوامل التصفية موضع توقف واحد: شريط أدوات من أزرار التبديل">
+  <tanrei-toolbar class="not-content" label="عوامل التصفية">
+    <tanrei-button variant="outlined" toggle selected label="مفتوحة"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="مسندة إليّ"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="تحتاج إلى مراجعة"></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+```html
+<tanrei-toolbar label="عوامل التصفية">
+  <tanrei-button variant="outlined" toggle selected label="مفتوحة"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="مسندة إليّ"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="تحتاج إلى مراجعة"></tanrei-button>
+</tanrei-toolbar>
+```
 
 ### التسمية
 
@@ -164,7 +186,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### افعل
 
-- عيِّن `spacing="chips"` لمجموعة من الرقاقات.
+- عيِّن `spacing="tags"` لمجموعة من الوسوم الثابتة.
 - أعطِ المجموعة `label`، بلغة الصفحة.
 - اجعل أعضاء المجموعة من نوع واحد. والاستثناء عناصر مُدخلة تليها رقاقة «إضافة» واحدة.
 
@@ -201,11 +223,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+    gap: var(--tanrei-comp-tag-group-row-gap-chips) var(--tanrei-comp-tag-group-gap-chips);
   }
   ```
 
-- مفاتيح الأسهم بين رقاقات المجموعة غير متوفرة. والصف الطويل من عوامل التصفية الذي ينبغي أن يكون موضع توقف واحدًا هو [شريط أدوات](/ar/components/toolbar/) من الرقاقات.
+- مفاتيح الأسهم بين رقاقات المجموعة غير متوفرة: كل رقاقة موضع توقف للمفتاح Tab. والصف الطويل من عوامل التصفية الذي ينبغي أن يكون موضع توقف واحدًا هو [شريط أدوات](/ar/components/toolbar/) من أزرار التبديل، كما في «موضع توقف واحد لصف من عوامل التصفية».
 
 ### ما عليك فعله
 

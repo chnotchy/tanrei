@@ -15,7 +15,7 @@ import { cornerRadius, shape } from '../../styles/shape.js';
 // (TXI-9) — draws none and draws its edge as a line inside the container (TXI-13, TXI-26).
 /** The values every design system has. A layer may add more; those get their styles on demand. */
 export const CORE_VARIANTS = ['stacked', 'filled', 'outlined'] as const;
-export const CORE_SIZES = ['medium', 'large'] as const;
+export const CORE_SIZES = ['small', 'medium', 'large'] as const;
 const DEFAULT_VARIANT = 'stacked';
 const DEFAULT_SIZE = 'medium';
 /** The states a field declares: no pressed — a press on a field is not an action (TXI-8). */
@@ -319,6 +319,17 @@ export const styles = css`
   .field[data-entries] .input {
     flex-basis: var(${unsafeCSS(OWN)}-entries-typing-min-width);
   }
+  /* TXI-64: read-only and holding no typed text, the typing part takes no room on a line and no line of its own — the
+     entries end the content, since nothing can be typed there. It is taken out of the lines, not out of the page: it
+     stays focusable and exposed. Disabled, it keeps its room, so the field keeps the shape it has when enabled. */
+  .field[data-entries][data-no-typing] .input {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 0;
+    min-inline-size: 0;
+    flex: none;
+  }
   ::slotted([slot='entries']) {
     flex: none;
     max-inline-size: 100%;
@@ -441,6 +452,19 @@ export const styles = css`
   :host(:dir(ltr)) .input[dir='rtl'] {
     text-align: left;
   }
+  /* TXI-67: beside a prefix, the value of an always left-to-right type — and an empty field's placeholder — stands
+     against the prefix, at the start of the run (the row's own dir), in every layout direction: "https://" and the
+     address after it are one string, not set apart by the width of the field. Without a prefix it stays at the field's
+     start edge (above). (While a floating label rests in the input line the prefix is not drawn, and there is then no
+     value and no placeholder to place.) */
+  :host .body[dir='ltr'] .prefix:not(:empty) ~ .input,
+  :host .body[dir='ltr'] .prefix:not(:empty) ~ .input::placeholder {
+    text-align: left;
+  }
+  :host .body[dir='rtl'] .prefix:not(:empty) ~ .input,
+  :host .body[dir='rtl'] .prefix:not(:empty) ~ .input::placeholder {
+    text-align: right;
+  }
   /* TXI-24: in a multiline field each paragraph takes the direction, and the alignment, of its own first strong
      character — once the value has a letter to tell a direction by (the element sets dir="auto" then); until then the
      field keeps the layout's direction, so the caret of an empty field stands at its start edge. */
@@ -544,12 +568,11 @@ export const styles = css`
   .row[data-empty] .literal {
     color: var(--_h);
   }
-  /* Each segment keeps the width of its filled form — two digits, four for a year, the wider name of a day period, with
-     segment.padding-inline on each side — while it is empty or half typed: its cell is as wide as a copy of that form
-     which is never drawn, and the segment fills the cell, what it shows centred in it. An empty segment whose
-     placeholder is wider than that form ("mm") is as wide as the placeholder, so that it stays clear of the separators.
-     An hour is written as the locale writes it, one digit or two, against its minutes; a filled one is as wide as
-     itself. */
+  /* TXI-42: each segment is as wide as the wider of its placeholder and its widest filled form — four digits for a
+     year, two for the others, the wider name of a day period — with segment.padding-inline on each side, whatever it
+     holds: its cell is as wide as copies of the two which are never drawn, and the segment fills the cell, what it
+     shows centred in it, so the row never shifts as it fills or empties and no placeholder runs into a separator. An
+     hour is written as the locale writes it, one digit or two, against its minutes, at the end of its cell. */
   .unit {
     display: inline-grid;
     flex: none;

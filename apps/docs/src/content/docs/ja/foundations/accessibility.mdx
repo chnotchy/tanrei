@@ -2,7 +2,7 @@
 title: アクセシビリティ
 description: Tanrei がトークンとコンポーネント仕様に組み込んでいるアクセシビリティ要件と、それを守らせるチェック。
 translationOf: foundations/accessibility.mdx
-sourceHash: e94f88f875361d6db6bddce65fd01e14b10dc758
+sourceHash: a2c14cfcd30a37f95bfe67ab8c79acd0f27b54b4
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -27,6 +27,7 @@ Tanrei におけるアクセシビリティは、システムそのものに課�
 
 - `(X, on-X)` のロールの組は、いずれも 4.5:1 以上。
 - `outline` は、すべてのサーフェスロールに対して 3:1 以上。
+- 既定のシステムの中・高コントラストでは、`outline-variant` は、すべてのサーフェスロールに対してそれぞれ 3:1 以上と 4.5:1 以上。`outline` は常にそれより強い。
 - `focus-ring` は、サーフェスに対して 3:1 以上。
 
 チェックを通すためにしきい値を緩めることは、プロジェクトの規則で禁じています。

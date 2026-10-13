@@ -92,7 +92,7 @@ export interface AnchoredInput {
   autoAlign?: 'center' | 'start';
   /**
    * Where a surface larger than the room on its side is moved back to: inside the window's edges (it gives up the margin
-   * before it covers the anchor: a tooltip, TIP-9), or — true — still `margin` inside them (a popover, POP-5).
+   * before it covers the anchor), or — true — still `margin` inside them (a popover, POP-5; a tooltip, TIP-9).
    */
   holdInMargin?: boolean;
 }

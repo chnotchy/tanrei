@@ -2,7 +2,7 @@
 title: Grupo de tags
 description: Dispone un conjunto de tags o de chips en una o en varias líneas, con la separación que corresponde a lo que contiene, y expone el conjunto como una sola lista con nombre. Los miembros siguen siendo lo que son, y cuando se quita un chip el foco pasa al siguiente.
 translationOf: components/tag-group.mdx
-sourceHash: deb4197699e52e94905bf63f9f02e8759a6bda39
+sourceHash: dfd5a40f6573b0faf035063e9e49568a6050b0e4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="tag-group" />
 
 <DemoFrame label="Un conjunto de tags y una fila de filtros" column>
-  <tanrei-tag-group class="not-content" label="Etiquetas">
+  <tanrei-tag-group class="not-content" spacing="tags" label="Etiquetas">
     <tanrei-tag label="Tokens de diseño"></tanrei-tag>
     <tanrei-tag label="Accesibilidad"></tanrei-tag>
     <tanrei-tag label="De derecha a izquierda"></tanrei-tag>
@@ -40,13 +40,14 @@ En la web es `<tanrei-tag-group>`. Las demás plataformas todavía no lo han imp
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-tag-group label="Etiquetas">
+    <!-- Un conjunto de tags estáticos lo dice: sus líneas quedan tan cerca como sus tags. -->
+    <tanrei-tag-group spacing="tags" label="Etiquetas">
       <tanrei-tag label="Tokens de diseño"></tanrei-tag>
       <tanrei-tag label="Accesibilidad"></tanrei-tag>
     </tanrei-tag-group>
 
-    <!-- Un conjunto de chips lo dice: sus líneas quedan más separadas. -->
-    <tanrei-tag-group id="recipients" spacing="chips" label="Destinatarios">
+    <!-- Un conjunto de chips usa la separación predeterminada: sus líneas quedan lo bastante separadas para el objetivo táctil de cada chip. -->
+    <tanrei-tag-group id="recipients" label="Destinatarios">
       <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Quitar a Ada Lovelace"></tanrei-chip>
       <tanrei-chip kind="input" label="Grace Hopper" remove-label="Quitar a Grace Hopper"></tanrei-chip>
     </tanrei-tag-group>
@@ -70,7 +71,7 @@ En la web es `<tanrei-tag-group>`. Las demás plataformas todavía no lo han imp
     ```tsx
     import { Chip, TagGroup } from '@tanrei/react';
 
-    <TagGroup spacing="chips" label="Destinatarios">
+    <TagGroup label="Destinatarios">
       {recipients.map((person) => (
         <Chip key={person.id} kind="input" label={person.name} removeLabel={`Quitar a ${person.name}`} onRemove={() => remove(person.id)} />
       ))}
@@ -82,7 +83,7 @@ En la web es `<tanrei-tag-group>`. Las demás plataformas todavía no lo han imp
 ## Especificaciones
 
 <DemoFrame label="Tags que saltan de línea, tags de estado, enlaces a la página de cada tag y elementos introducidos" plain column>
-  <tanrei-tag-group class="not-content" style="inline-size: 22rem; max-inline-size: 100%" label="Etiquetas">
+  <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="Etiquetas">
     <tanrei-tag label="Tokens de diseño"></tanrei-tag>
     <tanrei-tag label="Accesibilidad"></tanrei-tag>
     <tanrei-tag label="De derecha a izquierda"></tanrei-tag>
@@ -90,7 +91,7 @@ En la web es `<tanrei-tag-group>`. Las demás plataformas todavía no lo han imp
     <tanrei-tag label="Color"></tanrei-tag>
     <tanrei-tag label="Movimiento"></tanrei-tag>
   </tanrei-tag-group>
-  <tanrei-tag-group class="not-content" label="Plataformas">
+  <tanrei-tag-group class="not-content" spacing="tags" label="Plataformas">
     <tanrei-tag label="Web: Stable" status="success" size="small"></tanrei-tag>
     <tanrei-tag label="SwiftUI: Beta" size="small"></tanrei-tag>
     <tanrei-tag label="Flutter: Rezagado" status="warning" variant="outlined" size="small"></tanrei-tag>
@@ -115,9 +116,10 @@ En la web es `<tanrei-tag-group>`. Las demás plataformas todavía no lo han imp
 
 | El conjunto | Usa |
 | --- | --- |
-| Tags estáticos: las categorías de un artículo, los valores que puede tomar un ajuste, una fila de estados | Un grupo de tags. |
-| Tags que llevan a la página de cada tag | Un grupo de tags con `spacing="chips"`, formado por chips con `href`. Un tag es texto y no puede ser un enlace. |
-| Filtros encima de una lista, sugerencias bajo un campo, elementos que la persona introdujo | Un grupo de tags con `spacing="chips"`. |
+| Tags estáticos: las categorías de un artículo, los valores que puede tomar un ajuste, una fila de estados | Un grupo de tags con `spacing="tags"`. |
+| Tags que llevan a la página de cada tag | Un grupo de tags formado por chips con `href`. Un tag es texto y no puede ser un enlace. |
+| Filtros encima de una lista, sugerencias bajo un campo, elementos que la persona introdujo | Un grupo de tags formado por chips. |
+| Una fila larga de filtros que debería costar una sola pulsación de Tab para cruzarla | Una [barra de herramientas](/es/components/toolbar/) de botones conmutadores (más abajo). |
 | De dos a cuatro acciones distintas | Un [grupo de botones](/es/components/button-group/). |
 | Una elección entre varias | Un [grupo de botones de opción](/es/components/radio-group/), unas [pestañas](/es/components/tabs/) o un [botón segmentado](/es/components/segmented-button/). |
 | Controles que necesitan una etiqueta visible, una marca de obligatoriedad y un error | Un [grupo de campos](/es/components/field-group/). |
@@ -127,10 +129,10 @@ En la web es `<tanrei-tag-group>`. Las demás plataformas todavía no lo han imp
 
 `spacing` dice qué contiene el conjunto y decide dos distancias: la que hay entre dos miembros de una línea y la que hay entre dos líneas.
 
-- `tags` (el valor predeterminado) es para tags estáticos. Las líneas quedan tan cerca una de otra como los tags a lo largo de una línea, así que un conjunto que ocupa varias líneas se lee como un solo bloque.
-- `chips` es para chips. Un chip recibe una pulsación más allá de su borde visible, hasta completar un objetivo táctil. Las líneas quedan lo bastante separadas para que cada chip mediano conserve entero ese objetivo, y donde las áreas de dos chips se solaparían, se encuentran en la mitad de la separación.
+- `chips` (el valor predeterminado) es para chips. Un chip recibe una pulsación más allá de su borde visible, hasta completar un objetivo táctil. Las líneas quedan lo bastante separadas para que cada chip mediano conserve entero ese objetivo, y donde las áreas de dos chips se solaparían, se encuentran en la mitad de la separación.
+- `tags` es para tags estáticos. Las líneas quedan tan cerca una de otra como los tags a lo largo de una línea, así que un conjunto que ocupa varias líneas se lee como un solo bloque.
 
-Un conjunto de chips que se deja en `tags` sigue funcionando. Sus líneas quedan más cerca que la altura de un objetivo táctil, y una compilación de depuración lo notifica.
+El valor predeterminado es el lado seguro. Un conjunto de tags que se deja en `chips` solo queda un poco más separado. Un conjunto de chips definido en `tags` sigue funcionando, pero sus líneas quedan más cerca que la altura de un objetivo táctil, y una compilación de depuración lo notifica.
 
 Los chips pequeños son para un lugar denso en el que el conjunto ocupa una sola línea. En varias líneas, sus objetivos táctiles se encuentran entre las líneas antes de alcanzar su tamaño completo. Usa chips medianos para un conjunto que salta de línea en una pantalla táctil.
 
@@ -144,6 +146,26 @@ Un sistema de diseño puede añadir valores de `spacing`.
 - El conjunto empieza en el borde de inicio. Para colocarlo al final o en el centro de una fila, coloca el grupo con el diseño que lo rodea.
 - Da a todos los miembros el mismo tamaño. Los miembros de tamaños distintos se centran en su línea.
 - Un grupo sin ningún miembro no dibuja nada y no ocupa espacio. Una publicación sin tags no necesita ningún caso especial.
+
+### Una sola parada de tabulación para una fila de filtros
+
+Un grupo de tags da a cada chip su propia parada de tabulación, como la tiene cada botón de un grupo de botones, y la persona recorre los chips con Tab. Donde una fila larga de filtros deba costar una sola pulsación de Tab para cruzarla, pon en su lugar los filtros en una [barra de herramientas](/es/components/toolbar/) como botones conmutadores. La barra de herramientas es una sola parada de tabulación, las teclas de flecha se mueven entre sus botones, y cada botón conserva su propio estado pulsado. Una barra de herramientas es una sola fila: no salta de línea.
+
+<DemoFrame label="Filtros como una sola parada de tabulación: una barra de herramientas de botones conmutadores">
+  <tanrei-toolbar class="not-content" label="Filtros">
+    <tanrei-button variant="outlined" toggle selected label="Abiertas"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="Asignadas a mí"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="Pendientes de revisión"></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+```html
+<tanrei-toolbar label="Filtros">
+  <tanrei-button variant="outlined" toggle selected label="Abiertas"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="Asignadas a mí"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="Pendientes de revisión"></tanrei-button>
+</tanrei-toolbar>
+```
 
 ### La etiqueta
 
@@ -164,7 +186,7 @@ Dos cosas siguen siendo tuyas:
 
 ### Recomendado
 
-- Define `spacing="chips"` para un conjunto de chips.
+- Define `spacing="tags"` para un conjunto de tags estáticos.
 - Da al conjunto un `label`, en el idioma de la página.
 - Mantén un solo tipo de miembro en un conjunto. La excepción son los elementos introducidos seguidos de un único chip «Añadir».
 
@@ -201,11 +223,11 @@ Carencias conocidas en la web:
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+    gap: var(--tanrei-comp-tag-group-row-gap-chips) var(--tanrei-comp-tag-group-gap-chips);
   }
   ```
 
-- No se ofrecen teclas de flecha entre los chips de un conjunto. Una fila larga de filtros que deba ser una sola parada es una [barra de herramientas](/es/components/toolbar/) de chips.
+- No se ofrecen teclas de flecha entre los chips de un conjunto: cada chip es una parada de tabulación. Una fila larga de filtros que deba ser una sola parada es una [barra de herramientas](/es/components/toolbar/) de botones conmutadores, como se muestra en «Una sola parada de tabulación para una fila de filtros».
 
 ### Qué debes hacer tú
 

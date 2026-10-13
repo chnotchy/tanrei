@@ -28,6 +28,7 @@ const SUBJECTS: readonly (readonly [component: string, fixture: string, pressed:
   ['radio-button', 'unselected', '.root', 'RAD-11'],
   ['switch', 'unselected', '.root', 'SWT-7'],
   ['tabs', 'primary', '.tab', 'TAB-8'],
+  ['card', 'outlined-interactive', '.container', 'CRD-8'],
 ];
 
 /** Longer than an engine waits before it takes a held press for a drag of the selected text. */

@@ -2,7 +2,7 @@
 title: Campo
 description: Enmarca un control con lo que un formulario da a cada campo (una etiqueta que puede decir si el control es obligatorio u opcional, una línea de ayuda y el motivo por el que se rechazó un valor), cada cosa vinculada al control para la tecnología de apoyo. Es un marco, nunca un control.
 translationOf: components/field.mdx
-sourceHash: 1988f960c4e1a43fbe309826a40223811eca68ee
+sourceHash: fc2d4408c41296ee95dae199f46b7f4f45babdff
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -20,7 +20,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notificaciones" requirement="optional" optional-text="Opcional" supporting-text="Se envían cuando tienes una revisión pendiente."><tanrei-switch selected></tanrei-switch></tanrei-field>
 </DemoFrame>
 
-Un campo de texto puede decir qué es, si hay que responderlo, cómo responderlo y por qué se rechazó una respuesta. Un campo da esas mismas cuatro cosas a un control que no puede darlas: un control deslizante, un interruptor, una [entrada de texto](/es/components/text-input/), una [entrada de color](/es/components/color-input/), una [entrada de código de un solo uso](/es/components/one-time-code-input/), un control que ha construido tu producto. Un campo de texto es, a su vez, un campo alrededor de una entrada de texto. La etiqueta va encima del control y la ayuda debajo. Mientras el campo está en error, la ayuda se queda y el texto de error se añade debajo de ella.
+Un campo de texto puede decir qué es, si hay que responderlo, cómo responderlo y por qué se rechazó una respuesta. Un campo da esas mismas cuatro cosas a un control que no puede darlas: un control deslizante, un interruptor, una [entrada de texto](/es/components/text-input/), una [entrada de color](/es/components/color-input/), una [entrada de código de un solo uso](/es/components/one-time-code-input/), un control que ha construido tu producto. Un campo de texto es, a su vez, un campo alrededor de una entrada de texto. La etiqueta va encima del control y la ayuda debajo. Mientras el campo está en error, el texto de error ocupa el lugar de la ayuda, de modo que un formulario en error no es más alto que en reposo; un sistema de diseño puede, en cambio, conservar la ayuda y añadir el texto de error debajo de ella.
 
 El campo dibuja el marco y nada más. No tiene contenedor, ni valor, ni eventos; el control conserva su aspecto, sus teclas, sus eventos y su lugar en un formulario.
 
@@ -77,7 +77,7 @@ En la web es `<tanrei-field>`. Las demás plataformas todavía no lo han impleme
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
 </DemoFrame>
 
-<DemoFrame label="Ayuda y error a la vez: la ayuda se queda y el texto de error se añade debajo de ella" plain column>
+<DemoFrame label="Ayuda, y un error: el texto de error ocupa el lugar de la ayuda" plain column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Contraseña" supporting-text="Al menos 8 caracteres, con un número."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Contraseña" supporting-text="Al menos 8 caracteres, con un número." error error-text="Esta contraseña es demasiado corta."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
 </DemoFrame>
@@ -94,7 +94,7 @@ Un campo alrededor de una [entrada de texto](/es/components/text-input/) es un [
 | La entrada dice | El campo |
 | --- | --- |
 | A qué distancia de sus bordes queda su texto: su margen interior y un icono inicial | Empieza y termina ahí la fila de apoyo, de modo que la ayuda empieza donde empieza el texto |
-| Que dibuja ella misma la etiqueta, flotando en una caja filled u outlined | No dibuja fila de etiqueta ni tag de obligatoriedad, y sigue dando nombre a la entrada. Una entrada obligatoria recibe un asterisco después de su etiqueta flotante |
+| Que dibuja ella misma la etiqueta, flotando en una caja filled u outlined | No dibuja fila de etiqueta ni tag de obligatoriedad, y sigue dando nombre a la entrada. Una entrada obligatoria recibe un asterisco después de su etiqueta flotante, y una opcional la palabra de `optionalText` |
 | Que ha rechazado una fecha o una hora: a medio rellenar o no disponible | Está en error, como mientras `error` es true, y muestra las palabras con que la entrada lo dice |
 
 `countText` es un recuento sobre el valor del control, tal como debe dibujarse («12/40»). El campo lo dibuja al final de la fila de apoyo y no hace nada más con él: no cuenta, y oculta el recuento dibujado a la tecnología de apoyo, porque el control dice el suyo. Escríbelo a partir del `countText` de la entrada en cada `input`. El campo de texto lo hace por sí mismo.
@@ -142,16 +142,17 @@ La regla práctica: si el control tiene una propiedad `supportingText`, no neces
 
 Cómo se marca un control obligatorio es una sola decisión del sistema de diseño, para todos los campos y todos los conjuntos de controles: el token `sys.behavior.requirement-mark`, cuyos valores son `tag` (un tag pequeño con relleno que dice «Obligatorio»), `asterisk` y `none`. El sistema predeterminado marca con el tag. Un sistema de diseño define ese único token para cambiar todos los formularios a la vez. El campo lo lee a través de su propio token, `comp.field.requirement.mark`, que lo sigue; un sistema de diseño define ese token solo para marcar los campos sueltos de otra manera que los conjuntos de controles. `requiredMark` sustituye a ambos para un solo campo (`tag`, `asterisk` o `none`).
 
-El tag de obligatoriedad es un [tag](/es/components/tag/) pequeño, con relleno para lo obligatorio y tonal para lo opcional, y nada más: el campo no tiene tokens para él. Un sistema de diseño que cambia el estilo de sus tags pequeños cambia con ellos el del tag de obligatoriedad, que se ve igual mientras el campo tiene el foco, está en error o está deshabilitado. Las palabras del tag son tuyas: `requiredText` y `optionalText` en el campo, o una sola vez para todo el producto con `setWords()`. Tanrei no incluye textos propios: sin `requiredText`, un asterisco ocupa el lugar del tag, y sin `optionalText` no se dibuja ningún tag.
+El tag de obligatoriedad es un [tag](/es/components/tag/) pequeño, con relleno para lo obligatorio y tonal para lo opcional, y nada más: el campo no tiene tokens para él. Un sistema de diseño que cambia el estilo de sus tags pequeños cambia con ellos el del tag de obligatoriedad. Se ve igual mientras el campo tiene el foco o está en error; mientras el campo está deshabilitado se dibuja como un tag dentro de algo deshabilitado, de modo que se atenúa con la etiqueta a la que sigue. Las palabras del tag son tuyas: `requiredText` y `optionalText` en el campo, o una sola vez para todo el producto con `setWords()`. Tanrei no incluye textos propios: sin `requiredText`, un asterisco ocupa el lugar del tag, y sin `optionalText` no se dibuja ningún tag.
 
 Marca el conjunto más pequeño. En un formulario donde hay que responder casi todo, marca lo opcional; donde hay que responder poco, marca lo obligatorio.
 
 ### Ayuda y errores
 
 - `supportingText` dice cómo responder: un formato, un intervalo, para qué se usa el valor.
-- `errorText` dice, con palabras, qué está mal en esta respuesta y cómo corregirlo. Mientras `error` es true se dibuja debajo de la ayuda, que se queda. Así que no repitas la ayuda en él.
-- Un campo con ayuda es más alto mientras está en error: lo que ocupan el texto de error y una pequeña separación (`comp.field.error-text.gap`). Nada de lo que hay encima del texto de error se mueve, y no se reserva sitio para un error antes de que lo haya. Un campo sin ayuda muestra su texto de error donde estaría la ayuda.
-- Un recuento se queda al final de la primera línea, junto a la ayuda, cuando el texto de error aparece o desaparece.
+- `errorText` dice, con palabras, qué está mal en esta respuesta y cómo corregirlo. Mientras `error` es true ocupa el lugar de la ayuda, así que repite lo que decía la ayuda donde todavía importe: «Introduce una fecha posterior a hoy», no «Fecha no válida».
+- Dónde va el texto de error es una decisión del sistema de diseño, `comp.field.error-text.placement`. `replace`, el valor predeterminado, lo pone en el lugar de la ayuda: una sola línea que leer, y un campo en error no es más alto que en reposo. `append` conserva la ayuda y añade el texto de error debajo de ella, a una pequeña separación (`comp.field.error-text.gap`): el campo es entonces más alto mientras está en error, y nada de lo que hay encima del texto de error se mueve. Todos los sistemas incluidos usan `replace`, como Material y Carbon; `append` es para un sistema de diseño que, como el de GOV.UK, mantiene la ayuda a la vista.
+- No se reserva sitio para un error antes de que lo haya. Un campo sin ayuda muestra su texto de error donde estaría la ayuda.
+- Un recuento se queda al final de la primera línea cuando el texto de error aparece o desaparece.
 - Activa `error` cuando hayas validado, no mientras la persona todavía está respondiendo. El campo nunca lo activa.
 
 ### Un solo control
@@ -178,7 +179,7 @@ Deshabilita un control enmarcado en el campo, no en el control, para que la etiq
 ### De qué se encarga el componente
 
 - La etiqueta es el nombre accesible del control, tanto si se dibuja como si se oculta con `labelHidden`. Un control que tiene un nombre propio lo conserva.
-- La descripción del control es la ayuda, después el texto de error mientras el campo está en error y después `optionalText` mientras el control es opcional. Van detrás de la descripción que el control ya tenga.
+- La descripción del control es lo que muestra la fila de apoyo —la ayuda o, mientras el campo está en error, el texto de error en su lugar (con `append`, la ayuda y después el texto de error)— y después `optionalText` mientras el control es opcional. Van detrás de la descripción que el control ya tenga.
 - El control se expone como no válido mientras `error` es true, como obligatorio mientras `requirement` es `required` y como deshabilitado mientras `disabled` es true. Un control cuyo rol no tiene estado obligatorio, como un control deslizante, dice en su lugar `requiredText` en su descripción.
 - Un control que tiene un estado de error propio, como una casilla de verificación o un botón de opción, se dibuja en ese estado.
 - Un error que aparece, o cuyas palabras cambian, mientras el foco está dentro del campo se anuncia una vez, de forma cortés: solo el texto de error, sin repetir la ayuda. El foco nunca se mueve por un error.

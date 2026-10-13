@@ -181,9 +181,9 @@ describe('each adoption', () => {
     assert.match(template(tag), /<tanrei-tag class="docs-name-tag" size="small" variant=\{variant\} label=\{label\} data-pagefind-index-attrs="label" \/>/);
     assert.match(tag, /\.docs-name-tag:not\(:defined\)::before \{\s*content: attr\(label\);/);
     const specs = template(read('components/ComponentSpecs.astro'));
-    assert.match(specs, /<tanrei-tag-group class="states docs-name-tags not-content" label=\{t\.states\}>\s*\{spec\.states\.map\(\(state\) => <><NameTag label=\{state\} \/>\{' '\}<\/>\)\}/);
+    assert.match(specs, /<tanrei-tag-group class="states docs-name-tags not-content" spacing="tags" label=\{t\.states\}>\s*\{spec\.states\.map\(\(state\) => <><NameTag label=\{state\} \/>\{' '\}<\/>\)\}/);
     const choice = template(read('components/tokens/BehaviorChoice.astro'));
-    assert.match(choice, /<tanrei-tag-group class="docs-name-tags" label=\{t\.choiceValues\}>/);
+    assert.match(choice, /<tanrei-tag-group class="docs-name-tags" spacing="tags" label=\{t\.choiceValues\}>/);
     said(['states', 'choiceValues', 'choiceDefault']);
   });
   test('the platforms of a component are a Description list, a platform to a fact', () => {

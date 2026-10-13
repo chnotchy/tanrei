@@ -122,9 +122,9 @@ What changes one level down is where things are said. `name` and `value` are on 
 | Swatch | A sample of the value at the start of the container: a small square filled with exactly the value's color, inside a hairline. Empty, it is the hairline alone. It is not a control |
 | Input | The value as text. One line, which scrolls |
 | Picker button | With `picker`: an icon-only text Button at the end, named by `pickerLabel` |
-| Supporting text | A line of help, starting where the value's text starts, after the swatch. It stays while the field is in error: the error text is drawn below it — `errorText` while `error` is true, and `invalidText` while the committed text is not a color, or `errorText` where `invalidText` is empty |
+| Supporting text | A line of help, starting where the value's text starts, after the swatch. While the field is in error the error text takes its place (below it, where the design system keeps both) — `errorText` while `error` is true, and `invalidText` while the committed text is not a color, or `errorText` where `invalidText` is empty |
 
-The three variants and the two sizes, `medium` (48) and `large` (56), are the text field's. The default system ships `stacked` only. The swatch stands where a text field's leading icon stands, at that icon's size, so a color field under a text field with a leading icon shares its start edges.
+The three variants and the three sizes, `small` (40), `medium` (48) and `large` (56), are the text field's. The default system ships `stacked` only. The swatch stands where a text field's leading icon stands, at that icon's size, so a color field under a text field with a leading icon shares its start edges.
 
 Nothing is mixed into the swatch: no hover, no error tint, no shadow. A sample that changes under the pointer is a wrong sample. Disabled, its fill is drawn fainter and its edge is kept.
 

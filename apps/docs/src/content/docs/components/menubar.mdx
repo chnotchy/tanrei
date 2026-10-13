@@ -174,7 +174,7 @@ Before you use a bar item, read when not to use one. A bar item looks exactly li
 - **Not for anything that cannot be undone.** A bar item asks nothing before it runs and has no destructive look. A command that deletes or discards belongs in a menu.
 - **Not for a choice that is switched on and off.** A title has no place for a check. Put it in a menu of the same bar, as a checkbox or a radio item.
 - **Not as the whole bar.** A row of actions alone is a [toolbar](/components/toolbar/), and a row of links alone is navigation. Either is drawn and works, and is reported in debug builds.
-- **Not with a word that hides what it does.** Nothing but the label tells a bar item from a title. Name an action with a verb, and a link with the place it leads to.
+- **Not with a word that hides what it does.** In a bar that holds both, each menu's title ends in a small downward chevron and a bar item has none, but the label still says what a press does. Name an action with a verb, and a link with the place it leads to.
 
 An action is `<tanrei-menubar-item label="Run">`. A press, Enter or Space fires its `click` once. If a menu of the bar is open it closes first, so your handler runs with no menu shown. Focus stays on the bar item unless your handler moves it.
 
@@ -183,7 +183,7 @@ A link item is the same element around your own anchor: `<tanrei-menubar-item><a
 - `click` is the anchor's own click. Cancel it with `preventDefault()` and nothing is followed, which is all a client-side router needs. A router's own link component works as the child.
 - A click with a modifier key, a middle click and the link's context menu are the browser's, as on any link. Space follows a link item as Enter does, because every other entry of the row answers Space.
 - `target="_blank"` draws the icon set's `open_in_new` after the label and adds `noopener`. Say it in words with `target-label` on the element, or once for the product with `setWords({ targetLabel: … })`.
-- `aria-current="page"` on the anchor marks the page a person is on. Its label is drawn heavier and it gets no fill: nothing in a menubar is selected. You set it, and the bar never does.
+- `aria-current="page"` on the anchor marks the page a person is on. It is drawn with the fill a menu draws for the row a person is on, at its label's own weight, so that the current page looks the same in the bar and in a menu. It never looks like the title of an open menu. You set it, and the bar never does.
 - A disabled link item is `disabled` on the element and an anchor without `href`.
 
 <Tabs syncKey="platform">
@@ -325,7 +325,7 @@ A desktop system's bar outside the window, and a tablet's bar for a hardware key
 - An open menu is not modal. Focus is not trapped, nothing is made inert, and a press outside also reaches what is under it.
 - In a right-to-left layout the titles run from the right, the row folds at the left end, each menu opens with its right edge on its title's, and Left Arrow is "next". A title's label keeps its own direction.
 - With enlarged text each title grows with its label and the row folds what no longer fits. At a width of 320 with text at 200% every menu is still reached and nothing scrolls sideways.
-- In forced colors the labels take the button text color, the open title the highlight colors, and a hovered title a line around it. A link item takes the link color a person chose, and a disabled entry the disabled text color.
+- In forced colors the labels take the button text color, the open title the highlight colors, and a hovered title a line around it. A link item takes the link color a person chose, and a disabled entry the disabled text color. The current link item, whose fill forced colors remove, gets a line inside its edge in the link color.
 - A bar, a menu or a bar item without a label, a menu without items, anything in the bar that is neither a menu nor a bar item, a bar of bar items alone, a link item that opens a new tab without saying so, and an overflow item without a name are reported in debug builds.
 
 ### What you need to do

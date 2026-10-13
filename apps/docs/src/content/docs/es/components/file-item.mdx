@@ -2,7 +2,7 @@
 title: Elemento de archivo
 description: Muestra un archivo —un glifo que dice su formato o una imagen pequeña del archivo, su nombre y lo que el producto dice de él— con las acciones para quitarlo y para volver a intentarlo, como fila de una columna de archivos o como mosaico de una tira de imágenes. Se puede pulsar para abrir el archivo. Nunca lee, conserva ni envía el archivo por sí mismo.
 translationOf: components/file-item.mdx
-sourceHash: cc5762baeef8ad3e53caec5261135b190bb30fad
+sourceHash: fa3865fd939a55ffa7efbd871ad173a4fb6357ca
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -166,7 +166,7 @@ Un archivo completado y un archivo fallido llevan una marca antes de las palabra
 
 ### El glifo dice el formato
 
-Hay diez categorías de glifo. Cada categoría tiene una lista de tipos de medio y una lista de extensiones de archivo. El glifo se elige a partir de `mediaType`. Cuando el tipo de medio está vacío, es `application/octet-stream` o no figura en ninguna de estas listas, se elige a partir de la extensión de `name`. Las categorías se comprueban en este orden. Las listas son fijas y las mismas en todas las plataformas, de modo que un mismo archivo dibuja el mismo glifo dondequiera que se muestre.
+Hay diez categorías de glifo. Cada categoría tiene una lista de tipos de medio y una lista de extensiones de archivo. El glifo se elige a partir de `mediaType`. Cuando el tipo de medio está vacío, es `application/octet-stream` o no figura en ninguna de estas listas, se elige a partir de la extensión de `name`. Las categorías se comprueban en este orden. Las listas son fijas y las mismas en todas las plataformas, de modo que un mismo archivo dibuja el mismo glifo dondequiera que se muestre. `video/mp2t` tampoco decide nada: las plataformas lo deducen de la terminación `.ts`, que los archivos de TypeScript comparten con los flujos de vídeo, así que `index.ts` dibuja el glifo de código.
 
 <DemoFrame label="Las diez categorías" plain column>
   <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
@@ -249,7 +249,7 @@ El cuerpo es el glifo o la imagen, y los textos. Las acciones están a su lado y
 
 `readOnly` no dibuja ninguna de las dos acciones ni les reserva sitio. Úsalo para los archivos de un expediente que solo se lee. El cuerpo se puede seguir pulsando.
 
-`disabled` deshabilita las acciones y el cuerpo. Lo que el elemento muestra se queda como está y sigue siendo legible.
+`disabled` deshabilita las acciones y el cuerpo. Lo que el elemento muestra se queda como está y sigue siendo legible. Una acción deshabilitada conserva el fondo que tiene en reposo, ninguno en una fila y su disco en un mosaico: solo se atenúa su glifo.
 
 ### Archivos en un orden que las personas cambian
 
@@ -320,7 +320,7 @@ En un diseño de derecha a izquierda, el glifo o la imagen están a la derecha y
 - El glifo, la imagen y la marca de estado están ocultos para la tecnología de apoyo. Las palabras dicen lo que muestran.
 - Un elemento de archivo no anuncia nada. Quien tiene muchos tiene una única región activa para todos ellos, como la tiene el control de subida de archivos.
 - El nombre completo siempre llega a la tecnología de apoyo, también donde un mosaico lo corta y donde `nameHidden` lo oculta.
-- Con el texto al 200%, una fila salta de línea y no pierde nada. El recuadro de un mosaico conserva su tamaño y sus textos crecen debajo de él.
+- Con el texto al 200%, una fila salta de línea y no pierde nada. Donde el glifo y las acciones dejarían al nombre menos de la mitad de la fila, las acciones pasan a una línea propia bajo los textos, al final de la fila, y el nombre ocupa todo el ancho. El recuadro de un mosaico conserva su tamaño y sus textos crecen debajo de él.
 - En colores forzados, el recuadro y los discos de las acciones de un mosaico conservan un borde, y la barra sigue siendo visible. Una imagen se deja como está.
 - Los cambios de color entre estados se animan durante un tiempo breve, y son inmediatos donde el movimiento está reducido.
 

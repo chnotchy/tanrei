@@ -30,7 +30,7 @@
         {
           "name": "count",
           "kind": "number",
-          "description": "The number of members not drawn, in full: above 999 too, where the drawn text stops at 999 and a plus sign.",
+          "description": "The number of members not drawn, in full: above 99 too, where the drawn text stops at 99 and a plus sign.",
           "required": true
         }
       ]
@@ -50,6 +50,15 @@
         {
           "component": "breadcrumbs",
           "prop": "overflowLabel"
+        }
+      ]
+    },
+    {
+      "key": "busyLabel",
+      "readers": [
+        {
+          "component": "button",
+          "prop": "busyLabel"
         }
       ]
     },

@@ -291,7 +291,9 @@
     z-index: 2;
     overflow: visible;
     inset-block-start: calc(env(safe-area-inset-top, 0px) + var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-block));
-    inset-inline-start: calc(var(--_aps-inset-start) + var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-inline));
+    /* The start corner is the shell's, not the link's: a standalone link takes its label's own direction (LNK-26), so
+       its own inline start may be the other side. */
+    left: calc(var(--_aps-inset-start) + var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-inline));
     inline-size: auto;
     block-size: auto;
     max-inline-size: calc(100vw - 2 * (var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-inline)) - var(--_aps-inset-start) - var(--_aps-inset-end));
@@ -299,6 +301,10 @@
     white-space: normal;
     font: var(--tanrei-comp-app-shell-skip-link-label-typescale-font);
     letter-spacing: var(--tanrei-comp-app-shell-skip-link-label-typescale-letter-spacing);
+  }
+  :where(tanrei-app-shell:dir(rtl)) > [slot='skip-link']:focus-visible {
+    left: auto;
+    right: calc(var(--_aps-inset-start) + var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-inline));
   }
   /* app-shell:shape */
   :where(tanrei-app-shell) > [slot='skip-link']:focus-visible::after {

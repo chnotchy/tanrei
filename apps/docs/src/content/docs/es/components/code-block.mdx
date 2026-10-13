@@ -2,7 +2,7 @@
 title: Bloque de código
 description: Líneas de código para leer, comparar y copiar, en el tipo de letra de código, que se desplazan dentro del propio bloque o saltan de línea, con una cabecera, números de línea, líneas marcadas, un prompt y un botón de copiar opcionales. Si le das el código y su lenguaje, resalta el código por sí mismo.
 translationOf: components/code-block.mdx
-sourceHash: 3f2cb34d6a6385776faace656f870690072e864d
+sourceHash: c4fe6cef35324f5127fdb081065d9e09553db29c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -132,8 +132,8 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
 | Marca | Barra en el borde izquierdo | Banda | Signo | Se lee antes de la línea |
 | --- | --- | --- | --- | --- |
 | Resaltada | sí | sí | | `highlighted-label` |
-| Añadida | sí | | + | `added-label` |
-| Eliminada | sí | | − | `removed-label` |
+| Añadida | sí | verde tenue | + | `added-label` |
+| Eliminada | sí | rojo tenue | − | `removed-label` |
 
 Las listas de líneas son números e intervalos separados por comas (`"3, 7-9"`). Cuentan según los números que ve quien lee, a partir de `start-line`.
 

@@ -298,6 +298,13 @@ const AXE_STAGING: Record<string, (page: Page) => Promise<void>> = {
         command.append(shortcut);
       }
     }),
+  // A disabled tag is a tag drawn inside something disabled (TAG-21), and exposes no disabled state of its own: the
+  // element it stands in does, and WCAG 1.4.3 exempts its text. Alone on a page it is text nothing says is disabled; its
+  // stage says it, as that element would. The enabled tags are held to 4.5:1.
+  tag: (page) =>
+    page.evaluate(() => {
+      for (const tag of document.querySelectorAll('[data-fixture] tanrei-tag[disabled]')) tag.closest('[data-fixture]')!.setAttribute('aria-disabled', 'true');
+    }),
   // A page has one landmark of a kind per name, and every fixture is a navigation landmark named "On this page": each
   // is named after its fixture as well, as two tables of contents on one page of a product are told apart (the spec's
   // labeling).

@@ -250,6 +250,17 @@
             "large": {
               "$value": "{tanrei.sys.icon.extra-small}"
             }
+          },
+          "weight": {
+            "$type": "number",
+            "$value": "{tanrei.sys.icon.mark.weight}",
+            "$description": "The weight the check of a selected segment is drawn at (the `wght` axis of the icon font): the system's weight for a control's own mark, as the checkbox draws its own, because the check is a thin stroke drawn on the segment's selected fill and is what tells selected from unselected beside the fill's color. The check's box (check.size) does not change with it; only the stroke does. A segment's icon keeps sys.icon.weight.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product needs the check of a selected segment seen at a glance at the weight its checkboxes draw theirs, since at its small size a light stroke reads fainter than its color; a product with a dense toolbar draws it lighter without touching its icons.",
+                "since": "0.1.0"
+              }
+            }
           }
         },
         "unselected": {

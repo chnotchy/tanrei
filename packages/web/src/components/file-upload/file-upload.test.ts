@@ -908,7 +908,8 @@ test.describe('behavior', () => {
     // The description: the limits, then what the field gives.
     await expect.poll(() => button('help').getAttribute('aria-description')).toBe('PDF, up to 10 MB We keep it for a year. Optional');
     // The error condition, and the requirement: a button's role has no required state, so the field's word is said.
-    await expect.poll(() => button('error').getAttribute('aria-description')).toBe('PDF, up to 10 MB We keep it for a year. Choose a PDF of 10 MB or less. Required');
+    // (In error the field's error text stands in its help's place, FLD-7.)
+    await expect.poll(() => button('error').getAttribute('aria-description')).toBe('PDF, up to 10 MB Choose a PDF of 10 MB or less. Required');
     await expect(button('error')).toHaveAttribute('aria-invalid', 'true');
     expect(await inside('error').locator('.group > .chooser').getAttribute('data-error')).not.toBeNull();
     expect(await inside('error').evaluate((el: HTMLElement & { validity: ValidityState; error: boolean; required: boolean }) => [el.validity.valueMissing, el.error, el.required])).toEqual([true, false, false]);
@@ -945,7 +946,7 @@ test.describe('behavior', () => {
     // It is defined now, as a module that loads later defines it: it asks what stands inside it to ask again.
     await page.evaluate(() => customElements.define('late-field', class extends (customElements.get('tanrei-field') as CustomElementConstructor) {}));
     await expect(page.locator('[data-in="late"]').getByRole('group', { name: 'Attachment', exact: true })).toHaveCount(1);
-    await expect.poll(() => button.getAttribute('aria-description')).toBe('PDF, up to 10 MB We keep it for a year. Choose a PDF. Required');
+    await expect.poll(() => button.getAttribute('aria-description')).toBe('PDF, up to 10 MB Choose a PDF. Required');
     await expect(button).toHaveAttribute('aria-invalid', 'true');
     // One control: the Field framed the file upload, and the file picker was answered by the file upload — the three
     // states and the description, and no name, so it is no second group and reports no missing name.

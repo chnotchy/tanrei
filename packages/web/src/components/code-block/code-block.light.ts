@@ -202,8 +202,9 @@ ${HOST} [data-line-gutter][data-number][data-sign]::after {
   margin-inline-start: 1ch;
 }
 
-/* COD-15, COD-16: a marked line — a bar at the block's left edge as tall as the line, in the mark's color; a
-   highlighted line has a band behind all of its rows as well. The code keeps its colors. */
+/* COD-15, COD-16: a marked line — a bar at the block's left edge as tall as the line, in the mark's color, and a band
+   behind all of its rows: the highlighted line's, or the faint tint of an added or a removed line, so that a reader
+   scanning the block tells the two apart whatever the colors of their code. The code keeps its colors. */
 ${HOST} [data-line][data-highlighted] {
   --_code-block-mark: ${T('line-highlighted-mark-color')};
   --_code-block-band: ${T('line-highlighted-container-color')};
@@ -211,9 +212,13 @@ ${HOST} [data-line][data-highlighted] {
 }
 ${HOST} [data-line][data-added] {
   --_code-block-mark: ${T('line-added-mark-color')};
+  --_code-block-band: ${T('line-added-container-color')};
+  background: var(--_code-block-band);
 }
 ${HOST} [data-line][data-removed] {
   --_code-block-mark: ${T('line-removed-mark-color')};
+  --_code-block-band: ${T('line-removed-container-color')};
+  background: var(--_code-block-band);
 }
 ${HOST} [data-line]:is([data-highlighted], [data-added], [data-removed]) > [data-line-gutter] {
   background:
@@ -254,7 +259,7 @@ ${SYNTAX_ROLES.map(roleRule).join('\n')}
    keeps the weight of its role); no band; the bar, the numbers and the signs in the text color. The gutter's bar is a gradient,
    which the mode would remove, so the gutter is drawn in system colors by name. ───────────────────────────────────── */
 @media (forced-colors: active) {
-  ${HOST} [data-line][data-highlighted] {
+  ${HOST} [data-line]:is([data-highlighted], [data-added], [data-removed]) {
     background: none;
   }
   ${HOST} [data-line-gutter] {

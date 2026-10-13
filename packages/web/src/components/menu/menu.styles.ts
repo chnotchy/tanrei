@@ -91,9 +91,16 @@ const surface = css`
     margin-block: ${t('divider-space')};
     background: ${t('divider-color')};
   }
-  /* MNU-36: under gap, comp.menu.group.gap of empty space in the divider's place — no line, and no separator: the
-     divider is not rendered, so it is nothing to assistive technology either. MNU-35: the cascade answers which form is
-     drawn (the attribute over the component token), so a change of either is followed at once, without a render. */
+  /* MNU-36: a group, or a run of items outside any group, is a tile: under divider a box with no look of its own. */
+  .tile {
+    display: contents;
+  }
+  /* MNU-36: under gap, each tile is a sheet of its own — the surface's color, corners (eased by the smoothing),
+     elevation (its ring inside the tile's edge, so that the box that scrolls does not cut it) and padding — and
+     comp.menu.group.gap of empty space stands between two tiles in the divider's place, where what is under the menu
+     shows: the surface draws no sheet, edge or elevation of its own around them. No line, and no separator: the divider
+     is not rendered, so it is nothing to assistive technology either. MNU-35: the cascade answers which form is drawn
+     (the attribute over the component token), so a change of either is followed at once, without a render. */
   .gap {
     display: none;
     flex: none;
@@ -107,6 +114,32 @@ const surface = css`
   }
   ${scroll} > .gap {
     display: block;
+  }
+  .surface:has(> ${scroll}) {
+    background: none;
+    box-shadow: none;
+  }
+  ${scroll} {
+    padding: 0;
+  }
+  ${scroll} > .tile {
+    box-sizing: border-box;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    padding-block: ${T('surface-padding-block')};
+    padding-inline: ${T('surface-padding-inline')};
+    background: ${T('surface-color')};
+    box-shadow: ${T('surface-elevation-inset-ring')};
+    ${cornerRadius('--tanrei-comp-menu-surface-shape')}
+  }
+  @media (forced-colors: active) {
+    .surface:has(> ${scroll}) {
+      border: 0;
+    }
+    ${scroll} > .tile {
+      border: 1px solid CanvasText;
+    }
   }`,
   )}
   @media (prefers-reduced-motion: reduce) {
@@ -553,6 +586,16 @@ export const itemStyles = css`
     .row.p.d,
     .row.p.d :where(.label, .supporting, .trailing-text, .shortcut, .leading-icon, .trailing-icon) {
       color: GrayText;
+    }
+    /* MNU-58: the mode removes the fill that marks the current link item, so a line of sys.border.thick inside its row,
+       in the person's link color, marks it instead (::before: the focus ring is the row's ::after). */
+    .row.current::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: var(--tanrei-sys-border-thick) solid LinkText;
+      border-radius: inherit;
+      pointer-events: none;
     }
     /* The box and the ring are drawn in system colors of their own (the mode would drop a box-shadow): the filled box
        and the ring's weight carry the choice, as they do in every mode; the ring's fill, which never carries it, is not

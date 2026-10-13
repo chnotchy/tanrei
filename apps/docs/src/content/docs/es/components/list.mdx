@@ -2,7 +2,7 @@
 title: Lista
 description: Una columna de elementos relacionados, cada uno con una o más líneas de texto y un icono, un avatar o una imagen, que las personas leen, abren uno a uno, entre los que eligen o que ponen en otro orden.
 translationOf: components/list.mdx
-sourceHash: f1a9b7f0f40138eb4b11d744d9ce10aa25741df8
+sourceHash: b6d8e736d3a79adf3348a2f55de05b9dbe71cbb5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -374,7 +374,7 @@ Una lista puede mezclar filas estáticas, interactivas y de enlace. Una lista se
 - Escribe `movedText` como una frase entera con los tres lugares. La lista no compone ninguna frase propia, así que el orden de las palabras es el de tu idioma.
 - Pon como máximo un control en el slot final y dale un nombre que incluya el elemento («Quitar Inter»), para que los botones de quitar de dos filas se distingan.
 - La lista anuncia un movimiento y nada más. Cuando quitas o añades un elemento, lo que se dice depende de ti. Cuando quites el último elemento, mueve tú el foco adonde una persona añade uno.
-- Da espacio a las filas. Donde los botones de mover y el control final dejarían al texto menos de la mitad de la fila, todas las filas de la lista los colocan en una línea propia debajo del texto. En el sistema predeterminado, una fila con un botón de quitar y sin icono, avatar ni imagen se dispone así donde la fila mide menos de unos 400 px de ancho.
+- Da espacio a las filas. Donde los botones de mover y el control final dejarían el texto más estrecho que `reorder.text-min-width` (96 px con el tamaño de texto predeterminado, y más a medida que el texto se amplía), todas las filas de la lista los colocan en una línea propia debajo del texto, y el control final en otra línea más donde esa no basta. En el sistema predeterminado, una fila con un botón de quitar y sin icono, avatar ni imagen los mantiene junto al texto donde la fila mide unos 300 px de ancho o más con el tamaño de texto predeterminado; con el texto al 200 % pasan debajo.
 
 ### Cómo elegir un modo de selección
 
@@ -386,7 +386,7 @@ Una lista puede mezclar filas estáticas, interactivas y de enlace. Una lista se
 
 Las teclas de flecha solo mueven el foco. La selección cambia cuando la persona pulsa Espacio o Enter, o toca la fila. Es deliberado: en una lista, elegir una fila puede iniciar algo lento, y recorrer cincuenta filas no debe iniciar cincuenta cargas.
 
-Una opción seleccionada se dibuja con el relleno de selección y una marca de verificación al final. El espacio de la marca se reserva en todas las opciones, de modo que el texto queda alineado. La marca es lo que cumple el contraste de 3:1 para el estado. El relleno por sí solo no lo cumple.
+Una opción seleccionada se dibuja con el relleno de selección y una marca de verificación al final. En el sistema predeterminado el relleno es una capa del propio color del contenido de la fila, como el de un elemento marcado de un menú, así que se distingue de una fila con el cursor encima sobre cualquier superficie. El espacio de la marca se reserva en todas las opciones, de modo que el texto queda alineado. La marca es lo que cumple el contraste de 3:1 para el estado. El relleno por sí solo no lo cumple.
 
 ### Las filas y sus partes
 
@@ -437,7 +437,6 @@ Una opción seleccionada se dibuja con el relleno de selección y una marca de v
 
 Carencias conocidas por plataforma:
 
-- Todas las plataformas, sistema predeterminado: el relleno de una opción seleccionada se parece al de una fila con el cursor encima en el tema claro y es tenue sobre una superficie elevada en el oscuro. La marca es lo que señala la selección.
 - Web: el valor `drag` de `reorder` no está construido. Dibuja los dos botones de mover y ningún tirador, y no se puede arrastrar nada.
 - SwiftUI, Compose, Flutter y React Native aún no tienen lista reordenable: no hay `reorder`, ni `move`, ni ninguno de sus tres textos.
 - SwiftUI, Compose, Flutter y React Native aún no tienen filas de enlace: no hay `href`, `target` ni `targetLabel`.

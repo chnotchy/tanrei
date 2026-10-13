@@ -39,7 +39,13 @@
       "name": "title",
       "type": "string",
       "default": "",
-      "description": "What is missing, in a few words, in the product's language (\"No results for tokne\"). Plain text, never a heading. The title slot takes its place where the product needs a heading of its own level or inline content."
+      "description": "What is missing, in a few words, in the product's language (\"No results for tokne\"). Exposed as a heading of the level `level` gives, since it is drawn as one. The title slot takes its place where the product needs inline content or a heading element of its own."
+    },
+    {
+      "name": "level",
+      "type": "number",
+      "default": 2,
+      "description": "The level of the heading the title prop is exposed as, 1 to 6, so that the empty state takes its place in the outline of the page around it: 2, the default, for the main region of a view under the page's own title; deeper inside a section, a card or a panel that has a heading of its own. Ignored where the title slot holds the product's own content, whose role and level are the product's."
     },
     {
       "name": "size",
@@ -110,7 +116,8 @@
     },
     {
       "id": "EMP-4",
-      "text": "THE empty state SHALL draw its title in the text style of its size (comp.empty-state.title.typescale.medium for medium, comp.empty-state.title.typescale.large for large) and in comp.empty-state.title.color; the title SHALL wrap and SHALL never be cut. WHERE the title slot holds content THE empty state SHALL draw that content in the title's place, style and color instead of the title prop, and SHALL change neither its role nor its level: a title given as text is plain text and never a heading, and a title the product gives as a heading stays a heading of the level the product gave it, drawn as every other title is. THE empty state SHALL set the title's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them."
+      "text": "THE empty state SHALL draw its title in the text style of its size (comp.empty-state.title.typescale.medium for medium, comp.empty-state.title.typescale.large for large) and in comp.empty-state.title.color; the title SHALL wrap and SHALL never be cut. THE empty state SHALL expose a title given as text as a heading — of the level the level prop gives on a platform whose headings have levels, and with the platform's heading trait on one whose headings have none — because it is drawn larger and heavier than what follows it, and a text drawn as a heading and not exposed as one tells by its look alone what its structure is. IF level is not a whole number from 1 to 6 THE empty state SHALL use 2 and report it in debug builds. WHERE the title slot holds content THE empty state SHALL draw that content in the title's place, style and color instead of the title prop, and SHALL change neither its role nor its level: a title the product gives as a heading stays a heading of the level the product gave it, and inline content the product gives stays what it is. THE empty state SHALL set the title's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them.",
+      "verify": "The search-no-results fixture exposes its title as one heading of level 2, named by the title's text; with level 4 it is a heading of level 4, and with level 0 or 7 of level 2. A title slot holding an h3 exposes one heading of level 3, and one holding a p exposes no heading."
     },
     {
       "id": "EMP-5",
@@ -126,7 +133,7 @@
     },
     {
       "id": "EMP-8",
-      "text": "WHILE live is false THE empty state SHALL be exposed to assistive technology as plain content, read where it stands in reading order: its title as text (or as the heading the product gave), then its description, then its actions as the controls they are. It SHALL have no role and no name of its own, SHALL NOT be announced when it is shown or when its text changes, SHALL NOT move focus, and SHALL NOT be exposed as an alert, a status, a dialog or a note: an empty place is content, not a message."
+      "text": "WHILE live is false THE empty state SHALL be exposed to assistive technology as plain content, read where it stands in reading order: its title as a heading (of the level level gives, or the product's own content in the title slot as the product gave it), then its description, then its actions as the controls they are. It SHALL have no role and no name of its own, SHALL NOT be announced when it is shown or when its text changes, SHALL NOT move focus, and SHALL NOT be exposed as an alert, a status, a dialog or a note: an empty place is content, not a message."
     },
     {
       "id": "EMP-9",
@@ -175,14 +182,14 @@
   "accessibility": {
     "role": "none",
     "keyboard": [],
-    "labeling": "An empty state that is not live has no role and no name: it is content, read where it stands — the title (plain text, or the heading the product gave in the title slot), the description, then the actions, which are the product's own controls with their own names. A live empty state is a polite live region instead (the status role on the web), announced once when it is shown after its view was presented and when its text changes. The glyph or the picture is hidden.",
+    "labeling": "An empty state that is not live has no role and no name: it is content, read where it stands — the title (a heading of the level level gives, or the product's own content in the title slot as the product gave it), the description, then the actions, which are the product's own controls with their own names. A live empty state is a polite live region instead (the status role on the web), announced once when it is shown after its view was presented and when its text changes. The glyph or the picture is hidden.",
     "minimumTarget": true,
     "notes": [
       "Not interactive: the empty state takes no input and no focus (EMP-7), so there is no target of its own to size and minimumTarget holds trivially. Its actions meet the minimum target by their own specs.",
       "Never an alert. An empty place is a fact about the content, not something that went wrong: it is announced only when it results from what the person just did (live), and then politely (EMP-9). A failure to load is a different thing and is said by a callout with the error status in the same place.",
       "It replaces content, so it must not hide that the container is still there. A table that has no rows keeps its caption and its header; the empty state stands where the body's rows would be (on the web, outside the table element or in one cell that spans the columns, as the product's table allows). A list with no items is not exposed as a list of one item: the empty state stands in the list's place.",
       "In a search, the count of results is the search's own status text, which is already a live region (SRC-48). Where the product also shows an empty state in the search's view, only one of the two is live, or the same words are announced twice: leave the empty state's live false there and let the status text speak.",
-      "The heading level is the product's (EMP-4). An empty state that is the whole of a page's main region usually needs a heading, so that the page has one; an empty state inside a card that already has a title needs none.",
+      "The title is a heading (EMP-4) because it looks like one (WCAG 1.3.1). Its level is the product's to fit the page's outline: 2 by default, for the main region of a view under the page's title; deeper inside a section, a card or a panel that has a heading of its own. A product whose title must not be a heading gives it as inline content in the title slot.",
       "Contrast in the default system: the title is on-surface and the description and the glyph are on-surface-variant, each held to 4.5:1 on every surface tone by the token invariants, so the empty state can stand on a page, in a card or in a panel. The glyph is decorative.",
       "Say what to do, not only what is missing: a description and an action are what make an empty place a way forward. Do not put the only way forward in the picture.",
       "Text size, text spacing and reflow: EMP-11."
@@ -382,55 +389,60 @@
       "name": "tanrei-empty-state",
       "props": {
         "title": "headline",
+        "level": "level",
         "size": "size",
         "align": "align",
         "live": "live"
       },
-      "notes": "It is the form the callout takes. `<tanrei-empty-state>` with the description as light-DOM children, the glyph or the picture in the `media` slot, the title in the `title` slot (`<p slot=\"title\">`, or `<h2 slot=\"title\">` where it is a heading) or the `headline` attribute (HTML's global `title` attribute would show a tooltip over the whole block, as on the callout), and Buttons or links in the `actions` slot. Everything the product writes stays in the document: the title where it is slotted, the description, the links and the Buttons are light-DOM content, read by a crawler and by a page without script. **Before the element is defined** the stylesheet of `@tanrei/web` gives `tanrei-empty-state:not(:defined)` `display: block`, the block and inline padding of its `size`, the description's text style and color, and `text-align` by its `align`, so the content is readable in its place and the block keeps most of its height; a `headline` attribute does not show until the element is defined, which is why a page that must read without script gives the title in the slot. The host has no `role`, no `tabindex` and no listeners; the glyph is `aria-hidden`. With `live` the announcement is made through a visually hidden `role=\"status\"` region in the shadow root that exists from the element's first render and is filled, with the title and the description's text, only when the element is connected or changed after the document's first presentation (EMP-9); the host itself gets no live role, so slotted content is not read twice. The text block's width is `max-inline-size: calc(var(--tanrei-comp-empty-state-content-measure) * 1em)` on the element that carries the description's font size (EMP-2). The description takes its color and text style through inherited `color` and `font`, so text placed directly in the element is styled. In a table the element goes in one `<td colspan>` of a body row, or directly after the table, which keeps its caption and its header row (the Table spec says nothing of an empty body); in a list it takes the list's place rather than being an item. Nothing changes under `forced-colors: active` but the colors the mode sets (EMP-12)."
+      "notes": "It is the form the callout takes. `<tanrei-empty-state>` with the description as light-DOM children, the glyph or the picture in the `media` slot, the title in the `title` slot (`<p slot=\"title\">`, or `<h2 slot=\"title\">` where it is a heading) or the `headline` attribute (HTML's global `title` attribute would show a tooltip over the whole block, as on the callout), which the shadow root draws as an element with `role=\"heading\"` and `aria-level` from `level` (a number property and attribute, 2 by default), and Buttons or links in the `actions` slot. Everything the product writes stays in the document: the title where it is slotted, the description, the links and the Buttons are light-DOM content, read by a crawler and by a page without script. **Before the element is defined** the stylesheet of `@tanrei/web` gives `tanrei-empty-state:not(:defined)` `display: block`, the block and inline padding of its `size`, the description's text style and color, and `text-align` by its `align`, so the content is readable in its place and the block keeps most of its height; a `headline` attribute does not show until the element is defined, which is why a page that must read without script gives the title in the slot. The host has no `role`, no `tabindex` and no listeners; the glyph is `aria-hidden`. With `live` the announcement is made through a visually hidden `role=\"status\"` region in the shadow root that exists from the element's first render and is filled, with the title and the description's text, only when the element is connected or changed after the document's first presentation (EMP-9); the host itself gets no live role, so slotted content is not read twice. The text block's width is `max-inline-size: calc(var(--tanrei-comp-empty-state-content-measure) * 1em)` on the element that carries the description's font size (EMP-2). The description takes its color and text style through inherited `color` and `font`, so text placed directly in the element is styled. In a table the element goes in one `<td colspan>` of a body row, or directly after the table, which keeps its caption and its header row (the Table spec says nothing of an empty body); in a list it takes the list's place rather than being an item. Nothing changes under `forced-colors: active` but the colors the mode sets (EMP-12)."
     },
     "swiftui": {
       "status": "planned",
       "name": "TanreiEmptyState",
       "props": {
         "title": "title",
+        "level": "headingLevel",
         "size": "size",
         "align": "alignment",
         "live": "isLive"
       },
-      "notes": "`TanreiEmptyState(_ title: String, size:, alignment:, isLive:, media:, actions:) { description }`, the glyph given by name through `icon:` or a view through `media:`; a heading title is the `title:` view builder with the header trait set by the product. Not the platform's own unavailable-content view, whose sizes and colors are the platform's: the same structure drawn from Tanrei's tokens. `isLive` posts one announcement with the title and the description when the view appears after its screen did."
+      "notes": "`TanreiEmptyState(_ title: String, size:, alignment:, isLive:, media:, actions:) { description }`, the glyph given by name through `icon:` or a view through `media:`; a heading title is the `title:` view builder with the header trait set by the product. Not the platform's own unavailable-content view, whose sizes and colors are the platform's: the same structure drawn from Tanrei's tokens. `isLive` posts one announcement with the title and the description when the view appears after its screen did. Not built on this platform yet: EMP-4's title given as text exposed as a heading, and `level`."
     },
     "compose": {
       "status": "planned",
       "name": "TanreiEmptyState",
       "props": {
         "title": "title",
+        "level": "headingLevel",
         "size": "size",
         "align": "alignment",
         "live": "live"
       },
-      "notes": "`TanreiEmptyState(title, size, alignment, live, media, actions) { description }`, the glyph given by name through `icon` or a composable through `media`. With `live` the text column has `liveRegion = LiveRegionMode.Polite`, set only after the first composition of its screen."
+      "notes": "`TanreiEmptyState(title, size, alignment, live, media, actions) { description }`, the glyph given by name through `icon` or a composable through `media`. With `live` the text column has `liveRegion = LiveRegionMode.Polite`, set only after the first composition of its screen. Not built on this platform yet: EMP-4's title given as text exposed as a heading, and `level`."
     },
     "flutter": {
       "status": "planned",
       "name": "TanreiEmptyState",
       "props": {
         "title": "title",
+        "level": "headingLevel",
         "size": "size",
         "align": "alignment",
         "live": "live"
       },
-      "notes": "`TanreiEmptyState(title: …, size:, alignment:, live:, icon:, media:, actions: […], child: description)`; `titleWidget:` takes a heading of the product's own. With `live` the text is wrapped in `Semantics(liveRegion: true)` after the first frame of its route, and announced through `SemanticsService.announce` with polite assertiveness where the platform does not read live regions."
+      "notes": "`TanreiEmptyState(title: …, size:, alignment:, live:, icon:, media:, actions: […], child: description)`; `titleWidget:` takes a heading of the product's own. With `live` the text is wrapped in `Semantics(liveRegion: true)` after the first frame of its route, and announced through `SemanticsService.announce` with polite assertiveness where the platform does not read live regions. Not built on this platform yet: EMP-4's title given as text exposed as a heading, and `level`."
     },
     "react-native": {
       "status": "planned",
       "name": "EmptyState",
       "props": {
         "title": "title",
+        "level": "headingLevel",
         "size": "size",
         "align": "align",
         "live": "live"
       },
-      "notes": "`<EmptyState title=\"No projects yet\" icon=\"folder_open\" actions={…}>description</EmptyState>`; `media` takes an element of the product's own. With `live`, `accessibilityLiveRegion=\"polite\"` on Android and one `AccessibilityInfo.announceForAccessibility` call on iOS when it mounts after its screen. Follows the app's direction where an ancestor's is not known."
+      "notes": "`<EmptyState title=\"No projects yet\" icon=\"folder_open\" actions={…}>description</EmptyState>`; `media` takes an element of the product's own. With `live`, `accessibilityLiveRegion=\"polite\"` on Android and one `AccessibilityInfo.announceForAccessibility` call on iOS when it mounts after its screen. Follows the app's direction where an ancestor's is not known. Not built on this platform yet: EMP-4's title given as text exposed as a heading, and `level`."
     }
   }
 }

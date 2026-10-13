@@ -2762,9 +2762,10 @@ public struct TanreiButtonVariant: RawRepresentable, Hashable, Sendable, CustomS
   public static let elevated = TanreiButtonVariant(rawValue: "elevated")
   public static let outlined = TanreiButtonVariant(rawValue: "outlined")
   public static let text = TanreiButtonVariant(rawValue: "text")
+  public static let inline = TanreiButtonVariant(rawValue: "inline")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiButtonVariant] = [.filled, .tonal, .elevated, .outlined, .text]
+  public static let core: [TanreiButtonVariant] = [.filled, .tonal, .elevated, .outlined, .text, .inline]
   /// The default: what a value the current design system does not have falls back to.
   public static let fallback = TanreiButtonVariant.filled
 }
@@ -2868,6 +2869,7 @@ public struct TanreiButtonVariants: Sendable, Equatable {
   public var elevated: TanreiButtonVariantTokens
   public var outlined: TanreiButtonVariantTokens
   public var text: TanreiButtonVariantTokens
+  public var inline: TanreiButtonVariantTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
   public var extra: [TanreiButtonVariant: TanreiButtonVariantTokens]
 
@@ -2877,6 +2879,7 @@ public struct TanreiButtonVariants: Sendable, Equatable {
     elevated: TanreiButtonVariantTokens,
     outlined: TanreiButtonVariantTokens,
     text: TanreiButtonVariantTokens,
+    inline: TanreiButtonVariantTokens,
     extra: [TanreiButtonVariant: TanreiButtonVariantTokens] = [:]
   ) {
     self.filled = filled
@@ -2884,6 +2887,7 @@ public struct TanreiButtonVariants: Sendable, Equatable {
     self.elevated = elevated
     self.outlined = outlined
     self.text = text
+    self.inline = inline
     self.extra = extra
   }
 
@@ -2895,6 +2899,7 @@ public struct TanreiButtonVariants: Sendable, Equatable {
     case .elevated: return elevated
     case .outlined: return outlined
     case .text: return text
+    case .inline: return inline
     default: return extra[key]
     }
   }
@@ -2927,7 +2932,12 @@ public struct TanreiButtonStateTokens: Sendable, Equatable {
 
 /// Component tokens of button (comp.button).
 public struct TanreiButtonTokens: Sendable, Equatable {
+  public var busyIndicatorThickness: CGFloat
   public var containerShape: CGFloat
+  public var inlineUnderlineOffset: CGFloat
+  public var inlineUnderlineVisibility: Double
+  public var inlineUnderlineWidth: CGFloat
+  public var motionBusyCycleDuration: Double
   public var motionFeedbackDuration: Double
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
@@ -2943,7 +2953,12 @@ public struct TanreiButtonTokens: Sendable, Equatable {
   public var disabled: TanreiButtonStateTokens
 
   public init(
+    busyIndicatorThickness: CGFloat,
     containerShape: CGFloat,
+    inlineUnderlineOffset: CGFloat,
+    inlineUnderlineVisibility: Double,
+    inlineUnderlineWidth: CGFloat,
+    motionBusyCycleDuration: Double,
     motionFeedbackDuration: Double,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
@@ -2954,7 +2969,12 @@ public struct TanreiButtonTokens: Sendable, Equatable {
     pressed: TanreiButtonStateTokens,
     disabled: TanreiButtonStateTokens
   ) {
+    self.busyIndicatorThickness = busyIndicatorThickness
     self.containerShape = containerShape
+    self.inlineUnderlineOffset = inlineUnderlineOffset
+    self.inlineUnderlineVisibility = inlineUnderlineVisibility
+    self.inlineUnderlineWidth = inlineUnderlineWidth
+    self.motionBusyCycleDuration = motionBusyCycleDuration
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
@@ -4868,6 +4888,7 @@ public struct TanreiChipStateTokens: Sendable, Equatable {
 /// Component tokens of chip (comp.chip).
 public struct TanreiChipTokens: Sendable, Equatable {
   public var avatarShape: CGFloat
+  public var checkWeight: Double
   public var containerShape: CGFloat
   public var motionFeedbackDuration: Double
   public var motionSelectionDuration: Double
@@ -4889,6 +4910,7 @@ public struct TanreiChipTokens: Sendable, Equatable {
 
   public init(
     avatarShape: CGFloat,
+    checkWeight: Double,
     containerShape: CGFloat,
     motionFeedbackDuration: Double,
     motionSelectionDuration: Double,
@@ -4905,6 +4927,7 @@ public struct TanreiChipTokens: Sendable, Equatable {
     disabled: TanreiChipStateTokens
   ) {
     self.avatarShape = avatarShape
+    self.checkWeight = checkWeight
     self.containerShape = containerShape
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionSelectionDuration = motionSelectionDuration
@@ -5197,10 +5220,12 @@ public struct TanreiCodeBlockTokens: Sendable, Equatable {
   public var languageTypescale: TanreiTextStyle
   public var lineNumberColor: TanreiPaint
   public var lineNumberGap: CGFloat
+  public var lineAddedContainerColor: TanreiPaint
   public var lineAddedMarkColor: TanreiPaint
   public var lineHighlightedContainerColor: TanreiPaint
   public var lineHighlightedMarkColor: TanreiPaint
   public var lineMarkWidth: CGFloat
+  public var lineRemovedContainerColor: TanreiPaint
   public var lineRemovedMarkColor: TanreiPaint
   public var outlineColor: TanreiPaint
   public var outlineWidth: CGFloat
@@ -5223,10 +5248,12 @@ public struct TanreiCodeBlockTokens: Sendable, Equatable {
     languageTypescale: TanreiTextStyle,
     lineNumberColor: TanreiPaint,
     lineNumberGap: CGFloat,
+    lineAddedContainerColor: TanreiPaint,
     lineAddedMarkColor: TanreiPaint,
     lineHighlightedContainerColor: TanreiPaint,
     lineHighlightedMarkColor: TanreiPaint,
     lineMarkWidth: CGFloat,
+    lineRemovedContainerColor: TanreiPaint,
     lineRemovedMarkColor: TanreiPaint,
     outlineColor: TanreiPaint,
     outlineWidth: CGFloat,
@@ -5248,10 +5275,12 @@ public struct TanreiCodeBlockTokens: Sendable, Equatable {
     self.languageTypescale = languageTypescale
     self.lineNumberColor = lineNumberColor
     self.lineNumberGap = lineNumberGap
+    self.lineAddedContainerColor = lineAddedContainerColor
     self.lineAddedMarkColor = lineAddedMarkColor
     self.lineHighlightedContainerColor = lineHighlightedContainerColor
     self.lineHighlightedMarkColor = lineHighlightedMarkColor
     self.lineMarkWidth = lineMarkWidth
+    self.lineRemovedContainerColor = lineRemovedContainerColor
     self.lineRemovedMarkColor = lineRemovedMarkColor
     self.outlineColor = outlineColor
     self.outlineWidth = outlineWidth
@@ -7000,6 +7029,7 @@ public struct TanreiFieldGroupConditions: Sendable, Equatable {
 /// Component tokens of field-group (comp.field-group).
 public struct TanreiFieldGroupTokens: Sendable, Equatable {
   public var errorTextGap: CGFloat
+  public var fieldMinWidth: CGFloat
   public var gapInline: CGFloat
   public var labelGap: CGFloat
   public var labelTypescale: TanreiTextStyle
@@ -7013,6 +7043,7 @@ public struct TanreiFieldGroupTokens: Sendable, Equatable {
 
   public init(
     errorTextGap: CGFloat,
+    fieldMinWidth: CGFloat,
     gapInline: CGFloat,
     labelGap: CGFloat,
     labelTypescale: TanreiTextStyle,
@@ -7025,6 +7056,7 @@ public struct TanreiFieldGroupTokens: Sendable, Equatable {
     conditions: TanreiFieldGroupConditions
   ) {
     self.errorTextGap = errorTextGap
+    self.fieldMinWidth = fieldMinWidth
     self.gapInline = gapInline
     self.labelGap = labelGap
     self.labelTypescale = labelTypescale
@@ -7172,6 +7204,7 @@ public struct TanreiFieldConditions: Sendable, Equatable {
 public struct TanreiFieldTokens: Sendable, Equatable {
   public var counterGap: CGFloat
   public var errorTextGap: CGFloat
+  public var errorTextPlacement: Double
   public var labelIconGap: CGFloat
   public var labelIconSize: CGFloat
   public var labelGap: CGFloat
@@ -7190,6 +7223,7 @@ public struct TanreiFieldTokens: Sendable, Equatable {
   public init(
     counterGap: CGFloat,
     errorTextGap: CGFloat,
+    errorTextPlacement: Double,
     labelIconGap: CGFloat,
     labelIconSize: CGFloat,
     labelGap: CGFloat,
@@ -7207,6 +7241,7 @@ public struct TanreiFieldTokens: Sendable, Equatable {
   ) {
     self.counterGap = counterGap
     self.errorTextGap = errorTextGap
+    self.errorTextPlacement = errorTextPlacement
     self.labelIconGap = labelIconGap
     self.labelIconSize = labelIconSize
     self.labelGap = labelGap
@@ -9221,6 +9256,7 @@ public struct TanreiListTokens: Sendable, Equatable {
   public var motionStateEasing: TanreiCubicBezier
   public var moveButtonsGap: CGFloat
   public var overlineTypescale: TanreiTextStyle
+  public var reorderTextMinWidth: CGFloat
   public var supportingTextTypescale: TanreiTextStyle
   public var trailingIconSize: CGFloat
   public var trailingTextTypescale: TanreiTextStyle
@@ -9266,6 +9302,7 @@ public struct TanreiListTokens: Sendable, Equatable {
     motionStateEasing: TanreiCubicBezier,
     moveButtonsGap: CGFloat,
     overlineTypescale: TanreiTextStyle,
+    reorderTextMinWidth: CGFloat,
     supportingTextTypescale: TanreiTextStyle,
     trailingIconSize: CGFloat,
     trailingTextTypescale: TanreiTextStyle,
@@ -9306,6 +9343,7 @@ public struct TanreiListTokens: Sendable, Equatable {
     self.motionStateEasing = motionStateEasing
     self.moveButtonsGap = moveButtonsGap
     self.overlineTypescale = overlineTypescale
+    self.reorderTextMinWidth = reorderTextMinWidth
     self.supportingTextTypescale = supportingTextTypescale
     self.trailingIconSize = trailingIconSize
     self.trailingTextTypescale = trailingTextTypescale
@@ -10095,10 +10133,11 @@ public struct TanreiMenubarCondition: RawRepresentable, Hashable, Sendable, Cust
   public var description: String { rawValue }
 
   public static let unselected = TanreiMenubarCondition(rawValue: "unselected")
+  public static let selected = TanreiMenubarCondition(rawValue: "selected")
   public static let expanded = TanreiMenubarCondition(rawValue: "expanded")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiMenubarCondition] = [.unselected, .expanded]
+  public static let core: [TanreiMenubarCondition] = [.unselected, .selected, .expanded]
   /// The default: what a value the current design system does not have falls back to.
   public static let fallback = TanreiMenubarCondition.unselected
 }
@@ -10162,16 +10201,19 @@ public struct TanreiMenubarConditionTokens: Sendable, Equatable {
 /// Read one with `conditions[key]`.
 public struct TanreiMenubarConditions: Sendable, Equatable {
   public var unselected: TanreiMenubarConditionTokens
+  public var selected: TanreiMenubarConditionTokens
   public var expanded: TanreiMenubarConditionTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
   public var extra: [TanreiMenubarCondition: TanreiMenubarConditionTokens]
 
   public init(
     unselected: TanreiMenubarConditionTokens,
+    selected: TanreiMenubarConditionTokens,
     expanded: TanreiMenubarConditionTokens,
     extra: [TanreiMenubarCondition: TanreiMenubarConditionTokens] = [:]
   ) {
     self.unselected = unselected
+    self.selected = selected
     self.expanded = expanded
     self.extra = extra
   }
@@ -10180,6 +10222,7 @@ public struct TanreiMenubarConditions: Sendable, Equatable {
   public func value(for key: TanreiMenubarCondition) -> TanreiMenubarConditionTokens? {
     switch key {
     case .unselected: return unselected
+    case .selected: return selected
     case .expanded: return expanded
     default: return extra[key]
     }
@@ -10222,6 +10265,7 @@ public struct TanreiMenubarTokens: Sendable, Equatable {
   public var containerPaddingInline: CGFloat
   public var containerShape: CGFloat
   public var iconSize: CGFloat
+  public var indicatorSize: CGFloat
   public var labelTypescale: TanreiTextStyle
   public var motionFeedbackDuration: Double
   public var motionStateDuration: Double
@@ -10246,6 +10290,7 @@ public struct TanreiMenubarTokens: Sendable, Equatable {
     containerPaddingInline: CGFloat,
     containerShape: CGFloat,
     iconSize: CGFloat,
+    indicatorSize: CGFloat,
     labelTypescale: TanreiTextStyle,
     motionFeedbackDuration: Double,
     motionStateDuration: Double,
@@ -10265,6 +10310,7 @@ public struct TanreiMenubarTokens: Sendable, Equatable {
     self.containerPaddingInline = containerPaddingInline
     self.containerShape = containerShape
     self.iconSize = iconSize
+    self.indicatorSize = indicatorSize
     self.labelTypescale = labelTypescale
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateDuration = motionStateDuration
@@ -10776,8 +10822,10 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var containerPaddingBlock: CGFloat
   public var containerPaddingInline: CGFloat
   public var containerWidth: CGFloat
+  public var headerColor: TanreiPaint
   public var headerGap: CGFloat
   public var headerItemGap: CGFloat
+  public var headerTypescale: TanreiTextStyle
   public var headingColor: TanreiPaint
   public var headingHeight: CGFloat
   public var headingTypescale: TanreiTextStyle
@@ -10834,8 +10882,10 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     containerPaddingBlock: CGFloat,
     containerPaddingInline: CGFloat,
     containerWidth: CGFloat,
+    headerColor: TanreiPaint,
     headerGap: CGFloat,
     headerItemGap: CGFloat,
+    headerTypescale: TanreiTextStyle,
     headingColor: TanreiPaint,
     headingHeight: CGFloat,
     headingTypescale: TanreiTextStyle,
@@ -10887,8 +10937,10 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.containerPaddingBlock = containerPaddingBlock
     self.containerPaddingInline = containerPaddingInline
     self.containerWidth = containerWidth
+    self.headerColor = headerColor
     self.headerGap = headerGap
     self.headerItemGap = headerItemGap
+    self.headerTypescale = headerTypescale
     self.headingColor = headingColor
     self.headingHeight = headingHeight
     self.headingTypescale = headingTypescale
@@ -12061,6 +12113,7 @@ public struct TanreiProseTokens: Sendable, Equatable {
   public var heading6GapAfter: CGFloat
   public var heading6GapBefore: CGFloat
   public var itemGap: CGFloat
+  public var japaneseLineHeight: Double
   public var leadTypescale: TanreiTextStyle
   public var listIndent: CGFloat
   public var measure: Double
@@ -12088,6 +12141,7 @@ public struct TanreiProseTokens: Sendable, Equatable {
     heading6GapAfter: CGFloat,
     heading6GapBefore: CGFloat,
     itemGap: CGFloat,
+    japaneseLineHeight: Double,
     leadTypescale: TanreiTextStyle,
     listIndent: CGFloat,
     measure: Double,
@@ -12114,6 +12168,7 @@ public struct TanreiProseTokens: Sendable, Equatable {
     self.heading6GapAfter = heading6GapAfter
     self.heading6GapBefore = heading6GapBefore
     self.itemGap = itemGap
+    self.japaneseLineHeight = japaneseLineHeight
     self.leadTypescale = leadTypescale
     self.listIndent = listIndent
     self.measure = measure
@@ -12928,6 +12983,7 @@ public struct TanreiSegmentedButtonStateTokens: Sendable, Equatable {
 
 /// Component tokens of segmented-button (comp.segmented-button).
 public struct TanreiSegmentedButtonTokens: Sendable, Equatable {
+  public var checkWeight: Double
   public var containerShape: CGFloat
   public var dividerColor: TanreiPaint
   public var dividerWidth: CGFloat
@@ -12953,6 +13009,7 @@ public struct TanreiSegmentedButtonTokens: Sendable, Equatable {
   public var disabled: TanreiSegmentedButtonStateTokens
 
   public init(
+    checkWeight: Double,
     containerShape: CGFloat,
     dividerColor: TanreiPaint,
     dividerWidth: CGFloat,
@@ -12973,6 +13030,7 @@ public struct TanreiSegmentedButtonTokens: Sendable, Equatable {
     pressed: TanreiSegmentedButtonStateTokens,
     disabled: TanreiSegmentedButtonStateTokens
   ) {
+    self.checkWeight = checkWeight
     self.containerShape = containerShape
     self.dividerColor = dividerColor
     self.dividerWidth = dividerWidth
@@ -15545,19 +15603,22 @@ public struct TanreiTabsSizeTokens: Sendable, Equatable {
   public var activeIndicatorPaddingInline: CGFloat
   public var activeIndicatorPaddingBlock: CGFloat
   public var iconSize: CGFloat
+  public var iconPlacement: Double
 
   public init(
     containerHeight: CGFloat,
     containerPaddingInline: CGFloat,
     activeIndicatorPaddingInline: CGFloat,
     activeIndicatorPaddingBlock: CGFloat,
-    iconSize: CGFloat
+    iconSize: CGFloat,
+    iconPlacement: Double
   ) {
     self.containerHeight = containerHeight
     self.containerPaddingInline = containerPaddingInline
     self.activeIndicatorPaddingInline = activeIndicatorPaddingInline
     self.activeIndicatorPaddingBlock = activeIndicatorPaddingBlock
     self.iconSize = iconSize
+    self.iconPlacement = iconPlacement
   }
 }
 
@@ -15626,6 +15687,9 @@ public struct TanreiTabsTokens: Sendable, Equatable {
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
   public var motionTransition: Double
+  public var primarySelectedLabelEmphasis: Double
+  public var secondarySelectedLabelEmphasis: Double
+  public var tonalSelectedLabelEmphasis: Double
   public var trackPadding: CGFloat
   public var trackShape: CGFloat
   public var trackVisible: Double
@@ -15654,6 +15718,9 @@ public struct TanreiTabsTokens: Sendable, Equatable {
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
     motionTransition: Double,
+    primarySelectedLabelEmphasis: Double,
+    secondarySelectedLabelEmphasis: Double,
+    tonalSelectedLabelEmphasis: Double,
     trackPadding: CGFloat,
     trackShape: CGFloat,
     trackVisible: Double,
@@ -15677,6 +15744,9 @@ public struct TanreiTabsTokens: Sendable, Equatable {
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
     self.motionTransition = motionTransition
+    self.primarySelectedLabelEmphasis = primarySelectedLabelEmphasis
+    self.secondarySelectedLabelEmphasis = secondarySelectedLabelEmphasis
+    self.tonalSelectedLabelEmphasis = tonalSelectedLabelEmphasis
     self.trackPadding = trackPadding
     self.trackShape = trackShape
     self.trackVisible = trackVisible
@@ -15717,7 +15787,7 @@ public struct TanreiTagGroupSpacing: RawRepresentable, Hashable, Sendable, Custo
   /// The values every design system has, in the order the component declares them.
   public static let core: [TanreiTagGroupSpacing] = [.tags, .chips]
   /// The default: what a value the current design system does not have falls back to.
-  public static let fallback = TanreiTagGroupSpacing.tags
+  public static let fallback = TanreiTagGroupSpacing.chips
 }
 
 /// Everything of tag-group that depends on its spacing.
@@ -15761,12 +15831,12 @@ public struct TanreiTagGroupSpacings: Sendable, Equatable {
     }
   }
 
-  /// Total lookup: a tag-group spacing this design system does not have reads the tokens of `tags`, the
+  /// Total lookup: a tag-group spacing this design system does not have reads the tokens of `chips`, the
   /// default, and is reported in debug builds only (`TanreiDiagnostics`).
   public subscript(key: TanreiTagGroupSpacing) -> TanreiTagGroupSpacingTokens {
     if let value = value(for: key) { return value }
-    TanreiDiagnostics.report("Tanrei: the current design system has no tag-group spacing \"\(key.rawValue)\"; using \"tags\"")
-    return tags
+    TanreiDiagnostics.report("Tanrei: the current design system has no tag-group spacing \"\(key.rawValue)\"; using \"chips\"")
+    return chips
   }
 
   /// Every tag-group spacing of this design system: the core ones, then what it added.
@@ -15885,8 +15955,8 @@ public struct TanreiTagVariant: RawRepresentable, Hashable, Sendable, CustomStri
   public static let fallback = TanreiTagVariant.tonal
 }
 
-/// Everything of tag that depends on its variant.
-public struct TanreiTagVariantTokens: Sendable, Equatable {
+/// How one variant of tag is drawn in one state.
+public struct TanreiTagVariantStateTokens: Sendable, Equatable {
   public var containerColor: TanreiPaint
   public var labelColor: TanreiPaint
   public var iconColor: TanreiPaint
@@ -15935,6 +16005,33 @@ public struct TanreiTagVariantTokens: Sendable, Equatable {
     self.successContainerColor = successContainerColor
     self.successLabelColor = successLabelColor
     self.successIconColor = successIconColor
+  }
+}
+
+/// One variant of tag: a complete set of values per state. A component draws a state from that
+/// state's tokens and never computes how a state looks. Read one with `[state: …]`.
+public struct TanreiTagVariantTokens: Sendable, Equatable {
+  public var enabled: TanreiTagVariantStateTokens
+  public var disabled: TanreiTagVariantStateTokens
+
+  public init(
+    enabled: TanreiTagVariantStateTokens,
+    disabled: TanreiTagVariantStateTokens
+  ) {
+    self.enabled = enabled
+    self.disabled = disabled
+  }
+
+  /// The tokens of this variant of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
+  /// `nil` for `hovered`, `focused`, `pressed`, which tag has no group for.
+  public subscript(state state: TanreiInteraction) -> TanreiTagVariantStateTokens? {
+    switch state {
+    case .enabled: return enabled
+    case .hovered: return nil
+    case .focused: return nil
+    case .pressed: return nil
+    case .disabled: return disabled
+    }
   }
 }
 

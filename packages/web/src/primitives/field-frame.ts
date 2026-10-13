@@ -88,7 +88,7 @@ export function frameMark(props: Pick<FrameProps, 'label' | 'labelHidden' | 'req
   return (REQUIRED_MARKS as readonly string[]).includes(props.requiredMark) ? (props.requiredMark as FrameRequiredMark) : 'auto';
 }
 
-/** FLD-7, FLD-31: the error text the supporting row shows below the help, which stays — `errorText` while the frame is in error; nothing otherwise. */
+/** FLD-31: the error text the supporting row shows (where FLD-7 puts it) — `errorText` while the frame is in error; nothing otherwise. */
 export const frameErrorText = (props: Pick<FrameProps, 'errorText' | 'error'>): string => (props.error ? props.errorText : '');
 
 /** FLD-4, FLD-11: the optional text that joins the description (assistive technology has no state for it). */
@@ -151,14 +151,20 @@ export interface FrameLabelRow extends Pick<FrameProps, 'label' | 'labelHidden' 
    * one — what it holds is disabled content. Left out where an ancestor in the same root already says it (a fieldset).
    */
   disabled?: boolean;
+  /**
+   * The frame is disabled, for its requirement tag, which is then drawn as a tag inside something disabled (FLD-5,
+   * FGR-5, TAG-21). `disabled` where it is left out; a frame that leaves `disabled` out because an ancestor says it (a
+   * fieldset) gives this one.
+   */
+  tagDisabled?: boolean;
   /** A press on the row (FLD-12): the component moves focus to its control. */
   onPress?: (event: MouseEvent) => void;
 }
 
 /**
  * The label row (FLD-2, FLD-3, FLD-5, FLD-6): the glyph, the label with the asterisk as its last character, and the
- * requirement tag — a `<tanrei-tag size="small">`, filled for required and tonal for optional, with nothing of the
- * frame's set on it: it reads the Tag's tokens as every tag does. It stands in a box one label line high
+ * requirement tag — a `<tanrei-tag size="small">`, filled for required and tonal for optional, `disabled` while the frame
+ * is, with nothing else of the frame's set on it: it reads the Tag's tokens as every tag does. It stands in a box one label line high
  * (`.requirement-box`), which is what the row's layout sees of it. `nothing` while the label is not drawn. Under `requiredMark: auto` both marks
  * are in the row and the styles draw the one the design system names. The asterisk and the tag are kept from assistive
  * technology: the required state, or the description, says what they say.
@@ -171,11 +177,14 @@ export function frameLabelRow(row: FrameLabelRow): TemplateResult | typeof nothi
   // design system's (auto: the styles draw it unless the system marks none).
   const wordless = (mark === 'tag' || mark === 'auto') && !row.requiredText;
   const asterisk = mark === 'asterisk' || mark === 'auto' || wordless ? html`<span part="requirement-label" class="asterisk" aria-hidden="true">*</span>` : nothing;
+  // FLD-5, FGR-5, TAG-21: a disabled frame's tag is drawn as a tag inside something disabled — the Tag's own disabled
+  // tokens; nothing else of the tag is set.
+  const faded = row.tagDisabled ?? !!row.disabled;
   const tag =
     (mark === 'tag' || mark === 'auto') && row.requiredText
-      ? html`<span class="requirement-box required-box"><tanrei-tag part="requirement-label" class="requirement-tag required-tag" size="small" variant="filled" label=${row.requiredText} aria-hidden="true"></tanrei-tag></span>`
+      ? html`<span class="requirement-box required-box"><tanrei-tag part="requirement-label" class="requirement-tag required-tag" size="small" variant="filled" ?disabled=${faded} label=${row.requiredText} aria-hidden="true"></tanrei-tag></span>`
       : asked === 'optional' && row.optionalText
-        ? html`<span class="requirement-box optional-box"><tanrei-tag part="requirement-label" class="requirement-tag optional-tag" size="small" variant="tonal" label=${row.optionalText} aria-hidden="true"></tanrei-tag></span>`
+        ? html`<span class="requirement-box optional-box"><tanrei-tag part="requirement-label" class="requirement-tag optional-tag" size="small" variant="tonal" ?disabled=${faded} label=${row.optionalText} aria-hidden="true"></tanrei-tag></span>`
         : nothing;
   return html`<span class="label-row" ?data-tag=${tag !== nothing} ?data-label-icon=${!!row.hasGlyph} data-mark=${mark} ?data-wordless=${wordless} aria-disabled=${row.disabled ? 'true' : nothing} @mousedown=${row.onPress ?? nothing}>
     ${row.glyph ?? nothing}<span part="label" class="label" id=${row.labelId ?? nothing} aria-hidden=${row.labelHidden_ ? 'true' : nothing}>${row.label}${asterisk}</span>${tag}

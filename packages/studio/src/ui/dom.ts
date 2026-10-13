@@ -182,6 +182,8 @@ const pressable = (variant: string, text: string, onclick: (() => void) | null, 
  * `<tanrei-button>`. `aria-label` in `attrs` is its whole name, given to the button as its `label`.
  */
 export const linkButton = (text: string, onclick: () => void, attrs: Json = {}) => pressable('text', text, onclick, { class: 'ts-link', ...attrs });
+/** An action inside a sentence: an inline `<tanrei-button>` (BTN-35), a phrase of the sentence that keeps its line's height. */
+export const inlineButton = (text: string, onclick: () => void, attrs: Json = {}) => h('tanrei-button', { variant: 'inline', onclick, ...attrs }, text);
 /**
  * An action: an outlined `<tanrei-button>`; `primary` is the one filled action of its row. With `type: 'submit'` it
  * sends the form it stands in (BTN-27) and needs no `onclick`: pass `null`.

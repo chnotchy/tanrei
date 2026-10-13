@@ -383,11 +383,15 @@
   :where(tanrei-table:not([selection='multiple'])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
     display: none;
   }
-  /* The selection cell: a cell's paddings around the checkbox, and no share of the width the columns of data are
-     given — the column is as wide as the checkbox and those paddings (a cell is never narrower than what it holds). */
+  /* The selection cell: no share of the width the columns of data are given — the column is as wide as the checkbox
+     and its paddings (a cell is never narrower than what it holds). The paddings are a cell's less half of what the
+     Checkbox's round container exceeds its box by, so that the box, not the container, stands at the cell's padding,
+     on the line the text of the other cells starts at; the container reaches into the padding. */
   :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
     box-sizing: border-box;
     inline-size: 0;
+    --_table-select-pad: max(0px, var(--_table-pad-inline) - (var(--tanrei-comp-checkbox-container-size) - var(--tanrei-comp-checkbox-box-size)) / 2);
+    padding-inline: var(--_table-select-pad);
     white-space: nowrap;
     /* The Checkbox's container is a size of its own, and taller than a compact row: what it draws beyond its row is
        cut at the row's edges, so that the last row's does not make the box scroll (its focus indicator, around the
@@ -417,6 +421,11 @@
   :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody) > :where(tr) > :where([data-part='selection']) > :where(input) {
     margin: 0;
     vertical-align: middle;
+  }
+  /* The browser's own checkbox has no round container: its box is the element, and its cell keeps a cell's paddings. */
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']:has(> input)) {
+    --_table-select-pad: var(--_table-pad-inline);
+    padding-inline: var(--_table-select-pad);
   }
   /* TBL-42, TBL-50: no checkbox in a body row without a value, in a placeholder row or in a footer row. */
   :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr:not([data-value]), tr[data-value=''], tr[data-placeholder]) > :where([data-part='selection']) > :where(*),
@@ -844,7 +853,7 @@
      a length the element measures (`--_table-selection-size`). Until it has, and without script, the selection column
      scrolls with the others and the first column is kept at the edge. */
   :where(tanrei-table[sticky-first-column]:not([data-first-column-released])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child) {
-    padding-inline-end: var(--_table-pad-inline);
+    padding-inline-end: var(--_table-select-pad, var(--_table-pad-inline));
     border-inline-end-width: 0;
   }
   :where(tanrei-table[sticky-first-column]:not([data-first-column-released], [data-selection-kept])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child) {

@@ -2,7 +2,7 @@
 title: Vista de árbol
 description: Una jerarquía de elementos que se abren y se cierran. Las filas empiezan más adentro en cada nivel, con un chevron al inicio de cada fila que contiene otras. Solo se lee y se abre, o bien en ella se eligen uno o varios elementos, y es una sola parada en el orden del foco.
 translationOf: components/tree-view.mdx
-sourceHash: c1e2abc869592d34f3b6d9e017aefafd026c21e3
+sourceHash: 176bc2716230f0b577b66489a9f0b61d127247c3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -249,7 +249,7 @@ Todo se dibuja antes de que el script se cargue, salvo el relleno de selección,
 - Enter y Espacio hacen lo mismo que una pulsación en la fila. La selección nunca sigue al foco.
 - Abrir, cerrar y elegir se comunican mediante el propio estado de la fila. No se anuncia nada y el foco no se mueve.
 - Un padre que se cierra con la fila que tiene el foco dentro recibe el foco. Una fila con el foco que se quita da el foco a la fila que la sigue.
-- El anillo de foco se dibuja dentro de la fila, así que una caja de desplazamiento no lo recorta.
+- El anillo de foco se dibuja dentro de la fila, así que una caja de desplazamiento no lo recorta. En una fila deshabilitada se dibuja con toda su intensidad: la fila se atenúa, su anillo no.
 - El chevron, los iconos y las guías quedan ocultos para la tecnología de apoyo. La fila de carga también queda oculta: el padre dice que está ocupado.
 - Con el texto al 200%, las etiquetas saltan de línea y las filas crecen. Lo único que llega a cortarse es un texto final.
 - Con colores forzados, una fila seleccionada toma los colores de selección del sistema y un borde.

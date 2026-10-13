@@ -62,7 +62,7 @@ export interface GroupRows {
  * The rows. The label's text is not hidden from assistive technology: it is the group's name, as a legend's content or
  * as the target of `aria-labelledby` (its id is `GROUP_IDS.label`); the tag and the asterisk are hidden.
  */
-export function groupRows(props: FrameProps, semantics: GroupSemantics = {}): GroupRows {
+export function groupRows(props: FrameProps, semantics: GroupSemantics = {}, disabled = false): GroupRows {
   const words = groupRequirementText(props, semantics);
   return {
     // Named one by one: the props are a component's accessors, which a spread would not copy.
@@ -74,6 +74,8 @@ export function groupRows(props: FrameProps, semantics: GroupSemantics = {}): Gr
       requiredText: props.requiredText,
       optionalText: props.optionalText,
       labelId: GROUP_IDS.label,
+      // FGR-5, FGR-14: the fieldset says the group is disabled; its tag is drawn as a tag inside something disabled.
+      tagDisabled: disabled,
     }),
     description: frameText(props.supportingText, { id: GROUP_IDS.description }),
     error: props.error ? frameText(props.errorText, { id: GROUP_IDS.error, part: 'error-text', className: 'error-text' }) : nothing,
@@ -187,9 +189,11 @@ export function groupFrameStyles({ prefix }: { prefix: `--tanrei-comp-${string}`
     column-gap: ${T('gap-inline')};
     row-gap: var(--_frame-gap);
   }
-  /* FGR-13: fields share the row equally (never below a minimum width of their own). */
+  /* FGR-13: fields share the row equally, each never narrower than field.min-width nor than its content needs: they
+     grow from that width alike, and the row wraps where the next one would be narrower. A field alone on a line that is
+     narrower still shrinks to it. */
   .controls[data-orientation='horizontal'][data-spacing='fields'] ::slotted(*) {
-    flex: 1;
+    flex: 1 1 ${T('field-min-width')};
   }
 
   /* FGR-17: forced colors — the error text is text like the rest; the words and the invalid state carry the error. */

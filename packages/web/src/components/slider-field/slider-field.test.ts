@@ -327,15 +327,15 @@ test.describe('slider field', () => {
     expect(await said('range-words', 'end')).toEqual({ name: 'Maximum price', description: 'Per night, before taxes.', invalid: null, required: null });
     expect(await said('required')).toEqual({ name: 'Volume', description: 'Required', invalid: null, required: null });
     expect(await said('optional')).toEqual({ name: 'Volume', description: 'Optional', invalid: null, required: null });
-    expect(await said('error')).toEqual({ name: 'Volume', description: 'Applies to alerts and media. Choose a level above 0.', invalid: 'true', required: null });
+    expect(await said('error')).toEqual({ name: 'Volume', description: 'Choose a level above 0.', invalid: 'true', required: null });
     await set(page, 'range-words', { error: true, errorText: 'Too wide.', requirement: 'optional', optionalText: 'Optional' });
-    for (const which of ['start', 'end'] as const) expect(await said('range-words', which)).toMatchObject({ description: 'Per night, before taxes. Too wide. Optional', invalid: 'true' });
+    for (const which of ['start', 'end'] as const) expect(await said('range-words', which)).toMatchObject({ description: 'Too wide. Optional', invalid: 'true' });
     expect(seen.filter((text) => text.includes('[tanrei]')), 'a range named at both handles under a drawn label is reported by nobody').toEqual([]);
     if (browserName === 'chromium') {
       const handles = await axHandles(page);
-      expect(handles.find((each) => each.name === 'Minimum price')).toMatchObject({ description: 'Per night, before taxes. Too wide. Optional', invalid: 'true' });
-      expect(handles.find((each) => each.name === 'Maximum price')).toMatchObject({ description: 'Per night, before taxes. Too wide. Optional', invalid: 'true' });
-      expect(handles.filter((each) => each.name === 'Volume').map((each) => each.description)).toEqual(expect.arrayContaining(['Applies to alerts and media.', 'Required', 'Optional', 'Applies to alerts and media. Choose a level above 0.']));
+      expect(handles.find((each) => each.name === 'Minimum price')).toMatchObject({ description: 'Too wide. Optional', invalid: 'true' });
+      expect(handles.find((each) => each.name === 'Maximum price')).toMatchObject({ description: 'Too wide. Optional', invalid: 'true' });
+      expect(handles.filter((each) => each.name === 'Volume').map((each) => each.description)).toEqual(expect.arrayContaining(['Applies to alerts and media.', 'Required', 'Optional', 'Choose a level above 0.']));
     }
     // A handle with no name of its own is named by label, and a debug build says so.
     await set(page, 'range-words', { endLabel: '' });
@@ -609,8 +609,9 @@ test.describe('slider field', () => {
       return value;
     });
     expect(await css(valueText(page, 'error'), 'color')).toBe(canvasText);
-    // The help stays while the field is in error, and the error text is drawn below it (FLD-7, FLD-31): both in the text color.
-    for (const row of ['.supporting-text', '.error-text']) expect(await css(field(page, 'error').locator(`.frame > .supporting ${row}`), 'color'), row).toBe(canvasText);
+    // While the field is in error its error text stands in the help's place (FLD-7, FLD-31), in the text color.
+    expect(await css(field(page, 'error').locator('.frame > .supporting .error-text'), 'color')).toBe(canvasText);
+    await expect(field(page, 'error').locator('.frame > .supporting .supporting-text')).toHaveCount(0);
     await expect(field(page, 'error').locator('.frame > .supporting .error-text')).toHaveText('Choose a level above 0.');
     await expect(handle(page, 'error')).toHaveAttribute('aria-invalid', 'true');
   });
@@ -695,7 +696,7 @@ test.describe('accessibility', () => {
       { name: 'Text size', description: '', invalid: 'false', required: false, disabled: false },
       { name: 'Minimum price', description: 'Per night, before taxes.', invalid: 'false', required: false, disabled: false },
       { name: 'Maximum price', description: 'Per night, before taxes.', invalid: 'false', required: false, disabled: false },
-      { name: 'Volume', description: 'Applies to alerts and media. Choose a level above 0.', invalid: 'true', required: false, disabled: false },
+      { name: 'Volume', description: 'Choose a level above 0.', invalid: 'true', required: false, disabled: false },
       { name: 'Volume', description: 'Applies to alerts and media.', invalid: 'false', required: false, disabled: true },
     ]));
     // Its value in words is the handle's own (SLD-18, SLD-19).

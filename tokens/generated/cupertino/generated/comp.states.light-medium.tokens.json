@@ -4731,6 +4731,918 @@
             }
           }
         },
+        "inline": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": "{tanrei.comp.button.inline.container.elevation}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.outline.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": "{tanrei.comp.button.inline.container.elevation}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.outline.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": "{tanrei.comp.button.inline.container.elevation}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.outline.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": "{tanrei.sys.elevation.level0}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.outline.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "hovered": {
           "opacity": {
             "$type": "number",
@@ -39110,6 +40022,1144 @@
           }
         }
       },
+      "tag": {
+        "tonal": {
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "outlined": {
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.tag.outlined.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.tag.outlined.info.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.tag.outlined.warning.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.tag.outlined.error.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.tag.outlined.success.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "filled": {
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "info": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "warning": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "error": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "success": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product labels things with a word that is not a control: the category of an article, the state of an order, the stage of a release, the requirement of a field, the value that is the default among several. It draws most of them quietly, some as an outline where a fill would weigh a dense table down, and one filled where it is the chosen one; and it draws a state that is information, a success, a warning or an error in that status's colors, beside the neutral ones."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "link": {
         "standard": {
           "hovered": {
@@ -49722,6 +51772,250 @@
             }
           }
         },
+        "selected": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menubar.selected.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            }
+          }
+        },
         "expanded": {
           "hovered": {
             "container": {
@@ -51529,26 +53823,12 @@
               "container": {
                 "color": {
                   "$type": "color",
-                  "$value": {
-                    "colorSpace": "srgb",
-                    "components": [
-                      0,
-                      0,
-                      0
-                    ],
-                    "alpha": 0.12,
-                    "hex": "#000000"
-                  },
+                  "$value": "{tanrei.comp.file-item.row.action.container.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
                       "rationale": "One product shows a file in more places than it asks for one: the documents attached to a form, each on a line with its size and how far its sending has come; the pictures attached to a message, as a strip of small tiles; a record's attachments, read and opened and no longer removed. It is the same file each time — a glyph that says its format or a small picture of it, its name, what is known of it, and the actions to take it back or try it again — drawn alike wherever it stands."
                     },
-                    "dev.tanrei.state": "disabled",
-                    "dev.tanrei.derive": {
-                      "fn": "alpha",
-                      "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
-                    }
+                    "dev.tanrei.state": "disabled"
                   }
                 }
               },

@@ -7,7 +7,7 @@ import type { OpenAxis } from '../../primitives/index.js';
 export const PREFIX = '--tanrei-comp-tag-group';
 /** The values of `spacing` every design system has. A layer may add more; those get their styles on demand. */
 export const CORE_SPACINGS = ['tags', 'chips'] as const;
-export const DEFAULT_SPACING = 'tags';
+export const DEFAULT_SPACING = 'chips';
 /**
  * The members of the spacing axis (`dev.tanrei.axes.spacing.members`), and the private property each is read into. The
  * names are the group's alone (`--_set-*`): custom properties inherit into the members' shadow roots, where `--_gap`

@@ -164,7 +164,7 @@ A done file and a failed file have a mark before the words of their status: a ch
 
 ### The glyph says the format
 
-There are ten kinds of glyph. Each kind has a list of media types and a list of file extensions. The glyph is chosen from `mediaType`. Where the media type is empty, is `application/octet-stream` or is on none of these lists, it is chosen from the extension of `name`. The kinds are matched in this order. The lists are fixed and the same on every platform, so one file draws one glyph wherever it is shown.
+There are ten kinds of glyph. Each kind has a list of media types and a list of file extensions. The glyph is chosen from `mediaType`. Where the media type is empty, is `application/octet-stream` or is on none of these lists, it is chosen from the extension of `name`. The kinds are matched in this order. The lists are fixed and the same on every platform, so one file draws one glyph wherever it is shown. `video/mp2t` decides nothing either: platforms guess it from the ending `.ts`, which TypeScript files share with video streams, so `index.ts` draws the code glyph.
 
 <DemoFrame label="The ten kinds" plain column>
   <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
@@ -247,7 +247,7 @@ The body is the glyph or the picture, and the texts. The actions stand beside it
 
 `readOnly` draws neither action and keeps no room for them. Use it for the files of a record that is only read. The body can still be pressed.
 
-`disabled` disables the actions and the body. What the item shows stays as it is and stays readable.
+`disabled` disables the actions and the body. What the item shows stays as it is and stays readable. A disabled action keeps the ground it has at rest, none in a row and its disc in a tile: only its glyph fades.
 
 ### Files in an order people change
 
@@ -318,7 +318,7 @@ In a right-to-left layout the glyph or the picture stands at the right and the a
 - The glyph, the picture and the status mark are hidden from assistive technology. The words say what they show.
 - A file item announces nothing. Whoever holds many of them has one live region for them all, as the file upload has.
 - The whole name always reaches assistive technology, also where a tile cuts it and where `nameHidden` hides it.
-- At 200% text a row wraps and loses nothing. A tile's box keeps its size and its texts grow beneath it.
+- At 200% text a row wraps and loses nothing. Where the glyph and the actions would leave the name less than half the row, the actions move to a line of their own below the texts, at the row's end, and the name takes the whole width. A tile's box keeps its size and its texts grow beneath it.
 - In forced colors the box and a tile's action discs keep an edge, and the bar stays visible. A picture is left as it is.
 - Color changes between states are animated over a short time, and happen at once where motion is reduced.
 

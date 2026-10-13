@@ -163,7 +163,7 @@ private let acmeLightMediumColors = TanreiColors(scheme: .lightMedium, values: [
   .onWarning: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .onWarningContainer: TanreiColorValue(red: 0.1765, green: 0.1098, blue: 0.0314, opacity: 1),
   .outline: TanreiColorValue(red: 0.4275, green: 0.4275, blue: 0.4275, opacity: 1),
-  .outlineVariant: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.14),
+  .outlineVariant: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.44),
   .primary: TanreiColorValue(red: 0.0745, green: 0.0745, blue: 0.0745, opacity: 1),
   .primaryContainer: TanreiColorValue(red: 0.9098, green: 0.9098, blue: 0.9098, opacity: 1),
   .scrim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
@@ -221,7 +221,7 @@ private let acmeLightHighColors = TanreiColors(scheme: .lightHigh, values: [
   .onWarning: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .onWarningContainer: TanreiColorValue(red: 0.1412, green: 0.0784, blue: 0.0118, opacity: 1),
   .outline: TanreiColorValue(red: 0.2941, green: 0.2941, blue: 0.2941, opacity: 1),
-  .outlineVariant: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.3),
+  .outlineVariant: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.56),
   .primary: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 1),
   .primaryContainer: TanreiColorValue(red: 0.8863, green: 0.8863, blue: 0.8863, opacity: 1),
   .scrim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
@@ -337,7 +337,7 @@ private let acmeDarkMediumColors = TanreiColors(scheme: .darkMedium, values: [
   .onWarning: TanreiColorValue(red: 0.1725, green: 0.0863, blue: 0, opacity: 1),
   .onWarningContainer: TanreiColorValue(red: 1, green: 0.9176, blue: 0.851, opacity: 1),
   .outline: TanreiColorValue(red: 0.6078, green: 0.6078, blue: 0.6078, opacity: 1),
-  .outlineVariant: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 0.22),
+  .outlineVariant: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 0.36),
   .primary: TanreiColorValue(red: 0.9529, green: 0.9529, blue: 0.9529, opacity: 1),
   .primaryContainer: TanreiColorValue(red: 0.1647, green: 0.1647, blue: 0.1647, opacity: 1),
   .scrim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
@@ -395,7 +395,7 @@ private let acmeDarkHighColors = TanreiColors(scheme: .darkHigh, values: [
   .onWarning: TanreiColorValue(red: 0.1725, green: 0.0863, blue: 0, opacity: 1),
   .onWarningContainer: TanreiColorValue(red: 1, green: 0.9451, blue: 0.9059, opacity: 1),
   .outline: TanreiColorValue(red: 0.7765, green: 0.7765, blue: 0.7765, opacity: 1),
-  .outlineVariant: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 0.4),
+  .outlineVariant: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 0.48),
   .primary: TanreiColorValue(red: 1, green: 1, blue: 1, opacity: 1),
   .primaryContainer: TanreiColorValue(red: 0.1804, green: 0.1804, blue: 0.1804, opacity: 1),
   .scrim: TanreiColorValue(red: 0, green: 0, blue: 0, opacity: 0.4),
@@ -644,19 +644,19 @@ private let acmeAvatarTokens = TanreiAvatarTokens(
       containerSize: 24,
       labelTypescale: acmeTypescale.caption,
       iconSize: 16,
-      groupOverlap: 6
+      groupOverlap: 2
     ),
     medium: TanreiAvatarSizeTokens(
       containerSize: 40,
       labelTypescale: acmeTypescale.label,
       iconSize: 24,
-      groupOverlap: 10
+      groupOverlap: 4
     ),
     large: TanreiAvatarSizeTokens(
       containerSize: 56,
       labelTypescale: acmeTypescale.heading3,
       iconSize: 32,
-      groupOverlap: 14
+      groupOverlap: 8
     )
   ),
   shapes: TanreiAvatarShapes(
@@ -1100,7 +1100,12 @@ private let acmeButtonWithMenuTokens = TanreiButtonWithMenuTokens(
 )
 
 private let acmeButtonTokens = TanreiButtonTokens(
+  busyIndicatorThickness: 2,
   containerShape: 9999,
+  inlineUnderlineOffset: 2,
+  inlineUnderlineVisibility: 0,
+  inlineUnderlineWidth: 1,
+  motionBusyCycleDuration: 1000,
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
@@ -1609,6 +1614,98 @@ private let acmeButtonTokens = TanreiButtonTokens(
         selectedIconColor: .role(.onSurface),
         selectedOutlineColor: .none,
         selectedStateLayerColor: .role(.onSurface)
+      ),
+      disabled: TanreiButtonVariantStateTokens(
+        containerColor: .none,
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        outlineColor: .none,
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        containerElevation: acmeElevation.level0,
+        unselectedContainerColor: .none,
+        unselectedLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        unselectedIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        unselectedOutlineColor: .none,
+        unselectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        selectedContainerColor: .none,
+        selectedLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        selectedIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        selectedOutlineColor: .none,
+        selectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    inline: TanreiButtonVariantTokens(
+      enabled: TanreiButtonVariantStateTokens(
+        containerColor: .none,
+        labelColor: .role(.link),
+        iconColor: .role(.link),
+        outlineColor: .none,
+        stateLayerColor: .role(.link),
+        containerElevation: acmeElevation.level0,
+        unselectedContainerColor: .none,
+        unselectedLabelColor: .role(.link),
+        unselectedIconColor: .role(.link),
+        unselectedOutlineColor: .none,
+        unselectedStateLayerColor: .role(.link),
+        selectedContainerColor: .none,
+        selectedLabelColor: .role(.link),
+        selectedIconColor: .role(.link),
+        selectedOutlineColor: .none,
+        selectedStateLayerColor: .role(.link)
+      ),
+      hovered: TanreiButtonVariantStateTokens(
+        containerColor: .mix(base: .none, with: .role(.link), amount: 0.06),
+        labelColor: .role(.link),
+        iconColor: .role(.link),
+        outlineColor: .none,
+        stateLayerColor: .role(.link),
+        containerElevation: acmeElevation.level0,
+        unselectedContainerColor: .mix(base: .none, with: .role(.link), amount: 0.06),
+        unselectedLabelColor: .role(.link),
+        unselectedIconColor: .role(.link),
+        unselectedOutlineColor: .none,
+        unselectedStateLayerColor: .role(.link),
+        selectedContainerColor: .mix(base: .none, with: .role(.link), amount: 0.06),
+        selectedLabelColor: .role(.link),
+        selectedIconColor: .role(.link),
+        selectedOutlineColor: .none,
+        selectedStateLayerColor: .role(.link)
+      ),
+      focused: TanreiButtonVariantStateTokens(
+        containerColor: .mix(base: .none, with: .role(.link), amount: 0.12),
+        labelColor: .role(.link),
+        iconColor: .role(.link),
+        outlineColor: .none,
+        stateLayerColor: .role(.link),
+        containerElevation: acmeElevation.level0,
+        unselectedContainerColor: .mix(base: .none, with: .role(.link), amount: 0.12),
+        unselectedLabelColor: .role(.link),
+        unselectedIconColor: .role(.link),
+        unselectedOutlineColor: .none,
+        unselectedStateLayerColor: .role(.link),
+        selectedContainerColor: .mix(base: .none, with: .role(.link), amount: 0.12),
+        selectedLabelColor: .role(.link),
+        selectedIconColor: .role(.link),
+        selectedOutlineColor: .none,
+        selectedStateLayerColor: .role(.link)
+      ),
+      pressed: TanreiButtonVariantStateTokens(
+        containerColor: .mix(base: .none, with: .role(.link), amount: 0.2),
+        labelColor: .role(.link),
+        iconColor: .role(.link),
+        outlineColor: .none,
+        stateLayerColor: .role(.link),
+        containerElevation: acmeElevation.level0,
+        unselectedContainerColor: .mix(base: .none, with: .role(.link), amount: 0.2),
+        unselectedLabelColor: .role(.link),
+        unselectedIconColor: .role(.link),
+        unselectedOutlineColor: .none,
+        unselectedStateLayerColor: .role(.link),
+        selectedContainerColor: .mix(base: .none, with: .role(.link), amount: 0.2),
+        selectedLabelColor: .role(.link),
+        selectedIconColor: .role(.link),
+        selectedOutlineColor: .none,
+        selectedStateLayerColor: .role(.link)
       ),
       disabled: TanreiButtonVariantStateTokens(
         containerColor: .none,
@@ -2751,6 +2848,7 @@ private let acmeCheckboxTokens = TanreiCheckboxTokens(
 
 private let acmeChipTokens = TanreiChipTokens(
   avatarShape: 9999,
+  checkWeight: 400,
   containerShape: 9999,
   motionFeedbackDuration: 450,
   motionSelectionDuration: 150,
@@ -3018,10 +3116,12 @@ private let acmeCodeBlockTokens = TanreiCodeBlockTokens(
   languageTypescale: acmeTypescale.labelSmall,
   lineNumberColor: .role(.onSurfaceVariant),
   lineNumberGap: 16,
+  lineAddedContainerColor: .role(.successContainer),
   lineAddedMarkColor: .role(.success),
   lineHighlightedContainerColor: .role(.surfaceContainerHighest),
   lineHighlightedMarkColor: .role(.primary),
   lineMarkWidth: 2,
+  lineRemovedContainerColor: .role(.errorContainer),
   lineRemovedMarkColor: .role(.error),
   outlineColor: .role(.outlineVariant),
   outlineWidth: 1,
@@ -3915,6 +4015,7 @@ private let acmeFabMenuTokens = TanreiFabMenuTokens(
 
 private let acmeFieldGroupTokens = TanreiFieldGroupTokens(
   errorTextGap: 4,
+  fieldMinWidth: 144,
   gapInline: 16,
   labelGap: 8,
   labelTypescale: acmeTypescale.label,
@@ -3958,6 +4059,7 @@ private let acmeFieldGroupTokens = TanreiFieldGroupTokens(
 private let acmeFieldTokens = TanreiFieldTokens(
   counterGap: 16,
   errorTextGap: 4,
+  errorTextPlacement: 0,
   labelIconGap: 8,
   labelIconSize: 20,
   labelGap: 8,
@@ -4127,7 +4229,7 @@ private let acmeFileItemTokens = TanreiFileItemTokens(
       disabled: TanreiFileItemFormStateTokens(
         containerColor: .none,
         stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
-        actionContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        actionContainerColor: .none,
         actionIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         actionStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
@@ -5029,6 +5131,7 @@ private let acmeListTokens = TanreiListTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   moveButtonsGap: 0,
   overlineTypescale: acmeTypescale.labelSmall,
+  reorderTextMinWidth: 96,
   supportingTextTypescale: acmeTypescale.bodySmall,
   trailingIconSize: 24,
   trailingTextTypescale: acmeTypescale.labelSmall,
@@ -5092,57 +5195,57 @@ private let acmeListTokens = TanreiListTokens(
     ),
     selected: TanreiListConditionTokens(
       enabled: TanreiListConditionStateTokens(
-        containerColor: .role(.secondaryContainer),
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
+        overlineColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
         leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        trailingIconColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       hovered: TanreiListConditionStateTokens(
-        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.06),
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.06),
         headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
+        overlineColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
         leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        trailingIconColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       focused: TanreiListConditionStateTokens(
-        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.12),
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.12),
         headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
+        overlineColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
         leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        trailingIconColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       pressed: TanreiListConditionStateTokens(
-        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.2),
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.2),
         headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
+        overlineColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
         leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        trailingIconColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       disabled: TanreiListConditionStateTokens(
-        containerColor: .role(.secondaryContainer),
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
+        overlineColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
         leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        trailingIconColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       )
@@ -5682,6 +5785,7 @@ private let acmeMenubarTokens = TanreiMenubarTokens(
   containerPaddingInline: 12,
   containerShape: 6,
   iconSize: 24,
+  indicatorSize: 20,
   labelTypescale: acmeTypescale.label,
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
@@ -5714,6 +5818,38 @@ private let acmeMenubarTokens = TanreiMenubarTokens(
       ),
       disabled: TanreiMenubarConditionStateTokens(
         containerColor: .none,
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    selected: TanreiMenubarConditionTokens(
+      enabled: TanreiMenubarConditionStateTokens(
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      hovered: TanreiMenubarConditionStateTokens(
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.06),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      focused: TanreiMenubarConditionStateTokens(
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.12),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      pressed: TanreiMenubarConditionStateTokens(
+        containerColor: .mix(base: .alpha(of: .role(.onSecondaryContainer), amount: 0.16), with: .role(.onSecondaryContainer), amount: 0.2),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      disabled: TanreiMenubarConditionStateTokens(
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
@@ -6011,8 +6147,10 @@ private let acmeNavigationDrawerTokens = TanreiNavigationDrawerTokens(
   containerPaddingBlock: 12,
   containerPaddingInline: 12,
   containerWidth: 240,
+  headerColor: .role(.onSurface),
   headerGap: 24,
   headerItemGap: 8,
+  headerTypescale: acmeTypescale.heading5,
   headingColor: .role(.onSurfaceVariant),
   headingHeight: 36,
   headingTypescale: acmeTypescale.labelSmall,
@@ -6661,6 +6799,7 @@ private let acmeProseTokens = TanreiProseTokens(
   heading6GapAfter: 8,
   heading6GapBefore: 24,
   itemGap: 4,
+  japaneseLineHeight: 1.85,
   leadTypescale: acmeTypescale.bodyLarge,
   listIndent: 32,
   measure: 36,
@@ -7020,6 +7159,7 @@ private let acmeSearchTokens = TanreiSearchTokens(
 )
 
 private let acmeSegmentedButtonTokens = TanreiSegmentedButtonTokens(
+  checkWeight: 400,
   containerShape: 0,
   dividerColor: .role(.outline),
   dividerWidth: 1,
@@ -8376,6 +8516,9 @@ private let acmeTabsTokens = TanreiTabsTokens(
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionTransition: 0,
+  primarySelectedLabelEmphasis: 0,
+  secondarySelectedLabelEmphasis: 0,
+  tonalSelectedLabelEmphasis: 100,
   trackPadding: 4,
   trackShape: 9999,
   trackVisible: 1,
@@ -8402,7 +8545,7 @@ private let acmeTabsTokens = TanreiTabsTokens(
         selectedCoveredIconColor: .role(.onPrimary),
         selectedActiveIndicatorColor: .role(.primary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onPrimary)
       ),
       hovered: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8418,14 +8561,14 @@ private let acmeTabsTokens = TanreiTabsTokens(
         underlineThickness: 3,
         underlineShape: 3,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.06),
+        selectedContainerColor: .mix(base: .none, with: .role(.onPrimary), amount: 0.06),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onPrimary),
         selectedCoveredIconColor: .role(.onPrimary),
         selectedActiveIndicatorColor: .role(.primary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onPrimary)
       ),
       focused: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8441,14 +8584,14 @@ private let acmeTabsTokens = TanreiTabsTokens(
         underlineThickness: 3,
         underlineShape: 3,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.12),
+        selectedContainerColor: .mix(base: .none, with: .role(.onPrimary), amount: 0.12),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onPrimary),
         selectedCoveredIconColor: .role(.onPrimary),
         selectedActiveIndicatorColor: .role(.primary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onPrimary)
       ),
       pressed: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8464,14 +8607,14 @@ private let acmeTabsTokens = TanreiTabsTokens(
         underlineThickness: 3,
         underlineShape: 3,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.2),
+        selectedContainerColor: .mix(base: .none, with: .role(.onPrimary), amount: 0.2),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onPrimary),
         selectedCoveredIconColor: .role(.onPrimary),
         selectedActiveIndicatorColor: .role(.primary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onPrimary)
       ),
       disabled: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8519,7 +8662,7 @@ private let acmeTabsTokens = TanreiTabsTokens(
         selectedCoveredIconColor: .role(.onSecondary),
         selectedActiveIndicatorColor: .role(.secondary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onSecondary)
       ),
       hovered: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8535,14 +8678,14 @@ private let acmeTabsTokens = TanreiTabsTokens(
         underlineThickness: 2,
         underlineShape: 0,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.06),
+        selectedContainerColor: .mix(base: .none, with: .role(.onSecondary), amount: 0.06),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onSecondary),
         selectedCoveredIconColor: .role(.onSecondary),
         selectedActiveIndicatorColor: .role(.secondary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onSecondary)
       ),
       focused: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8558,14 +8701,14 @@ private let acmeTabsTokens = TanreiTabsTokens(
         underlineThickness: 2,
         underlineShape: 0,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.12),
+        selectedContainerColor: .mix(base: .none, with: .role(.onSecondary), amount: 0.12),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onSecondary),
         selectedCoveredIconColor: .role(.onSecondary),
         selectedActiveIndicatorColor: .role(.secondary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onSecondary)
       ),
       pressed: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8581,14 +8724,14 @@ private let acmeTabsTokens = TanreiTabsTokens(
         underlineThickness: 2,
         underlineShape: 0,
         stateLayerColor: .role(.onSecondaryContainer),
-        selectedContainerColor: .mix(base: .none, with: .role(.onSecondaryContainer), amount: 0.2),
+        selectedContainerColor: .mix(base: .none, with: .role(.onSecondary), amount: 0.2),
         selectedLabelColor: .role(.onSecondaryContainer),
         selectedIconColor: .role(.onSecondaryContainer),
         selectedCoveredLabelColor: .role(.onSecondary),
         selectedCoveredIconColor: .role(.onSecondary),
         selectedActiveIndicatorColor: .role(.secondary),
         selectedUnderlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondaryContainer)
+        selectedStateLayerColor: .role(.onSecondary)
       ),
       disabled: TanreiTabsVariantStateTokens(
         trackColor: .role(.secondaryContainer),
@@ -8738,14 +8881,16 @@ private let acmeTabsTokens = TanreiTabsTokens(
       containerPaddingInline: 12,
       activeIndicatorPaddingInline: 12,
       activeIndicatorPaddingBlock: 2,
-      iconSize: 20
+      iconSize: 20,
+      iconPlacement: 1
     ),
     medium: TanreiTabsSizeTokens(
       containerHeight: 48,
       containerPaddingInline: 16,
       activeIndicatorPaddingInline: 16,
       activeIndicatorPaddingBlock: 4,
-      iconSize: 24
+      iconSize: 24,
+      iconPlacement: 0
     )
   ),
   hovered: TanreiTabsStateTokens(
@@ -8800,55 +8945,112 @@ private let acmeTagTokens = TanreiTagTokens(
   ),
   variants: TanreiTagVariants(
     tonal: TanreiTagVariantTokens(
-      containerColor: .role(.secondaryContainer),
-      labelColor: .role(.onSecondaryContainer),
-      iconColor: .role(.onSecondaryContainer),
-      infoContainerColor: .role(.infoContainer),
-      infoLabelColor: .role(.onInfoContainer),
-      infoIconColor: .role(.info),
-      warningContainerColor: .role(.warningContainer),
-      warningLabelColor: .role(.onWarningContainer),
-      warningIconColor: .role(.warning),
-      errorContainerColor: .role(.errorContainer),
-      errorLabelColor: .role(.onErrorContainer),
-      errorIconColor: .role(.error),
-      successContainerColor: .role(.successContainer),
-      successLabelColor: .role(.onSuccessContainer),
-      successIconColor: .role(.success)
+      enabled: TanreiTagVariantStateTokens(
+        containerColor: .role(.secondaryContainer),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        infoContainerColor: .role(.infoContainer),
+        infoLabelColor: .role(.onInfoContainer),
+        infoIconColor: .role(.info),
+        warningContainerColor: .role(.warningContainer),
+        warningLabelColor: .role(.onWarningContainer),
+        warningIconColor: .role(.warning),
+        errorContainerColor: .role(.errorContainer),
+        errorLabelColor: .role(.onErrorContainer),
+        errorIconColor: .role(.error),
+        successContainerColor: .role(.successContainer),
+        successLabelColor: .role(.onSuccessContainer),
+        successIconColor: .role(.success)
+      ),
+      disabled: TanreiTagVariantStateTokens(
+        containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        infoContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        infoLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        infoIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        warningContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        warningLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        warningIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        errorContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        errorLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        errorIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        successContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        successLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        successIconColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
     ),
     outlined: TanreiTagVariantTokens(
-      containerColor: .none,
-      labelColor: .role(.onSurface),
-      iconColor: .role(.onSurfaceVariant),
-      infoContainerColor: .none,
-      infoLabelColor: .role(.onSurface),
-      infoIconColor: .role(.info),
-      warningContainerColor: .none,
-      warningLabelColor: .role(.onSurface),
-      warningIconColor: .role(.warning),
-      errorContainerColor: .none,
-      errorLabelColor: .role(.onSurface),
-      errorIconColor: .role(.error),
-      successContainerColor: .none,
-      successLabelColor: .role(.onSurface),
-      successIconColor: .role(.success)
+      enabled: TanreiTagVariantStateTokens(
+        containerColor: .none,
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurfaceVariant),
+        infoContainerColor: .none,
+        infoLabelColor: .role(.onSurface),
+        infoIconColor: .role(.info),
+        warningContainerColor: .none,
+        warningLabelColor: .role(.onSurface),
+        warningIconColor: .role(.warning),
+        errorContainerColor: .none,
+        errorLabelColor: .role(.onSurface),
+        errorIconColor: .role(.error),
+        successContainerColor: .none,
+        successLabelColor: .role(.onSurface),
+        successIconColor: .role(.success)
+      ),
+      disabled: TanreiTagVariantStateTokens(
+        containerColor: .none,
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        infoContainerColor: .none,
+        infoLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        infoIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        warningContainerColor: .none,
+        warningLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        warningIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        errorContainerColor: .none,
+        errorLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        errorIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        successContainerColor: .none,
+        successLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        successIconColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
     ),
     filled: TanreiTagVariantTokens(
-      containerColor: .role(.primary),
-      labelColor: .role(.onPrimary),
-      iconColor: .role(.onPrimary),
-      infoContainerColor: .role(.info),
-      infoLabelColor: .role(.onInfo),
-      infoIconColor: .role(.onInfo),
-      warningContainerColor: .role(.warning),
-      warningLabelColor: .role(.onWarning),
-      warningIconColor: .role(.onWarning),
-      errorContainerColor: .role(.error),
-      errorLabelColor: .role(.onError),
-      errorIconColor: .role(.onError),
-      successContainerColor: .role(.success),
-      successLabelColor: .role(.onSuccess),
-      successIconColor: .role(.onSuccess)
+      enabled: TanreiTagVariantStateTokens(
+        containerColor: .role(.primary),
+        labelColor: .role(.onPrimary),
+        iconColor: .role(.onPrimary),
+        infoContainerColor: .role(.info),
+        infoLabelColor: .role(.onInfo),
+        infoIconColor: .role(.onInfo),
+        warningContainerColor: .role(.warning),
+        warningLabelColor: .role(.onWarning),
+        warningIconColor: .role(.onWarning),
+        errorContainerColor: .role(.error),
+        errorLabelColor: .role(.onError),
+        errorIconColor: .role(.onError),
+        successContainerColor: .role(.success),
+        successLabelColor: .role(.onSuccess),
+        successIconColor: .role(.onSuccess)
+      ),
+      disabled: TanreiTagVariantStateTokens(
+        containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        infoContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        infoLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        infoIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        warningContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        warningLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        warningIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        errorContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        errorLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        errorIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        successContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        successLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        successIconColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
     )
   )
 )

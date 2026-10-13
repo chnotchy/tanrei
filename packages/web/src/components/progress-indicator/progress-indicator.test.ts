@@ -608,6 +608,14 @@ test.describe('fixtures', () => {
     await mountFixtures(page, spec, { reducedMotion: true });
   });
 
+  test('a fixture that names a surface is drawn on a stage of that color role; the others on the surface', async ({ page }) => {
+    const named = spec.fixtures.filter((f) => (f as Fixture & { surface?: string }).surface);
+    expect(named.map((f) => f.id)).toEqual(['linear-on-container-highest']);
+    const stage = (id: string) => page.locator(`[data-fixture="${id}"]`).evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(await stage('linear-on-container-highest')).toBe(await resolveColor(page, '--tanrei-sys-color-surface-container-highest'));
+    expect(await stage('linear-determinate')).toBe(await resolveColor(page, '--tanrei-sys-color-surface'));
+  });
+
   for (const f of spec.fixtures) {
     test(`snapshot: ${f.id}`, async ({ page }) => {
       await expect(stage(page, f.id)).toHaveScreenshot([spec.name, `${f.id}.png`]);

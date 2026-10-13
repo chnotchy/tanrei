@@ -1483,7 +1483,7 @@ test.describe('reordering: the buttons form', () => {
 
   test('LST-16, LST-37: after the trailing text and icon come the button that moves up, the one that moves down, then the trailing control; each an icon-only text Button of the medium size drawn from Button’s tokens, a touch target’s length each along the row, centred on the row; Tab goes through them in that order and no arrow key moves focus', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [reorderable('row', FOUR, REORDER, { trailingText: '12', trailingIcon: 'star' }, REMOVE)] });
-    // Wide enough for the text to keep half the row beside all of them (LST-51).
+    // Wide enough for the text to keep reorder.text-min-width beside all of them (LST-51).
     await page.addStyleTag({ content: '.stage > tanrei-list { inline-size: 560px !important; }' });
     await expect(row(page, 'row', 1)).not.toHaveClass(/stacked/);
     const r = await bounds(row(page, 'row', 1));
@@ -2024,6 +2024,32 @@ test.describe('reordering: the buttons form', () => {
     await tabTo(page, moveButton(page, 'narrow', 1, 'up').locator('button'));
     await page.keyboard.press('Enter');
     await expect.poll(() => focusedControl(page)).toBe('Short:down');
+  });
+
+  test('LST-51: the controls stand below the text only where they would leave it narrower than reorder.text-min-width — a length that grows with the text — so a usual row (a handle, two move buttons and a remove button) keeps them beside its text in a list 360 wide at the default text size', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [reorderable('fonts', ['Inter', 'Noto Sans JP', 'Helvetica Neue'], { ...REORDER, reorder: 'drag' }, {}, REMOVE)] });
+    const least = await resolveToken(page, T('reorder-text-min-width'));
+    expect(least).toBe(96);
+    // 360 wide at 100%: one line, the buttons beside the text, and the text column at least the least width.
+    for (const n of [0, 1, 2]) await expect(row(page, 'fonts', n)).not.toHaveClass(/stacked/);
+    const text = await bounds(row(page, 'fonts', 1).locator('.text'));
+    const up = await bounds(moveButton(page, 'fonts', 1, 'up'));
+    expect(up.y).toBeLessThan(text.y + text.height);
+    expect(text.width).toBeGreaterThanOrEqual(least);
+    // A least width wider than the text column has: every row stacks at once.
+    // (A change of a token alone resizes nothing; the list measures again when its box changes, so it is nudged.)
+    const nudge = (width: number) => page.locator('tanrei-list').first().evaluate((el, w) => ((el as HTMLElement).style.inlineSize = `${w}px`), width);
+    await override(page, { [T('reorder-text-min-width')]: `${Math.ceil(text.width) + 1}px` });
+    await nudge(359);
+    for (const n of [0, 1, 2]) await expect(row(page, 'fonts', n), `row ${n}`).toHaveClass(/stacked/);
+    await override(page, { [T('reorder-text-min-width')]: '' });
+    await nudge(360);
+    for (const n of [0, 1, 2]) await expect(row(page, 'fonts', n), `row ${n}`).not.toHaveClass(/stacked/);
+    // At 200% text the least width grows by the same factor, and the same rows stack.
+    await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
+    await override(page, { '--tanrei-dial-type-base': '32px' });
+    expect(await resolveToken(page, T('reorder-text-min-width'))).toBe(least * 2);
+    for (const n of [0, 1, 2]) await expect(row(page, 'fonts', n), `row ${n} at 200%`).toHaveClass(/stacked/);
   });
 
   test('LST-52: the trailing control keeps its own semantics and focus stop after the move buttons; when the product removes the item that holds focus, focus goes to the control in the same place of the item now standing there, else of the one before it, else to that item’s first control that can take focus; the last item gone, focus is the product’s; nothing is announced', async ({ page }) => {

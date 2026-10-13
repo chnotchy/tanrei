@@ -2,7 +2,7 @@
 title: "标签组（Tag group）"
 description: "把一组 Tag 或纸片排成会换行的若干行，按其中的内容留出间距，并把这一组作为一个有名称的列表暴露出来。成员保持原样；纸片被移除之后，焦点会移到下一个纸片上。"
 translationOf: components/tag-group.mdx
-sourceHash: deb4197699e52e94905bf63f9f02e8759a6bda39
+sourceHash: dfd5a40f6573b0faf035063e9e49568a6050b0e4
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="tag-group" />
 
 <DemoFrame label="一组 Tag，和一行筛选条件" column>
-  <tanrei-tag-group class="not-content" label="标签">
+  <tanrei-tag-group class="not-content" spacing="tags" label="标签">
     <tanrei-tag label="设计令牌"></tanrei-tag>
     <tanrei-tag label="无障碍"></tanrei-tag>
     <tanrei-tag label="从右到左"></tanrei-tag>
@@ -40,13 +40,14 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-tag-group label="标签">
+    <!-- 一组静态 Tag 要说明自己是 Tag：它的各行之间和 Tag 之间一样近。 -->
+    <tanrei-tag-group spacing="tags" label="标签">
       <tanrei-tag label="设计令牌"></tanrei-tag>
       <tanrei-tag label="无障碍"></tanrei-tag>
     </tanrei-tag-group>
 
-    <!-- 一组纸片要说明自己是纸片：它的各行之间离得更远。 -->
-    <tanrei-tag-group id="recipients" spacing="chips" label="收件人">
+    <!-- 一组纸片使用默认间距：它的各行之间离得足够远，让每个纸片都有自己的触摸目标。 -->
+    <tanrei-tag-group id="recipients" label="收件人">
       <tanrei-chip kind="input" label="李华" remove-label="移除李华"></tanrei-chip>
       <tanrei-chip kind="input" label="王芳" remove-label="移除王芳"></tanrei-chip>
     </tanrei-tag-group>
@@ -70,7 +71,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     ```tsx
     import { Chip, TagGroup } from '@tanrei/react';
 
-    <TagGroup spacing="chips" label="收件人">
+    <TagGroup label="收件人">
       {recipients.map((person) => (
         <Chip key={person.id} kind="input" label={person.name} removeLabel={`移除${person.name}`} onRemove={() => remove(person.id)} />
       ))}
@@ -82,7 +83,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## 规格
 
 <DemoFrame label="会换行的 Tag、表示状态的 Tag、通往每个标签对应页面的链接，以及已输入的项" plain column>
-  <tanrei-tag-group class="not-content" style="inline-size: 22rem; max-inline-size: 100%" label="标签">
+  <tanrei-tag-group class="not-content" spacing="tags" style="inline-size: 22rem; max-inline-size: 100%" label="标签">
     <tanrei-tag label="设计令牌"></tanrei-tag>
     <tanrei-tag label="无障碍"></tanrei-tag>
     <tanrei-tag label="从右到左"></tanrei-tag>
@@ -90,7 +91,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-tag label="颜色"></tanrei-tag>
     <tanrei-tag label="动效"></tanrei-tag>
   </tanrei-tag-group>
-  <tanrei-tag-group class="not-content" label="平台">
+  <tanrei-tag-group class="not-content" spacing="tags" label="平台">
     <tanrei-tag label="Web：Stable" status="success" size="small"></tanrei-tag>
     <tanrei-tag label="SwiftUI：Beta" size="small"></tanrei-tag>
     <tanrei-tag label="Flutter：待跟进" status="warning" variant="outlined" size="small"></tanrei-tag>
@@ -115,9 +116,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | 这一组是什么 | 使用 |
 | --- | --- |
-| 静态的 Tag：文章的类别、一项设置可以取的值、一行状态 | 标签组。 |
-| 通往每个标签对应页面的标签 | 设置了 `spacing="chips"` 的标签组，里面放带 `href` 的纸片。Tag 是文本，不能成为链接。 |
-| 列表上方的筛选条件、字段下方的建议、用户输入的项 | 设置了 `spacing="chips"` 的标签组。 |
+| 静态的 Tag：文章的类别、一项设置可以取的值、一行状态 | 设置了 `spacing="tags"` 的标签组。 |
+| 通往每个标签对应页面的标签 | 由带 `href` 的纸片组成的标签组。Tag 是文本，不能成为链接。 |
+| 列表上方的筛选条件、字段下方的建议、用户输入的项 | 由纸片组成的标签组。 |
+| 一长行筛选条件，应当只按一次 Tab 就能越过 | 由切换按钮组成的[工具栏](/zh-cn/components/toolbar/)（见下文）。 |
 | 两到四个不同的操作 | [按钮组](/zh-cn/components/button-group/)。 |
 | 几个当中选一个 | [单选组](/zh-cn/components/radio-group/)、[标签页](/zh-cn/components/tabs/)或[分段按钮](/zh-cn/components/segmented-button/)。 |
 | 需要可见标签、必填和选填标记和错误信息的控件 | [字段组](/zh-cn/components/field-group/)。 |
@@ -127,10 +129,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 `spacing` 说明这一组里放的是什么，并决定两个距离：同一行上两个成员之间的距离，以及两行之间的距离。
 
-- `tags`（默认）用于静态的 Tag。行与行之间的距离和一行上 Tag 之间的距离一样近，所以换了行的一组读起来仍是一整块。
-- `chips` 用于纸片。纸片在可见边缘之外也接收按下，范围最大到一个触摸目标。行与行之间离得足够远，让每个中号纸片都保有完整的触摸目标；两个纸片的区域会重叠的地方，它们在间隙的正中相接。
+- `chips`（默认）用于纸片。纸片在可见边缘之外也接收按下，范围最大到一个触摸目标。行与行之间离得足够远，让每个中号纸片都保有完整的触摸目标；两个纸片的区域会重叠的地方，它们在间隙的正中相接。
+- `tags` 用于静态的 Tag。行与行之间的距离和一行上 Tag 之间的距离一样近，所以换了行的一组读起来仍是一整块。
 
-留在 `tags` 的一组纸片仍然可以工作。它的行距小于触摸目标的高度，调试构建会报告这一点。
+默认值是稳妥的一侧。留在 `chips` 的一组 Tag 只是彼此离得稍远一些。设为 `tags` 的一组纸片仍然可以工作，但它的行距小于触摸目标的高度，调试构建会报告这一点。
 
 小号纸片用于密集、并且这一组只占一行的地方。换行之后，它们的触摸目标还没有达到完整大小，就已经在两行之间相接了。在触摸屏上会换行的一组，请使用中号纸片。
 
@@ -144,6 +146,26 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 这一组从起始边开始排列。要把它放在一行的末尾或中间，请用它周围的布局来摆放标签组。
 - 给每个成员相同的尺寸。尺寸不同的成员会在所在的行上居中对齐。
 - 没有成员的标签组什么也不绘制，也不占空间。没有标签的帖子不需要特殊处理。
+
+### 一行筛选条件只占一个 Tab 停靠点
+
+标签组让每个纸片各自成为一个 Tab 停靠点，就像按钮组里的每个按钮一样，用户用 Tab 在纸片之间移动。一长行筛选条件应当只按一次 Tab 就能越过时，请改为把筛选条件作为切换按钮放进[工具栏](/zh-cn/components/toolbar/)。工具栏是一个 Tab 停靠点，方向键在它的按钮之间移动，每个按钮保有自己的按下状态。工具栏只有一行：它不会换行。
+
+<DemoFrame label="只占一个 Tab 停靠点的筛选条件：由切换按钮组成的工具栏">
+  <tanrei-toolbar class="not-content" label="筛选条件">
+    <tanrei-button variant="outlined" toggle selected label="未关闭"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="分配给我"></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="待审阅"></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+```html
+<tanrei-toolbar label="筛选条件">
+  <tanrei-button variant="outlined" toggle selected label="未关闭"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="分配给我"></tanrei-button>
+  <tanrei-button variant="outlined" toggle label="待审阅"></tanrei-button>
+</tanrei-toolbar>
+```
 
 ### 组的标签
 
@@ -164,7 +186,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 推荐
 
-- 一组纸片请设置 `spacing="chips"`。
+- 一组静态 Tag 请设置 `spacing="tags"`。
 - 给这一组一个 `label`，使用页面的语言。
 - 一组里只放一种成员。已输入的项后面跟一个“添加”纸片是例外。
 
@@ -201,11 +223,11 @@ Web 上的已知差距：
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+    gap: var(--tanrei-comp-tag-group-row-gap-chips) var(--tanrei-comp-tag-group-gap-chips);
   }
   ```
 
-- 一组纸片之间不提供方向键导航。应当只占一个停靠点的一长行筛选条件，是由纸片组成的[工具栏](/zh-cn/components/toolbar/)。
+- 一组纸片之间不提供方向键导航：每个纸片是一个 Tab 停靠点。应当只占一个停靠点的一长行筛选条件，是由切换按钮组成的[工具栏](/zh-cn/components/toolbar/)，如“一行筛选条件只占一个 Tab 停靠点”中所示。
 
 ### 需要你做的事
 

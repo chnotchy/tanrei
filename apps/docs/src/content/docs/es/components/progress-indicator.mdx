@@ -2,7 +2,7 @@
 title: Indicador de progreso
 description: Muestra cuánto ha avanzado una tarea, o que está en curso cuando no se sabe cuánto, en forma de barra o de anillo.
 translationOf: components/progress-indicator.mdx
-sourceHash: 2c289070008e86f05c52be046b30544c8a9958f3
+sourceHash: f486cb2aed81fdd7e8f613cede165ad08fad7a23
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -208,4 +208,5 @@ El sistema de diseño elige una vez para todos los componentes que tienen esta e
 
 - Anuncia tú el final de la tarea: un mensaje en una región activa (live region), o el foco movido al resultado. El indicador no dirá que la tarea ha terminado o ha fallado.
 - Si los cambias, mantén el color del indicador con un contraste de al menos 3:1 frente a la pista y a la superficie que tiene detrás, tanto con un divisor como con una separación. El valor se lee allí donde el indicador se encuentra con la pista.
+- Sobre una superficie con el tono de contenedor más alto, como una tarjeta rellena, la pista cuesta verla: tiene casi el mismo tono. Donde un indicador esté sobre una, apunta `comp.progress-indicator.track.color` a un rol más fuerte en una capa. Lo que muestra el indicador se sigue leyendo allí donde se encuentra con la pista.
 - Si la tarea bloquea una región de la página, marca esa región como ocupada mientras se ejecuta (`aria-busy` en la web).

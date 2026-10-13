@@ -309,8 +309,8 @@ test.describe('the arithmetic and the reading of a text (number-text.ts)', () =>
 
 test.describe('behavior: the box', () => {
   test('NMI-1: the container is at least container.height of its size tall, its corners container.shape (a filled one’s bottom corners shape-bottom), and holds one centred row — the prefix, the input, the suffix and the two steppers, container.gap after the input line — text padding-inline from the edge and at least padding-block above and below the line', async ({ page }) => {
-    await mountSpec(page, ['stacked-value', 'stacked-large', 'stacked-prefix', 'stacked-no-steppers', 'filled-value']);
-    for (const [id, size] of [['stacked-value', 'medium'], ['stacked-large', 'large']] as const) {
+    await mountSpec(page, ['stacked-value', 'stacked-large', 'stacked-small', 'stacked-prefix', 'stacked-no-steppers', 'filled-value']);
+    for (const [id, size] of [['stacked-value', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       const c = await box(container(page, id));
       near(c.height, await token(page, `container-height-${size}`), `${id} height`);
       const field = await box(input(page, id));
@@ -359,7 +359,7 @@ test.describe('behavior: the box', () => {
   });
 
   test('NMI-2: a number input and a text input of the same variant, size, label and value in one row share the tops and bottoms of their containers, floating labels and input lines, their start edges and their input’s text style; in the same Field each is as tall as the other', async ({ page }) => {
-    for (const [system, variant, size] of [[undefined, 'stacked', 'medium'], [undefined, 'stacked', 'large'], ['m3-like', 'filled', 'medium'], ['m3-like', 'outlined', 'large']] as const) {
+    for (const [system, variant, size] of [[undefined, 'stacked', 'small'], [undefined, 'stacked', 'medium'], [undefined, 'stacked', 'large'], ['m3-like', 'filled', 'small'], ['m3-like', 'filled', 'medium'], ['m3-like', 'outlined', 'large']] as const) {
       await mount(page, [fx('pair', { variant, size, value: 12 })], { system });
       await page.evaluate(
         ([v, s]) => {
@@ -578,7 +578,7 @@ test.describe('behavior: the box', () => {
       Object.assign(el, { error: true, errorText: 'Too heavy.' });
       await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
     });
-    await expect.poll(() => described(page, 'framed')).toBe('In kilograms. Too heavy.');
+    await expect.poll(() => described(page, 'framed')).toBe('Too heavy.');
     expect(await input(page, 'hidden').getAttribute('aria-required')).toBe('true');
     expect(await input(page, 'none').getAttribute('aria-required')).toBe('true');
     expect(await input(page, 'framed').getAttribute('aria-required')).toBeNull();
@@ -1004,12 +1004,14 @@ test.describe('behavior: the number', () => {
     for (const [id, text] of [['framed', 'Enter a number.'], ['fallback', 'Order at least 1.'], ['help', '']] as const) {
       await retype(page, id, 'x');
       await blurInput(page, id);
-      await expect(shown(id), `${id}: the help stays above either`).toHaveText(help);
+      // FLD-7: with words, the error text stands in the help's place; without, the help stays.
+      if (text) await expect(shown(id), `${id}: the error text in the help’s place`).toHaveCount(0);
+      else await expect(shown(id), `${id}: no words, the help stays`).toHaveText(help);
       if (text) {
         await expect(wrong(id), id).toHaveText(text);
         await expect.poll(() => css(wrong(id), 'color'), { message: id }).toBe(errorColor);
       } else await expect(wrong(id), `${id}: no words, no error text`).toHaveCount(0);
-      await expect.poll(() => described(page, id), { message: `${id}: the help, then the error text, each said once` }).toBe([help, text].filter(Boolean).join(' '));
+      await expect.poll(() => described(page, id), { message: `${id}: what the row draws, said once` }).toBe(text || help);
       expect(await read(page, id), id).toMatchObject({ invalid: true, text: 'x', value: null });
       expect(await row(page, id).evaluate((el) => (el as HTMLElement & { error: boolean }).error), `${id}: the Field’s error is untouched`).toBe(false);
     }
@@ -1685,7 +1687,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     await retype(page, 'one', 'wide');
     await blurInput(page, 'one');
     [spin] = await axNodes(page, 'spinbutton');
-    expect(spin).toMatchObject({ required: true, invalid: 'true', description: 'In pixels. Enter a number.' });
+    expect(spin).toMatchObject({ required: true, invalid: 'true', description: 'Enter a number.' });
     await set(page, 'one', { value: 4, readOnly: true });
     // Read-only: the protocol's tree has no read-only property for a text input (the combobox's test found the same),
     // so what the browser is given is read instead — the native state and aria-readonly — and the tree must still call
@@ -2250,7 +2252,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     await retype(page, 'stacked', 'many');
     await blurInput(page, 'stacked');
     await expect(row(page, 'stacked').locator('.error-text')).toHaveText('Enter a number.');
-    await expect(row(page, 'stacked').locator('.supporting-text'), 'the help stays (FLD-7)').toHaveText(help);
+    await expect(row(page, 'stacked').locator('.supporting-text'), 'the error text stands in the help’s place (FLD-7)').toHaveCount(0);
     await retype(page, 'stacked', '3');
     await expect(row(page, 'stacked').locator('.error-text')).toHaveCount(0);
     await expect(row(page, 'stacked').locator('.supporting-text')).toHaveText(help);
@@ -2261,7 +2263,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     expect(await described(page, 'stacked')).toBe(help);
     await setField(page, 'stacked', { error: true, errorText: 'Order at least 1.', disabled: true, requirement: 'none' });
     expect(await input(page, 'stacked').evaluate((el) => [el.getAttribute('aria-label'), el.getAttribute('aria-required'), el.getAttribute('aria-invalid'), (el as HTMLInputElement).disabled])).toEqual(['Quantity', null, 'true', true]);
-    expect(await described(page, 'stacked'), 'the help, then the error text (FLD-11)').toBe('Up to 99 per order. Order at least 1.');
+    expect(await described(page, 'stacked'), 'the error text in the help’s place (FLD-11)').toBe('Order at least 1.');
     await setField(page, 'floating', { labelHidden: true });
     await expect(part(page, 'floating', '.floating')).toHaveCount(0);
     await setField(page, 'floating', { labelHidden: false, requiredMark: 'none' });
@@ -2386,7 +2388,7 @@ test.describe('accessibility', () => {
 test.describe('fixtures', () => {
   test('every fixture is mounted and visible, with the name, the floating label, the number in its locale’s form, the affixes and the steppers the spec gives it', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    expect(spec.fixtures).toHaveLength(41);
+    expect(spec.fixtures).toHaveLength(42);
     const TEXTS: Record<string, string> = { 'stacked-prefix': '120.00', 'stacked-locale-de': '1,5', 'stacked-locale-ar': '١٢', 'stacked-prefix-rtl': '120.00', 'stacked-suffix-direction-mark-rtl': '120.00', 'stacked-locale-ar-percent': '٤٠' };
     for (const f of spec.fixtures) {
       await expect(host(page, f.id), f.id).toBeVisible();

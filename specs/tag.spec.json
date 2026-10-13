@@ -85,6 +85,12 @@
       "type": "boolean",
       "default": false,
       "description": "Draws the dot before the label, in the look's mark color. A glyph in the icon slot takes its place. An outlined tag with a status draws the dot whatever this says, because nothing else in that look shows the status."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the tag as part of something disabled — the label of a disabled field, a disabled row of a list, a disabled item of a menu — in its look's disabled colors, so that it fades with what it stands in. It changes nothing else: a tag takes no input and no focus, and what assistive technology hears of the disabled state it hears from the element the tag stands in. The component that holds the tag sets it (a Field does, for its requirement tag); a product sets it on a tag it places in a disabled element of its own."
     }
   ],
   "slots": [
@@ -95,7 +101,8 @@
     }
   ],
   "states": [
-    "enabled"
+    "enabled",
+    "disabled"
   ],
   "behavior": [
     {
@@ -135,7 +142,7 @@
     },
     {
       "id": "TAG-9",
-      "text": "THE tag SHALL NOT take pointer, touch or keyboard input, SHALL NOT take focus or be a stop in the focus order, and SHALL NOT change anything it draws under a pointer, a press or focus: it has no hovered, focused, pressed, selected or disabled state, draws no state layer, no ripple and no focus indicator, and emits no event."
+      "text": "THE tag SHALL NOT take pointer, touch or keyboard input, SHALL NOT take focus or be a stop in the focus order, and SHALL NOT change anything it draws under a pointer, a press or focus: it has no hovered, focused, pressed or selected state and no disabled state of its own — disabled draws it as part of something disabled and changes nothing it does (TAG-21) — draws no state layer, no ripple and no focus indicator, and emits no event."
     },
     {
       "id": "TAG-10",
@@ -184,6 +191,11 @@
     {
       "id": "TAG-20",
       "text": "IF label is empty THE tag SHALL draw nothing, take no space and expose nothing, and in debug builds report that a tag has no text: a glyph or a dot alone is not a tag. IF statusLabel is not empty while status is default THE tag SHALL ignore it and in debug builds report it."
+    },
+    {
+      "id": "TAG-21",
+      "text": "WHILE disabled is true — the tag stands inside something disabled, and the component that holds it, or the product, says so — THE tag SHALL draw its fill, its label, its glyph and its dot from its look's disabled tokens (comp.tag.<variant>.disabled.container.color, comp.tag.<variant>.disabled.label.color and comp.tag.<variant>.disabled.icon.color, and their parts of each status), whatever its status, so that it fades with what it stands in and does not read as the one live part of a disabled whole; an outlined tag SHALL keep its edge and draw no fill. disabled SHALL change nothing else: the tag SHALL keep its size, its label and its place, take no input and no focus (TAG-9), and keep its text readable by assistive technology, which hears the disabled state from the element the tag stands in, never from the tag. WHERE the platform draws with a person's own forced colors THE tag SHALL draw its edge, its label, its glyph and its dot in the platform's color for disabled text (GrayText on the web) in place of its text color (TAG-14).",
+      "verify": "Fixtures small-filled-disabled, small-tonal-disabled, outlined-disabled and tonal-error-disabled. Unit: under the default system a disabled tag's fill is on-surface at sys.state.disabled-container-opacity and its label on-surface at sys.state.disabled-content-opacity, in every look and every status; an outlined one has no fill and keeps its edge; the tag is as large as it is enabled, is not focusable and exposes no disabled state."
     }
   ],
   "accessibility": {
@@ -340,6 +352,39 @@
         "size": "small",
         "variant": "filled",
         "label": "Required"
+      }
+    },
+    {
+      "id": "small-tonal-disabled",
+      "props": {
+        "size": "small",
+        "label": "Optional",
+        "disabled": true
+      }
+    },
+    {
+      "id": "small-filled-disabled",
+      "props": {
+        "size": "small",
+        "variant": "filled",
+        "label": "Required",
+        "disabled": true
+      }
+    },
+    {
+      "id": "outlined-disabled",
+      "props": {
+        "variant": "outlined",
+        "label": "Archived",
+        "disabled": true
+      }
+    },
+    {
+      "id": "tonal-error-disabled",
+      "props": {
+        "status": "error",
+        "label": "Failed",
+        "disabled": true
       }
     },
     {
@@ -554,9 +599,10 @@
         "status": "status",
         "statusLabel": "statusLabel",
         "size": "size",
-        "dot": "dot"
+        "dot": "dot",
+        "disabled": "disabled"
       },
-      "notes": "`<tanrei-tag>` with the label as the `label` attribute and the glyph in the `icon` slot. The host is `display: inline-flex` with `vertical-align: baseline` and no `role`, no `tabindex` and no listeners; `pointer-events` stay as they are, so a press over a tag inside a link or a button reaches that element (TAG-10). `statusLabel` is reflected as the `status-label` attribute and drawn as visually hidden text before the label in the shadow root, followed by a comma and a space (TAG-11); the glyph and the dot are `aria-hidden`. The label is one `dir=\"auto\"` run with `text-overflow: ellipsis` (TAG-18). Under `forced-colors: active` the container takes a `CanvasText` border of the outline width (TAG-14)."
+      "notes": "`<tanrei-tag>` with the label as the `label` attribute and the glyph in the `icon` slot. The host is `display: inline-flex` with `vertical-align: baseline` and no `role`, no `tabindex` and no listeners; `pointer-events` stay as they are, so a press over a tag inside a link or a button reaches that element (TAG-10). `statusLabel` is reflected as the `status-label` attribute and drawn as visually hidden text before the label in the shadow root, followed by a comma and a space (TAG-11); the glyph and the dot are `aria-hidden`. The label is one `dir=\"auto\"` run with `text-overflow: ellipsis` (TAG-18). Under `forced-colors: active` the container takes a `CanvasText` border of the outline width (TAG-14). `disabled` is a reflected boolean attribute that draws the look's disabled tokens and nothing else: no `aria-disabled`, no `inert`, no listener (TAG-21); under `forced-colors: active` the edge and the text are `GrayText`."
     },
     "swiftui": {
       "status": "planned",
@@ -567,9 +613,10 @@
         "status": "status",
         "statusLabel": "statusLabel",
         "size": "size",
-        "dot": "showsDot"
+        "dot": "showsDot",
+        "disabled": "isDisabled"
       },
-      "notes": "`TanreiTag(_ title: String, variant:, status:, statusLabel:, size:, showsDot:, icon:)`, the glyph given by name through `icon:`. Not a `Button` and not focusable; `allowsHitTesting(false)` so a press reaches a row or a link that holds it. The view is one accessibility element whose label is `statusLabel` and the title joined by a comma, with the static text trait."
+      "notes": "`TanreiTag(_ title: String, variant:, status:, statusLabel:, size:, showsDot:, icon:)`, the glyph given by name through `icon:`. Not a `Button` and not focusable; `allowsHitTesting(false)` so a press reaches a row or a link that holds it. The view is one accessibility element whose label is `statusLabel` and the title joined by a comma, with the static text trait. `isDisabled:` (a parameter, not `.disabled(_:)`, which would say the tag is a control): it draws the look's disabled tokens and changes nothing else (TAG-21)."
     },
     "compose": {
       "status": "planned",
@@ -580,9 +627,10 @@
         "status": "status",
         "statusLabel": "statusDescription",
         "size": "size",
-        "dot": "showDot"
+        "dot": "showDot",
+        "disabled": "enabled"
       },
-      "notes": "`TanreiTag(label, variant, status, statusDescription, size, showDot, icon)`, the glyph given by name through `icon`. No `clickable` and no `focusable` modifier. The label's text semantics are replaced by `statusDescription` and the label joined by a comma where a status label is given; the glyph and the dot are cleared from semantics."
+      "notes": "`TanreiTag(label, variant, status, statusDescription, size, showDot, icon)`, the glyph given by name through `icon`. No `clickable` and no `focusable` modifier. The label's text semantics are replaced by `statusDescription` and the label joined by a comma where a status label is given; the glyph and the dot are cleared from semantics. `enabled` is the inverse flag: it draws the look's disabled tokens and changes nothing else (TAG-21)."
     },
     "flutter": {
       "status": "planned",
@@ -593,9 +641,10 @@
         "status": "status",
         "statusLabel": "statusSemanticLabel",
         "size": "size",
-        "dot": "showDot"
+        "dot": "showDot",
+        "disabled": "enabled"
       },
-      "notes": "`TanreiTag(label: …, variant:, status:, statusSemanticLabel:, size:, showDot:, icon:)`, the glyph given by name through `icon`. Wrapped in `IgnorePointer`, with no `Focus`. One `Semantics(label:)` over the drawn parts, which are excluded."
+      "notes": "`TanreiTag(label: …, variant:, status:, statusSemanticLabel:, size:, showDot:, icon:)`, the glyph given by name through `icon`. Wrapped in `IgnorePointer`, with no `Focus`. One `Semantics(label:)` over the drawn parts, which are excluded. `enabled` is the inverse flag: it draws the look's disabled tokens and changes nothing else (TAG-21)."
     },
     "react-native": {
       "status": "planned",
@@ -606,9 +655,10 @@
         "status": "status",
         "statusLabel": "statusAccessibilityLabel",
         "size": "size",
-        "dot": "dot"
+        "dot": "dot",
+        "disabled": "disabled"
       },
-      "notes": "`<Tag label=\"Beta\" />`; the glyph is the `icon` prop (a glyph name). `pointerEvents=\"none\"` and not `focusable`. One accessible element with `accessibilityRole=\"text\"` whose `accessibilityLabel` is the status label and the label joined by a comma. Follows the app's direction where an ancestor's is not known."
+      "notes": "`<Tag label=\"Beta\" />`; the glyph is the `icon` prop (a glyph name). `pointerEvents=\"none\"` and not `focusable`. One accessible element with `accessibilityRole=\"text\"` whose `accessibilityLabel` is the status label and the label joined by a comma. Follows the app's direction where an ancestor's is not known. `disabled`: it draws the look's disabled tokens and changes nothing else (TAG-21)."
     }
   }
 }

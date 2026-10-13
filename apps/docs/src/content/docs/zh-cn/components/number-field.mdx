@@ -2,7 +2,7 @@
 title: "数字字段"
 description: "让用户把数字当作数字来输入——按所在区域设置的写法键入，或者用按键或按钮步进；数字被限制在范围之内，单位就在旁边——它是表单中一个完整的字段，由一个字段和一个数字输入框组成。"
 translationOf: components/number-field.mdx
-sourceHash: 41b695ba9c7ee7ef2b2790018ffe4c9931282b09
+sourceHash: d14b4c010e77328467d20894bf802cdfa9ea87a5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -122,9 +122,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 输入框 | 属于数字输入框：以文本形式呈现的数字。编辑期间是用户键入的内容；其余时候是已确认的数字，按区域设置的写法显示。只有一行，放不下时滚动 |
 | 前缀、后缀 | 属于数字输入框：数字前后的固定文本，例如货币符号或单位。它们属于方框，绝不属于值 |
 | 步进按钮 | 属于数字输入框：末尾的两个按钮，第一个减小，第二个增大。把 `steppers` 设为 false 就不绘制它们 |
-| 辅助文本 | 属于字段：一行帮助文本。字段处于错误状态时它保留，错误文本绘制在它的下方：`error` 为 true 时是 `errorText`，文本不是数字时是 `invalidText`。无论有没有步进按钮，它都从方框的文本内边距处开始，到那里结束 |
+| 辅助文本 | 属于字段：一行帮助文本。字段处于错误状态时，错误文本取代它的位置（设计系统两者都保留时，绘制在它的下方）：`error` 为 true 时是 `errorText`，文本不是数字时是 `invalidText`。无论有没有步进按钮，它都从方框的文本内边距处开始，到那里结束 |
 
-三种变体，以及 `medium`（48）和 `large`（56）两种尺寸，都是文本字段的。默认系统只提供 `stacked`。
+三种变体，以及 `small`（40）、`medium`（48）和 `large`（56）三种尺寸，都是文本字段的。默认系统只提供 `stacked`。
 
 数字字段没有自己的令牌。它的方框读取[数字输入框的令牌](/zh-cn/components/number-input/#规格)，它的各行读取[字段的令牌](/zh-cn/components/field/#规格)，两个步进按钮读取[按钮的令牌](/zh-cn/components/button/#规格)，无论这些令牌设置在哪里。要改动某一个实例，就在它上面设置成员的令牌：`style="--tanrei-comp-field-label-gap: 0.75rem"`。
 

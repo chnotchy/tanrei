@@ -13,7 +13,7 @@
   "anatomy": [
     {
       "id": "field",
-      "description": "The frame: a Field, whole — its label row with the label glyph and the requirement mark, and its supporting row, where the error text stands below the help. Drawn by the Field from the Field's tokens (FLD-1 to FLD-9)."
+      "description": "The frame: a Field, whole — its label row with the label glyph and the requirement mark, and its supporting row, where the error text stands in the help's place or below it (FLD-7). Drawn by the Field from the Field's tokens (FLD-1 to FLD-9)."
     },
     {
       "id": "one-time-code-input",

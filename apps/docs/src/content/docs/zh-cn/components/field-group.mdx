@@ -2,7 +2,7 @@
 title: "字段组"
 description: "为回答同一个问题的一组控件——复选框、开关，或者相互关联的字段——命名：一个可以说明这一组必填或选填的标签、一段描述，以及针对整组的一条错误；并把这些控件排成一列或一行。"
 translationOf: components/field-group.mdx
-sourceHash: 0c05f716a744df37389e7c61de7327157afc78c5
+sourceHash: 6825a01b24b1fc9701b16dd5130baba7634da638
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -134,6 +134,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - `orientation="vertical"`（默认）把控件叠成一列。优先使用它：每个标签都从同一条边开始，从上往下读。
 - `orientation="horizontal"` 把控件排成一行，放不下时换行。只把它用于两三个简短的选项，或者要作为一行来读的字段，例如城市和它的邮政编码。换了行之后，就看不出哪个标签属于哪个标记了。
+- 排成一行的字段平分这一行，且绝不窄于 `comp.field-group.field.min-width`（默认系统中为 144）：窗口较窄时，下一个字段会换到自己的一行，而不是被挤压到连输入的内容都被截断。字段需要更宽时，请设置这个令牌。
 - `spacing` 说明这一组里放的是什么。`controls` 让复选框和开关之间相隔一个触摸目标的距离；`fields` 让字段之间相隔表单中两个字段之间的距离，并让每个字段占满宽度。设计系统可以添加其他取值。
 
 复选框或开关的标记位于它自己的容器里面，所以它的起点比字段组的标签略微靠里。字段组不会把它往外拉：控件正是在这个容器上绘制悬停和焦点环的。

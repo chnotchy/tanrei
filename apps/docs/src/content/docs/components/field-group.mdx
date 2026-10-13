@@ -132,6 +132,7 @@ The label, the requirement tag and the asterisk are the field's.
 
 - `orientation="vertical"` (the default) stacks the controls in one column. Prefer it: every label starts on one edge and is read down.
 - `orientation="horizontal"` lays them out in a row that wraps. Keep it for two or three short options, or for fields that are read as one line, such as a city and its postal code. A wrapped row hides which label belongs to which mark.
+- Fields in a row share it equally and are never narrower than `comp.field-group.field.min-width` (144 in the default system): in a narrow window the next field moves to a line of its own instead of being squeezed until what is typed in it is cut. Set that token where your fields need more.
 - `spacing` says what the set holds. `controls` puts checkboxes and switches a touch target apart; `fields` puts fields the distance a form keeps between two fields, and lets each fill the width. A design system may add values.
 
 The mark of a checkbox or a switch stands inside its own container, so it starts a little further in than the group's label. The group does not pull it out: the container is where the control draws its hover and its focus ring.

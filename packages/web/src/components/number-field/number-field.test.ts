@@ -203,8 +203,8 @@ test.describe('behavior', () => {
     await page.keyboard.type('many');
     await blurAll(page);
     await expect(field(entry).locator('.error-text')).toHaveText('Enter a number.');
-    await expect(field(entry).locator('.supporting-text'), 'the help stays above the error text (FLD-7)').toHaveText('Up to 99 per order.');
-    await expect(entry.getByRole('spinbutton', { name: 'Quantity', exact: true })).toHaveAccessibleDescription('Up to 99 per order. Enter a number.');
+    await expect(field(entry).locator('.supporting-text'), 'the error text stands in the help’s place (FLD-7)').toHaveCount(0);
+    await expect(entry.getByRole('spinbutton', { name: 'Quantity', exact: true })).toHaveAccessibleDescription('Enter a number.');
     await expect(typing(entry)).toHaveAttribute('aria-invalid', 'true');
     expect(await entry.evaluate((el) => [(el as unknown as { error: boolean }).error, (el as unknown as { value: unknown }).value]), 'its own error is not set, and the value is empty').toEqual([false, null]);
     await entry.evaluate((el: HTMLElement) => el.focus());

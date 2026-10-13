@@ -910,7 +910,7 @@ interface Snapshot {
  * @slot - `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` children.
  * @slot header-button - Icon-only `<tanrei-button>`s stacked in the icon column; the first is the menu button while the drawer is collapsible.
  * @slot main-action - A `<tanrei-main-action-button>` below the header buttons, collapsed to its icon with the drawer. Only the first is drawn.
- * @slot header - Content beside the first header button while the drawer is expanded (a title, an account switcher); not restyled.
+ * @slot header - Content beside the first header button while the drawer is expanded (a title, an account switcher). Its box gives what it holds the header's inherited text style and color (`comp.navigation-drawer.header.typescale` and `.color`): plain text is drawn in them, and an element that sets its own keeps it.
  * @csspart container - The panel: the `<nav>` of a standard drawer (or a collapsible modal drawer's column), the `<dialog>` of a modal one.
  * @csspart outline - The end edge.
  * @csspart header - The header, which stays in place.

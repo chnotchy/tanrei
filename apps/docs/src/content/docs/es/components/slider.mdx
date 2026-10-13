@@ -2,7 +2,7 @@
 title: Control deslizante
 description: Permite elegir un valor, o un intervalo de valores, arrastrando un tirador a lo largo de una pista, de forma continua o por pasos.
 translationOf: components/slider.mdx
-sourceHash: 39176fadfe7f25e466cebc49d5889a32184219cc
+sourceHash: f8e90fd380943ae7d0e08ad6a1bd99f61a83ba8b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -305,4 +305,5 @@ Carencias conocidas por plataforma:
 - Define `valueText` cuando el número por sí solo no quede claro, y mantenlo sincronizado con el valor.
 - Muestra el resultado de un cambio en algún lugar donde las personas puedan verlo, y diles con texto si un cambio no se pudo aplicar. El control deslizante solo anuncia su propio valor.
 - Con `cupertino`, donde el tirador es blanco y la pista no tiene puntos en los extremos, mantén el control deslizante fuera de una superficie blanca lisa siempre que puedas.
+- Sobre una superficie con el tono de contenedor más alto, como una tarjeta rellena, la pista inactiva cuesta verla: tiene casi el mismo tono. Donde un control deslizante esté sobre una, apunta `comp.slider.standard.track.color` a un rol más fuerte en una capa. El tirador y la pista activa siguen mostrando el valor.
 - En la web, da al control deslizante un `name` para enviar su valor con un formulario.

@@ -290,8 +290,8 @@ const THEMES = ['light', 'dark'] as const;
 
 test.describe('behavior: the box, and what it takes from the Field that frames it', () => {
   test('CMB-1: the container is at least container.height of its size tall, its corners container.shape (a filled one’s bottom corners shape-bottom), and holds one centred row — the leading glyph, the input, the clear button and the chevron, action-gap apart and container.gap from the input — text padding-inline from the edge and a glyph padding-inline-with-icon', async ({ page }) => {
-    await mountSpec(page, ['stacked-value', 'stacked-large', 'stacked-clearable', 'stacked-leading-icon', 'filled-value']);
-    for (const [id, size] of [['stacked-value', 'medium'], ['stacked-large', 'large']] as const) {
+    await mountSpec(page, ['stacked-value', 'stacked-large', 'stacked-small', 'stacked-clearable', 'stacked-leading-icon', 'filled-value']);
+    for (const [id, size] of [['stacked-value', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       const c = await box(container(page, id));
       near(c.height, await token(page, `container-height-${size}`), `${id} height`);
       const field = await box(input(page, id));
@@ -346,7 +346,7 @@ test.describe('behavior: the box, and what it takes from the Field that frames i
   });
 
   test('CMB-2: a combobox in a Field and a text field of the same variant, size, label, value and supporting text in one row share the tops and bottoms of their labels, containers, input lines and supporting rows, their start edges and their input’s text style', async ({ page }) => {
-    for (const [system, variant, size] of [[undefined, 'stacked', 'medium'], [undefined, 'stacked', 'large'], ['m3-like', 'filled', 'medium'], ['m3-like', 'outlined', 'large']] as const) {
+    for (const [system, variant, size] of [[undefined, 'stacked', 'small'], [undefined, 'stacked', 'medium'], [undefined, 'stacked', 'large'], ['m3-like', 'filled', 'small'], ['m3-like', 'filled', 'medium'], ['m3-like', 'outlined', 'large']] as const) {
       await mount(page, [fx('base', {})], { system });
       await frame(page, 'pair', { label: 'City', supportingText: 'Where the order is sent.' }, { variant, size, value: 'tokyo' });
       await page.evaluate(
@@ -2173,7 +2173,7 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
     await set(page, 'one', { status: 'idle', statusText: '', inputValue: 'Beta' });
     await setFrame(page, 'one', { requirement: 'required', error: true, errorText: 'Choose a token of the list.' });
     [box_] = await axNodes(page, 'combobox');
-    expect(box_).toMatchObject({ required: true, invalid: 'true', description: 'Used by the theme. Choose a token of the list.', expanded: false });
+    expect(box_).toMatchObject({ required: true, invalid: 'true', description: 'Choose a token of the list.', expanded: false });
     await set(page, 'one', { readOnly: true });
     // Read-only: the protocol's tree has no read-only property for a text input that is a combobox (it has one for a
     // select's trigger), so what the browser is given is read instead — the native state and aria-readonly — and the
@@ -2692,7 +2692,7 @@ test.describe('the Field around it, the option elements and the options through 
     // What it takes: the name, the description and the states (CMB-10, CMB-12, CMB-46 hold each in full).
     await setFrame(page, 'stacked', { error: true, errorText: 'We do not deliver there yet.', requirement: 'required', requiredText: 'Required' });
     expect(await input(page, 'stacked').evaluate((el) => [el.getAttribute('aria-label'), el.getAttribute('aria-invalid'), el.getAttribute('aria-required')])).toEqual(['City', 'true', 'true']);
-    expect(await description(page, 'stacked'), 'the help, then the error text (FLD-11)').toBe('Where the order is sent, once it is paid for. We do not deliver there yet.');
+    expect(await description(page, 'stacked'), 'the error text in the help’s place (FLD-11)').toBe('We do not deliver there yet.');
     // No count, and no refusal: a text that names no option is given up, and the Field is not put in error by it.
     await focusInput(page, 'plain');
     await type(page, 'zzz');
@@ -3098,7 +3098,7 @@ test.describe('accessibility', () => {
 test.describe('fixtures', () => {
   test('every fixture is mounted and visible, with the floating label where its look has one, the text, the glyphs and — where it is open — the list, the rows and the status row the spec gives it, and with no row of a frame', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
-    expect(spec.fixtures).toHaveLength(48);
+    expect(spec.fixtures).toHaveLength(49);
     const flat = (items: FixtureItem[] = []): FixtureItem[] => items.flatMap((item) => (item.kind === 'option' ? [item] : flat(item.items)));
     const folded = (text: string) => text.normalize('NFKD').toLowerCase();
     for (const f of spec.fixtures) {

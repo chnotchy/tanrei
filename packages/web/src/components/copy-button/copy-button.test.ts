@@ -1,4 +1,4 @@
-// <tanrei-copy-button>, driven by specs/copy-button.spec.json: every behaviour id (CPY-1…17) is cited by a test title,
+// <tanrei-copy-button>, driven by specs/copy-button.spec.json: every behaviour id (CPY-1…18) is cited by a test title,
 // every fixture has a baseline, and every color, length and time is read back from the tokens — the Button's, since the
 // copy button has none of its own but one duration. The copied and failed forms last two seconds after a
 // press, which a fixture cannot hold: the tests press with the browser's clipboard replaced by a double, and once with
@@ -395,9 +395,65 @@ test.describe('copying', () => {
     expect(widths.box).toBeCloseTo(Math.max(...widths.texts), 1);
     expect(widths.texts[1]).toBeGreaterThan(widths.texts[0] * 2);
     expect(widths.start).toBeCloseTo(0, 1);
-    // No tooltip, popover or other surface: its shadow root holds the Button, the two regions and nothing shown.
-    expect(await host(page, 'icon').evaluate((el) => [...el.shadowRoot!.children].map((child) => child.localName).filter((name) => name !== 'style'))).toEqual(['tanrei-button', 'span', 'span', 'span']);
-    expect(await page.locator('tanrei-tooltip, [popover], dialog').count()).toBe(0);
+    // No popover or other surface but the confirmation of CPY-18: its shadow root holds the Tooltip around the Button,
+    // the two regions and the probe of the duration; a labelled copy button never opens its Tooltip.
+    expect(await host(page, 'icon').evaluate((el) => [...el.shadowRoot!.children].map((child) => child.localName).filter((name) => name !== 'style'))).toEqual(['tanrei-tooltip', 'span', 'span', 'span']);
+    expect(await page.locator('tanrei-tooltip tanrei-tooltip, dialog').count()).toBe(0);
+    for (const id of ['labelled-long-confirmation', 'labelled-rtl']) expect(await host(page, id).locator('tanrei-tooltip').getAttribute('open'), id).toBeNull();
+  });
+
+  test('CPY-18: icon-only, the copied and the failed form show their words above the button as a plain Tooltip for as long as the form lasts — no focus taken, no room, not read a second time, closed by Escape, shown anew on the next answer; hover and focus open nothing; labelled, no bubble', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only('icon', 'labelled') });
+    await double(page);
+    await holdClock(page);
+    const duration = await resolveToken(page, DURATION, 'duration');
+    const bubble = (id: string) => host(page, id).locator('tanrei-tooltip');
+    const surface = (id: string) => bubble(id).locator('.surface');
+    const open = (id: string) => surface(id).evaluate((el) => el.matches(':popover-open'));
+    // Hover and keyboard focus at rest open nothing: it is no tooltip of the button's name.
+    await native(page, 'icon').hover();
+    await page.clock.runFor(2000);
+    expect(await open('icon')).toBe(false);
+    await tabTo(page, native(page, 'icon'));
+    await page.clock.runFor(2000);
+    expect(await open('icon')).toBe(false);
+    const rest = { button: await box(native(page, 'icon')), host: await box(host(page, 'icon')) };
+    await page.keyboard.press('Enter');
+    await expect.poll(() => open('icon')).toBe(true);
+    await expect(bubble('icon').locator('.text')).toHaveText('Copied');
+    // Drawn as a plain Tooltip draws itself: its container color, placed as a tooltip places itself — above the button,
+    // or below where the stage leaves no room above — and never over it.
+    expect(await bubble('icon').getAttribute('variant')).not.toBe('rich');
+    const [above, button] = [await box(bubble('icon').locator('.bubble')), await box(native(page, 'icon'))];
+    expect(above.y + above.height <= button.y + 0.5 || above.y >= button.y + button.height - 0.5).toBe(true);
+    expect(await css(bubble('icon').locator('.bubble'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-tooltip-plain-container-color'));
+    // No focus taken, nothing moved, and hidden from assistive technology: CPY-5's region is what is heard.
+    expect(await native(page, 'icon').evaluate((el) => el.matches(':focus'))).toBe(true);
+    expect({ button: await box(native(page, 'icon')), host: await box(host(page, 'icon')) }).toEqual(rest);
+    expect(await surface('icon').getAttribute('aria-hidden')).toBe('true');
+    expect(await native(page, 'icon').getAttribute('aria-description')).toBeNull();
+    // Leaving the button does not close it; the return to rest does.
+    await page.mouse.move(0, 0);
+    await page.clock.runFor(duration - 1);
+    expect(await open('icon')).toBe(true);
+    await page.clock.runFor(1);
+    await expect.poll(() => open('icon')).toBe(false);
+    // Failed: its words. Escape closes it at once; the next answer shows it anew.
+    await answers(page, 'refuses');
+    await page.keyboard.press('Enter');
+    await expect.poll(() => open('icon')).toBe(true);
+    await expect(bubble('icon').locator('.text')).toHaveText('Could not copy');
+    await page.keyboard.press('Escape');
+    await expect.poll(() => open('icon')).toBe(false);
+    expect((await shows(page, 'icon')).form).toBe('failed');
+    await answers(page, 'writes');
+    await page.keyboard.press('Enter');
+    await expect.poll(() => open('icon')).toBe(true);
+    await expect(bubble('icon').locator('.text')).toHaveText('Copied');
+    // Labelled: the label says it, and no bubble opens.
+    await press(page, 'labelled');
+    await expect.poll(async () => (await shows(page, 'labelled')).form).toBe('copied');
+    expect(await open('labelled')).toBe(false);
   });
 
   test('CPY-8: activated while copied or failed, it copies again and takes the form the new answer gives, emits and announces it, and counts the duration from that moment', async ({ page }) => {

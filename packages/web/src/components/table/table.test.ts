@@ -2418,17 +2418,25 @@ test.describe('rows that can be chosen', () => {
     await expect(check(page, 'selection', 'thead', 1)).toHaveCount(1);
     for (const r of [1, 2, 3, 4]) await expect(check(page, 'selection', 'tbody', r)).toBeVisible();
     expect(await cell(page, 'selection', 'tfoot', 1, 1).evaluate((el) => el.childNodes.length)).toBe(0);
-    // No label is drawn: the checkbox is as wide as its container, and the column as wide as it and a cell's paddings.
+    // No label is drawn: the checkbox is as wide as its container. The checkbox's box — not its round container —
+    // stands at the cell's padding, where the text of the other cells starts: the selection cell's paddings are a
+    // cell's less half of what the container exceeds the box by, and the column is as wide as the container and them.
+    const [ring, square] = [await resolveToken(page, '--tanrei-comp-checkbox-container-size'), await resolveToken(page, '--tanrei-comp-checkbox-box-size')];
     for (const [id, density] of [['selection', 'regular'], ['selection-compact', 'compact']] as const) {
       const pad = await resolveToken(page, T(`cell-padding-inline-${density}`));
+      const inset = Math.max(0, pad - (ring - square) / 2);
       const one = await box(check(page, id, 'tbody', 1));
-      near(one.width, await resolveToken(page, '--tanrei-comp-checkbox-container-size'), 0.1);
+      near(one.width, ring, 0.1);
       for (const section of ['thead', 'tbody'] as const) {
         const at = await box(cell(page, id, section, 1, 1));
-        near(at.width, one.width + 2 * pad, 0.1);
-        // At the start of its cell.
-        near((await box(check(page, id, section, 1))).x, at.x + pad, 0.1);
+        near(at.width, one.width + 2 * inset, 0.1);
+        near((await box(check(page, id, section, 1))).x, at.x + inset, 0.1);
+        // The box's start edge is at the cell's padding, as the text of the next column's cells is at theirs.
+        const square0 = await check(page, id, section, 1).evaluate((el) => el.shadowRoot!.querySelector('.box')!.getBoundingClientRect().left);
+        near(square0, at.x + pad, 0.6);
       }
+      // The verify: under the default system the column is 18 + 2 × 16 = 50 wide at the regular density.
+      if (density === 'regular') near((await box(cell(page, id, 'tbody', 1, 1))).width, 50, 0.1);
       await expect(check(page, id, 'tbody', 1)).toHaveAttribute('label-hidden', '');
     }
     // On the cell's first line: centred on the line the row's text stands on, and the row is as tall as one without it.
@@ -2966,10 +2974,11 @@ test.describe('chosen rows and a loading body in other conditions', () => {
       const [select, first] = [await box(cell(page, id, section, 1, 1)), await box(cell(page, id, section, 1, 2))];
       near(select.x + select.width, outer.x + outer.width, 0.1);
       near(first.x + first.width, select.x, 0.1);
-      // The checkbox at the start of its cell: the right.
+      // The checkbox at the start of its cell: the right — its box at the cell's padding, its round container reaching into it.
       const pad = await resolveToken(page, T('cell-padding-inline-regular'));
+      const reach = ((await resolveToken(page, '--tanrei-comp-checkbox-container-size')) - (await resolveToken(page, '--tanrei-comp-checkbox-box-size'))) / 2;
       const one = await box(check(page, id, section, 1));
-      near(one.x + one.width, select.x + select.width - pad, 0.1);
+      near(one.x + one.width, select.x + select.width - Math.max(0, pad - reach), 0.1);
     }
     await settled(page, 'rtl-kept');
     await expect(host(page, 'rtl-kept')).toHaveAttribute('data-selection-kept', '');
@@ -3014,7 +3023,8 @@ test.describe('chosen rows and a loading body in other conditions', () => {
     for (const id of ['data', 'selection']) {
       const select = await box(cell(page, id, 'tbody', 1, 1));
       const one = await box(check(page, id, 'tbody', 1));
-      near(select.width, one.width + 2 * (await resolveToken(page, T(`cell-padding-inline-${id === 'data' ? 'compact' : 'regular'}`))), 0.1);
+      const reach = ((await resolveToken(page, '--tanrei-comp-checkbox-container-size')) - (await resolveToken(page, '--tanrei-comp-checkbox-box-size'))) / 2;
+      near(select.width, one.width + 2 * Math.max(0, (await resolveToken(page, T(`cell-padding-inline-${id === 'data' ? 'compact' : 'regular'}`))) - reach), 0.1);
       // Every header label and every cell is whole.
       expect(await table(page, id).evaluate((el) => [...el.querySelectorAll('th, td:not([data-part])')].filter((c) => c.scrollWidth > c.clientWidth + 1 || c.scrollHeight > c.clientHeight + 1).length), id).toBe(0);
     }

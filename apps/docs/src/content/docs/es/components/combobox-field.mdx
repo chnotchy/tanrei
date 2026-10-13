@@ -2,7 +2,7 @@
 title: Campo de cuadro combinado
 description: "Permite encontrar un valor escribiendo, como campo de un formulario: un cuadro combinado, con una lista de opciones que se reduce a medida que la persona escribe y de la que elige una o, donde el producto lo permite, un valor propio, bajo una etiqueta que puede decir si el campo es obligatorio u opcional, con una línea de ayuda y el motivo por el que se rechazó un valor."
 translationOf: components/combobox-field.mdx
-sourceHash: bbeaab2ab8acefab4401f11d94edd44c2a8dfcdf
+sourceHash: 695f5a07f9b3ed6d358dee0d414c102a7c3a5232
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -167,9 +167,9 @@ Lo que cambia es dónde está el control del formulario: a mano es el cuadro com
 | Icono inicial | El glifo del slot `leading-icon` o, si no lo hay, el de la opción elegida |
 | Botón de borrar | Con `clearable`, mientras el texto no está vacío: vacía el texto y el valor |
 | Chevron | Dice que el campo tiene una lista que se puede recorrer, y la abre y la cierra. No gira. Omítelo (`chevron` en false) donde solo hay sugerencias para lo que se ha escrito |
-| Texto de apoyo | La fila del campo: una línea de ayuda. Se queda mientras `error` es true, con `errorText` debajo. Las dos empiezan donde empieza el texto del campo de entrada |
+| Texto de apoyo | La fila del campo: una línea de ayuda. Mientras `error` es true, `errorText` ocupa su lugar (o va debajo de ella, donde el sistema de diseño conserva las dos). Las dos empiezan donde empieza el texto del campo de entrada |
 
-La fila de la etiqueta, la marca y la fila de apoyo son del [campo](/es/components/field/) y se dibujan con los tokens del campo; todo lo demás es del [cuadro combinado](/es/components/combobox/). Las tres variantes y los dos tamaños, `medium` (48) y `large` (56), son los del campo de texto. El sistema predeterminado solo incluye `stacked`.
+La fila de la etiqueta, la marca y la fila de apoyo son del [campo](/es/components/field/) y se dibujan con los tokens del campo; todo lo demás es del [cuadro combinado](/es/components/combobox/). Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (56), son los del campo de texto. El sistema predeterminado solo incluye `stacked`.
 
 Mientras la lista está abierta, la etiqueta y la ayuda se dibujan con foco junto con la caja, tenga o no el foco el campo de entrada.
 

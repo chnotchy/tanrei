@@ -1,5 +1,5 @@
 // <tanrei-menubar>, <tanrei-menubar-menu> and <tanrei-menubar-item>, driven by specs/menubar.spec.json: every behaviour
-// id (MBR-1 … MBR-46) is cited by a test title, every fixture has a baseline, and every size, color and duration is read back from the tokens —
+// id (MBR-1 … MBR-47) is cited by a test title, every fixture has a baseline, and every size, color and duration is read back from the tokens —
 // never from a number written here. A fixture cannot fill a bar's menu (its items are the menu's own kinds), so the
 // tests fill the menus with the real menu elements: these tests also show that the bar leaves them as they are.
 import fs from 'node:fs';
@@ -2134,20 +2134,25 @@ test.describe('entries that act', () => {
     expect((await box(page.locator('#same'))).width).toBeCloseTo(before.width + gap + size, 1);
   });
 
-  test('MBR-38: the current link item is exposed as the current page and drawn at the emphasized weight, in the colors of every other entry and with no fill; it stays a link; the bar never sets it, decides again what fits when it changes, and reports more than one and one without a destination', async ({ page }) => {
+  test('MBR-38: the current link item is exposed as the current page and drawn from the selected condition — the fill and colors of the menu’s selected row — at its label’s own weight; it stays a link; the bar never sets it, its width does not change with it, and more than one and one without a destination are reported', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
     await wire(page);
     const [preview, history] = [anchor(page, 'link-current', 'Preview'), anchor(page, 'link-current', 'History')];
     await expect(history).toHaveAttribute('aria-current', 'page');
     await expect(preview).not.toHaveAttribute('aria-current');
-    const emphasis = Number(await css(bar(page, 'link-current'), '--tanrei-sys-typescale-emphasis-label'));
-    expect(emphasis).toBeGreaterThan(0);
-    expect(Number(await css(history, 'font-weight'))).toBe(Number(await css(preview, 'font-weight')) + emphasis);
-    // The colors of every other bar item, and no fill: never mistaken for the title of an open menu.
-    for (const property of ['color', 'font-size']) expect(await css(history, property)).toBe(await css(preview, property));
-    expect(await css(itemContainer(page, 'link-current', 'History'), 'background-color')).toBe(await css(itemContainer(page, 'link-current', 'Preview'), 'background-color'));
+    // The label's own weight and size: the place is told by the fill, never by a heavier label.
+    for (const property of ['font-weight', 'font-size']) expect(await css(history, property), property).toBe(await css(preview, property));
+    // The selected condition, whose colors are the menu's selected row's: the same fill in a bar and in a menu.
+    const fill = await resolveColor(page, T('selected-container-color'));
+    expect(fill).toBe(await resolveColor(page, '--tanrei-comp-menu-selected-container-color'));
+    expect(await css(itemContainer(page, 'link-current', 'History'), 'background-color')).toBe(fill);
+    expect(await css(itemContainer(page, 'link-current', 'History'), 'background-color')).not.toBe(await css(itemContainer(page, 'link-current', 'Preview'), 'background-color'));
+    expect(await css(history, 'color')).toBe(await resolveColor(page, T('selected-label-color')));
+    expect(await resolveColor(page, T('selected-label-color'))).toBe(await resolveColor(page, '--tanrei-comp-menu-selected-label-color'));
+    // Never mistaken for the title of an open menu: not the expanded condition.
     await expect(item(page, 'link-current', 'History').locator('.title')).not.toHaveClass(/expanded/);
+    expect(fill).not.toBe(await resolveColor(page, T('expanded-container-color')));
     expect(await item(page, 'link-current', 'History').evaluate((el: any) => [el.current, el.href, el.label])).toEqual([true, '/history/', 'History']);
     expect(seen.filter((text) => text.includes('MBR-38'))).toEqual([]);
 
@@ -2164,32 +2169,26 @@ test.describe('entries that act', () => {
     await page.keyboard.press('End');
     await page.keyboard.press('Enter');
     await expect.poll(() => hash(page)).toBe('#history');
-    // What fits is decided again when it changes: the heavier label is wider. A row that just holds its entries…
+    // Its width is the same current or not: a fill takes no room.
     const current = anchor(page, 'here', 'Documentation');
+    const filled = await box(item(page, 'here', 'Documentation'));
+    // At rest: neither under the pointer nor focused, so that only the condition tells the two apart.
+    await page.mouse.move(0, 0);
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
     await current.evaluate((el) => el.removeAttribute('aria-current'));
-    await expect.poll(async () => Number(await css(current, 'font-weight'))).toBe(Number(await css(anchor(page, 'here', 'Preview'), 'font-weight')));
-    const light = await box(item(page, 'here', 'Documentation'));
-    const need = light.right - (await box(menu(page, 'here', 'File'))).x + 2 * (await resolveToken(page, T('bar-padding-inline')));
-    await stageWidth(page, 'here', need + 32 + 0.25);
-    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    expect((await state(page, 'here')).folded).toEqual([]);
-    // …folds when the product says the last one is the current page, and unfolds when it is no longer.
+    await expect.poll(async () => css(itemContainer(page, 'here', 'Documentation'), 'background-color')).toBe(await css(itemContainer(page, 'here', 'Preview'), 'background-color'));
+    expect((await box(item(page, 'here', 'Documentation'))).width).toBeCloseTo(filled.width, 1);
     await item(page, 'here', 'Documentation').evaluate((el: any) => (el.current = true));
     await expect(current).toHaveAttribute('aria-current', 'page');
-    await expect.poll(async () => (await state(page, 'here')).folded.length).toBeGreaterThan(0);
-    await item(page, 'here', 'Documentation').evaluate((el: any) => (el.current = false));
-    await expect.poll(async () => (await state(page, 'here')).folded).toEqual([]);
-    expect((await box(item(page, 'here', 'Documentation'))).width).toBeCloseTo(light.width, 1);
-    await stageWidth(page, 'here', 560);
+    await expect.poll(async () => css(itemContainer(page, 'here', 'Documentation'), 'background-color')).toBe(fill);
     // More than one: each drawn and exposed as given, and reported. Without a destination: ignored, and reported.
     expect(seen.filter((text) => text.includes('MBR-38'))).toEqual([]);
     await anchor(page, 'here', 'Preview').evaluate((el) => el.setAttribute('aria-current', 'page'));
-    await current.evaluate((el) => el.setAttribute('aria-current', 'page'));
     await expect.poll(() => seen.some((text) => text.includes('<tanrei-menubar>') && text.includes('2 bar items say they are the current page') && text.includes('MBR-38'))).toBe(true);
-    expect(Number(await css(anchor(page, 'here', 'Preview'), 'font-weight'))).toBe(Number(await css(current, 'font-weight')));
+    expect(await css(itemContainer(page, 'here', 'Preview'), 'background-color')).toBe(fill);
     await current.evaluate((el) => el.removeAttribute('href'));
     await expect.poll(() => seen.some((text) => text.includes('<tanrei-menubar-item>') && text.includes('names no destination; current is ignored') && text.includes('MBR-38'))).toBe(true);
-    await expect.poll(async () => Number(await css(current, 'font-weight'))).toBe(Number(await css(anchor(page, 'here', 'Preview'), 'font-weight')) - emphasis);
+    await expect.poll(async () => css(itemContainer(page, 'here', 'Documentation'), 'background-color')).not.toBe(fill);
   });
 
   test('MBR-39: a disabled bar item is drawn from the disabled tokens of the unselected condition, emits no click and acts on no input, stays reachable by the keys and is exposed disabled; a disabled link item keeps the menu item role, has no destination and opens nothing by any means', async ({ page }) => {
@@ -2400,7 +2399,8 @@ test.describe('entries that act', () => {
     });
     await wire(page);
     await watchClicks(page);
-    await stageWidth(page, 'fold', 150);
+    // File's title ends in the indicator (MBR-47): the bar mixes menus with bar items.
+    await stageWidth(page, 'fold', 150 + (await resolveToken(page, T('container-gap'))) + (await resolveToken(page, T('indicator-size'))));
     const folded = ['Edit', 'Run', 'Tools', 'Documentation', 'Source', 'History', 'Off', 'Gone'];
     await expect.poll(async () => (await state(page, 'fold')).folded).toEqual(folded);
     // The product's elements stay where the product wrote them; a folded link item's anchor is in the document, not displayed.
@@ -2437,12 +2437,14 @@ test.describe('entries that act', () => {
       expect(tree.filter((node) => node.role === 'link')).toEqual([]);
       expect(tree.filter((node) => node.role === 'menuitem' && node.parent === 'menubar').map((node) => `${node.name}:${node.expanded}:${node.popup}`)).toEqual(['File:false:menu', 'More:true:menu']);
     }
-    // A folded link item that opens a new context is marked as the menu marks its own; a current one keeps the weight.
+    // A folded link item that opens a new context is marked as the menu marks its own; a current one is the menu's own
+    // current link item (MNU-58): filled from the selected condition, at its label's own weight.
     const row = (label: string) => item(page, 'fold', label).locator('tanrei-menu-item');
     await expect(row('Source').locator('.link-mark')).toHaveCount(1);
     await expect(row('Documentation').locator('.link-mark')).toHaveCount(0);
-    const emphasis = Number(await css(bar(page, 'fold'), '--tanrei-sys-typescale-emphasis-label'));
-    expect(Number(await css(row('History').locator('.label'), 'font-weight'))).toBe(Number(await css(row('Documentation').locator('.label'), 'font-weight')) + emphasis);
+    expect(await css(row('History').locator('.label'), 'font-weight')).toBe(await css(row('Documentation').locator('.label'), 'font-weight'));
+    expect(await css(row('History').locator('.row'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-menu-selected-container-color'));
+    expect(await css(row('Documentation').locator('.row'), 'background-color')).not.toBe(await css(row('History').locator('.row'), 'background-color'));
     // An action: the listener on the bar item's own element hears it once, while the overflow item's menu is still shown.
     await page.evaluate(() => {
       const seen: string[] = ((window as any).seen = []);
@@ -2661,7 +2663,9 @@ test.describe('entries that act', () => {
       expect(await read('a:text-is("Documentation")', 'white-space')).toBe('nowrap');
       // The product's own rule for its anchors wins: the stylesheet's selectors have no specificity, in a layer.
       expect(await read('a:text-is("Documentation")', 'color')).toBe('rgb(0, 0, 255)');
-      expect(Number(await read('a:text-is("History")', 'font-weight'))).toBeGreaterThan(Number(await read('a:text-is("Documentation")', 'font-weight')));
+      // The current link item is filled from the selected condition, at its label's own weight (MBR-38).
+      expect(await read('a:text-is("History")', 'font-weight')).toBe(await read('a:text-is("Documentation")', 'font-weight'));
+      expect(await read('a:text-is("History")', 'background-color')).not.toBe(await read('a:text-is("Documentation")', 'background-color'));
       // A menu and an action show nothing there.
       for (const selector of ['tanrei-menubar-menu', 'tanrei-menubar-item[label="Run"]']) expect(await page.locator(selector).evaluate((el) => el.getClientRects().length)).toBe(0);
       // No menubar, no menu item, no roving focus: nothing ran.
@@ -2715,12 +2719,15 @@ test.describe('entries that act', () => {
     await expect(link).toHaveAttribute('tabindex', '-1');
   });
 
-  test('MBR-46: forced colors — an action as a title, in the button text color; a link item’s label and mark in the link color; a disabled bar item, action or link, in the disabled text color; the current link item keeps its emphasized weight', async ({ page }) => {
+  test('MBR-46: forced colors — an action as a title, in the button text color; a link item’s label and mark in the link color; a disabled bar item, action or link, in the disabled text color; the current link item, whose fill the mode removes, by a line in the link color', async ({ page }) => {
     await mountFixtures(page, spec, {
       fixtures: [mixed('forced', [m('File', it('New')), b('Run'), b('Documentation', { href: '#docs' }), b('Source', { href: '#src', target: 'new', targetLabel: 'opens in a new tab' }), b('History', { href: '#history', current: true }), b('Off', { disabled: true }), b('Gone', { href: '#gone', disabled: true })])],
       icons: true,
       reducedMotion: true,
     });
+    // Every entry in the row: none folded into the overflow item, where it is a row of a menu instead.
+    await stageWidth(page, 'forced', 1000);
+    await expect.poll(async () => (await state(page, 'forced')).folded).toEqual([]);
     await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
     const forced = await page.evaluate(() => {
       const probe = document.body.appendChild(document.createElement('div'));
@@ -2751,9 +2758,57 @@ test.describe('entries that act', () => {
     expect(await css(itemContainer(page, 'forced', 'Run'), 'background-color')).toBe('rgba(0, 0, 0, 0)');
     await page.mouse.move(...(await centre(itemContainer(page, 'forced', 'Documentation'))));
     expect(await css(itemContainer(page, 'forced', 'Documentation'), 'box-shadow')).toContain('inset');
-    // The weight is not a color: it stays.
-    const emphasis = Number(await css(bar(page, 'forced'), '--tanrei-sys-typescale-emphasis-label'));
-    expect(Number(await css(anchor(page, 'forced', 'History'), 'font-weight'))).toBe(Number(await css(anchor(page, 'forced', 'Documentation'), 'font-weight')) + emphasis);
+    // The current link item: no fill (the mode removes it), and a line of sys.border.thick inside its edge in the link color.
+    await page.mouse.move(0, 0);
+    expect(await css(itemContainer(page, 'forced', 'History'), 'background-color')).toBe('rgba(0, 0, 0, 0)');
+    const thick = await resolveToken(page, '--tanrei-sys-border-thick');
+    expect(await css(itemContainer(page, 'forced', 'History'), 'box-shadow')).toBe(`${link} 0px 0px 0px ${thick}px inset`);
+  });
+
+  test('MBR-47: while the bar mixes menus with bar items each menu’s title ends in expand_more at indicator.size, container.gap after its label, in its condition’s icon color, never mirrored and hidden; a bar of menus only draws none; it is decided from every entry, folded or not; the title is as wide as its label, the gap and the glyph', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, reducedMotion: true });
+    const [size, gap, pad] = [await resolveToken(page, T('indicator-size')), await resolveToken(page, T('container-gap')), await resolveToken(page, T('container-padding-inline'))];
+    expect(size).toBe(await resolveToken(page, '--tanrei-sys-icon-small'));
+    for (const label of ['File', 'Edit', 'View']) {
+      const glyph = container(page, 'mixed', label).locator('.indicator');
+      await expect(glyph, label).toHaveCount(1);
+      await expect(glyph, label).toHaveText('expand_more');
+      await expect(glyph, label).toHaveAttribute('aria-hidden', 'true');
+      await expect(glyph, label).toHaveAttribute('data-drawn', '');
+      const [g, l, c] = [await box(glyph), await box(container(page, 'mixed', label).locator('.label')), await box(container(page, 'mixed', label))];
+      expect(g.width, label).toBeCloseTo(size, 1);
+      expect(g.x - l.right, label).toBeCloseTo(gap, 1);
+      // As wide as its label, the gap and the glyph, inside the paddings.
+      expect(c.width, label).toBeCloseTo(l.width + gap + size + 2 * pad, 1);
+      expect(await css(glyph, 'color'), label).toBe(await resolveColor(page, T('unselected-icon-color')));
+      expect(await css(glyph, 'transform'), label).toBe('none');
+    }
+    // A bar item has none; the title of the open menu draws it in the expanded condition's icon color.
+    for (const label of ['Run', 'Documentation']) await expect(item(page, 'mixed', label).locator('.indicator'), label).toHaveCount(0);
+    await expect(container(page, 'mixed-open', 'Edit').locator('.indicator')).toHaveCount(1);
+    expect(await color(page, container(page, 'mixed-open', 'Edit').locator('.indicator'), 'color')).toBe(await resolveColor(page, T('expanded-icon-color')));
+    // A bar of menus only: no indicator anywhere, and no overflow glyph is one.
+    for (const id of ['default', 'many']) await expect(bar(page, id).locator('tanrei-menubar-menu .indicator'), id).toHaveCount(0);
+    // Never mirrored in a right-to-left layout.
+    for (const label of ['ملف']) {
+      const glyph = container(page, 'mixed-rtl', label).locator('.indicator');
+      await expect(glyph).toHaveCount(1);
+      expect(await css(glyph, 'transform')).toBe('none');
+      expect(await css(glyph, 'scale')).toBe('none');
+    }
+    // Decided from every entry: folding the bar items away keeps the indicators, and removing the last bar item takes
+    // them away at once.
+    await mountFixtures(page, spec, { fixtures: [mixed('fold', [m('File', it('New')), m('Edit', it('Undo')), b('Run')])], icons: true, reducedMotion: true });
+    await expect(container(page, 'fold', 'File').locator('.indicator')).toHaveCount(1);
+    const fileWidth = (await box(container(page, 'fold', 'File'))).width;
+    await stageWidth(page, 'fold', fileWidth + 90);
+    await expect.poll(async () => (await state(page, 'fold')).folded.length).toBeGreaterThan(0);
+    await expect(container(page, 'fold', 'File').locator('.indicator')).toHaveCount(1);
+    await stageWidth(page, 'fold', 560);
+    await expect.poll(async () => (await state(page, 'fold')).folded).toEqual([]);
+    await item(page, 'fold', 'Run').evaluate((el) => el.remove());
+    await expect(container(page, 'fold', 'File').locator('.indicator')).toHaveCount(0);
+    await expect.poll(async () => (await box(container(page, 'fold', 'File'))).width).toBeCloseTo(fileWidth - gap - size, 1);
   });
 
   test('MBR-30: a bar item added, removed, reordered or renamed while the bar is shown is laid out at once — an anchor’s text and attributes are seen changing too — and when the bar item that holds focus is removed focus moves to the entry that followed', async ({ page }) => {
@@ -2765,7 +2820,7 @@ test.describe('entries that act', () => {
     await anchor(page, 'mixed', 'Documentation').evaluate((el) => (el.firstChild!.nodeValue = 'Docs'));
     await expect.poll(async () => (await box(item(page, 'mixed', 'Docs'))).width).toBeLessThan(before.width);
     expect(await item(page, 'mixed', 'Docs').evaluate((el: any) => el.label)).toBe('Docs');
-    await expect.poll(() => bar(page, 'mixed').evaluate((el) => [...el.shadowRoot!.querySelectorAll('.ruler > .menu-copy')].map((each) => each.textContent!.trim()))).toEqual(['File', 'Edit', 'View', 'Run', 'Docs']);
+    await expect.poll(() => bar(page, 'mixed').evaluate((el) => [...el.shadowRoot!.querySelectorAll('.ruler > .menu-copy')].map((each) => each.querySelector('.label')!.textContent!.trim()))).toEqual(['File', 'Edit', 'View', 'Run', 'Docs']);
     expect(await bar(page, 'mixed').evaluate((el) => { const copy = el.shadowRoot!.querySelectorAll('.ruler > .menu-copy')[4]; return Math.abs(copy.getBoundingClientRect().width - el.children[4].getBoundingClientRect().width) < 0.1; })).toBe(true);
     // The property writes the anchor.
     await item(page, 'mixed', 'Docs').evaluate((el: any) => { el.label = 'Guide'; el.href = '#guide'; });

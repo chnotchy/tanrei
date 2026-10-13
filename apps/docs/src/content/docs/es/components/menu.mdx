@@ -2,7 +2,7 @@
 title: Menú
 description: Un conjunto corto de acciones u opciones en una superficie temporal que se abre desde el elemento que lo pidió.
 translationOf: components/menu.mdx
-sourceHash: 740ced78f44526a9b305909b0ad3023504f4cc05
+sourceHash: 7c288c0b054c27df7fa811eac01030ee0bd526b0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -46,10 +46,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </tanrei-menu>
 </DemoFrame>
 
-<DemoFrame label="Un menú de enlaces: cada fila lleva a algún sitio, y una abre una pestaña nueva" plain>
+<DemoFrame label="Un menú de enlaces: cada fila lleva a algún sitio, una es la página en la que estás, y una abre una pestaña nueva" plain>
   <tanrei-menu inline open>
     <tanrei-menu-item label="Botón" href="/es/components/button/"></tanrei-menu-item>
-    <tanrei-menu-item label="Lista" href="/es/components/list/"></tanrei-menu-item>
+    <tanrei-menu-item label="Lista" href="/es/components/list/" current></tanrei-menu-item>
     <tanrei-menu-item label="Sitio de ejemplo" href="https://example.com/" target="new" target-label="se abre en una pestaña nueva"></tanrei-menu-item>
     <tanrei-menu-item label="Archivo" href="/archive/" disabled></tanrei-menu-item>
   </tanrei-menu>
@@ -63,7 +63,7 @@ Un menú tiene cinco tipos de elemento: `item` (una acción), `checkbox-item`, `
 
 El atajo de teclado de un elemento es su propiedad `shortcut`, escrita con los nombres de tecla neutros del [atajo de teclado](/es/components/keyboard-shortcut/) (`mod+c`). El menú lo dibuja al final de la fila con el componente de atajo de teclado, como ⌘C en los teclados de Apple y Ctrl+C en los demás, y lo expone como el atajo de teclado del elemento. No hace que las teclas funcionen: las vincula tu producto. `trailingText` es para todo lo que no sea un atajo, como un recuento o «Beta». La web dibuja todo esto, y el aspecto actual. SwiftUI, Compose, Flutter y React Native van rezagados: hasta que se pongan al día, no tienen la propiedad `shortcut` y escriben el atajo en `trailingText`, como hacen sus ejemplos de abajo. Tampoco tienen submenús, `separation` ni `markIcon`, y todavía dibujan la marca de verificación como una marca propia en un recuadro de 16, no rellenan ninguna fila marcada y empiezan el título de un grupo donde empiezan las etiquetas.
 
-Un elemento con un `href` es un elemento de enlace: el enlace propio de la plataforma, que se dibuja exactamente igual que una acción y al que se llega con las mismas teclas. Una activación corriente emite el `click` del elemento, cierra el menú y después abre el destino. `target` y `targetLabel` son los del [botón](/es/components/button/). La web incluye los elementos de enlace; SwiftUI, Compose, Flutter y React Native todavía no los tienen.
+Un elemento con un `href` es un elemento de enlace: el enlace propio de la plataforma, que se dibuja exactamente igual que una acción y al que se llega con las mismas teclas. Una activación corriente emite el `click` del elemento, cierra el menú y después abre el destino. `target` y `targetLabel` son los del [botón](/es/components/button/). `current` marca el elemento de enlace de la página en la que está la persona: se dibuja con el relleno de una fila marcada, sin marca de verificación. La web incluye los elementos de enlace; SwiftUI, Compose, Flutter y React Native todavía no los tienen.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -365,7 +365,7 @@ Un elemento de casilla de verificación o de opción que se activa con un toque,
 
 ### Grupos, títulos y separación
 
-- El menú separa un grupo de lo que tenga al lado, nunca en la parte superior ni en la inferior: con un divisor o con una separación de espacio vacío. Tú no colocas los divisores.
+- El menú separa un grupo de lo que tenga al lado, nunca en la parte superior ni en la inferior: con un divisor o con una separación. Con una separación, cada grupo, y cada serie de elementos fuera de un grupo, es una hoja propia, con espacio vacío entre las hojas. Tú no colocas los divisores ni las hojas.
 - Cuál de los dos se usa lo elige el sistema de diseño, una sola elección para todos los componentes que separan sus propias partes: un divisor en el sistema predeterminado. `separation` decide para un menú y sus submenús: `auto` (el valor predeterminado) sigue al sistema de diseño, y `divider` o `gap` indican uno de los dos, elija lo que elija el sistema. Con una separación de espacio no se expone ningún separador, y los grupos se siguen exponiendo como grupos.
 - Un grupo con un `title` lo dibuja como un título discreto encima de sus elementos, que empieza donde empieza el contenido de las filas, y recibe de él su nombre. Da al grupo de elementos de opción un título que haga la pregunta, como «Ordenar por».
 - Los elementos de opción van dentro de un grupo. Un elemento de opción fuera de un grupo nunca está marcado, y las compilaciones de depuración lo notifican.
@@ -379,6 +379,7 @@ Un elemento de enlace es el enlace propio de la plataforma, así que funcionan e
 - **Un enrutador.** Cancela el `click` del elemento para hacerte cargo tú de la navegación. El menú se cierra igualmente, y no se abre nada más.
 - **Otras pestañas.** Un clic o Enter con una tecla modificadora, y un clic con el botón central, son cosa del navegador. El menú no emite ningún `close` y sigue abierto, de modo que varios de sus enlaces se pueden abrir uno tras otro.
 - **Un contexto nuevo.** `target: new` abre una pestaña o una ventana nueva. El elemento termina con el `open_in_new` del conjunto de iconos en la columna del icono final, salvo que `trailingIcon` nombre un glifo tuyo, y `targetLabel` se lo dice a la tecnología de apoyo. Un atajo o un texto final conserva su propia columna, antes de la marca.
+- **La página en la que estás.** `current` marca el elemento de enlace de la página en la que está la persona. Se expone como la página actual (`aria-current="page"` en la web) y se dibuja con el relleno de una fila marcada, sin marca de verificación y sin una etiqueta de más peso: dice dónde está la persona, no una elección que haya hecho. Lo defines tú; el menú nunca lo hace. Sin un `href` se ignora.
 - **Deshabilitado.** Un elemento de enlace deshabilitado no se puede seguir de ninguna manera. Se sigue alcanzando con las teclas de flecha, como cualquier elemento deshabilitado.
 - **Solo el tipo «elemento».** Un elemento de casilla de verificación, un elemento de opción y un elemento de submenú no admiten un destino: guardan un estado o abren otro nivel.
 
@@ -443,7 +444,7 @@ También depende de la plataforma que una pulsación fuera llegue además a lo q
 
 - La superficie se expone como un menú. Las acciones son elementos de menú, los elementos de casilla de verificación son elementos de menú de casilla de verificación y los elementos de opción son elementos de menú de opción, cada uno con su estado marcado, su posición y el tamaño del menú.
 - Cada elemento recibe su nombre de su etiqueta y su descripción de su texto de apoyo. El `shortcut` de un elemento se expone como su atajo de teclado donde la plataforma tiene esa propiedad (`aria-keyshortcuts` en la web); donde no, sus teclas escritas con todas las letras forman parte de su descripción. El texto final solo forma parte de la descripción. Los iconos y las marcas quedan ocultos: el recuadro, el anillo y la marca de verificación son dibujos, y el estado marcado es del propio elemento.
-- Un elemento de enlace se expone como un elemento de menú, no como un enlace: un menú se lee por sus elementos, por su número y con las teclas de flecha, y eso solo se cumple mientras todas las filas son elementos de menú. Por debajo sigue siendo el enlace de la plataforma. Mientras abre un contexto nuevo, su `targetLabel` cierra su descripción, y su marca queda oculta.
+- Un elemento de enlace se expone como un elemento de menú, no como un enlace: un menú se lee por sus elementos, por su número y con las teclas de flecha, y eso solo se cumple mientras todas las filas son elementos de menú. Por debajo sigue siendo el enlace de la plataforma. Mientras abre un contexto nuevo, su `targetLabel` cierra su descripción, y su marca queda oculta. Un elemento de enlace actual se expone además como la página actual.
 - Un grupo se expone como un grupo que recibe su nombre de su título. Los divisores son separadores que no reciben el foco; donde los grupos se separan con espacio vacío, no hay separador. Los títulos no reciben el foco y no se leen como elementos.
 - Un elemento de submenú se expone como un elemento que abre un menú, con su estado expandido, también mientras está deshabilitado. Su superficie es un menú por sí misma, que recibe su nombre de la etiqueta del elemento, y cada superficie cuenta sus propias posiciones.
 - Al ancla se le indica que abre un menú y si el menú está abierto, donde la plataforma tiene esa propiedad (en la web, `aria-haspopup`, `aria-controls` y `aria-expanded`).
@@ -453,7 +454,7 @@ También depende de la plataforma que una pulsación fuera llegue además a lo q
 - Cada elemento tiene como mínimo la altura del objetivo mínimo, y toda la fila es su área de pulsación.
 - Los elementos crecen con un texto más grande, y la superficie permite el desplazamiento cuando ya no cabe en la pantalla.
 - Mientras la fuente de iconos todavía no puede dibujar una marca que es un glifo, como la marca de verificación, el menú no dibuja nada en su lugar, nunca la palabra «check». Conserva el ancho de la columna y sigue exponiendo el estado marcado, y muestra la marca cuando la fuente se ha cargado.
-- Las compilaciones de depuración notifican un elemento sin etiqueta, un elemento de opción fuera de un grupo, un valor de grupo que no nombra ninguno de sus elementos de opción, dos elementos de opción que comparten un valor, un grupo dentro de un grupo, un elemento con atajo y texto final a la vez, un `separation` que el menú no define, un tercer nivel de submenú y un submenú sin elementos. También notifican un elemento de enlace que abre un contexto nuevo sin `targetLabel`, un `href` en un elemento de casilla de verificación, de opción o de submenú, un `href` que nombra un script o que no se puede leer, y un `target` que el menú no define.
+- Las compilaciones de depuración notifican un elemento sin etiqueta, un elemento de opción fuera de un grupo, un valor de grupo que no nombra ninguno de sus elementos de opción, dos elementos de opción que comparten un valor, un grupo dentro de un grupo, un elemento con atajo y texto final a la vez, un `separation` que el menú no define, un tercer nivel de submenú y un submenú sin elementos. También notifican un elemento de enlace que abre un contexto nuevo sin `targetLabel`, un `href` en un elemento de casilla de verificación, de opción o de submenú, un `href` que nombra un script o que no se puede leer, un `target` que el menú no define, y `current` en un elemento sin `href`.
 
 Carencias conocidas por plataforma:
 

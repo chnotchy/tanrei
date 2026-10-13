@@ -443,7 +443,7 @@ test.describe('layout', () => {
     expect(await shown('icons', 1, '.icon')).toBe(1);
   });
 
-  test('SEG-16: the check is the icon set’s check, in the selected family and fill at sys.icon.weight, never mirrored — under acme in its selected family; no mark of its own', async ({ page }) => {
+  test('SEG-16: the check is the icon set’s check, in the selected family and fill at comp.segmented-button.check.weight (heavier than sys.icon.weight in the default system), never mirrored — under acme in its selected family; no mark of its own', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     const check = seg(page, 'single', 1).locator('.check');
     await expect(check).toHaveText('check');
@@ -459,7 +459,13 @@ test.describe('layout', () => {
       }, [property, value] as const);
     expect(await css(check, 'font-family')).toBe(await probe('font-family', 'var(--tanrei-sys-icon-family-selected)'));
     const axis = await opticalSizeAxis(page, await resolveToken(page, T('check-size-medium')));
-    expect(await css(check, 'font-variation-settings')).toBe(await probe('font-variation-settings', `'FILL' var(--tanrei-sys-icon-fill-selected), 'wght' var(--tanrei-sys-icon-weight), 'GRAD' 0${axis}`));
+    expect(await css(check, 'font-variation-settings')).toBe(await probe('font-variation-settings', `'FILL' var(--tanrei-sys-icon-fill-selected), 'wght' var(${T('check-weight')}), 'GRAD' 0${axis}`));
+    // The check is a control's own mark: in the default system it is drawn at the checkbox's mark weight, heavier than
+    // sys.icon.weight, which a segment's icon keeps.
+    const [checkWeight, iconWeight] = [Number(await token(page, T('check-weight'))), Number(await token(page, '--tanrei-sys-icon-weight'))];
+    expect(checkWeight).toBe(Number(await token(page, '--tanrei-comp-checkbox-mark-weight')));
+    expect(checkWeight).toBeGreaterThan(iconWeight);
+    expect(await css(seg(page, 'icons', 0).locator('.icon'), 'font-variation-settings')).toContain(`"wght" ${iconWeight}`);
     expect(Number.parseFloat(await css(check, 'font-size'))).toBe(await resolveToken(page, T('check-size-medium')));
     // No path, shape or character of its own, in any segment.
     for (const n of [0, 1, 2]) expect(await seg(page, 'single', n).evaluate((el) => el.shadowRoot!.querySelectorAll('svg, path, img, canvas').length)).toBe(0);

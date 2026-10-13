@@ -2,7 +2,7 @@
 title: Estado vacío
 description: Lo que ocupa el lugar de un contenido que no está (una búsqueda sin resultados, una lista a la que nadie ha añadido nada, una página antes de su primer elemento) y dice qué falta, por qué o qué hacer, y ofrece la acción que lo resuelve.
 translationOf: components/empty-state.mdx
-sourceHash: 26030d545cec035e6eea1eee4b315425bdb08acd
+sourceHash: d3fa57bc06d9c02ac0f16e7a10c5d4d5a0d20bfe
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -26,7 +26,7 @@ En la web es `<tanrei-empty-state>`. Las demás plataformas todavía no lo han i
 
 ### Uso
 
-La descripción es el propio contenido del elemento. El título es el atributo `headline`, o el slot `title` donde es un encabezado o contenido tuyo. Un glifo del conjunto de iconos, o una imagen tuya, va en el slot `media`, y tus propios botones o enlaces, en el slot `actions`. Todas las palabras son tuyas: el componente no tiene ninguna propia.
+La descripción es el propio contenido del elemento. El título es el atributo `headline`, expuesto como un encabezado del nivel que da `level`, o el slot `title` donde es un encabezado u otro contenido tuyo. Un glifo del conjunto de iconos, o una imagen tuya, va en el slot `media`, y tus propios botones o enlaces, en el slot `actions`. Todas las palabras son tuyas: el componente no tiene ninguna propia.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -121,7 +121,7 @@ El bloque es tan ancho como su región y tan alto como su contenido y su margen 
 
 ### Título
 
-`headline` es texto simple y nunca un encabezado. Donde el estado vacío es toda la región principal de una página, la página suele necesitar un encabezado: pon uno del nivel que necesite tu esquema en el slot `title`. El estado vacío lo dibuja como cualquier título y no cambia ni su rol ni su nivel. Dentro de una tarjeta que ya tiene un título, basta con texto.
+`headline` se expone como un encabezado, porque se dibuja como uno: de nivel 2 por defecto, para la región principal de una vista bajo el título propio de la página. Pon en `level` el nivel que necesite el esquema de tu página: más profundo dentro de una sección, una tarjeta o un panel que tiene un encabezado propio. Un título en el slot `title` se dibuja como cualquier título, y el estado vacío no cambia ni su rol ni su nivel: pon ahí tu propio elemento de encabezado, o texto donde el título no deba ser un encabezado.
 
 En una página que se renderiza en un servidor, da el título en el slot `title`: un atributo `headline` lo dibuja el elemento, así que no se muestra antes de que el elemento esté definido.
 
@@ -180,7 +180,7 @@ La descripción, el slot del título y las acciones son hijos del propio element
 - Es contenido simple, sin rol y sin nombre: el título, la descripción y después las acciones, que se leen donde están.
 - Con `live` se anuncia una vez, de forma cortés, mediante una región de estado propia: cuando se muestra después de que la página se haya presentado, y cuando su título o su descripción cambian. Nunca se anuncia de forma asertiva.
 - El glifo o la imagen quedan ocultos para la tecnología de apoyo.
-- Un título dado como texto es texto simple. Un encabezado en el slot `title` conserva su nivel.
+- Un título dado como texto es un encabezado del nivel que da `level`. Lo que das en el slot `title` conserva su rol y su nivel.
 - No es una parada en el orden del foco y nunca mueve el foco. Tab llega a los enlaces de la descripción y después a las acciones.
 - Con el texto ampliado todo salta de línea y crece; con una anchura de 320 y el texto al 200% nada se desplaza hacia los lados, y cada acción queda en una línea propia.
 - Con colores forzados, el glifo, el título y la descripción se dibujan en el color del texto. Nada depende de un relleno.
@@ -190,7 +190,7 @@ La descripción, el slot del título y las acciones son hijos del propio element
 ### Qué debes hacer tú
 
 - Escribe todas las palabras en el idioma de la página. El componente no aporta ninguna.
-- Da un encabezado en el slot `title` donde la página necesite uno.
+- Ajusta `level` al esquema de tu página, o da tu propio encabezado o texto en el slot `title`.
 - Usa `live` solo para un estado vacío que aparece en respuesta a algo, y nunca junto a otra región activa que diga lo mismo.
 - No pongas un control en el slot `media`: queda oculto para la tecnología de apoyo.
 - Da a cada acción una etiqueta que quepa. Una etiqueta salta de línea donde su línea es demasiado corta, pero una sola palabra más larga que la línea no puede.

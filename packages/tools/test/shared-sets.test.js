@@ -78,9 +78,8 @@ test('a reader of a shared axis lists the values its component offers, in the ax
   assert.deepEqual(offeredValues({}, sizes, ['medium', 'large']), sizes);
 });
 
-test('the repository: the select offers the box\'s three sizes and the four others two, and the parity check holds them', () => {
+test('the repository: every control drawn in the box offers its three sizes, and the parity check holds them', () => {
   const sizesOf = (name) => loadSpecs().find(({ spec }) => spec.name === name).spec.props.find((prop) => prop.name === 'size').values;
-  assert.deepEqual(sizesOf('select'), ['small', 'medium', 'large']);
-  for (const name of ['text-input', 'combobox', 'number-input', 'color-input']) assert.deepEqual(sizesOf(name), ['medium', 'large'], name);
+  for (const name of ['select', 'text-input', 'combobox', 'number-input', 'color-input']) assert.deepEqual(sizesOf(name), ['small', 'medium', 'large'], name);
   assert.deepEqual(checkParity().filter((problem) => /names the axis|but the axis/.test(problem)), []);
 });

@@ -395,6 +395,20 @@
             ],
             "default": "ltr",
             "description": "The layout direction the fixture is drawn in. Every harness, baseline and gallery sets it on the fixture's stage — an ancestor of the component, never a prop of the component, which has none. Omitted means left-to-right. A fixture sets `rtl` to show what a right-to-left layout changes; its content stays as written."
+          },
+          "surface": {
+            "enum": [
+              "surface",
+              "surface-dim",
+              "surface-bright",
+              "surface-container-lowest",
+              "surface-container-low",
+              "surface-container",
+              "surface-container-high",
+              "surface-container-highest"
+            ],
+            "default": "surface",
+            "description": "The color role the fixture's stage is painted in: an ancestor of the component, never a prop of it. Every harness, baseline and gallery paints the stage in that role of the system and scheme it draws, so that a fixture shows how the component reads on that surface (a filled card is surface-container-highest). Omitted means surface."
           }
         }
       }

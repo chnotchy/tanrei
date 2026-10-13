@@ -67,6 +67,7 @@ export class TanreiEmptyState extends LitElement implements PlacingGroup {
 
   static override properties: PropertyDeclarations = {
     headline: { type: String },
+    level: { type: Number },
     size: { type: String, reflect: true },
     align: { type: String, reflect: true },
     live: { type: Boolean, reflect: true },
@@ -77,8 +78,11 @@ export class TanreiEmptyState extends LitElement implements PlacingGroup {
     hasActions: { state: true },
   };
 
-  /** What is missing, in a few words, in the product's language ("No results for tokne"): the spec's `title`. Plain text, never a heading. The `title` slot takes its place where the product needs a heading of its own level or inline content. */
+  /** What is missing, in a few words, in the product's language ("No results for tokne"): the spec's `title`. Exposed as a heading of the level `level` gives, since it is drawn as one. The `title` slot takes its place where the product needs inline content or a heading element of its own. */
   headline = '';
+
+  /** EMP-4: the level of the heading `headline` is exposed as, 1 to 6 — 2 by default, for the main region of a view under the page's own title. Ignored where the title slot holds the product's own content. */
+  level = 2;
 
   /** Medium is for an empty region inside a view (a list, a table's body, a card, a panel, a search's results); large for a view that is empty as a whole. It changes the room above and below, the glyph's size and the text styles. */
   size: TanreiEmptyStateSize = 'medium';
@@ -322,11 +326,21 @@ export class TanreiEmptyState extends LitElement implements PlacingGroup {
     if (has('align') && !(ALIGNMENTS as readonly string[]).includes(this.align)) {
       report(this, 'EMP-17', `align "${this.align}" is not an alignment of an empty state; it is drawn as "center"`);
     }
+    // EMP-4: a level that is not one of a heading's is drawn as 2.
+    if (has('level') && this.headingLevel !== Number(this.level)) {
+      report(this, 'EMP-4', `level "${String(this.getAttribute('level') ?? this.level)}" is not a whole number from 1 to 6; the title is a heading of level 2`);
+    }
     // EMP-18: what a debug build tells the product.
     if (has('headline') || has('hasTitle') || has('hasDescription')) {
       if (this.empty) report(this, 'EMP-18', 'the empty state has no title and no description, so it draws nothing; a glyph or actions alone do not tell a person what is missing');
       else if (!this.titled) report(this, 'EMP-18', 'the empty state has a description and no title; say what is missing in the headline attribute or the title slot');
     }
+  }
+
+  /** EMP-4: the level of the heading the title is exposed as: `level`, or 2 where it is not a whole number from 1 to 6. */
+  private get headingLevel(): number {
+    const level = Number(this.level);
+    return Number.isInteger(level) && level >= 1 && level <= 6 ? level : 2;
   }
 
   protected override render() {
@@ -339,7 +353,7 @@ export class TanreiEmptyState extends LitElement implements PlacingGroup {
       >
         <div part="media" class="media ${this.mediaIsGlyph ? 'glyph' : 'picture'}" aria-hidden="true"><slot name="media"></slot></div>
         <div class="text">
-          <div part="title" class="title">${headline && !this.hasTitle ? html`<span class="headline">${this.headline}</span>` : nothing}<slot name="title"></slot></div>
+          <div part="title" class="title">${headline && !this.hasTitle ? html`<span class="headline" role="heading" aria-level=${this.headingLevel}>${this.headline}</span>` : nothing}<slot name="title"></slot></div>
           <div part="description" class="description"><slot></slot></div>
         </div>
         <div part="actions" class="actions"><slot name="actions"></slot></div>

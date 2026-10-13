@@ -427,13 +427,22 @@ export const styles = css`
   /* CHP-10, corner smoothing: the shared rule, on the chip, the remove action and the avatar (data-tanrei-shape). */
   ${shape}
 
-  /* CHP-14: the icon, the check and the remove glyph at the size's icon size, sys.icon.weight, and the optical size of
-     the box, clamped to sys.icon.optical-size; the icon and the check in the family and fill of the chip's selection (selected only on a filter chip that
+  /* CHP-14: the icon, the check and the remove glyph at the size's icon size and the optical size of the box, clamped
+     to sys.icon.optical-size; the icon and the remove glyph at sys.icon.weight, the check — a control's own mark — at
+     comp.chip.check.weight (the second rule, which the check's own selector puts after the first); the icon and the
+     check in the family and fill of the chip's selection (selected only on a filter chip that
      is on: aria-pressed="true"), the remove glyph always in the selected family and fill. CHP-30: iconGlyph() mirrors the
      slotted glyph GlyphMirrorController marked, in right-to-left, in its own box; the check and the remove glyph never. */
   ${iconGlyph('.glyph', {
     size: '--_icon',
     selected: ".container[aria-pressed='true']",
+    duration: '--tanrei-comp-chip-motion-selection-duration',
+    easing: '--tanrei-comp-chip-motion-selection-easing',
+  })}
+  ${iconGlyph('.glyph.check', {
+    size: '--_icon',
+    selected: ".container[aria-pressed='true']",
+    weight: '--tanrei-comp-chip-check-weight',
     duration: '--tanrei-comp-chip-motion-selection-duration',
     easing: '--tanrei-comp-chip-motion-selection-easing',
   })}

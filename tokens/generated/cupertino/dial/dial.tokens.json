@@ -511,13 +511,13 @@
                 "amount": {
                   "light": [
                     8,
-                    14,
-                    30
+                    44,
+                    56
                   ],
                   "dark": [
                     14,
-                    22,
-                    40
+                    36,
+                    48
                   ]
                 }
               }
@@ -672,6 +672,9 @@
             "tanrei.comp.button.text.disabled.container.color": {
               "$value": "{tanrei.comp.button.text.container.color}"
             },
+            "tanrei.comp.button.inline.disabled.container.color": {
+              "$value": "{tanrei.comp.button.inline.container.color}"
+            },
             "tanrei.comp.checkbox.unselected.disabled.box.color": {
               "$value": "{tanrei.comp.checkbox.unselected.box.color}"
             },
@@ -763,11 +766,21 @@
             "tanrei.comp.button.text.disabled.selected.container.color": {
               "$value": "{tanrei.comp.button.text.selected.container.color}"
             },
+            "tanrei.comp.button.inline.disabled.unselected.container.color": {
+              "$value": "{tanrei.comp.button.inline.unselected.container.color}"
+            },
+            "tanrei.comp.button.inline.disabled.selected.container.color": {
+              "$value": "{tanrei.comp.button.inline.selected.container.color}"
+            },
             "tanrei.comp.button.outlined.disabled.unselected.container.color": {
               "$value": "{tanrei.comp.button.outlined.unselected.container.color}"
             },
             "tanrei.comp.chip.outlined.disabled.container.color": {
               "$value": "{tanrei.comp.chip.outlined.container.color}"
+            },
+            "tanrei.comp.tag.outlined.disabled.container.color": {
+              "$value": "{tanrei.comp.tag.outlined.container.color}",
+              "reason": "An outlined tag has no fill; drawn inside something disabled it grows none, and keeps its hairline."
             },
             "tanrei.comp.menu.unselected.disabled.mark.color": {
               "$value": "{tanrei.comp.menu.unselected.mark.color}"
@@ -969,6 +982,14 @@
                 "amount": 0.16
               },
               "reason": "A checked row's fill is a layer of the row's own content color, twice the hover layer, so that it is seen by the same step on whatever the sheet is and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: on the menu's lifted sheet it is 1.06:1 in dark, and in light the same grey as a hovered row."
+            },
+            "tanrei.comp.list.selected.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.list.selected.state-layer.color}",
+                "amount": 0.16
+              },
+              "reason": "A selected option's fill is a layer of the row's own content color, twice the hover layer, as the menu's checked row is, so that the quiet selection looks the same in a list and in a menu and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
             },
             "tanrei.comp.menu.expanded.container.color": {
               "derive": {
@@ -1805,6 +1826,11 @@
               "reason": "Nothing disabled is raised."
             },
             {
+              "match": "tanrei.comp.tag.outlined.disabled.*.container.color",
+              "$value": "{tanrei.comp.tag.outlined.$1.container.color}",
+              "reason": "An outlined tag of a status has no fill either; drawn inside something disabled it grows none."
+            },
+            {
               "match": "tanrei.comp.checkbox.*.disabled.container.color",
               "$value": "{tanrei.comp.checkbox.$1.container.color}",
               "reason": "The round state layer is not a fill; disabled, it stays invisible."
@@ -2260,9 +2286,9 @@
               "reason": "The body of a file item has no fill at rest; disabled, it grows none, and what it shows of the file stays as it is (FIT-21). The generic rule would lay a fill over the name and the picture."
             },
             {
-              "match": "tanrei.comp.file-item.tile.disabled.action.container.color",
-              "$value": "{tanrei.comp.file-item.tile.action.container.color}",
-              "reason": "A tile's action stands on an opaque disc over a picture; disabled, it keeps the disc its faded glyph is read on. Written for the tile alone: a row's disabled action keeps the generic fill."
+              "match": "tanrei.comp.file-item.*.disabled.action.container.color",
+              "$value": "{tanrei.comp.file-item.$1.action.container.color}",
+              "reason": "Disabled, an action keeps the container it has at rest: a tile's the opaque disc its faded glyph is read on over a picture, a row's none — a quiet icon-only button grows no fill when it is disabled, or it would look like a filled one. The chip's remove action keeps its resting container for the same reason."
             },
             {
               "match": "tanrei.comp.chat-composer.*.focused.container.color",
@@ -4114,6 +4140,32 @@
               "$value": "{tanrei.sys.typescale.body-large}",
               "reason": "Apple's list rows set their title in Body (17pt), which is body-large here; cupertino's body is 15pt."
             },
+            "tanrei.comp.code-block.line.added.container.color": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "reason": "This preset draws no band behind an added line: its secondary label color, which its comments, line numbers and prompts take, falls under 4.5:1 on the faint status tints of its palette (4.1:1 to 4.4:1). The bar and the sign still mark the line."
+            },
+            "tanrei.comp.code-block.line.removed.container.color": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "reason": "This preset draws no band behind a removed line: its secondary label color, which its comments, line numbers and prompts take, falls under 4.5:1 on the faint status tints of its palette (4.1:1 to 4.4:1). The bar and the sign still mark the line."
+            },
             "tanrei.comp.list.selected.container.color": {
               "$value": {
                 "colorSpace": "srgb",
@@ -4126,6 +4178,22 @@
                 "hex": "#000000"
               },
               "reason": "Apple shows a chosen row by a check in the tint, with no fill."
+            },
+            "tanrei.comp.list.selected.overline.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
+            },
+            "tanrei.comp.list.selected.supporting-text.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
+            },
+            "tanrei.comp.list.selected.trailing-text.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
+            },
+            "tanrei.comp.list.selected.trailing-icon.color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
             },
             "tanrei.comp.menu.surface.color": {
               "$value": "{tanrei.sys.color.surface-container-lowest}"

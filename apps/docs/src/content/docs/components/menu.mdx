@@ -44,10 +44,10 @@ import DemoFrame from '../../../components/DemoFrame.astro';
   </tanrei-menu>
 </DemoFrame>
 
-<DemoFrame label="A menu of links: each row goes somewhere, and one opens a new tab" plain>
+<DemoFrame label="A menu of links: each row goes somewhere, one is the page you are on, and one opens a new tab" plain>
   <tanrei-menu inline open>
     <tanrei-menu-item label="Button" href="/components/button/"></tanrei-menu-item>
-    <tanrei-menu-item label="List" href="/components/list/"></tanrei-menu-item>
+    <tanrei-menu-item label="List" href="/components/list/" current></tanrei-menu-item>
     <tanrei-menu-item label="Example site" href="https://example.com/" target="new" target-label="opens in a new tab"></tanrei-menu-item>
     <tanrei-menu-item label="Archive" href="/archive/" disabled></tanrei-menu-item>
   </tanrei-menu>
@@ -61,7 +61,7 @@ A menu has five item kinds: `item` (an action), `checkbox-item`, `radio-item`, `
 
 An item's keyboard shortcut is its `shortcut` prop, written in the [keyboard shortcut](/components/keyboard-shortcut/)'s neutral key names (`mod+c`). The menu draws it at the end of the row with the keyboard shortcut component, as ⌘C on Apple's keyboards and Ctrl+C elsewhere, and exposes it as the item's keyboard shortcut. It does not make the keys work: your product binds them. `trailingText` is for anything that is not a shortcut, such as a count or "Beta". The web draws all of this, and the current look. SwiftUI, Compose, Flutter and React Native are lagging: until they catch up, they have no `shortcut` prop and write the shortcut in `trailingText`, as their samples below do. They have no submenus, no `separation` and no `markIcon` either, and they still draw the check as a mark of their own in a 16 box, fill no checked row and start a group's title where the labels start.
 
-An item with an `href` is a link item: the platform's own link, drawn exactly as an action and moved to with the same keys. A plain activation emits the item's `click`, closes the menu and then opens the destination. `target` and `targetLabel` are the [Button](/components/button/)'s. The web builds link items; SwiftUI, Compose, Flutter and React Native do not have them yet.
+An item with an `href` is a link item: the platform's own link, drawn exactly as an action and moved to with the same keys. A plain activation emits the item's `click`, closes the menu and then opens the destination. `target` and `targetLabel` are the [Button](/components/button/)'s. `current` marks the link item of the page the person is on: it is drawn with the fill of a checked row, with no check. The web builds link items; SwiftUI, Compose, Flutter and React Native do not have them yet.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -363,7 +363,7 @@ A checkbox or radio item activated by a tap, a click or Enter closes the menu, l
 
 ### Groups, titles and separation
 
-- The menu sets a group apart from whatever is next to it, never at the top or the bottom: by a divider, or by a gap of empty space. You do not place dividers yourself.
+- The menu sets a group apart from whatever is next to it, never at the top or the bottom: by a divider, or by a gap. Under a gap each group, and each run of items outside a group, is a sheet of its own, with empty space between the sheets. You do not place dividers or sheets yourself.
 - Which of the two is the design system's choice, one choice for every component that separates its own parts: a divider in the default system. `separation` decides for one menu and its submenus: `auto` (the default) follows the design system, and `divider` or `gap` names one whatever the system chose. Under a gap no separator is exposed, and the groups are still exposed as groups.
 - A group with a `title` draws it as a quiet heading above its items, starting where the rows' content starts, and is named by it. Give the group of radio items a title that asks the question, such as "Sort by".
 - Radio items belong in a group. A radio item outside a group is never checked, and debug builds report it.
@@ -377,6 +377,7 @@ A link item is the platform's own link, so the browser's context menu, opening i
 - **A router.** Cancel the item's `click` to take the navigation yourself. The menu still closes, and nothing else opens.
 - **Other tabs.** A click or Enter with a modifier key, and a middle click, are the browser's. The menu emits no `close` and stays open, so several of its links can be opened one after another.
 - **A new context.** `target: new` opens a new tab or window. The item ends with the icon set's `open_in_new` in the trailing icon column, unless `trailingIcon` names a glyph of your own, and `targetLabel` says it to assistive technology. A shortcut or trailing text keeps its own column before the mark.
+- **The page you are on.** `current` marks the link item of the page the person is on. It is exposed as the current page (`aria-current="page"` on the web) and drawn with the fill of a checked row, with no check and no heavier label: it says where the person is, not a choice they made. You set it, and the menu never does. Without an `href` it is ignored.
 - **Disabled.** A disabled link item cannot be followed by any means. It stays reachable with the arrow keys, as any disabled item does.
 - **Only the item kind.** A checkbox item, a radio item and a submenu item take no destination: they hold a state or open another level.
 
@@ -441,7 +442,7 @@ Whether a press outside also reaches what is under it follows the platform too. 
 
 - The surface is exposed as a menu. Actions are menu items, checkbox items are menu item checkboxes and radio items are menu item radios, each with its checked state, its position and the menu's size.
 - Each item is named by its label and described by its supporting text. An item's `shortcut` is exposed as its keyboard shortcut where the platform has that property (`aria-keyshortcuts` on the web), and otherwise its spelled-out keys are part of its description. Trailing text is only ever part of the description. Icons and marks are hidden: the box, the ring and the check are drawings, and the checked state is the item's own.
-- A link item is exposed as a menu item, not as a link: a menu is read by its items, their count and the arrow keys, and that holds only while every row is a menu item. It is still the platform's link underneath. While it opens a new context, its `targetLabel` ends its description, and its mark is hidden.
+- A link item is exposed as a menu item, not as a link: a menu is read by its items, their count and the arrow keys, and that holds only while every row is a menu item. It is still the platform's link underneath. While it opens a new context, its `targetLabel` ends its description, and its mark is hidden. A current link item is also exposed as the current page.
 - A group is exposed as a group named by its title. Dividers are separators that take no focus; where groups are set apart by a gap, there is no separator. Titles take no focus and are not read as items.
 - A submenu item is exposed as an item that opens a menu, with its expanded state, also while it is disabled. Its surface is a menu of its own, named by the item's label, and each surface counts its own positions.
 - The anchor is told that it opens a menu and whether the menu is open, where the platform has that property (on the web, `aria-haspopup`, `aria-controls` and `aria-expanded`).
@@ -451,7 +452,7 @@ Whether a press outside also reaches what is under it follows the platform too. 
 - Each item is at least the minimum target tall, and the whole row is its hit area.
 - Items grow with larger text, and the surface scrolls when it no longer fits the screen.
 - While the icon font cannot draw a glyph mark yet, such as the check, the menu draws nothing in its place, never the word "check". It keeps the column's width and still exposes the checked state, and shows the mark once the font has loaded.
-- Debug builds report an item without a label, a radio item outside a group, a group value that names none of its radio items, two radio items that share a value, a group inside a group, an item with both a shortcut and trailing text, a `separation` the menu does not define, a third level of submenu and a submenu without items. They also report a link item that opens a new context without a `targetLabel`, an `href` on a checkbox item, a radio item or a submenu item, an `href` that names a script or cannot be read, and a `target` the menu does not define.
+- Debug builds report an item without a label, a radio item outside a group, a group value that names none of its radio items, two radio items that share a value, a group inside a group, an item with both a shortcut and trailing text, a `separation` the menu does not define, a third level of submenu and a submenu without items. They also report a link item that opens a new context without a `targetLabel`, an `href` on a checkbox item, a radio item or a submenu item, an `href` that names a script or cannot be read, a `target` the menu does not define, and `current` on an item without an `href`.
 
 Known platform gaps:
 

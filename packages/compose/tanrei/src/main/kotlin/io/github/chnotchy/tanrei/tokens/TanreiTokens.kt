@@ -1782,6 +1782,7 @@ public value class TanreiButtonVariant(public val key: String) {
         public val Elevated: TanreiButtonVariant = TanreiButtonVariant("elevated")
         public val Outlined: TanreiButtonVariant = TanreiButtonVariant("outlined")
         public val Text: TanreiButtonVariant = TanreiButtonVariant("text")
+        public val Inline: TanreiButtonVariant = TanreiButtonVariant("inline")
     }
 }
 
@@ -1855,11 +1856,12 @@ public data class TanreiButtonVariants(
     public val elevated: TanreiButtonVariantTokens,
     public val outlined: TanreiButtonVariantTokens,
     public val text: TanreiButtonVariantTokens,
+    public val inline: TanreiButtonVariantTokens,
     /** Values a design system added to the vocabulary, by key. */
     public val extra: Map<TanreiButtonVariant, TanreiButtonVariantTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiButtonVariant> get() = linkedSetOf(TanreiButtonVariant.Filled, TanreiButtonVariant.Tonal, TanreiButtonVariant.Elevated, TanreiButtonVariant.Outlined, TanreiButtonVariant.Text) + extra.keys
+    public val keys: Set<TanreiButtonVariant> get() = linkedSetOf(TanreiButtonVariant.Filled, TanreiButtonVariant.Tonal, TanreiButtonVariant.Elevated, TanreiButtonVariant.Outlined, TanreiButtonVariant.Text, TanreiButtonVariant.Inline) + extra.keys
 
     public operator fun contains(key: TanreiButtonVariant): Boolean = find(key) != null
 
@@ -1870,6 +1872,7 @@ public data class TanreiButtonVariants(
         TanreiButtonVariant.Elevated -> elevated
         TanreiButtonVariant.Outlined -> outlined
         TanreiButtonVariant.Text -> text
+        TanreiButtonVariant.Inline -> inline
         else -> extra[key]
     }
 
@@ -1882,6 +1885,7 @@ public data class TanreiButtonVariants(
         addAll(elevated.referencedRoles())
         addAll(outlined.referencedRoles())
         addAll(text.referencedRoles())
+        addAll(inline.referencedRoles())
         extra.values.forEach { addAll(it.referencedRoles()) }
     }
 }
@@ -1896,7 +1900,12 @@ public data class TanreiButtonStateTokens(
 /** `comp.button`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `variants[variant]`). */
 @Immutable
 public data class TanreiButtonTokens(
+    public val busyIndicatorThickness: Dp,
     public val containerShape: Dp,
+    public val inlineUnderlineOffset: Dp,
+    public val inlineUnderlineVisibility: Float,
+    public val inlineUnderlineWidth: Dp,
+    public val motionBusyCycleDuration: Int,
     public val motionFeedbackDuration: Int,
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
@@ -3146,6 +3155,7 @@ public data class TanreiChipStateTokens(
 @Immutable
 public data class TanreiChipTokens(
     public val avatarShape: Dp,
+    public val checkWeight: Float,
     public val containerShape: Dp,
     public val motionFeedbackDuration: Int,
     public val motionSelectionDuration: Int,
@@ -3380,10 +3390,12 @@ public data class TanreiCodeBlockTokens(
     public val languageTypescale: TanreiTextStyle,
     public val lineNumberColor: TanreiPaint,
     public val lineNumberGap: Dp,
+    public val lineAddedContainerColor: TanreiPaint,
     public val lineAddedMarkColor: TanreiPaint,
     public val lineHighlightedContainerColor: TanreiPaint,
     public val lineHighlightedMarkColor: TanreiPaint,
     public val lineMarkWidth: Dp,
+    public val lineRemovedContainerColor: TanreiPaint,
     public val lineRemovedMarkColor: TanreiPaint,
     public val outlineColor: TanreiPaint,
     public val outlineWidth: Dp,
@@ -3399,9 +3411,11 @@ public data class TanreiCodeBlockTokens(
         addAll(codeColor.roles())
         addAll(languageColor.roles())
         addAll(lineNumberColor.roles())
+        addAll(lineAddedContainerColor.roles())
         addAll(lineAddedMarkColor.roles())
         addAll(lineHighlightedContainerColor.roles())
         addAll(lineHighlightedMarkColor.roles())
+        addAll(lineRemovedContainerColor.roles())
         addAll(lineRemovedMarkColor.roles())
         addAll(outlineColor.roles())
         addAll(promptColor.roles())
@@ -4452,6 +4466,7 @@ public data class TanreiFieldGroupConditions(
 @Immutable
 public data class TanreiFieldGroupTokens(
     public val errorTextGap: Dp,
+    public val fieldMinWidth: Dp,
     public val gapInline: Dp,
     public val labelGap: Dp,
     public val labelTypescale: TanreiTextStyle,
@@ -4568,6 +4583,7 @@ public data class TanreiFieldConditions(
 public data class TanreiFieldTokens(
     public val counterGap: Dp,
     public val errorTextGap: Dp,
+    public val errorTextPlacement: Float,
     public val labelIconGap: Dp,
     public val labelIconSize: Dp,
     public val labelGap: Dp,
@@ -5866,6 +5882,7 @@ public data class TanreiListTokens(
     public val motionStateEasing: TanreiCubicBezier,
     public val moveButtonsGap: Dp,
     public val overlineTypescale: TanreiTextStyle,
+    public val reorderTextMinWidth: Dp,
     public val supportingTextTypescale: TanreiTextStyle,
     public val trailingIconSize: Dp,
     public val trailingTextTypescale: TanreiTextStyle,
@@ -6368,6 +6385,7 @@ public value class TanreiMenubarCondition(public val key: String) {
 
     public companion object {
         public val Unselected: TanreiMenubarCondition = TanreiMenubarCondition("unselected")
+        public val Selected: TanreiMenubarCondition = TanreiMenubarCondition("selected")
         public val Expanded: TanreiMenubarCondition = TanreiMenubarCondition("expanded")
     }
 }
@@ -6414,18 +6432,20 @@ public data class TanreiMenubarConditionTokens(
 @Immutable
 public data class TanreiMenubarConditions(
     public val unselected: TanreiMenubarConditionTokens,
+    public val selected: TanreiMenubarConditionTokens,
     public val expanded: TanreiMenubarConditionTokens,
     /** Values a design system added to the vocabulary, by key. */
     public val extra: Map<TanreiMenubarCondition, TanreiMenubarConditionTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiMenubarCondition> get() = linkedSetOf(TanreiMenubarCondition.Unselected, TanreiMenubarCondition.Expanded) + extra.keys
+    public val keys: Set<TanreiMenubarCondition> get() = linkedSetOf(TanreiMenubarCondition.Unselected, TanreiMenubarCondition.Selected, TanreiMenubarCondition.Expanded) + extra.keys
 
     public operator fun contains(key: TanreiMenubarCondition): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
     public fun find(key: TanreiMenubarCondition): TanreiMenubarConditionTokens? = when (key) {
         TanreiMenubarCondition.Unselected -> unselected
+        TanreiMenubarCondition.Selected -> selected
         TanreiMenubarCondition.Expanded -> expanded
         else -> extra[key]
     }
@@ -6435,6 +6455,7 @@ public data class TanreiMenubarConditions(
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(unselected.referencedRoles())
+        addAll(selected.referencedRoles())
         addAll(expanded.referencedRoles())
         extra.values.forEach { addAll(it.referencedRoles()) }
     }
@@ -6459,6 +6480,7 @@ public data class TanreiMenubarTokens(
     public val containerPaddingInline: Dp,
     public val containerShape: Dp,
     public val iconSize: Dp,
+    public val indicatorSize: Dp,
     public val labelTypescale: TanreiTextStyle,
     public val motionFeedbackDuration: Int,
     public val motionStateDuration: Int,
@@ -6827,8 +6849,10 @@ public data class TanreiNavigationDrawerTokens(
     public val containerPaddingBlock: Dp,
     public val containerPaddingInline: Dp,
     public val containerWidth: Dp,
+    public val headerColor: TanreiPaint,
     public val headerGap: Dp,
     public val headerItemGap: Dp,
+    public val headerTypescale: TanreiTextStyle,
     public val headingColor: TanreiPaint,
     public val headingHeight: Dp,
     public val headingTypescale: TanreiTextStyle,
@@ -6877,6 +6901,7 @@ public data class TanreiNavigationDrawerTokens(
     }
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(headerColor.roles())
         addAll(headingColor.roles())
         addAll(scrimColor.roles())
         addAll(variants.referencedRoles())
@@ -7569,6 +7594,7 @@ public data class TanreiProseTokens(
     public val heading6GapAfter: Dp,
     public val heading6GapBefore: Dp,
     public val itemGap: Dp,
+    public val japaneseLineHeight: Float,
     public val leadTypescale: TanreiTextStyle,
     public val listIndent: Dp,
     public val measure: Float,
@@ -8084,6 +8110,7 @@ public data class TanreiSegmentedButtonStateTokens(
 /** `comp.segmented-button`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `conditions[condition]`). */
 @Immutable
 public data class TanreiSegmentedButtonTokens(
+    public val checkWeight: Float,
     public val containerShape: Dp,
     public val dividerColor: TanreiPaint,
     public val dividerWidth: Dp,
@@ -9691,6 +9718,7 @@ public data class TanreiTabsSizeTokens(
     public val activeIndicatorPaddingInline: Dp,
     public val activeIndicatorPaddingBlock: Dp,
     public val iconSize: Dp,
+    public val iconPlacement: Float,
 )
 
 /**
@@ -9741,6 +9769,9 @@ public data class TanreiTabsTokens(
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
     public val motionTransition: Float,
+    public val primarySelectedLabelEmphasis: Float,
+    public val secondarySelectedLabelEmphasis: Float,
+    public val tonalSelectedLabelEmphasis: Float,
     public val trackPadding: Dp,
     public val trackShape: Dp,
     public val trackVisible: Float,
@@ -9769,7 +9800,7 @@ public data class TanreiTabsTokens(
 /**
  * A spacing of tag-group: the key of one entry of [TanreiTagGroupSpacings]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
- * A key the current system does not have draws as [Tags].
+ * A key the current system does not have draws as [Chips].
  */
 @JvmInline
 public value class TanreiTagGroupSpacing(public val key: String) {
@@ -9810,8 +9841,8 @@ public data class TanreiTagGroupSpacings(
         else -> extra[key]
     }
 
-    /** TOTAL: a key this system does not have reads the default value, [tags]. Components report such a key in debuggable apps. */
-    public operator fun get(key: TanreiTagGroupSpacing): TanreiTagGroupSpacingTokens = find(key) ?: tags
+    /** TOTAL: a key this system does not have reads the default value, [chips]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiTagGroupSpacing): TanreiTagGroupSpacingTokens = find(key) ?: chips
 }
 
 /** `comp.tag-group`. Members are flat tokens, then per-state tokens, then one holder per axis (`spacings[spacing]`). */
@@ -9890,9 +9921,9 @@ public value class TanreiTagVariant(public val key: String) {
     }
 }
 
-/** The tokens of one variant of tag. */
+/** What one variant of tag draws in one interaction state. */
 @Immutable
-public data class TanreiTagVariantTokens(
+public data class TanreiTagVariantStateTokens(
     public val containerColor: TanreiPaint,
     public val labelColor: TanreiPaint,
     public val iconColor: TanreiPaint,
@@ -9926,6 +9957,23 @@ public data class TanreiTagVariantTokens(
         addAll(successLabelColor.roles())
         addAll(successIconColor.roles())
     }
+}
+
+/** One variant of tag: a full set of tokens per interaction state. */
+@Immutable
+public data class TanreiTagVariantTokens(
+    public val enabled: TanreiTagVariantStateTokens,
+    public val disabled: TanreiTagVariantStateTokens,
+) {
+    public operator fun get(state: TanreiInteractionState): TanreiTagVariantStateTokens = when (state) {
+        TanreiInteractionState.Enabled -> enabled
+        TanreiInteractionState.Hovered -> enabled
+        TanreiInteractionState.Focused -> enabled
+        TanreiInteractionState.Pressed -> enabled
+        TanreiInteractionState.Disabled -> disabled
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + disabled.referencedRoles()
 }
 
 /**

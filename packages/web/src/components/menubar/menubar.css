@@ -13,6 +13,7 @@
  *   given, on further lines where one line does not hold them;
  * - each anchor in a title's text style, color, height and paddings, with no underline; it is followed by the browser
  *   and takes focus with Tab, as any link: there is no menubar, no menu item and no roving focus until the bar runs;
+ * - the current link item (`aria-current`) is filled from the selected condition, as the bar draws it (MBR-38);
  * - a disabled link item — an anchor without `href` under `disabled` — is text in the disabled color.
  *
  * What it cannot give: the titles and the actions, so the row holds fewer things than it will, and where it holds no
@@ -55,7 +56,8 @@
     text-decoration: none;
   }
   :where(tanrei-menubar:not(:defined)) > :where(tanrei-menubar-item) > :where(a[aria-current]:not([aria-current='false'])) {
-    font-weight: var(--tanrei-comp-menubar-label-typescale-font-weight-emphasized);
+    background: var(--tanrei-comp-menubar-selected-container-color);
+    color: var(--tanrei-comp-menubar-selected-label-color);
   }
   :where(tanrei-menubar:not(:defined)) > :where(tanrei-menubar-item[disabled]) > :where(a) {
     color: var(--tanrei-comp-menubar-unselected-disabled-label-color);

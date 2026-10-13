@@ -1196,7 +1196,7 @@ export const NavigationBarItem = createComponent({
  * - default — `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` children.
  * - `header-button` — Icon-only `<tanrei-button>`s stacked in the icon column; the first is the menu button while the drawer is collapsible.
  * - `main-action` — A `<tanrei-main-action-button>` below the header buttons, collapsed to its icon with the drawer. Only the first is drawn.
- * - `header` — Content beside the first header button while the drawer is expanded (a title, an account switcher); not restyled.
+ * - `header` — Content beside the first header button while the drawer is expanded (a title, an account switcher). Its box gives what it holds the header's inherited text style and color (`comp.navigation-drawer.header.typescale` and `.color`): plain text is drawn in them, and an element that sets its own keeps it.
  *
  * Events:
  * - `onClose` (`close`) — A modal drawer closed: the scrim, Escape, back, a drag, the menu button, or after a destination was activated. `open` is already false.

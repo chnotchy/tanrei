@@ -2,7 +2,7 @@
 title: Grupo de campos
 description: Da nombre a un conjunto de controles que responden a una misma pregunta (casillas de verificación, interruptores o campos que van juntos), con una etiqueta que puede decir si el conjunto es obligatorio u opcional, una descripción y un único error para el conjunto, y dispone los controles en una columna o en una fila.
 translationOf: components/field-group.mdx
-sourceHash: 0c05f716a744df37389e7c61de7327157afc78c5
+sourceHash: 6825a01b24b1fc9701b16dd5130baba7634da638
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -134,6 +134,7 @@ La etiqueta, el tag de obligatoriedad y el asterisco son los del campo.
 
 - `orientation="vertical"` (el valor predeterminado) apila los controles en una columna. Prefiérelo: todas las etiquetas empiezan en el mismo borde y se leen hacia abajo.
 - `orientation="horizontal"` los dispone en una fila que salta de línea. Resérvalo para dos o tres opciones cortas, o para campos que se leen como una sola línea, como una ciudad y su código postal. Una fila que ha saltado de línea oculta qué etiqueta corresponde a qué marca.
+- Los campos de una fila se la reparten por igual y nunca son más estrechos que `comp.field-group.field.min-width` (144 en el sistema predeterminado): en una ventana estrecha, el campo siguiente pasa a una línea propia en lugar de estrecharse hasta que se corte lo que se escribe en él. Define ese token donde tus campos necesiten más.
 - `spacing` dice qué contiene el conjunto. `controls` separa las casillas de verificación y los interruptores la distancia de un objetivo táctil; `fields` separa los campos la distancia que un formulario deja entre dos campos, y deja que cada uno ocupe todo el ancho. Un sistema de diseño puede añadir valores.
 
 La marca de una casilla de verificación o de un interruptor está dentro de su propio contenedor, así que empieza un poco más adentro que la etiqueta del grupo. El grupo no la saca de ahí: el contenedor es donde el control dibuja el paso del cursor y su anillo de foco.

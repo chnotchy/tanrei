@@ -18,7 +18,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notifications" requirement="optional" optional-text="Optional" supporting-text="Sent when a review is waiting for you."><tanrei-switch selected></tanrei-switch></tanrei-field>
 </DemoFrame>
 
-A text field can say what it is, whether it must be answered, how to answer it and why an answer was refused. A field gives the same four things to a control that cannot: a slider, a switch, a [text input](/components/text-input/), a [color input](/components/color-input/), a [one-time-code input](/components/one-time-code-input/), a control your product built. A text field is itself a field around a text input. The label stands above the control and the help below it. While the field is in error the help stays, and the error text is added below it.
+A text field can say what it is, whether it must be answered, how to answer it and why an answer was refused. A field gives the same four things to a control that cannot: a slider, a switch, a [text input](/components/text-input/), a [color input](/components/color-input/), a [one-time-code input](/components/one-time-code-input/), a control your product built. A text field is itself a field around a text input. The label stands above the control and the help below it. While the field is in error the error text takes the help's place, so a form in error is no taller than at rest; a design system can keep the help and add the error text below it instead.
 
 The field draws the frame and nothing else. It has no container, no value and no event; the control keeps its own look, keys, events and place in a form.
 
@@ -75,7 +75,7 @@ On the web it is `<tanrei-field>`. The other platforms have not implemented it y
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
 </DemoFrame>
 
-<DemoFrame label="Help and an error together: the help stays, and the error text is added below it" plain column>
+<DemoFrame label="Help, and an error: the error text takes the help's place" plain column>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Password" supporting-text="At least 8 characters, with one number."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
   <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Password" supporting-text="At least 8 characters, with one number." error error-text="This password is too short."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
 </DemoFrame>
@@ -92,7 +92,7 @@ A field around a [text input](/components/text-input/) is a [text field](/compon
 | The input says | The field |
 | --- | --- |
 | How far its text stands from its edges: its padding, and a leading icon | Starts and ends the supporting row there, so the help begins where the text begins |
-| That it draws the label itself, floating in a filled or an outlined box | Draws no label row and no requirement tag, and still names the input. A required input gets an asterisk after its floating label |
+| That it draws the label itself, floating in a filled or an outlined box | Draws no label row and no requirement tag, and still names the input. A required input gets an asterisk after its floating label, and an optional one the `optionalText` word |
 | That it refused a date or a time: half-filled, or not available | Is in error as while `error` is true, and shows the input's words for it |
 
 `countText` is a count about the control's value, as it is to be drawn ("12/40"). The field draws it at the end of the supporting row and does nothing else with it: it does not count, and it keeps the drawn count from assistive technology, because the control says its own count. Write it from the input's `countText` at every `input`. The text field does this itself.
@@ -140,16 +140,17 @@ The rule of thumb: if the control has a `supportingText` prop, it needs no field
 
 How a required control is marked is one choice of the design system, for every field and every set of controls: the token `sys.behavior.requirement-mark`, whose values are `tag` (a small filled tag that says "Required"), `asterisk` and `none`. The default system marks with the tag. A design system sets that one token to change every form at once. The field reads it through its own token, `comp.field.requirement.mark`, which follows it; a design system sets that token only to mark single fields differently from sets of controls. `requiredMark` overrides both for one field (`tag`, `asterisk` or `none`).
 
-The requirement tag is a small [tag](/components/tag/), filled for required and tonal for optional, and nothing more: the field has no tokens for it. A design system that restyles its small tags restyles the requirement tag with them, and it looks the same while the field is focused, in error or disabled. The tag's words are yours: `requiredText` and `optionalText` on the field, or once for the whole product with `setWords()`. Tanrei ships no words: without `requiredText` an asterisk stands in the tag's place, and without `optionalText` no tag is drawn.
+The requirement tag is a small [tag](/components/tag/), filled for required and tonal for optional, and nothing more: the field has no tokens for it. A design system that restyles its small tags restyles the requirement tag with them. It looks the same while the field is focused or in error; while the field is disabled it is drawn as a tag inside something disabled, so it fades with the label it follows. The tag's words are yours: `requiredText` and `optionalText` on the field, or once for the whole product with `setWords()`. Tanrei ships no words: without `requiredText` an asterisk stands in the tag's place, and without `optionalText` no tag is drawn.
 
 Mark the smaller set. In a form where almost everything must be answered, mark what is optional; where little must be, mark what is required.
 
 ### Help and errors
 
 - `supportingText` says how to answer: a format, a range, what the value is used for.
-- `errorText` says what is wrong with this answer and how to put it right, in words. While `error` is true it is drawn below the help, which stays. So do not repeat the help in it.
-- A field with help is taller while it is in error, by the error text and a small gap (`comp.field.error-text.gap`). Nothing above the error text moves, and no room is kept for an error before there is one. A field without help shows its error text where the help would be.
-- A count stays at the end of the first line, beside the help, when the error text comes or goes.
+- `errorText` says what is wrong with this answer and how to put it right, in words. While `error` is true it takes the help's place, so say again what the help said where it still matters: "Enter a date after today", not "Invalid date".
+- Where the error text stands is one choice of the design system, `comp.field.error-text.placement`. `replace`, the default, puts it in the help's place: one line to read, and a field in error is no taller than at rest. `append` keeps the help and adds the error text below it, a small gap away (`comp.field.error-text.gap`): the field is then taller while it is in error, and nothing above the error text moves. Every shipped system uses `replace`, as Material and Carbon do; `append` is for a design system that, like GOV.UK's, keeps the help in view.
+- No room is kept for an error before there is one. A field without help shows its error text where the help would be.
+- A count stays at the end of the first line when the error text comes or goes.
 - Set `error` when you have validated, not while the person is still answering. The field never sets it.
 
 ### One control
@@ -176,7 +177,7 @@ Disable a framed control on the field, not on the control, so that the label and
 ### What the component handles
 
 - The label is the control's accessible name, drawn or hidden with `labelHidden`. A control that has a name of its own keeps it.
-- The control's description is the help, then the error text while the field is in error, then `optionalText` while the control is optional. They follow any description the control already has.
+- The control's description is what the supporting row shows — the help, or while the field is in error the error text in its place (under `append`, the help and then the error text) — then `optionalText` while the control is optional. They follow any description the control already has.
 - The control is exposed as invalid while `error` is true, as required while `requirement` is `required`, and as disabled while `disabled` is true. A control whose role has no required state, such as a slider, says `requiredText` in its description instead.
 - A control that has an error condition of its own, such as a checkbox or a radio button, is drawn in it.
 - An error that appears, or changes its words, while focus is inside the field is announced once, politely: the error text alone, not the help again. Focus never moves because of an error.

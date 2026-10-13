@@ -133,6 +133,26 @@
           "$value": "{tanrei.sys.space.space200}",
           "$description": "Distance between two members that stand side by side in a horizontal group: from the end of one control's label to the next control, wide enough that a label is read with its own mark and not with the next one; and between two fields in one row (a city and its postal code)."
         },
+        "field": {
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 144,
+              "unit": "px"
+            },
+            "$description": "The least width of a field in a horizontal row of fields (FGR-13): the fields share the row equally and never less than this, and a field that would be narrower moves, with those after it, to the next line. A field whose content needs more keeps what its content needs.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product sets fields side by side — a first and a last name, a postcode and a city — in a form that is shown in a wide page, in a side panel and on a phone, and needs them to go from one row to a column at a width it can set once, rather than narrowing until what is typed in them is cut."
+              },
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 36
+              }
+            }
+          }
+        },
         "standard": {
           "label": {
             "color": {

@@ -2,7 +2,7 @@
 title: Panel de navegación
 description: Muestra los destinos de un producto en un panel situado en el borde de inicio, organizados en secciones y grupos, junto al contenido en una pantalla grande o sobre él en una compacta, y puede contraerse hasta quedar en una columna de iconos.
 translationOf: components/navigation-drawer.mdx
-sourceHash: 99562d926c109200b21007f7db10ca4597cbb7da
+sourceHash: 1200db5dc3b8b23273bf2e66c4c46a1625667586
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -444,10 +444,10 @@ Da un `href` a cada destino y, al panel, la dirección de la propia página como
 - Da un icono a todos los destinos o a ninguno, para que las etiquetas queden alineadas. Un panel que se puede contraer dibuja cada destino y cada grupo de nivel superior por su icono mientras está contraído, así que da un icono a cada uno.
 - `trailingText` es un texto corto al final de la fila, más discreto que la etiqueta: un recuento («24») o una palabra («Nuevo»). El slot `trailing` contiene cualquier otra cosa, como un glifo o un Badge; prevalece sobre `trailingText` y nunca es interactivo. Un enlace con `target` en `new` termina su fila con `open_in_new` por sí solo, así que no tienes que colocar ese glifo. El contenido final se lee después de la etiqueta y no se dibuja mientras el panel está contraído.
 - `badge` dibuja un Badge sobre el icono, en las dos formas: un punto, o `badgeCount`, con el nombre que le da `badgeLabel`.
-- La fila de un grupo abre y cierra los destinos y grupos que contiene, con el `expand_more` del conjunto de iconos girado media vuelta mientras está abierto. Cada nivel empieza una sangría más adentro en su totalidad: su relleno, su capa de estado y su anillo de foco, no solo su texto. Un grupo cerrado que contiene el destino seleccionado se dibuja seleccionado, y lo mismo ocurre con un grupo de nivel superior mientras el panel está contraído; activar un grupo con el panel contraído expande el panel y abre el grupo. No pases de tres niveles.
+- La fila de un grupo abre y cierra los destinos y grupos que contiene, con el `expand_more` del conjunto de iconos girado media vuelta mientras está abierto. El icono y la etiqueta de cada nivel empiezan una sangría más adentro; su relleno, su capa de estado y su anillo de foco conservan el ancho completo de una fila de nivel superior, de modo que todas las selecciones tienen la misma forma. Un grupo cerrado que contiene el destino seleccionado se dibuja seleccionado, y lo mismo ocurre con un grupo de nivel superior mientras el panel está contraído; activar un grupo con el panel contraído expande el panel y abre el grupo. No pases de tres niveles.
 - El título de una sección da nombre a los destinos que tiene debajo. Es un encabezado, no un control. Una sección puede no tener título, como un grupo separado por un divisor y sin nombre.
 - El `divider` de una sección dibuja un divisor delante de ella, para separarla de lo que tiene encima. Nunca colocas un divisor por tu cuenta.
-- La cabecera contiene los botones de la cabecera, apilados en la columna de iconos, y la acción principal debajo de ellos. El slot de la cabecera se sitúa junto al botón de menú mientras el panel está expandido, para un título o un selector de cuentas, y no se dibuja mientras está contraído. El panel no cambia su estilo.
+- La cabecera contiene los botones de la cabecera, apilados en la columna de iconos, y la acción principal debajo de ellos. El slot de la cabecera se sitúa junto al botón de menú mientras el panel está expandido, para un título o un selector de cuentas, y no se dibuja mientras está contraído. El texto simple que se coloca ahí se dibuja con el estilo de título del panel (`comp.navigation-drawer.header.typescale` y `comp.navigation-drawer.header.color`); un elemento tuyo que define su propio estilo lo conserva.
 - Cuando las filas ocupan más alto que el espacio que queda bajo la cabecera, se desplazan y la cabecera se queda en su sitio. Un desplazamiento que llega a cualquiera de los dos extremos no continúa desplazando la página que hay detrás del panel.
 
 ### Recomendado

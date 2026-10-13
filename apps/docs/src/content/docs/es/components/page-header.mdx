@@ -2,7 +2,7 @@
 title: Cabecera de página
 description: La cabecera del contenido de una página. El título de la página como su encabezado, con una frase que dice qué es la página, una línea de datos sobre ella, las acciones de toda la página y, encima, el camino de vuelta hacia arriba.
 translationOf: components/page-header.mdx
-sourceHash: cf0da7ab4cf7d863f73165b23bd68237291a800e
+sourceHash: 1e702fdb88c5e57541104c160ade78c5a738a823
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -156,7 +156,7 @@ Una cabecera grande en un lugar estrecho dibuja el título mediano. El cambio es
 
 | `actionsPlacement` | Mientras la cabecera mide al menos 480 de ancho | Mientras es más estrecha |
 | --- | --- | --- |
-| `end` (predeterminado) | Junto al título, en el borde de fin, centradas en la primera línea del título. | Debajo del texto, en el borde de inicio. |
+| `end` (predeterminado) | Junto al título, en el borde de fin, centradas en la primera línea del título. Una sola fila de acciones sigue centrada ahí, aunque sea más alta que esa línea. Las acciones que pasan a una segunda fila empiezan en su parte superior y la cabecera crece para contenerlas. | Debajo del texto, en el borde de inicio. |
 | `below` | Debajo del texto. | Debajo del texto. |
 
 - El ancho que decide es el de la propia cabecera, no el de la ventana. Una cabecera situada en un panel se dispone según el panel.

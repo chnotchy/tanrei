@@ -197,7 +197,7 @@ test.describe('behavior', () => {
       await page.keyboard.type('#0f76e');
       await blurAll(page);
       await expect(field(element).locator('.error-text')).toHaveText(words);
-      await expect(field(element).locator('.supporting-text'), 'the help stays above the error text (FLD-7)').toHaveText('Six hexadecimal digits.');
+      await expect(field(element).locator('.supporting-text'), 'the error text stands in the help’s place (FLD-7)').toHaveCount(0);
       await expect(field(element).locator('.frame')).toHaveAttribute('data-error', '');
       await expect(typing(element)).toHaveAttribute('aria-invalid', 'true');
       expect(await heard(page), id).toEqual([`entryerror  #0f76e|${carried}`]);

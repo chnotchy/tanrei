@@ -40,10 +40,11 @@
         "tonal",
         "elevated",
         "outlined",
-        "text"
+        "text",
+        "inline"
       ],
       "default": "filled",
-      "description": "Emphasis level. Use one filled button per view for the main action; an icon-only text button is the quiet icon action of a toolbar or a row. A design system may add values. Default filled; a Button placed as a dialog's or a side sheet's action without a variant takes that host's (DLG-20, SSH-17), and a side sheet's close button takes comp.side-sheet.close-button.variant (SSH-5).",
+      "description": "Emphasis level. Use one filled button per view for the main action; an icon-only text button is the quiet icon action of a toolbar or a row; inline is an action inside a sentence, drawn as a phrase of it (BTN-35). A design system may add values. Default filled; a Button placed as a dialog's or a side sheet's action without a variant takes that host's (DLG-20, SSH-17), and a side sheet's close button takes comp.side-sheet.close-button.variant (SSH-5).",
       "axis": "tanrei.comp.button.variant"
     },
     {
@@ -55,7 +56,7 @@
         "large"
       ],
       "default": "medium",
-      "description": "Visual height (32 / 40 / 56), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. A design system may add values.",
+      "description": "Visual height (32 / 40 / 56), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. A design system may add values. Ignored by the inline variant, which takes the size of the text around it (BTN-35).",
       "axis": "tanrei.comp.button.size"
     },
     {
@@ -67,7 +68,7 @@
         "wide"
       ],
       "default": "default",
-      "description": "How wide an icon-only button is. default: as wide as it is high (32 / 40 / 56). narrow: its glyph with a small inset on each side (28 / 32 / 32), for a tight row of icon actions. wide: 40 / 52 / 72, for the one action of a row that should weigh more. Ignored when the button has a label. The hit area meets the minimum target at every width."
+      "description": "How wide an icon-only button is. default: as wide as it is high (32 / 40 / 56). narrow: its glyph with a small inset on each side (28 / 32 / 32), for a tight row of icon actions. wide: 40 / 52 / 72, for the one action of a row that should weigh more. Ignored when the button has a label, and by the inline variant. The hit area meets the minimum target at every width."
     },
     {
       "name": "iconPosition",
@@ -95,7 +96,26 @@
       "name": "disabled",
       "type": "boolean",
       "default": false,
-      "description": "Prevents interaction and removes the button from the focus order. A disabled button with a destination is not a link that can be followed (BTN-25); on the web a disabled submit button sends nothing, and still stops Enter from sending its form where it is the form's default button (BTN-32)."
+      "description": "Prevents interaction and removes the button from the focus order — unless focusableWhenDisabled keeps it there (BTN-38). A disabled button with a destination is not a link that can be followed (BTN-25); on the web a disabled submit button sends nothing, and still stops Enter from sending its form where it is the form's default button (BTN-32)."
+    },
+    {
+      "name": "focusableWhenDisabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Keeps a disabled button in the focus order: it is drawn and exposed as disabled and refuses every activation, but a keyboard and a screen reader can still reach it, so that a person can learn why it does nothing (a tooltip, a description). For an action a person can make available — a send button while the message is empty. Ignored unless disabled is true (BTN-38)."
+    },
+    {
+      "name": "busy",
+      "type": "boolean",
+      "default": false,
+      "description": "The action it started is under way: the button keeps its focus, its place in the focus order and its size, draws the loading indicator's arc in place of its label and icon, refuses every activation, and tells assistive technology through busyLabel (BTN-36, BTN-37). For a save or a send that takes a moment; it is not disabled, so focus stays where the person left it."
+    },
+    {
+      "name": "busyLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology is told while the button is busy (\"Saving\"): announced once when it becomes busy and read after its name while it is. Tanrei ships no words of its own. Required while busy is true; ignored otherwise.",
+      "words": "busyLabel"
     },
     {
       "name": "href",
@@ -154,7 +174,8 @@
     "hovered",
     "focused",
     "pressed",
-    "selected"
+    "selected",
+    "loading"
   ],
   "behavior": [
     {
@@ -314,6 +335,26 @@
       "id": "BTN-34",
       "text": "WHERE the platform has no form element (SwiftUI, Compose, Flutter, React Native) THE button SHALL have no type, no form and no name and value to send: there a product calls one function of its own from the button's click and from a field's action (TXI-3), and nothing of Tanrei's joins the two or decides which button a key in a field presses.",
       "verify": "Nothing to test on those platforms: the four notes of the platforms block say which idiom of the platform a product uses for a key that presses a view's main button, and that it is the app's own."
+    },
+    {
+      "id": "BTN-35",
+      "text": "WHILE variant is inline THE button SHALL be drawn as a phrase of the sentence it stands in: no container, outline or elevation at rest, no inline padding and no height of its own, and the font, size, weight and line height of the text around it, so that the line keeps its height; its words SHALL stay on one line, as an action of a few words does, and size and width SHALL be ignored. Its label SHALL be drawn in comp.button.inline.label.color and underlined as comp.button.inline.underline.visibility chooses — the system's choice for links, so that the action is not told from the words beside it by color alone (WCAG 1.4.1) — comp.button.inline.underline.width thick and comp.button.inline.underline.offset below the baseline. WHILE hovered, focused or pressed THE button SHALL paint the state's container on the text's own box, as a link does (LNK-5), never taller than that box, and SHALL draw its focus indicator as every Button does. An icon beside its label SHALL be a box as large as the font size of the text around it. Its hit area SHALL be its text and SHALL NOT be extended to the minimum target: a target inside a sentence is excepted from it (WCAG 2.5.8), and BTN-5 does not apply. It is still a button — the button role, Enter and Space — and never a link: an action that leads somewhere is a Link.",
+      "verify": "The fixture inline draws the label in the link color, underlined in the default system, as high as its text. In a paragraph of body text an inline button and a Link in the same line leave the line 22 high; hovering the button paints a box as high as the text's own, as hovering the Link does."
+    },
+    {
+      "id": "BTN-36",
+      "text": "WHILE busy is true THE button SHALL draw its container, outline, elevation and opacity from its enabled tokens (of its variant and, for a toggle, of its selection), SHALL keep its label and icon in place without drawing them so that its width and height do not change, and SHALL draw at the centre of the container the loading indicator's arc (LDG-1; under reduced motion LDG-4's whole circle, its opacity easing once per cycle) in a box of the button's icon size (icon.size-without-label where it is icon-only), comp.button.busy.indicator.thickness thick, in the label color of its variant (the icon color where it is icon-only), turning once per comp.button.motion.busy-cycle-duration. It SHALL show neither the hovered nor the pressed state, and SHALL show the focused one. WHEN busy becomes false THE button SHALL draw its label and icon again at once, without a motion.",
+      "verify": "Fixtures filled-busy and text-icon-busy: the arc at the centre, the button as wide and as high as filled-medium and text-icon."
+    },
+    {
+      "id": "BTN-37",
+      "text": "WHILE busy is true THE button SHALL keep its focus and its place in the focus order, SHALL NOT emit click or change, and SHALL submit, reset and open nothing by any means (a press, a key, assistive technology or a script's click); where it is its form's default button it SHALL stop Enter in a field of the form from submitting it, as a disabled default button does (BTN-30, BTN-32), so that a form is not sent twice. It SHALL expose to assistive technology that it cannot be activated now (on the web aria-disabled) and busyLabel as its description, read after its name, and WHEN busy becomes true SHALL have busyLabel announced once, politely, without moving focus; nothing SHALL be announced when it ends, because what the action did is the product's to say. WHILE busy is true and busyLabel is empty THE button SHALL still render and in debug builds report that a busy button does not say so.",
+      "verify": "On the web: a busy Button of type submit — a click, Enter, Space and element.click() emit no click and send nothing; Enter in a field of its form sends nothing; Tab still stops on it, and setting busy while it holds focus leaves focus on it; its live region says busyLabel once."
+    },
+    {
+      "id": "BTN-38",
+      "text": "WHILE disabled is true and focusableWhenDisabled is true THE button SHALL be drawn as BTN-6 says and refuse every activation as BTN-2, BTN-25 and BTN-32 say, but SHALL stay in the focus order, take focus from the keyboard and from a pointer, keep focus when it becomes disabled, show its focus indicator, and expose the disabled state to assistive technology while staying focusable (on the web aria-disabled, not the platform's disabled state), so that a person can reach it and learn why it does nothing. It SHALL show neither the hovered nor the pressed state. A link button so disabled is the disabled link of BTN-25, reachable by Tab. WHERE the platform disables a group of controls as a whole (a disabled fieldset on the web) THE button SHALL leave the focus order with the group, whatever focusableWhenDisabled says, as the platform's own controls do. WHILE focusableWhenDisabled is false, disabled keeps its meaning (BTN-2).",
+      "verify": "The fixture filled-disabled-focusable is drawn exactly as filled-disabled. On the web Tab stops on it, Enter, Space and a click emit nothing, it carries aria-disabled and not the disabled state of the native button, and disabling it while it holds focus leaves focus on it."
     }
   ],
   "accessibility": {
@@ -321,7 +362,7 @@
     "keyboard": [
       {
         "keys": "Tab",
-        "action": "Moves focus to the button."
+        "action": "Moves focus to the button — also to a busy one, and to a disabled one while focusableWhenDisabled is true."
       },
       {
         "keys": "Enter or Space",
@@ -347,9 +388,11 @@
       "A link that opens a new context says so twice: the open_in_new mark for people who see it, and targetLabel for people who do not (WCAG 1.1.1: the mark carries information, so it needs a text alternative; technique G201 advises warning before a new window). The words are the product's.",
       "An action repeated in every row of a list or a table is drawn with one word and named for its row: label is the whole name (\"Reset: Spacing\"), opening with the drawn word where the language allows. Six buttons that are all named \"Reset\" cannot be told apart in the list of controls a screen reader offers, and a description does not appear there. The name must contain the drawn text (WCAG 2.5.3, label in name): a person who uses speech input says the word on the button. A debug build reports a name that does not; it never repairs one, because joining two texts into a phrase is a decision about a language, and the words are the product's.",
       "On the web a Button of type submit or reset is its form's button as the platform's own is: the form validates, fires its submit or reset event, and the pressed button's name and value are sent with it. Enter in a field presses the form's first submit button, and a disabled one stops it. The default type is button, not the platform's submit: a button put in a form for another purpose must never send it by accident (BTN-27, BTN-33).",
-      "The button does not keep a form from being sent twice: it has no busy state of its own, and a second press is a second click. A product that must not receive a form twice disables the button, or ignores the second submit event, while the first is on its way. Should the button gain a state in which it is shown and focusable but refuses the press, that state emits no click and therefore submits nothing (BTN-27 follows click), and it stops Enter in a field as a disabled default button does (BTN-32).",
+      "A button can keep a form from being sent twice: while busy it is shown and focusable but refuses every press, emits no click and therefore submits nothing (BTN-27 follows click), and it stops Enter in a field as a disabled default button does (BTN-37, BTN-32). Prefer it to disabling the button while the first submission is on its way: a disabled button drops the person's focus, and says nothing of why.",
       "Where script does not run, or before the element is defined, a web Button is its text and nothing else, and submits nothing; so is every Tanrei field, so a form made of them cannot be filled either. A form that must be sent without script is made of the platform's own controls, with the platform's own submit button.",
-      "The native platforms have no form element, and the Button has no type there (BTN-34): which button the Return key presses is the app's to say, in the platform's idiom."
+      "The native platforms have no form element, and the Button has no type there (BTN-34): which button the Return key presses is the app's to say, in the platform's idiom.",
+      "A disabled button leaves the focus order, so a keyboard or screen-reader user may never learn it is there or why it does nothing. Where a person can make the action available (fill in the message, choose a file), keep it reachable with focusableWhenDisabled and say why in a tooltip or a description; where the action simply does not apply, leave it out of the focus order (BTN-38).",
+      "The inline variant is a target inside a sentence: its size is the text's, which WCAG 2.5.8 excepts from the minimum target, and it is told from the words beside it by its color and its underline as a link is. A sentence that holds several inline actions close together is harder to hit than one; prefer a row of buttons below the text there (BTN-35)."
     ]
   },
   "tokens": "comp.button",
@@ -1006,6 +1049,43 @@
         "label": "Open the Button's page"
       },
       "content": "Open"
+    },
+    {
+      "id": "filled-busy",
+      "props": {
+        "variant": "filled",
+        "busy": true,
+        "busyLabel": "Deploying"
+      },
+      "content": "Deploy"
+    },
+    {
+      "id": "text-icon-busy",
+      "props": {
+        "variant": "text",
+        "busy": true,
+        "busyLabel": "Saving",
+        "label": "Save"
+      },
+      "slots": {
+        "icon": "save"
+      }
+    },
+    {
+      "id": "filled-disabled-focusable",
+      "props": {
+        "variant": "filled",
+        "disabled": true,
+        "focusableWhenDisabled": true
+      },
+      "content": "Deploy"
+    },
+    {
+      "id": "inline",
+      "props": {
+        "variant": "inline"
+      },
+      "content": "Show every token"
     }
   ],
   "platforms": {
@@ -1023,13 +1103,16 @@
         "label": "label",
         "href": "href",
         "target": "target",
-        "targetLabel": "targetLabel"
+        "targetLabel": "targetLabel",
+        "focusableWhenDisabled": "focusableWhenDisabled",
+        "busy": "busy",
+        "busyLabel": "busyLabel"
       },
       "events": {
         "click": "click",
         "change": "change"
       },
-      "notes": "The label is the default slot and the icon the `icon` slot (a glyph of the icon font); an icon-only button is one whose default slot is empty. `iconPosition` is reflected as the `icon-position` attribute. `label` sets `aria-label` on the inner `<button>` (or the anchor) whenever it is not empty; with a label in the default slot the slot's text stays drawn and the attribute replaces it as the name (BTN-16), and a debug build compares the two. A toggle sets `aria-pressed` on the inner `<button>`, switches its own `selected` and fires `change`, as a native checkbox does. `width` is the `width` attribute (`default`, `narrow`, `wide`); it does nothing while the default slot holds a label. With `href` the shadow root holds an `<a part=\"container\">` in place of the `<button>`, with the same classes, parts and listeners. The link form: `href` is the `href` attribute; `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two; anything else is `same` and reported); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation, which is how a client-side router takes it; a modified or a middle click is the browser's. A disabled link is the anchor without `href`, with `role=\"link\"` and `aria-disabled=\"true\"`, as the navigation drawer's destination already is. Space is not handed to the press controller. `element.click()` follows the link. In a form: a form-associated custom element (`static formAssociated = true`), as the text field is, for its form owner and for a disabled fieldset (`formDisabledCallback` through the shared primitive; not while it is a link). Web attributes, not spec props, as a checkbox's `name` and `value` are: `type` (`button`, `submit`, `reset`; default `button`, reflected; anything else is `button` and reported), `form` (the id of a form, the platform's own attribute for a form-associated element), `name` and `value`. The element has a read-only `form` property. A press of a submit button, after its `click` has gone through the page uncancelled, appends a hidden native `<button type=\"submit\">` with the same `name` and `value` to itself — a child in a slot it does not have, so it is drawn nowhere, naming the same form where the button names one by its `form` attribute — calls `form.requestSubmit()` with it and removes it before returning, so the form's validation, its `submit` event, `event.submitter` and `new FormData(form, event.submitter)` are the platform's, and the pair is sent at the button's own place among the form's entries, as the platform's own button's is; a reset button calls `form.reset()`. The form's default button is found by one primitive that walks `form.elements` in order and takes the first native submit button or `<tanrei-button type=\"submit\">`: the text field, the number field, the color field, the combobox, the one-time-code input and the search call it in place of `form.requestSubmit()` after their `action` (or `submit`) event, and the selection primitive of the checkbox, the radio button and the switch calls it for Enter, and for Enter in a control of the platform's own, which knows only the platform's buttons, the browser itself is left to decide: one `keydown` listener per tree, in the capture phase (on the window for a document, on the shadow root for a form inside one), added while a form of that tree holds a Tanrei submit button, answers Enter going down in a native control of such a form — inside it, or naming it by the `form` attribute from outside — whose default button is Tanrei's by appending to that button, for the length of the key, a hidden native `<button type=\"submit\">` in a slot the button does not have: the form's first submit button exactly when the Tanrei button is, disabled while it is, and never the default button to the primitive. The browser presses it exactly where, when and whether it would press a default button of its own — after the field has committed what was typed (`change`, then `click`, then `submit`), for the controls and the modifier keys this engine submits on and no others, never for the Enter an input method or a suggestion list took, and not at all while it is disabled, in a form of one field too. That press is stopped at the window before a listener of the page hears it (at the shadow root, for a form in a closed one) and its own submission cancelled; the hidden button is removed, and the Tanrei button's `click()` is called, which emits its `click` and submits as any press of it does. A hidden button the browser did not press is removed at the key's `keyup`, and one is appended again for each repeat of a key held down. A capture listener a page added to the window before the form's first Tanrei submit button was connected hears the stopped press, as a click on a hidden button inside the Tanrei button. `formaction`, `formmethod`, `formenctype`, `formtarget` and `formnovalidate` are not read. The inner `<button>` stays `type=\"button\"`: it is in a shadow root, where no form can own it."
+      "notes": "The label is the default slot and the icon the `icon` slot (a glyph of the icon font); an icon-only button is one whose default slot is empty. `iconPosition` is reflected as the `icon-position` attribute. `label` sets `aria-label` on the inner `<button>` (or the anchor) whenever it is not empty; with a label in the default slot the slot's text stays drawn and the attribute replaces it as the name (BTN-16), and a debug build compares the two. A toggle sets `aria-pressed` on the inner `<button>`, switches its own `selected` and fires `change`, as a native checkbox does. `width` is the `width` attribute (`default`, `narrow`, `wide`); it does nothing while the default slot holds a label. With `href` the shadow root holds an `<a part=\"container\">` in place of the `<button>`, with the same classes, parts and listeners. The link form: `href` is the `href` attribute; `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two; anything else is `same` and reported); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation, which is how a client-side router takes it; a modified or a middle click is the browser's. A disabled link is the anchor without `href`, with `role=\"link\"` and `aria-disabled=\"true\"`, as the navigation drawer's destination already is. Space is not handed to the press controller. `element.click()` follows the link. In a form: a form-associated custom element (`static formAssociated = true`), as the text field is, for its form owner and for a disabled fieldset (`formDisabledCallback` through the shared primitive; not while it is a link). Web attributes, not spec props, as a checkbox's `name` and `value` are: `type` (`button`, `submit`, `reset`; default `button`, reflected; anything else is `button` and reported), `form` (the id of a form, the platform's own attribute for a form-associated element), `name` and `value`. The element has a read-only `form` property. A press of a submit button, after its `click` has gone through the page uncancelled, appends a hidden native `<button type=\"submit\">` with the same `name` and `value` to itself — a child in a slot it does not have, so it is drawn nowhere, naming the same form where the button names one by its `form` attribute — calls `form.requestSubmit()` with it and removes it before returning, so the form's validation, its `submit` event, `event.submitter` and `new FormData(form, event.submitter)` are the platform's, and the pair is sent at the button's own place among the form's entries, as the platform's own button's is; a reset button calls `form.reset()`. The form's default button is found by one primitive that walks `form.elements` in order and takes the first native submit button or `<tanrei-button type=\"submit\">`: the text field, the number field, the color field, the combobox, the one-time-code input and the search call it in place of `form.requestSubmit()` after their `action` (or `submit`) event, and the selection primitive of the checkbox, the radio button and the switch calls it for Enter, and for Enter in a control of the platform's own, which knows only the platform's buttons, the browser itself is left to decide: one `keydown` listener per tree, in the capture phase (on the window for a document, on the shadow root for a form inside one), added while a form of that tree holds a Tanrei submit button, answers Enter going down in a native control of such a form — inside it, or naming it by the `form` attribute from outside — whose default button is Tanrei's by appending to that button, for the length of the key, a hidden native `<button type=\"submit\">` in a slot the button does not have: the form's first submit button exactly when the Tanrei button is, disabled while it is, and never the default button to the primitive. The browser presses it exactly where, when and whether it would press a default button of its own — after the field has committed what was typed (`change`, then `click`, then `submit`), for the controls and the modifier keys this engine submits on and no others, never for the Enter an input method or a suggestion list took, and not at all while it is disabled, in a form of one field too. That press is stopped at the window before a listener of the page hears it (at the shadow root, for a form in a closed one) and its own submission cancelled; the hidden button is removed, and the Tanrei button's `click()` is called, which emits its `click` and submits as any press of it does. A hidden button the browser did not press is removed at the key's `keyup`, and one is appended again for each repeat of a key held down. A capture listener a page added to the window before the form's first Tanrei submit button was connected hears the stopped press, as a click on a hidden button inside the Tanrei button. `formaction`, `formmethod`, `formenctype`, `formtarget` and `formnovalidate` are not read. The inner `<button>` stays `type=\"button\"`: it is in a shadow root, where no form can own it. `focusableWhenDisabled` is the `focusable-when-disabled` attribute and `busyLabel` the `busy-label` attribute. A disabled button that is focusable-when-disabled renders its native `<button>` without the `disabled` attribute and with `aria-disabled=\"true\"`, and refuses the press in a listener of its own; the host's `disabled` attribute is written as for any disabled button, and a disabled fieldset still takes it out of the focus order (BTN-38). A busy button renders `aria-disabled=\"true\"` on its native `<button>` (or anchor), keeps its label and icon laid out under `visibility: hidden`, draws the arc as an inline SVG circle, and announces `busy-label` through a visually hidden `role=\"status\"` region emptied and set again each time it becomes busy (BTN-37). The inline variant is a `variant=\"inline\"` whose host is `display: inline` and whose container inherits `font` and `line-height`; the underline is `text-decoration` read from `--tanrei-comp-button-inline-underline-visibility` by a container style query. A native `<button>` is one box on its line however it is displayed, so the container is an inline-block as high as the line, and a state's color is painted on the label's own inline box, the text's height, as a link's is."
     },
     "swiftui": {
       "status": "lagging",
@@ -1045,13 +1128,16 @@
         "label": "label",
         "href": "destination",
         "target": "target",
-        "targetLabel": "targetLabel"
+        "targetLabel": "targetLabel",
+        "focusableWhenDisabled": "focusableWhenDisabled",
+        "busy": "busy",
+        "busyLabel": "busyLabel"
       },
       "events": {
         "click": "action",
         "change": "isSelected"
       },
-      "notes": "The title is the label and the `icon` view builder the icon; an icon-only button is the initializer that takes `label:` and an icon and no title. A toggle is the initializer that takes `isSelected: Binding<Bool>`. `disabled` follows SwiftUI's `.disabled(_:)` environment. `width: TanreiButtonWidth = .default` is a parameter of the icon-only initializer alone, so a labelled button cannot be given one. Not built on this platform yet: the initializer that takes `destination: URL` in place of `action:` (there is none that takes both a destination and `isSelected`, so a toggle cannot be given one) draws the same control as a SwiftUI `Link`, so the address is opened by the environment's `openURL` — an app that routes addresses itself provides an `OpenURLAction`, which is how the navigation is cancelled — and VoiceOver reads the link trait. `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint) are parameters of that initializer alone. Not built on this platform yet: the initializers that take a title take `label: String? = nil` as well, set with `.accessibilityLabel` over the title's text. SwiftUI has no form element that sends values, so there is no `type` (BTN-34): an app that wants Return to press a view's main button gives that `TanreiButton` `.keyboardShortcut(.defaultAction)`, or calls the same function from a text field's `action`."
+      "notes": "The title is the label and the `icon` view builder the icon; an icon-only button is the initializer that takes `label:` and an icon and no title. A toggle is the initializer that takes `isSelected: Binding<Bool>`. `disabled` follows SwiftUI's `.disabled(_:)` environment. `width: TanreiButtonWidth = .default` is a parameter of the icon-only initializer alone, so a labelled button cannot be given one. Not built on this platform yet: the initializer that takes `destination: URL` in place of `action:` (there is none that takes both a destination and `isSelected`, so a toggle cannot be given one) draws the same control as a SwiftUI `Link`, so the address is opened by the environment's `openURL` — an app that routes addresses itself provides an `OpenURLAction`, which is how the navigation is cancelled — and VoiceOver reads the link trait. `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint) are parameters of that initializer alone. Not built on this platform yet: the initializers that take a title take `label: String? = nil` as well, set with `.accessibilityLabel` over the title's text. SwiftUI has no form element that sends values, so there is no `type` (BTN-34): an app that wants Return to press a view's main button gives that `TanreiButton` `.keyboardShortcut(.defaultAction)`, or calls the same function from a text field's `action`. Not built on this platform yet: `busy` and `busyLabel` (BTN-36, BTN-37), `focusableWhenDisabled` (BTN-38), and the inline variant (BTN-35)."
     },
     "compose": {
       "status": "lagging",
@@ -1067,13 +1153,16 @@
         "label": "contentDescription",
         "href": "href",
         "target": "target",
-        "targetLabel": "targetLabel"
+        "targetLabel": "targetLabel",
+        "focusableWhenDisabled": "focusableWhenDisabled",
+        "busy": "busy",
+        "busyLabel": "busyLabel"
       },
       "events": {
         "click": "onClick",
         "change": "onCheckedChange"
       },
-      "notes": "Compose idiom is the inverse flag `enabled`. A non-null `onCheckedChange` makes it a toggle (as `IconToggleButton`), with `checked` its state; an icon-only button is the overload with an `icon` and a `contentDescription` and no text. `width: TanreiButtonWidth = TanreiButtonWidth.Default` is a parameter of the icon-only overload alone. Not built on this platform yet: the overload that takes `href: String` and no `onCheckedChange` opens the address through `LocalUriHandler.current` after `onClick`; an app that routes addresses itself provides its own `UriHandler`. Compose has no link role for a clickable element (only link annotations inside text), so the node drops `Role.Button` and carries no role, and the README says so. `target: TanreiLinkTarget = TanreiLinkTarget.Same`; `targetLabel` is appended to the node's state description. Not built on this platform yet: the overloads that take text take `contentDescription: String? = null` as well; given, the node's semantics are cleared and set again with it, because a merged node would otherwise read the text and the description both. Compose has no form element, so there is no `type` (BTN-34): an app calls the same function from `onClick` and from a text field's `action`."
+      "notes": "Compose idiom is the inverse flag `enabled`. A non-null `onCheckedChange` makes it a toggle (as `IconToggleButton`), with `checked` its state; an icon-only button is the overload with an `icon` and a `contentDescription` and no text. `width: TanreiButtonWidth = TanreiButtonWidth.Default` is a parameter of the icon-only overload alone. Not built on this platform yet: the overload that takes `href: String` and no `onCheckedChange` opens the address through `LocalUriHandler.current` after `onClick`; an app that routes addresses itself provides its own `UriHandler`. Compose has no link role for a clickable element (only link annotations inside text), so the node drops `Role.Button` and carries no role, and the README says so. `target: TanreiLinkTarget = TanreiLinkTarget.Same`; `targetLabel` is appended to the node's state description. Not built on this platform yet: the overloads that take text take `contentDescription: String? = null` as well; given, the node's semantics are cleared and set again with it, because a merged node would otherwise read the text and the description both. Compose has no form element, so there is no `type` (BTN-34): an app calls the same function from `onClick` and from a text field's `action`. Not built on this platform yet: `busy` and `busyLabel` (BTN-36, BTN-37), `focusableWhenDisabled` (BTN-38), and the inline variant (BTN-35)."
     },
     "flutter": {
       "status": "lagging",
@@ -1089,13 +1178,16 @@
         "label": "semanticLabel",
         "href": "href",
         "target": "target",
-        "targetLabel": "targetSemanticLabel"
+        "targetLabel": "targetSemanticLabel",
+        "focusableWhenDisabled": "focusableWhenDisabled",
+        "busy": "busy",
+        "busyLabel": "busySemanticLabel"
       },
       "events": {
         "click": "onPressed",
         "change": "onPressed"
       },
-      "notes": "Flutter idiom: a null `onPressed` disables the button; `iconAlignment` (start / end) is Flutter's own name for the icon's side. A non-null `isSelected` makes it a toggle and `onPressed` flips it; an icon-only button is the `TanreiButton.icon` constructor, whose `semanticLabel` is required. `width` (`TanreiButtonWidth.normal`, `.narrow`, `.wide`; `default` is a reserved word in Dart) is a parameter of `TanreiButton.icon` alone. Not built on this platform yet: the `TanreiButton.link` and `TanreiButton.iconLink` constructors (`href` is a `Uri`) has `Semantics(link: true)` with the address as its `linkUrl`. The package has no plugin dependency, so the address is opened by the nearest `TanreiLinkOpener`, an inherited widget the app provides once (calling `url_launcher`, or its own router); without one the control opens nothing and reports it in debug builds. `target` is a `TanreiLinkTarget`; `targetSemanticLabel` is the semantics hint. Not built on this platform yet: the constructors that take a child label take `semanticLabel` as well, optional there, applied with the child's own semantics excluded. Flutter's `Form` validates and saves and sends nothing, and has no default button, so there is no `type` (BTN-34): an app calls the same function from `onPressed` and from a text field's `action`."
+      "notes": "Flutter idiom: a null `onPressed` disables the button; `iconAlignment` (start / end) is Flutter's own name for the icon's side. A non-null `isSelected` makes it a toggle and `onPressed` flips it; an icon-only button is the `TanreiButton.icon` constructor, whose `semanticLabel` is required. `width` (`TanreiButtonWidth.normal`, `.narrow`, `.wide`; `default` is a reserved word in Dart) is a parameter of `TanreiButton.icon` alone. Not built on this platform yet: the `TanreiButton.link` and `TanreiButton.iconLink` constructors (`href` is a `Uri`) has `Semantics(link: true)` with the address as its `linkUrl`. The package has no plugin dependency, so the address is opened by the nearest `TanreiLinkOpener`, an inherited widget the app provides once (calling `url_launcher`, or its own router); without one the control opens nothing and reports it in debug builds. `target` is a `TanreiLinkTarget`; `targetSemanticLabel` is the semantics hint. Not built on this platform yet: the constructors that take a child label take `semanticLabel` as well, optional there, applied with the child's own semantics excluded. Flutter's `Form` validates and saves and sends nothing, and has no default button, so there is no `type` (BTN-34): an app calls the same function from `onPressed` and from a text field's `action`. Not built on this platform yet: `busy` and `busySemanticLabel` (BTN-36, BTN-37), `focusableWhenDisabled` (BTN-38), and the inline variant (BTN-35)."
     },
     "react-native": {
       "status": "lagging",
@@ -1111,13 +1203,16 @@
         "label": "accessibilityLabel",
         "href": "href",
         "target": "target",
-        "targetLabel": "targetLabel"
+        "targetLabel": "targetLabel",
+        "focusableWhenDisabled": "focusableWhenDisabled",
+        "busy": "busy",
+        "busyLabel": "busyLabel"
       },
       "events": {
         "click": "onPress",
         "change": "onSelectedChange"
       },
-      "notes": "The label is `children` and the icon the `icon` prop; an icon-only button has no children and requires `accessibilityLabel`. A toggle has `accessibilityState.selected` and the `togglebutton` role where React Native offers it. `width` (`\"default\" | \"narrow\" | \"wide\"`) is the icon-only width, not a layout width; it is ignored with children. Not built on this platform yet: a Button with `href` has `accessibilityRole=\"link\"` and opens the address with `Linking.openURL` after `onPress`, unless `onPress` called `event.preventDefault()`. `target` is `\"same\" | \"new\"`; `targetLabel` is the `accessibilityHint`. Not built on this platform yet: `accessibilityLabel` is read with children as well as without, and replaces their text as the name. React Native has no form element, so there is no `type` (BTN-34): an app calls the same function from `onPress` and from a text field's `action`."
+      "notes": "The label is `children` and the icon the `icon` prop; an icon-only button has no children and requires `accessibilityLabel`. A toggle has `accessibilityState.selected` and the `togglebutton` role where React Native offers it. `width` (`\"default\" | \"narrow\" | \"wide\"`) is the icon-only width, not a layout width; it is ignored with children. Not built on this platform yet: a Button with `href` has `accessibilityRole=\"link\"` and opens the address with `Linking.openURL` after `onPress`, unless `onPress` called `event.preventDefault()`. `target` is `\"same\" | \"new\"`; `targetLabel` is the `accessibilityHint`. Not built on this platform yet: `accessibilityLabel` is read with children as well as without, and replaces their text as the name. React Native has no form element, so there is no `type` (BTN-34): an app calls the same function from `onPress` and from a text field's `action`. Not built on this platform yet: `busy` and `busyLabel` (BTN-36, BTN-37), `focusableWhenDisabled` (BTN-38), and the inline variant (BTN-35)."
     }
   }
 }

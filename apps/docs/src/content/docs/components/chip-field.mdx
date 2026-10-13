@@ -152,7 +152,7 @@ Go one level down for an arrangement the chip field does not offer, such as entr
 
 - **The entries are small chips** at both sizes of the box. A long entry has a line to itself and is cut by the chip; its whole text stays its name and its value.
 - **The placeholder** is shown only while the list is empty.
-- **Read-only**: the entries can be reached and read, and are submitted. None can be made, removed or put back into the typing part, and each chip is drawn without its remove action.
+- **Read-only**: the entries can be reached and read, and are submitted. None can be made, removed or put back into the typing part, and each chip is drawn without its remove action. The field ends with its last line of chips: it keeps no room for typing. A disabled field keeps that room, so that it has the same shape when it is enabled again.
 - **Disabled**: the field, the box and every chip are disabled, and nothing is submitted.
 - **`maxEntries`** refuses one entry more, with `limitText`. Nothing is disabled or marked beforehand: say the limit in `supportingText`.
 - **`type`** is `text`, `email`, `tel` or `url`. Any other type behaves as `text`.
