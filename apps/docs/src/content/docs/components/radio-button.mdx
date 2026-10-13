@@ -23,7 +23,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 
 ### Usage
 
-The revision that gave the radio button Material 3's sizes and a ring that thickens into a fill changed only how it looks and moves, so every sample below is current. The web draws it as the spec says. SwiftUI, Compose, Flutter and React Native are lagging: until they catch up, they still draw the previous radio button, a 16 ring with a hairline stroke and an 8 dot in a 28 state layer, and do not reserve the 48 target height in layout. One refinement since then is on the web only so far: the ring and the fill are drawn as one shape.
+The revision that gave the radio button its present sizes and a ring that thickens into a fill changed only how it looks and moves, so every sample below is current. The web draws it as the spec says. SwiftUI, Compose, Flutter and React Native are lagging: until they catch up, they still draw the previous radio button, a 16 ring with a hairline stroke and an 8 dot in a 28 state layer, and do not reserve the 48 target height in layout. One refinement since then is on the web only so far: the ring and the fill are drawn as one shape.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
@@ -133,7 +133,7 @@ The revision that gave the radio button Material 3's sizes and a ring that thick
   </div>
 </DemoFrame>
 
-In the default system the radio button takes Material 3's measurements: a 20 ring with a 2 stroke, on a round 40 state layer. A selected option draws no dot. Its ring thickens inward to half the radius, and the disc left inside is filled with the ring's color at half opacity. The ring keeps its outer size in both conditions. The ring and the fill are one shape: nothing behind the radio button shows between them at any zoom or display density, or in any frame of the change. When the selection changes, the stroke thickens or thins while the ring's color changes and the fill fades in or out; the fill never grows from the center. A change that comes before the motion ends turns back from where it is, and where motion is reduced, the new condition shows at once and in full.
+In the default system the radio button is a 20 ring with a 2 stroke, on a round 40 state layer. A selected option draws no dot. Its ring thickens inward to half the radius, and the disc left inside is filled with the ring's color at half opacity. The ring keeps its outer size in both conditions. The ring and the fill are one shape: nothing behind the radio button shows between them at any zoom or display density, or in any frame of the change. When the selection changes, the stroke thickens or thins while the ring's color changes and the fill fades in or out; the fill never grows from the center. A change that comes before the motion ends turns back from where it is, and where motion is reduced, the new condition shows at once and in full.
 
 Each option takes at least 48 of height in layout, the target's size, with the state layer centered in it. Options stacked with no gap between them therefore never share target area. A product that packs its options tighter lowers `option.min-height` in its own layer and accepts that the targets overlap.
 

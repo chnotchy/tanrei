@@ -62,7 +62,7 @@ Web コンポーネントは、このページの説明どおりにピッカー�
     <tanrei-date-time-picker id="alarm" mode="time" value="07:30" minute-step="5" label="アラーム"></tanrei-date-time-picker>
 
     <!-- テキストフィールドの下に開くドック型のピッカー。フィールドのピッカーボタンから開きます。 -->
-    <tanrei-text-field id="due" label="期限" type="date" picker picker-label="日付を選ぶ"></tanrei-text-field>
+    <tanrei-text-field id="due" label="期限" type="date" picker picker-label="日付を選択"></tanrei-text-field>
     <tanrei-date-time-picker id="due-picker" presentation="docked" anchor="due" label="期限"></tanrei-date-time-picker>
 
     <!-- 営業時間：時刻の期間。終了が開始と同じかそれより前なら、翌日になります。 -->
@@ -105,7 +105,7 @@ Web コンポーネントは、このページの説明どおりにピッカー�
       type="date"
       value={due}
       picker
-      pickerLabel="日付を選ぶ"
+      pickerLabel="日付を選択"
       onChange={(e) => setDue(e.currentTarget.value)}
       onPickerrequest={() => setOpen(true)}
     />
@@ -298,6 +298,6 @@ Tanrei は言葉を同梱しません。ピッカーが表示したり読み上�
 
 - すべてのピッカーに、何を選ぶのかを表す `label` を与えます（「チェックイン」「会議の時刻」）。これはそのピッカーだけのものです。なければ、タイトルの行は言葉を描かず、ダイアログは名前を持ちません。
 - ピッカーが表示したり読み上げたりするほかの言葉もすべて渡します。ピッカーに書くか、このページがしているように、`setWords()` でプロダクト全体に一度だけ渡します。Tanrei は言葉を同梱しません。アクション（`confirmLabel`、`cancelLabel`）、`dateLabel`、`nextDayLabel`、`rangeErrorText`、カレンダーの 6 つの言葉のほか、読み上げだけに使う名前（`wheelsLabel`、`dialLabel`、`entryModeLabel`、`rangeLabel`、`startLabel`、`endLabel`）があります。これらがなければ、同じことを表せる印があるところではそれを代わりに描きます。閉じるアイコンとチェックのアイコンだけのボタン、翌日にまたがる終了のあとの `+1` です。足りない言葉は、それぞれ開発時に報告されます。時・分・午前午後の名前と今日を表す言葉は、渡されなければブラウザーのロケールデータから取ります。[プロダクトの言葉](/ja/foundations/words/)を参照してください。
-- テキストフィールドの、`pickerLabel`（「日付を選ぶ」など）を名前とするピッカーボタンのように、何を開くかがわかるコントロールから開きます。
+- テキストフィールドの、`pickerLabel`（「日付を選択」など）を名前とするピッカーボタンのように、何を開くかがわかるコントロールから開きます。
 - `change` からフィールドの `value` を設定し、`open` が単なる値のプラットフォームでは、`close` を受けてピッカーを閉じます。
 - テキストフィールドでの入力もできるようにします。

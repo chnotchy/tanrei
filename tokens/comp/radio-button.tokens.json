@@ -74,7 +74,7 @@
           },
           "size": {
             "$type": "dimension",
-            "$description": "The round state layer behind the ring. Material's state layer is 40; the 48 target reaches 4 beyond it on each side.",
+            "$description": "The round state layer behind the ring, 40; the 48 target reaches 4 beyond it on each side.",
             "$value": {
               "value": 40,
               "unit": "px"
@@ -91,7 +91,7 @@
         "ring": {
           "size": {
             "$type": "dimension",
-            "$description": "The outer diameter of the ring, the same in both conditions. Material's icon box is 20.",
+            "$description": "The outer diameter of the ring, the same in both conditions, 20.",
             "$value": {
               "value": 20,
               "unit": "px"

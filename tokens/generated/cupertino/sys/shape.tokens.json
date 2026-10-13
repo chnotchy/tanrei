@@ -152,7 +152,7 @@
         "corner-smoothing": {
           "$type": "number",
           "$value": 0.6,
-          "$description": "How a corner's curve eases into the straight edge, 0–1, with Figma's meaning: 0 is a quarter circle, 0.6 is the iOS continuous corner, 1 the most eased curve. The radius does not change. Platforms that only have the OS's curve draw it for any amount above 0.",
+          "$description": "How a corner's curve eases into the straight edge, 0–1, with Figma's meaning: 0 is a quarter circle, 0.6 is the iOS continuous corner, 1 the most eased curve. The radius does not change. Platforms differ in the curve they can draw: on Apple's platforms SwiftUI's continuous corner (RoundedCornerStyle.continuous) is one fixed curve with no amount, drawn for every amount above 0; on the web, CSS corner-shape: superellipse() takes the amount where the browser has it (Chromium-based browsers, WebKit 26.6), and the corner is a quarter circle where it does not.",
           "$extensions": {
             "dev.tanrei.vocabulary": {
               "rationale": "One product decides the quality of its roundness once — a brand is as much in how a corner eases as in how large it is.",

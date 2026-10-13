@@ -54,7 +54,7 @@
               "Give every tab a label, even an icon-only one (labelHidden keeps it as the name).",
               "The track is the constant background of the whole row: one color per variant, the same whichever tab is selected, with no outline. Whether it is drawn is one choice, track.visible, which a product sets for one row with the track prop; without it the row stands on the surface it is placed on, and nothing of its layout changes (the inset stays). Tabs are one choice among equals, so nothing but the active indicator marks the selection. A switch is the opposite: its track, outline and handle change between off and on.",
               "The active indicator is the thumb on the track: as tall as the row less track.padding above and below, the same on every tab. In a row that hugs it is as wide as the selected tab's content plus padding, and a circle when that content is not wider than it is tall (an icon, one character); in a row that fills it is as wide as the tab. Never give it a height of its own.",
-              "The underline is the line on the row's bottom edge under the selected tab, and the divider the hairline under the whole row. The default system leaves both transparent; a layer that marks the selection with a line (Material's tabs) colors them, makes the active indicator and the track transparent and sets track.padding to nothing.",
+              "The underline is the line on the row's bottom edge under the selected tab, and the divider the hairline under the whole row. The default system leaves both transparent; a layer that marks the selection with a line colors them, makes the active indicator and the track transparent and sets track.padding to nothing.",
               "covered-label.color and covered-icon.color are what the label and icon become where the active indicator covers them; each must be readable on active-indicator.color, and label.color and icon.color on track.color and, because a row may be drawn without its track, on every surface a row may stand on. A layer whose indicator is transparent aliases the covered colors to label.color and icon.color.",
               "A tap selects a tab; a drag across the row carries the indicator with the finger and selects the tab it is released on. Nothing is selected, and nothing announced, until the release. Where motion.transition is none (or the row's transition prop says so) the indicator does not travel by itself: a new selection is drawn whole in one frame, and a drag still carries the indicator, because the finger moves it.",
               "Hug (the default) sizes each tab to its content and never truncates it; fullWidth shares the row's width and truncates a label that does not fit. Choose hug for long, translated or user-written labels.",
@@ -276,7 +276,7 @@
             },
             "$extensions": {
               "dev.tanrei.derive": {
-                "fixed": "The default system draws no line under the row: the track is the row. A layer whose tabs sit on a line (Material's) gives this a color."
+                "fixed": "The default system draws no line under the row: the track is the row. A layer whose tabs sit on a line gives this a color."
               }
             }
           },

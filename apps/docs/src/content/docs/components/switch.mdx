@@ -14,7 +14,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="switch" />
 
 :::note[A revised spec, not yet on every platform]
-This page describes the switch as the spec has it now: Material Design 3's size, a handle that grows under a press, glyphs only from the icon set, a handle that follows a drag, and handle glyphs with a heavier weight of their own. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, which answers a tap only and follows no drag.
+This page describes the switch as the spec has it now: a 52 × 32 track, a handle that grows under a press, glyphs only from the icon set, a handle that follows a drag, and handle glyphs with a heavier weight of their own. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, which answers a tap only and follows no drag.
 :::
 
 <DemoFrame label="Off and on">
@@ -150,7 +150,7 @@ The glyph is always the icon set's, drawn in the family and fill of the switch's
 
 ### Size and press
 
-In the default system the switch has Material Design 3's size: a 52 × 32 track with a 2 outline, and a handle of 16 while off and 24 while on or with a glyph. A press grows the handle at once to fill the track, in either position. Once the press ends it returns to its size over the state motion, or at once where motion is reduced. A system that answers a press with nothing keeps the handle's size.
+In the default system the switch has a 52 × 32 track with a 2 outline, and a handle of 16 while off and 24 while on or with a glyph. A press grows the handle at once to fill the track, in either position. Once the press ends it returns to its size over the state motion, or at once where motion is reduced. A system that answers a press with nothing keeps the handle's size.
 
 ### The same thumb as tabs
 

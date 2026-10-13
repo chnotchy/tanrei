@@ -2,7 +2,7 @@
 title: Interruptor
 description: Activa o desactiva un ajuste, con efecto inmediato.
 translationOf: components/switch.mdx
-sourceHash: 4674336ed8349bdca12f31e1bd12b4a65a5467c0
+sourceHash: 7fe7d717955307e35dbb07daa20092587a8b1a83
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="switch" />
 
 :::note[Una especificación revisada que aún no está en todas las plataformas]
-Esta página describe el interruptor tal como lo define ahora la especificación: el tamaño de Material Design 3, un tirador que crece bajo una pulsación, glifos tomados solo del conjunto de iconos, un tirador que sigue un arrastre y glifos del tirador con un peso propio, mayor. El componente web ya hace todo esto, y las demostraciones también. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior, que solo responde a un toque y no sigue ningún arrastre.
+Esta página describe el interruptor tal como lo define ahora la especificación: una pista de 52 × 32, un tirador que crece bajo una pulsación, glifos tomados solo del conjunto de iconos, un tirador que sigue un arrastre y glifos del tirador con un peso propio, mayor. El componente web ya hace todo esto, y las demostraciones también. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior, que solo responde a un toque y no sigue ningún arrastre.
 :::
 
 <DemoFrame label="Desactivado y activado">
@@ -152,7 +152,7 @@ El glifo es siempre el del conjunto de iconos, dibujado con la familia y el rell
 
 ### Tamaño y pulsación
 
-En el sistema predeterminado, el interruptor tiene el tamaño de Material Design 3: una pista de 52 × 32 con un contorno de 2, y un tirador de 16 mientras está desactivado y de 24 mientras está activado o lleva un glifo. Una pulsación hace crecer el tirador de inmediato hasta llenar la pista, en cualquiera de las dos posiciones. Cuando la pulsación termina, vuelve a su tamaño con el movimiento de estado, o de inmediato donde el movimiento está reducido. Un sistema que no responde con nada a una pulsación conserva el tamaño del tirador.
+En el sistema predeterminado, el interruptor tiene una pista de 52 × 32 con un contorno de 2, y un tirador de 16 mientras está desactivado y de 24 mientras está activado o lleva un glifo. Una pulsación hace crecer el tirador de inmediato hasta llenar la pista, en cualquiera de las dos posiciones. Cuando la pulsación termina, vuelve a su tamaño con el movimiento de estado, o de inmediato donde el movimiento está reducido. Un sistema que no responde con nada a una pulsación conserva el tamaño del tirador.
 
 ### El mismo tirador que las pestañas
 
