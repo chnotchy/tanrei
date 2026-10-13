@@ -362,7 +362,8 @@ test.describe('press, feedback, corners and focus style', () => {
     await page.locator(button('filled-medium')).hover();
     await page.mouse.down();
     await page.mouse.up();
-    await expect(ripple).toHaveCount(0);
+    // The layer stays for the 4 s hold and then fades: wait as long as the test allows it to take (half the growth).
+    await expect(ripple).toHaveCount(0, { timeout: 20_000 });
     const seen = await page.evaluate(() => (window as any).rippleSeen as { down: number; up: number; afterUp: [string | null, boolean | undefined]; grows: string; fade: number; growing: boolean; grown: number; gone: number });
     expect(seen.grows, 'the component token is the growth').toBe('40s');
     expect(seen.up - seen.down, 'the press ended within the hold (else this test looked at nothing)').toBeLessThan(4000);
