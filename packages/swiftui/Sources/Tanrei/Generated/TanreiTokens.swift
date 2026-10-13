@@ -9103,33 +9103,18 @@ public struct TanreiListCondition: RawRepresentable, Hashable, Sendable, CustomS
 /// How one condition of list is drawn in one state.
 public struct TanreiListConditionStateTokens: Sendable, Equatable {
   public var containerColor: TanreiPaint
-  public var headlineColor: TanreiPaint
-  public var overlineColor: TanreiPaint
-  public var supportingTextColor: TanreiPaint
-  public var trailingTextColor: TanreiPaint
-  public var leadingIconColor: TanreiPaint
-  public var trailingIconColor: TanreiPaint
+  public var contentColor: TanreiPaint
   public var markColor: TanreiPaint
   public var stateLayerColor: TanreiPaint
 
   public init(
     containerColor: TanreiPaint,
-    headlineColor: TanreiPaint,
-    overlineColor: TanreiPaint,
-    supportingTextColor: TanreiPaint,
-    trailingTextColor: TanreiPaint,
-    leadingIconColor: TanreiPaint,
-    trailingIconColor: TanreiPaint,
+    contentColor: TanreiPaint,
     markColor: TanreiPaint,
     stateLayerColor: TanreiPaint
   ) {
     self.containerColor = containerColor
-    self.headlineColor = headlineColor
-    self.overlineColor = overlineColor
-    self.supportingTextColor = supportingTextColor
-    self.trailingTextColor = trailingTextColor
-    self.leadingIconColor = leadingIconColor
-    self.trailingIconColor = trailingIconColor
+    self.contentColor = contentColor
     self.markColor = markColor
     self.stateLayerColor = stateLayerColor
   }
@@ -9225,41 +9210,27 @@ public struct TanreiListStateTokens: Sendable, Equatable {
 
 /// Component tokens of list (comp.list).
 public struct TanreiListTokens: Sendable, Equatable {
-  public var avatarShape: CGFloat
-  public var avatarSize: CGFloat
   public var containerGap: CGFloat
-  public var containerHeightOneLine: CGFloat
-  public var containerHeightThreeLine: CGFloat
-  public var containerHeightTwoLine: CGFloat
+  public var containerHeight: CGFloat
   public var containerPaddingBlock: CGFloat
   public var containerPaddingInlineEnd: CGFloat
   public var containerPaddingInlineStart: CGFloat
   public var containerShape: CGFloat
+  public var contentTypescale: TanreiTextStyle
   public var dividerColor: TanreiPaint
   public var dividerThickness: CGFloat
   public var draggedContainerColor: TanreiPaint
   public var draggedContainerElevation: [TanreiShadowLayer]
-  public var handleColor: TanreiPaint
-  public var handleSize: CGFloat
-  public var headlineTypescale: TanreiTextStyle
-  public var imageShape: CGFloat
-  public var imageSize: CGFloat
-  public var leadingIconSize: CGFloat
+  public var gapLarge: CGFloat
+  public var gapMedium: CGFloat
+  public var gapSmall: CGFloat
   public var markSize: CGFloat
   public var markWidth: CGFloat
-  public var mediaContainerColor: TanreiPaint
-  public var mediaContentColor: TanreiPaint
   public var motionFeedbackDuration: Double
   public var motionReorderDuration: Double
   public var motionReorderEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
-  public var moveButtonsGap: CGFloat
-  public var overlineTypescale: TanreiTextStyle
-  public var reorderTextMinWidth: CGFloat
-  public var supportingTextTypescale: TanreiTextStyle
-  public var trailingIconSize: CGFloat
-  public var trailingTextTypescale: TanreiTextStyle
   public var conditions: TanreiListConditions
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiListStateTokens
@@ -9271,82 +9242,54 @@ public struct TanreiListTokens: Sendable, Equatable {
   public var disabled: TanreiListStateTokens
 
   public init(
-    avatarShape: CGFloat,
-    avatarSize: CGFloat,
     containerGap: CGFloat,
-    containerHeightOneLine: CGFloat,
-    containerHeightThreeLine: CGFloat,
-    containerHeightTwoLine: CGFloat,
+    containerHeight: CGFloat,
     containerPaddingBlock: CGFloat,
     containerPaddingInlineEnd: CGFloat,
     containerPaddingInlineStart: CGFloat,
     containerShape: CGFloat,
+    contentTypescale: TanreiTextStyle,
     dividerColor: TanreiPaint,
     dividerThickness: CGFloat,
     draggedContainerColor: TanreiPaint,
     draggedContainerElevation: [TanreiShadowLayer],
-    handleColor: TanreiPaint,
-    handleSize: CGFloat,
-    headlineTypescale: TanreiTextStyle,
-    imageShape: CGFloat,
-    imageSize: CGFloat,
-    leadingIconSize: CGFloat,
+    gapLarge: CGFloat,
+    gapMedium: CGFloat,
+    gapSmall: CGFloat,
     markSize: CGFloat,
     markWidth: CGFloat,
-    mediaContainerColor: TanreiPaint,
-    mediaContentColor: TanreiPaint,
     motionFeedbackDuration: Double,
     motionReorderDuration: Double,
     motionReorderEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
-    moveButtonsGap: CGFloat,
-    overlineTypescale: TanreiTextStyle,
-    reorderTextMinWidth: CGFloat,
-    supportingTextTypescale: TanreiTextStyle,
-    trailingIconSize: CGFloat,
-    trailingTextTypescale: TanreiTextStyle,
     conditions: TanreiListConditions,
     hovered: TanreiListStateTokens,
     focused: TanreiListStateTokens,
     pressed: TanreiListStateTokens,
     disabled: TanreiListStateTokens
   ) {
-    self.avatarShape = avatarShape
-    self.avatarSize = avatarSize
     self.containerGap = containerGap
-    self.containerHeightOneLine = containerHeightOneLine
-    self.containerHeightThreeLine = containerHeightThreeLine
-    self.containerHeightTwoLine = containerHeightTwoLine
+    self.containerHeight = containerHeight
     self.containerPaddingBlock = containerPaddingBlock
     self.containerPaddingInlineEnd = containerPaddingInlineEnd
     self.containerPaddingInlineStart = containerPaddingInlineStart
     self.containerShape = containerShape
+    self.contentTypescale = contentTypescale
     self.dividerColor = dividerColor
     self.dividerThickness = dividerThickness
     self.draggedContainerColor = draggedContainerColor
     self.draggedContainerElevation = draggedContainerElevation
-    self.handleColor = handleColor
-    self.handleSize = handleSize
-    self.headlineTypescale = headlineTypescale
-    self.imageShape = imageShape
-    self.imageSize = imageSize
-    self.leadingIconSize = leadingIconSize
+    self.gapLarge = gapLarge
+    self.gapMedium = gapMedium
+    self.gapSmall = gapSmall
     self.markSize = markSize
     self.markWidth = markWidth
-    self.mediaContainerColor = mediaContainerColor
-    self.mediaContentColor = mediaContentColor
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionReorderDuration = motionReorderDuration
     self.motionReorderEasing = motionReorderEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
-    self.moveButtonsGap = moveButtonsGap
-    self.overlineTypescale = overlineTypescale
-    self.reorderTextMinWidth = reorderTextMinWidth
-    self.supportingTextTypescale = supportingTextTypescale
-    self.trailingIconSize = trailingIconSize
-    self.trailingTextTypescale = trailingTextTypescale
     self.conditions = conditions
     self.hovered = hovered
     self.focused = focused

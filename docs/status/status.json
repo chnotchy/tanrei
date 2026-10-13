@@ -316,12 +316,13 @@
       "listing": "default",
       "builtFrom": [],
       "uses": [
-        "button"
+        "button",
+        "menu"
       ],
       "hasSpec": true,
       "docs": "/components/list/",
       "platforms": {
-        "web": "lagging",
+        "web": "alpha",
         "swiftui": "lagging",
         "compose": "lagging",
         "flutter": "lagging",
@@ -1700,8 +1701,8 @@
   "totals": {
     "web": {
       "planned": 0,
-      "lagging": 84,
-      "alpha": 0,
+      "lagging": 83,
+      "alpha": 1,
       "beta": 0,
       "stable": 0,
       "deprecated": 0

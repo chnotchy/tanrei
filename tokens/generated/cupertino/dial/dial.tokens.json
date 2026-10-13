@@ -4129,14 +4129,14 @@
               "$value": "{tanrei.sys.typescale.caption}",
               "reason": "Apple's Footnote (13pt, label-small here) has a line too tall for a 24pt chip with its padding; Caption 1 (12pt) fits, the size of the default system's small chip label."
             },
-            "tanrei.comp.list.container.height.one-line": {
+            "tanrei.comp.list.container.height": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 11
               }
             },
-            "tanrei.comp.list.headline.typescale": {
+            "tanrei.comp.list.content.typescale": {
               "$value": "{tanrei.sys.typescale.body-large}",
               "reason": "Apple's list rows set their title in Body (17pt), which is body-large here; cupertino's body is 15pt."
             },
@@ -4179,21 +4179,9 @@
               },
               "reason": "Apple shows a chosen row by a check in the tint, with no fill."
             },
-            "tanrei.comp.list.selected.overline.color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
-            },
-            "tanrei.comp.list.selected.supporting-text.color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
-            },
-            "tanrei.comp.list.selected.trailing-text.color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
-            },
-            "tanrei.comp.list.selected.trailing-icon.color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "reason": "This preset's selected row has no fill of its own; this follows the container's pin."
+            "tanrei.comp.list.selected.content.color": {
+              "$value": "{tanrei.sys.color.on-surface}",
+              "reason": "Apple keeps a chosen row's text in the label color and says the choice with the check alone: this preset's selected item has no fill of its own."
             },
             "tanrei.comp.menu.surface.color": {
               "$value": "{tanrei.sys.color.surface-container-lowest}"
@@ -5071,33 +5059,9 @@
               "$value": "{tanrei.sys.icon.extra-small}",
               "reason": "The glyph this preset draws in Button's icon-only form, smaller than the default system's; moving it is a fidelity decision for this preset."
             },
-            "tanrei.comp.list.leading-icon.size": {
-              "$value": "{tanrei.sys.icon.small}",
-              "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
-            },
-            "tanrei.comp.list.trailing-icon.size": {
-              "$value": "{tanrei.sys.icon.small}",
-              "reason": "This preset's own glyph size, smaller than the default system's; moving it is a fidelity decision for this preset."
-            },
             "tanrei.comp.list.mark.size": {
               "$value": "{tanrei.sys.icon.small}",
               "reason": "This preset's own size for the list's check, which is not the default system's glyph size; moving it is a fidelity decision for this preset."
-            },
-            "tanrei.comp.list.container.height.two-line": {
-              "derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 16
-              },
-              "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
-            },
-            "tanrei.comp.list.container.height.three-line": {
-              "derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 20
-              },
-              "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
             "tanrei.comp.list.container.padding-inline-end": {
               "$value": "{tanrei.sys.space.space200}",
@@ -5105,14 +5069,6 @@
             },
             "tanrei.comp.list.container.gap": {
               "$value": "{tanrei.sys.space.space150}",
-              "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
-            },
-            "tanrei.comp.list.image.size": {
-              "derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 12
-              },
               "reason": "This preset's own size, which is not the default system's (Material's) size; moving it is a fidelity decision for this preset."
             },
             "tanrei.comp.radio-button.container.size": {

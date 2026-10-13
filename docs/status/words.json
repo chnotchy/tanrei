@@ -72,6 +72,32 @@
       ]
     },
     {
+      "key": "cancelledText",
+      "readers": [
+        {
+          "component": "list",
+          "prop": "cancelledText"
+        }
+      ],
+      "places": [
+        {
+          "name": "label",
+          "kind": "text",
+          "description": "The item's name: its label, or else the text of its content."
+        },
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place the item has, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of items in the list."
+        }
+      ]
+    },
+    {
       "key": "characterCountNoLimitText",
       "readers": [
         {
@@ -223,6 +249,32 @@
         {
           "component": "date-time-picker",
           "prop": "dialLabel"
+        }
+      ]
+    },
+    {
+      "key": "dragHandleHint",
+      "readers": [
+        {
+          "component": "list",
+          "prop": "dragHandleHint"
+        }
+      ]
+    },
+    {
+      "key": "dragHandleLabel",
+      "readers": [
+        {
+          "component": "list",
+          "prop": "dragHandleLabel"
+        }
+      ],
+      "places": [
+        {
+          "name": "label",
+          "kind": "text",
+          "description": "The item's name: its label, or else the text of its content.",
+          "required": true
         }
       ]
     },
@@ -468,6 +520,32 @@
       ]
     },
     {
+      "key": "liftedText",
+      "readers": [
+        {
+          "component": "list",
+          "prop": "liftedText"
+        }
+      ],
+      "places": [
+        {
+          "name": "label",
+          "kind": "text",
+          "description": "The item's name: its label, or else the text of its content."
+        },
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place the item has, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of items in the list."
+        }
+      ]
+    },
+    {
       "key": "loadingLabel",
       "readers": [
         {
@@ -503,36 +581,38 @@
       ]
     },
     {
-      "key": "moveDownLabel",
+      "key": "moveAfterLabel",
       "readers": [
         {
           "component": "list",
-          "prop": "moveDownLabel"
-        }
-      ],
-      "places": [
-        {
-          "name": "headline",
-          "kind": "text",
-          "description": "The headline of the item the button moves.",
-          "required": true
+          "prop": "moveAfterLabel"
         }
       ]
     },
     {
-      "key": "moveUpLabel",
+      "key": "moveBeforeLabel",
       "readers": [
         {
           "component": "list",
-          "prop": "moveUpLabel"
+          "prop": "moveBeforeLabel"
         }
-      ],
-      "places": [
+      ]
+    },
+    {
+      "key": "moveToEndLabel",
+      "readers": [
         {
-          "name": "headline",
-          "kind": "text",
-          "description": "The headline of the item the button moves.",
-          "required": true
+          "component": "list",
+          "prop": "moveToEndLabel"
+        }
+      ]
+    },
+    {
+      "key": "moveToStartLabel",
+      "readers": [
+        {
+          "component": "list",
+          "prop": "moveToStartLabel"
         }
       ]
     },
@@ -546,14 +626,14 @@
       ],
       "places": [
         {
-          "name": "headline",
+          "name": "label",
           "kind": "text",
-          "description": "The moved item's headline."
+          "description": "The item's name: its label, or else the text of its content."
         },
         {
           "name": "position",
           "kind": "number",
-          "description": "The place the moved item now has, counted from 1."
+          "description": "The place the item has, counted from 1."
         },
         {
           "name": "count",

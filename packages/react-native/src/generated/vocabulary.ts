@@ -2850,12 +2850,7 @@ export type TanreiCoreListCondition = "unselected" | "selected";
 /** What one `condition` of `comp.list` is drawn from in ONE interaction state. */
 export interface TanreiListConditionStateTokens {
   readonly containerColor: TanreiPaint;
-  readonly headlineColor: TanreiPaint;
-  readonly overlineColor: TanreiPaint;
-  readonly supportingTextColor: TanreiPaint;
-  readonly trailingTextColor: TanreiPaint;
-  readonly leadingIconColor: TanreiPaint;
-  readonly trailingIconColor: TanreiPaint;
+  readonly contentColor: TanreiPaint;
   readonly markColor: TanreiPaint;
   readonly stateLayerColor: TanreiPaint;
 }
@@ -2875,16 +2870,13 @@ export type TanreiListConditions = { readonly [Key in TanreiCoreListCondition]: 
  * `<state><Part>`), then one holder per axis (`conditions`), keyed by the axis value.
  */
 export interface TanreiListTokens {
-  readonly avatarShape: number;
-  readonly avatarSize: number;
   readonly containerGap: number;
-  readonly containerHeightOneLine: number;
-  readonly containerHeightThreeLine: number;
-  readonly containerHeightTwoLine: number;
+  readonly containerHeight: number;
   readonly containerPaddingBlock: number;
   readonly containerPaddingInlineEnd: number;
   readonly containerPaddingInlineStart: number;
   readonly containerShape: number;
+  readonly contentTypescale: TanreiTypescaleRole;
   readonly disabledContainerShape: number;
   readonly disabledOpacity: number;
   readonly dividerColor: TanreiPaint;
@@ -2893,31 +2885,20 @@ export interface TanreiListTokens {
   readonly draggedContainerElevation: TanreiElevationLevel;
   readonly focusedContainerShape: number;
   readonly focusedOpacity: number;
-  readonly handleColor: TanreiPaint;
-  readonly handleSize: number;
-  readonly headlineTypescale: TanreiTypescaleRole;
+  readonly gapLarge: number;
+  readonly gapMedium: number;
+  readonly gapSmall: number;
   readonly hoveredContainerShape: number;
   readonly hoveredOpacity: number;
-  readonly imageShape: number;
-  readonly imageSize: number;
-  readonly leadingIconSize: number;
   readonly markSize: number;
   readonly markWidth: number;
-  readonly mediaContainerColor: TanreiPaint;
-  readonly mediaContentColor: TanreiPaint;
   readonly motionFeedbackDuration: number;
   readonly motionReorderDuration: number;
   readonly motionReorderEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
-  readonly moveButtonsGap: number;
-  readonly overlineTypescale: TanreiTypescaleRole;
   readonly pressedContainerShape: number;
   readonly pressedOpacity: number;
-  readonly reorderTextMinWidth: number;
-  readonly supportingTextTypescale: TanreiTypescaleRole;
-  readonly trailingIconSize: number;
-  readonly trailingTextTypescale: TanreiTypescaleRole;
   readonly conditions: TanreiListConditions;
 }
 

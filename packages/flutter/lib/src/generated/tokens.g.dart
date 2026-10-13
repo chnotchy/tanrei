@@ -13272,30 +13272,15 @@ extension type const TanreiListCondition(String name) {
 class TanreiListConditionStateTokens {
   const TanreiListConditionStateTokens({
     required this.containerColor,
-    required this.headlineColor,
-    required this.overlineColor,
-    required this.supportingTextColor,
-    required this.trailingTextColor,
-    required this.leadingIconColor,
-    required this.trailingIconColor,
+    required this.contentColor,
     required this.markColor,
     required this.stateLayerColor,
   });
 
   /// `comp.list.<condition>.<state>.container-color`
   final TanreiPaint containerColor;
-  /// `comp.list.<condition>.<state>.headline-color`
-  final TanreiPaint headlineColor;
-  /// `comp.list.<condition>.<state>.overline-color`
-  final TanreiPaint overlineColor;
-  /// `comp.list.<condition>.<state>.supporting-text-color`
-  final TanreiPaint supportingTextColor;
-  /// `comp.list.<condition>.<state>.trailing-text-color`
-  final TanreiPaint trailingTextColor;
-  /// `comp.list.<condition>.<state>.leading-icon-color`
-  final TanreiPaint leadingIconColor;
-  /// `comp.list.<condition>.<state>.trailing-icon-color`
-  final TanreiPaint trailingIconColor;
+  /// `comp.list.<condition>.<state>.content-color`
+  final TanreiPaint contentColor;
   /// `comp.list.<condition>.<state>.mark-color`
   final TanreiPaint markColor;
   /// `comp.list.<condition>.<state>.state-layer-color`
@@ -13304,22 +13289,12 @@ class TanreiListConditionStateTokens {
   /// A copy with the given tokens replaced.
   TanreiListConditionStateTokens copyWith({
     TanreiPaint? containerColor,
-    TanreiPaint? headlineColor,
-    TanreiPaint? overlineColor,
-    TanreiPaint? supportingTextColor,
-    TanreiPaint? trailingTextColor,
-    TanreiPaint? leadingIconColor,
-    TanreiPaint? trailingIconColor,
+    TanreiPaint? contentColor,
     TanreiPaint? markColor,
     TanreiPaint? stateLayerColor,
   }) => TanreiListConditionStateTokens(
         containerColor: containerColor ?? this.containerColor,
-        headlineColor: headlineColor ?? this.headlineColor,
-        overlineColor: overlineColor ?? this.overlineColor,
-        supportingTextColor: supportingTextColor ?? this.supportingTextColor,
-        trailingTextColor: trailingTextColor ?? this.trailingTextColor,
-        leadingIconColor: leadingIconColor ?? this.leadingIconColor,
-        trailingIconColor: trailingIconColor ?? this.trailingIconColor,
+        contentColor: contentColor ?? this.contentColor,
         markColor: markColor ?? this.markColor,
         stateLayerColor: stateLayerColor ?? this.stateLayerColor,
       );
@@ -13450,41 +13425,27 @@ class TanreiListStateTokens {
 @immutable
 class TanreiListTokens {
   const TanreiListTokens({
-    required this.avatarShape,
-    required this.avatarSize,
     required this.containerGap,
-    required this.containerHeightOneLine,
-    required this.containerHeightThreeLine,
-    required this.containerHeightTwoLine,
+    required this.containerHeight,
     required this.containerPaddingBlock,
     required this.containerPaddingInlineEnd,
     required this.containerPaddingInlineStart,
     required this.containerShape,
+    required this.contentTypescale,
     required this.dividerColor,
     required this.dividerThickness,
     required this.draggedContainerColor,
     required this.draggedContainerElevation,
-    required this.handleColor,
-    required this.handleSize,
-    required this.headlineTypescale,
-    required this.imageShape,
-    required this.imageSize,
-    required this.leadingIconSize,
+    required this.gapLarge,
+    required this.gapMedium,
+    required this.gapSmall,
     required this.markSize,
     required this.markWidth,
-    required this.mediaContainerColor,
-    required this.mediaContentColor,
     required this.motionFeedbackDuration,
     required this.motionReorderDuration,
     required this.motionReorderEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
-    required this.moveButtonsGap,
-    required this.overlineTypescale,
-    required this.reorderTextMinWidth,
-    required this.supportingTextTypescale,
-    required this.trailingIconSize,
-    required this.trailingTextTypescale,
     required this.conditions,
     required this.hovered,
     required this.focused,
@@ -13492,18 +13453,10 @@ class TanreiListTokens {
     required this.disabled,
   });
 
-  /// `comp.list.avatar-shape`
-  final double avatarShape;
-  /// `comp.list.avatar-size`
-  final double avatarSize;
   /// `comp.list.container-gap`
   final double containerGap;
-  /// `comp.list.container-height-one-line`
-  final double containerHeightOneLine;
-  /// `comp.list.container-height-three-line`
-  final double containerHeightThreeLine;
-  /// `comp.list.container-height-two-line`
-  final double containerHeightTwoLine;
+  /// `comp.list.container-height`
+  final double containerHeight;
   /// `comp.list.container-padding-block`
   final double containerPaddingBlock;
   /// `comp.list.container-padding-inline-end`
@@ -13512,6 +13465,8 @@ class TanreiListTokens {
   final double containerPaddingInlineStart;
   /// `comp.list.container-shape`
   final double containerShape;
+  /// `comp.list.content-typescale`
+  final TanreiTextStyle contentTypescale;
   /// `comp.list.divider-color`
   final TanreiPaint dividerColor;
   /// `comp.list.divider-thickness`
@@ -13520,26 +13475,16 @@ class TanreiListTokens {
   final TanreiPaint draggedContainerColor;
   /// `comp.list.dragged-container-elevation`
   final List<TanreiShadowLayer> draggedContainerElevation;
-  /// `comp.list.handle-color`
-  final TanreiPaint handleColor;
-  /// `comp.list.handle-size`
-  final double handleSize;
-  /// `comp.list.headline-typescale`
-  final TanreiTextStyle headlineTypescale;
-  /// `comp.list.image-shape`
-  final double imageShape;
-  /// `comp.list.image-size`
-  final double imageSize;
-  /// `comp.list.leading-icon-size`
-  final double leadingIconSize;
+  /// `comp.list.gap-large`
+  final double gapLarge;
+  /// `comp.list.gap-medium`
+  final double gapMedium;
+  /// `comp.list.gap-small`
+  final double gapSmall;
   /// `comp.list.mark-size`
   final double markSize;
   /// `comp.list.mark-width`
   final double markWidth;
-  /// `comp.list.media-container-color`
-  final TanreiPaint mediaContainerColor;
-  /// `comp.list.media-content-color`
-  final TanreiPaint mediaContentColor;
   /// `comp.list.motion-feedback-duration`
   final int motionFeedbackDuration;
   /// `comp.list.motion-reorder-duration`
@@ -13550,18 +13495,6 @@ class TanreiListTokens {
   final int motionStateDuration;
   /// `comp.list.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
-  /// `comp.list.move-buttons-gap`
-  final double moveButtonsGap;
-  /// `comp.list.overline-typescale`
-  final TanreiTextStyle overlineTypescale;
-  /// `comp.list.reorder-text-min-width`
-  final double reorderTextMinWidth;
-  /// `comp.list.supporting-text-typescale`
-  final TanreiTextStyle supportingTextTypescale;
-  /// `comp.list.trailing-icon-size`
-  final double trailingIconSize;
-  /// `comp.list.trailing-text-typescale`
-  final TanreiTextStyle trailingTextTypescale;
   /// The `condition` axis: `conditions[condition]`.
   final TanreiListConditions conditions;
   /// `comp.list.hovered.*`
@@ -13575,82 +13508,54 @@ class TanreiListTokens {
 
   /// A copy with the given tokens replaced.
   TanreiListTokens copyWith({
-    double? avatarShape,
-    double? avatarSize,
     double? containerGap,
-    double? containerHeightOneLine,
-    double? containerHeightThreeLine,
-    double? containerHeightTwoLine,
+    double? containerHeight,
     double? containerPaddingBlock,
     double? containerPaddingInlineEnd,
     double? containerPaddingInlineStart,
     double? containerShape,
+    TanreiTextStyle? contentTypescale,
     TanreiPaint? dividerColor,
     double? dividerThickness,
     TanreiPaint? draggedContainerColor,
     List<TanreiShadowLayer>? draggedContainerElevation,
-    TanreiPaint? handleColor,
-    double? handleSize,
-    TanreiTextStyle? headlineTypescale,
-    double? imageShape,
-    double? imageSize,
-    double? leadingIconSize,
+    double? gapLarge,
+    double? gapMedium,
+    double? gapSmall,
     double? markSize,
     double? markWidth,
-    TanreiPaint? mediaContainerColor,
-    TanreiPaint? mediaContentColor,
     int? motionFeedbackDuration,
     int? motionReorderDuration,
     TanreiCubicBezier? motionReorderEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
-    double? moveButtonsGap,
-    TanreiTextStyle? overlineTypescale,
-    double? reorderTextMinWidth,
-    TanreiTextStyle? supportingTextTypescale,
-    double? trailingIconSize,
-    TanreiTextStyle? trailingTextTypescale,
     TanreiListConditions? conditions,
     TanreiListStateTokens? hovered,
     TanreiListStateTokens? focused,
     TanreiListStateTokens? pressed,
     TanreiListStateTokens? disabled,
   }) => TanreiListTokens(
-        avatarShape: avatarShape ?? this.avatarShape,
-        avatarSize: avatarSize ?? this.avatarSize,
         containerGap: containerGap ?? this.containerGap,
-        containerHeightOneLine: containerHeightOneLine ?? this.containerHeightOneLine,
-        containerHeightThreeLine: containerHeightThreeLine ?? this.containerHeightThreeLine,
-        containerHeightTwoLine: containerHeightTwoLine ?? this.containerHeightTwoLine,
+        containerHeight: containerHeight ?? this.containerHeight,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
         containerPaddingInlineEnd: containerPaddingInlineEnd ?? this.containerPaddingInlineEnd,
         containerPaddingInlineStart: containerPaddingInlineStart ?? this.containerPaddingInlineStart,
         containerShape: containerShape ?? this.containerShape,
+        contentTypescale: contentTypescale ?? this.contentTypescale,
         dividerColor: dividerColor ?? this.dividerColor,
         dividerThickness: dividerThickness ?? this.dividerThickness,
         draggedContainerColor: draggedContainerColor ?? this.draggedContainerColor,
         draggedContainerElevation: draggedContainerElevation ?? this.draggedContainerElevation,
-        handleColor: handleColor ?? this.handleColor,
-        handleSize: handleSize ?? this.handleSize,
-        headlineTypescale: headlineTypescale ?? this.headlineTypescale,
-        imageShape: imageShape ?? this.imageShape,
-        imageSize: imageSize ?? this.imageSize,
-        leadingIconSize: leadingIconSize ?? this.leadingIconSize,
+        gapLarge: gapLarge ?? this.gapLarge,
+        gapMedium: gapMedium ?? this.gapMedium,
+        gapSmall: gapSmall ?? this.gapSmall,
         markSize: markSize ?? this.markSize,
         markWidth: markWidth ?? this.markWidth,
-        mediaContainerColor: mediaContainerColor ?? this.mediaContainerColor,
-        mediaContentColor: mediaContentColor ?? this.mediaContentColor,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionReorderDuration: motionReorderDuration ?? this.motionReorderDuration,
         motionReorderEasing: motionReorderEasing ?? this.motionReorderEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
-        moveButtonsGap: moveButtonsGap ?? this.moveButtonsGap,
-        overlineTypescale: overlineTypescale ?? this.overlineTypescale,
-        reorderTextMinWidth: reorderTextMinWidth ?? this.reorderTextMinWidth,
-        supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
-        trailingIconSize: trailingIconSize ?? this.trailingIconSize,
-        trailingTextTypescale: trailingTextTypescale ?? this.trailingTextTypescale,
         conditions: conditions ?? this.conditions,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,

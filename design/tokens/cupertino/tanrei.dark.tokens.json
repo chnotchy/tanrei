@@ -48561,23 +48561,6 @@
         }
       },
       "list": {
-        "avatar": {
-          "shape": {
-            "$type": "dimension",
-            "$value": {
-              "value": 9999,
-              "unit": "px"
-            }
-          },
-          "size": {
-            "$type": "dimension",
-            "$value": {
-              "value": 40,
-              "unit": "px"
-            },
-            "$description": "The side of the round box an avatar is fitted into."
-          }
-        },
         "container": {
           "gap": {
             "$type": "dimension",
@@ -48585,30 +48568,15 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Space between the leading element, the text column and each trailing element."
+            "$description": "Space between an item's content and the parts the list draws beside it: the check of an option, the mark of a link that opens a new context, the handle of a reorderable item."
           },
           "height": {
-            "one-line": {
-              "$type": "dimension",
-              "$value": {
-                "value": 44,
-                "unit": "px"
-              }
+            "$type": "dimension",
+            "$value": {
+              "value": 44,
+              "unit": "px"
             },
-            "three-line": {
-              "$type": "dimension",
-              "$value": {
-                "value": 80,
-                "unit": "px"
-              }
-            },
-            "two-line": {
-              "$type": "dimension",
-              "$value": {
-                "value": 64,
-                "unit": "px"
-              }
-            }
+            "$description": "The minimum height of an item that is an action, a link or an option. A minimum: the item grows with its content and with enlarged text."
           },
           "padding-block": {
             "$type": "dimension",
@@ -48616,7 +48584,7 @@
               "value": 8,
               "unit": "px"
             },
-            "$description": "Space above and below the row's content; it shows once the content is taller than the minimum height."
+            "$description": "Space above and below the content of such an item; it shows once the content is taller than the minimum height."
           },
           "padding-inline-end": {
             "$type": "dimension",
@@ -48624,7 +48592,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "Space between the row's last element and its end edge, next to a scroll bar or the screen's edge."
+            "$description": "Space between the content (or the check) of such an item and its end edge."
           },
           "padding-inline-start": {
             "$type": "dimension",
@@ -48632,7 +48600,7 @@
               "value": 16,
               "unit": "px"
             },
-            "$description": "Space between the row's start edge and its first element; it lines the text up with the page's."
+            "$description": "Space between the start edge of an item that is an action, a link or an option and its content; it lines the content up with the page's."
           },
           "shape": {
             "$type": "dimension",
@@ -48640,7 +48608,32 @@
               "value": 0,
               "unit": "px"
             },
-            "$description": "The row's corners. Square by default: rows meet edge to edge and span the list's width."
+            "$description": "The corners of an item that is an action, a link or an option, and of a dragged item. Square by default: items meet edge to edge."
+          }
+        },
+        "content": {
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "system-ui",
+                "Inter",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 17,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0,
+                "unit": "px"
+              },
+              "lineHeight": 1.2941
+            },
+            "$description": "The text style an item that is an action, a link or an option hands its content: text the product did not style takes it."
           }
         },
         "disabled": {
@@ -48694,7 +48687,7 @@
                 "hex": "#373738",
                 "alpha": 1
               },
-              "$description": "The fill of an item while it is dragged. Opaque, where the row at rest has no fill: the item is carried over the others and they must not show through it."
+              "$description": "The fill of an item while it is dragged, under its content. Opaque, where a static item has no fill: the item is carried over the others and they must not show through it."
             },
             "elevation": {
               "$type": "shadow",
@@ -48748,51 +48741,26 @@
             "$value": 1
           }
         },
-        "handle": {
-          "color": {
-            "$type": "color",
-            "$value": {
-              "colorSpace": "srgb",
-              "components": [
-                0.6235,
-                0.6157,
-                0.6235
-              ],
-              "hex": "#9f9d9f",
-              "alpha": 1
-            },
-            "$description": "The drag handle, at rest and while its item is dragged. The color of an item's icons: the handle is a mark on the row, not a control with states of its own."
-          },
-          "size": {
+        "gap": {
+          "large": {
             "$type": "dimension",
             "$value": {
               "value": 24,
               "unit": "px"
-            },
-            "$description": "The glyph box of the drag handle at the start of an item (reorder drag). The size of the leading icon beside it; its hit area is larger and takes no room (LST-44)."
-          }
-        },
-        "headline": {
-          "typescale": {
-            "$type": "typography",
+            }
+          },
+          "medium": {
+            "$type": "dimension",
             "$value": {
-              "fontFamily": [
-                "-apple-system",
-                "BlinkMacSystemFont",
-                "system-ui",
-                "Inter",
-                "sans-serif"
-              ],
-              "fontSize": {
-                "value": 17,
-                "unit": "px"
-              },
-              "fontWeight": 400,
-              "letterSpacing": {
-                "value": 0,
-                "unit": "px"
-              },
-              "lineHeight": 1.2941
+              "value": 16,
+              "unit": "px"
+            }
+          },
+          "small": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
             }
           }
         },
@@ -48811,32 +48779,6 @@
             "$value": 1
           }
         },
-        "image": {
-          "shape": {
-            "$type": "dimension",
-            "$value": {
-              "value": 8,
-              "unit": "px"
-            }
-          },
-          "size": {
-            "$type": "dimension",
-            "$value": {
-              "value": 48,
-              "unit": "px"
-            },
-            "$description": "The side of the square box a leading image is fitted into."
-          }
-        },
-        "leading-icon": {
-          "size": {
-            "$type": "dimension",
-            "$value": {
-              "value": 20,
-              "unit": "px"
-            }
-          }
-        },
         "mark": {
           "size": {
             "$type": "dimension",
@@ -48844,7 +48786,7 @@
               "value": 20,
               "unit": "px"
             },
-            "$description": "The glyph box of the check (the icon set's check) of a selected option, reserved in every option of a selectable list. Medium, the size of the trailing icon beside it and of the menu's check: a glyph's ink fills less of its box than a drawn path of that size."
+            "$description": "The glyph box of the check (the icon set's check) of a selected option, reserved in every option of a selectable list: a glyph's ink fills less of its box than a drawn path of that size."
           },
           "width": {
             "$type": "dimension",
@@ -48853,40 +48795,6 @@
               "unit": "px"
             },
             "$description": "The stroke of the check drawn as a path. No behaviour of the current spec reads it: the check is a glyph of the icon set (LST-21). It stays only so that the platforms that still draw it as a path keep building; remove it in the commit that brings the last of them up to date."
-          }
-        },
-        "media": {
-          "container": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.2588,
-                  0.2588,
-                  0.2627
-                ],
-                "hex": "#424243",
-                "alpha": 1
-              },
-              "$description": "Behind an avatar or an image: shows through a monogram, a transparent image, or an image still loading."
-            }
-          },
-          "content": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.6235,
-                  0.6157,
-                  0.6235
-                ],
-                "hex": "#9f9d9f",
-                "alpha": 1
-              },
-              "$description": "The color handed to what the product puts in an avatar (a monogram, an icon)."
-            }
           }
         },
         "motion": {
@@ -48904,7 +48812,7 @@
               "value": 300,
               "unit": "ms"
             },
-            "$description": "How long an item takes to change place: the items that make room under a dragged one, the dropped item settling, and two items changing places after a move button (LST-43). Longer than a change of color: something crosses the height of a row."
+            "$description": "How long an item takes to change place: the items that slide aside under a dragged one, the dropped item settling, an item lifted by the keyboard stepping to its next place, and items changing places after a move (LST-38, LST-41). Longer than a change of color: something crosses the length of an item."
           },
           "reorder-easing": {
             "$type": "cubicBezier",
@@ -48932,40 +48840,6 @@
             ]
           }
         },
-        "move-buttons": {
-          "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 0,
-              "unit": "px"
-            },
-            "$description": "Between the button that moves an item up and the one that moves it down. Nothing by default: each button already keeps the minimum target along the row, so two of them never stand closer than a finger needs (LST-37)."
-          }
-        },
-        "overline": {
-          "typescale": {
-            "$type": "typography",
-            "$value": {
-              "fontFamily": [
-                "-apple-system",
-                "BlinkMacSystemFont",
-                "system-ui",
-                "Inter",
-                "sans-serif"
-              ],
-              "fontSize": {
-                "value": 13,
-                "unit": "px"
-              },
-              "fontWeight": 400,
-              "letterSpacing": {
-                "value": 0,
-                "unit": "px"
-              },
-              "lineHeight": 1.3846
-            }
-          }
-        },
         "pressed": {
           "container": {
             "shape": {
@@ -48979,16 +48853,6 @@
           "opacity": {
             "$type": "number",
             "$value": 0.7
-          }
-        },
-        "reorder": {
-          "text-min-width": {
-            "$type": "dimension",
-            "$value": {
-              "value": 96,
-              "unit": "px"
-            },
-            "$description": "The least width the text column of a reorderable item keeps beside its handle, its move buttons and its trailing control. Where those would leave the text narrower than this, the controls of every item go to a line of their own below the text (LST-51). It grows with enlarged text, so that the controls stay beside the text at the default text size and stand below it when the text is large."
           }
         },
         "selected": {
@@ -49005,7 +48869,22 @@
                 "alpha": 0,
                 "hex": "#000000"
               },
-              "$description": "The fill of a selected option's row, drawn over whatever the list stands on and under the row's content (LST-26). The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the row's own content color (selected.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json), as the menu values its checked row, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered row. A design system that sets this token draws what it sets. The check is always drawn with the fill; the fill never carries the choice alone."
+              "$description": "The fill of a selected option, drawn over whatever the list stands on and under the item's content (LST-25). The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the item's own content color (selected.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json), as the menu values its checked row, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered item. A design system that sets this token draws what it sets. The check is always drawn with the fill; the fill never carries the choice alone."
+            }
+          },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  1,
+                  1
+                ],
+                "hex": "#ffffff",
+                "alpha": 1
+              }
             }
           },
           "disabled": {
@@ -49024,32 +48903,17 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.298,
-                    0.5569,
+                    1,
+                    1,
                     1
                   ],
-                  "hex": "#4c8eff",
-                  "alpha": 1
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.298,
-                    0.5569,
-                    1
-                  ],
-                  "hex": "#4c8eff",
+                  "hex": "#ffffff",
                   "alpha": 1
                 }
               }
@@ -49069,77 +48933,17 @@
                 }
               }
             },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
             "state-layer": {
               "color": {
                 "$type": "color",
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.298,
-                    0.5569,
+                    1,
+                    1,
                     1
                   ],
-                  "hex": "#4c8eff",
-                  "alpha": 1
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
+                  "hex": "#ffffff",
                   "alpha": 1
                 }
               }
@@ -49161,32 +48965,17 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.298,
-                    0.5569,
+                    1,
+                    1,
                     1
                   ],
-                  "hex": "#4c8eff",
-                  "alpha": 1
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.298,
-                    0.5569,
-                    1
-                  ],
-                  "hex": "#4c8eff",
+                  "hex": "#ffffff",
                   "alpha": 1
                 }
               }
@@ -49206,94 +48995,19 @@
                 }
               }
             },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
             "state-layer": {
               "color": {
                 "$type": "color",
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.298,
-                    0.5569,
+                    1,
+                    1,
                     1
                   ],
-                  "hex": "#4c8eff",
+                  "hex": "#ffffff",
                   "alpha": 1
                 }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "headline": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.298,
-                  0.5569,
-                  1
-                ],
-                "hex": "#4c8eff",
-                "alpha": 1
               }
             }
           },
@@ -49313,32 +49027,17 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.298,
-                    0.5569,
+                    1,
+                    1,
                     1
                   ],
-                  "hex": "#4c8eff",
-                  "alpha": 1
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.298,
-                    0.5569,
-                    1
-                  ],
-                  "hex": "#4c8eff",
+                  "hex": "#ffffff",
                   "alpha": 1
                 }
               }
@@ -49358,94 +49057,19 @@
                 }
               }
             },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
             "state-layer": {
               "color": {
                 "$type": "color",
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.298,
-                    0.5569,
+                    1,
+                    1,
                     1
                   ],
-                  "hex": "#4c8eff",
+                  "hex": "#ffffff",
                   "alpha": 1
                 }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "leading-icon": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.298,
-                  0.5569,
-                  1
-                ],
-                "hex": "#4c8eff",
-                "alpha": 1
               }
             }
           },
@@ -49460,21 +49084,6 @@
                   1
                 ],
                 "hex": "#4c8eff",
-                "alpha": 1
-              }
-            }
-          },
-          "overline": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.6235,
-                  0.6157,
-                  0.6235
-                ],
-                "hex": "#9f9d9f",
                 "alpha": 1
               }
             }
@@ -49495,32 +49104,17 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.298,
-                    0.5569,
+                    1,
+                    1,
                     1
                   ],
-                  "hex": "#4c8eff",
-                  "alpha": 1
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.298,
-                    0.5569,
-                    1
-                  ],
-                  "hex": "#4c8eff",
+                  "hex": "#ffffff",
                   "alpha": 1
                 }
               }
@@ -49540,77 +49134,17 @@
                 }
               }
             },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
             "state-layer": {
               "color": {
                 "$type": "color",
                 "$value": {
                   "colorSpace": "srgb",
                   "components": [
-                    0.298,
-                    0.5569,
+                    1,
+                    1,
                     1
                   ],
-                  "hex": "#4c8eff",
-                  "alpha": 1
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
+                  "hex": "#ffffff",
                   "alpha": 1
                 }
               }
@@ -49622,116 +49156,14 @@
               "$value": {
                 "colorSpace": "srgb",
                 "components": [
-                  0.298,
-                  0.5569,
+                  1,
+                  1,
                   1
                 ],
-                "hex": "#4c8eff",
+                "hex": "#ffffff",
                 "alpha": 1
               },
-              "$description": "The color hover, focus and press mix into the row: the headline's color."
-            }
-          },
-          "supporting-text": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.6235,
-                  0.6157,
-                  0.6235
-                ],
-                "hex": "#9f9d9f",
-                "alpha": 1
-              }
-            }
-          },
-          "trailing-icon": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.6235,
-                  0.6157,
-                  0.6235
-                ],
-                "hex": "#9f9d9f",
-                "alpha": 1
-              }
-            }
-          },
-          "trailing-text": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.6235,
-                  0.6157,
-                  0.6235
-                ],
-                "hex": "#9f9d9f",
-                "alpha": 1
-              }
-            }
-          }
-        },
-        "supporting-text": {
-          "typescale": {
-            "$type": "typography",
-            "$value": {
-              "fontFamily": [
-                "-apple-system",
-                "BlinkMacSystemFont",
-                "system-ui",
-                "Inter",
-                "sans-serif"
-              ],
-              "fontSize": {
-                "value": 13,
-                "unit": "px"
-              },
-              "fontWeight": 400,
-              "letterSpacing": {
-                "value": 0,
-                "unit": "px"
-              },
-              "lineHeight": 1.3846
-            }
-          }
-        },
-        "trailing-icon": {
-          "size": {
-            "$type": "dimension",
-            "$value": {
-              "value": 20,
-              "unit": "px"
-            }
-          }
-        },
-        "trailing-text": {
-          "typescale": {
-            "$type": "typography",
-            "$value": {
-              "fontFamily": [
-                "-apple-system",
-                "BlinkMacSystemFont",
-                "system-ui",
-                "Inter",
-                "sans-serif"
-              ],
-              "fontSize": {
-                "value": 13,
-                "unit": "px"
-              },
-              "fontWeight": 400,
-              "letterSpacing": {
-                "value": 0,
-                "unit": "px"
-              },
-              "lineHeight": 1.3846
+              "$description": "The color hover, focus and press mix into the item: its content's color."
             }
           }
         },
@@ -49751,6 +49183,22 @@
               }
             }
           },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  1,
+                  1
+                ],
+                "hex": "#ffffff",
+                "alpha": 1
+              },
+              "$description": "The foreground an item that is an action, a link or an option hands its content: the color of text and glyphs the product did not color."
+            }
+          },
           "disabled": {
             "container": {
               "color": {
@@ -49767,7 +49215,7 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
                 "$value": {
@@ -49778,21 +49226,6 @@
                     1
                   ],
                   "hex": "#ffffff",
-                  "alpha": 1
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
                   "alpha": 1
                 }
               }
@@ -49812,21 +49245,6 @@
                 }
               }
             },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
             "state-layer": {
               "color": {
                 "$type": "color",
@@ -49838,51 +49256,6 @@
                     1
                   ],
                   "hex": "#ffffff",
-                  "alpha": 1
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
                   "alpha": 1
                 }
               }
@@ -49904,7 +49277,7 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
                 "$value": {
@@ -49915,21 +49288,6 @@
                     1
                   ],
                   "hex": "#ffffff",
-                  "alpha": 1
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
                   "alpha": 1
                 }
               }
@@ -49949,21 +49307,6 @@
                 }
               }
             },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
             "state-layer": {
               "color": {
                 "$type": "color",
@@ -49977,66 +49320,6 @@
                   "hex": "#ffffff",
                   "alpha": 1
                 }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "headline": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  1,
-                  1,
-                  1
-                ],
-                "hex": "#ffffff",
-                "alpha": 1
               }
             }
           },
@@ -50056,7 +49339,7 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
                 "$value": {
@@ -50067,21 +49350,6 @@
                     1
                   ],
                   "hex": "#ffffff",
-                  "alpha": 1
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
                   "alpha": 1
                 }
               }
@@ -50101,21 +49369,6 @@
                 }
               }
             },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
             "state-layer": {
               "color": {
                 "$type": "color",
@@ -50129,66 +49382,6 @@
                   "hex": "#ffffff",
                   "alpha": 1
                 }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            }
-          },
-          "leading-icon": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.6235,
-                  0.6157,
-                  0.6235
-                ],
-                "hex": "#9f9d9f",
-                "alpha": 1
               }
             }
           },
@@ -50204,21 +49397,6 @@
                 ],
                 "alpha": 0,
                 "hex": "#000000"
-              }
-            }
-          },
-          "overline": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.6235,
-                  0.6157,
-                  0.6235
-                ],
-                "hex": "#9f9d9f",
-                "alpha": 1
               }
             }
           },
@@ -50238,7 +49416,7 @@
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
                 "$value": {
@@ -50249,21 +49427,6 @@
                     1
                   ],
                   "hex": "#ffffff",
-                  "alpha": 1
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
                   "alpha": 1
                 }
               }
@@ -50283,21 +49446,6 @@
                 }
               }
             },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
             "state-layer": {
               "color": {
                 "$type": "color",
@@ -50309,51 +49457,6 @@
                     1
                   ],
                   "hex": "#ffffff",
-                  "alpha": 1
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
-                  "alpha": 1
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0.6235,
-                    0.6157,
-                    0.6235
-                  ],
-                  "hex": "#9f9d9f",
                   "alpha": 1
                 }
               }
@@ -50372,52 +49475,7 @@
                 "hex": "#ffffff",
                 "alpha": 1
               },
-              "$description": "The color hover, focus and press mix into the row: the headline's color."
-            }
-          },
-          "supporting-text": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.6235,
-                  0.6157,
-                  0.6235
-                ],
-                "hex": "#9f9d9f",
-                "alpha": 1
-              }
-            }
-          },
-          "trailing-icon": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.6235,
-                  0.6157,
-                  0.6235
-                ],
-                "hex": "#9f9d9f",
-                "alpha": 1
-              }
-            }
-          },
-          "trailing-text": {
-            "color": {
-              "$type": "color",
-              "$value": {
-                "colorSpace": "srgb",
-                "components": [
-                  0.6235,
-                  0.6157,
-                  0.6235
-                ],
-                "hex": "#9f9d9f",
-                "alpha": 1
-              }
+              "$description": "The color hover, focus and press mix into the item: its content's color."
             }
           }
         }

@@ -1062,12 +1062,20 @@ const STAGING: Record<string, Staging> = {
   'radio-button': {
     wrap: (element, f) => `<form><div role="radiogroup" aria-label="${String(f.props.name ?? f.id)}">${element}</div></form>`,
   },
-  // A list is one column 360 wide (LST-16's verify). An avatar's leading slot holds the first letter of the item's
-  // headline (its monogram); an image's is empty, so it shows the media container color. A test's own item may hold
-  // what a product puts in the trailing slot (a reorderable item's remove button, LST-52): its content, as written.
+  // A list is 360 wide (LST-1's verify). An item's content is the product's own: the content of a static item stands for
+  // a box of the product's — a tile with a fill, padded and with small corners, in the body text style, as a product's
+  // card or file item would be — so that the arrangement, the gap and the dividers show; an action, a link or an option
+  // holds its text alone, which the item pads and colors itself (LST-8). A test's own item that holds markup holds it
+  // as written.
   list: {
-    css: () => `.stage > tanrei-list { inline-size: 360px; }`,
-    itemContent: (item) => `${item.props.leadingMedia === 'avatar' ? `<span slot="leading">${String(item.props.headline ?? '').slice(0, 1)}</span>` : ''}${item.content ?? ''}`,
+    css: () => `.stage > tanrei-list { inline-size: 360px; }
+      .stage > tanrei-list .fixture-tile { display: block; box-sizing: border-box; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
+    itemContent: (item) => {
+      const content = item.content ?? '';
+      if (content.includes('<')) return content;
+      const actionable = !!item.props.interactive || !!item.props.href || item.props.value !== undefined;
+      return actionable ? content : `<span class="fixture-tile">${content}</span>`;
+    },
   },
   // A menu fixture draws the open surface in place (MNU-19's verify): the `inline` test attribute, at its natural size,
   // with its elevation and without an anchor, placement or open motion — room below for the elevation's shadow.

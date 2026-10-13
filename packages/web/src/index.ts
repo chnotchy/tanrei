@@ -237,8 +237,10 @@ export {
 export {
   TanreiList,
   type TanreiListChangeDetail,
+  type TanreiListGap,
   TanreiListItem,
-  type TanreiListLeadingMedia,
+  type TanreiListMoveDetail,
+  type TanreiListOrientation,
   type TanreiListSelection,
 } from './components/list/list.js';
 export {

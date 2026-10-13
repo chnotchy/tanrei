@@ -5767,23 +5767,13 @@ public value class TanreiListCondition(public val key: String) {
 @Immutable
 public data class TanreiListConditionStateTokens(
     public val containerColor: TanreiPaint,
-    public val headlineColor: TanreiPaint,
-    public val overlineColor: TanreiPaint,
-    public val supportingTextColor: TanreiPaint,
-    public val trailingTextColor: TanreiPaint,
-    public val leadingIconColor: TanreiPaint,
-    public val trailingIconColor: TanreiPaint,
+    public val contentColor: TanreiPaint,
     public val markColor: TanreiPaint,
     public val stateLayerColor: TanreiPaint,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(containerColor.roles())
-        addAll(headlineColor.roles())
-        addAll(overlineColor.roles())
-        addAll(supportingTextColor.roles())
-        addAll(trailingTextColor.roles())
-        addAll(leadingIconColor.roles())
-        addAll(trailingIconColor.roles())
+        addAll(contentColor.roles())
         addAll(markColor.roles())
         addAll(stateLayerColor.roles())
     }
@@ -5851,41 +5841,27 @@ public data class TanreiListStateTokens(
 /** `comp.list`. Members are flat tokens, then per-state tokens, then one holder per axis (`conditions[condition]`). */
 @Immutable
 public data class TanreiListTokens(
-    public val avatarShape: Dp,
-    public val avatarSize: Dp,
     public val containerGap: Dp,
-    public val containerHeightOneLine: Dp,
-    public val containerHeightThreeLine: Dp,
-    public val containerHeightTwoLine: Dp,
+    public val containerHeight: Dp,
     public val containerPaddingBlock: Dp,
     public val containerPaddingInlineEnd: Dp,
     public val containerPaddingInlineStart: Dp,
     public val containerShape: Dp,
+    public val contentTypescale: TanreiTextStyle,
     public val dividerColor: TanreiPaint,
     public val dividerThickness: Dp,
     public val draggedContainerColor: TanreiPaint,
     public val draggedContainerElevation: List<TanreiShadowLayer>,
-    public val handleColor: TanreiPaint,
-    public val handleSize: Dp,
-    public val headlineTypescale: TanreiTextStyle,
-    public val imageShape: Dp,
-    public val imageSize: Dp,
-    public val leadingIconSize: Dp,
+    public val gapLarge: Dp,
+    public val gapMedium: Dp,
+    public val gapSmall: Dp,
     public val markSize: Dp,
     public val markWidth: Dp,
-    public val mediaContainerColor: TanreiPaint,
-    public val mediaContentColor: TanreiPaint,
     public val motionFeedbackDuration: Int,
     public val motionReorderDuration: Int,
     public val motionReorderEasing: TanreiCubicBezier,
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
-    public val moveButtonsGap: Dp,
-    public val overlineTypescale: TanreiTextStyle,
-    public val reorderTextMinWidth: Dp,
-    public val supportingTextTypescale: TanreiTextStyle,
-    public val trailingIconSize: Dp,
-    public val trailingTextTypescale: TanreiTextStyle,
     public val hovered: TanreiListStateTokens,
     public val focused: TanreiListStateTokens,
     public val pressed: TanreiListStateTokens,
@@ -5914,9 +5890,6 @@ public data class TanreiListTokens(
         addAll(dividerColor.roles())
         addAll(draggedContainerColor.roles())
         draggedContainerElevation.forEach { add(it.role) }
-        addAll(handleColor.roles())
-        addAll(mediaContainerColor.roles())
-        addAll(mediaContentColor.roles())
         addAll(conditions.referencedRoles())
     }
 }

@@ -4954,95 +4954,56 @@ private let cupertinoLinkTokens = TanreiLinkTokens(
 )
 
 private let cupertinoListTokens = TanreiListTokens(
-  avatarShape: 9999,
-  avatarSize: 40,
   containerGap: 12,
-  containerHeightOneLine: 44,
-  containerHeightThreeLine: 80,
-  containerHeightTwoLine: 64,
+  containerHeight: 44,
   containerPaddingBlock: 8,
   containerPaddingInlineEnd: 16,
   containerPaddingInlineStart: 16,
   containerShape: 0,
+  contentTypescale: cupertinoTypescale.bodyLarge,
   dividerColor: .role(.outlineVariant),
   dividerThickness: 1,
   draggedContainerColor: .role(.surfaceContainerHigh),
   draggedContainerElevation: cupertinoElevation.level3,
-  handleColor: .role(.onSurfaceVariant),
-  handleSize: 24,
-  headlineTypescale: cupertinoTypescale.bodyLarge,
-  imageShape: 8,
-  imageSize: 48,
-  leadingIconSize: 20,
+  gapLarge: 24,
+  gapMedium: 16,
+  gapSmall: 8,
   markSize: 20,
   markWidth: 2,
-  mediaContainerColor: .role(.surfaceContainerHighest),
-  mediaContentColor: .role(.onSurfaceVariant),
   motionFeedbackDuration: 450,
   motionReorderDuration: 300,
   motionReorderEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  moveButtonsGap: 0,
-  overlineTypescale: cupertinoTypescale.labelSmall,
-  reorderTextMinWidth: 96,
-  supportingTextTypescale: cupertinoTypescale.bodySmall,
-  trailingIconSize: 20,
-  trailingTextTypescale: cupertinoTypescale.labelSmall,
   conditions: TanreiListConditions(
     unselected: TanreiListConditionTokens(
       enabled: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSurface),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSurfaceVariant),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .none,
         stateLayerColor: .role(.onSurface)
       ),
       hovered: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSurface),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSurfaceVariant),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .none,
         stateLayerColor: .role(.onSurface)
       ),
       focused: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSurface),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSurfaceVariant),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .none,
         stateLayerColor: .role(.onSurface)
       ),
       pressed: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSurface),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSurfaceVariant),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .none,
         stateLayerColor: .role(.onSurface)
       ),
       disabled: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSurface),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSurfaceVariant),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .none,
         stateLayerColor: .role(.onSurface)
       )
@@ -5050,58 +5011,33 @@ private let cupertinoListTokens = TanreiListTokens(
     selected: TanreiListConditionTokens(
       enabled: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .role(.primary),
-        stateLayerColor: .role(.onSecondaryContainer)
+        stateLayerColor: .role(.onSurface)
       ),
       hovered: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .role(.primary),
-        stateLayerColor: .role(.onSecondaryContainer)
+        stateLayerColor: .role(.onSurface)
       ),
       focused: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .role(.primary),
-        stateLayerColor: .role(.onSecondaryContainer)
+        stateLayerColor: .role(.onSurface)
       ),
       pressed: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .role(.primary),
-        stateLayerColor: .role(.onSecondaryContainer)
+        stateLayerColor: .role(.onSurface)
       ),
       disabled: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .role(.primary),
-        stateLayerColor: .role(.onSecondaryContainer)
+        stateLayerColor: .role(.onSurface)
       )
     )
   ),

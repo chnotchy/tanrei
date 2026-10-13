@@ -18001,79 +18001,19 @@
                 "$value": "{tanrei.comp.list.unselected.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.headline.color}",
+                "$value": "{tanrei.comp.list.unselected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -18085,7 +18025,7 @@
                 "$value": "{tanrei.comp.list.unselected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -18097,7 +18037,7 @@
                 "$value": "{tanrei.comp.list.unselected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -18111,79 +18051,19 @@
                 "$value": "{tanrei.comp.list.unselected.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.headline.color}",
+                "$value": "{tanrei.comp.list.unselected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -18195,7 +18075,7 @@
                 "$value": "{tanrei.comp.list.unselected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -18207,7 +18087,7 @@
                 "$value": "{tanrei.comp.list.unselected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -18221,79 +18101,19 @@
                 "$value": "{tanrei.comp.list.unselected.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.headline.color}",
+                "$value": "{tanrei.comp.list.unselected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -18305,7 +18125,7 @@
                 "$value": "{tanrei.comp.list.unselected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -18317,7 +18137,7 @@
                 "$value": "{tanrei.comp.list.unselected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -18331,79 +18151,19 @@
                 "$value": "{tanrei.comp.list.unselected.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.headline.color}",
+                "$value": "{tanrei.comp.list.unselected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.unselected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -18415,7 +18175,7 @@
                 "$value": "{tanrei.comp.list.unselected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -18427,7 +18187,7 @@
                 "$value": "{tanrei.comp.list.unselected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -18443,79 +18203,19 @@
                 "$value": "{tanrei.comp.list.selected.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.selected.headline.color}",
+                "$value": "{tanrei.comp.list.selected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -18527,7 +18227,7 @@
                 "$value": "{tanrei.comp.list.selected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -18539,7 +18239,7 @@
                 "$value": "{tanrei.comp.list.selected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -18553,79 +18253,19 @@
                 "$value": "{tanrei.comp.list.selected.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.selected.headline.color}",
+                "$value": "{tanrei.comp.list.selected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -18637,7 +18277,7 @@
                 "$value": "{tanrei.comp.list.selected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -18649,7 +18289,7 @@
                 "$value": "{tanrei.comp.list.selected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -18663,79 +18303,19 @@
                 "$value": "{tanrei.comp.list.selected.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.selected.headline.color}",
+                "$value": "{tanrei.comp.list.selected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -18747,7 +18327,7 @@
                 "$value": "{tanrei.comp.list.selected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -18759,7 +18339,7 @@
                 "$value": "{tanrei.comp.list.selected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -18773,79 +18353,19 @@
                 "$value": "{tanrei.comp.list.selected.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
               }
             },
-            "headline": {
+            "content": {
               "color": {
                 "$type": "color",
-                "$value": "{tanrei.comp.list.selected.headline.color}",
+                "$value": "{tanrei.comp.list.selected.content.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "overline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.overline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "supporting-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.supporting-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "trailing-text": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-text.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "leading-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.leading-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
-                  },
-                  "dev.tanrei.state": "disabled"
-                }
-              }
-            },
-            "trailing-icon": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.list.selected.trailing-icon.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -18857,7 +18377,7 @@
                 "$value": "{tanrei.comp.list.selected.mark.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -18869,7 +18389,7 @@
                 "$value": "{tanrei.comp.list.selected.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                    "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                   },
                   "dev.tanrei.state": "disabled"
                 }
@@ -18883,7 +18403,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
               },
               "dev.tanrei.state": "hovered",
               "dev.tanrei.derive": {
@@ -18897,7 +18417,7 @@
               "$value": "{tanrei.comp.list.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                  "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                 },
                 "dev.tanrei.state": "hovered"
               }
@@ -18910,7 +18430,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
               },
               "dev.tanrei.state": "focused",
               "dev.tanrei.derive": {
@@ -18924,7 +18444,7 @@
               "$value": "{tanrei.comp.list.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                  "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                 },
                 "dev.tanrei.state": "focused"
               }
@@ -18937,7 +18457,7 @@
             "$value": 0.7,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
               },
               "dev.tanrei.state": "pressed",
               "dev.tanrei.derive": {
@@ -18951,7 +18471,7 @@
               "$value": "{tanrei.comp.list.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                  "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                 },
                 "dev.tanrei.state": "pressed"
               }
@@ -18964,7 +18484,7 @@
             "$value": "{tanrei.sys.state.disabled-content-opacity}",
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
               },
               "dev.tanrei.state": "disabled"
             }
@@ -18975,7 +18495,7 @@
               "$value": "{tanrei.comp.list.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
-                  "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order."
+                  "rationale": "One product holds sets of its own items — rows, tiles, cards, files — in a column, a line or a wrapping grid, with or without space and lines between them; lets people open them one by one or choose from them, some selected and some disabled; and lets people drag the items of one such set into another order."
                 },
                 "dev.tanrei.state": "disabled"
               }

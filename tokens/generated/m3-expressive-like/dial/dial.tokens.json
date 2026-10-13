@@ -5024,25 +5024,11 @@
               "$value": "{tanrei.sys.shape.corner.small}",
               "reason": "Material 3's chips are rounded rectangles (8dp), not pills."
             },
-            "tanrei.comp.list.container.height.one-line": {
+            "tanrei.comp.list.container.height": {
               "derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 14
-              }
-            },
-            "tanrei.comp.list.container.height.two-line": {
-              "derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 18
-              }
-            },
-            "tanrei.comp.list.container.height.three-line": {
-              "derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 22
               }
             },
             "tanrei.comp.list.container.padding-inline-end": {
@@ -5051,21 +5037,8 @@
             "tanrei.comp.list.container.gap": {
               "$value": "{tanrei.sys.space.space200}"
             },
-            "tanrei.comp.list.headline.typescale": {
+            "tanrei.comp.list.content.typescale": {
               "$value": "{tanrei.sys.typescale.body-large}"
-            },
-            "tanrei.comp.list.supporting-text.typescale": {
-              "$value": "{tanrei.sys.typescale.body}"
-            },
-            "tanrei.comp.list.leading-icon.size": {
-              "$value": "{tanrei.sys.icon.medium}"
-            },
-            "tanrei.comp.list.image.size": {
-              "derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 14
-              }
             },
             "tanrei.comp.code-block.line.added.container.color": {
               "derive": {
@@ -5104,22 +5077,6 @@
             "tanrei.comp.list.selected.container.color": {
               "$value": "{tanrei.sys.color.secondary-container}",
               "reason": "This preset keeps Material's selected list item, a secondary-container fill, where the default system lays a layer of the content color; whether Material's fill is told from a hovered row on the preset's surfaces is a fidelity decision for this preset."
-            },
-            "tanrei.comp.list.selected.overline.color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "reason": "This preset keeps its selected row's secondary content in the quiet content color, as before the default system moved it onto the fill's own content role."
-            },
-            "tanrei.comp.list.selected.supporting-text.color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "reason": "This preset keeps its selected row's secondary content in the quiet content color, as before the default system moved it onto the fill's own content role."
-            },
-            "tanrei.comp.list.selected.trailing-text.color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "reason": "This preset keeps its selected row's secondary content in the quiet content color, as before the default system moved it onto the fill's own content role."
-            },
-            "tanrei.comp.list.selected.trailing-icon.color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "reason": "This preset keeps its selected row's secondary content in the quiet content color, as before the default system moved it onto the fill's own content role."
             },
             "tanrei.comp.menu.surface.color": {
               "$value": "{tanrei.sys.color.surface-container}"
