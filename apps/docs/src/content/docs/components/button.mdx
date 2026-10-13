@@ -152,12 +152,15 @@ A disabled button leaves the focus order, so a keyboard or screen-reader user ma
   <tanrei-button disabled focusable-when-disabled>Send</tanrei-button>
 </DemoFrame>
 
-### An action inside a sentence
+### Full width
 
-An action that sits in the middle of a sentence and leads nowhere, such as "show every token", is the `inline` variant. It has no container and no inset, and takes the font and line height of the text around it, so the line keeps its height. It is drawn in the link color and underlined as the design system underlines links, so it is not told from the words beside it by color alone. Its words stay on one line. As with a link in a sentence, its target is the size of its text. Something that takes the person somewhere is a [link](/components/link/), not an inline button.
+Set `full-width` to make a button as wide as its container, such as the one action at the foot of a narrow form, a card or a sheet. It keeps the height, the paddings and the corners of its size, and its label and icon are centred. A label that does not fit wraps rather than being cut off. Where a [button group](/components/button-group/), a [toolbar](/components/toolbar/), or the actions of a dialog or a popover lay buttons out, they decide the widths and `full-width` on a button does nothing: give the button group `full-width` to share one row between several buttons.
 
-<DemoFrame label="An inline button in a sentence" plain>
-  <p class="tanrei-text-body">Change any value here, or <tanrei-button variant="inline">show every token</tanrei-button> to edit them one by one.</p>
+<DemoFrame label="Full-width buttons" plain>
+  <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
+    <tanrei-button full-width>Create account</tanrei-button>
+    <tanrei-button variant="outlined" full-width><span slot="icon">upload</span>Upload a file</tanrei-button>
+  </div>
 </DemoFrame>
 
 ### A button with a destination is a link
@@ -330,7 +333,7 @@ When the same word is drawn on several buttons, such as "Remove" in every row of
 
 Use a button for an action that happens where the person is: submitting a form, saving, starting a process, confirming a dialog. On the web, a button that sends its form says so with `type` (see [In a form](#in-a-form)).
 
-If activating it only takes the person somewhere else, it is a link. When that destination deserves a button's emphasis, such as "Get started" on a landing page or "View all" at the end of a list, keep the button and give it `href`: it then is a link, with a link's role, keys and browser behaviour (see [A button with a destination is a link](#a-button-with-a-destination-is-a-link)). A destination inside a sentence stays an ordinary text link, and an action inside a sentence is the `inline` variant (see [An action inside a sentence](#an-action-inside-a-sentence)).
+If activating it only takes the person somewhere else, it is a link. When that destination deserves a button's emphasis, such as "Get started" on a landing page or "View all" at the end of a list, keep the button and give it `href`: it then is a link, with a link's role, keys and browser behaviour (see [A button with a destination is a link](#a-button-with-a-destination-is-a-link)). A destination inside a sentence stays an ordinary text link. An action that belongs to a passage of text is a text button after the passage, not a phrase inside it: something drawn as a link that is not one leaves people unsure what it will do.
 
 ### Choosing a variant
 
@@ -343,7 +346,6 @@ Variants express emphasis, and emphasis is a budget. Spend it once per view.
 | Elevated | Medium | An action that must separate from a busy or patterned background. |
 | Outlined | Medium | Actions of equal weight beside a filled button, such as Cancel. |
 | Text | Low | The least pressing actions, inline actions in cards, dialogs and toolbars. |
-| Inline | Part of the text | An action inside a sentence. It is drawn as a phrase of the sentence, not as a control beside it. |
 
 A button without a `variant` is filled, with one exception: placed as a [dialog](/components/dialog/)'s or a [side sheet](/components/side-sheet/)'s action, it takes that host's variant, tonal in the default system, so you set a variant only on the action that should look different. A side sheet's close button takes the sheet's close-button variant the same way.
 

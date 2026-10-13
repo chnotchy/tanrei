@@ -2,7 +2,7 @@
 title: "按钮"
 description: "让用户只需轻点或点击一次，就能执行一项操作、打开或关闭某个功能，或前往某个目标位置。"
 translationOf: components/button.mdx
-sourceHash: c531b01bc29d2078bf346b8fcc6a590e95463b3f
+sourceHash: 2d11c980a07f77a062a0d304f367e3dbb66f4fd0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -154,12 +154,15 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
   <tanrei-button disabled focusable-when-disabled>发送</tanrei-button>
 </DemoFrame>
 
-### 句子里的操作
+### 全宽
 
-位于句子中间、不通往任何地方的操作，例如“显示全部令牌”，使用 `inline` 变体。它没有容器，也没有留白，沿用周围文字的字体和行高，所以这一行的高度不变。它以链接的颜色绘制，并像设计系统给链接加下划线那样带下划线，因此不会只靠颜色与旁边的文字区分开来。它的文字保持在同一行。与句子里的链接一样，它的目标就是文字本身的大小。把用户带到别处的东西是[链接](/zh-cn/components/link/)，而不是 inline 按钮。
+设置 `full-width`，按钮就和它的容器一样宽，例如窄表单、卡片或面板底部唯一的操作。它保持自己尺寸的高度、内边距和圆角，标签和图标居中。放不下的标签会换行，而不会被截断。当[按钮组](/zh-cn/components/button-group/)、[工具栏](/zh-cn/components/toolbar/)或对话框、弹出框的操作区来排列按钮时，由它们决定宽度，按钮上的 `full-width` 不起作用：要让几个按钮分享一行，请给按钮组设置 `full-width`。
 
-<DemoFrame label="句子里的 inline 按钮" plain>
-  <p class="tanrei-text-body">在这里修改任意值，或者<tanrei-button variant="inline">显示全部令牌</tanrei-button>逐个编辑。</p>
+<DemoFrame label="全宽按钮" plain>
+  <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
+    <tanrei-button full-width>创建账号</tanrei-button>
+    <tanrei-button variant="outlined" full-width><span slot="icon">upload</span>上传文件</tanrei-button>
+  </div>
 </DemoFrame>
 
 ### 有目标地址的按钮是链接
@@ -332,7 +335,7 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 
 按钮用于在用户当前所在位置发生的操作：提交表单、保存、启动一个流程、确认对话框。在 Web 上，会提交所在表单的按钮用 `type` 说明这一点（参见[在表单中](#在表单中)）。
 
-如果激活它只是把用户带到别处，那它就是链接。当这个目标值得用按钮来强调时，例如落地页上的“开始使用”或列表末尾的“查看全部”，就保留按钮并给它指定 `href`：这样它就是链接，拥有链接的角色、按键和浏览器行为（参见[有目标地址的按钮是链接](#有目标地址的按钮是链接)）。句子里的目标仍然用普通的文本链接，句子里的操作则使用 `inline` 变体（参见[句子里的操作](#句子里的操作)）。
+如果激活它只是把用户带到别处，那它就是链接。当这个目标值得用按钮来强调时，例如落地页上的“开始使用”或列表末尾的“查看全部”，就保留按钮并给它指定 `href`：这样它就是链接，拥有链接的角色、按键和浏览器行为（参见[有目标地址的按钮是链接](#有目标地址的按钮是链接)）。句子里的目标仍然用普通的文本链接。属于一段文字的操作，是放在这段文字后面的文本按钮，而不是文字里的一个短语：画得像链接却不是链接的东西，会让人不知道按下去会发生什么。
 
 ### 如何选择变体
 
@@ -345,7 +348,6 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 | Elevated | 中 | 必须从杂乱或带图案的背景中凸显出来的操作。 |
 | Outlined | 中 | 放在 filled 按钮旁边、分量相当的操作，例如“取消”。 |
 | Text | 低 | 最不紧迫的操作，以及卡片、对话框和工具栏中的行内操作。 |
-| Inline | 文字的一部分 | 句子里的操作。它画成句子中的一个短语，而不是句子旁边的控件。 |
 
 没有 `variant` 的按钮是 filled，只有一个例外：作为[对话框](/zh-cn/components/dialog/)或[侧边面板](/zh-cn/components/side-sheet/)的操作放置时，它采用宿主的变体，在默认系统中是 tonal。因此只需要给外观应当不同的那个操作设置变体。侧边面板的关闭按钮也以同样的方式采用面板为关闭按钮规定的变体。
 

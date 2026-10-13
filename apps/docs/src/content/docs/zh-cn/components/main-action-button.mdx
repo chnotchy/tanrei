@@ -2,7 +2,7 @@
 title: "主操作按钮"
 description: "在一个悬浮于内容之上的抬升容器上，执行屏幕中最重要的那一个操作；可以写出操作的名称，也可以收起为只有图标。"
 translationOf: components/main-action-button.mdx
-sourceHash: ff82dd77880b90c7becab88915c0e91b8fea6fda
+sourceHash: 100851dcd58588339815b7cf46318e4f1a9950e2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -163,6 +163,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### 位置
 
 这个按钮不画遮罩，也不移动任何内容。把它放在内容之上，通常在末尾侧的底角，并避开导航栏、停靠的工具栏和系统的边衬区。在可滚动内容的末尾留出空间，让按钮不会一直遮住最后一项。它的阴影投在容器之外：如果容纳它的容器会裁剪内容，请为阴影留出空间。
+
+### 全宽
+
+设置 `full-width`，按钮就和它的容器一样宽，图标和标签居中：在窄屏上横跨屏幕底部的那一个主要操作，例如“去结算”或“发送”。全宽按钮总是展开的：内容滚动时它不会收起，把 `extended` 设为 false 会在调试构建中报告。它保持自己尺寸的高度、圆角和阴影，放不下的标签会换行。它仍然不自己定位：请把它放进位于屏幕底部的容器里。
+
+<DemoFrame label="全宽的主操作按钮" plain>
+  <div style="inline-size: 20rem">
+    <tanrei-main-action-button label="去结算" full-width><span slot="icon">shopping_cart</span></tanrei-main-action-button>
+  </div>
+</DemoFrame>
 
 ### 推荐
 
