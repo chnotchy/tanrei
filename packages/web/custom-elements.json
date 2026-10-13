@@ -5774,9 +5774,9 @@
           "kind": "variable",
           "name": "CORE_VARIANTS",
           "type": {
-            "text": "['filled', 'tonal', 'elevated', 'outlined', 'text']"
+            "text": "['filled', 'tonal', 'elevated', 'outlined', 'text', 'inline']"
           },
-          "default": "['filled', 'tonal', 'elevated', 'outlined', 'text']",
+          "default": "['filled', 'tonal', 'elevated', 'outlined', 'text', 'inline']",
           "description": "The values every design system has. A layer may add more; those get their styles on demand."
         },
         {
@@ -5999,6 +5999,41 @@
             },
             {
               "kind": "field",
+              "name": "focusableWhenDisabled",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Keeps a disabled button in the focus order (BTN-38): drawn and exposed as disabled (`aria-disabled`), refusing every\nactivation, but reachable by Tab and by a pointer, and keeping focus when it becomes disabled — so that a person can\nlearn why it does nothing (a tooltip, a description). A disabled fieldset still takes it out of the focus order.\nIgnored unless `disabled` is set.",
+              "attribute": "focusable-when-disabled",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "busy",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The action it started is under way (BTN-36, BTN-37): it keeps its focus, its place in the focus order and its size,\ndraws the loading indicator's arc in place of its label and icon, refuses every activation — a submit button sends\nnothing, and stops Enter in its form as a disabled one does — and announces `busyLabel`.",
+              "attribute": "busy",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "busyLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What assistive technology is told while the button is busy (\"Saving\"): your words, in your language. Required while busy.",
+              "attribute": "busy-label"
+            },
+            {
+              "kind": "field",
               "name": "label",
               "privacy": "public",
               "type": {
@@ -6162,7 +6197,7 @@
               "name": "link",
               "privacy": "private",
               "readonly": true,
-              "default": "new LinkController(this, { ids: { refused: 'BTN-26', newContext: 'BTN-24' }, disabled: () => this.disabled, holds: () => (this.toggle ? 'a toggle' : null), })",
+              "default": "new LinkController(this, { ids: { refused: 'BTN-26', newContext: 'BTN-24' }, // BTN-37: a busy link opens nothing, as a disabled one does. disabled: () => this.disabled || this.busy, holds: () => (this.toggle ? 'a toggle' : null), })",
               "description": "BTN-22 … BTN-26: the link the button is while it has a destination, what its anchor carries, and what a debug\nbuild is told (src/primitives/link.ts). A toggle holds a state and takes none (BTN-26)."
             },
             {
@@ -6170,7 +6205,7 @@
               "name": "press",
               "privacy": "private",
               "readonly": true,
-              "default": "new PressController(this, { container: () => this.container, holdCarrier: () => this.container?.querySelector(this.hasLabel ? '.label' : 'slot[name=\"icon\"]') ?? null, disabled: () => this.isDisabled, keys: () => this.link.pressKeys, })",
+              "default": "new PressController(this, { container: () => this.container, holdCarrier: () => this.container?.querySelector(this.hasLabel ? '.label' : 'slot[name=\"icon\"]') ?? null, disabled: () => this.refuses, keys: () => this.link.pressKeys, })",
               "description": "BTN-8 / BTN-9: the pressed state, press-hold and the answer the system chooses (src/primitives/press.ts). BTN-23: a\nlink is pressed by Enter alone; Space is the browser's."
             },
             {
@@ -6197,6 +6232,26 @@
               },
               "privacy": "private",
               "description": "BTN-32: disabled by its own `disabled`, or — unless it is a link, as no link of the platform is — by a disabled\nfieldset around it. The fieldset's part is the platform's word (`:disabled`) less the element's own attribute:\nthat attribute follows the property one step late — it is still there while the update that unsets it renders —\nand a button enabled by its property is enabled by that same update, so that focus can be moved to it at once.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "refuses",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "description": "BTN-37, BTN-38: whether a press does nothing now — disabled, or busy.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "reachable",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "description": "BTN-37, BTN-38: whether the button refuses presses and still stays in the focus order — busy, or disabled by its own\n`disabled` while `focusableWhenDisabled` is set. A disabled fieldset takes it out of the focus order whatever it says.",
               "readonly": true
             },
             {
@@ -6278,6 +6333,16 @@
               ]
             },
             {
+              "kind": "field",
+              "name": "holdingDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "BTN-38: while the attribute is taken off on the property's behalf, it says nothing of the property."
+            },
+            {
               "kind": "method",
               "name": "formAssociatedCallback",
               "description": "BTN-29: the form owner changed — the button moved, or its `form` attribute was written."
@@ -6351,6 +6416,13 @@
               "name": "onClick",
               "privacy": "private",
               "description": "BTN-14: a toggle switches its own `selected`, then fires `click`, then `change` (src/primitives/after-click.ts): a\n`click` listener on the element already sees the new value, and `change` follows once the click has gone through the page."
+            },
+            {
+              "kind": "field",
+              "name": "status",
+              "privacy": "private",
+              "description": "BTN-37: the polite region busyLabel is announced through.",
+              "readonly": true
             },
             {
               "kind": "method",
@@ -6472,6 +6544,33 @@
               "default": "false",
               "description": "Prevents interaction and removes the button from the focus order. A disabled submit button sends nothing, and\nstill stops Enter from sending its form where it is the form's default button (BTN-32). A button that is not a\nlink is disabled as well by a `<fieldset disabled>` around it. A button disabled while it holds focus keeps it\nuntil the next frame, as the platform's own does, and its `disabled` attribute is written then.",
               "fieldName": "disabled"
+            },
+            {
+              "name": "focusable-when-disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Keeps a disabled button in the focus order (BTN-38): drawn and exposed as disabled (`aria-disabled`), refusing every\nactivation, but reachable by Tab and by a pointer, and keeping focus when it becomes disabled — so that a person can\nlearn why it does nothing (a tooltip, a description). A disabled fieldset still takes it out of the focus order.\nIgnored unless `disabled` is set.",
+              "fieldName": "focusableWhenDisabled"
+            },
+            {
+              "name": "busy",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The action it started is under way (BTN-36, BTN-37): it keeps its focus, its place in the focus order and its size,\ndraws the loading indicator's arc in place of its label and icon, refuses every activation — a submit button sends\nnothing, and stops Enter in its form as a disabled one does — and announces `busyLabel`.",
+              "fieldName": "busy"
+            },
+            {
+              "name": "busy-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "What assistive technology is told while the button is busy (\"Saving\"): your words, in your language. Required while busy.",
+              "fieldName": "busyLabel"
             },
             {
               "name": "label",
@@ -8934,7 +9033,7 @@
         {
           "kind": "variable",
           "name": "styles",
-          "default": "css` :host { display: block; } ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))} ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([variant='${v}'])`)).join('\\n'))} .container { box-sizing: border-box; position: relative; /* Its own stacking context, so the ripple can sit above the container color and below the content. */ isolation: isolate; display: block; /* CRD-12: no height of its own — it grows with its content. */ ${unsafeCSS(cornerRadius('--tanrei-comp-card-container-shape'))} ${unsafeCSS(paint(''))} -webkit-tap-highlight-color: transparent; /* CRD-16: a state change of the colors, the elevation and the opacity is animated. */ transition-property: background-color, color, box-shadow, opacity; transition-duration: var(--tanrei-comp-card-motion-state-duration); transition-timing-function: var(--tanrei-comp-card-motion-state-easing); } ${unsafeCSS(ACTION)} { cursor: pointer; outline: none; } /* CRD-19: the anchor of a link card is the card's shape and nothing of a text link — no underline, and the content color of its variant and state (above), never the browser's link or visited color. */ a.container { text-decoration: none; } /* CRD-12: the content is clipped to the container's shape (a box of its own, so the focus ring and the target outside the container are not clipped with it) and inset by the padding on every side — logical, so RTL mirrors (CRD-17). */ .clip { display: block; /* A stacking context of its own: content that stacks itself (z-index) stays under the outline, and the content is hit above the container's target (::before). */ isolation: isolate; overflow: hidden; border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale)); corner-shape: inherit; padding: var(--tanrei-comp-card-container-padding); } :host([flush]) .clip { padding: 0; } /* CRD-12: the outlined variant's edge, above the content (media that reaches the edges does not cover it), inside the container, comp.card.outline.width wide. The other variants' outline color is transparent. */ .outline { position: absolute; inset: 0; border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale)); corner-shape: inherit; box-shadow: inset 0 0 0 var(--tanrei-comp-card-outline-width) var(--_outline); pointer-events: none; transition: box-shadow var(--tanrei-comp-card-motion-state-duration) var(--tanrei-comp-card-motion-state-easing); } /* CRD-5: the hit area meets the minimum target without changing the visual size. */ ${minimumTarget(ACTION)} /* CRD-3, CRD-6, CRD-8, CRD-9: each state paints from that state's tokens; pressed > focused > hovered, disabled over all. Pressed is data-pressed=\"<feedback>\" (PressController): overlay paints the pressed tokens on the whole container; ripple and dim paint everything else from them while the container color stays with the state under the press (ripple adds the pressed color as a layer, dim adds none); none paints nothing. */ ${stateRules(on, { hovered: `${paint('-h')} opacity: var(--tanrei-comp-card-hovered-opacity);`, focused: `${paint('-f')} opacity: var(--tanrei-comp-card-focused-opacity);`, pressed: `${paint('-p')} opacity: var(--tanrei-comp-card-pressed-opacity);`, pressedContent: `${paintContent('-p')} opacity: var(--tanrei-comp-card-pressed-opacity);`, disabled: ` cursor: default;${paint('-d')} opacity: var(--tanrei-comp-card-disabled-opacity);`, })} /* CRD-8: the outline takes the pressed state without a transition in, as the container does. */ .container[data-pressed]:not([data-pressed='none']) .outline { transition-duration: 0s; } /* CRD-9 ripple: grows over comp.card.motion.feedback-duration and fades over motion.state-duration, both with motion.state-easing, under the content and the outline. */ ${rippleStyles({ color: '--_c-p', grow: '--tanrei-comp-card-motion-feedback-duration', fade: '--tanrei-comp-card-motion-state-duration', easing: '--tanrei-comp-card-motion-state-easing', })} /* CRD-4 and CRD-10 focus-style: the ring (or the glow), never animated. */ ${focusRing(on)} /* CRD-10, corner smoothing: the shared rule, on the container (data-tanrei-shape); the clip, the outline, the ripple and the ring are concentric with it and inherit its curve. */ ${shape} /* CRD-8: the clip carries press-hold for PressController. */ ${pressHold('.clip')} @media (prefers-reduced-motion: reduce) { .container, .outline { transition: none; } } @media (forced-colors: active) { .outline { border: var(--tanrei-comp-card-outline-width) solid CanvasText; } ${unsafeCSS(ACTION)} .outline { border-color: ButtonText; } .container[aria-disabled='true'] { color: GrayText; } .container[aria-disabled='true'] .outline { border-color: GrayText; } } `"
+          "default": "css` :host { display: block; } ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))} ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([variant='${v}'])`)).join('\\n'))} .container { box-sizing: border-box; position: relative; /* Its own stacking context, so the ripple can sit above the container color and below the content. */ isolation: isolate; display: block; /* CRD-12: no height of its own — it grows with its content. */ ${unsafeCSS(cornerRadius('--tanrei-comp-card-container-shape'))} ${unsafeCSS(paint(''))} -webkit-tap-highlight-color: transparent; /* CRD-16: a state change of the colors, the elevation and the opacity is animated. */ transition-property: background-color, color, box-shadow, opacity; transition-duration: var(--tanrei-comp-card-motion-state-duration); transition-timing-function: var(--tanrei-comp-card-motion-state-easing); } /* CRD-8: a press never selects the card's text nor starts a drag of it — one action, kept from selection as a button is. */ ${unsafeCSS(ACTION)} { cursor: pointer; outline: none; -webkit-user-select: none; user-select: none; } /* CRD-19: the anchor of a link card is the card's shape and nothing of a text link — no underline, and the content color of its variant and state (above), never the browser's link or visited color. */ a.container { text-decoration: none; } /* CRD-12: the content is clipped to the container's shape (a box of its own, so the focus ring and the target outside the container are not clipped with it) and inset by the padding on every side — logical, so RTL mirrors (CRD-17). */ .clip { display: block; /* A stacking context of its own: content that stacks itself (z-index) stays under the outline, and the content is hit above the container's target (::before). */ isolation: isolate; overflow: hidden; border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale)); corner-shape: inherit; padding: var(--tanrei-comp-card-container-padding); } :host([flush]) .clip { padding: 0; } /* CRD-12: the outlined variant's edge, above the content (media that reaches the edges does not cover it), inside the container, comp.card.outline.width wide. The other variants' outline color is transparent. */ .outline { position: absolute; inset: 0; border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale)); corner-shape: inherit; box-shadow: inset 0 0 0 var(--tanrei-comp-card-outline-width) var(--_outline); pointer-events: none; transition: box-shadow var(--tanrei-comp-card-motion-state-duration) var(--tanrei-comp-card-motion-state-easing); } /* CRD-5: the hit area meets the minimum target without changing the visual size. */ ${minimumTarget(ACTION)} /* CRD-3, CRD-6, CRD-8, CRD-9: each state paints from that state's tokens; pressed > focused > hovered, disabled over all. Pressed is data-pressed=\"<feedback>\" (PressController): overlay paints the pressed tokens on the whole container; ripple and dim paint everything else from them while the container color stays with the state under the press (ripple adds the pressed color as a layer, dim adds none); none paints nothing. */ ${stateRules(on, { hovered: `${paint('-h')} opacity: var(--tanrei-comp-card-hovered-opacity);`, focused: `${paint('-f')} opacity: var(--tanrei-comp-card-focused-opacity);`, pressed: `${paint('-p')} opacity: var(--tanrei-comp-card-pressed-opacity);`, pressedContent: `${paintContent('-p')} opacity: var(--tanrei-comp-card-pressed-opacity);`, disabled: ` cursor: default;${paint('-d')} opacity: var(--tanrei-comp-card-disabled-opacity);`, })} /* CRD-8: the outline takes the pressed state without a transition in, as the container does. */ .container[data-pressed]:not([data-pressed='none']) .outline { transition-duration: 0s; } /* CRD-9 ripple: grows over comp.card.motion.feedback-duration and fades over motion.state-duration, both with motion.state-easing, under the content and the outline. */ ${rippleStyles({ color: '--_c-p', grow: '--tanrei-comp-card-motion-feedback-duration', fade: '--tanrei-comp-card-motion-state-duration', easing: '--tanrei-comp-card-motion-state-easing', })} /* CRD-4 and CRD-10 focus-style: the ring (or the glow), never animated. */ ${focusRing(on)} /* CRD-10, corner smoothing: the shared rule, on the container (data-tanrei-shape); the clip, the outline, the ripple and the ring are concentric with it and inherit its curve. */ ${shape} /* CRD-8: the clip carries press-hold for PressController. */ ${pressHold('.clip')} @media (prefers-reduced-motion: reduce) { .container, .outline { transition: none; } } @media (forced-colors: active) { .outline { border: var(--tanrei-comp-card-outline-width) solid CanvasText; } ${unsafeCSS(ACTION)} .outline { border-color: ButtonText; } .container[aria-disabled='true'] { color: GrayText; } .container[aria-disabled='true'] .outline { border-color: GrayText; } } `"
         }
       ],
       "exports": [
@@ -24401,7 +24500,7 @@
         {
           "kind": "variable",
           "name": "styles",
-          "default": "css` /* A Button's place in a row: inline, on the baseline of the text beside it. */ :host { display: inline-flex; position: relative; vertical-align: middle; } :host([hidden]) { display: none; } /* CPY-7, CPY-11: the three glyphs are drawn in one box — the Button's icon box, which this fills. While the icon set cannot draw a glyph yet (its font is loading) its name would be spelled in a text face: nothing is drawn in its place until it can (data-drawn, src/primitives/glyph.ts), and the box is kept. */ .glyph { display: inline-block; inline-size: 100%; block-size: 100%; } .ink { display: inline-block; } .glyph:not([data-drawn]) { visibility: hidden; } /* CPY-7: the label's box is as wide as the widest of the three texts at all times — they share one cell, the two that are not shown hidden from sight and from assistive technology — and the shown text is at its start. */ .labels { display: inline-grid; justify-items: start; } .labels > span { grid-area: 1 / 1; } .labels > span:not(.shown) { visibility: hidden; } /* CPY-5: the announcements — read, never drawn. */ .live { position: absolute; overflow: hidden; inline-size: 1px; block-size: 1px; clip-path: inset(50%); white-space: nowrap; } /* CPY-3: comp.copy-button.confirmation.duration is an expression; it is computed through a real property of this inert box and read from there (a duration token is never parsed). */ .time { display: none; transition-property: none; transition-duration: var(--tanrei-comp-copy-button-confirmation-duration); } `"
+          "default": "css` /* A Button's place in a row: inline, on the baseline of the text beside it. */ :host { display: inline-flex; position: relative; vertical-align: middle; } :host([hidden]) { display: none; } /* CPY-18: the Tooltip around the Button takes no room of its own: the Button is the copy button's whole box. */ tanrei-tooltip { display: inline-flex; vertical-align: middle; } /* CPY-7, CPY-11: the three glyphs are drawn in one box — the Button's icon box, which this fills. While the icon set cannot draw a glyph yet (its font is loading) its name would be spelled in a text face: nothing is drawn in its place until it can (data-drawn, src/primitives/glyph.ts), and the box is kept. */ .glyph { display: inline-block; inline-size: 100%; block-size: 100%; } .ink { display: inline-block; } .glyph:not([data-drawn]) { visibility: hidden; } /* CPY-7: the label's box is as wide as the widest of the three texts at all times — they share one cell, the two that are not shown hidden from sight and from assistive technology — and the shown text is at its start. */ .labels { display: inline-grid; justify-items: start; } .labels > span { grid-area: 1 / 1; } .labels > span:not(.shown) { visibility: hidden; } /* CPY-5: the announcements — read, never drawn. */ .live { position: absolute; overflow: hidden; inline-size: 1px; block-size: 1px; clip-path: inset(50%); white-space: nowrap; } /* CPY-3: comp.copy-button.confirmation.duration is an expression; it is computed through a real property of this inert box and read from there (a duration token is never parsed). */ .time { display: none; transition-property: none; transition-duration: var(--tanrei-comp-copy-button-confirmation-duration); } `"
         }
       ],
       "exports": [
@@ -24427,6 +24526,10 @@
             {
               "description": "The Button it is drawn by (a `<tanrei-button>`; its own parts are `container`, `icon` and `label`).",
               "name": "button"
+            },
+            {
+              "description": "The Tooltip that shows the confirmation of the icon-only form (a `<tanrei-tooltip>`).",
+              "name": "confirmation"
             }
           ],
           "members": [
@@ -24586,6 +24689,16 @@
               "kind": "field",
               "name": "button",
               "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "confirmation",
+              "type": {
+                "text": "TanreiTooltip | null"
+              },
+              "privacy": "private",
+              "description": "CPY-18: the Tooltip that shows the icon-only form's confirmation.",
               "readonly": true
             },
             {

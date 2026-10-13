@@ -30,8 +30,8 @@ const demoFixtures = specs.button ? specimenFixtures(specs.button) : [];
 const tag = specs.button?.platforms.web?.name;
 
 // The actions are Tanrei Buttons with a destination — links, not buttons — in the hierarchy the page's
-// frontmatter names: the primary action filled, the secondary outlined, a minimal one text.
-const VARIANTS: Record<string, string> = { primary: 'filled', secondary: 'outlined', minimal: 'text' };
+// frontmatter names: the primary action filled, the secondary outlined, a minimal one inline — words, not a control.
+const VARIANTS: Record<string, string> = { primary: 'filled', secondary: 'outlined', minimal: 'inline' };
 const fallback = { [linkAttribute]: '' };
 const specimenTitle = `${figureId(Astro)}-title`;
 ---

@@ -116,6 +116,12 @@ const tonalPairs = (roles) =>
   ]);
 
 const HIGH_CONTRAST_TEXT = 7;
+// The hairline (outline-variant: an outlined control's edge, a divider) in a raised-contrast scheme: a person who chose
+// more contrast is given an edge they can see — 3:1 at medium, 4.5:1 at high, as Material's colour scheme raises the
+// role — while the input's edge (outline) stays the stronger of the two. At standard contrast the hairline is
+// decoration beside a control that its label already identifies (WCAG 1.4.11), and is not held. The default system
+// alone is held to it (below).
+const HAIRLINE = { medium: 3, high: 4.5 };
 // The scheme of the other theme at the same contrast level (an inverse status form mirrors it).
 const OTHER_THEME = { light: 'dark', 'light-medium': 'dark-medium', 'light-high': 'dark-high', dark: 'light', 'dark-medium': 'light-medium', 'dark-high': 'light-high' };
 
@@ -143,6 +149,17 @@ export function checkInvariants(model) {
       const ratio = contrast(roles[fg].value, roles[bg].value);
       if (ratio < required) {
         failures.push(`[${scheme}] ${fg} on ${bg}: ${ratio.toFixed(2)}:1 < ${required}:1 (${why})`);
+      }
+    }
+    // Held in the default system, as the tonal pairs are: a preset keeps its original's hairline, and a product on one
+    // is not warned for the preset's choice.
+    const level = model.system !== CONFIG.namespace ? null : isHigh ? 'high' : scheme.endsWith('-medium') ? 'medium' : null;
+    if (level && roles['outline-variant'] && roles.outline) {
+      for (const s of SURFACES.filter((each) => roles[each])) {
+        const hairline = contrast(roles['outline-variant'].value, roles[s].value);
+        if (hairline < HAIRLINE[level]) failures.push(`[${scheme}] outline-variant on ${s}: ${hairline.toFixed(2)}:1 < ${HAIRLINE[level]}:1 (the hairline in a raised-contrast scheme)`);
+        const edge = contrast(roles.outline.value, roles[s].value);
+        if (edge < hairline) failures.push(`[${scheme}] outline on ${s}: ${edge.toFixed(2)}:1 < ${hairline.toFixed(2)}:1 (an input's edge stays stronger than the hairline)`);
       }
     }
   }

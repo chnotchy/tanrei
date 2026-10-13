@@ -865,7 +865,9 @@
       "builtFrom": [
         "button"
       ],
-      "uses": [],
+      "uses": [
+        "tooltip"
+      ],
       "hasSpec": true,
       "docs": "/components/copy-button/",
       "platforms": {

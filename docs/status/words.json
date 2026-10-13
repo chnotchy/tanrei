@@ -54,6 +54,15 @@
       ]
     },
     {
+      "key": "busyLabel",
+      "readers": [
+        {
+          "component": "button",
+          "prop": "busyLabel"
+        }
+      ]
+    },
+    {
       "key": "cancelLabel",
       "readers": [
         {

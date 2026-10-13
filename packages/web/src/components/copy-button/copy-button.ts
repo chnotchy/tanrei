@@ -2,6 +2,8 @@ import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothi
 import { AvailabilityController, GlyphDrawnController, report, WordsController } from '../../primitives/index.js';
 import type { TanreiButtonSizeRegistry, TanreiButtonVariantRegistry } from '../../registry.js';
 import '../button/button.js';
+import '../tooltip/tooltip.js';
+import type { TanreiTooltip } from '../tooltip/tooltip.js';
 import { AXES as BUTTON_AXES } from '../button/button.styles.js';
 import { styles } from './copy-button.styles.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
@@ -49,12 +51,15 @@ const DEFAULT_SIZE = 'medium';
  *
  * The words are yours: `label`, `copied-label` and `failed-label` have no defaults. The icon-only form is named by
  * `label` in every form; `copied-label` is announced politely and `failed-label` assertively, through a live region,
- * on every activation.
+ * on every activation. The icon-only form also shows those words for as long as its glyph does, in a small bubble
+ * drawn as a plain Tooltip is (a `<tanrei-tooltip>` around the Button), which takes no focus and is not read a second
+ * time.
  *
  * The events are `copied` and `copyfailed`, not `copy`: `copy` is the document's own clipboard event.
  *
  * @tag tanrei-copy-button
  * @csspart button - The Button it is drawn by (a `<tanrei-button>`; its own parts are `container`, `icon` and `label`).
+ * @csspart confirmation - The Tooltip that shows the confirmation of the icon-only form (a `<tanrei-tooltip>`).
  * @fires {CustomEvent<TanreiCopyButtonCopiedDetail>} copied - The browser confirmed that the text is on the clipboard; `detail.text` is the text.
  * @fires {CustomEvent<TanreiCopyButtonCopyFailedDetail>} copyfailed - The browser refused the copy or has no clipboard to write to; `detail.reason` is its reason, where it gave one.
  */
@@ -133,6 +138,11 @@ export class TanreiCopyButton extends LitElement {
     return this.renderRoot?.querySelector('tanrei-button') ?? null;
   }
 
+  /** CPY-18: the Tooltip that shows the icon-only form's confirmation. */
+  private get confirmation(): TanreiTooltip | null {
+    return this.renderRoot?.querySelector('tanrei-tooltip') ?? null;
+  }
+
   private region(role: 'status' | 'alert') {
     return this.renderRoot?.querySelector<HTMLElement>(`.live[role="${role}"]`) ?? null;
   }
@@ -163,6 +173,8 @@ export class TanreiCopyButton extends LitElement {
     clearTimeout(this.timer);
     this.timer = undefined;
     this.form = 'rest';
+    const confirmation = this.confirmation;
+    if (confirmation) confirmation.open = false;
     for (const role of ['status', 'alert'] as const) {
       const region = this.region(role);
       if (region) region.textContent = '';
@@ -181,6 +193,13 @@ export class TanreiCopyButton extends LitElement {
     // words are announced anew.
     const region = this.region(form === 'copied' ? 'status' : 'alert');
     if (region) region.textContent = form === 'copied' ? this.words.get('copiedLabel', this.copiedLabel) : this.words.get('copyFailedLabel', this.failedLabel);
+    // CPY-18: the icon-only form shows the same words for as long as the form lasts; opened again by every answer, also
+    // after Escape closed it.
+    const confirmation = this.confirmation;
+    if (confirmation && this.iconOnly) {
+      confirmation.open = false;
+      confirmation.open = true;
+    }
     this.dispatchEvent(
       form === 'copied'
         ? new CustomEvent<TanreiCopyButtonCopiedDetail>('copied', { bubbles: true, detail: { text } })
@@ -234,6 +253,8 @@ export class TanreiCopyButton extends LitElement {
   protected override willUpdate(changed: PropertyValues) {
     // CPY-9: what was copied is no longer what would be. CPY-10: a disabled button shows no confirmation.
     if ((changed.has('text') && this.form === 'copied' && changed.get('text') !== undefined) || (changed.has('disabled') && this.disabled && this.form !== 'rest')) this.rest();
+    // CPY-18: the labelled form says it in its label, and shows no bubble.
+    else if (changed.has('iconOnly') && !this.iconOnly && this.confirmation) this.confirmation.open = false;
   }
 
   protected override updated(changed: PropertyValues) {
@@ -250,8 +271,15 @@ export class TanreiCopyButton extends LitElement {
     // CPY-6: icon-only, the name is `label` in every form; labelled, the name is the text it shows.
     const shown = this.form === 'copied' ? 'copied' : this.form === 'failed' ? 'failed' : 'label';
     const text = (name: string, value: string) => html`<span class=${name === shown ? 'shown' : ''}>${value}</span>`;
+    // CPY-18: the Button is always inside the Tooltip, so that showing a confirmation moves nothing in the tree (and
+    // never focus); the Tooltip opens only when the copy button opens it.
     return html`
-      <tanrei-button
+      <tanrei-tooltip
+        part="confirmation"
+        .confirming=${true}
+        .describes=${false}
+        .text=${this.form === 'failed' ? this.words.get('copyFailedLabel', this.failedLabel) : this.words.get('copiedLabel', this.copiedLabel)}
+      ><tanrei-button
         part="button"
         variant=${this.drawnValue('variant')}
         size=${this.drawnValue('size')}
@@ -262,7 +290,7 @@ export class TanreiCopyButton extends LitElement {
       >
         <span slot="icon" class="glyph"><span class="ink">${GLYPHS[this.form]}</span></span>
         ${this.iconOnly ? nothing : html`<span class="labels">${text('label', this.words.get('copyLabel', this.label))}${text('copied', this.words.get('copiedLabel', this.copiedLabel))}${text('failed', this.words.get('copyFailedLabel', this.failedLabel))}</span>`}
-      </tanrei-button>
+      </tanrei-button></tanrei-tooltip>
       <span class="live" role="status"></span>
       <span class="live" role="alert"></span>
       <span class="time"></span>

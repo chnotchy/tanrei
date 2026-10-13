@@ -5348,6 +5348,1053 @@
             }
           }
         },
+        "inline": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0745,
+                    0.0745,
+                    0.0745
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#131313"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.button.inline.container.color}",
+                    "with": "{tanrei.comp.button.inline.state-layer.color}",
+                    "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                  }
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": "{tanrei.comp.button.inline.container.elevation}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.outline.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.08,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button.inline.unselected.container.color}",
+                      "with": "{tanrei.comp.button.inline.unselected.state-layer.color}",
+                      "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.08,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button.inline.selected.container.color}",
+                      "with": "{tanrei.comp.button.inline.selected.state-layer.color}",
+                      "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0745,
+                    0.0745,
+                    0.0745
+                  ],
+                  "alpha": 0.1,
+                  "hex": "#131313"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.button.inline.container.color}",
+                    "with": "{tanrei.comp.button.inline.state-layer.color}",
+                    "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                  }
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": "{tanrei.comp.button.inline.container.elevation}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.outline.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.1,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button.inline.unselected.container.color}",
+                      "with": "{tanrei.comp.button.inline.unselected.state-layer.color}",
+                      "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.1,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button.inline.selected.container.color}",
+                      "with": "{tanrei.comp.button.inline.selected.state-layer.color}",
+                      "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0745,
+                    0.0745,
+                    0.0745
+                  ],
+                  "alpha": 0.1,
+                  "hex": "#131313"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.button.inline.container.color}",
+                    "with": "{tanrei.comp.button.inline.state-layer.color}",
+                    "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                  }
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": "{tanrei.comp.button.inline.container.elevation}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.outline.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.1,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button.inline.unselected.container.color}",
+                      "with": "{tanrei.comp.button.inline.unselected.state-layer.color}",
+                      "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.1,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.button.inline.selected.container.color}",
+                      "with": "{tanrei.comp.button.inline.selected.state-layer.color}",
+                      "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.label.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.icon.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.state-layer.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": "{tanrei.sys.elevation.level0}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0745,
+                    0.0745,
+                    0.0745
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#131313"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0745,
+                    0.0745,
+                    0.0745
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#131313"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.button.inline.outline.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0745,
+                    0.0745,
+                    0.0745
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#131313"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "unselected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.unselected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            },
+            "selected": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.container.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "label": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "icon": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "outline": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.button.inline.selected.outline.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled"
+                  }
+                }
+              },
+              "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#131313"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "hovered": {
           "opacity": {
             "$type": "number",

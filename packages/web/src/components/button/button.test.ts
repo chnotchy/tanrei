@@ -2018,6 +2018,24 @@ test.describe('in a form', () => {
     expect(await log(page)).toEqual([]);
   });
 
+  test('BTN-37: a busy submit button sends nothing by any means — a pointer, Enter, Space, element.click() — and stops Enter in a field of its form as a disabled default button does; once it is not busy it sends again', async ({ page }) => {
+    await mountForm(page, `<form id="f">${FIELD('who', 'value="Ada"')}<tanrei-button id="send" type="submit" name="intent" value="send" busy busy-label="Sending">Send</tanrei-button></form>`);
+    await page.locator('#send').click();
+    await page.locator('#send').focus();
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Space');
+    await page.evaluate(() => (document.querySelector('#send') as HTMLElement).click());
+    await page.locator('#who').evaluate((el: HTMLElement) => el.focus());
+    await page.keyboard.press('Enter');
+    expect(await log(page)).toEqual([]);
+    await page.locator('#send').evaluate(async (el: HTMLElement & { busy: boolean; updateComplete: Promise<unknown> }) => {
+      el.busy = false;
+      await el.updateComplete;
+    });
+    await page.locator('#send').click();
+    expect(await log(page)).toEqual(['click:send', 'submit:f[who=Ada&intent=send]<button:intent=send>']);
+  });
+
   test('BTN-33: a toggle and a link ignore type submit and reset and stay what they are, each reported once; a type the button does not define behaves as button, submits nothing and is reported; type button ignores form, name and value without a report', async ({ page }) => {
     const seen = warnings(page);
     await mountForm(
@@ -2083,5 +2101,212 @@ test.describe('in a form', () => {
   test('BTN-34: the web is the platform with a form element — type, form, name and value are the element’s, and none of them is a spec prop', async () => {
     const props = (spec as unknown as { props: { name: string }[] }).props.map((p) => p.name);
     for (const name of ['type', 'form', 'name', 'value']) expect(props, name).not.toContain(name);
+  });
+});
+
+test.describe('busy, reachable while disabled, inline', () => {
+  type P = import('@playwright/test').Page;
+  const mountOne = (page: P, fixtures: Fixture[]) => mountFixtures(page, spec, { icons: true, fixtures });
+  const fx = (id: string, props: Fixture['props'], content = 'Deploy', extra: Partial<Fixture> = {}): Fixture => ({ id, props, content, ...extra });
+  const inner = (page: P, id: string) => page.locator(button(id)).locator('[part="container"]');
+  const clicks = (page: P, id: string) =>
+    page.locator(button(id)).evaluate((el) => {
+      (window as any).clicks = 0;
+      el.addEventListener('click', () => (window as any).clicks++);
+    });
+  const clicked = (page: P) => page.evaluate(() => (window as any).clicks as number);
+
+  test('BTN-36: a busy button keeps its size, draws its enabled tokens with no hovered state, hides its label and icon in place, and turns the loading indicator’s arc at its centre in the icon’s box and the label’s color; not busy, its label is back at once', async ({ page }) => {
+    await mountOne(page, [fx('rest', { variant: 'filled' }), fx('busy', { variant: 'filled', busy: true, busyLabel: 'Deploying' }), fx('icon', { variant: 'text', busy: true, busyLabel: 'Saving', label: 'Save' }, '', { slots: { icon: 'save' } }), fx('icon-rest', { variant: 'text', label: 'Save' }, '', { slots: { icon: 'save' } })]);
+    const size = async (id: string) => (await inner(page, id).boundingBox())!;
+    expect(await size('busy')).toMatchObject({ width: (await size('rest')).width, height: (await size('rest')).height });
+    expect(await size('icon')).toMatchObject({ width: (await size('icon-rest')).width, height: (await size('icon-rest')).height });
+    const look = (id: string) => inner(page, id).evaluate((el) => ({ background: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color, opacity: getComputedStyle(el).opacity }));
+    expect(await look('busy')).toEqual(await look('rest'));
+    await page.locator(button('busy')).hover();
+    await page.waitForTimeout(250);
+    expect((await look('busy')).background).toBe(await resolveColor(page, '--tanrei-comp-button-filled-container-color'));
+    // The label and the icon are laid out and not drawn.
+    expect(await inner(page, 'busy').locator('.label').evaluate((el) => getComputedStyle(el).opacity)).toBe('0');
+    await expect(page.locator(button('busy')).getByRole('button', { name: 'Deploy' })).toHaveCount(1);
+    expect(await inner(page, 'icon').locator('.icon').evaluate((el) => getComputedStyle(el).visibility)).toBe('hidden');
+    // The arc: centred, the icon's box, the label's color (the icon color alone), the loading indicator's stroke, turning.
+    const arc = async (id: string) =>
+      inner(page, id).evaluate((el) => {
+        const arc = el.querySelector('.busy-arc')!;
+        // (Its box, not its turning ink: the rectangle around a rotated square is larger than the square.)
+        const [a, c] = [arc.getBoundingClientRect(), el.getBoundingClientRect()];
+        const circle = arc.querySelector('circle')!;
+        return { dx: a.left + a.width / 2 - (c.left + c.width / 2), dy: a.top + a.height / 2 - (c.top + c.height / 2), size: (arc as HTMLElement).offsetWidth, stroke: getComputedStyle(circle).stroke, width: getComputedStyle(circle).strokeWidth, animation: getComputedStyle(arc).animationName };
+      });
+    const filled = await arc('busy');
+    expect(Math.abs(filled.dx)).toBeLessThan(0.5);
+    expect(Math.abs(filled.dy)).toBeLessThan(0.5);
+    expect(filled.size).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-icon-size-medium'), 1);
+    expect(filled.stroke).toBe(await resolveColor(page, '--tanrei-comp-button-filled-label-color'));
+    expect(Number.parseFloat(filled.width)).toBeCloseTo(await resolveToken(page, '--tanrei-comp-loading-indicator-indicator-thickness-small'), 1);
+    expect(filled.animation).toBe('busy-turn');
+    const alone = await arc('icon');
+    expect(alone.size).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-icon-size-without-label-medium'), 1);
+    expect(alone.stroke).toBe(await resolveColor(page, '--tanrei-comp-button-text-icon-color'));
+    // Not busy: the label is drawn again at once, and the arc is gone.
+    await page.locator(button('busy')).evaluate(async (el: HTMLElement & { busy: boolean; updateComplete: Promise<unknown> }) => {
+      el.busy = false;
+      await el.updateComplete;
+    });
+    expect(await inner(page, 'busy').locator('.label').evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
+    await expect(inner(page, 'busy').locator('.busy-arc')).toHaveCount(0);
+  });
+
+  test('BTN-36: under reduced motion the busy arc does not turn: the whole circle, its opacity easing once per cycle', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await mountOne(page, [fx('busy', { variant: 'filled', busy: true, busyLabel: 'Deploying' })]);
+    const drawn = await inner(page, 'busy').evaluate((el) => {
+      const arc = el.querySelector('.busy-arc')!;
+      return { animation: getComputedStyle(arc).animationName, dash: getComputedStyle(arc.querySelector('circle')!).strokeDasharray };
+    });
+    expect(drawn).toEqual({ animation: 'busy-pulse', dash: 'none' });
+  });
+
+  test('BTN-37: a busy button keeps its focus and its place in the focus order, emits nothing by any means, exposes aria-disabled and busyLabel as its description, has busyLabel announced once when it becomes busy and nothing when it ends; an empty busyLabel is reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mountOne(page, [fx('a', { variant: 'filled' }, 'Before'), fx('busy', { variant: 'filled' }), fx('quiet', { variant: 'tonal', busy: true })]);
+    await clicks(page, 'busy');
+    await tabTo(page, page.locator(button('busy')));
+    const said: string[] = [];
+    await page.exposeFunction('said', (text: string) => said.push(text));
+    // The region exists while the button is busy: what it is given is heard.
+    await page.locator(button('busy')).evaluate((el) => {
+      let last = '';
+      new MutationObserver(() => {
+        const text = el.shadowRoot!.querySelector('[role="status"]')?.textContent ?? '';
+        if (text && text !== last) (window as any).said(text);
+        last = text;
+      }).observe(el.shadowRoot!, { childList: true, characterData: true, subtree: true });
+    });
+    // Made busy while it holds focus: it keeps it.
+    await page.locator(button('busy')).evaluate(async (el: HTMLElement & { busy: boolean; busyLabel: string; updateComplete: Promise<unknown> }) => {
+      el.busyLabel = 'Deploying';
+      el.busy = true;
+      await el.updateComplete;
+    });
+    expect(await page.evaluate(() => document.activeElement?.closest('[data-fixture]')?.getAttribute('data-fixture'))).toBe('busy');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Space');
+    await page.locator(button('busy')).click();
+    await page.locator(button('busy')).evaluate((el) => (el as HTMLElement).click());
+    expect(await clicked(page)).toBe(0);
+    await expect.poll(() => said).toEqual(['Deploying']);
+    const native = inner(page, 'busy');
+    expect(await native.getAttribute('aria-disabled')).toBe('true');
+    expect(await native.evaluate((el) => (el as HTMLButtonElement).disabled)).toBe(false);
+    expect(await native.getAttribute('aria-description')).toBe('Deploying');
+    // Focus elsewhere, Tab reaches it again: it is in the focus order.
+    await page.locator(button('busy')).evaluate((el) => (el.shadowRoot!.activeElement as HTMLElement | null)?.blur());
+    await tabTo(page, page.locator(button('busy')));
+    expect(await page.evaluate(() => document.activeElement?.closest('[data-fixture]')?.getAttribute('data-fixture'))).toBe('busy');
+    // Not busy: nothing is announced, and a press is a press again.
+    await page.locator(button('busy')).evaluate(async (el: HTMLElement & { busy: boolean; updateComplete: Promise<unknown> }) => {
+      el.busy = false;
+      await el.updateComplete;
+    });
+    expect(await native.getAttribute('aria-disabled')).toBeNull();
+    expect(await native.getAttribute('aria-description')).toBeNull();
+    await expect(page.locator(button('busy')).locator('[role="status"]')).toHaveCount(0);
+    await page.keyboard.press('Enter');
+    expect(await clicked(page)).toBe(1);
+    expect(said).toEqual(['Deploying']);
+    expect(seen.filter((w) => w.includes('BTN-37'))).toHaveLength(1);
+  });
+
+  test('BTN-38: disabled and focusable-when-disabled, the button is drawn as a disabled one and refuses every activation, but Tab and a pointer reach it, it carries aria-disabled and not the native disabled state, and it keeps focus when it is disabled while focused; a disabled fieldset still passes it', async ({ page }) => {
+    await mountOne(page, [fx('a', { variant: 'filled' }, 'Before'), fx('reachable', { variant: 'filled', disabled: true, focusableWhenDisabled: true }), fx('plain', { variant: 'filled', disabled: true }), fx('later', { variant: 'filled', focusableWhenDisabled: true })]);
+    const look = (id: string) => inner(page, id).evaluate((el) => ({ background: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color, opacity: getComputedStyle(el).opacity, cursor: getComputedStyle(el).cursor }));
+    expect(await look('reachable')).toEqual(await look('plain'));
+    await clicks(page, 'reachable');
+    await tabTo(page, page.locator(button('reachable')));
+    expect(await page.evaluate(() => document.activeElement?.closest('[data-fixture]')?.getAttribute('data-fixture'))).toBe('reachable');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Space');
+    await page.locator(button('reachable')).click();
+    await page.locator(button('reachable')).evaluate((el) => (el as HTMLElement).click());
+    expect(await clicked(page)).toBe(0);
+    const native = inner(page, 'reachable');
+    expect(await native.getAttribute('aria-disabled')).toBe('true');
+    expect(await native.evaluate((el) => (el as HTMLButtonElement).disabled)).toBe(false);
+    await expect(page.locator(button('reachable')).getByRole('button', { disabled: true })).toHaveCount(1);
+    // The focus ring shows on it from the keyboard; the plain disabled button is passed by Tab.
+    await tabTo(page, page.locator(button('reachable')));
+    expect(await native.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('solid');
+    await tab(page);
+    expect(await page.evaluate(() => document.activeElement?.closest('[data-fixture]')?.getAttribute('data-fixture'))).toBe('later');
+    // Disabled while it holds focus: it keeps it, at once and a frame later.
+    await page.locator(button('later')).evaluate(async (el: HTMLElement & { disabled: boolean; updateComplete: Promise<unknown> }) => {
+      el.disabled = true;
+      await el.updateComplete;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    });
+    expect(await page.evaluate(() => document.activeElement?.closest('[data-fixture]')?.getAttribute('data-fixture'))).toBe('later');
+    expect(await inner(page, 'later').getAttribute('aria-disabled')).toBe('true');
+    // The host carries no `disabled` attribute (the platform's word, which would take focus away); the property says it.
+    expect(await page.locator(button('later')).evaluate((el) => [el.hasAttribute('disabled'), (el as any).disabled])).toEqual([false, true]);
+    // A disabled button made reachable gives up the attribute the page wrote, and is reached by Tab.
+    expect(await page.locator(button('reachable')).evaluate((el) => [el.hasAttribute('disabled'), (el as any).disabled])).toEqual([false, true]);
+    // In a disabled fieldset it leaves the focus order, as the platform's own controls do.
+    await page.locator(button('reachable')).evaluate(async (el: HTMLElement & { updateComplete: Promise<unknown> }) => {
+      const set = document.createElement('fieldset');
+      set.disabled = true;
+      el.before(set);
+      set.append(el);
+      el.removeAttribute('disabled');
+      (el as any).disabled = false;
+      await el.updateComplete;
+      await el.updateComplete;
+    });
+    expect(await native.evaluate((el) => (el as HTMLButtonElement).disabled)).toBe(true);
+  });
+
+  test('BTN-35: inline, the button is a phrase of its sentence — the text’s font and line height, no padding and no height of its own, the line kept as high as it is; the link color, underlined as links are; a hovered box no taller than the text; no extended target; still a button', async ({ page }) => {
+    await mountOne(page, [
+      fx('p', {}, '', {
+        content: '<p id="line" style="margin:0; font: var(--tanrei-sys-typescale-body-font)">Change any value, or <tanrei-button variant="inline" id="act">show every token</tanrei-button> and <a class="tanrei-link" id="link" href="#t">read why</a>.</p><p id="bare" style="margin:0; font: var(--tanrei-sys-typescale-body-font)">Change any value, or show every token and read why.</p>',
+      }),
+    ]);
+    const act = page.locator('#act');
+    const part = act.locator('[part="container"]');
+    const height = (id: string) => page.locator(`#${id}`).evaluate((el) => el.getBoundingClientRect().height);
+    expect(await height('line')).toBe(await height('bare'));
+    const drawn = await part.evaluate((el) => {
+      const s = getComputedStyle(el);
+      const label = getComputedStyle(el.querySelector('.label')!);
+      const p = getComputedStyle(document.getElementById('line')!);
+      return { font: s.font === p.font, lineHeight: s.lineHeight === p.lineHeight, padding: s.padding, height: el.getBoundingClientRect().height, line: Number.parseFloat(p.lineHeight), color: s.color, underline: label.textDecorationLine, before: getComputedStyle(el, '::before').content, role: el.localName };
+    });
+    expect(Math.abs(drawn.height - drawn.line)).toBeLessThan(0.5);
+    expect({ ...drawn, height: 0, line: 0 }).toEqual({ font: true, lineHeight: true, padding: '0px', height: 0, line: 0, color: await resolveColor(page, '--tanrei-sys-color-link'), underline: 'underline', before: 'none', role: 'button' });
+    // Hovered: the state's container, on the text's own box — as high as the link's box, lower than the line.
+    await act.hover();
+    await expect.poll(() => part.locator('.label').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-inline-hovered-container-color'));
+    const [box, link, line] = [await part.locator('.label').boundingBox(), await page.locator('#link').boundingBox(), await page.locator('#line').boundingBox()];
+    expect(await part.locator('.label').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-inline-hovered-container-color'));
+    expect(box!.height).toBeCloseTo(link!.height, 0);
+    expect(box!.height).toBeLessThan(line!.height);
+    // The system's choice for links decides the underline: hover drops it at rest, never always.
+    await rootTokens(page, { '--tanrei-sys-behavior-link-underline': 'hover' });
+    await page.mouse.move(0, 0);
+    await expect.poll(() => part.locator('.label').evaluate((el) => getComputedStyle(el).textDecorationLine)).toBe('none');
+    await act.hover();
+    await expect.poll(() => part.locator('.label').evaluate((el) => getComputedStyle(el).textDecorationLine)).toBe('underline');
+    await rootTokens(page, { '--tanrei-sys-behavior-link-underline': 'never' });
+    await expect.poll(() => part.locator('.label').evaluate((el) => getComputedStyle(el).textDecorationLine)).toBe('none');
+    // A button: Enter and Space press it.
+    await act.evaluate((el) => {
+      (window as any).clicks = 0;
+      el.addEventListener('click', () => (window as any).clicks++);
+    });
+    await act.focus();
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Space');
+    expect(await page.evaluate(() => (window as any).clicks)).toBe(2);
   });
 });

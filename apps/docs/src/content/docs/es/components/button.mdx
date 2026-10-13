@@ -2,7 +2,7 @@
 title: Botón
 description: Permite realizar una acción, activar y desactivar algo o ir a un destino con un solo toque o clic.
 translationOf: components/button.mdx
-sourceHash: d3c82e9e9c52acaafaa279ddf1b5083da7264b09
+sourceHash: c531b01bc29d2078bf346b8fcc6a590e95463b3f
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -32,7 +32,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
     ```html
     <tanrei-button variant="filled">Desplegar</tanrei-button>
     <tanrei-button variant="outlined" size="small">Cancelar</tanrei-button>
-    <tanrei-button disabled>Desplegando…</tanrei-button>
+    <tanrei-button busy busy-label="Desplegando">Desplegar</tanrei-button>
 
     <!-- Con href es un enlace, dibujado como el mismo botón. -->
     <tanrei-button variant="tonal" href="/pricing/">Ver precios</tanrei-button>
@@ -141,6 +141,26 @@ Un botón de solo icono tiene tres anchos. Su altura nunca cambia con ellos, y u
 </DemoFrame>
 
 Un botón estrecho mide exactamente su glifo más el margen interior de cada lado, así que el glifo nunca toca el borde de la cápsula, y el botón sigue al glifo cuando un sistema de diseño le cambia el tamaño. Se dibuja más estrecho que el objetivo mínimo, pero su área de pulsación no lo es: el objetivo se extiende más allá de sus bordes visibles. Déjale espacio junto al botón, o coloca los botones estrechos en una [barra de herramientas](/es/components/toolbar/) o en un [grupo de botones](/es/components/button-group/), que espacian sus elementos.
+
+### Ocupado, y deshabilitado pero alcanzable
+
+Mientras la acción que inició un botón está en curso, define `busy` en lugar de `disabled`. Un botón ocupado conserva su tamaño, su lugar en el orden del foco y el foco de la persona. Dibuja el arco del indicador de carga en lugar de su etiqueta y rechaza cualquier pulsación, así que un botón de envío no puede enviar su formulario dos veces; también detiene Enter en los campos del formulario. La tecnología de apoyo oye `busy-label` («Desplegando») una vez, cuando el botón pasa a estar ocupado. Di qué ha pasado cuando la acción termine: el botón no anuncia nada entonces.
+
+Un botón deshabilitado sale del orden del foco, así que quien usa un teclado o un lector de pantalla puede no encontrarlo nunca, ni saber por qué no hace nada. Donde la persona puede hacer que la acción esté disponible, como un botón de enviar mientras el mensaje está vacío, añade `focusable-when-disabled`: el botón se dibuja y se anuncia como deshabilitado y no hace nada, pero Tab sigue llegando a él, así que un [tooltip](/es/components/tooltip/) o una descripción pueden decir por qué.
+
+<DemoFrame label="Ocupado, y deshabilitado pero alcanzable" plain>
+  <tanrei-button busy busy-label="Desplegando">Desplegar</tanrei-button>
+  <tanrei-button variant="text" busy busy-label="Guardando" label="Guardar"><span slot="icon">save</span></tanrei-button>
+  <tanrei-button disabled focusable-when-disabled>Enviar</tanrei-button>
+</DemoFrame>
+
+### Una acción dentro de una frase
+
+Una acción que está en mitad de una frase y no lleva a ninguna parte, como «mostrar todos los tokens», es la variante `inline`. No tiene contenedor ni margen interior, y toma la fuente y el interlineado del texto que la rodea, de modo que la línea conserva su altura. Se dibuja en el color de los enlaces y subrayada como el sistema de diseño subraya los enlaces, así que no se distingue de las palabras de al lado solo por el color. Sus palabras se quedan en una sola línea. Como con un enlace en una frase, su objetivo tiene el tamaño de su texto. Lo que lleva a la persona a otro lugar es un [enlace](/es/components/link/), no un botón inline.
+
+<DemoFrame label="Un botón inline en una frase" plain>
+  <p class="tanrei-text-body">Cambia aquí cualquier valor, o <tanrei-button variant="inline">muestra todos los tokens</tanrei-button> para editarlos uno a uno.</p>
+</DemoFrame>
 
 ### Un botón con destino es un enlace
 
@@ -312,7 +332,7 @@ Cuando la misma palabra se dibuja en varios botones, como «Quitar» en cada fil
 
 Usa un botón para una acción que ocurre donde está la persona: enviar un formulario, guardar, iniciar un proceso, confirmar un diálogo. En la web, un botón que envía su formulario lo dice con `type` (consulta [En un formulario](#en-un-formulario)).
 
-Si activarlo solo lleva a la persona a otro lugar, es un enlace. Cuando ese destino merece el énfasis de un botón, como «Empezar» en una página de inicio o «Ver todo» al final de una lista, conserva el botón y dale `href`: entonces es un enlace, con el rol, las teclas y el comportamiento en el navegador de un enlace (consulta [Un botón con destino es un enlace](#un-botón-con-destino-es-un-enlace)). Un destino dentro de una frase sigue siendo un enlace de texto corriente.
+Si activarlo solo lleva a la persona a otro lugar, es un enlace. Cuando ese destino merece el énfasis de un botón, como «Empezar» en una página de inicio o «Ver todo» al final de una lista, conserva el botón y dale `href`: entonces es un enlace, con el rol, las teclas y el comportamiento en el navegador de un enlace (consulta [Un botón con destino es un enlace](#un-botón-con-destino-es-un-enlace)). Un destino dentro de una frase sigue siendo un enlace de texto corriente, y una acción dentro de una frase es la variante `inline` (consulta [Una acción dentro de una frase](#una-acción-dentro-de-una-frase)).
 
 ### Cómo elegir una variante
 
@@ -325,6 +345,7 @@ Las variantes expresan énfasis, y el énfasis es un presupuesto. Gástalo una v
 | Elevated | Medio | Una acción que debe separarse de un fondo recargado o con motivos. |
 | Outlined | Medio | Acciones del mismo peso junto a un botón filled, como Cancelar. |
 | Text | Bajo | Las acciones menos urgentes y las acciones en línea de tarjetas, diálogos y barras de herramientas. |
+| Inline | Parte del texto | Una acción dentro de una frase. Se dibuja como un fragmento de la frase, no como un control a su lado. |
 
 Un botón sin `variant` es filled, con una excepción: colocado como acción de un [diálogo](/es/components/dialog/) o de una [hoja lateral](/es/components/side-sheet/), toma la variante de ese anfitrión, tonal en el sistema predeterminado, de modo que solo defines una variante en la acción que debe verse distinta. El botón de cierre de una hoja lateral toma del mismo modo la variante de botón de cierre de la hoja.
 
@@ -341,7 +362,8 @@ Un botón sin `variant` es filled, con una excepción: colocado como acción de 
 - No navegues desde el controlador de clic de un botón. Un control con destino es un enlace: define `href` para que se pueda abrir en una pestaña nueva, copiar y anunciar como enlace.
 - No des `href` a algo que actúa sobre la página, como Guardar o Eliminar, y no abras una pestaña nueva sin decirlo en `targetLabel`.
 - No pongas un botón filled en cada fila de una lista. Es preferible usar botones de texto, o una sola acción en la parte superior que se aplique a la selección.
-- No deshabilites un botón como única forma de comunicar un problema de validación. Mantenlo habilitado y explica qué falta cuando se pulse.
+- No deshabilites un botón como única forma de comunicar un problema de validación. Mantenlo habilitado y explica qué falta cuando se pulse, o mantenlo alcanzable con `focusable-when-disabled` y di por qué.
+- No deshabilites un botón mientras su acción está en curso. Define `busy`, para que el foco se quede en él.
 - No trunques las etiquetas. Deja que el botón crezca o escribe una etiqueta más corta.
 - No dejes un botón de solo icono sin `label`: el glifo no es un nombre.
 - No juntes a mano botones estrechos de solo icono borde con borde. Sus objetivos se extienden más allá de sus bordes y se solaparían.
@@ -360,16 +382,17 @@ Las etiquetas no llevan puntuación final. Procura que tengan una o dos palabras
 - Un conmutador es un botón con un estado pulsado, no una casilla de verificación ni un interruptor, y su nombre no cambia con su estado.
 - Un enlace que abre un contexto nuevo lo dice dos veces: con la marca `open_in_new` para quienes la ven, y con `targetLabel` como descripción del enlace para quienes no. La marca en sí queda oculta para la tecnología de apoyo.
 - Con `label` junto a una etiqueta dibujada expone un solo nombre, el `label`, en un solo control. El texto dibujado no se lee una segunda vez.
-- En la web, Enter en un campo pulsa el botón predeterminado del formulario, un botón predeterminado deshabilitado detiene esa tecla, y un botón dentro de un fieldset deshabilitado queda deshabilitado con él.
+- En la web, Enter en un campo pulsa el botón predeterminado del formulario, un botón predeterminado deshabilitado u ocupado detiene esa tecla, y un botón dentro de un fieldset deshabilitado queda deshabilitado con él.
+- Un botón ocupado, y un botón deshabilitado con `focusable-when-disabled`, permanecen en el orden del foco y conservan el foco. Comunican a la tecnología de apoyo que ahora no se pueden activar, y un botón ocupado anuncia `busy-label` una vez.
 - Su área de pulsación cumple el objetivo mínimo incluso en el tamaño pequeño y en el ancho estrecho, sin que el botón se dibuje más grande.
 - Muestra el indicador de foco de separación y anillo para el foco del teclado, sin animación.
-- Sus colores proceden de pares de roles cuyo contraste se verifica en todos los niveles de contraste. El contorno de un botón outlined es la línea fina del sistema predeterminado, que es discreta a propósito: lo que identifica el control son la etiqueta y el icono, no su borde. Un producto que necesite un borde más marcado define `comp.button.outlined.outline.color` como `sys.color.outline` en una capa.
+- Sus colores proceden de pares de roles cuyo contraste se verifica en todos los niveles de contraste. El contorno de un botón outlined es la línea fina del sistema predeterminado, que es discreta a propósito con el contraste estándar: lo que identifica el control son la etiqueta y el icono, no su borde. Con contraste medio y alto, la línea fina sube a 3:1 y 4.5:1. Un producto que necesite un borde más marcado define `comp.button.outlined.outline.color` como `sys.color.outline` en una capa.
 - Con tamaños de texto mayores, el contenedor crece y la etiqueta nunca se trunca.
 
 ### Qué debes hacer tú
 
 - Escribe una etiqueta que tenga sentido fuera de contexto. «Eliminar proyecto» es mejor que «Eliminar» junto al nombre de un proyecto, porque quien usa un lector de pantalla puede oír el botón por sí solo.
-- Si una acción inicia un proceso largo, mueve el foco o anuncia el progreso. Deshabilitar el botón, por sí solo, no le dice nada a quien usa un lector de pantalla.
+- Si una acción inicia un proceso largo, define `busy` con un `busy-label`, y anuncia el resultado cuando termine. Deshabilitar el botón, por sí solo, no le dice nada a quien usa un lector de pantalla, y le quita el foco.
 - No dependas del color de la variante para transmitir un significado, como la intención destructiva. Dilo en la etiqueta.
 - Da nombre a un botón de enlace según adónde lleva: «Ver factura», no «Haz clic aquí». Cuando `target` sea `new`, escribe `targetLabel`.
 - Donde varios botones dibujen la misma palabra, da a cada uno un `label` que contenga la palabra y diga sobre qué actúa el botón (consulta [Un nombre más largo que la etiqueta](#un-nombre-más-largo-que-la-etiqueta)).

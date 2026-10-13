@@ -9,6 +9,9 @@
   "builtFrom": [
     "button"
   ],
+  "uses": [
+    "tooltip"
+  ],
   "anatomy": [
     {
       "id": "container",
@@ -135,7 +138,7 @@
     },
     {
       "id": "CPY-7",
-      "text": "THE copy button SHALL NOT move or resize anything when it changes form: the three glyphs are drawn in one box; WHILE iconOnly is false the label's box SHALL be as wide as the widest of label, copiedLabel and failedLabel at all times, the shown text at its start; the button's width and height SHALL be the same in every form; and the copy button SHALL open no tooltip, popover or other surface of its own.",
+      "text": "THE copy button SHALL NOT move or resize anything when it changes form: the three glyphs are drawn in one box; WHILE iconOnly is false the label's box SHALL be as wide as the widest of label, copiedLabel and failedLabel at all times, the shown text at its start; the button's width and height SHALL be the same in every form; and the copy button SHALL open no popover, menu or other surface of its own but the confirmation of CPY-18, which takes no room.",
       "verify": "A test reads the button's box at rest, in the copied form and in the failed form of the fixture labelled-long-confirmation: the three are equal."
     },
     {
@@ -179,6 +182,11 @@
     {
       "id": "CPY-17",
       "text": "WHILE label, copiedLabel or failedLabel is empty THE copy button SHALL still render and copy, and in debug builds report which is missing: an icon-only button without label has no accessible name. WHEN variant or size names a value the Button does not have in the active design system THE copy button SHALL be drawn with its own default for that prop, and in debug builds report the unknown value."
+    },
+    {
+      "id": "CPY-18",
+      "text": "WHEN the copy button takes the copied or the failed form WHILE iconOnly is true THE copy button SHALL show copiedLabel or failedLabel as a plain Tooltip (TIP) of its button — drawn from the Tooltip's own tokens and placed as it places itself, at the top by default — for as long as the form lasts, and SHALL close it at the return to rest; each answer of CPY-8 SHALL show it anew. It SHALL take no focus and no room, move nothing, and SHALL NOT open or close on hover, focus or a long press; it SHALL be closed by Escape and by another tooltip that opens, as any tooltip is, and SHALL be kept from assistive technology, which hears the words once, from the announcement of CPY-5. WHILE iconOnly is false THE copy button SHALL show no such bubble: its label says it.",
+      "verify": "Press the fixture icon: the check shows and \"Copied\" stands above the button for comp.copy-button.confirmation.duration, then both go; focus stays on the button and a screen reader says \"Copied\" once. Press labelled: its label reads \"Copied\" and no bubble opens."
     }
   ],
   "accessibility": {
@@ -200,7 +208,7 @@
       "The confirmation is a status message (WCAG 4.1.3): it reaches assistive technology without moving focus. The glyph change alone would say nothing to a person who cannot see it, and a changed name is not announced on every platform, which is why the icon-only form's name stays and the live region speaks.",
       "The confirmation is not given by color: the glyph changes shape (check, error) in the Button's own icon color, and the words are announced. No success or error color is used.",
       "The confirmation returns by itself after comp.copy-button.confirmation.duration. Nothing a person must act on is in it, so no timing control is needed (WCAG 2.2.1); a failure a person must act on is the product's to show, on copyfailed, in something that stays.",
-      "A sighted person using the icon-only form sees the check and no words. Where the words matter to them too, use the labelled form, or show the product's own message on copied.",
+      "A sighted person using the icon-only form sees the check and, for as long as it shows, the same words in a bubble drawn as a plain Tooltip (CPY-18): the change of a glyph alone can be missed by a person who does not know the check, or who reads the page magnified. The bubble is not read a second time: the announcement of CPY-5 is the one assistive technology hears.",
       "The labelled form's visible text is its name (WCAG 2.5.3) in every form; its width is reserved for the widest of the three texts, so neighbouring controls do not move under a pointer about to press them (CPY-7).",
       "Copying needs the platform's permission and, on the web, a secure page and a press by the person: a copy asked for by script alone may be refused, and is then a failure (CPY-4)."
     ]

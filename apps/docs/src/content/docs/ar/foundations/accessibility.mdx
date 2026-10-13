@@ -2,7 +2,7 @@
 title: إمكانية الوصول
 description: متطلبات إمكانية الوصول التي يبنيها Tanrei في الرموز ومواصفات المكوّنات، والفحوص التي تفرضها.
 translationOf: foundations/accessibility.mdx
-sourceHash: e94f88f875361d6db6bddce65fd01e14b10dc758
+sourceHash: a2c14cfcd30a37f95bfe67ab8c79acd0f27b54b4
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -27,6 +27,7 @@ import DimensionScale from '../../../../components/tokens/DimensionScale.astro';
 
 - كل زوج أدوار `(X, on-X)` لا يقل عن 4.5:1؛
 - `outline` لا يقل عن 3:1 مقابل كل دور سطح؛
+- في النظام الافتراضي عند التباين المتوسط والعالي، `outline-variant` لا يقل عن 3:1 و 4.5:1 مقابل كل دور سطح، ويبقى `outline` أقوى منه؛
 - `focus-ring` لا يقل عن 3:1 مقابل الأسطح.
 
 تمنع قواعد المشروع تخفيف عتبة لكي ينجح فحص.

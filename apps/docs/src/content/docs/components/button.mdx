@@ -30,7 +30,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     ```html
     <tanrei-button variant="filled">Deploy</tanrei-button>
     <tanrei-button variant="outlined" size="small">Cancel</tanrei-button>
-    <tanrei-button disabled>Deploying…</tanrei-button>
+    <tanrei-button busy busy-label="Deploying">Deploy</tanrei-button>
 
     <!-- With href it is a link, drawn as the same button. -->
     <tanrei-button variant="tonal" href="/pricing/">See pricing</tanrei-button>
@@ -139,6 +139,26 @@ An icon-only button has three widths. Its height never changes with them, and a 
 </DemoFrame>
 
 A narrow button is exactly its glyph and the inset on each side, so the glyph always stays clear of the capsule's edge, and the button follows the glyph wherever a design system re-sizes it. It is drawn narrower than the minimum target, but its hit area is not: the target reaches past its visible edges. Leave room for it beside the button, or put narrow buttons in a [toolbar](/components/toolbar/) or a [button group](/components/button-group/), which space their items.
+
+### Busy, and disabled but reachable
+
+While the action a button started is under way, set `busy` rather than `disabled`. A busy button keeps its size, its place in the focus order and the person's focus. It draws the loading indicator's arc in place of its label, and refuses every press, so a submit button cannot send its form twice; it also stops Enter in the form's fields. Assistive technology hears `busy-label` ("Deploying") once, when the button becomes busy. Say what happened when the action ends: the button announces nothing then.
+
+A disabled button leaves the focus order, so a keyboard or screen-reader user may never find it, or learn why it does nothing. Where a person can make the action available, such as a send button while the message is empty, add `focusable-when-disabled`: the button is drawn and announced as disabled and does nothing, but Tab still reaches it, so a [tooltip](/components/tooltip/) or a description can say why.
+
+<DemoFrame label="Busy, and disabled but reachable" plain>
+  <tanrei-button busy busy-label="Deploying">Deploy</tanrei-button>
+  <tanrei-button variant="text" busy busy-label="Saving" label="Save"><span slot="icon">save</span></tanrei-button>
+  <tanrei-button disabled focusable-when-disabled>Send</tanrei-button>
+</DemoFrame>
+
+### An action inside a sentence
+
+An action that sits in the middle of a sentence and leads nowhere, such as "show every token", is the `inline` variant. It has no container and no inset, and takes the font and line height of the text around it, so the line keeps its height. It is drawn in the link color and underlined as the design system underlines links, so it is not told from the words beside it by color alone. Its words stay on one line. As with a link in a sentence, its target is the size of its text. Something that takes the person somewhere is a [link](/components/link/), not an inline button.
+
+<DemoFrame label="An inline button in a sentence" plain>
+  <p class="tanrei-text-body">Change any value here, or <tanrei-button variant="inline">show every token</tanrei-button> to edit them one by one.</p>
+</DemoFrame>
 
 ### A button with a destination is a link
 
@@ -310,7 +330,7 @@ When the same word is drawn on several buttons, such as "Remove" in every row of
 
 Use a button for an action that happens where the person is: submitting a form, saving, starting a process, confirming a dialog. On the web, a button that sends its form says so with `type` (see [In a form](#in-a-form)).
 
-If activating it only takes the person somewhere else, it is a link. When that destination deserves a button's emphasis, such as "Get started" on a landing page or "View all" at the end of a list, keep the button and give it `href`: it then is a link, with a link's role, keys and browser behaviour (see [A button with a destination is a link](#a-button-with-a-destination-is-a-link)). A destination inside a sentence stays an ordinary text link.
+If activating it only takes the person somewhere else, it is a link. When that destination deserves a button's emphasis, such as "Get started" on a landing page or "View all" at the end of a list, keep the button and give it `href`: it then is a link, with a link's role, keys and browser behaviour (see [A button with a destination is a link](#a-button-with-a-destination-is-a-link)). A destination inside a sentence stays an ordinary text link, and an action inside a sentence is the `inline` variant (see [An action inside a sentence](#an-action-inside-a-sentence)).
 
 ### Choosing a variant
 
@@ -323,6 +343,7 @@ Variants express emphasis, and emphasis is a budget. Spend it once per view.
 | Elevated | Medium | An action that must separate from a busy or patterned background. |
 | Outlined | Medium | Actions of equal weight beside a filled button, such as Cancel. |
 | Text | Low | The least pressing actions, inline actions in cards, dialogs and toolbars. |
+| Inline | Part of the text | An action inside a sentence. It is drawn as a phrase of the sentence, not as a control beside it. |
 
 A button without a `variant` is filled, with one exception: placed as a [dialog](/components/dialog/)'s or a [side sheet](/components/side-sheet/)'s action, it takes that host's variant, tonal in the default system, so you set a variant only on the action that should look different. A side sheet's close button takes the sheet's close-button variant the same way.
 
@@ -339,7 +360,8 @@ A button without a `variant` is filled, with one exception: placed as a [dialog]
 - Don't navigate from a button's click handler. A control with a destination is a link: set `href`, so that it can be opened in a new tab, copied and announced as a link.
 - Don't give `href` to something that acts on the page, such as Save or Delete, and don't open a new tab without saying so in `targetLabel`.
 - Don't put a filled button in every row of a list. Prefer text buttons, or one action at the top that applies to the selection.
-- Don't disable a button as the only way to communicate a validation problem. Keep it enabled and explain what is missing when it is pressed.
+- Don't disable a button as the only way to communicate a validation problem. Keep it enabled and explain what is missing when it is pressed, or keep it reachable with `focusable-when-disabled` and say why.
+- Don't disable a button while its action is under way. Set `busy`, so that focus stays on it.
 - Don't truncate labels. Let the button grow, or write a shorter label.
 - Don't leave an icon-only button without `label`: the glyph is not a name.
 - Don't pack narrow icon-only buttons edge to edge by hand. Their targets reach past their edges and would overlap.
@@ -358,16 +380,17 @@ Labels have no trailing punctuation. Aim for one or two words. Write them as eac
 - A toggle is a button with a pressed state, not a checkbox or a switch, and its name does not change with its state.
 - A link that opens a new context says so twice: the `open_in_new` mark for people who see it, and `targetLabel` as the link's description for people who do not. The mark itself is hidden from assistive technology.
 - With `label` beside a drawn label it exposes one name, the `label`, on one control. The drawn text is not read a second time.
-- On the web, Enter in a field presses the form's default button, a disabled default button stops that key, and a button in a disabled fieldset is disabled with it.
+- On the web, Enter in a field presses the form's default button, a disabled or busy default button stops that key, and a button in a disabled fieldset is disabled with it.
+- A busy button, and a disabled button with `focusable-when-disabled`, stay in the focus order and keep focus. They tell assistive technology that they cannot be activated now, and a busy button announces `busy-label` once.
 - Its hit area meets the minimum target even at the small size and at the narrow width, without the button being drawn any larger.
 - It shows the gap-then-ring focus indicator for keyboard focus, without animation.
-- Its colors come from role pairs whose contrast is verified at every contrast level. The outline of an outlined button is the default system's hairline, which is deliberately quiet: the label and the icon identify the control, not its edge. A product that needs a stronger edge sets `comp.button.outlined.outline.color` to `sys.color.outline` in a layer.
+- Its colors come from role pairs whose contrast is verified at every contrast level. The outline of an outlined button is the default system's hairline, which is deliberately quiet at standard contrast: the label and the icon identify the control, not its edge. At medium and high contrast the hairline is raised to 3:1 and 4.5:1. A product that needs a stronger edge sets `comp.button.outlined.outline.color` to `sys.color.outline` in a layer.
 - At larger text sizes the container grows and the label never truncates.
 
 ### What you need to do
 
 - Write a label that makes sense out of context. "Delete project" is better than "Delete" beside a project name, because a screen reader user may hear the button alone.
-- If an action starts a long process, move focus or announce progress. Disabling the button on its own tells a screen reader user nothing.
+- If an action starts a long process, set `busy` with a `busy-label`, and announce the result when it ends. Disabling the button on its own tells a screen reader user nothing, and drops their focus.
 - Do not rely on the variant's color to convey meaning, such as destructive intent. Say it in the label.
 - Name a link button for where it goes: "View invoice", not "Click here". When `target` is `new`, write `targetLabel`.
 - Where several buttons draw the same word, give each a `label` that contains the word and says what the button acts on (see [A name longer than the label](#a-name-longer-than-the-label)).

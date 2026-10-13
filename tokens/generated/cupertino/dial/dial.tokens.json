@@ -511,13 +511,13 @@
                 "amount": {
                   "light": [
                     8,
-                    14,
-                    30
+                    44,
+                    56
                   ],
                   "dark": [
                     14,
-                    22,
-                    40
+                    36,
+                    48
                   ]
                 }
               }
@@ -672,6 +672,9 @@
             "tanrei.comp.button.text.disabled.container.color": {
               "$value": "{tanrei.comp.button.text.container.color}"
             },
+            "tanrei.comp.button.inline.disabled.container.color": {
+              "$value": "{tanrei.comp.button.inline.container.color}"
+            },
             "tanrei.comp.checkbox.unselected.disabled.box.color": {
               "$value": "{tanrei.comp.checkbox.unselected.box.color}"
             },
@@ -762,6 +765,12 @@
             },
             "tanrei.comp.button.text.disabled.selected.container.color": {
               "$value": "{tanrei.comp.button.text.selected.container.color}"
+            },
+            "tanrei.comp.button.inline.disabled.unselected.container.color": {
+              "$value": "{tanrei.comp.button.inline.unselected.container.color}"
+            },
+            "tanrei.comp.button.inline.disabled.selected.container.color": {
+              "$value": "{tanrei.comp.button.inline.selected.container.color}"
             },
             "tanrei.comp.button.outlined.disabled.unselected.container.color": {
               "$value": "{tanrei.comp.button.outlined.unselected.container.color}"

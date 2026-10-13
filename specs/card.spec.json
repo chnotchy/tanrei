@@ -138,7 +138,7 @@
     },
     {
       "id": "CRD-8",
-      "text": "WHEN the card is pressed by pointer, touch, Enter or Space THE card SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+      "text": "WHEN the card is pressed by pointer, touch, Enter or Space THE card SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner. A press — held, or moved with the pointer down — SHALL NOT select the card's text nor start a drag of it: the card is one action, as a button is, and the platform keeps a button's text from selection."
     },
     {
       "id": "CRD-9",

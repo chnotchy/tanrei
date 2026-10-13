@@ -2,7 +2,7 @@
 title: Botón de copiar
 description: Un botón que copia un texto dado con una sola pulsación y lo confirma, o dice que no ha podido. Lo dibuja Button y nunca mueve el diseño.
 translationOf: components/copy-button.mdx
-sourceHash: 11c3c4ca402e08be52105dad6861f24385f8af29
+sourceHash: 012770de698440e0cbe97e03a67aa5abd3c3a7f7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -109,7 +109,7 @@ Los eventos son `copied` y `copyfailed`. No se llaman `copy`, porque `copy` es e
 
 | Forma | Qué muestra | Úsalo cuando |
 | --- | --- | --- |
-| **De solo icono** | Solo el glifo. Una persona que ve percibe la marca de verificación y ninguna palabra | Junto a lo que copia: un comando, un bloque de código, un valor en una fila |
+| **De solo icono** | El glifo y, mientras muestra la marca de verificación, las palabras en una pequeña burbuja encima | Junto a lo que copia: un comando, un bloque de código, un valor en una fila |
 | **Con etiqueta** | El glifo y las palabras, que cambian con la forma | La copia es una de las acciones de la vista, o las palabras importan a todo el mundo |
 
 ### Recomendado
@@ -121,7 +121,7 @@ Los eventos son `copied` y `copyfailed`. No se llaman `copy`, porque `copy` es e
 ### Evita
 
 - No muestres el botón solo al pasar el cursor. Así no se puede encontrar con el tacto.
-- No abras un tooltip ni un snackbar por una copia correcta. El botón ya la confirma.
+- No abras un tooltip ni un snackbar propios por una copia correcta. El botón ya la confirma, también con palabras.
 - No lo uses para copiar nada que no sea texto.
 
 ## Accesibilidad
@@ -133,6 +133,7 @@ Los eventos son `copied` y `copyfailed`. No se llaman `copy`, porque `copy` es e
 - Es un botón, con el indicador de foco de Button, su objetivo mínimo y sus teclas (Enter y Espacio).
 - La forma de solo icono recibe su nombre de `label` en todas las formas. El nombre no cambia cuando cambia el glifo.
 - El resultado se anuncia mediante una región activa: `copied-label` de forma cortés y `failed-label` de forma asertiva, en cada pulsación y sin mover el foco.
+- La forma de solo icono muestra también esas palabras en una burbuja dibujada como un [tooltip](/es/components/tooltip/) plain, mientras dura la confirmación. No toma el foco, no se lee una segunda vez y Escape la cierra.
 - La confirmación es una figura y unas palabras, no un color.
 - En un diseño de derecha a izquierda, el glifo de copiar se refleja, como indica el conjunto de iconos. La marca de verificación y la marca de error, no.
 
