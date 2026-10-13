@@ -251,14 +251,14 @@ test.describe('the product’s words', () => {
     const seen = warnings(page);
     await mount(page, [field('required')]);
     const about = (key: string) => seen.filter((line) => line.startsWith('[tanrei] setWords():') && line.includes(`${key} `));
-    await setWords(page, { movedText: '{headline}: {position} of {count}', imageCountText: '{count}枚中{position}枚目', entryRemoveLabel: 'Remove {entry}', entryAddedText: 'Added', entriesAddedText: '{{{count}}} {{added}}' });
+    await setWords(page, { movedText: '{label}: {position} of {count}', imageCountText: '{count}枚中{position}枚目', entryRemoveLabel: 'Remove {entry}', entryAddedText: 'Added', entriesAddedText: '{{{count}}} {{added}}' });
     expect(seen.filter((line) => line.startsWith('[tanrei] setWords():')), 'sentences that fit, a place left out and doubled braces: nothing').toEqual([]);
-    await setWords(page, { movedText: '{headline}: {place} of {count}' });
+    await setWords(page, { movedText: '{label}: {place} of {count}' });
     expect(about('movedText')).toHaveLength(1);
-    expect(about('movedText')[0]).toContain('movedText holds {place}, which is not a place of it ({headline}, {position}, {count})');
+    expect(about('movedText')[0]).toContain('movedText holds {place}, which is not a place of it ({label}, {position}, {count})');
     expect(about('movedText')[0]).toContain('it is used as it is written');
     // Given again in another language's set: the same fault of the same key is said once on a page.
-    await setWords(page, { movedText: '{headline}: {place} of {count}' }, { lang: 'ja' });
+    await setWords(page, { movedText: '{label}: {place} of {count}' }, { lang: 'ja' });
     expect(about('movedText')).toHaveLength(1);
     // The word was given: it is kept, and it is not missing.
     expect(await missingWords(page)).not.toContain('movedText');

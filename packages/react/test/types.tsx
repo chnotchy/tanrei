@@ -150,7 +150,7 @@ export const details = (
 // A union detail is narrowed by the key it has: `value` for a single selection, `values` for a multiple one.
 export const lists = (
   <List selection="single" label="Theme" onChange={(event) => use('value' in event.detail ? event.detail.value : event.detail.values)}>
-    <ListItem headline="Light" value="light" />
+    <ListItem value="light">Light</ListItem>
   </List>
 );
 

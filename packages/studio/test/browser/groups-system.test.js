@@ -17,17 +17,15 @@ studioTest('Typefaces: add by typing, reorder by keyboard, remove, generic, plat
   await saved((layer) => layer.tokens?.['tanrei.ref.typeface.brand']?.$value.includes('Acme Grotesk Nowhere'), 'family added');
   assert.deepEqual(onDisk().tokens['tanrei.ref.typeface.brand'], { $value: ['Inter', 'Noto Sans JP', 'Noto Sans', 'Acme Grotesk Nowhere', 'system-ui', 'sans-serif'], reason: 'Brand typeface.' });
 
-  // Reorder with the keyboard: "Move up" of the new family, Enter three times.
-  // (The list puts focus back on the button after each move: the next press waits for it. test/browser/typeface-stack.test.js
-  // holds where focus is and what is announced.)
-  await brand.locator('[data-family="Acme Grotesk Nowhere"] .move.up').focus();
-  for (let i = 0; i < 3; i += 1) {
-    await page.keyboard.press('Enter');
-    await saved((layer) => layer.tokens['tanrei.ref.typeface.brand'].$value[2 - i] === 'Acme Grotesk Nowhere', `moved up to place ${3 - i}`);
-    await until(() => page.evaluate(() => Boolean(document.activeElement?.closest('[data-family]')?.shadowRoot.activeElement)), 'focus is back on a move button');
-  }
+  // Reorder with the keyboard: Space on the new family's handle lifts it, Up Arrow three times carries it to the top,
+  // Space drops it. (test/browser/typeface-stack.test.js holds the menu, focus and what is announced.)
+  await brand.locator('[data-family="Acme Grotesk Nowhere"]').evaluate((item) => item.focus());
+  await page.keyboard.press('Space');
+  for (let i = 0; i < 3; i += 1) await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('Space');
+  await saved((layer) => layer.tokens['tanrei.ref.typeface.brand'].$value[0] === 'Acme Grotesk Nowhere', 'moved to the top');
+  await until(() => page.evaluate(() => document.activeElement?.closest('[data-family]')?.getAttribute('data-family') === 'Acme Grotesk Nowhere'), 'focus stays on the moved family');
   assert.match(await css(headline, 'font-family'), /^"Acme Grotesk Nowhere", Inter/);
-  assert.equal(await page.evaluate(() => document.activeElement?.closest('[data-family]')?.getAttribute('data-family')), 'Acme Grotesk Nowhere', 'at the top "up" is disabled: focus stays on the moved row');
 
   // Honesty: this browser cannot draw the family; the host bundles Inter.
   assert.equal(await installed('Acme Grotesk Nowhere'), false);
@@ -35,8 +33,8 @@ studioTest('Typefaces: add by typing, reorder by keyboard, remove, generic, plat
   const fontNote = brand.locator('[data-font-note]');
   await until(() => fontNote.isVisible(), 'the font note');
   assert.match(await fontNote.textContent(), /Acme Grotesk Nowhere is not installed here — the preview shows the fallback; your product must load it\./);
-  assert.equal(await brand.locator('[data-family="Acme Grotesk Nowhere"]').evaluate((item) => item.supportingText), 'not installed here');
-  assert.equal(await brand.locator('[data-family="Inter"]').evaluate((item) => item.supportingText), '', 'Inter is bundled by the host: no note');
+  assert.equal(await brand.locator('[data-family="Acme Grotesk Nowhere"] [data-stack-missing]').evaluate((note) => (note.hidden ? '' : note.textContent)), 'not installed here');
+  assert.equal(await brand.locator('[data-family="Inter"] [data-stack-missing]').evaluate((note) => (note.hidden ? '' : note.textContent)), '', 'Inter is bundled by the host: no note');
 
   // Suggestion chip, remove, generic, platform switch.
   await brand.locator('[data-suggest="Roboto"]').click();
