@@ -58,6 +58,12 @@
       "description": "Shows the label beside the icon. False collapses the button to its icon (for example while the content scrolls); the label stays the accessible name. It changes the button's form, never its meaning: this is not a toggle. A button without an icon stays extended, and one without a label never extends (MAB-15, MAB-16)."
     },
     {
+      "name": "fullWidth",
+      "type": "boolean",
+      "default": false,
+      "description": "Makes the button take the whole width its container gives it, its icon and label centred: the one action of a screen held across its foot on a narrow screen (MAB-24). A full-width button is always drawn extended, so extended is ignored while it is true."
+    },
+    {
       "name": "iconPosition",
       "type": "enum",
       "values": [
@@ -174,7 +180,7 @@
     },
     {
       "id": "MAB-18",
-      "text": "THE main action button SHALL NOT position itself: it SHALL lay out at its own size where the layout that holds it places it (normally the inline-end bottom corner of the screen, clear of any navigation bar), and SHALL NOT draw a scrim or move content."
+      "text": "THE main action button SHALL NOT position itself: it SHALL lay out at its own size, or across the width of its container while fullWidth is true (MAB-24), where the layout that holds it places it (normally the inline-end bottom corner of the screen, clear of any navigation bar), and SHALL NOT draw a scrim or move content."
     },
     {
       "id": "MAB-19",
@@ -197,6 +203,11 @@
     {
       "id": "MAB-23",
       "text": "THE main action button SHALL lay out its label as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE main action button SHALL still place the label and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "MAB-24",
+      "text": "WHILE fullWidth is true THE main action button SHALL take the whole inline size its container gives it and SHALL draw its extended form whatever extended says — the height, corners, paddings, elevation and states of MAB-11 and MAB-17 — with its icon and label centred in that width as one row, in the order MAB-19 gives them; WHERE that width is narrower than the label THE main action button SHALL wrap the label, its lines centred (MAB-12). WHEN extended changes while fullWidth is true THE main action button SHALL NOT change its form, and in debug builds SHALL report that a full-width button does not collapse. MAB-16 holds over this rule: a button with no label draws its collapsed form, at its own size, and is reported.",
+      "verify": "The fixture filled-full-width is as wide as its 360-wide stage, 56 high, its icon and label centred; filled-full-width-collapsed, whose extended is false, is drawn exactly as filled-full-width."
     }
   ],
   "accessibility": {
@@ -360,6 +371,29 @@
       "slots": {
         "icon": "edit"
       }
+    },
+    {
+      "id": "filled-full-width",
+      "props": {
+        "variant": "filled",
+        "fullWidth": true,
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    },
+    {
+      "id": "filled-full-width-collapsed",
+      "props": {
+        "variant": "filled",
+        "fullWidth": true,
+        "extended": false,
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
     }
   ],
   "platforms": {
@@ -370,6 +404,7 @@
         "variant": "variant",
         "size": "size",
         "extended": "extended",
+        "fullWidth": "fullWidth",
         "iconPosition": "iconPosition",
         "disabled": "disabled",
         "label": "label"
@@ -377,7 +412,7 @@
       "events": {
         "click": "click"
       },
-      "notes": "The icon is the `icon` slot (a glyph of the icon font). `extended` is a boolean property that defaults to true; its attribute is the inverse `collapsed`, because an HTML boolean attribute cannot default to true. `iconPosition` is the `icon-position` attribute. The host has no `aria-expanded` or `aria-pressed` (MAB-20). The element is inline; the page positions it (for example with `position: fixed` or a sticky container)."
+      "notes": "The icon is the `icon` slot (a glyph of the icon font). `extended` is a boolean property that defaults to true; its attribute is the inverse `collapsed`, because an HTML boolean attribute cannot default to true. `iconPosition` is the `icon-position` attribute. The host has no `aria-expanded` or `aria-pressed` (MAB-20). The element is inline; the page positions it (for example with `position: fixed` or a sticky container). `fullWidth` is the `full-width` attribute: the host is then a block-level flex box as wide as its container, and the native `<button>` fills it (MAB-24)."
     },
     "swiftui": {
       "status": "planned",
@@ -386,6 +421,7 @@
         "variant": "variant",
         "size": "size",
         "extended": "isExtended",
+        "fullWidth": "fullWidth",
         "iconPosition": "iconPosition",
         "disabled": "disabled",
         "label": "title"
@@ -402,6 +438,7 @@
         "variant": "variant",
         "size": "size",
         "extended": "expanded",
+        "fullWidth": "fullWidth",
         "iconPosition": "iconPosition",
         "disabled": "enabled",
         "label": "text"
@@ -418,6 +455,7 @@
         "variant": "variant",
         "size": "size",
         "extended": "isExtended",
+        "fullWidth": "fullWidth",
         "iconPosition": "iconPosition",
         "disabled": "onPressed",
         "label": "label"
@@ -434,6 +472,7 @@
         "variant": "variant",
         "size": "size",
         "extended": "extended",
+        "fullWidth": "fullWidth",
         "iconPosition": "iconPosition",
         "disabled": "disabled",
         "label": "label"

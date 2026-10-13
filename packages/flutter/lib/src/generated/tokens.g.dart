@@ -4277,10 +4277,9 @@ extension type const TanreiButtonVariant(String name) {
   static const elevated = TanreiButtonVariant('elevated');
   static const outlined = TanreiButtonVariant('outlined');
   static const text = TanreiButtonVariant('text');
-  static const inline = TanreiButtonVariant('inline');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiButtonVariant> core = <TanreiButtonVariant>[filled, tonal, elevated, outlined, text, inline];
+  static const List<TanreiButtonVariant> core = <TanreiButtonVariant>[filled, tonal, elevated, outlined, text];
 }
 
 /// What one variant of button looks like in one interaction state.
@@ -4429,7 +4428,6 @@ class TanreiButtonVariants {
     required this.elevated,
     required this.outlined,
     required this.text,
-    required this.inline,
     this.extra = const <TanreiButtonVariant, TanreiButtonVariantTokens>{},
   });
 
@@ -4443,8 +4441,6 @@ class TanreiButtonVariants {
   final TanreiButtonVariantTokens outlined;
   /// `comp.button` variant `text`
   final TanreiButtonVariantTokens text;
-  /// `comp.button` variant `inline`
-  final TanreiButtonVariantTokens inline;
 
   /// The variants a design system added to the core vocabulary.
   final Map<TanreiButtonVariant, TanreiButtonVariantTokens> extra;
@@ -4457,7 +4453,6 @@ class TanreiButtonVariants {
     TanreiButtonVariantTokens? elevated,
     TanreiButtonVariantTokens? outlined,
     TanreiButtonVariantTokens? text,
-    TanreiButtonVariantTokens? inline,
     Map<TanreiButtonVariant, TanreiButtonVariantTokens>? extra,
   }) => TanreiButtonVariants(
         filled: filled ?? this.filled,
@@ -4465,7 +4460,6 @@ class TanreiButtonVariants {
         elevated: elevated ?? this.elevated,
         outlined: outlined ?? this.outlined,
         text: text ?? this.text,
-        inline: inline ?? this.inline,
         extra: extra == null ? this.extra : <TanreiButtonVariant, TanreiButtonVariantTokens>{...this.extra, ...extra},
       );
 
@@ -4479,7 +4473,6 @@ class TanreiButtonVariants {
         'elevated' => elevated,
         'outlined' => outlined,
         'text' => text,
-        'inline' => inline,
         _ => extra[variant] ?? _fallback(variant),
       };
 
@@ -4527,9 +4520,6 @@ class TanreiButtonTokens {
   const TanreiButtonTokens({
     required this.busyIndicatorThickness,
     required this.containerShape,
-    required this.inlineUnderlineOffset,
-    required this.inlineUnderlineVisibility,
-    required this.inlineUnderlineWidth,
     required this.motionBusyCycleDuration,
     required this.motionFeedbackDuration,
     required this.motionStateDuration,
@@ -4546,12 +4536,6 @@ class TanreiButtonTokens {
   final double busyIndicatorThickness;
   /// `comp.button.container-shape`
   final double containerShape;
-  /// `comp.button.inline-underline-offset`
-  final double inlineUnderlineOffset;
-  /// `comp.button.inline-underline-visibility`
-  final double inlineUnderlineVisibility;
-  /// `comp.button.inline-underline-width`
-  final double inlineUnderlineWidth;
   /// `comp.button.motion-busy-cycle-duration`
   final int motionBusyCycleDuration;
   /// `comp.button.motion-feedback-duration`
@@ -4577,9 +4561,6 @@ class TanreiButtonTokens {
   TanreiButtonTokens copyWith({
     double? busyIndicatorThickness,
     double? containerShape,
-    double? inlineUnderlineOffset,
-    double? inlineUnderlineVisibility,
-    double? inlineUnderlineWidth,
     int? motionBusyCycleDuration,
     int? motionFeedbackDuration,
     int? motionStateDuration,
@@ -4593,9 +4574,6 @@ class TanreiButtonTokens {
   }) => TanreiButtonTokens(
         busyIndicatorThickness: busyIndicatorThickness ?? this.busyIndicatorThickness,
         containerShape: containerShape ?? this.containerShape,
-        inlineUnderlineOffset: inlineUnderlineOffset ?? this.inlineUnderlineOffset,
-        inlineUnderlineVisibility: inlineUnderlineVisibility ?? this.inlineUnderlineVisibility,
-        inlineUnderlineWidth: inlineUnderlineWidth ?? this.inlineUnderlineWidth,
         motionBusyCycleDuration: motionBusyCycleDuration ?? this.motionBusyCycleDuration,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
