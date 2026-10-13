@@ -91,7 +91,7 @@ Listing: 78 default · 7 advanced. A component of the first value is shown where
 | Image preview | feature | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | File picker | base | advanced | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | File item | base | default | communication | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
-| Drop zone | base | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| Drop zone | base | default | selection | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Embedded text input | base | advanced | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Chat composer | feature: Embedded text input, File picker, File item, Button | default | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 

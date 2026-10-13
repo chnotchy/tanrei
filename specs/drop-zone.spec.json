@@ -313,7 +313,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-drop-zone",
       "props": {
         "multiple": "multiple",
