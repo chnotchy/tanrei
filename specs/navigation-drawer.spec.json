@@ -177,6 +177,12 @@
       "description": "Opens the groups that hold the selected destination when the drawer first appears and whenever value changes, so that the place the product is showing is drawn and not only the closed group that holds it (NVD-58). A site's sidebar sets it; while false a closed group stays closed and its row shows the selection (NVD-47). The user may still close such a group afterwards."
     },
     {
+      "name": "selectableGroups",
+      "type": "boolean",
+      "default": false,
+      "description": "Lets a group be a destination as well as a row that opens and closes: a setting of the product's, off by default. While true a group that has a value or an href is a place of its own (NVD-66) — a section's overview page in a site, a folder that is shown when it is chosen — which the drawer's value selects, whose activation emits change or reselect and which an href makes a link; its chevron becomes a control of its own that opens and closes it, and the rest of its row chooses it (NVD-67). A group without either still only opens and closes. While false every group only opens and closes, whatever value or href it has."
+    },
+    {
       "name": "scrollOffset",
       "type": "number",
       "default": 0,
@@ -281,7 +287,7 @@
     },
     {
       "name": "group",
-      "summary": "A group of destinations under a row that opens and closes it: an icon, a label and a chevron. It holds destinations and groups, not sections, and their rows start further in than its own.",
+      "summary": "A group of destinations under a row that opens and closes it: an icon, a label and a chevron. It holds destinations and groups, not sections, and their rows start further in than its own. While the drawer's selectableGroups is true and it has a value or an href, it is a destination as well (NVD-66): its row chooses it and its chevron opens and closes it.",
       "container": true,
       "props": [
         {
@@ -313,6 +319,18 @@
           "type": "boolean",
           "default": false,
           "description": "Whether its items are shown under its row while the drawer is expanded."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "What identifies the group as a destination, read only while the drawer's selectableGroups is true (NVD-66): the drawer's value selects the group whose value equals it, as it selects a destination, and change and reselect carry it. Unique among the drawer's destinations and groups. Empty on a link, its href stands as its value; empty with no href, the group is not a destination and only opens and closes."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "The address the group leads to as a destination, read only while the drawer's selectableGroups is true: not empty, its row is a link and not a button (NVD-59, NVD-60), opened where the person is. Ignored while selectableGroups is false."
         }
       ],
       "events": [
@@ -402,7 +420,7 @@
   "events": [
     {
       "name": "change",
-      "description": "The user activated a destination that is not the selected one; carries its value and, for a link, its href. For a link it comes before the link is followed, only for an activation that follows it in place (NVD-60), and a product that cancels it follows the link itself."
+      "description": "The user activated a destination that is not the selected one, or a group that is one (NVD-66); carries its value and, for a link, its href. For a link it comes before the link is followed, only for an activation that follows it in place (NVD-60), and a product that cancels it follows the link itself."
     },
     {
       "name": "reselect",
@@ -579,7 +597,7 @@
     },
     {
       "id": "NVD-36",
-      "text": "WHEN the drawer changes form THE navigation drawer SHALL keep focus where it is, and SHALL take what the collapsed form does not draw (the header slot's content, the headings' text, trailing content, the items inside groups) out of the focus order and away from assistive technology WHILE it is collapsed; IF focus is on such content when the drawer collapses THE navigation drawer SHALL move it to the menu button (NVD-37), or else to the first focusable element of the drawer. A destination's role, name and state SHALL be the same in both forms."
+      "text": "WHEN the drawer changes form THE navigation drawer SHALL keep focus where it is, and SHALL take what the collapsed form does not draw (the header slot's content, the headings' text, trailing content, the chevron of a group that is a destination, the items inside groups) out of the focus order and away from assistive technology WHILE it is collapsed; IF focus is on such content when the drawer collapses THE navigation drawer SHALL move it to the menu button (NVD-37), or else to the first focusable element of the drawer. A destination's role, name and state SHALL be the same in both forms."
     },
     {
       "id": "NVD-37",
@@ -616,15 +634,15 @@
     },
     {
       "id": "NVD-45",
-      "text": "WHEN the user activates a group's row by pointer, touch, Enter or Space WHILE the drawer is expanded THE navigation drawer SHALL emit the group's toggle exactly once with its new open state, SHALL NOT emit change, reselect or close, and on the web SHALL set the group's open itself (a controlled platform leaves it to the caller); WHEN focus is on a closed group's row and the user presses the arrow key toward the end of the line (Right in a left-to-right layout) it SHALL open the group, and on an open group's row the arrow key toward the start SHALL close it; WHEN focus is on an item inside an open group and the user presses the arrow key toward the start, it SHALL move focus to that group's row. WHILE a group's disabled is true THE navigation drawer SHALL NOT emit toggle for it, SHALL NOT make its row focusable and SHALL expose it as disabled."
+      "text": "WHEN the user activates a group's row by pointer, touch, Enter or Space WHILE the drawer is expanded and the group is not a destination (NVD-66), or activates the chevron of a group that is one (NVD-67), THE navigation drawer SHALL emit the group's toggle exactly once with its new open state, SHALL NOT emit change, reselect or close, and on the web SHALL set the group's open itself (a controlled platform leaves it to the caller); WHEN focus is on a closed group's row and the user presses the arrow key toward the end of the line (Right in a left-to-right layout) it SHALL open the group, and on an open group's row the arrow key toward the start SHALL close it; WHEN focus is on an item inside an open group and the user presses the arrow key toward the start, it SHALL move focus to that group's row. WHILE a group's disabled is true THE navigation drawer SHALL NOT emit toggle, change or reselect for it, SHALL NOT make its row or its chevron focusable and SHALL expose it as disabled."
     },
     {
       "id": "NVD-46",
-      "text": "THE navigation drawer SHALL expose a group's row as one button named by its label, with its expanded or collapsed state and its icon and chevron hidden, controlling its items, and its items as a list named by the group's label inside the drawer's list: on the web a button with aria-expanded and aria-controls and a nested list labelled by it; on Apple platforms a button whose value is expanded or collapsed, as a disclosure group reads; on Android the expanded state with the expand and collapse actions; in Flutter the expanded semantics flag; in React Native accessibilityState.expanded. WHILE a group is closed, or the drawer collapsed, its items SHALL be neither exposed nor focusable. WHILE a group's label is empty THE navigation drawer SHALL still render it, and in debug builds report that it has no accessible name."
+      "text": "THE navigation drawer SHALL expose a group's row as one button named by its label, with its expanded or collapsed state and its icon and chevron hidden, controlling its items, and its items as a list named by the group's label inside the drawer's list: on the web a button with aria-expanded and aria-controls and a nested list labelled by it; on Apple platforms a button whose value is expanded or collapsed, as a disclosure group reads; on Android the expanded state with the expand and collapse actions; in Flutter the expanded semantics flag; in React Native accessibilityState.expanded. WHILE a group is a destination (NVD-66) THE navigation drawer SHALL instead expose its row as that destination, as NVD-23 says (a link while it has an href and a button otherwise, named by its label, with its selected state), and its chevron as one more button, named by the group's label, with the group's expanded or collapsed state and controlling its items, which stay a list named by the group's label: on the web the row is the link or button with aria-current and the chevron a button with aria-expanded and aria-controls, each its own Tab stop, as the disclosure navigation menu with top-level links of the WAI-ARIA Authoring Practices is; on the other platforms the row carries the selected state and the chevron the expanded state with the expand and collapse actions. WHILE a group is closed, or the drawer collapsed, its items SHALL be neither exposed nor focusable. WHILE a group's label is empty THE navigation drawer SHALL still render it, and in debug builds report that it has no accessible name."
     },
     {
       "id": "NVD-47",
-      "text": "WHILE the selected destination is inside a closed group, or inside a group WHILE the drawer is collapsed, THE navigation drawer SHALL draw the row that shows it (the outermost closed group that holds it; collapsed, its top-level group) from its form's selected condition; WHILE the drawer is collapsed it SHALL draw each top-level group as one cell and none of its items; WHEN the user activates a group's cell WHILE the drawer is collapsed THE navigation drawer SHALL emit expandedChange with true, and the group's toggle with true WHILE it is closed, SHALL on the web apply both itself, and SHALL move focus to the group's row once the drawer is expanded."
+      "text": "WHILE the selected destination is inside a closed group, or inside a group WHILE the drawer is collapsed, THE navigation drawer SHALL draw the row that shows it (the outermost closed group that holds it; collapsed, its top-level group) from its form's selected condition; WHILE the drawer is collapsed it SHALL draw each top-level group as one cell and none of its items; WHEN the user activates the cell of a group that is not a destination (NVD-66) WHILE the drawer is collapsed THE navigation drawer SHALL emit expandedChange with true, and the group's toggle with true WHILE it is closed, SHALL on the web apply both itself, and SHALL move focus to the group's row once the drawer is expanded."
     },
     {
       "id": "NVD-48",
@@ -675,7 +693,7 @@
     },
     {
       "id": "NVD-58",
-      "text": "WHILE revealSelected is true THE navigation drawer SHALL, WHEN it first appears with a selected destination and WHEN value changes to a destination, draw every closed group that holds that destination open, whatever its open said (a state the product gave back included, NVD-62), and SHALL emit each such group's toggle exactly once with true, the web setting the group's open itself and a controlled platform leaving its open to the caller, as NVD-45 says; WHEN the drawer first appears it SHALL draw them open in its first frame, without the motion of NVD-44, and afterwards with it. It SHALL NOT emit change, reselect or close for it, and SHALL NOT open again a group the user closes afterwards until value changes: that group's row then shows the selection (NVD-47). WHILE the drawer is collapsed it SHALL open them all the same, for the form in which they are drawn. WHILE revealSelected is false THE navigation drawer SHALL leave every group as its open says.",
+      "text": "WHILE revealSelected is true THE navigation drawer SHALL, WHEN it first appears with a selected destination and WHEN value changes to a destination, draw every closed group that holds that destination open — and, WHERE the selected destination is a group (NVD-66), that group as well, so that a site's sidebar shows the pages of the section whose page is shown — whatever its open said (a state the product gave back included, NVD-62), and SHALL emit each such group's toggle exactly once with true, the web setting the group's open itself and a controlled platform leaving its open to the caller, as NVD-45 says; WHEN the drawer first appears it SHALL draw them open in its first frame, without the motion of NVD-44, and afterwards with it. It SHALL NOT emit change, reselect or close for it, and SHALL NOT open again a group the user closes afterwards until value changes: that group's row then shows the selection (NVD-47). WHILE the drawer is collapsed it SHALL open them all the same, for the form in which they are drawn. WHILE revealSelected is false THE navigation drawer SHALL leave every group as its open says.",
       "verify": "`site-sidebar`: every group's open is false and the selected destination is inside Components; Components is drawn open with Navigation drawer selected in it, and the other groups closed. Test: closing Components by its row then draws its row selected, and it stays closed until value changes; `group-closed-selected` (revealSelected false) is drawn as before."
     },
     {
@@ -711,6 +729,16 @@
       "id": "NVD-65",
       "text": "THE navigation drawer SHALL draw its cells, its section headings, the gaps between its cells, its nesting indent and its collapsed column from the tokens of its density: WHILE density is regular from comp.navigation-drawer.container.gap.regular, comp.navigation-drawer.item.container.height.regular, comp.navigation-drawer.item.padding-inline.regular, comp.navigation-drawer.item.gap.regular, comp.navigation-drawer.item.nest-indent.regular, comp.navigation-drawer.item.icon.size.regular, comp.navigation-drawer.item.icon-indicator.width.regular, comp.navigation-drawer.item.icon-indicator.height.regular, comp.navigation-drawer.item.label.typescale.regular, comp.navigation-drawer.item.trailing-icon.size.regular, comp.navigation-drawer.collapsed.container.width.regular, comp.navigation-drawer.collapsed.item.container.width.regular, comp.navigation-drawer.collapsed.item.container.padding-block.regular and comp.navigation-drawer.heading.height.regular, and WHILE density is compact from comp.navigation-drawer.container.gap.compact, comp.navigation-drawer.item.container.height.compact, comp.navigation-drawer.item.padding-inline.compact, comp.navigation-drawer.item.gap.compact, comp.navigation-drawer.item.nest-indent.compact, comp.navigation-drawer.item.icon.size.compact, comp.navigation-drawer.item.icon-indicator.width.compact, comp.navigation-drawer.item.icon-indicator.height.compact, comp.navigation-drawer.item.label.typescale.compact, comp.navigation-drawer.item.trailing-icon.size.compact, comp.navigation-drawer.collapsed.container.width.compact, comp.navigation-drawer.collapsed.item.container.width.compact, comp.navigation-drawer.collapsed.item.container.padding-block.compact and comp.navigation-drawer.heading.height.compact. Wherever another behaviour names one of these tokens by its regular value, THE navigation drawer SHALL read the value of its density instead, in both forms and while moving between them, so that every icon keeps one point in both forms (NVD-31) in each density and a nested destination's icon stands where its group's label starts in each. WHEN density changes while the drawer is shown THE navigation drawer SHALL draw the new density at once, without the motions of NVD-35, NVD-41 and NVD-44, keeping its form, its selection, every group's open, its scroll offset where the range allows, and focus, and SHALL emit nothing for it.",
       "verify": "Under the default system: the fixture `compact` draws 32 rows with 16 glyphs, a 2 gap between cells, 28 headings and nested icons under their groups' labels (NVD-13's verify); `compact-collapsed` is a 56 column whose cells are 32 by 32, every icon at the point it has in the same drawer expanded. Test: setting density to compact and back on a shown drawer emits nothing and keeps focus on the cell that had it."
+    },
+    {
+      "id": "NVD-66",
+      "text": "WHILE selectableGroups is true THE navigation drawer SHALL treat each group whose value or href is not empty as a destination as well as a group: the drawer's value SHALL select it as it selects a destination, its href standing as its value while its value is empty (NVD-59), and NVD-29 SHALL count it among the destinations in reading order, before the items it holds; its row SHALL be drawn from the selected parts in its form while it is selected (NVD-3, NVD-41) and from the parts NVD-47 names while it is not and a destination it holds is shown by it; its activation SHALL emit change or reselect as NVD-1 says and close a modal drawer as NVD-21 says; and WHILE its href is not empty its row SHALL be a link as NVD-59, NVD-60 and NVD-64 say, opened where the person is. WHILE selectableGroups is false, and for a group whose value and href are both empty, THE navigation drawer SHALL ignore the group's value and href, the group SHALL only open and close (NVD-45), and in debug builds it SHALL report once a group that has a value or an href while selectableGroups is false. WHEN selectableGroups changes while the drawer is shown THE navigation drawer SHALL draw the new form of each group at once, keeping value, every group's open and focus where the element that had it is still drawn, and SHALL emit nothing for it.",
+      "verify": "The fixture `selectable-groups`: the group Components is selected and drawn from the selected parts; its row is the current page; Foundations is a destination that is not selected; Resources has no value and only opens and closes. Test: a press on Foundations' label emits one change with its value and no toggle; with selectableGroups false the same press emits one toggle and no change."
+    },
+    {
+      "id": "NVD-67",
+      "text": "WHILE a group is a destination (NVD-66) and the drawer is expanded THE navigation drawer SHALL split its row in two: its chevron SHALL be a control of its own, which opens and closes the group as NVD-45 says and SHALL NOT change the selection, and the rest of the row SHALL be the destination, which a press, Enter or Space (Enter alone for a link) activates as NVD-1 says and which SHALL NOT open or close the group: the chevron opens and the row chooses, and one press never does both. The chevron's hit area SHALL be the part of the cell's hit area from the middle of the gap before the chevron's box to the cell's end edge, at least sys.target.pointer wide for a fine pointer and sys.target.touch wide for touch, reaching over the end of the label where the row gives less; the rest of the cell's hit area SHALL be the row's. A hover anywhere on the cell SHALL show on the item container, a press on the chevron SHALL show the pressed state on the item container as a press on the row does (NVD-8, NVD-9), and keyboard focus on the chevron SHALL show the focus ring around the chevron's own box, at the corners of the item container, and not around the row. With focus on the row the arrow keys SHALL open, close and leave the group as NVD-45 says. WHILE the drawer is collapsed the group's cell SHALL be the destination alone: its activation SHALL emit change or reselect, and SHALL NOT expand the drawer or open the group; its items are reached by expanding the drawer.",
+      "verify": "Test in `selectable-groups`: a press on Components' chevron emits one toggle and no change; a press 1 pixel before the chevron's hit area emits one change (or reselect) and no toggle; Tab moves from Components' row to its chevron and then to its first item; Enter on the chevron toggles, and Right on the row opens a closed group. Collapsed, a press on a group that is a destination emits change and leaves the drawer collapsed."
     }
   ],
   "accessibility": {
@@ -718,11 +746,11 @@
     "keyboard": [
       {
         "keys": "Tab / Shift+Tab",
-        "action": "Moves focus through the header's content, then the destinations and group rows that are shown and not disabled; inside an open modal drawer it wraps around and never leaves the drawer; from an open standard drawer, expanded or collapsed, it moves on to the content, and the drawer stays as it is."
+        "action": "Moves focus through the header's content, then the destinations and group rows that are shown and not disabled, and after the row of a group that is a destination its chevron; inside an open modal drawer it wraps around and never leaves the drawer; from an open standard drawer, expanded or collapsed, it moves on to the content, and the drawer stays as it is."
       },
       {
         "keys": "Enter or Space",
-        "action": "Activates the focused destination (Enter only for a destination that is a link: it follows the link, and Space is left to the platform), and a modal drawer then closes; on a group's row, opens or closes the group; on a group's cell in the collapsed drawer, expands the drawer with the group open; on the menu button, changes the drawer's form."
+        "action": "Activates the focused destination (Enter only for a destination that is a link: it follows the link, and Space is left to the platform), and a modal drawer then closes; on a group's row, opens or closes the group, or, for a group that is a destination (NVD-66), activates it as a destination and leaves it as it is; on that group's chevron, opens or closes the group; on a group's cell in the collapsed drawer, expands the drawer with the group open; on the menu button, changes the drawer's form."
       },
       {
         "keys": "Enter with a modifier key, on a link (the web)",
@@ -745,6 +773,7 @@
       "A drawer of links is a navigation landmark holding lists of links and disclosure buttons, the pattern assistive technology users know from site navigation: every link and every group's row is its own Tab stop, and the arrow keys only open, close and leave a group. It is deliberately not a choice per use. One Tab stop with roving arrow keys is a tree's or a menu's model, would hide links from the browser's own ways of listing and following them, and would make the same component answer the keyboard in two ways. A long tree is passed by the landmark, by the headings of its sections, by closing its groups, and by the page's skip link.",
       "Showing the selection (NVD-57, NVD-58) scrolls the drawer and opens groups without moving focus and without an announcement: the page's own title and heading say where the user is, and the current destination carries its state for whoever reaches it.",
       "Groups are disclosures, not a tree: a group's row is a button with an expanded state that shows or hides a named list, and every shown destination stays its own tab stop, as the links of a navigation region are. A tree's single tab stop and arrow-key roving would make the drawer's keyboard model depend on whether it has groups; the arrow keys here only open, close and leave a group.",
+      "A group that is a destination (selectableGroups, NVD-66) is the WAI-ARIA Authoring Practices' disclosure navigation menu with top-level links: its row is the link or button of its own page, with the current-page state, and its chevron a separate disclosure button for its items, each a Tab stop. The two are never one control: a row that both navigates and toggles would announce one action and do two, and a keyboard user could not open the group without leaving the page. The chevron is named by the group's label, as Tanrei ships no words of its own; its role and its expanded state tell it from the row.",
       "Collapsing hides the header slot, the headings' text, trailing content and the items inside groups from assistive technology and focus; it changes no destination's role, name or state, and the menu button announces the change as its expanded state.",
       "A responsive drawer (NVD-53 to NVD-55) changes what it is with the window's width — a layout region where the window is wide, a modal overlay where it is narrow — and each presentation has the semantics of the drawer it stands for. A change of presentation closes an open overlay, releases focus that was kept inside it and announces nothing by itself; the presentation is never the only way to reach a destination, because the product's menu button opens the modal presentation.",
       "The standard form is a layout region, not an overlay, expanded or collapsed: opening it moves focus in, to the selected destination or else the first, closing it returns focus to where it was, and focus leaving it never closes it. The modal form is a modal overlay: it keeps focus in and draws a scrim; a collapsible modal drawer's column is a layout region while the drawer is closed. The web presents the open modal drawer with a modal <dialog> element (showModal gives inertness and Escape); Compose draws it in a window of its own (a Dialog, as TanreiDialog is) and Flutter as a controlled overlay in a Stack over the page, each with a scrim, trapping focus and answering back; SwiftUI, which has no side presentation, overlays it with the modal trait and the escape gesture; React Native presents it in a transparent Modal.",
@@ -1893,6 +1922,95 @@
             "label": "Settings",
             "icon": "settings"
           }
+        }
+      ]
+    },
+    {
+      "id": "selectable-groups",
+      "props": {
+        "open": true,
+        "value": "components",
+        "label": "Documentation",
+        "selectableGroups": true
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Foundations",
+            "icon": "palette",
+            "value": "foundations"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "color",
+                "label": "Color",
+                "icon": "contrast"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "type",
+                "label": "Typography",
+                "icon": "text_fields"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Components",
+            "icon": "widgets",
+            "value": "components",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "button",
+                "label": "Button",
+                "icon": "smart_button"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "navigation-drawer",
+                "label": "Navigation drawer",
+                "icon": "menu_open"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Resources",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "downloads",
+                "label": "Downloads",
+                "icon": "download"
+              }
+            }
+          ]
         }
       ]
     },
@@ -3562,6 +3680,7 @@
         "value": "value",
         "label": "label",
         "revealSelected": "revealSelected",
+        "selectableGroups": "selectableGroups",
         "scrollOffset": "scrollOffset"
       },
       "events": {
@@ -3571,7 +3690,7 @@
         "expandedChange": "expandedchange",
         "presentationChange": "presentationchange"
       },
-      "notes": "Children are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` elements, in order; header buttons (icon-only `<tanrei-button>`s) and the main action (`<tanrei-main-action-button>`) are children with `slot=\"header-button\"` and `slot=\"main-action\"`, and the header slot is `header`. `collapsedLabels` is the `collapsed-labels` attribute; `expanded` is reflected, and so is a read-only `collapsed` state attribute for styling. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim; Escape and a press on the backdrop close it, the host sets `open` to false and fires `close`; a collapsible modal drawer keeps its column in the host's layout box and widens the dialog from it. Standard: a `<nav>` named by `label`. The drawer selects the activated destination itself (sets `value`) before firing `change`, sets `expanded` (or `open`) before firing `expandedchange`, and sets a group's `open` before the group fires `toggle`. It sets `aria-expanded` and `aria-controls` on its first header button's inner button through the Button's `ariaExpanded` / `ariaControlsElements` element properties, and the Main Action Button's `extended` from its own form. `responsive` is an attribute: the element reads its system's `breakpoint.expanded` and `breakpoint.collapsed` custom properties from its computed style, listens to the two widths with `matchMedia`, exposes the result as the read-only `presentation` property (reflected as a state attribute for styling) and fires `presentationchange` with `detail.presentation`; nothing about the presentation is written to `variant`, `open` or `expanded`, and nothing is kept in storage. Before the element is upgraded, and in the React wrapper on a server, no dialog is open and nothing is inert. A collapsed cell that draws no label shows its name in a plain tooltip. Insets are `env(safe-area-inset-*)`. It lags the spec: it ships an earlier form of the drawer, with a separate rail element beside it. It does not yet follow NVD-57 to NVD-64, nor the parts of NVD-1, NVD-21 and NVD-23 that go with them. `reveal-selected` is an attribute. `scroll-offset` is an attribute read once, for the first frame, and `scrollOffset` a property whose getter returns the scroller's present `scrollTop` and whose setter writes it; the scroller has `overscroll-behavior: contain` and `scroll-behavior: auto`, and bringing the selection into view is a write to `scrollTop`, never `scrollIntoView` (which would also scroll the page). For a link destination `change` and `reselect` are cancelable, carry `detail.href` beside `detail.value`, and are fired from the anchor's `click` only when `event.button` is 0, no modifier key is down, the click was not already cancelled, and the item's `target` is `same` and it has no `download`; cancelling one calls `preventDefault()` on that click. The drawer does not set `value` for a link. Nothing is read from or written to `sessionStorage` or `localStorage`: a site keeps the groups' `open` and `scrollOffset` itself (on `toggle` and on `pagehide`) and writes them back as attributes in the page's markup, or in an inline script placed after the drawer's markup, before the elements are upgraded. `density` is reflected; a value a design system added is read from its own tokens, falling back to regular's.",
+      "notes": "Children are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` elements, in order; header buttons (icon-only `<tanrei-button>`s) and the main action (`<tanrei-main-action-button>`) are children with `slot=\"header-button\"` and `slot=\"main-action\"`, and the header slot is `header`. `collapsedLabels` is the `collapsed-labels` attribute; `expanded` is reflected, and so is a read-only `collapsed` state attribute for styling. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim; Escape and a press on the backdrop close it, the host sets `open` to false and fires `close`; a collapsible modal drawer keeps its column in the host's layout box and widens the dialog from it. Standard: a `<nav>` named by `label`. The drawer selects the activated destination itself (sets `value`) before firing `change`, sets `expanded` (or `open`) before firing `expandedchange`, and sets a group's `open` before the group fires `toggle`. It sets `aria-expanded` and `aria-controls` on its first header button's inner button through the Button's `ariaExpanded` / `ariaControlsElements` element properties, and the Main Action Button's `extended` from its own form. `responsive` is an attribute: the element reads its system's `breakpoint.expanded` and `breakpoint.collapsed` custom properties from its computed style, listens to the two widths with `matchMedia`, exposes the result as the read-only `presentation` property (reflected as a state attribute for styling) and fires `presentationchange` with `detail.presentation`; nothing about the presentation is written to `variant`, `open` or `expanded`, and nothing is kept in storage. Before the element is upgraded, and in the React wrapper on a server, no dialog is open and nothing is inert. A collapsed cell that draws no label shows its name in a plain tooltip. Insets are `env(safe-area-inset-*)`. It lags the spec: it ships an earlier form of the drawer, with a separate rail element beside it. It does not yet follow NVD-57 to NVD-64, nor the parts of NVD-1, NVD-21 and NVD-23 that go with them. `reveal-selected` is an attribute. `scroll-offset` is an attribute read once, for the first frame, and `scrollOffset` a property whose getter returns the scroller's present `scrollTop` and whose setter writes it; the scroller has `overscroll-behavior: contain` and `scroll-behavior: auto`, and bringing the selection into view is a write to `scrollTop`, never `scrollIntoView` (which would also scroll the page). For a link destination `change` and `reselect` are cancelable, carry `detail.href` beside `detail.value`, and are fired from the anchor's `click` only when `event.button` is 0, no modifier key is down, the click was not already cancelled, and the item's `target` is `same` and it has no `download`; cancelling one calls `preventDefault()` on that click. The drawer does not set `value` for a link. Nothing is read from or written to `sessionStorage` or `localStorage`: a site keeps the groups' `open` and `scrollOffset` itself (on `toggle` and on `pagehide`) and writes them back as attributes in the page's markup, or in an inline script placed after the drawer's markup, before the elements are upgraded. `density` is reflected; a value a design system added is read from its own tokens, falling back to regular's. `selectableGroups` is the `selectable-groups` attribute.",
       "items": {
         "destination": {
           "name": "tanrei-navigation-drawer-item",
@@ -3598,12 +3717,14 @@
             "shortLabel": "shortLabel",
             "icon": "icon",
             "disabled": "disabled",
-            "open": "open"
+            "open": "open",
+            "value": "value",
+            "href": "href"
           },
           "events": {
             "toggle": "toggle"
           },
-          "notes": "Holds `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>` children. Its row is a `<button aria-expanded aria-controls>` and its items a nested list labelled by it; `open` is reflected. `toggle` bubbles, with `detail.open`; the drawer's own `expandedchange` is a different event."
+          "notes": "Holds `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>` children. Its row is a `<button aria-expanded aria-controls>` and its items a nested list labelled by it; `open` is reflected. `toggle` bubbles, with `detail.open`; the drawer's own `expandedchange` is a different event. While the drawer's `selectable-groups` is set and the group has a `value` or an `href`, its row is the destination — an `<a href>` or a `<button>` with `aria-current=\"page\"` while selected — and its chevron a second `<button aria-expanded aria-controls>` after it, named by the group's label; a group without either keeps the one row button. The group's `value` property reads its `href` attribute while it has no `value`, as an item's does."
         },
         "section": {
           "name": "tanrei-navigation-drawer-section",
@@ -3649,6 +3770,7 @@
         "value": "selection",
         "label": "accessibilityLabel",
         "revealSelected": "revealsSelection",
+        "selectableGroups": "selectableGroups",
         "scrollOffset": "scrollOffset"
       },
       "events": {
@@ -3658,7 +3780,7 @@
         "expandedChange": "isExpanded",
         "presentationChange": "onPresentationChange"
       },
-      "notes": "`TanreiNavigationDrawer(variant:, isPresented: Binding<Bool>, selection: Binding<Value>, isCollapsible:, isExpanded: Binding<Bool>, collapsedLabelVisibility:, onReselect:) { TanreiNavigationDrawerItem(…); TanreiNavigationDrawerGroup(…) { … }; TanreiNavigationDrawerSection(…) { … } } header: { … } headerButtons: { … } mainAction: { … }`, and for a modal drawer the modifier `.tanreiNavigationDrawer(isPresented:…)` on the content it covers. Closing writes `false` to `isPresented` (close); the menu button writes `isExpanded` (expandedChange). The modal drawer carries the modal trait and answers the escape gesture (`accessibilityAction(.escape)`). It lags the spec: it ships an earlier form of the drawer (no collapsed form, groups or trailing slot; its `badge:` string is the trailing text), with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from a `GeometryReader` on the window's scene, or `horizontalSizeClass` where the product prefers Apple's own classes; `onPresentationChange` is a closure. Also not built yet (NVD-57 to NVD-64): `revealsSelection: Bool`, and `scrollOffset: Binding<CGFloat>` over the items' `ScrollView` (a `ScrollPosition` where the deployment target has it), which the product may keep in `@SceneStorage`. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up.",
+      "notes": "`TanreiNavigationDrawer(variant:, isPresented: Binding<Bool>, selection: Binding<Value>, isCollapsible:, isExpanded: Binding<Bool>, collapsedLabelVisibility:, onReselect:) { TanreiNavigationDrawerItem(…); TanreiNavigationDrawerGroup(…) { … }; TanreiNavigationDrawerSection(…) { … } } header: { … } headerButtons: { … } mainAction: { … }`, and for a modal drawer the modifier `.tanreiNavigationDrawer(isPresented:…)` on the content it covers. Closing writes `false` to `isPresented` (close); the menu button writes `isExpanded` (expandedChange). The modal drawer carries the modal trait and answers the escape gesture (`accessibilityAction(.escape)`). It lags the spec: it ships an earlier form of the drawer (no collapsed form, groups or trailing slot; its `badge:` string is the trailing text), with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from a `GeometryReader` on the window's scene, or `horizontalSizeClass` where the product prefers Apple's own classes; `onPresentationChange` is a closure. Also not built yet (NVD-57 to NVD-64): `revealsSelection: Bool`, and `scrollOffset: Binding<CGFloat>` over the items' `ScrollView` (a `ScrollPosition` where the deployment target has it), which the product may keep in `@SceneStorage`. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up. Not built yet: selectableGroups (NVD-66, NVD-67) — a group that is a destination, with its row choosing it and its chevron a control of its own that opens and closes it.",
       "items": {
         "destination": {
           "name": "TanreiNavigationDrawerItem",
@@ -3685,7 +3807,9 @@
             "shortLabel": "shortTitle",
             "icon": "icon",
             "disabled": "disabled",
-            "open": "isExpanded"
+            "open": "isExpanded",
+            "value": "value",
+            "href": "destination"
           },
           "events": {
             "toggle": "isExpanded"
@@ -3736,6 +3860,7 @@
         "value": "selected",
         "label": "contentDescription",
         "revealSelected": "revealSelected",
+        "selectableGroups": "selectableGroups",
         "scrollOffset": "scrollState"
       },
       "events": {
@@ -3745,7 +3870,7 @@
         "expandedChange": "onExpandedChange",
         "presentationChange": "onPresentationChange"
       },
-      "notes": "Compose idiom (as `ModalNavigationDrawer` and `DismissibleNavigationDrawer`, and Material 3 Expressive's `WideNavigationRail` for the collapsed form): `TanreiNavigationDrawer(variant, drawerState, collapsible, expanded, onExpandedChange, collapsedLabelVisibility, header = { … }, headerButtons = { … }, mainAction = { … }, drawerContent = { TanreiNavigationDrawerItem(…); TanreiNavigationDrawerGroup(…) { … }; TanreiNavigationDrawerSection(…) { … } }, content = { … })`. `drawerState` (`rememberTanreiDrawerState`) is open or closed; the drawer closes it itself on the scrim, back and drag, and its `confirmValueChange` sees the close. As for the bar, the drawer's `value` and a destination's `value` both map to the item's `selected`, and one `onClick` covers change and reselect. The modal sheet sets a pane title from `contentDescription` and is drawn in a window of its own (a `Dialog`), as `TanreiDialog` is, which traps focus, handles back and hides the content behind from TalkBack. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `LocalWindowInfo.current.containerSize` (or `currentWindowAdaptiveInfo()` where the product has it); `onPresentationChange` is a lambda and `drawerState` is closed by the drawer when the presentation changes. Also not built yet (NVD-57 to NVD-64): `revealSelected: Boolean`, and a hoisted `scrollState: ScrollState = rememberScrollState()`, which is saved and restored by `rememberSaveable` as any scroll state is; the drawer writes nothing itself. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up.",
+      "notes": "Compose idiom (as `ModalNavigationDrawer` and `DismissibleNavigationDrawer`, and Material 3 Expressive's `WideNavigationRail` for the collapsed form): `TanreiNavigationDrawer(variant, drawerState, collapsible, expanded, onExpandedChange, collapsedLabelVisibility, header = { … }, headerButtons = { … }, mainAction = { … }, drawerContent = { TanreiNavigationDrawerItem(…); TanreiNavigationDrawerGroup(…) { … }; TanreiNavigationDrawerSection(…) { … } }, content = { … })`. `drawerState` (`rememberTanreiDrawerState`) is open or closed; the drawer closes it itself on the scrim, back and drag, and its `confirmValueChange` sees the close. As for the bar, the drawer's `value` and a destination's `value` both map to the item's `selected`, and one `onClick` covers change and reselect. The modal sheet sets a pane title from `contentDescription` and is drawn in a window of its own (a `Dialog`), as `TanreiDialog` is, which traps focus, handles back and hides the content behind from TalkBack. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `LocalWindowInfo.current.containerSize` (or `currentWindowAdaptiveInfo()` where the product has it); `onPresentationChange` is a lambda and `drawerState` is closed by the drawer when the presentation changes. Also not built yet (NVD-57 to NVD-64): `revealSelected: Boolean`, and a hoisted `scrollState: ScrollState = rememberScrollState()`, which is saved and restored by `rememberSaveable` as any scroll state is; the drawer writes nothing itself. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up. Not built yet: selectableGroups (NVD-66, NVD-67) — a group that is a destination, with its row choosing it and its chevron a control of its own that opens and closes it.",
       "items": {
         "destination": {
           "name": "TanreiNavigationDrawerItem",
@@ -3772,7 +3897,9 @@
             "shortLabel": "shortLabel",
             "icon": "icon",
             "disabled": "enabled",
-            "open": "expanded"
+            "open": "expanded",
+            "value": "selected",
+            "href": "href"
           },
           "events": {
             "toggle": "onExpandedChange"
@@ -3823,6 +3950,7 @@
         "value": "selectedIndex",
         "label": "semanticLabel",
         "revealSelected": "revealSelected",
+        "selectableGroups": "selectableGroups",
         "scrollOffset": "scrollController"
       },
       "events": {
@@ -3832,7 +3960,7 @@
         "expandedChange": "onExtendedChanged",
         "presentationChange": "onPresentationChanged"
       },
-      "notes": "Flutter idiom (as `NavigationDrawer`, with the rail widget's `extended` and `labelType` for the collapsed form): `TanreiNavigationDrawer(variant:, collapsible:, extended:, onExtendedChanged:, labelType:, selectedIndex:, onDestinationSelected:, headerButtons: [...], mainAction:, header:, children: [TanreiNavigationDrawerDestination(…), TanreiNavigationDrawerGroup(…), TanreiNavigationDrawerSection(…), …])`. A destination's value is its index among the destinations, counted in reading order through sections and groups, open or not, as `NavigationDrawer` counts its destinations. `labelType` is `all`, `selected` or `none`. `open` shows or hides the drawer in both variants. A modal drawer is a controlled overlay in a `Stack` over the page — not `Scaffold.drawer`, which would need Material — with its own scrim and motion, a `FocusScope` that keeps focus in, and the page's semantics blocked; Escape, back (`PopScope`), a drag or fling, the menu button and choosing a destination call `onClose` once. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `MediaQuery.sizeOf(context).width`; `onPresentationChanged` is a `ValueChanged<TanreiNavigationDrawerPresentation>` and `onClose` is called when a change of presentation closes the drawer. Also not built yet (NVD-57 to NVD-64): `revealSelected: bool`, and `scrollController: ScrollController?` (its `initialScrollOffset` is the first frame's offset); a `PageStorageKey` or a `restorationId` on the product's side keeps the offset, the drawer writes nothing itself. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up.",
+      "notes": "Flutter idiom (as `NavigationDrawer`, with the rail widget's `extended` and `labelType` for the collapsed form): `TanreiNavigationDrawer(variant:, collapsible:, extended:, onExtendedChanged:, labelType:, selectedIndex:, onDestinationSelected:, headerButtons: [...], mainAction:, header:, children: [TanreiNavigationDrawerDestination(…), TanreiNavigationDrawerGroup(…), TanreiNavigationDrawerSection(…), …])`. A destination's value is its index among the destinations, counted in reading order through sections and groups, open or not, as `NavigationDrawer` counts its destinations. `labelType` is `all`, `selected` or `none`. `open` shows or hides the drawer in both variants. A modal drawer is a controlled overlay in a `Stack` over the page — not `Scaffold.drawer`, which would need Material — with its own scrim and motion, a `FocusScope` that keeps focus in, and the page's semantics blocked; Escape, back (`PopScope`), a drag or fling, the menu button and choosing a destination call `onClose` once. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `MediaQuery.sizeOf(context).width`; `onPresentationChanged` is a `ValueChanged<TanreiNavigationDrawerPresentation>` and `onClose` is called when a change of presentation closes the drawer. Also not built yet (NVD-57 to NVD-64): `revealSelected: bool`, and `scrollController: ScrollController?` (its `initialScrollOffset` is the first frame's offset); a `PageStorageKey` or a `restorationId` on the product's side keeps the offset, the drawer writes nothing itself. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up. Not built yet: selectableGroups (NVD-66, NVD-67) — a group that is a destination, with its row choosing it and its chevron a control of its own that opens and closes it.",
       "items": {
         "destination": {
           "name": "TanreiNavigationDrawerDestination",
@@ -3859,7 +3987,9 @@
             "shortLabel": "shortLabel",
             "icon": "icon",
             "disabled": "enabled",
-            "open": "expanded"
+            "open": "expanded",
+            "value": "value",
+            "href": "href"
           },
           "events": {
             "toggle": "onExpansionChanged"
@@ -3910,6 +4040,7 @@
         "value": "value",
         "label": "accessibilityLabel",
         "revealSelected": "revealSelected",
+        "selectableGroups": "selectableGroups",
         "scrollOffset": "scrollOffset"
       },
       "events": {
@@ -3919,7 +4050,7 @@
         "expandedChange": "onExpandedChange",
         "presentationChange": "onPresentationChange"
       },
-      "notes": "Controlled: `open`, `expanded`, `value`, `onValueChange`, `onExpandedChange`, `onClose`, an `items` data array, `headerButtons` and `mainAction` elements and a `header` node. A modal drawer is presented in a transparent `Modal` with its own motion and scrim; `onRequestClose` (Android back) calls `onClose`. Destinations have the `button` role with `accessibilityState.selected`; group rows the `button` role with `accessibilityState.expanded`; headings the `header` role. Insets come from its own `insets` prop, falling back to `TanreiProvider`'s. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `useWindowDimensions()`; `onPresentationChange` receives `'standard' | 'column' | 'modal'`, and `onClose` is called when a change of presentation closes the drawer. Also not built yet (NVD-57 to NVD-64): `revealSelected`, and `scrollOffset` as the first frame's offset with a ref method `getScrollOffset()` for reading it; the drawer writes to no storage. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up.",
+      "notes": "Controlled: `open`, `expanded`, `value`, `onValueChange`, `onExpandedChange`, `onClose`, an `items` data array, `headerButtons` and `mainAction` elements and a `header` node. A modal drawer is presented in a transparent `Modal` with its own motion and scrim; `onRequestClose` (Android back) calls `onClose`. Destinations have the `button` role with `accessibilityState.selected`; group rows the `button` role with `accessibilityState.expanded`; headings the `header` role. Insets come from its own `insets` prop, falling back to `TanreiProvider`'s. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `useWindowDimensions()`; `onPresentationChange` receives `'standard' | 'column' | 'modal'`, and `onClose` is called when a change of presentation closes the drawer. Also not built yet (NVD-57 to NVD-64): `revealSelected`, and `scrollOffset` as the first frame's offset with a ref method `getScrollOffset()` for reading it; the drawer writes to no storage. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up. Not built yet: selectableGroups (NVD-66, NVD-67) — a group that is a destination, with its row choosing it and its chevron a control of its own that opens and closes it.",
       "items": {
         "destination": {
           "name": "NavigationDrawerDestination",
@@ -3946,7 +4077,9 @@
             "shortLabel": "shortLabel",
             "icon": "icon",
             "disabled": "disabled",
-            "open": "open"
+            "open": "open",
+            "value": "value",
+            "href": "href"
           },
           "events": {
             "toggle": "onToggle"
