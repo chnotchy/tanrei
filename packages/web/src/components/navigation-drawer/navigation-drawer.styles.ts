@@ -563,7 +563,8 @@ const set = (suffix: string, skip?: string) =>
  * keeps every selector at the same specificity, so the order `stateRules()` writes them in is the precedence.
  */
 const on = (state: string) => {
-  if (state === ':hover') return '.cell:where(:hover)';
+  // NVD-67: a hover on the chevron's own button, laid over the end of the cell, is a hover on the cell.
+  if (state === ':hover') return '.cell:where(:hover, .split:hover > *)';
   if (state === ':focus-visible') return '.cell:where(:focus-visible)';
   if (state === ':disabled') return '.cell:where(.d)';
   return `.cell:where(:has(.container${state}))`;
@@ -653,6 +654,45 @@ export const cellStyles = css`
       block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--tanrei-sys-target-touch));
     }
   }
+
+  /* NVD-67: a group that is a destination — its row (the cell) is the destination, and its chevron a button of its own
+     laid over the end of the cell: its box is the item container's end, from the middle of the gap before the chevron,
+     with the item container's corners (the focus ring is drawn around it); its hit area reaches the cell's end edge and
+     is at least the target wide, the cell's height with half of container.gap above and below. */
+  .split {
+    position: relative;
+  }
+  .toggle {
+    all: unset;
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 1;
+    inset-block: 0;
+    inset-inline-end: ${t('container-padding-inline')};
+    inline-size: calc(${d('--_nvd-pad')} + ${d('--_nvd-trailing-icon')} + ${d('--_nvd-item-gap')} / 2);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    ${unsafeCSS(cornerRadius(`${PREFIX}-item-container-shape`))}
+  }
+  .toggle:disabled {
+    cursor: default;
+  }
+  .toggle::before {
+    content: '';
+    position: absolute;
+    inset-inline-end: calc(${t('container-padding-inline')} * -1);
+    inset-block-start: 50%;
+    inline-size: max(calc(100% + ${t('container-padding-inline')}), var(--tanrei-sys-target-pointer));
+    block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--_nvd-target, var(--tanrei-sys-target-pointer)));
+    transform: translateY(-50%);
+  }
+  @media (pointer: coarse) {
+    .toggle::before {
+      inline-size: max(calc(100% + ${t('container-padding-inline')}), var(--tanrei-sys-target-touch));
+      block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--tanrei-sys-target-touch));
+    }
+  }
+  ${focusRing((focus) => `.toggle${focus}`)}
 
   /* NVD-13: the expanded row, across the expanded drawer's inner width (whatever the form: the cell clips it). */
   .row {

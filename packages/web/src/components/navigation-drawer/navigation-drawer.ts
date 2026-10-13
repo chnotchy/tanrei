@@ -80,6 +80,9 @@ const DRAWER = 'tanrei-navigation-drawer';
 /** The drawer's cells: its destinations and its groups' rows. */
 const CELLS = `${ITEM}, ${GROUP}`;
 
+/** What the drawer selects (NVD-3, NVD-66): an item, or a group that is a destination. */
+type DrawerDestination = TanreiNavigationDrawerItem | TanreiNavigationDrawerGroup;
+
 /** A duration as the browser computes it ("0.5s"), in ms. */
 const ms = (value: string) => (Number.parseFloat(value) || 0) * (value.trim().endsWith('ms') ? 1 : 1000);
 
@@ -105,9 +108,13 @@ export interface DrawerCellContext extends DestinationContext {
   labels: boolean;
   /** How many groups hold it (NVD-13, NVD-44: its item container starts item.nest-indent further in per level). */
   level: number;
+  /** It is the selected destination itself, not a group's row that shows it (NVD-47): the current page. */
+  current: boolean;
+  /** A group: it is a destination as well (selectableGroups and a value or an href, NVD-66). A destination: always. */
+  destination: boolean;
 }
 
-const REST: DrawerCellContext = { selected: false, position: 0, size: 0, labelShown: true, collapsed: false, collapsible: false, shortShown: false, labels: false, level: 0 };
+const REST: DrawerCellContext = { selected: false, position: 0, size: 0, labelShown: true, collapsed: false, collapsible: false, shortShown: false, labels: false, level: 0, current: false, destination: false };
 
 /**
  * What a destination and a group's row share: the cell — the drawer's full width, the hit area — with its row laid out
@@ -635,9 +642,16 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
  * Activating the row sets `open` and then fires `toggle`; with focus on the row, the arrow toward the end of the line
  * opens it and the one toward the start closes it (NVD-45).
  *
+ * A destination as well (NVD-66, NVD-67): while the drawer's `selectable-groups` is set and the group has a `value` or
+ * an `href`, its row is that destination — a `<button>`, or with `href` an `<a href>`, `aria-current="page"` while
+ * selected — which the drawer selects and fires `change` or `reselect` for as it does for an item, and its chevron is a
+ * second `<button aria-expanded aria-controls>` over the end of the row, named by its label, that alone opens and closes
+ * it. Collapsed, its cell is the destination alone.
+ *
  * @tag tanrei-navigation-drawer-group
  * @slot - `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>` children.
- * @csspart cell - The row: the native button, the hit area.
+ * @csspart cell - The row: the native button (or, for a group that is a link, the anchor), the hit area.
+ * @csspart toggle - The chevron's own button, while the group is a destination (hidden from nothing: it is named by the group's label and carries its expanded state).
  * @csspart container - The item container (the state layer's box, the focus ring's and the ripple's).
  * @csspart active-indicator - The fill of the item container (drawn selected while the group shows the selection, NVD-47).
  * @csspart icon-indicator - The box behind the icon alone.
@@ -653,10 +667,84 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
 
   static override properties: PropertyDeclarations = {
     open: { type: Boolean, reflect: true },
+    // Its own accessor (below): a link without a value reads its href. Reflected by hand, as it was given.
+    value: { type: String, noAccessor: true },
+    href: { type: String },
   };
 
   /** Whether its items are shown under its row while the drawer is expanded. Reflected; the drawer sets it on activation. */
   open = false;
+
+  private given = '';
+
+  /**
+   * What identifies the group as a destination while the drawer's `selectable-groups` is set (NVD-66): the drawer's
+   * `value` selects it by this, and `change` / `reselect` carry it. While it is given none, its `href` stands for it, as
+   * written. Ignored while the drawer's groups are not selectable.
+   */
+  get value(): string {
+    return this.given || (readDestination(this.href).href ?? '');
+  }
+
+  set value(value: string) {
+    const before = this.value;
+    this.given = value ?? '';
+    this.requestUpdate('value', before);
+  }
+
+  /** The address the group leads to as a destination (NVD-66): its row is then a link, opened where the person is. Ignored while the drawer's groups are not selectable. */
+  href = '';
+
+  /** @internal A group's link always opens where the person is: these are not props of a group. */
+  readonly target = 'same';
+  /** @internal */
+  readonly targetLabel = '';
+  /** @internal */
+  readonly rel: string | null = null;
+  /** @internal */
+  readonly download: string | null = null;
+
+  /** NVD-59, NVD-64: the link the row is while the group is a destination with an address (src/primitives/link.ts). */
+  private readonly link = new LinkController(this, { ids: { refused: 'NVD-64', newContext: 'NVD-63' }, disabled: () => this.disabled });
+
+  /** The link the row is now: only while the group is a destination. */
+  private get linkForm() {
+    return this.context.destination ? this.link.form : null;
+  }
+
+  /** NVD-1, NVD-59: the row of a group that is a link is pressed by Enter alone. */
+  protected override get pressKeys(): readonly string[] | undefined {
+    return this.linkForm ? this.link.pressKeys : undefined;
+  }
+
+  /** @internal The drawer's side (`DestinationsController`), while the group is a destination. */
+  setDestinationContext(context: DestinationContext) {
+    this.setDrawerContext({ ...REST, ...context });
+  }
+
+  /** @internal NVD-60: as an item's, for the row of a group that is a link. */
+  linkActivation(event: MouseEvent): { href: string; counted: boolean } | null {
+    const form = this.linkForm;
+    if (!form) return null;
+    const plain = event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && !event.defaultPrevented;
+    return { href: this.href, counted: plain && !form.disabled && !form.opensNew };
+  }
+
+  /** @internal NVD-67: whether a click came from the group's row (the destination), and not from its chevron or its items. */
+  activatedBy(event: Event): boolean {
+    const path = event.composedPath();
+    return !!this.cell && path.includes(this.cell);
+  }
+
+  private get toggle(): HTMLElement | null {
+    return this.renderRoot?.querySelector<HTMLElement>('.toggle') ?? null;
+  }
+
+  /** @internal NVD-36: the chevron's own button has focus (the collapsed form does not draw it). */
+  get toggleFocused(): boolean {
+    const toggle = this.toggle;
+    return !!toggle && this.shadowRoot?.activeElement === toggle;
+  }
 
   /** @internal Opens or closes the group as its user did, and fires `toggle` (NVD-45, NVD-47). */
   setOpenByUser(open: boolean) {
@@ -705,6 +793,9 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
   private readonly onClick = () => {
     this.hideName();
     if (this.disabled) return;
+    // NVD-66, NVD-67: the row of a group that is a destination chooses it — the drawer's own click listener does, as for
+    // an item — and neither opens nor closes it, in either form.
+    if (this.context.destination) return;
     // NVD-47: a group's cell in the collapsed drawer expands the drawer with the group open.
     if (this.context.collapsed) {
       this.drawer?.expandToGroup(this);
@@ -732,15 +823,50 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     this.press.onKeyDown(event);
   };
 
+  /** NVD-67: the chevron's own button opens and closes the group, and chooses nothing. */
+  private readonly onToggle = () => {
+    if (this.disabled) return;
+    this.setOpenByUser(!this.open);
+  };
+
+  /** NVD-67: on the chevron, Enter and Space press it (shown on the item container); the arrows open and close as on the row. */
+  private readonly onToggleKeyDown = (event: KeyboardEvent) => {
+    const arrow = this.arrow(event.key);
+    if (arrow === 'end' && !this.open) {
+      event.preventDefault();
+      this.setOpenByUser(true);
+      return;
+    }
+    if (arrow === 'start' && this.open) {
+      event.preventDefault();
+      this.setOpenByUser(false);
+      return;
+    }
+    if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) this.press.press(null);
+  };
+
+  private readonly onToggleKeyUp = (event: KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') this.press.release();
+  };
+
+  private readonly onToggleFocus = () => syncFocusStyle(this, this.toggle);
+
   protected override updated(changed: PropertyValues<this>) {
     super.updated(changed);
     // NVD-46: a group without a label is a button and a list without a name.
     if (changed.has('label') && !this.label.trim()) report(this, 'NVD-46', 'label is empty, so the group has no accessible name; give it a label');
+    // The value as it was given, for a selector or a product that reads it; an href is not written back as one.
+    if (changed.has('value')) {
+      if (this.given) {
+        if (this.getAttribute('value') !== this.given) this.setAttribute('value', this.given);
+      } else if (this.hasAttribute('value')) this.removeAttribute('value');
+    }
     notifyDestinationUpdate(this, changed);
   }
 
   protected override render() {
     const shown = this.open && !this.context.collapsed;
+    if (this.context.destination) return this.renderDestination(shown);
     return html`<button
         part="cell"
         id="row"
@@ -762,11 +888,99 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
         @blur=${this.onBlur}
         @focus=${this.onFocus}
       >
-        ${this.row(html`<span class="trailing filled" aria-hidden="true"><span part="chevron" class="chevron">expand_more</span></span>`)}
+        ${this.row(this.chevron())}
       </button>
-      <div class=${classMap({ items: true, shown })} ?inert=${!shown}>
-        <div class="fold"><div part="items" id="items" class="list" role="list" aria-labelledby="row"><slot></slot></div></div>
-      </div>`;
+      ${this.fold(shown)}`;
+  }
+
+  /** NVD-44: the chevron at the end of the row (drawn, hidden from assistive technology: the row or the toggle says the state). */
+  private chevron() {
+    return html`<span class="trailing filled" aria-hidden="true"><span part="chevron" class="chevron">expand_more</span></span>`;
+  }
+
+  /** NVD-44, NVD-46: the items, revealed and hidden under the row, a list named by the group's label. */
+  private fold(shown: boolean) {
+    return html`<div class=${classMap({ items: true, shown })} ?inert=${!shown}>
+      <div class="fold"><div part="items" id="items" class="list" role="list" aria-labelledby="row"><slot></slot></div></div>
+    </div>`;
+  }
+
+  /**
+   * NVD-66, NVD-67: a group that is a destination. Its row is the destination — the link or the button an item is, with
+   * `aria-current` while it is the selected one — and, while the drawer is expanded, its chevron is a button of its own
+   * laid over the end of the cell, after the row in the focus order, which alone opens and closes the group.
+   */
+  private renderDestination(shown: boolean) {
+    const { current, collapsed } = this.context;
+    const classes = classMap(this.cellClasses({ open: shown }));
+    const style = styleMap(this.cellStyle());
+    const form = this.linkForm;
+    const content = this.row(this.chevron());
+    const row = form
+      ? html`<a
+          part="cell"
+          id="row"
+          class=${classes}
+          style=${style}
+          ${linkAttributes(form)}
+          aria-current=${current ? 'page' : nothing}
+          aria-label=${this.label || nothing}
+          @click=${this.onClick}
+          @pointerdown=${this.press.onPointerDown}
+          @pointerup=${this.press.release}
+          @pointercancel=${this.press.release}
+          @pointerenter=${this.onPointerEnter}
+          @pointerleave=${this.onPointerLeave}
+          @keydown=${this.onKeyDown}
+          @keyup=${this.press.onKeyUp}
+          @blur=${this.onBlur}
+          @focus=${this.onFocus}
+          >${content}</a
+        >`
+      : html`<button
+          part="cell"
+          id="row"
+          class=${classes}
+          style=${style}
+          type="button"
+          ?disabled=${this.disabled}
+          aria-current=${current ? 'page' : nothing}
+          aria-label=${this.label || nothing}
+          @click=${this.onClick}
+          @pointerdown=${this.press.onPointerDown}
+          @pointerup=${this.press.release}
+          @pointercancel=${this.press.release}
+          @pointerenter=${this.onPointerEnter}
+          @pointerleave=${this.onPointerLeave}
+          @keydown=${this.onKeyDown}
+          @keyup=${this.press.onKeyUp}
+          @blur=${this.onBlur}
+          @focus=${this.onFocus}
+        >
+          ${content}
+        </button>`;
+    const toggle = collapsed
+      ? nothing
+      : html`<button
+          part="toggle"
+          class="toggle"
+          type="button"
+          data-tanrei-shape
+          ?disabled=${this.disabled}
+          aria-label=${this.label || nothing}
+          aria-expanded=${String(shown)}
+          aria-controls="items"
+          @click=${this.onToggle}
+          @pointerdown=${this.press.onPointerDown}
+          @pointerup=${this.press.release}
+          @pointercancel=${this.press.release}
+          @keydown=${this.onToggleKeyDown}
+          @keyup=${this.onToggleKeyUp}
+          @focus=${this.onToggleFocus}
+          @blur=${this.press.onBlur}
+        ></button>`;
+    return html`<div class="split">${row}${toggle}</div>
+      ${this.fold(shown)}`;
   }
 }
 
@@ -844,6 +1058,8 @@ interface Place {
 
 /** What the drawer knows at a sync: what shows the selection, its top-level cells, and where every cell stands. */
 interface Snapshot {
+  /** The selected destination: an item, or a group that is a destination (NVD-66). */
+  selected: DrawerCell | null;
   /** The cell drawn selected: the selected destination, or the group that shows it (NVD-47). */
   shower: DrawerCell | null;
   top: DrawerCell[];
@@ -944,6 +1160,7 @@ export class TanreiNavigationDrawer extends LitElement {
     decided: { state: true },
     value: { type: String },
     revealSelected: { type: Boolean, attribute: 'reveal-selected' },
+    selectableGroups: { type: Boolean, attribute: 'selectable-groups' },
     // Its own accessor (below): the scroller's present offset. The attribute is read once, for the first frame.
     scrollOffset: { type: Number, attribute: 'scroll-offset', noAccessor: true },
     label: { type: String },
@@ -1001,6 +1218,14 @@ export class TanreiNavigationDrawer extends LitElement {
   revealSelected = false;
 
   /**
+   * Lets a group be a destination as well as a row that opens and closes (NVD-66): a setting of the product's, off by
+   * default. While set, a group with a `value` or an `href` is selected by `value` and fires `change` or `reselect`
+   * from its row, which is a link with an `href`; its chevron becomes a button of its own that alone opens and closes it
+   * (NVD-67). A group without either still only opens and closes.
+   */
+  selectableGroups = false;
+
+  /**
    * The offset the product gave, while it still has work to do: until it has been written (`unwritten` — nothing is
    * laid out yet), and until the first frame is drawn, because the first frame's order may run more than once while the
    * drawer's children are still arriving (NVD-62).
@@ -1046,11 +1271,15 @@ export class TanreiNavigationDrawer extends LitElement {
   /** NVD-26: variants a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'navigation-drawer', behavior: 'NVD-26', axes: AXES });
 
-  private snapshot: Snapshot = { shower: null, top: [], places: new Map() };
+  private snapshot: Snapshot = { selected: null, shower: null, top: [], places: new Map() };
 
   /** NVD-1…3, NVD-24, NVD-29: selection, activation and the debug reports (src/primitives/destination.ts). */
-  private readonly destinations = new DestinationsController<TanreiNavigationDrawerItem>(this, {
-    items: () => [...this.querySelectorAll(ITEM)].filter((item): item is TanreiNavigationDrawerItem => item instanceof TanreiNavigationDrawerItem),
+  private readonly destinations = new DestinationsController<DrawerDestination>(this, {
+    // NVD-66: a group that is a destination is one of them, in reading order, before the items it holds.
+    items: () =>
+      [...this.querySelectorAll(CELLS)].filter(
+        (cell): cell is DrawerDestination => cell instanceof TanreiNavigationDrawerItem || (cell instanceof TanreiNavigationDrawerGroup && this.isDestinationGroup(cell)),
+      ),
     ids: { unknownValue: 'NVD-3', emptyLabel: 'NVD-24', duplicate: 'NVD-29' },
     context: (item, base) => {
       if (base.position === 1) {
@@ -1066,7 +1295,14 @@ export class TanreiNavigationDrawer extends LitElement {
     },
     // NVD-60: a link is followed, not selected.
     link: (item, event) => item.linkActivation(event),
+    // NVD-67: a group that is a destination is chosen by its row alone — not by its chevron, nor by its items' room.
+    activates: (item, event) => !(item instanceof TanreiNavigationDrawerGroup) || item.activatedBy(event),
   });
+
+  /** NVD-66: whether a group is a destination as well: selectableGroups, and a value or an href. */
+  private isDestinationGroup(group: TanreiNavigationDrawerGroup): boolean {
+    return this.selectableGroups && !!group.value;
+  }
 
   /** Where focus was when the drawer opened (NVD-22, NVD-28). */
   private opener: Element | null = null;
@@ -1123,9 +1359,9 @@ export class TanreiNavigationDrawer extends LitElement {
     this.addEventListener('focusin', this.onFocusIn);
   }
 
-  /** The drawer's destinations, in reading order, in sections and groups or not. */
+  /** The drawer's destinations, in reading order, in sections and groups or not (its items: a group that is a destination is not among them). */
   get items(): TanreiNavigationDrawerItem[] {
-    return this.destinations.items;
+    return this.destinations.items.filter((item): item is TanreiNavigationDrawerItem => item instanceof TanreiNavigationDrawerItem);
   }
 
   /** The drawer's groups, in reading order. */
@@ -1205,7 +1441,8 @@ export class TanreiNavigationDrawer extends LitElement {
     this.shownFor = key;
     this.viewOwed = true;
     if (!selected || !this.revealSelected) return;
-    const closed = groupsOf(selected).filter((group) => !group.open);
+    // NVD-58: and a group that is itself the selected destination, so that the pages of the section shown are drawn.
+    const closed = [...groupsOf(selected), ...(selected instanceof TanreiNavigationDrawerGroup ? [selected] : [])].filter((group) => !group.open);
     for (const group of closed) group.openForSelection(!this.painted);
     this.revealed.push(...closed);
   }
@@ -1505,15 +1742,20 @@ export class TanreiNavigationDrawer extends LitElement {
     };
     walk(this, 0, top);
     top.forEach((cell, index) => places.set(cell, { level: 0, position: index + 1, size: top.length }));
-    return { shower, top, places };
+    return { selected, shower, top, places };
   }
 
   private cellContext(cell: DrawerCell, selected: boolean): DrawerCellContext {
     const { shower, places } = this.snapshot;
     const { level, position, size } = places.get(cell) ?? { level: groupsOf(cell).length, position: 0, size: 0 };
     const mode = this.labelsMode;
+    const group = cell instanceof TanreiNavigationDrawerGroup;
+    // A group is drawn selected while it shows the selection (NVD-47) or is it (NVD-66), however it is asked.
+    const current = cell === this.snapshot.selected;
     return {
-      selected,
+      selected: group ? cell === shower || current : selected,
+      current,
+      destination: group ? this.isDestinationGroup(cell) : true,
       position,
       size,
       labelShown: true,
@@ -1526,12 +1768,14 @@ export class TanreiNavigationDrawer extends LitElement {
   }
 
   /** The groups and sections are told the form and the selection too; and what a debug build reports about the structure. */
-  private syncStructure(items: TanreiNavigationDrawerItem[]) {
+  private syncStructure(items: DrawerDestination[]) {
     if (!items.length) this.snapshot = this.takeSnapshot();
     const { shower, top } = this.snapshot;
     for (const group of this.groups) {
       const context = this.cellContext(group, group === shower);
       group.setDrawerContext(context);
+      // NVD-66: a value or an address on a group whose drawer does not make groups destinations is ignored.
+      if (!this.selectableGroups && (group.value || group.href)) report(this, 'NVD-66', `the group "${group.label}" has a value or an href and selectableGroups is false, so it only opens and closes; set selectable-groups to make it a destination`);
       // NVD-48: deeper than three levels is still drawn, and reported.
       if (context.level + 1 > DEEPEST) report(this, 'NVD-48', `groups nest ${context.level + 1} levels deep; a drawer is made for at most ${DEEPEST}`);
     }
@@ -1629,6 +1873,8 @@ export class TanreiNavigationDrawer extends LitElement {
     }
     if (!at || at === this) return false;
     if (at.closest('[slot="header"]')) return true;
+    // NVD-36: the chevron of a group that is a destination is not drawn collapsed.
+    if (at instanceof TanreiNavigationDrawerGroup && at.toggleFocused) return true;
     const cell = at.closest(CELLS);
     return !!cell && groupsOf(cell).length > 0;
   }
@@ -1896,6 +2142,8 @@ export class TanreiNavigationDrawer extends LitElement {
   }
 
   protected override updated(changed: PropertyValues<this>) {
+    // NVD-66: groups become destinations, or stop being ones, at once; nothing is emitted for it.
+    if (changed.has('selectableGroups') && changed.get('selectableGroups') !== undefined) this.destinations.sync();
     // NVD-58: turned on, it shows the selection it has.
     if (changed.has('revealSelected') && changed.get('revealSelected') === false && this.revealSelected) {
       this.shownFor = undefined;

@@ -1,5 +1,5 @@
 // <tanrei-navigation-drawer>, its items, groups and sections, driven by specs/navigation-drawer.spec.json: every behaviour
-// id (NVD-1…65) is cited by a test title, every fixture has a baseline, and every value is read back from the tokens.
+// id (NVD-1…67) is cited by a test title, every fixture has a baseline, and every value is read back from the tokens.
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
@@ -2697,6 +2697,171 @@ test.describe('density', () => {
     expect((await bounds(cell(touch, 'compact', 0))).height).toBeCloseTo(target, 2);
     expect((await bounds(box(touch, 'compact', 0))).height).toBeCloseTo(target, 2);
     await context.close();
+  });
+});
+
+test.describe('groups that are destinations', () => {
+  const SELECTABLE = spec.fixtures.find((f) => f.id === 'selectable-groups')!;
+  /** The chevron's own button of a group that is a destination. */
+  const toggle = (page: P, id: string, n: number) => group(page, id, n).locator('.toggle').first();
+  /** The value of the group or item at a point of the page. */
+  const at = (page: P, x: number, y: number) =>
+    page.evaluate(([xx, yy]) => {
+      let node: Element | null = document.elementFromPoint(xx, yy);
+      // Into the shadow roots, to the deepest element at the point.
+      while (node?.shadowRoot) {
+        const inner = node.shadowRoot.elementFromPoint(xx, yy);
+        if (!inner || inner === node) break;
+        node = inner;
+      }
+      return node?.classList.contains('toggle') ? 'toggle' : node?.classList.contains('cell') ? 'row' : (node?.localName ?? null);
+    }, [x, y]);
+
+  test('NVD-66: with selectableGroups a group with a value is a destination — selected by value and drawn from the selected parts, the current page, chosen by its row (change, then reselect) without opening or closing; one without a value only opens and closes; with selectableGroups false every group only opens and closes, and a value on one is reported', async ({ page }) => {
+    const seen: string[] = [];
+    page.on('console', (message) => seen.push(message.text()));
+    await mount(page, [SELECTABLE], { reducedMotion: true });
+    await wire(page);
+    const id = 'selectable-groups';
+    // Components (group 1) is the selected destination.
+    await expect.poll(() => drawn(group(page, id, 1))).toEqual(await expected(page, 'selected'));
+    await expect(groupRow(page, id, 1)).toHaveAttribute('aria-current', 'page');
+    await expect(groupRow(page, id, 1)).not.toHaveAttribute('aria-expanded');
+    await expect(groupRow(page, id, 0)).not.toHaveAttribute('aria-current');
+    // The drawer's items are its items; a group that is a destination is selected through value alone.
+    expect(await drawer(page, id).evaluate((el: any) => el.items.length)).toBe(6);
+    // A press on Foundations' label: one change, no toggle, and it stays closed.
+    await group(page, id, 0).locator('.label').first().click();
+    expect(await log(page)).toEqual(['change:foundations:foundations']);
+    expect(await group(page, id, 0).evaluate((el: any) => el.open)).toBe(false);
+    await expect(groupRow(page, id, 0)).toHaveAttribute('aria-current', 'page');
+    await group(page, id, 0).locator('.label').first().click();
+    expect((await log(page)).at(-1)).toBe('reselect:foundations:foundations');
+    // Resources has no value: its row is the disclosure button it always was.
+    await expect(groupRow(page, id, 2)).toHaveAttribute('aria-expanded', 'false');
+    expect(await group(page, id, 2).locator('.toggle').count()).toBe(0);
+    await groupRow(page, id, 2).click();
+    expect((await log(page)).at(-1)).toBe('toggle:Resources:true:true');
+    // selectableGroups false: Foundations only opens and closes, and its value is reported.
+    await setProps(page, id, { selectableGroups: false, value: 'button' });
+    await page.evaluate(() => ((window as any).log.length = 0));
+    await groupRow(page, id, 0).click();
+    expect(await log(page)).toEqual(['toggle:Foundations:true:true']);
+    await expect(groupRow(page, id, 0)).toHaveAttribute('aria-expanded', 'true');
+    await expect.poll(() => seen.some((line) => line.includes('NVD-66') && line.includes('"Foundations"'))).toBe(true);
+    // Turned on again while shown: drawn at once, nothing emitted, every group's open kept.
+    await page.evaluate(() => ((window as any).log.length = 0));
+    const opens = await page.evaluate(() => [...document.querySelectorAll<any>('tanrei-navigation-drawer-group')].map((g) => g.open));
+    await setProps(page, id, { selectableGroups: true });
+    expect(await log(page)).toEqual([]);
+    expect(await page.evaluate(() => [...document.querySelectorAll<any>('tanrei-navigation-drawer-group')].map((g) => g.open))).toEqual(opens);
+    await expect(toggle(page, id, 0)).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('NVD-66: a group with an href is a link, counted as a link destination is (NVD-60), its href standing as its value', async ({ page }) => {
+    await mount(page, [fixture('l', [{ kind: 'group', props: { label: 'Guides', icon: 'menu_book', href: '#guides' }, items: [link('Start', '#start')] }, link('About', '#about')], { selectableGroups: true, value: '#guides' })], { reducedMotion: true });
+    await wire(page);
+    const row = groupRow(page, 'l', 0);
+    await expect(row).toHaveAttribute('href', '#guides');
+    await expect(row).toHaveAttribute('aria-current', 'page');
+    expect(await group(page, 'l', 0).evaluate((el: any) => el.value)).toBe('#guides');
+    await drawer(page, 'l').evaluate((el) => el.addEventListener('reselect', (e) => e.preventDefault()));
+    await row.click();
+    expect(await log(page)).toEqual(['reselect:#guides:#guides']);
+    // A modified click is the browser's: nothing is emitted.
+    await row.click({ modifiers: ['ControlOrMeta'] });
+    expect(await log(page)).toEqual(['reselect:#guides:#guides']);
+  });
+
+  test('NVD-67: the chevron opens and the row chooses — a press on the chevron toggles and chooses nothing, a press just before its hit area chooses and toggles nothing; its hit area reaches the cell’s end and is at least the pointer target wide; hover anywhere shows on the item container', async ({ page }) => {
+    await mount(page, [SELECTABLE], { reducedMotion: true });
+    await wire(page);
+    const id = 'selectable-groups';
+    const target = await px(page, '--tanrei-sys-target-pointer');
+    const c = await bounds(groupRow(page, id, 1));
+    const hit = await toggle(page, id, 1).evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      const before = getComputedStyle(el, '::before');
+      return { right: box.right, width: Number.parseFloat(before.width) };
+    });
+    const p = await bounds(panel(page, id));
+    // The hit area ends at the cell's end edge.
+    expect(hit.width).toBeGreaterThanOrEqual(target - 0.5);
+    const startOfHit = p.x + p.width - hit.width;
+    const y = c.y + c.height / 2;
+    expect(await at(page, startOfHit + 1, y)).toBe('toggle');
+    expect(await at(page, p.x + p.width - 1, y)).toBe('toggle');
+    expect(await at(page, startOfHit - 1, y)).toBe('row');
+    // The chevron's box covers the chevron.
+    const chevron = await bounds(group(page, id, 1).locator('.chevron').first());
+    const box = await bounds(toggle(page, id, 1));
+    expect(box.x).toBeLessThanOrEqual(chevron.x);
+    expect(box.x + box.width).toBeGreaterThanOrEqual(chevron.x + chevron.width);
+    await page.mouse.click(p.x + p.width - 4, y);
+    expect(await log(page)).toEqual(['toggle:Components:false:false']);
+    await page.mouse.click(startOfHit - 2, y);
+    expect(await log(page)).toEqual(['toggle:Components:false:false', 'reselect:components:components']);
+    // Hover on the chevron is a hover on the cell.
+    await page.mouse.move(700, 5);
+    await page.mouse.move(p.x + p.width - 4, y);
+    await expect.poll(() => css(group(page, id, 1).locator('.indicator').first(), 'background-color')).toBe(await resolveColor(page, T('selected-hovered-item-container-color')));
+    // A press on the chevron shows the pressed state on the item container.
+    await page.mouse.down();
+    expect(await group(page, id, 1).locator('.row > .container').first().getAttribute('data-pressed')).toBe('overlay');
+    await page.mouse.up();
+  });
+
+  test('NVD-67: Tab moves from the row to its chevron and on to the first item; Enter and Space on the chevron toggle; the arrows open and close from the row and the chevron; the ring is drawn around the chevron’s own box', async ({ page }) => {
+    await mount(page, [SELECTABLE], { reducedMotion: true });
+    await wire(page);
+    const id = 'selectable-groups';
+    await tabTo(page, groupRow(page, id, 1));
+    await tab(page);
+    await expect(toggle(page, id, 1)).toBeFocused();
+    await expect(toggle(page, id, 1)).toHaveAttribute('aria-expanded', 'true');
+    await expect(toggle(page, id, 1)).toHaveAttribute('aria-label', 'Components');
+    await expect(toggle(page, id, 1)).toHaveCSS('outline-style', 'solid');
+    await expect(group(page, id, 1).locator('.row > .container').first()).toHaveCSS('outline-style', 'none');
+    await tab(page);
+    await expect(cell(page, id, 3)).toBeFocused();
+    // Back to the chevron: Enter and Space close and open it; nothing is chosen.
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Space');
+    expect(await log(page)).toEqual(['toggle:Components:false:false', 'toggle:Components:true:true']);
+    await page.keyboard.press('ArrowLeft');
+    expect((await log(page)).at(-1)).toBe('toggle:Components:false:false');
+    // On the row: Right opens it, Left closes it, Enter chooses it.
+    await page.keyboard.press('Shift+Tab');
+    await expect(groupRow(page, id, 1)).toBeFocused();
+    await page.keyboard.press('ArrowRight');
+    expect((await log(page)).at(-1)).toBe('toggle:Components:true:true');
+    await page.keyboard.press('Enter');
+    expect((await log(page)).at(-1)).toBe('reselect:components:components');
+    expect(await group(page, id, 1).evaluate((el: any) => el.open)).toBe(true);
+  });
+
+  test('NVD-67, NVD-47: collapsed, a group that is a destination is its cell alone — a press chooses it, does not expand the drawer and opens nothing; NVD-36: focus on its chevron when the drawer collapses goes to the menu button', async ({ page }) => {
+    await mount(page, [rail('c', [{ kind: 'group', props: { label: 'Folders', icon: 'folder', value: 'folders' }, items: [d('work', 'Work', 'work')] }, ...MAIL], { selectableGroups: true })], { reducedMotion: true });
+    await wire(page);
+    expect(await group(page, 'c', 0).locator('.toggle').count()).toBe(0);
+    await groupRow(page, 'c', 0).click();
+    expect(await log(page)).toEqual(['change:folders:folders']);
+    expect(await drawer(page, 'c').evaluate((el: any) => [el.expanded, el.collapsed])).toEqual([false, true]);
+    expect(await group(page, 'c', 0).evaluate((el: any) => el.open)).toBe(false);
+    await expect(groupRow(page, 'c', 0)).toHaveAttribute('aria-current', 'page');
+    // Expanded, the chevron is drawn; focus on it when the drawer collapses goes to the menu button.
+    await setProps(page, 'c', { expanded: true });
+    await tabTo(page, toggle(page, 'c', 0));
+    await setProps(page, 'c', { expanded: false });
+    await expect.poll(() => menu(page, 'c').evaluate((el) => el.matches(':focus-within'))).toBe(true);
+  });
+
+  test('NVD-58: revealSelected opens a group that is itself the selected destination, and the groups that hold it, emitting toggle for each', async ({ page }) => {
+    const nested = { kind: 'group', props: { label: 'Navigation', value: 'navigation' }, items: [d('drawer', 'Navigation drawer')] } as FixtureItem;
+    await mount(page, [fixture('s', [{ kind: 'group', props: { label: 'Components', value: 'components' }, items: [d('button', 'Button'), nested] }, d('home', 'Home')], { selectableGroups: true, revealSelected: true, value: 'navigation' })], { reducedMotion: true });
+    expect(await page.evaluate(() => [...document.querySelectorAll<any>('tanrei-navigation-drawer-group')].map((g) => g.open))).toEqual([true, true]);
+    await expect(groupRow(page, 's', 1)).toHaveAttribute('aria-current', 'page');
   });
 });
 

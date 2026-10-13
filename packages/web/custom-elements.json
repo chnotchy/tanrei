@@ -51494,7 +51494,7 @@
         {
           "kind": "variable",
           "name": "cellStyles",
-          "default": "css` :host { display: block; outline: none; /* NVD-65: the glyph sizes of the drawer's density, as properties the icon helper reads. */ --_nvd-cell-icon: ${d('--_nvd-icon')}; --_nvd-cell-trailing-icon: ${d('--_nvd-trailing-icon')}; } :host([hidden]) { display: none; } ${unsafeCSS(conditionBlock(PREFIX, 'unselected', PARTS, '.cell'))} ${unsafeCSS(conditionBlock(PREFIX, 'selected', PARTS, '.cell.selected'))} ${unsafeCSS(conditionBlock(PREFIX, 'collapsed-unselected', PARTS, '.cell.collapsed'))} ${unsafeCSS(conditionBlock(PREFIX, 'collapsed-selected', PARTS, '.cell.collapsed.selected'))} .cell { all: unset; box-sizing: border-box; position: relative; display: block; inline-size: 100%; padding-inline-start: ${t('container-padding-inline')}; /* NVD-35: the row, laid out for the expanded drawer, is clipped at the drawer's moving end edge. */ overflow-x: clip; overflow-y: visible; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; ${unsafeCSS(set('-r'))} /* A part the states, the selection and the form all recolor takes the state motion (NVD-41: a selection changes color in place, over it), and the change of form's while the form changes (the drawer's). */ --_recolor-duration: var(--_nvd-recolor-duration, ${t('motion-state-duration')}); --_recolor-easing: var(--_nvd-recolor-easing, ${t('motion-state-easing')}); --_labels: calc(${t('collapsed-item-gap')} + ${unsafeCSS(SHORT_LINE)}); transition: opacity ${t('motion-state-duration')} ${t('motion-state-easing')}; } .cell.no-labels { --_labels: 0px; } /* NVD-31: while the drawer is collapsible, every cell has the same height and icon line in both forms: the icon line lies the larger of half the expanded row and collapsed padding-block plus half the icon indicator below the top, and the cell reaches the larger of half the expanded row and half the icon indicator, the short label's gap and line (unless collapsedLabels is never) and collapsed padding-block below it. The row is centred on that line. */ .cell.collapsible { padding-block-start: max(0px, calc(${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-height')} / 2)); padding-block-end: max(0px, calc(${d('--_nvd-ind-h')} / 2 + var(--_labels) + ${d('--_nvd-pill-pad')} - ${d('--_nvd-height')} / 2)); } /* Nothing inside the cell is hit-tested: a press anywhere in it lands on the native button or link itself. */ .cell * { pointer-events: none; } .cell.d { cursor: default; } /* NVD-6: the hit area is the cell with half of container.gap above and below, and never below the minimum target. */ .cell::before { content: ''; position: absolute; inset-inline: 0; inset-block-start: 50%; block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--_nvd-target, var(--tanrei-sys-target-pointer))); transform: translateY(-50%); } @media (pointer: coarse) { .cell::before { block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--tanrei-sys-target-touch)); } } /* NVD-13: the expanded row, across the expanded drawer's inner width (whatever the form: the cell clips it). */ .row { box-sizing: border-box; position: relative; isolation: isolate; display: flex; align-items: center; gap: ${d('--_nvd-item-gap')}; inline-size: calc(${t('container-width')} - 2 * ${t('container-padding-inline')}); min-block-size: ${d('--_nvd-height')}; padding-inline-end: ${d('--_nvd-pad')}; } /* NVD-13, NVD-32, NVD-35: the item container — the expanded row, as wide at every level of nesting (a nested destination's fill, state layer and focus indicator have a top-level row's width; its content alone starts item.nest-indent further in per level), or the collapsed cell (collapsed.item.container.width, centred in the icon column, from collapsed padding-block above the icon indicator to collapsed padding-block below the short label, or below the icon indicator where the short label is not drawn) — one shape that changes size and corners around the same icon line over the change of form. Where the two forms give it the same height and corners, its end edge alone moves. */ .container { box-sizing: border-box; position: absolute; z-index: -1; isolation: isolate; inset-block-start: 0; inset-inline-start: 0; inline-size: 100%; block-size: 100%; ${unsafeCSS(cornerRadius(`${PREFIX}-item-container-shape`))} transition: inset-block-start ${unsafeCSS(MORPH)}, inset-inline-start ${unsafeCSS(MORPH)}, inline-size ${unsafeCSS(MORPH)}, block-size ${unsafeCSS(MORPH)}, border-radius ${unsafeCSS(MORPH)}; } .cell.collapsed .container { inset-block-start: calc(50% - ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-pill-pad')}); inset-inline-start: ${unsafeCSS(PILL_X)}; inline-size: ${d('--_nvd-pill')}; block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')} + var(--_labels)); ${unsafeCSS(cornerRadius(`${PREFIX}-collapsed-item-container-shape`))} } .cell.collapsed:not(.short-shown) .container { block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')}); } /* NVD-41: a collapsed cell that gains or loses its short label (collapsedLabels selected) changes over the selection motion. */ .cell[data-condition-change] .container { transition-duration: ${t('motion-selection-duration')}; transition-timing-function: ${t('motion-selection-easing')}; } /* The active indicator and the state layer: the item container's color in the current condition and state. NVD-41: a selection changes it in place, at its full size and shape, over the state motion — it never grows, shrinks or slides to show one. */ .indicator { position: absolute; z-index: -2; inset: 0; border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale)); corner-shape: inherit; background: var(--_c); pointer-events: none; transition: background-color var(--_recolor-duration) var(--_recolor-easing); } /* NVD-13, NVD-14, NVD-32: the icon, centred on the icon column's centre line (and item.nest-indent further per level), the icon indicator centred behind it and taking no space. */ .lead { position: relative; display: grid; flex: none; place-items: center; inline-size: ${d('--_nvd-icon')}; block-size: ${d('--_nvd-icon')}; margin-inline-start: calc(${unsafeCSS(ICON_LINE_X)} - ${d('--_nvd-icon')} / 2); } /* NVD-49: without an icon the icon indicator is still drawn, empty, on the icon column, taking no space. */ .cell.no-icon .lead { position: absolute; inset-block-start: calc(50% - ${d('--_nvd-icon')} / 2); inset-inline-start: calc(${unsafeCSS(ICON_LINE_X)} - ${d('--_nvd-icon')} / 2); margin: 0; } .icon-indicator { position: absolute; z-index: -1; top: 50%; left: 50%; inline-size: ${d('--_nvd-ind-w')}; block-size: ${d('--_nvd-ind-h')}; translate: -50% -50%; ${unsafeCSS(cornerRadius(`${PREFIX}-item-icon-indicator-shape`))} background: var(--_n); /* NVD-41: the selection motion, read by the element through real properties (no animation is named here): the icon indicator grows in width from its centre on the newly selected cell, and fades out on the previous one. */ animation-duration: ${t('motion-selection-duration')}; animation-timing-function: ${t('motion-selection-easing')}; transition: background-color var(--_recolor-duration) var(--_recolor-easing); } .cell[data-condition-change] .icon-indicator { transition: background-color ${t('motion-selection-duration')} ${t('motion-selection-easing')}; } .cell.selected[data-condition-change] .icon-indicator { transition: none; } ${iconGlyph('.icon', { size: '--_nvd-cell-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} .icon { color: var(--_i); transition: color var(--_recolor-duration) var(--_recolor-easing), font-variation-settings var(--_recolor-duration) var(--_recolor-easing); } /* NVD-13: the label, item.gap after the icon — or item.padding-inline (and the nesting indent) from the row's start without one — wrapping rather than truncating; the row grows with it. NVD-35: it fades out over the first half of a collapse and in over the second half of an expansion, clipped at the moving edge. */ .label { flex: 1 1 auto; min-inline-size: 0; padding-block: max(0px, calc((${d('--_nvd-height')} - 1lh) / 2)); font: ${d('--_nvd-label-font')}; letter-spacing: ${d('--_nvd-label-tracking')}; color: var(--_l); overflow-wrap: break-word; opacity: 1; transition: color var(--_recolor-duration) var(--_recolor-easing), opacity ${unsafeCSS(SECOND_HALF)}; } .cell.no-icon .label { margin-inline-start: calc(${d('--_nvd-pad')} + var(--_level, 0) * ${d('--_nvd-indent')}); } /* NVD-43: the trailing content at the row's end, item.gap after the label and item.padding-inline from the end: the trailing text on one line, never truncated, in trailing-text.typescale; a glyph in the trailing slot at trailing-icon.size (anything else as it draws itself); a group's chevron (NVD-44). Not interactive. NVD-51: iconGlyph() mirrors the icon and a glyph in the trailing slot that GlyphMirrorController marked, in right-to-left; the chevron (expand_more) is never marked. */ .trailing { display: flex; flex: none; align-items: center; opacity: 1; transition: opacity ${unsafeCSS(SECOND_HALF)}; } .trailing:not(.filled) { display: none; } .trailing-text { font: ${t('item-trailing-text-typescale-font')}; letter-spacing: ${t('item-trailing-text-typescale-letter-spacing')}; color: var(--_tt); white-space: nowrap; font-variant-numeric: tabular-nums; transition: color var(--_recolor-duration) var(--_recolor-easing); } .trailing-slot:not(.filled) { display: none; } .trailing-slot { display: flex; align-items: center; color: var(--_ti); transition: color var(--_recolor-duration) var(--_recolor-easing); } ${iconGlyph('.trailing-slot.glyph', { size: '--_nvd-cell-trailing-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} .trailing-slot.glyph.filled { display: inline-flex; color: var(--_ti); transition: color var(--_recolor-duration) var(--_recolor-easing); } /* NVD-63: the mark of a link that opens a new context, drawn as a glyph of the trailing slot is. */ ${iconGlyph('.link-mark', { size: '--_nvd-cell-trailing-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} .link-mark { color: var(--_ti); transition: color var(--_recolor-duration) var(--_recolor-easing); } ${iconGlyph('.chevron', { size: '--_nvd-cell-trailing-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-disclosure-duration`, easing: `${PREFIX}-motion-disclosure-easing` })} .chevron { color: var(--_ti); transition: color var(--_recolor-duration) var(--_recolor-easing), rotate ${t('motion-disclosure-duration')} ${t('motion-disclosure-easing')}; } .cell.open .chevron { rotate: 0.5turn; } .cell.collapsed :is(.label, .trailing) { opacity: 0; transition: color var(--_recolor-duration) var(--_recolor-easing), opacity ${unsafeCSS(FIRST_HALF)}; } /* NVD-32, NVD-33, NVD-34: the short label, collapsed.item.gap under the icon indicator, centred on the icon column in one line of collapsed.item.label.typescale, cut with an ellipsis inside the collapsed padding-inline. It fades in over the second half of a collapse and out over the first half of an expansion (NVD-35), and with the selection over the selection motion (NVD-41). */ .short { position: absolute; inset-block-start: calc(50% + ${d('--_nvd-ind-h')} / 2 + ${t('collapsed-item-gap')}); inset-inline-start: calc(${unsafeCSS(PILL_X)} + ${t('collapsed-item-container-padding-inline')}); inline-size: calc(${d('--_nvd-pill')} - 2 * ${t('collapsed-item-container-padding-inline')}); overflow: hidden; text-align: center; white-space: nowrap; font: ${t('collapsed-item-label-typescale-font')}; letter-spacing: ${t('collapsed-item-label-typescale-letter-spacing')}; color: var(--_l); opacity: 0; transition: color var(--_recolor-duration) var(--_recolor-easing), opacity ${unsafeCSS(FIRST_HALF)}; } /* NVD-52: each text of a row is its own run, in the direction of its first strong character, so a left-to-right name or a count with its unit keeps its order in a right-to-left drawer. The label's lines are still aligned to the layout's start edge; the trailing text is as wide as itself and stays at the row's end; the short label stays centred and, too long (NVD-32), loses the end of ITS direction — a left-to-right one its right end, never its beginning (src/styles/product-text.ts). */ ${productText('.label', { align: 'start' })} ${productText(':is(.trailing-text, .short-text)')} /* The short label's text, in a box of its own inside the one the layout places (.short, whose inline-start inset is the layout's): the box that cuts it takes the text's direction (ownDirection()), so the ellipsis is drawn at the text's own end in every engine. */ .short-text { display: block; overflow: hidden; text-overflow: ellipsis; } .cell.collapsed.short-shown .short { opacity: 1; transition: color var(--_recolor-duration) var(--_recolor-easing), opacity ${unsafeCSS(SECOND_HALF)}; } .cell[data-condition-change] .short { transition: color var(--_recolor-duration) var(--_recolor-easing), opacity ${t('motion-selection-duration')} ${t('motion-selection-easing')}; } /* NVD-56: the plain tooltip of a collapsed cell that draws no label lies over its item container, drawing nothing and answering no pointer itself (the cell is the one hit target): the cell opens it, beside the item container. */ .tip { position: absolute; inset-block-start: calc(50% - ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-pill-pad')}); inset-inline-start: ${unsafeCSS(PILL_X)}; display: block; inline-size: ${d('--_nvd-pill')}; block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')}); } /* The tooltip's own waits, read through real properties (a duration token is an expression). */ .tip-clock { display: none; transition-property: none; transition-delay: var(--tanrei-comp-tooltip-motion-show-delay); transition-duration: var(--tanrei-comp-tooltip-motion-hide-delay); } ${stateRules(on, { hovered: `${set('-h')} opacity: ${T('hovered-opacity')};`, focused: `${set('-f')} opacity: ${T('focused-opacity')};`, pressed: `${set('-p')} opacity: ${T('pressed-opacity')};`, pressedContent: `${set('-p', 'c')} opacity: ${T('pressed-opacity')};`, disabled: ` cursor: default;${set('-d')} opacity: ${T('disabled-opacity')};`, })} .cell:where(:has(.container[data-pressed]:not([data-pressed='none']))) :is(.indicator, .icon-indicator, .icon, .label, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) { transition-duration: 0s; } ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} /* NVD-5, NVD-10: the ring (or the glow) around the item container, never animated. */ ${focusRing((focus) => `.cell${focus} .container`)} ${shape} ${pressHold('.hold')} .hold { display: none; } @media (prefers-reduced-motion: reduce) { .cell, .container, .cell.collapsed .container, .indicator, .icon-indicator, .icon, .label, .trailing, .trailing-text, .trailing-slot, .link-mark, .chevron, .short, .cell.collapsed :is(.label, .trailing), .cell.collapsed.short-shown .short, .cell[data-condition-change] .short { transition: none; } .icon-indicator { animation-duration: 0s; } } @media (forced-colors: active) { .cell.selected .indicator { background: Highlight; forced-color-adjust: none; } .cell.selected :is(.icon, .label, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) { color: HighlightText; } .cell.d :is(.icon, .label, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) { color: GrayText; } } `",
+          "default": "css` :host { display: block; outline: none; /* NVD-65: the glyph sizes of the drawer's density, as properties the icon helper reads. */ --_nvd-cell-icon: ${d('--_nvd-icon')}; --_nvd-cell-trailing-icon: ${d('--_nvd-trailing-icon')}; } :host([hidden]) { display: none; } ${unsafeCSS(conditionBlock(PREFIX, 'unselected', PARTS, '.cell'))} ${unsafeCSS(conditionBlock(PREFIX, 'selected', PARTS, '.cell.selected'))} ${unsafeCSS(conditionBlock(PREFIX, 'collapsed-unselected', PARTS, '.cell.collapsed'))} ${unsafeCSS(conditionBlock(PREFIX, 'collapsed-selected', PARTS, '.cell.collapsed.selected'))} .cell { all: unset; box-sizing: border-box; position: relative; display: block; inline-size: 100%; padding-inline-start: ${t('container-padding-inline')}; /* NVD-35: the row, laid out for the expanded drawer, is clipped at the drawer's moving end edge. */ overflow-x: clip; overflow-y: visible; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; ${unsafeCSS(set('-r'))} /* A part the states, the selection and the form all recolor takes the state motion (NVD-41: a selection changes color in place, over it), and the change of form's while the form changes (the drawer's). */ --_recolor-duration: var(--_nvd-recolor-duration, ${t('motion-state-duration')}); --_recolor-easing: var(--_nvd-recolor-easing, ${t('motion-state-easing')}); --_labels: calc(${t('collapsed-item-gap')} + ${unsafeCSS(SHORT_LINE)}); transition: opacity ${t('motion-state-duration')} ${t('motion-state-easing')}; } .cell.no-labels { --_labels: 0px; } /* NVD-31: while the drawer is collapsible, every cell has the same height and icon line in both forms: the icon line lies the larger of half the expanded row and collapsed padding-block plus half the icon indicator below the top, and the cell reaches the larger of half the expanded row and half the icon indicator, the short label's gap and line (unless collapsedLabels is never) and collapsed padding-block below it. The row is centred on that line. */ .cell.collapsible { padding-block-start: max(0px, calc(${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-height')} / 2)); padding-block-end: max(0px, calc(${d('--_nvd-ind-h')} / 2 + var(--_labels) + ${d('--_nvd-pill-pad')} - ${d('--_nvd-height')} / 2)); } /* Nothing inside the cell is hit-tested: a press anywhere in it lands on the native button or link itself. */ .cell * { pointer-events: none; } .cell.d { cursor: default; } /* NVD-6: the hit area is the cell with half of container.gap above and below, and never below the minimum target. */ .cell::before { content: ''; position: absolute; inset-inline: 0; inset-block-start: 50%; block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--_nvd-target, var(--tanrei-sys-target-pointer))); transform: translateY(-50%); } @media (pointer: coarse) { .cell::before { block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--tanrei-sys-target-touch)); } } /* NVD-67: a group that is a destination — its row (the cell) is the destination, and its chevron a button of its own laid over the end of the cell: its box is the item container's end, from the middle of the gap before the chevron, with the item container's corners (the focus ring is drawn around it); its hit area reaches the cell's end edge and is at least the target wide, the cell's height with half of container.gap above and below. */ .split { position: relative; } .toggle { all: unset; box-sizing: border-box; position: absolute; z-index: 1; inset-block: 0; inset-inline-end: ${t('container-padding-inline')}; inline-size: calc(${d('--_nvd-pad')} + ${d('--_nvd-trailing-icon')} + ${d('--_nvd-item-gap')} / 2); cursor: pointer; -webkit-tap-highlight-color: transparent; ${unsafeCSS(cornerRadius(`${PREFIX}-item-container-shape`))} } .toggle:disabled { cursor: default; } .toggle::before { content: ''; position: absolute; inset-inline-end: calc(${t('container-padding-inline')} * -1); inset-block-start: 50%; inline-size: max(calc(100% + ${t('container-padding-inline')}), var(--tanrei-sys-target-pointer)); block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--_nvd-target, var(--tanrei-sys-target-pointer))); transform: translateY(-50%); } @media (pointer: coarse) { .toggle::before { inline-size: max(calc(100% + ${t('container-padding-inline')}), var(--tanrei-sys-target-touch)); block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--tanrei-sys-target-touch)); } } ${focusRing((focus) => `.toggle${focus}`)} /* NVD-13: the expanded row, across the expanded drawer's inner width (whatever the form: the cell clips it). */ .row { box-sizing: border-box; position: relative; isolation: isolate; display: flex; align-items: center; gap: ${d('--_nvd-item-gap')}; inline-size: calc(${t('container-width')} - 2 * ${t('container-padding-inline')}); min-block-size: ${d('--_nvd-height')}; padding-inline-end: ${d('--_nvd-pad')}; } /* NVD-13, NVD-32, NVD-35: the item container — the expanded row, as wide at every level of nesting (a nested destination's fill, state layer and focus indicator have a top-level row's width; its content alone starts item.nest-indent further in per level), or the collapsed cell (collapsed.item.container.width, centred in the icon column, from collapsed padding-block above the icon indicator to collapsed padding-block below the short label, or below the icon indicator where the short label is not drawn) — one shape that changes size and corners around the same icon line over the change of form. Where the two forms give it the same height and corners, its end edge alone moves. */ .container { box-sizing: border-box; position: absolute; z-index: -1; isolation: isolate; inset-block-start: 0; inset-inline-start: 0; inline-size: 100%; block-size: 100%; ${unsafeCSS(cornerRadius(`${PREFIX}-item-container-shape`))} transition: inset-block-start ${unsafeCSS(MORPH)}, inset-inline-start ${unsafeCSS(MORPH)}, inline-size ${unsafeCSS(MORPH)}, block-size ${unsafeCSS(MORPH)}, border-radius ${unsafeCSS(MORPH)}; } .cell.collapsed .container { inset-block-start: calc(50% - ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-pill-pad')}); inset-inline-start: ${unsafeCSS(PILL_X)}; inline-size: ${d('--_nvd-pill')}; block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')} + var(--_labels)); ${unsafeCSS(cornerRadius(`${PREFIX}-collapsed-item-container-shape`))} } .cell.collapsed:not(.short-shown) .container { block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')}); } /* NVD-41: a collapsed cell that gains or loses its short label (collapsedLabels selected) changes over the selection motion. */ .cell[data-condition-change] .container { transition-duration: ${t('motion-selection-duration')}; transition-timing-function: ${t('motion-selection-easing')}; } /* The active indicator and the state layer: the item container's color in the current condition and state. NVD-41: a selection changes it in place, at its full size and shape, over the state motion — it never grows, shrinks or slides to show one. */ .indicator { position: absolute; z-index: -2; inset: 0; border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale)); corner-shape: inherit; background: var(--_c); pointer-events: none; transition: background-color var(--_recolor-duration) var(--_recolor-easing); } /* NVD-13, NVD-14, NVD-32: the icon, centred on the icon column's centre line (and item.nest-indent further per level), the icon indicator centred behind it and taking no space. */ .lead { position: relative; display: grid; flex: none; place-items: center; inline-size: ${d('--_nvd-icon')}; block-size: ${d('--_nvd-icon')}; margin-inline-start: calc(${unsafeCSS(ICON_LINE_X)} - ${d('--_nvd-icon')} / 2); } /* NVD-49: without an icon the icon indicator is still drawn, empty, on the icon column, taking no space. */ .cell.no-icon .lead { position: absolute; inset-block-start: calc(50% - ${d('--_nvd-icon')} / 2); inset-inline-start: calc(${unsafeCSS(ICON_LINE_X)} - ${d('--_nvd-icon')} / 2); margin: 0; } .icon-indicator { position: absolute; z-index: -1; top: 50%; left: 50%; inline-size: ${d('--_nvd-ind-w')}; block-size: ${d('--_nvd-ind-h')}; translate: -50% -50%; ${unsafeCSS(cornerRadius(`${PREFIX}-item-icon-indicator-shape`))} background: var(--_n); /* NVD-41: the selection motion, read by the element through real properties (no animation is named here): the icon indicator grows in width from its centre on the newly selected cell, and fades out on the previous one. */ animation-duration: ${t('motion-selection-duration')}; animation-timing-function: ${t('motion-selection-easing')}; transition: background-color var(--_recolor-duration) var(--_recolor-easing); } .cell[data-condition-change] .icon-indicator { transition: background-color ${t('motion-selection-duration')} ${t('motion-selection-easing')}; } .cell.selected[data-condition-change] .icon-indicator { transition: none; } ${iconGlyph('.icon', { size: '--_nvd-cell-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} .icon { color: var(--_i); transition: color var(--_recolor-duration) var(--_recolor-easing), font-variation-settings var(--_recolor-duration) var(--_recolor-easing); } /* NVD-13: the label, item.gap after the icon — or item.padding-inline (and the nesting indent) from the row's start without one — wrapping rather than truncating; the row grows with it. NVD-35: it fades out over the first half of a collapse and in over the second half of an expansion, clipped at the moving edge. */ .label { flex: 1 1 auto; min-inline-size: 0; padding-block: max(0px, calc((${d('--_nvd-height')} - 1lh) / 2)); font: ${d('--_nvd-label-font')}; letter-spacing: ${d('--_nvd-label-tracking')}; color: var(--_l); overflow-wrap: break-word; opacity: 1; transition: color var(--_recolor-duration) var(--_recolor-easing), opacity ${unsafeCSS(SECOND_HALF)}; } .cell.no-icon .label { margin-inline-start: calc(${d('--_nvd-pad')} + var(--_level, 0) * ${d('--_nvd-indent')}); } /* NVD-43: the trailing content at the row's end, item.gap after the label and item.padding-inline from the end: the trailing text on one line, never truncated, in trailing-text.typescale; a glyph in the trailing slot at trailing-icon.size (anything else as it draws itself); a group's chevron (NVD-44). Not interactive. NVD-51: iconGlyph() mirrors the icon and a glyph in the trailing slot that GlyphMirrorController marked, in right-to-left; the chevron (expand_more) is never marked. */ .trailing { display: flex; flex: none; align-items: center; opacity: 1; transition: opacity ${unsafeCSS(SECOND_HALF)}; } .trailing:not(.filled) { display: none; } .trailing-text { font: ${t('item-trailing-text-typescale-font')}; letter-spacing: ${t('item-trailing-text-typescale-letter-spacing')}; color: var(--_tt); white-space: nowrap; font-variant-numeric: tabular-nums; transition: color var(--_recolor-duration) var(--_recolor-easing); } .trailing-slot:not(.filled) { display: none; } .trailing-slot { display: flex; align-items: center; color: var(--_ti); transition: color var(--_recolor-duration) var(--_recolor-easing); } ${iconGlyph('.trailing-slot.glyph', { size: '--_nvd-cell-trailing-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} .trailing-slot.glyph.filled { display: inline-flex; color: var(--_ti); transition: color var(--_recolor-duration) var(--_recolor-easing); } /* NVD-63: the mark of a link that opens a new context, drawn as a glyph of the trailing slot is. */ ${iconGlyph('.link-mark', { size: '--_nvd-cell-trailing-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} .link-mark { color: var(--_ti); transition: color var(--_recolor-duration) var(--_recolor-easing); } ${iconGlyph('.chevron', { size: '--_nvd-cell-trailing-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-disclosure-duration`, easing: `${PREFIX}-motion-disclosure-easing` })} .chevron { color: var(--_ti); transition: color var(--_recolor-duration) var(--_recolor-easing), rotate ${t('motion-disclosure-duration')} ${t('motion-disclosure-easing')}; } .cell.open .chevron { rotate: 0.5turn; } .cell.collapsed :is(.label, .trailing) { opacity: 0; transition: color var(--_recolor-duration) var(--_recolor-easing), opacity ${unsafeCSS(FIRST_HALF)}; } /* NVD-32, NVD-33, NVD-34: the short label, collapsed.item.gap under the icon indicator, centred on the icon column in one line of collapsed.item.label.typescale, cut with an ellipsis inside the collapsed padding-inline. It fades in over the second half of a collapse and out over the first half of an expansion (NVD-35), and with the selection over the selection motion (NVD-41). */ .short { position: absolute; inset-block-start: calc(50% + ${d('--_nvd-ind-h')} / 2 + ${t('collapsed-item-gap')}); inset-inline-start: calc(${unsafeCSS(PILL_X)} + ${t('collapsed-item-container-padding-inline')}); inline-size: calc(${d('--_nvd-pill')} - 2 * ${t('collapsed-item-container-padding-inline')}); overflow: hidden; text-align: center; white-space: nowrap; font: ${t('collapsed-item-label-typescale-font')}; letter-spacing: ${t('collapsed-item-label-typescale-letter-spacing')}; color: var(--_l); opacity: 0; transition: color var(--_recolor-duration) var(--_recolor-easing), opacity ${unsafeCSS(FIRST_HALF)}; } /* NVD-52: each text of a row is its own run, in the direction of its first strong character, so a left-to-right name or a count with its unit keeps its order in a right-to-left drawer. The label's lines are still aligned to the layout's start edge; the trailing text is as wide as itself and stays at the row's end; the short label stays centred and, too long (NVD-32), loses the end of ITS direction — a left-to-right one its right end, never its beginning (src/styles/product-text.ts). */ ${productText('.label', { align: 'start' })} ${productText(':is(.trailing-text, .short-text)')} /* The short label's text, in a box of its own inside the one the layout places (.short, whose inline-start inset is the layout's): the box that cuts it takes the text's direction (ownDirection()), so the ellipsis is drawn at the text's own end in every engine. */ .short-text { display: block; overflow: hidden; text-overflow: ellipsis; } .cell.collapsed.short-shown .short { opacity: 1; transition: color var(--_recolor-duration) var(--_recolor-easing), opacity ${unsafeCSS(SECOND_HALF)}; } .cell[data-condition-change] .short { transition: color var(--_recolor-duration) var(--_recolor-easing), opacity ${t('motion-selection-duration')} ${t('motion-selection-easing')}; } /* NVD-56: the plain tooltip of a collapsed cell that draws no label lies over its item container, drawing nothing and answering no pointer itself (the cell is the one hit target): the cell opens it, beside the item container. */ .tip { position: absolute; inset-block-start: calc(50% - ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-pill-pad')}); inset-inline-start: ${unsafeCSS(PILL_X)}; display: block; inline-size: ${d('--_nvd-pill')}; block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')}); } /* The tooltip's own waits, read through real properties (a duration token is an expression). */ .tip-clock { display: none; transition-property: none; transition-delay: var(--tanrei-comp-tooltip-motion-show-delay); transition-duration: var(--tanrei-comp-tooltip-motion-hide-delay); } ${stateRules(on, { hovered: `${set('-h')} opacity: ${T('hovered-opacity')};`, focused: `${set('-f')} opacity: ${T('focused-opacity')};`, pressed: `${set('-p')} opacity: ${T('pressed-opacity')};`, pressedContent: `${set('-p', 'c')} opacity: ${T('pressed-opacity')};`, disabled: ` cursor: default;${set('-d')} opacity: ${T('disabled-opacity')};`, })} .cell:where(:has(.container[data-pressed]:not([data-pressed='none']))) :is(.indicator, .icon-indicator, .icon, .label, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) { transition-duration: 0s; } ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} /* NVD-5, NVD-10: the ring (or the glow) around the item container, never animated. */ ${focusRing((focus) => `.cell${focus} .container`)} ${shape} ${pressHold('.hold')} .hold { display: none; } @media (prefers-reduced-motion: reduce) { .cell, .container, .cell.collapsed .container, .indicator, .icon-indicator, .icon, .label, .trailing, .trailing-text, .trailing-slot, .link-mark, .chevron, .short, .cell.collapsed :is(.label, .trailing), .cell.collapsed.short-shown .short, .cell[data-condition-change] .short { transition: none; } .icon-indicator { animation-duration: 0s; } } @media (forced-colors: active) { .cell.selected .indicator { background: Highlight; forced-color-adjust: none; } .cell.selected :is(.icon, .label, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) { color: HighlightText; } .cell.d :is(.icon, .label, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) { color: GrayText; } } `",
           "description": "A cell — a destination's, or a group's row (NVD-4…10, NVD-13, NVD-14, NVD-27, NVD-31…35, NVD-41, NVD-43, NVD-44). The\ncell is the native button or link: the drawer's full width (its current width, so its hit area follows the form) and\nits height, with half of container.gap above and below it and at least the minimum target. In it, the row — laid out\nfor the expanded drawer, clipped by the cell: at least item.container.height, the icon on the icon column and the\ncell's icon line (the row's centre), the label (wrapping) item.gap after it, the trailing content at its end — and,\nplaced around the same icon line, the item container (the row expanded; the pill collapsed) and the short label under\nthe icon."
         },
         {
@@ -52447,12 +52447,16 @@
         },
         {
           "kind": "class",
-          "description": "A group of a drawer's destinations — the spec's item kind `group`: a row that opens and closes it (an icon,\na label, a short label for the collapsed drawer, and the icon set's `expand_more` turned half a turn while open), and\nunder it, indented one level further, its `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>`\nchildren. A collapsed drawer draws it as one cell; activating that cell expands the drawer with the group open.\n\nIts row is a `<button aria-expanded aria-controls>` named by its label, and its items a nested list labelled by it.\nActivating the row sets `open` and then fires `toggle`; with focus on the row, the arrow toward the end of the line\nopens it and the one toward the start closes it (NVD-45).",
+          "description": "A group of a drawer's destinations — the spec's item kind `group`: a row that opens and closes it (an icon,\na label, a short label for the collapsed drawer, and the icon set's `expand_more` turned half a turn while open), and\nunder it, indented one level further, its `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>`\nchildren. A collapsed drawer draws it as one cell; activating that cell expands the drawer with the group open.\n\nIts row is a `<button aria-expanded aria-controls>` named by its label, and its items a nested list labelled by it.\nActivating the row sets `open` and then fires `toggle`; with focus on the row, the arrow toward the end of the line\nopens it and the one toward the start closes it (NVD-45).\n\nA destination as well (NVD-66, NVD-67): while the drawer's `selectable-groups` is set and the group has a `value` or\nan `href`, its row is that destination — a `<button>`, or with `href` an `<a href>`, `aria-current=\"page\"` while\nselected — which the drawer selects and fires `change` or `reselect` for as it does for an item, and its chevron is a\nsecond `<button aria-expanded aria-controls>` over the end of the row, named by its label, that alone opens and closes\nit. Collapsed, its cell is the destination alone.",
           "name": "TanreiNavigationDrawerGroup",
           "cssParts": [
             {
-              "description": "The row: the native button, the hit area.",
+              "description": "The row: the native button (or, for a group that is a link, the anchor), the hit area.",
               "name": "cell"
+            },
+            {
+              "description": "The chevron's own button, while the group is a destination (hidden from nothing: it is named by the group's label and carries its expanded state).",
+              "name": "toggle"
             },
             {
               "description": "The item container (the state layer's box, the focus ring's and the ripple's).",
@@ -52508,6 +52512,74 @@
             },
             {
               "kind": "field",
+              "name": "given",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "description": "What identifies the group as a destination while the drawer's `selectable-groups` is set (NVD-66): the drawer's\n`value` selects it by this, and `change` / `reselect` carry it. While it is given none, its `href` stands for it, as\nwritten. Ignored while the drawer's groups are not selectable.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "href",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The address the group leads to as a destination (NVD-66): its row is then a link, opened where the person is. Ignored while the drawer's groups are not selectable.",
+              "attribute": "href"
+            },
+            {
+              "kind": "field",
+              "name": "link",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new LinkController(this, { ids: { refused: 'NVD-64', newContext: 'NVD-63' }, disabled: () => this.disabled })",
+              "description": "NVD-59, NVD-64: the link the row is while the group is a destination with an address (src/primitives/link.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "linkForm",
+              "privacy": "private",
+              "description": "The link the row is now: only while the group is a destination.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "pressKeys",
+              "type": {
+                "text": "readonly string[] | undefined"
+              },
+              "privacy": "protected",
+              "description": "NVD-1, NVD-59: the row of a group that is a link is pressed by Enter alone.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DrawerCell",
+                "module": "src/components/navigation-drawer/navigation-drawer.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "toggle",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
               "name": "shownInFirstFrame",
               "type": {
                 "text": "boolean"
@@ -52536,6 +52608,66 @@
               "name": "onKeyDown",
               "privacy": "private",
               "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onToggle",
+              "privacy": "private",
+              "readonly": true,
+              "description": "NVD-67: the chevron's own button opens and closes the group, and chooses nothing."
+            },
+            {
+              "kind": "field",
+              "name": "onToggleKeyDown",
+              "privacy": "private",
+              "readonly": true,
+              "description": "NVD-67: on the chevron, Enter and Space press it (shown on the item container); the arrows open and close as on the row."
+            },
+            {
+              "kind": "field",
+              "name": "onToggleKeyUp",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onToggleFocus",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "chevron",
+              "privacy": "private",
+              "description": "NVD-44: the chevron at the end of the row (drawn, hidden from assistive technology: the row or the toggle says the state)."
+            },
+            {
+              "kind": "method",
+              "name": "fold",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "shown",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "NVD-44, NVD-46: the items, revealed and hidden under the row, a list named by the group's label."
+            },
+            {
+              "kind": "method",
+              "name": "renderDestination",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "shown",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "NVD-66, NVD-67: a group that is a destination. Its row is the destination — the link or the button an item is, with\n`aria-current` while it is the selected one — and, while the drawer is expanded, its chevron is a button of its own\nlaid over the end of the cell, after the row in the focus order, which alone opens and closes the group."
             },
             {
               "kind": "field",
@@ -52670,20 +52802,6 @@
               "readonly": true,
               "default": "new PressController(this, { container: () => this.renderRoot?.querySelector<HTMLElement>('.container') ?? null, holdCarrier: () => this.renderRoot?.querySelector('.hold') ?? null, disabled: () => this.disabled, keys: () => this.pressKeys, // A press outside the item container (elsewhere in the cell) grows the ripple from its centre. origin: (at) => { const box = this.renderRoot?.querySelector('.container')?.getBoundingClientRect(); return box && at.x >= box.left && at.x <= box.right && at.y >= box.top && at.y <= box.bottom ? at : null; }, })",
               "description": "NVD-8, NVD-9: the pressed state, press-hold and the answer the system chooses (src/primitives/press.ts).",
-              "inheritedFrom": {
-                "name": "DrawerCell",
-                "module": "src/components/navigation-drawer/navigation-drawer.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "pressKeys",
-              "type": {
-                "text": "readonly string[] | undefined"
-              },
-              "privacy": "protected",
-              "description": "The keys that press the cell: Enter and Space (undefined), and Enter alone for a destination that is a link (NVD-1).",
-              "readonly": true,
               "inheritedFrom": {
                 "name": "DrawerCell",
                 "module": "src/components/navigation-drawer/navigation-drawer.ts"
@@ -53001,6 +53119,23 @@
               "default": "false",
               "description": "Whether its items are shown under its row while the drawer is expanded. Reflected; the drawer sets it on activation.",
               "fieldName": "open"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "description": "What identifies the group as a destination while the drawer's `selectable-groups` is set (NVD-66): the drawer's\n`value` selects it by this, and `change` / `reselect` carry it. While it is given none, its `href` stands for it, as\nwritten. Ignored while the drawer's groups are not selectable.",
+              "fieldName": "value"
+            },
+            {
+              "name": "href",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The address the group leads to as a destination (NVD-66): its row is then a link, opened where the person is. Ignored while the drawer's groups are not selectable.",
+              "fieldName": "href"
             },
             {
               "name": "label",
@@ -53334,6 +53469,17 @@
             },
             {
               "kind": "field",
+              "name": "selectableGroups",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets a group be a destination as well as a row that opens and closes (NVD-66): a setting of the product's, off by\ndefault. While set, a group with a `value` or an `href` is selected by `value` and fires `change` or `reselect`\nfrom its row, which is a link with an `href`; its chevron becomes a button of its own that alone opens and closes it\n(NVD-67). A group without either still only opens and closes.",
+              "attribute": "selectable-groups"
+            },
+            {
+              "kind": "field",
               "name": "givenOffset",
               "type": {
                 "text": "number | null"
@@ -53454,15 +53600,34 @@
                 "text": "Snapshot"
               },
               "privacy": "private",
-              "default": "{ shower: null, top: [], places: new Map() }"
+              "default": "{ selected: null, shower: null, top: [], places: new Map() }"
             },
             {
               "kind": "field",
               "name": "destinations",
               "privacy": "private",
               "readonly": true,
-              "default": "new DestinationsController<TanreiNavigationDrawerItem>(this, { items: () => [...this.querySelectorAll(ITEM)].filter((item): item is TanreiNavigationDrawerItem => item instanceof TanreiNavigationDrawerItem), ids: { unknownValue: 'NVD-3', emptyLabel: 'NVD-24', duplicate: 'NVD-29' }, context: (item, base) => { if (base.position === 1) { // NVD-62: what is revealed comes before any cell is told what it is, so the first frame draws it settled. this.revealSelection(); this.snapshot = this.takeSnapshot(); } return this.cellContext(item, base.selected); }, synced: (_, items) => { this.syncStructure(items); this.viewSelection(); }, // NVD-60: a link is followed, not selected. link: (item, event) => item.linkActivation(event), })",
+              "default": "new DestinationsController<DrawerDestination>(this, { // NVD-66: a group that is a destination is one of them, in reading order, before the items it holds. items: () => [...this.querySelectorAll(CELLS)].filter( (cell): cell is DrawerDestination => cell instanceof TanreiNavigationDrawerItem || (cell instanceof TanreiNavigationDrawerGroup && this.isDestinationGroup(cell)), ), ids: { unknownValue: 'NVD-3', emptyLabel: 'NVD-24', duplicate: 'NVD-29' }, context: (item, base) => { if (base.position === 1) { // NVD-62: what is revealed comes before any cell is told what it is, so the first frame draws it settled. this.revealSelection(); this.snapshot = this.takeSnapshot(); } return this.cellContext(item, base.selected); }, synced: (_, items) => { this.syncStructure(items); this.viewSelection(); }, // NVD-60: a link is followed, not selected. link: (item, event) => item.linkActivation(event), // NVD-67: a group that is a destination is chosen by its row alone — not by its chevron, nor by its items' room. activates: (item, event) => !(item instanceof TanreiNavigationDrawerGroup) || item.activatedBy(event), })",
               "description": "NVD-1…3, NVD-24, NVD-29: selection, activation and the debug reports (src/primitives/destination.ts)."
+            },
+            {
+              "kind": "method",
+              "name": "isDestinationGroup",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "group",
+                  "type": {
+                    "text": "TanreiNavigationDrawerGroup"
+                  }
+                }
+              ],
+              "description": "NVD-66: whether a group is a destination as well: selectableGroups, and a value or an href."
             },
             {
               "kind": "field",
@@ -53696,7 +53861,7 @@
               "type": {
                 "text": "TanreiNavigationDrawerItem[]"
               },
-              "description": "The drawer's destinations, in reading order, in sections and groups or not.",
+              "description": "The drawer's destinations, in reading order, in sections and groups or not (its items: a group that is a destination is not among them).",
               "readonly": true
             },
             {
@@ -53978,7 +54143,7 @@
                 {
                   "name": "items",
                   "type": {
-                    "text": "TanreiNavigationDrawerItem[]"
+                    "text": "DrawerDestination[]"
                   }
                 }
               ],
@@ -54353,6 +54518,15 @@
               "default": "false",
               "description": "Opens the groups that hold the selected destination when the drawer first appears (in its first frame, without\nmotion) and whenever `value` changes, whatever their `open` said; each fires `toggle` (NVD-58). The user may close\nsuch a group again: it then stays closed until `value` changes. While false a closed group stays closed and its row\nshows the selection (NVD-47).",
               "fieldName": "revealSelected"
+            },
+            {
+              "name": "selectable-groups",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets a group be a destination as well as a row that opens and closes (NVD-66): a setting of the product's, off by\ndefault. While set, a group with a `value` or an `href` is selected by `value` and fires `change` or `reselect`\nfrom its row, which is a link with an `href`; its chevron becomes a button of its own that alone opens and closes it\n(NVD-67). A group without either still only opens and closes.",
+              "fieldName": "selectableGroups"
             },
             {
               "name": "scroll-offset",

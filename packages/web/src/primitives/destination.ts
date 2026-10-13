@@ -124,6 +124,12 @@ export interface DestinationsOptions<T extends Destination> {
    * button.
    */
   link?: (item: T, event: MouseEvent) => LinkActivation | null;
+  /**
+   * Whether a click that reached `item` is an activation of it (default: every click). A region whose destination
+   * holds a control of its own — the chevron of a drawer's group that is a destination, NVD-67 — or other cells, says
+   * no for a click that came from those.
+   */
+  activates?: (item: T, event: MouseEvent) => boolean;
 }
 
 /** The region: a Lit element with a `value`. */
@@ -202,7 +208,7 @@ export class DestinationsController<T extends Destination> implements ReactiveCo
 
   private readonly onClick = (event: MouseEvent) => {
     const item = this.itemOf(event);
-    if (!item) return;
+    if (!item || (this.options.activates && !this.options.activates(item, event))) return;
     const link = this.options.link?.(item, event) ?? null;
     if (!link) {
       this.activate(item);
