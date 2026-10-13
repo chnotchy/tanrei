@@ -2981,7 +2981,9 @@ test.describe('rows that can be chosen', () => {
     await table(page, 'press').locator('.p-link').hover();
     await expect(tr(1, 'press')).not.toHaveAttribute('data-tanrei-hit');
     sameColor((await layers(cell(page, 'press', 'tbody', 1, 3)))[0], 'rgba(0, 0, 0, 0)');
-    expect(await css(table(page, 'press').locator('.p-link'), 'cursor')).toBe('pointer');
+    // (Its own: the cursor the engine gives a link anywhere — `pointer`, or `auto` in WebKit, whose links point by themselves.)
+    const linkCursor = await page.evaluate(() => { const a = document.body.appendChild(Object.assign(document.createElement('a'), { href: '#elsewhere', textContent: 'x' })); const c = getComputedStyle(a).cursor; a.remove(); return c; });
+    expect(await css(table(page, 'press').locator('.p-link'), 'cursor')).toBe(linkCursor);
     await table(page, 'press').locator('.p-field').hover();
     await expect(tr(1, 'press')).not.toHaveAttribute('data-tanrei-hit');
     await cell(page, 'press', 'tbody', 1, 2).hover();
