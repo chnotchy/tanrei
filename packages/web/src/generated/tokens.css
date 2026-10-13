@@ -2577,6 +2577,8 @@
     --tanrei-comp-combobox-status-typescale-line-height: var(--tanrei-sys-typescale-body-small-line-height);
     --tanrei-comp-combobox-status-typescale-font: var(--tanrei-sys-typescale-body-small-font);
     --tanrei-comp-copy-button-confirmation-duration: 2000ms;
+    --tanrei-comp-copy-button-motion-resize-duration: var(--tanrei-sys-motion-spring-standard-default-spatial-duration);
+    --tanrei-comp-copy-button-motion-resize-easing: var(--tanrei-sys-motion-spring-standard-default-spatial-easing);
     --tanrei-comp-date-time-picker-actions-arrangement: fill;
     --tanrei-comp-date-time-picker-actions-gap: var(--tanrei-sys-space-space200);
     --tanrei-comp-date-time-picker-actions-padding-block: var(--tanrei-sys-space-space150);

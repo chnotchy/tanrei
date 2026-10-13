@@ -30276,6 +30276,25 @@
             },
             "$description": "How long the button shows the copied or the failed form before it returns to rest: long enough to be seen by someone looking at where the text will be pasted, short enough that a second copy a moment later is confirmed anew."
           }
+        },
+        "motion": {
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 500,
+              "unit": "ms"
+            },
+            "$description": "How long the label's box takes to change its width to the text now shown, while labelWidth is fit (CPY-19). Unused while labelWidth is widest; at once where motion is reduced."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.27,
+              1.06,
+              0.18,
+              1
+            ]
+          }
         }
       },
       "date-time-picker": {

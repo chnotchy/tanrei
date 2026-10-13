@@ -1,6 +1,6 @@
 {
   "$comment": "Generated. The vocabulary of the default system. A change here is a vocabulary change: it needs the one-product test and maintainer review.",
-  "count": 7381,
+  "count": 7383,
   "tokens": {
     "tanrei.comp.accordion.chevron.size.compact": "dimension",
     "tanrei.comp.accordion.chevron.size.regular": "dimension",
@@ -2172,6 +2172,8 @@
     "tanrei.comp.combobox.status.error.color": "color",
     "tanrei.comp.combobox.status.typescale": "typography",
     "tanrei.comp.copy-button.confirmation.duration": "duration",
+    "tanrei.comp.copy-button.motion.resize-duration": "duration",
+    "tanrei.comp.copy-button.motion.resize-easing": "cubicBezier",
     "tanrei.comp.date-time-picker.actions.arrangement": "number",
     "tanrei.comp.date-time-picker.actions.gap": "dimension",
     "tanrei.comp.date-time-picker.actions.padding-block": "dimension",
