@@ -19054,6 +19054,7 @@ class TanreiSelectTokens {
     required this.listColor,
     required this.listElevation,
     required this.listMaxHeight,
+    required this.listMaxWidth,
     required this.listMinWidth,
     required this.listOffset,
     required this.listPaddingBlock,
@@ -19104,6 +19105,8 @@ class TanreiSelectTokens {
   final List<TanreiShadowLayer> listElevation;
   /// `comp.select.list-max-height`
   final double listMaxHeight;
+  /// `comp.select.list-max-width`
+  final double listMaxWidth;
   /// `comp.select.list-min-width`
   final double listMinWidth;
   /// `comp.select.list-offset`
@@ -19173,6 +19176,7 @@ class TanreiSelectTokens {
     TanreiPaint? listColor,
     List<TanreiShadowLayer>? listElevation,
     double? listMaxHeight,
+    double? listMaxWidth,
     double? listMinWidth,
     double? listOffset,
     double? listPaddingBlock,
@@ -19212,6 +19216,7 @@ class TanreiSelectTokens {
         listColor: listColor ?? this.listColor,
         listElevation: listElevation ?? this.listElevation,
         listMaxHeight: listMaxHeight ?? this.listMaxHeight,
+        listMaxWidth: listMaxWidth ?? this.listMaxWidth,
         listMinWidth: listMinWidth ?? this.listMinWidth,
         listOffset: listOffset ?? this.listOffset,
         listPaddingBlock: listPaddingBlock ?? this.listPaddingBlock,

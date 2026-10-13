@@ -4062,6 +4062,7 @@ export interface TanreiSelectTokens {
   readonly listColor: TanreiPaint;
   readonly listElevation: TanreiElevationLevel;
   readonly listMaxHeight: number;
+  readonly listMaxWidth: number;
   readonly listMinWidth: number;
   readonly listOffset: number;
   readonly listPaddingBlock: number;

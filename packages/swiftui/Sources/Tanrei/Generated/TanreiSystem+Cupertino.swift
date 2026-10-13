@@ -7020,6 +7020,7 @@ private let cupertinoSelectTokens = TanreiSelectTokens(
   listColor: .role(.surfaceContainerLowest),
   listElevation: cupertinoElevation.level2,
   listMaxHeight: 320,
+  listMaxWidth: 320,
   listMinWidth: 160,
   listOffset: 4,
   listPaddingBlock: 4,

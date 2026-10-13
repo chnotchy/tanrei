@@ -326,11 +326,19 @@ export interface OptionListStyleOptions {
   variants: readonly string[];
   /** The least width of a list under a narrower field, as a CSS expression; left out by a field that names none. */
   minWidth?: string;
+  /**
+   * The most a list grows past a narrower field for its options, as a CSS expression. Given, the list is as wide as its
+   * options need unwrapped, never narrower than the field and never wider than this or the field (a select, SEL-25);
+   * left out, it is exactly as wide as the field (a combobox, CMB-22).
+   */
+  maxWidth?: string;
 }
 
 /** The most the list may be now: what the placement allows (the window less its margins, or the room its side leaves). */
 const MAX_INLINE = 'var(--_anchored-max-inline, 100vw)';
 const MAX_BLOCK = 'var(--_anchored-max-block, 100vh)';
+/** The field's width, which the list is never narrower than (written while the list is placed). */
+const ANCHOR_INLINE = 'var(--_anchored-anchor-inline, 0px)';
 
 /** Where each state of a row is read. Every selector has the same specificity, so the order is the precedence. */
 const on = (state: string) => {
@@ -346,7 +354,7 @@ const on = (state: string) => {
  * the raised sheet, the box that scrolls, the rows with their columns, conditions, states, press answers and focus
  * indicator, the group titles and what separates the groups. Every value is a token of `prefix`.
  */
-export function optionListStyles({ prefix, variants, minWidth }: OptionListStyleOptions): CSSResult {
+export function optionListStyles({ prefix, variants, minWidth, maxWidth }: OptionListStyleOptions): CSSResult {
   const T = (name: string) => `var(${prefix}-${name})`;
   const [first, ...others] = variants;
   const motion = `${T('motion-state-duration')} ${T('motion-state-easing')}`;
@@ -375,16 +383,28 @@ ${STATE_NAMES.map((state) => `    ${ROW}-${state}-container-shape: ${T('option-s
     close: { duration: T('motion-close-duration'), easing: T('motion-close-easing') },
   })}
 
-  /* The sheet: its color, elevation and corners (eased by the smoothing), its options clipped to that shape; as wide
-     as the field${minWidth ? ', at least its least width' : ''}, never wider than the window allows; as tall as its options and paddings up to its
+  /* The sheet: its color, elevation and corners (eased by the smoothing), its options clipped to that shape; ${
+    maxWidth
+      ? `as wide as its options need unwrapped — never narrower than the field or its least width, never wider than its
+     greatest width or the field where the field is wider — a long list taking the width of the rows it drew as it opened
+     (--_list-content, OptionListController)`
+      : `as wide
+     as the field${minWidth ? ', at least its least width' : ''}`
+  }, never wider than the window allows; as tall as its options and paddings up to its
      greatest height and the room its side leaves. */
   .list {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    inline-size: var(--_anchored-anchor-inline, auto);
+${
+  maxWidth
+    ? `    inline-size: var(--_list-content, max-content);
+    min-inline-size: min(max(${ANCHOR_INLINE}, ${minWidth ?? '0px'}), ${MAX_INLINE});
+    max-inline-size: min(max(${ANCHOR_INLINE}, ${maxWidth}), ${MAX_INLINE});`
+    : `    inline-size: var(--_anchored-anchor-inline, auto);
     min-inline-size: ${minWidth ? `min(${minWidth}, ${MAX_INLINE})` : '0'};
-    max-inline-size: ${MAX_INLINE};
+    max-inline-size: ${MAX_INLINE};`
+}
     max-block-size: min(${T('list-max-height')}, ${MAX_BLOCK});
     overflow: hidden;
     background: ${T('list-color')};
@@ -610,8 +630,9 @@ export interface AnchoredOptionListOptions {
 
 /**
  * The list as an anchored surface (src/primitives/anchored.ts), placed as a popover whose placement is bottom-start
- * and whose width is its anchor's: below the field with the start edges together, above it where below has no room,
- * limited to the room where neither has, following the field, without an arrow.
+ * and whose width is its anchor's (a list that widens is at least that wide): below the field with the start edges
+ * together, above it where below has no room, limited to the room where neither has, following the field, without an
+ * arrow.
  */
 export function anchoredOptionList(host: Host & { renderRoot: HTMLElement | DocumentFragment }, { anchor, inline, gone }: AnchoredOptionListOptions): AnchoredSurfaceController {
   const find = (selector: string) => host.renderRoot?.querySelector<HTMLElement>(selector) ?? null;
@@ -683,6 +704,12 @@ export interface OptionListOptions {
    * keeps the text (CMB-26).
    */
   replacement?: (options: readonly OptionData[]) => OptionData | null;
+  /**
+   * The list is as wide as its options need (its styles were given `maxWidth`): a long list then takes that width from
+   * the rows it draws as it opens and keeps it while it scrolls, so that it does not change width under the pointer
+   * as other rows are drawn (SEL-25).
+   */
+  widens?: boolean;
 }
 
 export interface OptionListView {
@@ -736,6 +763,8 @@ export class OptionListController implements ReactiveController {
   /** The height of each row and title that was drawn and is not of that height, by its `<tanrei-option>` or group. */
   private readonly heights = new WeakMap<Element, number>();
   private settling = 0;
+  /** A long list that widens holds the width its options needed as it opened (`--_list-content`). */
+  private widthHeld = false;
   private activeElement: Element | null = null;
   private activeValue: string | null = null;
   private readonly keys = new RovingKeys({ wrap: false, repeat: true });
@@ -807,6 +836,8 @@ export class OptionListController implements ReactiveController {
     // Measured again each time the list opens: the text may have another size by now.
     this.rowHeight = this.titleHeight = this.separatorHeight = 0;
     this.settling = 0;
+    this.widthHeld = false;
+    this.find('.list')?.style.removeProperty('--_list-content');
     this.makeActive(active === undefined ? this.initial() : active, keyboard);
     this.revealing = true;
     this.host.requestUpdate();
@@ -855,8 +886,33 @@ export class OptionListController implements ReactiveController {
     // The focus style's name, for a browser without style queries: read when the option becomes the focused one.
     if (row && this.keyboard) syncFocusStyle(this.host, row);
     syncSeparation(this.host, this.find('.scroll'));
+    if (this.options.widens) this.holdWidth();
     if (this.revealing) this.reveal();
     else this.measure();
+  }
+
+  /**
+   * SEL-25: a long list that widens takes the width its drawn rows need unwrapped as it opens, and keeps it while it
+   * scrolls; the field's width and the list's limits still apply to it. A list that draws every row needs no hold.
+   */
+  private holdWidth() {
+    const list = this.find('.list');
+    if (!list) return;
+    if (!this.windowed) {
+      if (this.widthHeld) list.style.removeProperty('--_list-content');
+      this.widthHeld = false;
+      return;
+    }
+    if (this.widthHeld || !list.querySelector('.row')) return;
+    // Read without the limits, and from the style: the sheet may be scaled while it grows in, the style is not.
+    list.style.minInlineSize = '0';
+    list.style.maxInlineSize = 'none';
+    const width = Number.parseFloat(getComputedStyle(list).inlineSize) || 0;
+    list.style.removeProperty('min-inline-size');
+    list.style.removeProperty('max-inline-size');
+    if (width <= 0) return;
+    list.style.setProperty('--_list-content', `${Math.ceil(width)}px`);
+    this.widthHeld = true;
   }
 
   // ── A long list's rows ───────────────────────────────────────────────────────────────────────────────────

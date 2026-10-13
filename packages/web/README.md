@@ -2219,9 +2219,12 @@ choose nothing.
 
 **The list** (`src/primitives/option-list.ts`, shared with the combobox) is the anchored surface a popover is drawn on
 (`src/primitives/anchored.ts`): a `popover="manual"` element in the top layer, placed as a popover whose placement is
-bottom-start and whose width is its anchor's — `list.offset` below the container, above it where below has no room,
-limited to the room where neither has, at least `list.min-width` wide and at most `list.max-height` tall, following the
-container by events. Its rows are the menu's (`itemRowStyles()`; a token test holds every value equal to the menu's):
+bottom-start — `list.offset` below the container, above it where below has no room, limited to the room where neither
+has, following the container by events. It is as wide as its options need unwrapped (`inline-size: max-content`), never
+narrower than the container or `list.min-width` and never wider than `list.max-width` past a narrower container — so a
+long label or a supporting text reads in fewer lines without the container changing width — and at most
+`list.max-height` tall. A long list, which draws only the rows near the box that scrolls, takes its width from the rows
+it draws as it opens and holds it (`--_list-content`) while it scrolls. Its rows are the menu's (`itemRowStyles()`; a token test holds every value equal to the menu's):
 the conditions `option` and `selected-option`, hover, the focused state and the ring inside the row for the option that
 is active by the keyboard, the four pressed-feedback answers with press-hold, and the check of the icon set for the
 chosen option.

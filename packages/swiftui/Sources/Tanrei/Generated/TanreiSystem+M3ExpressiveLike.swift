@@ -7167,6 +7167,7 @@ private let m3ExpressiveLikeSelectTokens = TanreiSelectTokens(
   listColor: .role(.surfaceContainer),
   listElevation: m3ExpressiveLikeElevation.level2,
   listMaxHeight: 320,
+  listMaxWidth: 280,
   listMinWidth: 112,
   listOffset: 4,
   listPaddingBlock: 8,

@@ -2,7 +2,7 @@
 title: "下拉选择框"
 description: "让用户从一个封闭的列表里选择一个值——触发器的外观和尺寸与文本输入框的方框相同，显示选中的选项；选项列表从触发器展开，选项可以分组——它没有自己的标签行、帮助文本和错误文本。用于栏、工具栏或表格，或者放进产品自己组合的字段里。"
 translationOf: components/select.mdx
-sourceHash: b590963ddaa047a35f87209960b3ba6974490bfc
+sourceHash: 30dc5da5e3cb6dd8873296eeb7d721798405b08c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -167,7 +167,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### 列表
 
-列表在容器下方相距 `comp.select.list.offset` 处打开，起始边与容器对齐；下方没有空间时，在容器上方打开。它与容器一样宽，并且不小于 `list.min-width`（160）。它的高度等于各选项加起来的高度，上限是 `list.max-height`（320），超过时滚动。列表打开时，选中的选项位于视野之内。
+列表在容器下方相距 `comp.select.list.offset` 处打开，起始边与容器对齐；下方没有空间时，在容器上方打开。它的宽度是各选项排成一行所需的宽度：不窄于容器和 `list.min-width`（160）；容器比 `list.max-width`（320）窄时，不宽于 `list.max-width`。这样较长的标签或辅助文字用更少的行就能读完，而容器的宽度不变。需要更宽的选项会换行。它的高度等于各选项加起来的高度，上限是 `list.max-height`（320），超过时滚动。列表打开时，选中的选项位于视野之内。
 
 | 部件 | 它是什么 |
 | --- | --- |

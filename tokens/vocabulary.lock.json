@@ -1,6 +1,6 @@
 {
   "$comment": "Generated. The vocabulary of the default system. A change here is a vocabulary change: it needs the one-product test and maintainer review.",
-  "count": 7046,
+  "count": 7047,
   "tokens": {
     "tanrei.comp.accordion.chevron.size.compact": "dimension",
     "tanrei.comp.accordion.chevron.size.regular": "dimension",
@@ -4999,6 +4999,7 @@
     "tanrei.comp.select.list.color": "color",
     "tanrei.comp.select.list.elevation": "shadow",
     "tanrei.comp.select.list.max-height": "dimension",
+    "tanrei.comp.select.list.max-width": "dimension",
     "tanrei.comp.select.list.min-width": "dimension",
     "tanrei.comp.select.list.offset": "dimension",
     "tanrei.comp.select.list.padding-block": "dimension",

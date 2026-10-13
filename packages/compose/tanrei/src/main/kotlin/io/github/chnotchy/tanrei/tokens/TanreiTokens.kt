@@ -8249,6 +8249,7 @@ public data class TanreiSelectTokens(
     public val listColor: TanreiPaint,
     public val listElevation: List<TanreiShadowLayer>,
     public val listMaxHeight: Dp,
+    public val listMaxWidth: Dp,
     public val listMinWidth: Dp,
     public val listOffset: Dp,
     public val listPaddingBlock: Dp,

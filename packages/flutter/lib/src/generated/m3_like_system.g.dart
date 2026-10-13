@@ -7142,6 +7142,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     listColor: TanreiPaint.role(TanreiColorRole.surfaceContainer),
     listElevation: _elevationLevel2,
     listMaxHeight: 320.0,
+    listMaxWidth: 280.0,
     listMinWidth: 112.0,
     listOffset: 4.0,
     listPaddingBlock: 8.0,
