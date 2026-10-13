@@ -410,6 +410,8 @@
   {"match": "tanrei.comp.chat-composer.*.focused.container.color", "$value": "{tanrei.comp.chat-composer.$1.container.color}", "reason": "The capsule answers focus with its edge, not a state layer; the container stays at rest, in error too."},
   {"match": "tanrei.comp.chat-composer.standard.focused.outline.color", "$value": "{tanrei.sys.color.focus-ring}", "reason": "The focused edge is the capsule's focus indicator, held to 3:1 as the focus ring is. In error the focused edge keeps the error color through the generic fallback and is told by its width."},
   {"match": "tanrei.comp.chat-composer.*.disabled.container.color", "$value": "{tanrei.comp.chat-composer.$1.container.color}", "reason": "A disabled capsule keeps its fill, as a disabled search bar and a disabled filled field do; it is shown by the faded typing and Buttons inside it, which their own tokens draw."},
-  {"match": "tanrei.comp.chat-composer.*.outline.width", "$value": "{tanrei.comp.chat-composer.outline.width}", "reason": "The resting edge width in every state unless named; a dimension has no fallback."}
+  {"match": "tanrei.comp.chat-composer.*.outline.width", "$value": "{tanrei.comp.chat-composer.outline.width}", "reason": "The resting edge width in every state unless named; a dimension has no fallback."},
+  {"match": "tanrei.comp.stepper.*.disabled.container.color", "$value": "{tanrei.comp.stepper.$1.container.color}", "reason": "A step has no fill at rest; disabled, it grows none, and is shown by its faded marker content, ring and text."},
+  {"match": "tanrei.comp.stepper.*.disabled.marker.color", "$value": "{tanrei.comp.stepper.$1.marker.color}", "reason": "A marker keeps the fill of its condition when its step is disabled (none stays none), so that its condition is still seen; its faded content and ring say it cannot be gone to."}
   ]
 }

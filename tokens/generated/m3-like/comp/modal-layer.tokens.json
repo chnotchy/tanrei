@@ -1,0 +1,69 @@
+{
+  "tanrei": {
+    "comp": {
+      "modal-layer": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product presents several kinds of modal surface — a dialog, a modal sheet, a modal drawer, a full-window preview, a modal picker — and wants what lies under all of them to be one thing: the same dim over the page, the same tempo in and out, the same way of blocking what is behind. Changing that once, for every modal surface, is the reason this group exists apart from each surface's own.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a modal layer reads: the scrim's color (alpha included) and how much it blurs what lies behind it, and the motion the scrim fades in and out with. Every modal overlay of Tanrei (the dialog, the modal side sheet, the modal bottom sheet, the modal navigation drawer, the image preview, the modal date-time picker, the search's modal views) is built from it: its own scrim and enter and exit motion tokens alias these.",
+            "rules": [
+              "Set comp.modal-layer.* in a layer to change what lies under every modal surface of a product at once; set one overlay's own scrim or motion token only to set that overlay apart.",
+              "The scrim's color carries its opacity: re-value the color (or sys.color.scrim) to make the dim lighter or darker; there is no separate opacity.",
+              "A blur is drawn only where the platform can blur what is behind a window; a product that wants the same look everywhere keeps comp.modal-layer.scrim.blur at 0.",
+              "The layer is behaviour as much as look: everything behind it inert, focus moved in, kept and given back, Escape, the platform's back and a press on the scrim. A surface that wants any of that is built from the modal layer, never a copy of it.",
+              "A surface that is not modal (a popover, a menu, a tooltip, a docked picker) draws no scrim and is not built from the modal layer."
+            ]
+          }
+        },
+        "scrim": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.scrim}",
+            "$description": "The dim over everything behind a modal surface, alpha included (the scrim role is the overlay as drawn). Each modal overlay's own scrim color aliases this one."
+          },
+          "blur": {
+            "$type": "dimension",
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$description": "How much the scrim blurs what lies behind it: the radius of a Gaussian blur, with the meaning of CSS's blur() (the standard deviation). 0 dims without blurring. A platform that cannot blur what is behind a window draws the color alone. Each modal overlay's own scrim blur aliases this one.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product frosts the page behind its modal surfaces instead of only dimming it, so that what is behind reads as set aside rather than as darkened; the dim alone cannot say that."
+              },
+              "dev.tanrei.derive": {
+                "fixed": "No blur is the default's choice, not a length any dial scales: a system that blurs sets the radius it wants."
+              }
+            }
+          }
+        },
+        "motion": {
+          "enter-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium2}",
+            "$description": "How long the scrim takes to fade in as a modal surface opens. Each modal overlay's own enter duration aliases this one, so that its surface arrives with its scrim."
+          },
+          "enter-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}",
+            "$description": "The curve of the scrim's fade in; each modal overlay's own enter easing aliases it."
+          },
+          "exit-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$description": "How long the scrim takes to fade out as a modal surface closes. Each modal overlay's own exit duration aliases this one, so that its surface leaves with its scrim."
+          },
+          "exit-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}",
+            "$description": "The curve of the scrim's fade out; each modal overlay's own exit easing aliases it."
+          }
+        }
+      }
+    }
+  }
+}

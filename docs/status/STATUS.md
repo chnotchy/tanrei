@@ -3,9 +3,9 @@
 
 Legend: · planned · ◌ lagging · ◔ alpha · ◑ beta · ● stable · ✕ deprecated
 
-Level: 65 base · 15 composed · 4 feature. A component of the first level is a single part with one job; one of the second is put together from other components to complete one value or one job; one of the third holds several controls, each with a value or an action of its own, and coordinates them by state of its own. A cell names the members a component is built from.
+Level: 65 base · 19 composed · 4 feature. A component of the first level is a single part with one job; one of the second is put together from other components to complete one value or one job; one of the third holds several controls, each with a value or an action of its own, and coordinates them by state of its own. A cell names the members a component is built from.
 
-Listing: 77 default · 7 advanced. A component of the first value is shown wherever components are listed; one of the second is a bare control that most products meet inside a higher level, listed only when everything is asked for. This matrix shows every component, whatever its listing.
+Listing: 80 default · 8 advanced. A component of the first value is shown wherever components are listed; one of the second is a bare control that most products meet inside a higher level, listed only when everything is asked for. This matrix shows every component, whatever its listing.
 
 | Component | Level | Listing | Category | Spec | Web Components | SwiftUI | Jetpack Compose | Flutter | React Native |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -22,9 +22,10 @@ Listing: 77 default · 7 advanced. A component of the first value is shown where
 | Progress indicator | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Loading indicator | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Chip | base | default | selection | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| Dialog | base | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| Modal layer | base | advanced | containment | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
+| Dialog | composed: Modal layer | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Menu | base | default | selection | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| List | base | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| List | base | default | containment | ✓ | ◔ alpha | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Tabs | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Tab view | composed: Tabs | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Snackbar | base | default | communication | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
@@ -33,12 +34,12 @@ Listing: 77 default · 7 advanced. A component of the first value is shown where
 | Main action button | base | default | actions | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | App bar | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Navigation bar | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| Navigation drawer | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| Navigation drawer | composed: Modal layer | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Slider | base | default | selection | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Slider field | composed: Field, Slider | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
-| Search | feature | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| Bottom sheet | base | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
-| Side sheet | base | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| Search | feature: Modal layer | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| Bottom sheet | composed: Modal layer | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
+| Side sheet | composed: Modal layer | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Segmented button | base | default | actions | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Button group | base | default | actions | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Button with menu | composed: Menu | default | actions | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
@@ -46,7 +47,7 @@ Listing: 77 default · 7 advanced. A component of the first value is shown where
 | Toolbar | base | default | navigation | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Carousel | base | default | containment | ✓ | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging | ◌ lagging |
 | Calendar | base | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
-| DateTimePicker | composed: Calendar | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| DateTimePicker | composed: Calendar, Modal layer | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Tag | base | default | communication | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Prose | base | default | foundations | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Link | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
@@ -61,6 +62,7 @@ Listing: 77 default · 7 advanced. A component of the first value is shown where
 | Description list | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Figure | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Pagination | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| Stepper | base | default | navigation | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Breadcrumbs | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | App shell | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Page header | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
@@ -88,11 +90,13 @@ Listing: 77 default · 7 advanced. A component of the first value is shown where
 | One-time-code input | base | advanced | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | One-time-code field | composed: Field, One-time-code input | default | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | File upload | feature: File picker, File item | default | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
-| Image preview | feature | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| Image preview | feature: Modal layer | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | File picker | base | advanced | selection | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | File item | base | default | communication | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| Drop zone | base | default | selection | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Embedded text input | base | advanced | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Chat composer | feature: Embedded text input, File picker, File item, Button | default | text-inputs | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| Swatch | base | default | communication | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 
 ## Not shipped by a system
 

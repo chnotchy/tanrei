@@ -2,7 +2,7 @@
 title: "文件项"
 description: "显示一个文件，包括表示格式的字形或文件的小图、文件名，以及产品对它的说明，并带有移除和重试两个操作；它可以是一列文件中的一行，也可以是一排图片中的一个图块。可以按下它来打开文件。它自己绝不读取、保留或发送文件。"
 translationOf: components/file-item.mdx
-sourceHash: fa3865fd939a55ffa7efbd871ad173a4fb6357ca
+sourceHash: d28c31a8db7cd09eab202ce5126a728ce24942af
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -42,7 +42,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 以下情况请使用别的组件：
 
 - 用户选择文件，由你把它们列出来。那是[文件上传](/zh-cn/components/file-upload/)，它替你持有文件项。
-- 用户要给文件排顺序。那是各行显示文件的[列表](/zh-cn/components/list/)；参见[顺序可由用户调整的文件](#顺序可由用户调整的文件)。
+- 用户要给文件排顺序。那是各项包含文件项、可调整顺序的[列表](/zh-cn/components/list/)；参见[顺序可由用户调整的文件](#顺序可由用户调整的文件)。
 - 用户要在文件中选择。那是带选择功能的[列表](/zh-cn/components/list/)。文件项没有选中状态。
 - 图片本身就是供人观看的内容。文件项的图片占的是字形的位置，没有替代文本。
 
@@ -253,29 +253,31 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 ### 顺序可由用户调整的文件
 
-文件项没有手柄，没有移动按钮，也没有顺序。调整顺序是[列表](/zh-cn/components/list/)的事。请把每个文件显示为可调整顺序的列表中的一行：名称作为标题，大小作为辅助文本，前置位置放一个字形或一张图片，后置位置放一个你自己的按钮，用来移除它。
+文件项没有手柄，也没有自己的顺序。调整顺序是[列表](/zh-cn/components/list/)的事：把每个文件项放进可调整顺序的列表的一项中。列表在文件项旁绘制手柄，让整个项可以拖动，并从手柄打开移动菜单；文件项保留自己的字形、文本、进度条和操作。
 
 <ListReorderProduct />
 
-<DemoFrame label="顺序可由用户调整的文件：一个可调整顺序的列表，它的各行显示文件" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="上移" move-down-label="下移" moved-text="“{headline}”已移到第 {position} 位，共 {count} 项" style="inline-size: 26rem">
-    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="移除 cover-letter.pdf" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="resume.docx" supporting-text="文档 · 88 KB" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="移除 resume.docx" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="portfolio.zip" supporting-text="压缩包 · 14 MB" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="移除 portfolio.zip" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+<DemoFrame label="顺序可由用户调整的文件：可调整顺序的列表中的文件项" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="附件" drag-handle-label="调整 {label} 的顺序" move-to-start-label="移到顶部" move-before-label="上移" move-after-label="下移" move-to-end-label="移到底部" lifted-text="已拿起 {label}：第 {position} 项，共 {count} 项" moved-text="{label}：第 {position} 项，共 {count} 项" cancelled-text="{label} 已回到第 {position} 项，共 {count} 项" style="inline-size: 26rem; max-inline-size: 100%">
+    <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="移除 {name}"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="resume.docx" size-text="88 KB" remove-label="移除 {name}"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="portfolio.zip" size-text="14 MB" remove-label="移除 {name}"></tanrei-file-item></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
 ```html
-<tanrei-list reorder="buttons" move-up-label="上移" move-down-label="下移"
-             moved-text="“{headline}”已移到第 {position} 位，共 {count} 项">
-  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf">
-    <tanrei-button slot="trailing" variant="text" label="移除 cover-letter.pdf"><span slot="icon">close</span></tanrei-button>
-  </tanrei-list-item>
+<tanrei-list reorderable gap="small" label="Attachments" drag-handle-label="Reorder {label}"
+             move-to-start-label="Move to top" move-before-label="Move up"
+             move-after-label="Move down" move-to-end-label="Move to bottom"
+             lifted-text="{label} lifted: {position} of {count}"
+             moved-text="{label}: {position} of {count}"
+             cancelled-text="{label} returned to {position} of {count}">
+  <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
   …
 </tanrei-list>
 ```
 
-这样绘制的是列表的行，而不是文件项：字形由你自己指定，行没有进度条，也没有状态标记。列表负责移动行、朗读每一次移动，并保持焦点；参见列表页面上的[调整顺序](/zh-cn/components/list/#调整顺序)。把文件项作为列表行的内容，以及顺序可由用户调整的一排图块，都还没有实现。
+列表本身不移动任何东西：收到 `move` 时，请把项排成新的顺序。列表会播报每次移动，并让焦点保持在被移动项的手柄上；详见[列表](/zh-cn/components/list/)。每个列表项以其文件命名（文件名就是内容的文本，无需其他设置）。[文件上传](/zh-cn/components/file-upload/)也用同样的方式排列文件。
 
 ### 文字
 

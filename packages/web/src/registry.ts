@@ -222,6 +222,17 @@ export interface TanreiAvatarShapeRegistry {
   square: true;
 }
 
+export interface TanreiSwatchSizeRegistry {
+  small: true;
+  medium: true;
+  large: true;
+}
+
+export interface TanreiSwatchShapeRegistry {
+  square: true;
+  circle: true;
+}
+
 export interface TanreiTabsVariantRegistry {
   primary: true;
   secondary: true;

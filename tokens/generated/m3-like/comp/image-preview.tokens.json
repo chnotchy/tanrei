@@ -229,11 +229,11 @@
         "motion": {
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.medium2}"
+            "$value": "{tanrei.comp.modal-layer.motion.enter-duration}"
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
           },
           "enter-scale": {
             "$type": "number",
@@ -247,11 +247,11 @@
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}"
+            "$value": "{tanrei.comp.modal-layer.motion.exit-duration}"
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
           },
           "zoom-duration": {
             "$type": "duration",

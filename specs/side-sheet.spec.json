@@ -4,8 +4,11 @@
   "title": "Side sheet",
   "summary": "Shows supplementary content or a secondary task in a panel at the end edge, beside the content on a wide screen or over it on a compact one, with a headline, an optional close button and actions: optional beside the content, at least one over it.",
   "category": "containment",
-  "level": "base",
+  "level": "composed",
   "listing": "default",
+  "builtFrom": [
+    "modal-layer"
+  ],
   "uses": [
     "button"
   ],
@@ -20,7 +23,7 @@
     },
     {
       "id": "scrim",
-      "description": "Dims everything behind a modal sheet; a press on it asks the sheet to close.",
+      "description": "The modal layer's scrim (MDL-1): it dims everything behind a modal sheet; a press on it asks the sheet to close.",
       "optional": true
     },
     {
@@ -162,15 +165,15 @@
     },
     {
       "id": "SSH-2",
-      "text": "WHEN open becomes true WHILE variant is modal THE side sheet SHALL slide in from the window's end edge over the content and fade in a scrim of comp.side-sheet.scrim.color over the rest of the window, over comp.side-sheet.motion.enter-duration with comp.side-sheet.motion.enter-easing; WHEN open becomes false it SHALL slide out to the end edge from wherever it is and fade the scrim out, over comp.side-sheet.motion.exit-duration with comp.side-sheet.motion.exit-easing. WHERE motion is reduced it SHALL fade in and out without sliding, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). WHILE it is open THE side sheet SHALL make everything behind it inert (not focusable, not pressable, hidden from assistive technology) and SHALL keep focus inside it: Tab from its last focusable element SHALL move to its first, Shift+Tab from its first to its last, and screen-reader navigation SHALL NOT leave it."
+      "text": "WHEN open becomes true WHILE variant is modal THE side sheet SHALL slide in from the window's end edge over the content on its modal layer, fading the layer's scrim in comp.side-sheet.scrim.color and comp.side-sheet.scrim.blur in over the rest of the window in step with it (MDL-1, MDL-7), over comp.side-sheet.motion.enter-duration with comp.side-sheet.motion.enter-easing; WHEN open becomes false it SHALL slide out to the end edge from wherever it is and fade the scrim out, over comp.side-sheet.motion.exit-duration with comp.side-sheet.motion.exit-easing. WHERE motion is reduced it SHALL fade in and out without sliding, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). WHILE it is open THE side sheet SHALL make everything behind it inert and keep focus inside it, as its modal layer does (MDL-2, MDL-4)."
     },
     {
       "id": "SSH-3",
-      "text": "WHEN open changes from false to true THE side sheet SHALL move focus to the element in it that the product marked for initial focus (the platform's own mark, named in the platform notes) or, without one, to its container, so that assistive technology reads the headline first; WHEN it closes while focus is inside it THE side sheet SHALL return focus to the element that had it when the sheet opened or, where that element no longer exists or cannot take focus, to the platform's default. Focus SHALL move when the sheet opens or closes, not when its motion ends. This holds for both variants; a standard sheet mounted with open true SHALL NOT move focus, and a modal sheet mounted with open true SHALL move focus in as if it had just opened, because it makes everything behind it unfocusable and focus must be somewhere it can reach."
+      "text": "WHEN open changes from false to true THE side sheet SHALL move focus to the element in it that the product marked for initial focus (the platform's own mark, named in the platform notes) or, without one, to its container, so that assistive technology reads the headline first; WHEN it closes while focus is inside it THE side sheet SHALL return focus to the element that had it when the sheet opened or, where that element no longer exists or cannot take focus, to the platform's default. Focus SHALL move when the sheet opens or closes, not when its motion ends. This holds for both variants (a modal sheet moves and returns focus as its modal layer does, MDL-3, MDL-5); a standard sheet mounted with open true SHALL NOT move focus, and a modal sheet mounted with open true SHALL move focus in as if it had just opened, because it makes everything behind it unfocusable and focus must be somewhere it can reach."
     },
     {
       "id": "SSH-4",
-      "text": "WHILE variant is modal and the sheet is open, WHEN the user presses the scrim, presses Escape, uses the platform's back (Android's back gesture or button, the iOS accessibility escape gesture), or drags the sheet toward its end edge past half its width or flings it that way, THE side sheet SHALL emit close exactly once with the reason scrim, escape, back or drag; a drag SHALL follow the finger or pointer once it passes the platform's touch slop, and a released drag that does not ask to close SHALL slide the sheet back over comp.side-sheet.motion.enter-duration with comp.side-sheet.motion.enter-easing (at once where motion is reduced). The fling and the touch slop are those BSH-9 names for the bottom sheet: the platform's own, or 0.5 points per millisecond and 8 points where the platform names none."
+      "text": "WHILE variant is modal and the sheet is open, WHEN the user presses the scrim, presses Escape, uses the platform's back, as its modal layer answers them (MDL-6), or drags the sheet toward its end edge past half its width or flings it that way, THE side sheet SHALL emit close exactly once with the reason scrim, escape, back or drag; a drag SHALL follow the finger or pointer once it passes the platform's touch slop, and a released drag that does not ask to close SHALL slide the sheet back over comp.side-sheet.motion.enter-duration with comp.side-sheet.motion.enter-easing (at once where motion is reduced). The fling and the touch slop are those BSH-9 names for the bottom sheet: the platform's own, or 0.5 points per millisecond and 8 points where the platform names none."
     },
     {
       "id": "SSH-5",
@@ -204,7 +207,7 @@
     },
     {
       "id": "SSH-12",
-      "text": "THE side sheet SHALL expose its container, WHILE variant is modal, as a modal dialog named by headline and, WHILE variant is standard, as a complementary region named by headline (the web's aside landmark); WHILE headline is empty it SHALL still render, and in debug builds report that it has no accessible name."
+      "text": "THE side sheet SHALL expose its container, WHILE variant is modal, as its modal layer's modal dialog (MDL-10) named by headline and, WHILE variant is standard, as a complementary region named by headline (the web's aside landmark); WHILE headline is empty it SHALL still render, and in debug builds report that it has no accessible name."
     },
     {
       "id": "SSH-13",
@@ -216,7 +219,7 @@
     },
     {
       "id": "SSH-15",
-      "text": "WHEN a dialog, a menu or another modal sheet opens from a modal side sheet THE side sheet SHALL stay below it, become inert with the rest of the window, and on the other overlay's closing receive back the focus that overlay returns; Escape SHALL dismiss only the topmost overlay."
+      "text": "WHEN a dialog, a menu or another modal sheet opens from a modal side sheet THE side sheet SHALL stay below it, become inert with the rest of the window, and on the other overlay's closing receive back the focus that overlay returns, as its modal layer does (MDL-8, MDL-9); Escape SHALL dismiss only the topmost overlay."
     },
     {
       "id": "SSH-16",

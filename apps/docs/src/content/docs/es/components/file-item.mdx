@@ -2,7 +2,7 @@
 title: Elemento de archivo
 description: Muestra un archivo —un glifo que dice su formato o una imagen pequeña del archivo, su nombre y lo que el producto dice de él— con las acciones para quitarlo y para volver a intentarlo, como fila de una columna de archivos o como mosaico de una tira de imágenes. Se puede pulsar para abrir el archivo. Nunca lee, conserva ni envía el archivo por sí mismo.
 translationOf: components/file-item.mdx
-sourceHash: fa3865fd939a55ffa7efbd871ad173a4fb6357ca
+sourceHash: d28c31a8db7cd09eab202ce5126a728ce24942af
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -42,7 +42,7 @@ Un elemento de archivo no lee un solo byte de un archivo, no conserva ningún ar
 Usa otra cosa cuando:
 
 - Las personas eligen archivos y tú los enumeras. Eso es un [control de subida de archivos](/es/components/file-upload/), que contiene los elementos de archivo por ti.
-- Las personas ponen los archivos en un orden. Eso es una [lista](/es/components/list/) cuyas filas muestran los archivos; consulta [Archivos en un orden que las personas cambian](#archivos-en-un-orden-que-las-personas-cambian).
+- Las personas ponen los archivos en un orden. Eso es una [lista](/es/components/list/) reordenable cuyos elementos contienen los elementos de archivo; consulta [Archivos en un orden que las personas cambian](#archivos-en-un-orden-que-las-personas-cambian).
 - Las personas seleccionan entre archivos. Eso es una [lista](/es/components/list/) con selección. Un elemento de archivo no tiene estado seleccionado.
 - La imagen es el contenido, lo que se va a mirar. La imagen de un elemento de archivo ocupa el lugar de un glifo y no tiene texto alternativo.
 
@@ -253,29 +253,31 @@ El cuerpo es el glifo o la imagen, y los textos. Las acciones están a su lado y
 
 ### Archivos en un orden que las personas cambian
 
-Un elemento de archivo no tiene tirador, ni botones para mover, ni orden. Reordenar es cosa de la [lista](/es/components/list/). Muestra cada archivo como una fila de una lista reordenable: el nombre como titular, el tamaño como texto de apoyo, un glifo o una imagen en el lugar inicial y, en el lugar final, un botón tuyo para quitarlo.
+Un elemento de archivo no tiene tirador ni orden propio. Reordenar es cosa de la [lista](/es/components/list/): pon cada elemento de archivo en un elemento de una lista reordenable. La lista dibuja el tirador junto al elemento de archivo, permite arrastrar el elemento entero y abre desde el tirador su menú de movimientos; el elemento de archivo conserva su glifo, sus textos, su barra y sus acciones.
 
 <ListReorderProduct />
 
-<DemoFrame label="Archivos en un orden que las personas cambian: una lista reordenable cuyas filas muestran los archivos" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="Mover hacia arriba" move-down-label="Mover hacia abajo" moved-text="{headline}, ahora en la posición {position} de {count}" style="inline-size: 26rem">
-    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="Quitar cover-letter.pdf" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="resume.docx" supporting-text="Documento · 88 KB" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="Quitar resume.docx" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="portfolio.zip" supporting-text="Archivo comprimido · 14 MB" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="Quitar portfolio.zip" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+<DemoFrame label="Archivos en un orden que las personas cambian: elementos de archivo en una lista reordenable" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="Adjuntos" drag-handle-label="Reordenar {label}" move-to-start-label="Mover al principio" move-before-label="Mover hacia arriba" move-after-label="Mover hacia abajo" move-to-end-label="Mover al final" lifted-text="{label} levantado: {position} de {count}" moved-text="{label}: {position} de {count}" cancelled-text="{label} vuelve a {position} de {count}" style="inline-size: 26rem; max-inline-size: 100%">
+    <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="Quitar {name}"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="resume.docx" size-text="88 KB" remove-label="Quitar {name}"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="portfolio.zip" size-text="14 MB" remove-label="Quitar {name}"></tanrei-file-item></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
 ```html
-<tanrei-list reorder="buttons" move-up-label="Mover hacia arriba" move-down-label="Mover hacia abajo"
-             moved-text="{headline}, ahora en la posición {position} de {count}">
-  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf">
-    <tanrei-button slot="trailing" variant="text" label="Quitar cover-letter.pdf"><span slot="icon">close</span></tanrei-button>
-  </tanrei-list-item>
+<tanrei-list reorderable gap="small" label="Attachments" drag-handle-label="Reorder {label}"
+             move-to-start-label="Move to top" move-before-label="Move up"
+             move-after-label="Move down" move-to-end-label="Move to bottom"
+             lifted-text="{label} lifted: {position} of {count}"
+             moved-text="{label}: {position} of {count}"
+             cancelled-text="{label} returned to {position} of {count}">
+  <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
   …
 </tanrei-list>
 ```
 
-Esto dibuja la fila de la lista y no el elemento de archivo: el glifo lo indicas tú, y una fila no tiene barra ni marca de estado. La lista mueve las filas, anuncia cada movimiento y conserva el foco; consulta [Reordenar](/es/components/list/#reordenar) en la página de la lista. Un elemento de archivo como contenido de la fila de una lista, y una tira de mosaicos en un orden que las personas cambian, no están construidos.
+La lista no mueve nada por sí misma: con `move`, pon los elementos en el nuevo orden. Anuncia cada movimiento y mantiene el foco en el tirador del elemento movido; consulta la [lista](/es/components/list/). Cada elemento de la lista se nombra por su archivo (el nombre del archivo es el texto del contenido, así que no hace falta nada más). Una [carga de archivos](/es/components/file-upload/) dispone sus archivos de la misma manera.
 
 ### Textos
 

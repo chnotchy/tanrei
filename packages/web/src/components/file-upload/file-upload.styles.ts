@@ -34,59 +34,27 @@ export const styles = css`
     min-inline-size: min-content;
   }
 
-  /* ── The list (FUP-17) ── the rows, list.gap below the file picker: a column, list.item-gap apart; or, of tiles, a
-     strip from the start edge that wraps, list.item-gap apart along both directions, the tiles of one line aligned at
-     their tops. With no row there is no list and no room for one. Only a file item is drawn: .rows is drawn for
-     nothing and has no font, and a file item makes itself visible, so text or another element among the rows takes no
-     room and is not read (FUP-41). */
+  /* ── The list (FUP-17) ── a List, list.gap below the file picker: vertical for rows, horizontal and wrapping for
+     tiles, comp.list.gap.small apart along both directions (the List's small gap). With no
+     row there is no list and no room for one. What is not a file item is assigned to no slot and so not drawn (FUP-41). */
   .list {
     margin-block-start: ${t('list-gap')};
   }
   .list[hidden] {
     display: none;
   }
-  .rows {
-    visibility: hidden;
-    font-size: 0;
-    line-height: 0;
-  }
   /* A file item is given a font size again — a length of the root's — and not for its drawing: every text of a file
-     item sets its own role and the row's line height stays nothing. It is for WebKit, which does not follow a change
-     of the root's font size into the shadow tree of an element slotted into a box whose own font size does not change
-     with it (.rows, above; a page of plain elements does the same), unless the slotted element's own font size does:
-     without it a row drawn before a reader enlarges the text keeps every rem length it had. */
-  ::slotted(tanrei-file-item),
-  .rows > tanrei-file-item {
-    visibility: visible;
+     item sets its own role. It is for WebKit, which does not follow a change of the root's font size into the shadow
+     tree of an element slotted into a box whose own font size does not change with it, unless the slotted element's
+     own font size does: without it a row drawn before a reader enlarges the text keeps every rem length it had. */
+  .list tanrei-file-item,
+  ::slotted(tanrei-file-item) {
     font-size: var(--tanrei-sys-typescale-body-font-size);
   }
-  ::slotted(tanrei-file-item:not(:first-of-type)),
-  .rows > tanrei-file-item:not(:first-of-type) {
-    margin-block-start: ${t('list-item-gap')};
-  }
-  /* The strip's distances are each tile's own margins toward the start and the top, and the strip reaches one
-     distance further those two ways (where nothing scrolls) — not a gap of the strip: a text the product left between
-     two tiles is an item of the strip too, as wide as nothing, and a gap would be counted on both of its sides
-     (FUP-41: it takes no room). The list is a formatting context of its own, so it begins where the first line does. */
-  .list[data-form='tile']:not([hidden]) {
-    display: flow-root;
-  }
-  .list[data-form='tile'] .rows {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    margin-block-start: calc(-1 * ${t('list-item-gap')});
-    margin-inline-start: calc(-1 * ${t('list-item-gap')});
-  }
-  .list[data-form='tile'] ::slotted(tanrei-file-item),
-  .list[data-form='tile'] .rows > tanrei-file-item {
-    margin-block-start: ${t('list-item-gap')};
-    margin-inline-start: ${t('list-item-gap')};
-    /* FIT-3: never wider than its layout — the file upload's width, which the strip exceeds by one distance. */
-    max-inline-size: calc(100% - ${t('list-item-gap')});
-  }
-  ::slotted(:not(tanrei-file-item, [slot])) {
-    display: none;
+  /* FIT-3: a tile is never wider than its layout — the file upload's width. */
+  .list[data-form='tile'] tanrei-file-item,
+  .list[data-form='tile'] ::slotted(tanrei-file-item) {
+    max-inline-size: 100%;
   }
   .announce {${unsafeCSS(unseen)}
   }

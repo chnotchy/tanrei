@@ -1,0 +1,164 @@
+---
+title: ドロップゾーン
+description: 画面の任意の部分を包み、その上のどこにでもファイルをドロップできるようにします。中にあるものは、すべてこれまでどおりに動きます。ファイルがドラッグされてくるまで何も描かず、ドラッグされると領域全体を 1 つのメッセージで覆い、受け取ったファイルと断ったファイルをプロダクトに渡します。
+translationOf: components/drop-zone.mdx
+sourceHash: a96e90c3c5f7b4c3242c447e16ce8a353e6d79ca
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## 概要
+
+<ComponentAvailability name="drop-zone" />
+
+<DemoFrame label="ドロップゾーンで包んだ動画の画面。コンピューターからファイルをドラッグして、画面のどこかに重ねてください。ドロップできることを、画面全体が示します。ドロップしても、ここでは何も変わりません。このページはファイルを保持しないためです。" column>
+  <tanrei-drop-zone class="not-content" style="inline-size: 30rem; max-inline-size: 100%; block-size: 16rem; border-radius: var(--tanrei-sys-shape-corner-medium)" multiple accept="video/*,image/*" drop-text="ドロップして動画をアップロード" refusing-text="アップロードできるのは動画と画像だけです" dropped-text="{count} 個のファイルを受け取りました" refused-text="{count} 個のファイルを受け取れませんでした">
+    <div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); border-radius: inherit">
+      <tanrei-file-picker multiple accept="video/*,image/*" constraints-text="動画または画像">
+        <tanrei-button slot="trigger" variant="outlined">動画をアップロード</tanrei-button>
+      </tanrei-file-picker>
+      <span>チャンネル予告編 · 1:24</span>
+      <span>春のアップデート · 8:03</span>
+      <span>舞台裏 · 12:47</span>
+    </div>
+  </tanrei-drop-zone>
+</DemoFrame>
+
+ドロップゾーンは、画面全体、またはその任意の部分を、ファイルをドロップできる場所に変えます。書類の一覧、動画のライブラリ、会話、アプリのメイン領域を包んで使います。中にあるものは、すべてこれまでどおりに動きます。ボタン、テーブル、フィールドは、ゾーンがないときと同じように押され、スクロールされ、キーボードで操作されます。ゾーンは、ホバーも、押下も、フォーカスの停止位置も、ロールも加えません。
+
+ファイルがその上にドラッグされている間は、1 つのオーバーレイがゾーンを覆います。コンテンツを暗くする層と、そのまわりの縁と、アップロードのグリフと利用者側のメッセージを載せたパネルです。ファイルがドロップされると、ゾーンは[ファイルピッカー](/ja/components/file-picker/)と同じ規則でそれを判定し、利用者側に渡します。通ったファイルは `select` で、断られたファイルは `reject` で届きます。それを[ファイルアップロード](/ja/components/file-upload/)か、利用者側の一覧に渡します。
+
+<Callout type="caution" title="唯一の手段にしない">
+ファイルのドラッグはポインターの動きであり、キーボード、スクリーンリーダー、音声操作、そしてほとんどのタッチスクリーンではできません。ドロップゾーンのある画面には、必ず[ファイルピッカー](/ja/components/file-picker/)か[ファイルアップロード](/ja/components/file-upload/)も置きます。ツールバー、アプリバー、空の状態の中などです。どちらもないページは、デバッグビルドが報告します。
+</Callout>
+
+ドロップする場所が、フォームの中の境界のある領域で、押すとピッカーも開くものであれば、代わりにファイルピッカーのドロップ領域のレイアウトを使います。
+
+Web では `<tanrei-drop-zone>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+コンテンツを包み、`select` を受け取ります。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-drop-zone id="zone" multiple accept="video/*" max-size="2000000000"
+                      drop-text="ドロップして動画をアップロード" silent>
+      <tanrei-file-upload id="uploads" multiple accept="video/*" max-size="2000000000"
+                          constraints-text="動画、1 本につき 2 GB まで">
+        <tanrei-button slot="trigger" variant="outlined">動画をアップロード</tanrei-button>
+      </tanrei-file-upload>
+      <tanrei-table>…チャンネルの動画…</tanrei-table>
+    </tanrei-drop-zone>
+
+    <script type="module">
+      import '@tanrei/web/components/drop-zone';
+      import '@tanrei/web/components/file-upload';
+      import '@tanrei/web/components/button';
+
+      const uploads = document.querySelector('#uploads');
+      // ドロップされたファイルはファイルアップロードが一覧にし、1 つずつ伝えるため、ゾーンは何も読み上げません。
+      document.querySelector('#zone').addEventListener('select', ({ detail }) => uploads.add(detail.files));
+      // 断られたファイルの理由は名前であって、文ではありません。利用者側の言葉で伝えます。
+      document.querySelector('#zone').addEventListener('reject', ({ detail }) => showRefused(detail.files));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, DropZone, FileUpload } from '@tanrei/react';
+
+    <DropZone multiple accept={['video/*']} dropText="ドロップして動画をアップロード" silent
+      onSelect={(event) => uploads.current?.add(event.detail.files)}
+      onReject={(event) => showRefused(event.detail.files)}>
+      <FileUpload ref={uploads} multiple accept={['video/*']} constraintsText="動画、1 本につき 2 GB まで">
+        <Button slot="trigger" variant="outlined">動画をアップロード</Button>
+      </FileUpload>
+      <VideoTable />
+    </DropZone>
+    ```
+  </TabItem>
+</Tabs>
+
+ゾーンのボックスは、コンテンツのレイアウトのボックスです。ほかのラッパーと同じようにスタイルを指定します。高さ、`display: grid`、`overflow` などです。
+
+## 仕様
+
+<ComponentSpecs name="drop-zone" />
+
+## ガイドライン
+
+### どこに置くか
+
+| 包むもの | 使う場面 |
+| --- | --- |
+| アプリのメイン領域 | 画面の主な作業がファイルを置いておくことである場合。ライブラリ、ドライブ、書類の一覧などです。利用者が作業しているどこにでも、ファイルをドロップできます。 |
+| 1 つのパネルや一覧 | 画面の一部だけがファイルを受け取る場合。1 つのレコードの添付ファイル、1 つの会話などです。 |
+| 代わりに[ファイルピッカー](/ja/components/file-picker/)のドロップ領域 | ドロップする場所が、フォームの中の境界のある領域で、押すとピッカーも開く場合。 |
+
+ゾーンの中のゾーンは、ドラッグがその上にある間、自分でドロップを受け取ります。ゾーンの中にあるファイルピッカーのドロップ領域も同じです。常に、いちばん内側の場所が受け取ります。
+
+### オーバーレイ
+
+オーバーレイが現れるのは、ファイルがゾーンの上にドラッグされている間だけで、ファイルの場合に限ります。ドラッグされたテキストやリンクはコンテンツに任されるため、ゾーンの中のテキストフィールドは、それをそのまま受け取ります。ドラッグがゾーンを離れたとき、ドロップされたとき、取り消されたときに、オーバーレイは消えます。押下もスクロールも受け取らないため、閉じる必要はありません。
+
+- パネルは、ゾーンのうち画面に見えている部分の中央に立ちます。ウィンドウより背の高いゾーンでも、メッセージは利用者が見ている場所に現れます。
+- オーバーレイは、ゾーンのボックスの中にとどまり、その中のすべてのものより上にあります。それより上に立つ必要のあるコンテンツ（ダイアログ、メニュー、ポップオーバー）は、Tanrei のオーバーレイと同じように、プラットフォームのトップレイヤーにあります。
+- ドラッグされたものを何も受け取れないことを、ドロップの前にブラウザーが判断できる場合（1 つを求めているのに複数のファイルがある、メディアタイプの一覧が除外する種類しかない）、オーバーレイは断る表示になります。禁止のグリフ、エラーの色の縁、`refusingText` です。ブラウザーが伝えるのは種類と個数だけで、名前やサイズは伝えません。そのため、大きすぎるファイルや、断られる拡張子のファイルは、ドロップしたときに断られます。
+
+### 制限とメッセージ
+
+`accept`、`maxSize`、`maxFiles`、`multiple` は、ファイルピッカーとまったく同じように働きます。制限は、同じ画面にあるファイルピッカーかファイルアップロードの横に、言葉で書きます。利用者が制限を読むのは、そこです。
+
+| プロパティ | 伝えること | 空のときに読む言葉 |
+| --- | --- | --- |
+| `dropText` | オーバーレイの中のメッセージ。「ドロップしてファイルをアップロード」。 | `dropZoneText` |
+| `refusingText` | ドラッグされたものをゾーンが断っている間のメッセージ。 | `dropZoneRefusingText` |
+| `droppedText` | ドロップの後に支援技術が伝える内容で、`{count}` を含みます。「\{count} 個のファイルを追加しました」。 | `filesDroppedText` |
+| `refusedText` | ファイルが断られたときに伝える内容で、`{count}` を含みます。 | `filesRefusedText` |
+
+これらの言葉は、`setWords()` を使ってプロダクト全体で一度だけ設定します。Tanrei は言葉を同梱しません。
+
+ドロップされたファイルが、自身の行を持つファイルアップロードに渡る場合は、`silent` を指定します。ファイルアップロードは、保持したファイルと断ったファイルを 1 つずつ伝えます。1 回のドロップは、1 回だけ伝えるべきです。
+
+### 無効
+
+`disabled` が止めるのはドロップだけです。オーバーレイもイベントもなくなりますが、コンテンツはこれまでどおりに使えます。まわりに有効なゾーンのない無効なゾーンでも、誤ってその上にドロップされたファイルをブラウザーが開くことは防ぎます。
+
+### 推奨
+
+- 同じ画面に、必ずファイルピッカーかファイルアップロードを置きます。
+- `select` が渡すものは、すぐにファイルを見せる場所へ渡します。
+- 断ったことは、すべて利用者が見ている場所で伝えます。スナックバーや、利用者側の一覧の行です。
+
+### 非推奨
+
+- ドロップゾーンを、ファイルを追加する唯一の手段にしない。
+- 小さなコントロール 1 つのまわりにドロップゾーンを置かない。ファイルピッカーのドロップ領域を使います。
+- ドロップされたものをフォームが送信することを期待しない。ゾーンは何も保持せず、フォームにも加わりません。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="drop-zone" />
+
+### コンポーネントが担うこと
+
+- ゾーンは、コンテンツに何も加えません。ロールも、名前も、フォーカス順の停止位置も、キーもありません。キーボードやスクリーンリーダーの利用者は、ゾーンがないときとまったく同じようにコンテンツに出会います。
+- オーバーレイは、ドラッグしている人のために描かれ、支援技術からは隠されています。
+- ドロップの後、1 つの polite なライブリージョンが、いくつのファイルが通り、いくつが断られたかを、利用者側の言葉で伝えます。
+- オーバーレイは、色に頼らずにも伝わります。断る表示には専用のグリフとメッセージがあり、強制カラーモードでは、縁がハイライトの色で太く描かれます。
+- テキストが 200% のときも、メッセージは折り返され、切り詰められることはありません。
+
+Web での構成は次のとおりです。コンテンツは、既定のスロットの中で、利用者側の DOM にそのまま残ります。ホストは `position: relative` で、それ自身がスタッキングコンテキストになるため、`position: static` を指定しないでください。`select` と `reject` は、ファイルピッカーと同じ detail でバブリングします。
+
+### 利用者側で行うこと
+
+- ドラッグできないすべての人のために、同じ画面に[ファイルピッカー](/ja/components/file-picker/)か[ファイルアップロード](/ja/components/file-upload/)を置きます。
+- `droppedText` と `refusedText` を指定します。ファイルアップロードがファイルを伝える場所では、代わりに `silent` を指定します。
+- 断ったことは、すべて目に見える言葉で伝えます。

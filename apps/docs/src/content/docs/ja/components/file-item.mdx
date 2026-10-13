@@ -2,7 +2,7 @@
 title: ファイル項目
 description: 1 つのファイルを見せます。形式を表すグリフか小さな画像、名前、そしてプロダクトがそのファイルについて伝えることを描き、取り除くアクションともう一度試すアクションが付きます。縦に並ぶファイルの行にも、画像の並びのタイルにもなります。押してファイルを開くこともできます。自身がファイルを読むことも、保持することも、送ることもありません。
 translationOf: components/file-item.mdx
-sourceHash: fa3865fd939a55ffa7efbd871ad173a4fb6357ca
+sourceHash: d28c31a8db7cd09eab202ce5126a728ce24942af
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -42,7 +42,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 次の場合は、ほかのものを使います。
 
 - ファイルを選んでもらい、それを一覧にする場合。それは[ファイルアップロード](/ja/components/file-upload/)です。ファイル項目を利用者側の代わりに持ちます。
-- ファイルを並べ替えてもらう場合。それは、行でファイルを見せる[リスト](/ja/components/list/)です。[並べ替えられるファイル](#並べ替えられるファイル)を見てください。
+- ファイルを並べ替えてもらう場合。それは、項目にファイル項目を入れた、並べ替えられる[リスト](/ja/components/list/)です。[並べ替えられるファイル](#並べ替えられるファイル)を見てください。
 - ファイルの中から選択してもらう場合。それは、選択のある[リスト](/ja/components/list/)です。ファイル項目に、選択の状態はありません。
 - 画像そのものがコンテンツで、見てもらうためのものである場合。ファイル項目の画像は、グリフがあるはずの場所に置かれるもので、代替テキストを持ちません。
 
@@ -253,29 +253,31 @@ Web では `<tanrei-file-item>` です。ほかのプラットフォームはま
 
 ### 並べ替えられるファイル
 
-ファイル項目には、ハンドルも、移動ボタンも、順序もありません。並べ替えは[リスト](/ja/components/list/)のものです。それぞれのファイルを、並べ替えられるリストの行として見せます。名前を見出しに、サイズを補足テキストに、グリフまたは画像を先頭に、取り除くための利用者側のボタンを末尾に置きます。
+ファイル項目には、ハンドルも独自の順序もありません。並べ替えは[リスト](/ja/components/list/)のものです。それぞれのファイル項目を、並べ替えられるリストの項目に入れます。リストはファイル項目の横にハンドルを描き、項目全体をドラッグできるようにし、ハンドルから移動のメニューを開きます。ファイル項目は、グリフ、テキスト、バー、アクションをそのまま保ちます。
 
 <ListReorderProduct />
 
-<DemoFrame label="並べ替えられるファイル。行でファイルを見せる、並べ替えられるリストです" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="上へ移動" move-down-label="下へ移動" moved-text="{headline}を{count}件中{position}番目に移動しました" style="inline-size: 26rem">
-    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="cover-letter.pdf を取り除く" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="resume.docx" supporting-text="文書 · 88 KB" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="resume.docx を取り除く" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="portfolio.zip" supporting-text="アーカイブ · 14 MB" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="portfolio.zip を取り除く" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+<DemoFrame label="並べ替えられるファイル：並べ替えられるリストの中のファイル項目" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="添付ファイル" drag-handle-label="{label}を並べ替え" move-to-start-label="先頭へ移動" move-before-label="上へ移動" move-after-label="下へ移動" move-to-end-label="末尾へ移動" lifted-text="{label}を持ち上げました：{count}件中{position}番目" moved-text="{label}：{count}件中{position}番目" cancelled-text="{label}を{count}件中{position}番目に戻しました" style="inline-size: 26rem; max-inline-size: 100%">
+    <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="{name} を取り除く"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="resume.docx" size-text="88 KB" remove-label="{name} を取り除く"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="portfolio.zip" size-text="14 MB" remove-label="{name} を取り除く"></tanrei-file-item></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
 ```html
-<tanrei-list reorder="buttons" move-up-label="上へ移動" move-down-label="下へ移動"
-             moved-text="{headline}を{count}件中{position}番目に移動しました">
-  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf">
-    <tanrei-button slot="trailing" variant="text" label="cover-letter.pdf を取り除く"><span slot="icon">close</span></tanrei-button>
-  </tanrei-list-item>
+<tanrei-list reorderable gap="small" label="Attachments" drag-handle-label="Reorder {label}"
+             move-to-start-label="Move to top" move-before-label="Move up"
+             move-after-label="Move down" move-to-end-label="Move to bottom"
+             lifted-text="{label} lifted: {position} of {count}"
+             moved-text="{label}: {position} of {count}"
+             cancelled-text="{label} returned to {position} of {count}">
+  <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
   …
 </tanrei-list>
 ```
 
-これが描くのはリストの行で、ファイル項目ではありません。グリフは利用者側が指定し、行にはバーも状態の印もありません。リストが行を動かし、移動のたびに読み上げ、フォーカスを保ちます。リストのページの[並べ替え](/ja/components/list/#並べ替え)を見てください。リストの行の内容としてのファイル項目と、並べ替えられるタイルの並びは、まだ作られていません。
+リストは自分では何も動かしません。`move` を受けたら項目を新しい順に並べてください。リストは移動ごとに読み上げ、動かした項目のハンドルにフォーカスを保ちます。詳しくは[リスト](/ja/components/list/)を見てください。各リスト項目はそのファイルで名付けられます（ファイル名がコンテンツのテキストなので、ほかに何も要りません）。[ファイルアップロード](/ja/components/file-upload/)も同じ方法でファイルを並べます。
 
 ### 言葉
 

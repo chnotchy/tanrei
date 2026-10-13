@@ -2,7 +2,7 @@
 title: फ़ाइल आइटम
 description: एक फ़ाइल दिखाता है, यानी उसका फ़ॉर्मैट बताने वाला ग्लिफ़ या उसकी छोटी तस्वीर, उसका नाम, और वह बात जो प्रॉडक्ट उसके बारे में कहता है। साथ में उसे हटाने और फिर कोशिश करने की क्रियाएँ होती हैं। वह फ़ाइलों के कॉलम की एक पंक्ति हो सकता है या तस्वीरों की क़तार की एक टाइल। फ़ाइल खोलने के लिए उसे दबाया जा सकता है। वह ख़ुद फ़ाइल को कभी नहीं पढ़ता, नहीं रखता और नहीं भेजता।
 translationOf: components/file-item.mdx
-sourceHash: fa3865fd939a55ffa7efbd871ad173a4fb6357ca
+sourceHash: d28c31a8db7cd09eab202ce5126a728ce24942af
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -42,7 +42,7 @@ import { demoPicture } from '../../../../lib/demo-picture';
 इन स्थितियों में कुछ और इस्तेमाल करें:
 
 - लोग फ़ाइलें चुनते हैं और आप उन्हें लिस्ट में दिखाते हैं। वह [फ़ाइल अपलोड](/hi/components/file-upload/) है, जो फ़ाइल आइटम आपके लिए सँभालता है।
-- लोग फ़ाइलों को किसी क्रम में रखते हैं। वह ऐसी [लिस्ट](/hi/components/list/) है जिसकी पंक्तियाँ फ़ाइलें दिखाती हैं; देखें [वे फ़ाइलें जिनका क्रम लोग बदलते हैं](#वे-फ़ाइलें-जिनका-क्रम-लोग-बदलते-हैं)।
+- लोग फ़ाइलों को किसी क्रम में रखते हैं। वह क्रम बदलने योग्य ऐसी [लिस्ट](/hi/components/list/) है जिसके आइटमों में फ़ाइल आइटम हैं; देखें [वे फ़ाइलें जिनका क्रम लोग बदलते हैं](#वे-फ़ाइलें-जिनका-क्रम-लोग-बदलते-हैं)।
 - लोग फ़ाइलों में से चुनते हैं। वह चयन वाली [लिस्ट](/hi/components/list/) है। फ़ाइल आइटम में चयनित स्टेट नहीं होता।
 - तस्वीर ही कॉन्टेंट है, जिसे देखा जाना है। फ़ाइल आइटम की तस्वीर ग्लिफ़ की जगह पर रहती है और उसका कोई वैकल्पिक टेक्स्ट नहीं होता।
 
@@ -253,29 +253,31 @@ import { demoPicture } from '../../../../lib/demo-picture';
 
 ### वे फ़ाइलें जिनका क्रम लोग बदलते हैं
 
-फ़ाइल आइटम में न हैंडल होता है, न ऊपर-नीचे ले जाने वाले बटन, न कोई क्रम। क्रम बदलना [लिस्ट](/hi/components/list/) का काम है। हर फ़ाइल को क्रम बदलने वाली लिस्ट की एक पंक्ति के रूप में दिखाएँ: नाम हेडलाइन के रूप में, साइज़ सहायक टेक्स्ट के रूप में, शुरुआती जगह पर ग्लिफ़ या तस्वीर, और अंतिम जगह पर उसे हटाने के लिए आपका अपना बटन।
+फ़ाइल आइटम में न हैंडल होता है, न अपना कोई क्रम। क्रम बदलना [लिस्ट](/hi/components/list/) का काम है: हर फ़ाइल आइटम को क्रम बदलने योग्य लिस्ट के एक आइटम में रखें। लिस्ट फ़ाइल आइटम के बगल में हैंडल बनाती है, पूरे आइटम को ड्रैग होने देती है और हैंडल से चालों का मेन्यू खोलती है; फ़ाइल आइटम अपना ग्लिफ़, टेक्स्ट, बार और कार्रवाइयाँ रखता है।
 
 <ListReorderProduct />
 
-<DemoFrame label="वे फ़ाइलें जिनका क्रम लोग बदलते हैं: क्रम बदलने वाली लिस्ट, जिसकी पंक्तियाँ फ़ाइलें दिखाती हैं" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="ऊपर ले जाएँ" move-down-label="नीचे ले जाएँ" moved-text="{headline} अब {count} में से {position} नंबर पर है" style="inline-size: 26rem">
-    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="हटाएँ: cover-letter.pdf" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="resume.docx" supporting-text="दस्तावेज़ · 88 KB" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="हटाएँ: resume.docx" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="portfolio.zip" supporting-text="आर्काइव · 14 MB" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="हटाएँ: portfolio.zip" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+<DemoFrame label="वे फ़ाइलें जिनका क्रम लोग बदलते हैं: क्रम बदलने योग्य लिस्ट में फ़ाइल आइटम" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="अटैचमेंट" drag-handle-label="{label} का क्रम बदलें" move-to-start-label="सबसे ऊपर ले जाएँ" move-before-label="ऊपर ले जाएँ" move-after-label="नीचे ले जाएँ" move-to-end-label="सबसे नीचे ले जाएँ" lifted-text="{label} उठाया गया: {count} में से {position}" moved-text="{label}: {count} में से {position}" cancelled-text="{label} वापस {count} में से {position} पर" style="inline-size: 26rem; max-inline-size: 100%">
+    <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="हटाएँ: {name}"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="resume.docx" size-text="88 KB" remove-label="हटाएँ: {name}"></tanrei-file-item></tanrei-list-item>
+    <tanrei-list-item><tanrei-file-item name="portfolio.zip" size-text="14 MB" remove-label="हटाएँ: {name}"></tanrei-file-item></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
 ```html
-<tanrei-list reorder="buttons" move-up-label="ऊपर ले जाएँ" move-down-label="नीचे ले जाएँ"
-             moved-text="{headline} अब {count} में से {position} नंबर पर है">
-  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf">
-    <tanrei-button slot="trailing" variant="text" label="हटाएँ: cover-letter.pdf"><span slot="icon">close</span></tanrei-button>
-  </tanrei-list-item>
+<tanrei-list reorderable gap="small" label="Attachments" drag-handle-label="Reorder {label}"
+             move-to-start-label="Move to top" move-before-label="Move up"
+             move-after-label="Move down" move-to-end-label="Move to bottom"
+             lifted-text="{label} lifted: {position} of {count}"
+             moved-text="{label}: {position} of {count}"
+             cancelled-text="{label} returned to {position} of {count}">
+  <tanrei-list-item><tanrei-file-item name="cover-letter.pdf" size-text="120 KB" remove-label="Remove {name}"></tanrei-file-item></tanrei-list-item>
   …
 </tanrei-list>
 ```
 
-इससे लिस्ट की पंक्ति बनती है, फ़ाइल आइटम नहीं: ग्लिफ़ का नाम आप ख़ुद देते हैं, और पंक्ति में न पट्टी होती है, न स्थिति का निशान। लिस्ट पंक्तियों को खिसकाती है, हर बदलाव पढ़कर सुनाती है और फ़ोकस बनाए रखती है; लिस्ट के पेज पर [क्रम बदलना](/hi/components/list/#क्रम-बदलना) देखें। लिस्ट की पंक्ति के कॉन्टेंट के रूप में फ़ाइल आइटम, और टाइल की ऐसी क़तार जिसका क्रम लोग बदलते हैं, अभी नहीं बने हैं।
+लिस्ट ख़ुद कुछ नहीं हिलाती: `move` मिलने पर आइटमों को नए क्रम में रखें। वह हर चाल घोषित करती है और फ़ोकस हिलाए गए आइटम के हैंडल पर रखती है; देखें [लिस्ट](/hi/components/list/)। हर लिस्ट आइटम का नाम उसकी फ़ाइल से आता है (फ़ाइल का नाम ही कंटेंट का टेक्स्ट है, इसलिए और कुछ नहीं चाहिए)। [फ़ाइल अपलोड](/hi/components/file-upload/) भी अपनी फ़ाइलें इसी तरह रखता है।
 
 ### शब्द
 

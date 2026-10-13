@@ -37,7 +37,7 @@
 //   places      — fillPlaces(), placeFaults(), reportPlaces(): a word of the product's with places a component fills
 //                : how it is read, and what a debug build says of one that does not fit
 //   roving      — RovingKeys: the arrow keys, Home, End and typeahead of a column of items that is one tab stop
-//   interactive — findInteractive() / slottedInteractive(): what an action's content must not hold (CRD-15, LST-24)
+//   interactive — findInteractive() / slottedInteractive(): what an action's content must not hold (CRD-15, LST-20)
 //                 answersPress(): what a hit area that reaches over other content yields a press to (TAB-5)
 //                 pressTakenWithin(): what a press inside an item's content belongs to instead of the item (ACC-36)
 //   link        — a control with a destination is a link: LinkController (the link a control is now, the keys

@@ -48,8 +48,8 @@ const groups = order
           return (
             <tr>
               <td data-wrap="false"><code>{tk.path.at(-1)}</code></td>
-              <td data-wrap="false"><span class="swatch light"><i style={`background:${colorCss(tk.value)}`} /></span><span class="docs-mono">{colorLabel(tk.value)}</span></td>
-              <td data-wrap="false">{d && (<><span class="swatch dark"><i style={`background:${colorCss(d.value)}`} /></span><span class="docs-mono">{colorLabel(d.value)}</span></>)}</td>
+              <td data-wrap="false"><tanrei-swatch class="role-swatch light" decorative size="small" color={colorCss(tk.value)} /><span class="docs-mono">{colorLabel(tk.value)}</span></td>
+              <td data-wrap="false">{d && (<><tanrei-swatch class="role-swatch dark" decorative size="small" color={colorCss(d.value)} /><span class="docs-mono">{colorLabel(d.value)}</span></>)}</td>
               <td data-wrap="false"><code>{tk.cssVar}</code></td>
             </tr>
           );
@@ -60,26 +60,35 @@ const groups = order
 ))}
 <SourceNote files={[`design/tokens/${ns}.${lightId}.tokens.json`, `design/tokens/${ns}.${darkId}.tokens.json`]} />
 
+<script>
+  import '../../lib/register-web';
+</script>
+
 <style>
-  /* Translucent roles are shown over the canvas they are designed for. */
-  .swatch {
-    display: inline-block;
-    inline-size: 2.25rem;
-    block-size: 1.25rem;
+  /* Each value is Tanrei's Swatch, decorative: the value beside it in text names the color. Translucent roles are
+     shown over the canvas they are designed for, so the checkerboard under them is that canvas, whole. */
+  .role-swatch {
     margin-inline-end: 0.5rem;
-    border-radius: 4px;
+  }
+  .role-swatch.light {
+    --tanrei-comp-swatch-checkerboard-color: #fff;
+    --tanrei-comp-swatch-checkerboard-alternate-color: #fff;
+  }
+  .role-swatch.dark {
+    --tanrei-comp-swatch-checkerboard-color: #0a0a0a;
+    --tanrei-comp-swatch-checkerboard-alternate-color: #0a0a0a;
+  }
+  /* Its room is held before it is defined; without script it is not drawn, and the value beside it still reads. */
+  .role-swatch:not(:defined) {
+    display: inline-block;
+    inline-size: var(--tanrei-comp-swatch-container-size-small);
+    block-size: var(--tanrei-comp-swatch-container-size-small);
     vertical-align: middle;
-    overflow: hidden;
-    box-shadow: 0 0 0 1px var(--tanrei-sys-color-outline-variant);
+    visibility: hidden;
   }
-  .swatch.light {
-    background: #fff;
-  }
-  .swatch.dark {
-    background: #0a0a0a;
-  }
-  .swatch i {
-    display: block;
-    block-size: 100%;
+  @media (scripting: none) {
+    .role-swatch:not(:defined) {
+      display: none;
+    }
   }
 </style>

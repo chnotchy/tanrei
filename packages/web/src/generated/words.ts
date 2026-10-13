@@ -18,6 +18,8 @@ export interface TanreiWords {
   busyLabel?: string;
   /** Read by `date-time-picker.cancelLabel`. */
   cancelLabel?: string;
+  /** Read by `file-upload.cancelledText`, `list.cancelledText`. A word with places: `{label}` (text), `{position}` (number), `{count}` (number). */
+  cancelledText?: string;
   /** Read by `text-input.counterNoLimitText`. A word with places: `{count}` (number). */
   characterCountNoLimitText?: string;
   /** Read by `text-input.counterText`. A word with places: `{count}` (number), `{limit}` (number), `{remaining}` (number). */
@@ -40,6 +42,14 @@ export interface TanreiWords {
   decrementLabel?: string;
   /** Read by `date-time-picker.dialLabel`. */
   dialLabel?: string;
+  /** Read by `file-upload.dragHandleHint`, `list.dragHandleHint`. */
+  dragHandleHint?: string;
+  /** Read by `file-upload.dragHandleLabel`, `list.dragHandleLabel`. A word with places: `{label}` (text, needed). */
+  dragHandleLabel?: string;
+  /** Read by `drop-zone.refusingText`. */
+  dropZoneRefusingText?: string;
+  /** Read by `drop-zone.dropText`. */
+  dropZoneText?: string;
   /** Read by `chip-field.duplicateText`. */
   duplicateEntryText?: string;
   /** Read by `combobox.emptyText`. */
@@ -68,6 +78,10 @@ export interface TanreiWords {
   fileSizeErrorText?: string;
   /** Read by `chat-composer.typeErrorText`, `file-upload.typeErrorText`. */
   fileTypeErrorText?: string;
+  /** Read by `drop-zone.droppedText`. A word with places: `{count}` (number). */
+  filesDroppedText?: string;
+  /** Read by `drop-zone.refusedText`. A word with places: `{count}` (number). */
+  filesRefusedText?: string;
   /** Read by `bottom-sheet.handleLabel`. */
   handleLabel?: string;
   /** Read by `code-block.highlightedLabel`. */
@@ -80,17 +94,23 @@ export interface TanreiWords {
   imageErrorText?: string;
   /** Read by `number-input.incrementLabel`. */
   incrementLabel?: string;
+  /** Read by `file-upload.liftedText`, `list.liftedText`. A word with places: `{label}` (text), `{position}` (number), `{count}` (number). */
+  liftedText?: string;
   /** Read by `image-preview.loadingLabel`, `skeleton.label`, `tree-view.loadingLabel`. */
   loadingLabel?: string;
   /** Read by `menubar.overflowLabel`. */
   menubarOverflowLabel?: string;
   /** Read by `date-time-picker.minuteLabel`. */
   minuteLabel?: string;
-  /** Read by `list.moveDownLabel`. A word with places: `{headline}` (text, needed). */
-  moveDownLabel?: string;
-  /** Read by `list.moveUpLabel`. A word with places: `{headline}` (text, needed). */
-  moveUpLabel?: string;
-  /** Read by `list.movedText`. A word with places: `{headline}` (text), `{position}` (number), `{count}` (number). */
+  /** Read by `file-upload.moveAfterLabel`, `list.moveAfterLabel`. */
+  moveAfterLabel?: string;
+  /** Read by `file-upload.moveBeforeLabel`, `list.moveBeforeLabel`. */
+  moveBeforeLabel?: string;
+  /** Read by `file-upload.moveToEndLabel`, `list.moveToEndLabel`. */
+  moveToEndLabel?: string;
+  /** Read by `file-upload.moveToStartLabel`, `list.moveToStartLabel`. */
+  moveToStartLabel?: string;
+  /** Read by `file-upload.movedText`, `list.movedText`. A word with places: `{label}` (text), `{position}` (number), `{count}` (number). */
   movedText?: string;
   /** Read by `date-time-picker.nextDayLabel`. */
   nextDayLabel?: string;
@@ -138,6 +158,12 @@ export interface TanreiWords {
   sortedDescendingLabel?: string;
   /** Read by `calendar.startLabel`, `date-time-picker.startLabel`. */
   startLabel?: string;
+  /** Read by `stepper.completedText`. */
+  stepCompletedText?: string;
+  /** Read by `stepper.errorText`. */
+  stepErrorText?: string;
+  /** Read by `stepper.positionText`. A word with places: `{position}` (number, needed), `{count}` (number). */
+  stepPositionText?: string;
   /** Read by `chat-composer.stopLabel`. */
   stopLabel?: string;
   /** Read by `button.targetLabel`, `card.targetLabel`, `chip.targetLabel`, `link.targetLabel`, `link-card.targetLabel`, `list/list-item.targetLabel`, `menu/item.targetLabel`, `menubar/item.targetLabel`, `navigation-bar/destination.targetLabel`, `navigation-drawer/destination.targetLabel`, `search/result.targetLabel`, `search/result-group.targetLabel`. */
@@ -158,7 +184,7 @@ export interface TanreiWords {
 export type WordKey = keyof TanreiWords;
 
 /** Every key of the product's words, in alphabetical order. */
-export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'duplicateEntryText', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveDownLabel', 'moveUpLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextMonthLabel', 'noFileText', 'optionalText', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousMonthLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stopLabel', 'targetLabel', 'todayLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
+export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'dragHandleHint', 'dragHandleLabel', 'dropZoneRefusingText', 'dropZoneText', 'duplicateEntryText', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'filesDroppedText', 'filesRefusedText', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'liftedText', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveAfterLabel', 'moveBeforeLabel', 'moveToEndLabel', 'moveToStartLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextMonthLabel', 'noFileText', 'optionalText', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousMonthLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stepCompletedText', 'stepErrorText', 'stepPositionText', 'stopLabel', 'targetLabel', 'todayLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
 
 /** The props that read each key, as `<component>.<prop>` and, for an item kind, `<component>/<kind>.<prop>`. */
 export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
@@ -169,6 +195,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   breadcrumbsOverflowLabel: ['breadcrumbs.overflowLabel'],
   busyLabel: ['button.busyLabel'],
   cancelLabel: ['date-time-picker.cancelLabel'],
+  cancelledText: ['file-upload.cancelledText', 'list.cancelledText'],
   characterCountNoLimitText: ['text-input.counterNoLimitText'],
   characterCountText: ['text-input.counterText'],
   clearLabel: ['combobox.clearLabel', 'search.clearLabel'],
@@ -180,6 +207,10 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   dateLabel: ['date-time-picker.dateLabel'],
   decrementLabel: ['number-input.decrementLabel'],
   dialLabel: ['date-time-picker.dialLabel'],
+  dragHandleHint: ['file-upload.dragHandleHint', 'list.dragHandleHint'],
+  dragHandleLabel: ['file-upload.dragHandleLabel', 'list.dragHandleLabel'],
+  dropZoneRefusingText: ['drop-zone.refusingText'],
+  dropZoneText: ['drop-zone.dropText'],
   duplicateEntryText: ['chip-field.duplicateText'],
   emptyText: ['combobox.emptyText'],
   endLabel: ['calendar.endLabel', 'date-time-picker.endLabel'],
@@ -194,18 +225,23 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   fileCountErrorText: ['chat-composer.countErrorText', 'file-upload.countErrorText'],
   fileSizeErrorText: ['chat-composer.sizeErrorText', 'file-upload.sizeErrorText'],
   fileTypeErrorText: ['chat-composer.typeErrorText', 'file-upload.typeErrorText'],
+  filesDroppedText: ['drop-zone.droppedText'],
+  filesRefusedText: ['drop-zone.refusedText'],
   handleLabel: ['bottom-sheet.handleLabel'],
   highlightedLabel: ['code-block.highlightedLabel'],
   hourLabel: ['date-time-picker.hourLabel'],
   imageCountText: ['image-preview.countText'],
   imageErrorText: ['image-preview.errorText'],
   incrementLabel: ['number-input.incrementLabel'],
+  liftedText: ['file-upload.liftedText', 'list.liftedText'],
   loadingLabel: ['image-preview.loadingLabel', 'skeleton.label', 'tree-view.loadingLabel'],
   menubarOverflowLabel: ['menubar.overflowLabel'],
   minuteLabel: ['date-time-picker.minuteLabel'],
-  moveDownLabel: ['list.moveDownLabel'],
-  moveUpLabel: ['list.moveUpLabel'],
-  movedText: ['list.movedText'],
+  moveAfterLabel: ['file-upload.moveAfterLabel', 'list.moveAfterLabel'],
+  moveBeforeLabel: ['file-upload.moveBeforeLabel', 'list.moveBeforeLabel'],
+  moveToEndLabel: ['file-upload.moveToEndLabel', 'list.moveToEndLabel'],
+  moveToStartLabel: ['file-upload.moveToStartLabel', 'list.moveToStartLabel'],
+  movedText: ['file-upload.movedText', 'list.movedText'],
   nextDayLabel: ['date-time-picker.nextDayLabel'],
   nextImageLabel: ['image-preview.nextLabel'],
   nextMonthLabel: ['calendar.nextMonthLabel', 'date-time-picker.nextMonthLabel'],
@@ -229,6 +265,9 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   sortedAscendingLabel: ['table.sortedAscendingLabel'],
   sortedDescendingLabel: ['table.sortedDescendingLabel'],
   startLabel: ['calendar.startLabel', 'date-time-picker.startLabel'],
+  stepCompletedText: ['stepper.completedText'],
+  stepErrorText: ['stepper.errorText'],
+  stepPositionText: ['stepper.positionText'],
   stopLabel: ['chat-composer.stopLabel'],
   targetLabel: ['button.targetLabel', 'card.targetLabel', 'chip.targetLabel', 'link.targetLabel', 'link-card.targetLabel', 'list/list-item.targetLabel', 'menu/item.targetLabel', 'menubar/item.targetLabel', 'navigation-bar/destination.targetLabel', 'navigation-drawer/destination.targetLabel', 'search/result.targetLabel', 'search/result-group.targetLabel'],
   todayLabel: ['calendar.todayLabel', 'date-time-picker.todayLabel'],
@@ -252,16 +291,20 @@ export interface WordPlace {
  */
 export const wordPlaces: Readonly<Partial<Record<WordKey, readonly WordPlace[]>>> = {
   avatarGroupOverflowLabel: [{ name: 'count', kind: 'number', required: true }],
+  cancelledText: [{ name: 'label', kind: 'text' }, { name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
   characterCountNoLimitText: [{ name: 'count', kind: 'number' }],
   characterCountText: [{ name: 'count', kind: 'number' }, { name: 'limit', kind: 'number' }, { name: 'remaining', kind: 'number' }],
+  dragHandleLabel: [{ name: 'label', kind: 'text', required: true }],
   entriesAddedText: [{ name: 'count', kind: 'number' }],
   entryAddedText: [{ name: 'entry', kind: 'text' }],
   entryRemoveLabel: [{ name: 'entry', kind: 'text', required: true }],
   entryRemovedText: [{ name: 'entry', kind: 'text' }],
+  filesDroppedText: [{ name: 'count', kind: 'number' }],
+  filesRefusedText: [{ name: 'count', kind: 'number' }],
   imageCountText: [{ name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
-  moveDownLabel: [{ name: 'headline', kind: 'text', required: true }],
-  moveUpLabel: [{ name: 'headline', kind: 'text', required: true }],
-  movedText: [{ name: 'headline', kind: 'text' }, { name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
+  liftedText: [{ name: 'label', kind: 'text' }, { name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
+  movedText: [{ name: 'label', kind: 'text' }, { name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
   removeLabel: [{ name: 'name', kind: 'text', required: true }],
   retryLabel: [{ name: 'name', kind: 'text', required: true }],
+  stepPositionText: [{ name: 'position', kind: 'number', required: true }, { name: 'count', kind: 'number' }],
 };

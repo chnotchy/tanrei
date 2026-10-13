@@ -1,0 +1,145 @@
+---
+title: "色块"
+description: "以样本显示一种颜色，并在旁边写出它的名称。样本就是这种颜色本身；颜色半透明时，下面垫着棋盘格；样本带一道边线，与表面相近的颜色也看得出到哪里为止。它是用来看的样本，从不是控件，也从不是选择器。"
+translationOf: components/swatch.mdx
+sourceHash: 23fa0af88d1049d9e926971bd03ae83df71af4a1
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="swatch" />
+
+<DemoFrame label="带值的颜色、主题的一个角色、半透明的颜色和一个圆点">
+  <tanrei-swatch color="#0f766e" label="青绿 700" supporting-text="#0f766e"></tanrei-swatch>
+  <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="主色"></tanrei-swatch>
+  <tanrei-swatch color="#0f766e80" label="半透明的青绿 700" supporting-text="#0f766e80"></tanrei-swatch>
+  <tanrei-swatch color="#e11d48" label="缺陷" shape="circle" size="small"></tanrei-swatch>
+</DemoFrame>
+
+色块显示一种不在编辑中的颜色：设置页里的品牌色、写在标签旁边的那个标签的颜色、并排列出的主题角色。它按给定的值原样绘制颜色，并在旁边写出颜色的名称，因为单凭样本永远说不清一种颜色。它从不响应指针、按键或焦点。
+
+在 Web 上它是 `<tanrei-swatch>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 名称写在样本旁边，值写在名称下面。 -->
+    <tanrei-swatch color="#0f766e" label="青绿 700" supporting-text="#0f766e"></tanrei-swatch>
+
+    <!-- 当前主题的一个角色：自定义属性随配色方案变化，所以色块也随之变化。 -->
+    <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="主色"></tanrei-swatch>
+
+    <!-- 没有地方写名称：只显示样本，并为辅助技术命名。 -->
+    <tanrei-swatch color="#e11d48" label="缺陷" shape="circle" size="small" label-hidden></tanrei-swatch>
+
+    <!-- 在写着同一个值的文本旁边：设为装饰性的，这样只读一次。 -->
+    <td><tanrei-swatch decorative size="small" color="#0f766e"></tanrei-swatch> #0f766e</td>
+
+    <script type="module">
+      import '@tanrei/web/components/swatch';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Swatch } from '@tanrei/react';
+
+    <Swatch color={label.color} label={label.name} shape="circle" size="small" />
+    <Swatch color="#0f766e" label="青绿 700" supportingText="#0f766e" />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="三种尺寸、两种形状，以及一个空色块" plain>
+  <tanrei-swatch size="small" color="#0f766e" label="Small"></tanrei-swatch>
+  <tanrei-swatch color="#0f766e" label="Medium"></tanrei-swatch>
+  <tanrei-swatch size="large" color="#0f766e" label="Large"></tanrei-swatch>
+  <tanrei-swatch shape="circle" color="#7c3aed" label="Circle"></tanrei-swatch>
+  <tanrei-swatch color="" label="无颜色"></tanrei-swatch>
+</DemoFrame>
+
+<ComponentSpecs name="swatch" />
+
+## 指南
+
+### 何时使用
+
+凡是显示颜色而不改变它的地方，都使用色块：调色板、主题概览、用户给标签或日历设定的颜色、图例。它是一张配有文字的颜色图片，仅此而已。
+
+| 你需要 | 使用 |
+| --- | --- |
+| 可以键入、粘贴或选取的颜色 | [颜色字段](/zh-cn/components/color-field/)；在已经写出颜色名称的行里，用[颜色输入框](/zh-cn/components/color-input/)。 |
+| 通向某处或打开某样东西的颜色 | 里面放着色块的[链接](/zh-cn/components/link/)或[按钮](/zh-cn/components/button/)。 |
+| 从一组颜色中选出的一种颜色 | 不是这个组件：从一组色块中选中其一，那是选择器，它有一个值，按键与单选组相同。在 Tanrei 提供它之前，请使用[单选组](/zh-cn/components/radio-group/)，在每个选项的名称旁边各放一个装饰性的色块。 |
+| 语义状态（错误、成功） | [Tag](/zh-cn/components/tag/) 或[提示块](/zh-cn/components/callout/)：状态要用文字说出，颜色只是对文字的补充。 |
+
+### 它绘制什么
+
+- **颜色本身，分毫不差。** 不往里混入任何东西：没有色调叠加，没有状态，也不随浅色或深色变化。希望色块跟随主题时，给出角色的自定义属性（`var(--tanrei-sys-color-primary)`）；要显示某个固定值时，就给出那个值。
+- **下面垫着棋盘格。** 半透明的颜色会透出棋盘格，一看就知道是半透明的。不透明的颜色会把它完全盖住。
+- **一道边线。** 沿样本边缘的内侧画一条细线，颜色与分隔线相同，所以白色页面上的白色，或与表面相近的颜色，也看得出到哪里为止。
+- **无颜色。** `color` 为空时只画边线。请在标签里说明它的含义（“无颜色”“继承”）。
+
+每个平台都能读取十六进制写法：`#0f766e`，带 alpha 时是 `#0f766e80`。在 Web 上，任何 CSS 颜色也都可以。
+
+### 尺寸和形状
+
+| `size` | 边长 | 用于 |
+| --- | --- | --- |
+| `small` | 16 | 一行小号文本的旁边：表格单元格、紧凑的行、图例。 |
+| `medium`（默认） | 24 | 一行正文的旁边：列表中的一行、一项设置。 |
+| `large` | 32 | 颜色本身就是观看对象的地方：调色板、主题概览。 |
+
+| `shape` | 用于 |
+| --- | --- |
+| `square`（默认） | 一块颜色：调色板、主题。 |
+| `circle` | 用颜色给别的东西做标记的圆点：标签、日历、图表中的一个系列。 |
+
+名称和辅助文本随尺寸变化。
+
+### 名称
+
+按你的产品里人们对这种颜色的叫法来写名称：“青绿 700”“主色”“缺陷”。`#0f766e` 这样的值不是名称，所以把它放在名称下方的 `supportingText` 里。色块从不根据颜色生成名称：一种颜色叫什么，取决于语言，也取决于产品。
+
+### 推荐
+
+- 给每个色块一个 `label`，有空间的地方就让它保持可见。
+- 色块位于写着同一个名称或值的文本旁边时，给它设置 `decorative`。
+- 人们可能复制或比较的值，放在 `supportingText` 里。
+
+### 避免
+
+- 不要在色块上放处理函数。把它放进链接或按钮，它们才有各种状态和焦点指示。
+- 不要只靠颜色说明某样东西是什么。这要由名称来说明。
+- 不要用色块加上你自己的处理函数拼出一个颜色选择器。
+
+## 无障碍
+
+<ComponentAccessibility name="swatch" />
+
+### 组件负责的部分
+
+- 画出名称时，色块就是那段文本：先是名称，然后是辅助文本，在色块所在的位置朗读。样本是隐藏的，因为文字已经说明了它。
+- 设置 `labelHidden` 时，它是一张由 `label` 命名、由 `supportingText` 描述的图像。
+- 设置 `decorative` 后，它对辅助技术隐藏，也不绘制任何文本。
+- 既没有标签也没有辅助文本的色块会被隐藏，并在调试构建中报告。
+- 它不接受任何输入，也不接受焦点，所以不在焦点顺序中增加停靠点。在链接或按钮里面时，它暴露出来的是该元素的名称。
+- 文本放大时，样本像图标一样保持大小，旁边的文本随之变大。
+- 在强制颜色模式下，颜色保持不变，因为它就是内容；边线改用文本颜色。
+- 在从右到左的布局中，样本位于右侧。`#0f766e` 这样的值保持原有顺序。
+
+### 需要你做的事
+
+- 为每个色块决定它是有名称的，还是装饰性的。规则是：如果删掉这个色块会丢掉一个名称，它就是有名称的；否则就是装饰性的。
+- 尽量使用可见的名称，而不是 `labelHidden`。隐藏的名称能把颜色告诉辅助技术，却告诉不了看得见样本、但分不清它和相邻样本的人。没有空间时，在放着色块的元素上用工具提示，在需要时显示名称。
+- 检查你画在所显示颜色上的任何文本的对比度。色块只负责显示颜色，不负责检查颜色。

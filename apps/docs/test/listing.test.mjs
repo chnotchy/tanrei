@@ -134,7 +134,8 @@ describe('the index of components', () => {
   test('draws every row of the status file, marks the ones shown on request, and says each one’s level', () => {
     assert.match(text, /statusComponents\.filter\(\(c\) => c\.category === category\)\.map\(/);
     assert.match(text, /const onRequest = isOnRequest\(c, listings\);/);
-    assert.match(text, /<tanrei-list-item headline=\{c\.title\} supporting-text=\{meta\} href=\{href\} trailing-text=\{end\} \{\.\.\.marked\(onRequest\)\}>/);
+    assert.match(text, /<tanrei-list-item href=\{href\} \{\.\.\.marked\(onRequest\)\}>/);
+    assert.match(text, /<span class="title">\{c\.title\}<\/span>/);
     assert.match(text, /const meta = `\$\{shipped\}\/\$\{platforms\.length\} · \$\{\(role && t\.level\[role\]\) \?\? c\.level\}`;/);
     assert.match(text, /<ListingSwitch lang=\{lang\} \/>/);
   });

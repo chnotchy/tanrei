@@ -64,12 +64,12 @@ test("a key whose word has places carries them, in the list and in the web's typ
   assert.doesNotMatch(ts, /How many entries/);
 });
 
-test("the repository's words: thirteen keys have places, and each is what its readers declare", () => {
+test("the repository's words: seventeen keys have places, and each is what its readers declare", () => {
   const files = statusFiles();
   const { keys } = JSON.parse(files['docs/status/words.json']);
   const withPlaces = keys.filter((k) => k.places);
-  assert.deepEqual(withPlaces.map((k) => k.key), ['avatarGroupOverflowLabel', 'characterCountNoLimitText', 'characterCountText', 'entriesAddedText', 'entryAddedText', 'entryRemoveLabel', 'entryRemovedText', 'imageCountText', 'moveDownLabel', 'moveUpLabel', 'movedText', 'removeLabel', 'retryLabel']);
-  assert.deepEqual(keys.find((k) => k.key === 'movedText').places.map((p) => [p.name, p.kind]), [['headline', 'text'], ['position', 'number'], ['count', 'number']]);
+  assert.deepEqual(withPlaces.map((k) => k.key), ['avatarGroupOverflowLabel',  'cancelledText',  'characterCountNoLimitText',  'characterCountText',  'dragHandleLabel',  'entriesAddedText',  'entryAddedText',  'entryRemoveLabel',  'entryRemovedText',  'filesDroppedText',  'filesRefusedText',  'imageCountText',  'liftedText',  'movedText',  'removeLabel',  'retryLabel',  'stepPositionText']);
+  assert.deepEqual(keys.find((k) => k.key === 'movedText').places.map((p) => [p.name, p.kind]), [['label',  'text'],  ['position',  'number'],  ['count',  'number']]);
   const props = new Map(loadSpecs().flatMap(({ spec: each }) => [...each.props, ...(each.items ?? []).flatMap((kind) => kind.props ?? [])].filter((prop) => prop.words).map((prop) => [`${each.name}.${prop.name}`, prop])));
   for (const { key, readers, places } of withPlaces) {
     for (const reader of readers) assert.deepEqual(props.get(`${reader.component}.${reader.prop}`).places, places, `${key}: ${reader.component}.${reader.prop}`);

@@ -1,5 +1,5 @@
 /**
- * How long typed characters add up to one typeahead search (LST-15, MNU-7: "within one second of each other"). A
+ * How long typed characters add up to one typeahead search (LST-17, MNU-7: "within one second of each other"). A
  * behaviour of the spec, not a design value: no system re-values it.
  */
 export const TYPEAHEAD_WINDOW = 1000;
@@ -13,7 +13,7 @@ export interface RovingItem {
 }
 
 /**
- * The keyboard model of a column of items (a list with interactive items or options, LST-15; an open menu, MNU-7):
+ * The keyboard model of a column of items (a list with interactive items or options, LST-17; an open menu, MNU-7):
  * Down and Up Arrow move to the next and previous item that takes focus — wrapping at the ends or stopping there —
  * Home and End to the first and last, and printable characters typed within `TYPEAHEAD_WINDOW` of each other to the
  * next item whose text begins with them (case-insensitive; a new search starts after the current item, a longer one

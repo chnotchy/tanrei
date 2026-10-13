@@ -1,8 +1,8 @@
 ---
 title: القائمة (list)
-description: عمود من عناصر مترابطة، كل منها سطر أو أكثر من النص مع أيقونة أو صورة رمزية أو صورة، يقرؤها الأشخاص أو يفتحونها واحدًا واحدًا أو يختارون منها أو يضعونها في ترتيب آخر.
+description: تحمل مجموعة من عناصر المنتج نفسه (صفوفًا، ومربعات، وبطاقات، وملفات) في عمود واحد، أو سطر واحد، أو أسطر تلتف فتصنع شبكة. يقرؤها الناس، ويفتحونها واحدًا بعد آخر، ويختارون منها، أو يسحبونها إلى ترتيب آخر.
 translationOf: components/list.mdx
-sourceHash: b6d8e736d3a79adf3348a2f55de05b9dbe71cbb5
+sourceHash: 44e7c407804448e2e2a34486b365e5f53b561213
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -12,73 +12,101 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 import DemoFrame from '../../../../components/DemoFrame.astro';
 import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
 
+<ListReorderProduct />
+
 ## نظرة عامة
 
 <ComponentAvailability name="list" />
 
-<DemoFrame label="صفوف تفتح شيئًا، واختيار مفرد">
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="Wi-Fi" supporting-text="متصل" leading-icon="wifi" trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-    <tanrei-list-item headline="Bluetooth" supporting-text="موقوف" leading-icon="bluetooth" trailing-icon="chevron_right" interactive></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="single" label="السمة" value="light" style="inline-size: 20rem">
-    <tanrei-list-item headline="فاتح" value="light"></tanrei-list-item>
-    <tanrei-list-item headline="داكن" value="dark"></tanrei-list-item>
-    <tanrei-list-item headline="مطابقة النظام" value="system"></tanrei-list-item>
+<DemoFrame label="اسحب مربعًا إلى مكان آخر، أو اضغط مقبضه لقائمة من الحركات" plain>
+  <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="صفوف هي روابط: كل صف يذهب إلى عنوانه، والأخير يفتح تبويبًا جديدًا" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="الزر" supporting-text="إجراءات وتبديلات" leading-icon="smart_button" href="#list-demo-button" divider></tanrei-list-item>
-    <tanrei-list-item headline="علامات التبويب" supporting-text="عروض لموضوع واحد" leading-icon="tab" href="#list-demo-tabs" divider></tanrei-list-item>
-    <tanrei-list-item headline="الشيفرة المصدرية" supporting-text="يفتح المستودع" leading-icon="code" href="#list-demo-source" target="new" target-label="يُفتح في تبويب جديد"></tanrei-list-item>
+<style>{`
+  .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
+  .demo-row { display: flex; flex-direction: column; }
+  .demo-row small { color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-body-small-font); }
+`}</style>
+
+القائمة صندوق. ما يعرضه كل عنصر هو محتواك أنت: نص، أو صورة، أو بطاقة، أو [عنصر الملف](/ar/components/file-item/) (file item). وتتولى القائمة كل ما حول العناصر: كيف تُرتَّب، والمسافة والخطوط بينها، وما هي بالنسبة إلى التقنيات المساعدة، وكيف ينتقل تركيز لوحة المفاتيح بينها، وأيها مختار، وكيف يضعها الناس في ترتيب آخر.
+
+<DemoFrame label="عمود، وسطر، وشبكة تلتف" plain>
+  <tanrei-list gap="small" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Cherries</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" gap="small">
+    <tanrei-list-item><span class="demo-tile">One</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Two</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Three</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" wrap gap="medium" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+<DemoFrame label="عناصر تفتح شيئًا، وعناصر هي روابط، واختيار واحد" plain>
+  <tanrei-list dividers style="inline-size: 16rem">
+    <tanrei-list-item interactive><span class="demo-row">Wi-Fi<small>Connected</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-button"><span class="demo-row">Button<small>Actions and toggles</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list selection="single" label="Theme" value="light" style="inline-size: 16rem">
+    <tanrei-list-item value="light">Light</tanrei-list-item>
+    <tanrei-list-item value="dark">Dark</tanrei-list-item>
+    <tanrei-list-item value="system">Match the system</tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
 ### الاستخدام
 
-للقائمة نوع واحد من العناصر، هو `list-item`. تأخذ كل منصة العناصر بالطريقة التي تأخذ بها أي عناصر فرعية متكررة. الويب يستخدم عناصر فرعية، و SwiftUI عروضًا (views) في view builder، و Compose استدعاءات في lambda المحتوى، و Flutter عناصر widget في `children`. أما React Native فيأخذ مصفوفة `items` من كائنات بسيطة. التحديد ملك للقائمة: الخاصية `value` تسمّي الخيار المختار في قائمة الاختيار المفرد، والخاصية `values` تسمّي الخيارات المختارة في قائمة الاختيار المتعدد.
+للقائمة نوع واحد من العناصر هو `list-item`، ويحمل كل عنصر محتواك أبناءً له. تضع الخاصية `orientation` العناصر في عمود (`vertical`، وهي القيمة الافتراضية) أو في سطر (`horizontal`)؛ وتسمح `wrap` لها بالانتقال إلى أسطر تالية فتصنع شبكة؛ وتحدد `gap` المسافة بينها (`none` و`small` و`medium` و`large`)، وترسم `dividers` خطًا رفيعًا بينها في قائمة لا تلتف.
 
-الصف الذي يذهب إلى صفحة يأخذ الخاصية `href`، وهو رابط لا زر. يُرسم تمامًا كما يُرسم الصف التفاعلي، ويعامله المتصفح كأي رابط: يمكن فتحه في تبويب جديد، ونسخ عنوانه، ويتبعه زاحف محركات البحث. القيمة `new` للخاصية `target` تفتحه في تبويب جديد وتعلّم الصف بالأيقونة `open_in_new` من مجموعة الأيقونات؛ وعندئذ تكون الخاصية `targetLabel` هي ما يُقرأ بعد اسم الصف. صفوف الروابط موجودة اليوم على الويب. أما SwiftUI و Compose و Flutter و React Native فمتأخرة فيها، وتعرض عيّناتها صفوفًا بلا وجهة.
+العنصر ثابت ما لم تجعله شيئًا آخر. لا يرسم العنصر الثابت شيئًا ولا يضيف مسافة: محتواه هو العنصر، ويمكن أن يحمل عناصر التحكم الخاصة بك. تجعل `interactive` العنصر زرًا واحدًا، وتجعله `href` رابطًا واحدًا يعامله المتصفح كأي رابط (يمكن فتحه في علامة تبويب جديدة ونسخ عنوانه؛ وتفتح القيمة `target="new"` علامة تبويب جديدة وتضع على العنصر علامة `open_in_new`، وتقول `targetLabel` ذلك). والقائمة التي قيمة `selection` فيها `single` أو `multiple` هي مربع قائمة، وعناصرها خيارات تُختار بقيمة `value`. والعنصر التفاعلي أو الرابط أو الخيار يضيف حشوة إلى محتواه، ويرسم كل الحالات، ويُسمّى بـ `label` أو بنص محتواه إن لم توجد.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <!-- صفوف ثابتة وتفاعلية وروابط. الصف التفاعلي زر واحد؛ والصف الذي له href رابط واحد. -->
-    <tanrei-list>
-      <tanrei-list-item headline="Wi-Fi" supporting-text="متصل" leading-icon="wifi"
-                        trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-      <!-- الصف الثابت يحمل عنصر التحكم الخاص بك، واسمه العنوان الرئيسي. -->
-      <tanrei-list-item headline="وضع الطيران">
-        <tanrei-switch slot="trailing" label="وضع الطيران" label-hidden></tanrei-switch>
-      </tanrei-list-item>
-      <tanrei-list-item headline="Ada Lovelace" supporting-text="عدّلت خارطة الطريق" leading-media="avatar">
-        <img slot="leading" src="ada.jpg" alt="" />
-      </tanrei-list-item>
-      <tanrei-list-item headline="سياسة الخصوصية" href="/privacy/"></tanrei-list-item>
-      <!-- target="new" يرسم open_in_new أيقونةً في النهاية؛ و target-label يُقرأ بعد الاسم. -->
-      <tanrei-list-item headline="الشيفرة المصدرية" href="https://example.com/tanrei"
-                        target="new" target-label="يُفتح في تبويب جديد"></tanrei-list-item>
+    <!-- A column of your own boxes, 8 px apart. -->
+    <tanrei-list gap="small">
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
     </tanrei-list>
 
-    <!-- مربع قائمة (listbox): كل عنصر خيار، يُختار بقيمته. -->
-    <tanrei-list selection="single" label="السمة" value="light">
-      <tanrei-list-item headline="فاتح" value="light"></tanrei-list-item>
-      <tanrei-list-item headline="داكن" value="dark"></tanrei-list-item>
+    <!-- A grid of tiles: a line that wraps. -->
+    <tanrei-list orientation="horizontal" wrap gap="medium">
+      <tanrei-list-item><img src="1.jpg" alt="Harbour at dawn" /></tanrei-list-item>
+      <tanrei-list-item><img src="2.jpg" alt="Market street" /></tanrei-list-item>
     </tanrei-list>
-    <tanrei-list id="labels" selection="multiple" label="التصنيفات">
-      <tanrei-list-item headline="خلل" value="bug"></tanrei-list-item>
-      <tanrei-list-item headline="التوثيق" value="docs"></tanrei-list-item>
+
+    <!-- Items that are one button or one link each, with lines between them. -->
+    <tanrei-list dividers>
+      <tanrei-list-item interactive>Wi-Fi</tanrei-list-item>
+      <tanrei-list-item href="/privacy/">Privacy policy</tanrei-list-item>
+      <tanrei-list-item href="https://example.com/tanrei" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+    </tanrei-list>
+
+    <!-- A listbox: every item is an option, chosen by its value. -->
+    <tanrei-list selection="single" label="Theme" value="light">
+      <tanrei-list-item value="light">Light</tanrei-list-item>
+      <tanrei-list-item value="dark">Dark</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      document.querySelector('[interactive]').addEventListener('click', openWifi);
-      // القائمة تضبط value، أو values، بنفسها قبل أن يصدر الحدث change الذي يحملها.
+      // The list sets its own value, or values, before it fires change, which carries them.
       document.querySelector('[selection="single"]').addEventListener('change', (e) => setTheme(e.detail.value));
-      // values خاصية من نوع مصفوفة؛ ولا تنعكس في خاصية HTML.
-      document.querySelector('#labels').values = ['bug'];
     </script>
     ```
   </TabItem>
@@ -86,208 +114,59 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
     ```tsx
     import { List, ListItem } from '@tanrei/react';
 
-    <List>
-      <ListItem headline="Wi-Fi" supportingText="متصل" leadingIcon="wifi" trailingIcon="chevron_right" interactive onClick={openWifi} />
-      {/* الصف الذي له href رابط. استدعاء preventDefault() على حدث click فيه يسلّم التنقل إلى موجِّه من جهة العميل. */}
-      <ListItem headline="سياسة الخصوصية" href="/privacy/" />
-      <ListItem headline="الشيفرة المصدرية" href="https://example.com/tanrei" target="new" targetLabel="يُفتح في تبويب جديد" />
+    <List orientation="horizontal" wrap gap="medium">
+      {photos.map((photo) => (
+        <ListItem key={photo.id}><img src={photo.src} alt={photo.alt} /></ListItem>
+      ))}
     </List>
 
-    {/* القائمة تضبط value، أو values، بنفسها قبل أن يصدر الحدث change: اقرأهما من العنصر. */}
-    <List selection="single" label="السمة" value={theme} onChange={(e) => setTheme(e.currentTarget.value)}>
-      <ListItem headline="فاتح" value="light" />
-      <ListItem headline="داكن" value="dark" />
+    <List selection="single" label="Theme" value={theme} onChange={(e) => setTheme(e.currentTarget.value)}>
+      <ListItem value="light">Light</ListItem>
+      <ListItem value="dark">Dark</ListItem>
     </List>
-    <List selection="multiple" label="التصنيفات" values={labels} onChange={(e) => setLabels(e.currentTarget.values)}>
-      <ListItem headline="خلل" value="bug" />
-      <ListItem headline="التوثيق" value="docs" />
-    </List>
-    ```
-  </TabItem>
-  <TabItem label="SwiftUI">
-    ```swift
-    import Tanrei
-
-    // المُهيِّئ الذي له action: صف تفاعلي، مثل Button.
-    TanreiList {
-        TanreiListItem("Wi-Fi", supportingText: "متصل", leadingIcon: "wifi", trailingIcon: "chevron_right", action: openWifi)
-        TanreiListItem("وضع الطيران", trailing: { TanreiSwitch("وضع الطيران", isOn: $airplane).labelsHidden() })
-    }
-
-    // نوع الربط هو التحديد: Binding<String?> مفرد، و Binding<Set<String>> متعدد.
-    // طبّق .tag(_:) على TanreiListItem نفسه، قبل أي مُعدِّل آخر.
-    TanreiList(selection: $theme, label: "السمة") {
-        TanreiListItem("فاتح").tag("light")
-        TanreiListItem("داكن").tag("dark")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Compose">
-    ```kotlin
-    import io.github.chnotchy.tanrei.components.TanreiList
-    import io.github.chnotchy.tanrei.components.TanreiListItem
-    import io.github.chnotchy.tanrei.components.TanreiListLeadingMedia
-    import io.github.chnotchy.tanrei.components.TanreiListSelectionMode
-    import io.github.chnotchy.tanrei.components.TanreiSwitch
-    import io.github.chnotchy.tanrei.primitives.TanreiText
-
-    // العناصر استدعاءات TanreiListItem في lambda المحتوى. قيمة onClick غير الفارغة (non-null) تجعل الصف تفاعليًّا.
-    TanreiList {
-        TanreiListItem(
-            "Wi-Fi",
-            supportingText = "متصل",
-            divider = true,
-            onClick = ::openWifi,
-            leadingIcon = { TanreiText("wifi") },
-            trailingIcon = { TanreiText("chevron_right") },
-        )
-        TanreiListItem("وضع الطيران", trailingContent = {
-            TanreiSwitch(checked = airplane, onCheckedChange = { airplane = it }, label = "وضع الطيران", labelHidden = true)
-        })
-        TanreiListItem("Ada Lovelace", supportingText = "عدّلت خارطة الطريق",
-            leadingMedia = TanreiListLeadingMedia.Avatar, leadingContent = { TanreiText("A") })
-    }
-
-    // أنت من يحتفظ بالتحديد. يستقبل onSelectionChange المجموعة الجديدة: قيمة واحدة ما دام الوضع Single.
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Single,
-        contentDescription = "السمة",
-        selectedValue = theme,
-        onSelectionChange = { theme = it.single() },
-    ) {
-        TanreiListItem("فاتح", value = "light")
-        TanreiListItem("داكن", value = "dark")
-    }
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Multiple,
-        contentDescription = "التصنيفات",
-        selectedValues = labels,
-        onSelectionChange = { labels = it },
-    ) {
-        TanreiListItem("خلل", value = "bug")
-        TanreiListItem("التوثيق", value = "docs")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Flutter">
-    ```dart
-    import 'package:tanrei/tanrei.dart';
-
-    // العناصر عناصر TanreiListTile، بأسماء ListTile. قيمة onTap غير الفارغة (non-null) تجعل العنصر تفاعليًّا.
-    TanreiList<String>(
-      children: <Widget>[
-        TanreiListTile<String>(
-          title: 'Wi-Fi',
-          subtitle: 'متصل',
-          leadingIcon: const Icon(AppSymbols.wifi),
-          trailingIcon: const Icon(AppSymbols.chevronRight),
-          onTap: openWifi,
-          divider: true,
-        ),
-        TanreiListTile<String>(
-          title: 'وضع الطيران',
-          trailing: TanreiSwitch(value: airplane, onChanged: setAirplane, label: 'وضع الطيران', labelHidden: true),
-        ),
-      ],
-    );
-
-    // مجموعة Set واحدة تحمل التحديد، كما في SegmentedButton: عضو واحد على الأكثر ما دام الوضع single.
-    TanreiList<String>(
-      selectionMode: TanreiListSelectionMode.single,
-      selected: <String>{theme},
-      onSelectionChanged: (Set<String> value) => setState(() => theme = value.single),
-      semanticLabel: 'السمة',
-      children: const <Widget>[
-        TanreiListTile<String>(value: 'light', title: 'فاتح'),
-        TanreiListTile<String>(value: 'dark', title: 'داكن'),
-      ],
-    );
-    ```
-  </TabItem>
-  <TabItem label="React Native">
-    ```tsx
-    import { List, Switch } from '@tanrei/react-native';
-
-    // العناصر بيانات. وجود onPress يجعل العنصر تفاعليًّا.
-    <List
-      items={[
-        { headline: 'Wi-Fi', supportingText: 'متصل', leadingIcon: 'wifi', trailingIcon: 'chevron_right', onPress: openWifi, divider: true },
-        { headline: 'وضع الطيران', trailing: <Switch label="وضع الطيران" labelHidden value={airplane} onValueChange={setAirplane} /> },
-        { headline: 'Ada Lovelace', supportingText: 'عدّلت خارطة الطريق', leadingMedia: 'avatar', leading: 'A' },
-      ]}
-    />
-
-    // مُتحكَّم بها: القائمة تستدعي onSelectionChange وأنت تحرّك value، أو values.
-    <List
-      accessibilityLabel="السمة"
-      selectionMode="single"
-      value={theme}
-      onSelectionChange={setTheme}
-      items={[{ headline: 'فاتح', value: 'light' }, { headline: 'داكن', value: 'dark' }]}
-    />
-    <List
-      accessibilityLabel="التصنيفات"
-      selectionMode="multiple"
-      values={labels}
-      onSelectionChange={setLabels}
-      items={[{ headline: 'خلل', value: 'bug' }, { headline: 'التوثيق', value: 'docs' }]}
-    />
     ```
   </TabItem>
 </Tabs>
 
+المنصات SwiftUI وCompose وFlutter وReact Native متأخرة: تقدّم القائمة السابقة، التي لصفوفها عنوان ونص مساعد وأجزاء في البداية والنهاية، ولا شيء من هذه المراجعة بعد.
+
 ### إعادة الترتيب
 
-<ListReorderProduct />
-
-<DemoFrame label="قائمة يعيد الأشخاص ترتيبها: زرّا نقل في كل صف" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="نقل {headline} لأعلى" move-down-label="نقل {headline} لأسفل" moved-text="تم نقل {headline} إلى الموضع {position} من {count}" style="inline-size: 20rem">
-    <tanrei-list-item headline="الملخص" divider></tanrei-list-item>
-    <tanrei-list-item headline="الملفات الأخيرة" divider></tanrei-list-item>
-    <tanrei-list-item headline="تمت مشاركتها معي" divider></tanrei-list-item>
-    <tanrei-list-item headline="الأرشيف"></tanrei-list-item>
+<DemoFrame label="عمود يعيد الناس ترتيبه، ولكل عنصر زر حذف خاص بالصفحة" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
+    <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="مع زر إزالة تكتبه الصفحة نفسها في منفذ النهاية، بعد زرَّي النقل" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="نقل {headline} لأعلى" move-down-label="نقل {headline} لأسفل" moved-text="تم نقل {headline} إلى الموضع {position} من {count}" style="inline-size: 26rem">
-    <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="إزالة Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="إزالة Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="إزالة Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
+تسمح الخاصية `reorderable` للناس بوضع العناصر في ترتيب آخر، في عمود أو سطر أو شبكة. يرسم كل عنصر مقبضًا في بدايته، علامةً على أنه يمكن تحريكه. ويمكن سحب العنصر كله لا المقبض وحده: تلتقطه الفأرة ما إن يتحرك بضع وحدات بكسل، والإصبع أو القلم بعد ضغط مطوَّل، حتى يبقى التمرير بالإصبع يمرر الصفحة (ولمسة على المقبض تسحب فورًا). تتنحى العناصر الأخرى عن الطريق، ويتبع العنصر المؤشر فوقها، ويستقر في مكانه حين يُفلَت.
 
-القيمة `buttons` للخاصية `reorder` تتيح للأشخاص أن يضعوا العناصر في ترتيب آخر. يرسم كل صف زرَّي أيقونة: أحدهما ينقله موضعًا واحدًا إلى الأعلى، والآخر ينقله موضعًا واحدًا إلى الأسفل. وهما من أزرار Tanrei، فتستخدمهما لوحة المفاتيح ومؤشر الإدخال واللمس وأداة التحكم بالتبديل (switch) والتحكم الصوتي وقارئ الشاشة بالطريقة نفسها، ولا حاجة إلى سحب شيء.
+ليس السحب الطريقة الوحيدة أبدًا. المقبض زر: الضغط عليه، أو Enter، يفتح قائمة خيارات بأربع حركات (إلى البداية، ومكانًا واحدًا إلى الأمام، ومكانًا واحدًا إلى الخلف، وإلى النهاية). وبلوحة المفاتيح، يرفع Space على المقبض العنصر، وتنقله مفاتيح الأسهم مكانًا في كل مرة (Home وEnd إلى المكان الأول والأخير)، ويضعه Space أو Enter، ويعيده Escape. وتُعلَن كل خطوة.
 
-الترتيب بياناتك، ولذلك لا تغيّره القائمة أبدًا. عند الضغط يصدر الحدث `move` ومعه `from`، وهو فهرس العنصر، و `to`، وهو الفهرس الذي ينبغي أن يكون له، وكلاهما يُعدّ من 0. أعِد ترتيب عناصرك جوابًا عن ذلك. عندئذ ترسم القائمة الصفين وهما يتبادلان موضعيهما، وتُبقي التركيز على الزر نفسه في الصف المنقول، وتخبر التقنيات المساعدة بالموضع الذي صار فيه الصف. وإن لم تغيّر شيئًا لم يحدث شيء: هكذا يرفض المنتج نقلًا.
+الترتيب بياناتك، فلا تغيّره القائمة أبدًا. كل طريقة للتحريك تطلق `move` مع `from`، فهرس العنصر، و`to`، الفهرس الذي يجب أن يأخذه، وكلاهما يُعد من 0. أعد ترتيب عناصرك استجابةً لذلك. حينها ترسم القائمة العناصر وهي تتبادل الأماكن، وتُبقي التركيز على مقبض العنصر المنقول، وتخبر التقنيات المساعدة بمكانه الآن. وإن لم تغيّر شيئًا خلال زمن `comp.list.motion.reorder-duration` فقد رُفضت الحركة: تعود العناصر ولا يُعلَن شيء.
 
-أجِب في حدود مدة `comp.list.motion.reorder-duration`. الترتيب الذي يصل بعدها يُرسم مع ذلك، لكن القائمة تكون قد عدّت النقل مرفوضًا فلا تُعلنه.
-
-الكلمات الثلاث لك أنت. الخاصيتان `moveUpLabel` و `moveDownLabel` تسمّيان الزرين، وفي كل منهما الموضع `{headline}` تملؤه القائمة بعنوان الصف الرئيسي («`نقل {headline} لأعلى`»)، والخاصية `movedText` هي الجملة التي تُعلَن بعد النقل. اكتب الجملة كلها بلغتك وعلِّم فيها ثلاثة مواضع تملؤها القائمة: `{headline}`، و `{position}` (يُعدّ من 1)، و `{count}`. أعطِ الكلمات على القائمة، أو مرة واحدة للمنتج كله بالاستدعاء `setWords()`.
-
-القائمة القابلة لإعادة الترتيب لا تحمل إلا صفوفًا ثابتة، وليست مربع قائمة أبدًا. ويجوز أن يحمل الصف عنصر تحكم واحدًا من عندك في منفذ نهايته، بعد زرَّي النقل: وهو في العادة زر يزيل العنصر.
-
-القيمة `drag` للخاصية `reorder`، وهي تضيف مقبضًا يسحبه مؤشر الإدخال أو الإصبع، موجودة في المواصفة ولم تُبنَ بعد. على الويب ترسم الزرين ولا ترسم مقبضًا. إعادة الترتيب موجودة اليوم على الويب. أما SwiftUI و Compose و Flutter و React Native فمتأخرة فيها.
+الكلمات كلماتك: اسم المقبض (`dragHandleLabel`، مع الموضع `{label}` الذي تملؤه القائمة باسم العنصر)، ووصفه (`dragHandleHint`)، والحركات الأربع في القائمة المنبثقة، والجمل الثلاث التي تُعلَن (`liftedText` و`movedText` و`cancelledText`، بالمواضع `{label}` و`{position}` و`{count}`). اذكرها على القائمة، أو مرة واحدة للمنتج بـ `setWords()`. وفي السطر، اكتب «التحريك يسارًا» و«التحريك يمينًا» حيث يقول العمود «التحريك لأعلى» و«التحريك لأسفل».
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="نقل {headline} لأعلى" move-down-label="نقل {headline} لأسفل"
-                 moved-text="تم نقل {headline} إلى الموضع {position} من {count}">
-      <tanrei-list-item headline="Inter">
-        <!-- عنصر التحكم الخاص بك، بعد زرَّي النقل. سمِّه بالعنصر. -->
-        <tanrei-button slot="trailing" variant="text" label="إزالة Inter"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
-      <tanrei-list-item headline="Noto Sans JP">
-        <tanrei-button slot="trailing" variant="text" label="إزالة Noto Sans JP"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
+    <tanrei-list id="fonts" reorderable label="Typefaces"
+                 drag-handle-label="Reorder {label}"
+                 drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves"
+                 move-to-start-label="Move to top" move-before-label="Move up"
+                 move-after-label="Move down" move-to-end-label="Move to bottom"
+                 lifted-text="{label} lifted: {position} of {count}"
+                 moved-text="{label}: {position} of {count}"
+                 cancelled-text="{label} returned to {position} of {count}">
+      <tanrei-list-item label="Inter">Inter</tanrei-list-item>
+      <tanrei-list-item label="Noto Sans JP">Noto Sans JP</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      import '@tanrei/web/components/button';
       const list = document.querySelector('#fonts');
-      // القائمة لم تنقل شيئًا. ضع العنصر حيث طُلب أن يقف: from و to يُعدّان من 0.
+      // The list has moved nothing. Put the item where it was asked to stand: from and to count from 0.
       list.addEventListener('move', ({ detail: { from, to } }) => {
         const items = [...list.children];
         list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
@@ -297,16 +176,22 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, List, ListItem } from '@tanrei/react';
+    import { List, ListItem } from '@tanrei/react';
 
     const [fonts, setFonts] = useState(['Inter', 'Noto Sans JP', 'Helvetica Neue']);
 
-    // الترتيب حالتك أنت. القائمة تجد الصف المنقول من جديد في الترتيب الذي تصيّره.
+    // The order is your state. The list finds the moved item again in the order you render.
     <List
-      reorder="buttons"
-      moveUpLabel="نقل {headline} لأعلى"
-      moveDownLabel="نقل {headline} لأسفل"
-      movedText="تم نقل {headline} إلى الموضع {position} من {count}"
+      reorderable
+      label="Typefaces"
+      dragHandleLabel="Reorder {label}"
+      moveToStartLabel="Move to top"
+      moveBeforeLabel="Move up"
+      moveAfterLabel="Move down"
+      moveToEndLabel="Move to bottom"
+      liftedText="{label} lifted: {position} of {count}"
+      movedText="{label}: {position} of {count}"
+      cancelledText="{label} returned to {position} of {count}"
       onMove={(e) => {
         const { from, to } = e.detail;
         setFonts((now) => {
@@ -317,11 +202,7 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
       }}
     >
       {fonts.map((font) => (
-        <ListItem key={font} headline={font}>
-          <Button slot="trailing" variant="text" label={`إزالة ${font}`} onClick={() => setFonts((now) => now.filter((each) => each !== font))}>
-            <span slot="icon">close</span>
-          </Button>
-        </ListItem>
+        <ListItem key={font} label={font}>{font}</ListItem>
       ))}
     </List>
     ```
@@ -330,142 +211,81 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 ## المواصفات
 
-<DemoFrame label="الوسائط، والأسطر، والتعطيل، واختيارات متعددة" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="Ada Lovelace" supporting-text="عدّلت خارطة الطريق قبل ساعتين" leading-media="avatar"><span slot="leading">A</span></tanrei-list-item>
-    <tanrei-list-item headline="خارطة الطريق" overline="الهندسة" supporting-text="خطة الربع القادم، مع المراحل والمسؤولين والمخاطر التي نعرفها من الآن." supporting-max-lines="2" leading-media="image" trailing-text="9:41"></tanrei-list-item>
-    <tanrei-list-item headline="الأرشيف" leading-icon="archive" interactive disabled></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="multiple" label="التصنيفات" style="inline-size: 20rem">
-    <tanrei-list-item headline="خلل" supporting-text="12 مشكلة مفتوحة" leading-icon="label" value="bug"></tanrei-list-item>
-    <tanrei-list-item headline="ميزة" supporting-text="4 مشكلات مفتوحة" leading-icon="label" value="feature"></tanrei-list-item>
-    <tanrei-list-item headline="التوثيق" supporting-text="7 مشكلات مفتوحة" leading-icon="label" value="docs" disabled></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
-
 <ComponentSpecs name="list" />
 
 ## الإرشادات
 
-### متى يُستخدم
+### متى تُستخدم
 
-استخدم القائمة لعمود من أشياء من نوع واحد: رسائل، أشخاص، ملفات، إعدادات، أو اختيارات منتقٍ. يبدأ كل صف بالنوع نفسه من العناصر وينتهي بالنوع نفسه من القيم، فيسهل تصفح العمود. استخدم البطاقة لشيء واحد فيه ما يُقال أكثر، والجدول حين يقارن الأشخاص القيم عبر الأعمدة، وقائمة الخيارات لمجموعة قصيرة من الإجراءات تُفتح من زر.
+استخدم القائمة لمجموعة من أشياء من نوع واحد يتصفحها الناس أو يفتحونها أو يختارون منها أو يرتبونها: الرسائل، والأشخاص، والملفات، والصور، والإعدادات، وخيارات أداة الاختيار. واستخدم الجدول حين يقارن الناس القيم عبر الأعمدة، وقائمة الخيارات لمجموعة قصيرة من الإجراءات تُفتح من زر.
 
-القائمة لا ترسم شيئًا من عندها. لا تضيف خلفية، ولا حشوًا حول عناصرها، ولا تمريرًا. ضعها على سطح، أو في بطاقة (مع إيقاف `inset` للقائمة المجمَّعة، كما في إعدادات iOS)، أو في عرض التمرير الخاص بشاشتك.
+لا ترسم القائمة شيئًا من عندها: لا خلفية، ولا حشوة حول عناصرها، ولا تمرير. ضعها على سطح، أو في بطاقة، أو في عرض التمرير في شاشتك، وأعطِ كل عنصر المظهر الذي يحتاجه في محتواه.
 
-### أنواع الصف الأربعة
-
-الصف دائمًا `list-item`. وما يكونه يتبع الخاصية `selection` في القائمة والخاصيتين `interactive` و `href` في العنصر.
+### الأنواع الأربعة للعنصر
 
 | النوع | كيف تحصل عليه | ما هو | يُستخدم لـ |
 | --- | --- | --- | --- |
-| ثابت | `selection` بلا تحديد، و `interactive` بالقيمة false | عنصر قائمة يعرض محتوى. لا يأخذ التركيز ولا يرسم تحويمًا ولا ضغطًا. | الصفوف التي يقرؤها الأشخاص فقط، والصفوف التي تحمل عنصر تحكم خاصًّا بها في منفذ النهاية، كمفتاح تبديل. |
-| تفاعلي | `interactive` بالقيمة true | زر واحد داخل عنصر القائمة، اسمه العنوان الرئيسي. | الصفوف التي يغيّر كل منها شيئًا أو يفتحه في مكانه: إعداد، رسالة في لوحة مجاورة، مربع حوار. |
-| رابط | الخاصية `href` مضبوطة | رابط واحد داخل عنصر القائمة، اسمه العنوان الرئيسي ويُرسم تمامًا كالصف التفاعلي. المفتاح Enter يفعّله والمفتاح Space لا يفعّله. والخاصية `href` تغلب `interactive`. | الصفوف التي يذهب كل منها إلى صفحة لها عنوانها الخاص: فهرس صفحات، نتائج بحث، مستندات ذات صلة. |
-| خيار | `selection` بالقيمة single أو multiple | خيار في مربع قائمة (listbox)، له حالة تحديد. | الاختيار من الصفوف: سمة، لغة، تصنيفات مشكلة. |
+| ثابت | `selection` none، و`interactive` false، وبلا `href` | محتواك كما هو. بلا تركيز، ولا تحويم أو ضغط. | العناصر التي تُقرأ فقط، والعناصر التي تحمل عناصر تحكمها. |
+| تفاعلي | `interactive` | زر واحد داخل عنصر القائمة. | العناصر التي يغيّر كل منها شيئًا أو يفتحه في مكانه. |
+| رابط | `href` | رابط واحد داخل عنصر القائمة، يُرسم تمامًا كالعنصر التفاعلي. يتبعه Enter ولا يتبعه Space. | العناصر التي يذهب كل منها إلى صفحة لها عنوانها. |
+| خيار | `selection` single أو multiple | خيار في مربع قائمة، بحالة تحديد وعلامة اختيار. | الاختيار من العناصر. |
 
-يجوز أن تمزج القائمة صفوفًا ثابتة وتفاعلية وروابط. أما القائمة القابلة للتحديد فلا تحمل إلا خيارات: تُهمَل فيها الخاصيتان `interactive` و `href`. والقائمة القابلة لإعادة الترتيب لا تحمل إلا صفوفًا ثابتة: تُهمَل فيها الخاصيتان `interactive` و `href` كذلك، لأن الصف الذي هو نفسه زر واحد أو رابط واحد لا يستطيع أن يحمل الزرين اللذين ينقلانه.
+يمكن أن تمزج القائمة بين العناصر الثابتة والتفاعلية والروابط. والقائمة القابلة للاختيار لا تحمل إلا خيارات. والقائمة القابلة لإعادة الترتيب لا تحمل إلا عناصر ثابتة، ولا تكون مربع قائمة أبدًا: فالإجراء والرابط والخيار تُستخدم بضغطة يأخذها السحب.
 
-### القوائم التي يعيد الأشخاص ترتيبها
+### قوائم يعيد الناس ترتيبها
 
-- استخدم الخاصية `reorder` لقائمة قصيرة لترتيبها معنى وللشخص أن يقرره: عائلات الخطوط في سلسلة خطوط، أو أقسام شاشة رئيسية، أو قائمة انتظار. وللقائمة الطويلة، قدِّم طريقة لفرزها بدلًا من ذلك. الضغطة الواحدة تنقل الصف موضعًا واحدًا.
-- أعِد ترتيب عناصرك في معالج الحدث `move`، أو بعده بأقرب ما يصيّر (render) إطار عملك. لك أن تنقل العناصر التي عندك أو أن تصيّر عناصر جديدة: القائمة تجد الصف المنقول بموضعه وبعنوانه الرئيسي.
-- اكتب كلمات زرَّي النقل وفيها العنوان الرئيسي للصف («`نقل {headline} لأعلى`»، «`نقل {headline} لأسفل`»). فالعنوان جزء من اسم كل زر، فتتميّز أزرار صفّين في قائمة أزرار الصفحة وفي التحكم بالصوت.
-- اكتب `movedText` جملة واحدة كاملة فيها المواضع الثلاثة. القائمة لا تبني عبارة من عندها، فترتيب الكلمات ترتيب لغتك.
-- ضع عنصر تحكم واحدًا على الأكثر في منفذ النهاية، وسمِّه بالعنصر («إزالة Inter»)، ليتميّز زرّا الإزالة في صفين أحدهما من الآخر.
-- القائمة تُعلن النقل ولا شيء غيره. حين تزيل عنصرًا أو تضيفه، فما يقال شأنك أنت. وحين تزيل العنصر الأخير، انقل التركيز بنفسك إلى حيث يضيف الشخص عنصرًا.
-- أعطِ الصفوف حيّزًا. حيث كان زرّا النقل وعنصر تحكم النهاية سيتركان النص أضيق من `reorder.text-min-width` (96 px بحجم النص الافتراضي، ويتسع كلما كُبِّر النص)، يضعها كل صف في القائمة على سطر خاص بها تحت النص، ويضع عنصر تحكم النهاية على سطر آخر حيث لا يكفي ذلك السطر. وفي النظام الافتراضي يُبقي الصفُّ الذي فيه زر إزالة وليس فيه أيقونة ولا صورة رمزية ولا صورة الأزرارَ بجانب نصه حيث يبلغ عرضه نحو 300 px أو أكثر بحجم النص الافتراضي؛ ومع نص بنسبة 200% تنتقل تحته.
+- استخدم `reorderable` حيث يعني الترتيب شيئًا ويعود قراره إلى الشخص: عائلات مجموعة الخطوط، وأقسام الشاشة الرئيسية، وملفات المرفق، وطابور. وللقائمة الطويلة، قدّم بدلًا من ذلك طريقة لفرزها.
+- أعد ترتيب عناصرك في معالج `move`، أو بأسرع ما يعيد إطار العمل الرسم بعده. يمكنك تحريك العناصر الموجودة أو رسم عناصر جديدة: تجد القائمة العنصر المنقول بمكانه واسمه.
+- أعطِ العنصر `label` حين لا يسمّيه نص محتواه جيدًا: فالاسم جزء من اسم مقبضه، فتتميز مقابض عنصرين، وهو ما تقوله الإعلانات.
+- اكتب كل جملة كاملة بمواضعها. لا تبني القائمة عبارة من عندها، فترتيب الكلمات هو ترتيب لغتك.
+- عنصر تحكم خاص بك داخل عنصر (زر يحذفه) يحتفظ بموضع تركيز خاص به بعد المقبض. سمّه باسم العنصر («حذف Inter»). وحين تحذف العنصر الذي عليه التركيز، تنقل القائمة التركيز إلى مقبض العنصر الذي يأخذ مكانه؛ أما الإعلان عن الحذف فعليك.
 
 ### اختيار وضع التحديد
 
-| التحديد | القائمة تكون | اختيار خيار |
+| التحديد | القائمة هي | عند اختيار خيار |
 | --- | --- | --- |
-| بلا تحديد (الافتراضي) | قائمة | لا يُختار شيء. ويصدر عن كل صف تفاعلي الحدث click الخاص به. |
-| مفرد (single) | مربع قائمة | يحدّد الخيار ويلغي تحديد الخيار الذي كان محدَّدًا. لا يُلغى تحديد الخيار المحدَّد باختياره مرة أخرى، كما في أزرار الاختيار. إن كان «لا شيء» جوابًا صالحًا فأضف خيارًا له. |
-| متعدد (multiple) | مربع قائمة متعدد التحديد | يبدّل الخيار بين التحديد وعدمه. |
+| لا شيء (افتراضي) | قائمة | لا يُختار شيء. العناصر التفاعلية تطلق click الخاص بها. |
+| واحد | مربع قائمة | يحدد الخيار ويلغي تحديد ما كان محددًا. لا يُلغى باختياره مرة أخرى. |
+| متعدد | مربع قائمة متعدد التحديد | يشغّل الخيار أو يطفئه. |
 
-مفاتيح الأسهم تنقل التركيز فقط. يتغيّر التحديد حين يضغط الشخص المفتاح Space أو Enter، أو ينقر الصف. وهذا مقصود: في القائمة قد يبدأ اختيار صف شيئًا بطيئًا، والمرور على خمسين صفًّا يجب ألّا يبدأ خمسين تحميلًا.
-
-يُرسم الخيار المحدَّد بتعبئة التحديد وبعلامة صح في نهايته. وفي النظام الافتراضي التعبئة طبقة من لون محتوى الصف نفسه، كتعبئة العنصر المؤشَّر عليه في القائمة، فتتميز من الصف الذي عليه التحويم على أي سطح. يُحجز مكان علامة الصح في كل خيار، فتتحاذى النصوص. وعلامة الصح هي التي تحقق تباين 3:1 المطلوب للحالة. أما التعبئة وحدها فلا تحققه.
-
-### الصفوف وأجزاؤها
-
-- العنوان الرئيسي وحده يعطي صفًّا من سطر واحد. والسطر العلوي (overline)، أو سطر من النص المساعد، يعطي صفًّا من سطرين. وسطران أو أكثر من النص المساعد تعطي صفًّا من ثلاثة أسطر. تزيد الصفوف على هذه الارتفاعات مع محتواها ومع النص الأكبر.
-- الخاصية `supportingMaxLines` تقتطع النص المساعد الطويل بعلامة الحذف (…)، لعمود معاينة. ويبقى النص الكامل مقروءًا للتقنيات المساعدة.
-- في بداية الصف، استخدم أيقونة في البداية، أو وسائط في البداية: صورة رمزية (مربع مستدير، للأشخاص) أو صورة (مربع أكبر مستدير الزوايا، للأشياء). الوسائط تحل محل الأيقونة.
-- في النهاية، استخدم نصًّا قصيرًا في النهاية (عدد، وقت)، أو أيقونة في النهاية (سهم صغير لصف يفتح شيئًا)، وعلى الصف الثابت عنصر التحكم الخاص بك. صف الرابط الذي قيمة `target` فيه `new` يرسم `open_in_new` أيقونةً في نهايته من تلقاء نفسه، ما لم تسمِّ أيقونة أخرى.
-- الأيقونات أسماء رسوم (glyphs) في مجموعة أيقونات نظام التصميم (`wifi`، `chevron_right`). الرسم الذي يبيّن اتجاهًا على امتداد السطر يُعكس في التخطيط من اليمين إلى اليسار (RTL).
-- الخاصية `divider` ترسم خطًّا رفيعًا تحت الصف، يبدأ حيث يبدأ النص، بلون الخط الرفيع الواحد الذي تستخدمه كل المكوّنات. اضبطها على كل صف عدا الأخير، أو عند نهاية مجموعة. ولا تضف [فاصلًا](/ar/components/divider/) من عندك بين الصفوف.
+مفاتيح الأسهم تنقل التركيز فقط؛ ويتغيّر التحديد حين يضغط الشخص Space أو Enter، أو يلمس العنصر. ويُرسم الخيار المحدد بتعبئة التحديد وعلامة اختيار في نهايته، ومكان العلامة محجوز في كل خيار، فيصطف المحتوى.
 
 ### افعل
 
-- أبقِ العنوان الرئيسي قصيرًا وضع التفاصيل في النص المساعد. العنوان الرئيسي هو اسم الصف.
-- أعطِ القائمة القابلة للتحديد قيمة `label` تقول ما هي الخيارات، مثل «السمة».
-- اجعل الصف الذي يبدّل إعدادًا صفًّا ثابتًا في منفذ نهايته مفتاح تبديل. سمِّ مفتاح التبديل بالعنوان الرئيسي وأخفِ تسميته المرئية.
-- ضع عنوانًا بين قائمتين لتصنع أقسامًا. ليست للقائمة ترويسة قسم خاصة بها.
-- أعطِ الصف الخاصية `href` حين يذهب إلى صفحة، وأبقِ الخاصية `interactive` للصف الذي يعمل في مكانه. الصف الذي يتنقل من معالج النقر ليس رابطًا: لا يمكن فتحه في تبويب جديد، ولا نسخ عنوانه.
+- أعطِ القائمة القابلة للاختيار `label` يقول ما الخيارات، والقائمة القابلة لإعادة الترتيب `label` يقول ما العناصر.
+- أعطِ العنصر `href` حين يذهب إلى صفحة، واترك `interactive` للعنصر الذي يعمل في مكانه.
+- ضع عنوانًا بين قائمتين لصنع أقسام. ليس للقائمة رأس قسم خاص بها.
 
 ### لا تفعل
 
-- لا تضع زرًّا أو رابطًا أو مفتاح تبديل أو أي عنصر تحكم آخر داخل صف تفاعلي أو صف رابط أو خيار. الصف عنصر واحد، فلا تستطيع التقنيات المساعدة أن تصل إلى عنصر تحكم بداخله، والضغط على عنصر التحكم يفعّل الصف أيضًا.
-- لا تستخدم خيارًا لشيء يُنفَّذ فورًا. مربع القائمة يختار قيمة. استخدم الصفوف التفاعلية للإجراءات.
-- لا تعطّل صفًّا ثابتًا. ليس له إجراء يُعطَّل، ولذلك تُهمَل الخاصية `disabled` فيه.
-- لا ترسم خانة اختيار أو زر اختيار في صف لتبيّن التحديد. استخدم `selection`، فهي ترسم علامة الصح وتعرض الحالة للتقنيات المساعدة.
+- لا تضع زرًا أو رابطًا أو مفتاح تبديل أو أي عنصر تحكم آخر داخل عنصر تفاعلي أو عنصر رابط أو خيار. العنصر عنصر واحد، فلا تصل التقنيات المساعدة إلى عنصر التحكم داخله، والضغط على عنصر التحكم يفعّل العنصر أيضًا.
+- لا تستخدم الخيار لشيء يُنفَّذ فورًا. مربع القائمة يختار قيمة.
+- لا ترسم مقبض سحب أو أزرار تحريك من عندك: ترسم `reorderable` المقبض، وقائمته المنبثقة هي طريقة التحريك التي لا تحتاج إلى سحب.
 
 ## إمكانية الوصول
 
 <ComponentAccessibility name="list" />
 
-### ما يتكفل به المكوّن
+### ما يتولاه المكوّن
 
-- القائمة التي بلا تحديد تُعرَض للتقنيات المساعدة قائمةً، وكل صف عنصرَ قائمة مع موضعه وحجم القائمة. الصف التفاعلي زر واحد داخل عنصر القائمة، وأما صف الرابط فرابط واحد هناك.
-- صف الرابط يدخل في ترتيب مفاتيح الأسهم في القائمة كالصف التفاعلي. المفتاح Enter يتبعه؛ والمفتاح Space يفعل ما يفعله على أي رابط ولا يعرض حالة ضغط. والصف الذي يفتح تبويبًا جديدًا يُقرأ نص `targetLabel` الخاص به بعد اسمه ووصفه. أما صف الرابط المعطَّل فليس فيه ما يُتبع أو يُنسخ، ويبقى الوصول إليه بمفاتيح الأسهم ممكنًا.
-- القائمة القابلة للتحديد تُعرَض مربع قائمة اسمه قيمة `label`، ومتعدد التحديد ما دامت `selection` بالقيمة multiple. وكل صف خيار له حالة تحديده وموضعه وحجم القائمة.
-- الصف التفاعلي أو صف الرابط أو الخيار اسمه عنوانه الرئيسي، ووصفه سطره العلوي ونصه المساعد ونص نهايته، بترتيب القراءة. والأيقونات وعلامة الصح والفاصل ووسائط البداية مخفيّة.
-- القائمة التي فيها صفوف تفاعلية أو خيارات موضع توقف واحد للمفتاح Tab. يذهب المفتاح Tab إلى الصف الذي كان عليه التركيز آخر مرة، وإلا فإلى أول خيار محدَّد، وإلا فإلى أول صف مفعَّل. سهما الأعلى والأسفل ينقلان بين الصفوف من دون دوران من الطرف إلى الطرف الآخر. والمفتاحان Home و End يذهبان إلى الصف الأول والأخير. والكتابة تنقل إلى الصف التالي الذي يبدأ عنوانه الرئيسي بالأحرف المكتوبة. والمفتاحان Space و Enter يفعّلان. الصفوف الثابتة لا تأخذ التركيز. وعنصر التحكم في صف ثابت يحتفظ بموضع توقف المفتاح Tab الخاص به.
-- في القائمة القابلة لإعادة الترتيب، كل زر نقل زر اسمه قيمة `moveUpLabel` أو `moveDownLabel`، وفي موضعها `{headline}` عنوان صفه الرئيسي. وكل منهما موضع توقف خاص للمفتاح Tab بترتيب القراءة، قبل عنصر تحكم النهاية في الصف. القائمة ليست موضع توقف واحدًا هناك، ومفاتيح الأسهم لا تفعل شيئًا. وزر النقل لأعلى في الصف الأول وزر النقل لأسفل في الصف الأخير معطَّلان ويُرسمان مع ذلك، فتكون لكل صف الأجزاء نفسها في المواضع نفسها.
-- بعد النقل يبقى التركيز على الزر نفسه في الصف المنقول، فالضغط على المفتاح مرة أخرى ينقل الصف مرة أخرى. وحيث صار الصف الأول أو الأخير، يذهب التركيز إلى زر نقله الآخر.
-- للقائمة القابلة لإعادة الترتيب منطقة حيّة (live region) واحدة تُعلن بتهذيب. بعد النقل تحمل نص `movedText` وفيه عنوان الصف الرئيسي وموضعه الجديد وعدد الصفوف، والنقل التالي يحلّ محله. تُكتب الأرقام كما تكتبها لغة القائمة. ولا شيء آخر يُعلن النقل.
-- يتبادل الصفان موضعيهما بحركة قصيرة، وفورًا عند تقليل الحركة.
-- حين تزيل الصف الذي عليه التركيز، يذهب التركيز إلى عنصر التحكم نفسه في الصف الذي صار في مكانه، وإلا ففي الصف الذي قبله.
-- حيث كانت عناصر التحكم ستضيّق على النص، تنتقل إلى سطر خاص بها تحته، ولا يصغر أي عنصر تحكم عن هدفه.
-- الصفوف المعطَّلة يبقى الوصول إليها بمفاتيح الأسهم ممكنًا، ليعرف الأشخاص أنها موجودة، لكنها لا تُفعَّل.
-- حلقة التركيز تُرسم داخل الصف، فلا يستطيع عرض التمرير المحيط بالقائمة أن يقصّها. وتظهر لتركيز لوحة المفاتيح فقط.
-- ارتفاع الصف التفاعلي أو الخيار لا يقل عن الحد الأدنى للهدف، والصف كله مساحة لمسه. ولا تتداخل مساحات لمس الصفوف أبدًا.
-- تكبر الصفوف مع النص الأكبر. العنوان الرئيسي يلتف ولا يُقتطع أبدًا.
-- بنيات التنقيح (debug) تبلّغ عن صف بلا عنوان رئيسي، وقائمة قابلة للتحديد بلا تسمية، وخيار قيمته فارغة أو مكررة، وتحديد لا يسمّي أي خيار، وخيار له `href`، وقيمة `href` هي عنوان `javascript:` أو لا يمكن قراءتها، وقيمة `target` غير معروفة، وعن صف رابط له `target` بالقيمة `new` وليس له `targetLabel`. وللقائمة القابلة لإعادة الترتيب تبلّغ عن كلمة نقل لم يعطها أحد (مرة واحدة لكل كلمة)، وعن نص بين قوسين معقوصين في `movedText` ليس أحد المواضع الثلاثة، وعن صف له `interactive` أو `href`، وعن `reorder` على قائمة قابلة للتحديد.
+- تُعرض القائمة بلا تحديد قائمةً، وكل عنصر عنصرَ قائمة بموضعه وحجم القائمة. العنصر التفاعلي زر واحد داخل عنصر القائمة، وعنصر الرابط رابط واحد هناك. والقائمة القابلة للاختيار مربع قائمة يسمّيه `label`، باتجاهه؛ وكل عنصر خيار بحالة تحديده.
+- القائمة التي فيها عناصر تفاعلية أو روابط أو خيارات موضع Tab واحد. تنقل مفاتيح الأسهم الخاصة بالترتيب بين العناصر دون التفاف (أعلى وأسفل في العمود، ويسار ويمين في السطر، معكوسة في التخطيط من اليمين إلى اليسار؛ وفي الشبكة عبر الأسطر أيضًا). ويعمل Home وEnd والبحث بالكتابة. ولا تأخذ العناصر الثابتة التركيز؛ وعنصر التحكم داخلها يحتفظ بموضع Tab خاص به.
+- في القائمة القابلة لإعادة الترتيب، كل مقبض زر قائمة منبثقة يسمّيه `dragHandleLabel` الخاص بك مع اسم العنصر، ويصفه `dragHandleHint` الخاص بك، وهو موضع Tab مستقل. وتنقل قائمته المنبثقة العنصر بضغطات مفردة، وهذا يلبي متطلب WCAG بأن ما يُفعل بالسحب يمكن فعله دونه (2.5.7). ويرفع Space العنصر للوحة المفاتيح (2.1.1).
+- منطقة حية واحدة مهذبة تقول متى رفعت لوحة المفاتيح عنصرًا، وأين سيستقر في كل خطوة، وأين يقف بعد أن تأخذ الحركة أثرها، وأنه عاد بعد Escape.
+- يتبع العنصر المسحوب المؤشر بتعبئة السحب وظله؛ وتتنحى العناصر الأخرى بحركة إعادة الترتيب. وحيث تُقلَّل الحركة، يتحرك كل شيء فورًا عدا العنصر الذي تحت المؤشر. وفي الألوان القسرية يُحاط العنصر المسحوب بلون التمييز.
+- يعيد Escape العنصر المسحوب ولا يغلق معه الحوار الذي فيه القائمة. والضغط المطوَّل على عنصر لا يفتح أي قائمة للمتصفح.
+- العنصر التفاعلي أو الرابط أو الخيار لا يقل عن الهدف الأدنى، وتُرسم حلقة التركيز داخله، ويكبر مع النص الأكبر.
+- تُبلغ إصدارات التصحيح عن عنصر بلا اسم، وقائمة قابلة للاختيار أو لإعادة الترتيب بلا تسمية، وخيار قيمته فارغة أو مكررة، وتحديد لا يسمّي أي خيار، وعنصر تحكم داخل عنصر تفاعلي أو خيار، وكلمة لم يعطها أحد، و`reorderable` على قائمة قابلة للاختيار.
 
-فجوات معروفة في المنصات:
+الفجوات المعروفة في المنصات:
 
-- على الويب: القيمة `drag` للخاصية `reorder` لم تُبنَ. ترسم زرَّي النقل ولا ترسم مقبضًا، ولا يمكن سحب شيء.
-- لا قائمة قابلة لإعادة الترتيب بعد في SwiftUI و Compose و Flutter و React Native: لا `reorder` ولا `move` ولا أيّ من كلماتها الثلاث.
-- لا صفوف روابط بعد في SwiftUI و Compose و Flutter و React Native: لا `href` ولا `target` ولا `targetLabel`.
-- ليس في SwiftUI دور قائمة ولا دور مربع قائمة ولا خاصية تعدد التحديد. القائمة حاوية اسمها قيمة `label`، وكل صف تفاعلي أو خيار زر، وللخيار صفة التحديد (selected trait) ما دام مختارًا، ويحمل كل منها موضعه قيمةً له («`2 of 3`»)، بالإنجليزية فقط.
-- لا يعطي SwiftUI تركيز لوحة المفاتيح لزر معطَّل أبدًا، فتتخطى مفاتيح الأسهم الصف المعطَّل بدل أن تصل إليه.
-- يخفي SwiftUI وسائط البداية عن التقنيات المساعدة دائمًا، فالصورة التي تسمّيها لا تُقرأ.
-- يقرأ SwiftUI قيمة الخيار فقط من `.tag(_:)` مطبَّق على `TanreiListItem` نفسه، قبل أي مُعدِّل آخر. الوسم (tag) الموضوع على عرض آخر لا يصل إليه.
-- في SwiftUI: مفاتيح الأسهم، والمفتاحان Home و End، والبحث بالكتابة (typeahead)، وموضع توقف المفتاح Tab مختبَرة في صورة قواعد، لا بلوحة مفاتيح حقيقية بعد.
-- ليس في React Native دور مربع قائمة ولا خاصية تعدد التحديد. القائمة القابلة للتحديد تحتفظ بدور القائمة، ولكل خيار دور الخيار وحالة تحديده. وما يعلنه VoiceOver و TalkBack عن القائمة نفسها متروك للمنصة.
-- ليس في React Native خاصية للموضع ضمن المجموعة. الصف التفاعلي أو الخيار يحمل موضعه نصَّ قيمةٍ له («`2 of 3`»). والصف الثابت ليس عنصرًا قائمًا بذاته، فلا يُعلَن له موضع. ونص الموضع بالإنجليزية ما لم تمرِّر `positionText`.
-- في React Native: مفاتيح الأسهم، والمفتاحان Home و End، والبحث بالكتابة تصل عبر حدث مفتاح لم يُفحص بعد على جهاز له لوحة مفاتيح فعلية.
-- ليس في Flutter دور مربع قائمة ولا دور خيار، ولا علامة لتعدد التحديد، ولا موضع ولا حجم مجموعة. القائمة القابلة للتحديد تُعرَض قائمةً من عناصر قائمة قابلة للتحديد.
-- يخفي Flutter وسائط البداية عن التقنيات المساعدة دائمًا، فالصورة التي تسمّيها لا تُقرأ.
-- ليس في Compose دور قائمة ولا دور مربع قائمة ولا دور خيار، ولا علامة لتعدد التحديد. القائمة مجموعة (collection)، ويعلن TalkBack كل خيار محدَّدًا أو غير محدَّد.
-- في Compose: داخل `LazyColumn` في القائمة، لا يُحسب في الموضع وحجم المجموعة ومفاتيح الأسهم إلا الصفوف التي جرى تركيبها (composed).
-- يخفي Compose وسائط البداية عن التقنيات المساعدة دائمًا، فالصورة التي تسمّيها لا تُقرأ.
-- في Compose: موضع توقف المفتاح Tab في القائمة وحده يقبل طلب التركيز. طلب تركيز صف آخر، من شيفرتك أو من خدمة إمكانية وصول، لا يفعل شيئًا.
-- في Compose: لوحة المفاتيح عبر معالجة المفاتيح الحقيقية في المنصة، و TalkBack على مربع قائمة، مختبَران تحت Robolectric فقط، لا على جهاز بعد.
-- لا يستطيع SwiftUI و Compose و Flutter و React Native فحص ما تضعه في منافذ الصف، فلا تبلّغ عن عنصر تحكم داخل صف تفاعلي أو خيار. الالتزام بالقاعدة عليك.
+- تقدّم المنصات SwiftUI وCompose وFlutter وReact Native القائمة السابقة ولا شيء من هذه المراجعة: لا اتجاه، ولا التفاف، ولا مسافة، ولا فتحة للمحتوى، ولا إعادة ترتيب.
 
 ### ما عليك فعله
 
-- أعطِ القائمة القابلة للتحديد قيمة `label`. من دونها يبقى مربع القائمة بلا اسم.
-- اكتب عناوين رئيسية تميّز الصفوف بعضها من بعض. العنوان الرئيسي هو ما يقوله قارئ الشاشة أولًا، وما يطابقه البحث بالكتابة.
-- أعطِ صف الرابط الذي قيمة `target` فيه `new` قيمة `targetLabel` بلغة منتجك، مثل «يُفتح في تبويب جديد». لا يأتي Tanrei بكلمات من عنده.
-- أعطِ القائمة القابلة لإعادة الترتيب كلماتها الثلاث بلغة منتجك: `moveUpLabel` و `moveDownLabel` و `movedText`. من دون الأوليين يعمل الزران وليس لهما اسم. ومن دون الثالثة لا يُعلَن النقل.
-- أعِد ترتيب عناصرك حين يصدر الحدث `move`. القائمة لم تغيّر شيئًا، والترتيب الذي تعطيه بعد انقضاء مدة حركة إعادة الترتيب يُرسم بلا إعلان.
-- قل الإزالة أو الإضافة بنفسك، وانقل التركيز بنفسك حين يُزال العنصر الأخير.
-- أبقِ الصفوف التفاعلية وصفوف الروابط والخيارات خالية من عناصر التحكم. الصف الذي يحتاج إلى عنصر تحكم خاص به يبقى ثابتًا ويحمله في منفذ النهاية، واسم عنصر التحكم العنوان الرئيسي.
-- إن حملت صورة رمزية أو صورة معنى لا يحمله العنوان الرئيسي فقله في النص المساعد. الوسائط مخفيّة عن التقنيات المساعدة ما لم تسمِّها، و SwiftUI و Compose و Flutter لا تقرؤها أبدًا.
-- للبيانات الطويلة، ابنِ قائمتك الكسولة (lazy list) بنفسك واذكر حجم المجموعة حيث تحتاج إليه المنصة. القائمة لا تمرّر عناصرها، ولا تقتصر على إنشاء الظاهر منها (virtualize).
-- على React Native، مرِّر `positionText` بلغة منتجك. على SwiftUI يُقرأ الموضع بالإنجليزية، ولا سبيل إلى تغييره بعد.
+- أعطِ القائمة القابلة للاختيار أو لإعادة الترتيب `label`.
+- أعطِ القائمة القابلة لإعادة الترتيب كلماتها بلغة منتجك. بدونها تعمل المقابض بلا اسم ولا يُعلَن شيء.
+- أعد ترتيب عناصرك حين يُطلق `move`. لم تغيّر القائمة شيئًا.
+- أعطِ عنصر الرابط الذي قيمة `target` فيه `new` تسمية `targetLabel`، مثل «يُفتح في علامة تبويب جديدة».
+- أبقِ العناصر التفاعلية والروابط والخيارات خالية من عناصر التحكم. العنصر الذي يحتاج عنصر تحكم خاصًا به يبقى ثابتًا.
+- للبيانات الكثيرة، ابنِ قائمتك الكسولة وصرّح بحجم المجموعة حيث تحتاجه المنصة. لا تمرّر القائمة ولا تُجري المحاكاة الافتراضية.

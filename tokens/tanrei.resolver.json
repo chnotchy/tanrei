@@ -112,6 +112,9 @@
           "$ref": "comp/snackbar.tokens.json"
         },
         {
+          "$ref": "comp/modal-layer.tokens.json"
+        },
+        {
           "$ref": "comp/dialog.tokens.json"
         },
         {
@@ -128,6 +131,9 @@
         },
         {
           "$ref": "comp/segmented-button.tokens.json"
+        },
+        {
+          "$ref": "comp/stepper.tokens.json"
         },
         {
           "$ref": "comp/button-group.tokens.json"
@@ -250,6 +256,9 @@
           "$ref": "comp/color-input.tokens.json"
         },
         {
+          "$ref": "comp/swatch.tokens.json"
+        },
+        {
           "$ref": "comp/link-card.tokens.json"
         },
         {
@@ -272,6 +281,9 @@
         },
         {
           "$ref": "comp/file-item.tokens.json"
+        },
+        {
+          "$ref": "comp/drop-zone.tokens.json"
         },
         {
           "$ref": "comp/embedded-text-input.tokens.json"

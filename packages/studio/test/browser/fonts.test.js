@@ -27,6 +27,6 @@ studioTest('on m3-like the preview draws Roboto and Material Symbols Outlined fo
   // The Studio's own note agrees: nothing to report for the families this base asks for.
   await page.waitForTimeout(300);
   assert.equal(await page.locator('[data-typeface="brand"] [data-font-note]').isVisible(), false);
-  assert.deepEqual(await page.locator('[data-typeface="brand"] [data-stack-list] > tanrei-list-item').evaluateAll((items) => items.map((item) => item.supportingText).filter(Boolean)), []);
+  assert.deepEqual(await page.locator('[data-typeface="brand"] [data-stack-list] > tanrei-list-item [data-stack-missing]').evaluateAll((notes) => notes.filter((note) => !note.hidden).map((note) => note.textContent)), []);
   for (const key of ['family', 'unselected', 'selected']) assert.equal(await page.locator(`[data-icon-note="${key}"]`).isVisible(), false, `icons: ${key}`);
 });

@@ -345,6 +345,7 @@ export const drawerStyles = css`
   }
   dialog.drawer::backdrop {
     background: ${t('scrim-color')};
+    backdrop-filter: blur(${t('scrim-blur')});
     opacity: 0;
     transition-property: opacity, display, overlay;
     transition-duration: ${t('motion-exit-duration')};

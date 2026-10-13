@@ -1,0 +1,169 @@
+---
+title: Stepper
+description: Shows where a person is in a flow the product runs in a fixed order of steps — which step is current, which are complete, which has an error and which are still to come — and lets them press a step to go back to it.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="stepper" />
+
+<DemoFrame label="Horizontal, with a step that has an error" column>
+  <tanrei-stepper label="Checkout progress" value="payment" pressable="visited" completed-text="Completed" error-text="Has an error" style="inline-size: 100%">
+    <tanrei-stepper-step value="account" label="Account"></tanrei-stepper-step>
+    <tanrei-stepper-step value="shipping" label="Shipping" status="error" description="Postcode missing"></tanrei-stepper-step>
+    <tanrei-stepper-step value="payment" label="Payment"></tanrei-stepper-step>
+    <tanrei-stepper-step value="review" label="Review"></tanrei-stepper-step>
+  </tanrei-stepper>
+</DemoFrame>
+
+A stepper sits above, or beside, the content of a flow that has a position: a checkout, a set-up, an application in several parts. One step is current, the steps before it are complete, one may need the person's attention, and the rest are still to come.
+
+### Usage
+
+The steps are `<tanrei-stepper-step>` children, in order. `value` names the current step. The stepper never moves `value` itself: when the person presses a step it fires `select` with that step's value, and your flow goes there (or doesn't) and sets `value`.
+
+SwiftUI, Compose, Flutter and React Native are planned: the names beside each platform at the top of this page are the ones the spec gives them, and nothing ships there yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-stepper id="checkout" label="Checkout progress" value="shipping" pressable="visited"
+      completed-text="Completed" error-text="Has an error" position-text="Step {position} of {count}">
+      <tanrei-stepper-step value="account" label="Account"></tanrei-stepper-step>
+      <tanrei-stepper-step value="shipping" label="Shipping" description="Address and delivery"></tanrei-stepper-step>
+      <tanrei-stepper-step value="gift" label="Gift wrap" description="Optional"></tanrei-stepper-step>
+      <tanrei-stepper-step value="payment" label="Payment"></tanrei-stepper-step>
+    </tanrei-stepper>
+
+    <script type="module">
+      import '@tanrei/web/components/stepper';
+      const stepper = document.querySelector('#checkout');
+      // Pressing a step asks to go there. The flow decides, then moves value.
+      stepper.addEventListener('select', (e) => {
+        if (goTo(e.detail.value)) stepper.value = e.detail.value;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Stepper, StepperStep } from '@tanrei/react';
+
+    <Stepper
+      label="Checkout progress"
+      value={step}
+      pressable="visited"
+      completedText="Completed"
+      errorText="Has an error"
+      positionText="Step {position} of {count}"
+      onSelect={(e) => setStep(e.detail.value)}
+    >
+      <StepperStep value="account" label="Account" />
+      <StepperStep value="shipping" label="Shipping" status={shippingError ? 'error' : 'auto'} />
+      <StepperStep value="payment" label="Payment" />
+      <StepperStep value="review" label="Review" />
+    </Stepper>
+    ```
+  </TabItem>
+</Tabs>
+
+The words are yours: `completed-text` and `error-text` are what assistive technology hears after a step's label, and `position-text` is the compact form's line, with the places `{position}` and `{count}`. Give them once for every stepper with `setWords({ stepCompletedText, stepErrorText, stepPositionText })`.
+
+## Specs
+
+<DemoFrame label="Vertical, and compact" plain>
+  <tanrei-stepper label="Set-up" value="profile" layout="vertical" completed-text="Completed" error-text="Has an error" style="inline-size: 320px">
+    <tanrei-stepper-step value="account" label="Create an account" description="Email and password"></tanrei-stepper-step>
+    <tanrei-stepper-step value="profile" label="Your profile" description="Name and photo"></tanrei-stepper-step>
+    <tanrei-stepper-step value="team" label="Invite your team" description="Optional"></tanrei-stepper-step>
+    <tanrei-stepper-step value="done" label="Start working"></tanrei-stepper-step>
+  </tanrei-stepper>
+  <tanrei-stepper label="Checkout progress" value="shipping" layout="compact" completed-text="Completed" error-text="Has an error" position-text="Step {position} of {count}" style="inline-size: 280px">
+    <tanrei-stepper-step value="account" label="Account"></tanrei-stepper-step>
+    <tanrei-stepper-step value="shipping" label="Shipping"></tanrei-stepper-step>
+    <tanrei-stepper-step value="gift" label="Gift wrap"></tanrei-stepper-step>
+    <tanrei-stepper-step value="payment" label="Payment"></tanrei-stepper-step>
+    <tanrei-stepper-step value="review" label="Review"></tanrei-stepper-step>
+  </tanrei-stepper>
+</DemoFrame>
+
+<ComponentSpecs name="stepper" />
+
+## Guidelines
+
+### When to use
+
+Use a stepper when a person goes through a flow of three to seven steps in an order the product sets, and knowing where they are, and how much is left, helps them finish: a checkout, a sign-up with several parts, an application. Show it above the step's content (horizontal), or beside it in a column (vertical).
+
+Don't use a stepper:
+
+- for instructions a reader works through on their own. That is [Steps](/components/steps/): a numbered procedure with no position, whose markers are plain rings and never show progress.
+- for a flow of two steps, or one so short that the position tells nothing. A heading that says what this page is for is enough.
+- for a long list of independent tasks done in any order. That is a task list: one row per task with its status, each a link.
+- in place of the flow's own navigation. Keep the Back and Continue buttons. A stepper says where the person is; it is not how most people move.
+
+### Conditions
+
+| Condition | What it means | How it is drawn |
+| --- | --- | --- |
+| Current | Where the person is. | A filled marker with the step's number. |
+| Complete | Done. By default every step before the current one. | A marker with a check. |
+| Error | Needs the person's attention, wherever it stands. | A ring and a priority glyph, and the label in the error color. |
+| Incomplete | Still to come. By default every step after the current one. | A ring with the step's number. |
+
+`status` on a step is `auto` by default: complete before the current step, incomplete after it. Set it when your flow knows more: `error` for a step that needs fixing, `complete` for a step done out of order, `incomplete` for a step that was skipped and still has to be done. Each condition differs by its marker's shape, not by color alone.
+
+When the flow is finished, leave `value` empty and mark every step `complete`.
+
+### Going back to a step
+
+- `pressable="visited"` lets the person press the steps they have been to — complete or with an error — to go back. Most flows want this.
+- `pressable="all"` lets them press any step that isn't current, for a flow whose steps can be done in any order.
+- `pressable="none"` (the default) only shows the position.
+
+A step that can be pressed looks the same as one that can't until it is hovered or focused, as in most systems. If your users need more of a hint, say so near the stepper ("Select a step to change it"). The current step is never pressable. A step that can't be gone to yet (it depends on an earlier choice) is `disabled`: it is drawn faded and announced as unavailable.
+
+### Narrow screens
+
+A horizontal stepper turns compact by itself when its width can't hold every step at its least width: a bar of segments filled up to the current step, the position in your words ("Step 2 of 5"), and the current step's label. `layout="compact"` asks for that form at any width. The compact form can't be pressed: the flow's Back button does that job. `layout="vertical"` keeps every step visible in a column instead.
+
+### Do
+
+- Name steps by what the person does or gives, in a word or two: Account, Shipping, Payment, Review.
+- Keep the number of steps the same from start to finish. If a step only sometimes applies, show it and skip it, rather than adding it halfway.
+- Put the error on the step where the person can fix it, with a short description of what is wrong.
+
+### Don't
+
+- Don't use the stepper as the only way to move forward.
+- Don't write numbers into the labels. The marker shows the number and the list announces it.
+- Don't use a stepper for a page's sections or for tabs. Those are [Tabs](/components/tabs/) or a table of contents.
+
+## Accessibility
+
+<ComponentAccessibility name="stepper" />
+
+### What the component handles
+
+- The stepper is an ordered list named by its `label`. Each step is an item read as its label, then the word for its condition (`completed-text`, `error-text`), then its description. The list gives each step its place ("3 of 4"), so the number in the marker isn't read again.
+- The current step is exposed as the current step (`aria-current="step"`).
+- A pressable step is a native button and a Tab stop, in the order of the steps. Enter and Space press it. A step that can't be pressed is plain text and not a stop. A disabled step of a pressable stepper is a disabled button.
+- Markers, glyphs, connectors and the bar are hidden from assistive technology.
+- Conditions differ by shape as well as color: a filled marker, a check, a priority glyph, a ring.
+- In the compact form the stepper is one group named by its label, reading what is drawn: the position and the current step's label, and the error word where the current step has one.
+- Labels and descriptions wrap and are never cut. At larger text sizes everything grows, and the stepper still turns compact by the width it has.
+- Under forced colors the current marker takes the highlight color and everything else the text color.
+- Debug builds report a missing label, a value that names no step, an empty or repeated step value, a step with no label, a stepper with fewer than two steps, a current step marked disabled, a position sentence without `{position}`, and a missing word.
+
+### What you need to do
+
+- Give the stepper a `label` that says which flow it tracks ("Checkout progress").
+- Give `completed-text`, `error-text` and `position-text` in your language, or once with `setWords()`.
+- Keep the flow's own Back and Continue buttons, and move focus to the new step's heading when the step changes, so a screen reader user hears where they are.
+- When a step has an error, show the error itself in the step's content too. The stepper only says that the step needs attention.

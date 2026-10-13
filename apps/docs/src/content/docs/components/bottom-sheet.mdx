@@ -208,9 +208,9 @@ Use a [side sheet](/components/side-sheet/) for the same kind of content on a wi
   <tanrei-main-action-button label="New" onclick="document.getElementById('bottom-sheet-demo-actions').open = true"><span slot="icon">add</span></tanrei-main-action-button>
   <tanrei-bottom-sheet id="bottom-sheet-demo-actions" label="New" handle-label="Resize sheet" flush onclose="this.open = false">
     <tanrei-list>
-      <tanrei-list-item headline="Document" leading-icon="description" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
-      <tanrei-list-item headline="Folder" leading-icon="folder" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
-      <tanrei-list-item headline="Upload a file" leading-icon="upload" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+      <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">Document</tanrei-list-item>
+      <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">Folder</tanrei-list-item>
+      <tanrei-list-item interactive onclick="this.closest('tanrei-bottom-sheet').open = false">Upload a file</tanrei-list-item>
     </tanrei-list>
   </tanrei-bottom-sheet>
 </DemoFrame>

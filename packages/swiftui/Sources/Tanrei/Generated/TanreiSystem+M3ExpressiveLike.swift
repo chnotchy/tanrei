@@ -786,6 +786,7 @@ private let m3ExpressiveLikeBottomSheetTokens = TanreiBottomSheetTokens(
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   controls: TanreiBottomSheetControls(
     dragHandle: TanreiBottomSheetControlTokens(
@@ -3505,6 +3506,7 @@ private let m3ExpressiveLikeDateTimePickerTokens = TanreiDateTimePickerTokens(
   modalMotionEnterScale: 0.95,
   modalMotionOpenDuration: 300,
   modalMotionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  modalScrimBlur: 0,
   modalScrimColor: .role(.scrim),
   motionDialDuration: 250,
   motionDialEasing: TanreiCubicBezier(0.2, 0, 0, 1),
@@ -3667,6 +3669,7 @@ private let m3ExpressiveLikeDialogTokens = TanreiDialogTokens(
   motionEnterScale: 0.95,
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurfaceVariant),
   supportingTextTypescale: m3ExpressiveLikeTypescale.body
@@ -3681,6 +3684,28 @@ private let m3ExpressiveLikeDividerTokens = TanreiDividerTokens(
   lineThickness: 1,
   lineWaveAmplitude: 2,
   lineWaveWavelength: 16
+)
+
+private let m3ExpressiveLikeDropZoneTokens = TanreiDropZoneTokens(
+  iconColor: .role(.primary),
+  iconSize: 32,
+  labelColor: .role(.onSurface),
+  labelTypescale: m3ExpressiveLikeTypescale.bodyLarge,
+  motionDuration: 150,
+  motionEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  outlineColor: .role(.primary),
+  outlineWidth: 2,
+  panelContainerColor: .role(.surfaceContainerHigh),
+  panelElevation: m3ExpressiveLikeElevation.level2,
+  panelGap: 12,
+  panelMargin: 16,
+  panelMaxWidth: 360,
+  panelPaddingBlock: 24,
+  panelPaddingInline: 24,
+  panelShape: 16,
+  refusingIconColor: .role(.error),
+  refusingOutlineColor: .role(.error),
+  scrimColor: .role(.scrim)
 )
 
 private let m3ExpressiveLikeEmbeddedTextInputTokens = TanreiEmbeddedTextInputTokens(
@@ -4378,8 +4403,7 @@ private let m3ExpressiveLikeFilePickerTokens = TanreiFilePickerTokens(
 )
 
 private let m3ExpressiveLikeFileUploadTokens = TanreiFileUploadTokens(
-  listGap: 16,
-  listItemGap: 12
+  listGap: 16
 )
 
 private let m3ExpressiveLikeImagePreviewTokens = TanreiImagePreviewTokens(
@@ -5101,95 +5125,56 @@ private let m3ExpressiveLikeLinkTokens = TanreiLinkTokens(
 )
 
 private let m3ExpressiveLikeListTokens = TanreiListTokens(
-  avatarShape: 9999,
-  avatarSize: 40,
   containerGap: 16,
-  containerHeightOneLine: 56,
-  containerHeightThreeLine: 88,
-  containerHeightTwoLine: 72,
+  containerHeight: 56,
   containerPaddingBlock: 8,
   containerPaddingInlineEnd: 24,
   containerPaddingInlineStart: 16,
   containerShape: 0,
+  contentTypescale: m3ExpressiveLikeTypescale.bodyLarge,
   dividerColor: .role(.outlineVariant),
   dividerThickness: 1,
   draggedContainerColor: .role(.surfaceContainerHigh),
   draggedContainerElevation: m3ExpressiveLikeElevation.level3,
-  handleColor: .role(.onSurfaceVariant),
-  handleSize: 24,
-  headlineTypescale: m3ExpressiveLikeTypescale.bodyLarge,
-  imageShape: 8,
-  imageSize: 56,
-  leadingIconSize: 24,
+  gapLarge: 24,
+  gapMedium: 16,
+  gapSmall: 12,
   markSize: 24,
   markWidth: 2,
-  mediaContainerColor: .role(.surfaceContainerHighest),
-  mediaContentColor: .role(.onSurfaceVariant),
   motionFeedbackDuration: 450,
   motionReorderDuration: 300,
   motionReorderEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  moveButtonsGap: 0,
-  overlineTypescale: m3ExpressiveLikeTypescale.labelSmall,
-  reorderTextMinWidth: 96,
-  supportingTextTypescale: m3ExpressiveLikeTypescale.body,
-  trailingIconSize: 24,
-  trailingTextTypescale: m3ExpressiveLikeTypescale.labelSmall,
   conditions: TanreiListConditions(
     unselected: TanreiListConditionTokens(
       enabled: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSurface),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSurfaceVariant),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .none,
         stateLayerColor: .role(.onSurface)
       ),
       hovered: TanreiListConditionStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.08),
-        headlineColor: .role(.onSurface),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSurfaceVariant),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .none,
         stateLayerColor: .role(.onSurface)
       ),
       focused: TanreiListConditionStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
-        headlineColor: .role(.onSurface),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSurfaceVariant),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .none,
         stateLayerColor: .role(.onSurface)
       ),
       pressed: TanreiListConditionStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
-        headlineColor: .role(.onSurface),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSurfaceVariant),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .none,
         stateLayerColor: .role(.onSurface)
       ),
       disabled: TanreiListConditionStateTokens(
         containerColor: .none,
-        headlineColor: .role(.onSurface),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSurfaceVariant),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSurface),
         markColor: .none,
         stateLayerColor: .role(.onSurface)
       )
@@ -5197,56 +5182,31 @@ private let m3ExpressiveLikeListTokens = TanreiListTokens(
     selected: TanreiListConditionTokens(
       enabled: TanreiListConditionStateTokens(
         containerColor: .role(.secondaryContainer),
-        headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       hovered: TanreiListConditionStateTokens(
         containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.08),
-        headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       focused: TanreiListConditionStateTokens(
         containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.12),
-        headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       pressed: TanreiListConditionStateTokens(
         containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.12),
-        headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       ),
       disabled: TanreiListConditionStateTokens(
         containerColor: .role(.secondaryContainer),
-        headlineColor: .role(.onSecondaryContainer),
-        overlineColor: .role(.onSurfaceVariant),
-        supportingTextColor: .role(.onSurfaceVariant),
-        trailingTextColor: .role(.onSurfaceVariant),
-        leadingIconColor: .role(.onSecondaryContainer),
-        trailingIconColor: .role(.onSurfaceVariant),
+        contentColor: .role(.onSecondaryContainer),
         markColor: .role(.primary),
         stateLayerColor: .role(.onSecondaryContainer)
       )
@@ -5907,6 +5867,15 @@ private let m3ExpressiveLikeMenubarTokens = TanreiMenubarTokens(
   )
 )
 
+private let m3ExpressiveLikeModalLayerTokens = TanreiModalLayerTokens(
+  motionEnterDuration: 300,
+  motionEnterEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
+  motionExitDuration: 200,
+  motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
+  scrimBlur: 0,
+  scrimColor: .role(.scrim)
+)
+
 private let m3ExpressiveLikeNavigationBarTokens = TanreiNavigationBarTokens(
   containerColor: .role(.surfaceContainer),
   containerElevation: m3ExpressiveLikeElevation.level0,
@@ -6182,6 +6151,7 @@ private let m3ExpressiveLikeNavigationDrawerTokens = TanreiNavigationDrawerToken
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   outlineWidth: 1,
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   variants: TanreiNavigationDrawerVariants(
     standard: TanreiNavigationDrawerVariantTokens(
@@ -7060,6 +7030,7 @@ private let m3ExpressiveLikeSearchTokens = TanreiSearchTokens(
   viewOffset: 4,
   viewPaddingBlock: 4,
   viewPaddingInline: 4,
+  viewScrimBlur: 0,
   viewScrimColor: .role(.scrim),
   viewViewportMargin: 8,
   conditions: TanreiSearchConditions(
@@ -7571,6 +7542,7 @@ private let m3ExpressiveLikeSideSheetTokens = TanreiSideSheetTokens(
   motionExitDuration: 200,
   motionExitEasing: TanreiCubicBezier(0.3, 0, 0.8, 0.15),
   outlineWidth: 1,
+  scrimBlur: 0,
   scrimColor: .role(.scrim),
   variants: TanreiSideSheetVariants(
     standard: TanreiSideSheetVariantTokens(
@@ -8089,6 +8061,243 @@ private let m3ExpressiveLikeSnackbarTokens = TanreiSnackbarTokens(
   )
 )
 
+private let m3ExpressiveLikeStepperTokens = TanreiStepperTokens(
+  barColor: .role(.outlineVariant),
+  barFilledColor: .role(.primary),
+  barGap: 4,
+  barShape: 9999,
+  barThickness: 4,
+  connectorColor: .role(.outlineVariant),
+  connectorCompleteColor: .role(.primary),
+  connectorGap: 4,
+  connectorThickness: 2,
+  containerPadding: 8,
+  containerShape: 8,
+  descriptionGap: 2,
+  descriptionTypescale: m3ExpressiveLikeTypescale.bodySmall,
+  labelTypescale: m3ExpressiveLikeTypescale.label,
+  markerGap: 8,
+  markerIconSize: 16,
+  markerIconWeight: 400,
+  markerLabelTypescale: m3ExpressiveLikeTypescale.labelSmall,
+  markerOutlineWidth: 2,
+  markerShape: 9999,
+  markerSize: 24,
+  motionFeedbackDuration: 450,
+  motionStateDuration: 150,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  positionColor: .role(.onSurfaceVariant),
+  positionGap: 8,
+  positionTypescale: m3ExpressiveLikeTypescale.labelSmall,
+  stepMinWidth: 120,
+  conditions: TanreiStepperConditions(
+    incomplete: TanreiStepperConditionTokens(
+      enabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .none,
+        markerOutlineColor: .role(.outline),
+        markerContentColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurfaceVariant),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurfaceVariant)
+      ),
+      hovered: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.08),
+        markerColor: .none,
+        markerOutlineColor: .role(.outline),
+        markerContentColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurfaceVariant),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurfaceVariant)
+      ),
+      focused: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.12),
+        markerColor: .none,
+        markerOutlineColor: .role(.outline),
+        markerContentColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurfaceVariant),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurfaceVariant)
+      ),
+      pressed: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurfaceVariant), amount: 0.12),
+        markerColor: .none,
+        markerOutlineColor: .role(.outline),
+        markerContentColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurfaceVariant),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurfaceVariant)
+      ),
+      disabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .none,
+        markerOutlineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        markerContentColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        descriptionColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    current: TanreiStepperConditionTokens(
+      enabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .role(.primary),
+        markerOutlineColor: .role(.primary),
+        markerContentColor: .role(.onPrimary),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      hovered: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.08),
+        markerColor: .role(.primary),
+        markerOutlineColor: .role(.primary),
+        markerContentColor: .role(.onPrimary),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      focused: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
+        markerColor: .role(.primary),
+        markerOutlineColor: .role(.primary),
+        markerContentColor: .role(.onPrimary),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      pressed: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
+        markerColor: .role(.primary),
+        markerOutlineColor: .role(.primary),
+        markerContentColor: .role(.onPrimary),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      disabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .role(.primary),
+        markerOutlineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        markerContentColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        descriptionColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    complete: TanreiStepperConditionTokens(
+      enabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .role(.secondaryContainer),
+        markerOutlineColor: .role(.secondaryContainer),
+        markerContentColor: .role(.onSecondaryContainer),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      hovered: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.08),
+        markerColor: .role(.secondaryContainer),
+        markerOutlineColor: .role(.secondaryContainer),
+        markerContentColor: .role(.onSecondaryContainer),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      focused: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
+        markerColor: .role(.secondaryContainer),
+        markerOutlineColor: .role(.secondaryContainer),
+        markerContentColor: .role(.onSecondaryContainer),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      pressed: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
+        markerColor: .role(.secondaryContainer),
+        markerOutlineColor: .role(.secondaryContainer),
+        markerContentColor: .role(.onSecondaryContainer),
+        labelColor: .role(.onSurface),
+        descriptionColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      disabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .role(.secondaryContainer),
+        markerOutlineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        markerContentColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        descriptionColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    error: TanreiStepperConditionTokens(
+      enabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .none,
+        markerOutlineColor: .role(.error),
+        markerContentColor: .role(.error),
+        labelColor: .role(.error),
+        descriptionColor: .role(.error),
+        stateLayerColor: .role(.error)
+      ),
+      hovered: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.error), amount: 0.08),
+        markerColor: .none,
+        markerOutlineColor: .role(.error),
+        markerContentColor: .role(.error),
+        labelColor: .role(.error),
+        descriptionColor: .role(.error),
+        stateLayerColor: .role(.error)
+      ),
+      focused: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.error), amount: 0.12),
+        markerColor: .none,
+        markerOutlineColor: .role(.error),
+        markerContentColor: .role(.error),
+        labelColor: .role(.error),
+        descriptionColor: .role(.error),
+        stateLayerColor: .role(.error)
+      ),
+      pressed: TanreiStepperConditionStateTokens(
+        containerColor: .mix(base: .none, with: .role(.error), amount: 0.12),
+        markerColor: .none,
+        markerOutlineColor: .role(.error),
+        markerContentColor: .role(.error),
+        labelColor: .role(.error),
+        descriptionColor: .role(.error),
+        stateLayerColor: .role(.error)
+      ),
+      disabled: TanreiStepperConditionStateTokens(
+        containerColor: .none,
+        markerColor: .none,
+        markerOutlineColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        markerContentColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        descriptionColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    )
+  ),
+  hovered: TanreiStepperStateTokens(
+    containerShape: 8,
+    opacity: 1
+  ),
+  focused: TanreiStepperStateTokens(
+    containerShape: 8,
+    opacity: 1
+  ),
+  pressed: TanreiStepperStateTokens(
+    containerShape: 8,
+    opacity: 1
+  ),
+  disabled: TanreiStepperStateTokens(
+    containerShape: 8,
+    opacity: 1
+  )
+)
+
 private let m3ExpressiveLikeStepsTokens = TanreiStepsTokens(
   bodyGap: 8,
   connectorColor: .role(.outlineVariant),
@@ -8113,6 +8322,44 @@ private let m3ExpressiveLikeStepsTokens = TanreiStepsTokens(
       markerLabelTypescale: m3ExpressiveLikeTypescale.label,
       titleTypescale: m3ExpressiveLikeTypescale.heading5,
       bodyTypescale: m3ExpressiveLikeTypescale.bodyLarge
+    )
+  )
+)
+
+private let m3ExpressiveLikeSwatchTokens = TanreiSwatchTokens(
+  checkerboardAlternateColor: .role(.surfaceContainerHighest),
+  checkerboardColor: .role(.surface),
+  checkerboardSize: 4,
+  labelColor: .role(.onSurface),
+  outlineColor: .role(.outlineVariant),
+  outlineWidth: 1,
+  supportingTextColor: .role(.onSurfaceVariant),
+  sizes: TanreiSwatchSizes(
+    small: TanreiSwatchSizeTokens(
+      containerSize: 16,
+      gap: 4,
+      labelTypescale: m3ExpressiveLikeTypescale.bodySmall,
+      supportingTextTypescale: m3ExpressiveLikeTypescale.caption
+    ),
+    medium: TanreiSwatchSizeTokens(
+      containerSize: 24,
+      gap: 8,
+      labelTypescale: m3ExpressiveLikeTypescale.body,
+      supportingTextTypescale: m3ExpressiveLikeTypescale.bodySmall
+    ),
+    large: TanreiSwatchSizeTokens(
+      containerSize: 32,
+      gap: 12,
+      labelTypescale: m3ExpressiveLikeTypescale.body,
+      supportingTextTypescale: m3ExpressiveLikeTypescale.bodySmall
+    )
+  ),
+  shapes: TanreiSwatchShapes(
+    square: TanreiSwatchShapeTokens(
+      containerShape: 4
+    ),
+    circle: TanreiSwatchShapeTokens(
+      containerShape: 9999
     )
   )
 )
@@ -9550,6 +9797,7 @@ extension TanreiSystem {
     descriptionList: m3ExpressiveLikeDescriptionListTokens,
     dialog: m3ExpressiveLikeDialogTokens,
     divider: m3ExpressiveLikeDividerTokens,
+    dropZone: m3ExpressiveLikeDropZoneTokens,
     embeddedTextInput: m3ExpressiveLikeEmbeddedTextInputTokens,
     emptyState: m3ExpressiveLikeEmptyStateTokens,
     fabMenu: m3ExpressiveLikeFabMenuTokens,
@@ -9570,6 +9818,7 @@ extension TanreiSystem {
     mainActionButton: m3ExpressiveLikeMainActionButtonTokens,
     menu: m3ExpressiveLikeMenuTokens,
     menubar: m3ExpressiveLikeMenubarTokens,
+    modalLayer: m3ExpressiveLikeModalLayerTokens,
     navigationBar: m3ExpressiveLikeNavigationBarTokens,
     navigationDrawer: m3ExpressiveLikeNavigationDrawerTokens,
     navigationRail: m3ExpressiveLikeNavigationRailTokens,
@@ -9588,7 +9837,9 @@ extension TanreiSystem {
     skeleton: m3ExpressiveLikeSkeletonTokens,
     slider: m3ExpressiveLikeSliderTokens,
     snackbar: m3ExpressiveLikeSnackbarTokens,
+    stepper: m3ExpressiveLikeStepperTokens,
     steps: m3ExpressiveLikeStepsTokens,
+    swatch: m3ExpressiveLikeSwatchTokens,
     switch: m3ExpressiveLikeSwitchTokens,
     tabView: m3ExpressiveLikeTabViewTokens,
     tableOfContents: m3ExpressiveLikeTableOfContentsTokens,

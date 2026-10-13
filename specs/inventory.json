@@ -93,10 +93,17 @@
       "listing": "default"
     },
     {
+      "name": "modal-layer",
+      "title": "Modal layer",
+      "category": "containment",
+      "level": "base",
+      "listing": "advanced"
+    },
+    {
       "name": "dialog",
       "title": "Dialog",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default"
     },
     {
@@ -173,7 +180,7 @@
       "name": "navigation-drawer",
       "title": "Navigation drawer",
       "category": "navigation",
-      "level": "base",
+      "level": "composed",
       "listing": "default"
     },
     {
@@ -201,14 +208,14 @@
       "name": "bottom-sheet",
       "title": "Bottom sheet",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default"
     },
     {
       "name": "side-sheet",
       "title": "Side sheet",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default"
     },
     {
@@ -361,6 +368,13 @@
     {
       "name": "pagination",
       "title": "Pagination",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "stepper",
+      "title": "Stepper",
       "category": "navigation",
       "level": "base",
       "listing": "default"
@@ -576,6 +590,13 @@
       "listing": "default"
     },
     {
+      "name": "drop-zone",
+      "title": "Drop zone",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
+    },
+    {
       "name": "embedded-text-input",
       "title": "Embedded text input",
       "category": "text-inputs",
@@ -587,6 +608,13 @@
       "title": "Chat composer",
       "category": "text-inputs",
       "level": "feature",
+      "listing": "default"
+    },
+    {
+      "name": "swatch",
+      "title": "Swatch",
+      "category": "communication",
+      "level": "base",
       "listing": "default"
     }
   ]

@@ -1,0 +1,165 @@
+---
+title: Capa modal
+description: La capa que hay bajo toda superficie modal. Atenúa la ventana detrás de lo que presenta, vuelve inerte todo lo que hay ahí, lleva el foco al interior, lo mantiene dentro y lo devuelve, y pide cerrarse con Escape, con la acción de retroceso de la plataforma o con una pulsación en el velo. Cambia su estilo una vez y todas las superficies modales lo siguen.
+translationOf: components/modal-layer.mdx
+sourceHash: e6ede40ce27d5047b0691b404bc90d640cff347a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="modal-layer" />
+
+<DemoFrame label="Una capa modal alrededor de una tarjeta propia: ábrela con el botón">
+  <tanrei-button variant="outlined" onclick="document.getElementById('modal-layer-demo').open = true">Exportar fotos</tanrei-button>
+  <tanrei-modal-layer id="modal-layer-demo" label="Exportar fotos" onclose="this.open = false">
+    <tanrei-card variant="elevated" style="inline-size: 20rem; max-inline-size: calc(100vw - 2rem); padding: 1.5rem">
+      <p style="margin-block: 0 1rem">Hay 24 fotos listas para exportar.</p>
+      <tanrei-button autofocus onclick="this.closest('tanrei-modal-layer').open = false">Listo</tanrei-button>
+    </tanrei-card>
+  </tanrei-modal-layer>
+</DemoFrame>
+
+Toda superficie modal tiene debajo la misma capa. Atenúa la ventana detrás de la superficie, de modo que la página se lee como apartada. Vuelve inerte todo lo que hay ahí: nada de lo que queda detrás puede pulsarse, recibir el foco ni ser leído por un lector de pantalla, y la página no se desplaza. Lleva el foco al interior de la superficie, lo mantiene ahí mientras está abierta y lo devuelve cuando se cierra. Y pide cerrarse cuando la persona pulsa Escape, usa la acción de retroceso de la plataforma o pulsa el velo.
+
+La capa modal es esa capa, convertida en un componente propio. El [diálogo](/es/components/dialog/), la [hoja lateral](/es/components/side-sheet/) y la [hoja inferior](/es/components/bottom-sheet/) cuando son modales, el [panel de navegación](/es/components/navigation-drawer/) modal, la [vista previa de imágenes](/es/components/image-preview/), el [selector de fecha y hora](/es/components/date-time-picker/) modal y las vistas modales de la [búsqueda](/es/components/search/) se construyen todos con ella. Cada uno sigue sus reglas en lugar de tener unas propias.
+
+Es un componente **avanzado**. Te lo encuentras de dos maneras:
+
+- **Para cambiar el estilo de todas las superficies modales a la vez.** Los tokens de la capa, `comp.modal-layer.*`, son a los que apuntan los tokens de velo y de movimiento de cada uno de esos componentes. Defínelos en la capa de tu producto y todas las superficies modales cambian juntas: el color y la opacidad del velo, un desenfoque de lo que queda detrás y cuánto tarda la capa en aparecer y en irse.
+- **Para construir una superficie modal que Tanrei no tiene**: una paleta de comandos, una vista que ocupa toda la ventana, un visor propio. Pon tu superficie dentro de la capa y se comportará como cualquier otra superficie modal de tu producto.
+
+Para una decisión, usa el diálogo. Para un panel, usa la hoja lateral o la hoja inferior modales. Ya se dan un nombre, colocan sus acciones y ofrecen una salida.
+
+En la web es `<tanrei-modal-layer>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+La capa es un componente controlado. Define `open` para mostrarla. Cuando la persona pide cerrarla, emite `close` con el motivo (`escape`, `back` o `scrim`) y sigue abierta: eres tú quien vuelve a poner `open` en false. Dale una `label`, que es el nombre que anuncia un lector de pantalla.
+
+La capa no dibuja nada propio salvo el velo. Tu contenido conserva su propio color, su forma y su margen interior, y la capa lo centra en la ventana con su propio tamaño. Colócalo en otro sitio con los medios propios de la plataforma (en la web, `::part(container)`).
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="open-palette" variant="text">Comandos</tanrei-button>
+
+    <tanrei-modal-layer label="Comandos">
+      <div class="palette">
+        <!-- autofocus marca el foco inicial. Sin él, el foco va al contenedor de la capa. -->
+        <input autofocus aria-label="Buscar comandos">
+        <ul>…</ul>
+      </div>
+    </tanrei-modal-layer>
+
+    <style>
+      /* Coloca tú el contenedor: aquí, cerca de la parte superior de la ventana. */
+      tanrei-modal-layer::part(container) { margin-block-start: 15vh; }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/modal-layer';
+      const layer = document.querySelector('tanrei-modal-layer');
+      document.querySelector('#open-palette').addEventListener('click', () => (layer.open = true));
+      // Escape, retroceso o una pulsación en el velo. La capa nunca se cierra sola.
+      layer.addEventListener('close', (event) => {
+        console.log(event.detail.reason); // 'escape', 'back' o 'scrim'
+        layer.open = false;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ModalLayer } from '@tanrei/react';
+
+    <ModalLayer open={open} label="Comandos" onClose={() => setOpen(false)}>
+      <CommandPalette />
+    </ModalLayer>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    Todavía no está implementado. La forma prevista es un modificador de vista: `.tanreiModalLayer(isPresented:, accessibilityLabel:, onClose:) { … }`.
+  </TabItem>
+  <TabItem label="Compose">
+    Todavía no está implementado. La forma prevista es `TanreiModalLayer(visible, onCloseRequest, contentDescription) { … }`.
+  </TabItem>
+  <TabItem label="Flutter">
+    Todavía no está implementado. La forma prevista es `TanreiModalLayer(open:, onClose:, semanticLabel:, child: …)`.
+  </TabItem>
+  <TabItem label="React Native">
+    Todavía no está implementado. La forma prevista es `<ModalLayer visible onClose accessibilityLabel>…</ModalLayer>`.
+  </TabItem>
+</Tabs>
+
+### Cambiar el estilo de todas las superficies modales
+
+Un producto define los tokens de la capa en su archivo de capa, y todas las superficies modales lo siguen:
+
+```json
+{
+  "tokens": {
+    "tanrei.comp.modal-layer.scrim.color": { "$value": "{tanrei.sys.color.scrim}" },
+    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "Nuestras superficies modales esmerilan lo que queda detrás de ellas." },
+    "tanrei.comp.modal-layer.motion.enter-duration": { "$value": "{tanrei.sys.motion.duration.medium4}" }
+  }
+}
+```
+
+La opacidad del velo es el alfa de su color: cambia el color, o el rol `scrim` del sistema, para hacerlo más claro o más oscuro. Para diferenciar una sola superficie, define en su lugar el token propio de esa superficie (`comp.dialog.scrim.color`, `comp.side-sheet.motion.enter-duration`). Apunta al de la capa hasta que lo hagas.
+
+## Especificaciones
+
+<ComponentSpecs name="modal-layer" />
+
+## Pautas
+
+### Qué hace la capa y qué te deja a ti
+
+| La capa | Tu contenido |
+| --- | --- |
+| Atenúa la ventana que hay detrás (o no dibuja nada, con `scrim` desactivado), hasta todos los bordes. | Su propio color, forma, sombra y margen interior. La capa no añade ninguno. |
+| Vuelve inerte todo lo que hay detrás e impide que la página se desplace. | Su propio desplazamiento, cuando es más alto que la ventana. |
+| Lleva el foco al interior, lo mantiene ahí y lo devuelve al cerrarse. | Marca el elemento que debe recibir el foco primero, si lo hay. |
+| Pide cerrarse con Escape, con la acción de retroceso de la plataforma y con una pulsación en el velo. | Una salida propia: un botón Cerrar, Cancelar o Listo. |
+| Centra el contenedor en la ventana con el tamaño de su contenido. | Dónde va en su lugar, si no es en el centro. |
+
+### Sin el velo
+
+Desactiva `scrim` para un contenido que cubre toda la ventana con un relleno propio, como un visor sobre un fondo oscuro. No queda nada que atenuar. La capa sigue bloqueando todo lo que hay detrás, y una pulsación fuera de tu contenido sigue pidiendo que se cierre.
+
+### Recomendado
+
+- Da nombre a la capa con `label`. Un lector de pantalla lo anuncia cuando el foco entra.
+- Pon una salida visible en el contenido. No todo el mundo conoce Escape, y la acción de retroceso no existe en todos los dispositivos.
+- Cambia las superficies modales de un producto mediante `comp.modal-layer.*`, para que sigan siendo parecidas.
+
+### Evita
+
+- No construyas un diálogo ni una hoja con la capa sin nada más. Usa el diálogo o la hoja, que ya ofrecen un titular, acciones y su lugar.
+- No desactives `dismissible` sin una salida en el contenido. La persona no tendría forma de salir.
+- No la uses para algo que no deba bloquear la página. Un popover, un menú o un snackbar dejan la página utilizable.
+
+## Accesibilidad
+
+<ComponentAccessibility name="modal-layer" />
+
+### De qué se encarga el componente
+
+- El contenedor es un diálogo modal, con `label` como nombre. Mientras está abierto, todo lo que queda fuera está oculto para la tecnología de apoyo.
+- El foco entra en la capa cuando se abre, incluso cuando se escribe ya abierta. Va al elemento que marcaste o, si no, al contenedor, de modo que el nombre se lee primero.
+- Tab y Mayús+Tab dan la vuelta dentro de la capa. El foco nunca llega a la página que queda detrás.
+- Al cerrarse, el foco vuelve adonde estaba. Si ese elemento ya no existe, el foco va adonde lo pone la plataforma.
+- Escape solo pide cerrar cuando todo lo que hay dentro ya lo ha recibido. Un campo que borra su texto con Escape, o un menú que se cierra, mantiene abierta la capa.
+- Una capa abierta desde dentro de otra se apila encima de ella. Solo la que está más arriba responde a Escape, a la acción de retroceso y a su velo.
+
+### Qué debes hacer tú
+
+- Da una `label` que diga para qué sirve la superficie.
+- Marca el primer elemento que debe recibir el foco cuando un formulario o un campo de búsqueda sea el motivo de la superficie.
+- Da al contenido un control visible que lo cierre, y deja `dismissible` activado salvo que ese control exista.

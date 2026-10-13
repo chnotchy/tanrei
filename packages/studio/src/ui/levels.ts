@@ -189,7 +189,7 @@ function brandPanel(ctx: Ctx) {
   const row = () => studio.paletteRows(ctx.layer()).find((r: Json) => r.name === 'primary')!;
   const fallback = () => ctx.view().model.colors.light.primary.value.hex;
   const seed = seedControls(ctx, 'primary', () => row().source?.seed ?? fallback(), (seed, live) => ctx.commit(studio.setPalette(ctx.layer(), 'primary', { source: { seed } }), { preview: live }));
-  const swatch = h('div', { class: 'ts-swatch', style: `background: var(${studio.cssVar(`${studio.namespace}.ref.palette.primary.50`)});`, 'data-swatch': true });
+  const swatch = h('tanrei-swatch', { class: 'ts-swatch', decorative: true, size: 'large', color: `var(${studio.cssVar(`${studio.namespace}.ref.palette.primary.50`)})`, 'data-swatch': true });
   const note = h('small');
   const reset = linkButton(t.reset, () => ctx.commit(studio.setPalette(ctx.layer(), 'primary', undefined)), { 'aria-label': t.labelled(t.reset, 'primary') });
   const refresh = () => {
@@ -213,13 +213,13 @@ function paletteRow(ctx: Ctx, palette: Json) {
   const now = () => studio.paletteRows(ctx.layer()).find((r: Json) => r.name === name) ?? palette;
   const title = (note: string | HTMLElement) => h('div', { class: 'ts-row-title' }, h('span', { dir: 'auto', text: name }), typeof note === 'string' ? h('small', { text: note }) : note);
   if (palette.dropped) {
-    return h('div', { class: 'ts-row ts-palette', 'data-palette': name, 'data-dropped': true }, h('div', { class: 'ts-swatch' }), title(t.color.dropped), h('div', { class: 'ts-row-actions' }, linkButton(t.color.restore, () => ctx.commit(studio.restorePalette(ctx.layer(), name), { rebuild: true }), { 'aria-label': t.labelled(t.color.restore, name) })));
+    return h('div', { class: 'ts-row ts-palette', 'data-palette': name, 'data-dropped': true }, h('tanrei-swatch', { class: 'ts-swatch', decorative: true, size: 'large' }), title(t.color.dropped), h('div', { class: 'ts-row-actions' }, linkButton(t.color.restore, () => ctx.commit(studio.restorePalette(ctx.layer(), name), { rebuild: true }), { 'aria-label': t.labelled(t.color.restore, name) })));
   }
   const note = h('small');
   const reset = palette.inherited ? linkButton(t.reset, () => ctx.commit(studio.setPalette(ctx.layer(), name, undefined), { rebuild: true }), { 'aria-label': t.labelled(t.reset, name) }) : null;
   const drop = palette.droppable || palette.added ? linkButton(palette.added ? t.color.remove : t.color.drop, () => ctx.commit(studio.dropPalette(ctx.layer(), name), { rebuild: true }), { 'aria-label': t.labelled(palette.added ? t.color.remove : t.color.drop, name) }) : null;
   const usesSeed = !palette.source || 'seed' in palette.source;
-  const swatch = h('div', { class: 'ts-swatch', style: `background: var(${studio.cssVar(`${NS}.ref.palette.${name}.50`)});`, 'data-swatch': true });
+  const swatch = h('tanrei-swatch', { class: 'ts-swatch', decorative: true, size: 'large', color: `var(${studio.cssVar(`${NS}.ref.palette.${name}.50`)})`, 'data-swatch': true });
 
   let lead: HTMLElement;
   const fields: HTMLElement[] = [];

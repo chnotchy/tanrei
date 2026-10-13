@@ -94,9 +94,10 @@ export const styles = css`
       translate: 0 ${t('motion-enter-offset')};
     }
   }
-  /* DLG-1: the scrim, over the whole window behind the dialog, fading with it. */
+  /* DLG-1, MDL-1: the modal layer's scrim, over the whole window behind the dialog (its color and blur), fading with it. */
   dialog::backdrop {
     background: ${t('scrim-color')};
+    backdrop-filter: blur(${t('scrim-blur')});
     opacity: 0;
     transition-property: opacity, display, overlay;
     transition-duration: ${t('motion-exit-duration')};

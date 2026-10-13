@@ -284,8 +284,13 @@
         "scrim": {
           "color": {
             "$type": "color",
-            "$description": "Dims the content behind a modal drawer.",
-            "$value": "{tanrei.sys.color.scrim}"
+            "$description": "Dims the content behind a modal drawer: the modal layer's scrim, unless a system sets the drawer apart.",
+            "$value": "{tanrei.comp.modal-layer.scrim.color}"
+          },
+          "blur": {
+            "$type": "dimension",
+            "$value": "{tanrei.comp.modal-layer.scrim.blur}",
+            "$description": "How much the scrim behind a modal drawer blurs what lies behind it: the modal layer's (0, none, in the default system)."
           }
         },
         "heading": {
@@ -694,21 +699,21 @@
           },
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.medium2}",
-            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout."
+            "$value": "{tanrei.comp.modal-layer.motion.enter-duration}",
+            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
-            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout."
+            "$value": "{tanrei.comp.modal-layer.motion.exit-duration}",
+            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout: the modal layer's."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
           },
           "selection-duration": {
             "$type": "duration",

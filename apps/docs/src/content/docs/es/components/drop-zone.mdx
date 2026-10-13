@@ -1,0 +1,164 @@
+---
+title: Zona de soltar archivos
+description: Envuelve cualquier parte de una pantalla para que se puedan soltar archivos en cualquier punto de ella, mientras todo lo que contiene funciona como antes. No dibuja nada hasta que se arrastran archivos sobre ella; entonces cubre toda la zona con un único mensaje y entrega a tu producto los archivos que aceptó y los que rechazó.
+translationOf: components/drop-zone.mdx
+sourceHash: a96e90c3c5f7b4c3242c447e16ce8a353e6d79ca
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## Descripción general
+
+<ComponentAvailability name="drop-zone" />
+
+<DemoFrame label="Una pantalla de videos dentro de una zona de soltar archivos. Arrastra un archivo desde tu equipo a cualquier punto de ella: toda la pantalla muestra que se puede soltar. Soltarlo no cambia nada aquí: la página no conserva ningún archivo." column>
+  <tanrei-drop-zone class="not-content" style="inline-size: 30rem; max-inline-size: 100%; block-size: 16rem; border-radius: var(--tanrei-sys-shape-corner-medium)" multiple accept="video/*,image/*" drop-text="Suelta videos para subirlos" refusing-text="Solo se pueden subir videos e imágenes" dropped-text="Se recibieron {count} archivos" refused-text="No se pudieron recibir {count} archivos">
+    <div style="box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--tanrei-sys-color-surface-container-low); border-radius: inherit">
+      <tanrei-file-picker multiple accept="video/*,image/*" constraints-text="Videos o imágenes">
+        <tanrei-button slot="trigger" variant="outlined">Subir videos</tanrei-button>
+      </tanrei-file-picker>
+      <span>Tráiler del canal · 1:24</span>
+      <span>Novedades de primavera · 8:03</span>
+      <span>Detrás de cámaras · 12:47</span>
+    </div>
+  </tanrei-drop-zone>
+</DemoFrame>
+
+Una zona de soltar archivos convierte una pantalla entera, o cualquier parte de ella, en un lugar donde se pueden soltar archivos. Envuelve con ella una lista de documentos, una biblioteca de videos, una conversación o la región principal de tu aplicación. Todo lo que hay dentro sigue funcionando como antes: los botones, las tablas y los campos se pulsan, se desplazan y se alcanzan con el teclado como si la zona no estuviera. La zona no añade paso del cursor, ni pulsación, ni parada de foco, ni rol.
+
+Mientras se arrastran archivos sobre ella, una única superposición cubre la zona: un oscurecimiento sobre el contenido, un borde a su alrededor y un panel con un glifo de subida y tu mensaje. Cuando se sueltan los archivos, la zona los juzga con la misma regla que el [selector de archivos](/es/components/file-picker/) y te los entrega: los archivos aceptados, con `select`; los rechazados, con `reject`. Pásalos a un [control de subida de archivos](/es/components/file-upload/), o a una lista tuya.
+
+<Callout type="caution" title="Nunca la única forma">
+Arrastrar un archivo es un movimiento del puntero que un teclado, un lector de pantalla, el control por voz y la mayoría de las pantallas táctiles no pueden hacer. Una pantalla con una zona de soltar archivos ofrece siempre también un [selector de archivos](/es/components/file-picker/) o un [control de subida de archivos](/es/components/file-upload/): en una barra de herramientas, en una barra de la aplicación o en un estado vacío. Una compilación de depuración notifica una página que no tiene ninguno de los dos.
+</Callout>
+
+Usa en su lugar la disposición con zona para soltar del selector de archivos cuando el lugar donde soltar es una zona delimitada dentro de un formulario, que además se pulsa para abrir el selector.
+
+En la web es `<tanrei-drop-zone>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+Envuelve el contenido y escucha `select`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-drop-zone id="zone" multiple accept="video/*" max-size="2000000000"
+                      drop-text="Suelta videos para subirlos" silent>
+      <tanrei-file-upload id="uploads" multiple accept="video/*" max-size="2000000000"
+                          constraints-text="Videos, hasta 2 GB cada uno">
+        <tanrei-button slot="trigger" variant="outlined">Subir videos</tanrei-button>
+      </tanrei-file-upload>
+      <tanrei-table>…los videos del canal…</tanrei-table>
+    </tanrei-drop-zone>
+
+    <script type="module">
+      import '@tanrei/web/components/drop-zone';
+      import '@tanrei/web/components/file-upload';
+      import '@tanrei/web/components/button';
+
+      const uploads = document.querySelector('#uploads');
+      // El control de subida enumera los archivos soltados y dice cada uno, así que la zona no dice nada.
+      document.querySelector('#zone').addEventListener('select', ({ detail }) => uploads.add(detail.files));
+      // Un archivo rechazado tiene un motivo que es un nombre, no una frase. Dilo con tus propias palabras.
+      document.querySelector('#zone').addEventListener('reject', ({ detail }) => showRefused(detail.files));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, DropZone, FileUpload } from '@tanrei/react';
+
+    <DropZone multiple accept={['video/*']} dropText="Suelta videos para subirlos" silent
+      onSelect={(event) => uploads.current?.add(event.detail.files)}
+      onReject={(event) => showRefused(event.detail.files)}>
+      <FileUpload ref={uploads} multiple accept={['video/*']} constraintsText="Videos, hasta 2 GB cada uno">
+        <Button slot="trigger" variant="outlined">Subir videos</Button>
+      </FileUpload>
+      <VideoTable />
+    </DropZone>
+    ```
+  </TabItem>
+</Tabs>
+
+La caja de la zona es la caja de diseño del contenido. Dale estilo como a cualquier envoltorio: una altura, `display: grid`, `overflow`.
+
+## Especificaciones
+
+<ComponentSpecs name="drop-zone" />
+
+## Pautas
+
+### Dónde ponerla
+
+| Envuelve | Cuándo |
+| --- | --- |
+| La región principal de tu aplicación | La tarea principal de la pantalla es conservar archivos: una biblioteca, una unidad de almacenamiento, una lista de documentos. Los archivos se pueden soltar en cualquier punto donde la persona esté trabajando. |
+| Un solo panel o una sola lista | Solo una parte de la pantalla recibe archivos: los adjuntos de un registro, una conversación. |
+| En su lugar, la zona para soltar de un [selector de archivos](/es/components/file-picker/) | El lugar donde soltar es una zona delimitada de un formulario, que además se pulsa para abrir el selector. |
+
+Una zona dentro de otra recibe ella misma lo que se suelta mientras el arrastre está sobre ella, y lo mismo hace la zona para soltar de un selector de archivos que está dentro de una zona. Siempre gana el lugar más interior.
+
+### La superposición
+
+La superposición aparece solo mientras se arrastran archivos sobre la zona, y solo para archivos: el texto y los enlaces arrastrados se dejan al contenido, de modo que un campo de texto dentro de la zona los sigue recibiendo. Desaparece cuando el arrastre sale de la zona, se suelta o se cancela. Nunca recibe una pulsación ni un desplazamiento, así que nunca hace falta cerrarla.
+
+- El panel queda en el centro de la parte de la zona que está a la vista. Una zona más alta que la ventana sigue mostrando su mensaje donde la persona está mirando.
+- La superposición se queda dentro de la caja de la zona y por encima de todo lo que contiene. El contenido que debe quedar por encima de ella —un diálogo, un menú, un popover— está en la capa superior de la plataforma, como lo están las superposiciones de Tanrei.
+- Donde el navegador puede saber antes de soltar que nada de lo arrastrado se puede recibir —varios archivos donde se pide uno, o solo tipos que una lista de tipos de medio deja fuera—, la superposición lo rechaza: un glifo de bloqueo, un borde con el color de error y `refusingText`. Un navegador dice los tipos y un recuento, nunca nombres ni tamaños, así que un archivo demasiado grande, o con una extensión rechazada, se rechaza al soltarlo.
+
+### Límites y mensajes
+
+`accept`, `maxSize`, `maxFiles` y `multiple` funcionan exactamente igual que en el selector de archivos. Di los límites con palabras junto al selector de archivos o al control de subida de archivos de la misma pantalla: es ahí donde una persona los lee.
+
+| Propiedad | Qué dice | Se lee de tus textos cuando está vacía |
+| --- | --- | --- |
+| `dropText` | El mensaje de la superposición: «Suelta archivos para subirlos». | `dropZoneText` |
+| `refusingText` | El mensaje mientras la zona rechaza lo que se arrastra. | `dropZoneRefusingText` |
+| `droppedText` | Lo que oye la tecnología de apoyo después de soltar, con `{count}`: «Se añadieron \{count} archivos». | `filesDroppedText` |
+| `refusedText` | Lo que oye cuando se rechazaron archivos, con `{count}`. | `filesRefusedText` |
+
+Define estos textos una sola vez para todo el producto con `setWords()`. Tanrei no incluye textos propios.
+
+Si los archivos soltados van a un control de subida de archivos que tiene sus propias filas, define `silent`: el control de subida ya dice cada archivo que conservó o rechazó, y una acción de soltar debe decirse una sola vez.
+
+### Deshabilitada
+
+`disabled` impide soltar y nada más: ni superposición ni evento, mientras el contenido sigue tan utilizable como antes. Una zona deshabilitada sin ninguna zona habilitada a su alrededor sigue impidiendo que el navegador abra un archivo que se suelte en ella por error.
+
+### Recomendado
+
+- Ofrece siempre un selector de archivos o un control de subida de archivos en la misma pantalla.
+- Pasa lo que te da `select` al lugar que muestra los archivos, de inmediato.
+- Di cada rechazo donde la persona está mirando: un snackbar, una fila de tu lista.
+
+### Evita
+
+- No hagas de la zona de soltar archivos la única forma de añadir archivos.
+- No pongas una zona de soltar archivos alrededor de un solo control pequeño. Usa la zona para soltar del selector de archivos.
+- No esperes que un formulario envíe lo que se soltó. La zona no conserva nada y no participa en ningún formulario.
+
+## Accesibilidad
+
+<ComponentAccessibility name="drop-zone" />
+
+### De qué se encarga el componente
+
+- La zona no añade nada al contenido: ni rol, ni nombre, ni parada en el orden del foco, ni tecla. Quien usa el teclado o un lector de pantalla encuentra el contenido exactamente igual que sin ella.
+- La superposición se dibuja para la persona que arrastra y está oculta para la tecnología de apoyo.
+- Después de soltar, una única región activa dice de forma cortés cuántos archivos se aceptaron y cuántos se rechazaron, con tus palabras.
+- La superposición se distingue también sin color: el rechazo tiene su propio glifo y su propio mensaje, y en colores forzados el borde se dibuja más grueso con el color de resaltado.
+- Con el texto al 200%, el mensaje salta de línea y nunca se corta.
+
+Cómo está construido en la web: el contenido se queda en tu DOM, en el slot predeterminado. El host es `position: relative` y un contexto de apilamiento propio, así que no le pongas `position: static`. `select` y `reject` se propagan hacia arriba con los mismos detalles que en el selector de archivos.
+
+### Qué debes hacer tú
+
+- Ofrece un [selector de archivos](/es/components/file-picker/) o un [control de subida de archivos](/es/components/file-upload/) en la misma pantalla, para todas las personas que no pueden arrastrar.
+- Da `droppedText` y `refusedText`, o define `silent` donde un control de subida de archivos dice los archivos.
+- Di cada rechazo con palabras que una persona pueda ver.

@@ -3163,6 +3163,7 @@ class TanreiBottomSheetTokens {
     required this.motionFeedbackDuration,
     required this.motionStateDuration,
     required this.motionStateEasing,
+    required this.scrimBlur,
     required this.scrimColor,
     required this.controls,
     required this.hovered,
@@ -3214,6 +3215,8 @@ class TanreiBottomSheetTokens {
   final int motionStateDuration;
   /// `comp.bottom-sheet.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
+  /// `comp.bottom-sheet.scrim-blur`
+  final double scrimBlur;
   /// `comp.bottom-sheet.scrim-color`
   final TanreiPaint scrimColor;
   /// The `control` axis: `controls[control]`.
@@ -3249,6 +3252,7 @@ class TanreiBottomSheetTokens {
     int? motionFeedbackDuration,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
+    double? scrimBlur,
     TanreiPaint? scrimColor,
     TanreiBottomSheetControls? controls,
     TanreiBottomSheetStateTokens? hovered,
@@ -3277,6 +3281,7 @@ class TanreiBottomSheetTokens {
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        scrimBlur: scrimBlur ?? this.scrimBlur,
         scrimColor: scrimColor ?? this.scrimColor,
         controls: controls ?? this.controls,
         hovered: hovered ?? this.hovered,
@@ -8515,6 +8520,7 @@ class TanreiDateTimePickerTokens {
     required this.modalMotionEnterScale,
     required this.modalMotionOpenDuration,
     required this.modalMotionOpenEasing,
+    required this.modalScrimBlur,
     required this.modalScrimColor,
     required this.motionDialDuration,
     required this.motionDialEasing,
@@ -8652,6 +8658,8 @@ class TanreiDateTimePickerTokens {
   final int modalMotionOpenDuration;
   /// `comp.date-time-picker.modal-motion-open-easing`
   final TanreiCubicBezier modalMotionOpenEasing;
+  /// `comp.date-time-picker.modal-scrim-blur`
+  final double modalScrimBlur;
   /// `comp.date-time-picker.modal-scrim-color`
   final TanreiPaint modalScrimColor;
   /// `comp.date-time-picker.motion-dial-duration`
@@ -8778,6 +8786,7 @@ class TanreiDateTimePickerTokens {
     double? modalMotionEnterScale,
     int? modalMotionOpenDuration,
     TanreiCubicBezier? modalMotionOpenEasing,
+    double? modalScrimBlur,
     TanreiPaint? modalScrimColor,
     int? motionDialDuration,
     TanreiCubicBezier? motionDialEasing,
@@ -8865,6 +8874,7 @@ class TanreiDateTimePickerTokens {
         modalMotionEnterScale: modalMotionEnterScale ?? this.modalMotionEnterScale,
         modalMotionOpenDuration: modalMotionOpenDuration ?? this.modalMotionOpenDuration,
         modalMotionOpenEasing: modalMotionOpenEasing ?? this.modalMotionOpenEasing,
+        modalScrimBlur: modalScrimBlur ?? this.modalScrimBlur,
         modalScrimColor: modalScrimColor ?? this.modalScrimColor,
         motionDialDuration: motionDialDuration ?? this.motionDialDuration,
         motionDialEasing: motionDialEasing ?? this.motionDialEasing,
@@ -9111,6 +9121,7 @@ class TanreiDialogTokens {
     required this.motionEnterScale,
     required this.motionExitDuration,
     required this.motionExitEasing,
+    required this.scrimBlur,
     required this.scrimColor,
     required this.supportingTextColor,
     required this.supportingTextTypescale,
@@ -9172,6 +9183,8 @@ class TanreiDialogTokens {
   final int motionExitDuration;
   /// `comp.dialog.motion-exit-easing`
   final TanreiCubicBezier motionExitEasing;
+  /// `comp.dialog.scrim-blur`
+  final double scrimBlur;
   /// `comp.dialog.scrim-color`
   final TanreiPaint scrimColor;
   /// `comp.dialog.supporting-text-color`
@@ -9209,6 +9222,7 @@ class TanreiDialogTokens {
     double? motionEnterScale,
     int? motionExitDuration,
     TanreiCubicBezier? motionExitEasing,
+    double? scrimBlur,
     TanreiPaint? scrimColor,
     TanreiPaint? supportingTextColor,
     TanreiTextStyle? supportingTextTypescale,
@@ -9241,6 +9255,7 @@ class TanreiDialogTokens {
         motionEnterScale: motionEnterScale ?? this.motionEnterScale,
         motionExitDuration: motionExitDuration ?? this.motionExitDuration,
         motionExitEasing: motionExitEasing ?? this.motionExitEasing,
+        scrimBlur: scrimBlur ?? this.scrimBlur,
         scrimColor: scrimColor ?? this.scrimColor,
         supportingTextColor: supportingTextColor ?? this.supportingTextColor,
         supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
@@ -9297,6 +9312,114 @@ class TanreiDividerTokens {
         lineThickness: lineThickness ?? this.lineThickness,
         lineWaveAmplitude: lineWaveAmplitude ?? this.lineWaveAmplitude,
         lineWaveWavelength: lineWaveWavelength ?? this.lineWaveWavelength,
+      );
+}
+
+/// `comp.drop-zone.*`
+@immutable
+class TanreiDropZoneTokens {
+  const TanreiDropZoneTokens({
+    required this.iconColor,
+    required this.iconSize,
+    required this.labelColor,
+    required this.labelTypescale,
+    required this.motionDuration,
+    required this.motionEasing,
+    required this.outlineColor,
+    required this.outlineWidth,
+    required this.panelContainerColor,
+    required this.panelElevation,
+    required this.panelGap,
+    required this.panelMargin,
+    required this.panelMaxWidth,
+    required this.panelPaddingBlock,
+    required this.panelPaddingInline,
+    required this.panelShape,
+    required this.refusingIconColor,
+    required this.refusingOutlineColor,
+    required this.scrimColor,
+  });
+
+  /// `comp.drop-zone.icon-color`
+  final TanreiPaint iconColor;
+  /// `comp.drop-zone.icon-size`
+  final double iconSize;
+  /// `comp.drop-zone.label-color`
+  final TanreiPaint labelColor;
+  /// `comp.drop-zone.label-typescale`
+  final TanreiTextStyle labelTypescale;
+  /// `comp.drop-zone.motion-duration`
+  final int motionDuration;
+  /// `comp.drop-zone.motion-easing`
+  final TanreiCubicBezier motionEasing;
+  /// `comp.drop-zone.outline-color`
+  final TanreiPaint outlineColor;
+  /// `comp.drop-zone.outline-width`
+  final double outlineWidth;
+  /// `comp.drop-zone.panel-container-color`
+  final TanreiPaint panelContainerColor;
+  /// `comp.drop-zone.panel-elevation`
+  final List<TanreiShadowLayer> panelElevation;
+  /// `comp.drop-zone.panel-gap`
+  final double panelGap;
+  /// `comp.drop-zone.panel-margin`
+  final double panelMargin;
+  /// `comp.drop-zone.panel-max-width`
+  final double panelMaxWidth;
+  /// `comp.drop-zone.panel-padding-block`
+  final double panelPaddingBlock;
+  /// `comp.drop-zone.panel-padding-inline`
+  final double panelPaddingInline;
+  /// `comp.drop-zone.panel-shape`
+  final double panelShape;
+  /// `comp.drop-zone.refusing-icon-color`
+  final TanreiPaint refusingIconColor;
+  /// `comp.drop-zone.refusing-outline-color`
+  final TanreiPaint refusingOutlineColor;
+  /// `comp.drop-zone.scrim-color`
+  final TanreiPaint scrimColor;
+
+  /// A copy with the given tokens replaced.
+  TanreiDropZoneTokens copyWith({
+    TanreiPaint? iconColor,
+    double? iconSize,
+    TanreiPaint? labelColor,
+    TanreiTextStyle? labelTypescale,
+    int? motionDuration,
+    TanreiCubicBezier? motionEasing,
+    TanreiPaint? outlineColor,
+    double? outlineWidth,
+    TanreiPaint? panelContainerColor,
+    List<TanreiShadowLayer>? panelElevation,
+    double? panelGap,
+    double? panelMargin,
+    double? panelMaxWidth,
+    double? panelPaddingBlock,
+    double? panelPaddingInline,
+    double? panelShape,
+    TanreiPaint? refusingIconColor,
+    TanreiPaint? refusingOutlineColor,
+    TanreiPaint? scrimColor,
+  }) => TanreiDropZoneTokens(
+        iconColor: iconColor ?? this.iconColor,
+        iconSize: iconSize ?? this.iconSize,
+        labelColor: labelColor ?? this.labelColor,
+        labelTypescale: labelTypescale ?? this.labelTypescale,
+        motionDuration: motionDuration ?? this.motionDuration,
+        motionEasing: motionEasing ?? this.motionEasing,
+        outlineColor: outlineColor ?? this.outlineColor,
+        outlineWidth: outlineWidth ?? this.outlineWidth,
+        panelContainerColor: panelContainerColor ?? this.panelContainerColor,
+        panelElevation: panelElevation ?? this.panelElevation,
+        panelGap: panelGap ?? this.panelGap,
+        panelMargin: panelMargin ?? this.panelMargin,
+        panelMaxWidth: panelMaxWidth ?? this.panelMaxWidth,
+        panelPaddingBlock: panelPaddingBlock ?? this.panelPaddingBlock,
+        panelPaddingInline: panelPaddingInline ?? this.panelPaddingInline,
+        panelShape: panelShape ?? this.panelShape,
+        refusingIconColor: refusingIconColor ?? this.refusingIconColor,
+        refusingOutlineColor: refusingOutlineColor ?? this.refusingOutlineColor,
+        scrimColor: scrimColor ?? this.scrimColor,
       );
 }
 
@@ -11602,21 +11725,16 @@ class TanreiFilePickerTokens {
 class TanreiFileUploadTokens {
   const TanreiFileUploadTokens({
     required this.listGap,
-    required this.listItemGap,
   });
 
   /// `comp.file-upload.list-gap`
   final double listGap;
-  /// `comp.file-upload.list-item-gap`
-  final double listItemGap;
 
   /// A copy with the given tokens replaced.
   TanreiFileUploadTokens copyWith({
     double? listGap,
-    double? listItemGap,
   }) => TanreiFileUploadTokens(
         listGap: listGap ?? this.listGap,
-        listItemGap: listItemGap ?? this.listItemGap,
       );
 }
 
@@ -13272,30 +13390,15 @@ extension type const TanreiListCondition(String name) {
 class TanreiListConditionStateTokens {
   const TanreiListConditionStateTokens({
     required this.containerColor,
-    required this.headlineColor,
-    required this.overlineColor,
-    required this.supportingTextColor,
-    required this.trailingTextColor,
-    required this.leadingIconColor,
-    required this.trailingIconColor,
+    required this.contentColor,
     required this.markColor,
     required this.stateLayerColor,
   });
 
   /// `comp.list.<condition>.<state>.container-color`
   final TanreiPaint containerColor;
-  /// `comp.list.<condition>.<state>.headline-color`
-  final TanreiPaint headlineColor;
-  /// `comp.list.<condition>.<state>.overline-color`
-  final TanreiPaint overlineColor;
-  /// `comp.list.<condition>.<state>.supporting-text-color`
-  final TanreiPaint supportingTextColor;
-  /// `comp.list.<condition>.<state>.trailing-text-color`
-  final TanreiPaint trailingTextColor;
-  /// `comp.list.<condition>.<state>.leading-icon-color`
-  final TanreiPaint leadingIconColor;
-  /// `comp.list.<condition>.<state>.trailing-icon-color`
-  final TanreiPaint trailingIconColor;
+  /// `comp.list.<condition>.<state>.content-color`
+  final TanreiPaint contentColor;
   /// `comp.list.<condition>.<state>.mark-color`
   final TanreiPaint markColor;
   /// `comp.list.<condition>.<state>.state-layer-color`
@@ -13304,22 +13407,12 @@ class TanreiListConditionStateTokens {
   /// A copy with the given tokens replaced.
   TanreiListConditionStateTokens copyWith({
     TanreiPaint? containerColor,
-    TanreiPaint? headlineColor,
-    TanreiPaint? overlineColor,
-    TanreiPaint? supportingTextColor,
-    TanreiPaint? trailingTextColor,
-    TanreiPaint? leadingIconColor,
-    TanreiPaint? trailingIconColor,
+    TanreiPaint? contentColor,
     TanreiPaint? markColor,
     TanreiPaint? stateLayerColor,
   }) => TanreiListConditionStateTokens(
         containerColor: containerColor ?? this.containerColor,
-        headlineColor: headlineColor ?? this.headlineColor,
-        overlineColor: overlineColor ?? this.overlineColor,
-        supportingTextColor: supportingTextColor ?? this.supportingTextColor,
-        trailingTextColor: trailingTextColor ?? this.trailingTextColor,
-        leadingIconColor: leadingIconColor ?? this.leadingIconColor,
-        trailingIconColor: trailingIconColor ?? this.trailingIconColor,
+        contentColor: contentColor ?? this.contentColor,
         markColor: markColor ?? this.markColor,
         stateLayerColor: stateLayerColor ?? this.stateLayerColor,
       );
@@ -13450,41 +13543,27 @@ class TanreiListStateTokens {
 @immutable
 class TanreiListTokens {
   const TanreiListTokens({
-    required this.avatarShape,
-    required this.avatarSize,
     required this.containerGap,
-    required this.containerHeightOneLine,
-    required this.containerHeightThreeLine,
-    required this.containerHeightTwoLine,
+    required this.containerHeight,
     required this.containerPaddingBlock,
     required this.containerPaddingInlineEnd,
     required this.containerPaddingInlineStart,
     required this.containerShape,
+    required this.contentTypescale,
     required this.dividerColor,
     required this.dividerThickness,
     required this.draggedContainerColor,
     required this.draggedContainerElevation,
-    required this.handleColor,
-    required this.handleSize,
-    required this.headlineTypescale,
-    required this.imageShape,
-    required this.imageSize,
-    required this.leadingIconSize,
+    required this.gapLarge,
+    required this.gapMedium,
+    required this.gapSmall,
     required this.markSize,
     required this.markWidth,
-    required this.mediaContainerColor,
-    required this.mediaContentColor,
     required this.motionFeedbackDuration,
     required this.motionReorderDuration,
     required this.motionReorderEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
-    required this.moveButtonsGap,
-    required this.overlineTypescale,
-    required this.reorderTextMinWidth,
-    required this.supportingTextTypescale,
-    required this.trailingIconSize,
-    required this.trailingTextTypescale,
     required this.conditions,
     required this.hovered,
     required this.focused,
@@ -13492,18 +13571,10 @@ class TanreiListTokens {
     required this.disabled,
   });
 
-  /// `comp.list.avatar-shape`
-  final double avatarShape;
-  /// `comp.list.avatar-size`
-  final double avatarSize;
   /// `comp.list.container-gap`
   final double containerGap;
-  /// `comp.list.container-height-one-line`
-  final double containerHeightOneLine;
-  /// `comp.list.container-height-three-line`
-  final double containerHeightThreeLine;
-  /// `comp.list.container-height-two-line`
-  final double containerHeightTwoLine;
+  /// `comp.list.container-height`
+  final double containerHeight;
   /// `comp.list.container-padding-block`
   final double containerPaddingBlock;
   /// `comp.list.container-padding-inline-end`
@@ -13512,6 +13583,8 @@ class TanreiListTokens {
   final double containerPaddingInlineStart;
   /// `comp.list.container-shape`
   final double containerShape;
+  /// `comp.list.content-typescale`
+  final TanreiTextStyle contentTypescale;
   /// `comp.list.divider-color`
   final TanreiPaint dividerColor;
   /// `comp.list.divider-thickness`
@@ -13520,26 +13593,16 @@ class TanreiListTokens {
   final TanreiPaint draggedContainerColor;
   /// `comp.list.dragged-container-elevation`
   final List<TanreiShadowLayer> draggedContainerElevation;
-  /// `comp.list.handle-color`
-  final TanreiPaint handleColor;
-  /// `comp.list.handle-size`
-  final double handleSize;
-  /// `comp.list.headline-typescale`
-  final TanreiTextStyle headlineTypescale;
-  /// `comp.list.image-shape`
-  final double imageShape;
-  /// `comp.list.image-size`
-  final double imageSize;
-  /// `comp.list.leading-icon-size`
-  final double leadingIconSize;
+  /// `comp.list.gap-large`
+  final double gapLarge;
+  /// `comp.list.gap-medium`
+  final double gapMedium;
+  /// `comp.list.gap-small`
+  final double gapSmall;
   /// `comp.list.mark-size`
   final double markSize;
   /// `comp.list.mark-width`
   final double markWidth;
-  /// `comp.list.media-container-color`
-  final TanreiPaint mediaContainerColor;
-  /// `comp.list.media-content-color`
-  final TanreiPaint mediaContentColor;
   /// `comp.list.motion-feedback-duration`
   final int motionFeedbackDuration;
   /// `comp.list.motion-reorder-duration`
@@ -13550,18 +13613,6 @@ class TanreiListTokens {
   final int motionStateDuration;
   /// `comp.list.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
-  /// `comp.list.move-buttons-gap`
-  final double moveButtonsGap;
-  /// `comp.list.overline-typescale`
-  final TanreiTextStyle overlineTypescale;
-  /// `comp.list.reorder-text-min-width`
-  final double reorderTextMinWidth;
-  /// `comp.list.supporting-text-typescale`
-  final TanreiTextStyle supportingTextTypescale;
-  /// `comp.list.trailing-icon-size`
-  final double trailingIconSize;
-  /// `comp.list.trailing-text-typescale`
-  final TanreiTextStyle trailingTextTypescale;
   /// The `condition` axis: `conditions[condition]`.
   final TanreiListConditions conditions;
   /// `comp.list.hovered.*`
@@ -13575,82 +13626,54 @@ class TanreiListTokens {
 
   /// A copy with the given tokens replaced.
   TanreiListTokens copyWith({
-    double? avatarShape,
-    double? avatarSize,
     double? containerGap,
-    double? containerHeightOneLine,
-    double? containerHeightThreeLine,
-    double? containerHeightTwoLine,
+    double? containerHeight,
     double? containerPaddingBlock,
     double? containerPaddingInlineEnd,
     double? containerPaddingInlineStart,
     double? containerShape,
+    TanreiTextStyle? contentTypescale,
     TanreiPaint? dividerColor,
     double? dividerThickness,
     TanreiPaint? draggedContainerColor,
     List<TanreiShadowLayer>? draggedContainerElevation,
-    TanreiPaint? handleColor,
-    double? handleSize,
-    TanreiTextStyle? headlineTypescale,
-    double? imageShape,
-    double? imageSize,
-    double? leadingIconSize,
+    double? gapLarge,
+    double? gapMedium,
+    double? gapSmall,
     double? markSize,
     double? markWidth,
-    TanreiPaint? mediaContainerColor,
-    TanreiPaint? mediaContentColor,
     int? motionFeedbackDuration,
     int? motionReorderDuration,
     TanreiCubicBezier? motionReorderEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
-    double? moveButtonsGap,
-    TanreiTextStyle? overlineTypescale,
-    double? reorderTextMinWidth,
-    TanreiTextStyle? supportingTextTypescale,
-    double? trailingIconSize,
-    TanreiTextStyle? trailingTextTypescale,
     TanreiListConditions? conditions,
     TanreiListStateTokens? hovered,
     TanreiListStateTokens? focused,
     TanreiListStateTokens? pressed,
     TanreiListStateTokens? disabled,
   }) => TanreiListTokens(
-        avatarShape: avatarShape ?? this.avatarShape,
-        avatarSize: avatarSize ?? this.avatarSize,
         containerGap: containerGap ?? this.containerGap,
-        containerHeightOneLine: containerHeightOneLine ?? this.containerHeightOneLine,
-        containerHeightThreeLine: containerHeightThreeLine ?? this.containerHeightThreeLine,
-        containerHeightTwoLine: containerHeightTwoLine ?? this.containerHeightTwoLine,
+        containerHeight: containerHeight ?? this.containerHeight,
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
         containerPaddingInlineEnd: containerPaddingInlineEnd ?? this.containerPaddingInlineEnd,
         containerPaddingInlineStart: containerPaddingInlineStart ?? this.containerPaddingInlineStart,
         containerShape: containerShape ?? this.containerShape,
+        contentTypescale: contentTypescale ?? this.contentTypescale,
         dividerColor: dividerColor ?? this.dividerColor,
         dividerThickness: dividerThickness ?? this.dividerThickness,
         draggedContainerColor: draggedContainerColor ?? this.draggedContainerColor,
         draggedContainerElevation: draggedContainerElevation ?? this.draggedContainerElevation,
-        handleColor: handleColor ?? this.handleColor,
-        handleSize: handleSize ?? this.handleSize,
-        headlineTypescale: headlineTypescale ?? this.headlineTypescale,
-        imageShape: imageShape ?? this.imageShape,
-        imageSize: imageSize ?? this.imageSize,
-        leadingIconSize: leadingIconSize ?? this.leadingIconSize,
+        gapLarge: gapLarge ?? this.gapLarge,
+        gapMedium: gapMedium ?? this.gapMedium,
+        gapSmall: gapSmall ?? this.gapSmall,
         markSize: markSize ?? this.markSize,
         markWidth: markWidth ?? this.markWidth,
-        mediaContainerColor: mediaContainerColor ?? this.mediaContainerColor,
-        mediaContentColor: mediaContentColor ?? this.mediaContentColor,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionReorderDuration: motionReorderDuration ?? this.motionReorderDuration,
         motionReorderEasing: motionReorderEasing ?? this.motionReorderEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
-        moveButtonsGap: moveButtonsGap ?? this.moveButtonsGap,
-        overlineTypescale: overlineTypescale ?? this.overlineTypescale,
-        reorderTextMinWidth: reorderTextMinWidth ?? this.reorderTextMinWidth,
-        supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
-        trailingIconSize: trailingIconSize ?? this.trailingIconSize,
-        trailingTextTypescale: trailingTextTypescale ?? this.trailingTextTypescale,
         conditions: conditions ?? this.conditions,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
@@ -15031,6 +15054,49 @@ class TanreiMenubarTokens {
       };
 }
 
+/// `comp.modal-layer.*`
+@immutable
+class TanreiModalLayerTokens {
+  const TanreiModalLayerTokens({
+    required this.motionEnterDuration,
+    required this.motionEnterEasing,
+    required this.motionExitDuration,
+    required this.motionExitEasing,
+    required this.scrimBlur,
+    required this.scrimColor,
+  });
+
+  /// `comp.modal-layer.motion-enter-duration`
+  final int motionEnterDuration;
+  /// `comp.modal-layer.motion-enter-easing`
+  final TanreiCubicBezier motionEnterEasing;
+  /// `comp.modal-layer.motion-exit-duration`
+  final int motionExitDuration;
+  /// `comp.modal-layer.motion-exit-easing`
+  final TanreiCubicBezier motionExitEasing;
+  /// `comp.modal-layer.scrim-blur`
+  final double scrimBlur;
+  /// `comp.modal-layer.scrim-color`
+  final TanreiPaint scrimColor;
+
+  /// A copy with the given tokens replaced.
+  TanreiModalLayerTokens copyWith({
+    int? motionEnterDuration,
+    TanreiCubicBezier? motionEnterEasing,
+    int? motionExitDuration,
+    TanreiCubicBezier? motionExitEasing,
+    double? scrimBlur,
+    TanreiPaint? scrimColor,
+  }) => TanreiModalLayerTokens(
+        motionEnterDuration: motionEnterDuration ?? this.motionEnterDuration,
+        motionEnterEasing: motionEnterEasing ?? this.motionEnterEasing,
+        motionExitDuration: motionExitDuration ?? this.motionExitDuration,
+        motionExitEasing: motionExitEasing ?? this.motionExitEasing,
+        scrimBlur: scrimBlur ?? this.scrimBlur,
+        scrimColor: scrimColor ?? this.scrimColor,
+      );
+}
+
 /// The key of a condition of navigation-bar (`comp.navigation-bar`, axis `condition`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -15728,6 +15794,7 @@ class TanreiNavigationDrawerTokens {
     required this.motionStateDuration,
     required this.motionStateEasing,
     required this.outlineWidth,
+    required this.scrimBlur,
     required this.scrimColor,
     required this.variants,
     required this.conditions,
@@ -15831,6 +15898,8 @@ class TanreiNavigationDrawerTokens {
   final TanreiCubicBezier motionStateEasing;
   /// `comp.navigation-drawer.outline-width`
   final double outlineWidth;
+  /// `comp.navigation-drawer.scrim-blur`
+  final double scrimBlur;
   /// `comp.navigation-drawer.scrim-color`
   final TanreiPaint scrimColor;
   /// The `variant` axis: `variants[variant]`.
@@ -15895,6 +15964,7 @@ class TanreiNavigationDrawerTokens {
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
     double? outlineWidth,
+    double? scrimBlur,
     TanreiPaint? scrimColor,
     TanreiNavigationDrawerVariants? variants,
     TanreiNavigationDrawerConditions? conditions,
@@ -15950,6 +16020,7 @@ class TanreiNavigationDrawerTokens {
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         outlineWidth: outlineWidth ?? this.outlineWidth,
+        scrimBlur: scrimBlur ?? this.scrimBlur,
         scrimColor: scrimColor ?? this.scrimColor,
         variants: variants ?? this.variants,
         conditions: conditions ?? this.conditions,
@@ -18251,6 +18322,7 @@ class TanreiSearchTokens {
     required this.viewOffset,
     required this.viewPaddingBlock,
     required this.viewPaddingInline,
+    required this.viewScrimBlur,
     required this.viewScrimColor,
     required this.viewViewportMargin,
     required this.conditions,
@@ -18366,6 +18438,8 @@ class TanreiSearchTokens {
   final double viewPaddingBlock;
   /// `comp.search.view-padding-inline`
   final double viewPaddingInline;
+  /// `comp.search.view-scrim-blur`
+  final double viewScrimBlur;
   /// `comp.search.view-scrim-color`
   final TanreiPaint viewScrimColor;
   /// `comp.search.view-viewport-margin`
@@ -18436,6 +18510,7 @@ class TanreiSearchTokens {
     double? viewOffset,
     double? viewPaddingBlock,
     double? viewPaddingInline,
+    double? viewScrimBlur,
     TanreiPaint? viewScrimColor,
     double? viewViewportMargin,
     TanreiSearchConditions? conditions,
@@ -18497,6 +18572,7 @@ class TanreiSearchTokens {
         viewOffset: viewOffset ?? this.viewOffset,
         viewPaddingBlock: viewPaddingBlock ?? this.viewPaddingBlock,
         viewPaddingInline: viewPaddingInline ?? this.viewPaddingInline,
+        viewScrimBlur: viewScrimBlur ?? this.viewScrimBlur,
         viewScrimColor: viewScrimColor ?? this.viewScrimColor,
         viewViewportMargin: viewViewportMargin ?? this.viewViewportMargin,
         conditions: conditions ?? this.conditions,
@@ -19483,6 +19559,7 @@ class TanreiSideSheetTokens {
     required this.motionExitDuration,
     required this.motionExitEasing,
     required this.outlineWidth,
+    required this.scrimBlur,
     required this.scrimColor,
     required this.variants,
   });
@@ -19529,6 +19606,8 @@ class TanreiSideSheetTokens {
   final TanreiCubicBezier motionExitEasing;
   /// `comp.side-sheet.outline-width`
   final double outlineWidth;
+  /// `comp.side-sheet.scrim-blur`
+  final double scrimBlur;
   /// `comp.side-sheet.scrim-color`
   final TanreiPaint scrimColor;
   /// The `variant` axis: `variants[variant]`.
@@ -19557,6 +19636,7 @@ class TanreiSideSheetTokens {
     int? motionExitDuration,
     TanreiCubicBezier? motionExitEasing,
     double? outlineWidth,
+    double? scrimBlur,
     TanreiPaint? scrimColor,
     TanreiSideSheetVariants? variants,
   }) => TanreiSideSheetTokens(
@@ -19581,6 +19661,7 @@ class TanreiSideSheetTokens {
         motionExitDuration: motionExitDuration ?? this.motionExitDuration,
         motionExitEasing: motionExitEasing ?? this.motionExitEasing,
         outlineWidth: outlineWidth ?? this.outlineWidth,
+        scrimBlur: scrimBlur ?? this.scrimBlur,
         scrimColor: scrimColor ?? this.scrimColor,
         variants: variants ?? this.variants,
       );
@@ -20901,6 +20982,390 @@ class TanreiSnackbarTokens {
       };
 }
 
+/// The key of a condition of stepper (`comp.stepper`, axis `condition`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiStepperCondition('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [incomplete].
+extension type const TanreiStepperCondition(String name) {
+  static const incomplete = TanreiStepperCondition('incomplete');
+  static const current = TanreiStepperCondition('current');
+  static const complete = TanreiStepperCondition('complete');
+  static const error = TanreiStepperCondition('error');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiStepperCondition> core = <TanreiStepperCondition>[incomplete, current, complete, error];
+}
+
+/// What one condition of stepper looks like in one interaction state.
+@immutable
+class TanreiStepperConditionStateTokens {
+  const TanreiStepperConditionStateTokens({
+    required this.containerColor,
+    required this.markerColor,
+    required this.markerOutlineColor,
+    required this.markerContentColor,
+    required this.labelColor,
+    required this.descriptionColor,
+    required this.stateLayerColor,
+  });
+
+  /// `comp.stepper.<condition>.<state>.container-color`
+  final TanreiPaint containerColor;
+  /// `comp.stepper.<condition>.<state>.marker-color`
+  final TanreiPaint markerColor;
+  /// `comp.stepper.<condition>.<state>.marker-outline-color`
+  final TanreiPaint markerOutlineColor;
+  /// `comp.stepper.<condition>.<state>.marker-content-color`
+  final TanreiPaint markerContentColor;
+  /// `comp.stepper.<condition>.<state>.label-color`
+  final TanreiPaint labelColor;
+  /// `comp.stepper.<condition>.<state>.description-color`
+  final TanreiPaint descriptionColor;
+  /// `comp.stepper.<condition>.<state>.state-layer-color`
+  final TanreiPaint stateLayerColor;
+
+  /// A copy with the given tokens replaced.
+  TanreiStepperConditionStateTokens copyWith({
+    TanreiPaint? containerColor,
+    TanreiPaint? markerColor,
+    TanreiPaint? markerOutlineColor,
+    TanreiPaint? markerContentColor,
+    TanreiPaint? labelColor,
+    TanreiPaint? descriptionColor,
+    TanreiPaint? stateLayerColor,
+  }) => TanreiStepperConditionStateTokens(
+        containerColor: containerColor ?? this.containerColor,
+        markerColor: markerColor ?? this.markerColor,
+        markerOutlineColor: markerOutlineColor ?? this.markerOutlineColor,
+        markerContentColor: markerContentColor ?? this.markerContentColor,
+        labelColor: labelColor ?? this.labelColor,
+        descriptionColor: descriptionColor ?? this.descriptionColor,
+        stateLayerColor: stateLayerColor ?? this.stateLayerColor,
+      );
+}
+
+/// The per-state tokens of one stepper condition. How a state looks is a value of the design system;
+/// the widget only selects the state.
+@immutable
+class TanreiStepperConditionTokens {
+  const TanreiStepperConditionTokens({
+    required this.enabled,
+    required this.hovered,
+    required this.focused,
+    required this.pressed,
+    required this.disabled,
+  });
+
+  final TanreiStepperConditionStateTokens enabled;
+  final TanreiStepperConditionStateTokens hovered;
+  final TanreiStepperConditionStateTokens focused;
+  final TanreiStepperConditionStateTokens pressed;
+  final TanreiStepperConditionStateTokens disabled;
+
+  /// A copy with the given tokens replaced.
+  TanreiStepperConditionTokens copyWith({
+    TanreiStepperConditionStateTokens? enabled,
+    TanreiStepperConditionStateTokens? hovered,
+    TanreiStepperConditionStateTokens? focused,
+    TanreiStepperConditionStateTokens? pressed,
+    TanreiStepperConditionStateTokens? disabled,
+  }) => TanreiStepperConditionTokens(
+        enabled: enabled ?? this.enabled,
+        hovered: hovered ?? this.hovered,
+        focused: focused ?? this.focused,
+        pressed: pressed ?? this.pressed,
+        disabled: disabled ?? this.disabled,
+      );
+
+  /// The tokens of [state]; a state this component does not have resolves to `enabled`.
+  TanreiStepperConditionStateTokens of(TanreiInteractionState state) => switch (state) {
+        TanreiInteractionState.enabled => enabled,
+        TanreiInteractionState.hovered => hovered,
+        TanreiInteractionState.focused => focused,
+        TanreiInteractionState.pressed => pressed,
+        TanreiInteractionState.disabled => disabled,
+      };
+}
+
+/// Every condition of stepper: the core values by name, the values a design system added in [extra].
+/// Look one up with `conditions[key]`; the lookup is total.
+@immutable
+class TanreiStepperConditions {
+  const TanreiStepperConditions({
+    required this.incomplete,
+    required this.current,
+    required this.complete,
+    required this.error,
+    this.extra = const <TanreiStepperCondition, TanreiStepperConditionTokens>{},
+  });
+
+  /// `comp.stepper` condition `incomplete`
+  final TanreiStepperConditionTokens incomplete;
+  /// `comp.stepper` condition `current`
+  final TanreiStepperConditionTokens current;
+  /// `comp.stepper` condition `complete`
+  final TanreiStepperConditionTokens complete;
+  /// `comp.stepper` condition `error`
+  final TanreiStepperConditionTokens error;
+
+  /// The conditions a design system added to the core vocabulary.
+  final Map<TanreiStepperCondition, TanreiStepperConditionTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiStepperConditions copyWith({
+    TanreiStepperConditionTokens? incomplete,
+    TanreiStepperConditionTokens? current,
+    TanreiStepperConditionTokens? complete,
+    TanreiStepperConditionTokens? error,
+    Map<TanreiStepperCondition, TanreiStepperConditionTokens>? extra,
+  }) => TanreiStepperConditions(
+        incomplete: incomplete ?? this.incomplete,
+        current: current ?? this.current,
+        complete: complete ?? this.complete,
+        error: error ?? this.error,
+        extra: extra == null ? this.extra : <TanreiStepperCondition, TanreiStepperConditionTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [condition].
+  ///
+  /// A condition this design system does not have resolves to [incomplete], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiStepperConditionTokens operator [](TanreiStepperCondition condition) => switch (condition.name) {
+        'incomplete' => incomplete,
+        'current' => current,
+        'complete' => complete,
+        'error' => error,
+        _ => extra[condition] ?? _fallback(condition),
+      };
+
+  /// Whether this design system has [condition].
+  bool has(TanreiStepperCondition condition) => TanreiStepperCondition.core.contains(condition) || extra.containsKey(condition);
+
+  /// Every condition this design system has: the core values, then the added ones.
+  List<TanreiStepperCondition> get keys => <TanreiStepperCondition>[...TanreiStepperCondition.core, ...extra.keys];
+
+  TanreiStepperConditionTokens _fallback(TanreiStepperCondition condition) {
+    assert(() {
+      debugTanreiReportUnknownValue('stepper condition', condition.name, 'incomplete');
+      return true;
+    }());
+    return incomplete;
+  }
+}
+
+/// The tokens of stepper that vary by interaction state but not by variant.
+@immutable
+class TanreiStepperStateTokens {
+  const TanreiStepperStateTokens({
+    required this.containerShape,
+    required this.opacity,
+  });
+
+  /// `comp.stepper.<state>.container-shape`
+  final double containerShape;
+  /// `comp.stepper.<state>.opacity`
+  final double opacity;
+
+  /// A copy with the given tokens replaced.
+  TanreiStepperStateTokens copyWith({
+    double? containerShape,
+    double? opacity,
+  }) => TanreiStepperStateTokens(
+        containerShape: containerShape ?? this.containerShape,
+        opacity: opacity ?? this.opacity,
+      );
+}
+
+/// `comp.stepper.*`
+@immutable
+class TanreiStepperTokens {
+  const TanreiStepperTokens({
+    required this.barColor,
+    required this.barFilledColor,
+    required this.barGap,
+    required this.barShape,
+    required this.barThickness,
+    required this.connectorColor,
+    required this.connectorCompleteColor,
+    required this.connectorGap,
+    required this.connectorThickness,
+    required this.containerPadding,
+    required this.containerShape,
+    required this.descriptionGap,
+    required this.descriptionTypescale,
+    required this.labelTypescale,
+    required this.markerGap,
+    required this.markerIconSize,
+    required this.markerIconWeight,
+    required this.markerLabelTypescale,
+    required this.markerOutlineWidth,
+    required this.markerShape,
+    required this.markerSize,
+    required this.motionFeedbackDuration,
+    required this.motionStateDuration,
+    required this.motionStateEasing,
+    required this.positionColor,
+    required this.positionGap,
+    required this.positionTypescale,
+    required this.stepMinWidth,
+    required this.conditions,
+    required this.hovered,
+    required this.focused,
+    required this.pressed,
+    required this.disabled,
+  });
+
+  /// `comp.stepper.bar-color`
+  final TanreiPaint barColor;
+  /// `comp.stepper.bar-filled-color`
+  final TanreiPaint barFilledColor;
+  /// `comp.stepper.bar-gap`
+  final double barGap;
+  /// `comp.stepper.bar-shape`
+  final double barShape;
+  /// `comp.stepper.bar-thickness`
+  final double barThickness;
+  /// `comp.stepper.connector-color`
+  final TanreiPaint connectorColor;
+  /// `comp.stepper.connector-complete-color`
+  final TanreiPaint connectorCompleteColor;
+  /// `comp.stepper.connector-gap`
+  final double connectorGap;
+  /// `comp.stepper.connector-thickness`
+  final double connectorThickness;
+  /// `comp.stepper.container-padding`
+  final double containerPadding;
+  /// `comp.stepper.container-shape`
+  final double containerShape;
+  /// `comp.stepper.description-gap`
+  final double descriptionGap;
+  /// `comp.stepper.description-typescale`
+  final TanreiTextStyle descriptionTypescale;
+  /// `comp.stepper.label-typescale`
+  final TanreiTextStyle labelTypescale;
+  /// `comp.stepper.marker-gap`
+  final double markerGap;
+  /// `comp.stepper.marker-icon-size`
+  final double markerIconSize;
+  /// `comp.stepper.marker-icon-weight`
+  final double markerIconWeight;
+  /// `comp.stepper.marker-label-typescale`
+  final TanreiTextStyle markerLabelTypescale;
+  /// `comp.stepper.marker-outline-width`
+  final double markerOutlineWidth;
+  /// `comp.stepper.marker-shape`
+  final double markerShape;
+  /// `comp.stepper.marker-size`
+  final double markerSize;
+  /// `comp.stepper.motion-feedback-duration`
+  final int motionFeedbackDuration;
+  /// `comp.stepper.motion-state-duration`
+  final int motionStateDuration;
+  /// `comp.stepper.motion-state-easing`
+  final TanreiCubicBezier motionStateEasing;
+  /// `comp.stepper.position-color`
+  final TanreiPaint positionColor;
+  /// `comp.stepper.position-gap`
+  final double positionGap;
+  /// `comp.stepper.position-typescale`
+  final TanreiTextStyle positionTypescale;
+  /// `comp.stepper.step-min-width`
+  final double stepMinWidth;
+  /// The `condition` axis: `conditions[condition]`.
+  final TanreiStepperConditions conditions;
+  /// `comp.stepper.hovered.*`
+  final TanreiStepperStateTokens hovered;
+  /// `comp.stepper.focused.*`
+  final TanreiStepperStateTokens focused;
+  /// `comp.stepper.pressed.*`
+  final TanreiStepperStateTokens pressed;
+  /// `comp.stepper.disabled.*`
+  final TanreiStepperStateTokens disabled;
+
+  /// A copy with the given tokens replaced.
+  TanreiStepperTokens copyWith({
+    TanreiPaint? barColor,
+    TanreiPaint? barFilledColor,
+    double? barGap,
+    double? barShape,
+    double? barThickness,
+    TanreiPaint? connectorColor,
+    TanreiPaint? connectorCompleteColor,
+    double? connectorGap,
+    double? connectorThickness,
+    double? containerPadding,
+    double? containerShape,
+    double? descriptionGap,
+    TanreiTextStyle? descriptionTypescale,
+    TanreiTextStyle? labelTypescale,
+    double? markerGap,
+    double? markerIconSize,
+    double? markerIconWeight,
+    TanreiTextStyle? markerLabelTypescale,
+    double? markerOutlineWidth,
+    double? markerShape,
+    double? markerSize,
+    int? motionFeedbackDuration,
+    int? motionStateDuration,
+    TanreiCubicBezier? motionStateEasing,
+    TanreiPaint? positionColor,
+    double? positionGap,
+    TanreiTextStyle? positionTypescale,
+    double? stepMinWidth,
+    TanreiStepperConditions? conditions,
+    TanreiStepperStateTokens? hovered,
+    TanreiStepperStateTokens? focused,
+    TanreiStepperStateTokens? pressed,
+    TanreiStepperStateTokens? disabled,
+  }) => TanreiStepperTokens(
+        barColor: barColor ?? this.barColor,
+        barFilledColor: barFilledColor ?? this.barFilledColor,
+        barGap: barGap ?? this.barGap,
+        barShape: barShape ?? this.barShape,
+        barThickness: barThickness ?? this.barThickness,
+        connectorColor: connectorColor ?? this.connectorColor,
+        connectorCompleteColor: connectorCompleteColor ?? this.connectorCompleteColor,
+        connectorGap: connectorGap ?? this.connectorGap,
+        connectorThickness: connectorThickness ?? this.connectorThickness,
+        containerPadding: containerPadding ?? this.containerPadding,
+        containerShape: containerShape ?? this.containerShape,
+        descriptionGap: descriptionGap ?? this.descriptionGap,
+        descriptionTypescale: descriptionTypescale ?? this.descriptionTypescale,
+        labelTypescale: labelTypescale ?? this.labelTypescale,
+        markerGap: markerGap ?? this.markerGap,
+        markerIconSize: markerIconSize ?? this.markerIconSize,
+        markerIconWeight: markerIconWeight ?? this.markerIconWeight,
+        markerLabelTypescale: markerLabelTypescale ?? this.markerLabelTypescale,
+        markerOutlineWidth: markerOutlineWidth ?? this.markerOutlineWidth,
+        markerShape: markerShape ?? this.markerShape,
+        markerSize: markerSize ?? this.markerSize,
+        motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
+        motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        positionColor: positionColor ?? this.positionColor,
+        positionGap: positionGap ?? this.positionGap,
+        positionTypescale: positionTypescale ?? this.positionTypescale,
+        stepMinWidth: stepMinWidth ?? this.stepMinWidth,
+        conditions: conditions ?? this.conditions,
+        hovered: hovered ?? this.hovered,
+        focused: focused ?? this.focused,
+        pressed: pressed ?? this.pressed,
+        disabled: disabled ?? this.disabled,
+      );
+
+  /// The variant-independent tokens of [state], or null for a state that has none (`enabled`: the
+  /// resting tokens of this class apply).
+  TanreiStepperStateTokens? stateTokens(TanreiInteractionState state) => switch (state) {
+        TanreiInteractionState.enabled => null,
+        TanreiInteractionState.hovered => hovered,
+        TanreiInteractionState.focused => focused,
+        TanreiInteractionState.pressed => pressed,
+        TanreiInteractionState.disabled => disabled,
+      };
+}
+
 /// The key of a size of steps (`comp.steps`, axis `size`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -21072,6 +21537,258 @@ class TanreiStepsTokens {
         stepGap: stepGap ?? this.stepGap,
         titleGap: titleGap ?? this.titleGap,
         sizes: sizes ?? this.sizes,
+      );
+}
+
+/// The key of a size of swatch (`comp.swatch`, axis `size`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiSwatchSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiSwatchSize(String name) {
+  static const small = TanreiSwatchSize('small');
+  static const medium = TanreiSwatchSize('medium');
+  static const large = TanreiSwatchSize('large');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiSwatchSize> core = <TanreiSwatchSize>[small, medium, large];
+}
+
+/// The tokens of one swatch size.
+@immutable
+class TanreiSwatchSizeTokens {
+  const TanreiSwatchSizeTokens({
+    required this.containerSize,
+    required this.gap,
+    required this.labelTypescale,
+    required this.supportingTextTypescale,
+  });
+
+  /// `comp.swatch.container-size.<size>`
+  final double containerSize;
+  /// `comp.swatch.gap.<size>`
+  final double gap;
+  /// `comp.swatch.label-typescale.<size>`
+  final TanreiTextStyle labelTypescale;
+  /// `comp.swatch.supporting-text-typescale.<size>`
+  final TanreiTextStyle supportingTextTypescale;
+
+  /// A copy with the given tokens replaced.
+  TanreiSwatchSizeTokens copyWith({
+    double? containerSize,
+    double? gap,
+    TanreiTextStyle? labelTypescale,
+    TanreiTextStyle? supportingTextTypescale,
+  }) => TanreiSwatchSizeTokens(
+        containerSize: containerSize ?? this.containerSize,
+        gap: gap ?? this.gap,
+        labelTypescale: labelTypescale ?? this.labelTypescale,
+        supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
+      );
+}
+
+/// Every size of swatch: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
+@immutable
+class TanreiSwatchSizes {
+  const TanreiSwatchSizes({
+    required this.small,
+    required this.medium,
+    required this.large,
+    this.extra = const <TanreiSwatchSize, TanreiSwatchSizeTokens>{},
+  });
+
+  /// `comp.swatch` size `small`
+  final TanreiSwatchSizeTokens small;
+  /// `comp.swatch` size `medium`
+  final TanreiSwatchSizeTokens medium;
+  /// `comp.swatch` size `large`
+  final TanreiSwatchSizeTokens large;
+
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiSwatchSize, TanreiSwatchSizeTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiSwatchSizes copyWith({
+    TanreiSwatchSizeTokens? small,
+    TanreiSwatchSizeTokens? medium,
+    TanreiSwatchSizeTokens? large,
+    Map<TanreiSwatchSize, TanreiSwatchSizeTokens>? extra,
+  }) => TanreiSwatchSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        large: large ?? this.large,
+        extra: extra == null ? this.extra : <TanreiSwatchSize, TanreiSwatchSizeTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [size].
+  ///
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiSwatchSizeTokens operator [](TanreiSwatchSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        'large' => large,
+        _ => extra[size] ?? _fallback(size),
+      };
+
+  /// Whether this design system has [size].
+  bool has(TanreiSwatchSize size) => TanreiSwatchSize.core.contains(size) || extra.containsKey(size);
+
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiSwatchSize> get keys => <TanreiSwatchSize>[...TanreiSwatchSize.core, ...extra.keys];
+
+  TanreiSwatchSizeTokens _fallback(TanreiSwatchSize size) {
+    assert(() {
+      debugTanreiReportUnknownValue('swatch size', size.name, 'medium');
+      return true;
+    }());
+    return medium;
+  }
+}
+
+/// The key of a shape of swatch (`comp.swatch`, axis `shape`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiSwatchShape('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [square].
+extension type const TanreiSwatchShape(String name) {
+  static const square = TanreiSwatchShape('square');
+  static const circle = TanreiSwatchShape('circle');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiSwatchShape> core = <TanreiSwatchShape>[square, circle];
+}
+
+/// The tokens of one swatch shape.
+@immutable
+class TanreiSwatchShapeTokens {
+  const TanreiSwatchShapeTokens({
+    required this.containerShape,
+  });
+
+  /// `comp.swatch.container-shape.<shape>`
+  final double containerShape;
+
+  /// A copy with the given tokens replaced.
+  TanreiSwatchShapeTokens copyWith({
+    double? containerShape,
+  }) => TanreiSwatchShapeTokens(
+        containerShape: containerShape ?? this.containerShape,
+      );
+}
+
+/// Every shape of swatch: the core values by name, the values a design system added in [extra].
+/// Look one up with `shapes[key]`; the lookup is total.
+@immutable
+class TanreiSwatchShapes {
+  const TanreiSwatchShapes({
+    required this.square,
+    required this.circle,
+    this.extra = const <TanreiSwatchShape, TanreiSwatchShapeTokens>{},
+  });
+
+  /// `comp.swatch` shape `square`
+  final TanreiSwatchShapeTokens square;
+  /// `comp.swatch` shape `circle`
+  final TanreiSwatchShapeTokens circle;
+
+  /// The shapes a design system added to the core vocabulary.
+  final Map<TanreiSwatchShape, TanreiSwatchShapeTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiSwatchShapes copyWith({
+    TanreiSwatchShapeTokens? square,
+    TanreiSwatchShapeTokens? circle,
+    Map<TanreiSwatchShape, TanreiSwatchShapeTokens>? extra,
+  }) => TanreiSwatchShapes(
+        square: square ?? this.square,
+        circle: circle ?? this.circle,
+        extra: extra == null ? this.extra : <TanreiSwatchShape, TanreiSwatchShapeTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [shape].
+  ///
+  /// A shape this design system does not have resolves to [square], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiSwatchShapeTokens operator [](TanreiSwatchShape shape) => switch (shape.name) {
+        'square' => square,
+        'circle' => circle,
+        _ => extra[shape] ?? _fallback(shape),
+      };
+
+  /// Whether this design system has [shape].
+  bool has(TanreiSwatchShape shape) => TanreiSwatchShape.core.contains(shape) || extra.containsKey(shape);
+
+  /// Every shape this design system has: the core values, then the added ones.
+  List<TanreiSwatchShape> get keys => <TanreiSwatchShape>[...TanreiSwatchShape.core, ...extra.keys];
+
+  TanreiSwatchShapeTokens _fallback(TanreiSwatchShape shape) {
+    assert(() {
+      debugTanreiReportUnknownValue('swatch shape', shape.name, 'square');
+      return true;
+    }());
+    return square;
+  }
+}
+
+/// `comp.swatch.*`
+@immutable
+class TanreiSwatchTokens {
+  const TanreiSwatchTokens({
+    required this.checkerboardAlternateColor,
+    required this.checkerboardColor,
+    required this.checkerboardSize,
+    required this.labelColor,
+    required this.outlineColor,
+    required this.outlineWidth,
+    required this.supportingTextColor,
+    required this.sizes,
+    required this.shapes,
+  });
+
+  /// `comp.swatch.checkerboard-alternate-color`
+  final TanreiPaint checkerboardAlternateColor;
+  /// `comp.swatch.checkerboard-color`
+  final TanreiPaint checkerboardColor;
+  /// `comp.swatch.checkerboard-size`
+  final double checkerboardSize;
+  /// `comp.swatch.label-color`
+  final TanreiPaint labelColor;
+  /// `comp.swatch.outline-color`
+  final TanreiPaint outlineColor;
+  /// `comp.swatch.outline-width`
+  final double outlineWidth;
+  /// `comp.swatch.supporting-text-color`
+  final TanreiPaint supportingTextColor;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiSwatchSizes sizes;
+  /// The `shape` axis: `shapes[shape]`.
+  final TanreiSwatchShapes shapes;
+
+  /// A copy with the given tokens replaced.
+  TanreiSwatchTokens copyWith({
+    TanreiPaint? checkerboardAlternateColor,
+    TanreiPaint? checkerboardColor,
+    double? checkerboardSize,
+    TanreiPaint? labelColor,
+    TanreiPaint? outlineColor,
+    double? outlineWidth,
+    TanreiPaint? supportingTextColor,
+    TanreiSwatchSizes? sizes,
+    TanreiSwatchShapes? shapes,
+  }) => TanreiSwatchTokens(
+        checkerboardAlternateColor: checkerboardAlternateColor ?? this.checkerboardAlternateColor,
+        checkerboardColor: checkerboardColor ?? this.checkerboardColor,
+        checkerboardSize: checkerboardSize ?? this.checkerboardSize,
+        labelColor: labelColor ?? this.labelColor,
+        outlineColor: outlineColor ?? this.outlineColor,
+        outlineWidth: outlineWidth ?? this.outlineWidth,
+        supportingTextColor: supportingTextColor ?? this.supportingTextColor,
+        sizes: sizes ?? this.sizes,
+        shapes: shapes ?? this.shapes,
       );
 }
 
@@ -24636,6 +25353,7 @@ class TanreiSystem {
     required this.descriptionList,
     required this.dialog,
     required this.divider,
+    required this.dropZone,
     required this.embeddedTextInput,
     required this.emptyState,
     required this.fabMenu,
@@ -24656,6 +25374,7 @@ class TanreiSystem {
     required this.mainActionButton,
     required this.menu,
     required this.menubar,
+    required this.modalLayer,
     required this.navigationBar,
     required this.navigationDrawer,
     required this.navigationRail,
@@ -24674,7 +25393,9 @@ class TanreiSystem {
     required this.skeleton,
     required this.slider,
     required this.snackbar,
+    required this.stepper,
     required this.steps,
+    required this.swatch,
     required this.switch_,
     required this.tabView,
     required this.tableOfContents,
@@ -24729,6 +25450,7 @@ class TanreiSystem {
   final TanreiDescriptionListTokens descriptionList;
   final TanreiDialogTokens dialog;
   final TanreiDividerTokens divider;
+  final TanreiDropZoneTokens dropZone;
   final TanreiEmbeddedTextInputTokens embeddedTextInput;
   final TanreiEmptyStateTokens emptyState;
   final TanreiFabMenuTokens fabMenu;
@@ -24749,6 +25471,7 @@ class TanreiSystem {
   final TanreiMainActionButtonTokens mainActionButton;
   final TanreiMenuTokens menu;
   final TanreiMenubarTokens menubar;
+  final TanreiModalLayerTokens modalLayer;
   final TanreiNavigationBarTokens navigationBar;
   final TanreiNavigationDrawerTokens navigationDrawer;
   final TanreiNavigationRailTokens navigationRail;
@@ -24767,7 +25490,9 @@ class TanreiSystem {
   final TanreiSkeletonTokens skeleton;
   final TanreiSliderTokens slider;
   final TanreiSnackbarTokens snackbar;
+  final TanreiStepperTokens stepper;
   final TanreiStepsTokens steps;
+  final TanreiSwatchTokens swatch;
   final TanreiSwitchTokens switch_;
   final TanreiTabViewTokens tabView;
   final TanreiTableOfContentsTokens tableOfContents;
@@ -24821,6 +25546,7 @@ class TanreiSystem {
     TanreiDescriptionListTokens? descriptionList,
     TanreiDialogTokens? dialog,
     TanreiDividerTokens? divider,
+    TanreiDropZoneTokens? dropZone,
     TanreiEmbeddedTextInputTokens? embeddedTextInput,
     TanreiEmptyStateTokens? emptyState,
     TanreiFabMenuTokens? fabMenu,
@@ -24841,6 +25567,7 @@ class TanreiSystem {
     TanreiMainActionButtonTokens? mainActionButton,
     TanreiMenuTokens? menu,
     TanreiMenubarTokens? menubar,
+    TanreiModalLayerTokens? modalLayer,
     TanreiNavigationBarTokens? navigationBar,
     TanreiNavigationDrawerTokens? navigationDrawer,
     TanreiNavigationRailTokens? navigationRail,
@@ -24859,7 +25586,9 @@ class TanreiSystem {
     TanreiSkeletonTokens? skeleton,
     TanreiSliderTokens? slider,
     TanreiSnackbarTokens? snackbar,
+    TanreiStepperTokens? stepper,
     TanreiStepsTokens? steps,
+    TanreiSwatchTokens? swatch,
     TanreiSwitchTokens? switch_,
     TanreiTabViewTokens? tabView,
     TanreiTableOfContentsTokens? tableOfContents,
@@ -24911,6 +25640,7 @@ class TanreiSystem {
         descriptionList: descriptionList ?? this.descriptionList,
         dialog: dialog ?? this.dialog,
         divider: divider ?? this.divider,
+        dropZone: dropZone ?? this.dropZone,
         embeddedTextInput: embeddedTextInput ?? this.embeddedTextInput,
         emptyState: emptyState ?? this.emptyState,
         fabMenu: fabMenu ?? this.fabMenu,
@@ -24931,6 +25661,7 @@ class TanreiSystem {
         mainActionButton: mainActionButton ?? this.mainActionButton,
         menu: menu ?? this.menu,
         menubar: menubar ?? this.menubar,
+        modalLayer: modalLayer ?? this.modalLayer,
         navigationBar: navigationBar ?? this.navigationBar,
         navigationDrawer: navigationDrawer ?? this.navigationDrawer,
         navigationRail: navigationRail ?? this.navigationRail,
@@ -24949,7 +25680,9 @@ class TanreiSystem {
         skeleton: skeleton ?? this.skeleton,
         slider: slider ?? this.slider,
         snackbar: snackbar ?? this.snackbar,
+        stepper: stepper ?? this.stepper,
         steps: steps ?? this.steps,
+        swatch: swatch ?? this.swatch,
         switch_: switch_ ?? this.switch_,
         tabView: tabView ?? this.tabView,
         tableOfContents: tableOfContents ?? this.tableOfContents,

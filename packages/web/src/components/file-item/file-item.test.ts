@@ -2059,18 +2059,23 @@ test.describe('behavior', () => {
          </tanrei-file-upload></div>`,
       );
     });
-    await expect.poll(() => page.locator('[data-fixture="held"] tanrei-file-item').first().getAttribute('role')).toBe('listitem');
+    await expect.poll(() => page.locator('[data-fixture="held"] tanrei-file-item').first().getAttribute('role')).toBe('group');
     expect(await page.locator('[data-fixture="own-role"] tanrei-file-item').evaluate((el) => [el.getAttribute('role'), el.getAttribute('aria-label')])).toEqual(['row', 'A row of the product']);
-    // Held by a file upload: an item of its list in the group's place — by the upload's word, through no prop or attribute of its own.
+    // Held by a file upload: the content of an item of its List, and still the group named by its name — the List's item
+    // is the item of the list, so the file item is no list item of its own; nothing of that is a prop or attribute of its own.
     const items = page.locator('[data-fixture="held"] tanrei-file-item');
-    expect(await items.evaluateAll((all) => all.map((el) => [el.getAttribute('role'), el.hasAttribute('aria-label'), 'listItem' in el, el.hasAttribute('list-item')]))).toEqual(Array(3).fill(['listitem', false, false, false]));
+    expect(await items.evaluateAll((all) => all.map((el) => [el.getAttribute('role'), el.getAttribute('aria-label'), 'listItem' in el, el.hasAttribute('list-item')]))).toEqual([
+      ['group', 'brief.pdf', false, false],
+      ['group', 'floor-plan.png', false, false],
+      ['group', 'site-photo.png', false, false],
+    ]);
     await expect(stage(page, 'held').getByRole('listitem')).toHaveCount(3);
-    await expect(stage(page, 'held').getByRole('group', { name: 'brief.pdf' })).toHaveCount(0);
+    await expect(stage(page, 'held').getByRole('group', { name: 'brief.pdf' })).toHaveCount(1);
     // Taken out of the upload and put alone: a group named by its name again.
     await page.evaluate(() => document.querySelector('[data-fixture="own-role"]')!.append(document.querySelector('[data-fixture="held"] tanrei-file-item[value="a"]')!));
     await expect.poll(() => page.locator('[data-fixture="own-role"] tanrei-file-item[value="a"]').evaluate((el) => [el.getAttribute('role'), el.getAttribute('aria-label')])).toEqual(['group', 'brief.pdf']);
     await page.evaluate(() => document.querySelector('[data-fixture="held"] tanrei-file-upload')!.prepend(document.querySelector('[data-fixture="own-role"] tanrei-file-item[value="a"]')!));
-    await expect.poll(() => page.locator('[data-fixture="held"] tanrei-file-item[value="a"]').evaluate((el) => [el.getAttribute('role'), el.hasAttribute('aria-label')])).toEqual(['listitem', false]);
+    await expect.poll(() => page.locator('[data-fixture="held"] tanrei-file-item[value="a"]').evaluate((el) => [el.getAttribute('role'), el.getAttribute('aria-label')])).toEqual(['group', 'brief.pdf']);
     // What the browser computes for assistive technology (Chromium's accessibility tree).
     if (browserName === 'chromium') {
       await mountSpec(page, 'row-format', 'row-uploading', 'row-uploading-indeterminate', 'row-error-retryable', 'row-interactive', 'row-link-new', 'tile-name-hidden', 'tile-uploading');
@@ -2083,7 +2088,7 @@ test.describe('behavior', () => {
            </tanrei-file-upload></div>`,
         );
       });
-      await expect.poll(() => page.locator('[data-fixture="held"] tanrei-file-item').last().getAttribute('role')).toBe('listitem');
+      await expect.poll(() => page.locator('[data-fixture="held"] tanrei-file-item').last().getAttribute('role')).toBe('group');
       await frames(page);
       const client = await page.context().newCDPSession(page);
       await client.send('Accessibility.enable');
@@ -2118,7 +2123,7 @@ test.describe('behavior', () => {
         ['group:floor-plan.png', 'floor-plan.png', 'button:Remove floor-plan.png'],
         ['group:floor-plan.png', 'floor-plan.png', 'Uploading', 'progressbar:floor-plan.png 0.4', 'button:Remove floor-plan.png'],
       ]);
-      // In the upload: the list holds two items, each in the group's place, with what the upload gave every item.
+      // In the upload: the List holds two items, each holding the group named by its file, with what the upload gave every item.
       const listNode = nodes.find((node) => node.role?.value === 'list' && node.name?.value === 'Attachments')!;
       expect(listNode, 'the upload’s list').toBeTruthy();
       const direct = (listNode.childIds ?? []).flatMap(function items_(child): typeof nodes {
@@ -2126,10 +2131,9 @@ test.describe('behavior', () => {
         return node.ignored || ['generic', 'none'].includes(String(node.role?.value)) ? (node.childIds ?? []).flatMap(items_) : [node];
       });
       expect(direct.map((node) => tree(node.nodeId))).toEqual([
-        ['listitem:', 'held.pdf', '820 KB', 'Waiting', 'button:Remove held.pdf'],
-        ['listitem:', 'button:held-photo.png (6.8 MB, The connection was lost.)', 'held-photo.png', '6.8 MB', 'The connection was lost.', 'button:Retry held-photo.png', 'button:Remove held-photo.png'],
+        ['listitem:', 'group:held.pdf', 'held.pdf', '820 KB', 'Waiting', 'button:Remove held.pdf'],
+        ['listitem:', 'group:held-photo.png', 'button:held-photo.png (6.8 MB, The connection was lost.)', 'held-photo.png', '6.8 MB', 'The connection was lost.', 'button:Retry held-photo.png', 'button:Remove held-photo.png'],
       ]);
-      expect(nodes.filter((node) => node.role?.value === 'group' && String(node.name?.value).startsWith('held')).length, 'no group in the item’s place').toBe(0);
       expect(nodes.filter((node) => ['image', 'img'].includes(String(node.role?.value)) && !node.ignored).length, 'no picture and no glyph is exposed').toBe(0);
     }
   });

@@ -72,6 +72,36 @@
       ]
     },
     {
+      "key": "cancelledText",
+      "readers": [
+        {
+          "component": "file-upload",
+          "prop": "cancelledText"
+        },
+        {
+          "component": "list",
+          "prop": "cancelledText"
+        }
+      ],
+      "places": [
+        {
+          "name": "label",
+          "kind": "text",
+          "description": "The item's name: its label, or else the text of its content."
+        },
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place the item has, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of items in the list."
+        }
+      ]
+    },
+    {
       "key": "characterCountNoLimitText",
       "readers": [
         {
@@ -223,6 +253,58 @@
         {
           "component": "date-time-picker",
           "prop": "dialLabel"
+        }
+      ]
+    },
+    {
+      "key": "dragHandleHint",
+      "readers": [
+        {
+          "component": "file-upload",
+          "prop": "dragHandleHint"
+        },
+        {
+          "component": "list",
+          "prop": "dragHandleHint"
+        }
+      ]
+    },
+    {
+      "key": "dragHandleLabel",
+      "readers": [
+        {
+          "component": "file-upload",
+          "prop": "dragHandleLabel"
+        },
+        {
+          "component": "list",
+          "prop": "dragHandleLabel"
+        }
+      ],
+      "places": [
+        {
+          "name": "label",
+          "kind": "text",
+          "description": "The item's name: its label, or else the text of its content.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "dropZoneRefusingText",
+      "readers": [
+        {
+          "component": "drop-zone",
+          "prop": "refusingText"
+        }
+      ]
+    },
+    {
+      "key": "dropZoneText",
+      "readers": [
+        {
+          "component": "drop-zone",
+          "prop": "dropText"
         }
       ]
     },
@@ -402,6 +484,38 @@
       ]
     },
     {
+      "key": "filesDroppedText",
+      "readers": [
+        {
+          "component": "drop-zone",
+          "prop": "droppedText"
+        }
+      ],
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "How many files of the drop passed and were handed to the product."
+        }
+      ]
+    },
+    {
+      "key": "filesRefusedText",
+      "readers": [
+        {
+          "component": "drop-zone",
+          "prop": "refusedText"
+        }
+      ],
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "How many files of the drop were refused."
+        }
+      ]
+    },
+    {
       "key": "handleLabel",
       "readers": [
         {
@@ -468,6 +582,36 @@
       ]
     },
     {
+      "key": "liftedText",
+      "readers": [
+        {
+          "component": "file-upload",
+          "prop": "liftedText"
+        },
+        {
+          "component": "list",
+          "prop": "liftedText"
+        }
+      ],
+      "places": [
+        {
+          "name": "label",
+          "kind": "text",
+          "description": "The item's name: its label, or else the text of its content."
+        },
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place the item has, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of items in the list."
+        }
+      ]
+    },
+    {
       "key": "loadingLabel",
       "readers": [
         {
@@ -503,36 +647,54 @@
       ]
     },
     {
-      "key": "moveDownLabel",
+      "key": "moveAfterLabel",
       "readers": [
         {
-          "component": "list",
-          "prop": "moveDownLabel"
-        }
-      ],
-      "places": [
+          "component": "file-upload",
+          "prop": "moveAfterLabel"
+        },
         {
-          "name": "headline",
-          "kind": "text",
-          "description": "The headline of the item the button moves.",
-          "required": true
+          "component": "list",
+          "prop": "moveAfterLabel"
         }
       ]
     },
     {
-      "key": "moveUpLabel",
+      "key": "moveBeforeLabel",
       "readers": [
         {
-          "component": "list",
-          "prop": "moveUpLabel"
-        }
-      ],
-      "places": [
+          "component": "file-upload",
+          "prop": "moveBeforeLabel"
+        },
         {
-          "name": "headline",
-          "kind": "text",
-          "description": "The headline of the item the button moves.",
-          "required": true
+          "component": "list",
+          "prop": "moveBeforeLabel"
+        }
+      ]
+    },
+    {
+      "key": "moveToEndLabel",
+      "readers": [
+        {
+          "component": "file-upload",
+          "prop": "moveToEndLabel"
+        },
+        {
+          "component": "list",
+          "prop": "moveToEndLabel"
+        }
+      ]
+    },
+    {
+      "key": "moveToStartLabel",
+      "readers": [
+        {
+          "component": "file-upload",
+          "prop": "moveToStartLabel"
+        },
+        {
+          "component": "list",
+          "prop": "moveToStartLabel"
         }
       ]
     },
@@ -540,20 +702,24 @@
       "key": "movedText",
       "readers": [
         {
+          "component": "file-upload",
+          "prop": "movedText"
+        },
+        {
           "component": "list",
           "prop": "movedText"
         }
       ],
       "places": [
         {
-          "name": "headline",
+          "name": "label",
           "kind": "text",
-          "description": "The moved item's headline."
+          "description": "The item's name: its label, or else the text of its content."
         },
         {
           "name": "position",
           "kind": "number",
-          "description": "The place the moved item now has, counted from 1."
+          "description": "The place the item has, counted from 1."
         },
         {
           "name": "count",
@@ -802,6 +968,46 @@
         {
           "component": "date-time-picker",
           "prop": "startLabel"
+        }
+      ]
+    },
+    {
+      "key": "stepCompletedText",
+      "readers": [
+        {
+          "component": "stepper",
+          "prop": "completedText"
+        }
+      ]
+    },
+    {
+      "key": "stepErrorText",
+      "readers": [
+        {
+          "component": "stepper",
+          "prop": "errorText"
+        }
+      ]
+    },
+    {
+      "key": "stepPositionText",
+      "readers": [
+        {
+          "component": "stepper",
+          "prop": "positionText"
+        }
+      ],
+      "places": [
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The current step's place in the flow, counted from 1.",
+          "required": true
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of steps."
         }
       ]
     },

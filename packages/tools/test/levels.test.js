@@ -140,11 +140,11 @@ test('a spec may name another component\'s token group only where it is built fr
   assert.match(problemsOf([spec('part', LEVELS.single, { uses: ['member'], tokens: 'comp.member' }), member]).join('\n'), /tokens names "comp\.member"/);
 });
 
-test('the repository as it is today: 65 single parts, 15 put together, 4 that coordinate — and which', () => {
+test('the repository as it is today: 65 single parts, 19 put together, 4 that coordinate — and which', () => {
   const specs = loadSpecs().map(({ spec: each }) => each);
-  assert.equal(specs.length, 84);
+  assert.equal(specs.length, 88);
   const of = (level) => specs.filter((each) => each.level === level).map((each) => each.name).sort();
-  assert.deepEqual(of(LEVELS.completes), ['button-with-menu', 'checkbox-group', 'chip-field', 'color-field', 'combobox-field', 'copy-button', 'date-time-picker', 'menubar', 'number-field', 'one-time-code-field', 'radio-group', 'select-field', 'slider-field', 'tab-view', 'text-field']);
+  assert.deepEqual(of(LEVELS.completes), ['bottom-sheet', 'button-with-menu', 'checkbox-group', 'chip-field', 'color-field', 'combobox-field', 'copy-button', 'date-time-picker', 'dialog', 'menubar', 'navigation-drawer', 'number-field', 'one-time-code-field', 'radio-group', 'select-field', 'side-sheet', 'slider-field', 'tab-view', 'text-field']);
   assert.deepEqual(of(LEVELS.coordinates), ['chat-composer', 'file-upload', 'image-preview', 'search']);
   assert.equal(of(LEVELS.single).length, 65);
   // No name was lost when the one list became two: 40 specs named another component, in one list or the other; the
@@ -170,7 +170,14 @@ test('the repository as it is today: 65 single parts, 15 put together, 4 that co
   // The embedded text input is a single part that names none; the chat composer, a
   // feature built from it, the File picker, the File item and the Button, is the fifty-second that names another
   // component and the fourth that coordinates.
-  assert.equal(specs.filter((each) => namedComponents(each).length).length, 52);
+  // The drop zone is a single part that names no other component: it shares the File picker's rule, not the component.
+  // The swatch is a single part that names none.
+  // The stepper is a single part that names no other component (its pressable steps and its glyphs are its own).
+  // The modal layer is a single part that names none; the dialog, the side sheet, the bottom sheet and the navigation
+  // drawer are built from it now and are put together (four fewer single parts, one more), and the bottom sheet, which
+  // named no component before, is the fifty-third that names another; the image preview, the search and the
+  // date-time picker, which named others already, are built from it too.
+  assert.equal(specs.filter((each) => namedComponents(each).length).length, 53);
   assert.deepEqual(specs.find((each) => each.name === 'text-field').builtFrom, ['field', 'text-input']);
   assert.deepEqual(specs.find((each) => each.name === 'text-input').uses, ['button']);
   assert.deepEqual(specs.find((each) => each.name === 'file-upload').builtFrom, ['file-picker', 'file-item']);

@@ -269,12 +269,32 @@
       }
     },
     {
+      "name": "modal-layer",
+      "title": "Modal layer",
+      "category": "containment",
+      "level": "base",
+      "listing": "advanced",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/modal-layer/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
       "name": "dialog",
       "title": "Dialog",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [
         "button"
       ],
@@ -316,12 +336,13 @@
       "listing": "default",
       "builtFrom": [],
       "uses": [
-        "button"
+        "button",
+        "menu"
       ],
       "hasSpec": true,
       "docs": "/components/list/",
       "platforms": {
-        "web": "lagging",
+        "web": "alpha",
         "swiftui": "lagging",
         "compose": "lagging",
         "flutter": "lagging",
@@ -486,9 +507,11 @@
       "name": "navigation-drawer",
       "title": "Navigation drawer",
       "category": "navigation",
-      "level": "base",
+      "level": "composed",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [
         "badge",
         "divider",
@@ -551,7 +574,9 @@
       "category": "navigation",
       "level": "feature",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [
         "button",
         "keyboard-shortcut",
@@ -571,9 +596,11 @@
       "name": "bottom-sheet",
       "title": "Bottom sheet",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [],
       "hasSpec": true,
       "docs": "/components/bottom-sheet/",
@@ -589,9 +616,11 @@
       "name": "side-sheet",
       "title": "Side sheet",
       "category": "containment",
-      "level": "base",
+      "level": "composed",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [
         "button"
       ],
@@ -746,7 +775,8 @@
       "level": "composed",
       "listing": "default",
       "builtFrom": [
-        "calendar"
+        "calendar",
+        "modal-layer"
       ],
       "uses": [
         "tabs",
@@ -1029,6 +1059,24 @@
       "docs": "/components/pagination/",
       "platforms": {
         "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "stepper",
+      "title": "Stepper",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/stepper/",
+      "platforms": {
+        "web": "alpha",
         "swiftui": "planned",
         "compose": "planned",
         "flutter": "planned",
@@ -1582,7 +1630,8 @@
         "file-item"
       ],
       "uses": [
-        "button"
+        "button",
+        "list"
       ],
       "hasSpec": true,
       "docs": "/components/file-upload/",
@@ -1600,7 +1649,9 @@
       "category": "containment",
       "level": "feature",
       "listing": "default",
-      "builtFrom": [],
+      "builtFrom": [
+        "modal-layer"
+      ],
       "uses": [
         "button",
         "skeleton"
@@ -1656,6 +1707,24 @@
       }
     },
     {
+      "name": "drop-zone",
+      "title": "Drop zone",
+      "category": "selection",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/drop-zone/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
       "name": "embedded-text-input",
       "title": "Embedded text input",
       "category": "text-inputs",
@@ -1695,19 +1764,37 @@
         "flutter": "planned",
         "react-native": "planned"
       }
+    },
+    {
+      "name": "swatch",
+      "title": "Swatch",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/swatch/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
     }
   ],
   "totals": {
     "web": {
       "planned": 0,
-      "lagging": 84,
-      "alpha": 0,
+      "lagging": 83,
+      "alpha": 5,
       "beta": 0,
       "stable": 0,
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 55,
+      "planned": 59,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1715,7 +1802,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 55,
+      "planned": 59,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1723,7 +1810,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 55,
+      "planned": 59,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1731,7 +1818,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 55,
+      "planned": 59,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,

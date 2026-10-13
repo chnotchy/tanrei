@@ -602,9 +602,17 @@ export function fileUploadTwin(fixture: Fixture, made: MadeFileRow[] = []): stri
   const shared = said({ form: p.itemForm, preview: p.itemPreview, fit: p.itemFit, nameHidden: p.itemNameHidden, width: p.itemWidth, height: p.itemHeight, removeLabel: p.removeLabel, retryLabel: p.retryLabel, disabled: p.disabled });
   const [pickerStaging, itemStaging] = [STAGING['file-picker']!, STAGING['file-item']!];
   const above = `<tanrei-file-picker ${attributes(picker.props, picker.platforms.web.props, pickerStaging.props!(forwarded, fixture))}>${slotsMarkup(picker, fixture.slots)}</tanrei-file-picker>`;
-  const each = rows.map((row) => `<tanrei-file-item ${attributes(item.props, item.platforms.web.props, itemStaging.props!({ ...row, ...shared }, fixture))}></tanrei-file-item>`).join('');
-  const arranged = p.itemForm === 'tile' ? 'flex-wrap: wrap; align-items: flex-start' : 'flex-direction: column';
-  const below = rows.length ? `<div style="display: flex; ${arranged}; gap: var(--tanrei-comp-file-upload-list-item-gap); margin-block-start: var(--tanrei-comp-file-upload-list-gap)">${itemStaging.wrap!(each, fixture)}</div>` : '';
+  const each = rows.map((row) => `<tanrei-file-item ${attributes(item.props, item.platforms.web.props, itemStaging.props!({ ...row, ...shared }, fixture))}></tanrei-file-item>`);
+  // FUP-17, FUP-59: the rows are the items of a List — vertical, or horizontal and wrapping for tiles, the List's small
+  // gap apart — each holding one file item, named by its file; a reorderable one with the List's own words.
+  const tile = p.itemForm === 'tile';
+  const words = ['dragHandleLabel', 'dragHandleHint', 'moveToStartLabel', 'moveBeforeLabel', 'moveAfterLabel', 'moveToEndLabel', 'liftedText', 'movedText', 'cancelledText']
+    .filter((key) => typeof p[key] === 'string' && p[key])
+    .map((key) => `${key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}="${String(p[key]).replaceAll('"', '&quot;')}"`)
+    .join(' ');
+  const listed = rows.map((row, n) => `<tanrei-list-item label="${String(row.name ?? '').replaceAll('"', '&quot;')}">${each[n]}</tanrei-list-item>`).join('');
+  const list = `<tanrei-list orientation="${tile ? 'horizontal' : 'vertical'}"${tile ? ' wrap' : ''} gap="small"${p.reorderable && !p.disabled ? ` reorderable ${words}` : ''}${p.label ? ` label="${String(p.label)}"` : ''} style="margin-block-start: var(--tanrei-comp-file-upload-list-gap)">${listed}</tanrei-list>`;
+  const below = rows.length ? itemStaging.wrap!(list, fixture) : '';
   return `<div class="stage" data-twin-of="${fixture.id}"${fixture.direction ? ` dir="${fixture.direction}"` : ''}><div style="inline-size: 360px">${above}${below}</div></div>`;
 }
 
@@ -1062,12 +1070,20 @@ const STAGING: Record<string, Staging> = {
   'radio-button': {
     wrap: (element, f) => `<form><div role="radiogroup" aria-label="${String(f.props.name ?? f.id)}">${element}</div></form>`,
   },
-  // A list is one column 360 wide (LST-16's verify). An avatar's leading slot holds the first letter of the item's
-  // headline (its monogram); an image's is empty, so it shows the media container color. A test's own item may hold
-  // what a product puts in the trailing slot (a reorderable item's remove button, LST-52): its content, as written.
+  // A list is 360 wide (LST-1's verify). An item's content is the product's own: the content of a static item stands for
+  // a box of the product's — a tile with a fill, padded and with small corners, in the body text style, as a product's
+  // card or file item would be — so that the arrangement, the gap and the dividers show; an action, a link or an option
+  // holds its text alone, which the item pads and colors itself (LST-8). A test's own item that holds markup holds it
+  // as written.
   list: {
-    css: () => `.stage > tanrei-list { inline-size: 360px; }`,
-    itemContent: (item) => `${item.props.leadingMedia === 'avatar' ? `<span slot="leading">${String(item.props.headline ?? '').slice(0, 1)}</span>` : ''}${item.content ?? ''}`,
+    css: () => `.stage > tanrei-list { inline-size: 360px; }
+      .stage > tanrei-list .fixture-tile { display: block; box-sizing: border-box; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }`,
+    itemContent: (item) => {
+      const content = item.content ?? '';
+      if (content.includes('<')) return content;
+      const actionable = !!item.props.interactive || !!item.props.href || item.props.value !== undefined;
+      return actionable ? content : `<span class="fixture-tile">${content}</span>`;
+    },
   },
   // A menu fixture draws the open surface in place (MNU-19's verify): the `inline` test attribute, at its natural size,
   // with its elevation and without an anchor, placement or open motion — room below for the elevation's shadow.
@@ -1100,6 +1116,16 @@ const STAGING: Record<string, Staging> = {
   dialog: {
     props: ({ dismissible, ...props }) => (dismissible === false ? { ...props, closedby: 'none' } : props),
     itemAttributes: () => 'slot="actions"',
+  },
+  // A modal layer is in the top layer too: its fixtures are drawn one at a time in a 640 × 640 window (MDL-1's verify),
+  // and the baseline is the window. `scrim: false` is the inverse attribute `no-scrim`, `dismissible: false` HTML's
+  // `closedby="none"`.
+  'modal-layer': {
+    props: ({ scrim, dismissible, ...props }) => ({
+      ...props,
+      ...(scrim === false ? { noScrim: true } : {}),
+      ...(dismissible === false ? { closedby: 'none' } : {}),
+    }),
   },
   // A tooltip's stage is 320 × 200 with its anchor at the centre: a medium icon-only text Button showing the fixture's
   // glyph and labelled after it (the spec's web note). Its tooltip is open, drawn in the top layer beside it.
@@ -1176,6 +1202,13 @@ const STAGING: Record<string, Staging> = {
   // verify); its `values` (multiple) are the JSON array attribute the set reads.
   'segmented-button': {
     css: () => `.stage:has(> tanrei-segmented-button) { display: flex; align-items: center; inline-size: 400px; block-size: 96px; }`,
+  },
+  // A stepper fills its stage, as a stepper above a flow's content does (the spec's web note): 600 wide for a horizontal
+  // one (four columns of 150), 360 for a vertical one, 320 for a compact one.
+  stepper: {
+    css: () => `.stage:has(> tanrei-stepper) { inline-size: 600px; }
+      .stage:has(> tanrei-stepper[layout='vertical']) { inline-size: 360px; }
+      .stage:has(> tanrei-stepper[layout='compact']) { inline-size: 320px; }`,
   },
   // A side sheet's stage is a 720 × 480 surface that stands for the window (the spec's web note): a standard sheet at the
   // end of a row whose other child fills the rest of the width, a modal one at the window's end edge, in the top layer.
@@ -1752,6 +1785,32 @@ const STAGING: Record<string, Staging> = {
     css: () => `.stage > tanrei-file-picker { inline-size: 360px; }`,
     props: ({ accept, ...props }) => ({ ...props, ...(Array.isArray(accept) ? { accept: accept.join(',') } : {}) }),
   },
+  // A drop zone wraps a screen of the product's (DRZ-1): its content is a sample screen — the fixture's content as a
+  // paragraph above an outlined Button, on a surface 360 × 240 (the spec's default slot) — so that a picture shows the
+  // overlay over real content. A fixture whose id begins `dragged` is drawn while a drag of one PDF is over the zone: the
+  // step dispatches a dragenter and a dragover that carry it on the paragraph, as a browser does when a file from the
+  // desktop enters it; nothing moves the pointer afterwards, so the drag stays (DRZ-7). `accept` is the
+  // comma-separated list a native file input takes (the spec's web note).
+  'drop-zone': {
+    css: () => `.stage > tanrei-drop-zone { inline-size: 360px; block-size: 240px; }
+      .drop-zone-sample { box-sizing: border-box; block-size: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px;
+        background: var(--tanrei-sys-color-surface-container-low); color: var(--tanrei-sys-color-on-surface); }
+      .drop-zone-sample > p { margin: 0; font: var(--tanrei-sys-typescale-body-font); letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing); }`,
+    props: ({ accept, ...props }) => ({ ...props, ...(Array.isArray(accept) ? { accept: accept.join(',') } : {}) }),
+    content: (content) => `<div class="drop-zone-sample"><p>${content}</p><tanrei-button variant="outlined">New video</tanrei-button></div>`,
+    after: async (element, fixture) => {
+      if (!fixture.id.startsWith('dragged')) return;
+      const data = new DataTransfer();
+      data.items.add(new File([new Uint8Array(4)], 'brief.pdf', { type: 'application/pdf' }));
+      const drag = (type: string, on: Element) => on.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, composed: true, dataTransfer: data }));
+      drag('dragenter', element.querySelector('p') ?? element);
+      // A drag that enters one zone has left every other (DRZ-7): on a page of several fixtures, the zones staged
+      // before this one are dragged over again, as a pointer that stood over each of them would.
+      const staged = [...document.querySelectorAll('[data-fixture^="dragged"] > tanrei-drop-zone')] as (HTMLElement & { updateComplete: Promise<unknown> })[];
+      for (const zone of staged) drag('dragover', zone.querySelector('p') ?? zone);
+      await Promise.all(staged.map((zone) => zone.updateComplete));
+    },
+  },
   // A file item in the row form is as wide as its layout gives it (FIT-2): its stage is the file upload's column, 360
   // wide, so that a row alone is the same picture as a row of a file upload (FUP-58); a tile is as wide as its box
   // (FIT-3). A fixture names its picture as
@@ -2201,7 +2260,7 @@ export async function mountFixtureAsInAll(page: Page, spec: Spec, fixture: Fixtu
 }
 
 /**
- * A glyph's missing-font rule (CHK-19, LST-27, SEG-25, SRC-30, FBM-24) observed on any machine: the icon set names a
+ * A glyph's missing-font rule (CHK-19, LST-22, SEG-25, SRC-30, FBM-24) observed on any machine: the icon set names a
  * family no machine has (the default's may be installed locally), so its font is missing, as on a page that has not
  * loaded it (yet); another `family` names another missing one. Returns the family, for `iconFaceArrives()`.
  */

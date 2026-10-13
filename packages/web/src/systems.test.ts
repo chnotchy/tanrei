@@ -74,6 +74,9 @@ const SUBJECTS = [
   // The icon fixture: the container's color, corners and elevation over the scrim, the icon and the headline as the
   // preset places them, and the actions in the preset's arrangement and variant. Its baseline is the 640 × 640 window.
   subject('dialog', (fixture) => fixture.id === 'icon', { icons: true, window: { width: 640, height: 640 }, wholeWindow: true }),
+  // The layer alone, open, over the page: the preset's scrim (its color and alpha, and its blur where it sets one) around
+  // one line of the page's own text. Its baseline is the 640 × 640 window.
+  subject('modal-layer', (fixture) => fixture.id === 'open', { window: { width: 640, height: 640 }, wholeWindow: true }),
   // Modal, a date and time side by side: the surface's color, corners and elevation over the scrim, the title row and the
   // value line, the divider, the calendar, the time as the preset sets it (wheels with the entry-mode tabs in the default,
   // the dial in m3-like, the wheels alone in cupertino), the period beside the time and the actions in the preset's arrangement and
@@ -102,6 +105,9 @@ const SUBJECTS = [
   // Icons, Grid selected: the set's fill, outline, corners and padding, the dividers, the selected fill and elevation, the
   // check in place of the icon (none in cupertino, whose selection is raised), the heights and the label's role.
   subject('segmented-button', (fixture) => fixture.id === 'icons', { icons: true }),
+  // An error on a step before the current one: every condition at once — the complete marker's fill and check, the
+  // current marker's fill and number, the error ring and glyph, the incomplete ring — the connectors, the text roles.
+  subject('stepper', (fixture) => fixture.id === 'horizontal-error', { icons: true }),
   // Modal, with its close button and actions: the scrim, the panel's color, elevation (m3-like's own level1) and start
   // corners (eased in cupertino), the headline's role and color (heading-4 in m3-like), the body text, the divider and the
   // text Buttons. Its baseline is the 720 × 480 window; axe checks each fixture alone (two standard sheets are two
@@ -172,6 +178,9 @@ const SUBJECTS = [
   // picture in it, the retry and the remove action at its corner, and the error mark before its sentence.
   subject('file-picker', (fixture) => fixture.id === 'drop-area-error', { icons: true, reducedMotion: true }),
   subject('file-item', (fixture) => fixture.id === 'tile-error-retryable', { icons: true, reducedMotion: true }),
+  // While a drag of files is over it: the scrim in the preset's role, the edge in its primary and stroke, the panel on
+  // its raised surface with its corners (eased in cupertino) and elevation, its upload glyph and its message's text role.
+  subject('drop-zone', (fixture) => fixture.id === 'dragged', { icons: true, reducedMotion: true }),
   // A refused answer: the field group's frame around the preset's own radio buttons — the label and the preset's
   // required mark, the description that stays, the rings as they are (the selected one unchanged), the distance the
   // preset keeps between two options, and the error text below.
@@ -243,6 +252,9 @@ const SUBJECTS = [
   // A group of squares: the preset's small corner and its smoothing on each box, its quiet fill, the initials in its
   // label style, the fallback glyph of its icon set, the overlap and the gap in its surface's color.
   subject('avatar', (fixture) => fixture.id === 'group-square', { icons: true }),
+  // Translucent: the sample's side and corners, the checkerboard's two surfaces under a color at half opacity, the edge,
+  // the gap and the two text roles together.
+  subject('swatch', (fixture) => fixture.id === 'translucent'),
   // Every part at once, centred: the preset's glyph of its icon set in its secondary color, the title's and the
   // description's text styles and colors, the paddings and the gaps, and two of the preset's own text Buttons.
   subject('empty-state', (fixture) => fixture.id === 'actions', { icons: true }),

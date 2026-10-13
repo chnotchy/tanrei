@@ -1,6 +1,6 @@
 ---
 title: List
-description: A column of related items, each a line or more of text with an icon, an avatar or an image, that people read, open one by one, choose from, or put in another order.
+description: Holds a set of your own items (rows, tiles, cards, files) in one column, one line, or lines that wrap into a grid. People read them, open them one by one, choose from them, or drag them into another order.
 ---
 
 import { Tabs, TabItem } from '../../../components/tabs';
@@ -10,73 +10,101 @@ import ComponentAccessibility from '../../../components/ComponentAccessibility.a
 import DemoFrame from '../../../components/DemoFrame.astro';
 import ListReorderProduct from '../../../components/ListReorderProduct.astro';
 
+<ListReorderProduct />
+
 ## Overview
 
 <ComponentAvailability name="list" />
 
-<DemoFrame label="Rows that open something, and a single choice">
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="Wi-Fi" supporting-text="Connected" leading-icon="wifi" trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-    <tanrei-list-item headline="Bluetooth" supporting-text="Off" leading-icon="bluetooth" trailing-icon="chevron_right" interactive></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="single" label="Theme" value="light" style="inline-size: 20rem">
-    <tanrei-list-item headline="Light" value="light"></tanrei-list-item>
-    <tanrei-list-item headline="Dark" value="dark"></tanrei-list-item>
-    <tanrei-list-item headline="Match the system" value="system"></tanrei-list-item>
+<DemoFrame label="Drag a tile to another place, or press its handle for a menu of moves" plain>
+  <tanrei-list reorderable orientation="horizontal" wrap gap="medium" data-demo-product label="Photos" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to start" move-before-label="Move left" move-after-label="Move right" move-to-end-label="Move to end" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 24rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="Rows that are links: each goes to its own address, and the last opens a new tab" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="Button" supporting-text="Actions and toggles" leading-icon="smart_button" href="#list-demo-button" divider></tanrei-list-item>
-    <tanrei-list-item headline="Tabs" supporting-text="Views of one subject" leading-icon="tab" href="#list-demo-tabs" divider></tanrei-list-item>
-    <tanrei-list-item headline="Source code" supporting-text="Opens the repository" leading-icon="code" href="#list-demo-source" target="new" target-label="opens in a new tab"></tanrei-list-item>
+<style>{`
+  .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
+  .demo-row { display: flex; flex-direction: column; }
+  .demo-row small { color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-body-small-font); }
+`}</style>
+
+A list is a box. What each item shows is your own content: text, a picture, a card, a [file item](/components/file-item/). The list owns everything around the items: how they are arranged, the space and the lines between them, what they are to assistive technology, how keyboard focus moves among them, which of them are chosen, and how people put them in another order.
+
+<DemoFrame label="A column, a line, and a grid that wraps" plain>
+  <tanrei-list gap="small" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Apples</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Bananas</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Cherries</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" gap="small">
+    <tanrei-list-item><span class="demo-tile">One</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Two</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Three</span></tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list orientation="horizontal" wrap gap="medium" style="inline-size: 16rem">
+    <tanrei-list-item><span class="demo-tile">Photo 1</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 2</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 3</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 4</span></tanrei-list-item>
+    <tanrei-list-item><span class="demo-tile">Photo 5</span></tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+<DemoFrame label="Items that open something, items that are links, and a single choice" plain>
+  <tanrei-list dividers style="inline-size: 16rem">
+    <tanrei-list-item interactive><span class="demo-row">Wi-Fi<small>Connected</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-button"><span class="demo-row">Button<small>Actions and toggles</small></span></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+  </tanrei-list>
+  <tanrei-list selection="single" label="Theme" value="light" style="inline-size: 16rem">
+    <tanrei-list-item value="light">Light</tanrei-list-item>
+    <tanrei-list-item value="dark">Dark</tanrei-list-item>
+    <tanrei-list-item value="system">Match the system</tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
 ### Usage
 
-A list has one kind of item, `list-item`. Each platform takes the items the way it takes any repeated children. The web uses child elements, SwiftUI views in a view builder, Compose calls in a content lambda and Flutter widgets in `children`. React Native takes an `items` array of plain objects. The selection belongs to the list: `value` names the chosen option of a single-choice list, and `values` the chosen options of a multiple-choice list.
+A list has one kind of item, `list-item`, and each item holds your content as its children. `orientation` lays the items out as a column (`vertical`, the default) or a line (`horizontal`); `wrap` lets them run onto further lines, so that they form a grid; `gap` sets the space between them (`none`, `small`, `medium`, `large`), and `dividers` draws a hairline between them in a list that does not wrap.
 
-A row that goes to a page takes an `href` and is a link, not a button. It is drawn exactly as an interactive row, and the browser treats it as any link: it can be opened in a new tab, its address copied, and a crawler follows it. Setting `target` to `new` opens it in a new tab and marks the row with the icon set's `open_in_new`; `targetLabel` is then what is read after the row's name. Link rows are on the web today. SwiftUI, Compose, Flutter and React Native are lagging on them, and their samples show rows without a destination.
+An item is static unless you make it more. A static item draws nothing and adds no space: its content is the item, and it may hold your own controls. `interactive` makes the item one button; `href` makes it one link, which the browser treats as any link (it can be opened in a new tab and its address copied; `target="new"` opens a new tab and marks the item with `open_in_new`, and `targetLabel` says so). A list whose `selection` is `single` or `multiple` is a listbox, and its items are options chosen by their `value`. An interactive item, a link or an option pads its content, carries every state, and is named by `label` or else by the text of its content.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <!-- Static, interactive and link rows. An interactive row is one button; a row with href is one link. -->
-    <tanrei-list>
-      <tanrei-list-item headline="Wi-Fi" supporting-text="Connected" leading-icon="wifi"
-                        trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-      <!-- A static row holds your own control, named by the headline. -->
-      <tanrei-list-item headline="Airplane mode">
-        <tanrei-switch slot="trailing" label="Airplane mode" label-hidden></tanrei-switch>
-      </tanrei-list-item>
-      <tanrei-list-item headline="Ada Lovelace" supporting-text="Edited the roadmap" leading-media="avatar">
-        <img slot="leading" src="ada.jpg" alt="" />
-      </tanrei-list-item>
-      <tanrei-list-item headline="Privacy policy" href="/privacy/"></tanrei-list-item>
-      <!-- target="new" draws open_in_new as the trailing icon; target-label is read after the name. -->
-      <tanrei-list-item headline="Source code" href="https://example.com/tanrei"
-                        target="new" target-label="opens in a new tab"></tanrei-list-item>
+    <!-- A column of your own boxes, 8 px apart. -->
+    <tanrei-list gap="small">
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
+      <tanrei-list-item><my-card>…</my-card></tanrei-list-item>
+    </tanrei-list>
+
+    <!-- A grid of tiles: a line that wraps. -->
+    <tanrei-list orientation="horizontal" wrap gap="medium">
+      <tanrei-list-item><img src="1.jpg" alt="Harbour at dawn" /></tanrei-list-item>
+      <tanrei-list-item><img src="2.jpg" alt="Market street" /></tanrei-list-item>
+    </tanrei-list>
+
+    <!-- Items that are one button or one link each, with lines between them. -->
+    <tanrei-list dividers>
+      <tanrei-list-item interactive>Wi-Fi</tanrei-list-item>
+      <tanrei-list-item href="/privacy/">Privacy policy</tanrei-list-item>
+      <tanrei-list-item href="https://example.com/tanrei" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
     </tanrei-list>
 
     <!-- A listbox: every item is an option, chosen by its value. -->
     <tanrei-list selection="single" label="Theme" value="light">
-      <tanrei-list-item headline="Light" value="light"></tanrei-list-item>
-      <tanrei-list-item headline="Dark" value="dark"></tanrei-list-item>
-    </tanrei-list>
-    <tanrei-list id="labels" selection="multiple" label="Labels">
-      <tanrei-list-item headline="Bug" value="bug"></tanrei-list-item>
-      <tanrei-list-item headline="Docs" value="docs"></tanrei-list-item>
+      <tanrei-list-item value="light">Light</tanrei-list-item>
+      <tanrei-list-item value="dark">Dark</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      document.querySelector('[interactive]').addEventListener('click', openWifi);
       // The list sets its own value, or values, before it fires change, which carries them.
       document.querySelector('[selection="single"]').addEventListener('change', (e) => setTheme(e.detail.value));
-      // values is an array property; its attribute is not reflected.
-      document.querySelector('#labels').values = ['bug'];
     </script>
     ```
   </TabItem>
@@ -84,206 +112,57 @@ A row that goes to a page takes an `href` and is a link, not a button. It is dra
     ```tsx
     import { List, ListItem } from '@tanrei/react';
 
-    <List>
-      <ListItem headline="Wi-Fi" supportingText="Connected" leadingIcon="wifi" trailingIcon="chevron_right" interactive onClick={openWifi} />
-      {/* A row with href is a link. preventDefault() on its click hands the navigation to a client-side router. */}
-      <ListItem headline="Privacy policy" href="/privacy/" />
-      <ListItem headline="Source code" href="https://example.com/tanrei" target="new" targetLabel="opens in a new tab" />
+    <List orientation="horizontal" wrap gap="medium">
+      {photos.map((photo) => (
+        <ListItem key={photo.id}><img src={photo.src} alt={photo.alt} /></ListItem>
+      ))}
     </List>
 
-    {/* The list sets its own value, or values, before it fires change: read them from the element. */}
     <List selection="single" label="Theme" value={theme} onChange={(e) => setTheme(e.currentTarget.value)}>
-      <ListItem headline="Light" value="light" />
-      <ListItem headline="Dark" value="dark" />
+      <ListItem value="light">Light</ListItem>
+      <ListItem value="dark">Dark</ListItem>
     </List>
-    <List selection="multiple" label="Labels" values={labels} onChange={(e) => setLabels(e.currentTarget.values)}>
-      <ListItem headline="Bug" value="bug" />
-      <ListItem headline="Docs" value="docs" />
-    </List>
-    ```
-  </TabItem>
-  <TabItem label="SwiftUI">
-    ```swift
-    import Tanrei
-
-    // The initializer with action: is an interactive row, as Button.
-    TanreiList {
-        TanreiListItem("Wi-Fi", supportingText: "Connected", leadingIcon: "wifi", trailingIcon: "chevron_right", action: openWifi)
-        TanreiListItem("Airplane mode", trailing: { TanreiSwitch("Airplane mode", isOn: $airplane).labelsHidden() })
-    }
-
-    // The binding's type is the selection: Binding<String?> is single, Binding<Set<String>> multiple.
-    // Apply .tag(_:) to the TanreiListItem itself, before any other modifier.
-    TanreiList(selection: $theme, label: "Theme") {
-        TanreiListItem("Light").tag("light")
-        TanreiListItem("Dark").tag("dark")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Compose">
-    ```kotlin
-    import io.github.chnotchy.tanrei.components.TanreiList
-    import io.github.chnotchy.tanrei.components.TanreiListItem
-    import io.github.chnotchy.tanrei.components.TanreiListLeadingMedia
-    import io.github.chnotchy.tanrei.components.TanreiListSelectionMode
-    import io.github.chnotchy.tanrei.components.TanreiSwitch
-    import io.github.chnotchy.tanrei.primitives.TanreiText
-
-    // The items are TanreiListItem calls in the content lambda. A non-null onClick makes a row interactive.
-    TanreiList {
-        TanreiListItem(
-            "Wi-Fi",
-            supportingText = "Connected",
-            divider = true,
-            onClick = ::openWifi,
-            leadingIcon = { TanreiText("wifi") },
-            trailingIcon = { TanreiText("chevron_right") },
-        )
-        TanreiListItem("Airplane mode", trailingContent = {
-            TanreiSwitch(checked = airplane, onCheckedChange = { airplane = it }, label = "Airplane mode", labelHidden = true)
-        })
-        TanreiListItem("Ada Lovelace", supportingText = "Edited the roadmap",
-            leadingMedia = TanreiListLeadingMedia.Avatar, leadingContent = { TanreiText("A") })
-    }
-
-    // You keep the selection. onSelectionChange receives the new set: one value while Single.
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Single,
-        contentDescription = "Theme",
-        selectedValue = theme,
-        onSelectionChange = { theme = it.single() },
-    ) {
-        TanreiListItem("Light", value = "light")
-        TanreiListItem("Dark", value = "dark")
-    }
-    TanreiList(
-        selectionMode = TanreiListSelectionMode.Multiple,
-        contentDescription = "Labels",
-        selectedValues = labels,
-        onSelectionChange = { labels = it },
-    ) {
-        TanreiListItem("Bug", value = "bug")
-        TanreiListItem("Docs", value = "docs")
-    }
-    ```
-  </TabItem>
-  <TabItem label="Flutter">
-    ```dart
-    import 'package:tanrei/tanrei.dart';
-
-    // The items are TanreiListTile widgets, with ListTile's names. A non-null onTap makes a tile interactive.
-    TanreiList<String>(
-      children: <Widget>[
-        TanreiListTile<String>(
-          title: 'Wi-Fi',
-          subtitle: 'Connected',
-          leadingIcon: const Icon(AppSymbols.wifi),
-          trailingIcon: const Icon(AppSymbols.chevronRight),
-          onTap: openWifi,
-          divider: true,
-        ),
-        TanreiListTile<String>(
-          title: 'Airplane mode',
-          trailing: TanreiSwitch(value: airplane, onChanged: setAirplane, label: 'Airplane mode', labelHidden: true),
-        ),
-      ],
-    );
-
-    // One Set holds the selection, as in SegmentedButton: at most one member while single.
-    TanreiList<String>(
-      selectionMode: TanreiListSelectionMode.single,
-      selected: <String>{theme},
-      onSelectionChanged: (Set<String> value) => setState(() => theme = value.single),
-      semanticLabel: 'Theme',
-      children: const <Widget>[
-        TanreiListTile<String>(value: 'light', title: 'Light'),
-        TanreiListTile<String>(value: 'dark', title: 'Dark'),
-      ],
-    );
-    ```
-  </TabItem>
-  <TabItem label="React Native">
-    ```tsx
-    import { List, Switch } from '@tanrei/react-native';
-
-    // The items are data. onPress makes an item interactive.
-    <List
-      items={[
-        { headline: 'Wi-Fi', supportingText: 'Connected', leadingIcon: 'wifi', trailingIcon: 'chevron_right', onPress: openWifi, divider: true },
-        { headline: 'Airplane mode', trailing: <Switch label="Airplane mode" labelHidden value={airplane} onValueChange={setAirplane} /> },
-        { headline: 'Ada Lovelace', supportingText: 'Edited the roadmap', leadingMedia: 'avatar', leading: 'A' },
-      ]}
-    />
-
-    // Controlled: the list calls onSelectionChange and you move value, or values.
-    <List
-      accessibilityLabel="Theme"
-      selectionMode="single"
-      value={theme}
-      onSelectionChange={setTheme}
-      items={[{ headline: 'Light', value: 'light' }, { headline: 'Dark', value: 'dark' }]}
-    />
-    <List
-      accessibilityLabel="Labels"
-      selectionMode="multiple"
-      values={labels}
-      onSelectionChange={setLabels}
-      items={[{ headline: 'Bug', value: 'bug' }, { headline: 'Docs', value: 'docs' }]}
-    />
     ```
   </TabItem>
 </Tabs>
 
+SwiftUI, Compose, Flutter and React Native are lagging: they ship the earlier list, whose rows have a headline, supporting text and leading and trailing parts, and none of this revision yet.
+
 ### Reordering
 
-<ListReorderProduct />
-
-<DemoFrame label="A list people put in another order: two move buttons in every row" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="Move {headline} up" move-down-label="Move {headline} down" moved-text="{headline} moved to position {position} of {count}" style="inline-size: 20rem">
-    <tanrei-list-item headline="Summary" divider></tanrei-list-item>
-    <tanrei-list-item headline="Recent files" divider></tanrei-list-item>
-    <tanrei-list-item headline="Shared with me" divider></tanrei-list-item>
-    <tanrei-list-item headline="Archive"></tanrei-list-item>
+<DemoFrame label="A column people put in another order, each item with a remove button of the page's own" plain>
+  <tanrei-list reorderable gap="small" data-demo-product label="Typefaces" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}" style="inline-size: 22rem">
+    <tanrei-list-item label="Inter"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Inter <tanrei-button variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Noto Sans JP"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Noto Sans JP <tanrei-button variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
+    <tanrei-list-item label="Helvetica Neue"><span class="demo-tile" style="display: flex; align-items: center; justify-content: space-between">Helvetica Neue <tanrei-button variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></span></tanrei-list-item>
   </tanrei-list>
 </DemoFrame>
 
-<DemoFrame label="With a remove button of the page's own in the trailing slot, after the move buttons" plain>
-  <tanrei-list reorder="buttons" data-demo-product move-up-label="Move {headline} up" move-down-label="Move {headline} down" moved-text="{headline} moved to position {position} of {count}" style="inline-size: 26rem">
-    <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="Remove Inter" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Noto Sans JP"><tanrei-button slot="trailing" variant="text" label="Remove Noto Sans JP" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-    <tanrei-list-item headline="Helvetica Neue"><tanrei-button slot="trailing" variant="text" label="Remove Helvetica Neue" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
+`reorderable` lets people put the items in another order, in a column, a line or a grid. Every item draws a handle at its start, the sign that it can be moved. The whole item can be dragged, not only the handle: a mouse picks it up once it moves a few pixels, and a finger or a pen after a long press, so that a swipe still scrolls the page (a touch on the handle drags at once). The other items slide out of the way, the item follows the pointer above them, and it settles into its place when it is dropped.
 
-Setting `reorder` to `buttons` lets people put the items in another order. Every row draws two icon buttons: one moves it up by one place, the other moves it down. They are Tanrei Buttons, so a keyboard, a pointer, touch, a switch, voice control and a screen reader all use them the same way, and nothing has to be dragged.
+Dragging is never the only way. The handle is a button: pressing it, or Enter, opens a menu of four moves (to the start, one place before, one place after, to the end). With the keyboard, Space on the handle lifts the item, the arrow keys carry it one place at a time (Home and End to the first and the last place), Space or Enter drops it, and Escape puts it back. Each step is announced.
 
-The order is your data, so the list never changes it. A press fires `move` with `from`, the item's index, and `to`, the index it is to have, both counted from 0. Reorder your items in answer. The list then draws the two rows changing place, keeps focus on the same button of the moved row, and tells assistive technology where the row now stands. If you change nothing, nothing happens: that is how a product refuses a move.
+The order is your data, so the list never changes it. Every way of moving fires `move` with `from`, the item's index, and `to`, the index it is to have, both counted from 0. Reorder your items in answer. The list then draws them changing place, keeps focus on the moved item's handle, and tells assistive technology where it now stands. If you change nothing within the time of `comp.list.motion.reorder-duration`, the move was refused: the items go back and nothing is announced.
 
-Answer within the time of `comp.list.motion.reorder-duration`. An order that arrives later is still drawn, but the list has already taken the move as refused and does not announce it.
-
-The three words are yours. `moveUpLabel` and `moveDownLabel` name the buttons, each with the place `{headline}` that the list fills with its row's headline (`Move {headline} up`), and `movedText` is the sentence that is announced after a move. Write the whole sentence in your language and mark three places, which the list fills: `{headline}`, `{position}` (counted from 1) and `{count}`. Give the words on the list, or once for the product with `setWords()`.
-
-A reorderable list holds static rows only and is never a listbox. A row may hold one control of yours in its trailing slot, after the move buttons: typically a button that removes the item.
-
-The `drag` value of `reorder`, which adds a handle that a pointer or a finger drags, is in the spec and not built yet. On the web it draws the two buttons and no handle. Reordering is on the web today. SwiftUI, Compose, Flutter and React Native are lagging on it.
+The words are yours: the handle's name (`dragHandleLabel`, with the place `{label}` the list fills with the item's name), its description (`dragHandleHint`), the four moves of the menu, and the three sentences that are announced (`liftedText`, `movedText`, `cancelledText`, with the places `{label}`, `{position}` and `{count}`). Give them on the list, or once for the product with `setWords()`. In a line, write "Move left" and "Move right" where a column says "Move up" and "Move down".
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-list id="fonts" reorder="buttons" move-up-label="Move {headline} up" move-down-label="Move {headline} down"
-                 moved-text="{headline} moved to position {position} of {count}">
-      <tanrei-list-item headline="Inter">
-        <!-- Your own control, after the two move buttons. Name it with the item. -->
-        <tanrei-button slot="trailing" variant="text" label="Remove Inter"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
-      <tanrei-list-item headline="Noto Sans JP">
-        <tanrei-button slot="trailing" variant="text" label="Remove Noto Sans JP"><span slot="icon">close</span></tanrei-button>
-      </tanrei-list-item>
+    <tanrei-list id="fonts" reorderable label="Typefaces"
+                 drag-handle-label="Reorder {label}"
+                 drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves"
+                 move-to-start-label="Move to top" move-before-label="Move up"
+                 move-after-label="Move down" move-to-end-label="Move to bottom"
+                 lifted-text="{label} lifted: {position} of {count}"
+                 moved-text="{label}: {position} of {count}"
+                 cancelled-text="{label} returned to {position} of {count}">
+      <tanrei-list-item label="Inter">Inter</tanrei-list-item>
+      <tanrei-list-item label="Noto Sans JP">Noto Sans JP</tanrei-list-item>
     </tanrei-list>
 
     <script type="module">
       import '@tanrei/web/components/list';
-      import '@tanrei/web/components/button';
       const list = document.querySelector('#fonts');
       // The list has moved nothing. Put the item where it was asked to stand: from and to count from 0.
       list.addEventListener('move', ({ detail: { from, to } }) => {
@@ -295,16 +174,22 @@ The `drag` value of `reorder`, which adds a handle that a pointer or a finger dr
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Button, List, ListItem } from '@tanrei/react';
+    import { List, ListItem } from '@tanrei/react';
 
     const [fonts, setFonts] = useState(['Inter', 'Noto Sans JP', 'Helvetica Neue']);
 
-    // The order is your state. The list finds the moved row again in the order you render.
+    // The order is your state. The list finds the moved item again in the order you render.
     <List
-      reorder="buttons"
-      moveUpLabel="Move {headline} up"
-      moveDownLabel="Move {headline} down"
-      movedText="{headline} moved to position {position} of {count}"
+      reorderable
+      label="Typefaces"
+      dragHandleLabel="Reorder {label}"
+      moveToStartLabel="Move to top"
+      moveBeforeLabel="Move up"
+      moveAfterLabel="Move down"
+      moveToEndLabel="Move to bottom"
+      liftedText="{label} lifted: {position} of {count}"
+      movedText="{label}: {position} of {count}"
+      cancelledText="{label} returned to {position} of {count}"
       onMove={(e) => {
         const { from, to } = e.detail;
         setFonts((now) => {
@@ -315,11 +200,7 @@ The `drag` value of `reorder`, which adds a handle that a pointer or a finger dr
       }}
     >
       {fonts.map((font) => (
-        <ListItem key={font} headline={font}>
-          <Button slot="trailing" variant="text" label={`Remove ${font}`} onClick={() => setFonts((now) => now.filter((each) => each !== font))}>
-            <span slot="icon">close</span>
-          </Button>
-        </ListItem>
+        <ListItem key={font} label={font}>{font}</ListItem>
       ))}
     </List>
     ```
@@ -328,87 +209,56 @@ The `drag` value of `reorder`, which adds a handle that a pointer or a finger dr
 
 ## Specs
 
-<DemoFrame label="Media, lines, disabled and several choices" plain>
-  <tanrei-list style="inline-size: 20rem">
-    <tanrei-list-item headline="Ada Lovelace" supporting-text="Edited the roadmap 2 hours ago" leading-media="avatar"><span slot="leading">A</span></tanrei-list-item>
-    <tanrei-list-item headline="Roadmap" overline="Engineering" supporting-text="The plan for the next quarter, with milestones, owners and the risks we already know about." supporting-max-lines="2" leading-media="image" trailing-text="9:41"></tanrei-list-item>
-    <tanrei-list-item headline="Archive" leading-icon="archive" interactive disabled></tanrei-list-item>
-  </tanrei-list>
-  <tanrei-list selection="multiple" label="Labels" style="inline-size: 20rem">
-    <tanrei-list-item headline="Bug" supporting-text="12 open issues" leading-icon="label" value="bug"></tanrei-list-item>
-    <tanrei-list-item headline="Feature" supporting-text="4 open issues" leading-icon="label" value="feature"></tanrei-list-item>
-    <tanrei-list-item headline="Docs" supporting-text="7 open issues" leading-icon="label" value="docs" disabled></tanrei-list-item>
-  </tanrei-list>
-</DemoFrame>
-
 <ComponentSpecs name="list" />
 
 ## Guidelines
 
 ### When to use
 
-Use a list for a column of things of one kind: messages, people, files, settings, or the choices of a picker. Each row starts with the same kind of element and ends with the same kind of value, so the column can be scanned. Use a card for one thing with more to say, a table when people compare values across columns, and a menu for a short set of actions that opens from a button.
+Use a list for a set of things of one kind that people scan, open, choose from or arrange: messages, people, files, photos, settings, the choices of a picker. Use a table when people compare values across columns, and a menu for a short set of actions that opens from a button.
 
-The list draws nothing of its own. It adds no background, no padding around its items and no scrolling. Put it on a surface, in a card (with `inset` off for a grouped list, as in iOS settings), or in your screen's scroll view.
+The list draws nothing of its own: no background, no padding around its items and no scrolling. Put it on a surface, in a card, or in your screen's scroll view, and give each item the look it needs in its content.
 
-### The four kinds of row
-
-A row is always a `list-item`. What it is follows from the list's `selection` and the item's `interactive` and `href`.
+### The four kinds of item
 
 | Kind | How you get it | What it is | Use for |
 | --- | --- | --- | --- |
-| Static | `selection` none, `interactive` false | A list item that shows content. It takes no focus and draws no hover or press. | Rows people only read, and rows that hold their own control in the trailing slot, such as a switch. |
-| Interactive | `interactive` true | One button inside its list item, named by the headline. | Rows that each change something or open it in place: a setting, a message in a pane, a dialog. |
-| Link | `href` set | One link inside its list item, named by the headline and drawn exactly as an interactive row. Enter activates it and Space does not. `href` wins over `interactive`. | Rows that each go to a page with an address of its own: an index of pages, search results, related documents. |
-| Option | `selection` single or multiple | An option of a listbox, with a selected state. | Choosing from the rows: a theme, a language, the labels of an issue. |
+| Static | `selection` none, `interactive` false, no `href` | Your content as it is. No focus, no hover or press. | Items people read, and items that hold their own controls. |
+| Interactive | `interactive` | One button inside its list item. | Items that each change something or open it in place. |
+| Link | `href` | One link inside its list item, drawn exactly as an interactive item. Enter follows it and Space does not. | Items that each go to a page with an address of its own. |
+| Option | `selection` single or multiple | An option of a listbox, with a selected state and a check. | Choosing from the items. |
 
-A list may mix static, interactive and link rows. A selectable list holds only options: `interactive` and `href` are ignored there. A reorderable list holds only static rows: `interactive` and `href` are ignored there too, because a row that is itself one button or one link cannot hold the buttons that move it.
+A list may mix static, interactive and link items. A selectable list holds only options. A reorderable list holds only static items, and is never a listbox: an action, a link or an option is taken by a press that a drag would take.
 
 ### Lists people reorder
 
-- Use `reorder` for a short list whose order means something and is the person's to decide: the families of a font stack, the sections of a home screen, a queue. For a long list, offer a way to sort it instead. One press moves a row one place.
-- Reorder your items in the `move` handler, or as soon after it as your framework renders. You may move the elements you have or render new ones: the list finds the moved row by its place and its headline.
-- Write the move buttons' words with the row's headline in them (`Move {headline} up`, `Move {headline} down`). The headline is part of each button's name, so the buttons of two rows are told apart in a list of the page's buttons and by voice control.
-- Write `movedText` as one whole sentence with the three places. The list builds no phrase of its own, so the order of the words is your language's.
-- Put at most one control in the trailing slot, and name it with the item ("Remove Inter"), so that the remove buttons of two rows are told apart.
-- The list announces a move and nothing else. When you remove or add an item, what is said is yours. When you remove the last item, move focus yourself, to where a person adds one.
-- Give the rows room. Where the move buttons and the trailing control would leave the text narrower than `reorder.text-min-width` (96 px at the default text size, and larger as the text is enlarged), every row of the list places them on a line of their own below the text, and the trailing control on a further line where that one is too short. In the default system a row with a remove button and no icon, avatar or image keeps them beside its text where the row is about 300 px wide or wider at the default text size; at 200% text they stand below it.
+- Use `reorderable` where the order means something and is the person's to decide: the families of a font stack, the sections of a home screen, the files of an attachment, a queue. For a long list, offer a way to sort it instead.
+- Reorder your items in the `move` handler, or as soon after it as your framework renders. You may move the elements you have or render new ones: the list finds the moved item by its place and its name.
+- Give each item a `label` when its content's text does not name it well: the name is part of its handle's name, so the handles of two items are told apart, and it is what the announcements say.
+- Write each sentence whole, with its places. The list builds no phrase of its own, so the order of the words is your language's.
+- A control of yours in an item (a button that removes it) keeps its own focus stop, after the handle. Name it with the item ("Remove Inter"). When you remove the item that holds focus, the list moves focus to the handle of the item that takes its place; say the removal yourself.
 
 ### Choosing a selection mode
 
 | Selection | The list is | Choosing an option |
 | --- | --- | --- |
-| None (default) | A list | Nothing is chosen. Interactive rows emit their own click. |
-| Single | A listbox | Selects the option and clears the one that was selected. The selected option cannot be cleared by choosing it again, as with radio buttons. If "none" is a valid answer, add an option for it. |
+| None (default) | A list | Nothing is chosen. Interactive items emit their own click. |
+| Single | A listbox | Selects the option and clears the one that was selected. It cannot be cleared by choosing it again. |
 | Multiple | A multi-select listbox | Switches the option on or off. |
 
-The arrow keys only move focus. The selection changes when the person presses Space or Enter, or taps the row. This is deliberate: in a list, choosing a row can start something slow, and moving through fifty rows must not start fifty loads.
-
-A selected option is drawn with the selected fill and a check at its end. In the default system the fill is a layer of the row's own content color, as a menu's checked item is, so it is told from a hovered row on any surface. The check's space is kept in every option, so the text lines up. The check is what meets the 3:1 contrast for the state. The fill alone does not.
-
-### Rows and their parts
-
-- A headline alone gives a one-line row. An overline, or a line of supporting text, gives a two-line row. Two or more lines of supporting text give a three-line row. Rows grow past these heights with their content and with larger text.
-- `supportingMaxLines` cuts long supporting text with an ellipsis, for a preview column. The full text is still read to assistive technology.
-- At the start of a row, use a leading icon, or leading media: an avatar (a round box, for people) or an image (a larger rounded square, for things). Media replaces the icon.
-- At the end, use a short trailing text (a count, a time), a trailing icon (a chevron for a row that opens something), and on a static row your own control. A link row whose `target` has the value `new` draws `open_in_new` as its trailing icon by itself, unless you name another.
-- Icons are names of glyphs in the design system's icon set (`wifi`, `chevron_right`). A glyph that shows a direction along the line is mirrored in a right-to-left layout.
-- `divider` draws a hairline under the row, starting where the text starts, in the one hairline color every component uses. Set it on every row but the last, or at the end of a group. You do not add a [divider](/components/divider/) of your own between rows.
+The arrow keys only move focus; the selection changes when the person presses Space or Enter, or taps the item. A selected option is drawn with the selected fill and a check at its end, and the check's space is kept in every option, so the content lines up.
 
 ### Do
 
-- Keep the headline short and put details in the supporting text. The headline is the row's name.
-- Give a selectable list a `label` that says what the options are, such as "Theme".
-- Make a row that switches a setting a static row with a switch in its trailing slot. Name the switch by the headline and hide its visible label.
+- Give a selectable list a `label` that says what the options are, and a reorderable list one that says what the items are.
+- Give an item an `href` when it goes to a page, and keep `interactive` for an item that acts in place.
 - Put a heading between two lists to make sections. The list has no section header of its own.
-- Give a row an `href` when it goes to a page, and keep `interactive` for a row that acts in place. A row that navigates from a click handler is not a link: it cannot be opened in a new tab, and its address cannot be copied.
 
 ### Don't
 
-- Don't put a button, link, switch or any other control inside an interactive row, a link row or an option. The row is one element, so assistive technology cannot reach a control inside it, and a press on the control also activates the row.
-- Don't use an option for something that runs at once. A listbox chooses a value. Use interactive rows for actions.
-- Don't disable a static row. It has no action to disable, so `disabled` is ignored there.
-- Don't draw a checkbox or radio button in a row to show selection. Use `selection`, which draws the check and exposes the state.
+- Don't put a button, link, switch or any other control inside an interactive item, a link item or an option. The item is one element, so assistive technology cannot reach a control inside it, and a press on the control also activates the item.
+- Don't use an option for something that runs at once. A listbox chooses a value.
+- Don't draw your own drag handle or move buttons: `reorderable` draws the handle, and its menu is the way to move that needs no dragging.
 
 ## Accessibility
 
@@ -416,54 +266,24 @@ A selected option is drawn with the selected fill and a check at its end. In the
 
 ### What the component handles
 
-- A list without selection is exposed as a list, and each row as a list item with its position and the list's size. An interactive row is one button inside its list item, and a link row is one link there.
-- A link row is in the list's arrow-key order like an interactive row. Enter follows it; Space does what it does on any link and shows no pressed state. One that opens a new tab reads its `targetLabel` after its name and description. A disabled link row has nothing to follow or copy and is still reached with the arrow keys.
-- A selectable list is exposed as a listbox named by `label`, multi-selectable while `selection` is multiple. Each row is an option with its selected state, its position and the list's size.
-- An interactive row, a link row or an option is named by its headline and described by its overline, supporting text and trailing text, in reading order. Icons, the check, the divider and the leading media are hidden.
-- A list with interactive rows or options is one Tab stop. Tab goes to the row focused last, else the first selected option, else the first enabled row. Up and Down Arrow move between rows without wrapping. Home and End go to the first and last row. Typing moves to the next row whose headline begins with the typed letters. Space and Enter activate. Static rows take no focus. A control in a static row keeps its own Tab stop.
-- In a reorderable list each move button is a button named by `moveUpLabel` or `moveDownLabel` with its row's headline in the place `{headline}`. Each is a Tab stop of its own in reading order, before the row's trailing control. The list is not one Tab stop there, and the arrow keys do nothing. The first row's move-up button and the last row's move-down button are disabled and still drawn, so every row has the same parts in the same places.
-- After a move, focus stays on the same button of the moved row, so pressing the key again moves the row again. Where the row has become the first or the last, focus goes to its other move button.
-- A reorderable list has one polite live region. After a move it holds `movedText` with the row's headline, its new position and the number of rows, and a later move replaces it. The numbers are written as the list's language writes them. Nothing else announces a move.
-- Two rows change places with a short motion, and at once where motion is reduced.
-- When you remove the row that holds focus, focus goes to the same control of the row that now stands in its place, else of the row before it.
-- Where the controls would squeeze the text, they move to a line of their own below it, and no control gets smaller than its target.
-- Disabled rows can still be reached with the arrow keys, so people learn they exist, but they cannot be activated.
-- The focus ring is drawn inside the row, so a scroll view around the list cannot clip it. It shows for keyboard focus only.
-- An interactive row or an option is at least the minimum target tall, and the whole row is its hit area. Rows never overlap each other's hit areas.
-- Rows grow with larger text. The headline wraps and is never cut.
-- Debug builds report a row without a headline, a selectable list without a label, an option whose value is empty or repeated, a selection that names no option, an option that has an `href`, an `href` that is a `javascript:` address or cannot be read, an unknown `target`, and a link row whose `target` has the value `new` and that has no `targetLabel`. For a reorderable list they report a move word nobody gave (once per word), text between braces in `movedText` that is not one of the three places, a row that has `interactive` or an `href`, and `reorder` on a selectable list.
+- A list without selection is exposed as a list, and each item as a list item with its position and the list's size. An interactive item is one button inside its list item, and a link item is one link there. A selectable list is a listbox named by `label`, with its orientation; each item is an option with its selected state.
+- A list with interactive items, links or options is one Tab stop. The arrow keys of the arrangement move between items without wrapping (Up and Down in a column, Left and Right in a line, mirrored in a right-to-left layout; in a grid, across the lines too). Home, End and typeahead work. Static items take no focus; a control in them keeps its own Tab stop.
+- In a reorderable list each handle is a menu button named by your `dragHandleLabel` with the item's name, described by your `dragHandleHint`, and a Tab stop of its own. Its menu moves the item with single presses, which meets WCAG's requirement that whatever is done by dragging can be done without it (2.5.7). Space lifts the item for the keyboard (2.1.1).
+- One polite live region says when the keyboard lifts an item, where it would land at each step, where it stands once a move took effect, and that it went back after Escape.
+- A dragged item follows the pointer with the dragged fill and shadow; the others slide aside over the reorder motion. Where motion is reduced, everything but the item under the pointer moves at once. In forced colors a dragged item is outlined in the highlight color.
+- Escape puts a dragged item back and does not also close a dialog the list is in. A long press on an item opens no menu of the browser's.
+- An interactive item, a link or an option is at least the minimum target, its focus ring is drawn inside it, and it grows with larger text.
+- Debug builds report an item without a name, a selectable or reorderable list without a label, an option whose value is empty or repeated, a selection that names no option, a control inside an interactive item or an option, a word nobody gave, and `reorderable` on a selectable list.
 
 Known platform gaps:
 
-- Web: the `drag` value of `reorder` is not built. It draws the two move buttons and no handle, and nothing can be dragged.
-- SwiftUI, Compose, Flutter and React Native have no reorderable list yet: no `reorder`, no `move` and none of its three words.
-- SwiftUI, Compose, Flutter and React Native have no link rows yet: no `href`, `target` or `targetLabel`.
-- SwiftUI has no list or listbox role and no multi-selectable property. The list is a container named by `label`, each interactive row or option is a button (an option has the selected trait while chosen), and each carries its position as its value ("2 of 3"), in English only.
-- SwiftUI never gives keyboard focus to a disabled button, so the arrow keys pass over a disabled row instead of reaching it.
-- SwiftUI always hides the leading media from assistive technology, so a photo you name is not read.
-- SwiftUI reads an option's value only from a `.tag(_:)` applied to the `TanreiListItem` itself, before any other modifier. A tag on another view does not reach it.
-- SwiftUI: the arrow keys, Home, End, typeahead and the Tab stop are tested as rules, not yet with a real keyboard.
-- React Native has no listbox role and no multi-selectable property. A selectable list keeps the list role, and each option has the option role and its selected state. What VoiceOver and TalkBack announce for the list itself is up to the platform.
-- React Native has no position-in-set property. An interactive row or an option carries its position as its value text ("2 of 3"). A static row is not an element of its own, so no position is announced for it. The position text is in English unless you pass `positionText`.
-- React Native: the arrow keys, Home, End and typeahead arrive through a key event that has not yet been checked on a device with a hardware keyboard.
-- Flutter has no listbox or option role, no multi-selectable flag and no position or set size. A selectable list is exposed as a list of selectable list items.
-- Flutter always hides the leading media from assistive technology, so a photo you name is not read.
-- Compose has no list, listbox or option role and no multi-selectable flag. The list is a collection, and TalkBack announces each option as selected or not.
-- Compose: inside a `LazyColumn` in the list, only the rows that are composed count toward the position, the set size and the arrow keys.
-- Compose always hides the leading media from assistive technology, so a photo you name is not read.
-- Compose: only the list's Tab stop accepts a focus request. A call to focus another row, from your code or from an accessibility service, does nothing.
-- Compose: the keyboard through the platform's real key handling, and TalkBack on a listbox, have been tested under Robolectric only, not yet on a device.
-- SwiftUI, Compose, Flutter and React Native cannot inspect what you put in a row's slots, so they do not report a control inside an interactive row or an option. The rule is yours to keep.
+- SwiftUI, Compose, Flutter and React Native ship the earlier list and none of this revision: no orientation, wrapping, gap, content slot or reordering.
 
 ### What you need to do
 
-- Give a selectable list a `label`. Without one, the listbox has no name.
-- Write headlines that tell rows apart. The headline is what a screen reader says first, and what typeahead matches.
-- Give a link row whose `target` has the value `new` a `targetLabel` in your product's language, such as "opens in a new tab". Tanrei ships no words of its own.
-- Give a reorderable list its three words in your product's language: `moveUpLabel`, `moveDownLabel` and `movedText`. Without the first two the buttons work and have no name. Without the third a move is not announced.
-- Reorder your items when `move` fires. The list has changed nothing, and an order you give later than the reorder motion's time is drawn without an announcement.
-- Say a removal or an addition yourself, and move focus yourself when the last item is removed.
-- Keep interactive rows, link rows and options free of controls. A row that needs its own control stays static and holds it in the trailing slot, with the control named by the headline.
-- If an avatar or image carries meaning that the headline does not, say it in the supporting text. The media is hidden from assistive technology unless you name it, and SwiftUI, Compose and Flutter never read it.
+- Give a selectable or reorderable list a `label`.
+- Give a reorderable list its words in your product's language. Without them the handles work unnamed and nothing is announced.
+- Reorder your items when `move` fires. The list has changed nothing.
+- Give a link item whose `target` is `new` a `targetLabel`, such as "opens in a new tab".
+- Keep interactive items, links and options free of controls. An item that needs its own control stays static.
 - For long data, build your own lazy list and state the set size where the platform needs it. The list does not scroll or virtualize.
-- On React Native, pass `positionText` in your product's language. On SwiftUI the position is read in English, and there is no way to change it yet.

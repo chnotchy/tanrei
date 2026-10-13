@@ -1,0 +1,367 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "swatch",
+  "title": "Swatch",
+  "summary": "Shows a color as a sample with its name beside it: a small square or dot of exactly that color, over a checkerboard where the color lets what is behind it through, edged so that a color close to the surface still shows where it ends. A sample to look at, never a control and never a picker.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The sample: a square box of the swatch's size, clipped to a rounded square or to a circle. It carries no state: nothing about it answers a pointer, a press or focus."
+    },
+    {
+      "id": "checkerboard",
+      "description": "Squares of two quiet colors under the color, filling the sample. A color that lets what is behind it through shows them; an opaque color covers them entirely.",
+      "optional": true
+    },
+    {
+      "id": "fill",
+      "description": "The color itself, exactly as given, over the checkerboard.",
+      "optional": true
+    },
+    {
+      "id": "outline",
+      "description": "One hairline inside the sample's edge, drawn over the color and following its shape, so that a color close to the surface around it still shows where it ends. An empty swatch draws it alone."
+    },
+    {
+      "id": "label",
+      "description": "The color's name, beside the sample: what the color is called where it is shown (\"Teal 700\", \"Primary\", \"Bug\").",
+      "optional": true
+    },
+    {
+      "id": "supporting-text",
+      "description": "A line under the name: the color's value, the token it comes from, or where it is used.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "color",
+      "type": "string",
+      "default": "",
+      "description": "The color the sample shows: in every platform a number sign and three, four, six or eight hexadecimal digits in sRGB, either case (#0f766e; the fourth or the last two the alpha, #0f766e80); on the web also any CSS color, a custom property included (var(--tanrei-sys-color-primary)); on a native platform also the platform's own color. Empty shows no color: the edge alone."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The color's name, in the product's words (\"Teal 700\", \"Primary\", \"Bug\"). Drawn beside the sample, and what assistive technology reads; while labelHidden is true it is the sample's accessible name and is not drawn. The value of the color is not a name: put it in supportingText."
+    },
+    {
+      "name": "supportingText",
+      "type": "string",
+      "default": "",
+      "description": "A line under the name: the color's value (\"#0f766e\"), the token it comes from, or where it is used. Drawn under the label and read after it; while labelHidden is true it is the sample's accessible description and is not drawn."
+    },
+    {
+      "name": "labelHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "True draws the sample alone, for a place with no room for text (a row of dots): the label becomes the sample's accessible name and supportingText its description, so the color is still told to assistive technology, though not to a person who sees the sample and cannot tell its color. Prefer a visible label."
+    },
+    {
+      "name": "decorative",
+      "type": "boolean",
+      "default": false,
+      "description": "True draws the sample alone and hides the swatch from assistive technology, for a swatch that stands beside the same name or value in visible text (a table cell that already says \"#0f766e\", a list row titled \"Teal 700\"), so the name is read once. label and supportingText are then neither drawn nor read."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "Small (16) stands beside one line of small text: a table cell, a dense row, a legend. Medium (24) beside a line of body text: a list row, a setting. Large (32) where the color itself is looked at: a palette, a theme's overview. The text beside the sample follows the size. A design system may add values.",
+      "axis": "tanrei.comp.swatch.size"
+    },
+    {
+      "name": "shape",
+      "type": "enum",
+      "values": [
+        "square",
+        "circle"
+      ],
+      "default": "square",
+      "description": "Square, a slightly rounded square, is a tile of the color. Circle is a dot: a color that marks something else (a label's color, a series in a legend). A design system may add values.",
+      "axis": "tanrei.comp.swatch.shape"
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "SWC-1",
+      "text": "THE swatch SHALL draw its sample as a square box whose side is the container size of its size (comp.swatch.container.size.small for small, comp.swatch.container.size.medium for medium, comp.swatch.container.size.large for large), with the corners of its shape (comp.swatch.container.shape.square for square, comp.swatch.container.shape.circle for circle), never larger than half the box's side (a circle where the value is sys.shape.corner.full) and eased by sys.shape.corner-smoothing, and SHALL clip everything the sample draws to that shape. THE swatch SHALL lay itself out inline with the text or the row it is placed in, its sample one box that the layout neither stretches nor shrinks, and SHALL draw no elevation."
+    },
+    {
+      "id": "SWC-2",
+      "text": "WHILE color is a color THE swatch SHALL fill its sample with exactly that color, in sRGB, its alpha included, over the checkerboard (SWC-3), and SHALL mix nothing into the fill: no state layer, no tint, no opacity of its own, no elevation, and no change with the scheme, the contrast level or the design system — the swatch shows the color it is given, and a product that wants a color of the current scheme gives it that role's value."
+    },
+    {
+      "id": "SWC-3",
+      "text": "WHILE color is a color THE swatch SHALL draw under the fill, across the whole sample and clipped to its shape, a checkerboard of squares of side comp.swatch.checkerboard.size, alternately comp.swatch.checkerboard.color and comp.swatch.checkerboard.alternate-color, the square at the sample's top-left corner in comp.swatch.checkerboard.color in every layout direction, so that a color that lets what is behind it through is shown as such and an opaque color covers the checkerboard entirely."
+    },
+    {
+      "id": "SWC-4",
+      "text": "THE swatch SHALL edge its sample, inside its size and following its shape, with a line comp.swatch.outline.width wide in comp.swatch.outline.color, drawn over the fill, whatever the color: so that a color close to the surface around it — white on a light surface — still shows where it ends."
+    },
+    {
+      "id": "SWC-5",
+      "text": "WHILE color is empty THE swatch SHALL draw no fill and no checkerboard, the surface showing through the sample, and the edge of SWC-4, which is then all the sample draws; its label and supporting text SHALL be drawn and read as for any color."
+    },
+    {
+      "id": "SWC-6",
+      "text": "THE swatch SHALL read color as a number sign followed by three, four, six or eight hexadecimal digits in either case, with white space before and after it left out, in sRGB — red, green and blue, and where there are four or eight digits the last digit or pair the alpha — as CSS reads that notation (#0f766e80 is the teal at half opacity, #fff white); on the web it SHALL also take any CSS color value, a reference to a custom property included, and draw it as the browser resolves it where the swatch stands, and on a native platform also the platform's own color. IF color is not empty and reads as no color THE swatch SHALL draw as for an empty color (SWC-5) and in debug builds report the value."
+    },
+    {
+      "id": "SWC-7",
+      "text": "WHILE labelHidden and decorative are false and label or supportingText is not empty THE swatch SHALL draw beside its sample, comp.swatch.gap.small after it for size small (and so on for each size), one column of text: label in comp.swatch.label.typescale.small for size small (and so on for each size) and comp.swatch.label.color, and under it supportingText in comp.swatch.supporting-text.typescale.small for size small (and so on) and comp.swatch.supporting-text.color, each drawn only where it is not empty. THE swatch SHALL centre the sample and the column of text on each other vertically, SHALL be as wide as its sample, the gap and its longest line, and no wider, and WHERE the place it stands in is narrower SHALL wrap each text at word boundaries rather than cut it, keeping the sample whole. Each text SHALL be laid out in its own direction, isolated from the text around it, so that a value such as #0f766e keeps its order in a right-to-left layout."
+    },
+    {
+      "id": "SWC-8",
+      "text": "WHILE labelHidden is true or decorative is true THE swatch SHALL draw its sample alone, with no text and no gap beside it, and SHALL be exactly as large as its sample."
+    },
+    {
+      "id": "SWC-9",
+      "text": "WHILE the swatch draws its text (SWC-7) THE swatch SHALL keep its sample from assistive technology and expose its label and then its supportingText as text, in that order, read where the swatch stands, with no role of its own: the color is told by the words, which every person reads, and the sample adds nothing a word does not say."
+    },
+    {
+      "id": "SWC-10",
+      "text": "WHILE labelHidden is true and decorative is false THE swatch SHALL be exposed to assistive technology as one image named by label — by supportingText where label is empty — and described by supportingText where label names it, and SHALL expose nothing else: not the color's value unless the product wrote it, not its size or its shape."
+    },
+    {
+      "id": "SWC-11",
+      "text": "WHILE decorative is true THE swatch SHALL expose nothing to assistive technology, and SHALL neither draw nor read label and supportingText."
+    },
+    {
+      "id": "SWC-12",
+      "text": "IF decorative is false and label and supportingText are both empty THE swatch SHALL draw its sample alone, expose nothing to assistive technology, and in debug builds report that a color is shown without a name: a sample alone tells its color to no one who cannot see it or tell it from another."
+    },
+    {
+      "id": "SWC-13",
+      "text": "THE swatch SHALL NOT take pointer, touch or keyboard input, SHALL NOT take focus or be a stop in the focus order, and SHALL NOT change anything it draws under a pointer, a press or focus: it has no hovered, focused, pressed, selected or disabled state, draws no state layer, no ripple and no focus indicator, and emits no event. WHERE the swatch is placed inside an element that takes input (a link, a Button, a list item, a chip, a menu item) THE swatch SHALL let input over it reach that element, stay as it is drawn while that element is hovered, focused or pressed, and add what it exposes (SWC-9, SWC-10) to that element's content in reading order. A swatch that is chosen from a set is a picker's, not this component's.",
+      "verify": "A test wraps a swatch with labelHidden, labelled Teal 700, in a link with no other content: the link's accessible name is Teal 700, a click on the sample follows the link, and the sample's pixels do not change on hover."
+    },
+    {
+      "id": "SWC-14",
+      "text": "WHEN color, label, supportingText, labelHidden, decorative, size or shape changes THE swatch SHALL draw and expose the new value at once, without a motion, and SHALL NOT announce the change by itself."
+    },
+    {
+      "id": "SWC-15",
+      "text": "WHILE the text size is enlarged THE swatch SHALL keep its sample at the container size of its size and let its label and supportingText follow their text styles as they grow, the sample staying centred on the column of text (SWC-7): a sample is a picture of a color and is enlarged with the page, not with the text."
+    },
+    {
+      "id": "SWC-16",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE swatch SHALL keep its fill and its checkerboard out of the forced palette, because the color is the content the swatch shows and not a decoration of it, SHALL draw its edge in the platform's text color so that the sample is bounded on any background, and its label and supportingText in the platform's text color.",
+      "verify": "On the web, with forced colors emulated: the fixture default keeps its fill's color, its edge is CanvasText, and its label is CanvasText."
+    },
+    {
+      "id": "SWC-17",
+      "text": "WHERE the layout direction is right-to-left THE swatch SHALL draw its sample at the start, the right, and its text after it, to the left, with the gap applied by logical start and end, and SHALL mirror no drawing of its own: the checkerboard starts at the sample's top-left corner in every direction (SWC-3), and each text keeps its own direction (SWC-7)."
+    },
+    {
+      "id": "SWC-18",
+      "text": "THE swatch SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the swatch is shown THE swatch SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "SWC-19",
+      "text": "WHEN size or shape names a value that the active design system does not have THE swatch SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    }
+  ],
+  "accessibility": {
+    "role": "img",
+    "keyboard": [],
+    "labeling": "A swatch with its name drawn beside it is text: the sample is hidden and the label, then the supporting text, are read where the swatch stands. A swatch whose label is hidden is one image named by the label and described by the supporting text. A decorative swatch, beside the same name in text, is hidden. A swatch with neither a label nor supporting text is hidden and reported. The color's value is never turned into words by the swatch: a color's name is the product's, in the product's language.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the swatch takes no input and no focus (SWC-13), so there is no target to size and minimumTarget holds trivially. A swatch that is pressed is inside a link or a Button, which meets the minimum target by its own spec.",
+      "Use of color (WCAG 1.4.1): a sample alone tells a color only to a person who can see it and tell it from its neighbours. The name drawn beside it tells everyone, which is why the label is drawn by default; a hidden label (labelHidden) still names the color to assistive technology, but not to a person with a color vision deficiency who sees the sample. Where there is no room for the name, the product shows it on demand (a tooltip on the element that holds the swatch).",
+      "Non-text contrast (WCAG 1.4.11): the swatch's meaning is carried by its text, so the sample's edge is not a graphical object required to understand the content and is not held to 3:1; it is the divider's hairline (outline-variant), which raised-contrast schemes strengthen, and it keeps a color close to the surface from disappearing into it.",
+      "Decorative or named is the product's decision and cannot be seen from the swatch: beside \"#0f766e\" in text, a named swatch would be read as \"Teal 700, #0f766e\" twice. The rule the docs page gives: if deleting the swatch loses a name, it is named; otherwise it is decorative.",
+      "Contrast in the default system: the label is on-surface and the supporting text on-surface-variant, pairs the token invariants hold to 4.5:1 on every surface tone. The sample's own color is the product's and is not checked: it is content, as a picture is.",
+      "Not a picker: a set of swatches of which one is chosen is a selection control with roles, keys and a value of its own (a radio group or a listbox of colors), which this component does not provide and does not imitate."
+    ]
+  },
+  "tokens": "comp.swatch",
+  "fixtures": [
+    {
+      "id": "default",
+      "props": {
+        "color": "#0f766e",
+        "label": "Teal 700",
+        "supportingText": "#0f766e"
+      }
+    },
+    {
+      "id": "label-only",
+      "props": {
+        "color": "#7c3aed",
+        "label": "Violet"
+      }
+    },
+    {
+      "id": "small",
+      "props": {
+        "color": "#0f766e",
+        "label": "Teal 700",
+        "supportingText": "#0f766e",
+        "size": "small"
+      }
+    },
+    {
+      "id": "large",
+      "props": {
+        "color": "#0f766e",
+        "label": "Teal 700",
+        "supportingText": "#0f766e",
+        "size": "large"
+      }
+    },
+    {
+      "id": "circle",
+      "props": {
+        "color": "#e11d48",
+        "label": "Bug",
+        "shape": "circle"
+      }
+    },
+    {
+      "id": "translucent",
+      "props": {
+        "color": "#0f766e80",
+        "label": "Teal 700 at half opacity",
+        "supportingText": "#0f766e80"
+      }
+    },
+    {
+      "id": "near-surface",
+      "props": {
+        "color": "#ffffff",
+        "label": "White",
+        "supportingText": "#ffffff"
+      }
+    },
+    {
+      "id": "empty",
+      "props": {
+        "color": "",
+        "label": "No color"
+      }
+    },
+    {
+      "id": "label-hidden",
+      "props": {
+        "color": "#0f766e",
+        "label": "Teal 700",
+        "supportingText": "#0f766e",
+        "labelHidden": true
+      }
+    },
+    {
+      "id": "dot",
+      "props": {
+        "color": "#e11d48",
+        "label": "Bug",
+        "labelHidden": true,
+        "shape": "circle",
+        "size": "small"
+      }
+    },
+    {
+      "id": "decorative",
+      "props": {
+        "color": "#0f766e",
+        "label": "Teal 700",
+        "decorative": true
+      }
+    },
+    {
+      "id": "rtl",
+      "direction": "rtl",
+      "props": {
+        "color": "#0f766e",
+        "label": "أخضر مزرق",
+        "supportingText": "#0f766e"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "alpha",
+      "name": "tanrei-swatch",
+      "props": {
+        "color": "color",
+        "label": "label",
+        "supportingText": "supportingText",
+        "labelHidden": "labelHidden",
+        "decorative": "decorative",
+        "size": "size",
+        "shape": "shape"
+      },
+      "notes": "`<tanrei-swatch color=\"#0f766e\" label=\"Teal 700\" supporting-text=\"#0f766e\" size shape label-hidden decorative>`. The host is `display: inline-flex`, `vertical-align: middle`, with no `tabindex`, no listeners and `pointer-events` left as they are (SWC-13). The sample is a `span` in the shadow root whose background is two layers: the color as a `linear-gradient` of one color over a `conic-gradient` checkerboard, both clipped by the shared corner rule; the edge is an inset `box-shadow`, drawn over the background. `color` is set as a custom property through `style.setProperty`, so any CSS color the browser resolves where the swatch stands is drawn (`var(--tanrei-sys-color-primary)` included), and a value `CSS.supports('color', …)` refuses is drawn as empty (SWC-6). The sample is `aria-hidden` while the text is drawn; while `label-hidden` it is `role=\"img\"` with `aria-label` and `aria-description`; while decorative or nameless the host is `aria-hidden`. Under `forced-colors: active` the sample keeps `forced-color-adjust: none` and takes a `CanvasText` edge (SWC-16)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiSwatch",
+      "props": {
+        "color": "color",
+        "label": "label",
+        "supportingText": "supportingText",
+        "labelHidden": "labelHidden",
+        "decorative": "isDecorative",
+        "size": "size",
+        "shape": "shape"
+      },
+      "notes": "`TanreiSwatch(_ label: String, color: Color?, supportingText:, size:, shape:, labelHidden:, isDecorative:)`, with an initializer that takes the hexadecimal string of SWC-6. `allowsHitTesting(false)`. With its text, one element that combines its children; with labelHidden, an element with the image trait and the label; decorative, `accessibilityHidden(true)`."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiSwatch",
+      "props": {
+        "color": "color",
+        "label": "label",
+        "supportingText": "supportingText",
+        "labelHidden": "labelHidden",
+        "decorative": "decorative",
+        "size": "size",
+        "shape": "shape"
+      },
+      "notes": "`TanreiSwatch(color: Color?, label, supportingText, size, shape, labelHidden, decorative)`, with an overload that takes the hexadecimal string of SWC-6. No `clickable` and no `focusable` modifier; with labelHidden, semantics `Role.Image` with the label as `contentDescription`; decorative, `clearAndSetSemantics {}`."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiSwatch",
+      "props": {
+        "color": "color",
+        "label": "label",
+        "supportingText": "supportingText",
+        "labelHidden": "labelHidden",
+        "decorative": "decorative",
+        "size": "size",
+        "shape": "shape"
+      },
+      "notes": "`TanreiSwatch(color: Color?, label:, supportingText:, size:, shape:, labelHidden:, decorative:)`, with `TanreiSwatch.hex(…)` for the string of SWC-6. Wrapped in `IgnorePointer`; with labelHidden, `Semantics(image: true, label:)` over an excluded sample; decorative, `ExcludeSemantics`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Swatch",
+      "props": {
+        "color": "color",
+        "label": "label",
+        "supportingText": "supportingText",
+        "labelHidden": "labelHidden",
+        "decorative": "decorative",
+        "size": "size",
+        "shape": "shape"
+      },
+      "notes": "`<Swatch color=\"#0f766e\" label=\"Teal 700\" supportingText=\"#0f766e\" />`; `color` is any color React Native parses. `pointerEvents=\"none\"`; with labelHidden, `accessibilityRole=\"image\"` with the label as `accessibilityLabel`; decorative, `accessible={false}` with `importantForAccessibility=\"no-hide-descendants\"`."
+    }
+  }
+}

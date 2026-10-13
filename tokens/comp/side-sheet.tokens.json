@@ -123,8 +123,13 @@
         "scrim": {
           "color": {
             "$type": "color",
-            "$value": "{tanrei.sys.color.scrim}",
-            "$description": "The dim over everything behind a modal sheet, alpha included (the scrim role is the overlay as drawn)."
+            "$value": "{tanrei.comp.modal-layer.scrim.color}",
+            "$description": "The dim over everything behind a modal sheet, alpha included: the modal layer's, unless a system sets the side sheet apart."
+          },
+          "blur": {
+            "$type": "dimension",
+            "$value": "{tanrei.comp.modal-layer.scrim.blur}",
+            "$description": "How much the scrim behind a modal sheet blurs what lies behind it: the modal layer's (0, none, in the default system)."
           }
         },
         "header": {
@@ -262,21 +267,21 @@
         "motion": {
           "enter-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.medium2}",
-            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout."
+            "$value": "{tanrei.comp.modal-layer.motion.enter-duration}",
+            "$description": "How long a sheet takes to slide in (and a modal sheet's scrim to fade in), or a standard sheet to open in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
           },
           "enter-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            "$value": "{tanrei.comp.modal-layer.motion.enter-easing}"
           },
           "exit-duration": {
             "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short4}",
-            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout."
+            "$value": "{tanrei.comp.modal-layer.motion.exit-duration}",
+            "$description": "How long a sheet takes to slide out (and a modal sheet's scrim to fade out), or a standard sheet to close in the layout: the modal layer's, so that every modal surface of a product keeps one tempo."
           },
           "exit-easing": {
             "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            "$value": "{tanrei.comp.modal-layer.motion.exit-easing}"
           }
         }
       }

@@ -2,7 +2,7 @@
 title: رفع الملفات
 description: يتيح للأشخاص اختيار ملفات بمنتقي ملفات، ويعرض ما اختير عناصر ملفات، في عمود من الصفوف أو في سلسلة من البلاطات. إذا وُضع في نموذج احتفظ بالملفات المختارة وأرسلها بلا شيفرة؛ والمنتج الذي يرسل الملفات بنفسه يعطي عناصر الملفات. وهو لا يرفع شيئًا بنفسه أبدًا.
 translationOf: components/file-upload.mdx
-sourceHash: fb899706d800e36991b2221b490a0dee56cc73df
+sourceHash: 67264060c8d6ff2b2e7ccea18067fef9dac9238e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -254,7 +254,6 @@ upload.clear();
 | الملفات المختارة في مكان غير ما تحت المنتقي: داخل رسالة، أو بجانب معاينة، أو في جدول | [منتقي ملفات](/ar/components/file-picker/)، و [عناصر ملفات](/ar/components/file-item/) حيث تعرضها |
 | ملف واحد يُقرأ في الحال ولا يُحتفظ به | [منتقي ملفات](/ar/components/file-picker/) وحده |
 | ملفات موجودة سلفًا عند منتجك، ولا شيء يُختار | [عناصر ملفات](/ar/components/file-item/) وحدها |
-| ملفات بترتيب يغيّره الأشخاص | [قائمة](/ar/components/list/) تعرض صفوفها الملفات؛ انظر [صفحة عنصر الملف](/ar/components/file-item/#ملفات-بترتيب-يغيّره-الأشخاص) |
 
 ## المواصفات
 
@@ -286,7 +285,7 @@ upload.clear();
 | الخصائص | `layout`، `multiple`، `accept`، `maxSize`، `constraintsText`، `dropText`، `disabled`، `error`، `required` | `itemForm`، `itemPreview`، `itemFit`، `itemNameHidden`، `itemWidth`، `itemHeight` (وهي في العنصر `form`، `preview`، `fit`، `nameHidden`، `width`، `height`)، `removeLabel`، `retryLabel` | `rows`، `maxFiles`، `label`، `emptyText`، `typeErrorText`، `sizeErrorText`، `countErrorText`، `announcement` |
 | الأحداث | — | الأحداث `click`، `remove`، `retry` في عناصر الملفات التي تعطيها | `select`، `reject`، `change` |
 | المنافذ | `trigger`، `icon` | — | المنفذ الافتراضي: عناصر ملفاتك، مع `rows="given"` |
-| الرموز | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`، `comp.file-upload.list.item-gap` |
+| الرموز | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`، `comp.list.gap.small` |
 
 لمنتقي الملفات `label` و `maxFiles` و `selectionText` خاصة به. وهي لا تُمرَّر إليه: فالخاصية `label` في مكوّن رفع الملفات تسمّي المنتقي والقائمة معًا، و `maxFiles` فيه تعدّ كل ملفات القائمة، وهو يكتب `selectionText` في المنتقي من `emptyText` ما دامت القائمة فارغة.
 
@@ -359,7 +358,29 @@ upload.clear();
 
 مع `rows="own"` و `itemPreview` يعرض الملف المحتفَظ به صورته هو إذا كان صورة. ولكل صورة كلفة، هي كلفة عنصر الملف، ومذكورة في [صفحته](/ar/components/file-item/#المعاينة-وكلفتها). ومن دون `itemPreview`، وهو الوضع الافتراضي، تكلّف مئة ملف محتفَظ به مئة مرجع ولا شيء أكثر.
 
-ملفات مكوّن رفع الملفات ليس لها ترتيب يستطيع الشخص تغييره. ولهذه الحاجة انظر [ملفات بترتيب يغيّره الأشخاص](/ar/components/file-item/#ملفات-بترتيب-يغيّره-الأشخاص).
+### ملفات بترتيب يغيّره الأشخاص
+
+مع `reorderable` يستطيع الأشخاص وضع الملفات بترتيب آخر. يحصل كل صف على مقبض، ويمكن سحب الصف كله — بالفأرة بعد بضع نقاط من الحركة، وبالإصبع بعد ضغطة طويلة أو فورًا من المقبض — بينما تتنحّى الصفوف الأخرى. والمقبض زرّ أيضًا: يفتح قائمة بأربع حركات، وبلوحة المفاتيح يرفع Space الصف، وتنقله مفاتيح الأسهم، ويضعه Space، ويعيده Escape. لا يكون السحب الطريقة الوحيدة أبدًا (WCAG 2.5.7)، وتُعلَن كل حركة بكلماتك.
+
+مع `rows="own"` يعيد مكوّن رفع الملفات ترتيب الملفات التي يحتفظ بها بنفسه، ويرسلها بالترتيب الجديد، ويطلق `change`. ومع `rows="given"` يطلق `move` مع `from` و `to` ولا يحرّك شيئًا: ضع عنصر الملف الخاص بك في مكانه الجديد.
+
+الكلمات هي كلمات [القائمة](/ar/components/list/): `drag-handle-label` (`أعد ترتيب {label}`، ويُملأ باسم الملف)، وكلمات الحركات الأربع، والجمل الثلاث.
+
+<DemoFrame label="مكوّن رفع ملفات قابل لإعادة الترتيب يحتفظ بملفاته بنفسه. اختر بعض الملفات، ثم اسحب صفًا، أو استخدم قائمة مقبضه أو لوحة المفاتيح. لا يُرسَل شيء." column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" multiple reorderable label="المرفقات" remove-label="إزالة {name}" drag-handle-label="أعد ترتيب {label}" drag-handle-hint="Space يرفع، والأسهم تنقل، وSpace يضع، وEscape يلغي؛ وEnter يفتح الحركات" move-to-start-label="انقل إلى البداية" move-before-label="انقل إلى الأعلى" move-after-label="انقل إلى الأسفل" move-to-end-label="انقل إلى النهاية" lifted-text="رُفع {label}: {position} من {count}" moved-text="{label}: {position} من {count}" cancelled-text="أُعيد {label} إلى {position} من {count}">
+    <tanrei-button slot="trigger" variant="outlined">اختر الملفات</tanrei-button>
+  </tanrei-file-upload>
+</DemoFrame>
+
+```html
+<tanrei-file-upload name="attachments" multiple reorderable remove-label="إزالة {name}"
+  drag-handle-label="أعد ترتيب {label}" move-to-start-label="انقل إلى البداية" move-before-label="انقل إلى الأعلى"
+  move-after-label="انقل إلى الأسفل" move-to-end-label="انقل إلى النهاية"
+  lifted-text="رُفع {label}: {position} من {count}" moved-text="{label}: {position} من {count}"
+  cancelled-text="أُعيد {label} إلى {position} من {count}">
+  <tanrei-button slot="trigger" variant="outlined">اختر الملفات</tanrei-button>
+</tanrei-file-upload>
+```
 
 ### الصفوف التي تعطيها
 

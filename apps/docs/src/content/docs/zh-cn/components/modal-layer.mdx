@@ -1,0 +1,165 @@
+---
+title: "模态层"
+description: "每个模态表面下面的那一层。它把所呈现内容背后的窗口变暗，让那里的一切变为惰性；把焦点移进来、留在里面、关闭时交还；并在用户按下 Escape、使用平台的返回操作或按下变暗区域时请求关闭。只需调整它一次，所有模态表面都会随之改变。"
+translationOf: components/modal-layer.mdx
+sourceHash: e6ede40ce27d5047b0691b404bc90d640cff347a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="modal-layer" />
+
+<DemoFrame label="包着你自己的卡片的模态层：用按钮打开它">
+  <tanrei-button variant="outlined" onclick="document.getElementById('modal-layer-demo').open = true">导出照片</tanrei-button>
+  <tanrei-modal-layer id="modal-layer-demo" label="导出照片" onclose="this.open = false">
+    <tanrei-card variant="elevated" style="inline-size: 20rem; max-inline-size: calc(100vw - 2rem); padding: 1.5rem">
+      <p style="margin-block: 0 1rem">24 张照片已准备好导出。</p>
+      <tanrei-button autofocus onclick="this.closest('tanrei-modal-layer').open = false">完成</tanrei-button>
+    </tanrei-card>
+  </tanrei-modal-layer>
+</DemoFrame>
+
+每个模态表面下面都有同样的一层。它把表面背后的窗口变暗，让页面看起来被暂时搁在一旁。它让那里的一切变为惰性：背后的任何东西都无法按下、无法获得焦点，屏幕阅读器也读不到，页面也不会滚动。它把焦点移到表面里，在表面打开期间把焦点留在那里，并在表面关闭时把焦点交还。当用户按下 Escape、使用平台的返回操作或按下变暗区域时，它会请求关闭。
+
+模态层就是这一层，被做成了一个独立的组件。[对话框](/zh-cn/components/dialog/)、模态形态的[侧边面板](/zh-cn/components/side-sheet/)和[底部面板](/zh-cn/components/bottom-sheet/)、模态的[导航抽屉](/zh-cn/components/navigation-drawer/)、[图片预览](/zh-cn/components/image-preview/)、模态的 [DateTimePicker](/zh-cn/components/date-time-picker/)，以及[搜索](/zh-cn/components/search/)的模态视图，都是用它构建的。它们都遵循它的规则，而不是各有一套规则。
+
+它是一个**高级**组件。你会在两种情况下用到它：
+
+- **一次调整所有模态表面的样式。** 上面这些组件的遮罩令牌和动效令牌，指向的都是这一层的令牌 `comp.modal-layer.*`。在产品的层里设置它们，所有模态表面就会一起改变：变暗区域的颜色和不透明度、对背后内容的模糊，以及这一层出现和消失所用的时长。
+- **构建 Tanrei 没有的模态表面**：命令面板、占满整个窗口的界面、你自己的查看器。把你的表面放进这一层，它的行为就与产品中所有其他模态表面一致。
+
+需要用户做决定，就用对话框。需要一块面板，就用模态的侧边面板或底部面板。它们已经会为自己命名、放置操作，并提供出路。
+
+在 Web 上，它是 `<tanrei-modal-layer>`。其他平台尚未实现它。
+
+### 用法
+
+这一层是受控组件。把 `open` 设为 true 即可显示它。当用户请求关闭时，它会触发 `close` 并附上原因（`escape`、`back` 或 `scrim`），然后保持打开：由你把 `open` 设回 false。为它提供 `label`，这是屏幕阅读器朗读的名称。
+
+这一层除了变暗区域之外，自己什么也不绘制。你的内容保留它自己的颜色、形状和内边距，这一层按内容本身的尺寸把它放在窗口中央。要放在别处，就用平台自己的方式（在 Web 上是 `::part(container)`）。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="open-palette" variant="text">命令</tanrei-button>
+
+    <tanrei-modal-layer label="命令">
+      <div class="palette">
+        <!-- autofocus 标记初始焦点。没有它时，焦点移到这一层的容器上。 -->
+        <input autofocus aria-label="搜索命令">
+        <ul>…</ul>
+      </div>
+    </tanrei-modal-layer>
+
+    <style>
+      /* 容器由你自己放置：这里放在靠近窗口顶部的位置。 */
+      tanrei-modal-layer::part(container) { margin-block-start: 15vh; }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/modal-layer';
+      const layer = document.querySelector('tanrei-modal-layer');
+      document.querySelector('#open-palette').addEventListener('click', () => (layer.open = true));
+      // Escape、返回操作或按下变暗区域。这一层从不自行关闭。
+      layer.addEventListener('close', (event) => {
+        console.log(event.detail.reason); // 'escape'、'back' 或 'scrim'
+        layer.open = false;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ModalLayer } from '@tanrei/react';
+
+    <ModalLayer open={open} label="命令" onClose={() => setOpen(false)}>
+      <CommandPalette />
+    </ModalLayer>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    尚未实现。计划中的形式是一个视图修饰符：`.tanreiModalLayer(isPresented:, accessibilityLabel:, onClose:) { … }`。
+  </TabItem>
+  <TabItem label="Compose">
+    尚未实现。计划中的形式是 `TanreiModalLayer(visible, onCloseRequest, contentDescription) { … }`。
+  </TabItem>
+  <TabItem label="Flutter">
+    尚未实现。计划中的形式是 `TanreiModalLayer(open:, onClose:, semanticLabel:, child: …)`。
+  </TabItem>
+  <TabItem label="React Native">
+    尚未实现。计划中的形式是 `<ModalLayer visible onClose accessibilityLabel>…</ModalLayer>`。
+  </TabItem>
+</Tabs>
+
+### 调整所有模态表面的样式
+
+产品在自己的层文件里设置这一层的令牌，所有模态表面都会随之改变：
+
+```json
+{
+  "tokens": {
+    "tanrei.comp.modal-layer.scrim.color": { "$value": "{tanrei.sys.color.scrim}" },
+    "tanrei.comp.modal-layer.scrim.blur": { "$value": { "value": 8, "unit": "px" }, "reason": "我们的模态表面会让背后的内容呈现磨砂效果。" },
+    "tanrei.comp.modal-layer.motion.enter-duration": { "$value": "{tanrei.sys.motion.duration.medium4}" }
+  }
+}
+```
+
+变暗区域的不透明度就是它颜色的 alpha 值：要让它更浅或更深，就改变这个颜色，或改变系统的 `scrim` 角色。要让某一个表面与众不同，就改为设置那个表面自己的令牌（`comp.dialog.scrim.color`、`comp.side-sheet.motion.enter-duration`）。在你设置之前，它指向的是这一层的令牌。
+
+## 规格
+
+<ComponentSpecs name="modal-layer" />
+
+## 指南
+
+### 这一层负责什么，留给你什么
+
+| 这一层 | 你的内容 |
+| --- | --- |
+| 把背后的窗口一直到各个边缘都变暗（关闭 `scrim` 时则什么也不绘制）。 | 自己的颜色、形状、阴影和内边距。这一层一样也不添加。 |
+| 让背后的一切变为惰性，并阻止页面滚动。 | 比窗口还高时，自己的滚动。 |
+| 把焦点移进来，留在里面，关闭时交还。 | 如果有应当最先获得焦点的元素，就标记它。 |
+| 在 Escape、平台的返回操作和按下变暗区域时请求关闭。 | 自己的出路：“关闭”“取消”或“完成”按钮。 |
+| 按内容的尺寸把容器放在窗口中央。 | 如果不放在中央，要放在哪里。 |
+
+### 不变暗时
+
+如果内容用自己的填充覆盖整个窗口，例如深色背景上的查看器，就关闭 `scrim`。这时已经没有什么可以变暗了。这一层仍然挡住背后的一切，在内容之外按下仍然会请求关闭。
+
+### 推荐
+
+- 用 `label` 为这一层命名。焦点移进来时，屏幕阅读器会朗读它。
+- 在内容里放一条看得见的出路。不是每个人都知道 Escape，也不是每台设备都有返回操作。
+- 通过 `comp.modal-layer.*` 改变产品的模态表面，让它们保持一致。
+
+### 避免
+
+- 不要用光秃秃的一层来搭建对话框或面板。使用对话框或面板，它们已经提供了标题、操作以及操作的位置。
+- 内容里没有出路时，不要关闭 `dismissible`。否则用户将无法离开。
+- 不要把它用于不应挡住页面的东西。弹出框、菜单或消息条都让页面保持可用。
+
+## 无障碍
+
+<ComponentAccessibility name="modal-layer" />
+
+### 组件负责的部分
+
+- 容器是一个模态对话框，以 `label` 为名称。它打开期间，它之外的一切都对辅助技术隐藏。
+- 这一层打开时，焦点会移进来，即使它在书写时就是打开的也是如此。焦点移到你标记的元素上，否则移到容器上，这样最先朗读的是名称。
+- Tab 和 Shift+Tab 在这一层内循环。焦点永远不会到达背后的页面。
+- 关闭时，焦点交还到原来的位置。如果那个元素已经不在了，焦点落在平台安排的位置。
+- 只有在里面的一切都处理过 Escape 之后，Escape 才会请求关闭。如果有一个按 Escape 清空文本的输入框，或一个随之关闭的菜单，这一层就保持打开。
+- 从另一层里面打开的层叠在它上面。只有最上面的那一层响应 Escape、返回操作和它的变暗区域。
+
+### 需要你做的事
+
+- 提供一个说明这个表面用途的 `label`。
+- 当表单或搜索输入框是这个表面存在的理由时，标记最先获得焦点的元素。
+- 为内容提供一个能关闭它的可见控件；除非有这样的控件，否则让 `dismissible` 保持开启。

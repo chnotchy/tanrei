@@ -247,7 +247,7 @@ menu, a new tab, the address to copy or drag, the status bar, a crawler that fol
 <tanrei-button href="/getting-started/">Get started</tanrei-button>
 <tanrei-button variant="outlined" href="https://example.com/tanrei" target="new" target-label="opens in a new tab">View source</tanrei-button>
 <tanrei-card href="/getting-started/" label="Getting started">…</tanrei-card>
-<tanrei-list><tanrei-list-item headline="Button" supporting-text="Actions and toggles" href="/components/button/"></tanrei-list-item></tanrei-list>
+<tanrei-list><tanrei-list-item href="/components/button/">Button</tanrei-list-item></tanrei-list>
 ```
 
 - **Keys.** Enter activates; Space does what it does on any link (it scrolls the page) and shows no pressed state. A
@@ -3514,6 +3514,78 @@ Method: `judge(files: Iterable<File>): { accepted: File[], refused: { file, reas
 - **Without script**, and until the element is defined, the trigger is a button that opens nothing. A page that must
   take files where script does not run writes a native `<input type="file">` in its own form.
 
+## `<tanrei-drop-zone>`
+
+Wraps any part of a screen so that files can be dropped anywhere on it, while what it holds is used exactly as without
+it (`specs/drop-zone.spec.json`, DRZ-1…21): **it draws nothing at rest and adds no hover, no press, no focus stop and
+no role**. While files are dragged over it, one overlay covers it — the scrim, an edge inside its box and a panel with
+the upload glyph and the product's message — and on the drop it judges the files by the File picker's rule and emits
+the File picker's `select` and `reject`. It keeps nothing, and **it is never the only way to add a file**: the screen
+also has a `<tanrei-file-picker>` or a `<tanrei-file-upload>` (a debug build reports a page with neither, DRZ-13).
+
+```html
+<tanrei-drop-zone multiple accept="video/*" max-size="2000000000" drop-text="Drop videos to upload them" silent>
+  <tanrei-file-upload id="uploads" multiple accept="video/*" max-size="2000000000" constraints-text="Videos, up to 2 GB each">
+    <tanrei-button slot="trigger" variant="outlined">Upload videos</tanrei-button>
+  </tanrei-file-upload>
+  <tanrei-table>…the channel's videos…</tanrei-table>
+</tanrei-drop-zone>
+```
+
+```js
+zone.addEventListener('select', ({ detail }) => uploads.add(detail.files)); // the File upload judges, lists and says them
+zone.addEventListener('reject', ({ detail }) => { /* [{ file, reason: 'type' | 'size' | 'count' }] — say it in your words */ });
+```
+
+| `<tanrei-drop-zone>` | Type | Default | |
+|---|---|---|---|
+| `multiple` | boolean | `false` | one file per drop, or any number; several where one is asked are refused whole (`count`); reflected |
+| `accept` | string[] (attribute: a comma-separated list) | `[]` | extensions with their dot and media types (`image/*` for a family); anything else is refused (`type`) |
+| `maxSize` / `max-size` | number \| null | `null` | bytes; a larger file is refused (`size`) |
+| `maxFiles` / `max-files` | number \| null | `null` | the most files one drop may bring, while `multiple`; `0` refuses every file |
+| `dropText` / `drop-text` | string | `""` | the overlay's message; empty reads `setWords({ dropZoneText })` |
+| `refusingText` / `refusing-text` | string | `""` | the message while the zone refuses what is dragged; empty reads `dropZoneRefusingText` |
+| `droppedText` / `dropped-text` | string | `""` | said after a drop, `{count}` files passed; empty reads `filesDroppedText` |
+| `refusedText` / `refused-text` | string | `""` | said after a drop, `{count}` files refused; empty reads `filesRefusedText` |
+| `silent` | boolean | `false` | says nothing after a drop: for a zone whose files go to a component that says them itself; reflected |
+| `disabled` | boolean | `false` | no overlay, no event; the content is neither disabled nor dimmed; reflected |
+
+Method: `judge(files: Iterable<File>): { accepted: File[], refused: { file, reason }[] }`, the File picker's own rule,
+emits nothing (DRZ-15). Events: `select` (`detail.files`: `File[]`), then `reject` (`detail.files`: `{ file, reason }[]`);
+both bubble and neither is composed.
+
+- **The content is the product's**, in its light DOM, in the default slot (`display: contents`): the host is its layout
+  box. It is `display: block` by default — style it as any wrapper (`display: grid`, a height, `overflow`). It is
+  `position: relative` and `isolation: isolate`, one stacking context of its own, so the overlay, at the greatest
+  z-index, stands above everything the content stacks and inside the host's box; content that must stand above it is
+  in the top layer (a dialog, a popover, a menu), as Tanrei's overlays are. Do not set `position: static` on it.
+- **The overlay** takes no pointer (`pointer-events: none`), so a press, a wheel or a scroll during a drag reaches
+  the content beneath it, and it is `aria-hidden`. Its panel is placed in the part of the host's box that is in view —
+  the box cut by the window and by every ancestor that clips or scrolls, measured on each `dragenter` and `dragover` —
+  so a zone taller than its scrolling area (a whole page, an app shell's main region) shows its message where the
+  person looks.
+- **A drag** (DRZ-3, DRZ-7, DRZ-8) is heard on the host in the bubbling phase. It answers only a drag whose
+  `dataTransfer.types` includes `Files`: text and links are left to the content. An event whose default a target
+  inside already prevented — a nested zone, a File picker's drop area, a target of the product's — is that target's.
+  Enters and leaves are counted so that a child of the content does not end the condition; a `dragleave` toward an
+  element outside ends it at once, and while a drag is within, the window's `dragenter` outside the host, `drop`,
+  `dragend` and `pointermove` end it too. As for the File picker, a drag tells kinds and a count, never names or
+  sizes: the overlay refuses only what it can know (several where one is asked, or only kinds a media-type-only
+  `accept` does not list), and the rest is judged at the drop. A disabled zone with no enabled zone around it still
+  takes a drop of files, so the browser never opens one let go by mistake.
+- **Judging** is the File picker's, from one shared module (`src/primitives/file-judge.ts`), not a copy.
+- **One live region**, polite: after a drop, `dropped-text` and then `refused-text`, with `{count}` filled; nothing for
+  the drag itself. `silent` says nothing — set it where the files go to a `<tanrei-file-upload>` that keeps its own
+  rows, which says each one.
+- **Not form-associated** (DRZ-10): no `name`, no value; no file is read, copied or kept.
+- **What a debug build is told**: DRZ-11 and DRZ-12 (a word that is needed and given by nobody), DRZ-13 (no file
+  input anywhere on the page, at the first drag), DRZ-20 (a `max-size` or `max-files` that sets no limit, an entry of
+  `accept` that says no kind).
+- **Parts**: `overlay`, `panel`, `icon`, `label`. **Tokens** are `--tanrei-comp-drop-zone-…`: `scrim-color`,
+  `outline-*`, `panel-*`, `icon-*`, `label-*`, `refusing-*` and `motion-*`.
+- **Without script**, and until the element is defined, the content is drawn as it is and a drop of files is the
+  browser's.
+
 ## `<tanrei-file-upload>`
 
 Lets people choose files and lists what was chosen (`specs/file-upload.spec.json`, FUP-1…58). It is a
@@ -4036,102 +4108,91 @@ focusable by `focus()`, by a pointer and by assistive technology. The chip itsel
 
 ## `<tanrei-list>`
 
-A column of related items that people read, open one by one, choose from, or put in another order (`specs/list.spec.json`, LST-1…43, LST-51, LST-52; the drag form, LST-44…50, is not built).
+A box that holds your own items — rows, tiles, cards, files — in one column, one line, or lines that wrap into a grid; people read them, open them one by one, choose from them, or drag them into another order (`specs/list.spec.json`, LST-1…47).
 
 ```html
+<tanrei-list gap="small" dividers>
+  <tanrei-list-item>…your row…</tanrei-list-item>
+  <tanrei-list-item>…</tanrei-list-item>
+</tanrei-list>
+
+<tanrei-list orientation="horizontal" wrap gap="medium">…tiles…</tanrei-list>
+
 <tanrei-list>
-  <tanrei-list-item headline="Wi-Fi" supporting-text="Connected" leading-icon="wifi" trailing-icon="chevron_right" interactive divider></tanrei-list-item>
-  <tanrei-list-item headline="Airplane mode"><tanrei-switch slot="trailing" label="Airplane mode" label-hidden></tanrei-switch></tanrei-list-item>
-  <tanrei-list-item headline="Ada Lovelace" supporting-text="Edited the roadmap" leading-media="avatar"><img slot="leading" src="ada.jpg" alt="" /></tanrei-list-item>
+  <tanrei-list-item interactive>Wi-Fi</tanrei-list-item>
+  <tanrei-list-item href="/components/button/">Button</tanrei-list-item>
 </tanrei-list>
 
 <tanrei-list selection="single" label="Theme" value="light">
-  <tanrei-list-item headline="Light" value="light"></tanrei-list-item>
-  <tanrei-list-item headline="Dark" value="dark"></tanrei-list-item>
+  <tanrei-list-item value="light">Light</tanrei-list-item>
+  <tanrei-list-item value="dark">Dark</tanrei-list-item>
 </tanrei-list>
 <tanrei-list selection="multiple" label="Labels" values='["bug","docs"]'>…</tanrei-list>
 ```
 
 | `<tanrei-list>` | Type | Default | |
 |---|---|---|---|
-| `selection` | `none` \| `single` \| `multiple` | `none` | `single` and `multiple` make the list a listbox and every item an option (a closed set; an unknown value is `none`, reported, LST-7); reflected |
-| `label` | string | `""` | the list's accessible name; required for a listbox |
+| `orientation` | `vertical` \| `horizontal` | `vertical` | a column from the top, or a line from the start edge (closed; unknown is `vertical`, reported, LST-6); reflected |
+| `wrap` | boolean | `false` | the items run onto further lines and form a grid (a vertical list wraps where the height you give it ends, LST-2); reflected |
+| `gap` | `none` \| `small` \| `medium` \| `large` | `none` | the space between two items and between two lines: `comp.list.gap.*` (LST-1); reflected |
+| `dividers` | boolean | `false` | a hairline between every two neighbouring items, in the middle of the gap; ignored, and reported, while `wrap` (LST-3); reflected |
+| `selection` | `none` \| `single` \| `multiple` | `none` | `single` and `multiple` make the list a listbox and every item an option (LST-18); reflected |
+| `label` | string | `""` | the list's accessible name; required for a listbox and a reorderable list |
 | `value` | string \| `null` | `null` | the selected option's value while `selection="single"` |
-| `reorder` | `none` \| `buttons` | `none` | `buttons` makes the list reorderable while `selection` is `none`: two move buttons in every item, and `move` (LST-36). An unknown value is `none`, reported (LST-7). The spec's `drag` is read as `buttons` and reported until its handle is built; reflected |
-| `moveUpLabel` / `move-up-label`, `moveDownLabel` / `move-down-label` | string | `""` | the names of the two move buttons — your words, or `setWords({ moveUpLabel, moveDownLabel })`. Without them the buttons work unnamed, reported once per word (LST-38) |
-| `movedText` / `moved-text` | string | `""` | the sentence announced after a move, with the places `{headline}`, `{position}` (from 1) and `{count}` — your words, or `setWords({ movedText })`. Without it nothing is announced, reported once (LST-38) |
-| `values` | `string[]` | `[]` | the selected options' values while `selection="multiple"`. The attribute takes a JSON array (`values='["bug","docs"]'`) or space-separated values; the property is not reflected. Assign a **new** array to change it |
+| `values` | `string[]` | `[]` | the selected options' values while `selection="multiple"`. The attribute takes a JSON array or space-separated values; the property is not reflected. Assign a **new** array to change it |
+| `reorderable` | boolean | `false` | people can put the items in another order while `selection` is `none`: a handle in every item, the whole item draggable, a menu of moves, the keyboard from the handle, and `move` (LST-31); reflected |
+| `dragHandleLabel` / `drag-handle-label` | string | `""` | every handle's name, with the place `{label}` the list fills with the item's name ("Reorder {label}") |
+| `dragHandleHint` / `drag-handle-hint` | string | `""` | every handle's description: how to move an item with the keyboard |
+| `moveToStartLabel`, `moveBeforeLabel`, `moveAfterLabel`, `moveToEndLabel` (`move-to-start-label` …) | string | `""` | the four items of the handle's menu ("Move to top", "Move up", "Move down", "Move to bottom"; in a line "Move left", "Move right") |
+| `liftedText`, `movedText`, `cancelledText` (`lifted-text` …) | string | `""` | the sentences announced when the keyboard lifts an item, when an item reaches another place, and when a keyboard move is cancelled, with the places `{label}`, `{position}` (from 1) and `{count}` |
+
+Every word is yours: the attribute, or once for the page with `setWords({ dragHandleLabel, … })`. A missing one is reported once (LST-47).
 
 | `<tanrei-list-item>` | Type | Default | |
 |---|---|---|---|
-| `headline` | string | `""` | the main text and the accessible name (required; an empty one is reported, LST-23) |
-| `overline`, `supportingText` / `supporting-text`, `trailingText` / `trailing-text` | string | `""` | the line above, the text below (one line: a two-line item; two or more: three-line) and the short value at the end; together the item's description |
-| `supportingMaxLines` / `supporting-max-lines` | number | `0` | cuts the supporting text with an ellipsis after that many lines; 0 shows all |
-| `leadingIcon` / `leading-icon`, `trailingIcon` / `trailing-icon` | string | `""` | glyph names of the system's icon set; empty draws nothing and leaves no space |
-| `leadingMedia` / `leading-media` | `none` \| `avatar` \| `image` | `none` | frames the `leading` slot as a round avatar or a rounded image, in place of the leading icon (closed; unknown is `none`, reported); reflected |
-| `interactive` | boolean | `false` | the item is one action with the button role and fires `click` (ignored in a listbox); reflected |
+| (children) | — | — | the item's content, in its default slot: yours |
+| `label` | string | `""` | the item's name: an action, a link or an option is named by it in place of its content's text, and the list calls every item by it in the handle's name and what it announces. Empty: the content's text |
+| `interactive` | boolean | `false` | the item is one action with the button role and fires `click` (ignored in a listbox or a reorderable list); reflected |
+| `href` | string | `""` | the destination: the item is a link item, an `<a href>` in the list's arrow-key order; `target="new"` draws `open_in_new` at its end (LST-26…30; see "A control with a destination is a link") |
+| `target` | `same` \| `new` | `same` | where it opens; `_self` and `_blank` are read as those two. Ignored without `href` |
+| `targetLabel` / `target-label` | string | `""` | read as the link's description while `target` is `new` ("opens in a new tab") — your words; empty is reported (LST-28) |
+| `rel`, `download` | string \| `null` | `null` | web only: forwarded to the anchor (`target="new"` adds `noopener` to `rel`) |
 | `value` | string | `""` | identifies an option; unique within the list |
-| `disabled` | boolean | `false` | an action or option does nothing and is exposed as disabled, but the arrow keys still reach it; ignored for a static item; reflected |
-| `divider` | boolean | `false` | a hairline along the item's bottom, from the text's start to the row's end; reflected |
-| `href` | string | `""` | the destination — a URL, a path or a fragment. Not empty, the item is a link item: an `<a href>` in place of the element with the button role, in the list's arrow-key order; `target="new"` draws `open_in_new` as the trailing icon unless `trailingIcon` names one (LST-31; see "A control with a destination is a link"); ignored in a listbox. White space is none; a `javascript:` address or one that cannot be read is refused and reported (LST-35) |
-| `target` | `same` \| `new` | `same` | where it opens: here, or a new tab or window (`target="_blank"` with `noopener`). `_self` and `_blank` are read as those two; anything else is `same`, reported. Ignored without `href` |
-| `targetLabel` / `target-label` | string | `""` | what is read after the link's name while `target` is `new` ("opens in a new tab") — your words; empty is reported (LST-33). Ignored otherwise |
-| `rel`, `download` | string \| `null` | `null` | web only: forwarded to the anchor (`target="new"` adds `noopener` to `rel`). Ignored without `href` |
-| `type` | `button` \| `submit` \| `reset` | `button` | web only: what a press does to the button's form — nothing, ask it to submit, ask it to reset (BTN-27, BTN-28). Anything else is `button`, reported; a toggle and a link ignore it, reported (BTN-33). Reflected, the default not |
-| `name`, `value` | string | `""` | web only: the pair sent with the form when this button submitted it; nothing while `name` is empty (BTN-31) |
-| `form` (attribute) | a form's id | — | web only: the form the button belongs to where it stands outside it; the platform's own attribute. The `form` property is read-only and returns the form (BTN-29) |
+| `disabled` | boolean | `false` | an action, a link or an option does nothing and is exposed as disabled, but the arrow keys still reach it; ignored for a static item; reflected |
 
 | Event | When |
 |---|---|
-| `click` (on the item) | an interactive, enabled item was activated: pointer, **Enter** on key-down, **Space** on key-up, `element.click()` — once each |
-| `change` (on the list) | the user changed the selection: `CustomEvent<{ value }>` (single) or `<{ values }>` (multiple), bubbling. The list already holds the new value; setting it from script fires nothing. A `change` from a control in a static item's trailing slot bubbles through the list too: check `event.target` |
+| `click` (on the item) | an interactive or link item was activated: pointer, **Enter** on key-down, **Space** on key-up (not on a link), `element.click()` — once each |
+| `change` (on the list) | the user changed the selection: `CustomEvent<{ value }>` (single) or `<{ values }>` (multiple), bubbling. The list already holds the new value |
+| `move` (on the list) | a move was asked for — from the menu, the keyboard or a drag: `CustomEvent<{ from, to }>`, both indexes from 0, bubbling, not cancelable, once per move. **The list has moved nothing** |
 
-| `move` (on the list) | a move button was activated: `CustomEvent<{ from, to }>`, both indexes from 0, bubbling, not cancelable, once per press. **The list has moved nothing** |
+**Four kinds of item (LST-7, LST-8, LST-18).** A **static** item (the default) is a `listitem` that draws nothing, adds no
+space and takes no focus: its content is the item, and a control in it keeps its own tokens, semantics and tab stop. An
+**interactive** item draws one shadow `<div role="button">` inside its `listitem`; a **link item** an `<a href>`; in a
+**listbox** every item's host is an `option` with `aria-selected`. Those three are padded boxes
+(`container.padding-*`, at least `container.height` and the minimum target), hand their content `content.color` and
+`content.typescale`, answer every state as Button does — the ring or glow drawn inside the box — and hold nothing
+interactive (reported on every `slotchange`, LST-20). The list sets `aria-posinset` / `aria-setsize` on every item. A
+selected option draws the icon set's `check` glyph in a box reserved at the end of every option (LST-21, LST-22).
 
-**Three kinds of row (LST-11, LST-12).** A **static** item (the default) is a `listitem` that takes no focus and answers no
-state; a control in its `trailing` slot keeps its own tokens, semantics and tab stop (a whole-row switch is a static item
-whose switch is named by the headline). An **interactive** item draws one shadow `<div role="button">` inside its
-`listitem`, as the interactive card does, named by `aria-label` (the headline) and described by `aria-description` (the
-overline, the full supporting text and the trailing text). In a **listbox** every item's host is an `option` with
-`aria-selected`, named and described the same way, and takes focus itself. The list sets `aria-posinset` /
-`aria-setsize` on every item and `aria-multiselectable` on a multiple-select listbox. Icons, the mark and the divider are
-`aria-hidden`; the leading media too, unless what you slotted is named (an `alt`, `aria-label` or `aria-labelledby`).
-**An action or an option holds nothing interactive** (LST-24): on every `slotchange` a debug build inspects both slots
-and reports the first interactive element it finds.
+**Keyboard (LST-17).** A list with actions, links or options is one tab stop (a roving `tabindex`). The arrow keys of the
+arrangement move focus without wrapping — Up and Down in a column, Left and Right in a line (mirrored in right-to-left),
+and in a wrapping list the arrows across the lines go to the nearest item of the next or previous line — with Home, End
+and typeahead on the items' names. Moving focus never selects; Enter and Space activate.
 
-**Keyboard (LST-15).** A list with actions or options is one tab stop (a roving `tabindex`): the item focused last, else
-the first selected option, else the first enabled item. Down / Up Arrow without wrapping, Home, End, and typeahead on the
-headlines (characters within one second; a Space that continues a search is typed, not an activation). Moving focus
-never selects; Enter (on key-down) and Space (on key-up) activate. Disabled items are reached by the arrow keys, not by a
-press: a pointer press on one does not focus it. Static items take no focus.
+**Layout (LST-1…5).** The list draws nothing and adds no space around its items, does not scroll and does not virtualize:
+put it in your own scroll container. A line wider than the list goes past its end. Parts: `items` on the list;
+`container`, `content`, `handle`, `mark`, `new-context`, `divider` on an item.
 
-**Layout (LST-16…22).** One row: `container.padding-inline-start`, the leading icon or media, the text column, the
-trailing text, icon and slot, and in a listbox the mark's box (reserved in every option), each `container.gap` apart,
-`container.padding-inline-end` — logical, so RTL mirrors. The row is at least `container.height.one-line`, `two-line` or
-`three-line` tall by its lines of text — the supporting text's lines are counted as laid out (a `ResizeObserver`) — and
-at least `sys.target.pointer` (`touch` for a coarse pointer) for an action or an option, whose whole row is the hit area;
-it grows with its content. Leading and trailing elements are centered in a one- or two-line item and top-aligned in a
-taller one. A selected option draws the icon set's `check` glyph (LST-21) in its mark color at `mark.size`, in the
-selected family and fill, never mirrored, faded in and out over `motion.state-duration` (at once where motion is
-reduced); the list draws no mark of its own, so `mark.width` is not read. Until the icon set can draw the check, nothing is
-drawn in its box and the box keeps its size (LST-27, `GlyphDrawnController`); the check then appears without the fade.
-The divider is the row's sibling, so neither a disabled item's opacity nor a dim press
-reaches it. An avatar's monogram is set in the headline style.
-
-**States (LST-3…10, LST-25, LST-26).** Two conditions, `unselected` and `selected`, each colors the row and every part in
-every state; a disabled action or option takes the disabled tokens and `disabled-opacity` on the whole row, its media
-included. Everything else is Button's: the state precedence, press-hold, the four `pressed-feedback` answers, ring or
-glow — **drawn inside the row** (`focusRing(on, { inside: true })`), so a scrolling ancestor cannot clip it — corner
-smoothing on the row, and the state motion. The list draws nothing itself, does not scroll and does not virtualize: put
-it in your own scroll container. Parts: `container`, `leading-icon`, `leading-media`, `overline`, `headline`,
-`supporting-text`, `trailing-text`, `trailing-icon`, `mark`, `divider`.
-
-**Reordering: the buttons form (LST-36…43, LST-51, LST-52).**
+**Reordering (LST-31…47).**
 
 ```html
-<tanrei-list id="fonts" reorder="buttons" move-up-label="Move up" move-down-label="Move down" moved-text="{headline}: {position} of {count}">
-  <tanrei-list-item headline="Inter"><tanrei-button slot="trailing" variant="text" label="Remove Inter"><span slot="icon">close</span></tanrei-button></tanrei-list-item>
-  <tanrei-list-item headline="Noto Sans JP">…</tanrei-list-item>
+<tanrei-list id="fonts" reorderable label="Typefaces" drag-handle-label="Reorder {label}"
+  drag-handle-hint="Space lifts, arrow keys move, Space drops, Escape cancels; Enter opens the moves"
+  move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom"
+  lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}">
+  <tanrei-list-item label="Inter">Inter <tanrei-button variant="text" label="Remove Inter"><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+  <tanrei-list-item label="Noto Sans JP">…</tanrei-list-item>
 </tanrei-list>
 <script type="module">
   const list = document.querySelector('#fonts');
@@ -4142,48 +4203,26 @@ it in your own scroll container. Parts: `container`, `leading-icon`, `leading-me
 </script>
 ```
 
-- **The order is the product's.** A press fires `move` and the list waits. The product reorders the
-  `tanrei-list-item` children — it moves the elements it has, gives new elements, or keeps its elements and gives each
-  the content of its new place — and the list sees its children change. The move has *taken effect* once the item at
-  `to` is the moved element, or carries the moved item's headline on an element that did not stand there with it. Two
-  items with the same headline, re-rendered by content into the same elements, cannot be told from a move that was
-  never made, and are taken as refused.
-- **Then** the list sets every item's position anew, announces, and — where focus was on the move button — puts focus
-  on the same button of the item now at `to`, or on its other button where that one is disabled at an end. It waits
-  for the item and the Button to have drawn themselves for the new place before it focuses, within the same frame.
-- **Refused.** An order not given within `--tanrei-comp-list-motion-reorder-duration` after the event is a move the
-  product refused: nothing is announced. A re-render that arrives **later** is drawn like any change of the children:
-  the rows move to their places, the positions are set, nothing is announced, and focus — which every engine drops
-  when the focused element is taken out of its place — is put back on the same control of the same element, or, where
-  the product gave new elements, on the control in the same place of the item now standing where the focused one stood
-  (LST-52's rule).
-- **The move buttons** are two `<tanrei-button variant="text">` in each item's shadow root (part `move-button`), drawn
-  from Button's tokens: the list owns `move-buttons.gap` alone, and `KeptLengths` keeps a touch target's length for
-  each. Each is named by `label` and described by the headline through `aria-description` (an id reference cannot
-  cross the Button's shadow root). The glyphs are `arrow_upward` and `arrow_downward`, never mirrored. An unnamed one
-  is also reported by the Button itself (BTN-16), once per button.
-- **A click on a move button is a DOM `click`** that passes through the item's host like a click on any content of a
-  static item. The item is static: it has no activation of its own.
-- **The live region** is one visually hidden `role="status"` element in the list's shadow root. A list's children are
-  list items and nothing else, so while the list is reorderable its `list` role is carried by a `<div role="list">` of
-  the shadow root around the slot, and the host has no role; the region stands beside that box. It is emptied when
-  focus leaves the list. The headline is put in as a `<bdi>`; the numbers are `Intl.NumberFormat`'s for the nearest
-  `lang`, else the browser's language.
-- **Motion (LST-43).** Any change of the order of a reorderable list's children — after a move, or one the product
-  makes by itself — moves every item whose place changed from where it was drawn (a `transform` animated by the Web
-  Animations API, read from `motion.reorder-duration` and `-easing` as the cascade computes them), the item last asked
-  to move above the one it passes. A new element for an item that is gone with the same headline moves as that item. A
-  row has no fill, so two rows passing each other show through each other. Nothing is measured at rest: places are
-  read when the list's box changes size and when a move is asked for. No motion under `prefers-reduced-motion`.
-- **Narrow (LST-51).** The list measures (on its own resize and when an item's controls are drawn) whether any item's
-  controls would leave its text less than half its row, and then places the controls of every item on a line below the
-  text; where that line is too short as well, the trailing control takes a line of its own below the move buttons. In
-  the default system a one-line row with a remove button is stacked below about 400 px, and the spec's own fixture
-  `reorder-buttons-two-line` is stacked at its 360.
-- **Removal (LST-52).** When the product removes the item whose control holds focus, focus goes to the control in the
-  same place of the item now standing there, else of the one before it, else to that item's first control that can
-  take focus; with no item left, nowhere. Nothing is announced.
-- **Not built:** `reorder="drag"` — the handle, a carried item, `comp.list.handle.*` and `comp.list.dragged.*`.
+- **Every way.** The handle — an icon-only `<tanrei-button>` in each item's shadow root (part `handle`), drawn from
+  Button's tokens — opens a `<tanrei-menu>` of four moves (Enter, Down Arrow, a press); Space on it lifts the item for the
+  keyboard, the arrow keys carry it, Home and End take it to an end, Space or Enter drop it, Escape puts it back (and so
+  does focus leaving the handle). A pointer drags the whole item: a mouse after a few pixels of movement, a touch or a pen
+  at once from the handle or after a long press elsewhere, so that a swipe still scrolls. A press on a control in the
+  content is that control's.
+- **The order is yours.** Every way fires `move` and the list waits for your order. It has *taken effect* once the item
+  at `to` is the moved element, or carries the moved item's name on an element that did not stand there. The list then
+  sets every position anew, announces `moved-text` and, where focus was on the handle or in its menu, puts focus on the
+  handle of the item now at `to`. An order not given within `--tanrei-comp-list-motion-reorder-duration` is refused:
+  nothing is announced, and what was dropped goes back.
+- **Motion.** While an item is carried it is lifted (`dragged.container.color`, `dragged.container.elevation`) and the
+  other items slide aside by transforms over `motion.reorder-duration`; dropped, it settles into its place; any later
+  change of the order is animated from where each item was drawn (FLIP, the Web Animations API). Under
+  `prefers-reduced-motion` every motion is at once; a dragged item still follows the pointer.
+- **The live region** is one visually hidden `role="status"` element in the list's shadow root; while the list is
+  reorderable its `list` role is carried by the `items` box around the slot. The name is put in as a `<bdi>`; the numbers
+  are `Intl.NumberFormat`'s for the nearest `lang`.
+- **Removal (LST-46).** When you remove the item that holds focus, focus goes to the handle of the item now standing
+  there, else of the one before it; with no item left, it is yours. Nothing is announced.
 
 ## `<tanrei-menu>`
 
@@ -6913,6 +6952,66 @@ one amount per box on the web: an end item whose outer corner is a pill is drawn
 corners are circular rather than eased under gap — while a middle item's inner corners are eased. The fixtures are drawn by the test harness (`test/harness.ts`) on a 400 × 96
 stage, and the vertical ones on a 400 × 240 stage.
 
+## `<tanrei-stepper>` and `<tanrei-stepper-step>`
+
+Where a person is in a flow the product runs in a fixed order of steps: the current step, the complete ones, one with an
+error, the ones to come — and, where the product allows it, the steps they can press to go back to
+(`specs/stepper.spec.json`, SPR-1…27).
+
+```html
+<tanrei-stepper label="Checkout progress" value="payment" pressable="visited"
+  completed-text="Completed" error-text="Has an error" position-text="Step {position} of {count}">
+  <tanrei-stepper-step value="account" label="Account"></tanrei-stepper-step>
+  <tanrei-stepper-step value="shipping" label="Shipping" status="error" description="Postcode missing"></tanrei-stepper-step>
+  <tanrei-stepper-step value="payment" label="Payment"></tanrei-stepper-step>
+  <tanrei-stepper-step value="review" label="Review"></tanrei-stepper-step>
+</tanrei-stepper>
+<script type="module">
+  const stepper = document.querySelector('tanrei-stepper');
+  stepper.addEventListener('select', (e) => (stepper.value = e.detail.value));
+</script>
+```
+
+| `<tanrei-stepper>` | Type | Default | |
+|---|---|---|---|
+| `label` | string | `""` | the list's accessible name, not drawn (an empty one is reported, SPR-21) |
+| `value` | string | `""` | the current step's value; empty, or a value no step has, makes none current. Never set by the element |
+| `layout` | `horizontal` \| `vertical` \| `compact` | `horizontal` | horizontal turns compact by itself below the number of steps × `step.min-width` (SPR-6); reflected |
+| `pressable` | `none` \| `visited` \| `all` | `none` | which steps are buttons: none; the complete and error ones that are not current; every one that is not current (SPR-9); reflected |
+| `completedText` / `completed-text` | string | `""` | heard after a complete step's label; empty reads the product's words (`stepCompletedText`) |
+| `errorText` / `error-text` | string | `""` | heard after the label of a step with an error; empty reads `stepErrorText` |
+| `positionText` / `position-text` | string | `""` | the compact form's line, with `{position}` and `{count}`; empty reads `stepPositionText` |
+
+| `<tanrei-stepper-step>` | Type | Default | |
+|---|---|---|---|
+| `value` | string | `""` | identifies the step (empty and repeated values are reported); reflected |
+| `label` | string | `""` | the step's name |
+| `description` | string | `""` | a second line under the label |
+| `status` | `auto` \| `incomplete` \| `complete` \| `error` | `auto` | auto is complete before the current step and incomplete after it; error is kept on the current step (SPR-1); reflected |
+| `disabled` | boolean | `false` | while `pressable` is not none: drawn disabled and a disabled button; ignored on the current step; reflected |
+
+| Event (on the stepper) | When |
+|---|---|
+| `select` | `CustomEvent<{ value }>`, bubbling and composed: a pressable step was pressed — pointer, Enter, Space or `step.click()`. `value` is not changed |
+
+**Semantics (SPR-19).** The host is `role="list"` named by `aria-label`; each step's host is `role="listitem"`, the
+current one with `aria-current="step"`. A pressable step draws a native `<button>` in its shadow root around its marker and
+text; a step that is not pressable the same parts in a `<div>`. The word for a condition is a visually hidden span after
+the label. The marker, the connector and the bar are `aria-hidden`. In the compact form the steps are assigned to no slot
+(not drawn, not exposed) and the host becomes `role="group"`, reading the position and the current step's label.
+
+**Layout (SPR-4, SPR-5, SPR-6, SPR-8, SPR-18).** Horizontal: the steps are equal flex columns, each container
+`container.padding` in, the marker at its start and the text under it `marker.gap` below. Vertical: one column, the text
+beside the marker, the marker centred on the label's first line. Every container is at least the minimum target. The
+connector is each step's absolutely placed `part="connector"`, from `connector.gap` after its marker to the same before
+the next one, above every container. The width threshold of the compact form is measured with a `ResizeObserver` against
+a probe of `step.min-width`.
+
+**Motion (SPR-17).** Colors move over `motion.state-*`. When a step's container changes element (a button becomes plain
+when the step becomes current), the old colors are carried over and run out with the Web Animations API over the same
+motion. Parts: `steps`, `compact`, `bar`, `position` (stepper); `container`, `marker`, `label`, `description`,
+`connector` (step).
+
 ## `<tanrei-search>`, `<tanrei-search-suggestion>`, `<tanrei-search-result>` and `<tanrei-search-result-group>`
 
 Lets people search the product from a bar or a compact trigger, and offers suggestions and results while they type in a
@@ -7429,7 +7528,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `arcStyles` | a ring of SVG circles: center, radius `(ring − stroke) / 2`, stroke, `--_c` (circumference), turned to start at the top; `ring-turn` and `pulse` | `--_ring` and `--_stroke` on an ancestor of the `<svg>` |
 | `FORWARDED_DESCRIPTION` | the host's `aria-description` as a property, to render on the native element (a badge's anchor, a tooltip's) | `aria-description=${this.forwardedDescription ?? nothing}` on the native element |
 | `OUTSIDE_FOCUS_ORDER` | a control a host places and acts for by keys of its own is no stop in the focus order: an internal property without an attribute (`outsideFocusOrder`), set by the host (a number input's steppers, NMI-25) | `tabindex=${this.outsideFocusOrder ? '-1' : nothing}` on the native element, which stays a named control for a pointer and for assistive technology |
-| `focusRing(on, { inside: true })` | the ring or glow drawn inside the element (its outer stroke on the element's edge), for a row a parent would clip (LST-4, MNU-11) | as `focusRing` |
+| `focusRing(on, { inside: true })` | the ring or glow drawn inside the element (its outer stroke on the element's edge), for a row a parent would clip (LST-10, MNU-11) | as `focusRing` |
 | `focusRing(on, { within: '<length>' })` | the ring or glow around an element with that much room before something clips it: drawn around it where the room holds its reach, and further in by what is missing, on every side alike (TAB-4) | as `focusRing`, and the room as a CSS length expression |
 | `focusRing(on, { color: '<color>' })` | the same ring or glow with its outer stroke (the halo's outer color) in a color the component names, for an indicator drawn on a surface the system's focus color is not held against (a snackbar's bar, SNK-3); left out, it is `sys.color.focus-ring`. Combines with `inside` and `within` | as `focusRing`, a CSS color expression |
 | `conditionStates(prefix, parts, { container, root, on })` (`selection.ts`) | the state rules of any component whose conditions are its state variants: every part, opacity and shape per state, on `root` | the parts, the root, where each state is read (equal specificity) |
@@ -7450,7 +7549,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `disabledWaitsWhileFocused(Class)`, `FocusedStop` (`disabled-while-focused.ts`) | the same for every other form-associated element: the three overrides given to a class in one call, and — for an element whose focus stop is a part with a `tabindex` it writes — that `tabindex` kept for one frame where the part held focus, since one engine takes focus inside the call that removes it | the class; `stop.keeps(disabled)` in `render()` |
 | `focusedAtFirst(Class)`, `wantsAutofocus(host)` (`autofocus.ts`) | `autofocus` on an element that is not focusable itself (a delegating shadow root, or a `focus()` of its own) gives it focus when the page first loads: the browser looked before the element was defined, so the element focuses itself when it first renders, where nothing but the body has focus | the class |
 | `focusGlowEnds(on, radius)` (`focus-ring.ts`) | under focus-style glow, the halo of a box whose block-end corners have a radius of their own (a filled input box's `container.shape-bottom`) follows those corners | the box in that look, and the radius |
-| `isDisabledControl(control)` (`form-disabled.ts`) | whether a control a container walks is disabled now: by its own `disabled` or by a disabled fieldset around it (a Button answers for itself: a link button is disabled by none) — what a toolbar's one Tab stop, a list's focus return and a dialog's count of enabled actions read (TBR-10, LST-41, DLG-19); `GROUP_AVAILABILITY` (`group-item.ts`) is how an item tells its group that the platform's word changed | which items it walks |
+| `isDisabledControl(control)` (`form-disabled.ts`) | whether a control a container walks is disabled now: by its own `disabled` or by a disabled fieldset around it (a Button answers for itself: a link button is disabled by none) — what a toolbar's one Tab stop and a dialog's count of enabled actions read (TBR-10, DLG-19); `GROUP_AVAILABILITY` (`group-item.ts`) is how an item tells its group that the platform's word changed | which items it walks |
 | `NativeTextController` (`native-text.ts`) | a component's `value` and its native text element kept in step around an input method (TXF-1, TXF-4, SRC-4): the element's own `input` is the component's, nothing is written into a composition, a value set meanwhile waits for its end, and a committed composition always ends with one `input` that is not composing | the element, the value's getter and setter; optional `commit` (what a composition may leave: the text field's limit) and `settled` hooks; `composingInput(event)` first in the `input` listener, `show()` from `updated()` |
 | `modalLayer` (`modal.ts`) | the Tanrei modal overlays open in the window: a dialog adds and removes itself; a snackbar host waits for them and pauses under them | `add(el)` / `delete(el)`, `covered`, `subscribe(fn)` |
 | `deepActive()`, `tabbables()`, `trapFocus()`, `holdPageScroll()` (`modal.ts`) | what every modal overlay does (dialog, modal drawer): the focused element through shadow roots, the Tab order through shadow roots and slots, Tab wrapping inside, the page's scroll held while any holder is open | the container; the holder |
@@ -7460,7 +7559,7 @@ own selectors and its own `--tanrei-comp-<name>-*` tokens — nothing in them kn
 | `groupFrameStyles()`, `groupRows()`, `groupDescribedBy()`, `groupOrientation()` (`field-group-frame.ts`, imported by its path) | the frame for a SET (FGR-1 … FGR-9, FGR-13): the label row, the description under it, the controls' column or wrapping row, the error row below, the requirement in words, and the ids its description refers to | a root with the class `group` and its state attributes, a `.controls` box with `data-orientation` and `data-spacing`, and the prefix |
 | `OptionsController`, `readOptions()`, `filterOptions()`, `OptionListController`, `optionListStyles()`, `optionVariantRules()`, `anchoredOptionList()` (`option-list.ts`, imported by its path) | a field that opens a list of options (select, combobox): the `<tanrei-option>` / `<tanrei-option-group>` children read as data and read again when they change; the list rendered in the field's own shadow root on the anchored surface, with the menu's rows; the active option and the keys, pointer and press that act on it, focus staying on the field (SEL-24 … SEL-45) | the token prefix and variants; which options are drawn, which is chosen, what choosing does |
 | `labelLines(copy)` (`label-lines.ts`) | the lines a never-drawn copy of a floating label takes, and the widest, for a field that gives a wrapped label its room (TXF-13, SEL-15) | the copy, laid out as the label is in one position |
-| `findInteractive()`, `slottedInteractive()` (`interactive.ts`) | what counts as interactive content (CRD-15, LST-24) | the element or the slot |
+| `findInteractive()`, `slottedInteractive()` (`interactive.ts`) | what counts as interactive content (CRD-15, LST-20) | the element or the slot |
 | `SelectionController` + `selectionStates()`, `conditionBlock()`, `selectionLabel()`, `selectionRippleOrigin()`, `markConditionChange()` (`src/primitives/selection.ts`) | a form-associated selection control: form value, validity, fieldset-disabled, a click on the host, Enter submits; the condition blocks and state rules on `.root`, the label and first-line alignment, the ripple from the container's center for a press outside it, the state-vs-selection motion | the anatomy `.root` / `.control` / `input.native` / `.container`, its parts and the comp prefix |
 
 The box that draws the ring and holds the ripple is a positioning container with `isolation: isolate`; its `::before` is
@@ -8503,6 +8602,61 @@ starts at the right; a picture and initials are never mirrored; a slotted glyph 
 
 Not here: a color per person, presence, a press. An avatar that leads somewhere is inside a link — whose focus
 indicator is a rectangle around the circle.
+
+## `<tanrei-swatch>`
+
+`specs/swatch.spec.json` (SWC-1 to SWC-19): a color shown as a sample with its name beside it — a small square or dot
+of exactly that color, over a checkerboard where the color lets what is behind it through, edged so that a color close
+to the surface still shows where it ends. A sample to look at, never a control and never a picker: no hover, focus,
+press or event.
+
+```html
+<tanrei-swatch color="#0f766e" label="Teal 700" supporting-text="#0f766e"></tanrei-swatch>
+<tanrei-swatch color="var(--tanrei-sys-color-primary)" label="Primary" size="small"></tanrei-swatch>
+<tanrei-swatch color="#e11d48" label="Bug" shape="circle" size="small" label-hidden></tanrei-swatch>
+<td><tanrei-swatch decorative size="small" color="#0f766e"></tanrei-swatch> #0f766e</td>
+```
+
+| `<tanrei-swatch>` | Type | Default | |
+|---|---|---|---|
+| `color` | string | `''` | the color: `#rgb`, `#rgba`, `#rrggbb` or `#rrggbbaa` (the notation every platform reads), or any CSS color, a custom property included. Empty draws the edge alone |
+| `label` | string | `''` | the color's name, drawn beside the sample and read; with `label-hidden`, the sample's accessible name |
+| `supporting-text` (`supportingText`) | string | `''` | a line under the name: the value, a token, where it is used; with `label-hidden`, the accessible description |
+| `label-hidden` (`labelHidden`) | boolean | `false` | draws the sample alone; reflected |
+| `decorative` | boolean | `false` | draws the sample alone and hides the swatch, beside the same name in text; reflected |
+| `size` | `small` \| `medium` \| `large` | `medium` | 16, 24, 32 under the default system; the text follows; reflected; open |
+| `shape` | `square` \| `circle` | `square` | a tile or a dot; reflected; open |
+
+Parts: `sample`, `label`, `supporting-text`. No slots, no events.
+
+**The sample** (SWC-1 to SWC-5) is one `span` in the shadow root, `aria-hidden`, with the shared corner rule. Its
+background is two layers: the color as a `linear-gradient` of one color, over a `conic-gradient` checkerboard tiled at
+twice `--tanrei-comp-swatch-checkerboard-size` (the top-left square is `checkerboard-color` in every direction). An
+opaque color covers the checkerboard; a translucent one shows it. The edge is an inset `box-shadow`, drawn over the
+background, so a white sample on a white surface still has its outline. Nothing else is mixed in: no state, no opacity,
+no change with the scheme — a product that wants the current scheme's color gives a role's custom property.
+
+**The color** (SWC-6) is set as the sample's own custom property through the style API, so any CSS color resolves where
+the swatch stands and nothing else can be written. A value `CSS.supports('color', …)` refuses is drawn as empty and
+reported in debug builds. A custom property the page does not define resolves to nothing, and the sample is then drawn
+as empty without a report: the element cannot tell.
+
+**Named, hidden or decorative** (SWC-9 to SWC-12): with its text drawn the host has no role and its text is read where
+it stands; with `label-hidden` the host is `role="img"` with `aria-label` (the label, else the supporting text) and
+`aria-description` (the supporting text, where the label names it); decorative, or with neither text, the host is
+`aria-hidden="true"` (the second is reported). Inside a link or a Button what it exposes is that element's content
+(SWC-13). The color is never turned into words: a color's name is the product's.
+
+**Layout** (SWC-7, SWC-8, SWC-15, SWC-17): the host is an inline flex row, the sample and the column of text centred on
+each other, `gap` of the size between them, as wide as its content and no wider; a text wraps at word boundaries (and a
+word longer than the line breaks), the sample stays whole. Each text is isolated in its own direction (`unicode-bidi:
+plaintext`), so `#0f766e` keeps its order in a right-to-left layout. The sample does not grow with enlarged text; the
+text does. **Forced colors** (SWC-16): the sample keeps `forced-color-adjust: none` (the color is content) and its edge
+becomes `CanvasText`.
+
+Not built: a swatch picker (a set of swatches of which one is chosen, with a value and the keys of a radio group or a
+listbox), and a stylesheet that holds the swatch's box before the element is defined.
+
 ## `<tanrei-breadcrumbs>` (`breadcrumbs.css`)
 
 `specs/breadcrumbs.spec.json` (BRC-1 to BRC-29): where a page sits in a hierarchy of pages — the levels above as links,

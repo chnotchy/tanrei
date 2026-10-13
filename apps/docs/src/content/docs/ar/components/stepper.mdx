@@ -1,0 +1,171 @@
+---
+title: مؤشر الخطوات
+description: يبيّن أين يقف الشخص في مسار يسير فيه المنتج بترتيب ثابت من الخطوات، أي الخطوة الحالية، وأيها مكتملة، وأيها فيها خطأ، وأيها لم يأتِ دورها بعد، ويتيح له أن يضغط خطوة ليعود إليها.
+translationOf: components/stepper.mdx
+sourceHash: 6f6aced00c2b6ebab565e04f4136b2fd6ad660ee
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="stepper" />
+
+<DemoFrame label="أفقي، مع خطوة فيها خطأ" column>
+  <tanrei-stepper label="مراحل إتمام الشراء" value="payment" pressable="visited" completed-text="مكتملة" error-text="فيها خطأ" style="inline-size: 100%">
+    <tanrei-stepper-step value="account" label="الحساب"></tanrei-stepper-step>
+    <tanrei-stepper-step value="shipping" label="الشحن" status="error" description="الرمز البريدي ناقص"></tanrei-stepper-step>
+    <tanrei-stepper-step value="payment" label="الدفع"></tanrei-stepper-step>
+    <tanrei-stepper-step value="review" label="المراجعة"></tanrei-stepper-step>
+  </tanrei-stepper>
+</DemoFrame>
+
+يقف مؤشر الخطوات (stepper) فوق محتوى مسار له موضع، أو بجانبه: إتمام شراء، أو إعداد، أو طلب من عدة أجزاء. خطوة واحدة هي الحالية، والخطوات التي قبلها مكتملة، وقد تحتاج واحدة إلى انتباه الشخص، والباقي لم يأتِ دوره بعد.
+
+### الاستخدام
+
+الخطوات عناصر أبناء من النوع `<tanrei-stepper-step>`، بترتيبها. والخاصية `value` تسمّي الخطوة الحالية. ولا يحرّك المؤشر قيمة `value` بنفسه أبدًا: حين يضغط الشخص خطوة يطلق الحدث `select` بقيمة تلك الخطوة، ومسارك هو الذي ينتقل إليها (أو لا ينتقل) ويضبط `value`.
+
+أما SwiftUI و Compose و Flutter و React Native فمخطَّط لها: الأسماء التي بجانب كل منصة في أعلى هذه الصفحة هي ما تعطيها إياه المواصفة، ولا شيء منها متاح هناك بعد.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-stepper id="checkout" label="مراحل إتمام الشراء" value="shipping" pressable="visited"
+      completed-text="مكتملة" error-text="فيها خطأ" position-text="الخطوة {position} من {count}">
+      <tanrei-stepper-step value="account" label="الحساب"></tanrei-stepper-step>
+      <tanrei-stepper-step value="shipping" label="الشحن" description="العنوان والتوصيل"></tanrei-stepper-step>
+      <tanrei-stepper-step value="gift" label="تغليف الهدية" description="اختياري"></tanrei-stepper-step>
+      <tanrei-stepper-step value="payment" label="الدفع"></tanrei-stepper-step>
+    </tanrei-stepper>
+
+    <script type="module">
+      import '@tanrei/web/components/stepper';
+      const stepper = document.querySelector('#checkout');
+      // ضغط خطوة طلبٌ للانتقال إليها. المسار يقرر، ثم يحرّك value.
+      stepper.addEventListener('select', (e) => {
+        if (goTo(e.detail.value)) stepper.value = e.detail.value;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Stepper, StepperStep } from '@tanrei/react';
+
+    <Stepper
+      label="مراحل إتمام الشراء"
+      value={step}
+      pressable="visited"
+      completedText="مكتملة"
+      errorText="فيها خطأ"
+      positionText="الخطوة {position} من {count}"
+      onSelect={(e) => setStep(e.detail.value)}
+    >
+      <StepperStep value="account" label="الحساب" />
+      <StepperStep value="shipping" label="الشحن" status={shippingError ? 'error' : 'auto'} />
+      <StepperStep value="payment" label="الدفع" />
+      <StepperStep value="review" label="المراجعة" />
+    </Stepper>
+    ```
+  </TabItem>
+</Tabs>
+
+الكلمات كلماتك: الخاصيتان `completed-text` و `error-text` هما ما تنطقه التقنيات المساعدة بعد تسمية الخطوة، والخاصية `position-text` هي سطر الهيئة المضغوطة، وفيه الموضعان `{position}` و `{count}`. أعطِها مرة واحدة لكل مؤشرات الخطوات بالاستدعاء `setWords({ stepCompletedText, stepErrorText, stepPositionText })`.
+
+## المواصفات
+
+<DemoFrame label="الهيئة العمودية، والهيئة المضغوطة" plain>
+  <tanrei-stepper label="الإعداد" value="profile" layout="vertical" completed-text="مكتملة" error-text="فيها خطأ" style="inline-size: 320px">
+    <tanrei-stepper-step value="account" label="إنشاء حساب" description="البريد الإلكتروني وكلمة المرور"></tanrei-stepper-step>
+    <tanrei-stepper-step value="profile" label="الملف الشخصي" description="الاسم والصورة"></tanrei-stepper-step>
+    <tanrei-stepper-step value="team" label="دعوة فريقك" description="اختياري"></tanrei-stepper-step>
+    <tanrei-stepper-step value="done" label="بدء العمل"></tanrei-stepper-step>
+  </tanrei-stepper>
+  <tanrei-stepper label="مراحل إتمام الشراء" value="shipping" layout="compact" completed-text="مكتملة" error-text="فيها خطأ" position-text="الخطوة {position} من {count}" style="inline-size: 280px">
+    <tanrei-stepper-step value="account" label="الحساب"></tanrei-stepper-step>
+    <tanrei-stepper-step value="shipping" label="الشحن"></tanrei-stepper-step>
+    <tanrei-stepper-step value="gift" label="تغليف الهدية"></tanrei-stepper-step>
+    <tanrei-stepper-step value="payment" label="الدفع"></tanrei-stepper-step>
+    <tanrei-stepper-step value="review" label="المراجعة"></tanrei-stepper-step>
+  </tanrei-stepper>
+</DemoFrame>
+
+<ComponentSpecs name="stepper" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم مؤشر الخطوات حين يمر الشخص بمسار من ثلاث إلى سبع خطوات بترتيب يحدده المنتج، ويساعده على الإتمام أن يعرف أين هو وكم بقي: إتمام شراء، أو تسجيل من عدة أجزاء، أو طلب. اعرضه فوق محتوى الخطوة (أفقيًّا)، أو بجانبه في عمود (عموديًّا).
+
+لا تستخدم مؤشر الخطوات:
+
+- لتعليمات يتّبعها القارئ وحده. فتلك هي [الخطوات](/ar/components/steps/): طريقة عمل مرقَّمة بلا موضع، علاماتها حلقات بسيطة ولا تعرض التقدم أبدًا.
+- لمسار من خطوتين، أو لمسار قصير إلى حد أن الموضع لا يقول شيئًا. يكفي عنوان يقول ما الغرض من هذه الصفحة.
+- لقائمة طويلة من مهام مستقلة تُنجَز بأي ترتيب. فتلك قائمة مهام: صف لكل مهمة مع حالتها، وكل صف رابط.
+- بدلًا من التنقل الخاص بالمسار نفسه. أبقِ الزرين «رجوع» و«متابعة». مؤشر الخطوات يقول أين يقف الشخص؛ وليس الوسيلة التي يتنقل بها أغلب الناس.
+
+### الحالات
+
+| الحالة | معناها | كيف تُرسم |
+| --- | --- | --- |
+| حالية | حيث يقف الشخص. | علامة معبَّأة فيها رقم الخطوة. |
+| مكتملة | أُنجزت. افتراضيًّا كل خطوة قبل الخطوة الحالية. | علامة فيها علامة صح. |
+| خطأ | تحتاج إلى انتباه الشخص، أينما كان موقعها. | حلقة ورسم الأولوية، والتسمية بلون الخطأ. |
+| غير مكتملة | لم يأتِ دورها بعد. افتراضيًّا كل خطوة بعد الخطوة الحالية. | حلقة فيها رقم الخطوة. |
+
+قيمة الخاصية `status` على الخطوة هي `auto` افتراضيًّا: مكتملة قبل الخطوة الحالية، وغير مكتملة بعدها. اضبطها حين يعرف مسارك أكثر من ذلك: القيمة `error` لخطوة تحتاج إلى إصلاح، و `complete` لخطوة أُنجزت خارج الترتيب، و `incomplete` لخطوة تُخطّيت وما زال يجب إنجازها. وكل حالة تختلف بشكل علامتها، لا باللون وحده.
+
+حين ينتهي المسار، اترك الخاصية `value` فارغة، وعلّم كل خطوة بالقيمة `complete`.
+
+### العودة إلى خطوة
+
+- القيمة `pressable="visited"` تتيح للشخص أن يضغط الخطوات التي مرّ بها، المكتملة منها أو التي فيها خطأ، ليعود إليها. وهذا ما تريده أغلب المسارات.
+- القيمة `pressable="all"` تتيح له أن يضغط أي خطوة ليست الحالية، لمسار يمكن إنجاز خطواته بأي ترتيب.
+- القيمة `pressable="none"` (الافتراضية) تعرض الموضع فقط.
+
+الخطوة القابلة للضغط تبدو مثل التي لا تُضغط إلى أن يُحوَّم فوقها أو تتلقى التركيز، كما في أغلب الأنظمة. وإذا احتاج مستخدموك إلى تلميح أوضح، فقل ذلك قرب المؤشر («اختر خطوة لتغييرها»). والخطوة الحالية لا تُضغط أبدًا. والخطوة التي لا يمكن الانتقال إليها بعد (لأنها تعتمد على اختيار سابق) تكون `disabled`: تُرسم باهتة، ويُعلَن أنها غير متاحة.
+
+### الشاشات الضيقة
+
+يتحول مؤشر الخطوات الأفقي إلى الهيئة المضغوطة من تلقاء نفسه حين لا يتسع عرضه لكل الخطوات بأدنى عرض لها: شريط من مقاطع معبَّأ حتى الخطوة الحالية، والموضع بكلماتك («الخطوة 2 من 5»)، وتسمية الخطوة الحالية. والقيمة `layout="compact"` تطلب هذه الهيئة في أي عرض. والهيئة المضغوطة لا تُضغط: زر «رجوع» في المسار يقوم بهذه المهمة. أما القيمة `layout="vertical"` فتُبقي كل الخطوات ظاهرة في عمود بدلًا من ذلك.
+
+### افعل
+
+- سمِّ الخطوات بما يفعله الشخص أو يقدّمه، في كلمة أو كلمتين: الحساب، الشحن، الدفع، المراجعة.
+- أبقِ عدد الخطوات نفسه من البداية إلى النهاية. وإذا كانت خطوة لا تنطبق إلا أحيانًا، فاعرضها وتخطَّها، بدلًا من إضافتها في منتصف الطريق.
+- ضع الخطأ على الخطوة التي يستطيع الشخص إصلاحه فيها، مع وصف قصير لما هو خطأ.
+
+### لا تفعل
+
+- لا تجعل مؤشر الخطوات الوسيلة الوحيدة للتقدم.
+- لا تكتب أرقامًا في التسميات. العلامة تعرض الرقم، والقائمة تنطقه.
+- لا تستخدم مؤشر الخطوات لأقسام صفحة ولا بدلًا من علامات التبويب. فلتلك [علامات التبويب](/ar/components/tabs/) أو جدول المحتويات.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="stepper" />
+
+### ما يتكفل به المكوّن
+
+- مؤشر الخطوات قائمة مرتبة تسمّيها الخاصية `label`. وكل خطوة عنصر فيها يُقرأ بتسميته، ثم بكلمة حالته (`completed-text`، `error-text`)، ثم بوصفه. والقائمة تعطي كل خطوة موضعها («3 من 4»)، فلا يُقرأ الرقم الذي في العلامة مرة أخرى.
+- الخطوة الحالية تُقدَّم للتقنيات المساعدة على أنها الخطوة الحالية (`aria-current="step"`).
+- الخطوة القابلة للضغط زر أصلي، وموضع توقف للمفتاح Tab، بترتيب الخطوات. والمفتاحان Enter و Space يضغطانها. والخطوة التي لا تُضغط نص عادي وليست موضع توقف. والخطوة المعطَّلة في مؤشر قابل للضغط زر معطَّل.
+- العلامات والرسوم وخطوط الوصل والشريط مخفية عن التقنيات المساعدة.
+- الحالات تختلف بالشكل وباللون معًا: علامة معبَّأة، وعلامة صح، ورسم الأولوية، وحلقة.
+- في الهيئة المضغوطة يكون المؤشر مجموعة واحدة تسمّيها تسميته، تقرأ ما هو مرسوم: الموضع وتسمية الخطوة الحالية، وكلمة الخطأ إن كان في الخطوة الحالية خطأ.
+- التسميات والأوصاف تلتفّ ولا تُقصّ أبدًا. ومع أحجام النص الأكبر يكبر كل شيء، ويبقى المؤشر يتحول إلى الهيئة المضغوطة بحسب العرض المتاح له.
+- في الألوان المفروضة (forced colors) تأخذ العلامة الحالية لون التحديد في النظام (highlight)، ويأخذ كل ما عداها لون النص.
+- يُبلَّغ في بنيات التنقيح (debug) عن: تسمية مفقودة، وقيمة لا تسمّي أي خطوة، وقيمة خطوة فارغة أو مكررة، وخطوة بلا تسمية، ومؤشر فيه أقل من خطوتين، وخطوة حالية معلَّمة بأنها معطَّلة، وجملة موضع بلا `{position}`، وكلمة مفقودة.
+
+### ما عليك فعله
+
+- أعطِ المؤشر خاصية `label` تقول أي مسار يتتبّعه («مراحل إتمام الشراء»).
+- أعطِ `completed-text` و `error-text` و `position-text` بلغتك، أو مرة واحدة بالاستدعاء `setWords()`.
+- أبقِ زرَّي «رجوع» و«متابعة» الخاصين بالمسار، وانقل التركيز إلى عنوان الخطوة الجديدة حين تتغير الخطوة، ليسمع مستخدم قارئ الشاشة أين هو.
+- حين يكون في خطوة خطأ، اعرض الخطأ نفسه في محتوى الخطوة أيضًا. فالمؤشر لا يقول إلا إن الخطوة تحتاج إلى انتباه.

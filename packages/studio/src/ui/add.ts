@@ -21,7 +21,7 @@ function membersOf(view: Json, NS: string, component: string, axis: string, valu
 
 function valueCell(view: Json, id: string) {
   const token = view.model.tokens[id];
-  return h('span', { class: 'ts-value' }, token?.type === 'color' ? h('i', { class: 'ts-dot', style: `background:${cssColor(token.value)}` }) : null, format(token?.type, token?.value));
+  return h('span', { class: 'ts-value' }, token?.type === 'color' ? h('tanrei-swatch', { class: 'ts-token-swatch', decorative: true, size: 'small', shape: 'circle', color: cssColor(token.value) }) : null, format(token?.type, token?.value));
 }
 
 /**

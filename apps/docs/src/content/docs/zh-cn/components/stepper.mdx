@@ -1,0 +1,171 @@
+---
+title: "步骤条"
+description: "在产品按固定步骤顺序推进的流程中，显示一个人所处的位置：哪一步是当前步骤，哪些已完成，哪一步有错误，哪些还没到；并让他们按下某一步回到那里。"
+translationOf: components/stepper.mdx
+sourceHash: 6f6aced00c2b6ebab565e04f4136b2fd6ad660ee
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="stepper" />
+
+<DemoFrame label="水平，含一个有错误的步骤" column>
+  <tanrei-stepper label="结账进度" value="payment" pressable="visited" completed-text="已完成" error-text="有错误" style="inline-size: 100%">
+    <tanrei-stepper-step value="account" label="账户"></tanrei-stepper-step>
+    <tanrei-stepper-step value="shipping" label="配送" status="error" description="缺少邮政编码"></tanrei-stepper-step>
+    <tanrei-stepper-step value="payment" label="付款"></tanrei-stepper-step>
+    <tanrei-stepper-step value="review" label="确认"></tanrei-stepper-step>
+  </tanrei-stepper>
+</DemoFrame>
+
+步骤条（stepper）放在一个有位置可言的流程的内容上方或旁边：结账、初始设置、分成几部分填写的申请。一步是当前步骤，它之前的步骤已完成，可能有一步需要这个人处理，其余的还没到。
+
+### 用法
+
+各个步骤是按顺序排列的 `<tanrei-stepper-step>` 子元素。`value` 指明当前步骤。步骤条从不自己改变 `value`：这个人按下某一步时，它触发带有该步骤值的 `select`，由你的流程决定是否前往那里，并设置 `value`。
+
+SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各平台旁边的名称是规格为它们定下的，这些平台目前还没有提供任何实现。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-stepper id="checkout" label="结账进度" value="shipping" pressable="visited"
+      completed-text="已完成" error-text="有错误" position-text="第 {position} 步，共 {count} 步">
+      <tanrei-stepper-step value="account" label="账户"></tanrei-stepper-step>
+      <tanrei-stepper-step value="shipping" label="配送" description="地址和配送方式"></tanrei-stepper-step>
+      <tanrei-stepper-step value="gift" label="礼品包装" description="可选"></tanrei-stepper-step>
+      <tanrei-stepper-step value="payment" label="付款"></tanrei-stepper-step>
+    </tanrei-stepper>
+
+    <script type="module">
+      import '@tanrei/web/components/stepper';
+      const stepper = document.querySelector('#checkout');
+      // 按下某一步是请求前往那里。由流程决定，然后再改变 value。
+      stepper.addEventListener('select', (e) => {
+        if (goTo(e.detail.value)) stepper.value = e.detail.value;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Stepper, StepperStep } from '@tanrei/react';
+
+    <Stepper
+      label="结账进度"
+      value={step}
+      pressable="visited"
+      completedText="已完成"
+      errorText="有错误"
+      positionText="第 {position} 步，共 {count} 步"
+      onSelect={(e) => setStep(e.detail.value)}
+    >
+      <StepperStep value="account" label="账户" />
+      <StepperStep value="shipping" label="配送" status={shippingError ? 'error' : 'auto'} />
+      <StepperStep value="payment" label="付款" />
+      <StepperStep value="review" label="确认" />
+    </Stepper>
+    ```
+  </TabItem>
+</Tabs>
+
+文字由你提供：`completed-text` 和 `error-text` 是辅助技术在步骤标签之后朗读的内容，`position-text` 是紧凑形态显示的那一行，其中有 `{position}` 和 `{count}` 两个占位。用 `setWords({ stepCompletedText, stepErrorText, stepPositionText })` 可以为所有步骤条只给一次。
+
+## 规格
+
+<DemoFrame label="垂直，以及紧凑形态" plain>
+  <tanrei-stepper label="初始设置" value="profile" layout="vertical" completed-text="已完成" error-text="有错误" style="inline-size: 320px">
+    <tanrei-stepper-step value="account" label="创建账户" description="邮箱和密码"></tanrei-stepper-step>
+    <tanrei-stepper-step value="profile" label="个人资料" description="姓名和照片"></tanrei-stepper-step>
+    <tanrei-stepper-step value="team" label="邀请团队成员" description="可选"></tanrei-stepper-step>
+    <tanrei-stepper-step value="done" label="开始工作"></tanrei-stepper-step>
+  </tanrei-stepper>
+  <tanrei-stepper label="结账进度" value="shipping" layout="compact" completed-text="已完成" error-text="有错误" position-text="第 {position} 步，共 {count} 步" style="inline-size: 280px">
+    <tanrei-stepper-step value="account" label="账户"></tanrei-stepper-step>
+    <tanrei-stepper-step value="shipping" label="配送"></tanrei-stepper-step>
+    <tanrei-stepper-step value="gift" label="礼品包装"></tanrei-stepper-step>
+    <tanrei-stepper-step value="payment" label="付款"></tanrei-stepper-step>
+    <tanrei-stepper-step value="review" label="确认"></tanrei-stepper-step>
+  </tanrei-stepper>
+</DemoFrame>
+
+<ComponentSpecs name="stepper" />
+
+## 指南
+
+### 何时使用
+
+当一个人要按产品设定的顺序走完三到七步的流程，并且知道自己在哪里、还剩多少能帮助他们完成时，使用步骤条：结账、分成几部分的注册、一份申请。把它放在步骤内容的上方（水平），或者作为一列放在内容旁边（垂直）。
+
+以下情况不要使用步骤条：
+
+- 读者自己逐步完成的操作说明。那是[步骤](/zh-cn/components/steps/)：一套没有位置概念的编号流程，它的标记只是普通的圆环，从不显示进度。
+- 只有两步的流程，或者短到位置说明不了任何东西的流程。一个说明本页用途的标题就够了。
+- 一长串可以按任意顺序完成的独立任务。那是任务列表：每个任务一行，带上它的状态，每一行都是一个链接。
+- 代替流程本身的导航。请保留“返回”和“继续”按钮。步骤条说明这个人在哪里，它不是大多数人用来移动的方式。
+
+### 状态
+
+| 状态 | 含义 | 绘制方式 |
+| --- | --- | --- |
+| 当前 | 这个人所在的位置。 | 填充的标记，内有步骤编号。 |
+| 已完成 | 已经完成。默认是当前步骤之前的每一步。 | 带对勾的标记。 |
+| 错误 | 需要这个人处理，无论它在什么位置。 | 圆环加优先级字形，标签使用错误颜色。 |
+| 未完成 | 还没到。默认是当前步骤之后的每一步。 | 圆环，内有步骤编号。 |
+
+步骤的 `status` 默认为 `auto`：当前步骤之前为已完成，之后为未完成。当你的流程掌握更多信息时再设置它：需要修正的步骤用 `error`，不按顺序完成的步骤用 `complete`，被跳过但仍需完成的步骤用 `incomplete`。每种状态都靠标记的形状来区分，而不只靠颜色。
+
+流程结束后，把 `value` 留空，并把每一步都标为 `complete`。
+
+### 回到某一步
+
+- `pressable="visited"` 让这个人可以按下自己去过的步骤（已完成的或有错误的），回到那里。大多数流程需要这一项。
+- `pressable="all"` 让他们按下除当前步骤之外的任何一步，适用于各步骤可以按任意顺序完成的流程。
+- `pressable="none"`（默认）只显示位置。
+
+和大多数系统一样，可按下的步骤在悬停或获得焦点之前，看起来与不可按下的步骤相同。如果你的用户需要更明显的提示，请在步骤条附近写明（“选择一个步骤进行修改”）。当前步骤永远不可按下。还不能前往的步骤（它取决于更早的某个选择）设为 `disabled`：它会以淡化的样子绘制，并被朗读为不可用。
+
+### 窄屏
+
+当水平步骤条的宽度容不下每一步的最小宽度时，它会自动变为紧凑形态：一条分段的进度条，填充到当前步骤；用你的文字写出的位置（“第 2 步，共 5 步”）；以及当前步骤的标签。`layout="compact"` 在任何宽度下都要求这种形态。紧凑形态不可按下：流程的“返回”按钮承担这项工作。`layout="vertical"` 则把每一步排成一列，全部保持可见。
+
+### 推荐
+
+- 用这个人要做的事或要提供的东西为步骤命名，一两个词即可：账户、配送、付款、确认。
+- 从头到尾保持步骤数量不变。如果某一步只在部分情况下适用，就显示它并跳过它，而不是中途加进来。
+- 把错误放在这个人能修正它的那一步上，并附上一句简短的说明，指出哪里有问题。
+
+### 避免
+
+- 不要把步骤条作为向前推进的唯一方式。
+- 不要在标签里写编号。标记会显示编号，列表会朗读它。
+- 不要把步骤条用于页面的各个部分或用作标签页。那些是[标签页](/zh-cn/components/tabs/)或目录。
+
+## 无障碍
+
+<ComponentAccessibility name="stepper" />
+
+### 组件负责的部分
+
+- 步骤条是一个有序列表，以它的 `label` 命名。每一步是一个列表项，依次读出它的标签、表示它状态的文字（`completed-text`、`error-text`），然后是它的描述。列表会给出每一步的位置（“第 3 项，共 4 项”），所以标记里的编号不会再读一遍。
+- 当前步骤作为当前步骤提供给辅助技术（`aria-current="step"`）。
+- 可按下的步骤是原生按钮，也是一个 Tab 停靠点，顺序与步骤顺序一致。Enter 和 Space 会按下它。不可按下的步骤是普通文本，不是停靠点。可按下的步骤条中被禁用的步骤是一个禁用的按钮。
+- 标记、字形、连接线和进度条都对辅助技术隐藏。
+- 各种状态既靠颜色也靠形状区分：填充的标记、对勾、优先级字形、圆环。
+- 在紧凑形态下，步骤条是一个以其标签命名的分组，朗读的就是画出来的内容：位置和当前步骤的标签；当前步骤有错误时，还有表示错误的文字。
+- 标签和描述会换行，绝不截断。文字放大时一切都随之变大，步骤条仍然根据自己得到的宽度变为紧凑形态。
+- 在强制颜色模式下，当前步骤的标记采用高亮颜色，其余一切采用文本颜色。
+- 缺少标签、值不对应任何步骤、步骤值为空或重复、步骤没有标签、步骤条少于两步、当前步骤被标为禁用、位置句子里没有 `{position}`，以及缺少某项文字，都会在调试构建中报告。
+
+### 需要你做的事
+
+- 给步骤条一个 `label`，说明它跟踪的是哪个流程（“结账进度”）。
+- 用你的语言提供 `completed-text`、`error-text` 和 `position-text`，或者用 `setWords()` 只给一次。
+- 保留流程本身的“返回”和“继续”按钮，并在步骤改变时把焦点移到新步骤的标题上，让屏幕阅读器用户听到自己在哪里。
+- 当某一步有错误时，也要在该步骤的内容里显示错误本身。步骤条只说明这一步需要处理。

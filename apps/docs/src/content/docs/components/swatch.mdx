@@ -1,0 +1,143 @@
+---
+title: Swatch
+description: Shows a color as a sample with its name beside it. The sample is exactly the color, over a checkerboard where the color is translucent, and edged so that a color close to the surface still shows where it ends. A sample to look at, never a control and never a picker.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="swatch" />
+
+<DemoFrame label="A color with its value, a role of the theme, a translucent color and a dot">
+  <tanrei-swatch color="#0f766e" label="Teal 700" supporting-text="#0f766e"></tanrei-swatch>
+  <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="Primary"></tanrei-swatch>
+  <tanrei-swatch color="#0f766e80" label="Teal 700 at half opacity" supporting-text="#0f766e80"></tanrei-swatch>
+  <tanrei-swatch color="#e11d48" label="Bug" shape="circle" size="small"></tanrei-swatch>
+</DemoFrame>
+
+A swatch shows a color that is not being edited: a brand color in a settings page, the color of a label beside the label, the roles of a theme side by side. It draws the color exactly as given and the color's name beside it, because a color is never told by its sample alone. It never answers a pointer, a key or focus.
+
+On the web it is `<tanrei-swatch>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- The name beside the sample, and the value under it. -->
+    <tanrei-swatch color="#0f766e" label="Teal 700" supporting-text="#0f766e"></tanrei-swatch>
+
+    <!-- A role of the current theme: the swatch follows the scheme because the custom property does. -->
+    <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="Primary"></tanrei-swatch>
+
+    <!-- No room for the name: the sample alone, named for assistive technology. -->
+    <tanrei-swatch color="#e11d48" label="Bug" shape="circle" size="small" label-hidden></tanrei-swatch>
+
+    <!-- Beside the same value in text: decorative, so it is read once. -->
+    <td><tanrei-swatch decorative size="small" color="#0f766e"></tanrei-swatch> #0f766e</td>
+
+    <script type="module">
+      import '@tanrei/web/components/swatch';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Swatch } from '@tanrei/react';
+
+    <Swatch color={label.color} label={label.name} shape="circle" size="small" />
+    <Swatch color="#0f766e" label="Teal 700" supportingText="#0f766e" />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Three sizes, two shapes, and an empty swatch" plain>
+  <tanrei-swatch size="small" color="#0f766e" label="Small"></tanrei-swatch>
+  <tanrei-swatch color="#0f766e" label="Medium"></tanrei-swatch>
+  <tanrei-swatch size="large" color="#0f766e" label="Large"></tanrei-swatch>
+  <tanrei-swatch shape="circle" color="#7c3aed" label="Circle"></tanrei-swatch>
+  <tanrei-swatch color="" label="No color"></tanrei-swatch>
+</DemoFrame>
+
+<ComponentSpecs name="swatch" />
+
+## Guidelines
+
+### When to use
+
+Use a swatch wherever a color is shown and not changed: a palette, a theme's overview, the color a person gave a label or a calendar, a legend. It is a picture of a color with words, and nothing more.
+
+| You need | Use |
+| --- | --- |
+| A color a person can type, paste or pick | A [color field](/components/color-field/), or a [color input](/components/color-input/) in a row that already names it. |
+| A color that leads somewhere or opens something | A [link](/components/link/) or a [button](/components/button/) that holds the swatch. |
+| One color chosen from a set of colors | Not this component: a set of swatches of which one is chosen is a picker, with a value and the keys of a radio group. Until Tanrei has one, use a [radio group](/components/radio-group/) whose options each hold a decorative swatch beside their name. |
+| A status (error, success) | A [tag](/components/tag/) or a [callout](/components/callout/): words say a status, a color only adds to them. |
+
+### What it draws
+
+- **The color, exactly.** Nothing is mixed into it: no tint, no state, no change with light or dark. Give a role's custom property (`var(--tanrei-sys-color-primary)`) where the swatch should follow the theme, and a fixed value where it shows that value.
+- **A checkerboard under it.** A translucent color shows the checkerboard through it, so it reads as translucent. An opaque color covers it.
+- **An edge.** One hairline inside the sample's edge, in the divider's color, so that white on a white page, or a color close to the surface, still shows where it ends.
+- **No color.** An empty `color` draws the edge alone. Say what that means in the label ("No color", "Inherited").
+
+Every platform reads the hexadecimal notation: `#0f766e`, and with an alpha `#0f766e80`. On the web any CSS color works too.
+
+### Sizes and shapes
+
+| `size` | Side | Use for |
+| --- | --- | --- |
+| `small` | 16 | Beside one line of small text: a table cell, a dense row, a legend. |
+| `medium` (default) | 24 | Beside a line of body text: a row of a list, a setting. |
+| `large` | 32 | Where the color itself is looked at: a palette, a theme's overview. |
+
+| `shape` | Use for |
+| --- | --- |
+| `square` (default) | A tile of the color: a palette, a theme. |
+| `circle` | A dot that marks something else with a color: a label, a calendar, a series in a chart. |
+
+The name and the supporting text follow the size.
+
+### The name
+
+Write the color's name as people in your product call it: "Teal 700", "Primary", "Bug". A value such as `#0f766e` is not a name, so put it in `supportingText` under the name. The swatch never makes a name from the color: what a color is called depends on the language and on the product.
+
+### Do
+
+- Give every swatch a `label`, and leave it visible where there is room.
+- Set `decorative` on a swatch that stands beside the same name or value in text.
+- Put a value people may copy or compare in `supportingText`.
+
+### Don't
+
+- Don't put a handler on a swatch. Put it in a link or a button, which has the states and the focus indicator.
+- Don't rely on the color alone to say what something is. The name does that.
+- Don't build a color picker out of swatches with handlers of your own.
+
+## Accessibility
+
+<ComponentAccessibility name="swatch" />
+
+### What the component handles
+
+- With its name drawn, the swatch is that text: the name, then the supporting text, read where the swatch stands. The sample is hidden, because the words already say it.
+- With `labelHidden`, it is one image named by `label` and described by `supportingText`.
+- With `decorative`, it is hidden from assistive technology and draws no text.
+- A swatch with neither a label nor supporting text is hidden and reported in debug builds.
+- It takes no input and no focus, so it adds no stop to the focus order. Inside a link or a button, what it exposes is that element's name.
+- With enlarged text the sample keeps its size, as an icon does, and the text grows beside it.
+- In forced-colors mode the color is kept, because it is the content, and the edge takes the text color.
+- In a right-to-left layout the sample is at the right. A value such as `#0f766e` keeps its order.
+
+### What you need to do
+
+- Decide for each swatch whether it is named or decorative. The rule: if deleting the swatch loses a name, it is named. Otherwise it is decorative.
+- Prefer a visible name to `labelHidden`. A hidden name tells assistive technology the color, but not a person who sees the sample and cannot tell it from its neighbour. Where there is no room, show the name on demand, in a tooltip on the element that holds the swatch.
+- Check the contrast of any text you draw on the colors you show. The swatch shows colors; it does not check them.

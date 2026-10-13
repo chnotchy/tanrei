@@ -17,18 +17,16 @@ import {
   styleQueries,
 } from '../../primitives/index.js';
 import { acceptConverter, acceptList } from '../../primitives/file-format.js';
+import { type FileJudgement, type FileRefused, type FileRejectReason, countLimit, dragAnswer, droppedFiles, givenFiles, judgeFiles, readAccept, sizeLimit } from '../../primitives/file-judge.js';
 import { notifyArrival } from '../../primitives/file-item-holder.js';
 import { PREFIX, styles } from './file-picker.styles.js';
 
 /** How choosing is offered: the trigger alone (`button`), or a bounded place around it that also takes a drop (`drop-area`). */
 export type TanreiFilePickerLayout = 'button' | 'drop-area';
 /** Why a file was refused — a name for the product's code, never words: its kind, its size, or how many there were. */
-export type TanreiFilePickerRejectReason = 'type' | 'size' | 'count';
+export type TanreiFilePickerRejectReason = FileRejectReason;
 /** A file that was refused, with the reason: what `reject` carries and `judge()` answers with. */
-export interface TanreiFilePickerRefused {
-  file: File;
-  reason: TanreiFilePickerRejectReason;
-}
+export type TanreiFilePickerRefused = FileRefused;
 /** `select`: the files of one choice or one drop that passed, in the order the browser gave them. */
 export interface TanreiFilePickerSelectDetail {
   files: File[];
@@ -38,10 +36,7 @@ export interface TanreiFilePickerRejectDetail {
   files: TanreiFilePickerRefused[];
 }
 /** What `judge()` answers with: the files that passed, and the refused files with their reasons, each in the order given. */
-export interface TanreiFilePickerJudgement {
-  accepted: File[];
-  refused: TanreiFilePickerRefused[];
-}
+export type TanreiFilePickerJudgement = FileJudgement;
 
 const LAYOUTS: readonly string[] = ['button', 'drop-area'];
 const BUTTON = 'tanrei-button';
@@ -55,30 +50,6 @@ const GLYPHS = { upload: 'upload', refusing: 'block' } as const;
  */
 const TRIGGER_PLACE: GroupPlace = { variant: 'standard', first: true, last: true };
 
-/** One entry of `accept`: an extension with its dot, a media type, or a whole family of media types. */
-type Kind = { form: 'extension' | 'type' | 'family'; text: string };
-const MEDIA_TYPE = /^[a-z0-9!#$&^_.+-]+\/(\*|[a-z0-9!#$&^_.+-]+)$/i;
-
-/** FPK-9, FPK-27: the entries that say a kind, and the ones that say none. */
-function readAccept(list: readonly string[]): { kinds: Kind[]; ignored: string[] } {
-  const kinds: Kind[] = [];
-  const ignored: string[] = [];
-  for (const entry of list) {
-    const text = entry.toLowerCase();
-    if (text.startsWith('.') && text.length > 1 && !/[\s/]/.test(text)) kinds.push({ form: 'extension', text });
-    else if (MEDIA_TYPE.test(text)) kinds.push(text.endsWith('/*') ? { form: 'family', text: text.slice(0, -1) } : { form: 'type', text });
-    else ignored.push(entry);
-  }
-  return { kinds, ignored };
-}
-/** FPK-9: a media type or a family against the kind the browser reports. */
-const matchesType = (kind: Kind, type: string) => (kind.form === 'type' ? type.toLowerCase() === kind.text : kind.form === 'family' ? type.toLowerCase().startsWith(kind.text) : false);
-/** FPK-9: an extension against the end of the name, without regard to case; a media type against the reported kind. */
-const matches = (kind: Kind, file: File) => (kind.form === 'extension' ? file.name.toLowerCase().endsWith(kind.text) : matchesType(kind, file.type));
-/** FPK-27: a limit of size is a number above zero; anything else sets none. */
-const sizeLimit = (value: unknown): number | null => (typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null);
-/** FPK-27: a limit of count is a whole number of zero or more; anything else sets none. Zero is the room a full list has left. */
-const countLimit = (value: unknown): number | null => (typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : null);
 /** The elements a child stands for: itself, or — where it is a slot that passes content on — what is assigned to it. */
 const reached = (child: Element): Element[] => (child instanceof HTMLSlotElement ? child.assignedElements({ flatten: true }) : [child]);
 
@@ -380,29 +351,9 @@ export class TanreiFilePicker extends LitElement implements PlacingGroup {
     notifyArrival(this);
   }
 
-  /** FPK-9: the rule itself — what passed and what was refused, each in the order given. */
+  /** FPK-9: the rule itself (src/primitives/file-judge.ts, shared with the drop zone) — what passed and what was refused, each in the order given. */
   private judged(files: readonly File[], folders: ReadonlySet<File>): TanreiFilePickerJudgement {
-    const accepted: File[] = [];
-    const refused: TanreiFilePickerRefused[] = [];
-    if (!this.multiple && files.length > 1) {
-      // More than one where one is asked: all are refused, and none is chosen for the person.
-      for (const file of files) refused.push({ file, reason: 'count' });
-    } else {
-      const { kinds } = readAccept(acceptList(this.accept));
-      const maxSize = sizeLimit(this.maxSize);
-      const maxFiles = this.multiple ? countLimit(this.maxFiles) : null;
-      let room = maxFiles === null ? Number.POSITIVE_INFINITY : maxFiles;
-      for (const file of files) {
-        if (folders.has(file) || (kinds.length > 0 && !kinds.some((kind) => matches(kind, file)))) refused.push({ file, reason: 'type' });
-        else if (maxSize !== null && file.size > maxSize) refused.push({ file, reason: 'size' });
-        else if (room <= 0) refused.push({ file, reason: 'count' });
-        else {
-          accepted.push(file);
-          room -= 1;
-        }
-      }
-    }
-    return { accepted, refused };
+    return judgeFiles(files, this, folders);
   }
 
   /**
@@ -412,8 +363,7 @@ export class TanreiFilePicker extends LitElement implements PlacingGroup {
    * while disabled: disabled stops the person, not the product.
    */
   judge(files: Iterable<File>): TanreiFilePickerJudgement {
-    const given = typeof File === 'undefined' ? [] : [...(files ?? [])].filter((file): file is File => file instanceof File);
-    return this.judged(given, new Set());
+    return this.judged(givenFiles(files), new Set());
   }
 
   // ─── The drop area (FPK-13, FPK-14) ───────────────────────────────────────────────────────────────────────────
@@ -424,13 +374,7 @@ export class TanreiFilePicker extends LitElement implements PlacingGroup {
    * only where `accept` lists media types alone: an extension is the end of a name, and a name is not told yet.
    */
   private answer(data: DataTransfer | null): 'receiving' | 'refusing' {
-    const types = [...(data?.types ?? [])];
-    const held = [...(data?.items ?? [])].filter((item) => item.kind === 'file');
-    if (!held.length) return types.includes('Files') ? 'receiving' : 'refusing';
-    if (!this.multiple && held.length > 1) return 'refusing';
-    const { kinds } = readAccept(acceptList(this.accept));
-    if (kinds.length && kinds.every((kind) => kind.form !== 'extension') && held.every((item) => !kinds.some((kind) => matchesType(kind, item.type)))) return 'refusing';
-    return 'receiving';
+    return dragAnswer(data, this);
   }
 
   /** Tells the browser what letting go here does: copy, or nothing. */
@@ -480,21 +424,8 @@ export class TanreiFilePicker extends LitElement implements PlacingGroup {
     event.preventDefault();
     this.endDrag();
     if (this.isDisabled) return;
-    const data = event.dataTransfer;
-    const files: File[] = [];
-    const folders = new Set<File>();
-    const items = [...(data?.items ?? [])].filter((item) => item.kind === 'file');
-    if (items.length) {
-      for (const item of items) {
-        // A folder is told by its entry — a handle; nothing of it is read (FPK-7).
-        const entry = typeof item.webkitGetAsEntry === 'function' ? item.webkitGetAsEntry() : null;
-        const file = item.getAsFile();
-        if (!file) continue;
-        files.push(file);
-        if (entry?.isDirectory) folders.add(file);
-      }
-    }
-    if (!files.length) files.push(...(data?.files ?? []));
+    // A folder is told by its entry — a handle; nothing of it is read (FPK-7).
+    const { files, folders } = droppedFiles(event.dataTransfer);
     this.take(files, folders);
   };
 

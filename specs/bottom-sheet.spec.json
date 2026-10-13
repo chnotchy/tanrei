@@ -4,12 +4,15 @@
   "title": "Bottom sheet",
   "summary": "Shows supplementary content or a short task in a surface that rises from the bottom edge, either over the lower part of the content while the rest stays usable, or as a modal step that dims and blocks everything else until it is dismissed.",
   "category": "containment",
-  "level": "base",
+  "level": "composed",
   "listing": "default",
+  "builtFrom": [
+    "modal-layer"
+  ],
   "anatomy": [
     {
       "id": "scrim",
-      "description": "The dim over everything behind a modal sheet. It blocks presses and, while the sheet is dismissible, a press on it asks the sheet to close. A standard sheet draws none.",
+      "description": "The modal layer's scrim over everything behind a modal sheet (MDL-1). It blocks presses and, while the sheet is dismissible, a press on it asks the sheet to close. A standard sheet draws none.",
       "optional": true
     },
     {
@@ -120,15 +123,15 @@
   "behavior": [
     {
       "id": "BSH-1",
-      "text": "WHEN open becomes true THE bottom sheet SHALL slide its container up from below the bottom edge of the area it covers to its height (BSH-6) — WHILE variant is modal over the whole window, fading in a scrim of comp.bottom-sheet.scrim.color behind it; WHILE variant is standard over the bottom of the parent the product placed it in, with no scrim — over comp.bottom-sheet.motion.enter-duration with comp.bottom-sheet.motion.enter-easing; WHEN open becomes false THE bottom sheet SHALL slide it down out of view from wherever it is and fade the scrim out, over comp.bottom-sheet.motion.exit-duration with comp.bottom-sheet.motion.exit-easing. WHERE motion is reduced it SHALL fade in and out in place without sliding, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). A sheet that is mounted with open true SHALL appear in place without motion."
+      "text": "WHEN open becomes true THE bottom sheet SHALL slide its container up from below the bottom edge of the area it covers to its height (BSH-6) — WHILE variant is modal over the whole window on its modal layer, fading the layer's scrim in comp.bottom-sheet.scrim.color and comp.bottom-sheet.scrim.blur in behind it in step (MDL-1, MDL-7); WHILE variant is standard over the bottom of the parent the product placed it in, with no scrim — over comp.bottom-sheet.motion.enter-duration with comp.bottom-sheet.motion.enter-easing; WHEN open becomes false THE bottom sheet SHALL slide it down out of view from wherever it is and fade the scrim out, over comp.bottom-sheet.motion.exit-duration with comp.bottom-sheet.motion.exit-easing. WHERE motion is reduced it SHALL fade in and out in place without sliding, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). A sheet that is mounted with open true SHALL appear in place without motion."
     },
     {
       "id": "BSH-2",
-      "text": "WHILE variant is modal and the sheet is open THE bottom sheet SHALL make everything outside it inert (not focusable, not pressable, hidden from assistive technology), keep the content behind it from scrolling, and keep focus inside it: Tab from its last focusable element SHALL move to its first, Shift+Tab from its first SHALL move to its last, and screen-reader navigation SHALL NOT leave it (a modal overlay)."
+      "text": "WHILE variant is modal and the sheet is open THE bottom sheet SHALL make everything outside it inert, keep the content behind it from scrolling and keep focus inside it, as its modal layer does (MDL-2, MDL-4): a modal overlay."
     },
     {
       "id": "BSH-3",
-      "text": "WHEN open changes from false to true THE bottom sheet SHALL move focus to the element in it that the product marked for initial focus (the platform's own mark, named in the platform notes) or, without one, to its container, so that assistive technology reads its label first; WHEN it closes while focus is inside it THE bottom sheet SHALL return focus to the element that had it when the sheet opened or, where that element no longer exists or cannot take focus, to the platform's default for a closed overlay. Focus SHALL move when the sheet opens or closes, not when its motion ends. This holds for both variants; a standard sheet mounted with open true SHALL NOT move focus, and a modal sheet mounted with open true SHALL move focus in as if it had just opened, because it makes everything behind it unfocusable and focus must be somewhere it can reach."
+      "text": "WHEN open changes from false to true THE bottom sheet SHALL move focus to the element in it that the product marked for initial focus (the platform's own mark, named in the platform notes) or, without one, to its container, so that assistive technology reads its label first; WHEN it closes while focus is inside it THE bottom sheet SHALL return focus to the element that had it when the sheet opened or, where that element no longer exists or cannot take focus, to the platform's default for a closed overlay. Focus SHALL move when the sheet opens or closes, not when its motion ends. This holds for both variants (a modal sheet moves and returns focus as its modal layer does, MDL-3, MDL-5); a standard sheet mounted with open true SHALL NOT move focus, and a modal sheet mounted with open true SHALL move focus in as if it had just opened, because it makes everything behind it unfocusable and focus must be somewhere it can reach."
     },
     {
       "id": "BSH-4",
@@ -136,7 +139,7 @@
     },
     {
       "id": "BSH-5",
-      "text": "WHILE dismissible is true, WHEN the user presses the scrim, presses Escape or uses the platform's back (Android's back gesture or button, the iOS accessibility escape gesture) WHILE variant is modal, or releases a drag that asks to close (BSH-9) in either variant, THE bottom sheet SHALL emit close exactly once with the reason scrim, escape, back or drag, and SHALL then be closed: through its binding where open is one (SwiftUI), and by the product setting open to false where open is a plain value (web, Compose, Flutter, React Native). WHILE dismissible is false THE bottom sheet SHALL ignore these inputs and emit nothing; a press on the scrim SHALL still reach nothing behind it."
+      "text": "WHILE dismissible is true, WHEN the user presses the scrim, presses Escape or uses the platform's back WHILE variant is modal, as its modal layer answers them (MDL-6), or releases a drag that asks to close (BSH-9) in either variant, THE bottom sheet SHALL emit close exactly once with the reason scrim, escape, back or drag, and SHALL then be closed: through its binding where open is one (SwiftUI), and by the product setting open to false where open is a plain value (web, Compose, Flutter, React Native). WHILE dismissible is false THE bottom sheet SHALL ignore these inputs and emit nothing; a press on the scrim SHALL still reach nothing behind it."
     },
     {
       "id": "BSH-6",
@@ -211,7 +214,7 @@
     },
     {
       "id": "BSH-23",
-      "text": "WHEN a dialog, a menu or another modal sheet opens from a modal bottom sheet THE bottom sheet SHALL stay below it, become inert with the rest of the window, and on the other overlay's closing receive back the focus that overlay returns; Escape SHALL dismiss only the topmost overlay."
+      "text": "WHEN a dialog, a menu or another modal sheet opens from a modal bottom sheet THE bottom sheet SHALL stay below it, become inert with the rest of the window, and on the other overlay's closing receive back the focus that overlay returns, as its modal layer does (MDL-8, MDL-9); Escape SHALL dismiss only the topmost overlay."
     },
     {
       "id": "BSH-24",
