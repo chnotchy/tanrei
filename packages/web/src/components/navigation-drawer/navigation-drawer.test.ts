@@ -2825,14 +2825,14 @@ test.describe('groups that are destinations', () => {
     await tab(page);
     await expect(cell(page, id, 3)).toBeFocused();
     // Back to the chevron: Enter and Space close and open it; nothing is chosen.
-    await page.keyboard.press('Shift+Tab');
+    await tab(page, { back: true });
     await page.keyboard.press('Enter');
     await page.keyboard.press('Space');
     expect(await log(page)).toEqual(['toggle:Components:false:false', 'toggle:Components:true:true']);
     await page.keyboard.press('ArrowLeft');
     expect((await log(page)).at(-1)).toBe('toggle:Components:false:false');
     // On the row: Right opens it, Left closes it, Enter chooses it.
-    await page.keyboard.press('Shift+Tab');
+    await tab(page, { back: true });
     await expect(groupRow(page, id, 1)).toBeFocused();
     await page.keyboard.press('ArrowRight');
     expect((await log(page)).at(-1)).toBe('toggle:Components:true:true');
