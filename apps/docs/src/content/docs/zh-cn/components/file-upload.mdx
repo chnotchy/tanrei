@@ -2,7 +2,7 @@
 title: "文件上传"
 description: "让用户通过文件选择器选择文件，并把选中的文件显示为文件项：以行排成一列，或以图块排成一排。放进表单时，它保留已选的文件，无需代码即可提交；自己发送文件的产品则自己给出文件项。它自己绝不上传任何东西。"
 translationOf: components/file-upload.mdx
-sourceHash: fb899706d800e36991b2221b490a0dee56cc73df
+sourceHash: 65c8a37179df4778d5e78c0137b71fdda15d1b57
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -254,7 +254,6 @@ upload.clear();
 | 已选的文件不在选择器下方，而在别处：消息里、预览旁边、表格里 | 一个[文件选择器](/zh-cn/components/file-picker/)，再在你要显示文件的地方放上[文件项](/zh-cn/components/file-item/) |
 | 一个当场读取、不予保留的文件 | 单独使用的[文件选择器](/zh-cn/components/file-picker/) |
 | 你的产品已经持有、无需选择的文件 | 单独使用的[文件项](/zh-cn/components/file-item/) |
-| 顺序可由用户调整的文件 | 各行显示文件的[列表](/zh-cn/components/list/)；参见[文件项的页面](/zh-cn/components/file-item/#顺序可由用户调整的文件) |
 
 ## 规格
 
@@ -359,7 +358,29 @@ upload.clear();
 
 `rows="own"` 且设置了 `itemPreview` 时，保留的文件如果是图片，就显示它自己的图片。每张图片都有代价，这个代价是文件项的，写在[它的页面](/zh-cn/components/file-item/#预览及其代价)上。不设置 `itemPreview`（默认）时，一百个保留的文件的开销就是一百个句柄，仅此而已。
 
-文件上传里的文件没有可供用户调整的顺序。这方面请参见[顺序可由用户调整的文件](/zh-cn/components/file-item/#顺序可由用户调整的文件)。
+### 顺序可由用户调整的文件
+
+设置 `reorderable` 后，用户可以调整文件的顺序。每一行都有一个手柄，整行都可以拖动——用鼠标移动几个像素后、用手指长按后，或从手柄立即开始——其他行会滑开让位。手柄也是一个按钮：它会打开一个包含四种移动的菜单；用键盘时，Space 提起该行，方向键移动它，Space 放下，Escape 放回原处。拖动从来不是唯一的方式（WCAG 2.5.7），每次移动都会用你的措辞播报。
+
+`rows="own"` 时，文件上传自己调整所保留文件的顺序，按新顺序提交，并发出 `change`。`rows="given"` 时，它只发出带有 `from` 和 `to` 的 `move`，什么也不移动：由你把自己的文件项放到新位置。
+
+这些文字是[列表](/zh-cn/components/list/)的：`drag-handle-label`（如 `调整{label}的顺序`，填入文件名）、四个移动的文字和三个句子。
+
+<DemoFrame label="一个可调整顺序、自己保留文件的文件上传。先选择一些文件，然后拖动一行，或使用其手柄的菜单或键盘。不会发送任何内容。" column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" multiple reorderable label="附件" remove-label="移除{name}" drag-handle-label="调整{label}的顺序" drag-handle-hint="Space 提起，方向键移动，Space 放下，Escape 取消；Enter 打开移动菜单" move-to-start-label="移到开头" move-before-label="上移" move-after-label="下移" move-to-end-label="移到末尾" lifted-text="已提起{label}：第{position}项，共{count}项" moved-text="{label}：第{position}项，共{count}项" cancelled-text="{label}已回到第{position}项，共{count}项">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+  </tanrei-file-upload>
+</DemoFrame>
+
+```html
+<tanrei-file-upload name="attachments" multiple reorderable remove-label="移除{name}"
+  drag-handle-label="调整{label}的顺序" move-to-start-label="移到开头" move-before-label="上移"
+  move-after-label="下移" move-to-end-label="移到末尾"
+  lifted-text="已提起{label}：第{position}项，共{count}项" moved-text="{label}：第{position}项，共{count}项"
+  cancelled-text="{label}已回到第{position}项，共{count}项">
+  <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+</tanrei-file-upload>
+```
 
 ### 你给出的行
 

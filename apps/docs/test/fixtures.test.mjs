@@ -281,7 +281,7 @@ describe('a fixture that needs a step in script (the file upload that keeps its 
     }
     assert.equal(specs['file-picker'].fixtures.length, 14);
     assert.equal(specs['file-item'].fixtures.length, 46);
-    assert.equal(spec.fixtures.length, 24);
+    assert.equal(spec.fixtures.length, 25);
   });
 
   test('a picture a file item is given is the page\'s own bytes, alone and as a row of a file upload', () => {

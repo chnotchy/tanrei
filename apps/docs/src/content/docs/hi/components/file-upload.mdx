@@ -2,7 +2,7 @@
 title: फ़ाइल अपलोड
 description: लोगों को फ़ाइल पिकर से फ़ाइलें चुनने देता है और जो चुना गया उसे फ़ाइल आइटम के रूप में दिखाता है, पंक्तियों के कॉलम में या टाइल की क़तार में। फ़ॉर्म में रखने पर वह चुनी गई फ़ाइलें अपने पास रखता है और बिना किसी कोड के उन्हें सबमिट करता है; जो प्रॉडक्ट फ़ाइलें ख़ुद भेजता है, वह फ़ाइल आइटम ख़ुद देता है। वह ख़ुद कभी कुछ अपलोड नहीं करता।
 translationOf: components/file-upload.mdx
-sourceHash: fb899706d800e36991b2221b490a0dee56cc73df
+sourceHash: 65c8a37179df4778d5e78c0137b71fdda15d1b57
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -254,7 +254,6 @@ React में यही तीनों ref पर मिलते हैं: 
 | चुनी गई फ़ाइलें पिकर के नीचे नहीं, कहीं और: किसी संदेश के भीतर, किसी प्रीव्यू के बग़ल में, किसी टेबल में | एक [फ़ाइल पिकर](/hi/components/file-picker/), और जहाँ आप फ़ाइलें दिखाते हैं वहाँ [फ़ाइल आइटम](/hi/components/file-item/) |
 | एक फ़ाइल जो तुरंत पढ़ी जाती है और रखी नहीं जाती | अकेला [फ़ाइल पिकर](/hi/components/file-picker/) |
 | वे फ़ाइलें जो आपके प्रॉडक्ट के पास पहले से हैं, और चुनने को कुछ नहीं है | अकेले [फ़ाइल आइटम](/hi/components/file-item/) |
-| वे फ़ाइलें जिनका क्रम लोग बदलते हैं | ऐसी [लिस्ट](/hi/components/list/) जिसकी पंक्तियाँ फ़ाइलें दिखाती हैं; देखें [फ़ाइल आइटम का पेज](/hi/components/file-item/#वे-फ़ाइलें-जिनका-क्रम-लोग-बदलते-हैं) |
 
 ## स्पेक
 
@@ -359,7 +358,29 @@ React में यही तीनों ref पर मिलते हैं: 
 
 `rows="own"` और `itemPreview` के साथ, जो रखी गई फ़ाइल एक इमेज है, वह अपनी तस्वीर दिखाती है। हर तस्वीर की एक क़ीमत होती है, जो फ़ाइल आइटम की है और [उसके पेज](/hi/components/file-item/#प्रीव्यू-और-उसकी-क़ीमत) पर बताई गई है। `itemPreview` के बिना, जो डिफ़ॉल्ट है, सौ रखी गई फ़ाइलों की क़ीमत सौ हैंडल है, और कुछ नहीं।
 
-फ़ाइल अपलोड की फ़ाइलों का ऐसा कोई क्रम नहीं होता जिसे व्यक्ति बदल सके। उसके लिए [वे फ़ाइलें जिनका क्रम लोग बदलते हैं](/hi/components/file-item/#वे-फ़ाइलें-जिनका-क्रम-लोग-बदलते-हैं) देखें।
+### वे फ़ाइलें जिनका क्रम लोग बदलते हैं
+
+`reorderable` के साथ लोग फ़ाइलों का क्रम बदल सकते हैं। हर पंक्ति को एक हैंडल मिलता है, और पूरी पंक्ति खींची जा सकती है — माउस से कुछ पिक्सेल हिलाने पर, उँगली से देर तक दबाने पर या हैंडल से तुरंत — और बाक़ी पंक्तियाँ रास्ता देने के लिए खिसक जाती हैं। हैंडल एक बटन भी है: यह चार चालों वाला एक मेन्यू खोलता है, और कीबोर्ड से Space पंक्ति को उठाता है, ऐरो कीज़ उसे ले जाती हैं, Space उसे रखता है और Escape उसे वापस रख देता है। खींचना कभी अकेला तरीक़ा नहीं होता (WCAG 2.5.7), और हर चाल आपके शब्दों में बताई जाती है।
+
+`rows="own"` के साथ फ़ाइल अपलोड अपनी रखी हुई फ़ाइलों का क्रम ख़ुद बदलता है, उन्हें नए क्रम में भेजता है और `change` भेजता है। `rows="given"` के साथ यह `from` और `to` वाला `move` भेजता है और कुछ नहीं हिलाता: अपने फ़ाइल आइटम को उसकी नई जगह पर रखें।
+
+शब्द [लिस्ट](/hi/components/list/) के हैं: `drag-handle-label` (`{label} का क्रम बदलें`, जिसमें फ़ाइल का नाम भरा जाता है), चार चालों के शब्द और तीन वाक्य।
+
+<DemoFrame label="एक फ़ाइल अपलोड जिसका क्रम बदला जा सकता है और जो अपनी फ़ाइलें ख़ुद रखता है। कुछ फ़ाइलें चुनें, फिर किसी पंक्ति को खींचें, या उसके हैंडल का मेन्यू या कीबोर्ड इस्तेमाल करें। कुछ भी भेजा नहीं जाता।" column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" multiple reorderable label="अटैचमेंट" remove-label="{name} हटाएँ" drag-handle-label="{label} का क्रम बदलें" drag-handle-hint="Space उठाता है, ऐरो कीज़ ले जाती हैं, Space रखता है, Escape रद्द करता है; Enter चालें खोलता है" move-to-start-label="सबसे ऊपर ले जाएँ" move-before-label="ऊपर ले जाएँ" move-after-label="नीचे ले जाएँ" move-to-end-label="सबसे नीचे ले जाएँ" lifted-text="{label} उठाया गया: {count} में से {position}" moved-text="{label}: {count} में से {position}" cancelled-text="{label} वापस {count} में से {position} पर">
+    <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
+  </tanrei-file-upload>
+</DemoFrame>
+
+```html
+<tanrei-file-upload name="attachments" multiple reorderable remove-label="{name} हटाएँ"
+  drag-handle-label="{label} का क्रम बदलें" move-to-start-label="सबसे ऊपर ले जाएँ" move-before-label="ऊपर ले जाएँ"
+  move-after-label="नीचे ले जाएँ" move-to-end-label="सबसे नीचे ले जाएँ"
+  lifted-text="{label} उठाया गया: {count} में से {position}" moved-text="{label}: {count} में से {position}"
+  cancelled-text="{label} वापस {count} में से {position} पर">
+  <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
+</tanrei-file-upload>
+```
 
 ### आपकी दी हुई पंक्तियाँ
 

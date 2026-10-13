@@ -252,7 +252,6 @@ Go one level down when you need an arrangement the file upload does not offer:
 | The chosen files somewhere else than below the picker: inside a message, beside a preview, in a table | A [file picker](/components/file-picker/), and [file items](/components/file-item/) where you show them |
 | One file that is read immediately and not kept | A [file picker](/components/file-picker/) alone |
 | Files your product already has, with nothing to choose | [File items](/components/file-item/) alone |
-| Files in an order people change | A [list](/components/list/) whose rows show the files; see the [file item's page](/components/file-item/#files-in-an-order-people-change) |
 
 ## Specs
 
@@ -357,7 +356,29 @@ Changing `rows` while the file upload is shown lets go of every kept file withou
 
 With `rows="own"` and `itemPreview`, a kept file that is an image shows its own picture. Each picture has a cost, which is the file item's and is said on [its page](/components/file-item/#the-preview-and-what-it-costs). Without `itemPreview`, the default, a hundred kept files cost a hundred handles and nothing more.
 
-The files of a file upload have no order a person can change. For that, see [Files in an order people change](/components/file-item/#files-in-an-order-people-change).
+### Files in an order people change
+
+With `reorderable` people can put the files in another order. Every row gets a handle, and the whole row can be dragged — with a mouse after a few pixels, with a finger after a long press or at once from the handle — while the other rows slide aside. The handle is also a button: it opens a menu of four moves, and with the keyboard Space lifts the row, the arrow keys carry it, Space drops it and Escape puts it back. Dragging is never the only way (WCAG 2.5.7), and each move is announced in your words.
+
+With `rows="own"` the file upload reorders the files it keeps itself, submits them in the new order and fires `change`. With `rows="given"` it fires `move` with `from` and `to` and moves nothing: put your file item in its new place.
+
+The words are the [list's](/components/list/): `drag-handle-label` (`Reorder {label}`, filled with the file's name), the four move words and the three sentences.
+
+<DemoFrame label="A reorderable file upload that keeps its own files. Choose some files, then drag a row, or use its handle’s menu or the keyboard. Nothing is sent." column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" multiple reorderable label="Attachments" remove-label="Remove {name}" drag-handle-label="Reorder {label}" drag-handle-hint="Space lifts, the arrow keys move, Space drops, Escape cancels; Enter opens the moves" move-to-start-label="Move to top" move-before-label="Move up" move-after-label="Move down" move-to-end-label="Move to bottom" lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}" cancelled-text="{label} returned to {position} of {count}">
+    <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
+  </tanrei-file-upload>
+</DemoFrame>
+
+```html
+<tanrei-file-upload name="attachments" multiple reorderable remove-label="Remove {name}"
+  drag-handle-label="Reorder {label}" move-to-start-label="Move to top" move-before-label="Move up"
+  move-after-label="Move down" move-to-end-label="Move to bottom"
+  lifted-text="{label} lifted: {position} of {count}" moved-text="{label}: {position} of {count}"
+  cancelled-text="{label} returned to {position} of {count}">
+  <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
+</tanrei-file-upload>
+```
 
 ### Rows you give
 

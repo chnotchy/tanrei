@@ -2,7 +2,7 @@
 title: Subida de archivos
 description: Permite elegir archivos con un selector de archivos y muestra lo elegido como elementos de archivo, en una columna de filas o en una tira de mosaicos. Colocado en un formulario, conserva los archivos elegidos y los envía sin código; un producto que envía los archivos por su cuenta da los elementos de archivo. Nunca sube nada por sí mismo.
 translationOf: components/file-upload.mdx
-sourceHash: fb899706d800e36991b2221b490a0dee56cc73df
+sourceHash: 65c8a37179df4778d5e78c0137b71fdda15d1b57
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -254,7 +254,6 @@ Baja a ese nivel cuando necesites una organización que el control de subida no 
 | Los archivos elegidos en un lugar que no es debajo del selector: dentro de un mensaje, junto a una vista previa, en una tabla | Un [selector de archivos](/es/components/file-picker/), y [elementos de archivo](/es/components/file-item/) donde los muestres |
 | Un archivo que se lee en el momento y no se conserva | Un [selector de archivos](/es/components/file-picker/) solo |
 | Archivos que tu producto ya tiene, sin nada que elegir | [Elementos de archivo](/es/components/file-item/) solos |
-| Archivos en un orden que las personas cambian | Una [lista](/es/components/list/) cuyas filas muestran los archivos; consulta la [página del elemento de archivo](/es/components/file-item/#archivos-en-un-orden-que-las-personas-cambian) |
 
 ## Especificaciones
 
@@ -359,7 +358,29 @@ Cambiar `rows` mientras el control de subida se muestra descarta todos los archi
 
 Con `rows="own"` e `itemPreview`, un archivo conservado que es una imagen muestra su propia imagen. Cada imagen tiene un coste, que es el del elemento de archivo y se explica en [su página](/es/components/file-item/#la-vista-previa-y-lo-que-cuesta). Sin `itemPreview`, el valor predeterminado, cien archivos conservados cuestan cien referencias y nada más.
 
-Los archivos de un control de subida no tienen un orden que una persona pueda cambiar. Para eso, consulta [Archivos en un orden que las personas cambian](/es/components/file-item/#archivos-en-un-orden-que-las-personas-cambian).
+### Archivos en un orden que las personas cambian
+
+Con `reorderable`, las personas pueden poner los archivos en otro orden. Cada fila recibe un asa, y la fila entera se puede arrastrar —con el ratón tras unos píxeles, con el dedo tras una pulsación larga o enseguida desde el asa— mientras las demás filas se apartan. El asa también es un botón: abre un menú con cuatro movimientos, y con el teclado Espacio levanta la fila, las flechas la llevan, Espacio la suelta y Escape la devuelve. Arrastrar nunca es la única forma (WCAG 2.5.7), y cada movimiento se anuncia con tus palabras.
+
+Con `rows="own"`, el control de subida reordena él mismo los archivos que conserva, los envía en el nuevo orden y emite `change`. Con `rows="given"` emite `move` con `from` y `to` y no mueve nada: pon tu elemento de archivo en su nuevo lugar.
+
+Las palabras son las de la [lista](/es/components/list/): `drag-handle-label` (`Reordenar {label}`, con el nombre del archivo), las cuatro palabras de movimiento y las tres frases.
+
+<DemoFrame label="Un control de subida reordenable que conserva sus propios archivos. Elige algunos archivos y arrastra una fila, o usa el menú de su asa o el teclado. No se envía nada." column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" multiple reorderable label="Adjuntos" remove-label="Quitar {name}" drag-handle-label="Reordenar {label}" drag-handle-hint="Espacio levanta, las flechas mueven, Espacio suelta, Escape cancela; Intro abre los movimientos" move-to-start-label="Mover al principio" move-before-label="Subir" move-after-label="Bajar" move-to-end-label="Mover al final" lifted-text="{label} levantado: {position} de {count}" moved-text="{label}: {position} de {count}" cancelled-text="{label} devuelto a {position} de {count}">
+    <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
+  </tanrei-file-upload>
+</DemoFrame>
+
+```html
+<tanrei-file-upload name="attachments" multiple reorderable remove-label="Quitar {name}"
+  drag-handle-label="Reordenar {label}" move-to-start-label="Mover al principio" move-before-label="Subir"
+  move-after-label="Bajar" move-to-end-label="Mover al final"
+  lifted-text="{label} levantado: {position} de {count}" moved-text="{label}: {position} de {count}"
+  cancelled-text="{label} devuelto a {position} de {count}">
+  <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
+</tanrei-file-upload>
+```
 
 ### Las filas que das tú
 
