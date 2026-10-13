@@ -911,7 +911,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-stepper",
       "props": {
         "label": "label",

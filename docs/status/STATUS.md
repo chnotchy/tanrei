@@ -61,7 +61,7 @@ Listing: 78 default · 7 advanced. A component of the first value is shown where
 | Description list | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Figure | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Pagination | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
-| Stepper | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| Stepper | base | default | navigation | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Breadcrumbs | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | App shell | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Page header | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
