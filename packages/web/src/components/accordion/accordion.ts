@@ -640,6 +640,8 @@ export class TanreiAccordion extends ReactiveElement {
   private settle(details: HTMLDetailsElement) {
     if (details.hasAttribute(MOVING)) details.removeAttribute(MOVING);
     details.style.removeProperty(SIZE);
+    // The measured height was the only thing written there: an item is left without the empty attribute it leaves.
+    if (details.getAttribute('style') === '') details.removeAttribute('style');
     this.setInert(details, false);
   }
 

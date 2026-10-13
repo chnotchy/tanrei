@@ -238,6 +238,44 @@
       "description": "Keeps the character count (and maxLength, when set): part of the input's description and announced when typing pauses (TXI-19). The input draws none: a text field gives the count to its Field, which draws it at the end of its supporting row, and a product that frames the input by hand gives it to the Field's countText."
     },
     {
+      "name": "counterText",
+      "type": "string",
+      "words": "characterCountText",
+      "default": "",
+      "description": "The count said to assistive technology while counter is true and maxLength is greater than 0: the whole sentence in the product's language with three places the input fills — {count} with the characters entered, {limit} with maxLength and {remaining} with how many more can be entered (\"{remaining} characters left\", \"{limit}文字中{count}文字\"). Empty reads the product's words; with neither, the count is said as the digits it is drawn in (\"12/40\"). A sentence that is right for every number, or a prop set per count where the language needs another form for one.",
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of user-perceived characters in the value."
+        },
+        {
+          "name": "limit",
+          "kind": "number",
+          "description": "maxLength."
+        },
+        {
+          "name": "remaining",
+          "kind": "number",
+          "description": "How many more characters can be entered: maxLength less the count."
+        }
+      ]
+    },
+    {
+      "name": "counterNoLimitText",
+      "type": "string",
+      "words": "characterCountNoLimitText",
+      "default": "",
+      "description": "The count said to assistive technology while counter is true and maxLength is 0: the whole sentence with one place, {count}, filled with the characters entered (\"{count} characters\", \"{count}文字\"). Empty reads the product's words; with neither, the count is said as its digits.",
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of user-perceived characters in the value."
+        }
+      ]
+    },
+    {
       "name": "prefixText",
       "type": "string",
       "default": "",
@@ -429,7 +467,7 @@
     },
     {
       "id": "TXI-19",
-      "text": "WHILE counter is true THE text input SHALL keep a count: the number of user-perceived characters in the value, counted as TXI-18 counts them — followed by a slash and maxLength WHILE maxLength is greater than 0 — written as digits and that one character, with no word. The count SHALL be part of the input's own description, before the description its Field gives (FLD-11), and WHEN typing pauses for one second THE text input SHALL announce the count once, politely, as that text, never on every keystroke. THE text input SHALL NOT draw the count: it SHALL let what holds it read the count, as that text, at every moment, and SHALL say that it changed with every change of the value or of maxLength, a value the product sets included — so that a text field gives it to its Field, which draws it at the end of its supporting row (TXF-67, FLD-27), and a product that frames the input by hand gives it to that Field's countText. WHILE nothing draws it THE text input SHALL still keep, describe and announce the count."
+      "text": "WHILE counter is true THE text input SHALL keep a count: the number of user-perceived characters in the value, counted as TXI-18 counts them — followed by a slash and maxLength WHILE maxLength is greater than 0 — written as digits and that one character, with no word. The count SHALL be part of the input's own description, before the description its Field gives (FLD-11), and WHEN typing pauses for one second THE text input SHALL announce the count once, politely, never on every keystroke — in both, as the product's sentence WHERE it has one: counterText WHILE maxLength is greater than 0, with {count}, {limit} and {remaining} filled, and counterNoLimitText WHILE it is 0, with {count} filled, each from the instance's prop or, WHILE that is empty, from the product's words of the keys characterCountText and characterCountNoLimitText, every number in the current locale's digits; and as the text of digits WHERE it has none, or WHILE the count is greater than maxLength (a value the product set: TXI-18 refuses typing past it), because a sentence of how many are left cannot say that. Another text between braces, and a brace that opens or closes nothing, SHALL be said as written and reported in debug builds. THE text input SHALL NOT draw the count: it SHALL let what holds it read the count, as the text of digits whatever sentence is said, at every moment, and SHALL say that it changed with every change of the value or of maxLength, a value the product sets included — so that a text field gives it to its Field, which draws it at the end of its supporting row (TXF-67, FLD-27), and a product that frames the input by hand gives it to that Field's countText. WHILE nothing draws it THE text input SHALL still keep, describe and announce the count."
     },
     {
       "id": "TXI-20",
@@ -565,7 +603,7 @@
     },
     {
       "id": "TXI-52",
-      "text": "THE text input SHALL have no words of its own: it SHALL take resizeLabel and segmentEmptyText from the instance's prop and, WHILE that is empty, from the product's words of the same name — the words a product sets once for all its components — and from nowhere else. WHILE neither gives resizeLabel the grip is as TXI-41 says: drawn, working and reported. IF neither gives segmentEmptyText THE text input SHALL expose an empty segment with no value and no value text, and in debug builds SHALL report the missing words once. The name of a segment's unit, the month's name and the period's name (TXI-47) are the platform's locale data and not the text input's words; the count (TXI-19) is digits and a slash; and the words of a requirement are the Field's (FLD-24).",
+      "text": "THE text input SHALL have no words of its own: it SHALL take resizeLabel and segmentEmptyText from the instance's prop and, WHILE that is empty, from the product's words of the same name, and counterText and counterNoLimitText as TXI-19 says, — the words a product sets once for all its components — and from nowhere else. WHILE neither gives resizeLabel the grip is as TXI-41 says: drawn, working and reported. IF neither gives segmentEmptyText THE text input SHALL expose an empty segment with no value and no value text, and in debug builds SHALL report the missing words once. The name of a segment's unit, the month's name and the period's name (TXI-47) are the platform's locale data and not the text input's words; the count (TXI-19) is drawn as digits and a slash, and said as the product's sentence where it has one; and the words of a requirement are the Field's (FLD-24).",
       "verify": "Unit, with no product's words set: stacked-multiline-manual without resizeLabel draws a grip that works and reports the missing name; stacked-date-empty without segmentEmptyText exposes empty segments with no value text and reports once."
     },
     {
@@ -1575,6 +1613,8 @@
         "wrap": "noWrap",
         "maxLength": "maxLength",
         "counter": "counter",
+        "counterText": "counterText",
+        "counterNoLimitText": "counterNoLimitText",
         "prefixText": "prefixText",
         "suffixText": "suffixText",
         "autocomplete": "autocomplete",
@@ -1620,6 +1660,8 @@
         "wrap": "wrap",
         "maxLength": "maxLength",
         "counter": "counter",
+        "counterText": "counterText",
+        "counterNoLimitText": "counterNoLimitText",
         "prefixText": "prefix",
         "suffixText": "suffix",
         "autocomplete": "textContentType",
@@ -1665,6 +1707,8 @@
         "wrap": "softWrap",
         "maxLength": "maxLength",
         "counter": "counter",
+        "counterText": "counterText",
+        "counterNoLimitText": "counterNoLimitText",
         "prefixText": "prefix",
         "suffixText": "suffix",
         "autocomplete": "contentType",
@@ -1710,6 +1754,8 @@
         "wrap": "softWrap",
         "maxLength": "maxLength",
         "counter": "showCounter",
+        "counterText": "counterSemanticText",
+        "counterNoLimitText": "counterNoLimitSemanticText",
         "prefixText": "prefixText",
         "suffixText": "suffixText",
         "autocomplete": "autofillHints",
@@ -1755,6 +1801,8 @@
         "wrap": "wrap",
         "maxLength": "maxLength",
         "counter": "counter",
+        "counterText": "counterAccessibilityText",
+        "counterNoLimitText": "counterNoLimitAccessibilityText",
         "prefixText": "prefix",
         "suffixText": "suffix",
         "autocomplete": "autoComplete",
