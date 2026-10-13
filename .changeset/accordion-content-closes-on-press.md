@@ -12,3 +12,6 @@ accordion's item (which closes that item only) close nothing. The header stays t
 assistive technology, and the content gets no role or focus stop. It needs the element's script: without it only the
 header toggles, and the content shows no pointer and no state. The look at rest is unchanged in every shipped system;
 the hovered, pressed and focused looks of an open item now cover the whole item.
+
+Where the browser cannot move a height to `auto` in CSS, an item no longer keeps an empty `style` attribute after
+its height motion.

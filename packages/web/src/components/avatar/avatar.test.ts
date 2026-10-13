@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, avatarPicture, iconFaceArrives, loadSpec, mountFixtures, resolveToken, tab, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, avatarPicture, iconFaceArrives, loadSpec, mountFixtures, resolveToken, setWords, tab, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
 
 const spec = loadSpec('avatar');
@@ -1083,20 +1083,20 @@ test.describe('behavior', () => {
     expect(await text('hindi')).toBe(`${expected[1]}+`);
   });
 
-  test('AVT-19: the group is one group named by its label, holding in order one image for each member it draws, each named by that member’s label whatever decorative says, and then the overflow’s text — overflowLabel, else the drawn text; the gaps and the members not drawn are kept from assistive technology; a group without a label and a member without one are reported', async ({ page, browserName }) => {
+  test('AVT-19: the group is one group named by its label, holding in order one image for each member it draws, each named by that member’s label whatever decorative says, and then the overflow’s text — overflowLabel or the product’s words with {count} filled by the real number not drawn, else the drawn text; the gaps and the members not drawn are kept from assistive technology; a group without a label and a member without one are reported', async ({ page, browserName }) => {
     const seen = warnings(page);
     await mountSpec(page, 'group-max');
-    // The verify: group Reviewers; image Ada Lovelace; image Grace Hopper; image Katherine Johnson; and 3 more.
+    // The verify: group Reviewers; image Ada Lovelace; image Grace Hopper; image Katherine Johnson; 3 more.
     await expect(group(page, 'group-max')).toMatchAriaSnapshot(`
       - group "Reviewers":
         - img "Ada Lovelace"
         - img "Grace Hopper"
         - img "Katherine Johnson"
-        - text: and 3 more
+        - text: 3 more
     `);
     expect(await group(page, 'group-max').evaluate((el) => [el.getAttribute('role'), el.getAttribute('aria-label')])).toEqual(['group', 'Reviewers']);
     if (browserName === 'chromium') {
-      expect(await exposed(page)).toEqual(['group "Reviewers"', '  image "Ada Lovelace"', '  image "Grace Hopper"', '  image "Katherine Johnson"', '  text "and 3 more"']);
+      expect(await exposed(page)).toEqual(['group "Reviewers"', '  image "Ada Lovelace"', '  image "Grace Hopper"', '  image "Katherine Johnson"', '  text "3 more"']);
     }
     expect(seen.filter((w) => w.includes('AVT-19'))).toEqual([]);
     await mountHtml(page, {
@@ -1124,8 +1124,23 @@ test.describe('behavior', () => {
     // The gap is a shadow, which is nothing to assistive technology; the count's drawn text is hidden where a label is read instead.
     await mountSpec(page, 'group-max');
     expect(await overflow(page, 'group-max').locator('.count').getAttribute('aria-hidden')).toBe('true');
-    expect(await overflow(page, 'group-max').locator('.spoken').textContent()).toBe('and 3 more');
+    expect(await overflow(page, 'group-max').locator('.spoken').textContent()).toBe('3 more');
     expect((await box(overflow(page, 'group-max').locator('.spoken'))).width).toBeLessThanOrEqual(1);
+    // The product's words, written once for every group, with the real count: the drawn text stops at 999+, the
+    // spoken one does not. In a language whose order is its own, the place stands where it writes it.
+    await mountHtml(page, {
+      many: '<tanrei-avatar-group label="Watchers" max="4" total="1243"><tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar><tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar><tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar></tanrei-avatar-group>',
+      ja: '<div lang="ja"><tanrei-avatar-group label="レビュアー" max="2"><tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar><tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar><tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar></tanrei-avatar-group></div>',
+    });
+    await setWords(page, { avatarGroupOverflowLabel: '{count} more' });
+    await expect(overflow(page, 'many').locator('.count')).toHaveText('999+');
+    await expect(overflow(page, 'many').locator('.spoken')).toHaveText('1240 more');
+    await setWords(page, { avatarGroupOverflowLabel: 'ほか{count}人' });
+    await expect(overflow(page, 'ja').locator('.spoken')).toHaveText('ほか2人');
+    // The instance's own wins; a sentence without the place is read as written, and reported.
+    await group(page, 'many').evaluate((el) => Object.assign(el, { overflowLabel: 'and more' }));
+    await expect(overflow(page, 'many').locator('.spoken')).toHaveText('and more');
+    await expect.poll(() => seen.filter((w) => w.includes('AVT-19') && w.includes('overflow-label has no place {count}')).length).toBe(1);
   });
 
   test('AVT-20: in right-to-left the group lays its row out from the right — the first member at the right, each following box over the left end of the one before it and above it, the overflow box leftmost — and the order that is read stays the order given', async ({ page }) => {
@@ -1163,7 +1178,7 @@ test.describe('behavior', () => {
         - img "ليلى حسن"
         - img "Ada Lovelace"
         - img "عمر خالد"
-        - text: و٣ آخرون
+        - text: و3 آخرون
     `);
     // Names in two scripts: each member's initials keep their own order.
     expect((await drawn(shown[0])).label).toBe('لح');
@@ -1457,7 +1472,9 @@ test.describe('accessibility', () => {
         const shown = max && (total > f.items.length || f.items.length > max) ? Math.min(f.items.length, max - 1) : f.items.length;
         await expect(g.getByRole('img'), f.id).toHaveCount(shown);
         expected.push(`group "${f.props.label}"`, ...f.items.slice(0, shown).map((item) => `  image "${item.props.label}"`));
-        if (total > shown) expected.push(`  text "${f.props.overflowLabel ?? `+${total - shown}`}"`);
+        // The sentence's place holds the count in the group's digits — the drawn count's, less its sign.
+        const digits = total > shown ? ((await g.locator('.count').textContent()) ?? '').replace('+', '') : '';
+        if (total > shown) expected.push(`  text "${f.props.overflowLabel ? String(f.props.overflowLabel).replace('{count}', digits) : `+${total - shown}`}"`);
       } else if (f.props.decorative) {
         await expect(stage(page, f.id).getByRole('img'), f.id).toHaveCount(0);
       } else {

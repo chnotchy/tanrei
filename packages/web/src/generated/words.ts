@@ -8,6 +8,8 @@ export interface TanreiWords {
   addedLabel?: string;
   /** Read by `chat-composer.attachLabel`. */
   attachLabel?: string;
+  /** Read by `avatar.overflowLabel`. A word with places: `{count}` (number, needed). */
+  avatarGroupOverflowLabel?: string;
   /** Read by `search.backLabel`. */
   backLabel?: string;
   /** Read by `breadcrumbs.overflowLabel`. */
@@ -16,6 +18,10 @@ export interface TanreiWords {
   busyLabel?: string;
   /** Read by `date-time-picker.cancelLabel`. */
   cancelLabel?: string;
+  /** Read by `text-input.counterNoLimitText`. A word with places: `{count}` (number). */
+  characterCountNoLimitText?: string;
+  /** Read by `text-input.counterText`. A word with places: `{count}` (number), `{limit}` (number), `{remaining}` (number). */
+  characterCountText?: string;
   /** Read by `combobox.clearLabel`, `search.clearLabel`. */
   clearLabel?: string;
   /** Read by `callout.closeLabel`, `image-preview.closeLabel`, `popover.closeLabel`, `side-sheet.closeLabel`, `snackbar.closeLabel`. */
@@ -80,9 +86,9 @@ export interface TanreiWords {
   menubarOverflowLabel?: string;
   /** Read by `date-time-picker.minuteLabel`. */
   minuteLabel?: string;
-  /** Read by `list.moveDownLabel`. */
+  /** Read by `list.moveDownLabel`. A word with places: `{headline}` (text, needed). */
   moveDownLabel?: string;
-  /** Read by `list.moveUpLabel`. */
+  /** Read by `list.moveUpLabel`. A word with places: `{headline}` (text, needed). */
   moveUpLabel?: string;
   /** Read by `list.movedText`. A word with places: `{headline}` (text), `{position}` (number), `{count}` (number). */
   movedText?: string;
@@ -110,7 +116,7 @@ export interface TanreiWords {
   rangeErrorText?: string;
   /** Read by `date-time-picker.rangeLabel`. */
   rangeLabel?: string;
-  /** Read by `file-item.removeLabel`. */
+  /** Read by `file-item.removeLabel`. A word with places: `{name}` (text, needed). */
   removeLabel?: string;
   /** Read by `code-block.removedLabel`. */
   removedLabel?: string;
@@ -118,7 +124,7 @@ export interface TanreiWords {
   requiredText?: string;
   /** Read by `text-input.resizeLabel`. */
   resizeLabel?: string;
-  /** Read by `file-item.retryLabel`. */
+  /** Read by `file-item.retryLabel`. A word with places: `{name}` (text, needed). */
   retryLabel?: string;
   /** Read by `text-input.segmentEmptyText`. */
   segmentEmptyText?: string;
@@ -152,16 +158,19 @@ export interface TanreiWords {
 export type WordKey = keyof TanreiWords;
 
 /** Every key of the product's words, in alphabetical order. */
-export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'duplicateEntryText', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveDownLabel', 'moveUpLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextMonthLabel', 'noFileText', 'optionalText', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousMonthLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stopLabel', 'targetLabel', 'todayLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
+export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'duplicateEntryText', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveDownLabel', 'moveUpLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextMonthLabel', 'noFileText', 'optionalText', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousMonthLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stopLabel', 'targetLabel', 'todayLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
 
 /** The props that read each key, as `<component>.<prop>` and, for an item kind, `<component>/<kind>.<prop>`. */
 export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   addedLabel: ['code-block.addedLabel'],
   attachLabel: ['chat-composer.attachLabel'],
+  avatarGroupOverflowLabel: ['avatar.overflowLabel'],
   backLabel: ['search.backLabel'],
   breadcrumbsOverflowLabel: ['breadcrumbs.overflowLabel'],
   busyLabel: ['button.busyLabel'],
   cancelLabel: ['date-time-picker.cancelLabel'],
+  characterCountNoLimitText: ['text-input.counterNoLimitText'],
+  characterCountText: ['text-input.counterText'],
   clearLabel: ['combobox.clearLabel', 'search.clearLabel'],
   closeLabel: ['callout.closeLabel', 'image-preview.closeLabel', 'popover.closeLabel', 'side-sheet.closeLabel', 'snackbar.closeLabel'],
   confirmLabel: ['date-time-picker.confirmLabel'],
@@ -242,10 +251,17 @@ export interface WordPlace {
  * that reads the key fills it. A key that is not here is a whole string, and its braces are plain text.
  */
 export const wordPlaces: Readonly<Partial<Record<WordKey, readonly WordPlace[]>>> = {
+  avatarGroupOverflowLabel: [{ name: 'count', kind: 'number', required: true }],
+  characterCountNoLimitText: [{ name: 'count', kind: 'number' }],
+  characterCountText: [{ name: 'count', kind: 'number' }, { name: 'limit', kind: 'number' }, { name: 'remaining', kind: 'number' }],
   entriesAddedText: [{ name: 'count', kind: 'number' }],
   entryAddedText: [{ name: 'entry', kind: 'text' }],
   entryRemoveLabel: [{ name: 'entry', kind: 'text', required: true }],
   entryRemovedText: [{ name: 'entry', kind: 'text' }],
   imageCountText: [{ name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
+  moveDownLabel: [{ name: 'headline', kind: 'text', required: true }],
+  moveUpLabel: [{ name: 'headline', kind: 'text', required: true }],
   movedText: [{ name: 'headline', kind: 'text' }, { name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
+  removeLabel: [{ name: 'name', kind: 'text', required: true }],
+  retryLabel: [{ name: 'name', kind: 'text', required: true }],
 };

@@ -19,6 +19,23 @@
       ]
     },
     {
+      "key": "avatarGroupOverflowLabel",
+      "readers": [
+        {
+          "component": "avatar",
+          "prop": "overflowLabel"
+        }
+      ],
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of members not drawn, in full: above 999 too, where the drawn text stops at 999 and a plus sign.",
+          "required": true
+        }
+      ]
+    },
+    {
       "key": "backLabel",
       "readers": [
         {
@@ -51,6 +68,48 @@
         {
           "component": "date-time-picker",
           "prop": "cancelLabel"
+        }
+      ]
+    },
+    {
+      "key": "characterCountNoLimitText",
+      "readers": [
+        {
+          "component": "text-input",
+          "prop": "counterNoLimitText"
+        }
+      ],
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of user-perceived characters in the value."
+        }
+      ]
+    },
+    {
+      "key": "characterCountText",
+      "readers": [
+        {
+          "component": "text-input",
+          "prop": "counterText"
+        }
+      ],
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of user-perceived characters in the value."
+        },
+        {
+          "name": "limit",
+          "kind": "number",
+          "description": "maxLength."
+        },
+        {
+          "name": "remaining",
+          "kind": "number",
+          "description": "How many more characters can be entered: maxLength less the count."
         }
       ]
     },
@@ -450,6 +509,14 @@
           "component": "list",
           "prop": "moveDownLabel"
         }
+      ],
+      "places": [
+        {
+          "name": "headline",
+          "kind": "text",
+          "description": "The headline of the item the button moves.",
+          "required": true
+        }
       ]
     },
     {
@@ -458,6 +525,14 @@
         {
           "component": "list",
           "prop": "moveUpLabel"
+        }
+      ],
+      "places": [
+        {
+          "name": "headline",
+          "kind": "text",
+          "description": "The headline of the item the button moves.",
+          "required": true
         }
       ]
     },
@@ -614,6 +689,14 @@
           "component": "file-item",
           "prop": "removeLabel"
         }
+      ],
+      "places": [
+        {
+          "name": "name",
+          "kind": "text",
+          "description": "The name of the file the action removes.",
+          "required": true
+        }
       ]
     },
     {
@@ -653,6 +736,14 @@
         {
           "component": "file-item",
           "prop": "retryLabel"
+        }
+      ],
+      "places": [
+        {
+          "name": "name",
+          "kind": "text",
+          "description": "The name of the file the action sends again.",
+          "required": true
         }
       ]
     },
