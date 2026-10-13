@@ -4472,6 +4472,64 @@ export interface TanreiStepsTokens {
 }
 
 /**
+ * Every value of `comp.swatch`'s `size` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `medium` (with a dev-only warning).
+ */
+export interface TanreiSwatchSizeRegistry {
+  small: true;
+  medium: true;
+  large: true;
+}
+export type TanreiSwatchSize = keyof TanreiSwatchSizeRegistry;
+export type TanreiCoreSwatchSize = "small" | "medium" | "large";
+
+/** The tokens of one `size` of `comp.swatch`. */
+export interface TanreiSwatchSizeTokens {
+  readonly containerSize: number;
+  readonly gap: number;
+  readonly labelTypescale: TanreiTypescaleRole;
+  readonly supportingTextTypescale: TanreiTypescaleRole;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiSwatchSizes = { readonly [Key in TanreiCoreSwatchSize]: TanreiSwatchSizeTokens } & { readonly [Key in TanreiSwatchSize]?: TanreiSwatchSizeTokens };
+
+/**
+ * Every value of `comp.swatch`'s `shape` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `square` (with a dev-only warning).
+ */
+export interface TanreiSwatchShapeRegistry {
+  square: true;
+  circle: true;
+}
+export type TanreiSwatchShape = keyof TanreiSwatchShapeRegistry;
+export type TanreiCoreSwatchShape = "square" | "circle";
+
+/** The tokens of one `shape` of `comp.swatch`. */
+export interface TanreiSwatchShapeTokens {
+  readonly containerShape: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiSwatchShapes = { readonly [Key in TanreiCoreSwatchShape]: TanreiSwatchShapeTokens } & { readonly [Key in TanreiSwatchShape]?: TanreiSwatchShapeTokens };
+
+/**
+ * `comp.swatch`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis (`sizes`, `shapes`), keyed by the axis value.
+ */
+export interface TanreiSwatchTokens {
+  readonly checkerboardAlternateColor: TanreiPaint;
+  readonly checkerboardColor: TanreiPaint;
+  readonly checkerboardSize: number;
+  readonly labelColor: TanreiPaint;
+  readonly outlineColor: TanreiPaint;
+  readonly outlineWidth: number;
+  readonly supportingTextColor: TanreiPaint;
+  readonly sizes: TanreiSwatchSizes;
+  readonly shapes: TanreiSwatchShapes;
+}
+
+/**
  * Every value of `comp.switch`'s `condition` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `unselected` (with a dev-only warning).
@@ -5289,6 +5347,7 @@ export interface TanreiComponents {
   readonly slider: TanreiSliderTokens;
   readonly snackbar: TanreiSnackbarTokens;
   readonly steps: TanreiStepsTokens;
+  readonly swatch: TanreiSwatchTokens;
   readonly switch: TanreiSwitchTokens;
   readonly tabView: TanreiTabViewTokens;
   readonly tableOfContents: TanreiTableOfContentsTokens;
@@ -5408,6 +5467,8 @@ declare module './vocabulary' {
   interface TanreiSliderConditionRegistry {}
   interface TanreiSnackbarControlRegistry {}
   interface TanreiStepsSizeRegistry {}
+  interface TanreiSwatchSizeRegistry {}
+  interface TanreiSwatchShapeRegistry {}
   interface TanreiSwitchConditionRegistry {}
   interface TanreiTableOfContentsPartRegistry {}
   interface TanreiTableOfContentsDensityRegistry {}

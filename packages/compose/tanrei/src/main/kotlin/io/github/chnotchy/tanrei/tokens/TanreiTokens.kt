@@ -9024,6 +9024,128 @@ public data class TanreiStepsTokens(
 }
 
 /**
+ * A size of swatch: the key of one entry of [TanreiSwatchSizes]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Medium].
+ */
+@JvmInline
+public value class TanreiSwatchSize(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Small: TanreiSwatchSize = TanreiSwatchSize("small")
+        public val Medium: TanreiSwatchSize = TanreiSwatchSize("medium")
+        public val Large: TanreiSwatchSize = TanreiSwatchSize("large")
+    }
+}
+
+/** The tokens of one size of swatch. */
+@Immutable
+public data class TanreiSwatchSizeTokens(
+    public val containerSize: Dp,
+    public val gap: Dp,
+    public val labelTypescale: TanreiTextStyle,
+    public val supportingTextTypescale: TanreiTextStyle,
+)
+
+/**
+ * Every size of swatch: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiSwatchSizes(
+    public val small: TanreiSwatchSizeTokens,
+    public val medium: TanreiSwatchSizeTokens,
+    public val large: TanreiSwatchSizeTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiSwatchSize, TanreiSwatchSizeTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiSwatchSize> get() = linkedSetOf(TanreiSwatchSize.Small, TanreiSwatchSize.Medium, TanreiSwatchSize.Large) + extra.keys
+
+    public operator fun contains(key: TanreiSwatchSize): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiSwatchSize): TanreiSwatchSizeTokens? = when (key) {
+        TanreiSwatchSize.Small -> small
+        TanreiSwatchSize.Medium -> medium
+        TanreiSwatchSize.Large -> large
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiSwatchSize): TanreiSwatchSizeTokens = find(key) ?: medium
+}
+
+/**
+ * A shape of swatch: the key of one entry of [TanreiSwatchShapes]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Square].
+ */
+@JvmInline
+public value class TanreiSwatchShape(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Square: TanreiSwatchShape = TanreiSwatchShape("square")
+        public val Circle: TanreiSwatchShape = TanreiSwatchShape("circle")
+    }
+}
+
+/** The tokens of one shape of swatch. */
+@Immutable
+public data class TanreiSwatchShapeTokens(
+    public val containerShape: Dp,
+)
+
+/**
+ * Every shape of swatch: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiSwatchShapes(
+    public val square: TanreiSwatchShapeTokens,
+    public val circle: TanreiSwatchShapeTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiSwatchShape, TanreiSwatchShapeTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiSwatchShape> get() = linkedSetOf(TanreiSwatchShape.Square, TanreiSwatchShape.Circle) + extra.keys
+
+    public operator fun contains(key: TanreiSwatchShape): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiSwatchShape): TanreiSwatchShapeTokens? = when (key) {
+        TanreiSwatchShape.Square -> square
+        TanreiSwatchShape.Circle -> circle
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [square]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiSwatchShape): TanreiSwatchShapeTokens = find(key) ?: square
+}
+
+/** `comp.swatch`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `shapes[shape]`). */
+@Immutable
+public data class TanreiSwatchTokens(
+    public val checkerboardAlternateColor: TanreiPaint,
+    public val checkerboardColor: TanreiPaint,
+    public val checkerboardSize: Dp,
+    public val labelColor: TanreiPaint,
+    public val outlineColor: TanreiPaint,
+    public val outlineWidth: Dp,
+    public val supportingTextColor: TanreiPaint,
+    public val sizes: TanreiSwatchSizes,
+    public val shapes: TanreiSwatchShapes,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(checkerboardAlternateColor.roles())
+        addAll(checkerboardColor.roles())
+        addAll(labelColor.roles())
+        addAll(outlineColor.roles())
+        addAll(supportingTextColor.roles())
+    }
+}
+
+/**
  * A condition of switch: the key of one entry of [TanreiSwitchConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
  * A key the current system does not have draws as [Unselected].
@@ -10682,6 +10804,7 @@ public data class TanreiSystem(
     public val slider: TanreiSliderTokens,
     public val snackbar: TanreiSnackbarTokens,
     public val steps: TanreiStepsTokens,
+    public val swatch: TanreiSwatchTokens,
     public val switch: TanreiSwitchTokens,
     public val tabView: TanreiTabViewTokens,
     public val tableOfContents: TanreiTableOfContentsTokens,
@@ -10762,6 +10885,7 @@ public data class TanreiSystem(
         addAll(slider.referencedRoles())
         addAll(snackbar.referencedRoles())
         addAll(steps.referencedRoles())
+        addAll(swatch.referencedRoles())
         addAll(switch.referencedRoles())
         addAll(tabView.referencedRoles())
         addAll(tableOfContents.referencedRoles())

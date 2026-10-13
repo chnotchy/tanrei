@@ -1695,19 +1695,37 @@
         "flutter": "planned",
         "react-native": "planned"
       }
+    },
+    {
+      "name": "swatch",
+      "title": "Swatch",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/swatch/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
     }
   ],
   "totals": {
     "web": {
       "planned": 0,
       "lagging": 84,
-      "alpha": 0,
+      "alpha": 1,
       "beta": 0,
       "stable": 0,
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 55,
+      "planned": 56,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1715,7 +1733,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 55,
+      "planned": 56,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1723,7 +1741,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 55,
+      "planned": 56,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1731,7 +1749,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 55,
+      "planned": 56,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,

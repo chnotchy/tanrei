@@ -93,6 +93,7 @@ import { TanreiSliderField as TanreiSliderFieldElement } from '@tanrei/web/compo
 import { TanreiSnackbar as TanreiSnackbarElement, type TanreiSnackbarDismissDetail, type TanreiSnackbarExpandedChangeDetail } from '@tanrei/web/components/snackbar';
 import { TanreiSnackbarHost as TanreiSnackbarHostElement } from '@tanrei/web/components/snackbar';
 import { TanreiSubmenu as TanreiSubmenuElement, type TanreiSubmenuToggleDetail } from '@tanrei/web/components/menu';
+import { TanreiSwatch as TanreiSwatchElement } from '@tanrei/web/components/swatch';
 import { TanreiSwitch as TanreiSwitchElement, type TanreiSwitchChangeDetail } from '@tanrei/web/components/switch';
 import { TanreiTab as TanreiTabElement } from '@tanrei/web/components/tabs';
 import { TanreiTabPanel as TanreiTabPanelElement } from '@tanrei/web/components/tabs';
@@ -1769,6 +1770,16 @@ export const Submenu = createComponent({
   events: {
     onToggle: 'toggle' as EventName<TanreiEvent<TanreiSubmenuElement, CustomEvent<TanreiSubmenuToggleDetail>>>,
   },
+});
+
+/**
+ * Shows a color as a sample with its name beside it: a small square or dot of exactly that color, over a checkerboard where the color lets what is behind it through, edged so that a color close to the surface still shows where it ends. A sample to look at, never a control and never a picker.
+ */
+export const Swatch = createComponent({
+  tagName: 'tanrei-swatch',
+  elementClass: TanreiSwatchElement,
+  react: React,
+  events: {},
 });
 
 /** The attributes of `<tanrei-switch>` that are not properties of the element, as props of `Switch`. */

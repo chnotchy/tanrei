@@ -8085,6 +8085,44 @@ private let m3LikeStepsTokens = TanreiStepsTokens(
   )
 )
 
+private let m3LikeSwatchTokens = TanreiSwatchTokens(
+  checkerboardAlternateColor: .role(.surfaceContainerHighest),
+  checkerboardColor: .role(.surface),
+  checkerboardSize: 4,
+  labelColor: .role(.onSurface),
+  outlineColor: .role(.outlineVariant),
+  outlineWidth: 1,
+  supportingTextColor: .role(.onSurfaceVariant),
+  sizes: TanreiSwatchSizes(
+    small: TanreiSwatchSizeTokens(
+      containerSize: 16,
+      gap: 4,
+      labelTypescale: m3LikeTypescale.bodySmall,
+      supportingTextTypescale: m3LikeTypescale.caption
+    ),
+    medium: TanreiSwatchSizeTokens(
+      containerSize: 24,
+      gap: 8,
+      labelTypescale: m3LikeTypescale.body,
+      supportingTextTypescale: m3LikeTypescale.bodySmall
+    ),
+    large: TanreiSwatchSizeTokens(
+      containerSize: 32,
+      gap: 12,
+      labelTypescale: m3LikeTypescale.body,
+      supportingTextTypescale: m3LikeTypescale.bodySmall
+    )
+  ),
+  shapes: TanreiSwatchShapes(
+    square: TanreiSwatchShapeTokens(
+      containerShape: 4
+    ),
+    circle: TanreiSwatchShapeTokens(
+      containerShape: 9999
+    )
+  )
+)
+
 private let m3LikeSwitchTokens = TanreiSwitchTokens(
   containerShape: 9999,
   containerSize: 40,
@@ -9557,6 +9595,7 @@ extension TanreiSystem {
     slider: m3LikeSliderTokens,
     snackbar: m3LikeSnackbarTokens,
     steps: m3LikeStepsTokens,
+    swatch: m3LikeSwatchTokens,
     switch: m3LikeSwitchTokens,
     tabView: m3LikeTabViewTokens,
     tableOfContents: m3LikeTableOfContentsTokens,

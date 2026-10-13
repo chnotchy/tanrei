@@ -14513,6 +14513,193 @@ public struct TanreiStepsTokens: Sendable, Equatable {
   }
 }
 
+/// A value of swatch's `size` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiSwatchSize(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiSwatchSize: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let small = TanreiSwatchSize(rawValue: "small")
+  public static let medium = TanreiSwatchSize(rawValue: "medium")
+  public static let large = TanreiSwatchSize(rawValue: "large")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiSwatchSize] = [.small, .medium, .large]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiSwatchSize.medium
+}
+
+/// Everything of swatch that depends on its size.
+public struct TanreiSwatchSizeTokens: Sendable, Equatable {
+  public var containerSize: CGFloat
+  public var gap: CGFloat
+  public var labelTypescale: TanreiTextStyle
+  public var supportingTextTypescale: TanreiTextStyle
+
+  public init(
+    containerSize: CGFloat,
+    gap: CGFloat,
+    labelTypescale: TanreiTextStyle,
+    supportingTextTypescale: TanreiTextStyle
+  ) {
+    self.containerSize = containerSize
+    self.gap = gap
+    self.labelTypescale = labelTypescale
+    self.supportingTextTypescale = supportingTextTypescale
+  }
+}
+
+/// The sizes of swatch: named fields for the core values, `extra` for what a design system added.
+/// Read one with `sizes[key]`.
+public struct TanreiSwatchSizes: Sendable, Equatable {
+  public var small: TanreiSwatchSizeTokens
+  public var medium: TanreiSwatchSizeTokens
+  public var large: TanreiSwatchSizeTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiSwatchSize: TanreiSwatchSizeTokens]
+
+  public init(
+    small: TanreiSwatchSizeTokens,
+    medium: TanreiSwatchSizeTokens,
+    large: TanreiSwatchSizeTokens,
+    extra: [TanreiSwatchSize: TanreiSwatchSizeTokens] = [:]
+  ) {
+    self.small = small
+    self.medium = medium
+    self.large = large
+    self.extra = extra
+  }
+
+  /// The tokens of one swatch size, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiSwatchSize) -> TanreiSwatchSizeTokens? {
+    switch key {
+    case .small: return small
+    case .medium: return medium
+    case .large: return large
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a swatch size this design system does not have reads the tokens of `medium`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiSwatchSize) -> TanreiSwatchSizeTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no swatch size \"\(key.rawValue)\"; using \"medium\"")
+    return medium
+  }
+
+  /// Every swatch size of this design system: the core ones, then what it added.
+  public var keys: [TanreiSwatchSize] { TanreiSwatchSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
+/// A value of swatch's `shape` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiSwatchShape(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiSwatchShape: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let square = TanreiSwatchShape(rawValue: "square")
+  public static let circle = TanreiSwatchShape(rawValue: "circle")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiSwatchShape] = [.square, .circle]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiSwatchShape.square
+}
+
+/// Everything of swatch that depends on its shape.
+public struct TanreiSwatchShapeTokens: Sendable, Equatable {
+  public var containerShape: CGFloat
+
+  public init(
+    containerShape: CGFloat
+  ) {
+    self.containerShape = containerShape
+  }
+}
+
+/// The shapes of swatch: named fields for the core values, `extra` for what a design system added.
+/// Read one with `shapes[key]`.
+public struct TanreiSwatchShapes: Sendable, Equatable {
+  public var square: TanreiSwatchShapeTokens
+  public var circle: TanreiSwatchShapeTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiSwatchShape: TanreiSwatchShapeTokens]
+
+  public init(
+    square: TanreiSwatchShapeTokens,
+    circle: TanreiSwatchShapeTokens,
+    extra: [TanreiSwatchShape: TanreiSwatchShapeTokens] = [:]
+  ) {
+    self.square = square
+    self.circle = circle
+    self.extra = extra
+  }
+
+  /// The tokens of one swatch shape, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiSwatchShape) -> TanreiSwatchShapeTokens? {
+    switch key {
+    case .square: return square
+    case .circle: return circle
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a swatch shape this design system does not have reads the tokens of `square`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiSwatchShape) -> TanreiSwatchShapeTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no swatch shape \"\(key.rawValue)\"; using \"square\"")
+    return square
+  }
+
+  /// Every swatch shape of this design system: the core ones, then what it added.
+  public var keys: [TanreiSwatchShape] { TanreiSwatchShape.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
+/// Component tokens of swatch (comp.swatch).
+public struct TanreiSwatchTokens: Sendable, Equatable {
+  public var checkerboardAlternateColor: TanreiPaint
+  public var checkerboardColor: TanreiPaint
+  public var checkerboardSize: CGFloat
+  public var labelColor: TanreiPaint
+  public var outlineColor: TanreiPaint
+  public var outlineWidth: CGFloat
+  public var supportingTextColor: TanreiPaint
+  public var sizes: TanreiSwatchSizes
+  public var shapes: TanreiSwatchShapes
+
+  public init(
+    checkerboardAlternateColor: TanreiPaint,
+    checkerboardColor: TanreiPaint,
+    checkerboardSize: CGFloat,
+    labelColor: TanreiPaint,
+    outlineColor: TanreiPaint,
+    outlineWidth: CGFloat,
+    supportingTextColor: TanreiPaint,
+    sizes: TanreiSwatchSizes,
+    shapes: TanreiSwatchShapes
+  ) {
+    self.checkerboardAlternateColor = checkerboardAlternateColor
+    self.checkerboardColor = checkerboardColor
+    self.checkerboardSize = checkerboardSize
+    self.labelColor = labelColor
+    self.outlineColor = outlineColor
+    self.outlineWidth = outlineWidth
+    self.supportingTextColor = supportingTextColor
+    self.sizes = sizes
+    self.shapes = shapes
+  }
+}
+
 /// A value of switch's `condition` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
@@ -17295,6 +17482,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _steps.value }
     set { _steps.value = newValue }
   }
+  public var swatch: TanreiSwatchTokens {
+    get { _swatch.value }
+    set { _swatch.value = newValue }
+  }
   public var `switch`: TanreiSwitchTokens {
     get { _switch.value }
     set { _switch.value = newValue }
@@ -17407,6 +17598,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _slider: TanreiBox<TanreiSliderTokens>
   private var _snackbar: TanreiBox<TanreiSnackbarTokens>
   private var _steps: TanreiBox<TanreiStepsTokens>
+  private var _swatch: TanreiBox<TanreiSwatchTokens>
   private var _switch: TanreiBox<TanreiSwitchTokens>
   private var _tabView: TanreiBox<TanreiTabViewTokens>
   private var _tableOfContents: TanreiBox<TanreiTableOfContentsTokens>
@@ -17498,6 +17690,7 @@ public struct TanreiSystem: Sendable, Equatable {
     slider: TanreiSliderTokens,
     snackbar: TanreiSnackbarTokens,
     steps: TanreiStepsTokens,
+    swatch: TanreiSwatchTokens,
     `switch`: TanreiSwitchTokens,
     tabView: TanreiTabViewTokens,
     tableOfContents: TanreiTableOfContentsTokens,
@@ -17588,6 +17781,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._slider = TanreiBox(slider)
     self._snackbar = TanreiBox(snackbar)
     self._steps = TanreiBox(steps)
+    self._swatch = TanreiBox(swatch)
     self._switch = TanreiBox(`switch`)
     self._tabView = TanreiBox(tabView)
     self._tableOfContents = TanreiBox(tableOfContents)

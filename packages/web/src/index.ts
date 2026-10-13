@@ -40,6 +40,7 @@ export {
   type TanreiWindowClass,
 } from './components/app-shell/app-shell.js';
 export { TanreiAvatar, TanreiAvatarGroup, type TanreiAvatarShape, type TanreiAvatarSize } from './components/avatar/avatar.js';
+export { TanreiSwatch, type TanreiSwatchShape, type TanreiSwatchSize } from './components/swatch/swatch.js';
 export { TanreiBadge } from './components/badge/badge.js';
 export {
   TanreiBottomSheet,

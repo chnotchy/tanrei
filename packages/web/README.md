@@ -8503,6 +8503,61 @@ starts at the right; a picture and initials are never mirrored; a slotted glyph 
 
 Not here: a color per person, presence, a press. An avatar that leads somewhere is inside a link — whose focus
 indicator is a rectangle around the circle.
+
+## `<tanrei-swatch>`
+
+`specs/swatch.spec.json` (SWC-1 to SWC-19): a color shown as a sample with its name beside it — a small square or dot
+of exactly that color, over a checkerboard where the color lets what is behind it through, edged so that a color close
+to the surface still shows where it ends. A sample to look at, never a control and never a picker: no hover, focus,
+press or event.
+
+```html
+<tanrei-swatch color="#0f766e" label="Teal 700" supporting-text="#0f766e"></tanrei-swatch>
+<tanrei-swatch color="var(--tanrei-sys-color-primary)" label="Primary" size="small"></tanrei-swatch>
+<tanrei-swatch color="#e11d48" label="Bug" shape="circle" size="small" label-hidden></tanrei-swatch>
+<td><tanrei-swatch decorative size="small" color="#0f766e"></tanrei-swatch> #0f766e</td>
+```
+
+| `<tanrei-swatch>` | Type | Default | |
+|---|---|---|---|
+| `color` | string | `''` | the color: `#rgb`, `#rgba`, `#rrggbb` or `#rrggbbaa` (the notation every platform reads), or any CSS color, a custom property included. Empty draws the edge alone |
+| `label` | string | `''` | the color's name, drawn beside the sample and read; with `label-hidden`, the sample's accessible name |
+| `supporting-text` (`supportingText`) | string | `''` | a line under the name: the value, a token, where it is used; with `label-hidden`, the accessible description |
+| `label-hidden` (`labelHidden`) | boolean | `false` | draws the sample alone; reflected |
+| `decorative` | boolean | `false` | draws the sample alone and hides the swatch, beside the same name in text; reflected |
+| `size` | `small` \| `medium` \| `large` | `medium` | 16, 24, 32 under the default system; the text follows; reflected; open |
+| `shape` | `square` \| `circle` | `square` | a tile or a dot; reflected; open |
+
+Parts: `sample`, `label`, `supporting-text`. No slots, no events.
+
+**The sample** (SWC-1 to SWC-5) is one `span` in the shadow root, `aria-hidden`, with the shared corner rule. Its
+background is two layers: the color as a `linear-gradient` of one color, over a `conic-gradient` checkerboard tiled at
+twice `--tanrei-comp-swatch-checkerboard-size` (the top-left square is `checkerboard-color` in every direction). An
+opaque color covers the checkerboard; a translucent one shows it. The edge is an inset `box-shadow`, drawn over the
+background, so a white sample on a white surface still has its outline. Nothing else is mixed in: no state, no opacity,
+no change with the scheme — a product that wants the current scheme's color gives a role's custom property.
+
+**The color** (SWC-6) is set as the sample's own custom property through the style API, so any CSS color resolves where
+the swatch stands and nothing else can be written. A value `CSS.supports('color', …)` refuses is drawn as empty and
+reported in debug builds. A custom property the page does not define resolves to nothing, and the sample is then drawn
+as empty without a report: the element cannot tell.
+
+**Named, hidden or decorative** (SWC-9 to SWC-12): with its text drawn the host has no role and its text is read where
+it stands; with `label-hidden` the host is `role="img"` with `aria-label` (the label, else the supporting text) and
+`aria-description` (the supporting text, where the label names it); decorative, or with neither text, the host is
+`aria-hidden="true"` (the second is reported). Inside a link or a Button what it exposes is that element's content
+(SWC-13). The color is never turned into words: a color's name is the product's.
+
+**Layout** (SWC-7, SWC-8, SWC-15, SWC-17): the host is an inline flex row, the sample and the column of text centred on
+each other, `gap` of the size between them, as wide as its content and no wider; a text wraps at word boundaries (and a
+word longer than the line breaks), the sample stays whole. Each text is isolated in its own direction (`unicode-bidi:
+plaintext`), so `#0f766e` keeps its order in a right-to-left layout. The sample does not grow with enlarged text; the
+text does. **Forced colors** (SWC-16): the sample keeps `forced-color-adjust: none` (the color is content) and its edge
+becomes `CanvasText`.
+
+Not built: a swatch picker (a set of swatches of which one is chosen, with a value and the keys of a radio group or a
+listbox), and a stylesheet that holds the swatch's box before the element is defined.
+
 ## `<tanrei-breadcrumbs>` (`breadcrumbs.css`)
 
 `specs/breadcrumbs.spec.json` (BRC-1 to BRC-29): where a page sits in a hierarchy of pages — the levels above as links,

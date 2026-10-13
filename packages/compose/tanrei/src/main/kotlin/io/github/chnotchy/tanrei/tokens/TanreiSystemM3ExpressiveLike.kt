@@ -120,6 +120,7 @@ private object M3ExpressiveLikeSystemSource {
             slider = slider(typescale, elevation),
             snackbar = snackbar(typescale, elevation),
             steps = steps(typescale, elevation),
+            swatch = swatch(typescale, elevation),
             switch = switch(typescale, elevation),
             tabView = tabView(typescale, elevation),
             tableOfContents = tableOfContents(typescale, elevation),
@@ -7659,6 +7660,27 @@ private object M3ExpressiveLikeSystemSource {
             sizes = TanreiStepsSizes(
                 medium = TanreiStepsSizeTokens(markerHeight = 24.dp, markerLabelTypescale = typescale.labelSmall, titleTypescale = typescale.heading6, bodyTypescale = typescale.body),
                 large = TanreiStepsSizeTokens(markerHeight = 28.dp, markerLabelTypescale = typescale.label, titleTypescale = typescale.heading5, bodyTypescale = typescale.bodyLarge),
+            ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun swatch(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiSwatchTokens =
+        TanreiSwatchTokens(
+            checkerboardAlternateColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerHighest),
+            checkerboardColor = TanreiPaint.Role(TanreiColorRole.Surface),
+            checkerboardSize = 4.dp,
+            labelColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            outlineColor = TanreiPaint.Role(TanreiColorRole.OutlineVariant),
+            outlineWidth = 1.dp,
+            supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            sizes = TanreiSwatchSizes(
+                small = TanreiSwatchSizeTokens(containerSize = 16.dp, gap = 4.dp, labelTypescale = typescale.bodySmall, supportingTextTypescale = typescale.caption),
+                medium = TanreiSwatchSizeTokens(containerSize = 24.dp, gap = 8.dp, labelTypescale = typescale.body, supportingTextTypescale = typescale.bodySmall),
+                large = TanreiSwatchSizeTokens(containerSize = 32.dp, gap = 12.dp, labelTypescale = typescale.body, supportingTextTypescale = typescale.bodySmall),
+            ),
+            shapes = TanreiSwatchShapes(
+                square = TanreiSwatchShapeTokens(containerShape = 4.dp),
+                circle = TanreiSwatchShapeTokens(containerShape = 9999.dp),
             ),
         )
 

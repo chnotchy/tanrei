@@ -250,6 +250,9 @@
           "$ref": "comp/color-input.tokens.json"
         },
         {
+          "$ref": "comp/swatch.tokens.json"
+        },
+        {
           "$ref": "comp/link-card.tokens.json"
         },
         {

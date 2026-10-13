@@ -71838,6 +71838,317 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/swatch/swatch.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "CORE_SIZES",
+          "type": {
+            "text": "['small', 'medium', 'large']"
+          },
+          "default": "['small', 'medium', 'large']",
+          "description": "The values every design system has. A layer may add more; those get their styles on demand."
+        },
+        {
+          "kind": "variable",
+          "name": "CORE_SHAPES",
+          "type": {
+            "text": "['square', 'circle']"
+          },
+          "default": "['square', 'circle']"
+        },
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "readonly OpenAxis[]"
+          },
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-size-${value}` as const }, { name: 'shape', core: CORE_SHAPES, default: DEFAULT_SHAPE, rules: (value, selector) => shapeBlock(value, selector, DEFAULT_SHAPE), probe: (value) => `${PREFIX}-container-shape-${value}` as const }, ]",
+          "description": "SWC-19: a size or a shape a layer added gets its block on demand, falling back to the default's tokens."
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "default": "css` /* SWC-1, SWC-7: inline with the text or the row it is placed in, as wide as its sample, the gap and its longest line and no wider; the sample and the column of text are centred on each other. SWC-13: pointer events are left as they are — there is no listener here, so a press over a swatch inside a link or a Button reaches that element. */ :host { display: inline-flex; align-items: center; gap: var(--_gap); vertical-align: middle; max-inline-size: 100%; } :host([hidden]) { display: none; } ${forms} /* SWC-1: a square of the size's side with the shape's corners through the shared corner rule (the browser clamps a radius to half the side, and the full step is a circle whatever the smoothing), one box a layout neither stretches nor shrinks. SWC-3: under the color, the checkerboard — a conic gradient of the two colors tiled at twice the square's side, so that the square at the top-left corner is checkerboard.color in every direction (background positions are physical). SWC-2: the color over it, exactly, as a gradient of one color; nothing is mixed in. SWC-4: the edge is an inset shadow, drawn over the background and following the corners. SWC-5: an empty sample has neither layer and keeps the edge. */ .sample { box-sizing: border-box; flex: none; display: block; inline-size: var(--_side); block-size: var(--_side); ${unsafeCSS(cornerRadius('--_shape'))} background: linear-gradient(var(--_color), var(--_color)), conic-gradient( ${t('checkerboard-alternate-color')} 25%, ${t('checkerboard-color')} 0 50%, ${t('checkerboard-alternate-color')} 0 75%, ${t('checkerboard-color')} 0 ) 0 0 / calc(2 * ${t('checkerboard-size')}) calc(2 * ${t('checkerboard-size')}); box-shadow: inset 0 0 0 ${t('outline-width')} ${t('outline-color')}; /* SWC-16: the color and the checkerboard are content, kept out of the forced palette. */ forced-color-adjust: none; } .sample.empty { background: none; } ${shape} /* SWC-7: one column of text after the gap, the label over the supporting text, each in its role used whole and its color. Each wraps at word boundaries rather than being cut, and a word longer than the line breaks rather than overflowing; the sample stays whole (flex: none). */ .text { display: flex; flex-direction: column; min-inline-size: 0; overflow-wrap: break-word; } .label { font: var(--_label-font); letter-spacing: var(--_label-tracking); color: ${t('label-color')}; } .supporting { font: var(--_supporting-font); letter-spacing: var(--_supporting-tracking); color: ${t('supporting-text-color')}; } /* SWC-7, SWC-17: each text in its own direction, isolated from the text around it; placed by the layout. */ ${productText('.label', { align: 'start' })} ${productText('.supporting', { align: 'start' })} /* SWC-16: the edge in the text color, so the sample is bounded on any background; the texts in the text color. */ @media (forced-colors: active) { .sample { box-shadow: inset 0 0 0 ${t('outline-width')} CanvasText; } .label, .supporting { color: CanvasText; } } `"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CORE_SIZES",
+          "declaration": {
+            "name": "CORE_SIZES",
+            "module": "src/components/swatch/swatch.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "CORE_SHAPES",
+          "declaration": {
+            "name": "CORE_SHAPES",
+            "module": "src/components/swatch/swatch.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/swatch/swatch.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/swatch/swatch.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/swatch/swatch.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Shows a color as a sample with its name beside it: a small square or dot of exactly that color, over a checkerboard\nwhere the color lets what is behind it through, edged so that a color close to the surface still shows where it\nends. A sample to look at, never a control and never a picker.\n\nContract: specs/swatch.spec.json. `<tanrei-swatch color=\"#0f766e\" label=\"Teal 700\" supporting-text=\"#0f766e\">`. The\nname is drawn beside the sample by default, because a color is never told by its sample alone; `label-hidden` draws\nthe sample alone and makes the name its accessible name, and `decorative` hides a swatch that stands beside the same\nname in visible text. `color` takes the hexadecimal notation every platform reads (`#0f766e`, `#0f766e80` with an\nalpha) and any CSS color, `var(--tanrei-sys-color-primary)` included. Every visual value is a `--tanrei-comp-swatch-*`\ntoken; how far its corners ease is the system's amount (`--tanrei-sys-shape-corner-smoothing`).\n\nIt takes no input and no focus and emits no event: a swatch that leads somewhere is inside a link, one that does\nsomething inside a Button, and a set of swatches of which one is chosen is a picker, not this element.",
+          "name": "TanreiSwatch",
+          "cssParts": [
+            {
+              "description": "The sample: its side, its corners, the color over the checkerboard, and its edge.",
+              "name": "sample"
+            },
+            {
+              "description": "The color's name, beside the sample.",
+              "name": "label"
+            },
+            {
+              "description": "The line under the name.",
+              "name": "supporting-text"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "availability",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new AvailabilityController(this, 'swatch')"
+            },
+            {
+              "kind": "field",
+              "name": "color",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The color the sample shows: `#rgb`, `#rgba`, `#rrggbb` or `#rrggbbaa` in sRGB, or any CSS color (`var(--tanrei-sys-color-primary)`). Empty shows no color: the edge alone.",
+              "attribute": "color"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The color's name (\"Teal 700\", \"Primary\"). Drawn beside the sample, and what assistive technology reads; with `label-hidden` it is the sample's accessible name.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "supportingText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A line under the name: the color's value (\"#0f766e\"), the token it comes from, or where it is used. With `label-hidden` it is the sample's accessible description.",
+              "attribute": "supporting-text"
+            },
+            {
+              "kind": "field",
+              "name": "labelHidden",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "True draws the sample alone, for a place with no room for text; the label becomes its accessible name. Prefer a visible label.",
+              "attribute": "label-hidden",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "decorative",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "True draws the sample alone and hides the swatch from assistive technology, for a swatch beside the same name in visible text.",
+              "attribute": "decorative",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSwatchSize"
+              },
+              "default": "'medium'",
+              "description": "Small (16) beside small text, medium (24) beside body text, large (32) where the color itself is looked at.",
+              "attribute": "size",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "shape",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiSwatchShape"
+              },
+              "default": "'square'",
+              "description": "Square, a slightly rounded square, is a tile of the color; circle is a dot.",
+              "attribute": "shape",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "axes",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new OpenAxesController(this, { component: 'swatch', behavior: 'SWC-19', axes: AXES })",
+              "description": "SWC-19: sizes and shapes a design system adds, and a value the active system does not have (src/primitives/axes.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "supporting",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "texted",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "description": "SWC-7, SWC-8: whether the text is drawn beside the sample.",
+              "readonly": true
+            }
+          ],
+          "attributes": [
+            {
+              "name": "color",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The color the sample shows: `#rgb`, `#rgba`, `#rrggbb` or `#rrggbbaa` in sRGB, or any CSS color (`var(--tanrei-sys-color-primary)`). Empty shows no color: the edge alone.",
+              "fieldName": "color"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The color's name (\"Teal 700\", \"Primary\"). Drawn beside the sample, and what assistive technology reads; with `label-hidden` it is the sample's accessible name.",
+              "fieldName": "label"
+            },
+            {
+              "name": "supporting-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A line under the name: the color's value (\"#0f766e\"), the token it comes from, or where it is used. With `label-hidden` it is the sample's accessible description.",
+              "fieldName": "supportingText"
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "True draws the sample alone, for a place with no room for text; the label becomes its accessible name. Prefer a visible label.",
+              "fieldName": "labelHidden"
+            },
+            {
+              "name": "decorative",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "True draws the sample alone and hides the swatch from assistive technology, for a swatch beside the same name in visible text.",
+              "fieldName": "decorative"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "TanreiSwatchSize"
+              },
+              "default": "'medium'",
+              "description": "Small (16) beside small text, medium (24) beside body text, large (32) where the color itself is looked at.",
+              "fieldName": "size"
+            },
+            {
+              "name": "shape",
+              "type": {
+                "text": "TanreiSwatchShape"
+              },
+              "default": "'square'",
+              "description": "Square, a slightly rounded square, is a tile of the color; circle is a dot.",
+              "fieldName": "shape"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "tanrei-swatch",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiSwatch",
+          "declaration": {
+            "name": "TanreiSwatch",
+            "module": "src/components/swatch/swatch.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-swatch",
+          "declaration": {
+            "name": "TanreiSwatch",
+            "module": "src/components/swatch/swatch.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/switch/switch.styles.ts",
       "declarations": [
         {

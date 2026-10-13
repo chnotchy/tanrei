@@ -588,6 +588,13 @@
       "category": "text-inputs",
       "level": "feature",
       "listing": "default"
+    },
+    {
+      "name": "swatch",
+      "title": "Swatch",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
     }
   ]
 }

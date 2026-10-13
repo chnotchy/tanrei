@@ -8192,6 +8192,43 @@ const TanreiSystem acmeSystem = TanreiSystem(
       ),
     ),
   ),
+  swatch: TanreiSwatchTokens(
+    checkerboardAlternateColor: TanreiPaint.role(TanreiColorRole.surfaceContainerHighest),
+    checkerboardColor: TanreiPaint.role(TanreiColorRole.surface),
+    checkerboardSize: 4.0,
+    labelColor: TanreiPaint.role(TanreiColorRole.onSurface),
+    outlineColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
+    outlineWidth: 1.0,
+    supportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    sizes: TanreiSwatchSizes(
+      small: TanreiSwatchSizeTokens(
+        containerSize: 16.0,
+        gap: 4.0,
+        labelTypescale: _typescaleBodySmall,
+        supportingTextTypescale: _typescaleCaption,
+      ),
+      medium: TanreiSwatchSizeTokens(
+        containerSize: 24.0,
+        gap: 8.0,
+        labelTypescale: _typescaleBody,
+        supportingTextTypescale: _typescaleBodySmall,
+      ),
+      large: TanreiSwatchSizeTokens(
+        containerSize: 32.0,
+        gap: 12.0,
+        labelTypescale: _typescaleBody,
+        supportingTextTypescale: _typescaleBodySmall,
+      ),
+    ),
+    shapes: TanreiSwatchShapes(
+      square: TanreiSwatchShapeTokens(
+        containerShape: 3.0,
+      ),
+      circle: TanreiSwatchShapeTokens(
+        containerShape: 9999.0,
+      ),
+    ),
+  ),
   switch_: TanreiSwitchTokens(
     containerShape: 9999.0,
     containerSize: 40.0,

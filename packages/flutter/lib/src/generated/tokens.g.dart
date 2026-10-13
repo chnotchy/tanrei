@@ -21075,6 +21075,258 @@ class TanreiStepsTokens {
       );
 }
 
+/// The key of a size of swatch (`comp.swatch`, axis `size`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiSwatchSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiSwatchSize(String name) {
+  static const small = TanreiSwatchSize('small');
+  static const medium = TanreiSwatchSize('medium');
+  static const large = TanreiSwatchSize('large');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiSwatchSize> core = <TanreiSwatchSize>[small, medium, large];
+}
+
+/// The tokens of one swatch size.
+@immutable
+class TanreiSwatchSizeTokens {
+  const TanreiSwatchSizeTokens({
+    required this.containerSize,
+    required this.gap,
+    required this.labelTypescale,
+    required this.supportingTextTypescale,
+  });
+
+  /// `comp.swatch.container-size.<size>`
+  final double containerSize;
+  /// `comp.swatch.gap.<size>`
+  final double gap;
+  /// `comp.swatch.label-typescale.<size>`
+  final TanreiTextStyle labelTypescale;
+  /// `comp.swatch.supporting-text-typescale.<size>`
+  final TanreiTextStyle supportingTextTypescale;
+
+  /// A copy with the given tokens replaced.
+  TanreiSwatchSizeTokens copyWith({
+    double? containerSize,
+    double? gap,
+    TanreiTextStyle? labelTypescale,
+    TanreiTextStyle? supportingTextTypescale,
+  }) => TanreiSwatchSizeTokens(
+        containerSize: containerSize ?? this.containerSize,
+        gap: gap ?? this.gap,
+        labelTypescale: labelTypescale ?? this.labelTypescale,
+        supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
+      );
+}
+
+/// Every size of swatch: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
+@immutable
+class TanreiSwatchSizes {
+  const TanreiSwatchSizes({
+    required this.small,
+    required this.medium,
+    required this.large,
+    this.extra = const <TanreiSwatchSize, TanreiSwatchSizeTokens>{},
+  });
+
+  /// `comp.swatch` size `small`
+  final TanreiSwatchSizeTokens small;
+  /// `comp.swatch` size `medium`
+  final TanreiSwatchSizeTokens medium;
+  /// `comp.swatch` size `large`
+  final TanreiSwatchSizeTokens large;
+
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiSwatchSize, TanreiSwatchSizeTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiSwatchSizes copyWith({
+    TanreiSwatchSizeTokens? small,
+    TanreiSwatchSizeTokens? medium,
+    TanreiSwatchSizeTokens? large,
+    Map<TanreiSwatchSize, TanreiSwatchSizeTokens>? extra,
+  }) => TanreiSwatchSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        large: large ?? this.large,
+        extra: extra == null ? this.extra : <TanreiSwatchSize, TanreiSwatchSizeTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [size].
+  ///
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiSwatchSizeTokens operator [](TanreiSwatchSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        'large' => large,
+        _ => extra[size] ?? _fallback(size),
+      };
+
+  /// Whether this design system has [size].
+  bool has(TanreiSwatchSize size) => TanreiSwatchSize.core.contains(size) || extra.containsKey(size);
+
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiSwatchSize> get keys => <TanreiSwatchSize>[...TanreiSwatchSize.core, ...extra.keys];
+
+  TanreiSwatchSizeTokens _fallback(TanreiSwatchSize size) {
+    assert(() {
+      debugTanreiReportUnknownValue('swatch size', size.name, 'medium');
+      return true;
+    }());
+    return medium;
+  }
+}
+
+/// The key of a shape of swatch (`comp.swatch`, axis `shape`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiSwatchShape('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [square].
+extension type const TanreiSwatchShape(String name) {
+  static const square = TanreiSwatchShape('square');
+  static const circle = TanreiSwatchShape('circle');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiSwatchShape> core = <TanreiSwatchShape>[square, circle];
+}
+
+/// The tokens of one swatch shape.
+@immutable
+class TanreiSwatchShapeTokens {
+  const TanreiSwatchShapeTokens({
+    required this.containerShape,
+  });
+
+  /// `comp.swatch.container-shape.<shape>`
+  final double containerShape;
+
+  /// A copy with the given tokens replaced.
+  TanreiSwatchShapeTokens copyWith({
+    double? containerShape,
+  }) => TanreiSwatchShapeTokens(
+        containerShape: containerShape ?? this.containerShape,
+      );
+}
+
+/// Every shape of swatch: the core values by name, the values a design system added in [extra].
+/// Look one up with `shapes[key]`; the lookup is total.
+@immutable
+class TanreiSwatchShapes {
+  const TanreiSwatchShapes({
+    required this.square,
+    required this.circle,
+    this.extra = const <TanreiSwatchShape, TanreiSwatchShapeTokens>{},
+  });
+
+  /// `comp.swatch` shape `square`
+  final TanreiSwatchShapeTokens square;
+  /// `comp.swatch` shape `circle`
+  final TanreiSwatchShapeTokens circle;
+
+  /// The shapes a design system added to the core vocabulary.
+  final Map<TanreiSwatchShape, TanreiSwatchShapeTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiSwatchShapes copyWith({
+    TanreiSwatchShapeTokens? square,
+    TanreiSwatchShapeTokens? circle,
+    Map<TanreiSwatchShape, TanreiSwatchShapeTokens>? extra,
+  }) => TanreiSwatchShapes(
+        square: square ?? this.square,
+        circle: circle ?? this.circle,
+        extra: extra == null ? this.extra : <TanreiSwatchShape, TanreiSwatchShapeTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [shape].
+  ///
+  /// A shape this design system does not have resolves to [square], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiSwatchShapeTokens operator [](TanreiSwatchShape shape) => switch (shape.name) {
+        'square' => square,
+        'circle' => circle,
+        _ => extra[shape] ?? _fallback(shape),
+      };
+
+  /// Whether this design system has [shape].
+  bool has(TanreiSwatchShape shape) => TanreiSwatchShape.core.contains(shape) || extra.containsKey(shape);
+
+  /// Every shape this design system has: the core values, then the added ones.
+  List<TanreiSwatchShape> get keys => <TanreiSwatchShape>[...TanreiSwatchShape.core, ...extra.keys];
+
+  TanreiSwatchShapeTokens _fallback(TanreiSwatchShape shape) {
+    assert(() {
+      debugTanreiReportUnknownValue('swatch shape', shape.name, 'square');
+      return true;
+    }());
+    return square;
+  }
+}
+
+/// `comp.swatch.*`
+@immutable
+class TanreiSwatchTokens {
+  const TanreiSwatchTokens({
+    required this.checkerboardAlternateColor,
+    required this.checkerboardColor,
+    required this.checkerboardSize,
+    required this.labelColor,
+    required this.outlineColor,
+    required this.outlineWidth,
+    required this.supportingTextColor,
+    required this.sizes,
+    required this.shapes,
+  });
+
+  /// `comp.swatch.checkerboard-alternate-color`
+  final TanreiPaint checkerboardAlternateColor;
+  /// `comp.swatch.checkerboard-color`
+  final TanreiPaint checkerboardColor;
+  /// `comp.swatch.checkerboard-size`
+  final double checkerboardSize;
+  /// `comp.swatch.label-color`
+  final TanreiPaint labelColor;
+  /// `comp.swatch.outline-color`
+  final TanreiPaint outlineColor;
+  /// `comp.swatch.outline-width`
+  final double outlineWidth;
+  /// `comp.swatch.supporting-text-color`
+  final TanreiPaint supportingTextColor;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiSwatchSizes sizes;
+  /// The `shape` axis: `shapes[shape]`.
+  final TanreiSwatchShapes shapes;
+
+  /// A copy with the given tokens replaced.
+  TanreiSwatchTokens copyWith({
+    TanreiPaint? checkerboardAlternateColor,
+    TanreiPaint? checkerboardColor,
+    double? checkerboardSize,
+    TanreiPaint? labelColor,
+    TanreiPaint? outlineColor,
+    double? outlineWidth,
+    TanreiPaint? supportingTextColor,
+    TanreiSwatchSizes? sizes,
+    TanreiSwatchShapes? shapes,
+  }) => TanreiSwatchTokens(
+        checkerboardAlternateColor: checkerboardAlternateColor ?? this.checkerboardAlternateColor,
+        checkerboardColor: checkerboardColor ?? this.checkerboardColor,
+        checkerboardSize: checkerboardSize ?? this.checkerboardSize,
+        labelColor: labelColor ?? this.labelColor,
+        outlineColor: outlineColor ?? this.outlineColor,
+        outlineWidth: outlineWidth ?? this.outlineWidth,
+        supportingTextColor: supportingTextColor ?? this.supportingTextColor,
+        sizes: sizes ?? this.sizes,
+        shapes: shapes ?? this.shapes,
+      );
+}
+
 /// The key of a condition of switch (`comp.switch`, axis `condition`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -24675,6 +24927,7 @@ class TanreiSystem {
     required this.slider,
     required this.snackbar,
     required this.steps,
+    required this.swatch,
     required this.switch_,
     required this.tabView,
     required this.tableOfContents,
@@ -24768,6 +25021,7 @@ class TanreiSystem {
   final TanreiSliderTokens slider;
   final TanreiSnackbarTokens snackbar;
   final TanreiStepsTokens steps;
+  final TanreiSwatchTokens swatch;
   final TanreiSwitchTokens switch_;
   final TanreiTabViewTokens tabView;
   final TanreiTableOfContentsTokens tableOfContents;
@@ -24860,6 +25114,7 @@ class TanreiSystem {
     TanreiSliderTokens? slider,
     TanreiSnackbarTokens? snackbar,
     TanreiStepsTokens? steps,
+    TanreiSwatchTokens? swatch,
     TanreiSwitchTokens? switch_,
     TanreiTabViewTokens? tabView,
     TanreiTableOfContentsTokens? tableOfContents,
@@ -24950,6 +25205,7 @@ class TanreiSystem {
         slider: slider ?? this.slider,
         snackbar: snackbar ?? this.snackbar,
         steps: steps ?? this.steps,
+        swatch: swatch ?? this.swatch,
         switch_: switch_ ?? this.switch_,
         tabView: tabView ?? this.tabView,
         tableOfContents: tableOfContents ?? this.tableOfContents,

@@ -14026,6 +14026,24 @@ export const acme = {
         large: { markerHeight: 28, markerLabelTypescale: "label", titleTypescale: "heading5", bodyTypescale: "bodyLarge" },
       },
     },
+    swatch: {
+      checkerboardAlternateColor: { kind: "role", role: "surfaceContainerHighest" },
+      checkerboardColor: { kind: "role", role: "surface" },
+      checkerboardSize: 4,
+      labelColor: { kind: "role", role: "onSurface" },
+      outlineColor: { kind: "role", role: "outlineVariant" },
+      outlineWidth: 1,
+      supportingTextColor: { kind: "role", role: "onSurfaceVariant" },
+      sizes: {
+        small: { containerSize: 16, gap: 4, labelTypescale: "bodySmall", supportingTextTypescale: "caption" },
+        medium: { containerSize: 24, gap: 8, labelTypescale: "body", supportingTextTypescale: "bodySmall" },
+        large: { containerSize: 32, gap: 12, labelTypescale: "body", supportingTextTypescale: "bodySmall" },
+      },
+      shapes: {
+        square: { containerShape: 3 },
+        circle: { containerShape: 9999 },
+      },
+    },
     switch: {
       containerShape: 9999,
       containerSize: 40,

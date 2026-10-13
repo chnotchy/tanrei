@@ -1,0 +1,145 @@
+---
+title: 色見本
+description: 色を見本として示し、その横に名前を添えます。見本は色そのままで、半透明の色は市松模様の上に描き、縁取りがあるのでサーフェスに近い色でもどこで終わるかが分かります。見て確かめるための見本であり、コントロールでもピッカーでもありません。
+translationOf: components/swatch.mdx
+sourceHash: 23fa0af88d1049d9e926971bd03ae83df71af4a1
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="swatch" />
+
+<DemoFrame label="値を添えた色、テーマのロール、半透明の色、ドット">
+  <tanrei-swatch color="#0f766e" label="ティール 700" supporting-text="#0f766e"></tanrei-swatch>
+  <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="プライマリ"></tanrei-swatch>
+  <tanrei-swatch color="#0f766e80" label="半透明のティール 700" supporting-text="#0f766e80"></tanrei-swatch>
+  <tanrei-swatch color="#e11d48" label="バグ" shape="circle" size="small"></tanrei-swatch>
+</DemoFrame>
+
+色見本は、編集中ではない色を示します。設定ページのブランドカラー、ラベルの横に添えるそのラベルの色、並べて示すテーマのロールなどです。色は渡されたとおりに正確に描き、その横に色の名前を描きます。色は見本だけでは伝わらないからです。ポインター、キー、フォーカスのいずれにも反応しません。
+
+Web では `<tanrei-swatch>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 見本の横に名前、その下に値。 -->
+    <tanrei-swatch color="#0f766e" label="ティール 700" supporting-text="#0f766e"></tanrei-swatch>
+
+    <!-- 現在のテーマのロール：カスタムプロパティがスキームに従うので、色見本もスキームに従います。 -->
+    <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="プライマリ"></tanrei-swatch>
+
+    <!-- 名前を置く場所がない：見本だけを描き、支援技術には名前を伝えます。 -->
+    <tanrei-swatch color="#e11d48" label="バグ" shape="circle" size="small" label-hidden></tanrei-swatch>
+
+    <!-- 同じ値のテキストの隣：decorative を付け、1 度だけ読まれるようにします。 -->
+    <td><tanrei-swatch decorative size="small" color="#0f766e"></tanrei-swatch> #0f766e</td>
+
+    <script type="module">
+      import '@tanrei/web/components/swatch';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Swatch } from '@tanrei/react';
+
+    <Swatch color={label.color} label={label.name} shape="circle" size="small" />
+    <Swatch color="#0f766e" label="ティール 700" supportingText="#0f766e" />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="3 つのサイズ、2 つの形、色のない色見本" plain>
+  <tanrei-swatch size="small" color="#0f766e" label="Small"></tanrei-swatch>
+  <tanrei-swatch color="#0f766e" label="Medium"></tanrei-swatch>
+  <tanrei-swatch size="large" color="#0f766e" label="Large"></tanrei-swatch>
+  <tanrei-swatch shape="circle" color="#7c3aed" label="Circle"></tanrei-swatch>
+  <tanrei-swatch color="" label="色なし"></tanrei-swatch>
+</DemoFrame>
+
+<ComponentSpecs name="swatch" />
+
+## ガイドライン
+
+### 使う場面
+
+色を表示するだけで変更しない場所なら、どこでも色見本を使います。パレット、テーマの概要、利用者がラベルやカレンダーに付けた色、凡例などです。言葉を添えた色の絵であり、それ以上のものではありません。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| 入力したり、貼り付けたり、選んだりできる色 | [カラーフィールド](/ja/components/color-field/)。色の名前をすでに示している行では[カラー入力欄](/ja/components/color-input/)。 |
+| どこかへ移動する色、何かを開く色 | 色見本を入れた[リンク](/ja/components/link/)か[ボタン](/ja/components/button/)。 |
+| 色の集まりから選ぶ 1 つの色 | このコンポーネントではありません。1 つを選ぶ色見本の集まりはピッカーで、値を持ち、ラジオグループのキー操作をします。Tanrei にそれが加わるまでは、選択肢ごとに名前の横へ装飾の色見本を置いた[ラジオグループ](/ja/components/radio-group/)を使います。 |
+| 状態（エラー、成功） | [タグ](/ja/components/tag/)か[コールアウト](/ja/components/callout/)。状態は言葉で伝え、色はそれに添えるだけです。 |
+
+### 描くもの
+
+- **色そのもの。** 何も混ぜません。ティントも、状態による変化も、ライトとダークによる変化もありません。テーマに従わせたい色見本にはロールのカスタムプロパティ（`var(--tanrei-sys-color-primary)`）を、その値自体を示す色見本には固定の値を渡します。
+- **下に敷く市松模様。** 半透明の色は市松模様が透けて見えるので、半透明であることが分かります。不透明な色は市松模様を覆い隠します。
+- **縁。** 見本の端の内側に、区切り線の色の細い線を 1 本描きます。白いページの上の白や、サーフェスに近い色でも、どこで終わるかが分かります。
+- **色なし。** `color` が空なら、縁だけを描きます。それが何を意味するかは、ラベルで伝えます（「色なし」「継承」）。
+
+どのプラットフォームも 16 進数の表記を読みます。`#0f766e`、アルファ付きなら `#0f766e80` です。Web では、どの CSS の色も使えます。
+
+### サイズと形
+
+| `size` | 辺の長さ | 用途 |
+| --- | --- | --- |
+| `small` | 16 | 小さなテキスト 1 行の隣。表のセル、密な行、凡例など。 |
+| `medium`（既定） | 24 | 本文 1 行の隣。リストの行、設定など。 |
+| `large` | 32 | 色そのものを見る場所。パレット、テーマの概要など。 |
+
+| `shape` | 用途 |
+| --- | --- |
+| `square`（既定） | 色のタイル。パレット、テーマ。 |
+| `circle` | ほかのものに色で印を付けるドット。ラベル、カレンダー、グラフの系列。 |
+
+名前と補足テキストも、サイズに合わせて変わります。
+
+### 名前
+
+色の名前は、プロダクトで人がその色を呼ぶとおりに書きます。「ティール 700」「プライマリ」「バグ」などです。`#0f766e` のような値は名前ではないので、名前の下の `supportingText` に入れます。色見本は、色から名前を作りません。色を何と呼ぶかは、言語とプロダクトによって変わるからです。
+
+### 推奨
+
+- どの色見本にも `label` を指定し、場所があるところでは表示したままにします。
+- テキストで書いた同じ名前や値の隣に置く色見本には、`decorative` を付けます。
+- 利用者がコピーしたり比べたりする値は、`supportingText` に入れます。
+
+### 非推奨
+
+- 色見本にハンドラーを付けない。リンクかボタンの中に入れます。状態とフォーカスインジケーターを持つのはそちらです。
+- 何であるかを色だけで伝えない。それを伝えるのは名前です。
+- プロダクト側でハンドラーを付けた色見本を並べて、カラーピッカーを組み立てない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="swatch" />
+
+### コンポーネントが担うこと
+
+- 名前を描いているとき、色見本はそのテキストそのものです。色見本の位置で、名前、続いて補足テキストが読まれます。見本は隠します。言葉がすでにその色を伝えているからです。
+- `labelHidden` を付けると、`label` を名前、`supportingText` を説明とする 1 つの画像になります。
+- `decorative` を付けると、支援技術からは隠され、テキストも描きません。
+- ラベルも補足テキストもない色見本は隠され、デバッグビルドで報告します。
+- 入力もフォーカスも受けないので、フォーカスが止まる位置を増やしません。リンクやボタンの中では、支援技術に伝わるのはその要素の名前です。
+- 文字を拡大しても、見本はアイコンと同じように大きさを保ち、横のテキストが大きくなります。
+- 強制カラーモードでも、色はそのまま残ります。色こそがコンテンツだからです。縁はテキストの色になります。
+- 右から左のレイアウトでは、見本は右側に来ます。`#0f766e` のような値の並びは変わりません。
+
+### 利用者側で行うこと
+
+- 色見本ごとに、名前を持たせるか装飾にするかを決めます。決め方はこうです。色見本を消すと名前が失われるなら、名前が必要です。そうでなければ装飾です。
+- `labelHidden` よりも、見える名前を選びます。隠した名前は支援技術には色を伝えますが、見本を見ても隣の見本と見分けられない人には伝わりません。場所がないときは、色見本を入れた要素のツールチップで、求めに応じて名前を見せます。
+- 表示する色の上に描くテキストは、そのコントラストを確かめます。色見本は色を見せるだけで、色を検査はしません。

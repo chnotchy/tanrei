@@ -243,6 +243,9 @@ const SUBJECTS = [
   // A group of squares: the preset's small corner and its smoothing on each box, its quiet fill, the initials in its
   // label style, the fallback glyph of its icon set, the overlap and the gap in its surface's color.
   subject('avatar', (fixture) => fixture.id === 'group-square', { icons: true }),
+  // Translucent: the sample's side and corners, the checkerboard's two surfaces under a color at half opacity, the edge,
+  // the gap and the two text roles together.
+  subject('swatch', (fixture) => fixture.id === 'translucent'),
   // Every part at once, centred: the preset's glyph of its icon set in its secondary color, the title's and the
   // description's text styles and colors, the paddings and the gaps, and two of the preset's own text Buttons.
   subject('empty-state', (fixture) => fixture.id === 'actions', { icons: true }),

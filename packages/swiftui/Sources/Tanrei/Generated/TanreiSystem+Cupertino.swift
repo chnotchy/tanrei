@@ -7970,6 +7970,44 @@ private let cupertinoStepsTokens = TanreiStepsTokens(
   )
 )
 
+private let cupertinoSwatchTokens = TanreiSwatchTokens(
+  checkerboardAlternateColor: .role(.surfaceContainerHighest),
+  checkerboardColor: .role(.surface),
+  checkerboardSize: 4,
+  labelColor: .role(.onSurface),
+  outlineColor: .role(.outlineVariant),
+  outlineWidth: 1,
+  supportingTextColor: .role(.onSurfaceVariant),
+  sizes: TanreiSwatchSizes(
+    small: TanreiSwatchSizeTokens(
+      containerSize: 16,
+      gap: 4,
+      labelTypescale: cupertinoTypescale.bodySmall,
+      supportingTextTypescale: cupertinoTypescale.caption
+    ),
+    medium: TanreiSwatchSizeTokens(
+      containerSize: 24,
+      gap: 8,
+      labelTypescale: cupertinoTypescale.body,
+      supportingTextTypescale: cupertinoTypescale.bodySmall
+    ),
+    large: TanreiSwatchSizeTokens(
+      containerSize: 32,
+      gap: 12,
+      labelTypescale: cupertinoTypescale.body,
+      supportingTextTypescale: cupertinoTypescale.bodySmall
+    )
+  ),
+  shapes: TanreiSwatchShapes(
+    square: TanreiSwatchShapeTokens(
+      containerShape: 4
+    ),
+    circle: TanreiSwatchShapeTokens(
+      containerShape: 9999
+    )
+  )
+)
+
 private let cupertinoSwitchTokens = TanreiSwitchTokens(
   containerShape: 9999,
   containerSize: 28,
@@ -9442,6 +9480,7 @@ extension TanreiSystem {
     slider: cupertinoSliderTokens,
     snackbar: cupertinoSnackbarTokens,
     steps: cupertinoStepsTokens,
+    swatch: cupertinoSwatchTokens,
     switch: cupertinoSwitchTokens,
     tabView: cupertinoTabViewTokens,
     tableOfContents: cupertinoTableOfContentsTokens,

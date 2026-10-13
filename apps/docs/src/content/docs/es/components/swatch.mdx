@@ -1,0 +1,145 @@
+---
+title: Muestra
+description: Presenta un color como una muestra, con su nombre al lado. El recuadro de color es exactamente el color, sobre un damero donde el color es translúcido, y lleva un borde para que un color parecido a la superficie siga mostrando dónde termina. Una muestra para mirar, nunca un control ni un selector.
+translationOf: components/swatch.mdx
+sourceHash: 23fa0af88d1049d9e926971bd03ae83df71af4a1
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="swatch" />
+
+<DemoFrame label="Un color con su valor, un rol del tema, un color translúcido y un punto">
+  <tanrei-swatch color="#0f766e" label="Verde azulado 700" supporting-text="#0f766e"></tanrei-swatch>
+  <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="Primario"></tanrei-swatch>
+  <tanrei-swatch color="#0f766e80" label="Verde azulado 700 a media opacidad" supporting-text="#0f766e80"></tanrei-swatch>
+  <tanrei-swatch color="#e11d48" label="Error" shape="circle" size="small"></tanrei-swatch>
+</DemoFrame>
+
+Una muestra enseña un color que no se está editando: el color de una marca en una página de configuración, el color de una etiqueta junto a la etiqueta, los roles de un tema uno al lado del otro. Dibuja el color exactamente como se le da y, a su lado, el nombre del color, porque un color nunca se dice solo con su recuadro. Nunca responde a un puntero, a una tecla ni al foco.
+
+En la web es `<tanrei-swatch>`. Las demás plataformas todavía no la han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- El nombre junto al recuadro de color, y el valor debajo. -->
+    <tanrei-swatch color="#0f766e" label="Verde azulado 700" supporting-text="#0f766e"></tanrei-swatch>
+
+    <!-- Un rol del tema actual: la muestra sigue al esquema porque la propiedad personalizada lo sigue. -->
+    <tanrei-swatch color="var(--tanrei-sys-color-primary)" label="Primario"></tanrei-swatch>
+
+    <!-- Sin sitio para el nombre: el recuadro de color solo, con nombre para la tecnología de apoyo. -->
+    <tanrei-swatch color="#e11d48" label="Error" shape="circle" size="small" label-hidden></tanrei-swatch>
+
+    <!-- Junto al mismo valor en texto: decorativa, para que se lea una sola vez. -->
+    <td><tanrei-swatch decorative size="small" color="#0f766e"></tanrei-swatch> #0f766e</td>
+
+    <script type="module">
+      import '@tanrei/web/components/swatch';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Swatch } from '@tanrei/react';
+
+    <Swatch color={label.color} label={label.name} shape="circle" size="small" />
+    <Swatch color="#0f766e" label="Verde azulado 700" supportingText="#0f766e" />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Tres tamaños, dos formas y una muestra vacía" plain>
+  <tanrei-swatch size="small" color="#0f766e" label="Small"></tanrei-swatch>
+  <tanrei-swatch color="#0f766e" label="Medium"></tanrei-swatch>
+  <tanrei-swatch size="large" color="#0f766e" label="Large"></tanrei-swatch>
+  <tanrei-swatch shape="circle" color="#7c3aed" label="Circle"></tanrei-swatch>
+  <tanrei-swatch color="" label="Sin color"></tanrei-swatch>
+</DemoFrame>
+
+<ComponentSpecs name="swatch" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa una muestra dondequiera que se enseñe un color sin cambiarlo: una paleta, el resumen de un tema, el color que una persona dio a una etiqueta o a un calendario, una leyenda. Es la imagen de un color con palabras, y nada más.
+
+| Necesitas | Usa |
+| --- | --- |
+| Un color que una persona pueda escribir, pegar o elegir | Un [campo de color](/es/components/color-field/), o una [entrada de color](/es/components/color-input/) en una fila que ya le da nombre. |
+| Un color que lleve a algún sitio o abra algo | Un [enlace](/es/components/link/) o un [botón](/es/components/button/) que contenga la muestra. |
+| Un color elegido de un conjunto de colores | No es este componente: un conjunto de muestras del que se elige una es un selector, con un valor y las teclas de un grupo de botones de opción. Hasta que Tanrei tenga uno, usa un [grupo de botones de opción](/es/components/radio-group/) cuyas opciones lleven, cada una, una muestra decorativa junto a su nombre. |
+| Un estado (error, éxito) | Un [tag](/es/components/tag/) o un [callout](/es/components/callout/): un estado lo dicen las palabras, y un color solo se suma a ellas. |
+
+### Qué dibuja
+
+- **El color, exactamente.** No se le mezcla nada: ni tinte, ni estado, ni cambios entre claro y oscuro. Da la propiedad personalizada de un rol (`var(--tanrei-sys-color-primary)`) donde la muestra deba seguir al tema, y un valor fijo donde enseñe ese valor.
+- **Un damero debajo.** Un color translúcido deja ver el damero a través, así que se percibe como translúcido. Un color opaco lo cubre.
+- **Un borde.** Una línea fina por dentro del borde del recuadro de color, del color del divisor, para que el blanco sobre una página blanca, o un color parecido a la superficie, siga mostrando dónde termina.
+- **Sin color.** Un `color` vacío dibuja solo el borde. Di en la etiqueta qué significa («Sin color», «Heredado»).
+
+Todas las plataformas leen la notación hexadecimal: `#0f766e`, y con alfa `#0f766e80`. En la web sirve también cualquier color de CSS.
+
+### Tamaños y formas
+
+| `size` | Lado | Úsalo para |
+| --- | --- | --- |
+| `small` | 16 | Junto a una línea de texto pequeño: una celda de una tabla, una fila densa, una leyenda. |
+| `medium` (predeterminado) | 24 | Junto a una línea de texto del cuerpo: una fila de una lista, un ajuste. |
+| `large` | 32 | Donde se mira el propio color: una paleta, el resumen de un tema. |
+
+| `shape` | Úsalo para |
+| --- | --- |
+| `square` (predeterminado) | Un mosaico del color: una paleta, un tema. |
+| `circle` | Un punto que marca otra cosa con un color: una etiqueta, un calendario, una serie de un gráfico. |
+
+El nombre y el texto de apoyo siguen al tamaño.
+
+### El nombre
+
+Escribe el nombre del color como lo llaman las personas en tu producto: «Verde azulado 700», «Primario», «Error». Un valor como `#0f766e` no es un nombre, así que ponlo en `supportingText`, debajo del nombre. La muestra nunca saca un nombre del color: cómo se llama un color depende del idioma y del producto.
+
+### Recomendado
+
+- Da a cada muestra un `label`, y déjalo visible donde haya sitio.
+- Define `decorative` en una muestra que esté junto al mismo nombre o valor en texto.
+- Pon en `supportingText` un valor que las personas puedan copiar o comparar.
+
+### Evita
+
+- No pongas un controlador en una muestra. Ponla dentro de un enlace o de un botón, que tienen los estados y el indicador de foco.
+- No confíes solo en el color para decir qué es algo. Eso lo dice el nombre.
+- No construyas un selector de color con muestras y controladores tuyos.
+
+## Accesibilidad
+
+<ComponentAccessibility name="swatch" />
+
+### De qué se encarga el componente
+
+- Con su nombre dibujado, la muestra es ese texto: el nombre y después el texto de apoyo, leídos donde está la muestra. El recuadro de color se oculta, porque las palabras ya lo dicen.
+- Con `labelHidden`, es una sola imagen que recibe su nombre de `label` y su descripción de `supportingText`.
+- Con `decorative`, queda oculta para la tecnología de apoyo y no dibuja ningún texto.
+- Una muestra sin etiqueta ni texto de apoyo se oculta, y las compilaciones de depuración lo notifican.
+- No recibe ninguna entrada ni el foco, así que no añade ninguna parada al orden del foco. Dentro de un enlace o de un botón, lo que expone es el nombre de ese elemento.
+- Con el texto ampliado, el recuadro de color conserva su tamaño, como hace un icono, y el texto crece a su lado.
+- Con colores forzados, el color se conserva, porque es el contenido, y el borde toma el color del texto.
+- En un diseño de derecha a izquierda, el recuadro de color queda a la derecha. Un valor como `#0f766e` conserva su orden.
+
+### Qué debes hacer tú
+
+- Decide para cada muestra si tiene nombre o es decorativa. La regla: si al eliminar la muestra se pierde un nombre, tiene nombre. Si no, es decorativa.
+- Prefiere un nombre visible a `labelHidden`. Un nombre oculto le dice el color a la tecnología de apoyo, pero no a una persona que ve el recuadro de color y no sabe distinguirlo del de al lado. Donde no haya sitio, muestra el nombre cuando se pida, en un tooltip sobre el elemento que contiene la muestra.
+- Comprueba el contraste de cualquier texto que dibujes sobre los colores que enseñas. La muestra enseña colores; no los comprueba.

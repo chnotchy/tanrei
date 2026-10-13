@@ -8116,6 +8116,44 @@ private let acmeStepsTokens = TanreiStepsTokens(
   )
 )
 
+private let acmeSwatchTokens = TanreiSwatchTokens(
+  checkerboardAlternateColor: .role(.surfaceContainerHighest),
+  checkerboardColor: .role(.surface),
+  checkerboardSize: 4,
+  labelColor: .role(.onSurface),
+  outlineColor: .role(.outlineVariant),
+  outlineWidth: 1,
+  supportingTextColor: .role(.onSurfaceVariant),
+  sizes: TanreiSwatchSizes(
+    small: TanreiSwatchSizeTokens(
+      containerSize: 16,
+      gap: 4,
+      labelTypescale: acmeTypescale.bodySmall,
+      supportingTextTypescale: acmeTypescale.caption
+    ),
+    medium: TanreiSwatchSizeTokens(
+      containerSize: 24,
+      gap: 8,
+      labelTypescale: acmeTypescale.body,
+      supportingTextTypescale: acmeTypescale.bodySmall
+    ),
+    large: TanreiSwatchSizeTokens(
+      containerSize: 32,
+      gap: 12,
+      labelTypescale: acmeTypescale.body,
+      supportingTextTypescale: acmeTypescale.bodySmall
+    )
+  ),
+  shapes: TanreiSwatchShapes(
+    square: TanreiSwatchShapeTokens(
+      containerShape: 3
+    ),
+    circle: TanreiSwatchShapeTokens(
+      containerShape: 9999
+    )
+  )
+)
+
 private let acmeSwitchTokens = TanreiSwitchTokens(
   containerShape: 9999,
   containerSize: 40,
@@ -9597,6 +9635,7 @@ extension TanreiSystem {
     slider: acmeSliderTokens,
     snackbar: acmeSnackbarTokens,
     steps: acmeStepsTokens,
+    swatch: acmeSwatchTokens,
     switch: acmeSwitchTokens,
     tabView: acmeTabViewTokens,
     tableOfContents: acmeTableOfContentsTokens,
