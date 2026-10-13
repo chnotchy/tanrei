@@ -111,6 +111,19 @@
             "$description": "Thickness of the group mark. A system that wants a wider gap and no mark sets this to nothing."
           }
         },
+        "caret": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.thick}",
+            "$description": "Width of the caret an empty active cell draws (OTC-7).",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product draws its text caret at a width of its own, apart from its dividers and edges: platforms keep a text field's cursor width as a value of its own, so a product that follows one draws a caret wider than its hairlines.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        },
         "outline": {
           "width": {
             "$type": "dimension",

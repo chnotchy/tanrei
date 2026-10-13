@@ -15,7 +15,7 @@ const STATE = '(?:(?:hovered|focused|pressed|disabled)\\.)?';
 
 /** A component's list names → the menu's. First match wins; `$n` are the match's groups. */
 const AS_THE_MENU = [
-  [/^list\.(color|elevation|shape|padding-block|padding-inline|min-width|offset|viewport-margin)$/, 'surface.$1'],
+  [/^list\.(color|elevation|shape|padding-block|padding-inline|min-width|max-width|offset|viewport-margin)$/, 'surface.$1'],
   [/^option\.(height|shape|padding-inline|padding-block|gap)$/, 'container.$1'],
   [/^option\.(label\.typescale|supporting-text\.typescale|leading-icon\.size|mark\.size)$/, '$1'],
   [/^(group-title\.(?:color|padding-inline|typescale)|group\.gap|divider\.(?:color|space|thickness)|separation)$/, '$1'],
@@ -30,7 +30,7 @@ const OF_THE_LIST = new RegExp(`^(?:list|option|group-title|group|divider)\\.|^s
 /** `own`: list tokens the menu has no counterpart for, by name, so that nothing is left out by accident. */
 export const LISTS = {
   // A long list scrolls inside a height of its own; a menu is short by its rules and has none.
-  select: { own: ['list.max-height'], pairs: 195 },
+  select: { own: ['list.max-height'], pairs: 196 },
   // A combobox's list is exactly as wide as its field, so it has no least width (CMB-22); the weight of the letters
   // that matched what was typed is its own.
   combobox: { own: ['list.max-height', 'option.match.emphasis'], pairs: 194 },

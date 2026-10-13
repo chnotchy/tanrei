@@ -8,17 +8,22 @@ import { writeThirdPartyLicenses } from '../../tools/src/third-party.js';
 import { declarations, resolved, tokensIn, writeConditions } from './conditions.js';
 
 fs.mkdirSync('dist', { recursive: true });
+// Letter-spacing follows the script of the text (src/styles/script-tracking.ts): one source, shared with the
+// components' shadow styles. A light-DOM stylesheet writes a `script-tracking` mark where the rules go, and every
+// stylesheet is read through `sheet()`, which writes them in place.
+const { writeScriptTracking } = await import('../dist/styles/script-tracking.js');
+const sheet = (file) => writeScriptTracking(fs.readFileSync(file, 'utf8'));
 // dist/tokens.css is the generated tokens, and nothing else. It registers no custom property: one registered name in
 // a document makes every transition that starts on a page of ten thousand tokens dear (src/styles/registered-properties.ts),
 // and this is the sheet every page loads.
 fs.copyFileSync('src/generated/tokens.css', 'dist/tokens.css');
-fs.copyFileSync('src/styles/text.css', 'dist/text.css');
+fs.writeFileSync('dist/text.css', sheet('src/styles/text.css'));
 // The callout before its element is defined (CLO-13, CLO-22): the box its server-rendered content keeps a place in.
-fs.copyFileSync('src/components/callout/callout.css', 'dist/callout.css');
+fs.writeFileSync('dist/callout.css', sheet('src/components/callout/callout.css'));
 // The avatar before its element is defined (AVT-1, AVT-16): the box it will have, so a page of avatars does not move.
 fs.copyFileSync('src/components/avatar/avatar.css', 'dist/avatar.css');
 // The empty state before its element is defined (EMP-1, EMP-2): the place its server-rendered words keep.
-fs.copyFileSync('src/components/empty-state/empty-state.css', 'dist/empty-state.css');
+fs.writeFileSync('dist/empty-state.css', sheet('src/components/empty-state/empty-state.css'));
 // The menu drawn in place before its elements are defined (MNU-19's verify): the block size its surface will have.
 fs.copyFileSync('src/components/menu/menu.css', 'dist/menu.css');
 // The menubar before its elements are defined, and where script does not run (MBR-45): its link items, as links that work.
@@ -48,7 +53,7 @@ const between = (text, name) => {
   return text.slice(text.indexOf(start) + start.length, text.indexOf(end));
 };
 const LINK_SHAPE = '/* link:shape */';
-const linkSource = writeGlyphAxes(fs.readFileSync('src/styles/link.css', 'utf8'));
+const linkSource = writeGlyphAxes(sheet('src/styles/link.css'));
 if (!linkSource.includes(LINK_SHAPE)) throw new Error('link.css: nowhere to write the corner rule');
 const link = linkSource.replace(LINK_SHAPE, SHAPE_CSS.replaceAll(':where([data-tanrei-shape])', '&').replaceAll('[data-tanrei-shape]', '&').replace(/^/gm, '    ').trimStart());
 fs.writeFileSync('dist/link.css', link);
@@ -75,7 +80,7 @@ const byName = (text) =>
     const names = parts(list);
     return names.length > 1 && names.every((name) => NAMED.test(name)) ? `${indent}${names.map((name) => `:where(${name})${rest}`).join(', ')}${end}` : line;
   });
-const prose = writeGlyphAxes(fs.readFileSync('src/styles/prose.css', 'utf8'));
+const prose = writeGlyphAxes(sheet('src/styles/prose.css'));
 if (!prose.includes(NOT_PROSE) || !tags.length) throw new Error('prose.css: nothing to write the Tanrei tag names into, or no tag names');
 if (!prose.includes(LINK_RULES)) throw new Error('prose.css: nowhere to write the link\'s rules');
 // Code (specs/inline-code.spec.json, specs/code-block.spec.json). code.css holds inline code — a class
@@ -86,7 +91,7 @@ if (!prose.includes(LINK_RULES)) throw new Error('prose.css: nowhere to write th
 const CODE_SHAPE = '/* code:shape */';
 const CODE_RULES = '/* code:rules */';
 const CODE_BLOCK = '/* code:block */';
-const codeSource = fs.readFileSync('src/styles/code.css', 'utf8');
+const codeSource = sheet('src/styles/code.css');
 if (!codeSource.includes(CODE_SHAPE)) throw new Error('code.css: nowhere to write the corner rule');
 const { CODE_BLOCK_CSS, BARE_BLOCK_CSS, SYNTAX_ROLES } = await import('../dist/components/code-block/code-block.light.js');
 // A block that is not upgraded: rules of code.css alone, which the element does not carry.
@@ -115,7 +120,7 @@ fs.writeFileSync(
 // both, a set of steps is drawn the same whichever comes last (src/styles/steps.test.ts holds the two together).
 const shapeFor = (selector) => SHAPE_CSS.replace(/\[data-tanrei-shape\]::before,[\s\S]*$/, '').replaceAll(':where([data-tanrei-shape])', selector).replaceAll('[data-tanrei-shape]', selector).replace(/^/gm, '  ').trim();
 const STEPS_SHAPE = '/* steps:shape */';
-const stepsSource = fs.readFileSync('src/styles/steps.css', 'utf8');
+const stepsSource = sheet('src/styles/steps.css');
 if (!stepsSource.includes(STEPS_SHAPE)) throw new Error('steps.css: nowhere to write the corner rule');
 const steps = stepsSource.replace(STEPS_SHAPE, shapeFor(':where(.tanrei-steps) > :where(li)::before'));
 fs.writeFileSync('dist/steps.css', steps);
@@ -126,13 +131,13 @@ fs.appendFileSync('dist/prose.css', `/* The steps' own rules (steps.css), said a
 // reason, after the steps' (src/styles/timeline.test.ts holds the two together).
 const TIMELINE_SHAPE = '/* timeline:shape */';
 const TIMELINE_MARKERS = [':where(.tanrei-timeline) > :where(li)::before', ':where(.tanrei-timeline) > :where(li) > :is(.tanrei-timeline-marker, .tanrei-timeline-marker.tanrei-icon)'];
-const timelineSource = writeGlyphAxes(fs.readFileSync('src/styles/timeline.css', 'utf8'));
+const timelineSource = writeGlyphAxes(sheet('src/styles/timeline.css'));
 if (!timelineSource.includes(TIMELINE_SHAPE)) throw new Error('timeline.css: nowhere to write the corner rule');
 const timeline = timelineSource.replace(TIMELINE_SHAPE, TIMELINE_MARKERS.map(shapeFor).join('\n  '));
 fs.writeFileSync('dist/timeline.css', timeline);
 fs.appendFileSync('dist/prose.css', `/* The timeline's own rules (timeline.css), said again after prose's: see scripts/build.js. */\n${between(timeline, 'timeline:rules').trim()}\n`);
 const PAGINATION_SHAPE = '/* pagination:shape */';
-const paginationSource = writeGlyphAxes(fs.readFileSync('src/styles/pagination.css', 'utf8'));
+const paginationSource = writeGlyphAxes(sheet('src/styles/pagination.css'));
 if (!paginationSource.includes(PAGINATION_SHAPE)) throw new Error('pagination.css: nowhere to write the corner rule');
 fs.writeFileSync('dist/pagination.css', paginationSource.replace(PAGINATION_SHAPE, shapeFor(':where(.tanrei-pagination-item)')));
 // The table (specs/table.spec.json) is an element with no shadow root and one stylesheet that draws everything:
@@ -140,7 +145,7 @@ fs.writeFileSync('dist/pagination.css', paginationSource.replace(PAGINATION_SHAP
 // (without its comments) is written into the element, which adds it to the root it is connected to — the compiled
 // module here, the bundle below.
 const TABLE_CSS_NAME = 'TANREI_TABLE_CSS';
-const tableSource = fs.readFileSync('src/styles/table.css', 'utf8');
+const tableSource = sheet('src/styles/table.css');
 fs.writeFileSync('dist/table.css', tableSource);
 const tableText = JSON.stringify(
   tableSource
@@ -159,7 +164,7 @@ else if (!tableModule.includes('tanrei-table) {') && !tableModule.includes(':whe
 // form: an element with no shadow root and one stylesheet, written to dist/ for the page and into the element. The
 // figure's frame takes the corner-smoothing rule in place of its `figure:shape` mark, as the link and inline code do.
 const FIGURE_SHAPE = '/* figure:shape */';
-const figureSource = fs.readFileSync('src/styles/figure.css', 'utf8');
+const figureSource = sheet('src/styles/figure.css');
 if (!figureSource.includes(FIGURE_SHAPE)) throw new Error('figure.css: nowhere to write the corner rule');
 // The app shell (specs/app-shell.spec.json) and the page header (specs/page-header.spec.json) are the same form around
 // the product's own regions and the page's own heading. Each decides a layout by a width that is a token — the window's
@@ -168,13 +173,13 @@ if (!figureSource.includes(FIGURE_SHAPE)) throw new Error('figure.css: nowhere t
 // resolved value is written in its place here, in rem, from the generated tokens (scripts/conditions.js). The skip
 // link's box takes the corner-smoothing rule in place of the `app-shell:shape` mark.
 const APP_SHELL_SHAPE = '/* app-shell:shape */';
-const appShellSource = fs.readFileSync('src/styles/app-shell.css', 'utf8');
+const appShellSource = sheet('src/styles/app-shell.css');
 if (!appShellSource.includes(APP_SHELL_SHAPE)) throw new Error('app-shell.css: nowhere to write the corner rule');
 // The tree view (specs/tree-view.spec.json) is the same form around the product's own nested lists. A row's container
 // is the row's `::after` and the ripple's layer a box of its own in the row: each takes the corner-smoothing rule, in
 // place of the `tree-view:shape` mark.
 const TREE_VIEW_SHAPE = '/* tree-view:shape */';
-const treeViewSource = writeGlyphAxes(fs.readFileSync('src/styles/tree-view.css', 'utf8'));
+const treeViewSource = writeGlyphAxes(sheet('src/styles/tree-view.css'));
 if (!treeViewSource.includes(TREE_VIEW_SHAPE)) throw new Error('tree-view.css: nowhere to write the corner rule');
 const TREE_VIEW_ROW = ':where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol))';
 // The link card (specs/link-card.spec.json) is the same form around the product's own anchor. It stands its picture
@@ -182,18 +187,18 @@ const TREE_VIEW_ROW = ':where(tanrei-tree-view) :where(li) > :where(:first-child
 // condition as the page header's is; and the anchor — the card's container — takes the corner-smoothing rule in place
 // of the `link-card:shape` mark.
 const LINK_CARD_SHAPE = '/* link-card:shape */';
-const linkCardSource = writeGlyphAxes(fs.readFileSync('src/styles/link-card.css', 'utf8'));
+const linkCardSource = writeGlyphAxes(sheet('src/styles/link-card.css'));
 if (!linkCardSource.includes(LINK_CARD_SHAPE)) throw new Error('link-card.css: nowhere to write the corner rule');
 const SKELETON_SHAPE = '/* skeleton:shape */';
-const skeletonSource = fs.readFileSync('src/styles/skeleton.css', 'utf8');
+const skeletonSource = sheet('src/styles/skeleton.css');
 if (!skeletonSource.includes(SKELETON_SHAPE)) throw new Error('skeleton.css: nowhere to write the corner rule');
 const CONDITIONED = [
   { file: 'app-shell', source: appShellSource.replace(APP_SHELL_SHAPE, shapeFor(":where(tanrei-app-shell) > [slot='skip-link']:focus-visible::after")) },
-  { file: 'page-header', source: fs.readFileSync('src/styles/page-header.css', 'utf8') },
+  { file: 'page-header', source: sheet('src/styles/page-header.css') },
   { file: 'link-card', source: linkCardSource.replace(LINK_CARD_SHAPE, shapeFor(':where(tanrei-link-card) > :where(a)')) },
 ];
 const BREADCRUMBS_SHAPE = '/* breadcrumbs:shape */';
-const breadcrumbsSource = writeGlyphAxes(fs.readFileSync('src/styles/breadcrumbs.css', 'utf8'));
+const breadcrumbsSource = writeGlyphAxes(sheet('src/styles/breadcrumbs.css'));
 if (!breadcrumbsSource.includes(BREADCRUMBS_SHAPE)) throw new Error('breadcrumbs.css: nowhere to write the corner rule');
 const defaultTokens = declarations(fs.readFileSync('src/generated/tokens.css', 'utf8'));
 const LIGHT_SHEETS = [
@@ -204,7 +209,7 @@ const LIGHT_SHEETS = [
   // stylesheet draw the product's own anchors in the document, as the table of contents does. A level's
   // corners are the shared rule, written in place of the `breadcrumbs:shape` mark.
   { name: 'TANREI_BREADCRUMBS_CSS', file: 'breadcrumbs', module: 'dist/components/breadcrumbs/breadcrumbs.js', source: breadcrumbsSource.replace(BREADCRUMBS_SHAPE, shapeFor(':where(tanrei-breadcrumbs) > :where(a)')) },
-  { name: 'TANREI_DESCRIPTION_LIST_CSS', file: 'description-list', module: 'dist/components/description-list/description-list.js', source: fs.readFileSync('src/styles/description-list.css', 'utf8') },
+  { name: 'TANREI_DESCRIPTION_LIST_CSS', file: 'description-list', module: 'dist/components/description-list/description-list.js', source: sheet('src/styles/description-list.css') },
   {
     name: 'TANREI_FIGURE_CSS',
     file: 'figure',
@@ -247,7 +252,7 @@ const LIGHT_SHEETS = [
 // the element. Its corners are the shared rule, written in place of the `accordion:shape` mark.
 const ACCORDION_CSS_NAME = 'TANREI_ACCORDION_CSS';
 const ACCORDION_SHAPE = '/* accordion:shape */';
-const accordionSource = writeGlyphAxes(fs.readFileSync('src/styles/accordion.css', 'utf8'));
+const accordionSource = writeGlyphAxes(sheet('src/styles/accordion.css'));
 if (!accordionSource.includes(ACCORDION_SHAPE)) throw new Error('accordion.css: nowhere to write the corner rule');
 const accordionCss = accordionSource.replace(ACCORDION_SHAPE, SHAPE_CSS.replaceAll(':where([data-tanrei-shape])', '&').replaceAll('[data-tanrei-shape]', '&').replace(/^/gm, '    ').trimStart());
 fs.writeFileSync('dist/accordion.css', accordionCss);
@@ -268,7 +273,7 @@ else if (!accordionModule.includes(':where(tanrei-accordion)')) throw new Error(
 // is connected to. A row's corners are the shared rule, written in place of the `table-of-contents:shape` mark.
 const TABLE_OF_CONTENTS_CSS_NAME = 'TANREI_TABLE_OF_CONTENTS_CSS';
 const TABLE_OF_CONTENTS_SHAPE = '/* table-of-contents:shape */';
-const tableOfContentsSource = fs.readFileSync('src/styles/table-of-contents.css', 'utf8');
+const tableOfContentsSource = sheet('src/styles/table-of-contents.css');
 if (!tableOfContentsSource.includes(TABLE_OF_CONTENTS_SHAPE)) throw new Error('table-of-contents.css: nowhere to write the corner rule');
 const tableOfContentsCss = tableOfContentsSource.replace(TABLE_OF_CONTENTS_SHAPE, SHAPE_CSS.replaceAll(':where([data-tanrei-shape])', '&').replaceAll('[data-tanrei-shape]', '&').replace(/^/gm, '    ').trimStart());
 fs.writeFileSync('dist/table-of-contents.css', tableOfContentsCss);

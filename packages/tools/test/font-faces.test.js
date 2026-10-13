@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url';
 import { FONT_PACKAGES, PLATFORM_FAMILIES, fontFacesCss, missingFamilies, registeredFamilies, shippedFamilies } from '../src/font-faces.js';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-// packages/web depends (for its tests) on a package for every family in the table except Noto Sans JP.
+// packages/web depends (for its tests) on a package for every family in the table except Noto Sans JP and Noto Sans
+// Arabic (the Theme Studio app's face for Arabic).
 const web = path.join(repo, 'packages/web');
 const json = (file) => JSON.parse(fs.readFileSync(path.join(repo, file), 'utf8'));
 
@@ -46,6 +47,12 @@ test('faces are registered under the token names; icons block instead of flashin
   assert.equal(latin.split('@font-face').length - 1, 1, 'latin, not latin-ext');
   assert.match(latin, /url\(data:font\/woff2;base64,[A-Za-z0-9+/]+=*\) format\('woff2-variations'\)/);
   assert.throws(() => fontFacesCss('x.css', web, { families: ['Comic Neue'] }), /no package is known for "Comic Neue"/);
+  // A face added for one script is registered for that script's subset alone: it never takes Latin, digits or symbols
+  // from the faces before it in the stack.
+  const studio = path.join(repo, 'packages/studio/app');
+  const arabic = fontFacesCss(path.join(studio, 'fonts.css'), path.join(repo, 'packages/studio'), { families: ['Noto Sans Arabic'] });
+  assert.equal(arabic.split('@font-face').length - 1, 1, 'the arabic subset, not math or symbols');
+  assert.match(arabic, /font-family: 'Noto Sans Arabic';[\s\S]*unicode-range: U\+0600-06FF/);
   assert.throws(() => fontFacesCss('x.css', path.join(repo, 'packages/tools'), { families: ['Roboto'] }), /needs @fontsource-variable\/roboto/);
 });
 

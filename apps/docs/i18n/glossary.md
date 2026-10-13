@@ -135,6 +135,8 @@ A translation is natural technical writing in its language, not word for word: s
 | default | 既定 | 默认 |
 | opt in | オプトイン | 选择启用 |
 | right-to-left | 右から左（RTL） | 从右到左（RTL） |
+| words (of a product: what it gives the components to draw and say) | 言葉 for the idea and the page; 文言 only for one particular string (「エラーの文言」). The fixed sentence is 「Tanrei は言葉を同梱しません。」 | 文字 |
+| select, choose (the verb) | In a control's name, the Sino-Japanese verb: 「日付を選択」「すべて選択」. Running text that tells the reader what to do may say 選ぶ | 选择 |
 
 ## Section headings of a component page: Japanese and Simplified Chinese
 
@@ -189,6 +191,7 @@ As common nouns: page titles, headings, running text.
 | FAB menu | FAB メニュー | FAB 菜单 |
 | Field | フィールド | 字段 |
 | Field group | フィールドグループ | 字段组 |
+| Figure | 図 | 图示 |
 | File item | ファイル項目 | 文件项 |
 | File picker (the component; the platform's own picker stays ピッカー, ファイルピッカー in running text) | ファイルピッカー | 文件选择器 — the platform's own picker is 平台的文件选择器, short 选择器 |
 | File upload | ファイルアップロード | 文件上传 |

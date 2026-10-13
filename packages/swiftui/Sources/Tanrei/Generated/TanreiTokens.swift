@@ -11338,6 +11338,7 @@ public struct TanreiOneTimeCodeInputStateTokens: Sendable, Equatable {
 
 /// Component tokens of one-time-code-input (comp.one-time-code-input).
 public struct TanreiOneTimeCodeInputTokens: Sendable, Equatable {
+  public var caretWidth: CGFloat
   public var containerGap: CGFloat
   public var containerHeight: CGFloat
   public var containerPaddingInline: CGFloat
@@ -11358,6 +11359,7 @@ public struct TanreiOneTimeCodeInputTokens: Sendable, Equatable {
   public var disabled: TanreiOneTimeCodeInputStateTokens
 
   public init(
+    caretWidth: CGFloat,
     containerGap: CGFloat,
     containerHeight: CGFloat,
     containerPaddingInline: CGFloat,
@@ -11374,6 +11376,7 @@ public struct TanreiOneTimeCodeInputTokens: Sendable, Equatable {
     focused: TanreiOneTimeCodeInputStateTokens,
     disabled: TanreiOneTimeCodeInputStateTokens
   ) {
+    self.caretWidth = caretWidth
     self.containerGap = containerGap
     self.containerHeight = containerHeight
     self.containerPaddingInline = containerPaddingInline
@@ -13180,6 +13183,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
   public var listColor: TanreiPaint
   public var listElevation: [TanreiShadowLayer]
   public var listMaxHeight: CGFloat
+  public var listMaxWidth: CGFloat
   public var listMinWidth: CGFloat
   public var listOffset: CGFloat
   public var listPaddingBlock: CGFloat
@@ -13224,6 +13228,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     listColor: TanreiPaint,
     listElevation: [TanreiShadowLayer],
     listMaxHeight: CGFloat,
+    listMaxWidth: CGFloat,
     listMinWidth: CGFloat,
     listOffset: CGFloat,
     listPaddingBlock: CGFloat,
@@ -13263,6 +13268,7 @@ public struct TanreiSelectTokens: Sendable, Equatable {
     self.listColor = listColor
     self.listElevation = listElevation
     self.listMaxHeight = listMaxHeight
+    self.listMaxWidth = listMaxWidth
     self.listMinWidth = listMinWidth
     self.listOffset = listOffset
     self.listPaddingBlock = listPaddingBlock

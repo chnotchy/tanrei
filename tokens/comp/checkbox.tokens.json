@@ -62,7 +62,7 @@
           },
           "size": {
             "$type": "dimension",
-            "$description": "The round state layer behind the box, Material Design 3's 40. With the label gap it ends where the 48 touch target does, so the label starts at the target's edge.",
+            "$description": "The round state layer behind the box, 40. With the label gap it ends where the 48 touch target does, so the label starts at the target's edge.",
             "$value": {
               "value": 40,
               "unit": "px"
@@ -79,7 +79,7 @@
         "box": {
           "size": {
             "$type": "dimension",
-            "$description": "The side of the visible box, Material Design 3's 18.",
+            "$description": "The side of the visible box, 18.",
             "$value": {
               "value": 18,
               "unit": "px"
@@ -94,7 +94,7 @@
           },
           "shape": {
             "$type": "dimension",
-            "$description": "The corner of the box, Material Design 3's 2: one unit of the roundness dial, below the corner scale's first step (extra-small, 3), which on an 18 box reads rounder than Material's.",
+            "$description": "The corner of the box, 2: one unit of the roundness dial, below the corner scale's first step (extra-small, 3), which on an 18 box reads too round for a checkbox.",
             "$value": {
               "value": 2,
               "unit": "px"
@@ -111,7 +111,7 @@
         "outline": {
           "width": {
             "$type": "dimension",
-            "$description": "The border of the box, drawn inside its edge; the fill sits inside the border and never under it. Material Design 3's 2.",
+            "$description": "The border of the box, drawn inside its edge; the fill sits inside the border and never under it. 2.",
             "$value": "{tanrei.sys.border.thick}"
           }
         },
@@ -123,7 +123,7 @@
           },
           "size": {
             "$type": "dimension",
-            "$description": "The glyph box of the check and the dash (the icon set's check and remove), centered on the box. 20 on an 18 box: a glyph's box is larger than its ink, and Material Symbols' check drawn at 20 covers about as much of the box as Material Design 3's own check; the ink stays inside the box.",
+            "$description": "The glyph box of the check and the dash (the icon set's check and remove), centered on the box. 20 on an 18 box: a glyph's box is larger than its ink, so the icon set's check drawn at 20 keeps its ink inside the box.",
             "$value": "{tanrei.sys.icon.small}",
             "$extensions": {
               "dev.tanrei.vocabulary": {

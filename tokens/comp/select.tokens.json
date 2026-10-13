@@ -43,7 +43,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "What a select draws that is its own: the list it opens. Its surface, corners, lift, paddings, offset from the box, margin to the window's edge, least width and greatest height; an option's row, text styles, glyph and check sizes; a group's title, the divider or the gap between groups; the motion of opening and closing and of a row's state change, and a row's opacity in each state; and an option's colors at rest and chosen, in each state. The box is comp.input-box.*.",
+            "usage": "What a select draws that is its own: the list it opens. Its surface, corners, lift, paddings, offset from the box, margin to the window's edge, least and greatest width and greatest height; an option's row, text styles, glyph and check sizes; a group's title, the divider or the gap between groups; the motion of opening and closing and of a row's state change, and a row's opacity in each state; and an option's colors at rest and chosen, in each state. The box is comp.input-box.*.",
             "rules": [
               "A select chooses exactly one value from a closed list and holds it as a form value. For actions use a menu; for several values use checkboxes or a list with multiple selection; for a list a person filters by typing use a combobox.",
               "With up to about five options that fit on the screen, radio buttons or tabs show every choice at once and cost one press less; use a select where the options are many or the space is small.",
@@ -90,12 +90,31 @@
               "value": 160,
               "unit": "px"
             },
-            "$description": "The least width of the list where the trigger is narrower than this (a small select in a bar); otherwise the list is as wide as its trigger.",
+            "$description": "The least width of the list where its options and its trigger are narrower than this (a small select in a bar).",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",
                 "of": "{tanrei.dial.size.unit}",
                 "by": 40
+              }
+            }
+          },
+          "max-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 320,
+              "unit": "px"
+            },
+            "$description": "The widest the list grows for its options where its trigger is narrower: an option that needs more wraps. A list is never narrower than its trigger, so a trigger wider than this gives the list its own width. The window limits it further.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how far a list of choices may grow past a narrow trigger for options with long labels or a second line, before they wrap, so that an open list reads in few lines without covering the form beside it.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 80
               }
             }
           },
