@@ -117,7 +117,7 @@ test('a component that is an element and a stylesheet on the web names both', ()
 
 test('the status matrix lists the whole inventory and never exceeds the specs', () => {
   const status = buildStatus();
-  assert.equal(status.components.length, 84);
+  assert.equal(status.components.length, 85);
   const specs = new Map(loadSpecs().map(({ spec }) => [spec.name, spec]));
   for (const row of status.components) {
     for (const platform of CONFIG.platforms) {
