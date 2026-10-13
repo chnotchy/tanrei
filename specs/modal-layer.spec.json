@@ -154,7 +154,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-modal-layer",
       "props": {
         "open": "open",
