@@ -158,7 +158,7 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The playback control's square, and the height of the dots' container. Material Design 3's standard icon button is 40 with a 24 glyph.",
+            "$description": "The playback control's square, and the height of the dots' container, 40, around a 24 glyph.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",

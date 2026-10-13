@@ -241,11 +241,13 @@ test.describe('the parts and their order', () => {
     expect(lead.width).toBeLessThan(heading.width);
   });
 
-  test('PGH-4: in Japanese and in Arabic the title and the eyebrow are drawn at a letter-spacing of zero; in the fixture medium the title has the letter-spacing of sys.typescale.heading-1', async ({ page }) => {
+  test('PGH-4: in Japanese the title takes no negative letter-spacing and the eyebrow keeps its positive one; in Arabic both are drawn at a letter-spacing of zero; in the fixture medium the title has the letter-spacing of sys.typescale.heading-1', async ({ page }) => {
     await mount(page, some('japanese', 'rtl', 'medium', 'eyebrow'));
-    for (const id of ['japanese', 'rtl']) {
-      expect([await px(title(page, id), 'letter-spacing') || 0, await px(eyebrow(page, id), 'letter-spacing') || 0], id).toEqual([0, 0]);
-    }
+    expect([await px(title(page, 'rtl'), 'letter-spacing') || 0, await px(eyebrow(page, 'rtl'), 'letter-spacing') || 0], 'rtl').toEqual([0, 0]);
+    // Japanese is set solid: the title's negative tracking is dropped, the eyebrow's positive one stays (the
+    // component convention "text follows its script").
+    expect(await px(title(page, 'japanese'), 'letter-spacing') || 0, 'japanese title').toBe(0);
+    expect(await px(eyebrow(page, 'japanese'), 'letter-spacing'), 'japanese eyebrow').toBe(await px(eyebrow(page, 'eyebrow'), 'letter-spacing'));
     const tracking = await page.evaluate(() => {
       const probe = document.createElement('div');
       probe.style.cssText = 'font: var(--tanrei-sys-typescale-heading-1-font); letter-spacing: var(--tanrei-sys-typescale-heading-1-letter-spacing)';
@@ -1099,7 +1101,7 @@ test.describe('the element and its stylesheet', () => {
     expect(writeConditions(source, declarations(`:root { ${T('wide-container-width')}: 640px; }`, tokens))).toContain('@container (inline-size >= 40rem)');
   });
 
-  test('no design value is written in the stylesheet or the element: every length, color, radius, duration and opacity is a token, and the only literal is the zero letter-spacing of PGH-4 (PGH-1, PGH-4)', async () => {
+  test('no design value is written in the stylesheet or the element: every length, color, radius, duration and opacity is a token, and the zero letter-spacing of PGH-4 is the shared rule, written at its mark (PGH-1, PGH-4)', async () => {
     const strip = (text: string) => text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
     const sheet = strip(fs.readFileSync(path.join(pkg, 'src/styles/page-header.css'), 'utf8'));
     const lengths = [...sheet.matchAll(/(?<![\w.-])(\d*\.?\d+)(px|rem|em|pt|ms|s)\b/g)].map((match) => match[0]).filter((value) => !/^0(px|s|ms)?$/.test(value));
@@ -1108,7 +1110,8 @@ test.describe('the element and its stylesheet', () => {
     expect(sheet.match(/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(|oklch\(/gi)).toBeNull();
     expect(sheet.match(/opacity\s*:|transition|animation/g)).toBeNull();
     expect([...new Set(sheet.match(/\b(CanvasText|Canvas|LinkText|Highlight)\b/g))]).toEqual(['CanvasText']);
-    expect(sheet.match(/letter-spacing: 0;/g)).toHaveLength(1);
+    expect(sheet.match(/letter-spacing: 0;/g)).toBeNull();
+    expect(fs.readFileSync(path.join(pkg, 'src/styles/page-header.css'), 'utf8').match(/\/\* script-tracking: /g)).toHaveLength(2);
     const element = strip(fs.readFileSync(path.join(pkg, 'src/components/page-header/page-header.ts'), 'utf8'));
     expect(element.match(/#[0-9a-f]{6}\b|rgba?\(|\d+px/gi)).toBeNull();
   });

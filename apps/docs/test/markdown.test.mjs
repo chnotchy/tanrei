@@ -6,9 +6,10 @@
 //
 //   pnpm --filter @tanrei/web build && pnpm --filter @tanrei/docs test:node
 import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { EXTERNAL_WORDS, fenceAttributes, tanreiMarkdown } from '../src/lib/markdown.mjs';
+import { EXTERNAL_WORDS, externalLinks, fenceAttributes, tanreiMarkdown } from '../src/lib/markdown.mjs';
 import { EXTERNAL_WORDS as CONTENT_WORDS, tanreiContent } from '../src/lib/markdown-content.mjs';
 import { TANREI, configure, element, elements, mdxHtml, pageURL, renderers, text } from './site-pipeline.mjs';
 
@@ -345,6 +346,35 @@ describe('a link that leaves the site', () => {
   test("a picture's address is not a link", async () => {
     const page = '![alt](https://example.com/picture.png)\n';
     assert.equal(await site.md(page), await alone.md(page));
+  });
+
+  // LNK-32: the other site's icon, from the lock file the site commits (links.config.mjs) — the site's own file, so the
+  // page asks no other site for anything; an origin with no recorded icon shows the arrow alone.
+  test("a link to a site whose icon is recorded shows it before its text, as the site's own file", async () => {
+    const lock = JSON.parse(readFileSync(new URL('../link-data.lock.json', import.meta.url), 'utf8'));
+    const [origin, entry] = Object.entries(lock.icons).find(([, icon]) => icon.ok);
+    const html = await site.md(`[words](${origin}/somewhere)\n`);
+    const icon = element(html, 'img');
+    assert.equal(icon.get('class'), 'tanrei-link-site-icon');
+    assert.equal(icon.get('src'), `/link-pictures/${entry.file}`);
+    assert.deepEqual([icon.get('alt'), icon.get('width'), icon.get('height'), icon.get('loading'), icon.get('decoding'), icon.get('referrerpolicy')], ['', String(entry.width), String(entry.height), 'lazy', 'async', 'no-referrer']);
+    assert.ok(existsSync(new URL(`../public/link-pictures/${entry.file}`, import.meta.url)), 'the picture is committed beside the lock file');
+    assert.match(inner(html, 'a'), /^<img [^>]*>words$/, 'the icon is the anchor\'s first child, before its text');
+    assert.doesNotMatch(await site.md('[words](https://example.com/)\n'), /<img/, 'an origin with no recorded icon: the arrow alone');
+  });
+
+  test('the pass puts the icon it is given into the anchor through the engine, and the anchor itself is never replaced', () => {
+    const icons = { 'https://example.com': { src: '/link-pictures/x.png', width: 32, height: 32 } };
+    const pass = externalLinks([own.origin], icons);
+    const node = { type: 'element', tagName: 'a', properties: { href: 'https://example.com/a' }, children: [{ type: 'text', value: 'words' }] };
+    const prepended = [];
+    const returned = pass.element.visit(node, { setProperty: () => {}, prependChild: (parent, child) => prepended.push([parent, child]) });
+    assert.equal(returned, undefined);
+    assert.equal(prepended.length, 1);
+    assert.equal(prepended[0][0], node);
+    assert.equal(prepended[0][1].tagName, 'img');
+    assert.equal(prepended[0][1].properties.src, '/link-pictures/x.png');
+    assert.equal(node.children.length, 1, 'the tree is changed through the engine alone');
   });
 
   test('an anchor an author wrote as HTML is the author\'s own, in .md and in .mdx', async () => {

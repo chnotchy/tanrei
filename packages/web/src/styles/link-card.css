@@ -238,6 +238,8 @@
     letter-spacing: var(--tanrei-comp-link-card-title-typescale-letter-spacing);
     color: var(--_lc-now-title);
   }
+  /* LKC-4: the title's letter-spacing follows its script (src/styles/script-tracking.ts). */
+  /* script-tracking: :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='title']) | var(--tanrei-comp-link-card-title-typescale-letter-spacing) */
   /* LKC-5: the address in the title's place — one left-to-right run that may break anywhere. */
   :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='title'][data-address]) {
     word-break: break-all;

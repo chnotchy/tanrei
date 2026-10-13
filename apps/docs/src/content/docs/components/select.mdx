@@ -165,7 +165,7 @@ Bare, without a field:
 
 ### The list
 
-The list opens `comp.select.list.offset` below the container with the start edges together, and above it where there is no room below. It is as wide as the container and at least `list.min-width` (160). It is as tall as its options up to `list.max-height` (320), and scrolls beyond that. When it opens, the chosen option is in view.
+The list opens `comp.select.list.offset` below the container with the start edges together, and above it where there is no room below. It is as wide as its options need on one line: never narrower than the container or `list.min-width` (160), and never wider than `list.max-width` (320) where the container is narrower than that, so a long label or a supporting line reads in fewer lines without the container changing width. An option that needs more wraps. It is as tall as its options up to `list.max-height` (320), and scrolls beyond that. When it opens, the chosen option is in view.
 
 | Part | What it is |
 | --- | --- |

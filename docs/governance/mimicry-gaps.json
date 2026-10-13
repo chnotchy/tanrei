@@ -599,6 +599,16 @@
       "status": "resolved",
       "trait": "Where a field's error text stands beside its help. Material 3 and Carbon put the error text in the help's place while the field is in error; GOV.UK keeps the hint and shows the error message as well. One frame that did one of the two could not imitate the other.",
       "proposal": "Implemented: the choice of kind `comp.field.error-text.placement` — replace | append — read by the Field (FLD-7, FLD-31). The default system and every shipped preset use replace; a layer imitating a system that keeps the help sets append."
+    },
+    {
+      "id": "select-chevron-flips-open",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "Material's web select swaps its arrow while the menu is open: a downward arrow while closed, an upward one while open. It is swapped, not turned.",
+      "kind": "behavior",
+      "status": "open",
+      "proposal": "Tanrei's select draws one chevron that neither turns nor swaps (the state is told by aria-expanded and by the open list), as the native select and Apple's pop-up button do, so m3-like keeps a downward chevron while open. A small choice of kind for the chevron while open (none | swap | turn) would close the gap; whether one product needs it is not yet shown."
     }
   ]
 }

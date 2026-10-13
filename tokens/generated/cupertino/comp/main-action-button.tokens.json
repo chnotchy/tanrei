@@ -74,7 +74,7 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "The height, per size; collapsed, the container is a square of this side (a circle under full corners). The FAB's sides and the extended FAB's heights; they are not yet Material 3's measurements.",
+            "$description": "The height, per size; collapsed, the container is a square of this side (a circle under full corners). Collapsed, small, medium and large are squares of 40, 56 and 96; extended, the button keeps the height of its size.",
             "small": {
               "$value": {
                 "value": 40,

@@ -2,7 +2,7 @@
 title: Select
 description: "Permite elegir un valor de una lista cerrada: un activador que tiene el aspecto y las medidas de la caja de una entrada de texto y muestra la opción elegida, y una lista de opciones, agrupadas si hace falta, que se abre desde él, sin fila de etiqueta, ayuda ni texto de error propios. Para una barra, una barra de herramientas o una tabla, o dentro de un campo que el producto compone por su cuenta."
 translationOf: components/select.mdx
-sourceHash: c51ac21edbcf0b5ecb069b663fbce98b7363f5f5
+sourceHash: e857bc793421580596e324148fe48b5f0adc1525
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -167,7 +167,7 @@ Sin nada más, sin un campo:
 
 ### La lista
 
-La lista se abre a una distancia de `comp.select.list.offset` por debajo del contenedor, con los bordes de inicio juntos, y por encima de él donde no hay sitio debajo. Es tan ancha como el contenedor y mide como mínimo `list.min-width` (160). Es tan alta como sus opciones hasta `list.max-height` (320), y a partir de ahí se desplaza. Cuando se abre, la opción elegida queda a la vista.
+La lista se abre a una distancia de `comp.select.list.offset` por debajo del contenedor, con los bordes de inicio juntos, y por encima de él donde no hay sitio debajo. Es tan ancha como sus opciones necesitan en una línea: nunca más estrecha que el contenedor ni que `list.min-width` (160), y nunca más ancha que `list.max-width` (320) donde el contenedor es más estrecho, de modo que una etiqueta larga o una línea de apoyo se lee en menos líneas sin que el contenedor cambie de ancho. Una opción que necesita más se ajusta en varias líneas. Es tan alta como sus opciones hasta `list.max-height` (320), y a partir de ahí se desplaza. Cuando se abre, la opción elegida queda a la vista.
 
 | Parte | Qué es |
 | --- | --- |

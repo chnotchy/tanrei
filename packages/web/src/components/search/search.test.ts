@@ -1930,7 +1930,7 @@ test.describe('results', () => {
     await page.mouse.up();
   });
 
-  test('SRC-43: an excerpt is runs of text, every even one a match drawn in result.mark.color with its weight raised by result.mark.emphasis and no fill in the default system; the product’s own <mark> child content is drawn the same; a fill moves no text; nothing is trimmed, and the whole passage is the result’s description', async ({ page }) => {
+  test('SRC-43: an excerpt is runs of text, every even one a match drawn in result.mark.color with its weight raised by result.mark.emphasis over the result.mark.container.color fill (the secondary container in the default system); the product’s own <mark> child content is drawn the same; a fill moves no text; nothing is trimmed, and the whole passage is the result’s description', async ({ page }) => {
     const runs = ['', 'Tokens', ' of the button: its heights, corners and ', 'colors', ' in each state, and the motion that takes one to the next.  '];
     await mountSite(page, [
       mail('s', { expanded: true }, [
@@ -1947,13 +1947,16 @@ test.describe('results', () => {
     await expect(own.locator('mark')).toHaveText(['Tokens', 'colors']);
     const base = await resolveColor(page, S('suggestion-supporting-text-color'));
     const weight = Number(await token(page, '--tanrei-sys-typescale-body-small-font-weight')) + Number(await token(page, '--tanrei-sys-typescale-emphasis-body'));
-    // The verify: a match differs from the excerpt around it by color and by weight, and has no fill.
+    // The verify: a match differs from the excerpt around it by color, by weight and by a fill of the secondary container
+    // (on-surface on the secondary container is above 7:1 in every scheme of every shipped system).
+    const fill = await resolveColor(page, '--tanrei-sys-color-secondary-container');
+    expect(await resolveColor(page, T('result-mark-container-color'))).toBe(fill);
     for (const mark of [own.locator('mark').first(), host(page, 's').locator('tanrei-search-result[value="slotted"] > mark').first()]) {
       expect(await css(mark, 'color')).toBe(await resolveColor(page, T('result-mark-color')));
       expect(await css(mark, 'color')).not.toBe(base);
       expect(Number(await css(mark, 'font-weight'))).toBe(weight);
       expect(Number(await css(mark, 'font-weight'))).toBeGreaterThan(Number(await css(own.locator('.excerpt'), 'font-weight')));
-      expect(await css(mark, 'background-color')).toBe('rgba(0, 0, 0, 0)');
+      expect(await css(mark, 'background-color')).toBe(fill);
       expect([await px(mark, 'padding-left'), await px(mark, 'border-top-left-radius')]).toEqual([0, 0]);
       expect(await px(mark, 'font-size')).toBe(await px(own.locator('.excerpt'), 'font-size'));
     }

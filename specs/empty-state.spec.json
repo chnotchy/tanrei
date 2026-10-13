@@ -110,7 +110,7 @@
     },
     {
       "id": "EMP-4",
-      "text": "THE empty state SHALL draw its title in the text style of its size (comp.empty-state.title.typescale.medium for medium, comp.empty-state.title.typescale.large for large) and in comp.empty-state.title.color; the title SHALL wrap and SHALL never be cut. WHERE the title slot holds content THE empty state SHALL draw that content in the title's place, style and color instead of the title prop, and SHALL change neither its role nor its level: a title given as text is plain text and never a heading, and a title the product gives as a heading stays a heading of the level the product gave it, drawn as every other title is."
+      "text": "THE empty state SHALL draw its title in the text style of its size (comp.empty-state.title.typescale.medium for medium, comp.empty-state.title.typescale.large for large) and in comp.empty-state.title.color; the title SHALL wrap and SHALL never be cut. WHERE the title slot holds content THE empty state SHALL draw that content in the title's place, style and color instead of the title prop, and SHALL change neither its role nor its level: a title given as text is plain text and never a heading, and a title the product gives as a heading stays a heading of the level the product gave it, drawn as every other title is. THE empty state SHALL set the title's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them."
     },
     {
       "id": "EMP-5",

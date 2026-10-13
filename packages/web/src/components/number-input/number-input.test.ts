@@ -300,6 +300,10 @@ test.describe('the arithmetic and the reading of a text (number-text.ts)', () =>
     expect([s(1.5, 0.25, 0.5, 1), s(1.5, 0.25, 0.5, -1), s(0.25, 0.25, 0.5, -1)]).toEqual(['1.75', '1.25', '-0.25']);
     expect(0.1 + 0.2, 'what binary arithmetic gives').not.toBe(0.3);
     expect(numberOf(stepped(stepped(d(0.1), ZERO, d(0.1), 1), ZERO, d(0.1), 1))).toBe(0.3);
+    // NMI-23: a count of steps stays on the same grid — the first to the nearer number in the direction, each further
+    // one an amount more.
+    const n = (from: number, base: number, amount: number, direction: 1 | -1, count: number) => canonical(stepped(d(from), base ? d(base) : ZERO, d(amount), direction, count));
+    expect([n(42, 0, 2, 1, 10), n(62, 0, 2, 1, 10), n(42, 0, 2, -1, 10), n(43, 0, 2, 1, 10), n(43, 0, 2, -1, 10), n(1.5, 0.25, 0.5, 1, 10), n(0.2, 0, 0.1, 1, 10)]).toEqual(['62', '82', '22', '62', '24', '6.25', '1.2']);
   });
 });
 
@@ -767,7 +771,7 @@ test.describe('behavior: the number', () => {
   });
 
   test('NMI-17: a committed or a set value is written in the locale’s form — its digits and its separator, a minus sign, minFractionDigits to maxFractionDigits digits, no exponent and no grouping — in input.typescale and the input color, on one line that scrolls inside the input and is never cut; an empty value is an empty input', async ({ page }) => {
-    await mount(page, [...spec.fixtures.filter((f) => ['stacked-locale-de', 'stacked-locale-ar', 'stacked-prefix', 'stacked-long-number', 'stacked-negative-decimal', 'stacked-empty'].includes(f.id)), fx('en', { value: 1234.5, locale: 'en-US' }), fx('lang', { value: 1.5 }), fx('narrow', { value: 8336817000 })]);
+    await mount(page, [...spec.fixtures.filter((f) => ['stacked-locale-de', 'stacked-locale-ar', 'stacked-prefix', 'stacked-long-number', 'stacked-negative-decimal', 'stacked-empty'].includes(f.id)), fx('en', { value: 1234.5, locale: 'en-US' }), fx('lang', { value: 1.5 }), fx('narrow', { value: 8336817000, steppers: false })]);
     expect((await read(page, 'stacked-locale-de')).text).toBe('1,5');
     expect((await read(page, 'stacked-locale-ar')).text).toBe('١٢');
     expect((await read(page, 'stacked-prefix')).text, 'two fixed decimals').toBe('120.00');
@@ -796,7 +800,8 @@ test.describe('behavior: the number', () => {
     const field = input(page, 'stacked-empty');
     near(await px(field, 'font-size'), await token(page, 'input-typescale-medium-font-size'), 'input.typescale');
     expect(await css(field, 'color')).toBe(await color(page, 'stacked-input-color'));
-    await host(page, 'narrow').evaluate((el) => (el.style.inlineSize = '150px'));
+    // (Without steppers, which would take a row of their own and leave the number the whole width: NMI-36.)
+    await host(page, 'narrow').evaluate((el) => (el.style.inlineSize = '80px'));
     await frames(page);
     expect(await input(page, 'narrow').evaluate((el) => [el.scrollWidth > el.clientWidth, getComputedStyle(el).textOverflow, getComputedStyle(el).whiteSpace.includes('pre') || el.localName === 'input'])).toEqual([true, 'clip', true]);
   });
@@ -1080,10 +1085,19 @@ test.describe('behavior: the number', () => {
     expect(await press('ArrowDown')).toBe(40);
     expect(await press('PageUp'), 'ten times step: 20').toBe(60);
     expect(await press('PageDown')).toBe(40);
-    // A page step goes to the next number on its own grid — min plus a whole multiple of ten steps (NMI-22).
+    // A page step is ten steps on the step's own grid — min plus a whole multiple of step (NMI-22), as a slider's page
+    // key and HTML's stepUp(10) go: from 42, 62 and then 82, never the next multiple of 20.
     expect(await press('ArrowUp')).toBe(42);
-    expect(await press('PageUp'), 'from 42, the next multiple of 20').toBe(60);
-    expect(await press('PageDown')).toBe(40);
+    expect(await press('PageUp'), 'from 42, ten steps of 2').toBe(62);
+    expect(await press('PageUp')).toBe(82);
+    expect(await press('PageDown')).toBe(62);
+    expect(await press('PageDown')).toBe(42);
+    expect(await press('ArrowDown')).toBe(40);
+    // From a number between two of the grid: the nearer one in the direction is the first of the ten steps.
+    await set(page, 'one', { value: 43 });
+    expect(await press('PageUp'), 'from 43: 44 and nine steps more').toBe(62);
+    await set(page, 'one', { value: 43 });
+    expect(await press('PageDown'), 'from 43: 42 and nine steps less').toBe(24);
     await set(page, 'one', { value: 50 });
     // A key the platform repeats steps once for each repeat.
     await page.keyboard.down('ArrowUp');
@@ -1767,7 +1781,7 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     expect(await page.evaluate(() => document.querySelector<HTMLFormElement>('#f')!.checkValidity()), 'a disabled number input is not validated').toBe(true);
   });
 
-  test('NMI-36: the number input is block-level, framed and bare alike: exactly as wide as the place it stands in — in a Field the Field’s whole width — with no width of its own and never a native text element’s default width; it is never narrower than its paddings, its prefix and suffix, its steppers and room for three digits', async ({ page }) => {
+  test('NMI-36: the number input is block-level, framed and bare alike: exactly as wide as the place it stands in — in a Field the Field’s whole width — with no width of its own and never a native text element’s default width; it is never narrower than its paddings, its prefix and suffix and room for three digits, nor than its steppers, which then stand on a row of their own', async ({ page }) => {
     await mount(page, [fx('free', {}), fx('value', { value: 8336817000 }), fx('least', { value: 5, prefixText: '$', suffixText: 'USD' }), fx('bare', { value: 5, steppers: false })]);
     // A place 900 wide that gives its children no width of their own: the input fills it, whatever it holds.
     await page.addStyleTag({ content: '.stage:has(> tanrei-number-input) { inline-size: 900px; }' });
@@ -1813,7 +1827,18 @@ test.describe('behavior: exposure, forms, size and direction', () => {
       await host(page, id).evaluate((el) => (el.style.inlineSize = '10px'));
       await frames(page);
       const [h, c, field] = [await box(host(page, id)), await box(container(page, id)), await box(input(page, id))];
-      near(field.width, 3 * digit, `${id}: room for three digits`, 1);
+      if (id === 'bare') near(field.width, 3 * digit, `${id}: room for three digits`, 1);
+      else {
+        // The least of its two rows: the input's line (paddings, prefix, three digits, suffix) and, on a row of their
+        // own below it (NMI-37), the steppers with their gap and inset — whichever is wider.
+        expect(field.width, `${id}: room for three digits at least`).toBeGreaterThanOrEqual(3 * digit - 1);
+        await expect.poll(() => part(page, id, '.field').evaluate((el) => el.hasAttribute('data-wrapped')), `${id}: the steppers on a row of their own`).toBe(true);
+        const [steppers, prefix, suffix] = [await box(part(page, id, '.steppers')), await box(part(page, id, '.prefix')), await box(part(page, id, '.suffix'))];
+        const [pad, gap, affix, inset] = [await token(page, 'container-padding-inline-medium'), await token(page, 'container-gap-medium'), await token(page, 'affix-gap'), await resolveToken(page, '--tanrei-comp-number-input-stepper-inset')];
+        const line = pad + prefix.width + affix + 3 * digit + affix + suffix.width + inset;
+        const row = pad + gap + steppers.width + inset;
+        near(c.width, Math.max(line, row), `${id}: the wider of its two rows`, 1);
+      }
       near(h.width, c.width, `${id}: the field is as wide as its container`);
       const parts = id === 'least' ? ['.prefix', '.suffix', '.stepper.down', '.stepper.up'] : [];
       for (const selector of parts) {
@@ -1870,6 +1895,40 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     expect(await fits(), 'floated').toBe(true);
     expect((await box(label)).y + (await box(label)).height, 'never over the input’s line').toBeLessThanOrEqual((await box(input(page, 'float'))).y + 0.6);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'no scrolling sideways').toBe(true);
+  });
+
+  test('NMI-36, NMI-37: where the input’s line and the steppers do not fit on one row — a prefix, a suffix and the steppers at 200% in a window 320 wide — the steppers stand on a row of their own below the line, inside the container at its end, down before up, stepper.inset from the end and bottom edges; nothing overlaps or leaves the window, and made wider they come back beside the line', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 900 });
+    await mount(page, [fx('both', { value: 120, prefixText: '$', suffixText: 'USD' }), fx('float', { value: 120, variant: 'outlined', prefixText: '$', suffixText: 'USD' }), fx('one', { value: 120 })]);
+    await page.addStyleTag({ content: '.stage:has(> tanrei-number-input) { box-sizing: border-box; inline-size: 100%; padding-inline: 0; }' });
+    await frames(page);
+    const wrapped = (id: string) => part(page, id, '.field').evaluate((el) => el.hasAttribute('data-wrapped'));
+    for (const id of ['both', 'float', 'one']) expect(await wrapped(id), `${id}: one row at 100%`).toBe(false);
+    await page.evaluate(() => (document.documentElement.style.fontSize = '200%'));
+    await frames(page, 6);
+    const inset = await resolveToken(page, '--tanrei-comp-number-input-stepper-inset');
+    for (const id of ['both', 'float'] as const) {
+      await expect.poll(() => wrapped(id), `${id}: wrapped`).toBe(true);
+      const c = await box(container(page, id));
+      const [line, down, up] = [await box(part(page, id, '.body')), await box(stepper(page, id, 'down')), await box(stepper(page, id, 'up'))];
+      expect(c.x + c.width, `${id}: inside the window`).toBeLessThanOrEqual(320 + 0.6);
+      expect(down.y, `${id}: the steppers below the input’s line`).toBeGreaterThanOrEqual(line.y + line.height - 0.6);
+      expect(up.x, `${id}: down before up`).toBeGreaterThan(down.x);
+      near(c.x + c.width - (up.x + up.width), inset, `${id}: stepper.inset from the end edge`, 1);
+      near(c.y + c.height - (down.y + down.height), inset, `${id}: stepper.inset from the bottom edge`, 1);
+      // The input's line holds its prefix, three digits at least and its suffix, in order, inside the container.
+      const parts = await Promise.all(['.prefix', '.input', '.suffix'].map((selector) => box(part(page, id, selector))));
+      for (let i = 1; i < parts.length; i++) expect(parts[i].x, `${id}: nothing overlaps`).toBeGreaterThanOrEqual(parts[i - 1].x + parts[i - 1].width - 0.6);
+      expect(parts[2].x + parts[2].width, `${id}: the suffix inside the container`).toBeLessThanOrEqual(c.x + c.width + 0.6);
+      for (const selector of ['.prefix', '.suffix']) expect(await part(page, id, selector).evaluate((el) => el.scrollWidth <= el.clientWidth + 1), `${id}: ${selector} is not cut`).toBe(true);
+    }
+    expect(await wrapped('one'), 'the steppers alone beside a number still fit on one row').toBe(false);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'no scrolling sideways').toBe(true);
+    // Wider: one row again.
+    await page.setViewportSize({ width: 900, height: 900 });
+    await expect.poll(() => wrapped('both'), 'back on one row').toBe(false);
+    const [line, down] = [await box(part(page, 'both', '.body')), await box(stepper(page, 'both', 'down'))];
+    expect(down.x, 'the steppers after the line').toBeGreaterThanOrEqual(line.x + line.width - 0.6);
   });
 
   test('NMI-38: in forced colors the number, the prefix, the suffix and the floating label with its asterisk are drawn in the text color; the container has an edge outline.width wide in the control text color in every variant, in the highlight color at the focused width while focused; an error is told by the invalid state alone, with no color of its own; a disabled input takes the disabled text color, and the steppers are drawn as Buttons are', async ({ page, browserName }) => {

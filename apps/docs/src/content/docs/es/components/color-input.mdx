@@ -2,7 +2,7 @@
 title: Entrada de color
 description: La caja en la que se define un color (una muestra de él, el valor como texto que se puede leer, escribir y pegar, y un botón que pide un selector), sin fila de etiqueta, ayuda ni texto de error propios. Para una fila o una columna que ya da nombre al color, o dentro de un campo que el producto compone por su cuenta.
 translationOf: components/color-input.mdx
-sourceHash: c9e63fe57f450343420f6d13ef9ef2f22e81b659
+sourceHash: 5885b9f8c0f343c08541c5f3fa755279bd351aaa
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -142,7 +142,7 @@ Las tres variantes y los tres tamaños, `small` (40), `medium` (48) y `large` (5
 ### Qué dibuja la web de otra manera
 
 - El elemento está asociado a formularios. Con un `name` envía `value` (el color, o una cadena vacía), se restablece al valor de su atributo `value`, se restaura al navegar, sigue a un `<fieldset>` deshabilitado, y notifica que falta un valor mientras su campo dice que es obligatorio, y que la entrada es incorrecta mientras dura un error de entrada.
-- El elemento es un bloque. `focus()` va al elemento de texto nativo, nunca al botón del selector; una pulsación en cualquier punto de la caja fuera de ese botón da el foco al texto.
+- El elemento es un bloque. `focus()` va al elemento de texto nativo, nunca al botón del selector; una pulsación en cualquier punto de la caja fuera de ese botón da el foco al texto, salvo que, con el botón visible, una pulsación en la muestra abre el selector.
 - `input` y `change` son eventos sencillos: lee `value` del elemento. `pickerrequest` es un CustomEvent cancelable con `detail.value`; `entryerror` es un CustomEvent con `detail.text` y `detail.message`, que es `invalidText`. Sus tipos son `TanreiColorInputPickerRequestDetail` y `TanreiColorInputEntryErrorDetail`.
 - Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `swatch`, `input`, `picker-button`. No tiene ningún slot.
 - El elemento no tiene textos propios y no lee ninguno de los del producto: `label`, `invalidText` y `pickerLabel` están vacíos hasta que los das.

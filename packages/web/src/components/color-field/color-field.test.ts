@@ -194,13 +194,13 @@ test.describe('behavior', () => {
       const element = one(page, id);
       await listen(element);
       await typing(element).focus();
-      await page.keyboard.type('#0f7');
+      await page.keyboard.type('#0f76e');
       await blurAll(page);
       await expect(field(element).locator('.error-text')).toHaveText(words);
       await expect(field(element).locator('.supporting-text'), 'the error text stands in the help’s place (FLD-7)').toHaveCount(0);
       await expect(field(element).locator('.frame')).toHaveAttribute('data-error', '');
       await expect(typing(element)).toHaveAttribute('aria-invalid', 'true');
-      expect(await heard(page), id).toEqual([`entryerror  #0f7|${carried}`]);
+      expect(await heard(page), id).toEqual([`entryerror  #0f76e|${carried}`]);
       expect(await element.evaluate((el) => [(el as HTMLElement & { error: boolean }).error, (el as HTMLElement & { value: string }).value]), 'error stays the product’s').toEqual([false, '']);
       await typing(element).focus();
       await page.keyboard.press('End');
@@ -377,12 +377,16 @@ test.describe('behavior', () => {
     await blurAll(page);
     await page.locator('#outside').click();
     expect(await focused(), 'a <label for> of the page').toBe(inInput);
-    // A press on the box, on the swatch, and on a label that floats in it, is the input's (CLI-24).
-    for (const [selector, at] of [['.field > .container', 'start'], ['.swatch', 'centre']] as const) {
-      await blurAll(page);
-      await pressAt(box(plain).locator(selector), at);
-      expect(await focused(), selector).toBe(inInput);
-    }
+    // A press on the box, and on a label that floats in it, is the input's (CLI-24).
+    await blurAll(page);
+    await pressAt(box(plain).locator('.field > .container'), 'start');
+    expect(await focused(), 'the box').toBe(inInput);
+    // With the picker button shown a press on the swatch is the button's: the picker, and no focus in the input (CLI-25).
+    await blurAll(page);
+    await shown(page);
+    await pressAt(box(plain).locator('.swatch'), 'centre');
+    expect(await shown(page), 'the swatch opens the picker').toEqual(['color #0f766e']);
+    expect(await focused(), 'the swatch').not.toBe(inInput);
     await blurAll(page);
     await pressAt(box(one(page, 'floating')).locator('.floating'));
     expect(await focused()).toBe('tanrei-color-field#floating > tanrei-color-input > input#input.input');

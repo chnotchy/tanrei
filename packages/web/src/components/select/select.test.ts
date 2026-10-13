@@ -949,8 +949,13 @@ test.describe('behavior: the list', () => {
     expect((await read(page, 'one')).open).toBe(false);
   });
 
-  test('SEL-25: the list is filled with list.color, raised by list.elevation, rounded by list.shape and insets its options by its paddings; it is as wide as its container, at least list.min-width, and never wider than the window allows; as tall as its options up to list.max-height, scrolling beyond that, vertically only; opened with a chosen option, the whole of that option is in view', async ({ page }) => {
-    await mount(page, [...spec.fixtures.filter((f) => ['open-many', 'stacked-open', 'small-label-hidden-open'].includes(f.id)), fx('narrow', { size: 'small', labelHidden: true, value: 'a', open: true }, [option('A', 'a'), option('B', 'b')])]);
+  test('SEL-25: the list is filled with list.color, raised by list.elevation, rounded by list.shape and insets its options by its paddings; it is as wide as its options need, never narrower than its container or list.min-width, never wider than list.max-width past a narrower container, and never wider than the window allows; as tall as its options up to list.max-height, scrolling beyond that, vertically only; opened with a chosen option, the whole of that option is in view', async ({ page }) => {
+    const LONG = 'Every project, priority support, single sign-on and an audit log kept for a year';
+    await mount(page, [
+      ...spec.fixtures.filter((f) => ['open-many', 'stacked-open', 'small-label-hidden-open', 'open-supporting-text'].includes(f.id)),
+      fx('narrow', { size: 'small', labelHidden: true, value: 'a', open: true }, [option('A', 'a'), option('B', 'b')]),
+      fx('wraps', { label: 'Plan', value: 'free', open: true }, [option('Free', 'free'), option('Team', 'team', { supportingText: LONG })]),
+    ]);
     const list = part(page, 'stacked-open', '.list');
     expect(await css(list, 'background-color')).toBe(await color(page, 'list-color'));
     const shadow = await page.evaluate((name) => {
@@ -967,7 +972,44 @@ test.describe('behavior: the list', () => {
     const scroll = part(page, 'stacked-open', '.scroll');
     near(await px(scroll, 'padding-top'), await token(page, 'list-padding-block'), 'padding-block');
     near(await px(scroll, 'padding-left'), await token(page, 'list-padding-inline'), 'padding-inline');
-    near((await box(list)).width, (await box(container(page, 'stacked-open'))).width, 'as wide as its container');
+    // As wide as its options need, never narrower than its container: the countries fit the container's width or
+    // need a little more.
+    expect((await box(list)).width).toBeGreaterThanOrEqual((await box(container(page, 'stacked-open'))).width - 0.6);
+    const unwrapped = (id: string) =>
+      part(page, id, '.list').evaluate((el) => {
+        const list = el as HTMLElement;
+        list.style.minInlineSize = '0';
+        list.style.maxInlineSize = 'none';
+        const width = list.getBoundingClientRect().width;
+        list.style.removeProperty('min-inline-size');
+        list.style.removeProperty('max-inline-size');
+        return width;
+      });
+    near((await box(list)).width, Math.max(await unwrapped('stacked-open'), (await box(container(page, 'stacked-open'))).width), 'as wide as its options need, or its container');
+    // A supporting text longer than the container: the list is wider than the container, every option on one line
+    // of each text, while the container keeps the width its labels give it (SEL-49).
+    const plans = await box(part(page, 'open-supporting-text', '.list'));
+    const planBox = await box(container(page, 'open-supporting-text'));
+    expect(plans.width, 'wider than its container').toBeGreaterThan(planBox.width + 1);
+    near(plans.width, await unwrapped('open-supporting-text'), 'as wide as its options need');
+    expect(plans.width).toBeLessThanOrEqual((await token(page, 'list-max-width')) + 0.6);
+    const lines = (locator: Locator) => locator.evaluate((el) => Math.round(el.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(el).lineHeight)));
+    expect(await lines(part(page, 'open-supporting-text', '.option-supporting').first()), 'a supporting text on one line').toBe(1);
+    await set(page, 'open-supporting-text', { open: false });
+    near((await box(container(page, 'open-supporting-text'))).width, planBox.width, 'the container’s width does not change for the list');
+    // An option that needs more than list.max-width: the list is list.max-width wide — or what the window allows, the
+    // stage standing for the window here — and the text wraps.
+    expect(await token(page, 'list-max-width')).toBe(320);
+    const allowed = await part(page, 'wraps', '.surface').evaluate((el) => Number.parseFloat(getComputedStyle(el).getPropertyValue('--_anchored-max-inline')));
+    near((await box(part(page, 'wraps', '.list'))).width, Math.min(await token(page, 'list-max-width'), allowed), 'list.max-width');
+    expect(await lines(part(page, 'wraps', '.option-supporting'))).toBeGreaterThan(1);
+    // A container wider than list.max-width: the list is as wide as the container (a narrower max-width here, so that
+    // the stage has room for it).
+    await override(page, { [T('list-max-width')]: '200px' });
+    await host(page, 'wraps').evaluate((el) => (el.style.inlineSize = '240px'));
+    await expect.poll(async () => Math.round((await box(part(page, 'wraps', '.list'))).width)).toBe(240);
+    expect(Math.round((await box(container(page, 'wraps'))).width)).toBe(240);
+    await override(page, { [T('list-max-width')]: '' });
     // As tall as its options and paddings.
     const five = await box(rows(page, 'stacked-open').first());
     near((await box(list)).height, 5 * five.height + 2 * (await token(page, 'list-padding-block')), 'as tall as its options');
@@ -1462,7 +1504,7 @@ test.describe('behavior: the list', () => {
     const asTheMenu = (name: string): string | null => {
       const own = name.replace('--tanrei-comp-select-', '');
       const rules: [RegExp, string][] = [
-        [/^list-(color|elevation|shape|padding-block|padding-inline|min-width|offset|viewport-margin)$/, 'surface-$1'],
+        [/^list-(color|elevation|shape|padding-block|padding-inline|min-width|max-width|offset|viewport-margin)$/, 'surface-$1'],
         [/^option-(height|shape|padding-inline|padding-block|gap)$/, 'container-$1'],
         [/^option-((?:label|supporting-text)-typescale-.+|leading-icon-size|mark-size)$/, '$1'],
         [/^(group-title-.+|group-gap|divider-(?:color|space|thickness)|separation)$/, '$1'],
@@ -2622,6 +2664,32 @@ test.describe('the rows: drawn while the list is shown, and in a long list those
     }
     expect(opened.longer.rows, 'the rows drawn do not grow with the options').toBe(opened.long.rows);
     expect(opened.longer.elements).toBe(opened.long.elements);
+  });
+
+  test('SEL-25: a long list takes its width from the rows it draws as it opens and keeps it while it scrolls, so that a wider option drawn later wraps and the list does not change width under the pointer', async ({ page }) => {
+    const wide = 'An option far down the list whose label is longer than any of the rows drawn as the list opens';
+    await mount(page, [fx('long', { value: 'o1' }, [...many(280), option(wide, 'wide'), ...Array.from({ length: 5 }, (_, i) => option(`Last ${i + 1}`, `z${i}`))])], { reducedMotion: true });
+    await focusSelect(page, 'long');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'long').toBe(true);
+    await expect.poll(() => counted(page, 'long').then((c) => c.rooms)).toBeGreaterThan(0);
+    const list = part(page, 'long', '.list');
+    const opened = (await box(list)).width;
+    expect(opened).toBeGreaterThanOrEqual((await box(container(page, 'long'))).width - 0.6);
+    await page.keyboard.press('End');
+    await expect.poll(() => activeRow(page, 'long').then((r) => r?.label)).toBe('Last 5');
+    await expect(row(page, 'long', wide)).toHaveCount(1);
+    near((await box(list)).width, opened, 'the width it opened with');
+    const label = row(page, 'long', wide).locator('.option-label');
+    expect(await label.evaluate((el) => el.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(el).lineHeight)), 'the wider option wraps').toBeGreaterThan(1.5);
+    // Opened again, the width is taken again from what is drawn then: the rows near the wide option.
+    await page.keyboard.press('Escape');
+    await closedList(page, 'long');
+    await set(page, 'long', { value: 'wide' });
+    await focusSelect(page, 'long');
+    await page.keyboard.press('ArrowDown');
+    await shownList(page, 'long').toBe(true);
+    await expect.poll(async () => (await box(list)).width).toBeGreaterThan(opened + 1);
   });
 
   test('SEL-31, SEL-32, SEL-33, SEL-34: in a long list every option is reached by the keys — the arrows, Home, End, the page keys and typing — and the active option is always an element aria-activedescendant names, whole and in view; Enter chooses it', async ({ page }) => {

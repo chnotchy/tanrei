@@ -4644,7 +4644,7 @@
           "props": {
             "value": "#0f766e",
             "picker": true,
-            "pickerLabel": "色を選ぶ"
+            "pickerLabel": "色を選択"
           }
         }
       ]

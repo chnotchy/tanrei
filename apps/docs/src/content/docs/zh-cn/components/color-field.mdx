@@ -2,7 +2,7 @@
 title: "颜色字段"
 description: "让用户把一种颜色作为表单的一个字段来设置——一个可以阅读、键入和粘贴的文本值，文本旁边的颜色样本，以及一个用来唤出选择器的按钮——外观和尺寸与文本字段相同。"
 translationOf: components/color-field.mdx
-sourceHash: 6555d8b68f07a5872e78e35c82c8be45efe3b556
+sourceHash: c2d03843c22e17c381fe97ae9eae9f18542ab6d5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -142,7 +142,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 去掉两侧的空格之后，文本恰好是六位十六进制数字时，它就读作颜色——大小写均可，带不带井号都行：`0F766E`、`#0f766e` 和 <code> #0F766E </code> 都是 `#0f766e`。
 
-其余的都不是颜色：三位数字（`#0f7`）、八位数字（`#0f766e80`）、名称（`teal`）、函数写法（`rgb(15, 118, 110)`）。不解读三位数字，是因为键入六位的途中文本会经过三位。没有 alpha，也没有广色域颜色。
+其余的都不是颜色：三位数字（`#0f7`）、八位数字（`#0f766e80`）、名称（`teal`）、函数写法（`rgb(15, 118, 110)`）。键入时三位数字还不是颜色，因为键入六位的途中文本会经过三位；文本确认时，三位数字会像 CSS 那样，按每位重复一次读成六位：`#0f7` 变成 `#00ff77`。没有 alpha，也没有广色域颜色。
 
 用户还在键入时，什么都不会报告。只有在用户确认时，才会报出输入错误。
 
@@ -155,7 +155,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | 什么也不做 | 字段呈现浏览器自己的颜色选择器。每一次选取都算用户的一次编辑：文本、色块、`input`。选择器关闭时触发 `change`，焦点位于选择器按钮上 |
 | 取消这个请求 | 字段什么也不呈现。产品打开自己的表面，锚定在字段上，并把 `value` 设为选出的颜色。那个表面关闭时把焦点交还给选择器按钮 |
 
-按色块不会打开选择器。它会让输入框获得焦点，与按字段上其他任何地方一样。
+显示选择器按钮时，按色块会像按这个按钮一样打开选择器；焦点不会移到输入框，键盘的操作方式仍是这个按钮。没有这个按钮时，按色块会让输入框获得焦点，与按字段上其他任何地方一样。
 
 ### 各个成员提供什么
 
@@ -182,7 +182,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - `value` 始终是颜色输入框的值：设为 `0F766E` 的值读回来是 `#0f766e`，不是颜色的值读回来是空字符串。
 - `input` 和 `change` 是普通事件：从元素上读取 `value`。`pickerrequest` 和 `entryerror` 是 CustomEvent，前者带有 `detail.value`，后者带有 `detail.text` 和 `detail.message`。它们是颜色输入框自己的事件，以这个元素为目标。`detail.message` 是 `invalidText`，你没有提供时为空——字段在它的位置显示 `errorText` 时也是如此。
 - 部件：`field` 和 `color-input` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`；`container`、`outline`、`active-indicator`、`swatch`、`input`、`picker-button`。`label` 和 `requirement-label` 是画出来的那一个，无论由哪个成员绘制；`field-label`、`color-input-label`、`field-requirement-label` 和 `color-input-requirement-label` 指的是某一个成员的。
-- 这个元素自己不能获得焦点，也没有角色：`focus()` 会把焦点交给输入框，绝不交给选择器按钮。按标签行、方框、色块或浮动标签，都会让输入框获得焦点。按帮助文本或错误文本，什么都不会发生。
+- 这个元素自己不能获得焦点，也没有角色：`focus()` 会把焦点交给输入框，绝不交给选择器按钮。按标签行、方框、色块（没有选择器按钮时）或浮动标签，都会让输入框获得焦点。按帮助文本或错误文本，什么都不会发生。
 - 只要焦点在字段里的任何位置，包括选择器按钮，标签和帮助文本就采用聚焦时的颜色。方框只在它的输入框获得焦点时才采用自己的聚焦颜色。
 - 用 `label` 为它命名——不该绘制标签的地方再加上 `label-hidden`——绝不要用 `aria-label`，它在这里不为任何东西命名。
 - 元素自己不带任何文字。`requiredText` 和 `optionalText` 在你提供之前是空的。没有 `requiredText` 的必填字段，会在小标签本该在的位置显示星号。

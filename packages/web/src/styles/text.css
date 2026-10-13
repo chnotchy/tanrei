@@ -97,6 +97,17 @@
     letter-spacing: var(--tanrei-sys-typescale-eyebrow-letter-spacing);
   }
 
+  /* A heading's and the eyebrow's letter-spacing follow the script of the text (src/styles/script-tracking.ts): no
+     negative tracking in Chinese, Japanese or Korean, none at all in a script that joins its letters or stacks marks. */
+  /* script-tracking: .tanrei-text-display | var(--tanrei-sys-typescale-display-letter-spacing) */
+  /* script-tracking: .tanrei-text-heading-1 | var(--tanrei-sys-typescale-heading-1-letter-spacing) */
+  /* script-tracking: .tanrei-text-heading-2 | var(--tanrei-sys-typescale-heading-2-letter-spacing) */
+  /* script-tracking: .tanrei-text-heading-3 | var(--tanrei-sys-typescale-heading-3-letter-spacing) */
+  /* script-tracking: .tanrei-text-heading-4 | var(--tanrei-sys-typescale-heading-4-letter-spacing) */
+  /* script-tracking: .tanrei-text-heading-5 | var(--tanrei-sys-typescale-heading-5-letter-spacing) */
+  /* script-tracking: .tanrei-text-heading-6 | var(--tanrei-sys-typescale-heading-6-letter-spacing) */
+  /* script-tracking: .tanrei-text-eyebrow | var(--tanrei-sys-typescale-eyebrow-letter-spacing) */
+
   /* After the roles, so it wins on the same element; a descendant inherits the role's emphasized weight. */
   .tanrei-text-emphasized {
     font-weight: var(--tanrei-text-emphasized-weight);

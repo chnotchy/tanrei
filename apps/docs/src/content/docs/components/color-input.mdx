@@ -140,7 +140,7 @@ The three variants and the three sizes, `small` (40), `medium` (48) and `large` 
 ### What the web draws differently
 
 - The element is form-associated. With a `name` it submits `value` — the color, or an empty string —, resets to its `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while its field says it is required, and a bad input while an entry error lasts.
-- The element is a block. `focus()` goes to the native text element, never to the picker button; a press anywhere on the box outside that button focuses the text.
+- The element is a block. `focus()` goes to the native text element, never to the picker button; a press anywhere on the box outside that button focuses the text, except that a press on the swatch opens the picker while the button is shown.
 - `input` and `change` are plain events: read `value` from the element. `pickerrequest` is a cancelable CustomEvent with `detail.value`; `entryerror` is a CustomEvent with `detail.text` and `detail.message`, which is `invalidText`. Their types are `TanreiColorInputPickerRequestDetail` and `TanreiColorInputEntryErrorDetail`.
 - Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `swatch`, `input`, `picker-button`. It has no slot.
 - The element has no words of its own and reads none of the product's: `label`, `invalidText` and `pickerLabel` are empty until you give them.

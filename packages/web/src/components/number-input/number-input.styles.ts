@@ -121,6 +121,13 @@ export const styles = css`
     --_end: var(${P}-stepper-inset);
     --_text-end: calc(var(--_end) + var(--_steppers, 0px) + var(--_gap));
   }
+  /* NMI-36, NMI-37: where the input's line and the steppers do not fit on one row, the steppers go to a row of their own
+     below it (the container wraps; the element says when it has, data-wrapped). The input's line then ends at the text
+     padding — at least, since the container's own end padding stays the steppers' inset, so the rows never fit again
+     because of it — and a floating label ends there too. */
+  .field[data-steppers][data-wrapped] {
+    --_text-end: max(var(--_pad), var(--_end));
+  }
 
   /* NMI-15: each state sets the current value of every part from that state's tokens of the current look; focused over
      hovered, disabled over all. */
@@ -141,7 +148,10 @@ export const styles = css`
     /* Its own stacking context: the edges, the label, the input and the steppers stack inside it. */
     isolation: isolate;
     display: flex;
+    flex-wrap: wrap;
     align-items: stretch;
+    /* The input's line fills its row; a row of the steppers alone stands at the end (NMI-37). */
+    justify-content: flex-end;
     min-block-size: var(--_height);
     padding-inline: var(--_start) var(--_end);
     ${unsafeCSS(cornerRadius(`${INPUT_BOX}-container-shape`))}
@@ -168,7 +178,10 @@ export const styles = css`
   .body {
     position: relative;
     display: flex;
-    flex: 1 1 auto;
+    /* NMI-36: the rest of the row, from nothing: the row wraps only where its least width — the affixes and three
+       digits — and the steppers do not fit together. */
+    flex: 1 1 0;
+    min-inline-size: min-content;
     align-items: center;
     padding-block: var(--_pad-block);
     font: var(--_input-font);
@@ -307,6 +320,21 @@ export const styles = css`
     cursor: default;
     transition-property: none;
     transition-delay: var(${P}-motion-repeat-delay), var(${P}-motion-repeat-interval), var(${P}-motion-repeat-interval-fast);
+  }
+  /* NMI-37: wrapped, the steppers stand on their own row below the input's line, at the container's end — the one that
+     steps down first, as on one row — stepper.inset from the end edge and from the bottom edge. */
+  .field[data-wrapped] .container {
+    align-content: flex-start;
+  }
+  .field[data-wrapped] .steppers {
+    margin-block-end: var(${P}-stepper-inset);
+  }
+  /* A resting floating label is centred on the first row — the input's line — and not on the whole container. */
+  .field[data-wrapped][data-layout='outlined']:not([data-has-value], [data-focused]) .floating {
+    inset-block-start: calc(var(--_pad-block) + var(--_input-line) / 2);
+  }
+  ${unsafeCSS(FILLED)}[data-wrapped]:not([data-has-value], [data-focused]) .floating {
+    inset-block-start: calc(var(--_pad-label) + (var(--_floated-line) + var(--_input-line)) / 2);
   }
   .stepper {
     flex: none;

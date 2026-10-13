@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens } from '../../../test/harness.js';
-import { PICKER_START, channels, fromChannels, given, isValue, picked, read as readText, sameColor, valueOf } from './color-text.js';
+import { PICKER_START, channels, fromChannels, given, isValue, picked, read as readText, readCommitted, sameColor, valueOf } from './color-text.js';
 
 const spec = loadSpec('color-input');
 type P = Page;
@@ -290,6 +290,19 @@ test.describe('the reading of a text (color-text.ts)', () => {
     expect([said(''), said('   '), said('\n\t')]).toEqual(['empty', 'empty', 'empty']);
     const not = ['#0f7', '#0f766e80', 'teal', 'rgb(15, 118, 110)', 'hsl(175 77% 26%)', 'oklch(0.5 0.1 180)', '#0f766', '#0f766e0', '##0f766e', '#0f766g', '#0f 766e', '0x0f766e', '#', '0f766e#', '#0f766e;', 'transparent', '＃０ｆ７６６ｅ', '‎#0f766e', '#0f76-6e', '#-f766e'];
     expect(not.map(said)).toEqual(not.map(() => 'invalid'));
+  });
+
+  test('CLI-19: a commit reads by the same rule, and three hexadecimal digits besides — in either case, with or without a number sign, white space around them left out — as the six digits made by writing each twice; nothing else more', () => {
+    const committed = (text: string) => {
+      const reading = readCommitted(text);
+      return reading.kind === 'color' ? reading.value : reading.kind;
+    };
+    expect(['#fff', 'fff', ' #F0A ', '0f7', '#ABC'].map(committed)).toEqual(['#ffffff', '#ffffff', '#ff00aa', '#00ff77', '#aabbcc']);
+    expect([committed(' #0F766E '), committed(''), committed('  ')]).toEqual(['#0f766e', 'empty', 'empty']);
+    const not = ['#ff', '#ffff', '#fff0', '##fff', '#ffg', 'f f f', 'teal', '＃ｆｆｆ', '#fff;'];
+    expect(not.map(committed)).toEqual(not.map(() => 'invalid'));
+    // While typing, three digits are still no color (CLI-18).
+    expect(readText('#fff').kind).toBe('invalid');
   });
 
   test('CLI-16: the value has one form — a number sign and six lowercase hexadecimal digits, or the empty string — so two values are the same color exactly when they are the same string, and a text in capitals or without its number sign is the color of its lowercase form', () => {
@@ -865,6 +878,16 @@ test.describe('behavior: the value and its text', () => {
     await blurInput(page, 'one');
     expect(await read(page, 'one'), 'white space alone is no text').toMatchObject({ value: '', text: '', invalid: false });
     expect((await heard(page)).filter((event) => !event.startsWith('input'))).toEqual(['change ']);
+    // Three digits: no color while typed, and on commit the six they stand for — rewritten, input, then change.
+    await retype(page, 'one', '#F0a');
+    expect(await read(page, 'one'), 'typed: no color yet').toMatchObject({ value: '', text: '#F0a', invalid: false });
+    expect(await heard(page), 'and nothing said').toEqual([]);
+    await blurInput(page, 'one');
+    expect(await read(page, 'one')).toMatchObject({ value: '#ff00aa', text: '#ff00aa', invalid: false });
+    expect(await heard(page)).toEqual(['input #ff00aa', 'change #ff00aa']);
+    await retype(page, 'one', '');
+    await blurInput(page, 'one');
+    await heard(page);
     // A text that is not a color: left as typed; the value was empty already, so no change.
     await retype(page, 'one', '#12');
     await blurInput(page, 'one');
@@ -898,14 +921,14 @@ test.describe('behavior: the value and its text', () => {
     await frame(page, 'wordless', { label: 'Brand color', supportingText: 'The help.' }, {});
     await stubPicker(page);
     await listen(page, 'one');
-    // Type "#0f7": nothing while typing.
-    await retype(page, 'one', '#0f7');
+    // Type "#0f76e": nothing while typing.
+    await retype(page, 'one', '#0f76e');
     expect(await read(page, 'one'), 'a person who is still typing is not in error').toMatchObject({ invalid: false, supporting: 'The color of the buttons.' });
     expect(await heard(page)).toEqual([]);
     // Leave the input: the text stays, the input is invalid, the Field shows invalidText, entryerror carries the text.
     await blurInput(page, 'one');
-    expect(await read(page, 'one')).toMatchObject({ text: '#0f7', value: '', invalid: true, supporting: WORDS });
-    expect(await heard(page)).toEqual([`entryerror #0f7|${WORDS}`]);
+    expect(await read(page, 'one')).toMatchObject({ text: '#0f76e', value: '', invalid: true, supporting: WORDS });
+    expect(await heard(page)).toEqual([`entryerror #0f76e|${WORDS}`]);
     await expect(part(page, 'one', '.field')).toHaveAttribute('data-error', '');
     await expect(row(page, 'one', '.frame'), 'the Field is in its error condition').toHaveAttribute('data-error', '');
     expect(await css(row(page, 'one', '.error-text'), 'color'), 'drawn exactly as while error is true').toBe(await resolveColor(page, '--tanrei-comp-field-standard-error-text-color'));
@@ -925,14 +948,14 @@ test.describe('behavior: the value and its text', () => {
     // One more character: the error is gone, and the Field shows its help again.
     await focusInput(page, 'one');
     await page.keyboard.press('End');
-    await page.keyboard.type('6');
-    expect(await read(page, 'one')).toMatchObject({ text: '#0f76', invalid: false, supporting: 'The color of the buttons.' });
+    await page.keyboard.type('x');
+    expect(await read(page, 'one')).toMatchObject({ text: '#0f76ex', invalid: false, supporting: 'The color of the buttons.' });
     await expect(row(page, 'one', '.frame')).not.toHaveAttribute('data-error', '');
     expect((await validity()).bad).toBe(false);
     // By Enter, with focus in the input: the Field announces the words. Then ended by the product setting value.
     await page.keyboard.press('Enter');
     expect(await read(page, 'one')).toMatchObject({ invalid: true, focused: true });
-    expect(await heard(page)).toEqual([`entryerror #0f76|${WORDS}`]);
+    expect(await heard(page)).toEqual([`entryerror #0f76ex|${WORDS}`]);
     await expect.poll(() => row(page, 'one', '.announcer').evaluate((el) => el.textContent ?? '')).toBe(WORDS);
     await set(page, 'one', { value: '#0f766e' });
     expect(await read(page, 'one')).toMatchObject({ text: '#0f766e', value: '#0f766e', invalid: false, supporting: 'The color of the buttons.' });
@@ -1091,16 +1114,19 @@ test.describe('behavior: the value and its text', () => {
     expect(await part(page, 'one', '.field').getAttribute('data-focus-style')).toBe('glow');
   });
 
-  test('CLI-24: the hit area reaches the minimum target without changing the visual size; a press anywhere on the color input outside its picker button — the container’s padding, the swatch, a floating label — focuses the input, changes nothing and draws no press answer', async ({ page }) => {
-    await mount(page, [fx('one', { value: '#0f766e', picker: true, pickerLabel: 'Choose color' }), fx('floating', { variant: 'outlined' })], { reducedMotion: true });
+  test('CLI-24: the hit area reaches the minimum target without changing the visual size; a press anywhere on the color input outside its picker button — the container’s padding, the swatch while no picker button is shown, a floating label — focuses the input, changes nothing and draws no press answer', async ({ page }) => {
+    await mount(page, [fx('one', { value: '#0f766e', picker: true, pickerLabel: 'Choose color' }), fx('plain', { value: '#0f766e' }), fx('floating', { variant: 'outlined' })], { reducedMotion: true });
     await stubPicker(page);
-    await listen(page, 'one');
-    // The swatch.
-    await pressOn(swatch(page, 'one'));
-    let now = await read(page, 'one');
+    // The swatch, while no picker button is shown.
+    await listen(page, 'plain');
+    await pressOn(swatch(page, 'plain'));
+    let now = await read(page, 'plain');
     expect(now, 'the swatch').toMatchObject({ focused: true, value: '#0f766e', text: '#0f766e' });
     expect(now.caret[0], 'nothing is selected').toBe(now.caret[1]);
-    await blurInput(page, 'one');
+    await blurInput(page, 'plain');
+    expect([await heard(page), await shown(page)], 'a press on the swatch of a field without a picker button asks for no picker').toEqual([[], []]);
+    expect(await css(swatch(page, 'plain'), 'pointer-events'), 'the swatch is no target of its own').toBe('none');
+    await listen(page, 'one');
     // The container's padding: its first pixels, before the swatch.
     const c = await box(container(page, 'one'));
     await page.mouse.click(c.x + 3, c.y + c.height / 2);
@@ -1116,9 +1142,8 @@ test.describe('behavior: the value and its text', () => {
     expect((await read(page, 'one')).focused, 'the input').toBe(true);
     await blurInput(page, 'one');
     expect(await heard(page)).toEqual([]);
-    expect(await shown(page), 'a press on the swatch asks for no picker').toEqual([]);
+    expect(await shown(page)).toEqual([]);
     expect(await container(page, 'one').getAttribute('data-pressed'), 'no press answer').toBeNull();
-    expect(await css(swatch(page, 'one'), 'pointer-events'), 'the swatch is no target of its own').toBe('none');
     // The hit area: the container's ::before reaches the minimum target, and the container keeps its height.
     const target = await resolveToken(page, '--tanrei-sys-target-pointer');
     expect(await container(page, 'one').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height))).toBeGreaterThanOrEqual(target - 0.6);
@@ -1175,6 +1200,26 @@ test.describe('behavior: the swatch and the picker', () => {
     expect((await read(page, 'stacked-black')).swatch).toBe(rgb('#000000'));
     expect(await css(swatch(page, 'stacked-black'), 'border-top-color'), 'the edge differs from black').not.toBe(rgb('#000000'));
     expect(await css(swatch(page, 'stacked-black'), 'border-top-color')).not.toBe(await css(container(page, 'stacked-black'), 'background-color'));
+  });
+
+  test('CLI-25: while the picker button is shown, a press on the swatch does what a press on the picker button does — pickerrequest once, then the browser’s picker — and the swatch takes no focus and draws no answer; disabled, it does nothing; without the picker button it focuses the input (CLI-24)', async ({ page }) => {
+    await mountSpec(page, ['stacked-picker', 'stacked-picker-disabled'], { reducedMotion: true });
+    await stubPicker(page);
+    const id = 'stacked-picker';
+    await listen(page, id);
+    const before = await swatch(page, id).evaluate((el) => { const s = getComputedStyle(el); return [s.backgroundColor, s.borderTopColor, s.opacity, s.outlineStyle]; });
+    await pressOn(swatch(page, id));
+    expect(await heard(page), 'the picker button’s request').toEqual(['pickerrequest #0f766e']);
+    expect(await shown(page), 'and the browser’s picker').toEqual(['color #0f766e']);
+    expect((await read(page, id)).focused, 'the input is not focused').toBe(false);
+    expect(await host(page, id).evaluate((el) => el.shadowRoot!.activeElement?.classList.contains('swatch') ?? false), 'the swatch takes no focus').toBe(false);
+    expect(await swatch(page, id).evaluate((el) => (el as HTMLElement).tabIndex), 'and is no stop').toBe(-1);
+    expect(await swatch(page, id).evaluate((el) => { const s = getComputedStyle(el); return [s.backgroundColor, s.borderTopColor, s.opacity, s.outlineStyle]; }), 'no answer of its own').toEqual(before);
+    expect(await container(page, id).getAttribute('data-pressed'), 'no press answer').toBeNull();
+    // Disabled: nothing.
+    await listen(page, 'stacked-picker-disabled');
+    await pressOn(swatch(page, 'stacked-picker-disabled'));
+    expect([await heard(page), await shown(page)]).toEqual([[], []]);
   });
 
   test('CLI-25: a swatch.shape of the full step draws the swatch round, never with a radius of more than half its side', async ({ page }) => {
@@ -1452,15 +1497,15 @@ test.describe('behavior: the swatch and the picker', () => {
     expect(inField.filter((node) => ['img', 'image', 'ColorWell', 'graphics-symbol'].includes(node.role)), 'no image and no color well').toEqual([]);
     expect(tree.filter((node) => node.role === 'StaticText').map((node) => node.name).filter((name) => ['format_paint', 'palette', 'Optional', '*'].includes(name)), 'the glyphs and the marks are not read as texts').toEqual([]);
     // The value is the text it shows — a half-typed one too.
-    await retype(page, 'one', '#0f7');
+    await retype(page, 'one', '#0f76e');
     [box_] = await axNodes(page, 'textbox');
-    expect(box_.value).toBe('#0f7');
+    expect(box_.value).toBe('#0f76e');
     // Required and invalid — an entry error — then disabled.
     await setField(page, 'one', { requirement: 'required' });
     await blurInput(page, 'one');
     await settle(page, 'one');
     [box_] = await axNodes(page, 'textbox');
-    expect(box_).toMatchObject({ required: true, invalid: 'true', description: 'Enter six hexadecimal digits.', value: '#0f7' });
+    expect(box_).toMatchObject({ required: true, invalid: 'true', description: 'Enter six hexadecimal digits.', value: '#0f76e' });
     await set(page, 'one', { value: '#000000' });
     await setField(page, 'one', { labelHidden: true, disabled: true });
     await settle(page, 'one');
@@ -1868,12 +1913,12 @@ test.describe('behavior: forms, size, forced colors and direction', () => {
     expect(await missingWords(page), 'it reads no word of the product, so none is missing').toEqual([]);
     for (const product of ['none', 'set'] as const) {
       if (product === 'set') await setWords(page, { requiredText: 'Required', optionalText: 'Optional' });
-      await retype(page, 'one', '#0f7');
+      await retype(page, 'one', '#0f76e');
       await blurInput(page, 'one');
       // "palette" is the glyph's name in the icon set, drawn as its ligature and never as a word.
       expect(await words('one'), product).toEqual(['Brand color', 'palette']);
       expect(await words('nameless'), product).toEqual(['palette']);
-      expect(await read(page, 'one'), `${product}: an entry error without words still marks the input`).toMatchObject({ invalid: true, text: '#0f7', value: '' });
+      expect(await read(page, 'one'), `${product}: an entry error without words still marks the input`).toMatchObject({ invalid: true, text: '#0f76e', value: '' });
       await retype(page, 'one', '#0f766e');
       await blurInput(page, 'one');
     }
@@ -2046,7 +2091,7 @@ test.describe('accessibility', () => {
     test(`axe: a focused field, one in an entry error and one whose picker was asked for have no violations in ${theme}`, async ({ page }) => {
       await mount(page, [fx('one', { value: '#0f766e' }), fx('wrong', { invalidText: 'Enter six hexadecimal digits.' }), fx('asked', { value: '#fde047', picker: true, pickerLabel: 'Choose color' })], { theme, reducedMotion: true });
       await stubPicker(page);
-      await retype(page, 'wrong', '#0f7');
+      await retype(page, 'wrong', '#0f76e');
       await blurInput(page, 'wrong');
       await pickerButton(page, 'asked').click();
       await focusInput(page, 'one');

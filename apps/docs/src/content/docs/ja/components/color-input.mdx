@@ -2,7 +2,7 @@
 title: カラー入力欄
 description: 1 つの色を設定するボックスです。色見本と、読んで、入力して、貼り付けられるテキストの値と、ピッカーを求めるボタンがあります。ラベルの行、補足、エラーテキストは自分では持ちません。行や列がすでに色の名前を示しているところや、プロダクトが自分で組み立てるフィールドの中で使います。
 translationOf: components/color-input.mdx
-sourceHash: c9e63fe57f450343420f6d13ef9ef2f22e81b659
+sourceHash: 5885b9f8c0f343c08541c5f3fa755279bd351aaa
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -18,9 +18,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <DemoFrame label="単独で使う例：トーンの一覧の行。それぞれの行が色の名前を示します" column>
   <div class="not-content" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
     <span>トーン 40</span>
-    <tanrei-color-input label="プライマリ、トーン 40" value="#0f766e" picker picker-label="プライマリ、トーン 40 の色を選ぶ"></tanrei-color-input>
+    <tanrei-color-input label="プライマリ、トーン 40" value="#0f766e" picker picker-label="プライマリ、トーン 40 の色を選択"></tanrei-color-input>
     <span>トーン 80</span>
-    <tanrei-color-input label="プライマリ、トーン 80" value="#5eead4" picker picker-label="プライマリ、トーン 80 の色を選ぶ"></tanrei-color-input>
+    <tanrei-color-input label="プライマリ、トーン 80" value="#5eead4" picker picker-label="プライマリ、トーン 80 の色を選択"></tanrei-color-input>
   </div>
 </DemoFrame>
 
@@ -55,7 +55,7 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
     <div class="tone-row">
       <span>トーン 40</span>
       <tanrei-color-input name="primary-40" label="プライマリ、トーン 40" value="#0f766e"
-        picker picker-label="プライマリ、トーン 40 の色を選ぶ"></tanrei-color-input>
+        picker picker-label="プライマリ、トーン 40 の色を選択"></tanrei-color-input>
     </div>
 
     <script type="module">
@@ -75,7 +75,7 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
     ```tsx
     import { ColorInput } from '@tanrei/react';
 
-    <ColorInput label="プライマリ、トーン 40" value={tone} picker pickerLabel="プライマリ、トーン 40 の色を選ぶ"
+    <ColorInput label="プライマリ、トーン 40" value={tone} picker pickerLabel="プライマリ、トーン 40 の色を選択"
       onChange={(event) => setTone(event.currentTarget.value)} />
     ```
   </TabItem>
@@ -90,13 +90,13 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
   supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
   <tanrei-color-input name="brand" value="#0f766e"
     invalid-text="6 桁の 16 進数で入力してください。例：#0f766e"
-    picker picker-label="色を選ぶ"></tanrei-color-input>
+    picker picker-label="色を選択"></tanrei-color-input>
 </tanrei-field>
 ```
 
 <DemoFrame label="フィールドの中のカラー入力欄。見た目はカラーフィールドと同じです" column>
   <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" requirement="required" required-text="必須" supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
-    <tanrei-color-input value="#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選ぶ"></tanrei-color-input>
+    <tanrei-color-input value="#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選択"></tanrei-color-input>
   </tanrei-field>
 </DemoFrame>
 
@@ -109,8 +109,8 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ページの背景" value="#ffffff"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="テキスト" value="#000000"></tanrei-color-input>
   <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#fde047" error></tanrei-color-input>
-  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" disabled picker picker-label="色を選ぶ"></tanrei-color-input>
-  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="ブランドカラー" value="#0f766e" picker picker-label="色を選ぶ"></tanrei-color-input>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" disabled picker picker-label="色を選択"></tanrei-color-input>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="ブランドカラー" value="#0f766e" picker picker-label="色を選択"></tanrei-color-input>
 </DemoFrame>
 
 <DemoFrame label="単独の Filled と Outlined：入力欄自身のラベルがボックスの中で浮き上がります" system="m3-like" plain column>
@@ -142,7 +142,7 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
 ### Web での描き方の違い
 
 - 要素はフォームに関連付けられます。`name` があれば `value` を送信します。色か、空文字列です。リセットすると `value` 属性の値に戻り、ページの移動で復元され、無効な `<fieldset>` に従います。フィールドが必須としている間は値がないことを、入力のエラーが続く間は不正な入力を、フォームに報告します。
-- 要素はブロックです。`focus()` はネイティブのテキスト要素に移り、ピッカーのボタンには移りません。ボックスの上の、そのボタン以外の場所を押すと、テキストにフォーカスが移ります。
+- 要素はブロックです。`focus()` はネイティブのテキスト要素に移り、ピッカーのボタンには移りません。ボックスの上の、そのボタン以外の場所を押すと、テキストにフォーカスが移ります。ただし、ボタンがあるときに色見本を押すと、ピッカーが開きます。
 - `input` と `change` は `detail` のないイベントなので、`value` は要素から読みます。`pickerrequest` は、`detail.value` を持つ、キャンセルできる CustomEvent です。`entryerror` は、`detail.text` と `detail.message` を持つ CustomEvent で、`detail.message` は `invalidText` です。型は `TanreiColorInputPickerRequestDetail` と `TanreiColorInputEntryErrorDetail` です。
 - パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`swatch`、`input`、`picker-button`。スロットはありません。
 - 要素は文言を持たず、プロダクトの言葉も読みません。`label`、`invalidText`、`pickerLabel` は、指定するまで空です。
@@ -164,7 +164,7 @@ Web では `<tanrei-color-input>` です。ほかのプラットフォームは�
 ### 推奨
 
 - 単独の入力欄には、行とその場所が合わせて伝えていることを言葉にした `label` を付けます。「プライマリ、トーン 40」のようにします。
-- ピッカーのボタンにも、行ごとの名前を付けます。「プライマリ、トーン 40 の色を選ぶ」のようにします。そうしないと、行が並ぶページに同じ名前のボタンがいくつもできます。
+- ピッカーのボタンにも、行ごとの名前を付けます。「プライマリ、トーン 40 の色を選択」のようにします。そうしないと、行が並ぶページに同じ名前のボタンがいくつもできます。
 - 単独の入力欄の幅は、置く場所で決めます。グリッドの列、セル、幅を持つツールバーの項目などです。
 - ボックスの上のラベル、補足、エラーがあれば足りるところでは、カラーフィールドを使います。
 

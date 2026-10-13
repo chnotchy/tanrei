@@ -140,7 +140,7 @@ Nothing is mixed into the swatch: no hover, no error tint, no shadow. A sample t
 
 A text reads as a color when, with the spaces around it left out, it is exactly six hexadecimal digits, in either case, with or without the number sign: `0F766E`, `#0f766e` and <code> #0F766E </code> are all `#0f766e`.
 
-Everything else is no color: three digits (`#0f7`), eight (`#0f766e80`), a name (`teal`), a functional notation (`rgb(15, 118, 110)`). Three digits are not read because the text passes through them on the way to six. There is no alpha and no wide-gamut color.
+Everything else is no color: three digits (`#0f7`), eight (`#0f766e80`), a name (`teal`), a functional notation (`rgb(15, 118, 110)`). Three digits are no color while a person types, because the text passes through them on the way to six; when the text is committed they are read as the six they stand for, as CSS reads them: `#0f7` becomes `#00ff77`. There is no alpha and no wide-gamut color.
 
 Nothing is reported while a person is still typing. An entry error is raised only when they commit.
 
@@ -153,7 +153,7 @@ With `picker`, the field shows a button at its end. Activating it fires `pickerr
 | Does nothing | The field presents the browser's own color picker. Each pick is an edit by the person: the text, the swatch, `input`. When the picker closes, `change` fires and focus is on the picker button |
 | Cancels the request | The field presents nothing. The product opens its own surface, anchored to the field, and sets `value` to what was picked. That surface returns focus to the picker button when it closes |
 
-A press on the swatch does not open the picker. It focuses the input, as a press anywhere else on the field does.
+With the picker button shown, a press on the swatch opens the picker, as a press on the button does; focus does not move to the input, and the button stays the keyboard's way. Without the button, a press on the swatch focuses the input, as a press anywhere else on the field does.
 
 ### What each member gives
 
@@ -180,7 +180,7 @@ The color field has no token of its own. Its box reads the [color input's tokens
 - `value` is always the color input's: a value set as `0F766E` is read back as `#0f766e`, and one that is not a color as an empty string.
 - `input` and `change` are plain events: read `value` from the element. `pickerrequest` and `entryerror` are CustomEvents with `detail.value` and with `detail.text` and `detail.message`. They are the color input's own events, with the element as their target. `detail.message` is `invalidText`, and empty where you gave none — also while the field shows `errorText` in its place.
 - Parts: `field` and `color-input` are the two members. Their own parts have the same names here as one level down: `label-icon`, `supporting-text`; `container`, `outline`, `active-indicator`, `swatch`, `input`, `picker-button`. `label` and `requirement-label` are the drawn ones, whichever member draws them; `field-label`, `color-input-label`, `field-requirement-label` and `color-input-requirement-label` name one member's.
-- The element is not focusable itself and has no role: `focus()` goes to the input, never to the picker button. A press on the label row, on the box, on the swatch or on a floating label focuses the input. A press on the help or the error text does nothing.
+- The element is not focusable itself and has no role: `focus()` goes to the input, never to the picker button. A press on the label row, on the box, on the swatch (while there is no picker button) or on a floating label focuses the input. A press on the help or the error text does nothing.
 - The label and the help take their focused colors while focus is anywhere in the field, the picker button included. The box takes its own only while its input has focus.
 - Name it with `label` — with `label-hidden` where the label is not to be drawn — and never with `aria-label`, which names nothing here.
 - The element has no words of its own. `requiredText` and `optionalText` are empty until you give them. A required field without `requiredText` shows the asterisk where the tag would stand.

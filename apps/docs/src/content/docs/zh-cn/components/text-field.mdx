@@ -2,7 +2,7 @@
 title: "文本字段"
 description: "让用户输入和编辑文本——单行，或者随文本增高、可手动调整大小的多行——也可以按区域设置的格式逐个单位地输入日期或时间，或者输入代码并按写下的样子原样保存；它带有可以说明必填或选填的标签，以及可选的图标、前缀和后缀、辅助文本、字符计数和选择器按钮。"
 translationOf: components/text-field.mdx
-sourceHash: 235c8ec94812338939e528887cb85e9b937685bf
+sourceHash: 80bd2e5b7b0fc36f83a6afdc3f7a86a3bbcf37b1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -344,7 +344,7 @@ input.addEventListener('input', () => (field.countText = input.countText));
 
 在所有系统里，包括各个预设，默认都是 stacked。想要 Material 式浮动标签的 Material 产品，可以把文本字段的 `variant` 设为 `outlined` 或 `filled`。在 Tanrei 系统下，`filled` 和 `outlined` 仍然可用，但开发时会给出警告。
 
-`medium`（48）是 Material 的紧凑文本字段，`large`（56）是 Material 的标准文本字段。筛选条件和密集的设置界面使用 `medium`，登录和结账表单使用 `large`。`small`（40）是小号下拉选择框的高度，用于应用栏、工具栏或一排紧凑控件中的文本字段，此时输入文本为 14。在默认系统中，另外两种尺寸的输入文本都是 16。高度是最小值：文本放大时，文本字段会随之增高，点击区域也始终满足最小目标尺寸。
+`medium`（48）是紧凑的文本字段，`large`（56）是标准的文本字段。筛选条件和密集的设置界面使用 `medium`，登录和结账表单使用 `large`。`small`（40）是小号下拉选择框的高度，用于应用栏、工具栏或一排紧凑控件中的文本字段，此时输入文本为 14。在默认系统中，另外两种尺寸的输入文本都是 16。高度是最小值：文本放大时，文本字段会随之增高，点击区域也始终满足最小目标尺寸。
 
 ### 标签和占位符
 
