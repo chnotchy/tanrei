@@ -1769,6 +1769,8 @@ test.describe('behavior', () => {
 
   test('CRL-27: loop scrolls without end — past the last item to the first — each item drawn once, passing to the other side at the edge slots; the track moves by whole turns at rest', async ({ page }) => {
     const id = 'loop';
+    // Read once the track has come to rest: WebKit may still be half a pixel from its first position just after mounting.
+    await atRest(page, id);
     // At rest: the last item (Dunes) fills the slot before the hero; the items at the edge slots are not drawn.
     expectNear([(await boxes(page, id))[4], (await boxes(page, id))[0], (await boxes(page, id))[1]], [[16, 76], [100, 200], [308, 76]]);
     expect([(await boxes(page, id))[2][1], (await boxes(page, id))[3][1]]).toEqual([0, 0]);
