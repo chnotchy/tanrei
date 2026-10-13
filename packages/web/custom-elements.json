@@ -58290,12 +58290,34 @@
             },
             {
               "kind": "field",
+              "name": "actionsSize$",
+              "privacy": "private",
+              "readonly": true,
+              "description": "PGH-10: watches the actions box, whose rows decide whether the actions wrap."
+            },
+            {
+              "kind": "field",
+              "name": "observedActions",
+              "type": {
+                "text": "Element | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
               "name": "awaitingParse",
               "type": {
                 "text": "boolean"
               },
               "privacy": "private",
               "default": "false"
+            },
+            {
+              "kind": "method",
+              "name": "readWrap",
+              "privacy": "private",
+              "description": "PGH-10: whether the actions wrap onto more than one row, as the `data-actions-wrapped` state attribute: one row\nstays centred on the title's first line however tall it is; more than one starts at its top and grows the head.\nWritten only when it changes, so a head whose actions are one row is left as it was written."
             },
             {
               "kind": "method",

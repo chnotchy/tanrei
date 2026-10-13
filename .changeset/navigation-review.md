@@ -27,9 +27,10 @@ Tabs, navigation drawer, page header and app shell: decisions from the web revie
   `comp.navigation-drawer.header.typescale` (`sys.typescale.heading-5`) and `comp.navigation-drawer.header.color`
   (`sys.color.on-surface`): plain text placed there is no longer drawn in the browser's default font, and an element
   that sets its own style keeps it.
-- Page header: actions beside the title stay centred on the title's first line while they are no taller than it; actions
-  that wrap, or a row taller than the line, start at the line's top and the head grows to hold them, instead of standing
-  out of the head above and below.
+- Page header: one row of actions beside the title stays centred on the title's first line, however tall, as before;
+  actions that wrap onto more than one row now start at the line's top and the head grows to hold them, instead of
+  standing out of the head above and below. The element marks this with the `data-actions-wrapped` state attribute;
+  the stylesheet alone keeps centring every row.
 - App shell: the web note now says that with `scroll="main"` an aside stacked above or below the main region does not
   yet scroll with it.
 - Docs: the sidebar opens only the groups that hold the page being read.
@@ -38,5 +39,4 @@ The vocabulary grows by the tokens named above (`tokens/vocabulary.lock.json`). 
 now "Board", so the row still fits its stage at the heavier label.
 
 Web baselines re-recorded for these intended changes: the tonal tabs fixtures (the heavier selected label and the room
-kept for it), the navigation drawer fixtures with nested destinations or text in the header slot, and the page header
-fixture `small-actions` (its Button now starts at the top of the title's line).
+kept for it), the navigation drawer fixtures with nested destinations or text in the header slot. No page header baseline changes: its fixtures' actions fit on one row.

@@ -157,6 +157,9 @@ export class TanreiPageHeader extends ReactiveElement {
   divider = false;
 
   private readonly mutations = typeof MutationObserver === 'undefined' ? null : new MutationObserver(() => this.read());
+  /** PGH-10: watches the actions box, whose rows decide whether the actions wrap. */
+  private readonly actionsSize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.readWrap());
+  private observedActions: Element | null = null;
   private awaitingParse = false;
 
   /** No shadow root: the heading is the document's. */
@@ -174,6 +177,21 @@ export class TanreiPageHeader extends ReactiveElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.mutations?.disconnect();
+    this.actionsSize$?.disconnect();
+    this.observedActions = null;
+  }
+
+  /**
+   * PGH-10: whether the actions wrap onto more than one row, as the `data-actions-wrapped` state attribute: one row
+   * stays centred on the title's first line however tall it is; more than one starts at its top and grows the head.
+   * Written only when it changes, so a head whose actions are one row is left as it was written.
+   */
+  private readWrap() {
+    const box = this.observedActions;
+    const shown = box ? [...box.children].filter((child) => child.getClientRects().length > 0) : [];
+    const first = shown[0]?.getBoundingClientRect().top ?? 0;
+    const wrapped = shown.some((child) => Math.abs(child.getBoundingClientRect().top - first) > 1);
+    if (wrapped !== this.hasAttribute('data-actions-wrapped')) this.toggleAttribute('data-actions-wrapped', wrapped);
   }
 
   protected override updated(changed: PropertyValues) {
@@ -252,6 +270,14 @@ export class TanreiPageHeader extends ReactiveElement {
     this.write('eyebrow', eyebrow, EYEBROW, 'p', [TITLE, DESCRIPTION, META, ACTIONS]);
     this.write('title', headline, TITLE, `h${this.headingLevel}`, [DESCRIPTION, META, ACTIONS]);
     this.write('description', description, DESCRIPTION, 'p', [META, ACTIONS]);
+    // PGH-10: the actions box is watched for its rows.
+    const box = this.querySelector(ACTIONS);
+    if (box !== this.observedActions) {
+      if (this.observedActions) this.actionsSize$?.unobserve(this.observedActions);
+      if (box) this.actionsSize$?.observe(box);
+      this.observedActions = box;
+      if (!box && this.hasAttribute('data-actions-wrapped')) this.removeAttribute('data-actions-wrapped');
+    }
     // What was written here is not a change of the page's: the observer is not told.
     this.mutations?.takeRecords();
     if (!debugBuild()) return;
