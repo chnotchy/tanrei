@@ -38,7 +38,7 @@
  * The status line (TBL-51), after the table and inside the wrapper: the product's sentence, told politely when it
  * changes, and its pagination.
  *
- *   <div data-part="status"><p role="status">1–20 of 132</p><nav class="tanrei-pagination">…</nav></div>
+ *   <div data-part="status"><p role="status">1–20 of 132</p><tanrei-pagination variant="compact" size="small" …></tanrei-pagination></div>
  *
  * Rows that can be chosen (TBL-42), on a table whose `selection` is `multiple`: a first cell `data-part="selection"`
  * in every row — in the header row holding the checkbox for every row, in a body row that has a `data-value` holding

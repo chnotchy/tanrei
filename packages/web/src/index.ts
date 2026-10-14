@@ -7,11 +7,11 @@ export { observeLinks, setExternalLabel, setSiteOrigins } from './link.js';
 // The product's words: Tanrei ships none. `setWords()` gives them once for every component that reads them,
 // `missingWords()` lists the keys that were needed and given by nobody (`@tanrei/web/words` is the same two alone).
 export { type TanreiWords, type WordKey, missingWords, setWords, wordKeys, wordReaders } from './words.js';
-// The steps and the pagination of the page — `class="tanrei-steps"` lists and `class="tanrei-pagination"` landmarks
-// (steps.css, pagination.css): loading the components also adds the debug reports of the first and, for the second, what
-// a stylesheet cannot (`@tanrei/web/steps` and `@tanrei/web/pagination` are the same scripts alone).
+// The steps and the previous and next links of the page — `class="tanrei-steps"` lists and `class="tanrei-previous-next-links"` landmarks
+// (steps.css, previous-next-links.css): loading the components also adds the debug reports of the first and, for the second, what
+// a stylesheet cannot (`@tanrei/web/steps` and `@tanrei/web/previous-next-links` are the same scripts alone).
 export { observeSteps } from './steps.js';
-export { observePagination } from './pagination.js';
+export { observePreviousNextLinks } from './previous-next-links.js';
 // The timelines of the page — `class="tanrei-timeline"` lists (timeline.css): loading the components also marks the one
 // event under way as the list's current item and adds the debug reports (`@tanrei/web/timeline` is the same script alone).
 export { observeTimeline } from './timeline.js';
@@ -110,6 +110,7 @@ export {
 } from './components/code-block/code-block.js';
 export { TanreiPageHeader, type TanreiPageHeaderActionsPlacement, type TanreiPageHeaderSize } from './components/page-header/page-header.js';
 export { TanreiBreadcrumbs, type TanreiBreadcrumbsOverflow, type TanreiBreadcrumbsUnderline } from './components/breadcrumbs/breadcrumbs.js';
+export { TanreiPagination, type TanreiPaginationChangeDetail, type TanreiPaginationSize, type TanreiPaginationVariant } from './components/pagination/pagination.js';
 export { TanreiTreeView, type TanreiTreeViewChangeDetail, type TanreiTreeViewDensity, type TanreiTreeViewSelection, type TanreiTreeViewToggleDetail } from './components/tree-view/tree-view.js';
 export {
   TanreiPopover,
