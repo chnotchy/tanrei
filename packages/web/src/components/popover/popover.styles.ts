@@ -1,5 +1,17 @@
 import { css, unsafeCSS } from 'lit';
-import { actionBoxStyles, anchoredSurfaceStyles, arrowOutlineStyles, arrowStyles, cornerRadius, focusRing, quietFocus, shape, whenChosen } from '../../primitives/index.js';
+import {
+  actionBoxStyles,
+  anchoredSurfaceStyles,
+  arrowOutlineStyles,
+  arrowStyles,
+  cornerRadius,
+  dividerVisibilityHost,
+  focusRing,
+  quietFocus,
+  shape,
+  whenChosen,
+  whenScroll,
+} from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
@@ -218,9 +230,10 @@ export const styles = css`
   ${focusRing((focus) => `.content${focus} ~ .focus`, { inside: true })}
   ${focusRing((focus) => `.clip.crowded${focus} ~ .focus`, { inside: true })}
 
-  /* POP-8: the dividers, divider.width hairlines in divider.color across the container: below the header while the
-     content is scrolled away from its top, above the actions while more of it lies below. They take no room, so they
-     show and hide at once and move nothing. */
+  /* POP-8: the dividers, divider.width hairlines in divider.color across the container, below the header and above the
+     actions while the content scrolls. They take no room, so they show and hide at once and move nothing. POP-38, always:
+     both for as long as the content scrolls, at its top included. */
+  ${dividerVisibilityHost(`${PREFIX}-divider-visibility`)}
   .divider {
     position: absolute;
     inset-inline: 0;
@@ -235,10 +248,22 @@ export const styles = css`
   .divider.above-actions {
     inset-block-end: 100%;
   }
-  .clip[data-scrolled] .divider.below-header,
-  .clip[data-more] .divider.above-actions {
+  .clip[data-scrolls] .divider {
     visibility: visible;
   }
+  /* POP-38, scroll: below the header while the content is scrolled away from its top, above the actions while more of it
+     lies below. */
+  ${whenScroll(
+    '.clip',
+    (clip) => `
+  ${clip}[data-scrolls] .divider {
+    visibility: hidden;
+  }
+  ${clip}[data-scrolled] .divider.below-header,
+  ${clip}[data-more] .divider.above-actions {
+    visibility: visible;
+  }`,
+  )}
 
   /* POP-9, POP-15: the actions — actions.margin-block-start below the content (or the header), the container's paddings
      at the sides and below, actions.gap apart: fill, a full-width Button group, the actions sharing the row equally or

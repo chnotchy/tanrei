@@ -5246,7 +5246,7 @@ name and role are never touched. Parts: `container`, `arrow`, `title`, `supporti
 ## `<tanrei-popover>`
 
 Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays
-with it, without dimming or blocking the rest of the page (`specs/popover.spec.json`, POP-1…37).
+with it, without dimming or blocking the rest of the page (`specs/popover.spec.json`, POP-1…38).
 
 ```html
 <tanrei-button id="share" variant="outlined">Share</tanrei-button>
@@ -5281,6 +5281,7 @@ with it, without dimming or blocking the rest of the page (`specs/popover.spec.j
 | `label` | string | `""` | the dialog's name where it draws no headline; never drawn. Neither given: it still opens, reported (POP-29) |
 | `closable` | boolean | `false` | draws the close button at the end of the header; reflected |
 | `closeLabel` / `close-label` | string | `""` | the close button's accessible name; empty while `closable` is reported (POP-13) |
+| `dividerVisibility` / `divider-visibility` | `auto` \| `always` \| `scroll` | `auto` | when the dividers are drawn while the content scrolls: `always` for as long as it scrolls, at its top included; `scroll` below the header only once scrolled and above the actions only while more lies below; `auto` takes `comp.popover.divider.visibility` (always in the default system, scroll in cupertino and m3-like). Anything else is `auto`, reported (POP-38); reflected |
 | `inline` | boolean | `false` | **for tests**: draws the open container in place — inside its positioned ancestor, which stands for the window — not in the top layer. It then answers no dismissal and moves no focus |
 
 | Slot | |
@@ -5320,8 +5321,9 @@ out of sight (also inside a scrolling ancestor): `close`, reason `anchor-hidden`
 widths, also while they are a column — between the least and greatest width, and never wider than the window less the
 margins. As tall as its parts, up to `container.max-height` and the room. Beyond that the header and the actions stay
 and the content scrolls between them, a Tab stop while it does; the dividers (`part="divider"`) are drawn below the
-header while it is scrolled from its top and above the actions while more lies below. Where the header and the actions
-alone leave no room for the content, the whole container scrolls instead.
+header and above the actions — for as long as it scrolls under `always`, and under `scroll` the first only while it is
+scrolled from its top and the second only while more lies below (POP-38). Where the header and the actions alone leave
+no room for the content, the whole container scrolls instead, with no divider.
 
 **Focus (POP-19, POP-20, POP-22).** Opening moves focus to the slotted element marked `autofocus`, else to the
 container; the container shows its focus indicator only when the popover was opened from the keyboard (a press leaves
