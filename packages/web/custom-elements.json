@@ -52010,6 +52010,30 @@
               }
             },
             {
+              "kind": "method",
+              "name": "nameWhenInView",
+              "privacy": "private",
+              "description": "NVD-56: keyboard focus opens the name once the cell can be seen. A tooltip whose anchor lies wholly outside the\nwindow closes again at once, and the browser brings a focused cell into view in its own time — WebKit sometimes a\nfew frames after the focus, after the next frame has been drawn. So the name is opened when the tooltip's box is\nfirst seen in the window (at once where it already is), for as long as the cell keeps keyboard focus.",
+              "inheritedFrom": {
+                "name": "DrawerCell",
+                "module": "src/components/navigation-drawer/navigation-drawer.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "sightline",
+              "type": {
+                "text": "IntersectionObserver | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "NVD-56: waits for a focused cell to be seen before its name is opened (`nameWhenInView()`).",
+              "inheritedFrom": {
+                "name": "DrawerCell",
+                "module": "src/components/navigation-drawer/navigation-drawer.ts"
+              }
+            },
+            {
               "kind": "field",
               "name": "unnamed",
               "type": {
@@ -52043,19 +52067,6 @@
                 "text": "ReturnType<typeof setTimeout> | undefined"
               },
               "privacy": "private",
-              "inheritedFrom": {
-                "name": "DrawerCell",
-                "module": "src/components/navigation-drawer/navigation-drawer.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "tipFrame",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "default": "0",
               "inheritedFrom": {
                 "name": "DrawerCell",
                 "module": "src/components/navigation-drawer/navigation-drawer.ts"
@@ -52683,6 +52694,30 @@
               }
             },
             {
+              "kind": "method",
+              "name": "nameWhenInView",
+              "privacy": "private",
+              "description": "NVD-56: keyboard focus opens the name once the cell can be seen. A tooltip whose anchor lies wholly outside the\nwindow closes again at once, and the browser brings a focused cell into view in its own time — WebKit sometimes a\nfew frames after the focus, after the next frame has been drawn. So the name is opened when the tooltip's box is\nfirst seen in the window (at once where it already is), for as long as the cell keeps keyboard focus.",
+              "inheritedFrom": {
+                "name": "DrawerCell",
+                "module": "src/components/navigation-drawer/navigation-drawer.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "sightline",
+              "type": {
+                "text": "IntersectionObserver | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "NVD-56: waits for a focused cell to be seen before its name is opened (`nameWhenInView()`).",
+              "inheritedFrom": {
+                "name": "DrawerCell",
+                "module": "src/components/navigation-drawer/navigation-drawer.ts"
+              }
+            },
+            {
               "kind": "field",
               "name": "unnamed",
               "type": {
@@ -52716,19 +52751,6 @@
                 "text": "ReturnType<typeof setTimeout> | undefined"
               },
               "privacy": "private",
-              "inheritedFrom": {
-                "name": "DrawerCell",
-                "module": "src/components/navigation-drawer/navigation-drawer.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "tipFrame",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "default": "0",
               "inheritedFrom": {
                 "name": "DrawerCell",
                 "module": "src/components/navigation-drawer/navigation-drawer.ts"
