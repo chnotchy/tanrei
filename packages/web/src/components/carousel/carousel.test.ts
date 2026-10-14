@@ -189,17 +189,29 @@ const traced = (page: P) => page.evaluate(() => (window as any).offsets as numbe
  */
 const settled = (offsets: number[]) => offsets.slice(offsets.lastIndexOf(Math.max(...offsets)) + 1);
 /**
- * Waits until the row is at rest: two frames go by without a scroll event. A scroll written in one frame (a motion's last
- * step) is reported in the next, so a task that already reads the final offset can come before that report — and a
- * trace started there would record the earlier motion's end as the next action's first offset.
+ * Waits until the row is at rest: no scroll event for as long as the carousel's longest motion lasts (the scroll motion
+ * and the advance, their tokens read through the same properties the carousel reads), and two frames at least. A scroll
+ * written in one frame (a motion's last step) is reported in the next, so a task that already reads the final offset can
+ * come before that report — and a trace started there would record the earlier motion's end as the next action's first
+ * offset. Two quiet frames alone are not enough: WebKit keeps `scrollLeft` in whole CSS pixels, and the decelerating tail
+ * of a motion can move the row less than one over several frames, which change nothing and so report nothing while the
+ * motion still runs. A motion begun before the wait ends within its duration of the wait's start or of its own last
+ * scroll event, whichever is later.
  */
 const atRest = (page: P, id: string) =>
   scroller(page, id).evaluate(async (el) => {
     const frame = () => new Promise((r) => requestAnimationFrame(r));
+    const root = el.getRootNode() as ShadowRoot;
+    const ms = (carrier: Element | null) => (carrier ? (Number.parseFloat(getComputedStyle(carrier).animationDuration) || 0) * 1000 : 0);
+    const longest = Math.max(ms(el), ms(root.querySelector('.timing')));
+    let last = performance.now();
     let moved = true;
-    const mark = () => (moved = true);
+    const mark = () => {
+      moved = true;
+      last = performance.now();
+    };
     el.addEventListener('scroll', mark);
-    while (moved) {
+    while (moved || performance.now() - last <= longest) {
       moved = false;
       await frame();
       await frame();
@@ -1769,7 +1781,6 @@ test.describe('behavior', () => {
 
   test('CRL-27: loop scrolls without end — past the last item to the first — each item drawn once, passing to the other side at the edge slots; the track moves by whole turns at rest', async ({ page }) => {
     const id = 'loop';
-    // Read once the track has come to rest: WebKit may still be half a pixel from its first position just after mounting.
     await atRest(page, id);
     // At rest: the last item (Dunes) fills the slot before the hero; the items at the edge slots are not drawn.
     expectNear([(await boxes(page, id))[4], (await boxes(page, id))[0], (await boxes(page, id))[1]], [[16, 76], [100, 200], [308, 76]]);
