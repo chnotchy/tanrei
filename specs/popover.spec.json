@@ -44,7 +44,7 @@
     },
     {
       "id": "divider",
-      "description": "Hairlines across the container below the header and above the actions, drawn only while the content scrolls.",
+      "description": "Hairlines across the container below the header and above the actions, drawn only while the content scrolls: for as long as it does in the default system, or only while content lies beyond each line under dividerVisibility scroll.",
       "optional": true
     },
     {
@@ -149,6 +149,17 @@
       "default": "",
       "description": "The close button's accessible name (\"Close filters\"). Required while closable is true.",
       "words": "closeLabel"
+    },
+    {
+      "name": "dividerVisibility",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "scroll"
+      ],
+      "default": "auto",
+      "description": "When the dividers below the header and above the actions are drawn while the content scrolls between them. always: both, for as long as the content scrolls, wherever it is scrolled to. scroll: each only while content lies beyond it — below the header while the content is not at its top, above the actions while more of it lies below. auto takes comp.popover.divider.visibility, the design system's answer (always in the default system). Under every choice a popover whose parts all fit draws none."
     }
   ],
   "items": [
@@ -247,7 +258,7 @@
     },
     {
       "id": "POP-8",
-      "text": "THE popover SHALL make its container as tall as its parts and its paddings, at most comp.popover.container.max-height and at most the room its side leaves within comp.popover.window-margin (POP-5). WHEN its parts do not fit in that height THE popover SHALL keep the header and the actions in place and scroll the content between them, SHALL let keyboard focus and assistive technology scroll it, and SHALL draw a divider of comp.popover.divider.width in comp.popover.divider.color across the container below the header WHILE the content is scrolled away from its top, and above the actions WHILE more of it lies below; WHILE everything fits, or there is no header or no action on that side of the content, THE popover SHALL draw no divider there. WHEN the header and the actions alone leave no room for the content (large text in a short window) THE popover SHALL scroll all of its parts together instead, so that nothing is cut off or unreachable. The dividers SHALL be hidden from assistive technology and SHALL show and hide at once, without motion.",
+      "text": "THE popover SHALL make its container as tall as its parts and its paddings, at most comp.popover.container.max-height and at most the room its side leaves within comp.popover.window-margin (POP-5). WHEN its parts do not fit in that height THE popover SHALL keep the header and the actions in place and scroll the content between them, SHALL let keyboard focus and assistive technology scroll it, and SHALL draw a divider of comp.popover.divider.width in comp.popover.divider.color across the container below the header and another above the actions: WHILE its divider visibility (POP-38) is always, both for as long as the content scrolls, wherever it is scrolled to, at its top included; WHILE it is scroll, the one below the header only WHILE the content is scrolled away from its top and the one above the actions only WHILE more of it lies below; WHILE everything fits, or there is no header or no action on that side of the content, THE popover SHALL draw no divider there. WHEN the header and the actions alone leave no room for the content (large text in a short window) THE popover SHALL scroll all of its parts together instead, so that nothing is cut off or unreachable. The dividers SHALL be hidden from assistive technology and SHALL show and hide at once, without motion.",
       "verify": "The fixture scrolling holds more text than comp.popover.container.max-height allows: the header and the actions stay, the divider above the actions is drawn, and the one below the header appears once the content is scrolled."
     },
     {
@@ -370,6 +381,11 @@
     {
       "id": "POP-37",
       "text": "WHEN placement, width or initialFocus names a value the popover does not define THE popover SHALL render with the default value, and in debug builds report the unknown value."
+    },
+    {
+      "id": "POP-38",
+      "text": "THE popover SHALL draw its dividers (POP-8) as its dividerVisibility names: WHILE dividerVisibility is auto, as comp.popover.divider.visibility names, which follows sys.behavior.divider-visibility unless a design system sets the popover apart; WHILE dividerVisibility is always or scroll, as that value names, whatever the tokens say. WHEN dividerVisibility, or the token it follows, changes THE popover SHALL draw the other form at once, moving no part and keeping the scroll position and focus; WHEN dividerVisibility names a value the popover does not define THE popover SHALL treat it as auto and in debug builds report the unknown value. A platform that cannot draw a choice SHALL fall back to the first value, always, and state that in its README.",
+      "verify": "Under the default system scrolling draws both dividers with its content at the top. With divider-visibility=\"scroll\" it draws only the one above the actions until the content is scrolled."
     }
   ],
   "accessibility": {
@@ -829,7 +845,8 @@
         "headline": "headline",
         "label": "label",
         "closable": "closable",
-        "closeLabel": "closeLabel"
+        "closeLabel": "closeLabel",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "close": "close"
@@ -849,7 +866,7 @@
           "notes": "A `tanrei-button` child with `slot=\"actions\"`: its label is its content. `confirming` and `dismissive` are boolean attributes that the popover reads, as the button group does. A Button without a `variant` attribute takes the popover's variant through the internal controller the group already gives its items (POP-16); the attribute, once written, wins."
         }
       },
-      "notes": "`<tanrei-popover anchor=\"…\">` names its anchor as the menu does: `anchor` is the id of the anchor element in the popover's own tree, and `anchorElement` a property for an element that an id cannot reach (another shadow root); `opener` and `openerElement` name a separate opener, as the docked picker's do (POP-18). The popover sets `aria-haspopup=\"dialog\"`, `aria-controls` and `aria-expanded` on the opener and removes them when it is disconnected. Attributes are kebab-case (`cross-offset`, `initial-focus`, `close-label`); `offset` and `crossOffset` are number properties in CSS pixels parsed as the tooltip's are, so an empty attribute is not a number; `arrow` is true, false or null — absent for null, present for true and `=\"false\"` for false; `inset` is a boolean property that defaults to true, whose attribute is the inverse `no-inset`. `close` is a CustomEvent whose `detail.reason` is `escape`, `back`, `outside`, `focus-out`, `close` or `anchor-hidden`; the product sets `open` to false from it. Slots: default and `actions`. The container is a `popover=\"manual\"` element with `role=\"dialog\"` and no `aria-modal` in the shadow root, so it is in the top layer (above an open modal `<dialog>` when the element is a descendant of that dialog, which it must be to be operable there, POP-25); `manual` and not `auto`, because the popover implements its own light dismiss so that `close` carries a reason and so that an overlay opened from inside it is not closed by the browser's own rule. It is placed with CSS anchor positioning where the browser has it and by measuring otherwise, and follows its anchor with the shared `FollowController`. The container and the arrow are one painted shape, so the elevation's ring and shadows run round both. Focus order (POP-20): the top layer does not change the tab order, so where the element does not directly follow its opener in the document the popover moves focus itself — Tab on the opener while open goes to the first tabbable element of the popover, Shift+Tab from that element to the opener, and Tab from the last to the element after the opener. The `autofocus` attribute on a slotted element marks initial focus; the container has `tabindex=\"-1\"`. A press outside also reaches the element under it. Under `forced-colors: active` the painted shape takes a `CanvasText` outline (POP-32). The `inline` attribute, for tests, draws the open container in place. Snapshot harness: a stage of 480 × 480 with a medium outlined `tanrei-button` labelled \"Storage\" at its centre and the popover open against it; `width-anchor` gives the button a width of 240; the screenshot is the stage."
+      "notes": "`<tanrei-popover anchor=\"…\">` names its anchor as the menu does: `anchor` is the id of the anchor element in the popover's own tree, and `anchorElement` a property for an element that an id cannot reach (another shadow root); `opener` and `openerElement` name a separate opener, as the docked picker's do (POP-18). The popover sets `aria-haspopup=\"dialog\"`, `aria-controls` and `aria-expanded` on the opener and removes them when it is disconnected. Attributes are kebab-case (`cross-offset`, `initial-focus`, `close-label`); `offset` and `crossOffset` are number properties in CSS pixels parsed as the tooltip's are, so an empty attribute is not a number; `arrow` is true, false or null — absent for null, present for true and `=\"false\"` for false; `inset` is a boolean property that defaults to true, whose attribute is the inverse `no-inset`. `close` is a CustomEvent whose `detail.reason` is `escape`, `back`, `outside`, `focus-out`, `close` or `anchor-hidden`; the product sets `open` to false from it. Slots: default and `actions`. The container is a `popover=\"manual\"` element with `role=\"dialog\"` and no `aria-modal` in the shadow root, so it is in the top layer (above an open modal `<dialog>` when the element is a descendant of that dialog, which it must be to be operable there, POP-25); `manual` and not `auto`, because the popover implements its own light dismiss so that `close` carries a reason and so that an overlay opened from inside it is not closed by the browser's own rule. It is placed with CSS anchor positioning where the browser has it and by measuring otherwise, and follows its anchor with the shared `FollowController`. The container and the arrow are one painted shape, so the elevation's ring and shadows run round both. Focus order (POP-20): the top layer does not change the tab order, so where the element does not directly follow its opener in the document the popover moves focus itself — Tab on the opener while open goes to the first tabbable element of the popover, Shift+Tab from that element to the opener, and Tab from the last to the element after the opener. The `autofocus` attribute on a slotted element marks initial focus; the container has `tabindex=\"-1\"`. A press outside also reaches the element under it. Under `forced-colors: active` the painted shape takes a `CanvasText` outline (POP-32). The `inline` attribute, for tests, draws the open container in place. Snapshot harness: a stage of 480 × 480 with a medium outlined `tanrei-button` labelled \"Storage\" at its centre and the popover open against it; `width-anchor` gives the button a width of 240; the screenshot is the stage. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-popover-divider-visibility` from the cascade with a style query, and where the browser has none the popover writes the name it read on its clip when it lays out."
     },
     "swiftui": {
       "status": "planned",
@@ -866,7 +883,8 @@
         "headline": "headline",
         "label": "accessibilityLabel",
         "closable": "closable",
-        "closeLabel": "closeLabel"
+        "closeLabel": "closeLabel",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "close": "onClose"
@@ -886,7 +904,7 @@
           "notes": "A `TanreiButton` in the `actions:` builder. The flags are the button group's `.tanreiGroupPlacement(_:)` modifier (one enum: both cannot be set). A Button created with `variant: nil` reads the popover's variant from an environment value the popover sets (internal to the package)."
         }
       },
-      "notes": "A modifier on the anchor: `.tanreiPopover(isPresented: Binding<Bool>, headline:, accessibilityLabel:, placement:, offset: CGFloat? = nil, crossOffset:, arrow: Bool? = nil, width:, inset:, initialFocus:, closable:, closeLabel:, onClose:, actions:, content:)`; a separate opener is named with `.tanreiPopoverOpener(_:)` on that view. Dismissal writes false to the binding and then calls `onClose` with the reason. Drawn in an overlay above the window's content, anchored with anchor preferences, as the tooltip is, not with `.popover`: the system's is modal at compact widths and its arrow, placement and motion cannot be given by tokens. Initial focus is `.defaultFocus` or an `@AccessibilityFocusState` the product passes; the container is an accessibility container with the header trait on the headline, placed after the opener with `accessibilitySortPriority`; the iOS escape gesture is `.accessibilityAction(.escape)`. A press outside does not reach what is under it. Snapshot harness: the anchor and the open popover in a fixed 480 × 480 frame."
+      "notes": "A modifier on the anchor: `.tanreiPopover(isPresented: Binding<Bool>, headline:, accessibilityLabel:, placement:, offset: CGFloat? = nil, crossOffset:, arrow: Bool? = nil, width:, inset:, initialFocus:, closable:, closeLabel:, onClose:, actions:, content:)`; a separate opener is named with `.tanreiPopoverOpener(_:)` on that view. Dismissal writes false to the binding and then calls `onClose` with the reason. Drawn in an overlay above the window's content, anchored with anchor preferences, as the tooltip is, not with `.popover`: the system's is modal at compact widths and its arrow, placement and motion cannot be given by tokens. Initial focus is `.defaultFocus` or an `@AccessibilityFocusState` the product passes; the container is an accessibility container with the header trait on the headline, placed after the opener with `accessibilitySortPriority`; the iOS escape gesture is `.accessibilityAction(.escape)`. A press outside does not reach what is under it. Snapshot harness: the anchor and the open popover in a fixed 480 × 480 frame. Not built on this platform yet: `dividerVisibility` (auto, always, scroll; POP-38) — the dividers still follow the scroll position, as `scroll` does."
     },
     "compose": {
       "status": "planned",
@@ -903,7 +921,8 @@
         "headline": "headline",
         "label": "contentDescription",
         "closable": "closable",
-        "closeLabel": "closeLabel"
+        "closeLabel": "closeLabel",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "close": "onDismissRequest"
@@ -923,7 +942,7 @@
           "notes": "A `TanreiButton` in the `actions` lambda, whose receiver is the button group's scope, so the flags are its `Modifier.confirming()` and `Modifier.dismissive()`. `enabled` is disabled's inverse. `variant: TanreiButtonVariant? = null` takes the popover's from a `CompositionLocal` (internal to the library)."
         }
       },
-      "notes": "Compose idiom, as the menu: `TanreiPopover(visible, onDismissRequest, headline, contentDescription, placement, offset: Dp? = null, crossOffset, arrow: Boolean? = null, width, inset, initialFocus: TanreiPopoverInitialFocus, initialFocusRequester: FocusRequester? = null, closable, closeLabel, actions, content)` inside the anchor's `Box`, shown in a `Popup` with a `PopupPositionProvider` of its own. `visible` rather than calling it only while open, so that the close motion can run. The caller closes it, so close is `onDismissRequest` and it carries the reason. The `Popup` is focusable while initialFocus is popover, so back reaches it; because a focusable popup is a window of its own, the popover moves focus itself at its ends (POP-20): Tab from its last element clears the popup's focus, asks the anchor's `FocusManager` to move next and reports focus-out. `paneTitle` is the headline or `contentDescription`. A press outside does not reach what is under it. Snapshot harness: the anchor and `TanreiPopoverContent` in place in a 480 × 480 dp box; the popup itself is covered by instrumented tests."
+      "notes": "Compose idiom, as the menu: `TanreiPopover(visible, onDismissRequest, headline, contentDescription, placement, offset: Dp? = null, crossOffset, arrow: Boolean? = null, width, inset, initialFocus: TanreiPopoverInitialFocus, initialFocusRequester: FocusRequester? = null, closable, closeLabel, actions, content)` inside the anchor's `Box`, shown in a `Popup` with a `PopupPositionProvider` of its own. `visible` rather than calling it only while open, so that the close motion can run. The caller closes it, so close is `onDismissRequest` and it carries the reason. The `Popup` is focusable while initialFocus is popover, so back reaches it; because a focusable popup is a window of its own, the popover moves focus itself at its ends (POP-20): Tab from its last element clears the popup's focus, asks the anchor's `FocusManager` to move next and reports focus-out. `paneTitle` is the headline or `contentDescription`. A press outside does not reach what is under it. Snapshot harness: the anchor and `TanreiPopoverContent` in place in a 480 × 480 dp box; the popup itself is covered by instrumented tests. Not built on this platform yet: `dividerVisibility` (auto, always, scroll; POP-38) — the dividers still follow the scroll position, as `scroll` does."
     },
     "flutter": {
       "status": "planned",
@@ -940,7 +959,8 @@
         "headline": "headline",
         "label": "semanticLabel",
         "closable": "showCloseButton",
-        "closeLabel": "closeButtonSemanticLabel"
+        "closeLabel": "closeButtonSemanticLabel",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "close": "onClose"
@@ -960,7 +980,7 @@
           "notes": "A `TanreiButton` in `actions:`; a null `onPressed` disables it. The flags are the button group's `TanreiButtonGroupItem(placement:, child:)` (one enum: both cannot be set). A Button with `variant: null` takes the popover's from an `InheritedWidget` (internal to the package)."
         }
       },
-      "notes": "Flutter idiom, as `TanreiMenuAnchor`: `TanreiPopover(controller:, placement:, offset:, crossOffset:, arrow:, width:, inset:, initialFocus:, headline:, semanticLabel:, showCloseButton:, closeButtonSemanticLabel:, onClose:, actions: […], content:, builder:)` wraps the anchor that `builder` returns; `TanreiPopoverController.open()` and `.close()` are open, and `onClose` carries the reason. Shown with an `OverlayPortal` and a `CompositedTransformFollower`: the portal's child stays where it is declared in the widget, focus and semantics trees, so the popover follows its anchor in traversal and reading order without more (POP-20). Outside presses are a `TapRegion` whose group the overlays opened from inside it join (POP-24); a press outside also reaches what is under it. `autofocus: true` on a descendant marks initial focus; `Semantics(scopesRoute: false, namesRoute: true, label:)` names the container. Snapshot harness: the anchor and the open popover in a 480 × 480 box."
+      "notes": "Flutter idiom, as `TanreiMenuAnchor`: `TanreiPopover(controller:, placement:, offset:, crossOffset:, arrow:, width:, inset:, initialFocus:, headline:, semanticLabel:, showCloseButton:, closeButtonSemanticLabel:, onClose:, actions: […], content:, builder:)` wraps the anchor that `builder` returns; `TanreiPopoverController.open()` and `.close()` are open, and `onClose` carries the reason. Shown with an `OverlayPortal` and a `CompositedTransformFollower`: the portal's child stays where it is declared in the widget, focus and semantics trees, so the popover follows its anchor in traversal and reading order without more (POP-20). Outside presses are a `TapRegion` whose group the overlays opened from inside it join (POP-24); a press outside also reaches what is under it. `autofocus: true` on a descendant marks initial focus; `Semantics(scopesRoute: false, namesRoute: true, label:)` names the container. Snapshot harness: the anchor and the open popover in a 480 × 480 box. Not built on this platform yet: `dividerVisibility` (auto, always, scroll; POP-38) — the dividers still follow the scroll position, as `scroll` does."
     },
     "react-native": {
       "status": "planned",
@@ -977,7 +997,8 @@
         "headline": "headline",
         "label": "accessibilityLabel",
         "closable": "closable",
-        "closeLabel": "closeLabel"
+        "closeLabel": "closeLabel",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "close": "onClose"
@@ -997,7 +1018,7 @@
           "notes": "A `Button` in the `actions` prop. `confirming` and `dismissive` are props the popover reads from its actions, as the button group reads them. A Button with no `variant` takes the popover's from a React context (internal to the package)."
         }
       },
-      "notes": "`<Popover visible anchorRef openerRef? onClose headline …>{content}</Popover>`, presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the anchor (`measureInWindow`), again on layout, scroll and keyboard events; Android's back button (`BackHandler`) is close with the reason back, and the iOS escape gesture is `onAccessibilityEscape`. Controlled: the caller sets `visible` to false from `onClose`. `accessibilityViewIsModal` stays false; the container is given accessibility focus when it opens and the opener when it closes. A hardware keyboard's Tab order follows the native view order, which the overlay layer puts last: the README states that the popover is reached from its opener by the focus it takes on opening, and returns to the opener on leaving. A press outside closes the popover and does not reach what is under it. Follows the app's direction where an ancestor's is not known."
+      "notes": "`<Popover visible anchorRef openerRef? onClose headline …>{content}</Popover>`, presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the anchor (`measureInWindow`), again on layout, scroll and keyboard events; Android's back button (`BackHandler`) is close with the reason back, and the iOS escape gesture is `onAccessibilityEscape`. Controlled: the caller sets `visible` to false from `onClose`. `accessibilityViewIsModal` stays false; the container is given accessibility focus when it opens and the opener when it closes. A hardware keyboard's Tab order follows the native view order, which the overlay layer puts last: the README states that the popover is reached from its opener by the focus it takes on opening, and returns to the opener on leaving. A press outside closes the popover and does not reach what is under it. Follows the app's direction where an ancestor's is not known. Not built on this platform yet: `dividerVisibility` (auto, always, scroll; POP-38) — the dividers still follow the scroll position, as `scroll` does."
     }
   }
 }
