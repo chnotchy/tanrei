@@ -1611,6 +1611,12 @@ enum TanreiFocusStyle {
   glow,
 }
 
+/// `sys.behavior.divider-visibility`: a choice of kind. The first value is the default.
+enum TanreiDividerVisibility {
+  always,
+  scroll,
+}
+
 /// `sys.behavior.link-underline`: a choice of kind. The first value is the default.
 enum TanreiLinkUnderline {
   always,
@@ -1638,6 +1644,7 @@ class TanreiBehavior {
   const TanreiBehavior({
     required this.pressedFeedback,
     required this.focusStyle,
+    required this.dividerVisibility,
     required this.linkUnderline,
     required this.requirementMark,
     required this.separation,
@@ -1647,6 +1654,8 @@ class TanreiBehavior {
   final TanreiPressedFeedback pressedFeedback;
   /// `sys.behavior.focus-style`
   final TanreiFocusStyle focusStyle;
+  /// `sys.behavior.divider-visibility`
+  final TanreiDividerVisibility dividerVisibility;
   /// `sys.behavior.link-underline`
   final TanreiLinkUnderline linkUnderline;
   /// `sys.behavior.requirement-mark`
@@ -1658,12 +1667,14 @@ class TanreiBehavior {
   TanreiBehavior copyWith({
     TanreiPressedFeedback? pressedFeedback,
     TanreiFocusStyle? focusStyle,
+    TanreiDividerVisibility? dividerVisibility,
     TanreiLinkUnderline? linkUnderline,
     TanreiRequirementMark? requirementMark,
     TanreiSeparation? separation,
   }) => TanreiBehavior(
         pressedFeedback: pressedFeedback ?? this.pressedFeedback,
         focusStyle: focusStyle ?? this.focusStyle,
+        dividerVisibility: dividerVisibility ?? this.dividerVisibility,
         linkUnderline: linkUnderline ?? this.linkUnderline,
         requirementMark: requirementMark ?? this.requirementMark,
         separation: separation ?? this.separation,
@@ -2490,6 +2501,7 @@ class TanreiAppBarTokens {
     required this.containerPaddingInline,
     required this.motionConditionDuration,
     required this.motionConditionEasing,
+    required this.outlineVisibility,
     required this.outlineWidth,
     required this.subtitleColor,
     required this.titleColor,
@@ -2510,6 +2522,8 @@ class TanreiAppBarTokens {
   final int motionConditionDuration;
   /// `comp.app-bar.motion-condition-easing`
   final TanreiCubicBezier motionConditionEasing;
+  /// `comp.app-bar.outline-visibility`
+  final double outlineVisibility;
   /// `comp.app-bar.outline-width`
   final double outlineWidth;
   /// `comp.app-bar.subtitle-color`
@@ -2531,6 +2545,7 @@ class TanreiAppBarTokens {
     double? containerPaddingInline,
     int? motionConditionDuration,
     TanreiCubicBezier? motionConditionEasing,
+    double? outlineVisibility,
     double? outlineWidth,
     TanreiPaint? subtitleColor,
     TanreiPaint? titleColor,
@@ -2544,6 +2559,7 @@ class TanreiAppBarTokens {
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         motionConditionDuration: motionConditionDuration ?? this.motionConditionDuration,
         motionConditionEasing: motionConditionEasing ?? this.motionConditionEasing,
+        outlineVisibility: outlineVisibility ?? this.outlineVisibility,
         outlineWidth: outlineWidth ?? this.outlineWidth,
         subtitleColor: subtitleColor ?? this.subtitleColor,
         titleColor: titleColor ?? this.titleColor,
@@ -9096,6 +9112,7 @@ class TanreiDialogTokens {
     required this.containerShape,
     required this.contentColor,
     required this.dividerColor,
+    required this.dividerVisibility,
     required this.dividerWidth,
     required this.headerGap,
     required this.headlineColor,
@@ -9145,6 +9162,8 @@ class TanreiDialogTokens {
   final TanreiPaint contentColor;
   /// `comp.dialog.divider-color`
   final TanreiPaint dividerColor;
+  /// `comp.dialog.divider-visibility`
+  final double dividerVisibility;
   /// `comp.dialog.divider-width`
   final double dividerWidth;
   /// `comp.dialog.header-gap`
@@ -9197,6 +9216,7 @@ class TanreiDialogTokens {
     double? containerShape,
     TanreiPaint? contentColor,
     TanreiPaint? dividerColor,
+    double? dividerVisibility,
     double? dividerWidth,
     double? headerGap,
     TanreiPaint? headlineColor,
@@ -9230,6 +9250,7 @@ class TanreiDialogTokens {
         containerShape: containerShape ?? this.containerShape,
         contentColor: contentColor ?? this.contentColor,
         dividerColor: dividerColor ?? this.dividerColor,
+        dividerVisibility: dividerVisibility ?? this.dividerVisibility,
         dividerWidth: dividerWidth ?? this.dividerWidth,
         headerGap: headerGap ?? this.headerGap,
         headlineColor: headlineColor ?? this.headlineColor,
@@ -17358,6 +17379,7 @@ class TanreiPopoverTokens {
     required this.containerShape,
     required this.contentColor,
     required this.dividerColor,
+    required this.dividerVisibility,
     required this.dividerWidth,
     required this.headerGap,
     required this.headlineColor,
@@ -17410,6 +17432,8 @@ class TanreiPopoverTokens {
   final TanreiPaint contentColor;
   /// `comp.popover.divider-color`
   final TanreiPaint dividerColor;
+  /// `comp.popover.divider-visibility`
+  final double dividerVisibility;
   /// `comp.popover.divider-width`
   final double dividerWidth;
   /// `comp.popover.header-gap`
@@ -17453,6 +17477,7 @@ class TanreiPopoverTokens {
     double? containerShape,
     TanreiPaint? contentColor,
     TanreiPaint? dividerColor,
+    double? dividerVisibility,
     double? dividerWidth,
     double? headerGap,
     TanreiPaint? headlineColor,
@@ -17484,6 +17509,7 @@ class TanreiPopoverTokens {
         containerShape: containerShape ?? this.containerShape,
         contentColor: contentColor ?? this.contentColor,
         dividerColor: dividerColor ?? this.dividerColor,
+        dividerVisibility: dividerVisibility ?? this.dividerVisibility,
         dividerWidth: dividerWidth ?? this.dividerWidth,
         headerGap: headerGap ?? this.headerGap,
         headlineColor: headlineColor ?? this.headlineColor,
@@ -19699,6 +19725,7 @@ class TanreiSideSheetTokens {
     required this.containerWidth,
     required this.contentColor,
     required this.dividerColor,
+    required this.dividerVisibility,
     required this.dividerWidth,
     required this.headerGap,
     required this.headerHeight,
@@ -19735,6 +19762,8 @@ class TanreiSideSheetTokens {
   final TanreiPaint contentColor;
   /// `comp.side-sheet.divider-color`
   final TanreiPaint dividerColor;
+  /// `comp.side-sheet.divider-visibility`
+  final double dividerVisibility;
   /// `comp.side-sheet.divider-width`
   final double dividerWidth;
   /// `comp.side-sheet.header-gap`
@@ -19776,6 +19805,7 @@ class TanreiSideSheetTokens {
     double? containerWidth,
     TanreiPaint? contentColor,
     TanreiPaint? dividerColor,
+    double? dividerVisibility,
     double? dividerWidth,
     double? headerGap,
     double? headerHeight,
@@ -19801,6 +19831,7 @@ class TanreiSideSheetTokens {
         containerWidth: containerWidth ?? this.containerWidth,
         contentColor: contentColor ?? this.contentColor,
         dividerColor: dividerColor ?? this.dividerColor,
+        dividerVisibility: dividerVisibility ?? this.dividerVisibility,
         dividerWidth: dividerWidth ?? this.dividerWidth,
         headerGap: headerGap ?? this.headerGap,
         headerHeight: headerHeight ?? this.headerHeight,

@@ -1591,6 +1591,11 @@
           }
         },
         "outline": {
+          "visibility": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "When the bar's bottom edge is drawn. always: in both conditions, in scrolled.outline.color, so that the bar's edge stands still whether or not content lies under it. scroll: in each condition's own outline color (flat.outline.color while nothing lies under the bar, scrolled.outline.color while content does) (APB-1, APB-2). Follows the system's choice; the dividerVisibility prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+          },
           "width": {
             "$type": "dimension",
             "$value": {
@@ -32222,6 +32227,11 @@
               "alpha": 0.08,
               "hex": "#000000"
             }
+          },
+          "visibility": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "When the dividers below the header and above the actions are drawn while the supporting text and the content scroll between them. always: both, whenever that part scrolls, wherever it is scrolled to. scroll: below the header only while the part is not at its top, above the actions only while more of it lies below (DLG-11). Under either choice none is drawn while everything fits. Follows the system's choice; the dividerVisibility prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name."
           },
           "width": {
             "$type": "dimension",
@@ -69882,6 +69892,11 @@
             },
             "$description": "The one hairline, below the header and above the actions while the content scrolls."
           },
+          "visibility": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "When the dividers below the header and above the actions are drawn while the content scrolls between them. always: both, whenever the content scrolls, wherever it is scrolled to. scroll: below the header only while the content is scrolled away from its top, above the actions only while more of it lies below (POP-8). Under either choice none is drawn while everything fits, or where there is no header or no action on that side. Follows the system's choice; the dividerVisibility prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+          },
           "width": {
             "$type": "dimension",
             "$value": {
@@ -78267,7 +78282,12 @@
               "alpha": 0.08,
               "hex": "#000000"
             },
-            "$description": "The hairline above the actions, drawn while there are actions, and the one below the header, drawn while the content is scrolled from its top (SSH-11, SSH-19)."
+            "$description": "The hairline above the actions, drawn while there are actions, and the one below the header, drawn as divider.visibility says (SSH-11, SSH-19)."
+          },
+          "visibility": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "When the divider below the header is drawn. always: whenever the header is drawn, at rest as well as while the content is scrolled, as the divider above the actions is. scroll: only while the content is scrolled away from its top (SSH-19). Follows the system's choice; the dividerVisibility prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name."
           },
           "width": {
             "$type": "dimension",
@@ -105127,6 +105147,11 @@
     },
     "sys": {
       "behavior": {
+        "divider-visibility": {
+          "$type": "number",
+          "$value": 0,
+          "$description": "When the line that parts a part that stays in place from content that scrolls under or beside it is drawn: an app bar's bottom edge, the dividers below a dialog's or a popover's header and above its actions, the divider below a side sheet's header. always: whenever the two parts meet — at rest as well as while content is scrolled — so that the edge of a fixed region stands still. scroll: only while content lies beyond that edge (scrolled under the header, or more of it below the actions), so that the line itself says the content has moved. Read by the app bar, the dialog, the popover and the side sheet, each through its own component token so that a design system can set one apart; an instance can set its own. A line that says there is more to scroll to, inside a box that scrolls, is not this choice and always follows the scroll."
+        },
         "focus-style": {
           "$type": "number",
           "$value": 0,

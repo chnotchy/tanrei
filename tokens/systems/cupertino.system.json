@@ -69,6 +69,7 @@
     "tanrei.sys.typescale.emphasis.label": {"$value": 200, "reason": "Apple's emphasized weight for this family."},
     "tanrei.sys.behavior.pressed-feedback": {"$value": 2, "reason": "Apple platforms dim the whole control while it is pressed; no state layer is drawn."},
     "tanrei.sys.behavior.requirement-mark": {"$value": 2, "reason": "Apple's forms draw no required mark beside a label."},
+    "tanrei.sys.behavior.divider-visibility": {"$value": 1, "reason": "Apple's navigation bars and toolbars draw their hairline only while content lies under them: at the scroll edge their appearance has no shadow (scrollEdgeAppearance), and a sheet's bar follows the same rule."},
     "tanrei.sys.shape.corner-smoothing": {"$value": 0.6, "reason": "Apple platforms draw continuous corners: Figma's 60 % corner smoothing."},
     "tanrei.sys.color.primary": {"derive": {"fn": "tone", "palette": "primary", "tone": {"light": [53, 40, 30], "dark": [60, 72, 87]}}},
     "tanrei.sys.color.on-primary": {"derive": {"fn": "tone", "palette": "primary", "tone": {"light": [100], "dark": [100, 5, 0]}}},

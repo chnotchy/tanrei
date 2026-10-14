@@ -200,6 +200,7 @@
     "tanrei.sys.typescale.emphasis.label": {"$value": 200, "reason": "Material Design 3's emphasized weight for this family."},
     "tanrei.sys.behavior.pressed-feedback": {"$value": 1, "reason": "Material answers a press with a ripple that grows from the point of contact."},
     "tanrei.sys.behavior.requirement-mark": {"$value": 1, "reason": "Material Design 3 marks a required field with an asterisk after its label."},
+    "tanrei.sys.behavior.divider-visibility": {"$value": 1, "reason": "Material's top app bar lies flat until content scrolls under it, and its dialogs show the dividers above and below their scrolling content only while content lies beyond them (Material Web's dialog)."},
     "tanrei.sys.behavior.separation": {"$value": 1, "reason": "Material's joined buttons stand a narrow gap apart, and its determinate progress indicators leave a gap before the track and draw a stop. Its menus part groups with a line: the menu's own choice is set back to divider when the menu reads it."},
     "tanrei.ref.typeface.icon": {"$value": ["Material Symbols Outlined"], "reason": "Material Design 3 draws Material Symbols in the Outlined style."},
     "tanrei.sys.icon.weight": {"$value": 400, "reason": "Material Symbols default weight in Material Design 3."},

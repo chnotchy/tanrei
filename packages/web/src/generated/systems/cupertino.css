@@ -162,6 +162,7 @@
     --tanrei-comp-app-bar-flat-outline-color: rgb(0 0 0 / 0);
     --tanrei-comp-app-bar-motion-condition-duration: var(--tanrei-sys-motion-duration-short4);
     --tanrei-comp-app-bar-motion-condition-easing: var(--tanrei-sys-motion-easing-standard);
+    --tanrei-comp-app-bar-outline-visibility: var(--tanrei-sys-behavior-divider-visibility);
     --tanrei-comp-app-bar-outline-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-app-bar-scrolled-container-color: var(--tanrei-sys-color-surface-container-low);
     --tanrei-comp-app-bar-scrolled-container-elevation: var(--tanrei-sys-elevation-level0);
@@ -2750,6 +2751,7 @@
     --tanrei-comp-dialog-container-shape-pill: 0;
     --tanrei-comp-dialog-content-color: var(--tanrei-sys-color-on-surface);
     --tanrei-comp-dialog-divider-color: var(--tanrei-sys-color-outline-variant);
+    --tanrei-comp-dialog-divider-visibility: var(--tanrei-sys-behavior-divider-visibility);
     --tanrei-comp-dialog-divider-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-dialog-header-gap: var(--tanrei-sys-space-space150);
     --tanrei-comp-dialog-headline-color: var(--tanrei-sys-color-on-surface);
@@ -5669,6 +5671,7 @@
     --tanrei-comp-popover-container-shape-pill: 0;
     --tanrei-comp-popover-content-color: var(--tanrei-sys-color-on-surface);
     --tanrei-comp-popover-divider-color: var(--tanrei-sys-color-outline-variant);
+    --tanrei-comp-popover-divider-visibility: var(--tanrei-sys-behavior-divider-visibility);
     --tanrei-comp-popover-divider-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-popover-header-gap: var(--tanrei-sys-space-space100);
     --tanrei-comp-popover-headline-color: var(--tanrei-sys-color-on-surface);
@@ -6449,6 +6452,7 @@
     --tanrei-comp-side-sheet-container-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 80), 0.25px);
     --tanrei-comp-side-sheet-content-color: var(--tanrei-sys-color-on-surface);
     --tanrei-comp-side-sheet-divider-color: var(--tanrei-sys-color-outline-variant);
+    --tanrei-comp-side-sheet-divider-visibility: var(--tanrei-sys-behavior-divider-visibility);
     --tanrei-comp-side-sheet-divider-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-side-sheet-header-gap: var(--tanrei-sys-space-space100);
     --tanrei-comp-side-sheet-header-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 16), 0.25px);
@@ -8768,6 +8772,7 @@
     --tanrei-ref-typeface-weight-medium: 500;
     --tanrei-ref-typeface-weight-regular: 400;
     --tanrei-ref-typeface-weight-semibold: 600;
+    --tanrei-sys-behavior-divider-visibility: scroll;
     --tanrei-sys-behavior-focus-style: ring;
     --tanrei-sys-behavior-link-underline: always;
     --tanrei-sys-behavior-pressed-feedback: dim;

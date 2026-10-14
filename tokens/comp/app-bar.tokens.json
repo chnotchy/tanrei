@@ -142,6 +142,23 @@
             "$type": "dimension",
             "$description": "The bar's bottom edge.",
             "$value": "{tanrei.sys.border.hairline}"
+          },
+          "visibility": {
+            "$type": "number",
+            "$value": "{tanrei.sys.behavior.divider-visibility}",
+            "$description": "When the bar's bottom edge is drawn. always: in both conditions, in scrolled.outline.color, so that the bar's edge stands still whether or not content lies under it. scroll: in each condition's own outline color (flat.outline.color while nothing lies under the bar, scrolled.outline.color while content does) (APB-1, APB-2). Follows the system's choice; the dividerVisibility prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product rules its top bar off from the screen for good, as the edge of a region that stays, while another lets the bar lie flat on the page until content passes under it; a product may make its bars the one exception to the choice its sheets and dialogs follow.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "always",
+                  "scroll"
+                ]
+              }
+            }
           }
         },
         "flat": {

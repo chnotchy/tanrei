@@ -211,6 +211,23 @@
           "width": {
             "$type": "dimension",
             "$value": "{tanrei.sys.border.hairline}"
+          },
+          "visibility": {
+            "$type": "number",
+            "$value": "{tanrei.sys.behavior.divider-visibility}",
+            "$description": "When the dividers below the header and above the actions are drawn while the content scrolls between them. always: both, whenever the content scrolls, wherever it is scrolled to. scroll: below the header only while the content is scrolled away from its top, above the actions only while more of it lies below (POP-8). Under either choice none is drawn while everything fits, or where there is no header or no action on that side. Follows the system's choice; the dividerVisibility prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product rules a popover's fixed header and actions off from its scrolling content for as long as it scrolls, while another shows each line only once content has passed it; a small surface anchored to a control may be set apart from the dialogs and sheets of the same product.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "always",
+                  "scroll"
+                ]
+              }
+            }
           }
         },
         "actions": {
