@@ -315,3 +315,21 @@ test('a token under a control that is not a part declared per state is off the c
     assert.ok(ir.componentTokens.snackbar.some((t) => t.axis === 'control' && t.key === key && t.member === m.name && t.state === state), `${key} ${state ?? 'resting'} ${m.name}`);
   }
 });
+
+// A part may declare interaction states of its own (`dev.tanrei.states` on a group inside a component: the table's
+// row, whose fill answers hover and press while the table's own states are its sortable header's). Its state tokens are
+// valued by the system's rules like any other, and the typed platform shapes carry them as plain tokens by their
+// whole name: they are no member of an axis, and no per-component state part.
+test('the states a part declares for itself are valued, and handed to the emitters as plain tokens', async () => {
+  const ir = buildIR(await (await resolveSystem({ layers: [layer({})] })).model());
+  const row = ir.componentTokens.table.filter((t) => t.id.startsWith('tanrei.comp.table.row.'));
+  const hovered = row.find((t) => t.id === 'tanrei.comp.table.row.selected.hovered.container.color');
+  assert.deepEqual({ axis: hovered.axis, state: hovered.state, name: hovered.name }, { axis: null, state: null, name: 'row-selected-hovered-container-color' });
+  assert.equal(hovered.paint.kind, 'mix');
+  for (const condition of ['unselected', 'selected']) for (const state of ['hovered', 'pressed']) for (const part of ['container', 'text']) {
+    assert.ok(row.some((t) => t.id === `tanrei.comp.table.row.${condition}.${state}.${part}.color`), `${condition} ${state} ${part}`);
+  }
+  // The table's own states stay where they were: its sortable header's, on its part axis.
+  const sort = ir.componentTokens.table.find((t) => t.id === 'tanrei.comp.table.sort.hovered.container.color');
+  assert.deepEqual({ axis: sort.axis, key: sort.key, state: sort.state }, { axis: 'part', key: 'sort', state: 'hovered' });
+});
