@@ -46,7 +46,7 @@
     },
     {
       "id": "divider",
-      "description": "Hairlines between the header and the scrolling content and between the content and the actions, drawn only while the content scrolls.",
+      "description": "Hairlines between the header and the scrolling content and between the content and the actions, drawn only while the content scrolls: for as long as it does in the default system, or only while content lies beyond each line under dividerVisibility scroll.",
       "optional": true
     },
     {
@@ -84,6 +84,17 @@
       "type": "boolean",
       "default": true,
       "description": "Whether Escape, the platform's back and a press on the scrim ask to close the dialog (dismiss). Set it to false only when the person must choose one of the actions; give such a dialog a dismissive action."
+    },
+    {
+      "name": "dividerVisibility",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "scroll"
+      ],
+      "default": "auto",
+      "description": "When the dividers below the header and above the actions are drawn while the supporting text and the content scroll between them. always: both, for as long as that part scrolls, wherever it is scrolled to. scroll: each only while content lies beyond it — below the header while the part is not at its top, above the actions while more of it lies below. auto takes comp.dialog.divider.visibility, the design system's answer (always in the default system). Under every choice a dialog whose parts all fit draws none."
     }
   ],
   "items": [
@@ -201,7 +212,7 @@
     },
     {
       "id": "DLG-11",
-      "text": "WHEN the dialog's parts do not fit in the height its placement leaves THE dialog SHALL keep the header and the actions in place and scroll the supporting text and the content between them, and SHALL draw a divider of comp.dialog.divider.width in comp.dialog.divider.color across the container below the header WHILE the scrolled part is not at its top, and above the actions WHILE more of it lies below; WHILE everything fits THE dialog SHALL draw no divider."
+      "text": "WHEN the dialog's parts do not fit in the height its placement leaves THE dialog SHALL keep the header and the actions in place and scroll the supporting text and the content between them, and SHALL draw a divider of comp.dialog.divider.width in comp.dialog.divider.color across the container below the header and another above the actions: WHILE its divider visibility (DLG-24) is always, both for as long as that part scrolls, wherever it is scrolled to, at its top included; WHILE it is scroll, the one below the header only WHILE the scrolled part is not at its top and the one above the actions only WHILE more of it lies below. WHILE everything fits THE dialog SHALL draw no divider."
     },
     {
       "id": "DLG-12",
@@ -254,6 +265,11 @@
     {
       "id": "DLG-23",
       "text": "THE dialog SHALL lay out its headline and its supporting text as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE dialog SHALL still place each and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "DLG-24",
+      "text": "THE dialog SHALL draw its dividers (DLG-11) as its dividerVisibility names: WHILE dividerVisibility is auto, as comp.dialog.divider.visibility names, which follows sys.behavior.divider-visibility unless a design system sets the dialog apart; WHILE dividerVisibility is always or scroll, as that value names, whatever the tokens say. WHEN dividerVisibility, or the token it follows, changes THE dialog SHALL draw the other form at once, moving no part and keeping the scroll position and focus; WHEN dividerVisibility names a value the dialog does not define THE dialog SHALL treat it as auto and in debug builds report the unknown value. A platform that cannot draw a choice SHALL fall back to the first value, always, and state that in its README.",
+      "verify": "Under the default system scrolling draws both dividers with its content at the top. With divider-visibility=\"scroll\" it draws only the one above the actions until the content is scrolled. Under m3-like (scroll) nothing changes."
     }
   ],
   "accessibility": {
@@ -525,12 +541,13 @@
         "headline": "headline",
         "supportingText": "supportingText",
         "alert": "alert",
-        "dismissible": "closedby"
+        "dismissible": "closedby",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "dismiss": "cancel"
       },
-      "notes": "`supportingText` is the `supporting-text` attribute. `dismissible` is HTML's own `closedby` attribute: `any` (the default: Escape and a press on the backdrop) or `none`. `cancel` is cancelable, as on a native `<dialog>`; `close` follows every close. Slots: default, `icon`, `actions`. The actions are laid out by the button group's placement (BGR-13 to BGR-17) inside the shadow root: the dialog's shadow root uses manual slot assignment, assigns its icon and content children to their slots, and assigns each action to one of three action slots in the order of the orientation, so focus and the accessibility tree follow the placed order (BGR-15); CSS `order` is not used. Compact (DLG-17): a media query cannot read a custom property, so the dialog reads the resolved comp.dialog.compact.window-width once per system and matches it with `matchMedia('(width < …px)')`, re-placing at once on change. Debug builds (`import.meta.env.DEV` or the package's dev export) report a dialog opened with no assigned action (DLG-19). Snapshot harness: a 640 × 640 viewport, and 360 × 640 for the compact- fixtures, with the dialog opened by `open`; the screenshot is the viewport, since the dialog and its backdrop are in the top layer.",
+      "notes": "`supportingText` is the `supporting-text` attribute. `dismissible` is HTML's own `closedby` attribute: `any` (the default: Escape and a press on the backdrop) or `none`. `cancel` is cancelable, as on a native `<dialog>`; `close` follows every close. Slots: default, `icon`, `actions`. The actions are laid out by the button group's placement (BGR-13 to BGR-17) inside the shadow root: the dialog's shadow root uses manual slot assignment, assigns its icon and content children to their slots, and assigns each action to one of three action slots in the order of the orientation, so focus and the accessibility tree follow the placed order (BGR-15); CSS `order` is not used. Compact (DLG-17): a media query cannot read a custom property, so the dialog reads the resolved comp.dialog.compact.window-width once per system and matches it with `matchMedia('(width < …px)')`, re-placing at once on change. Debug builds (`import.meta.env.DEV` or the package's dev export) report a dialog opened with no assigned action (DLG-19). Snapshot harness: a 640 × 640 viewport, and 360 × 640 for the compact- fixtures, with the dialog opened by `open`; the screenshot is the viewport, since the dialog and its backdrop are in the top layer. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-dialog-divider-visibility` from the cascade with a style query, and where the browser has none the dialog writes the name it read on its `<dialog>` when it lays out.",
       "items": {
         "action": {
           "name": "tanrei-button",
@@ -555,12 +572,13 @@
         "headline": "headline",
         "supportingText": "supportingText",
         "alert": "alert",
-        "dismissible": "dismissible"
+        "dismissible": "dismissible",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "dismiss": "isPresented"
       },
-      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 harness. The target: a view modifier, as `.alert` and `.sheet` are: `.tanreiDialog(_ headline:, isPresented: Binding<Bool>, supportingText:, alert:, dismissible:, icon:, actions:, content:)`. Dismissal writes false to the binding, SwiftUI's idiom. It is presented with `.fullScreenCover`, with a clear presentation background and the system transition off (Tanrei draws the scrim and the motion); that presentation makes the rest of the app inaccessible to VoiceOver, as `accessibilityViewIsModal` does. Initial focus is `.defaultFocus` or an `@AccessibilityFocusState` the product passes; the iOS escape gesture is `.accessibilityAction(.escape)`. `actions:` is a required builder; the dialog counts its subviews through a variadic view and reports an empty one in debug builds (DLG-19), and lays them out with the button group's `Layout`. Compact is the window's width (a `GeometryReader` at the presentation's root) against the token, not the horizontal size class, so every platform switches at the same width. Snapshot harness: `TanreiDialogSurface` in place in a 640 × 640 frame, and 360 × 640 for the compact- fixtures. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20).",
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 harness. The target: a view modifier, as `.alert` and `.sheet` are: `.tanreiDialog(_ headline:, isPresented: Binding<Bool>, supportingText:, alert:, dismissible:, icon:, actions:, content:)`. Dismissal writes false to the binding, SwiftUI's idiom. It is presented with `.fullScreenCover`, with a clear presentation background and the system transition off (Tanrei draws the scrim and the motion); that presentation makes the rest of the app inaccessible to VoiceOver, as `accessibilityViewIsModal` does. Initial focus is `.defaultFocus` or an `@AccessibilityFocusState` the product passes; the iOS escape gesture is `.accessibilityAction(.escape)`. `actions:` is a required builder; the dialog counts its subviews through a variadic view and reports an empty one in debug builds (DLG-19), and lays them out with the button group's `Layout`. Compact is the window's width (a `GeometryReader` at the presentation's root) against the token, not the horizontal size class, so every platform switches at the same width. Snapshot harness: `TanreiDialogSurface` in place in a 640 × 640 frame, and 360 × 640 for the compact- fixtures. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -585,12 +603,13 @@
         "headline": "headline",
         "supportingText": "supportingText",
         "alert": "alert",
-        "dismissible": "dismissible"
+        "dismissible": "dismissible",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "dismiss": "onDismissRequest"
       },
-      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window. The target: `TanreiDialog(visible, onDismissRequest, headline, supportingText, alert, dismissible, initialFocus: FocusRequester?, icon, actions, content)` with `actions` a required parameter; the group's `Layout` sees its measurables and reports none in debug builds (DLG-19). `visible` rather than calling it only while open, so that the exit motion can run before the window goes. Presented in a `Dialog` window with `usePlatformDefaultWidth = false` and the window's own dim off (Tanrei draws the scrim). `dismissible` sets `dismissOnBackPress` and `dismissOnClickOutside`. The headline is the window's `paneTitle`. Compact is `LocalWindowInfo.current.containerSize` against the token, not a window size class, so every platform switches at the same width. Snapshot harness: renders `TanreiDialogContent` (the surface and the scrim) in place in a 640 × 640 dp box, and 360 × 640 for the compact- fixtures; the window itself is covered by instrumented tests. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20).",
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window. The target: `TanreiDialog(visible, onDismissRequest, headline, supportingText, alert, dismissible, initialFocus: FocusRequester?, icon, actions, content)` with `actions` a required parameter; the group's `Layout` sees its measurables and reports none in debug builds (DLG-19). `visible` rather than calling it only while open, so that the exit motion can run before the window goes. Presented in a `Dialog` window with `usePlatformDefaultWidth = false` and the window's own dim off (Tanrei draws the scrim). `dismissible` sets `dismissOnBackPress` and `dismissOnClickOutside`. The headline is the window's `paneTitle`. Compact is `LocalWindowInfo.current.containerSize` against the token, not a window size class, so every platform switches at the same width. Snapshot harness: renders `TanreiDialogContent` (the surface and the scrim) in place in a 640 × 640 dp box, and 360 × 640 for the compact- fixtures; the window itself is covered by instrumented tests. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -615,12 +634,13 @@
         "headline": "headline",
         "supportingText": "supportingText",
         "alert": "alert",
-        "dismissible": "barrierDismissible"
+        "dismissible": "barrierDismissible",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "dismiss": "showTanreiDialog"
       },
-      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 golden. The target: `showTanreiDialog<T>(context:, barrierDismissible:, builder:)` pushes a modal route that draws the scrim as its barrier, and returns a `Future<T?>`; `Navigator.pop(context, value)` from an action closes it, and a dismissal completes the future with null. `TanreiDialog(headline:, supportingText:, alert:, icon:, required actions:, child:)` is the surface the builder returns; `actions` is asserted non-empty (DLG-19). Initial focus is `autofocus: true` on a focusable widget. The route is marked `scopesRoute` and `namesRoute`, so assistive technology stays inside it. Compact is `MediaQuery.sizeOf(context).width` against the token. Snapshot harness: a golden of the whole 640 × 640 surface after `showTanreiDialog`, and 360 × 640 for the compact- fixtures, as the overlay is part of the widget tree. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20).",
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 golden. The target: `showTanreiDialog<T>(context:, barrierDismissible:, builder:)` pushes a modal route that draws the scrim as its barrier, and returns a `Future<T?>`; `Navigator.pop(context, value)` from an action closes it, and a dismissal completes the future with null. `TanreiDialog(headline:, supportingText:, alert:, icon:, required actions:, child:)` is the surface the builder returns; `actions` is asserted non-empty (DLG-19). Initial focus is `autofocus: true` on a focusable widget. The route is marked `scopesRoute` and `namesRoute`, so assistive technology stays inside it. Compact is `MediaQuery.sizeOf(context).width` against the token. Snapshot harness: a golden of the whole 640 × 640 surface after `showTanreiDialog`, and 360 × 640 for the compact- fixtures, as the overlay is part of the widget tree. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -645,12 +665,13 @@
         "headline": "headline",
         "supportingText": "supportingText",
         "alert": "alert",
-        "dismissible": "dismissible"
+        "dismissible": "dismissible",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "dismiss": "onRequestClose"
       },
-      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 harness. The target: named as React Native's `Modal`: `visible` and `onRequestClose` (Android's back and, here, Escape on a hardware keyboard and a press on the scrim). Presented in a transparent `Modal` with `animationType=\"none\"` (Tanrei draws the scrim and the motion), `statusBarTranslucent` and `navigationBarTranslucent`. Initial focus is an `initialFocusRef` the product passes, moved with `AccessibilityInfo.setAccessibilityFocus`. `actions` is required in the types, and development builds report it empty when the dialog becomes visible (DLG-19). Compact is `useWindowDimensions().width` against the token. Snapshot harness: renders `DialogSurface` (the surface and the scrim) in place in a 640 × 640 view, and 360 × 640 for the compact- fixtures, since a `Modal` is a native window the snapshot does not include. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20).",
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 harness. The target: named as React Native's `Modal`: `visible` and `onRequestClose` (Android's back and, here, Escape on a hardware keyboard and a press on the scrim). Presented in a transparent `Modal` with `animationType=\"none\"` (Tanrei draws the scrim and the motion), `statusBarTranslucent` and `navigationBarTranslucent`. Initial focus is an `initialFocusRef` the product passes, moved with `AccessibilityInfo.setAccessibilityFocus`. `actions` is required in the types, and development builds report it empty when the dialog becomes visible (DLG-19). Compact is `useWindowDimensions().width` against the token. Snapshot harness: renders `DialogSurface` (the surface and the scrim) in place in a 640 × 640 view, and 360 × 640 for the compact- fixtures, since a `Modal` is a native window the snapshot does not include. Not yet: the headline's letter-spacing by the script of its text (DLG-8, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; DLG-24) — the dividers still follow the scroll position, as `scroll` does.",
       "items": {
         "action": {
           "name": "Button",
