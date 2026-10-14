@@ -372,7 +372,7 @@ function treeViewHtml(items: FixtureItem[]): string {
       const icon = p.icon ? `<span class="tanrei-icon" aria-hidden="true"${p.openIcon ? ` data-open-icon="${escape(String(p.openIcon))}"` : ''}>${escape(String(p.icon))}</span>` : '';
       const supporting = p.supportingText ? `<small data-supporting-text>${escape(String(p.supportingText))}</small>` : '';
       const trailing = p.trailingText ? `<span data-trailing-text>${escape(String(p.trailingText))}</span>` : '';
-      return `<li${p.value ? ` data-value="${escape(String(p.value))}"` : ''}${flags}><span>${icon}<bdi>${escape(String(p.label ?? ''))}${supporting}</bdi>${trailing}</span>${item.items?.length ? treeViewHtml(item.items) : ''}</li>`;
+      return `<li${p.value ? ` data-value="${escape(String(p.value))}"` : ''}${flags}${p.supportingPosition === 'inline' ? ' data-supporting-position="inline"' : ''}><span>${icon}<bdi>${escape(String(p.label ?? ''))}${supporting}</bdi>${trailing}</span>${item.items?.length ? treeViewHtml(item.items) : ''}</li>`;
     })
     .join('')}</ul>`;
 }

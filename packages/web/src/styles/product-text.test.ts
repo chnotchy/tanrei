@@ -38,8 +38,11 @@ test.describe('a paragraph of its own direction stands inside its box’s conten
             if (!(Math.abs(left - right) > 0.5)) continue;
             // The text the box draws: its own, and what is slotted into it.
             const rects: DOMRect[] = [];
+            // (Not into a box that clips its own text — a one-line label cut with an ellipsis lays out the rest beside
+            // itself, hidden: such a box is looked at by itself where it carries plaintext and unequal paddings.)
             const text = (node: Node) => {
               if (node instanceof HTMLSlotElement && node.assignedNodes().length) node.assignedNodes({ flatten: true }).forEach(text);
+              else if (node instanceof Element && node !== el && getComputedStyle(node).overflowX !== 'visible') return;
               else if (node.nodeType !== Node.TEXT_NODE) node.childNodes.forEach(text);
               else if (node.nodeValue?.trim()) {
                 range.selectNodeContents(node);

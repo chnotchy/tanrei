@@ -159,7 +159,7 @@
       "name": "indent",
       "type": "number",
       "default": null,
-      "description": "How far each level begins further in than the one above it. null (auto, the default): a child's start stands where its parent's label begins, so the step follows what the parent's row holds before its label — the chevron at the start, the icon or the icon's room. A number: that many points (px, dp), the product's explicit choice; 0 sets no level in, and then no guide is drawn. A design system sets what auto rests on through the parts' tokens."
+      "description": "How far each level begins further in than the one above it. null (auto, the default): a child's start stands where its parent's label begins, so the step follows what the parent's row holds before its label — the chevron at the start, the icon or the icon's room. A number: that many points (px, dp), the product's explicit choice; 0 sets no level in, and then no guide is drawn. A design system sets what auto rests on through the parts' tokens and the level's indent token."
     },
     {
       "name": "iconSpace",
@@ -363,8 +363,8 @@
     },
     {
       "id": "TRV-3",
-      "text": "THE tree view SHALL show an item's depth by where its row's content begins: the content of an item of the first level SHALL begin where the tree's start edge and its padding put it, and the content of every deeper item SHALL begin one step further from that edge than its parent's. WHILE indent is null (auto) the step SHALL be the length from the parent's content start to where the parent's label begins — the chevron's box and a gap WHILE chevron is start and the tree is expandable, plus the icon's box (or its kept room, TRV-43) and iconGap WHERE the parent's row has an icon or keeps its room — so that a child's start stands where its parent's label begins; WHILE indent is a number the step SHALL be that number of points, and 0 SHALL set no level in. WHILE highlight is indented the row's container (its fill, its state layer and its focus indicator) SHALL begin where its content's level begins, its padding before the content; WHILE highlight is full every container SHALL begin at the tree's start edge (TRV-51). Every container SHALL end at the tree's end edge. WHILE the steps of an item's levels would begin its row past half of the tree's width THE tree view SHALL begin that row's container at half of the width, its content one padding further in, so that a deep tree in a narrow window keeps half of its width for names, SHALL still expose the item's true level (TRV-32), and in debug builds SHALL report the depth once. comp.tree-view.level.indent.regular and comp.tree-view.level.indent.compact are the step a platform uses where it cannot measure a parent's row (the step of a level of rows without chevrons and icons is 0 in auto, and a product that wants one sets a number).",
-      "verify": "The fixture basic (no icons, chevron start) under the default system: levels one to three begin their content at 12, 44 and 76 — each child's chevron where its parent's label begins. The fixture icons: 12, 76, 140. The fixture indent-16: 12, 28, 44. The fixture indent-0: every level at 12, and no guide. The fixture deep in a stage 320 wide: no row's container begins past 160."
+      "text": "THE tree view SHALL show an item's depth by where its row's content begins: the content of an item of the first level SHALL begin where the tree's start edge and its padding put it, and the content of every deeper item SHALL begin one step further from that edge than its parent's. WHILE indent is null (auto) the step SHALL be the length from the parent's content start to where the parent's label begins — the chevron's box and a gap WHILE chevron is start and the tree is expandable, plus the icon's box (or its kept room, TRV-43) and iconGap WHERE the parent's row has an icon or keeps its room — so that a child's start stands where its parent's label begins, and comp.tree-view.level.indent.regular for regular and comp.tree-view.level.indent.compact for compact where the parent's row holds nothing before its label; WHILE indent is a number the step SHALL be that number of points, and 0 SHALL set no level in. WHILE highlight is indented the row's container (its fill, its state layer and its focus indicator) SHALL begin where its content's level begins, its padding before the content; WHILE highlight is full every container SHALL begin at the tree's start edge (TRV-51). Every container SHALL end at the tree's end edge. WHILE the steps of an item's levels would begin its label past half of the tree's width THE tree view SHALL begin that row no further in than puts its label at half of the width, so that a deep tree in a narrow window keeps half of its width for names, SHALL still expose the item's true level (TRV-32), and in debug builds SHALL report the depth once.",
+      "verify": "The fixture basic (no icons, chevron start) under the default system: levels one to three begin their content at 12, 44 and 76 — each child's chevron where its parent's label begins. The fixture icons: 12, 76, 140. The fixture indent-16: 12, 28, 44. The fixture indent-0: every level at 12, and no guide. The fixture deep in a stage 320 wide: no row's label begins past 160."
     },
     {
       "id": "TRV-4",
@@ -4419,7 +4419,9 @@
       "props": {
         "label": "ملفات الرموز",
         "density": "compact",
-        "guides": "shown"
+        "guides": "shown",
+        "labelWrap": true,
+        "supportingWrap": true
       },
       "direction": "rtl",
       "items": [
@@ -4429,7 +4431,8 @@
             "label": "tokens/",
             "icon": "folder",
             "open": true,
-            "supportingText": "source of truth, edited by hand"
+            "supportingText": "source of truth, edited by hand",
+            "supportingPosition": "inline"
           },
           "items": [
             {
@@ -4458,7 +4461,8 @@
               "props": {
                 "label": "themes/",
                 "icon": "folder",
-                "supportingText": "input to the color scheme generator"
+                "supportingText": "input to the color scheme generator",
+                "supportingPosition": "inline"
               }
             },
             {
@@ -4466,7 +4470,8 @@
               "props": {
                 "label": "generated/",
                 "icon": "folder",
-                "supportingText": "palettes and schemes written by the generator"
+                "supportingText": "palettes and schemes written by the generator",
+                "supportingPosition": "inline"
               }
             },
             {
@@ -4483,7 +4488,8 @@
           "props": {
             "label": "design/tokens/",
             "icon": "folder",
-            "supportingText": "six resolved permutations"
+            "supportingText": "six resolved permutations",
+            "supportingPosition": "inline"
           }
         },
         {

@@ -2099,7 +2099,7 @@ export const Tooltip = createComponent({
 });
 
 /**
- * A hierarchy of items that open and close: rows that begin further in at each level, a chevron at the start of every row that holds others; read and opened only, or with one item or several chosen. One stop in the focus order, moved through with the arrow keys. A file tree in a page, the tokens of a design system, the folders of a product.
+ * A hierarchy of items that open and close: rows that begin further in at each level, a chevron at the start or the end of every row that holds others (or none, the folder glyph opening), names on one line shown whole in a tooltip where they are cut, the rows of the open parents above what is shown pinned at the top of the scrolling box; read and opened only, or with one item or several chosen. One stop in the focus order, moved through with the arrow keys. A file tree in a page, the tokens of a design system, the folders of a product.
  *
  * Children, by their `slot`:
  * - default — The items: the product's own nested lists (`<ul>` of `<li>`). They are children in the document, not slotted nodes: the element has no shadow root.

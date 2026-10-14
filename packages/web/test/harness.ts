@@ -943,7 +943,7 @@ export function treeViewMarkup(_spec: Spec, fixture: Fixture): string {
         const icon = p.icon ? `<span class="tanrei-icon" aria-hidden="true"${p.openIcon ? ` data-open-icon="${escape(p.openIcon)}"` : ''}>${escape(p.icon)}</span>` : '';
         const supporting = p.supportingText ? `<small data-supporting-text>${escape(p.supportingText)}</small>` : '';
         const trailing = p.trailingText ? `<span data-trailing-text>${escape(p.trailingText)}</span>` : '';
-        return `<li${p.value ? ` data-value="${escape(p.value)}"` : ''}${flags}><span>${icon}<bdi>${escape(p.label ?? '')}${supporting}</bdi>${trailing}</span>${item.items?.length ? list(item.items) : ''}</li>`;
+        return `<li${p.value ? ` data-value="${escape(p.value)}"` : ''}${flags}${p.supportingPosition === 'inline' ? ' data-supporting-position="inline"' : ''}><span>${icon}<bdi>${escape(p.label ?? '')}${supporting}</bdi>${trailing}</span>${item.items?.length ? list(item.items) : ''}</li>`;
       })
       .join('')}</ul>`;
   return list(fixture.items);
