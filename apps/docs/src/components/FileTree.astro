@@ -49,10 +49,8 @@ const html = fileTree(await Astro.slots.render('default'));
 </script>
 
 <style is:global>
-  /* The tree's one stylesheet, in a layer of the docs' own as the content column's other components are
-     (styles/prose.css says why): after the framework's layers, whose reset would otherwise win over the rows. */
-  @import '@tanrei/web/tree-view.css' layer(docs.tree-view);
-
+  /* (The tree's stylesheet is loaded by styles/prose.css, for every page, in a layer of the docs' own: after the
+     framework's layers, whose reset would otherwise win over the rows.) */
   /* The tree is as wide as the figure's stage, which would otherwise centre it at the width of its longest row. */
   .docs-file-tree tanrei-tree-view {
     inline-size: 100%;
