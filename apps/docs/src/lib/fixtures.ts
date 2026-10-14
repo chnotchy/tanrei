@@ -661,6 +661,10 @@ export function liveFixture(spec: Spec, fixture: Fixture): LiveFixture {
 
   const props: Props = { ...(fixture.props as Props) };
   if (presentation === 'overlay' && presence) delete props[presence.name];
+  // The web's harness draws each fixture in a document of its own; here every fixture of the component shares one, where
+  // options with one `name` are one group and exclude each other — the radio button's selected fixtures would each
+  // unselect the one before them. So each fixture's name is its own.
+  if (typeof props.name === 'string' && props.name) props.name = `${props.name}-${fixture.id}`;
   // The web's `inline` attribute, where its notes declare one, draws the presented surface in place instead of in the top layer.
   // (A composed component's `open` is a member's: the attribute is that member's too, where the element documents
   // that it passes it on — the select field does; the combobox field does not, and an open fixture of it is drawn

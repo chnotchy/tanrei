@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { checkParity, compileSpecSchema, implementationProblems, specProblems, systemAvailability, unknownTokenIdsInProse, validateAvailability, validateSpecs, wordsProblems } from '../src/checks.js';
-import { CONFIG, DOCS_PAGES, OVERRIDES, PLATFORMS, exists, loadSpecs } from '../src/conventions.js';
+import { CONFIG, DOCS_PAGES, OVERRIDES, PLATFORMS, exists, loadSpecs, read } from '../src/conventions.js';
 import { buildStatus, docsAddress } from '../src/status.js';
 
 test('every spec in the repository is valid', () => {
@@ -117,7 +117,8 @@ test('a component that is an element and a stylesheet on the web names both', ()
 
 test('the status matrix lists the whole inventory and never exceeds the specs', () => {
   const status = buildStatus();
-  assert.equal(status.components.length, 88);
+  // Every name of the inventory, in its order: no total is written here, so a new component does not touch this test.
+  assert.deepEqual(status.components.map((row) => row.name), JSON.parse(read('specs/inventory.json')).components.map((item) => item.name));
   const specs = new Map(loadSpecs().map(({ spec }) => [spec.name, spec]));
   for (const row of status.components) {
     for (const platform of CONFIG.platforms) {

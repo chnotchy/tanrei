@@ -15825,7 +15825,19 @@ public struct TanreiTableTokens: Sendable, Equatable {
   public var motionStateEasing: TanreiCubicBezier
   public var rowGap: CGFloat
   public var rowSelectedContainerColor: TanreiPaint
+  public var rowSelectedHoveredContainerColor: TanreiPaint
+  public var rowSelectedHoveredTextColor: TanreiPaint
+  public var rowSelectedPressedContainerColor: TanreiPaint
+  public var rowSelectedPressedTextColor: TanreiPaint
+  public var rowSelectedStateLayerColor: TanreiPaint
   public var rowSelectedTextColor: TanreiPaint
+  public var rowUnselectedContainerColor: TanreiPaint
+  public var rowUnselectedHoveredContainerColor: TanreiPaint
+  public var rowUnselectedHoveredTextColor: TanreiPaint
+  public var rowUnselectedPressedContainerColor: TanreiPaint
+  public var rowUnselectedPressedTextColor: TanreiPaint
+  public var rowUnselectedStateLayerColor: TanreiPaint
+  public var rowUnselectedTextColor: TanreiPaint
   public var separation: Double
   public var statusGap: CGFloat
   public var statusPaddingBlock: CGFloat
@@ -15860,7 +15872,19 @@ public struct TanreiTableTokens: Sendable, Equatable {
     motionStateEasing: TanreiCubicBezier,
     rowGap: CGFloat,
     rowSelectedContainerColor: TanreiPaint,
+    rowSelectedHoveredContainerColor: TanreiPaint,
+    rowSelectedHoveredTextColor: TanreiPaint,
+    rowSelectedPressedContainerColor: TanreiPaint,
+    rowSelectedPressedTextColor: TanreiPaint,
+    rowSelectedStateLayerColor: TanreiPaint,
     rowSelectedTextColor: TanreiPaint,
+    rowUnselectedContainerColor: TanreiPaint,
+    rowUnselectedHoveredContainerColor: TanreiPaint,
+    rowUnselectedHoveredTextColor: TanreiPaint,
+    rowUnselectedPressedContainerColor: TanreiPaint,
+    rowUnselectedPressedTextColor: TanreiPaint,
+    rowUnselectedStateLayerColor: TanreiPaint,
+    rowUnselectedTextColor: TanreiPaint,
     separation: Double,
     statusGap: CGFloat,
     statusPaddingBlock: CGFloat,
@@ -15891,7 +15915,19 @@ public struct TanreiTableTokens: Sendable, Equatable {
     self.motionStateEasing = motionStateEasing
     self.rowGap = rowGap
     self.rowSelectedContainerColor = rowSelectedContainerColor
+    self.rowSelectedHoveredContainerColor = rowSelectedHoveredContainerColor
+    self.rowSelectedHoveredTextColor = rowSelectedHoveredTextColor
+    self.rowSelectedPressedContainerColor = rowSelectedPressedContainerColor
+    self.rowSelectedPressedTextColor = rowSelectedPressedTextColor
+    self.rowSelectedStateLayerColor = rowSelectedStateLayerColor
     self.rowSelectedTextColor = rowSelectedTextColor
+    self.rowUnselectedContainerColor = rowUnselectedContainerColor
+    self.rowUnselectedHoveredContainerColor = rowUnselectedHoveredContainerColor
+    self.rowUnselectedHoveredTextColor = rowUnselectedHoveredTextColor
+    self.rowUnselectedPressedContainerColor = rowUnselectedPressedContainerColor
+    self.rowUnselectedPressedTextColor = rowUnselectedPressedTextColor
+    self.rowUnselectedStateLayerColor = rowUnselectedStateLayerColor
+    self.rowUnselectedTextColor = rowUnselectedTextColor
     self.separation = separation
     self.statusGap = statusGap
     self.statusPaddingBlock = statusPaddingBlock
