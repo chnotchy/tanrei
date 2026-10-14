@@ -140,13 +140,35 @@ test('a spec may name another component\'s token group only where it is built fr
   assert.match(problemsOf([spec('part', LEVELS.single, { uses: ['member'], tokens: 'comp.member' }), member]).join('\n'), /tokens names "comp\.member"/);
 });
 
-test('the repository as it is today: 65 single parts, 19 put together, 4 that coordinate — and which', () => {
+test('the repository as it is today: which components are put together and which coordinate; every other one is a single part', () => {
   const specs = loadSpecs().map(({ spec: each }) => each);
-  assert.equal(specs.length, 88);
   const of = (level) => specs.filter((each) => each.level === level).map((each) => each.name).sort();
-  assert.deepEqual(of(LEVELS.completes), ['bottom-sheet', 'button-with-menu', 'checkbox-group', 'chip-field', 'color-field', 'combobox-field', 'copy-button', 'date-time-picker', 'dialog', 'menubar', 'navigation-drawer', 'number-field', 'one-time-code-field', 'radio-group', 'select-field', 'side-sheet', 'slider-field', 'tab-view', 'text-field']);
+  assert.deepEqual(of(LEVELS.completes), [
+    'bottom-sheet',
+    'button-with-menu',
+    'checkbox-group',
+    'chip-field',
+    'color-field',
+    'combobox-field',
+    'copy-button',
+    'date-time-picker',
+    'dialog',
+    'menubar',
+    'navigation-drawer',
+    'number-field',
+    'one-time-code-field',
+    'radio-group',
+    'select-field',
+    'side-sheet',
+    'slider-field',
+    'tab-view',
+    'text-field',
+  ]);
   assert.deepEqual(of(LEVELS.coordinates), ['chat-composer', 'file-upload', 'image-preview', 'search']);
-  assert.equal(of(LEVELS.single).length, 65);
+  // The single parts are the rest, by name: a new single part does not touch this test, and a level that changes still
+  // shows as a change of the two lists above.
+  const listed = new Set([...of(LEVELS.completes), ...of(LEVELS.coordinates)]);
+  assert.deepEqual(of(LEVELS.single), specs.map((each) => each.name).filter((name) => !listed.has(name)).sort());
   // No name was lost when the one list became two: 40 specs named another component, in one list or the other; the
   // one-time-code field is the forty-first, and the image preview the forty-second; the file picker (the product's Button is its
   // trigger) and the file item (its bar is a Progress indicator) make forty-four, and the file upload,
