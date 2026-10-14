@@ -313,17 +313,23 @@ export const drawerStyles = css`
   :host([data-chevron='start']) .header {
     --_chev-shift: calc(${d('--_nvd-trailing-icon')} + ${t('item-gap')});
   }
-  ::slotted([slot='main-action']) {
+  /* The place is the drawer's own box around the slot, never a margin on the product's element, which a page's reset
+     (\`* { margin: 0 }\`) would win over. */
+  .main {
+    display: flex;
     grid-column: 1 / -1;
     justify-self: start;
     margin-inline-start: calc(${d('--_nvd-column')} / 2 + var(--_chev-shift) - var(--_mab-pad) - var(--_mab-icon) / 2);
     transition: margin-inline-start var(--tanrei-comp-main-action-button-motion-resize-duration) var(--tanrei-comp-main-action-button-motion-resize-easing);
   }
-  ::slotted([slot='main-action'][icon-position='trailing']),
-  :host([collapsed]) ::slotted([slot='main-action']) {
+  .main:not(.filled) {
+    display: none;
+  }
+  :host([data-main-trailing]) .main,
+  :host([collapsed]) .main {
     margin-inline-start: calc(${d('--_nvd-column')} / 2 + var(--_chev-shift) - var(--_mab-h) / 2);
   }
-  :host([data-instant]) ::slotted([slot='main-action']) {
+  :host([data-instant]) .main {
     transition: none;
   }
   /* NVD-39: only the first main action is drawn. */
@@ -511,7 +517,7 @@ export const drawerStyles = css`
     .clock {
       transition-delay: 0s;
     }
-    ::slotted([slot='main-action']) {
+    .main {
       transition: none;
     }
   }
@@ -1094,12 +1100,20 @@ export const cellStyles = css`
     inline-size: ${d('--_nvd-pill')};
     block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')});
   }
-  /* NVD-75: the tooltip of a cut row lies over the row's item container, and opens beside it. */
-  .cell:not(.collapsed) .tip {
+  /* NVD-75: the tooltip of a cut row (src/primitives/cut-text.ts) lies over the row's item container and opens beside
+     it; the cell is the row's one hit target, and the tooltip's own container answers the pointer, so that it can be
+     hovered (WCAG 1.4.13). */
+  .cut-tip {
+    position: absolute;
+    display: block;
     inset-block-start: 0;
     inset-inline-start: ${unsafeCSS(INSET)};
     inline-size: calc(100% - ${unsafeCSS(INSET)});
     block-size: 100%;
+    pointer-events: none;
+  }
+  .cut-tip::part(container) {
+    pointer-events: auto;
   }
   /* The tooltip's own waits, read through real properties (a duration token is an expression). */
   .tip-clock {

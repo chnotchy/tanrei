@@ -552,8 +552,8 @@ test.describe('drawing', () => {
     // One level deep (auto): one icon and gap further, so the label is under its group's label, 60.
     expect(await startOf(item(page, full, 0).locator('.label'))).toBe(60);
     expect(await startOf(group(page, full, 0).locator('.label').first())).toBe(60);
-    // Two levels deep: Design tokens draws nothing before its label, so its items step by nothing (the tree view's rule).
-    expect(await startOf(item(page, full, 1).locator('.label'))).toBe(60);
+    // Two levels deep: Design tokens draws nothing before its label, so its items step by the level's indent (36).
+    expect(await startOf(item(page, full, 1).locator('.label'))).toBe(96);
     // highlight full: every item container begins at the drawer's padding and ends at its end padding.
     for (const n of [0, 1]) {
       const c = await bounds(box(page, full, n));
@@ -1443,20 +1443,18 @@ test.describe('the collapsed form', () => {
     await expect.poll(() => activeValue(page)).toBe('group:Projects');
   });
 
-  test('NVD-48, NVD-69: groups nested deeper than three levels still render, each level a step further in — the start chevron and its gap where a group has no icon — no row beginning past half of the drawer’s inner width, and are reported', async ({ page }) => {
+  test('NVD-48, NVD-69: groups nested deeper than three levels still render, each level a step further in, no row’s label beginning past half of the drawer’s width, and are reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [fixture('deep', [grp('1', [grp('2', [grp('3', [grp('4', [d('x', 'Deep')], { open: true })], { open: true })], { open: true })], { icon: 'folder', open: true })], { value: 'x' })], { reducedMotion: true });
     await expect(cell(page, 'deep', 0)).toBeVisible();
-    const [chevron, gap, icon, width, pad] = await Promise.all([T('item-trailing-icon-size-regular'), T('item-gap'), T('item-icon-size-regular'), T('container-width'), T('container-padding-inline')].map((n) => px(page, n)));
+    const width = await px(page, T('container-width'));
     const p = await bounds(panel(page, 'deep'));
-    const starts = await Promise.all([0, 1, 2, 3].map(async (n) => (await bounds(group(page, 'deep', n).locator('.row > .container').first())).x - p.x));
-    // Group 1 draws a chevron and an icon before its label; groups 2 and 3 a chevron alone.
-    expect(starts[1] - starts[0]).toBeCloseTo(chevron + gap + icon + gap, 1);
-    expect(starts[2] - starts[1]).toBeCloseTo(chevron + gap, 1);
-    // From there on a row would begin past half of the inner width: it begins there.
-    const half = pad + (width - 2 * pad) / 2;
-    expect(starts[3]).toBeCloseTo(half, 1);
-    expect((await bounds(box(page, 'deep', 0))).x - p.x).toBeCloseTo(half, 1);
+    const labels = await Promise.all([0, 1, 2, 3].map(async (n) => (await bounds(group(page, 'deep', n).locator('.label').first())).x - p.x));
+    // The top level: the padding, the chevron's room and the icon's before the label (12 + 12 + 20 + 12 + 24 + 12).
+    expect(labels[0]).toBe(92);
+    // Deeper, the step would begin each label past half of the width: each begins there.
+    for (const n of [1, 2, 3]) expect(labels[n], `level ${n}`).toBeCloseTo(width / 2, 1);
+    expect((await bounds(item(page, 'deep', 0).locator('.label'))).x - p.x).toBeCloseTo(width / 2, 1);
     await expect.poll(() => seen.filter((w) => w.includes('NVD-48')).length).toBe(1);
   });
 
@@ -3076,16 +3074,18 @@ test.describe('the row model shared with the tree view', () => {
 
   test('NVD-75: a label that does not fit is one line ending in an ellipsis and its whole text is shown in a tooltip on hover and keyboard focus — never for a row drawn whole; Escape dismisses it; labelWrap wraps and shows none', async ({ page }) => {
     await mount(page, [F('one-line'), F('label-wrap')], { reducedMotion: true });
-    const tip = (id: string, n: number) => item(page, id, n).locator('tanrei-tooltip.tip');
+    const tip = (id: string, n: number) => item(page, id, n).locator('tanrei-tooltip.cut-tip');
+    const open = async (id: string, n: number) => (await tip(id, n).count()) > 0 && (await tip(id, n).evaluate((el: any) => el.open));
     const long = item(page, 'one-line', 1).locator('.label');
     expect(await long.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
     expect(await css(long, 'text-overflow')).toBe('ellipsis');
     await cell(page, 'one-line', 0).hover();
     await page.waitForTimeout((await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration')) + 150);
-    expect(await tip('one-line', 0).count()).toBe(0);
+    expect(await open('one-line', 0)).toBe(false);
     await cell(page, 'one-line', 1).hover();
     await expect.poll(() => tip('one-line', 1).evaluate((el: any) => el.open)).toBe(true);
-    expect(await tip('one-line', 1).evaluate((el: any) => el.text)).toBe('A destination whose name is far too long for one line of the drawer — and a note that is also longer than the row can hold');
+    // A rich tooltip: the label as its title, the supporting text as its text.
+    expect(await tip('one-line', 1).evaluate((el: any) => [el.variant, el.title, el.text])).toEqual(['rich', 'A destination whose name is far too long for one line of the drawer', 'and a note that is also longer than the row can hold']);
     await page.keyboard.press('Escape');
     await expect.poll(() => tip('one-line', 1).evaluate((el: any) => el.open)).toBe(false);
     await page.mouse.move(1200, 700);
@@ -3099,7 +3099,7 @@ test.describe('the row model shared with the tree view', () => {
     expect(await item(page, 'label-wrap', 1).locator('.label').evaluate((el) => el.scrollWidth <= el.clientWidth + 0.5)).toBe(true);
     await cell(page, 'label-wrap', 1).hover();
     await page.waitForTimeout((await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration')) + 150);
-    expect(await tip('label-wrap', 1).count()).toBe(0);
+    expect(await open('label-wrap', 1)).toBe(false);
   });
 
   test('NVD-76: an open group that is loading draws a loading row under its items, one step further in, named by loadingLabel, taking no focus; its list is busy', async ({ page }) => {
@@ -3144,6 +3144,18 @@ test.describe('the row model shared with the tree view', () => {
     await setProps(page, id, { stickyParents: false });
     await scroller.evaluate((el) => (el.scrollTop = 222));
     await expect.poll(pinned).toEqual([]);
+  });
+
+  test('NVD-39: the main action keeps its place under a page’s reset (* { margin: 0; padding: 0 }) in both forms: it is placed by the drawer’s own box, not by a margin on it', async ({ page }) => {
+    await mount(page, [fixture('reset', [MENU, MAIN, ...MAIL], { collapsible: true })], { reducedMotion: true });
+    await page.addStyleTag({ content: '* { margin: 0; padding: 0; }' });
+    for (const expanded of [true, false]) {
+      await setProps(page, 'reset', { expanded });
+      await expect.poll(() => drawer(page, 'reset').locator('tanrei-main-action-button').evaluate((el: any) => el.extended)).toBe(expanded);
+      const glyph = centre(await bounds(drawer(page, 'reset').locator('tanrei-main-action-button').locator('.icon-box'))).x;
+      const icon = centre(await bounds(item(page, 'reset', 0).locator('.icon'))).x;
+      expect(Math.abs(glyph - icon), String(expanded)).toBeLessThanOrEqual(0.5);
+    }
   });
 
   test('NVD-39, NVD-68: with a start chevron the main action’s glyph moves with the destinations’ icons, a chevron’s room and a gap further in', async ({ page }) => {

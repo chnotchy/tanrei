@@ -28,6 +28,7 @@ import {
 } from '../../primitives/index.js';
 // Not re-exported by the primitives' index: internal to a region and its destinations.
 import { askDestinationContext } from '../../primitives/destination.js';
+import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiBadge } from '../badge/badge.js';
 import { TanreiDivider } from '../divider/divider.js';
@@ -175,7 +176,6 @@ abstract class DrawerCell extends LitElement {
     trailingText: { type: String, attribute: 'trailing-text' },
     context: { state: true },
     trailing: { state: true },
-    tipText: { state: true },
   };
 
   /** A few words about the row, under its label (`below`, the default) or after it (`inline`), read as its description (NVD-74). */
@@ -190,8 +190,6 @@ abstract class DrawerCell extends LitElement {
   /** What the trailing slot holds: whether anything, whether one glyph, and what it says. */
   protected trailing = { filled: false, glyph: false, text: '' };
 
-  /** NVD-75: the full text a tooltip shows while the row's label or supporting text is cut; null while none is wanted. */
-  protected tipText: string | null = null;
 
   /** Its name, drawn beside the icon while the drawer is expanded and always its accessible name. Required. */
   label = '';
@@ -272,39 +270,71 @@ abstract class DrawerCell extends LitElement {
   /** NVD-10: where style queries are missing, the focus style is read when focus arrives. NVD-56: keyboard focus names a collapsed cell, without the hover's delay. */
   protected readonly onFocus = () => {
     syncFocusStyle(this, this.cell);
-    if (!this.cell?.matches(':focus-visible') || !this.wantsName()) return;
-    void this.readyName().then(() => this.nameWhenInView());
+    const keyboard = !!this.cell?.matches(':focus-visible');
+    if (!this.unnamed) {
+      // NVD-75: the cut text's tooltip, once the row is seen (as NVD-56's name).
+      if (keyboard) this.whenInView(this.cell, () => this.cutTip.focus(!!this.cell?.matches(':focus-visible')));
+      else this.cutTip.focus(false);
+      return;
+    }
+    if (keyboard) this.nameWhenInView();
   };
 
   /**
-   * NVD-75: what is cut in the expanded row — the label, the supporting text — as the full text a tooltip shows, or
-   * null where everything is drawn whole. Measured when it is asked for (a hover, a focus), never on every frame.
+   * NVD-75: the tooltip that shows a cut label or supporting text whole (the tree view's, src/primitives/cut-text.ts): one
+   * tooltip of the cell's, made when first wanted and laid over the row's item container (the styles' \`.cut-tip\`).
    */
-  private cutText(): string | null {
-    if (this.context.collapsed) return null;
-    const cut = (selector: string) => {
-      const element = this.renderRoot?.querySelector<HTMLElement>(selector);
-      return !!element && element.scrollWidth > element.clientWidth + 0.5;
-    };
-    const label = !this.context.labelWrap && cut('.label');
-    const supporting = !!this.supportingText && !this.context.supportingWrap && cut('.supporting');
-    if (!label && !supporting) return null;
-    return supporting ? `${this.label} — ${this.supportingText}` : this.label;
-  }
+  private readonly cutTip = new CutTextTip({
+    tip: () => this.placeCutTip(),
+    content: () => this.cutContent(),
+    clock: () => this.renderRoot?.querySelector('.tip-clock') ?? null,
+  });
 
-  /** NVD-56, NVD-75: whether the cell shows its name in a tooltip now: a collapsed cell without a label, or a cut row. */
-  private wantsName(): boolean {
-    return this.unnamed || this.cutText() !== null;
-  }
+  private cutTipElement: TanreiTooltip | null = null;
 
-  /** The tooltip a cut row shows is drawn when it is first wanted, with the text that is cut (NVD-75). */
-  private async readyName() {
-    if (this.unnamed) return;
-    const text = this.cutText();
-    if (text !== this.tipText) {
-      this.tipText = text;
-      await this.updateComplete;
+  private placeCutTip(): TanreiTooltip | null {
+    const row = this.renderRoot?.querySelector('.row');
+    let tip = this.cutTipElement;
+    if (!row) return tip;
+    if (!tip) {
+      tip = document.createElement('tanrei-tooltip') as TanreiTooltip;
+      tip.className = 'cut-tip';
+      tip.setAttribute('no-describe', '');
+      tip.setAttribute('aria-hidden', 'true');
+      tip.placement = 'end';
+      this.cutTipElement = tip;
     }
+    if (tip.parentElement !== row) {
+      if (tip.open) tip.open = false;
+      row.append(tip);
+    }
+    return tip;
+  }
+
+  /** NVD-75: what is cut in the expanded row — its label, or the label and its supporting text below it — or null. */
+  private cutContent(): CutTextContent | null {
+    if (this.context.collapsed) return null;
+    const label = this.renderRoot?.querySelector('.label');
+    const supporting = this.renderRoot?.querySelector('.supporting');
+    const below = !!supporting && this.supportingPosition !== 'inline';
+    if (!isCut(label) && !(below && isCut(supporting))) return null;
+    return this.supportingText ? { title: this.label, text: this.supportingText } : { text: this.label };
+  }
+
+  /** Runs \`then\` once \`element\` is first seen in the window (at once where it is): a tooltip whose anchor is out of sight closes at once (NVD-56). */
+  private whenInView(element: Element | null, then: () => void) {
+    this.sightline?.disconnect();
+    if (!element || typeof IntersectionObserver !== 'function') {
+      then();
+      return;
+    }
+    this.sightline = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      this.sightline?.disconnect();
+      this.sightline = null;
+      then();
+    });
+    this.sightline.observe(element);
   }
 
   /**
@@ -325,7 +355,7 @@ abstract class DrawerCell extends LitElement {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       this.sightline?.disconnect();
       this.sightline = null;
-      if (this.cell?.matches(':focus-visible') && (this.unnamed || this.tipText)) this.showName(true);
+      if (this.cell?.matches(':focus-visible') && this.unnamed) this.showName(true);
     });
     this.sightline.observe(tip);
   }
@@ -365,20 +395,22 @@ abstract class DrawerCell extends LitElement {
 
   /** NVD-56: a fine pointer resting on the cell shows its name after the tooltip's show delay; a touch does not. */
   protected readonly onPointerEnter = (event: PointerEvent) => {
-    if (event.pointerType === 'touch' || this.disabled || !this.wantsName()) return;
+    if (event.pointerType === 'touch' || this.disabled) return;
+    if (!this.unnamed) {
+      this.cutTip.pointerEnter(event.pointerType);
+      return;
+    }
     this.hovered = true;
     clearTimeout(this.tipTimer);
     this.tipTimer = setTimeout(() => {
-      if (!this.hovered) return;
-      void this.readyName().then(() => {
-        if (this.hovered && (this.unnamed || this.tipText)) this.showName(true);
-      });
+      if (this.hovered && this.unnamed) this.showName(true);
     }, this.tipWaits().show);
   };
 
   protected readonly onPointerLeave = (event: PointerEvent) => {
     this.press.release();
     if (event.pointerType === 'touch') return;
+    this.cutTip.pointerLeave(event.pointerType);
     this.hovered = false;
     clearTimeout(this.tipTimer);
     // It stays while the cell has keyboard focus, as a tooltip does.
@@ -390,10 +422,12 @@ abstract class DrawerCell extends LitElement {
   protected readonly hideName = () => {
     this.hovered = false;
     this.showName(false);
+    this.cutTip.press();
   };
 
   protected readonly onBlur = () => {
     this.press.onBlur();
+    this.cutTip.blur();
     if (!this.hovered) this.showName(false);
   };
 
@@ -416,6 +450,7 @@ abstract class DrawerCell extends LitElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     clearTimeout(this.tipTimer);
+    this.cutTip.hide();
     this.sightline?.disconnect();
     this.sightline = null;
     this.hovered = false;
@@ -426,10 +461,10 @@ abstract class DrawerCell extends LitElement {
     if (!this.told) askDestinationContext(this);
     const before = (changed as Map<PropertyKey, unknown>).get('context') as DrawerCellContext | undefined;
     if (before && before.selected !== this.context.selected && before.collapsed === this.context.collapsed) markConditionChange(this.cell);
-    // NVD-56: a cell that draws its label again, or leaves the collapsed form, has no tooltip to leave open; NVD-75: a
-    // change of form, of text or of wrapping measures what is cut again when it is next asked.
-    if (changed.has('label') || changed.has('supportingText') || (before && (before.collapsed !== this.context.collapsed || before.labelWrap !== this.context.labelWrap || before.supportingWrap !== this.context.supportingWrap))) this.tipText = null;
-    if (!this.unnamed && !this.tipText) clearTimeout(this.tipTimer);
+    // NVD-56: a cell that draws its label again, or leaves the collapsed form, has no tooltip to leave open; NVD-75: nor
+    // does a cut row that collapses.
+    if (!this.unnamed) clearTimeout(this.tipTimer);
+    if (before && !before.collapsed && this.context.collapsed) this.cutTip.hide();
   }
 
   protected override updated(changed: PropertyValues<this>) {
@@ -488,8 +523,7 @@ abstract class DrawerCell extends LitElement {
 
   /** NVD-69: how much further than the drawer's padding the row begins. */
   protected cellStyle(): StyleInfo {
-    // NVD-69: a row whose levels would begin it past half of the drawer's inner width begins there.
-    return { '--_inset': `min(${this.context.inset || '0px'}, calc((var(--tanrei-comp-navigation-drawer-container-width) - 2 * var(--tanrei-comp-navigation-drawer-container-padding-inline)) / 2))` };
+    return { '--_inset': this.context.inset || '0px' };
   }
 
   /** The glyph's name: the icon (a group draws its openIcon while open, NVD-68). */
@@ -557,7 +591,7 @@ abstract class DrawerCell extends LitElement {
    */
   protected row(trailing: TemplateResult | typeof nothing) {
     const inline = this.supportingPosition === 'inline';
-    const tip = this.unnamed ? this.label : this.tipText;
+    const tip = this.unnamed ? this.label : null;
     return html`
       <span class="row">
         <span part="container" class="container" data-tanrei-shape><span part="active-indicator" class="indicator" aria-hidden="true"></span></span>
@@ -1338,6 +1372,7 @@ const LEN = {
   icon: 'var(--_nvd-icon)',
   chevron: 'var(--_nvd-trailing-icon)',
   nest: 'var(--_nvd-indent)',
+  width: 'var(--tanrei-comp-navigation-drawer-container-width)',
   /** Where a row's first part begins when it is a chevron or an icon: the icon on the icon column (NVD-13). */
   first: 'calc(var(--_nvd-column) / 2 - var(--tanrei-comp-navigation-drawer-container-padding-inline) - var(--_nvd-icon) / 2)',
 } as const;
@@ -2148,18 +2183,26 @@ export class TanreiNavigationDrawer extends LitElement {
     const step = (iconRoom: boolean) => {
       if (indent !== null) return `${indent}px`;
       const parts = [...(chevronStart ? [`${LEN.chevron} + ${LEN.gap}`] : []), ...(iconRoom ? [`${LEN.icon} + ${LEN.gap}`] : [])];
-      return parts.length ? parts.join(' + ') : '0px';
+      return parts.length ? parts.join(' + ') : LEN.nest;
     };
     /** NVD-73: under a group's first part — its start chevron, its icon or the icon's room, or its label's start. */
     const guide = (cell: DrawerCell, inset: string, iconRoom: boolean) => {
       const lead = chevronStart ? `${LEN.first} + ${LEN.chevron} / 2` : cell.icon ? `${LEN.first} + ${LEN.icon} / 2` : iconRoom ? `${LEN.first} + ${LEN.icon} + ${LEN.gap}` : LEN.itemPad;
       return `calc(${LEN.pad} + ${inset} + ${lead})`;
     };
+    /** NVD-69: where the row's label begins, from where its content begins. */
+    const labelAt = (iconRoom: boolean) => {
+      if (!chevronStart && !iconRoom) return LEN.itemPad;
+      return [LEN.first, ...(chevronStart ? [`${LEN.chevron} + ${LEN.gap}`] : []), ...(iconRoom ? [`${LEN.icon} + ${LEN.gap}`] : [])].join(' + ');
+    };
+    /** NVD-69: a row's label never begins past half of the drawer's width (a deep row stays readable, at 200 % text too). */
+    const held = (inset: string, iconRoom: boolean) => `min(${inset}, max(0px, calc(${LEN.width} / 2 - ${LEN.pad} - (${labelAt(iconRoom)}))))`;
     const place = (cells: DrawerCell[], level: number, inset: string) => {
       cells.forEach((cell, index) => {
         const iconRoom = room(cell, cells);
         const childInset = `calc(${inset} + ${step(iconRoom)})`;
-        places.set(cell, { level, position: index + 1, size: cells.length, inset, childInset, iconRoom, guideAt: guide(cell, inset, iconRoom) });
+        const shown = level ? held(inset, iconRoom) : inset;
+        places.set(cell, { level, position: index + 1, size: cells.length, inset: shown, childInset, iconRoom, guideAt: guide(cell, shown, iconRoom) });
       });
     };
     const walk = (parent: Element, level: number, cells: DrawerCell[], groups: [TanreiNavigationDrawerGroup, DrawerCell[]][]) => {
@@ -2530,6 +2573,8 @@ export class TanreiNavigationDrawer extends LitElement {
       next['--_mab-icon'] = token('icon-size');
       this.reportMainAction(main);
     }
+    // NVD-39: a trailing glyph keeps the collapsed start while expanded.
+    this.toggleAttribute('data-main-trailing', main?.getAttribute('icon-position') === 'trailing');
     const now = this.measured;
     if (Object.keys(next).length !== Object.keys(now).length || Object.entries(next).some(([key, value]) => now[key] !== value)) this.measured = next;
   }
@@ -2731,7 +2776,7 @@ export class TanreiNavigationDrawer extends LitElement {
         <div class=${classMap({ title: true, filled: this.hasTitle })} ?inert=${collapsed} aria-hidden=${collapsed ? 'true' : nothing}>
           <slot name="header" @slotchange=${this.onHeaderChange}></slot>
         </div>
-        <slot name="main-action" @slotchange=${this.onMainAction}></slot>
+        <div class=${classMap({ main: true, filled: this.hasMain })}><slot name="main-action" @slotchange=${this.onMainAction}></slot></div>
       </div>
       <div part="content" class="items" role="list" @scroll=${this.onScroll}><slot></slot></div>
       <span class="clock"></span>
