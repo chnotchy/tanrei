@@ -1,8 +1,8 @@
 ---
 title: Barra de la aplicación
-description: Da nombre a la pantalla actual en su borde superior y contiene el camino de vuelta y algunas de las acciones de la pantalla. Permanece plana mientras el contenido está en su inicio y se distingue en cuanto el contenido se desplaza por debajo de ella.
+description: Da nombre a la pantalla actual en su borde superior y contiene el camino de vuelta y algunas de las acciones de la pantalla. Su borde inferior se mantiene como el borde de la cabecera de la pantalla, y toma su aspecto desplazado en cuanto el contenido se desplaza por debajo de ella.
 translationOf: components/app-bar.mdx
-sourceHash: 6673ce3102bb145461ac7483ffda05f1bee1ab9c
+sourceHash: 17761c4d72731c4539844ae0de53f75e1af75c21
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -238,7 +238,9 @@ Un sistema de diseño puede añadir tamaños. En SwiftUI, Compose, Flutter y Rea
 
 ### Desplazamiento
 
-- **Plana y desplazada.** Mientras el contenido está en su inicio, la barra permanece plana. En cuanto hay contenido debajo, la barra toma su aspecto desplazado: en el sistema predeterminado, una línea fina en el borde inferior; en `m3-like`, un contenedor teñido. El cambio se suaviza con el movimiento de condición de la barra y ocurre de inmediato cuando el movimiento está reducido.
+- **El borde inferior se mantiene.** En el sistema predeterminado la barra dibuja una línea fina en su borde inferior en reposo y mientras hay contenido debajo. La barra es el borde de una región que no se mueve, como la cabecera de una estructura de la aplicación, así que su línea no aparece ni desaparece con el desplazamiento.
+- **O sigue al desplazamiento.** Define `dividerVisibility` como `scroll` (`divider-visibility` en la web) para dibujar el borde solo cuando hay contenido debajo de la barra, de modo que la propia línea diga que el contenido se ha movido. Un sistema de diseño toma esa decisión para todas las barras, hojas y diálogos con `sys.behavior.divider-visibility`, o solo para las barras con `comp.app-bar.outline.visibility`. `cupertino` y `m3-like` eligen `scroll`, como hacen sus originales.
+- **Plana y desplazada.** Mientras el contenido está en su inicio, la barra permanece plana. En cuanto hay contenido debajo, la barra toma su aspecto desplazado: en `m3-like`, un contenedor teñido; en `cupertino`, uno relleno. El cambio se suaviza con el movimiento de condición de la barra y ocurre de inmediato cuando el movimiento está reducido.
 - **Una barra grande solo está desplazada cuando se ha contraído del todo.** Hasta entonces, la propia contracción muestra que el contenido se ha movido.
 - **La barra se queda en su sitio.** No se oculta mientras el contenido se desplaza hacia abajo. Ese es un comportamiento de desplazamiento de la pantalla, no de la barra.
 
@@ -279,6 +281,7 @@ Un sistema de diseño puede añadir tamaños. En SwiftUI, Compose, Flutter y Rea
 
 Carencias conocidas por plataforma:
 
+- SwiftUI, Compose, Flutter y React Native: `dividerVisibility` espera a que esas plataformas se pongan al día. Dibujan el borde inferior solo cuando hay contenido debajo de la barra, como hace `scroll`.
 - SwiftUI, Compose, Flutter y React Native: las reglas de derecha a izquierda (un glifo reflejado donde el conjunto de iconos lo marca, un título compuesto en su propia dirección) esperan a que esas plataformas se pongan al día, igual que un botón con `href`.
 - Web: todos los tamaños siguen a `rem`, así que un tamaño de texto mayor en el navegador hace crecer los botones de icono junto con el texto. Ampliar solo la tipografía de Tanrei no lo hace.
 - Web: una barra grande que sigue el desplazamiento del propio documento y está en `position: sticky` dentro del flujo del documento mueve el contenido tanto por su contracción como por el desplazamiento, de modo que el contenido se mueve el doble de rápido mientras la barra se contrae. Coloca una barra que se contrae encima de un elemento con desplazamiento (`scroll-target`) o en una cabecera fija.
