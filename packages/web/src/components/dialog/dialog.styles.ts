@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { actionBoxStyles, focusRing, iconGlyph, whenChosen as chosen } from '../../primitives/index.js';
+import { actionBoxStyles, dividerVisibilityHost, focusRing, iconGlyph, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -21,6 +21,8 @@ export const styles = css`
   :host {
     display: contents;
   }
+  /* DLG-24: the divider visibility — its attribute's, else comp.dialog.divider.visibility's. */
+  ${dividerVisibilityHost(`${PREFIX}-divider-visibility`)}
 
   /* DLG-17: the resolved compact.window-width, which the script matches the window against. */
   .probe {
@@ -189,8 +191,8 @@ export const styles = css`
   }`,
   )}
 
-  /* DLG-11: a hairline below the header while the scrolled part is not at its top, and above the actions while more of
-     it lies below; none while everything fits. */
+  /* DLG-11: a hairline below the header and one above the actions while the supporting text and the content scroll;
+     none while everything fits. DLG-24, always: both for as long as the part scrolls, at its top included. */
   .middle::before,
   .middle::after {
     content: '';
@@ -207,10 +209,24 @@ export const styles = css`
   .middle::after {
     inset-block-end: 0;
   }
-  .middle.above::before,
-  .middle.below::after {
+  .middle.scrolls::before,
+  .middle.scrolls.actioned::after {
     visibility: visible;
   }
+  /* DLG-24, scroll: below the header only while the part is not at its top, above the actions only while more of it lies
+     below. */
+  ${whenScroll(
+    'dialog',
+    (dialog) => `
+  ${dialog} .middle.scrolls::before,
+  ${dialog} .middle.scrolls.actioned::after {
+    visibility: hidden;
+  }
+  ${dialog} .middle.scrolls.above::before,
+  ${dialog} .middle.scrolls.actioned.below::after {
+    visibility: visible;
+  }`,
+  )}
 
   /* DLG-12: no room left for the scrolled part: everything scrolls together. */
   dialog.whole {

@@ -5,6 +5,7 @@ import {
   ActionPlacement,
   AvailabilityController,
   BUTTON_VARIANTS,
+  type DividerVisibilityProp,
   GlyphMirrorController,
   HOST_VARIANT,
   type VariantHost,
@@ -13,14 +14,19 @@ import {
   deepActive,
   holdPageScroll,
   isDisabledControl,
+  isDividerVisibility,
   modalLayer,
   report,
+  syncDividerVisibility,
   trapFocus,
 } from '../../primitives/index.js';
 import { styles } from './dialog.styles.js';
 
 /** HTML's `closedby` values: `any` (Escape, back and a press on the scrim dismiss) or `none` (nothing does). */
 export type TanreiDialogClosedBy = 'any' | 'none' | 'closerequest';
+
+/** When the dividers are drawn while the scrolled part scrolls (DLG-24): `auto` takes `comp.dialog.divider.visibility`. */
+export type TanreiDialogDividerVisibility = DividerVisibilityProp;
 
 /** The dialogs open in this window, bottom to top (DLG-15). */
 const stack: TanreiDialog[] = [];
@@ -48,6 +54,11 @@ const ARRANGEMENTS = ['fill', 'end'] as const;
  * full-width button group places them: dismissive at the start and confirming at the end of a row, confirming on top of
  * a column when they do not fit in a row. Focus and assistive technology follow that order. A Button without a
  * `variant` attribute takes the dialog's (`comp.dialog.actions.variant`, tonal in the default system).
+ *
+ * When the parts do not fit, the supporting text and the content scroll between the header and the actions, with a
+ * divider below the header and one above the actions (DLG-11): for as long as that part scrolls while
+ * `divider-visibility` is `always` (the default system's), only while content lies beyond each line while it is
+ * `scroll`; `auto` takes `comp.dialog.divider.visibility` (DLG-24).
  *
  * Every visual value comes from `--tanrei-comp-dialog-*` tokens.
  *
@@ -83,6 +94,7 @@ export class TanreiDialog extends LitElement implements VariantHost {
     supportingText: { type: String, attribute: 'supporting-text' },
     alert: { type: Boolean, reflect: true },
     closedBy: { type: String, attribute: 'closedby', reflect: true },
+    dividerVisibility: { type: String, attribute: 'divider-visibility', reflect: true },
     filled: { state: true },
   };
 
@@ -100,6 +112,13 @@ export class TanreiDialog extends LitElement implements VariantHost {
 
   /** The spec's `dismissible`, as HTML's `closedby`: `any` (the default) lets Escape, back and the scrim dismiss it; `none` does not. Give a dialog that cannot be dismissed a dismissive action. */
   closedBy: TanreiDialogClosedBy = 'any';
+
+  /**
+   * When the dividers are drawn while the supporting text and the content scroll: `always` for as long as they scroll,
+   * `scroll` only while content lies beyond each line; `auto` takes `comp.dialog.divider.visibility`, the design
+   * system's answer (always in the default system). Reflected as `divider-visibility`.
+   */
+  dividerVisibility: TanreiDialogDividerVisibility = 'auto';
 
   /** Which parts hold something (DLG-8: an empty part is left out). */
   private filled = { icon: false, content: false, actions: false };
@@ -277,6 +296,8 @@ export class TanreiDialog extends LitElement implements VariantHost {
     dialog.classList.toggle('compact', this.readCompact());
     dialog.dataset.iconPlacement = this.choice('icon-placement', ICON_PLACEMENTS);
     dialog.dataset.arrangement = this.choice('actions-arrangement', ARRANGEMENTS);
+    // DLG-24: the divider visibility, where style queries are missing.
+    syncDividerVisibility(this, dialog);
   }
 
   /** DLG-19: counted when it opens — no action, or (not dismissible) no enabled one, is reported as an error. */
@@ -393,6 +414,10 @@ export class TanreiDialog extends LitElement implements VariantHost {
     const scrolls = scroll.scrollHeight > scroll.clientHeight + 0.5 && !this.dialog?.classList.contains('whole');
     if (scrolls) scroll.setAttribute('tabindex', '0');
     else scroll.removeAttribute('tabindex');
+    // DLG-11, DLG-24: whether the part scrolls (always draws both dividers then), and where it is (scroll draws each
+    // only while content lies beyond it).
+    middle.classList.toggle('scrolls', scrolls);
+    middle.classList.toggle('actioned', this.filled.actions);
     middle.classList.toggle('above', scroll.scrollTop > 0.5);
     middle.classList.toggle('below', this.filled.actions && scroll.scrollTop + scroll.clientHeight < scroll.scrollHeight - 0.5);
   }
@@ -414,6 +439,11 @@ export class TanreiDialog extends LitElement implements VariantHost {
     if (actions) this.resize$?.observe(actions);
     // DLG-14: a dialog without a headline still opens; a debug build says it has no name.
     if (changed.has('headline') && !this.headline.trim()) report(this, 'DLG-14', 'headline is empty, so the dialog has no accessible name; give it a headline');
+    // DLG-24: a divider visibility the dialog does not define is drawn as auto (no rule matches it).
+    if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
+      report(this, 'DLG-24', `divider-visibility "${this.dividerVisibility}" is not a value of the dialog; it is drawn as "auto"`);
+    }
+    if (changed.has('dividerVisibility') && this.dialog) syncDividerVisibility(this, this.dialog);
     if (changed.has('open')) {
       if (this.open) this.present();
       else if (this.shown) this.withdraw();

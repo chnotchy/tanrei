@@ -5998,7 +5998,7 @@ fixtures are drawn by the test harness: a modal one in a 480 × 720 window (800 
 ## `<tanrei-dialog>`
 
 Stops a person for a decision the task cannot go on without, in a surface that dims and blocks everything behind it
-(`specs/dialog.spec.json`, DLG-1…16).
+(`specs/dialog.spec.json`, DLG-1…24).
 
 ```html
 <tanrei-button id="discard">Discard</tanrei-button>
@@ -6018,6 +6018,7 @@ Stops a person for a decision the task cannot go on without, in a surface that d
 | `supportingText` / `supporting-text` | string | `""` | what will happen; the accessible description |
 | `alert` | boolean | `false` | an `alertdialog`, read as soon as it opens; reflected |
 | `closedBy` / `closedby` | `any` \| `none` | `any` | the spec's `dismissible`, as HTML's own attribute: `none` ignores Escape, back and the scrim (any other value is `any`); reflected |
+| `dividerVisibility` / `divider-visibility` | `auto` \| `always` \| `scroll` | `auto` | when the dividers are drawn while the supporting text and the content scroll: `always` for as long as they scroll, at their top included; `scroll` below the headline only once scrolled and above the actions only while more lies below; `auto` takes `comp.dialog.divider.visibility` (always in the default system, scroll in cupertino and m3-like). Anything else is `auto`, reported (DLG-24); reflected |
 
 Slots: default (custom content: it gets `content.color`, and plain text the body role), `icon` (a glyph's ligature text,
 drawn at `icon.size` in `icon.color`, unselected; with it the icon and the headline are centred), `actions` (Tanrei
@@ -6048,9 +6049,10 @@ least `container.margin` from every edge and the safe area, as wide as its conte
 by `container.padding` and `container.gap` apart, an empty part left out, the actions `actions.margin-block-start` below.
 The actions are a row at the end, `actions.gap` apart, and a column at the end when their widths do not fit the row. When
 the dialog is taller than the window less the margins, the supporting text and the content scroll between the headline and
-the actions, with a `divider.width` line in `divider.color` across the container below the headline once scrolled and above
-the actions while more lies below; when the scrolled part would have less than a line of room, the whole dialog scrolls
-instead. Everything is logical, so RTL mirrors. Parts: `container`, `icon`, `headline`, `supporting-text`, `content`,
+the actions, with a `divider.width` line in `divider.color` across the container below the headline and another above the
+actions — both for as long as that part scrolls under `always`, and under `scroll` the first only once scrolled and the
+second only while more lies below (DLG-24); when the scrolled part would have less than a line of room, the whole dialog
+scrolls instead, with no divider. Everything is logical, so RTL mirrors. Parts: `container`, `icon`, `headline`, `supporting-text`, `content`,
 `actions`.
 
 ## `<tanrei-bottom-sheet>`
