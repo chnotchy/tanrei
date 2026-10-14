@@ -2,7 +2,7 @@
 title: Panel de navegación
 description: Muestra los destinos de un producto en un panel situado en el borde de inicio, organizados en secciones y grupos, junto al contenido en una pantalla grande o sobre él en una compacta, y puede contraerse hasta quedar en una columna de iconos.
 translationOf: components/navigation-drawer.mdx
-sourceHash: e734adcaf006bdd75d1e404fd706ea526937e5ff
+sourceHash: 77f84450a1e41b37ecd6222ac63251d93e86b9d5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -446,7 +446,7 @@ Un sistema de diseño puede añadir variantes. Una variante que añada se compor
 - **`expanded`** elige la forma de un panel estándar que se puede contraer. Un panel modal que se puede contraer mantiene su columna en el diseño mientras está cerrado, y `open` lo ensancha sobre el contenido, por encima de un velo.
 - **El botón de menú** es el primer `header-button`. Mientras el panel se puede contraer, se expone como expandido o contraído y como el control que gobierna el panel, y al activarlo emite `expandedChange` con la forma solicitada. La web la aplica por sí misma; en las demás plataformas defines `expanded` u `open` a partir de ese evento. Tú eliges su glifo y su nombre.
 - **`collapsedLabels`** elige qué celdas dibujan una etiqueta corta debajo del icono: `never`, que es el valor predeterminado, la `selected` o `always`. Una columna con etiquetas es para un producto o un sistema de diseño que la quiera. En ese caso, una celda dibuja su `shortLabel`, o su etiqueta si no le das ninguno, y no muestra tooltip. En ambos casos la etiqueta sigue siendo el nombre accesible.
-- **Todos los iconos se quedan en su sitio.** Los iconos están en una misma columna y en una misma línea en las dos formas, y cada celda conserva su altura, de modo que el cambio de forma solo mueve el borde de fin: las etiquetas se desvanecen cuando el borde pasa por ellas y, en una columna con etiquetas, las etiquetas cortas aparecen con un fundido. Un grupo abierto es la única excepción: el panel contraído no dibuja sus elementos, así que las celdas de debajo suben.
+- **Todos los iconos se quedan en su sitio.** Los iconos están en una misma columna y en una misma línea en las dos formas, y cada celda conserva su altura, de modo que el cambio de forma solo mueve el borde de fin: las etiquetas se desvanecen cuando el borde pasa por ellas y, en una columna con etiquetas, las etiquetas cortas aparecen con un fundido. Un grupo abierto es la única excepción: el panel contraído no dibuja sus elementos, así que las celdas de debajo suben. El glifo de la acción principal queda en la misma línea que los iconos de los destinos en las dos formas, en cualquier tamaño del botón y en cualquier densidad: el panel coloca el botón a partir de sus propios tokens. Un cuadrado contraído más ancho que la columna (una acción principal grande en el sistema por defecto) sobresale del borde de la columna, y las compilaciones de depuración lo notifican; usa la pequeña o la mediana, y la pequeña en un panel compacto, donde el cuadrado mediano llena la columna.
 - **La selección cambia de color en su sitio.** Una nueva selección cambia el color de las filas allí donde están, expandidas o contraídas. Nada crece, se encoge ni se desliza para mostrarla.
 
 ### Densidad
