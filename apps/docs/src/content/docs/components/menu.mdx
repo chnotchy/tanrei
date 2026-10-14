@@ -59,7 +59,7 @@ The anchor is your own button, icon button or field. The menu does not draw it: 
 
 A menu has five item kinds: `item` (an action), `checkbox-item`, `radio-item`, `submenu` (an item that opens another level of the menu beside it) and `group`, which holds items of the other kinds. Each platform takes them the way it takes any repeated children: child elements on the web, views in a view builder on SwiftUI, calls in a content lambda on Compose, widgets in `menuChildren` on Flutter, and an `items` array of plain objects on React Native, told apart by `kind`. A checkbox item's `checked` is its own. Which radio item is checked belongs to its group, by value.
 
-An item's keyboard shortcut is its `shortcut` prop, written in the [keyboard shortcut](/components/keyboard-shortcut/)'s neutral key names (`mod+c`). The menu draws it at the end of the row with the keyboard shortcut component, as ⌘C on Apple's keyboards and Ctrl+C elsewhere, and exposes it as the item's keyboard shortcut. It does not make the keys work: your product binds them. `trailingText` is for anything that is not a shortcut, such as a count or "Beta". The web draws all of this, and the current look. SwiftUI, Compose, Flutter and React Native are lagging: until they catch up, they have no `shortcut` prop and write the shortcut in `trailingText`, as their samples below do. They have no submenus, no `separation` and no `markIcon` either, and they still draw the check as a mark of their own in a 16 box, fill no checked row and start a group's title where the labels start.
+An item's keyboard shortcut is its `shortcut` prop, written in the [keyboard shortcut](/components/keyboard-shortcut/)'s neutral key names (`mod+c`). The menu draws it at the end of the row with the keyboard shortcut component, as ⌘C on Apple's keyboards and Ctrl+C elsewhere, and exposes it as the item's keyboard shortcut. It does not make the keys work: your product binds them. `trailingText` is for anything that is not a shortcut, such as a count or "Beta". The web draws all of this, and the current look. SwiftUI, Compose, Flutter and React Native are lagging: until they catch up, they have no `shortcut` prop and write the shortcut in `trailingText`, as their samples below do. They have no submenus, no `separation`, no `iconSpace` and no `markIcon` either, and they still draw the check as a mark of their own in a 16 box, fill no checked row and start a group's title where the labels start.
 
 An item with an `href` is a link item: the platform's own link, drawn exactly as an action and moved to with the same keys. A plain activation emits the item's `click`, closes the menu and then opens the destination. `target` and `targetLabel` are the [Button](/components/button/)'s. `current` marks the link item of the page the person is on: it is drawn with a fill of its own and no check. The web builds link items; SwiftUI, Compose, Flutter and React Native do not have them yet.
 
@@ -281,6 +281,37 @@ An item with an `href` is a link item: the platform's own link, drawn exactly as
   </tanrei-menu>
 </DemoFrame>
 
+<DemoFrame label="Mark and icon columns: iconSpace auto, the default, and never" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="Cut" leading-icon="content_cut"></tanrei-menu-item>
+    <tanrei-menu-item label="Copy" leading-icon="content_copy"></tanrei-menu-item>
+    <tanrei-menu-item label="Paste"></tanrei-menu-item>
+    <tanrei-menu-group label="View">
+      <tanrei-menu-checkbox-item label="Show grid" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Show rulers"></tanrei-menu-checkbox-item>
+      <tanrei-menu-item label="Zoom to fit"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="Settings"></tanrei-menu-item>
+      <tanrei-menu-item label="Help"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open icon-space="never">
+    <tanrei-menu-item label="Cut" leading-icon="content_cut"></tanrei-menu-item>
+    <tanrei-menu-item label="Copy" leading-icon="content_copy"></tanrei-menu-item>
+    <tanrei-menu-item label="Paste"></tanrei-menu-item>
+    <tanrei-menu-group label="View">
+      <tanrei-menu-checkbox-item label="Show grid" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Show rulers"></tanrei-menu-checkbox-item>
+      <tanrei-menu-item label="Zoom to fit"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="Settings"></tanrei-menu-item>
+      <tanrei-menu-item label="Help"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
 <DemoFrame label="Marks: the default system's box and ring, and a plain check named by mark-icon" plain>
   <tanrei-menu inline open>
     <tanrei-menu-group label="Show">
@@ -369,6 +400,16 @@ A checkbox or radio item activated by a tap, a click or Enter closes the menu, l
 - Radio items belong in a group. A radio item outside a group is never checked, and debug builds report it.
 - A group cannot hold another group. The inner group's items are drawn as the outer group's.
 
+### Mark and icon columns
+
+The mark of a checkbox or radio item stands in the mark column at the start of a row, and a leading icon in the icon column after it. `iconSpace` decides which rows keep the room of a column they draw nothing in:
+
+- **`auto`** (the default) decides for each section: a group, or a run of items outside any group. A row keeps a column's room while another item of its section draws in it, so the labels of a section start on one line. A section with no mark or icon starts its labels where the row's content starts, with no empty room before them.
+- **`always`** keeps both columns on every row, so every label of the menu starts on one line.
+- **`never`** gives a column only to a row that draws in it, so each label starts right after its own mark or icon.
+
+Each surface decides for itself, and a submenu follows its menu's `iconSpace`. A group's title starts where the rows' content starts, whatever its rows keep. The [tree view](/components/tree-view/) and the [navigation drawer](/components/navigation-drawer/) have the same `iconSpace`, with the same values and default.
+
 ### Links
 
 A link item is the platform's own link, so the browser's context menu, opening in a new tab and the address shown on hover all work. It has no look of its own: it is drawn as the action in the next row, in every state.
@@ -392,7 +433,7 @@ A submenu item is a row that ends with the icon set's `chevron_right`, and its c
 - **Where it goes.** Beside the surface that holds its item, on the end side, its first row level with the item's row; on the other side where that side has no room. In a window too narrow for either, it is laid over its parent and leaves a strip of the parent uncovered: a press on the strip closes the submenu. The menu never replaces its own content with the submenu's.
 - **`open` and `toggle`.** A submenu item's `open` is its own. The menu sets it and the item emits `toggle` when the person opens or closes the submenu. Your own change of `open`, and the whole menu closing, emit no `toggle`.
 - **Depth.** Keep to two levels of submenu below the menu. A third is still drawn, and debug builds report it, as they report a submenu without items.
-- A group's `value` reaches only the radio items of its own surface, and each surface draws its own mark and icon columns.
+- A group's `value` reaches only the radio items of its own surface, and each surface decides its own mark and icon columns.
 
 ### Opening, focus and closing
 
@@ -452,12 +493,12 @@ Whether a press outside also reaches what is under it follows the platform too. 
 - Each item is at least the minimum target tall, and the whole row is its hit area.
 - Items grow with larger text, and the surface scrolls when it no longer fits the screen.
 - While the icon font cannot draw a glyph mark yet, such as the check, the menu draws nothing in its place, never the word "check". It keeps the column's width and still exposes the checked state, and shows the mark once the font has loaded.
-- Debug builds report an item without a label, a radio item outside a group, a group value that names none of its radio items, two radio items that share a value, a group inside a group, an item with both a shortcut and trailing text, a `separation` the menu does not define, a third level of submenu and a submenu without items. They also report a link item that opens a new context without a `targetLabel`, an `href` on a checkbox item, a radio item or a submenu item, an `href` that names a script or cannot be read, a `target` the menu does not define, and `current` on an item without an `href`.
+- Debug builds report an item without a label, a radio item outside a group, a group value that names none of its radio items, two radio items that share a value, a group inside a group, an item with both a shortcut and trailing text, a `separation` or an `iconSpace` the menu does not define, a third level of submenu and a submenu without items. They also report a link item that opens a new context without a `targetLabel`, an `href` on a checkbox item, a radio item or a submenu item, an `href` that names a script or cannot be read, a `target` the menu does not define, and `current` on an item without an `href`.
 
 Known platform gaps:
 
 - SwiftUI, Compose, Flutter and React Native have no link items: an item takes no `href` there yet.
-- SwiftUI, Compose, Flutter and React Native have no submenus, no `separation`, no `markIcon` and no fill on a checked row. They still draw the check as a mark of their own in a 16 box, and start a group's title where the labels start.
+- SwiftUI, Compose, Flutter and React Native have no submenus, no `separation`, no `iconSpace`, no `markIcon` and no fill on a checked row. They keep the mark and icon columns on every row of a menu where any item draws in them. They still draw the check as a mark of their own in a 16 box, and start a group's title where the labels start.
 - Where the title starts under `m3-like` and `cupertino` follows Tanrei's rule and has not been measured against the originals.
 - Web: the menu does not listen for the platform's close request, such as Android's back gesture, so `back` is never sent.
 - Web: `aria-haspopup` and `aria-expanded` are set on the anchor. On a custom element anchor such as an icon-only `<tanrei-button>`, they go on the button inside its shadow root. `aria-controls` and the menu's name, which comes from the anchor, cannot cross a shadow root.

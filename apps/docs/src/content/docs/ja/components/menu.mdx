@@ -2,7 +2,7 @@
 title: メニュー
 description: 呼び出した要素から開く一時的なサーフェスに、少数のアクションや選択肢を並べて見せます。
 translationOf: components/menu.mdx
-sourceHash: 9a8dc360265403b726b449afeb72b858a802a373
+sourceHash: 2106a64d0831a3f48beba511b4ee3f8ed02897e3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -61,7 +61,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 メニューの項目には 5 つの種類があります。アクションの `item`、`checkbox-item`、`radio-item`、隣にメニューのもう 1 つの階層を開く `submenu`、そしてほかの種類の項目をまとめる `group` です。項目の渡し方は、各プラットフォームで繰り返しの子要素を渡すときの流儀に従います。Web では子要素、SwiftUI ではビュービルダーの中のビュー、Compose ではコンテンツラムダの中の呼び出し、Flutter では `menuChildren` のウィジェット、React Native では `kind` で種類を見分けるプレーンなオブジェクトの配列 `items` です。チェックボックス項目の `checked` はその項目自身のものです。どのラジオ項目がチェックされているかは、値によってグループが持ちます。
 
-項目のキーボードショートカットは `shortcut` プロパティで指定します。書き方は[キーボードショートカット](/ja/components/keyboard-shortcut/)の中立なキー名（`mod+c`）です。メニューはそれを項目の末尾にキーボードショートカットのコンポーネントで描き、Apple のキーボードでは ⌘C、それ以外では Ctrl+C と表示して、項目のキーボードショートカットとして伝えます。キーを実際に効かせるのはプロダクト側です。`trailingText` は、件数や「Beta」のようなショートカット以外のもののためのものです。Web はこのすべてに対応し、現在の見た目で描きます。SwiftUI、Compose、Flutter、React Native は追従待ちです。追従するまでは `shortcut` プロパティがなく、以下の例のようにショートカットを `trailingText` に書きます。サブメニュー、`separation`、`markIcon` もありません。また、チェックを 16 の枠に独自の印で描き、チェックされた行を塗らず、グループのタイトルをラベルの位置から始めます。
+項目のキーボードショートカットは `shortcut` プロパティで指定します。書き方は[キーボードショートカット](/ja/components/keyboard-shortcut/)の中立なキー名（`mod+c`）です。メニューはそれを項目の末尾にキーボードショートカットのコンポーネントで描き、Apple のキーボードでは ⌘C、それ以外では Ctrl+C と表示して、項目のキーボードショートカットとして伝えます。キーを実際に効かせるのはプロダクト側です。`trailingText` は、件数や「Beta」のようなショートカット以外のもののためのものです。Web はこのすべてに対応し、現在の見た目で描きます。SwiftUI、Compose、Flutter、React Native は追従待ちです。追従するまでは `shortcut` プロパティがなく、以下の例のようにショートカットを `trailingText` に書きます。サブメニュー、`separation`、`iconSpace`、`markIcon` もありません。また、チェックを 16 の枠に独自の印で描き、チェックされた行を塗らず、グループのタイトルをラベルの位置から始めます。
 
 `href` を持つ項目はリンク項目です。プラットフォーム自身のリンクで、アクションとまったく同じに描かれ、同じキーで移動できます。通常の操作では、項目の `click` を発火し、メニューを閉じ、そのあとで行き先を開きます。`target` と `targetLabel` は[ボタン](/ja/components/button/)のものと同じです。`current` は、利用者が今いるページのリンク項目を示します。専用の塗りで描き、チェックは付けません。リンク項目があるのは Web です。SwiftUI、Compose、Flutter、React Native にはまだありません。
 
@@ -283,6 +283,37 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </tanrei-menu>
 </DemoFrame>
 
+<DemoFrame label="印とアイコンの列：iconSpace の auto（既定）と never" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="切り取り" leading-icon="content_cut"></tanrei-menu-item>
+    <tanrei-menu-item label="コピー" leading-icon="content_copy"></tanrei-menu-item>
+    <tanrei-menu-item label="貼り付け"></tanrei-menu-item>
+    <tanrei-menu-group label="表示">
+      <tanrei-menu-checkbox-item label="グリッドを表示" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="定規を表示"></tanrei-menu-checkbox-item>
+      <tanrei-menu-item label="ウィンドウに合わせる"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="設定"></tanrei-menu-item>
+      <tanrei-menu-item label="ヘルプ"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open icon-space="never">
+    <tanrei-menu-item label="切り取り" leading-icon="content_cut"></tanrei-menu-item>
+    <tanrei-menu-item label="コピー" leading-icon="content_copy"></tanrei-menu-item>
+    <tanrei-menu-item label="貼り付け"></tanrei-menu-item>
+    <tanrei-menu-group label="表示">
+      <tanrei-menu-checkbox-item label="グリッドを表示" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="定規を表示"></tanrei-menu-checkbox-item>
+      <tanrei-menu-item label="ウィンドウに合わせる"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="設定"></tanrei-menu-item>
+      <tanrei-menu-item label="ヘルプ"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
 <DemoFrame label="印：既定のシステムの箱と輪、そして mark-icon で指定したただのチェック" plain>
   <tanrei-menu inline open>
     <tanrei-menu-group label="表示">
@@ -371,6 +402,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - ラジオ項目はグループに入れます。グループの外のラジオ項目はチェックされることがなく、デバッグビルドで報告されます。
 - グループの中にグループは入れられません。内側のグループの項目は、外側のグループの項目として描かれます。
 
+### 印とアイコンの列
+
+チェックボックス項目とラジオ項目の印は行の先頭の印の列に、先頭アイコンはその後ろのアイコンの列に描きます。何も描かない列の幅を、どの行で空けておくかを決めるのが `iconSpace` です。
+
+- **`auto`**（既定）は、セクションごとに決めます。セクションとは、グループか、グループの外にひと続きに並ぶ項目のことです。同じセクションのほかの項目がその列に何かを描いている間は、行はその列の幅を空けておきます。そのため、セクションの中のラベルは一直線に始まります。印もアイコンもないセクションは、前に空きを置かず、行の内容が始まる位置からラベルを始めます。
+- **`always`** は、すべての行で両方の列を空けておきます。メニューのすべてのラベルが一直線に始まります。
+- **`never`** は、その列に何かを描く行にだけ列を設けます。各ラベルは、その行自身の印やアイコンのすぐ後から始まります。
+
+サーフェスごとに決め、サブメニューはそのメニューの `iconSpace` に従います。グループのタイトルは、行が何を空けておくかにかかわらず、行の内容が始まる位置から始まります。[ツリービュー](/ja/components/tree-view/)と[ナビゲーションドロワー](/ja/components/navigation-drawer/)にも、同じ値と既定値の `iconSpace` があります。
+
 ### リンク
 
 リンク項目はプラットフォーム自身のリンクです。ブラウザーのコンテキストメニュー、新しいタブで開く操作、ホバーしたときに表示されるアドレスは、どれもそのまま働きます。リンク独自の見た目はありません。どの状態でも、隣の行のアクションと同じに描かれます。
@@ -394,7 +435,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **置き場所。** その項目のあるサーフェスの隣、末尾側に、最初の行を項目の行の高さに合わせて置きます。そちらに場所がなければ反対側に置きます。どちらにも入らないほど狭いウィンドウでは、親のサーフェスに重ねて置き、親の一部を帯のように残します。その帯を押すと、サブメニューが閉じます。メニューが自分の中身をサブメニューの中身に置き換えることはありません。
 - **`open` と `toggle`。** サブメニュー項目の `open` は、その項目自身のものです。人がサブメニューを開閉すると、メニューが `open` を設定し、項目が `toggle` を発火します。利用者側で `open` を変えたとき、メニュー全体が閉じたときは、`toggle` を発火しません。
 - **深さ。** サブメニューは、メニューの下 2 階層までにします。3 階層目も描きますが、デバッグビルドで報告します。項目のないサブメニューも報告します。
-- グループの `value` が届くのは、同じサーフェスにあるラジオ項目だけです。印とアイコンの列も、サーフェスごとに描きます。
+- グループの `value` が届くのは、同じサーフェスにあるラジオ項目だけです。印とアイコンの列も、サーフェスごとに決めます。
 
 ### 開く、フォーカス、閉じる
 
@@ -454,12 +495,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - どの項目も高さは最小ターゲット以上で、行全体がヒット領域です。
 - 文字を大きくすると項目は伸び、画面に収まらなくなるとサーフェスがスクロールします。
 - アイコンフォントがまだチェックなどのグリフの印を描けない間は、その場所に何も描かず、「check」という文字を出すこともありません。列の幅は保ち、チェックの状態も伝えます。フォントが読み込まれると、印が現れます。
-- ラベルのない項目、グループの外のラジオ項目、どのラジオ項目も指していないグループの値、同じ値を持つ 2 つのラジオ項目、グループの中のグループ、ショートカットと末尾のテキストの両方を持つ項目、メニューが定義していない `separation`、3 階層目のサブメニュー、項目のないサブメニューは、デバッグビルドで報告します。新しいコンテキストで開くのに `targetLabel` のないリンク項目、チェックボックス項目・ラジオ項目・サブメニュー項目に付けた `href`、スクリプトを指す `href` や読み取れない `href`、メニューが定義していない `target`、`href` のない項目に付けた `current` も報告します。
+- ラベルのない項目、グループの外のラジオ項目、どのラジオ項目も指していないグループの値、同じ値を持つ 2 つのラジオ項目、グループの中のグループ、ショートカットと末尾のテキストの両方を持つ項目、メニューが定義していない `separation` や `iconSpace`、3 階層目のサブメニュー、項目のないサブメニューは、デバッグビルドで報告します。新しいコンテキストで開くのに `targetLabel` のないリンク項目、チェックボックス項目・ラジオ項目・サブメニュー項目に付けた `href`、スクリプトを指す `href` や読み取れない `href`、メニューが定義していない `target`、`href` のない項目に付けた `current` も報告します。
 
 プラットフォームごとの既知の制約：
 
 - SwiftUI、Compose、Flutter、React Native にはリンク項目がありません。これらでは、項目はまだ `href` を受け取りません。
-- SwiftUI、Compose、Flutter、React Native には、サブメニュー、`separation`、`markIcon`、チェックされた行の塗りがありません。また、まだチェックを 16 の枠に独自の印で描き、グループのタイトルをラベルの位置から始めます。
+- SwiftUI、Compose、Flutter、React Native には、サブメニュー、`separation`、`iconSpace`、`markIcon`、チェックされた行の塗りがありません。いずれかの項目が印やアイコンを描くメニューでは、すべての行でその列を空けておきます。また、まだチェックを 16 の枠に独自の印で描き、グループのタイトルをラベルの位置から始めます。
 - `m3-like` と `cupertino` のタイトルの開始位置は Tanrei の決まりに従うもので、元のデザインと照らし合わせて測ってはいません。
 - Web：メニューは Android の戻るジェスチャーのようなプラットフォームの閉じる要求を受け取らないため、`back` は送られません。
 - Web：`aria-haspopup` と `aria-expanded` はアンカーに設定します。アイコンだけの `<tanrei-button>` のようなカスタム要素のアンカーでは、シャドウルートの中のボタンに設定します。`aria-controls` と、アンカーから取るメニューの名前は、シャドウルートの境界を越えられません。
