@@ -88811,7 +88811,7 @@
               "name": "cutTip",
               "privacy": "private",
               "readonly": true,
-              "default": "new CutTextTip({ tip: () => this.placeTip(), content: () => this.cutContent(), // tree-view.css writes the tooltip's waits as a transition of the tree. clock: () => this, })"
+              "default": "new CutTextTip({ // (Made and moved into a row only to be opened: a focus that moves changes no row's children.) tip: () => this.tipElement, place: () => void this.placeTip(), content: () => this.cutContent(), // tree-view.css writes the tooltip's waits as a transition of the tree. clock: () => this, })"
             },
             {
               "kind": "method",

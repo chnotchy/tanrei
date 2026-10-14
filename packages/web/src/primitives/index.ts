@@ -207,7 +207,7 @@ export {
   selectionStates,
 } from './selection.js';
 export { minimumTarget, neighbourTarget } from './target.js';
-export { type CutTextContent, CutTextTip, type CutTextTipOptions, isCut } from './cut-text.js';
+export { type CutTextContent, CutTextTip, type CutTextTipOptions, type CutTextTooltip, isCut } from './cut-text.js';
 export { KeptLengths, keptLength } from './kept-length.js';
 export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
 export { RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';

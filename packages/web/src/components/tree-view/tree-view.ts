@@ -1329,7 +1329,9 @@ export class TanreiTreeView extends ReactiveElement {
   private tipRow: HTMLElement | null = null;
   private tipElement: TanreiTooltip | null = null;
   private readonly cutTip = new CutTextTip({
-    tip: () => this.placeTip(),
+    // (Made and moved into a row only to be opened: a focus that moves changes no row's children.)
+    tip: () => this.tipElement,
+    place: () => void this.placeTip(),
     content: () => this.cutContent(),
     // tree-view.css writes the tooltip's waits as a transition of the tree.
     clock: () => this,

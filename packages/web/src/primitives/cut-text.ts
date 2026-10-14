@@ -14,7 +14,16 @@
  * tooltip's waits as a transition the host never runs (`clock`: `transition-delay` is the show delay and
  * `transition-duration` the hide delay, from `--tanrei-comp-tooltip-motion-show-delay` and `-hide-delay`).
  */
-import type { TanreiTooltip } from '../components/tooltip/tooltip.js';
+/**
+ * What of a `<tanrei-tooltip>` the primitive sets. (Said here, not imported: a primitive every component loads names no
+ * component's module.)
+ */
+export interface CutTextTooltip {
+  open: boolean;
+  variant: string;
+  title: string;
+  text: string;
+}
 
 /** Whether an element's text is cut: its content takes more room than its box gives (half a pixel of rounding aside). */
 export function isCut(element: Element | null | undefined): boolean {
@@ -29,8 +38,10 @@ export interface CutTextContent {
 }
 
 export interface CutTextTipOptions {
-  /** The tooltip, placed by the host over the text it shows; made by the host when first asked. */
-  tip: () => TanreiTooltip | null;
+  /** The tooltip, where the host has made one (it is not made, nor moved, to be closed). */
+  tip: () => CutTextTooltip | null;
+  /** Makes the tooltip where it has none, and places it over the text it is about to show: called only to open it. */
+  place?: () => void;
   /** What to show now, or null while nothing is cut (read each time the tooltip would open). */
   content: () => CutTextContent | null;
   /** The element whose transition carries the tooltip's waits (see above). */
@@ -64,6 +75,7 @@ export class CutTextTip {
     clearTimeout(this.timer);
     const content = this.options.content();
     if (!content) return this.hide();
+    this.options.place?.();
     const tip = this.options.tip();
     if (!tip) return;
     tip.variant = content.title ? 'rich' : 'plain';
