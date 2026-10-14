@@ -124,6 +124,7 @@ let ids = 0;
  * the one `<main>` without one. They are written in the order a keyboard walks them (APS-22): the skip link, the
  * announcement, the header, the navigation, the aside while `aside-order` is `before`, the main region, the aside
  * while it is `after`, the footer, the navigation bar. The stylesheet places them by name and never reorders focus.
+ * `footer-hidden` leaves a filled footer out of the frame (APS-31).
  *
  * Everything laid out is `@tanrei/web/app-shell.css`, before and without this script (APS-24): the window's class is
  * a media condition, a region the class does not show has no box, and the skip link is an anchor to the main region's
@@ -172,6 +173,7 @@ export class TanreiAppShell extends ReactiveElement {
     headerPosition: { type: String, attribute: 'header-position', reflect: true, useDefault: true },
     mainWidth: { type: String, attribute: 'main-width', reflect: true, useDefault: true },
     asideOrder: { type: String, attribute: 'aside-order', reflect: true, useDefault: true },
+    footerHidden: { type: Boolean, attribute: 'footer-hidden', reflect: true },
     separation: { type: String, reflect: true, useDefault: true },
     navigationOpen: { type: Boolean, attribute: 'navigation-open', reflect: true },
     asideLabel: { type: String, attribute: 'aside-label' },
@@ -191,6 +193,14 @@ export class TanreiAppShell extends ReactiveElement {
 
   /** Where the aside stands in reading and focus order, and so where it is drawn when it is not beside the main content: `after` it (below) or `before` it (above). Write the aside on that side of the `<main>` in the markup. */
   asideOrder: TanreiAppShellAsideOrder = 'after';
+
+  /**
+   * APS-31: whether the footer is left out of the frame although the footer region is filled — for a screen that is a
+   * task rather than a page of the site (a checkout, a sign-in, an editor). While true the footer has no box, no line,
+   * no landmark and no focus stop; the stylesheet hides it, and focus that was inside it goes to the main region. The
+   * footer is shown only while it is filled and this is false.
+   */
+  footerHidden = false;
 
   /** How regions that touch are told apart: `divider` draws the one hairline, `gap` draws nothing; `auto` takes `comp.app-shell.separation`, the design system's answer. */
   separation: TanreiAppShellSeparation = 'auto';
@@ -357,15 +367,23 @@ export class TanreiAppShell extends ReactiveElement {
       // navigation bar — goes to the main region. (Where focus was in the navigation, the drawer has kept it: NVD-54.)
       // A browser takes focus from an element as soon as it is no longer drawn, before or after it tells of the new
       // width: what had focus is what the frame last saw take it, unless a person has moved it since.
-      const active = deepActive();
-      const lost = !active || active === document.body || active === document.documentElement;
-      const had = lost ? this.focused : active;
-      if (had && this.holds(had) && !drawn(had)) this.main()?.focus({ preventScroll: true });
+      this.rescueFocus();
     }
     if (this.hasUpdated) {
       this.read();
       this.tell();
     }
+  }
+
+  /**
+   * APS-23, APS-31: focus on something in the frame that is no longer drawn goes to the main region. A browser takes
+   * focus from an element as soon as it is no longer drawn: what had focus is then what the frame last saw take it.
+   */
+  private rescueFocus() {
+    const active = deepActive();
+    const lost = !active || active === document.body || active === document.documentElement;
+    const had = lost ? this.focused : active;
+    if (had && this.holds(had) && !drawn(had)) this.main()?.focus({ preventScroll: true });
   }
 
   private readonly onFocusIn = (event: FocusEvent) => {
@@ -687,6 +705,8 @@ export class TanreiAppShell extends ReactiveElement {
     }
     this.read();
     if (changed.has('scrolls') || changed.has('headerPosition')) this.measure();
+    // APS-31: a footer hidden while focus was in it gives focus to the main region.
+    if (changed.has('footerHidden') && this.footerHidden) this.rescueFocus();
     this.tell();
   }
 }

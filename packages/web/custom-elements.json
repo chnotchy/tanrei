@@ -1329,7 +1329,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Frames a page or an app: places a header, the navigation, the main content, an aside and a footer, decides from the\nwindow's width how each of them is shown, and lets a keyboard reach the content in one step. It draws the frame and\nnone of what stands in it.\n\nContract: specs/app-shell.spec.json. The element has **no shadow root**: it is the frame around the product's own\nregions, which stay in the document and keep their semantics — a `<header>` is the page's banner and the one\n`<main>` its main landmark for a screen reader, a crawler and a page without script alike.\n\n```html\n<tanrei-app-shell aside-order=\"before\" aside-label=\"On this page\">\n  <a class=\"tanrei-link\" data-standalone slot=\"skip-link\" href=\"#main\">Skip to content</a>\n  <div slot=\"announcement\">…a callout…</div>\n  <header slot=\"header\">\n    <tanrei-app-bar headline=\"Tanrei\">\n      <tanrei-button slot=\"navigation\" data-app-shell-menu variant=\"text\" label=\"Menu\"><span slot=\"icon\">menu</span></tanrei-button>\n    </tanrei-app-bar>\n  </header>\n  <tanrei-navigation-drawer slot=\"navigation\" responsive collapsible label=\"Documentation\">…</tanrei-navigation-drawer>\n  <aside slot=\"aside\">…</aside>\n  <main id=\"main\" tabindex=\"-1\">…</main>\n  <footer slot=\"footer\">…</footer>\n  <tanrei-navigation-bar slot=\"navigation-bar\" label=\"Sections\">…</tanrei-navigation-bar>\n</tanrei-app-shell>\n```\n\nA region is a child with a `slot` attribute — the region's name; no shadow root reads it — and the main region is\nthe one `<main>` without one. They are written in the order a keyboard walks them (APS-22): the skip link, the\nannouncement, the header, the navigation, the aside while `aside-order` is `before`, the main region, the aside\nwhile it is `after`, the footer, the navigation bar. The stylesheet places them by name and never reorders focus.\n\nEverything laid out is `@tanrei/web/app-shell.css`, before and without this script (APS-24): the window's class is\na media condition, a region the class does not show has no box, and the skip link is an anchor to the main region's\nid. The element adds the same sheet to the root it is connected to, and what a stylesheet cannot say:\n\n- **the class**, as the read-only `windowClass`, the `data-window-class` attribute and `windowclasschange` — from\n  two `matchMedia` listeners of the widths the stylesheet was written with; no resize listener and no frame loop.\n  What the frame holds also inherits it as `--tanrei-app-shell-window-class`, from the stylesheet alone;\n- **the menu button** — the one icon-only `<tanrei-button data-app-shell-menu>` in the header — which it answers\n  while the navigation has no place in the layout: `navigationOpen` and the `open` of a\n  `<tanrei-navigation-drawer>` in the navigation region become true, the drawer's `close` makes them false again,\n  and the button says `aria-expanded` and what it controls;\n- **the scroll offset**: the header's measured height as `--tanrei-app-shell-scroll-offset` on the document's root\n  (the stylesheet sets the root's scroll padding from it), and the navigation bar's as\n  `--tanrei-app-shell-scroll-offset-end`, so a link's target and a focused element rest clear of both. The product's\n  own sticky parts read the same properties;\n- **a landmark** for a region whose element does not give one (`role=\"banner\"` on a header that is not a\n  `<header>`, `aria-label` from `aside-label` on an aside without a name), and `tabindex=\"-1\"` on a `<main>` that\n  lacks it;\n- the debug reports of APS-4, APS-21 and APS-29.\n\nWith `scroll=\"main\"` the main region is the scrolling view: name its id in the app bar's `scroll-target`.",
+          "description": "Frames a page or an app: places a header, the navigation, the main content, an aside and a footer, decides from the\nwindow's width how each of them is shown, and lets a keyboard reach the content in one step. It draws the frame and\nnone of what stands in it.\n\nContract: specs/app-shell.spec.json. The element has **no shadow root**: it is the frame around the product's own\nregions, which stay in the document and keep their semantics — a `<header>` is the page's banner and the one\n`<main>` its main landmark for a screen reader, a crawler and a page without script alike.\n\n```html\n<tanrei-app-shell aside-order=\"before\" aside-label=\"On this page\">\n  <a class=\"tanrei-link\" data-standalone slot=\"skip-link\" href=\"#main\">Skip to content</a>\n  <div slot=\"announcement\">…a callout…</div>\n  <header slot=\"header\">\n    <tanrei-app-bar headline=\"Tanrei\">\n      <tanrei-button slot=\"navigation\" data-app-shell-menu variant=\"text\" label=\"Menu\"><span slot=\"icon\">menu</span></tanrei-button>\n    </tanrei-app-bar>\n  </header>\n  <tanrei-navigation-drawer slot=\"navigation\" responsive collapsible label=\"Documentation\">…</tanrei-navigation-drawer>\n  <aside slot=\"aside\">…</aside>\n  <main id=\"main\" tabindex=\"-1\">…</main>\n  <footer slot=\"footer\">…</footer>\n  <tanrei-navigation-bar slot=\"navigation-bar\" label=\"Sections\">…</tanrei-navigation-bar>\n</tanrei-app-shell>\n```\n\nA region is a child with a `slot` attribute — the region's name; no shadow root reads it — and the main region is\nthe one `<main>` without one. They are written in the order a keyboard walks them (APS-22): the skip link, the\nannouncement, the header, the navigation, the aside while `aside-order` is `before`, the main region, the aside\nwhile it is `after`, the footer, the navigation bar. The stylesheet places them by name and never reorders focus.\n`footer-hidden` leaves a filled footer out of the frame (APS-31).\n\nEverything laid out is `@tanrei/web/app-shell.css`, before and without this script (APS-24): the window's class is\na media condition, a region the class does not show has no box, and the skip link is an anchor to the main region's\nid. The element adds the same sheet to the root it is connected to, and what a stylesheet cannot say:\n\n- **the class**, as the read-only `windowClass`, the `data-window-class` attribute and `windowclasschange` — from\n  two `matchMedia` listeners of the widths the stylesheet was written with; no resize listener and no frame loop.\n  What the frame holds also inherits it as `--tanrei-app-shell-window-class`, from the stylesheet alone;\n- **the menu button** — the one icon-only `<tanrei-button data-app-shell-menu>` in the header — which it answers\n  while the navigation has no place in the layout: `navigationOpen` and the `open` of a\n  `<tanrei-navigation-drawer>` in the navigation region become true, the drawer's `close` makes them false again,\n  and the button says `aria-expanded` and what it controls;\n- **the scroll offset**: the header's measured height as `--tanrei-app-shell-scroll-offset` on the document's root\n  (the stylesheet sets the root's scroll padding from it), and the navigation bar's as\n  `--tanrei-app-shell-scroll-offset-end`, so a link's target and a focused element rest clear of both. The product's\n  own sticky parts read the same properties;\n- **a landmark** for a region whose element does not give one (`role=\"banner\"` on a header that is not a\n  `<header>`, `aria-label` from `aside-label` on an aside without a name), and `tabindex=\"-1\"` on a `<main>` that\n  lacks it;\n- the debug reports of APS-4, APS-21 and APS-29.\n\nWith `scroll=\"main\"` the main region is the scrolling view: name its id in the app bar's `scroll-target`.",
           "name": "TanreiAppShell",
           "cssProperties": [
             {
@@ -1433,6 +1433,18 @@
               "default": "'after'",
               "description": "Where the aside stands in reading and focus order, and so where it is drawn when it is not beside the main content: `after` it (below) or `before` it (above). Write the aside on that side of the `<main>` in the markup.",
               "attribute": "aside-order",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "footerHidden",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "APS-31: whether the footer is left out of the frame although the footer region is filled — for a screen that is a\ntask rather than a page of the site (a checkout, a sign-in, an editor). While true the footer has no box, no line,\nno landmark and no focus stop; the stylesheet hides it, and focus that was inside it goes to the main region. The\nfooter is shown only while it is filled and this is false.",
+              "attribute": "footer-hidden",
               "reflects": true
             },
             {
@@ -1680,6 +1692,12 @@
               "name": "decide",
               "privacy": "private",
               "description": "APS-3, APS-7, APS-23: the class of the window's current width. The first decision is only told. A change closes\nan open navigation at once and takes focus off what the new arrangement does not show."
+            },
+            {
+              "kind": "method",
+              "name": "rescueFocus",
+              "privacy": "private",
+              "description": "APS-23, APS-31: focus on something in the frame that is no longer drawn goes to the main region. A browser takes\nfocus from an element as soon as it is no longer drawn: what had focus is then what the frame last saw take it."
             },
             {
               "kind": "field",
@@ -2000,6 +2018,15 @@
               "default": "'after'",
               "description": "Where the aside stands in reading and focus order, and so where it is drawn when it is not beside the main content: `after` it (below) or `before` it (above). Write the aside on that side of the `<main>` in the markup.",
               "fieldName": "asideOrder"
+            },
+            {
+              "name": "footer-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "APS-31: whether the footer is left out of the frame although the footer region is filled — for a screen that is a\ntask rather than a page of the site (a checkout, a sign-in, an editor). While true the footer has no box, no line,\nno landmark and no focus stop; the stylesheet hides it, and focus that was inside it goes to the main region. The\nfooter is shown only while it is filled and this is false.",
+              "fieldName": "footerHidden"
             },
             {
               "name": "separation",

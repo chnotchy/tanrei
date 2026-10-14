@@ -51,7 +51,7 @@
     },
     {
       "id": "footer",
-      "description": "The region at the end of the page for what belongs to the whole site: its links, its legal line, its language and theme controls. The page's content-information landmark.",
+      "description": "The region at the end of the page for what belongs to the whole site: its links, its legal line, its language and theme controls. The page's content-information landmark. Shown while the product fills it and has not hidden it (footerHidden).",
       "optional": true
     },
     {
@@ -105,6 +105,12 @@
       ],
       "default": "after",
       "description": "Where the aside stands in reading and focus order, and so where it is drawn when it is not beside the main content. after: it follows the main content and is drawn below it (related links, details). before: it precedes the main content and is drawn above it (an outline of the page, which is of use only before the page is read). Beside the main content it is drawn at the end edge either way."
+    },
+    {
+      "name": "footerHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the footer is left out of the frame although the product fills it: a screen that is a task rather than a page of the site (a checkout, a sign-in, an editor, a full-window map) keeps the site's footer markup and shows none. While true the footer takes no space, draws no line, is no landmark and has no stop in focus order, exactly as an empty footer region. The footer is shown only while the product fills the footer slot and this is false: footerHidden never makes a footer of an unfilled slot."
     },
     {
       "name": "separation",
@@ -215,7 +221,7 @@
   "behavior": [
     {
       "id": "APS-1",
-      "text": "THE app shell SHALL fill the window with comp.app-shell.container.color, hand everything it holds comp.app-shell.content.color as the platform's inherited foreground, and place its regions in this order: the announcement across the top; the header across the top below it; then a row that holds the navigation at the start edge, the main region, and the aside at the end edge; the footer across the bottom of the page; and the navigation bar across the bottom edge of the window. A region that holds nothing SHALL take no space, draw nothing and add no landmark, and the regions beside it SHALL take its room. THE app shell SHALL draw no elevation and no corner of its own."
+      "text": "THE app shell SHALL fill the window with comp.app-shell.container.color, hand everything it holds comp.app-shell.content.color as the platform's inherited foreground, and place its regions in this order: the announcement across the top; the header across the top below it; then a row that holds the navigation at the start edge, the main region, and the aside at the end edge; the footer across the bottom of the page; and the navigation bar across the bottom edge of the window. A region that holds nothing, and the footer WHILE footerHidden is true (APS-31), SHALL take no space, draw nothing and add no landmark, and the regions beside it SHALL take its room. THE app shell SHALL draw no elevation and no corner of its own."
     },
     {
       "id": "APS-2",
@@ -265,6 +271,11 @@
       "text": "WHILE scroll is page THE app shell SHALL place the footer after the row of the navigation, the main region and the aside, across the frame's whole width, so that it is reached at the end of the page and the navigation and the aside stop staying in view where it begins; WHILE scroll is main THE app shell SHALL keep the footer at the bottom of the frame, below the row and above the navigation bar, always in view. THE app shell SHALL inset the footer's content by the gutter of the window's class (APS-8) at the start and the end and by comp.app-shell.footer.padding-block at the top and the bottom, and SHALL lay out nothing inside it: the footer's columns, links and controls are the product's."
     },
     {
+      "id": "APS-31",
+      "text": "WHILE footerHidden is true THE app shell SHALL NOT show the footer, whatever the footer slot holds: the footer SHALL take no space, draw no line (APS-18), add no landmark (APS-21) and have no stop in focus order (APS-22), the regions beside it SHALL take its room, and WHILE scroll is page the navigation and the aside SHALL stay in view to the end of the page (APS-5, APS-9). WHILE footerHidden is false THE app shell SHALL show the footer exactly while the product fills the footer slot (APS-1, APS-11): it SHALL NOT draw a footer, or expose a content-information landmark, for a slot the product left unfilled. WHEN footerHidden changes THE app shell SHALL draw the new arrangement at once, without a motion of its own, SHALL keep what the footer slot holds as the product gave it, and IF keyboard focus is in the footer as it is hidden SHALL move focus to the main region.",
+      "verify": "`expanded-footer-hidden` fills the footer slot and draws `expanded` without its footer: the navigation and the aside reach the bottom of the window and no hairline is drawn above where the footer was. With footerHidden true the accessibility tree has no content-information landmark and Tab goes from the last stop of the content to the navigation bar (or out of the frame)."
+    },
+    {
       "id": "APS-12",
       "text": "WHILE the announcement region holds something THE app shell SHALL place it across the frame's whole width above the header, with no inset of its own, in every class; WHILE scroll is page the announcement SHALL scroll away with the page and a sticky header SHALL then rest at the top of the window, and WHILE scroll is main it SHALL stay above the header. WHEN what the announcement holds is removed or closes (a callout whose open becomes false) THE app shell SHALL give its room back at once."
     },
@@ -309,11 +320,11 @@
     },
     {
       "id": "APS-22",
-      "text": "THE app shell SHALL NOT be focusable and SHALL move focus through its regions in reading order, the same in every class and in either layout direction: the skip link, the announcement, the header, the navigation, the aside WHILE asideOrder is before, the main region's content, the aside WHILE asideOrder is after, the footer, the navigation bar. A region that is not shown (APS-4, APS-6, APS-13) SHALL have no stop in that order. THE app shell SHALL NOT keep focus inside a region that has a place in the layout: only a region presented over the content holds it."
+      "text": "THE app shell SHALL NOT be focusable and SHALL move focus through its regions in reading order, the same in every class and in either layout direction: the skip link, the announcement, the header, the navigation, the aside WHILE asideOrder is before, the main region's content, the aside WHILE asideOrder is after, the footer, the navigation bar. A region that is not shown (APS-4, APS-6, APS-13, APS-31) SHALL have no stop in that order. THE app shell SHALL NOT keep focus inside a region that has a place in the layout: only a region presented over the content holds it."
     },
     {
       "id": "APS-23",
-      "text": "WHEN the window's class changes THE app shell SHALL draw the new arrangement at once, without a motion of its own; SHALL keep scroll, headerPosition, mainWidth, asideOrder and separation as they are; SHALL keep the reader at the same place in the main content as far as the new arrangement allows; and IF keyboard focus is on something the new arrangement does not show (the menu button, a navigation bar's destination) SHALL move it to the main region, unless the navigation it holds has already moved it (NVD-54)."
+      "text": "WHEN the window's class changes THE app shell SHALL draw the new arrangement at once, without a motion of its own; SHALL keep scroll, headerPosition, mainWidth, asideOrder, footerHidden and separation as they are; SHALL keep the reader at the same place in the main content as far as the new arrangement allows; and IF keyboard focus is on something the new arrangement does not show (the menu button, a navigation bar's destination) SHALL move it to the main region, unless the navigation it holds has already moved it (NVD-54)."
     },
     {
       "id": "APS-24",
@@ -362,7 +373,7 @@
         "action": "Opens the navigation over the content and moves focus into it; Escape there closes it and returns focus to the menu button (the navigation drawer's own keys)."
       }
     ],
-    "labeling": "The shell has no role and no name. Its regions are the page's landmarks: banner (the header), navigation (named by the label of the navigation drawer or the navigation bar it holds), main (exactly one, unnamed), complementary (the aside, named by asideLabel or by the side sheet's headline) and content information (the footer). The skip link is named by its own text and the menu button by its label, both in the product's language: Tanrei ships no words.",
+    "labeling": "The shell has no role and no name. Its regions are the page's landmarks: banner (the header), navigation (named by the label of the navigation drawer or the navigation bar it holds), main (exactly one, unnamed), complementary (the aside, named by asideLabel or by the side sheet's headline) and content information (the footer, while it is shown: an unfilled or hidden footer is no landmark). The skip link is named by its own text and the menu button by its label, both in the product's language: Tanrei ships no words.",
     "minimumTarget": true,
     "notes": [
       "The shell takes no input: the skip link is a Link and the menu button an icon-only Button, and each meets the minimum target by its own spec (LNK-17, BTN-5).",
@@ -414,6 +425,20 @@
       "slots": {
         "header": "Header",
         "navigation": "Navigation",
+        "footer": "Footer"
+      }
+    },
+    {
+      "id": "expanded-footer-hidden",
+      "props": {
+        "footerHidden": true,
+        "asideLabel": "On this page"
+      },
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "aside": "Aside",
         "footer": "Footer"
       }
     },
@@ -702,6 +727,7 @@
         "headerPosition": "headerPosition",
         "mainWidth": "mainWidth",
         "asideOrder": "asideOrder",
+        "footerHidden": "footerHidden",
         "separation": "separation",
         "navigationOpen": "navigationOpen",
         "asideLabel": "asideLabel"
@@ -722,7 +748,7 @@
           "notes": "An icon-only `<tanrei-button>` anywhere inside the header region, marked with the `data-app-shell-menu` attribute: usually the app bar's `slot=\"navigation\"` child. The glyph is its content."
         }
       },
-      "notes": "An element and a stylesheet: `<tanrei-app-shell>` attaches no shadow root, and the package's `@tanrei/web/app-shell.css` lays out its light-DOM children from the element's name, its attributes and each child's `slot` attribute alone, so a page rendered on a server is laid out before the element is defined and with scripts off (APS-24). The regions are the product's own semantic elements: `<a class=\"tanrei-link\" data-standalone slot=\"skip-link\" href=\"#main\">`, `<div slot=\"announcement\">`, `<header slot=\"header\">` around a `<tanrei-app-bar>`, `<tanrei-navigation-drawer slot=\"navigation\" responsive>`, the one `<main id=\"main\" tabindex=\"-1\">` child without a `slot` (the default region), `<aside slot=\"aside\" aria-label=\"…\">`, `<footer slot=\"footer\">` and `<tanrei-navigation-bar slot=\"navigation-bar\">`, written in the order of APS-22; the stylesheet places them on a grid by name and never reorders focus. Attributes: `scroll`, `header-position`, `main-width`, `aside-order`, `separation`, `navigation-open`, `aside-label`. The window's class is chosen by `@media` conditions in `rem`; a custom property cannot stand in a media condition, so the generator writes the two widths into the stylesheet from the active system's tokens (one stylesheet per system that changes them). The menu button is hidden by the same conditions, with `:has(> [slot=\"navigation\"][collapsible])` telling the column presentation from the modal one. Sticky parts are `position: sticky`; the navigation and the aside are `align-self: start` with a maximum block size of the dynamic viewport height less the scroll offset and `overflow: auto` with `overscroll-behavior: contain`. `scroll=\"main\"` makes the host `100dvh` high and the `<main>` the scroller. It does not yet follow the part of APS-15 that has an aside above or below the main region scroll with it: a stylesheet cannot make the `<main>` and its sibling `<aside slot=\"aside\">` one scrolling view, and making the frame itself the scroller in that arrangement would take the scrolling view away from the `<main>` that the app bar's `scroll-target` (APS-16) and the skip link (APS-17, APS-20) name, and would need the announcement's and the navigation bar's heights before the element is defined (APS-24). Until it does, a product that uses `scroll=\"main\"` and wants the aside to scroll with the content in a compact or medium window writes that content inside the `<main>` for those classes. The stylesheet defines `--tanrei-app-shell-scroll-offset` on the document's root (until the element is defined: the small app bar's height while the header is sticky, else 0) and sets the root's `scroll-padding-block-start` from it — or the main element's while `scroll` is `main`; once defined, the element measures the header with a `ResizeObserver` and rewrites the property. The product's own sticky parts (a table's header row) read the same property. `--tanrei-prose-scroll-offset` stays 0 inside a shell: the scroll padding already clears the header, and prose adds only a heading's own space. The upgraded element adds: the read-only `windowClass` property, reflected as the `data-window-class` state attribute, and `windowclasschange` with `detail.windowClass`, from two `matchMedia` listeners (no resize listener and no frame loop); the menu button's `click`, which sets `navigationOpen` and the `open` of a `<tanrei-navigation-drawer>` in the navigation region, follows that drawer's `close`, and writes `aria-expanded` and `aria-controls` through the Button's element properties; `role` and `aria-label` on a region whose element does not already give the landmark (a `<tanrei-app-bar slot=\"header\">` with no `<header>` around it; an aside without a name takes `aside-label`); `tabindex=\"-1\"` on a `<main>` that lacks it; and the debug reports of APS-4, APS-21 and APS-29. It listens to nothing while no region needs it. With `scroll=\"main\"` the product names the main element's id in the app bar's `scroll-target`. The skip link is hidden with a clip, never `display: none`, and shown on `:focus-visible`; under `forced-colors: active` its box gains a `CanvasText` border. Insets are `env(safe-area-inset-*)`. The React wrapper renders the same light DOM on a server."
+      "notes": "An element and a stylesheet: `<tanrei-app-shell>` attaches no shadow root, and the package's `@tanrei/web/app-shell.css` lays out its light-DOM children from the element's name, its attributes and each child's `slot` attribute alone, so a page rendered on a server is laid out before the element is defined and with scripts off (APS-24). The regions are the product's own semantic elements: `<a class=\"tanrei-link\" data-standalone slot=\"skip-link\" href=\"#main\">`, `<div slot=\"announcement\">`, `<header slot=\"header\">` around a `<tanrei-app-bar>`, `<tanrei-navigation-drawer slot=\"navigation\" responsive>`, the one `<main id=\"main\" tabindex=\"-1\">` child without a `slot` (the default region), `<aside slot=\"aside\" aria-label=\"…\">`, `<footer slot=\"footer\">` and `<tanrei-navigation-bar slot=\"navigation-bar\">`, written in the order of APS-22; the stylesheet places them on a grid by name and never reorders focus. Attributes: `scroll`, `header-position`, `main-width`, `aside-order`, `footer-hidden`, `separation`, `navigation-open`, `aside-label`. The window's class is chosen by `@media` conditions in `rem`; a custom property cannot stand in a media condition, so the generator writes the two widths into the stylesheet from the active system's tokens (one stylesheet per system that changes them). The menu button is hidden by the same conditions, with `:has(> [slot=\"navigation\"][collapsible])` telling the column presentation from the modal one. Sticky parts are `position: sticky`; the navigation and the aside are `align-self: start` with a maximum block size of the dynamic viewport height less the scroll offset and `overflow: auto` with `overscroll-behavior: contain`. `scroll=\"main\"` makes the host `100dvh` high and the `<main>` the scroller. It does not yet follow the part of APS-15 that has an aside above or below the main region scroll with it: a stylesheet cannot make the `<main>` and its sibling `<aside slot=\"aside\">` one scrolling view, and making the frame itself the scroller in that arrangement would take the scrolling view away from the `<main>` that the app bar's `scroll-target` (APS-16) and the skip link (APS-17, APS-20) name, and would need the announcement's and the navigation bar's heights before the element is defined (APS-24). Until it does, a product that uses `scroll=\"main\"` and wants the aside to scroll with the content in a compact or medium window writes that content inside the `<main>` for those classes. The stylesheet defines `--tanrei-app-shell-scroll-offset` on the document's root (until the element is defined: the small app bar's height while the header is sticky, else 0) and sets the root's `scroll-padding-block-start` from it — or the main element's while `scroll` is `main`; once defined, the element measures the header with a `ResizeObserver` and rewrites the property. The product's own sticky parts (a table's header row) read the same property. `--tanrei-prose-scroll-offset` stays 0 inside a shell: the scroll padding already clears the header, and prose adds only a heading's own space. The upgraded element adds: the read-only `windowClass` property, reflected as the `data-window-class` state attribute, and `windowclasschange` with `detail.windowClass`, from two `matchMedia` listeners (no resize listener and no frame loop); the menu button's `click`, which sets `navigationOpen` and the `open` of a `<tanrei-navigation-drawer>` in the navigation region, follows that drawer's `close`, and writes `aria-expanded` and `aria-controls` through the Button's element properties; `role` and `aria-label` on a region whose element does not already give the landmark (a `<tanrei-app-bar slot=\"header\">` with no `<header>` around it; an aside without a name takes `aside-label`); `tabindex=\"-1\"` on a `<main>` that lacks it; and the debug reports of APS-4, APS-21 and APS-29. It listens to nothing while no region needs it. With `scroll=\"main\"` the product names the main element's id in the app bar's `scroll-target`. `footer-hidden` gives the footer region `display: none` from the stylesheet (with `!important`, so a product's own `display` on its `<footer>` cannot bring it back): it then has no box, no landmark and no focus stop, its measured height is 0, and the element moves focus that was inside it to the main region. The skip link is hidden with a clip, never `display: none`, and shown on `:focus-visible`; under `forced-colors: active` its box gains a `CanvasText` border. Insets are `env(safe-area-inset-*)`. The React wrapper renders the same light DOM on a server."
     },
     "swiftui": {
       "status": "planned",
@@ -732,6 +758,7 @@
         "headerPosition": "headerPosition",
         "mainWidth": "mainWidth",
         "asideOrder": "asideOrder",
+        "footerHidden": "isFooterHidden",
         "separation": "separation",
         "navigationOpen": "isNavigationPresented",
         "asideLabel": "asideLabel"
@@ -752,7 +779,7 @@
           "notes": "An icon-only `TanreiButton` in the header, marked `.tanreiAppShellMenuButton()`; the shell reads the mark from the environment and hides the button outside the modal presentation."
         }
       },
-      "notes": "`TanreiAppShell(scroll:, headerPosition:, mainWidth:, asideOrder:, separation:, isNavigationPresented: Binding<Bool>, asideLabel:) { main } header: { … } navigation: { … } aside: { … } footer: { … } announcement: { … } navigationBar: { … }`. A layout of its own, not `NavigationSplitView`, whose column widths and collapsing cannot be set from the tokens. The window's class comes from the width of the scene (a `GeometryReader` at the root, in points; Dynamic Type does not change it) and is published as the environment value `\\.tanreiWindowClass`, which a search or a side sheet inside the shell reads. `scroll: .page` is one `ScrollView` holding the announcement, the main content, a stacked aside and the footer, with the header in `.safeAreaInset(edge: .top)` and the navigation and the aside beside it; `.main` keeps the footer in `.safeAreaInset(edge: .bottom)`. The header's height is published as `\\.tanreiAppShellScrollOffset` and applied as the scroll view's content margin, so `ScrollViewReader.scrollTo` rests below it. Regions are exposed with `accessibilityElement(children: .contain)` and one entry each in a custom rotor, the aside labelled by `asideLabel`. No skip link: VoiceOver's rotor and Full Keyboard Access's group navigation move between regions."
+      "notes": "`TanreiAppShell(scroll:, headerPosition:, mainWidth:, asideOrder:, isFooterHidden:, separation:, isNavigationPresented: Binding<Bool>, asideLabel:) { main } header: { … } navigation: { … } aside: { … } footer: { … } announcement: { … } navigationBar: { … }`. A layout of its own, not `NavigationSplitView`, whose column widths and collapsing cannot be set from the tokens. The window's class comes from the width of the scene (a `GeometryReader` at the root, in points; Dynamic Type does not change it) and is published as the environment value `\\.tanreiWindowClass`, which a search or a side sheet inside the shell reads. `scroll: .page` is one `ScrollView` holding the announcement, the main content, a stacked aside and the footer, with the header in `.safeAreaInset(edge: .top)` and the navigation and the aside beside it; `.main` keeps the footer in `.safeAreaInset(edge: .bottom)`. The header's height is published as `\\.tanreiAppShellScrollOffset` and applied as the scroll view's content margin, so `ScrollViewReader.scrollTo` rests below it. Regions are exposed with `accessibilityElement(children: .contain)` and one entry each in a custom rotor, the aside labelled by `asideLabel`. No skip link: VoiceOver's rotor and Full Keyboard Access's group navigation move between regions."
     },
     "compose": {
       "status": "planned",
@@ -762,6 +789,7 @@
         "headerPosition": "headerPosition",
         "mainWidth": "mainWidth",
         "asideOrder": "asideOrder",
+        "footerHidden": "footerHidden",
         "separation": "separation",
         "navigationOpen": "navigationOpen",
         "asideLabel": "asideLabel"
@@ -782,7 +810,7 @@
           "notes": "An icon-only `TanreiButton` in the header with `Modifier.tanreiAppShellMenuButton()`; the shell draws it only in the modal presentation."
         }
       },
-      "notes": "`TanreiAppShell(navigationOpen, onNavigationOpenChange, modifier, scroll, headerPosition, mainWidth, asideOrder, separation, asideLabel, onWindowClassChange, announcement = {}, header = {}, navigation = {}, aside = {}, footer = {}, navigationBar = {}) { contentPadding -> main }`, in the manner of a scaffold with a custom `Layout`. The window's class comes from `LocalWindowInfo.current.containerSize` in dp and is provided as `LocalTanreiWindowClass`. `scroll = Page` nests the main content, a stacked aside and the footer in one vertical scroll with the header pinned through a nested-scroll connection; the measured header height is provided as `LocalTanreiAppShellScrollOffset` and as `contentPadding`. Regions are exposed with `Modifier.semantics { isTraversalGroup = true; paneTitle = … }`, the aside's from `asideLabel`. System insets through `WindowInsets.safeDrawing`. No skip link: TalkBack and keyboard traversal groups move between regions."
+      "notes": "`TanreiAppShell(navigationOpen, onNavigationOpenChange, modifier, scroll, headerPosition, mainWidth, asideOrder, footerHidden, separation, asideLabel, onWindowClassChange, announcement = {}, header = {}, navigation = {}, aside = {}, footer = {}, navigationBar = {}) { contentPadding -> main }`, in the manner of a scaffold with a custom `Layout`. The window's class comes from `LocalWindowInfo.current.containerSize` in dp and is provided as `LocalTanreiWindowClass`. `scroll = Page` nests the main content, a stacked aside and the footer in one vertical scroll with the header pinned through a nested-scroll connection; the measured header height is provided as `LocalTanreiAppShellScrollOffset` and as `contentPadding`. Regions are exposed with `Modifier.semantics { isTraversalGroup = true; paneTitle = … }`, the aside's from `asideLabel`. System insets through `WindowInsets.safeDrawing`. No skip link: TalkBack and keyboard traversal groups move between regions."
     },
     "flutter": {
       "status": "planned",
@@ -792,6 +820,7 @@
         "headerPosition": "headerPosition",
         "mainWidth": "mainWidth",
         "asideOrder": "asideOrder",
+        "footerHidden": "footerHidden",
         "separation": "separation",
         "navigationOpen": "navigationOpen",
         "asideLabel": "asideSemanticLabel"
@@ -812,7 +841,7 @@
           "notes": "An icon-only `TanreiButton` wrapped in `TanreiAppShellMenuButton`, placed in the header; the wrapper builds nothing outside the modal presentation."
         }
       },
-      "notes": "`TanreiAppShell({ required Widget main, Widget? announcement, header, navigation, aside, footer, navigationBar, bool navigationOpen, ValueChanged<bool>? onNavigationOpenChanged, … })`, a widget of its own in the manner of a scaffold (`CustomMultiChildLayout`), not `Scaffold`, whose drawer and bar slots draw Material's own. The window's class comes from `MediaQuery.sizeOf(context).width` in logical pixels and is inherited as `TanreiWindowClass.of(context)`. `scroll: page` is a `CustomScrollView` with a pinned header sliver; the header's height is inherited as `TanreiAppShellScrollOffset.of(context)` and applied as scroll padding for `Scrollable.ensureVisible`. Regions are `Semantics(container: true, explicitChildNodes: true, label: …)` in a `FocusTraversalGroup` with an ordered policy (APS-22). Insets from `MediaQuery.viewPaddingOf`. No skip link, except on Flutter for the web, which is not a target of this package."
+      "notes": "`TanreiAppShell({ required Widget main, Widget? announcement, header, navigation, aside, footer, navigationBar, bool navigationOpen, bool footerHidden = false, ValueChanged<bool>? onNavigationOpenChanged, … })`, a widget of its own in the manner of a scaffold (`CustomMultiChildLayout`), not `Scaffold`, whose drawer and bar slots draw Material's own. The window's class comes from `MediaQuery.sizeOf(context).width` in logical pixels and is inherited as `TanreiWindowClass.of(context)`. `scroll: page` is a `CustomScrollView` with a pinned header sliver; the header's height is inherited as `TanreiAppShellScrollOffset.of(context)` and applied as scroll padding for `Scrollable.ensureVisible`. Regions are `Semantics(container: true, explicitChildNodes: true, label: …)` in a `FocusTraversalGroup` with an ordered policy (APS-22). Insets from `MediaQuery.viewPaddingOf`. No skip link, except on Flutter for the web, which is not a target of this package."
     },
     "react-native": {
       "status": "planned",
@@ -822,6 +851,7 @@
         "headerPosition": "headerPosition",
         "mainWidth": "mainWidth",
         "asideOrder": "asideOrder",
+        "footerHidden": "footerHidden",
         "separation": "separation",
         "navigationOpen": "navigationOpen",
         "asideLabel": "asideLabel"
@@ -842,7 +872,7 @@
           "notes": "An icon-only `Button` element passed as `menuButton`; the shell hands it to the header through context (`useAppShellMenuButton()`) and renders it only in the modal presentation."
         }
       },
-      "notes": "`<AppShell navigationOpen onNavigationOpenChange header={…} navigation={…} aside={…} footer={…} announcement={…} navigationBar={…} menuButton={…}>{main}</AppShell>`. The window's class comes from `useWindowDimensions().width` and is given by context (`useWindowClass()`). `scroll=\"page\"` is one `ScrollView` with `stickyHeaderIndices` for the header; the header's height is measured with `onLayout` and given by context (`useAppShellScrollOffset()`). Regions carry `accessibilityRole` where the platform has one (`header`, `menu`, `summary`) and `accessibilityLabel`; the order of APS-22 is the order of the rendered views. Insets from the safe-area context the package already depends on. The layout direction is the app's. No skip link."
+      "notes": "`<AppShell navigationOpen onNavigationOpenChange header={…} navigation={…} aside={…} footer={…} footerHidden announcement={…} navigationBar={…} menuButton={…}>{main}</AppShell>`. The window's class comes from `useWindowDimensions().width` and is given by context (`useWindowClass()`). `scroll=\"page\"` is one `ScrollView` with `stickyHeaderIndices` for the header; the header's height is measured with `onLayout` and given by context (`useAppShellScrollOffset()`). Regions carry `accessibilityRole` where the platform has one (`header`, `menu`, `summary`) and `accessibilityLabel`; the order of APS-22 is the order of the rendered views. Insets from the safe-area context the package already depends on. The layout direction is the app's. No skip link."
     }
   }
 }
