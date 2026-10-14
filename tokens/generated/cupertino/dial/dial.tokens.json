@@ -4511,6 +4511,10 @@
               "$value": "{tanrei.sys.color.on-primary}",
               "reason": "On the sidebar's tinted selected row."
             },
+            "tanrei.comp.navigation-drawer.selected.item.supporting-text.color": {
+              "$value": "{tanrei.sys.color.on-primary}",
+              "reason": "On the sidebar's tinted selected row."
+            },
             "tanrei.comp.navigation-drawer.selected.item.trailing-icon.color": {
               "$value": "{tanrei.sys.color.on-primary}",
               "reason": "On the sidebar's tinted selected row."

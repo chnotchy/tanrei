@@ -3340,6 +3340,7 @@ export interface TanreiNavigationDrawerConditionStateTokens {
   readonly itemIconIndicatorColor: TanreiPaint;
   readonly itemIconColor: TanreiPaint;
   readonly itemLabelColor: TanreiPaint;
+  readonly itemSupportingTextColor: TanreiPaint;
   readonly itemTrailingTextColor: TanreiPaint;
   readonly itemTrailingIconColor: TanreiPaint;
   readonly itemBadgeColor: TanreiPaint;
@@ -3373,6 +3374,7 @@ export interface TanreiNavigationDrawerDensityTokens {
   readonly containerGap: number;
   readonly itemContainerHeight: number;
   readonly itemPaddingInline: number;
+  readonly itemPaddingBlock: number;
   readonly itemGap: number;
   readonly itemNestIndent: number;
   readonly itemIconSize: number;
@@ -3404,6 +3406,8 @@ export interface TanreiNavigationDrawerTokens {
   readonly containerWidth: number;
   readonly disabledOpacity: number;
   readonly focusedOpacity: number;
+  readonly guideColor: TanreiPaint;
+  readonly guideWidth: number;
   readonly headerColor: TanreiPaint;
   readonly headerGap: number;
   readonly headerItemGap: number;
@@ -3414,6 +3418,7 @@ export interface TanreiNavigationDrawerTokens {
   readonly itemBadgeTypescale: TanreiTypescaleRole;
   readonly itemContainerShape: number;
   readonly itemIconIndicatorShape: number;
+  readonly itemSupportingTextTypescale: TanreiTypescaleRole;
   readonly itemTrailingTextTypescale: TanreiTypescaleRole;
   readonly motionDisclosureDuration: number;
   readonly motionDisclosureEasing: TanreiCubicBezier;
@@ -3424,6 +3429,8 @@ export interface TanreiNavigationDrawerTokens {
   readonly motionExpandDuration: number;
   readonly motionExpandEasing: TanreiCubicBezier;
   readonly motionFeedbackDuration: number;
+  readonly motionGuideDuration: number;
+  readonly motionGuideEasing: TanreiCubicBezier;
   readonly motionSelectionDuration: number;
   readonly motionSelectionEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
@@ -3432,6 +3439,8 @@ export interface TanreiNavigationDrawerTokens {
   readonly pressedOpacity: number;
   readonly scrimBlur: number;
   readonly scrimColor: TanreiPaint;
+  readonly stickyOutlineColor: TanreiPaint;
+  readonly stickyOutlineWidth: number;
   readonly variants: TanreiNavigationDrawerVariants;
   readonly conditions: TanreiNavigationDrawerConditions;
   readonly densitys: TanreiNavigationDrawerDensitys;

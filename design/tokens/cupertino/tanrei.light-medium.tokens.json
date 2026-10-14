@@ -58853,6 +58853,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -58977,6 +58992,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -59087,6 +59117,21 @@
                 }
               },
               "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
                 "color": {
                   "$type": "color",
                   "$value": {
@@ -59227,6 +59272,22 @@
                 }
               }
             },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                },
+                "$description": "Seen only while the drawer collapses: the supporting text fades out with the expanded label."
+              }
+            },
             "trailing-icon": {
               "color": {
                 "$type": "color",
@@ -59338,6 +59399,21 @@
                 }
               },
               "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
                 "color": {
                   "$type": "color",
                   "$value": {
@@ -59478,6 +59554,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -59602,6 +59693,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.3255,
+                      0.3216,
+                      0.3294
+                    ],
+                    "hex": "#535254",
+                    "alpha": 1
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -59722,6 +59828,21 @@
                       0.7608
                     ],
                     "hex": "#005ac2",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.3255,
+                      0.3216,
+                      0.3294
+                    ],
+                    "hex": "#535254",
                     "alpha": 1
                   }
                 }
@@ -59852,6 +59973,22 @@
                 }
               }
             },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.3255,
+                    0.3216,
+                    0.3294
+                  ],
+                  "hex": "#535254",
+                  "alpha": 1
+                },
+                "$description": "Seen only while the drawer collapses: the supporting text fades out with the expanded label."
+              }
+            },
             "trailing-icon": {
               "color": {
                 "$type": "color",
@@ -59973,6 +60110,21 @@
                       0.7608
                     ],
                     "hex": "#005ac2",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.3255,
+                      0.3216,
+                      0.3294
+                    ],
+                    "hex": "#535254",
                     "alpha": 1
                   }
                 }
@@ -60251,6 +60403,30 @@
           "opacity": {
             "$type": "number",
             "$value": 1
+          }
+        },
+        "guide": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0.18,
+              "hex": "#000000"
+            },
+            "$description": "The guide line of a drawer whose guides is shown, or hover while the pointer is over it or focus is in it: the one hairline. Decorative."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 1,
+              "unit": "px"
+            },
+            "$description": "The guide line's width: a hairline, in every density."
           }
         },
         "header": {
@@ -60560,6 +60736,22 @@
               }
             }
           },
+          "padding-block": {
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              }
+            },
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              }
+            }
+          },
           "padding-inline": {
             "compact": {
               "$type": "dimension",
@@ -60574,6 +60766,31 @@
                 "value": 12,
                 "unit": "px"
               }
+            }
+          },
+          "supporting-text": {
+            "typescale": {
+              "$type": "typography",
+              "$value": {
+                "fontFamily": [
+                  "-apple-system",
+                  "BlinkMacSystemFont",
+                  "system-ui",
+                  "Inter",
+                  "sans-serif"
+                ],
+                "fontSize": {
+                  "value": 13,
+                  "unit": "px"
+                },
+                "fontWeight": 400,
+                "letterSpacing": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "lineHeight": 1.3846
+              },
+              "$description": "The supporting text under or after a row's label: a tree view's note, a list item's supporting text."
             }
           },
           "trailing-icon": {
@@ -60696,6 +60913,23 @@
               "unit": "ms"
             },
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "guide-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            },
+            "$description": "How long the guide lines take to fade in and out while the pointer comes over the drawer and leaves it (guides hover). At once where motion is reduced."
+          },
+          "guide-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
           },
           "selection-duration": {
             "$type": "duration",
@@ -60892,6 +61126,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -61016,6 +61265,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -61126,6 +61390,21 @@
                 }
               },
               "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
                 "color": {
                   "$type": "color",
                   "$value": {
@@ -61265,6 +61544,21 @@
                 }
               }
             },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            },
             "trailing-icon": {
               "color": {
                 "$type": "color",
@@ -61389,6 +61683,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -61419,6 +61728,32 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "sticky": {
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0.18,
+                "hex": "#000000"
+              },
+              "$description": "The edge under the last pinned row, which sets the pinned rows apart from the rows scrolling under them."
+            },
+            "width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 1,
+                "unit": "px"
+              },
+              "$description": "The width of the edge under the last pinned row."
             }
           }
         },
@@ -61501,6 +61836,21 @@
                 }
               },
               "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "supporting-text": {
                 "color": {
                   "$type": "color",
                   "$value": {
@@ -61639,6 +61989,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.3255,
+                      0.3216,
+                      0.3294
+                    ],
+                    "hex": "#535254",
+                    "alpha": 1
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -61759,6 +62124,21 @@
                       0
                     ],
                     "hex": "#000000",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.3255,
+                      0.3216,
+                      0.3294
+                    ],
+                    "hex": "#535254",
                     "alpha": 1
                   }
                 }
@@ -61887,6 +62267,21 @@
                 }
               }
             },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.3255,
+                    0.3216,
+                    0.3294
+                  ],
+                  "hex": "#535254",
+                  "alpha": 1
+                }
+              }
+            },
             "trailing-icon": {
               "color": {
                 "$type": "color",
@@ -62006,6 +62401,21 @@
                       0
                     ],
                     "hex": "#000000",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.3255,
+                      0.3216,
+                      0.3294
+                    ],
+                    "hex": "#535254",
                     "alpha": 1
                   }
                 }

@@ -5084,6 +5084,7 @@
     --tanrei-comp-navigation-drawer-collapsed-selected-disabled-item-icon-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-collapsed-selected-disabled-item-label-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-collapsed-selected-disabled-item-state-layer-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
+    --tanrei-comp-navigation-drawer-collapsed-selected-disabled-item-supporting-text-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-collapsed-selected-disabled-item-trailing-icon-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-collapsed-selected-disabled-item-trailing-text-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-collapsed-selected-focused-item-badge-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-badge-color);
@@ -5092,6 +5093,7 @@
     --tanrei-comp-navigation-drawer-collapsed-selected-focused-item-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-focused-item-label-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-label-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-focused-item-state-layer-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-collapsed-selected-focused-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-focused-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-focused-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-hovered-item-badge-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-badge-color);
@@ -5100,6 +5102,7 @@
     --tanrei-comp-navigation-drawer-collapsed-selected-hovered-item-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-hovered-item-label-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-label-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-hovered-item-state-layer-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-collapsed-selected-hovered-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-hovered-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-hovered-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-item-badge-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-trailing-text-color);
@@ -5108,6 +5111,7 @@
     --tanrei-comp-navigation-drawer-collapsed-selected-item-icon-color: var(--tanrei-comp-navigation-drawer-selected-item-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-item-label-color: var(--tanrei-comp-navigation-drawer-selected-item-label-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-item-state-layer-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-icon-color);
+    --tanrei-comp-navigation-drawer-collapsed-selected-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-selected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-selected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-selected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-pressed-item-badge-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-badge-color);
@@ -5116,6 +5120,7 @@
     --tanrei-comp-navigation-drawer-collapsed-selected-pressed-item-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-pressed-item-label-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-label-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-pressed-item-state-layer-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-collapsed-selected-pressed-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-pressed-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-selected-pressed-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-collapsed-selected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-disabled-item-badge-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
@@ -5124,6 +5129,7 @@
     --tanrei-comp-navigation-drawer-collapsed-unselected-disabled-item-icon-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-collapsed-unselected-disabled-item-label-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-collapsed-unselected-disabled-item-state-layer-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
+    --tanrei-comp-navigation-drawer-collapsed-unselected-disabled-item-supporting-text-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-collapsed-unselected-disabled-item-trailing-icon-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-collapsed-unselected-disabled-item-trailing-text-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-collapsed-unselected-focused-item-badge-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-badge-color);
@@ -5132,6 +5138,7 @@
     --tanrei-comp-navigation-drawer-collapsed-unselected-focused-item-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-focused-item-label-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-label-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-focused-item-state-layer-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-collapsed-unselected-focused-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-focused-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-focused-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-hovered-item-badge-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-badge-color);
@@ -5140,6 +5147,7 @@
     --tanrei-comp-navigation-drawer-collapsed-unselected-hovered-item-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-hovered-item-label-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-label-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-hovered-item-state-layer-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-collapsed-unselected-hovered-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-hovered-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-hovered-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-item-badge-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-trailing-text-color);
@@ -5148,6 +5156,7 @@
     --tanrei-comp-navigation-drawer-collapsed-unselected-item-icon-color: var(--tanrei-comp-navigation-drawer-unselected-item-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-item-label-color: var(--tanrei-comp-navigation-drawer-unselected-item-label-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-item-state-layer-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-icon-color);
+    --tanrei-comp-navigation-drawer-collapsed-unselected-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-unselected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-unselected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-unselected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-pressed-item-badge-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-badge-color);
@@ -5156,6 +5165,7 @@
     --tanrei-comp-navigation-drawer-collapsed-unselected-pressed-item-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-pressed-item-label-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-label-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-pressed-item-state-layer-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-collapsed-unselected-pressed-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-pressed-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-collapsed-unselected-pressed-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-collapsed-unselected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-collapsed-container-width-compact: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);
@@ -5192,6 +5202,8 @@
     --tanrei-comp-navigation-drawer-container-width: round(nearest, calc(var(--tanrei-dial-size-unit) * 60), 0.25px);
     --tanrei-comp-navigation-drawer-disabled-opacity: 1;
     --tanrei-comp-navigation-drawer-focused-opacity: 1;
+    --tanrei-comp-navigation-drawer-guide-color: var(--tanrei-sys-color-outline-variant);
+    --tanrei-comp-navigation-drawer-guide-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-navigation-drawer-header-color: var(--tanrei-sys-color-on-surface);
     --tanrei-comp-navigation-drawer-header-gap: var(--tanrei-sys-space-space300);
     --tanrei-comp-navigation-drawer-header-item-gap: var(--tanrei-sys-space-space100);
@@ -5250,8 +5262,17 @@
     --tanrei-comp-navigation-drawer-item-label-typescale-regular-font: var(--tanrei-sys-typescale-body-large-font);
     --tanrei-comp-navigation-drawer-item-nest-indent-compact: var(--tanrei-sys-space-space300);
     --tanrei-comp-navigation-drawer-item-nest-indent-regular: var(--tanrei-sys-space-space450);
+    --tanrei-comp-navigation-drawer-item-padding-block-compact: var(--tanrei-sys-space-space25);
+    --tanrei-comp-navigation-drawer-item-padding-block-regular: var(--tanrei-sys-space-space50);
     --tanrei-comp-navigation-drawer-item-padding-inline-compact: var(--tanrei-sys-space-space100);
     --tanrei-comp-navigation-drawer-item-padding-inline-regular: var(--tanrei-sys-space-space150);
+    --tanrei-comp-navigation-drawer-item-supporting-text-typescale-font-family: var(--tanrei-sys-typescale-body-small-font-family);
+    --tanrei-comp-navigation-drawer-item-supporting-text-typescale-font-size: var(--tanrei-sys-typescale-body-small-font-size);
+    --tanrei-comp-navigation-drawer-item-supporting-text-typescale-font-weight: var(--tanrei-sys-typescale-body-small-font-weight);
+    --tanrei-comp-navigation-drawer-item-supporting-text-typescale-font-weight-emphasized: var(--tanrei-sys-typescale-body-small-font-weight-emphasized);
+    --tanrei-comp-navigation-drawer-item-supporting-text-typescale-letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);
+    --tanrei-comp-navigation-drawer-item-supporting-text-typescale-line-height: var(--tanrei-sys-typescale-body-small-line-height);
+    --tanrei-comp-navigation-drawer-item-supporting-text-typescale-font: var(--tanrei-sys-typescale-body-small-font);
     --tanrei-comp-navigation-drawer-item-trailing-icon-size-compact: var(--tanrei-sys-icon-extra-small);
     --tanrei-comp-navigation-drawer-item-trailing-icon-size-regular: var(--tanrei-sys-icon-small);
     --tanrei-comp-navigation-drawer-item-trailing-text-typescale-font-family: var(--tanrei-sys-typescale-body-small-font-family);
@@ -5270,6 +5291,8 @@
     --tanrei-comp-navigation-drawer-motion-expand-duration: var(--tanrei-sys-motion-spring-standard-default-spatial-duration);
     --tanrei-comp-navigation-drawer-motion-expand-easing: var(--tanrei-sys-motion-spring-standard-default-spatial-easing);
     --tanrei-comp-navigation-drawer-motion-feedback-duration: var(--tanrei-sys-motion-duration-long1);
+    --tanrei-comp-navigation-drawer-motion-guide-duration: var(--tanrei-sys-motion-duration-short3);
+    --tanrei-comp-navigation-drawer-motion-guide-easing: var(--tanrei-sys-motion-easing-standard);
     --tanrei-comp-navigation-drawer-motion-selection-duration: var(--tanrei-sys-motion-spring-standard-fast-spatial-duration);
     --tanrei-comp-navigation-drawer-motion-selection-easing: var(--tanrei-sys-motion-spring-standard-fast-spatial-easing);
     --tanrei-comp-navigation-drawer-motion-state-duration: var(--tanrei-sys-motion-duration-short3);
@@ -5286,6 +5309,7 @@
     --tanrei-comp-navigation-drawer-selected-disabled-item-icon-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-selected-disabled-item-label-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-selected-disabled-item-state-layer-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
+    --tanrei-comp-navigation-drawer-selected-disabled-item-supporting-text-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-selected-disabled-item-trailing-icon-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-selected-disabled-item-trailing-text-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-selected-focused-item-badge-color: var(--tanrei-comp-navigation-drawer-selected-item-badge-color);
@@ -5294,6 +5318,7 @@
     --tanrei-comp-navigation-drawer-selected-focused-item-icon-color: var(--tanrei-comp-navigation-drawer-selected-item-icon-color);
     --tanrei-comp-navigation-drawer-selected-focused-item-label-color: var(--tanrei-comp-navigation-drawer-selected-item-label-color);
     --tanrei-comp-navigation-drawer-selected-focused-item-state-layer-color: var(--tanrei-comp-navigation-drawer-selected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-selected-focused-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-selected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-selected-focused-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-selected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-selected-focused-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-selected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-selected-hovered-item-badge-color: var(--tanrei-comp-navigation-drawer-selected-item-badge-color);
@@ -5302,6 +5327,7 @@
     --tanrei-comp-navigation-drawer-selected-hovered-item-icon-color: var(--tanrei-comp-navigation-drawer-selected-item-icon-color);
     --tanrei-comp-navigation-drawer-selected-hovered-item-label-color: var(--tanrei-comp-navigation-drawer-selected-item-label-color);
     --tanrei-comp-navigation-drawer-selected-hovered-item-state-layer-color: var(--tanrei-comp-navigation-drawer-selected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-selected-hovered-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-selected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-selected-hovered-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-selected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-selected-hovered-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-selected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-selected-item-badge-color: var(--tanrei-sys-color-on-primary);
@@ -5310,6 +5336,7 @@
     --tanrei-comp-navigation-drawer-selected-item-icon-color: var(--tanrei-sys-color-on-primary);
     --tanrei-comp-navigation-drawer-selected-item-label-color: var(--tanrei-sys-color-on-primary);
     --tanrei-comp-navigation-drawer-selected-item-state-layer-color: var(--tanrei-comp-navigation-drawer-selected-item-label-color);
+    --tanrei-comp-navigation-drawer-selected-item-supporting-text-color: var(--tanrei-sys-color-on-primary);
     --tanrei-comp-navigation-drawer-selected-item-trailing-icon-color: var(--tanrei-sys-color-on-primary);
     --tanrei-comp-navigation-drawer-selected-item-trailing-text-color: var(--tanrei-sys-color-on-primary);
     --tanrei-comp-navigation-drawer-selected-pressed-item-badge-color: var(--tanrei-comp-navigation-drawer-selected-item-badge-color);
@@ -5318,14 +5345,18 @@
     --tanrei-comp-navigation-drawer-selected-pressed-item-icon-color: var(--tanrei-comp-navigation-drawer-selected-item-icon-color);
     --tanrei-comp-navigation-drawer-selected-pressed-item-label-color: var(--tanrei-comp-navigation-drawer-selected-item-label-color);
     --tanrei-comp-navigation-drawer-selected-pressed-item-state-layer-color: var(--tanrei-comp-navigation-drawer-selected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-selected-pressed-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-selected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-selected-pressed-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-selected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-selected-pressed-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-selected-item-trailing-text-color);
+    --tanrei-comp-navigation-drawer-sticky-outline-color: var(--tanrei-sys-color-outline-variant);
+    --tanrei-comp-navigation-drawer-sticky-outline-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-navigation-drawer-unselected-disabled-item-badge-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-unselected-disabled-item-container-color: var(--tanrei-comp-navigation-drawer-unselected-item-container-color);
     --tanrei-comp-navigation-drawer-unselected-disabled-item-icon-indicator-color: var(--tanrei-comp-navigation-drawer-unselected-item-icon-indicator-color);
     --tanrei-comp-navigation-drawer-unselected-disabled-item-icon-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-unselected-disabled-item-label-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-unselected-disabled-item-state-layer-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
+    --tanrei-comp-navigation-drawer-unselected-disabled-item-supporting-text-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-unselected-disabled-item-trailing-icon-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-unselected-disabled-item-trailing-text-color: color-mix(in srgb, var(--tanrei-sys-color-on-surface) calc(var(--tanrei-sys-state-disabled-content-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-unselected-focused-item-badge-color: var(--tanrei-comp-navigation-drawer-unselected-item-badge-color);
@@ -5334,6 +5365,7 @@
     --tanrei-comp-navigation-drawer-unselected-focused-item-icon-color: var(--tanrei-comp-navigation-drawer-unselected-item-icon-color);
     --tanrei-comp-navigation-drawer-unselected-focused-item-label-color: var(--tanrei-comp-navigation-drawer-unselected-item-label-color);
     --tanrei-comp-navigation-drawer-unselected-focused-item-state-layer-color: var(--tanrei-comp-navigation-drawer-unselected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-unselected-focused-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-unselected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-unselected-focused-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-unselected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-unselected-focused-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-unselected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-unselected-hovered-item-badge-color: var(--tanrei-comp-navigation-drawer-unselected-item-badge-color);
@@ -5342,6 +5374,7 @@
     --tanrei-comp-navigation-drawer-unselected-hovered-item-icon-color: var(--tanrei-comp-navigation-drawer-unselected-item-icon-color);
     --tanrei-comp-navigation-drawer-unselected-hovered-item-label-color: var(--tanrei-comp-navigation-drawer-unselected-item-label-color);
     --tanrei-comp-navigation-drawer-unselected-hovered-item-state-layer-color: var(--tanrei-comp-navigation-drawer-unselected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-unselected-hovered-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-unselected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-unselected-hovered-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-unselected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-unselected-hovered-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-unselected-item-trailing-text-color);
     --tanrei-comp-navigation-drawer-unselected-item-badge-color: var(--tanrei-comp-navigation-drawer-unselected-item-trailing-text-color);
@@ -5350,6 +5383,7 @@
     --tanrei-comp-navigation-drawer-unselected-item-icon-color: var(--tanrei-sys-color-primary);
     --tanrei-comp-navigation-drawer-unselected-item-label-color: var(--tanrei-sys-color-on-surface);
     --tanrei-comp-navigation-drawer-unselected-item-state-layer-color: var(--tanrei-comp-navigation-drawer-unselected-item-label-color);
+    --tanrei-comp-navigation-drawer-unselected-item-supporting-text-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-navigation-drawer-unselected-item-trailing-icon-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-navigation-drawer-unselected-item-trailing-text-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-navigation-drawer-unselected-pressed-item-badge-color: var(--tanrei-comp-navigation-drawer-unselected-item-badge-color);
@@ -5358,6 +5392,7 @@
     --tanrei-comp-navigation-drawer-unselected-pressed-item-icon-color: var(--tanrei-comp-navigation-drawer-unselected-item-icon-color);
     --tanrei-comp-navigation-drawer-unselected-pressed-item-label-color: var(--tanrei-comp-navigation-drawer-unselected-item-label-color);
     --tanrei-comp-navigation-drawer-unselected-pressed-item-state-layer-color: var(--tanrei-comp-navigation-drawer-unselected-item-state-layer-color);
+    --tanrei-comp-navigation-drawer-unselected-pressed-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-unselected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-unselected-pressed-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-unselected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-unselected-pressed-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-unselected-item-trailing-text-color);
     --tanrei-comp-navigation-rail-container-color: var(--tanrei-sys-color-surface);

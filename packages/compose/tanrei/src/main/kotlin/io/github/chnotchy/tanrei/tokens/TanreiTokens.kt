@@ -6779,6 +6779,7 @@ public data class TanreiNavigationDrawerConditionStateTokens(
     public val itemIconIndicatorColor: TanreiPaint,
     public val itemIconColor: TanreiPaint,
     public val itemLabelColor: TanreiPaint,
+    public val itemSupportingTextColor: TanreiPaint,
     public val itemTrailingTextColor: TanreiPaint,
     public val itemTrailingIconColor: TanreiPaint,
     public val itemBadgeColor: TanreiPaint,
@@ -6789,6 +6790,7 @@ public data class TanreiNavigationDrawerConditionStateTokens(
         addAll(itemIconIndicatorColor.roles())
         addAll(itemIconColor.roles())
         addAll(itemLabelColor.roles())
+        addAll(itemSupportingTextColor.roles())
         addAll(itemTrailingTextColor.roles())
         addAll(itemTrailingIconColor.roles())
         addAll(itemBadgeColor.roles())
@@ -6875,6 +6877,7 @@ public data class TanreiNavigationDrawerDensityTokens(
     public val containerGap: Dp,
     public val itemContainerHeight: Dp,
     public val itemPaddingInline: Dp,
+    public val itemPaddingBlock: Dp,
     public val itemGap: Dp,
     public val itemNestIndent: Dp,
     public val itemIconSize: Dp,
@@ -6932,6 +6935,8 @@ public data class TanreiNavigationDrawerTokens(
     public val containerPaddingBlock: Dp,
     public val containerPaddingInline: Dp,
     public val containerWidth: Dp,
+    public val guideColor: TanreiPaint,
+    public val guideWidth: Dp,
     public val headerColor: TanreiPaint,
     public val headerGap: Dp,
     public val headerItemGap: Dp,
@@ -6941,6 +6946,7 @@ public data class TanreiNavigationDrawerTokens(
     public val itemBadgeTypescale: TanreiTextStyle,
     public val itemContainerShape: Dp,
     public val itemIconIndicatorShape: Dp,
+    public val itemSupportingTextTypescale: TanreiTextStyle,
     public val itemTrailingTextTypescale: TanreiTextStyle,
     public val motionDisclosureDuration: Int,
     public val motionDisclosureEasing: TanreiCubicBezier,
@@ -6951,6 +6957,8 @@ public data class TanreiNavigationDrawerTokens(
     public val motionExpandDuration: Int,
     public val motionExpandEasing: TanreiCubicBezier,
     public val motionFeedbackDuration: Int,
+    public val motionGuideDuration: Int,
+    public val motionGuideEasing: TanreiCubicBezier,
     public val motionSelectionDuration: Int,
     public val motionSelectionEasing: TanreiCubicBezier,
     public val motionStateDuration: Int,
@@ -6958,6 +6966,8 @@ public data class TanreiNavigationDrawerTokens(
     public val outlineWidth: Dp,
     public val scrimBlur: Dp,
     public val scrimColor: TanreiPaint,
+    public val stickyOutlineColor: TanreiPaint,
+    public val stickyOutlineWidth: Dp,
     public val hovered: TanreiNavigationDrawerStateTokens,
     public val focused: TanreiNavigationDrawerStateTokens,
     public val pressed: TanreiNavigationDrawerStateTokens,
@@ -6976,9 +6986,11 @@ public data class TanreiNavigationDrawerTokens(
     }
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(guideColor.roles())
         addAll(headerColor.roles())
         addAll(headingColor.roles())
         addAll(scrimColor.roles())
+        addAll(stickyOutlineColor.roles())
         addAll(variants.referencedRoles())
         addAll(conditions.referencedRoles())
     }

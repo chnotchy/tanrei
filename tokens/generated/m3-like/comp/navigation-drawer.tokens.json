@@ -25,6 +25,7 @@
               "item.icon-indicator.color": "color",
               "item.icon.color": "color",
               "item.label.color": "color",
+              "item.supporting-text.color": "color",
               "item.trailing-text.color": "color",
               "item.trailing-icon.color": "color",
               "item.badge.color": "color",
@@ -35,7 +36,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header, and the text style and color its header slot gives what it holds; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; per density (regular, compact) the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the gap between cells, the collapsed column and the heading height, the trailing text and glyph; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state.",
+            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header, and the text style and color its header slot gives what it holds; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; per density (regular, compact) the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the gap between cells, the collapsed column and the heading height, the trailing text and glyph, the supporting text, the guide line and the edge under pinned rows; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state.",
             "rules": [
               "The selected destination is drawn from the selected parts; every other destination from the unselected parts. While the drawer is collapsed they are the collapsed-selected and collapsed-unselected parts. Never pick a look by hand.",
               "Selected must differ from unselected by more than the icon's fill: an active indicator, a stronger color, or both.",
@@ -52,7 +53,8 @@
               "breakpoint.expanded and breakpoint.collapsed are widths of the window, read only by a responsive drawer. They are not sizes of anything drawn, and alias the system's window classes (sys.breakpoint.expanded, sys.breakpoint.medium); set them here only to part this one component from the rest.",
               "item.badge.color and item.badge.typescale are kept only for platforms that still draw a destination's trailing string as a badge; nothing in the current spec reads them.",
               "Restyle through these tokens in a layer; never fork the component.",
-              "Each condition's item.state-layer.color is the color hover, focus and press mix into its item container; it aliases the color of the content drawn on that container."
+              "Each condition's item.state-layer.color is the color hover, focus and press mix into its item container; it aliases the color of the content drawn on that container.",
+              "The row model is the tree view's: chevron (start, end, none), guides (none, shown, hover), indent (auto, or a number), highlight (indented, full), iconSpace (auto, always, never), expandable, one-line labels with a tooltip only where cut, supporting text below or inline, and sticky parent rows. Read the tree view's tokens' rules for what each means; the drawer's tokens carry the same names."
             ]
           },
           "dev.tanrei.axes": {
@@ -83,6 +85,7 @@
                 "container.gap",
                 "item.container.height",
                 "item.padding-inline",
+                "item.padding-block",
                 "item.gap",
                 "item.nest-indent",
                 "item.icon.size",
@@ -470,6 +473,22 @@
               "$value": "{tanrei.sys.space.space100}"
             }
           },
+          "padding-block": {
+            "$type": "dimension",
+            "$description": "Above the first line and below the last line of a row's text, per density: with one line the row is its least height whatever this says; it holds the room when the label wraps, when supporting text stands under the label, or when the text is enlarged.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product puts a second line under some of its places, or lets long names wrap, and wants those rows to keep a little room above and below their text; a dense drawer keeps less.",
+                "since": "0.1.0"
+              }
+            },
+            "regular": {
+              "$value": "{tanrei.sys.space.space50}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.space.space25}"
+            }
+          },
           "gap": {
             "$type": "dimension",
             "$description": "Between the icon, the label and the trailing content of an expanded row, per density.",
@@ -613,6 +632,19 @@
               "$value": "{tanrei.sys.typescale.label}",
               "$extensions": {}
             }
+          },
+          "supporting-text": {
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product says a few words about some of its places under or after their names (\"3 new\", \"shared with the team\"), quieter than the names so that the names still lead the eye down the list.",
+                "since": "0.1.0"
+              }
+            },
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body-small}",
+              "$description": "The supporting text under or after a row's label: a tree view's note, a list item's supporting text."
+            }
           }
         },
         "unselected": {
@@ -664,6 +696,12 @@
               }
             },
             "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "supporting-text": {
               "color": {
                 "$type": "color",
                 "$value": "{tanrei.sys.color.on-surface-variant}"
@@ -723,6 +761,12 @@
                 "$value": "{tanrei.sys.color.on-secondary-container}"
               }
             },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}"
+              }
+            },
             "trailing-text": {
               "color": {
                 "$type": "color",
@@ -777,6 +821,13 @@
                 "$type": "color",
                 "$value": "{tanrei.comp.navigation-drawer.unselected.item.label.color}",
                 "$description": "The short label under the icon, where collapsedLabels draws one."
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.unselected.item.supporting-text.color}",
+                "$description": "Seen only while the drawer collapses: the supporting text fades out with the expanded label."
               }
             },
             "trailing-text": {
@@ -864,6 +915,13 @@
                 "$value": "{tanrei.sys.color.on-surface}",
                 "$description": "The short label on the collapsed active indicator, where collapsedLabels draws one.",
                 "$extensions": {}
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.selected.item.supporting-text.color}",
+                "$description": "Seen only while the drawer collapses: the supporting text fades out with the expanded label."
               }
             },
             "trailing-text": {
@@ -1003,6 +1061,65 @@
                 "rationale": "The curve of disclosure-duration.",
                 "since": "0.1.0"
               }
+            }
+          },
+          "guide-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long the guide lines take to fade in and out while the pointer comes over the drawer and leaves it (guides hover). At once where motion is reduced.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product shows its guide lines only while the pointer is over the drawer, and fades them rather than flashing them.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "guide-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "The curve of guide-duration.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        },
+        "guide": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product draws a line down from an open group beside what it holds, in a deep drawer where the indent alone no longer shows which rows belong together, and draws none in a shallow one; another shows the lines only while the pointer is over the drawer. The line is the drawer's own, as the tree view's is.",
+              "since": "0.1.0"
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline-variant}",
+            "$description": "The guide line of a drawer whose guides is shown, or hover while the pointer is over it or focus is in it: the one hairline. Decorative."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "The guide line's width: a hairline, in every density."
+          }
+        },
+        "sticky": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product keeps the rows of the open groups that the shown rows belong to pinned at the top of a long drawer while their items scroll under them, so that a reader deep in a long group still sees where they are; the pinned rows are set apart from what scrolls under them by an edge.",
+              "since": "0.1.0"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.outline-variant}",
+              "$description": "The edge under the last pinned row, which sets the pinned rows apart from the rows scrolling under them."
+            },
+            "width": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.hairline}",
+              "$description": "The width of the edge under the last pinned row."
             }
           }
         }

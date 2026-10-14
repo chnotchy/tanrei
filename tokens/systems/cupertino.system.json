@@ -310,6 +310,7 @@
     "tanrei.comp.navigation-drawer.unselected.item.icon.color": {"$value": "{tanrei.sys.color.primary}", "reason": "Sidebar icons carry the tint."},
     "tanrei.comp.navigation-drawer.unselected.item.label.color": {"$value": "{tanrei.sys.color.on-surface}"},
     "tanrei.comp.navigation-drawer.selected.item.trailing-text.color": {"$value": "{tanrei.sys.color.on-primary}", "reason": "On the sidebar's tinted selected row."},
+    "tanrei.comp.navigation-drawer.selected.item.supporting-text.color": {"$value": "{tanrei.sys.color.on-primary}", "reason": "On the sidebar's tinted selected row."},
     "tanrei.comp.navigation-drawer.selected.item.trailing-icon.color": {"$value": "{tanrei.sys.color.on-primary}", "reason": "On the sidebar's tinted selected row."},
     "tanrei.comp.segmented-button.set.color": {"$value": "{tanrei.sys.color.surface-container-high}"},
     "tanrei.comp.segmented-button.set.padding": {"$value": "{tanrei.sys.space.space25}"},

@@ -15580,6 +15580,7 @@ class TanreiNavigationDrawerConditionStateTokens {
     required this.itemIconIndicatorColor,
     required this.itemIconColor,
     required this.itemLabelColor,
+    required this.itemSupportingTextColor,
     required this.itemTrailingTextColor,
     required this.itemTrailingIconColor,
     required this.itemBadgeColor,
@@ -15594,6 +15595,8 @@ class TanreiNavigationDrawerConditionStateTokens {
   final TanreiPaint itemIconColor;
   /// `comp.navigation-drawer.<condition>.<state>.item-label-color`
   final TanreiPaint itemLabelColor;
+  /// `comp.navigation-drawer.<condition>.<state>.item-supporting-text-color`
+  final TanreiPaint itemSupportingTextColor;
   /// `comp.navigation-drawer.<condition>.<state>.item-trailing-text-color`
   final TanreiPaint itemTrailingTextColor;
   /// `comp.navigation-drawer.<condition>.<state>.item-trailing-icon-color`
@@ -15609,6 +15612,7 @@ class TanreiNavigationDrawerConditionStateTokens {
     TanreiPaint? itemIconIndicatorColor,
     TanreiPaint? itemIconColor,
     TanreiPaint? itemLabelColor,
+    TanreiPaint? itemSupportingTextColor,
     TanreiPaint? itemTrailingTextColor,
     TanreiPaint? itemTrailingIconColor,
     TanreiPaint? itemBadgeColor,
@@ -15618,6 +15622,7 @@ class TanreiNavigationDrawerConditionStateTokens {
         itemIconIndicatorColor: itemIconIndicatorColor ?? this.itemIconIndicatorColor,
         itemIconColor: itemIconColor ?? this.itemIconColor,
         itemLabelColor: itemLabelColor ?? this.itemLabelColor,
+        itemSupportingTextColor: itemSupportingTextColor ?? this.itemSupportingTextColor,
         itemTrailingTextColor: itemTrailingTextColor ?? this.itemTrailingTextColor,
         itemTrailingIconColor: itemTrailingIconColor ?? this.itemTrailingIconColor,
         itemBadgeColor: itemBadgeColor ?? this.itemBadgeColor,
@@ -15755,6 +15760,7 @@ class TanreiNavigationDrawerDensityTokens {
     required this.containerGap,
     required this.itemContainerHeight,
     required this.itemPaddingInline,
+    required this.itemPaddingBlock,
     required this.itemGap,
     required this.itemNestIndent,
     required this.itemIconSize,
@@ -15774,6 +15780,8 @@ class TanreiNavigationDrawerDensityTokens {
   final double itemContainerHeight;
   /// `comp.navigation-drawer.item-padding-inline.<density>`
   final double itemPaddingInline;
+  /// `comp.navigation-drawer.item-padding-block.<density>`
+  final double itemPaddingBlock;
   /// `comp.navigation-drawer.item-gap.<density>`
   final double itemGap;
   /// `comp.navigation-drawer.item-nest-indent.<density>`
@@ -15802,6 +15810,7 @@ class TanreiNavigationDrawerDensityTokens {
     double? containerGap,
     double? itemContainerHeight,
     double? itemPaddingInline,
+    double? itemPaddingBlock,
     double? itemGap,
     double? itemNestIndent,
     double? itemIconSize,
@@ -15817,6 +15826,7 @@ class TanreiNavigationDrawerDensityTokens {
         containerGap: containerGap ?? this.containerGap,
         itemContainerHeight: itemContainerHeight ?? this.itemContainerHeight,
         itemPaddingInline: itemPaddingInline ?? this.itemPaddingInline,
+        itemPaddingBlock: itemPaddingBlock ?? this.itemPaddingBlock,
         itemGap: itemGap ?? this.itemGap,
         itemNestIndent: itemNestIndent ?? this.itemNestIndent,
         itemIconSize: itemIconSize ?? this.itemIconSize,
@@ -15917,6 +15927,8 @@ class TanreiNavigationDrawerTokens {
     required this.containerPaddingBlock,
     required this.containerPaddingInline,
     required this.containerWidth,
+    required this.guideColor,
+    required this.guideWidth,
     required this.headerColor,
     required this.headerGap,
     required this.headerItemGap,
@@ -15926,6 +15938,7 @@ class TanreiNavigationDrawerTokens {
     required this.itemBadgeTypescale,
     required this.itemContainerShape,
     required this.itemIconIndicatorShape,
+    required this.itemSupportingTextTypescale,
     required this.itemTrailingTextTypescale,
     required this.motionDisclosureDuration,
     required this.motionDisclosureEasing,
@@ -15936,6 +15949,8 @@ class TanreiNavigationDrawerTokens {
     required this.motionExpandDuration,
     required this.motionExpandEasing,
     required this.motionFeedbackDuration,
+    required this.motionGuideDuration,
+    required this.motionGuideEasing,
     required this.motionSelectionDuration,
     required this.motionSelectionEasing,
     required this.motionStateDuration,
@@ -15943,6 +15958,8 @@ class TanreiNavigationDrawerTokens {
     required this.outlineWidth,
     required this.scrimBlur,
     required this.scrimColor,
+    required this.stickyOutlineColor,
+    required this.stickyOutlineWidth,
     required this.variants,
     required this.conditions,
     required this.densitys,
@@ -15970,6 +15987,10 @@ class TanreiNavigationDrawerTokens {
   final double containerPaddingInline;
   /// `comp.navigation-drawer.container-width`
   final double containerWidth;
+  /// `comp.navigation-drawer.guide-color`
+  final TanreiPaint guideColor;
+  /// `comp.navigation-drawer.guide-width`
+  final double guideWidth;
   /// `comp.navigation-drawer.header-color`
   final TanreiPaint headerColor;
   /// `comp.navigation-drawer.header-gap`
@@ -15988,6 +16009,8 @@ class TanreiNavigationDrawerTokens {
   final double itemContainerShape;
   /// `comp.navigation-drawer.item-icon-indicator-shape`
   final double itemIconIndicatorShape;
+  /// `comp.navigation-drawer.item-supporting-text-typescale`
+  final TanreiTextStyle itemSupportingTextTypescale;
   /// `comp.navigation-drawer.item-trailing-text-typescale`
   final TanreiTextStyle itemTrailingTextTypescale;
   /// `comp.navigation-drawer.motion-disclosure-duration`
@@ -16008,6 +16031,10 @@ class TanreiNavigationDrawerTokens {
   final TanreiCubicBezier motionExpandEasing;
   /// `comp.navigation-drawer.motion-feedback-duration`
   final int motionFeedbackDuration;
+  /// `comp.navigation-drawer.motion-guide-duration`
+  final int motionGuideDuration;
+  /// `comp.navigation-drawer.motion-guide-easing`
+  final TanreiCubicBezier motionGuideEasing;
   /// `comp.navigation-drawer.motion-selection-duration`
   final int motionSelectionDuration;
   /// `comp.navigation-drawer.motion-selection-easing`
@@ -16022,6 +16049,10 @@ class TanreiNavigationDrawerTokens {
   final double scrimBlur;
   /// `comp.navigation-drawer.scrim-color`
   final TanreiPaint scrimColor;
+  /// `comp.navigation-drawer.sticky-outline-color`
+  final TanreiPaint stickyOutlineColor;
+  /// `comp.navigation-drawer.sticky-outline-width`
+  final double stickyOutlineWidth;
   /// The `variant` axis: `variants[variant]`.
   final TanreiNavigationDrawerVariants variants;
   /// The `condition` axis: `conditions[condition]`.
@@ -16048,6 +16079,8 @@ class TanreiNavigationDrawerTokens {
     double? containerPaddingBlock,
     double? containerPaddingInline,
     double? containerWidth,
+    TanreiPaint? guideColor,
+    double? guideWidth,
     TanreiPaint? headerColor,
     double? headerGap,
     double? headerItemGap,
@@ -16057,6 +16090,7 @@ class TanreiNavigationDrawerTokens {
     TanreiTextStyle? itemBadgeTypescale,
     double? itemContainerShape,
     double? itemIconIndicatorShape,
+    TanreiTextStyle? itemSupportingTextTypescale,
     TanreiTextStyle? itemTrailingTextTypescale,
     int? motionDisclosureDuration,
     TanreiCubicBezier? motionDisclosureEasing,
@@ -16067,6 +16101,8 @@ class TanreiNavigationDrawerTokens {
     int? motionExpandDuration,
     TanreiCubicBezier? motionExpandEasing,
     int? motionFeedbackDuration,
+    int? motionGuideDuration,
+    TanreiCubicBezier? motionGuideEasing,
     int? motionSelectionDuration,
     TanreiCubicBezier? motionSelectionEasing,
     int? motionStateDuration,
@@ -16074,6 +16110,8 @@ class TanreiNavigationDrawerTokens {
     double? outlineWidth,
     double? scrimBlur,
     TanreiPaint? scrimColor,
+    TanreiPaint? stickyOutlineColor,
+    double? stickyOutlineWidth,
     TanreiNavigationDrawerVariants? variants,
     TanreiNavigationDrawerConditions? conditions,
     TanreiNavigationDrawerDensitys? densitys,
@@ -16091,6 +16129,8 @@ class TanreiNavigationDrawerTokens {
         containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
         containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         containerWidth: containerWidth ?? this.containerWidth,
+        guideColor: guideColor ?? this.guideColor,
+        guideWidth: guideWidth ?? this.guideWidth,
         headerColor: headerColor ?? this.headerColor,
         headerGap: headerGap ?? this.headerGap,
         headerItemGap: headerItemGap ?? this.headerItemGap,
@@ -16100,6 +16140,7 @@ class TanreiNavigationDrawerTokens {
         itemBadgeTypescale: itemBadgeTypescale ?? this.itemBadgeTypescale,
         itemContainerShape: itemContainerShape ?? this.itemContainerShape,
         itemIconIndicatorShape: itemIconIndicatorShape ?? this.itemIconIndicatorShape,
+        itemSupportingTextTypescale: itemSupportingTextTypescale ?? this.itemSupportingTextTypescale,
         itemTrailingTextTypescale: itemTrailingTextTypescale ?? this.itemTrailingTextTypescale,
         motionDisclosureDuration: motionDisclosureDuration ?? this.motionDisclosureDuration,
         motionDisclosureEasing: motionDisclosureEasing ?? this.motionDisclosureEasing,
@@ -16110,6 +16151,8 @@ class TanreiNavigationDrawerTokens {
         motionExpandDuration: motionExpandDuration ?? this.motionExpandDuration,
         motionExpandEasing: motionExpandEasing ?? this.motionExpandEasing,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
+        motionGuideDuration: motionGuideDuration ?? this.motionGuideDuration,
+        motionGuideEasing: motionGuideEasing ?? this.motionGuideEasing,
         motionSelectionDuration: motionSelectionDuration ?? this.motionSelectionDuration,
         motionSelectionEasing: motionSelectionEasing ?? this.motionSelectionEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
@@ -16117,6 +16160,8 @@ class TanreiNavigationDrawerTokens {
         outlineWidth: outlineWidth ?? this.outlineWidth,
         scrimBlur: scrimBlur ?? this.scrimBlur,
         scrimColor: scrimColor ?? this.scrimColor,
+        stickyOutlineColor: stickyOutlineColor ?? this.stickyOutlineColor,
+        stickyOutlineWidth: stickyOutlineWidth ?? this.stickyOutlineWidth,
         variants: variants ?? this.variants,
         conditions: conditions ?? this.conditions,
         densitys: densitys ?? this.densitys,
