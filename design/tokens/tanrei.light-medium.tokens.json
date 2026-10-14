@@ -90997,6 +90997,86 @@
                 "$description": "The fill of a body row that is selected, across the row's whole width, in place of a stripe: the quiet selection, a selected list item's and a selected tree row's. A first column kept in view takes it over sticky.container.color."
               }
             },
+            "hovered": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.8471,
+                      0.8471,
+                      0.8471
+                    ],
+                    "hex": "#d8d8d8",
+                    "alpha": 1
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.1059,
+                      0.1059,
+                      0.1059
+                    ],
+                    "hex": "#1b1b1b",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "pressed": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.8314,
+                      0.8314,
+                      0.8314
+                    ],
+                    "hex": "#d4d4d4",
+                    "alpha": 1
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.1059,
+                      0.1059,
+                      0.1059
+                    ],
+                    "hex": "#1b1b1b",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1059,
+                    0.1059,
+                    0.1059
+                  ],
+                  "hex": "#1b1b1b",
+                  "alpha": 1
+                },
+                "$description": "The color hover and press mix into a chosen row (TBL-59): its text color, as a selected list item's and a selected tree row's."
+              }
+            },
             "text": {
               "color": {
                 "$type": "color",
@@ -91011,6 +91091,120 @@
                   "alpha": 1
                 },
                 "$description": "The text of the cells and of the row header of a selected row. What a cell holds that is not plain text (a tag, a link, inline code) keeps its own colors."
+              }
+            }
+          },
+          "unselected": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$description": "The fill of a body row that can be chosen and is not, at rest: none of its own, so that its stripe, or the fill of a column kept in view, shows. Its hovered and pressed fills are laid over what shows (TBL-59)."
+              }
+            },
+            "hovered": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.08,
+                    "hex": "#131313"
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "hex": "#131313",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "pressed": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "alpha": 0.1,
+                    "hex": "#131313"
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.0745,
+                      0.0745,
+                      0.0745
+                    ],
+                    "hex": "#131313",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0745,
+                    0.0745,
+                    0.0745
+                  ],
+                  "hex": "#131313",
+                  "alpha": 1
+                },
+                "$description": "The color hover and press mix into a row that can be chosen and is not (TBL-59): its text color."
+              }
+            },
+            "text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0745,
+                    0.0745,
+                    0.0745
+                  ],
+                  "hex": "#131313",
+                  "alpha": 1
+                },
+                "$description": "The text of the cells of a body row that can be chosen and is not: a cell's own color."
               }
             }
           }

@@ -47,7 +47,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a table reads: per density, a cell's paddings and the text styles of a cell and of a column header; the colors of a cell's and a header's text; the header's own fill (none in the default system); the fill a header row, a first column or a status line takes while it is kept in view; the fill of every second row of a striped table; the fill and the text color of a row that is selected; the one line between rows and how rows are told apart (a line or a gap, following the system's choice); the caption's text style, color and distance from the table; the status line's text style, color and spaces; the room an empty body takes; and, for the header of a column that can be sorted, the size and weight of its mark, the gap before it, the timing of a state change, and for each part (sort: a column that can be sorted and is not; sorted: the column the rows are ordered by) its fill, label, mark and state-layer colors at rest and in each state.",
+            "usage": "Everything a table reads: per density, a cell's paddings and the text styles of a cell and of a column header; the colors of a cell's and a header's text; the header's own fill (none in the default system); the fill a header row, a first column or a status line takes while it is kept in view; the fill of every second row of a striped table; the fill and the text color of a row that is selected, and of a row that can be chosen, selected or not, under a pointer and a press; the one line between rows and how rows are told apart (a line or a gap, following the system's choice); the caption's text style, color and distance from the table; the status line's text style, color and spaces; the room an empty body takes; and, for the header of a column that can be sorted, the size and weight of its mark, the gap before it, the timing of a state change, and for each part (sort: a column that can be sorted and is not; sorted: the column the rows are ordered by) its fill, label, mark and state-layer colors at rest and in each state.",
             "rules": [
               "A table presents data that has rows and columns. Never use one to lay a screen out; use the layout.",
               "Give every table a name: a caption that people can see, or a label where the heading above it already says what it is.",
@@ -56,6 +56,7 @@
               "The table never sorts, filters, fetches or pages. A sortable header asks: it tells the product which column and which direction, and draws the direction the product then sets. One column is sorted at a time.",
               "The sorted column is told by its mark and by its label in the color of the data, not by a fill and never by the primary or the accent color.",
               "A selected row takes the quiet selection (secondary-container), the same in a list and in a tree. Its checkbox says the same without color. Never use the primary fill or the accent for it.",
+              "A row that can be chosen is pressed anywhere, as one target: each condition's state-layer.color is what hover and press mix into its fill, and it aliases the row's text color. The row answers a pointer only; its checkbox is its control for the keyboard and for assistive technology.",
               "Rows are rows: a table with checkboxes is still a table, each checkbox and each sortable header its own Tab stop. Do not turn it into a grid of cells moved through with arrow keys.",
               "An empty body shows the product's Empty state in the empty slot; a body that is being fetched is loading, with placeholder rows that hold the product's Skeletons or the rows it had. The table writes no word of its own in either.",
               "The status line holds the product's own sentence (how many rows, how many selected) and its Pagination. Page size, page numbers and bulk actions are the product's controls, outside the table.",
@@ -95,6 +96,26 @@
           }
         },
         "row": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product lets a person choose a row of a table by pressing anywhere on it, as a card or a list item that can be chosen is pressed, and must show the row it would choose under the pointer and the press, chosen or not, as one target.",
+              "since": "0.1.0"
+            },
+            "dev.tanrei.states": {
+              "variants": [
+                "unselected",
+                "selected"
+              ],
+              "states": [
+                "hovered",
+                "pressed"
+              ],
+              "perVariant": {
+                "container.color": "color",
+                "text.color": "color"
+              }
+            }
+          },
           "gap": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space50}",
@@ -103,6 +124,41 @@
               "dev.tanrei.vocabulary": {
                 "rationale": "One product whose manner is space rather than lines still needs its rows told apart, and chooses how far.",
                 "since": "0.1.0"
+              }
+            }
+          },
+          "unselected": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$description": "The fill of a body row that can be chosen and is not, at rest: none of its own, so that its stripe, or the fill of a column kept in view, shows. Its hovered and pressed fills are laid over what shows (TBL-59).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A row that is not chosen has no fill of its own at rest; its stripe or the surface behind shows through."
+                  }
+                }
+              }
+            },
+            "text": {
+              "color": {
+                "$value": "{tanrei.comp.table.cell.text.color}",
+                "$description": "The text of the cells of a body row that can be chosen and is not: a cell's own color."
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.table.cell.text.color}",
+                "$description": "The color hover and press mix into a row that can be chosen and is not (TBL-59): its text color."
               }
             }
           },
@@ -124,6 +180,12 @@
               "color": {
                 "$value": "{tanrei.sys.color.on-secondary-container}",
                 "$description": "The text of the cells and of the row header of a selected row. What a cell holds that is not plain text (a tag, a link, inline code) keeps its own colors."
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.table.row.selected.text.color}",
+                "$description": "The color hover and press mix into a chosen row (TBL-59): its text color, as a selected list item's and a selected tree row's."
               }
             }
           }
