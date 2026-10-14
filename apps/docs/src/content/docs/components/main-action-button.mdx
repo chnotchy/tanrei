@@ -162,6 +162,16 @@ The height is also the side of the collapsed form, so one button keeps its heigh
 
 The button draws no scrim and moves no content. Place it over the content, normally in the inline-end bottom corner, and keep it clear of a navigation bar, a docked toolbar and the system's insets. Leave room at the end of scrolling content, so that the button never permanently covers the last item. Its shadow is cast outside its container: give it room if the container that holds it clips.
 
+### Full width
+
+Set `full-width` to make the button as wide as its container, its icon and label centred: the one action of a screen held across its foot on a narrow screen, such as Check out or Send. A full-width button is always extended: it does not collapse while the content scrolls, and setting `extended` to false is reported in debug builds. It keeps the height, the corners and the elevation of its size, and a label that does not fit wraps. It still does not place itself: put it in the container that holds it at the foot of the screen.
+
+<DemoFrame label="A full-width main action button" plain>
+  <div style="inline-size: 20rem">
+    <tanrei-main-action-button label="Check out" full-width><span slot="icon">shopping_cart</span></tanrei-main-action-button>
+  </div>
+</DemoFrame>
+
 ### Do
 
 - Label it with the action as a verb, or a verb and a noun: **Compose**, **New event**, **Add photo**.

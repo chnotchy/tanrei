@@ -139,6 +139,20 @@ export const styles = css`
   button.trailing {
     padding-inline-end: var(--_pad-end-icon);
   }
+  /* MAB-24: full width — the host is as wide as its container and the container fills it, the icon and the label centred
+     as one row and a label that does not fit wrapped, its lines centred. It never collapses (the element draws no
+     collapsed class then), so its width does not move over the resize motion either. */
+  :host([full-width]) {
+    display: flex;
+    inline-size: 100%;
+  }
+  button.full-width {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  button.full-width .label {
+    text-align: center;
+  }
 
   /* The content in one row: the icon on the side iconPosition names, and the label. The row is aligned at its start, so
      a label that wraps keeps the icon on its first line (the icon box is one line high), and the button centers the

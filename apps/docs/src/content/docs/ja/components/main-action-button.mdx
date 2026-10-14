@@ -2,7 +2,7 @@
 title: メインアクションボタン
 description: 画面でいちばん大切なアクションを、コンテンツの上に浮かぶ持ち上がったコンテナで実行します。名前を書き添えた形か、アイコンだけに縮めた形で表示します。
 translationOf: components/main-action-button.mdx
-sourceHash: ff82dd77880b90c7becab88915c0e91b8fea6fda
+sourceHash: 100851dcd58588339815b7cf46318e4f1a9950e2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -163,6 +163,16 @@ Web では `<tanrei-main-action-button>`、React では `MainActionButton` で�
 ### 配置
 
 ボタンはスクリムを描かず、コンテンツも動かしません。コンテンツの上に、ふつうは末尾側の下の角に置き、ナビゲーションバー、ドックのツールバー、システムのインセットと重ならないようにします。スクロールするコンテンツの末尾に余白を取り、ボタンが最後の項目をずっと隠したままにならないようにします。影はコンテナの外側に落ちます。ボタンを入れる要素がはみ出しを切り取るなら、影の分の余裕を取ってください。
+
+### 全幅
+
+`full-width` を指定すると、ボタンはコンテナと同じ幅になり、アイコンとラベルは中央に置かれます。幅の狭い画面で、「購入手続きへ」や「送信」のような画面で 1 つだけのアクションを画面の下端に渡して置くときに使います。全幅のボタンは常に伸びた形です。コンテンツのスクロール中も縮まず、`extended` を false にするとデバッグビルドで報告されます。高さ、角、影はそのサイズのままで、収まらないラベルは折り返します。自分で位置を決めないのは変わらないので、画面の下端に置くコンテナの中に入れてください。
+
+<DemoFrame label="全幅のメインアクションボタン" plain>
+  <div style="inline-size: 20rem">
+    <tanrei-main-action-button label="購入手続きへ" full-width><span slot="icon">shopping_cart</span></tanrei-main-action-button>
+  </div>
+</DemoFrame>
 
 ### 推奨
 

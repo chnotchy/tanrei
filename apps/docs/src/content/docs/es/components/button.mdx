@@ -2,7 +2,7 @@
 title: Botón
 description: Permite realizar una acción, activar y desactivar algo o ir a un destino con un solo toque o clic.
 translationOf: components/button.mdx
-sourceHash: c531b01bc29d2078bf346b8fcc6a590e95463b3f
+sourceHash: 2d11c980a07f77a062a0d304f367e3dbb66f4fd0
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -154,12 +154,15 @@ Un botón deshabilitado sale del orden del foco, así que quien usa un teclado o
   <tanrei-button disabled focusable-when-disabled>Enviar</tanrei-button>
 </DemoFrame>
 
-### Una acción dentro de una frase
+### Ancho completo
 
-Una acción que está en mitad de una frase y no lleva a ninguna parte, como «mostrar todos los tokens», es la variante `inline`. No tiene contenedor ni margen interior, y toma la fuente y el interlineado del texto que la rodea, de modo que la línea conserva su altura. Se dibuja en el color de los enlaces y subrayada como el sistema de diseño subraya los enlaces, así que no se distingue de las palabras de al lado solo por el color. Sus palabras se quedan en una sola línea. Como con un enlace en una frase, su objetivo tiene el tamaño de su texto. Lo que lleva a la persona a otro lugar es un [enlace](/es/components/link/), no un botón inline.
+Añade `full-width` para que un botón sea tan ancho como su contenedor, por ejemplo la única acción al pie de un formulario, una tarjeta o una hoja estrechos. Conserva la altura, los márgenes interiores y las esquinas de su tamaño, y su etiqueta y su icono quedan centrados. Una etiqueta que no cabe pasa a la línea siguiente en lugar de cortarse. Donde un [grupo de botones](/es/components/button-group/), una [barra de herramientas](/es/components/toolbar/) o las acciones de un diálogo o de un popover disponen los botones, son ellos quienes deciden los anchos y `full-width` en un botón no hace nada: da `full-width` al grupo de botones para repartir una fila entre varios botones.
 
-<DemoFrame label="Un botón inline en una frase" plain>
-  <p class="tanrei-text-body">Cambia aquí cualquier valor, o <tanrei-button variant="inline">muestra todos los tokens</tanrei-button> para editarlos uno a uno.</p>
+<DemoFrame label="Botones de ancho completo" plain>
+  <div style="inline-size: 20rem; display: grid; gap: 0.75rem">
+    <tanrei-button full-width>Crear cuenta</tanrei-button>
+    <tanrei-button variant="outlined" full-width><span slot="icon">upload</span>Subir un archivo</tanrei-button>
+  </div>
 </DemoFrame>
 
 ### Un botón con destino es un enlace
@@ -332,7 +335,7 @@ Cuando la misma palabra se dibuja en varios botones, como «Quitar» en cada fil
 
 Usa un botón para una acción que ocurre donde está la persona: enviar un formulario, guardar, iniciar un proceso, confirmar un diálogo. En la web, un botón que envía su formulario lo dice con `type` (consulta [En un formulario](#en-un-formulario)).
 
-Si activarlo solo lleva a la persona a otro lugar, es un enlace. Cuando ese destino merece el énfasis de un botón, como «Empezar» en una página de inicio o «Ver todo» al final de una lista, conserva el botón y dale `href`: entonces es un enlace, con el rol, las teclas y el comportamiento en el navegador de un enlace (consulta [Un botón con destino es un enlace](#un-botón-con-destino-es-un-enlace)). Un destino dentro de una frase sigue siendo un enlace de texto corriente, y una acción dentro de una frase es la variante `inline` (consulta [Una acción dentro de una frase](#una-acción-dentro-de-una-frase)).
+Si activarlo solo lleva a la persona a otro lugar, es un enlace. Cuando ese destino merece el énfasis de un botón, como «Empezar» en una página de inicio o «Ver todo» al final de una lista, conserva el botón y dale `href`: entonces es un enlace, con el rol, las teclas y el comportamiento en el navegador de un enlace (consulta [Un botón con destino es un enlace](#un-botón-con-destino-es-un-enlace)). Un destino dentro de una frase sigue siendo un enlace de texto corriente. Una acción que pertenece a un texto es un botón de texto después del texto, no una expresión dentro de él: algo dibujado como un enlace que no lo es deja a la persona sin saber qué hará.
 
 ### Cómo elegir una variante
 
@@ -345,7 +348,6 @@ Las variantes expresan énfasis, y el énfasis es un presupuesto. Gástalo una v
 | Elevated | Medio | Una acción que debe separarse de un fondo recargado o con motivos. |
 | Outlined | Medio | Acciones del mismo peso junto a un botón filled, como Cancelar. |
 | Text | Bajo | Las acciones menos urgentes y las acciones en línea de tarjetas, diálogos y barras de herramientas. |
-| Inline | Parte del texto | Una acción dentro de una frase. Se dibuja como un fragmento de la frase, no como un control a su lado. |
 
 Un botón sin `variant` es filled, con una excepción: colocado como acción de un [diálogo](/es/components/dialog/) o de una [hoja lateral](/es/components/side-sheet/), toma la variante de ese anfitrión, tonal en el sistema predeterminado, de modo que solo defines una variante en la acción que debe verse distinta. El botón de cierre de una hoja lateral toma del mismo modo la variante de botón de cierre de la hoja.
 

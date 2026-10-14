@@ -1783,7 +1783,6 @@ public value class TanreiButtonVariant(public val key: String) {
         public val Elevated: TanreiButtonVariant = TanreiButtonVariant("elevated")
         public val Outlined: TanreiButtonVariant = TanreiButtonVariant("outlined")
         public val Text: TanreiButtonVariant = TanreiButtonVariant("text")
-        public val Inline: TanreiButtonVariant = TanreiButtonVariant("inline")
     }
 }
 
@@ -1857,12 +1856,11 @@ public data class TanreiButtonVariants(
     public val elevated: TanreiButtonVariantTokens,
     public val outlined: TanreiButtonVariantTokens,
     public val text: TanreiButtonVariantTokens,
-    public val inline: TanreiButtonVariantTokens,
     /** Values a design system added to the vocabulary, by key. */
     public val extra: Map<TanreiButtonVariant, TanreiButtonVariantTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiButtonVariant> get() = linkedSetOf(TanreiButtonVariant.Filled, TanreiButtonVariant.Tonal, TanreiButtonVariant.Elevated, TanreiButtonVariant.Outlined, TanreiButtonVariant.Text, TanreiButtonVariant.Inline) + extra.keys
+    public val keys: Set<TanreiButtonVariant> get() = linkedSetOf(TanreiButtonVariant.Filled, TanreiButtonVariant.Tonal, TanreiButtonVariant.Elevated, TanreiButtonVariant.Outlined, TanreiButtonVariant.Text) + extra.keys
 
     public operator fun contains(key: TanreiButtonVariant): Boolean = find(key) != null
 
@@ -1873,7 +1871,6 @@ public data class TanreiButtonVariants(
         TanreiButtonVariant.Elevated -> elevated
         TanreiButtonVariant.Outlined -> outlined
         TanreiButtonVariant.Text -> text
-        TanreiButtonVariant.Inline -> inline
         else -> extra[key]
     }
 
@@ -1886,7 +1883,6 @@ public data class TanreiButtonVariants(
         addAll(elevated.referencedRoles())
         addAll(outlined.referencedRoles())
         addAll(text.referencedRoles())
-        addAll(inline.referencedRoles())
         extra.values.forEach { addAll(it.referencedRoles()) }
     }
 }
@@ -1903,9 +1899,6 @@ public data class TanreiButtonStateTokens(
 public data class TanreiButtonTokens(
     public val busyIndicatorThickness: Dp,
     public val containerShape: Dp,
-    public val inlineUnderlineOffset: Dp,
-    public val inlineUnderlineVisibility: Float,
-    public val inlineUnderlineWidth: Dp,
     public val motionBusyCycleDuration: Int,
     public val motionFeedbackDuration: Int,
     public val motionStateDuration: Int,

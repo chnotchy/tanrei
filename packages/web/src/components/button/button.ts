@@ -116,6 +116,7 @@ export class TanreiButton extends LitElement {
     variant: { type: String, reflect: true, useDefault: true },
     size: { type: String, reflect: true },
     width: { type: String, reflect: true },
+    fullWidth: { type: Boolean, reflect: true, attribute: 'full-width' },
     iconPosition: { type: String, reflect: true, attribute: 'icon-position' },
     toggle: { type: Boolean, reflect: true },
     selected: { type: Boolean, reflect: true },
@@ -159,6 +160,15 @@ export class TanreiButton extends LitElement {
    * reach it. Anything else is drawn as `default` (reported in debug builds, BTN-21).
    */
   width: TanreiButtonWidth = 'default';
+
+  /**
+   * Takes the whole width its container gives it, its content centred, at the height of its size (the `full-width`
+   * attribute, BTN-39): a form's only action on a narrow screen, the action at the foot of a card or a sheet. A label
+   * that does not fit wraps, its lines centred; an icon-only button centres its glyph and ignores `width`. Ignored while
+   * a host lays the button out (a button group, a toolbar, the actions of a dialog, a popover, a callout or an empty
+   * state), which gives it its width: a button group's own `full-width` is how a row of buttons shares one.
+   */
+  fullWidth = false;
 
   /** Which side of the label the icon sits on, in the reading direction. Ignored without a label or an icon. */
   iconPosition: TanreiButtonIconPosition = 'leading';
@@ -568,6 +578,10 @@ export class TanreiButton extends LitElement {
     }
     // The slots report their content only once rendered; the first render reads it from the children, so an icon-only
     // button is square and named from its first frame.
+    // BTN-39: the custom state `placed` while a host lays the button out (src/primitives/group-item.ts): `full-width`
+    // does nothing under it, so the host's width holds.
+    if (this[GROUP_ITEM].place) this.internals.states.add('placed');
+    else this.internals.states.delete('placed');
     if (this.hasUpdated) return;
     const nodes = [...this.childNodes];
     this.hasIcon = nodes.some((node) => node instanceof Element && node.slot === 'icon');
@@ -665,12 +679,14 @@ export class TanreiButton extends LitElement {
     // BTN-24: a new context is marked after the label, where a trailing icon is drawn — unless the product's own icon is
     // there, or there is no label to follow.
     const mark = !!link?.opensNew && this.hasLabel && !trailing;
+    // BTN-39: full width, unless a host lays the button out.
+    const full = this.fullWidth && !this[GROUP_ITEM].place;
     return html`
       <${tag}
         part="container"
         type=${link ? nothing : 'button'}
         data-tanrei-shape
-        class=${classMap({ 'has-icon': this.hasIcon, 'with-icon': this.hasIcon && this.hasLabel && !trailing, 'with-trailing-icon': trailing, 'with-mark': mark, 'icon-only': iconOnly, busy, ...this[GROUP_ITEM].classes() })}
+        class=${classMap({ 'has-icon': this.hasIcon, 'with-icon': this.hasIcon && this.hasLabel && !trailing, 'with-trailing-icon': trailing, 'with-mark': mark, 'icon-only': iconOnly, 'full-width': full, busy, ...this[GROUP_ITEM].classes() })}
         data-host-variant=${this[GROUP_ITEM].variant ?? nothing}
         ${linkAttributes(link)}
         tabindex=${this.outsideFocusOrder ? '-1' : link && reachable ? '0' : nothing}

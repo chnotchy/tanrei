@@ -1,6 +1,6 @@
 // Essentials and Groups: the first two views of the layer. Both are made of the same few panels.
 import { HEX_PATTERN } from '../core.js';
-import { type Ctx, type Json, button, choice, codeField, fold, folds, format, h, inlineButton, isolated, linkButton, ltr, panel, placed, rich, short, textField, trim } from './dom';
+import { type Ctx, type Json, button, choice, codeField, fold, folds, format, h, isolated, linkButton, ltr, panel, placed, rich, short, textField, trim } from './dom';
 import { tokenEditor } from './editor';
 import { addPanel, extensionsPanel } from './add';
 import { behaviourPanel, iconsPanel, shapePanel, typefacesPanel } from './system';
@@ -479,7 +479,7 @@ function aboutPanel(ctx: Ctx) {
 
 export function essentialsLevel(ctx: Ctx): HTMLElement[] {
   const { t } = ctx;
-  return [basePanel(ctx), brandPanel(ctx), feelPanel(ctx), h('p', { class: 'ts-more' }, rich((at) => t.sentences(t.essentials.more, t.listed(t.listed(at(inlineButton(t.levels.groups, () => ctx.setLevel('groups'))), at(inlineButton(t.levels.tokens, () => ctx.setLevel('tokens')))), at(inlineButton(t.levels.source, () => ctx.setLevel('source')))))))];
+  return [basePanel(ctx), brandPanel(ctx), feelPanel(ctx), h('p', { class: 'ts-more' }, rich((at) => t.sentences(t.essentials.more, t.listed(t.listed(at(linkButton(t.levels.groups, () => ctx.setLevel('groups'))), at(linkButton(t.levels.tokens, () => ctx.setLevel('tokens')))), at(linkButton(t.levels.source, () => ctx.setLevel('source')))))))];
 }
 
 export function groupsLevel(ctx: Ctx): HTMLElement[] {

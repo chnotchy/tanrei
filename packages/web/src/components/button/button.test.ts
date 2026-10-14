@@ -2105,7 +2105,7 @@ test.describe('in a form', () => {
   });
 });
 
-test.describe('busy, reachable while disabled, inline', () => {
+test.describe('busy, reachable while disabled, full width', () => {
   type P = import('@playwright/test').Page;
   const mountOne = (page: P, fixtures: Fixture[]) => mountFixtures(page, spec, { icons: true, fixtures });
   const fx = (id: string, props: Fixture['props'], content = 'Deploy', extra: Partial<Fixture> = {}): Fixture => ({ id, props, content, ...extra });
@@ -2267,47 +2267,83 @@ test.describe('busy, reachable while disabled, inline', () => {
     expect(await native.evaluate((el) => (el as HTMLButtonElement).disabled)).toBe(true);
   });
 
-  test('BTN-35: inline, the button is a phrase of its sentence — the text’s font and line height, no padding and no height of its own, the line kept as high as it is; the link color, underlined as links are; a hovered box no taller than the text; no extended target; still a button', async ({ page }) => {
-    await mountOne(page, [
-      fx('p', {}, '', {
-        content: '<p id="line" style="margin:0; font: var(--tanrei-sys-typescale-body-font)">Change any value, or <tanrei-button variant="inline" id="act">show every token</tanrei-button> and <a class="tanrei-link" id="link" href="#t">read why</a>.</p><p id="bare" style="margin:0; font: var(--tanrei-sys-typescale-body-font)">Change any value, or show every token and read why.</p>',
-      }),
-    ]);
-    const act = page.locator('#act');
-    const part = act.locator('[part="container"]');
-    const height = (id: string) => page.locator(`#${id}`).evaluate((el) => el.getBoundingClientRect().height);
-    expect(await height('line')).toBe(await height('bare'));
+  test('BTN-39: full width, the button is as wide as its container and as high as its size, its content centred as one row', async ({ page }) => {
+    const height = await resolveToken(page, '--tanrei-comp-button-container-height-medium');
+    for (const id of ['full-width', 'full-width-leading-icon']) {
+      const host = page.locator(button(id));
+      const part = inner(page, id);
+      const stage = await page.locator(`[data-fixture="${id}"]`).evaluate((el) => {
+        const s = getComputedStyle(el);
+        return el.getBoundingClientRect().width - Number.parseFloat(s.paddingLeft) - Number.parseFloat(s.paddingRight);
+      });
+      const [hostBox, box] = [await host.boundingBox(), await part.boundingBox()];
+      expect(Math.abs(hostBox!.width - stage), id).toBeLessThan(0.5);
+      expect(Math.abs(box!.width - stage), id).toBeLessThan(0.5);
+      expect(Math.abs(box!.height - height), id).toBeLessThan(0.5);
+      // The content (the icon and the label, or the label alone) is centred in the container's content box.
+      const centred = await part.evaluate((el) => {
+        const s = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        const parts = [...el.querySelectorAll('.icon, .label')].map((p) => p.getBoundingClientRect()).filter((b) => b.width > 0);
+        const left = Math.min(...parts.map((b) => b.left));
+        const right = Math.max(...parts.map((b) => b.right));
+        return { before: left - (r.left + Number.parseFloat(s.paddingLeft)), after: r.right - Number.parseFloat(s.paddingRight) - right };
+      });
+      expect(Math.abs(centred.before - centred.after), id).toBeLessThan(1);
+      expect(centred.before, id).toBeGreaterThan(0);
+    }
+    // Without full width it is as wide as its content again.
+    const host = page.locator(button('full-width'));
+    await host.evaluate(async (el: any) => {
+      el.fullWidth = false;
+      await el.updateComplete;
+    });
+    const plain = await page.locator(button('filled-medium')).boundingBox();
+    expect(Math.abs((await inner(page, 'full-width').boundingBox())!.width - plain!.width)).toBeLessThan(0.5);
+  });
+
+  test('BTN-39: a full-width button narrower than its label wraps it, its lines centred, inside its container; an icon-only one centres its glyph', async ({ page }) => {
+    await mountOne(page, [fx('long', { variant: 'filled', fullWidth: true }, 'Deploy to every region now'), fx('icon', { variant: 'tonal', fullWidth: true, label: 'Add' }, '', { slots: { icon: 'add' } })]);
+    await page.evaluate(() => {
+      for (const stage of document.querySelectorAll<HTMLElement>('[data-fixture]')) stage.style.inlineSize = '120px';
+    });
+    const part = inner(page, 'long');
     const drawn = await part.evaluate((el) => {
       const s = getComputedStyle(el);
-      const label = getComputedStyle(el.querySelector('.label')!);
-      const p = getComputedStyle(document.getElementById('line')!);
-      return { font: s.font === p.font, lineHeight: s.lineHeight === p.lineHeight, padding: s.padding, height: el.getBoundingClientRect().height, line: Number.parseFloat(p.lineHeight), color: s.color, underline: label.textDecorationLine, before: getComputedStyle(el, '::before').content, role: el.localName };
+      const label = el.querySelector('.label')!.getBoundingClientRect();
+      return { width: el.getBoundingClientRect().width, height: el.getBoundingClientRect().height, align: s.textAlign, wrap: s.whiteSpace, labelHeight: label.height, line: Number.parseFloat(getComputedStyle(el.querySelector('.label')!).lineHeight) };
     });
-    expect(Math.abs(drawn.height - drawn.line)).toBeLessThan(0.5);
-    expect({ ...drawn, height: 0, line: 0 }).toEqual({ font: true, lineHeight: true, padding: '0px', height: 0, line: 0, color: await resolveColor(page, '--tanrei-sys-color-link'), underline: 'underline', before: 'none', role: 'button' });
-    // Hovered: the state's container, on the text's own box — as high as the link's box, lower than the line.
-    await act.hover();
-    await expect.poll(() => part.locator('.label').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-inline-hovered-container-color'));
-    const [box, link, line] = [await part.locator('.label').boundingBox(), await page.locator('#link').boundingBox(), await page.locator('#line').boundingBox()];
-    expect(await part.locator('.label').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-inline-hovered-container-color'));
-    expect(box!.height).toBeCloseTo(link!.height, 0);
-    expect(box!.height).toBeLessThan(line!.height);
-    // The system's choice for links decides the underline: hover drops it at rest, never always.
-    await rootTokens(page, { '--tanrei-sys-behavior-link-underline': 'hover' });
-    await page.mouse.move(0, 0);
-    await expect.poll(() => part.locator('.label').evaluate((el) => getComputedStyle(el).textDecorationLine)).toBe('none');
-    await act.hover();
-    await expect.poll(() => part.locator('.label').evaluate((el) => getComputedStyle(el).textDecorationLine)).toBe('underline');
-    await rootTokens(page, { '--tanrei-sys-behavior-link-underline': 'never' });
-    await expect.poll(() => part.locator('.label').evaluate((el) => getComputedStyle(el).textDecorationLine)).toBe('none');
-    // A button: Enter and Space press it.
-    await act.evaluate((el) => {
-      (window as any).clicks = 0;
-      el.addEventListener('click', () => (window as any).clicks++);
+    expect(drawn.width).toBeLessThanOrEqual(120.5);
+    expect(drawn.align).toBe('center');
+    expect(drawn.labelHeight).toBeGreaterThan(drawn.line * 1.5);
+    const icon = inner(page, 'icon');
+    const glyph = await icon.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const g = el.querySelector('.icon')!.getBoundingClientRect();
+      return { width: r.width, before: g.left - r.left, after: r.right - g.right };
     });
-    await act.focus();
-    await page.keyboard.press('Enter');
-    await page.keyboard.press('Space');
-    expect(await page.evaluate(() => (window as any).clicks)).toBe(2);
+    expect(Math.abs(glyph.width - 120)).toBeLessThan(0.5);
+    expect(Math.abs(glyph.before - glyph.after)).toBeLessThan(1);
+  });
+
+  test('BTN-39: a host that lays the button out gives it its width — a full-width Button in a standard group is laid out as one without full width', async ({ page }) => {
+    await mountOne(page, [fx('alone', { variant: 'filled' })]);
+    const widths = await page.evaluate(async () => {
+      const make = (full: boolean) => {
+        const group = document.createElement('tanrei-button-group');
+        group.setAttribute('label', 'Actions');
+        group.style.inlineSize = '400px';
+        group.innerHTML = `<tanrei-button variant="tonal"${full ? ' full-width' : ''}>Cancel</tanrei-button><tanrei-button variant="filled">Save</tanrei-button>`;
+        document.body.appendChild(group);
+        return group;
+      };
+      const [plain, full] = [make(false), make(true)];
+      await customElements.whenDefined('tanrei-button-group');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const measure = (group: Element) => [...group.querySelectorAll('tanrei-button')].map((b) => Math.round(b.getBoundingClientRect().width * 10) / 10);
+      return { plain: measure(plain), full: measure(full), placed: full.querySelector('tanrei-button')!.matches(':state(placed)') };
+    });
+    expect(widths.placed).toBe(true);
+    expect(widths.full).toEqual(widths.plain);
   });
 });

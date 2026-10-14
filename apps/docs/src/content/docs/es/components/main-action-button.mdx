@@ -2,7 +2,7 @@
 title: Botón de acción principal
 description: Realiza la acción más importante de una pantalla desde un contenedor elevado que flota sobre el contenido, con su nombre escrito o contraído hasta dejar solo su icono.
 translationOf: components/main-action-button.mdx
-sourceHash: ff82dd77880b90c7becab88915c0e91b8fea6fda
+sourceHash: 100851dcd58588339815b7cf46318e4f1a9950e2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -163,6 +163,16 @@ La altura es también el lado de la forma contraída, de modo que un mismo botó
 ### Colocación
 
 El botón no dibuja ningún velo ni mueve ningún contenido. Colócalo sobre el contenido, normalmente en la esquina inferior del lado de fin, y mantenlo apartado de una barra de navegación, de una barra de herramientas acoplada y de los márgenes interiores del sistema. Deja espacio al final del contenido que se desplaza, para que el botón nunca tape de forma permanente el último elemento. Su sombra se proyecta fuera de su contenedor: déjale espacio si el contenedor que lo aloja recorta su contenido.
+
+### Ancho completo
+
+Añade `full-width` para que el botón sea tan ancho como su contenedor, con el icono y la etiqueta centrados: la única acción de una pantalla, a lo ancho de su pie en una pantalla estrecha, como Pagar o Enviar. Un botón de ancho completo siempre está extendido: no se contrae mientras el contenido se desplaza, y poner `extended` en false se informa en las compilaciones de depuración. Conserva la altura, las esquinas y la elevación de su tamaño, y una etiqueta que no cabe pasa a la línea siguiente. Sigue sin colocarse a sí mismo: ponlo en el contenedor que lo sostiene al pie de la pantalla.
+
+<DemoFrame label="Un botón de acción principal de ancho completo" plain>
+  <div style="inline-size: 20rem">
+    <tanrei-main-action-button label="Pagar" full-width><span slot="icon">shopping_cart</span></tanrei-main-action-button>
+  </div>
+</DemoFrame>
 
 ### Recomendado
 

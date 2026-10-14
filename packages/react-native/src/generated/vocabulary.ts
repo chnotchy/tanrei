@@ -949,10 +949,9 @@ export interface TanreiButtonVariantRegistry {
   elevated: true;
   outlined: true;
   text: true;
-  inline: true;
 }
 export type TanreiButtonVariant = keyof TanreiButtonVariantRegistry;
-export type TanreiCoreButtonVariant = "filled" | "tonal" | "elevated" | "outlined" | "text" | "inline";
+export type TanreiCoreButtonVariant = "filled" | "tonal" | "elevated" | "outlined" | "text";
 
 /** What one `variant` of `comp.button` is drawn from in ONE interaction state. */
 export interface TanreiButtonVariantStateTokens {
@@ -997,9 +996,6 @@ export interface TanreiButtonTokens {
   readonly focusedOpacity: number;
   readonly hoveredContainerShape: number;
   readonly hoveredOpacity: number;
-  readonly inlineUnderlineOffset: number;
-  readonly inlineUnderlineVisibility: number;
-  readonly inlineUnderlineWidth: number;
   readonly motionBusyCycleDuration: number;
   readonly motionFeedbackDuration: number;
   readonly motionStateDuration: number;

@@ -471,6 +471,50 @@ test.describe('behavior', () => {
     expect(seen.filter((w) => w.includes('MAB-16'))).toHaveLength(2);
   });
 
+  test('MAB-24: full width, it is as wide as its container, extended whatever extended says, its icon and label centred as one row; a debug build reports a full-width button told to collapse', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, { reducedMotion: true });
+    const height = await resolveToken(page, T('container-height-medium'));
+    for (const id of ['filled-full-width', 'filled-full-width-collapsed']) {
+      const stage = await page.locator(`[data-fixture="${id}"]`).evaluate((el) => {
+        const s = getComputedStyle(el);
+        return el.getBoundingClientRect().width - Number.parseFloat(s.paddingLeft) - Number.parseFloat(s.paddingRight);
+      });
+      const box = await bounds(inner(page, id));
+      expect(Math.abs(box.width - stage), id).toBeLessThan(0.5);
+      expect(Math.abs(box.height - height), id).toBeLessThan(0.5);
+      expect(await style(host(page, id).locator('.label-box'), 'opacity'), id).toBe('1');
+      const centred = await inner(page, id).evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        const s = getComputedStyle(el);
+        const icon = el.querySelector('.icon-box')!.getBoundingClientRect();
+        const label = el.querySelector('.label')!.getBoundingClientRect();
+        return { before: icon.left - (r.left + Number.parseFloat(s.paddingLeft)), after: r.right - Number.parseFloat(s.paddingRight) - label.right };
+      });
+      expect(Math.abs(centred.before - centred.after), id).toBeLessThan(1);
+      expect(centred.before, id).toBeGreaterThan(0);
+    }
+    await expect.poll(() => seen.filter((w) => w.includes('MAB-24'))).toHaveLength(1);
+    expect(seen.find((w) => w.includes('MAB-24'))).toMatch(/<tanrei-main-action-button>: extended is false but the button is full width/);
+    // Taken off, the collapsed one collapses to its square, and the other one is as wide as its content again.
+    await host(page, 'filled-full-width-collapsed').evaluate((el) => ((el as any).fullWidth = false));
+    await expect.poll(async () => (await bounds(inner(page, 'filled-full-width-collapsed'))).width).toBe(height);
+    await host(page, 'filled-full-width').evaluate((el) => ((el as any).fullWidth = false));
+    await expect.poll(async () => (await bounds(inner(page, 'filled-full-width'))).width).toBe((await bounds(inner(page, 'filled-extended'))).width);
+  });
+
+  test('MAB-24: a full-width button narrower than its label wraps it, its lines centred, inside its container', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('long-full', { label: 'Compose a very long message', fullWidth: true })] });
+    await page.locator('[data-fixture="long-full"]').evaluate((el) => ((el as HTMLElement).style.inlineSize = '160px'));
+    const drawn = await inner(page, 'long-full').evaluate((el) => {
+      const label = el.querySelector('.label')!;
+      return { width: el.getBoundingClientRect().width, align: getComputedStyle(label).textAlign, lines: label.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(label).lineHeight) };
+    });
+    expect(drawn.width).toBeLessThanOrEqual(160.5);
+    expect(drawn.align).toBe('center');
+    expect(drawn.lines).toBeGreaterThan(1.5);
+  });
+
   test('MAB-17: the elevation of the variant and state is cast outside the container, unclipped, in either form', async ({ page }) => {
     for (const variant of ['filled', 'tonal', 'surface']) {
       for (const id of [`${variant}-extended`, `${variant}-collapsed`]) {

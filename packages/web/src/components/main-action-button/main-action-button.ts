@@ -13,8 +13,11 @@ export type TanreiMainActionButtonSize = keyof TanreiMainActionButtonSizeRegistr
 /** The side of the label the icon is on, in the reading direction. */
 export type TanreiMainActionButtonIconPosition = 'leading' | 'trailing';
 
-/** MAB-13, MAB-15, MAB-16: the form it draws. No label: collapsed, whatever else; no icon: extended; otherwise as asked. */
-const isCollapsed = (extended: boolean, hasIcon: boolean, label: string) => !label || (!extended && hasIcon);
+/**
+ * MAB-13, MAB-15, MAB-16, MAB-24: the form it draws. No label: collapsed, whatever else; no icon, or full width:
+ * extended; otherwise as asked.
+ */
+const isCollapsed = (extended: boolean, hasIcon: boolean, label: string, fullWidth = false) => !label || (!extended && hasIcon && !fullWidth);
 
 /**
  * Performs the single most important action of a screen on a raised container that floats above the content, showing
@@ -60,6 +63,7 @@ export class TanreiMainActionButton extends LitElement {
       converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
     },
     iconPosition: { type: String, attribute: 'icon-position', reflect: true },
+    fullWidth: { type: Boolean, attribute: 'full-width', reflect: true },
     disabled: { type: Boolean, reflect: true },
     label: { type: String },
     hasIcon: { state: true },
@@ -75,6 +79,13 @@ export class TanreiMainActionButton extends LitElement {
 
   /** Shows the label beside the icon. False (the `collapsed` attribute) collapses the button to its icon; the label stays the accessible name. Not a toggle. */
   extended = true;
+
+  /**
+   * Takes the whole width its container gives it, its icon and label centred (the `full-width` attribute, MAB-24): the
+   * one action of a screen held across its foot on a narrow screen. A full-width button is always drawn extended, so
+   * `extended` is ignored while it is set (reported in debug builds).
+   */
+  fullWidth = false;
 
   /** The side of the label the icon is on, in the reading direction (the `icon-position` attribute). Collapsed, the icon is centered either way. */
   iconPosition: TanreiMainActionButtonIconPosition = 'leading';
@@ -120,7 +131,7 @@ export class TanreiMainActionButton extends LitElement {
   }
 
   private get collapsed() {
-    return isCollapsed(this.extended, this.hasIcon, this.label);
+    return isCollapsed(this.extended, this.hasIcon, this.label, this.fullWidth);
   }
 
   constructor() {
@@ -185,9 +196,9 @@ export class TanreiMainActionButton extends LitElement {
       return;
     }
     // The form changes when `extended`, the icon or the label changes what it can be.
-    if (changed.has('extended') || changed.has('hasIcon') || changed.has('label')) {
+    if (changed.has('extended') || changed.has('hasIcon') || changed.has('label') || changed.has('fullWidth')) {
       const before = <T>(key: string, now: T) => (changed.has(key) ? (changed.get(key) as T) : now);
-      const was = isCollapsed(before('extended', this.extended), before('hasIcon', this.hasIcon), before('label', this.label) ?? '');
+      const was = isCollapsed(before('extended', this.extended), before('hasIcon', this.hasIcon), before('label', this.label) ?? '', before('fullWidth', this.fullWidth) ?? false);
       if (was !== this.collapsed) this.startResize();
     }
   }
@@ -198,6 +209,10 @@ export class TanreiMainActionButton extends LitElement {
     // MAB-15: without an icon there is nothing to collapse to — it stays extended, and a debug build says why.
     if ((changed.has('extended') || changed.has('hasIcon') || changed.has('label')) && !this.extended && !this.hasIcon && this.label) {
       report(this, 'MAB-15', 'extended is false but there is no icon, so it cannot collapse; it stays extended — give it an icon');
+    }
+    // MAB-24: a full-width button does not collapse — it stays extended, and a debug build says why.
+    if ((changed.has('extended') || changed.has('fullWidth')) && this.fullWidth && !this.extended && this.label) {
+      report(this, 'MAB-24', 'extended is false but the button is full width, which does not collapse; it stays extended — take off full-width to collapse it');
     }
   }
 
@@ -211,7 +226,7 @@ export class TanreiMainActionButton extends LitElement {
         part="container"
         type="button"
         data-tanrei-shape
-        class=${classMap({ [side]: this.hasIcon, collapsed: this.collapsed })}
+        class=${classMap({ [side]: this.hasIcon, collapsed: this.collapsed, 'full-width': this.fullWidth && !this.collapsed })}
         ?data-resizing=${this.resizing}
         aria-description=${this.forwardedDescription ?? nothing}
         ?disabled=${this.disabled}
