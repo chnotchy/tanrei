@@ -4,10 +4,12 @@ import {
   PendingGlyphs,
   PressController,
   SEPARATIONS,
+  SHEET_TOUCH_SLOP,
   SEPARATION_VALUES,
   type SeparationProp,
   compChoice,
   isGlyphProbe,
+  pressTakenWithin,
   report,
   styleQueries,
   syncFocusStyle,
@@ -83,6 +85,12 @@ const ATTRIBUTES = ['data-align', 'data-wrap', 'align', 'colspan', 'id', 'aria-l
 /** The cell that holds a row's checkbox (TBL-42), and the checkbox in it: Tanrei's, or the browser's own. */
 const SELECTION_CELL = '[data-part="selection"]';
 const CHECKBOX = ':scope > tanrei-checkbox, :scope > input[type="checkbox"]';
+/** TBL-58: how far a press may move and still be a press of its row — the platform's touch slop. */
+const SLOP = SHEET_TOUCH_SLOP;
+/** TBL-59: the row a fine pointer is over where a press would change its checkbox, and the moment its own cursor is set aside. */
+const HIT = 'data-tanrei-hit';
+const READING = 'data-tanrei-reading';
+const modified = (event: MouseEvent) => event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 /** A checkbox of either kind, as far as the table reads and writes it. */
 type Checkbox = HTMLElement & { checked?: boolean; indeterminate?: boolean; disabled?: boolean; label?: string; labelHidden?: boolean };
 const isNative = (box: Checkbox): box is HTMLInputElement => box.localName === 'input';
@@ -324,7 +332,10 @@ function mark(element: Element, name: string, value: string | null) {
  * with the values of the chosen rows; the product writes `data-selected` to choose a row itself, and nothing is
  * emitted for it. The header's checkbox is kept checked, mixed or unchecked, disabled with no row to choose, and named
  * by `select-all-label` or the product's words (`selectAllLabel`). A row's checkbox that has no name of its own is
- * named by the row's header cell. The table stays a table: no grid, no selected state on a row.
+ * named by the row's header cell. The table stays a table: no grid, no selected state on a row. For a pointer the whole
+ * row is its checkbox's target: a click anywhere on it changes the checkbox, except on what a cell holds that answers a
+ * press itself (a link, a button, a field), at the end of a drag or a text selection, with a modifier key, or on the
+ * second click of a double click; the row is drawn hovered and pressed as one. The keyboard stays on the checkbox.
  *
  * ```html
  * <tanrei-table selection="multiple" row-headers select-all-label="Select all products">
@@ -480,6 +491,12 @@ export class TanreiTable extends ReactiveElement {
   private focusedBox: { box: Checkbox; value: string | null } | null = null;
   /** Whether the element waits for the Checkbox to be defined, to read the checkboxes again. */
   private awaited = false;
+  /** TBL-59: the row drawn hovered under a fine pointer, the press of each row pressed so far, and the row held now. */
+  private hitRow: HTMLTableRowElement | null = null;
+  private readonly rowPresses = new WeakMap<HTMLTableRowElement, PressController>();
+  private heldRow: HTMLTableRowElement | null = null;
+  /** TBL-58: a press of a row that may end in a click that changes its checkbox. */
+  private rowPress: { id: number; x: number; y: number; row: HTMLTableRowElement; inCell: boolean; moved: boolean } | null = null;
 
   /** No shadow root: the table is the document's. */
   protected override createRenderRoot() {
@@ -993,7 +1010,12 @@ export class TanreiTable extends ReactiveElement {
       if (chooses) this.addEventListener(type, listener);
       else this.removeEventListener(type, listener);
     }
-    if (!chooses) this.focusedBox = null;
+    if (!chooses) {
+      this.focusedBox = null;
+      this.rowPress = null;
+      this.releaseRow();
+      this.setHit(null);
+    }
   }
 
   /** The checkbox an event came from, in a selection cell of this table's own rows, and its row: a table inside a cell is the product's. */
@@ -1067,11 +1089,152 @@ export class TanreiTable extends ReactiveElement {
     else setTimeout(() => box.isConnected && !box.matches(':focus') && forget());
   };
 
+  /**
+   * TBL-58: the body row of this table that a pointer event lands in where a press would change the row's checkbox, and
+   * whether it landed in the row's selection cell (whose press is the checkbox's, TBL-47). None for a row that cannot
+   * be chosen, inside a table nested in a cell (its rows are its own), or on something in a cell that answers a press
+   * itself; the row's own pointer cursor is set aside while the cursor the product gave what is pressed is read.
+   */
+  private rowTargetOf(event: Event): { row: HTMLTableRowElement; inCell: boolean } | null {
+    if (this.mode !== 'multiple') return null;
+    const path = event.composedPath();
+    const row = path.find((node): node is HTMLTableRowElement => node instanceof HTMLTableRowElement);
+    const body = row?.parentElement;
+    if (!row || body?.localName !== 'tbody' || body.parentElement !== this.table) return null;
+    if (!row.getAttribute('data-value') || row.hasAttribute('data-placeholder')) return null;
+    const box = this.boxIn(row);
+    if (!box || box.disabled) return null;
+    const cell = row.cells[0];
+    if (path.includes(cell)) return { row, inCell: true };
+    const reading = row.hasAttribute(HIT);
+    if (reading) row.setAttribute(READING, '');
+    try {
+      return pressTakenWithin(path, row) ? null : { row, inCell: false };
+    } finally {
+      if (reading) row.removeAttribute(READING);
+    }
+  }
+
+  /** TBL-59: the row drawn as the one target under a fine pointer (`data-tanrei-hit`), or none. */
+  private setHit(row: HTMLTableRowElement | null) {
+    if (this.hitRow === row) return;
+    this.hitRow?.removeAttribute(HIT);
+    this.hitRow = row;
+    row?.setAttribute(HIT, '');
+  }
+
+  /**
+   * TBL-59: the press of one row (the shared primitive, made when the row is first pressed and held by nothing but the
+   * row): ripple, which has no one box to grow in across the cells of a row, answers as overlay. Its host is the row,
+   * so it is no controller of the element's and costs a row that is never pressed nothing.
+   */
+  private rowPressOf(row: HTMLTableRowElement): PressController {
+    let press = this.rowPresses.get(row);
+    if (!press) {
+      press = new PressController(row, {
+        container: () => row,
+        holdCarrier: () => row,
+        disabled: () => false,
+        keys: () => [],
+        feedback: (named) => (named === 'ripple' ? 'overlay' : named),
+      });
+      this.rowPresses.set(row, press);
+    }
+    return press;
+  }
+
+  private releaseRow() {
+    if (this.heldRow) this.rowPresses.get(this.heldRow)?.release();
+    this.heldRow = null;
+  }
+
+  /** TBL-58, TBL-59: a press of the primary button, a touch or a pen, with no modifier key, on a row that can be chosen. */
+  private readonly onRowPointerDown = (event: Event) => {
+    const pointer = event as PointerEvent;
+    this.rowPress = null;
+    if (!pointer.isPrimary || pointer.button !== 0 || modified(pointer)) return;
+    const target = this.rowTargetOf(pointer);
+    if (!target) return;
+    this.rowPress = { id: pointer.pointerId, x: pointer.clientX, y: pointer.clientY, row: target.row, inCell: target.inCell, moved: false };
+    this.releaseRow();
+    this.heldRow = target.row;
+    this.rowPressOf(target.row).onPointerDown(pointer);
+  };
+
+  /** TBL-58: past the slop a press is a drag — a scroll, a selection — and changes nothing; the row's press ends there. */
+  private readonly onRowPointerMove = (event: Event) => {
+    const press = this.rowPress;
+    const pointer = event as PointerEvent;
+    if (press && !press.moved && pointer.pointerId === press.id && Math.hypot(pointer.clientX - press.x, pointer.clientY - press.y) > SLOP) {
+      press.moved = true;
+      if (this.heldRow === press.row) this.releaseRow();
+    }
+  };
+
+  private readonly onRowPointerUp = () => this.releaseRow();
+
+  private readonly onRowPointerCancel = () => {
+    this.rowPress = null;
+    this.releaseRow();
+  };
+
+  // TBL-59: a fine pointer over a row where a press would change its checkbox draws that row hovered; elsewhere none is.
+  private readonly onRowPointerOver = (event: Event) => {
+    if ((event as PointerEvent).pointerType === 'touch') return;
+    this.setHit(this.rowTargetOf(event)?.row ?? null);
+  };
+
+  // `pointerleave` is not seen from here: the press ends when the pointer goes out of the row it holds, and the row
+  // under a fine pointer is none once the pointer leaves the table.
+  private readonly onRowPointerOut = (event: Event) => {
+    const to = (event as PointerEvent).relatedTarget;
+    if (this.heldRow && !(to instanceof Node && this.heldRow.contains(to))) this.releaseRow();
+    if (!(to instanceof Node && this.contains(to))) this.setHit(null);
+  };
+
+  /**
+   * TBL-58: the click that ends a press on a row outside its selection cell changes the row's checkbox — unless it
+   * moved past the slop, is a second click, is modified, ends a text selection in the row, lands where something else
+   * takes it, or is cancelled by a handler of the product's. It is decided once the click has reached every listener (a
+   * task later), so that the product's own handler in a cell is heard first. A press in the selection cell is the
+   * checkbox's (`onCellClick`, or the checkbox's own).
+   */
+  private readonly onRowClick = (event: Event) => {
+    const press = this.rowPress;
+    this.rowPress = null;
+    const click = event as MouseEvent;
+    if (!press || press.moved || press.inCell || click.button !== 0 || click.detail !== 1 || modified(click)) return;
+    if (Math.hypot(click.clientX - press.x, click.clientY - press.y) > SLOP || this.rowTargetOf(click)?.row !== press.row) return;
+    const { row } = press;
+    setTimeout(() => {
+      if (event.defaultPrevented || this.mode !== 'multiple' || row.parentElement?.parentElement !== this.table || this.selects(row)) return;
+      const box = this.boxIn(row);
+      if (box && !box.disabled) box.click();
+    });
+  };
+
+  /** Whether the selection of the document (or of the shadow root the table is in) is text selected in `row`. */
+  private selects(row: HTMLTableRowElement): boolean {
+    const root = this.getRootNode() as Root & { getSelection?: () => Selection | null };
+    const selection = (root instanceof ShadowRoot && typeof root.getSelection === 'function' ? root.getSelection() : null) ?? document.getSelection();
+    if (!selection || selection.isCollapsed) return false;
+    for (let i = 0; i < selection.rangeCount; i++) if (selection.getRangeAt(i).intersectsNode(row)) return true;
+    return false;
+  }
+
   private readonly choiceListeners: [string, (event: Event) => void][] = [
     ['change', this.onChange],
     ['click', this.onCellClick],
+    ['click', this.onRowClick],
     ['focusin', this.onBoxFocusIn],
     ['focusout', this.onBoxFocusOut],
+    ['pointerdown', this.onRowPointerDown],
+    ['pointermove', this.onRowPointerMove],
+    ['pointerup', this.onRowPointerUp],
+    ['pointercancel', this.onRowPointerCancel],
+    ['pointerover', this.onRowPointerOver],
+    ['pointerout', this.onRowPointerOut],
+    ['dragstart', this.onRowPointerCancel],
   ];
 
   /**

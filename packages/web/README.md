@@ -7918,8 +7918,21 @@ person changes a row's checkbox the element writes `data-selected` on that row a
 the values of every chosen row in row order. When **you** write or remove `data-selected` the element checks or
 unchecks the row's checkbox and emits nothing. There is no list of values on the element: each row is chosen by what
 it says of itself, so rows given again in another order stay as they were, and nothing is carried over to a row you
-did not give. A press on a row outside its selection cell chooses nothing; a press anywhere in the selection cell is
-the checkbox's.
+did not give. A press anywhere in the selection cell is the checkbox's.
+
+**A press anywhere on a row that can be chosen is its checkbox's**, for a pointer (TBL-58): a click on the row's text,
+its padding or its row header changes the checkbox, with the same `selectionchange`. It does not where the press lands
+on what a cell holds that answers a press itself (a link, a button, a field, a label, anything with a tab index or a
+widget role, a custom element that takes focus, or an element you gave the pointer cursor), where the pointer moved
+more than 8 px, where the release ends a text selection in the row (text stays selectable and copyable), with Control,
+Command, Shift or Alt held, on the second click of a double click, or where your own click handler called
+`preventDefault()` — the element decides a task after the click, so your handler is heard first. The header row, a
+footer row, a placeholder row, a row without a `data-value` and a row whose checkbox is disabled take no such press. The
+row gets no role, tab index or `aria-selected`: the keyboard and assistive technology use its checkbox, as before.
+Under a fine pointer the row is drawn hovered as one target (`data-tanrei-hit`, with the pointer cursor) and pressed as
+one (`data-pressed` on the `<tr>`), from `comp.table.row.unselected.*` or `comp.table.row.selected.*` (TBL-59): the
+fill is laid over the stripe or the chosen fill and changes at once; `ripple`, which has no one box across the cells of
+a row, is drawn as `overlay`, and `dim` dims the row. Over a link or a button in a cell the row is drawn at rest.
 
 ```js
 table.addEventListener('selectionchange', (event) => {
@@ -7985,7 +7998,8 @@ the table is loading the empty row is not drawn, even with no body row.
 checkbox is `checked` (and which work in your form: give them a `name` and a `value`) — and `aria-busy="true"` on a
 table that loads. What needs the script: `<tanrei-checkbox>` itself, the header's checkbox kept in step and choosing
 every row, the event, `data-selected` kept in step, the names taken from row headers, a press beside a native checkbox
-in its cell, and the selection column kept in view with a first column that stays (the element measures where it ends:
+in its cell, a press on the row outside its selection cell and the row's hover and press (without script a row shows
+neither a state nor the pointer cursor, so it promises nothing it does not do), and the selection column kept in view with a first column that stays (the element measures where it ends:
 `data-selection-kept` and `--_table-selection-size` on the element; until then the selection column scrolls with the
 others and the first column is kept at the edge).
 
