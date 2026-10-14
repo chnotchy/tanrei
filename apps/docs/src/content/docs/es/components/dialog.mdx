@@ -2,7 +2,7 @@
 title: Diálogo
 description: Detiene a la persona para una decisión o unos pocos datos sin los que la tarea no puede continuar, en una superficie que atenúa y bloquea todo lo que hay detrás hasta que se responde o se descarta.
 translationOf: components/dialog.mdx
-sourceHash: f08d283670285cd3cd9a67213a30055ee2e5994c
+sourceHash: 0ed6a75c74f935133fb988d34188b471fda6e967
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -212,7 +212,7 @@ Usa un snackbar para informar de lo que acaba de ocurrir, con un «Deshacer» op
 | Contenido | el slot predeterminado | Cualquier otra cosa que la decisión necesite: una lista para elegir, un campo. El diálogo le da un margen interior y un color de contenido; no lo dispone. |
 | Acciones | el slot de acciones | Obligatorio: al menos un botón de Tanrei, cada uno marcado como `confirming` o `dismissive`. El diálogo los coloca como un grupo de botones a todo lo ancho y dibuja como tonal los que no tienen variante. |
 
-Cuando las partes no caben en la ventana, la cabecera y las acciones se quedan en su sitio y el texto de apoyo y el contenido se desplazan entre ellos, con un divisor de línea fina mientras algo queda desplazado fuera de la vista. Cuando el texto grande no deja espacio ni siquiera para eso, se desplaza el diálogo entero.
+Cuando las partes no caben en la ventana, la cabecera y las acciones se quedan en su sitio y el texto de apoyo y el contenido se desplazan entre ellos. Un divisor de línea fina separa de ellos la cabecera, y otro las acciones, mientras se desplazan, también cuando están en su inicio. Define `dividerVisibility` como `scroll` (`divider-visibility` en la web) para dibujar cada divisor solo mientras algo queda desplazado fuera de la vista más allá de él; `cupertino` y `m3-like` lo eligen para todos los diálogos. Cuando el texto grande no deja espacio ni siquiera para eso, se desplaza el diálogo entero, sin divisores.
 
 Se admite un titular sin texto de apoyo: una pregunta en el titular, con sus respuestas, es una conversación. Lo que un diálogo no puede ser es una afirmación sin nada que responder.
 
@@ -288,6 +288,7 @@ Un snackbar que todavía no se ha mostrado espera mientras hay un diálogo de Ta
 
 Carencias conocidas por plataforma:
 
+- SwiftUI, Compose, Flutter y React Native: `dividerVisibility` espera a que esas plataformas se pongan al día. Sus divisores aparecen solo mientras algo queda desplazado fuera de la vista más allá de ellos, como hace `scroll`.
 - Web: Firefox no puede mantener en la capa superior un diálogo que se está cerrando mientras se desvanece, así que ahí el diálogo desaparece de inmediato al cerrarse, sin el fundido de salida.
 - Web: todavía no se ha comprobado en un dispositivo con teclado en pantalla que el diálogo se mantenga apartado de él.
 - SwiftUI no tiene rol de diálogo ni de diálogo de alerta. El contenedor lleva el rasgo modal, tiene el titular como nombre y el texto de apoyo como indicación, y el titular lleva el rasgo de encabezado. Con `alert`, VoiceOver lee el titular y el texto de apoyo cuando se abre el diálogo.

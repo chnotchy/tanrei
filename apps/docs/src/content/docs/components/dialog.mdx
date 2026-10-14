@@ -210,7 +210,7 @@ Use a snackbar to report what just happened, with an optional Undo, instead of a
 | Content | the default slot | Whatever else the decision needs: a list to choose from, a field. The dialog insets it and gives it a content color; it does not lay it out. |
 | Actions | the actions slot | Required: one Tanrei Button at least, each marked `confirming` or `dismissive`. The dialog places them as a full-width Button group and draws those without a variant as tonal. |
 
-When the parts do not fit in the window, the header and the actions stay in place and the supporting text and the content scroll between them, with a hairline divider while something is scrolled out of view. When large text leaves no room even for that, the whole dialog scrolls.
+When the parts do not fit in the window, the header and the actions stay in place and the supporting text and the content scroll between them. A hairline divider rules the header off from them and another the actions, for as long as they scroll, their top included. Set `dividerVisibility` to `scroll` (`divider-visibility` on the web) to draw each divider only while something is scrolled out of view beyond it; `cupertino` and `m3-like` choose that for every dialog. When large text leaves no room even for that, the whole dialog scrolls, with no divider.
 
 A headline with no supporting text is allowed: a question in the headline, with its answers, is a dialogue. What a dialog cannot be is a statement with nothing to answer.
 
@@ -286,6 +286,7 @@ A snackbar that has not been shown yet waits while a Tanrei dialog is open, and 
 
 Known platform gaps:
 
+- SwiftUI, Compose, Flutter and React Native: `dividerVisibility` waits for those platforms to catch up. Their dividers appear only while something is scrolled out of view beyond them, as `scroll` does.
 - Web: Firefox cannot keep a closing dialog in the top layer while it fades, so there the dialog disappears at once when it closes, without the exit fade.
 - Web: keeping clear of the on-screen keyboard has not yet been checked on a device that has one.
 - SwiftUI has no dialog or alert dialog role. The container carries the modal trait, is named by the headline and described by the supporting text as its hint, and the headline carries the heading trait. With `alert`, VoiceOver reads the headline and the supporting text as the dialog opens.
