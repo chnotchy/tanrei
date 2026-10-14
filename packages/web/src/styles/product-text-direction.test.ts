@@ -133,8 +133,14 @@ const SUBJECTS: Record<string, Subject> = {
   'navigation-drawer': {
     // Two drawers of 77 rows each, of the same elements as site-sidebar's 17: with them a mount takes 3 s in WebKit on
     // a fast machine and 5 to 8 s on the CI's, and the six mounts of this test more than the 30 s a test has.
-    // So the long and the restored sidebar are left out here.
-    without: ['site-sidebar-long', 'site-sidebar-restored'],
+    // So the long and the restored sidebar are left out here, and so are the fixtures that draw the same boxes in
+    // another row layout (density, chevron, guides, indent, highlight, icon room, wrapping, pinning): they hold no
+    // text box the others do not, and with them the mounts again pass the 30 s in WebKit on the CI's machine.
+    without: [
+      'site-sidebar-long', 'site-sidebar-restored',
+      'compact', 'compact-collapsed', 'chevron-end', 'chevron-none', 'guides', 'guides-chevron-none', 'indent-zero',
+      'highlight-full', 'icon-space', 'not-expandable', 'one-line', 'label-wrap', 'sticky',
+    ],
     boxes: [
       'tanrei-main-action-button .label',
       'tanrei-navigation-drawer-group .label',
