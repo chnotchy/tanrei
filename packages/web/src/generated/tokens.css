@@ -8288,6 +8288,7 @@
     --tanrei-comp-tree-view-guide-color: var(--tanrei-sys-color-outline-variant);
     --tanrei-comp-tree-view-guide-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-tree-view-hovered-opacity: 1;
+    --tanrei-comp-tree-view-icon-gap: var(--tanrei-sys-space-space150);
     --tanrei-comp-tree-view-icon-size-compact: var(--tanrei-sys-icon-extra-small);
     --tanrei-comp-tree-view-icon-size-regular: var(--tanrei-sys-icon-small);
     --tanrei-comp-tree-view-label-typescale-compact-font-family: var(--tanrei-sys-typescale-body-small-font-family);
@@ -8347,6 +8348,9 @@
     --tanrei-comp-tree-view-selected-state-layer-color: var(--tanrei-comp-tree-view-selected-label-color);
     --tanrei-comp-tree-view-selected-supporting-text-color: var(--tanrei-sys-color-on-secondary-container);
     --tanrei-comp-tree-view-selected-trailing-text-color: var(--tanrei-sys-color-on-secondary-container);
+    --tanrei-comp-tree-view-sticky-container-color: var(--tanrei-sys-color-surface);
+    --tanrei-comp-tree-view-sticky-divider-color: var(--tanrei-sys-color-outline-variant);
+    --tanrei-comp-tree-view-sticky-divider-width: var(--tanrei-sys-border-hairline);
     --tanrei-comp-tree-view-supporting-text-typescale-font-family: var(--tanrei-sys-typescale-body-small-font-family);
     --tanrei-comp-tree-view-supporting-text-typescale-font-size: var(--tanrei-sys-typescale-body-small-font-size);
     --tanrei-comp-tree-view-supporting-text-typescale-font-weight: var(--tanrei-sys-typescale-body-small-font-weight);

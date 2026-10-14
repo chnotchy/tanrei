@@ -318,6 +318,15 @@
       ]
     },
     {
+      "key": "editLabel",
+      "readers": [
+        {
+          "component": "tree-view",
+          "prop": "editLabel"
+        }
+      ]
+    },
+    {
       "key": "emptyText",
       "readers": [
         {

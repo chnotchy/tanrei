@@ -166,7 +166,9 @@ test.describe('the column, the rows and their parts', () => {
     near(box.right, outer.right - 16);
     for (const property of ['margin-top', 'margin-left', 'padding-top', 'padding-left', 'border-top-width', 'border-left-width']) expect(await px(tree, property)).toBe(0);
     expect(await css(tree, 'background-color')).toMatch(CLEAR);
-    expect(await css(tree, 'overflow')).toBe('visible');
+    // No scrolling box of its own: nothing scrolls, and a row too deep for its room is clipped sideways (TRV-34).
+    expect(await css(tree, 'overflow-y')).toBe('visible');
+    expect(['visible', 'clip']).toContain(await css(tree, 'overflow-x'));
     expect(['0px', 'auto']).toContain(await css(tree, 'min-width'));
     expect(await css(tree, 'max-width')).toBe('none');
     // Rows touch, and the tree is as tall as the rows it shows.
@@ -176,14 +178,15 @@ test.describe('the column, the rows and their parts', () => {
     near(box.bottom, rows.at(-1)![1], 0.1);
   });
 
-  test('TRV-2: a row is at least its density’s height and grows with its text, padded by its density’s paddings; from the start it holds the chevron’s box, the icon, the text, the trailing content and the trailing text, a gap between each two; each is centred on the label’s first line, and height beyond the text is shared above and below', async ({ page }) => {
+  test('TRV-2: a row is at least its density’s height and grows with its text, padded by its density’s paddings; from the start it holds the chevron’s box, the icon, the text, the trailing content and the trailing text, a gap between each two and the icon gap — the same in every density — after the icon; each is centred on the label’s first line, and height beyond the text is shared above and below', async ({ page }) => {
     await mount(page, {
       fixtures: [
-        ...some('all-parts', 'all-parts-compact', 'long-labels'),
+        ...some('all-parts', 'all-parts-compact', 'long-labels-wrap'),
         raw('parts', { label: 'Parts' }, '<ul><li><span><span class="tanrei-icon">folder</span><bdi>Label</bdi><span data-trailing><span id="mark" style="display:block;inline-size:8px;block-size:30px;background:currentColor"></span></span><span data-trailing-text>12</span></span></li></ul>'),
         raw('small-trailing', { label: 'Small' }, '<ul><li><span><bdi>Label</bdi><small data-trailing id="small" style="font-size: 10px">new</small></span></li></ul>'),
       ],
     });
+    const iconGap = await resolveToken(page, T('icon-gap'));
     for (const [id, density] of [
       ['all-parts', 'regular'],
       ['all-parts-compact', 'compact'],
@@ -197,13 +200,13 @@ test.describe('the column, the rows and their parts', () => {
       const r = row(page, id, 'package.json');
       const d = await drawn(r);
       expect(d.row.height).toBe(Math.max(height, target));
-      // From the start: the chevron's box, the gap, the icon, the gap, the text … the trailing text, the padding.
+      // From the start: the chevron's box, the gap, the icon, the icon gap, the text … the trailing text, the padding.
       near(d.chevron.left, d.row.left + padInline);
       expect(d.chevron.size).toBe(chevron);
       const glyph = await edges(r.locator('> .tanrei-icon'));
       near(glyph.left, d.chevron.right + gap);
       expect(glyph.width).toBe(icon);
-      near(d.text!.left, glyph.right + gap);
+      near(d.text!.left, glyph.right + iconGap);
       const value = await edges(r.locator('> [data-trailing-text]'));
       near(value.right, d.row.right - padInline);
       // Each is centred on the label's first line; one line is centred in the row.
@@ -214,14 +217,20 @@ test.describe('the column, the rows and their parts', () => {
       near(middle, (d.row.top + d.row.bottom) / 2);
       expect(await css(r, 'border-top-left-radius', '::after')).toBe(`${await resolveToken(page, T('container-shape'))}px`);
     }
-    // A row that grows: the padding above its first line and below its last, the parts still on the first line.
-    const long = row(page, 'long-labels', 'swiftui/Sources/Tanrei/Generated/TanreiTokens.swift');
+    // The icon gap is the same in both densities.
+    const regular = await drawn(row(page, 'all-parts', 'package.json'));
+    const compact = await drawn(row(page, 'all-parts-compact', 'package.json'));
+    const regularGlyph = await edges(row(page, 'all-parts', 'package.json').locator('> .tanrei-icon'));
+    const compactGlyph = await edges(row(page, 'all-parts-compact', 'package.json').locator('> .tanrei-icon'));
+    near(regular.text!.left - regularGlyph.right, compact.text!.left - compactGlyph.right);
+    // A row that grows (labelWrap): the padding above its first line and below its last, the parts still on the first line.
+    const long = row(page, 'long-labels-wrap', 'swiftui/Sources/Tanrei/Generated/TanreiTokens.swift');
     const d = await drawn(long);
     const pad = await resolveToken(page, T('container-padding-block-regular'));
     expect(d.text!.lines).toBeGreaterThan(1);
     near(d.firstLine, d.row.top + pad);
     const lastLine = await long.locator('[data-supporting-text]').evaluate((el) => Math.max(...[...el.getClientRects()].map((rect) => rect.bottom)));
-    near(d.row.bottom - pad, d.firstLine + Math.round((lastLine - d.firstLine) / d.line) * d.line, 1.5);
+    near(d.row.bottom - pad, lastLine, 1.5);
     near(d.chevron.top + d.chevron.size / 2, d.firstLine + d.line / 2);
     const size = await edges(long.locator('> [data-trailing-text]'));
     near((size.top + size.bottom) / 2, d.firstLine + d.line / 2, 1);
@@ -238,35 +247,60 @@ test.describe('the column, the rows and their parts', () => {
     near((box.top + box.bottom) / 2, small.firstLine + small.line / 2);
   });
 
-  test('TRV-3: a first-level container begins at the tree’s start edge and each deeper one level.indent further in — its fill and focus indicator, not its content alone — and all end at the tree’s end edge; where a level’s indent would take more than half of the width the row begins where the deepest level that fits begins, its true level is still exposed, and the depth is reported once', async ({ page, browserName }) => {
+  test('TRV-3: with indent auto a child’s content begins where its parent’s label begins — the step follows the chevron and the icon before the parent’s label — and with a number it steps that far, 0 none; with highlight indented each container begins where its level does, and all end at the tree’s end edge; past half of the width a row begins at half, its true level is still exposed, and the depth is reported once', async ({ page, browserName }) => {
     const seen = warnings(page);
-    await mount(page, { fixtures: some('deep', 'compact') });
-    for (const [id, density, labels] of [
-      ['deep', 'regular', ['Catalogue', 'Furniture', 'Seating', 'Chairs', 'Office chairs', 'With armrests']],
-      ['compact', 'compact', ['src', 'components', 'button.ts']],
+    await mount(page, { fixtures: some('deep', 'compact', 'basic', 'icons', 'indent-16', 'indent-0', 'guides-label') });
+    // (Wide enough that no label of these reaches half of the width, where TRV-3 holds a deeper row back.)
+    await page.addStyleTag({ content: `.stage:has(> tanrei-tree-view) { inline-size: 640px !important; }` });
+    const start = async (id: string, label: string) => {
+      const r = row(page, id, label);
+      const s = await r.evaluate((el) => Number.parseFloat(getComputedStyle(el).paddingLeft));
+      return (await edges(r)).left + s - (await edges(host(page, id))).left;
+    };
+    const labelAt = async (id: string, label: string) => (await drawn(row(page, id, label))).text!.left - (await edges(host(page, id))).left;
+    // Auto: each child's content begins where its parent's label does — with chevrons only, and with icons too.
+    for (const [id, chain] of [
+      ['basic', ['src', 'components', 'button.ts']],
+      ['icons', ['src', 'components', 'button.ts']],
+      ['compact', ['src', 'components', 'button.ts']],
     ] as const) {
-      const indent = await resolveToken(page, T(`level-indent-${density}`));
+      for (let level = 1; level < chain.length; level += 1) near(await start(id, chain[level]), await labelAt(id, chain[level - 1]));
+    }
+    const pad = await resolveToken(page, T('container-padding-inline-regular'));
+    const chevron = await resolveToken(page, T('chevron-size-regular'));
+    const gap = await resolveToken(page, T('container-gap-regular'));
+    const icon = await resolveToken(page, T('icon-size-regular'));
+    const iconGap = await resolveToken(page, T('icon-gap'));
+    near(await start('basic', 'components'), pad + chevron + gap);
+    near(await start('icons', 'components'), pad + chevron + gap + icon + iconGap);
+    // Nothing before the parent's label: the level's indent token.
+    near(await start('guides-label', 'components'), pad + (await resolveToken(page, T('level-indent-regular'))));
+    // A number: that many pixels a level; 0: none.
+    near(await start('indent-16', 'components'), pad + 16);
+    near(await start('indent-16', 'button.ts'), pad + 32);
+    near(await start('indent-0', 'button.ts'), pad);
+    // Each container begins where its level does and ends at the end edge; the row is the whole width.
+    for (const [id, labels] of [
+      ['deep', ['Catalogue', 'Furniture', 'Seating', 'Chairs']],
+      ['compact', ['src', 'components', 'button.ts']],
+    ] as const) {
       const tree = await edges(host(page, id));
-      for (const [level, label] of labels.entries()) {
+      for (const label of labels) {
         const d = await drawn(row(page, id, label));
-        near(d.container.left, tree.left + indent * level);
+        near(d.container.left, tree.left + (await start(id, label)) - (id === 'deep' ? pad : await resolveToken(page, T('container-padding-inline-compact'))));
         near(d.container.right, tree.right);
-        // The row itself — the hit area — is the tree's whole width.
         near(d.row.left, tree.left);
         near(d.row.right, tree.right);
       }
     }
     expect(seen.filter((text) => text.includes('TRV-3'))).toEqual([]);
-    // 200 wide: half is 100, and the deepest level that fits begins 96 in (three indents of 32).
-    await page.addStyleTag({ content: `[data-fixture="deep"] { inline-size: 232px !important; }` });
-    const indent = await resolveToken(page, T('level-indent-regular'));
+    // 232 wide: half is 116, and no label begins past it.
+    await page.addStyleTag({ content: `.stage[data-fixture="deep"] { inline-size: 232px !important; }` });
     const tree = await edges(host(page, 'deep'));
-    const fits = Math.floor(tree.width / 2 / indent);
-    expect(fits).toBe(3);
-    for (const [level, label] of ['Catalogue', 'Furniture', 'Seating', 'Chairs', 'Office chairs', 'With armrests'].entries()) {
-      near((await drawn(row(page, 'deep', label))).container.left, tree.left + indent * Math.min(level, fits));
+    for (const label of ['Catalogue', 'Furniture', 'Seating', 'Chairs', 'Office chairs', 'With armrests']) {
+      expect((await drawn(row(page, 'deep', label))).text!.left - tree.left).toBeLessThanOrEqual(tree.width / 2 + 0.5);
     }
-    // The guide of a level past the limit stands under its parent's chevron all the same.
+    near((await drawn(row(page, 'deep', 'With armrests'))).text!.left - tree.left, tree.width / 2);
     expect(await row(page, 'deep', 'With armrests').getAttribute('aria-level')).toBeNull();
     // Reported once, when the user first acts.
     await tabTo(page, row(page, 'deep', 'Catalogue'));
@@ -313,7 +347,7 @@ test.describe('the column, the rows and their parts', () => {
     expect((await drawn(row(page, 'disabled', 'generated'))).chevron.content).toContain('chevron_right');
   });
 
-  test('TRV-5: an icon is the glyph of that name after the chevron’s box, in the density’s box and the condition’s icon color, outlined — filled while its own item is selected — and hidden from assistive technology; with no icon no room is kept; the glyph is the same open and closed', async ({ page }) => {
+  test('TRV-5: an icon is the glyph of that name after the chevron’s box, in the density’s box and the condition’s icon color, outlined — filled while its own item is selected — and hidden from assistive technology; with no icon no room is kept; an item that names no open icon draws the same glyph open and closed', async ({ page }) => {
     await mount(page, { fixtures: some('icons', 'basic', 'single-parent-selected', 'compact') });
     const size = await resolveToken(page, T('icon-size-regular'));
     const glyph = row(page, 'icons', 'src').locator('> .tanrei-icon');
@@ -341,11 +375,11 @@ test.describe('the column, the rows and their parts', () => {
     expect(unquoted(await css(selected, 'font-family'))).toBe(unquoted(await css(page.locator('html'), '--tanrei-sys-icon-family-selected')));
   });
 
-  test('TRV-6: the label is drawn in its density’s text style and its condition’s color, wraps and is never cut, and a name with no place to break breaks where it must; content in the label’s place is drawn in the label’s style and a code span keeps its typeface; a control in a row is still rendered, and reported', async ({ page }) => {
+  test('TRV-6: the label is drawn in its density’s text style and its condition’s color, on one line cut with an ellipsis — with labelWrap it wraps, breaks where it must and is never cut — and its accessible name is whole either way; content in the label’s place is drawn in the label’s style and a code span keeps its typeface; a control in a row is still rendered, and reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, {
       fixtures: [
-        ...some('long-labels', 'compact', 'single'),
+        ...some('long-labels', 'long-labels-wrap', 'compact', 'single'),
         raw('slots', { label: 'Slots' }, '<ul><li><span><bdi>The <code style="font-family: monospace">id</code> of a <mark>tok</mark>en</bdi></span></li><li><span>Plain <a href="#x">a link</a></span></li><li><span><bdi>ok</bdi><span data-trailing><button>x</button></span></span></li></ul>'),
       ],
     });
@@ -367,15 +401,23 @@ test.describe('the column, the rows and their parts', () => {
       expect(await css(row(page, id, label), 'color')).toBe(await resolveColor(page, T('unselected-label-color')));
     }
     expect(await css(row(page, 'single', 'checkbox.ts'), 'color')).toBe(await resolveColor(page, T('selected-label-color')));
-    // Nothing is cut and nothing widens the tree.
-    const tree = host(page, 'long-labels');
-    expect(await tree.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
-    for (const label of ['a-file-name-with-no-place-to-break-that-is-longer-than-the-tree-is-wide.generated.tokens.json', 'The colors, sizes, text styles and motion of every component, for the three shipped presets']) {
+    const long = ['a-file-name-with-no-place-to-break-that-is-longer-than-the-tree-is-wide.generated.tokens.json', 'The colors, sizes, text styles and motion of every component, for the three shipped presets'];
+    // One line, cut with an ellipsis; nothing widens the tree; the name is whole.
+    for (const id of ['long-labels', 'long-labels-wrap']) expect(await host(page, id).evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+    for (const label of long) {
       const r = row(page, 'long-labels', label);
+      const d = await drawn(r);
+      expect(d.text!.lines).toBe(1);
+      expect(await css(r.locator('> bdi'), 'text-overflow')).toBe('ellipsis');
+      expect(await r.locator('> bdi').evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+      expect(await r.evaluate((el) => (el.getAttribute('aria-label') ?? el.querySelector('bdi')!.firstChild!.textContent)!.includes(el.parentElement!.getAttribute('data-t')!))).toBe(true);
+    }
+    // labelWrap: it wraps and is never cut.
+    for (const label of long) {
+      const r = row(page, 'long-labels-wrap', label);
       const d = await drawn(r);
       expect(d.text!.lines).toBeGreaterThan(1);
       expect(d.text!.right).toBeLessThanOrEqual(d.row.right + 0.5);
-      expect(await css(r.locator('> bdi'), 'text-overflow')).toBe('clip');
       expect(await r.locator('> bdi').evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
     }
     // The label slot: in the label's place and style; a code span keeps its own typeface.
@@ -386,31 +428,33 @@ test.describe('the column, the rows and their parts', () => {
     await expect(host(page, 'slots').locator('button')).toBeVisible();
     expect(seen.filter((text) => text.includes('TRV-6') && text.includes('<a>'))).toHaveLength(1);
     expect(seen.filter((text) => text.includes('TRV-6') && text.includes('<button>'))).toHaveLength(1);
+    // A label written as the row's own text wraps, and a debug build says so once for the tree.
+    expect(seen.filter((text) => text.includes('TRV-6') && text.includes('own text'))).toHaveLength(1);
   });
 
-  test('TRV-7: the supporting text goes on after the label in the same block of text, a gap after its last word and on its baseline, in its own text style and color, and wraps with it; the trailing text is one line at the end of the row and is cut with an ellipsis where it would take more than half of the row’s inner width; the trailing content stands before it, unstyled', async ({ page }) => {
+  test('TRV-7: the supporting text stands below the label, one line cut with an ellipsis (wrapping with supportingWrap), or with supportingPosition inline after the label on its line, a gap after its last word; in its own text style and color; the trailing text is one line at the end of the row and is cut with an ellipsis where it would take more than half of the row’s inner width; the trailing content stands before it, unstyled', async ({ page }) => {
     await mount(page, {
       fixtures: [
-        ...some('all-parts', 'supporting-text', 'long-labels'),
+        ...some('all-parts', 'supporting-text', 'supporting-inline', 'long-labels', 'long-labels-wrap'),
         raw('half', { label: 'Half' }, '<ul><li><span><bdi>Name</bdi><span data-trailing-text id="long-value">a trailing value that is far longer than half of the width of the row it stands in</span></span></li><li><span><bdi>Tag</bdi><span data-trailing id="slot"><b>new</b></span><span data-trailing-text>3</span></span></li></ul>'),
       ],
     });
     const gap = await resolveToken(page, T('container-gap-regular'));
+    const firstRect = (locator: Locator) =>
+      locator.evaluate((el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const rect = [...range.getClientRects()].filter((each) => each.width > 0)[0];
+        return { left: rect.left, top: rect.top, bottom: rect.bottom };
+      });
+    // Below: under the label, starting where it starts.
     const r = row(page, 'all-parts', 'src');
     const supporting = r.locator('[data-supporting-text]');
     const d = await drawn(r);
-    const first = await supporting.evaluate((el) => {
-      const range = document.createRange();
-      range.selectNodeContents(el);
-      const rect = [...range.getClientRects()].filter((each) => each.width > 0)[0];
-      return { left: rect.left, top: rect.top, bottom: rect.bottom };
-    });
-    near(first.left, d.text!.right + gap, 1);
-    // On the label's line: its smaller text sits within the label's line box.
-    expect(first.top).toBeGreaterThanOrEqual(d.firstLine - 0.5);
-    expect(first.bottom).toBeLessThanOrEqual(d.firstLine + d.line + 0.5);
+    const below = await firstRect(supporting);
+    near(below.left, d.text!.left, 1);
+    expect(below.top).toBeGreaterThanOrEqual(d.firstLine + d.line - 0.5);
     expect(await css(supporting, 'color')).toBe(await resolveColor(page, T('unselected-supporting-text-color')));
-    // (The selected row's colors move to their values over the state duration once the element has marked the selection.)
     await expect.poll(() => css(row(page, 'all-parts', 'index.ts').locator('[data-supporting-text]'), 'color')).toBe(await resolveColor(page, T('selected-supporting-text-color')));
     const style = await page.evaluate(() => {
       const el = document.createElement('p');
@@ -419,9 +463,20 @@ test.describe('the column, the rows and their parts', () => {
       return getComputedStyle(el).fontSize;
     });
     expect(await css(supporting, 'font-size')).toBe(style);
-    // It wraps with the label and is never cut.
-    const wrapped = row(page, 'supporting-text', 'generated/').locator('[data-supporting-text]');
-    expect(await wrapped.evaluate((el) => new Set([...el.getClientRects()].filter((each) => each.width > 0).map((each) => Math.round(each.top))).size)).toBeGreaterThan(1);
+    // One line, cut with an ellipsis; wrapping with supportingWrap.
+    const cut = row(page, 'long-labels', 'swiftui/Sources/Tanrei/Generated/TanreiTokens.swift').locator('[data-supporting-text]');
+    expect(await css(cut, 'text-overflow')).toBe('ellipsis');
+    expect(await cut.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+    const wrapped = row(page, 'long-labels-wrap', 'swiftui/Sources/Tanrei/Generated/TanreiTokens.swift').locator('[data-supporting-text]');
+    expect(await css(wrapped, 'white-space')).toBe('normal');
+    expect(await wrapped.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+    // Inline: on the label's line, a gap after its last word.
+    const inlineRow = row(page, 'supporting-inline', 'tokens/');
+    const inline = await firstRect(inlineRow.locator('[data-supporting-text]'));
+    const di = await drawn(inlineRow);
+    near(inline.left, di.text!.right + gap, 1);
+    expect(inline.top).toBeGreaterThanOrEqual(di.firstLine - 0.5);
+    expect(inline.bottom).toBeLessThanOrEqual(di.firstLine + di.line + 0.5);
     // The trailing text: one line, the condition's color, its own text style.
     const value = r.locator('> [data-trailing-text]');
     expect(await css(value, 'white-space')).toBe('nowrap');
@@ -436,10 +491,8 @@ test.describe('the column, the rows and their parts', () => {
     });
     expect(await css(long, 'text-overflow')).toBe('ellipsis');
     expect(await long.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
-    // (Half of what the chevron's box leaves: the label keeps at least as much as the trailing text takes.)
     const lead = (await resolveToken(page, T('chevron-size-regular'))) + gap;
     expect((await edges(long)).width + gap).toBeLessThanOrEqual((inner - lead) / 2 + 0.5);
-    expect((await drawn(page.locator('#long-value').locator('xpath=..'))).text!.right - (await drawn(page.locator('#long-value').locator('xpath=..'))).text!.left).toBeGreaterThan(20);
     // The trailing content: before the trailing text, with no style of the tree's.
     const slot = await edges(page.locator('#slot'));
     const count = await edges(page.locator('#slot + [data-trailing-text]'));
@@ -702,22 +755,23 @@ test.describe('open and closed', () => {
     await expect(tokens.locator('> ul > li[data-tanrei-loading]')).toHaveCount(1);
     // After the rows it already holds, one level further in.
     expect(await tokens.locator('> ul').evaluate((list) => list.lastElementChild!.hasAttribute('data-tanrei-loading'))).toBe(true);
-    const indent = await resolveToken(page, T('level-indent-regular'));
     const parentRow = await drawn(row(page, 'loading', 'packages'));
     const loading = await drawn(loader.locator('> :first-child'));
-    near(loading.container.left, parentRow.container.left + indent);
+    const contentStart = loading.row.left + (await loader.locator('> :first-child').evaluate((el) => Number.parseFloat(getComputedStyle(el).paddingLeft)));
+    // One level further in: its content begins where its parent's label begins.
+    near(contentStart, parentRow.text!.left);
     expect(loading.row.height).toBe(parentRow.row.height);
     near(loading.row.top, parentRow.row.bottom);
-    // The indicator in the chevron's place, the words after it.
+    // The indicator at the start of its content, in a box of the chevron's size; the words after it.
     const indicator = loader.locator('tanrei-loading-indicator');
     await expect(indicator).toHaveAttribute('size', 'small');
     await expect(indicator).toHaveAttribute('label', 'Loading…');
     const spinner = await edges(indicator);
-    near((spinner.left + spinner.right) / 2, (loading.chevron.left + loading.chevron.right) / 2);
+    near((spinner.left + spinner.right) / 2, contentStart + (await resolveToken(page, T('chevron-size-regular'))) / 2);
     const words = loader.locator('[data-tanrei-loading-label]');
     await expect(words).toHaveText('Loading…');
     expect(await css(words, 'color')).toBe(await resolveColor(page, T('unselected-supporting-text-color')));
-    near((await edges(words)).left, loading.chevron.right + (await resolveToken(page, T('container-gap-regular'))), 1);
+    expect((await edges(words)).left).toBeGreaterThanOrEqual(spinner.right + (await resolveToken(page, T('container-gap-regular'))) - 1);
     // Not an item: no role of an item, no focus, nothing on a press, not reached by the arrow keys.
     await expect(loader).toHaveAttribute('role', 'none');
     // Kept from assistive technology whole: a tree holds tree items alone, and the parent says that it is busy.
@@ -1549,18 +1603,18 @@ test.describe('accessibility', () => {
     }
   });
 
-  test('TRV-34: at 200 % text in a stage 320 wide the labels, the supporting texts and the trailing texts grow, the label and the supporting text wrap whole and the rows grow; the chevron’s and the icon’s boxes keep their size on the label’s first line; only a trailing text is cut; nothing scrolls sideways; raised text spacing loses nothing', async ({ page }) => {
+  test('TRV-34: at 200 % text in a stage 320 wide the labels, the supporting texts and the trailing texts grow; with labelWrap and supportingWrap they wrap whole and the rows grow, and on one line they are cut and whole in their names; the chevron’s and the icon’s boxes keep their size on the label’s first line; nothing scrolls sideways; raised text spacing loses nothing', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 900 });
-    await mount(page, { fixtures: some('long-labels', 'all-parts', 'deep') });
+    await mount(page, { fixtures: some('long-labels-wrap', 'all-parts', 'deep') });
     const normal = await px(row(page, 'all-parts', 'src').locator('> bdi'), 'font-size');
     const chevron = await resolveToken(page, T('chevron-size-regular'));
     await page.addStyleTag({ content: `html { font-size: 200%; } main { display: block !important; } .stage { box-sizing: border-box; inline-size: 320px !important; }` });
     const whole = async (when: string) => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), `${when}: no sideways scroll`).toBe(true);
-      // Nothing but a trailing text is cut: no label and no row clips what it holds (a glyph wider than a very narrow column reaches into the gap beside it, whole).
-      const cut = await page.evaluate(() => [...document.querySelectorAll('tanrei-tree-view, tanrei-tree-view ul, tanrei-tree-view li, tanrei-tree-view li > :first-child, tanrei-tree-view bdi, tanrei-tree-view [data-supporting-text]')].filter((el) => el.checkVisibility() && getComputedStyle(el).overflow !== 'visible').map((el) => el.localName));
+      // With labelWrap and supportingWrap nothing but a trailing text is cut: no label and no row clips what it holds.
+      const cut = await page.evaluate(() => [...document.querySelectorAll('[data-fixture="long-labels-wrap"] tanrei-tree-view :is(ul, li, li > :first-child, bdi, [data-supporting-text])')].filter((el) => el.checkVisibility() && getComputedStyle(el).overflow !== 'visible').map((el) => el.localName));
       expect(cut, `${when}: nothing but a trailing text is cut`).toEqual([]);
-      const inside = await page.evaluate(() => [...document.querySelectorAll('tanrei-tree-view li > :first-child')].filter((r) => r.checkVisibility()).every((r) => {
+      const inside = await page.evaluate(() => [...document.querySelectorAll('[data-fixture="long-labels-wrap"] tanrei-tree-view li > :first-child')].filter((r) => r.checkVisibility()).every((r) => {
         const box = r.getBoundingClientRect();
         const range = document.createRange();
         range.selectNodeContents(r.querySelector('bdi') ?? r);
@@ -1573,7 +1627,7 @@ test.describe('accessibility', () => {
     expect(await px(row(page, 'all-parts', 'src').locator('[data-supporting-text]'), 'font-size')).toBeGreaterThan(normal);
     await whole('200 %');
     // The glyphs' boxes are a token in rem here; they stay on the first line, centred.
-    const d = await drawn(row(page, 'long-labels', 'swiftui/Sources/Tanrei/Generated/TanreiTokens.swift'));
+    const d = await drawn(row(page, 'long-labels-wrap', 'swiftui/Sources/Tanrei/Generated/TanreiTokens.swift'));
     expect(d.chevron.size).toBe(await resolveToken(page, T('chevron-size-regular')));
     expect(chevron).toBeGreaterThan(0);
     near(d.chevron.top + d.chevron.size / 2, d.firstLine + d.line / 2);
@@ -1581,7 +1635,7 @@ test.describe('accessibility', () => {
     expect(await css(row(page, 'all-parts', 'src'), 'height')).not.toBe(await css(row(page, 'all-parts', 'src'), 'min-height'));
     // TRV-3 keeps half of the width for names.
     const tree = await edges(host(page, 'deep'));
-    expect((await drawn(row(page, 'deep', 'With armrests'))).container.left - tree.left).toBeLessThanOrEqual(tree.width / 2 + 0.5);
+    expect((await drawn(row(page, 'deep', 'With armrests'))).text!.left - tree.left).toBeLessThanOrEqual(tree.width / 2 + 0.5);
     // Raised line height, letter, word and paragraph spacing (WCAG 1.4.12).
     await page.addStyleTag({ content: `${TAG} * { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } ${TAG} p { margin-block-end: 2em !important; }` });
     await whole('with raised text spacing');
@@ -1628,19 +1682,24 @@ test.describe('accessibility', () => {
 test.describe('right to left', () => {
   test('TRV-36: in a right-to-left layout a row is mirrored — the tree’s start edge is its right edge, each level begins further to the left, the chevron’s box is at the right with the icon, the text and the trailing text after it toward the left, and the guides stand under the chevrons; a closed parent’s chevron points left and an open one’s down; Left opens and steps in, Right closes and steps out; a ripple still grows from the point of contact', async ({ page }) => {
     await mount(page, { fixtures: some('rtl', 'rtl-guides-compact'), reducedMotion: true });
+    await page.addStyleTag({ content: `.stage[data-fixture="rtl"] { inline-size: 640px !important; }` });
     await watch(page);
     const tree = await edges(host(page, 'rtl'));
-    const indent = await resolveToken(page, T('level-indent-regular'));
     const pad = await resolveToken(page, T('container-padding-inline-regular'));
     const gap = await resolveToken(page, T('container-gap-regular'));
-    for (const [level, label] of ['المشروع', 'المكوّنات', 'زر'].entries()) {
+    const iconGap = await resolveToken(page, T('icon-gap'));
+    let parentLabel: number | null = null;
+    for (const label of ['المشروع', 'المكوّنات', 'زر']) {
       const d = await drawn(row(page, 'rtl', label));
-      near(d.container.right, tree.right - indent * level);
+      // Each level's content begins where its parent's label begins, toward the left.
+      if (parentLabel === null) near(d.container.right, tree.right);
+      else near(d.container.right - pad, parentLabel);
       near(d.container.left, tree.left);
       near(d.chevron.right, d.container.right - pad);
       const glyph = await edges(row(page, 'rtl', label).locator('> .tanrei-icon'));
       near(glyph.right, d.chevron.left - gap);
-      near(d.text!.right, glyph.left - gap, 1);
+      near(d.text!.right, glyph.left - iconGap, 1);
+      parentLabel = d.text!.right;
     }
     const readme = row(page, 'rtl', 'اقرأني');
     near((await edges(readme.locator('> [data-trailing-text]'))).left, tree.left + pad);
@@ -1728,7 +1787,7 @@ test.describe('right to left', () => {
     await mount(page, {
       fixtures: [
         ...some('ltr-labels-rtl', 'rtl'),
-        raw('own', { label: 'Own' }, '<ul><li><span>tokens/</span></li><li><span><bdi>قائمة<small data-supporting-text>edited by hand.</small></bdi><span data-trailing-text id="cut">a left-to-right value that is far too long for half of the row it is in.</span></span></li></ul>', { direction: 'rtl' }),
+        raw('own', { label: 'Own' }, '<ul><li><span>tokens/</span></li><li data-supporting-position="inline"><span><bdi>قائمة<small data-supporting-text>edited by hand.</small></bdi><span data-trailing-text id="cut">a left-to-right value that is far too long for half of the row it is in.</span></span></li></ul>', { direction: 'rtl' }),
       ],
     });
     const glyphs = (locator: Locator, from: number, to: number) =>
@@ -1786,7 +1845,7 @@ test.describe('right to left', () => {
   });
 
   test('TRV-39: a name that has an isolate of its own inside the label’s element, and the supporting text after it, are each a run of their own direction placed by the layout’s — the supporting text after the name on the layout’s side, the row’s gap between them, and the row’s gap before the trailing text', async ({ page }) => {
-    const item = (name: string, supporting: string, trailing: string) => `<li><span><span><bdi>${name}</bdi><small data-supporting-text>${supporting}</small></span><span data-trailing-text>${trailing}</span></span></li>`;
+    const item = (name: string, supporting: string, trailing: string) => `<li data-supporting-position="inline"><span><span><bdi>${name}</bdi><small data-supporting-text>${supporting}</small></span><span data-trailing-text>${trailing}</span></span></li>`;
     await mount(page, {
       fixtures: [
         raw('named-rtl', { label: 'Named' }, `<ul>${item('tokens/', 'مصدر الحقيقة', '40px')}${item('generated/', 'written by the build.', '12')}${item('قائمة', 'edited by hand.', '3')}</ul>`, { direction: 'rtl' }),
@@ -1871,13 +1930,13 @@ test.describe('missing, unknown, empty, changed', () => {
     expect(seen.filter((text) => text.includes('TRV-41') && text.includes('"huge"'))).toHaveLength(1);
     expect(seen.filter((text) => text.includes('TRV-41') && text.includes('"several"'))).toHaveLength(1);
     // A density a design system adds: its tokens, the default's where it has none.
-    await override(page, { [T('container-height-roomy')]: '72px', [T('level-indent-roomy')]: '40px' });
+    await override(page, { [T('container-height-roomy')]: '72px', [T('container-gap-roomy')]: '20px' });
     await host(page, 'added').evaluate((el) => {
       el.setAttribute('density', 'regular');
       el.setAttribute('density', 'roomy');
     });
     await expect.poll(async () => (await edges(row(page, 'added', 'Alpha'))).height).toBe(72);
-    near((await drawn(row(page, 'added', 'Apple'))).container.left, (await edges(host(page, 'added'))).left + 40);
+    near((await drawn(row(page, 'added', 'Apple'))).container.left, (await edges(host(page, 'added'))).left + (await resolveToken(page, T('chevron-size-regular'))) + 20);
     expect(await css(row(page, 'added', 'Alpha'), 'font-size')).toBe(await css(row(page, 'turned', 'Alpha'), 'font-size'));
     // A change of selection.
     await tabTo(page, row(page, 'turned', 'Alpha'));
@@ -1935,6 +1994,511 @@ test.describe('missing, unknown, empty, changed', () => {
   });
 });
 
+test.describe('the row model', () => {
+  const fromStart = async (page: P, id: string, locator: Locator) => (await edges(locator)).left - (await edges(host(page, id))).left;
+  /** Where a list's guide line stands (its middle), from the tree's start edge, and whether it is drawn. */
+  const guide = (page: P, id: string, label: string) =>
+    item(page, id, label)
+      .locator('> ul')
+      .evaluate((list) => {
+        const s = getComputedStyle(list, '::before');
+        const tree = list.closest('tanrei-tree-view')!.getBoundingClientRect();
+        return { drawn: s.content !== 'none' && s.display !== 'none', middle: list.getBoundingClientRect().left + Number.parseFloat(s.left) + Number.parseFloat(s.borderLeftWidth) / 2 - tree.left, opacity: Number(s.opacity) };
+      });
+
+  test('TRV-4, TRV-26: with chevron end every row keeps the chevron’s box as its last thing, a gap after the trailing text; a parent draws expand_more, turned a half turn while open; a press at the row’s end edge on a parent that can be chosen opens and closes it and chooses nothing', async ({ page }) => {
+    await mount(page, { fixtures: [...some('chevron-end'), raw('end-small', { label: 'Small', selection: 'single', chevron: 'end' }, SMALL)] });
+    await nameItems(page);
+    await watch(page);
+    const gap = await resolveToken(page, T('container-gap-regular'));
+    const pad = await resolveToken(page, T('container-padding-inline-regular'));
+    const size = await resolveToken(page, T('chevron-size-regular'));
+    for (const label of ['src', 'index.ts']) {
+      const r = row(page, 'chevron-end', label);
+      const box = await r.evaluate((el) => {
+        const b = getComputedStyle(el, '::before');
+        const rect = el.getBoundingClientRect();
+        return { right: rect.right, width: Number.parseFloat(b.width), content: b.content, rotate: b.rotate };
+      });
+      expect(box.width).toBe(size);
+      const value = await edges(r.locator('> [data-trailing-text]'));
+      near(value.right + gap + size, box.right - pad);
+      if (label === 'src') {
+        expect(box.content).toContain('expand_more');
+        expect(box.rotate).toBe('180deg');
+      } else expect(box.content).not.toContain('expand_more');
+    }
+    expect((await drawn(row(page, 'chevron-end', 'components'))).chevron.rotate).toBe('none');
+    // The end edge of a parent that can be chosen: a press there toggles it; its label chooses it.
+    const beta = await edges(row(page, 'end-small', 'Beta'));
+    await page.mouse.click(beta.right - 2, (beta.top + beta.bottom) / 2);
+    expect(await events(page)).toEqual(['toggle:Beta:true']);
+    await settled(page);
+    await page.mouse.click(beta.left + 60, (beta.top + beta.bottom) / 2);
+    expect(await events(page)).toEqual(['change:{"value":"b"}']);
+  });
+
+  test('TRV-44, TRV-5: with chevron none no row keeps a chevron’s box; a press on a parent’s icon opens and closes it and chooses nothing, its open glyph showing at once; a press on its label chooses it; the arrows open it; a parent without an icon opens by its row where it cannot be chosen and is chosen where it can, and is reported; the expanded state is unchanged', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, { fixtures: [...some('chevron-none', 'icons'), raw('bare', { label: 'Bare', chevron: 'none', selection: 'single' }, SMALL)] });
+    await nameItems(page);
+    await watch(page);
+    const id = 'chevron-none';
+    const pad = await resolveToken(page, T('container-padding-inline-regular'));
+    for (const label of ['src', 'components', 'styles', 'index.ts', 'test', 'package.json']) expect(await css(row(page, id, label), 'display', '::before'), label).toBe('none');
+    near(await fromStart(page, id, row(page, id, 'src').locator('> .tanrei-icon')), pad);
+    const glyph = (label: string) => row(page, id, label).locator('> .tanrei-icon').evaluate((icon) => getComputedStyle(icon, '::before').content);
+    expect(await glyph('src')).toContain('folder_open');
+    expect(await glyph('styles')).not.toContain('folder_open');
+    await row(page, id, 'styles').locator('> .tanrei-icon').click();
+    expect(await events(page)).toEqual(['toggle:styles:true']);
+    expect(await glyph('styles')).toContain('folder_open');
+    await settled(page);
+    await row(page, id, 'styles').locator('bdi').click();
+    expect(await events(page)).toEqual(['change:{"value":"src/styles"}']);
+    await row(page, id, 'test').focus();
+    await page.keyboard.press('ArrowRight');
+    expect(await events(page)).toEqual(['toggle:test:true']);
+    await settled(page);
+    await expect(row(page, id, 'src')).toHaveAttribute('aria-expanded', 'true');
+    // No icon: a parent that cannot be chosen opens by its row; one that can is chosen, and opens by the keys.
+    await row(page, 'bare', 'Gamma').click();
+    expect(await events(page)).toEqual(['toggle:Gamma:true']);
+    await settled(page);
+    await row(page, 'bare', 'Beta').click();
+    expect(await events(page)).toEqual(['change:{"value":"b"}']);
+    await page.keyboard.press('ArrowRight');
+    expect(await events(page)).toEqual(['toggle:Beta:true']);
+    expect(seen.filter((text) => text.includes('TRV-44')).length).toBeGreaterThanOrEqual(3);
+    // With a chevron the open glyph is drawn beside it.
+    expect((await drawn(row(page, 'icons', 'src'))).chevron.content).toContain('chevron_right');
+  });
+
+  test('TRV-8: a guide stands under the middle of the parent’s first leading thing — the start chevron, else the icon, else the label’s start; none is drawn while the step is 0; with guides hover the lines are drawn only while a pointer is over the tree or focus is in it', async ({ page }) => {
+    await mount(page, { fixtures: [...some('guides', 'chevron-none', 'guides-label', 'indent-0'), raw('hovered', { label: 'Hovered', guides: 'hover' }, SMALL)] });
+    await nameItems(page);
+    const chevron = await drawn(row(page, 'guides', 'src'));
+    near((await guide(page, 'guides', 'src')).middle, chevron.chevron.left + chevron.chevron.size / 2 - (await edges(host(page, 'guides'))).left, 0.6);
+    const icon = await edges(row(page, 'chevron-none', 'src').locator('> .tanrei-icon'));
+    near((await guide(page, 'chevron-none', 'src')).middle, icon.left + icon.width / 2 - (await edges(host(page, 'chevron-none'))).left, 0.6);
+    const label = await drawn(row(page, 'guides-label', 'src'));
+    near((await guide(page, 'guides-label', 'src')).middle, label.text!.left - (await edges(host(page, 'guides-label'))).left, 1);
+    expect((await guide(page, 'indent-0', 'src')).drawn).toBe(false);
+    // hover: hidden at rest; drawn under the pointer and with focus in the tree.
+    await page.addStyleTag({ content: still });
+    await page.mouse.move(0, 0);
+    await expect.poll(async () => (await guide(page, 'hovered', 'Alpha')).opacity).toBe(0);
+    await host(page, 'hovered').hover();
+    await expect.poll(async () => (await guide(page, 'hovered', 'Alpha')).opacity).toBe(1);
+    await page.mouse.move(0, 0);
+    await expect.poll(async () => (await guide(page, 'hovered', 'Alpha')).opacity).toBe(0);
+    await tabTo(page, row(page, 'hovered', 'Alpha'));
+    await expect.poll(async () => (await guide(page, 'hovered', 'Alpha')).opacity).toBe(1);
+  });
+
+  test('TRV-43: iconSpace auto keeps an icon’s room in a level where any row has an icon, never only where a row has one, always in every level', async ({ page }) => {
+    await mount(page, { fixtures: [...some('icon-space-auto', 'icon-space-never'), raw('always', { label: 'Always', iconSpace: 'always' }, SMALL), raw('plain', { label: 'Plain' }, SMALL)] });
+    await nameItems(page);
+    const labelAt = async (id: string, l: string) => (await drawn(row(page, id, l))).text!.left;
+    // auto: the labels of a level with an icon stand in one column; a level with none keeps no room.
+    near(await labelAt('icon-space-auto', 'notes'), await labelAt('icon-space-auto', 'index.ts'));
+    near(await labelAt('icon-space-auto', 'LICENSE'), await labelAt('icon-space-auto', 'src'));
+    const icon = await resolveToken(page, T('icon-size-regular'));
+    const iconGap = await resolveToken(page, T('icon-gap'));
+    near(await labelAt('icon-space-auto', 'intro'), (await drawn(row(page, 'icon-space-auto', 'intro'))).chevron.right + (await resolveToken(page, T('container-gap-regular'))));
+    // never: a row without an icon begins its label where its icon would begin.
+    near((await labelAt('icon-space-never', 'index.ts')) - (await labelAt('icon-space-never', 'notes')), icon + iconGap);
+    // always: every label an icon and its gap in.
+    near((await labelAt('always', 'Alpha')) - (await labelAt('plain', 'Alpha')), icon + iconGap);
+  });
+
+  test('TRV-51: with highlight full a row’s fill begins at the tree’s start edge, its label at its level; with indented at its level', async ({ page }) => {
+    await mount(page, { fixtures: some('highlight-full', 'single') });
+    const full = await drawn(row(page, 'highlight-full', 'checkbox.ts'));
+    const indented = await drawn(row(page, 'single', 'checkbox.ts'));
+    near(full.container.left, (await edges(host(page, 'highlight-full'))).left);
+    expect(indented.container.left).toBeGreaterThan((await edges(host(page, 'single'))).left + 40);
+    near(full.text!.left - (await edges(host(page, 'highlight-full'))).left, indented.text!.left - (await edges(host(page, 'single'))).left);
+    await expect.poll(() => css(row(page, 'highlight-full', 'checkbox.ts'), 'background-color', '::after')).toBe(await resolveColor(page, T('selected-container-color')));
+  });
+
+  test('TRV-49: with expandable false every parent is shown open, no row keeps a chevron’s box or carries an expanded state, nothing toggles, the arrows step in and out', async ({ page }) => {
+    await mount(page, { fixtures: [...some('not-expandable'), raw('fixed', { label: 'Fixed', expandable: false }, SMALL)] });
+    await nameItems(page);
+    await watch(page);
+    for (const label of ['styles', 'test', 'tokens.css']) await expect(row(page, 'not-expandable', label)).toBeVisible();
+    expect(await css(row(page, 'not-expandable', 'src'), 'display', '::before')).toBe('none');
+    await expect(host(page, 'not-expandable').locator('[aria-expanded]')).toHaveCount(0);
+    await expect(host(page, 'not-expandable').locator('[role="group"]').first()).toBeAttached();
+    await row(page, 'fixed', 'Gamma').click();
+    expect(await events(page)).toEqual([]);
+    await row(page, 'fixed', 'Alpha').focus();
+    await page.keyboard.press('ArrowRight');
+    expect(await focused(page)).toBe('Apple');
+    await page.keyboard.press('ArrowLeft');
+    expect(await focused(page)).toBe('Alpha');
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('*');
+    expect(await events(page)).toEqual([]);
+    // Expandable again: each parent as its open says.
+    await host(page, 'fixed').evaluate((el) => el.removeAttribute('expandable'));
+    await expect.poll(() => row(page, 'fixed', 'Banana').evaluate((el) => el.checkVisibility())).toBe(false);
+    await expect(row(page, 'fixed', 'Alpha')).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('TRV-50: a cut label is shown whole in a tooltip after the show delay of a resting pointer and at once on keyboard focus, a rich one with its note; Escape hides it; a label that fits shows none', async ({ page }) => {
+    await mount(page, { fixtures: some('long-labels') });
+    await nameItems(page);
+    await rootTokens(page, { '--tanrei-comp-tooltip-motion-show-delay': '50ms', '--tanrei-comp-tooltip-motion-hide-delay': '50ms' });
+    const tip = host(page, 'long-labels').locator('tanrei-tooltip[data-tanrei-tip]');
+    const cutLabel = 'a-file-name-with-no-place-to-break-that-is-longer-than-the-tree-is-wide.generated.tokens.json';
+    await row(page, 'long-labels', cutLabel).hover();
+    await expect(tip).toHaveJSProperty('open', true);
+    expect(await tip.evaluate((el: HTMLElement & { text: string; variant: string }) => [el.text, el.variant])).toEqual([cutLabel, 'plain']);
+    await expect(tip).toHaveAttribute('aria-hidden', 'true');
+    await page.keyboard.press('Escape');
+    await expect(tip).toHaveJSProperty('open', false);
+    // A label with a note that is cut: a rich tooltip.
+    await row(page, 'long-labels', 'swiftui/Sources/Tanrei/Generated/TanreiTokens.swift').hover();
+    await expect(tip).toHaveJSProperty('open', true);
+    expect(await tip.evaluate((el: HTMLElement & { title: string; variant: string }) => [el.title, el.variant])).toEqual(['swiftui/Sources/Tanrei/Generated/TanreiTokens.swift', 'rich']);
+    // A label that fits: none.
+    await row(page, 'long-labels', 'packages').hover();
+    await expect(tip).toHaveJSProperty('open', false);
+    await page.waitForTimeout(150);
+    await expect(tip).toHaveJSProperty('open', false);
+    // Keyboard focus: at once.
+    await page.mouse.move(0, 0);
+    await row(page, 'long-labels', 'packages').focus();
+    await page.keyboard.press('ArrowDown');
+    await expect(tip).toHaveJSProperty('open', true);
+  });
+
+  test('TRV-52: in a multiple tree Shift with the arrows and Space selects a range from the anchor, shrinking as it goes back; Ctrl+Shift+End selects to the last row; Ctrl+A selects every row that can be chosen; a Shift-press selects a range; a disabled item keeps its state; each gesture emits one change', async ({ page }) => {
+    await mount(page, { fixtures: [raw('many', { label: 'Many', selection: 'multiple' }, SMALL)] });
+    await nameItems(page);
+    await watch(page);
+    const values = () => host(page, 'many').evaluate((el: HTMLElement & { values: string[] }) => [...el.values].sort());
+    await tabTo(page, row(page, 'many', 'Alpha'));
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Space');
+    expect(await values()).toEqual(['a1']);
+    await page.keyboard.press('Shift+ArrowDown');
+    await page.keyboard.press('Shift+ArrowDown');
+    expect(await values()).toEqual(['a1', 'a2', 'a2x']);
+    await page.keyboard.press('Shift+ArrowUp');
+    expect(await values()).toEqual(['a1', 'a2']);
+    expect((await events(page)).length).toBe(4);
+    // Shift+Space from the anchor (Apple) to a row further down: the disabled Avocado is passed over.
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Shift+Space');
+    expect(await values()).toEqual(['a1', 'a2', 'a2x', 'b']);
+    await expect(row(page, 'many', 'Avocado')).not.toHaveAttribute('aria-selected', 'true');
+    // Ctrl+Shift+End: from the focused row to the last.
+    await page.keyboard.press(`${process.platform === 'darwin' ? 'Meta' : 'Control'}+Shift+End`);
+    expect(await values()).toEqual(['a1', 'a2', 'a2x', 'b', 'd']);
+    expect(await focused(page)).toBe('Epsilon');
+    await events(page);
+    // Ctrl+A: every row that can be chosen; one change.
+    await host(page, 'many').evaluate((el: HTMLElement & { values: string[] }) => (el.values = []));
+    await page.keyboard.press(`${process.platform === 'darwin' ? 'Meta' : 'Control'}+a`);
+    expect(await values()).toEqual(['a', 'a1', 'a2', 'a2x', 'b', 'd']);
+    expect((await events(page)).length).toBe(1);
+    // A Shift-press: from the anchor to the pressed row.
+    await host(page, 'many').evaluate((el: HTMLElement & { values: string[] }) => (el.values = []));
+    await row(page, 'many', 'Apple').click();
+    await row(page, 'many', 'Beta').click({ modifiers: ['Shift'] });
+    expect(await values()).toEqual(['a1', 'a2', 'a2x', 'b']);
+    expect((await events(page)).length).toBe(2);
+  });
+
+  test('TRV-53: in a scrolling box the rows of the innermost open parents above the rows at the top are pinned there, one per level, stickyMax of them, a line under the last; a pinned parent still works; a focused row under them is scrolled below them; with stickyParents false nothing is pinned', async ({ page }) => {
+    await mount(page, { fixtures: [raw('tall', { label: 'Tall' }, deepList(5, 'L')), raw('flat', { label: 'Flat', stickyParents: false }, deepList(5, 'F'))] });
+    await nameItems(page);
+    await watch(page);
+    await page.addStyleTag({ content: `[data-fixture="tall"], [data-fixture="flat"] { block-size: 200px; overflow: auto; }` });
+    const box = page.locator('[data-fixture="tall"]');
+    // Scrolled so that the rows of the fifth level are at the top.
+    await box.evaluate((el) => {
+      const target = el.querySelector('li[data-t="L5-3"]')!;
+      el.scrollTop = target.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop;
+    });
+    const pinned = () => host(page, 'tall').evaluate((tree) => [...tree.querySelectorAll('[data-tanrei-pinned]')].map((row) => row.parentElement!.getAttribute('data-t')));
+    await expect.poll(pinned).toEqual(['L4', 'L5']);
+    const boxTop = await box.evaluate((el) => el.getBoundingClientRect().top + el.clientTop + Number.parseFloat(getComputedStyle(el).paddingTop));
+    const l4 = await edges(row(page, 'tall', 'L4'));
+    const l5 = await edges(row(page, 'tall', 'L5'));
+    near(l4.top, boxTop);
+    near(l5.top, l4.bottom);
+    await expect(row(page, 'tall', 'L5')).toHaveAttribute('data-tanrei-pinned', 'last');
+    // A row the keyboard reaches under the pinned rows is brought into view below them.
+    await row(page, 'tall', 'L5-3').focus();
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('ArrowUp');
+    expect(await focused(page)).toBe('L5-1');
+    near((await edges(row(page, 'tall', 'L5-1'))).top, l5.bottom, 1);
+    // stickyMax 3: the second level's row too.
+    await host(page, 'tall').evaluate((el) => el.setAttribute('sticky-max', '3'));
+    await box.evaluate((el) => (el.scrollTop += 1));
+    await expect.poll(pinned).toEqual(['L3', 'L4', 'L5']);
+    // A pinned parent works: a press on it closes it.
+    await row(page, 'tall', 'L5').click();
+    expect(await events(page)).toEqual(['toggle:L5:false']);
+    await settled(page);
+    // Nothing pinned without stickyParents.
+    await page.locator('[data-fixture="flat"]').evaluate((el) => (el.scrollTop = 400));
+    await page.waitForTimeout(100);
+    await expect(host(page, 'flat').locator('[data-tanrei-pinned]')).toHaveCount(0);
+  });
+});
+
+/** A list nested `depth` levels deep, every level open, five items a level, the first of each holding the next. */
+function deepList(depth: number, prefix: string): string {
+  const level = (n: number): string => {
+    const items = [1, 2, 3, 4, 5].map((i) => (i === 1 && n < depth ? `<li data-open><span><bdi>${prefix}${n + 1}</bdi></span>${level(n + 1)}</li>` : `<li><span><bdi>${prefix}${n}-${i}</bdi></span></li>`));
+    return `<ul>${items.join('')}</ul>`;
+  };
+  return `<ul><li data-open><span><bdi>${prefix}1</bdi></span>${level(1)}</li></ul>`;
+}
+
+test.describe('editing in place', () => {
+  /** Every `rename` and `create` on the page, in order. */
+  const watchEdits = (page: P) =>
+    page.evaluate(() => {
+      const w = window as unknown as { __edits: string[] };
+      w.__edits = [];
+      document.addEventListener('rename', (event) => {
+        const d = (event as CustomEvent<{ label: string; previous: string }>).detail;
+        w.__edits.push(`rename:${(event.target as Element).getAttribute('data-t')}:${d.label}:${d.previous}`);
+      });
+      document.addEventListener('create', (event) => {
+        const d = (event as CustomEvent<{ label: string; parent: boolean; within: Element | null; after: Element | null }>).detail;
+        w.__edits.push(`create:${d.label}:${d.parent}:${d.within?.getAttribute('data-t') ?? null}:${d.after?.getAttribute('data-t') ?? null}`);
+      });
+    });
+  const edits = (page: P) => page.evaluate(() => (window as unknown as { __edits: string[] }).__edits.splice(0));
+  const field = (page: P, id: string) => host(page, id).locator('tanrei-embedded-text-input');
+  /** The native input of the open field, and what of it is selected. */
+  const typed = (page: P, id: string) =>
+    field(page, id).evaluate((el) => {
+      const input = el.shadowRoot!.querySelector('input')!;
+      return { value: input.value, selected: input.value.slice(input.selectionStart ?? 0, input.selectionEnd ?? 0), focused: el.shadowRoot!.activeElement === input, name: input.getAttribute('aria-label') };
+    });
+  const editable = (props: Fixture['props']) => ({ editable: true, editLabel: 'Name', ...props });
+
+  test('TRV-45: while editable, a double-click on a row’s label, F2 on a focused row and edit() each open the field on its name; not on a disabled item or one whose label is inline content; while not editable none of them does', async ({ page }) => {
+    const inline = '<ul><li data-value="x"><span><span><code>x</code> code</span></span></li><li data-value="y"><span>Yankee</span></li></ul>';
+    await mount(page, { fixtures: [raw('small', editable({ label: 'Small', selection: 'single' }), SMALL), raw('fixed', { label: 'Fixed', selection: 'single' }, SMALL), raw('inline', editable({ label: 'Inline' }), inline)] });
+    await nameItems(page);
+    await watch(page);
+    // A double-click on the label: the two presses are answered as presses (one change), then the field opens.
+    const onText = async (id: string, label: string) => {
+      await row(page, id, label).scrollIntoViewIfNeeded();
+      const text = (await drawn(row(page, id, label))).text!;
+      await page.mouse.dblclick((text.left + text.right) / 2, (text.top + text.bottom) / 2);
+    };
+    await onText('small', 'Delta');
+    await expect(field(page, 'small')).toHaveCount(1);
+    expect(await events(page)).toEqual(['change:{"value":"d"}']);
+    await page.keyboard.press('Escape');
+    await expect(field(page, 'small')).toHaveCount(0);
+    // F2 on the focused row.
+    expect(await focused(page)).toBe('Delta');
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('F2');
+    await expect(field(page, 'small')).toHaveCount(1);
+    await expect(row(page, 'small', 'Gamma')).toHaveAttribute('data-tanrei-editing', '');
+    await page.keyboard.press('Escape');
+    // The method.
+    expect(await host(page, 'small').evaluate((tree: HTMLElement & { edit(li: Element): boolean }) => tree.edit(tree.querySelector('li[data-t="Apple"]')!))).toBe(true);
+    await expect(row(page, 'small', 'Apple')).toHaveAttribute('data-tanrei-editing', '');
+    await page.keyboard.press('Escape');
+    // Not on a disabled item, nor on a label of inline content.
+    expect(await host(page, 'small').evaluate((tree: HTMLElement & { edit(li: Element): boolean }) => tree.edit(tree.querySelector('li[data-t="Avocado"]')!))).toBe(false);
+    await row(page, 'small', 'Avocado').focus();
+    await page.keyboard.press('F2');
+    await expect(field(page, 'small')).toHaveCount(0);
+    expect(await host(page, 'inline').evaluate((tree: HTMLElement & { edit(li: Element): boolean }) => tree.edit(tree.querySelector('li[data-value="x"]')!))).toBe(false);
+    expect(await host(page, 'inline').evaluate((tree: HTMLElement & { edit(li: Element): boolean }) => tree.edit(tree.querySelector('li[data-value="y"]')!))).toBe(true);
+    await page.keyboard.press('Escape');
+    // Not editable: none of the three.
+    await onText('fixed', 'Delta');
+    await page.keyboard.press('F2');
+    expect(await host(page, 'fixed').evaluate((tree: HTMLElement & { edit(li: Element): boolean }) => tree.edit(tree.querySelector('li[data-t="Apple"]')!))).toBe(false);
+    await expect(field(page, 'fixed')).toHaveCount(0);
+  });
+
+  test('TRV-46, TRV-47: the field holds the label in the label’s text style with the name before its extension selected and the focus indicator around it; Enter emits one rename and keeps the old label drawn, focus back on the row; Escape and an empty or unchanged name emit nothing; leaving the field commits; the tree’s keys are the field’s; the selection and every open stay', async ({ page }) => {
+    const files = '<ul><li data-value="src" data-open><span>src</span><ul><li data-value="button.ts"><span>button.ts</span></li><li data-value=".env"><span>.env</span></li></ul></li><li data-value="readme"><span>README</span></li></ul>';
+    await mount(page, { fixtures: [raw('files', editable({ label: 'Files', selection: 'single', value: 'readme' }), files), raw('nameless', { label: 'Nameless', editable: true }, files)] });
+    await nameItems(page);
+    await watch(page);
+    await watchEdits(page);
+    const tree = host(page, 'files');
+    const edit = (label: string) => tree.evaluate((el: HTMLElement & { edit(li: Element): boolean }, l) => el.edit(el.querySelector(`li[data-t="${l}"]`)!), label);
+    await edit('button.ts');
+    await expect.poll(async () => (await typed(page, 'files')).focused).toBe(true);
+    const open = await typed(page, 'files');
+    expect(open).toMatchObject({ value: 'button.ts', selected: 'button', name: 'Name' });
+    // The label's text style, over the label's first line; the focus indicator around the field's box.
+    const input = field(page, 'files');
+    const inner = input.evaluate((el) => {
+      const s = getComputedStyle(el.shadowRoot!.querySelector('input')!);
+      return { size: s.fontSize, family: s.fontFamily };
+    });
+    expect((await inner).size).toBe(await css(row(page, 'files', 'button.ts'), 'font-size'));
+    expect(unquoted((await inner).family)).toBe(unquoted(await css(row(page, 'files', 'button.ts'), 'font-family')));
+    expect(await css(host(page, 'files').locator('[data-tanrei-edit]'), 'box-shadow')).toContain(await resolveColor(page, '--tanrei-sys-color-focus-ring'));
+    // The tree's keys are the field's: the arrows move the caret, type-ahead types.
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.type('x');
+    expect((await typed(page, 'files')).value).toBe('buttonx.ts');
+    expect(await focused(page)).toBe('tanrei-embedded-text-input');
+    await page.keyboard.press('Control+A');
+    await page.keyboard.press('Meta+A');
+    await page.keyboard.type('  toggle.ts ');
+    await page.keyboard.press('Enter');
+    expect(await edits(page)).toEqual(['rename:button.ts:toggle.ts:button.ts']);
+    await expect(input).toHaveCount(0);
+    expect(await focused(page)).toBe('button.ts');
+    // The tree changed no label, no selection and no open.
+    await expect(row(page, 'files', 'button.ts')).toHaveText('button.ts');
+    expect(await events(page)).toEqual([]);
+    await expect(row(page, 'files', 'README')).toHaveAttribute('aria-selected', 'true');
+    // A label the product sets in answer is drawn at once.
+    await item(page, 'files', 'button.ts').evaluate((li) => (li.firstElementChild!.textContent = 'toggle.ts'));
+    await expect(row(page, 'files', 'button.ts')).toHaveText('toggle.ts');
+    // A name without an extension (a dot first is no extension): the whole label is selected.
+    await edit('.env');
+    await expect.poll(async () => (await typed(page, 'files')).selected).toBe('.env');
+    // Escape gives nothing; focus back on the row.
+    await page.keyboard.type('other');
+    await page.keyboard.press('Escape');
+    expect(await edits(page)).toEqual([]);
+    expect(await focused(page)).toBe('.env');
+    // White space alone, and the same name, give nothing.
+    await page.keyboard.press('F2');
+    await expect.poll(async () => (await typed(page, 'files')).focused).toBe(true);
+    await page.keyboard.type('   ');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('F2');
+    await expect.poll(async () => (await typed(page, 'files')).focused).toBe(true);
+    await page.keyboard.press('Enter');
+    expect(await edits(page)).toEqual([]);
+    // Leaving the field by a press elsewhere gives the name, and focus stays where it went.
+    await edit('README');
+    await expect.poll(async () => (await typed(page, 'files')).focused).toBe(true);
+    await page.keyboard.type('NOTES');
+    await page.mouse.click(2, 2);
+    expect(await edits(page)).toEqual(['rename:README:NOTES:README']);
+    await expect(input).toHaveCount(0);
+    // A parent that closes around the field closes it, giving nothing.
+    await edit('.env');
+    await expect.poll(async () => (await typed(page, 'files')).focused).toBe(true);
+    await item(page, 'files', 'src').evaluate((li) => li.removeAttribute('data-open'));
+    await expect(input).toHaveCount(0);
+    expect(await edits(page)).toEqual([]);
+    // TRV-32: without the product's words the field still opens, and a debug build says it has no name.
+    await host(page, 'nameless').evaluate((el: HTMLElement & { edit(li: Element): boolean }) => el.edit(el.querySelector('li[data-t="README"]')!));
+    await expect(field(page, 'nameless')).toHaveCount(1);
+    await expect.poll(() => missingWords(page)).toContain('editLabel');
+  });
+
+  test('TRV-46: opening and closing the field moves nothing — the row, its neighbours and the text stand where they stood, to a pixel, in both densities', async ({ page }) => {
+    await mount(page, { fixtures: [raw('still', editable({ label: 'Still', selection: 'single' }), SMALL), raw('still-compact', editable({ label: 'Still', density: 'compact' }), SMALL)] });
+    await nameItems(page);
+    for (const id of ['still', 'still-compact']) {
+      const boxes = () => host(page, id).evaluate((tree) => [...tree.querySelectorAll('li > :first-child')].map((row) => row.getBoundingClientRect().toJSON() as DOMRect));
+      const textAt = () =>
+        row(page, id, 'Apple').evaluate((el) => {
+          const range = document.createRange();
+          const input = el.querySelector('tanrei-embedded-text-input')?.shadowRoot?.querySelector('input');
+          if (input) return { left: input.getBoundingClientRect().left, top: input.getBoundingClientRect().top + (input.getBoundingClientRect().height - Number.parseFloat(getComputedStyle(input).lineHeight)) / 2 };
+          range.selectNodeContents(el.firstChild!);
+          const rect = range.getBoundingClientRect();
+          return { left: rect.left, top: rect.top + (rect.height - Number.parseFloat(getComputedStyle(el).lineHeight)) / 2 };
+        });
+      const before = await boxes();
+      const text = await textAt();
+      await host(page, id).evaluate((el: HTMLElement & { edit(li: Element): boolean }) => el.edit(el.querySelector('li[data-t="Apple"]')!));
+      await expect(field(page, id)).toHaveCount(1);
+      const open = await boxes();
+      for (const [index, box] of before.entries()) {
+        near(open[index].top, box.top, 0.5);
+        near(open[index].height, box.height, 0.5);
+      }
+      const inField = await textAt();
+      near(inField.left, text.left, 1);
+      near(inField.top, text.top, 1);
+      await page.keyboard.press('Escape');
+      const closed = await boxes();
+      for (const [index, box] of before.entries()) near(closed[index].top, box.top, 0.5);
+    }
+  });
+
+  test('TRV-48: create() adds a new row after the selected item at its level, with an empty focused field; a name emits one create and takes the row away, and an item the product adds takes the focus; Escape and an empty name leave nothing; with no selection and no focus the row is the last of the first level; a new item is asked for whatever editable says', async ({ page }) => {
+    await mount(page, { fixtures: [some('single')[0], raw('plain', { label: 'Plain' }, SMALL)] });
+    await nameItems(page);
+    await watch(page);
+    await watchEdits(page);
+    const id = 'single';
+    const ask = (which: string, options: object) => host(page, which).evaluate((el: HTMLElement & { create(o: object): boolean }, o) => el.create(o), options);
+    // The product adds what it is told, in the place it is told.
+    await host(page, id).evaluate((tree) =>
+      tree.addEventListener('create', (event) => {
+        const d = (event as CustomEvent<{ label: string; after: Element | null }>).detail;
+        const li = document.createElement('li');
+        li.setAttribute('data-value', d.label);
+        li.setAttribute('data-t', d.label);
+        li.innerHTML = `<span>${d.label}</span>`;
+        d.after!.after(li);
+      }),
+    );
+    expect(await ask(id, { icon: 'draft' })).toBe(true);
+    const fresh = host(page, id).locator('li[data-tanrei-new]');
+    await expect(fresh).toHaveCount(1);
+    // After checkbox.ts (the selected item), at its level, with the glyph named.
+    expect(await fresh.evaluate((li) => li.previousElementSibling?.getAttribute('data-t'))).toBe('checkbox.ts');
+    near((await edges(fresh.locator('> span'))).left, (await edges(row(page, id, 'checkbox.ts'))).left);
+    expect(await fresh.locator('.tanrei-icon').textContent()).toBe('draft');
+    await expect.poll(async () => (await typed(page, id)).focused).toBe(true);
+    expect((await typed(page, id)).value).toBe('');
+    // Not an item: the tree's rows are what they were.
+    await expect(fresh.locator('> span')).toHaveAttribute('role', 'treeitem');
+    await page.keyboard.type('switch.ts');
+    await page.keyboard.press('Enter');
+    expect(await edits(page)).toEqual(['create:switch.ts:false:components:checkbox.ts']);
+    await expect(fresh).toHaveCount(0);
+    expect(await focused(page)).toBe('switch.ts');
+    expect(await events(page)).toEqual([]);
+    // A parent: a closed chevron in its row. Escape leaves nothing and focus goes back.
+    expect(await ask(id, { parent: true })).toBe(true);
+    expect((await drawn(fresh.locator('> span'))).chevron.content).toContain('chevron_right');
+    await expect.poll(async () => (await typed(page, id)).focused).toBe(true);
+    await page.keyboard.type('folder');
+    await page.keyboard.press('Escape');
+    await expect(fresh).toHaveCount(0);
+    expect(await edits(page)).toEqual([]);
+    expect(await focused(page)).toBe('switch.ts');
+    // An empty name leaves nothing.
+    await ask(id, {});
+    await expect.poll(async () => (await typed(page, id)).focused).toBe(true);
+    await page.keyboard.press('Enter');
+    await expect(fresh).toHaveCount(0);
+    expect(await edits(page)).toEqual([]);
+    // No selection and no focus: the last row of the first level. (The tree is not editable.)
+    expect(await ask('plain', {})).toBe(true);
+    expect(await host(page, 'plain').locator('li[data-tanrei-new]').evaluate((li) => [li.parentElement!.parentElement!.localName, li.previousElementSibling?.getAttribute('data-t')])).toEqual(['tanrei-tree-view', 'Epsilon']);
+    await expect.poll(async () => (await typed(page, 'plain')).focused).toBe(true);
+    await page.keyboard.type('Zeta');
+    await page.keyboard.press('Enter');
+    expect(await edits(page)).toEqual(['create:Zeta:false:null:Epsilon']);
+    await expect(host(page, 'plain').locator('li[data-tanrei-new]')).toHaveCount(0);
+  });
+});
+
 test.describe('before the element is defined, without script, in a shadow root', () => {
   test('TRV-1, TRV-9: the stylesheet alone draws the whole look — the indent, the chevrons and their turn, closed rows not shown, the guides, the room of a loading row — and nothing moves when the element is defined', async ({ page }) => {
     const fixtures = some('all-parts', 'compact-guides', 'disabled', 'loading', 'deep', 'rtl', 'long-labels', 'studio-tokens');
@@ -1964,7 +2528,7 @@ test.describe('before the element is defined, without script, in a shadow root',
     expect(src.chevron.content).toContain('chevron_right');
     expect(src.chevron.rotate).toBe('90deg');
     expect((await drawn(row(page, 'all-parts', 'components'))).chevron.rotate).toBe('none');
-    near((await drawn(row(page, 'all-parts', 'index.ts'))).container.left, src.container.left + (await resolveToken(page, T('level-indent-regular'))));
+    near((await drawn(row(page, 'all-parts', 'index.ts'))).container.left + (await resolveToken(page, T('container-padding-inline-regular'))), src.text!.left);
     expect(await row(page, 'all-parts', 'button.ts').evaluate((el) => el.checkVisibility())).toBe(false);
     expect(await css(row(page, 'disabled', 'typeface'), 'color')).toBe(await resolveColor(page, T('unselected-disabled-label-color')));
     expect(await item(page, 'compact-guides', 'src').locator('> ul').evaluate((list) => getComputedStyle(list, '::before').content)).not.toBe('none');
@@ -2026,8 +2590,8 @@ test.describe('before the element is defined, without script, in a shadow root',
     await expect.poll(() => css(inner.locator('li').first().locator('> span'), 'display')).toBe('grid');
     const first = inner.locator('li').first().locator('> span');
     expect((await edges(first)).height).toBe(48);
-    expect(await css(inner.locator('li[data-value="a1"] > span'), 'background-color', '::after')).toBe(await resolveColor(page, T('selected-container-color')));
-    near(Number.parseFloat(await css(inner.locator('li[data-value="a1"] > span'), 'left', '::after')), await resolveToken(page, T('level-indent-regular')));
+    await expect.poll(() => css(inner.locator('li[data-value="a1"] > span'), 'background-color', '::after')).toBe(await resolveColor(page, T('selected-container-color')));
+    near(Number.parseFloat(await css(inner.locator('li[data-value="a1"] > span'), 'left', '::after')), (await resolveToken(page, T('chevron-size-regular'))) + (await resolveToken(page, T('container-gap-regular'))));
     // Read in the task of the click, after the element has answered it (as TRV-11's turn is): asked for afterwards, the
     // motion may be over before a slow runner's answer.
     await inner.locator('li[data-value="b"] > ul').evaluate((el) => {

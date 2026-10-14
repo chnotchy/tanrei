@@ -25298,11 +25298,15 @@ class TanreiTreeViewTokens {
     required this.containerShape,
     required this.guideColor,
     required this.guideWidth,
+    required this.iconGap,
     required this.motionDisclosureDuration,
     required this.motionDisclosureEasing,
     required this.motionFeedbackDuration,
     required this.motionStateDuration,
     required this.motionStateEasing,
+    required this.stickyContainerColor,
+    required this.stickyDividerColor,
+    required this.stickyDividerWidth,
     required this.supportingTextTypescale,
     required this.trailingTextTypescale,
     required this.conditions,
@@ -25319,6 +25323,8 @@ class TanreiTreeViewTokens {
   final TanreiPaint guideColor;
   /// `comp.tree-view.guide-width`
   final double guideWidth;
+  /// `comp.tree-view.icon-gap`
+  final double iconGap;
   /// `comp.tree-view.motion-disclosure-duration`
   final int motionDisclosureDuration;
   /// `comp.tree-view.motion-disclosure-easing`
@@ -25329,6 +25335,12 @@ class TanreiTreeViewTokens {
   final int motionStateDuration;
   /// `comp.tree-view.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
+  /// `comp.tree-view.sticky-container-color`
+  final TanreiPaint stickyContainerColor;
+  /// `comp.tree-view.sticky-divider-color`
+  final TanreiPaint stickyDividerColor;
+  /// `comp.tree-view.sticky-divider-width`
+  final double stickyDividerWidth;
   /// `comp.tree-view.supporting-text-typescale`
   final TanreiTextStyle supportingTextTypescale;
   /// `comp.tree-view.trailing-text-typescale`
@@ -25351,11 +25363,15 @@ class TanreiTreeViewTokens {
     double? containerShape,
     TanreiPaint? guideColor,
     double? guideWidth,
+    double? iconGap,
     int? motionDisclosureDuration,
     TanreiCubicBezier? motionDisclosureEasing,
     int? motionFeedbackDuration,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
+    TanreiPaint? stickyContainerColor,
+    TanreiPaint? stickyDividerColor,
+    double? stickyDividerWidth,
     TanreiTextStyle? supportingTextTypescale,
     TanreiTextStyle? trailingTextTypescale,
     TanreiTreeViewConditions? conditions,
@@ -25368,11 +25384,15 @@ class TanreiTreeViewTokens {
         containerShape: containerShape ?? this.containerShape,
         guideColor: guideColor ?? this.guideColor,
         guideWidth: guideWidth ?? this.guideWidth,
+        iconGap: iconGap ?? this.iconGap,
         motionDisclosureDuration: motionDisclosureDuration ?? this.motionDisclosureDuration,
         motionDisclosureEasing: motionDisclosureEasing ?? this.motionDisclosureEasing,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        stickyContainerColor: stickyContainerColor ?? this.stickyContainerColor,
+        stickyDividerColor: stickyDividerColor ?? this.stickyDividerColor,
+        stickyDividerWidth: stickyDividerWidth ?? this.stickyDividerWidth,
         supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
         trailingTextTypescale: trailingTextTypescale ?? this.trailingTextTypescale,
         conditions: conditions ?? this.conditions,

@@ -38,7 +38,13 @@
  *
  *   <span><bdi>tokens/</bdi><small data-supporting-text>source of truth</small></span>
  *
- * Attributes of the item: `data-value`, `data-open`, `data-expandable`, `data-loading`, `data-disabled`.
+ * Attributes of the item: `data-value`, `data-open`, `data-expandable`, `data-loading`, `data-disabled`. A parent's
+ * `.tanrei-icon` may name the glyph it shows while open in `data-open-icon` (TRV-5), and `data-supporting-position=
+ * "inline"` puts its supporting text after its label (TRV-7). Attributes of the tree that this stylesheet reads:
+ * `density`, `chevron` (start, end, none: TRV-4, TRV-44), `expandable="false"` (TRV-49), `guides` (shown — the bare
+ * attribute too — or hover: TRV-8), `icon-space` (TRV-43), `highlight` (TRV-51), `label-wrap` and `supporting-wrap`
+ * (TRV-6, TRV-7). A product's `indent` and `icon-gap` are lengths the element writes as `--_trv-indent-own` and
+ * `--_trv-icon-gap-own` on the tree (TRV-3, TRV-2), and `data-tanrei-flat` where the step is 0 (no guides, TRV-8).
  *
  * This stylesheet draws everything, before the element is defined (an element that is not yet defined is still an
  * element), and where script does not run every level is shown and no chevron is drawn: a nested list in the tree's
@@ -53,6 +59,12 @@
  *   data-tanrei-at-once (on an li)         this change of open is drawn without motion (TRV-9, TRV-14, TRV-42)
  *   hidden="until-found" (on a list)       a closed list the browser's find-in-page may still search (TRV-14)
  *   li[data-tanrei-loading]                the loading row, the last item of a loading parent's list (TRV-13)
+ *   li[data-tanrei-new]                    a new row, while a new item is named in it (TRV-48)
+ *   data-tanrei-pinned (on a row)          pinned at the top of the scrolling box, `last` under the others, at
+ *                                          `--_trv-pin-top` (TRV-53)
+ *   [data-tanrei-tip] (in a row)           the tooltip of a cut label or note, over the text (TRV-50)
+ *   data-tanrei-editing (on a row)         its label gives its place to an edit field (TRV-46)
+ *   [data-tanrei-edit] (in a row)          the edit field's box, around a <tanrei-embedded-text-input> (TRV-46)
  *
  * Every value is a `--tanrei-comp-tree-view-*` token, or the system's focus, target and icon tokens.
  *
@@ -104,13 +116,22 @@
     --_trv-indent: var(--tanrei-comp-tree-view-level-indent-regular);
     --_trv-label-font: var(--tanrei-comp-tree-view-label-typescale-regular-font);
     --_trv-label-tracking: var(--tanrei-comp-tree-view-label-typescale-regular-letter-spacing);
+    --_trv-label-size: var(--tanrei-comp-tree-view-label-typescale-regular-font-size);
+    --_trv-label-line: var(--tanrei-comp-tree-view-label-typescale-regular-line-height);
     --_trv-icon-size: var(--tanrei-comp-tree-view-icon-size-regular);
     --_trv-chevron-size: var(--tanrei-comp-tree-view-chevron-size-regular);
+    /* TRV-2: the room between the icon and the label — the token, which no density changes, or the product's iconGap
+       (written by the element as `--_trv-icon-gap-own`). */
+    --_trv-icon-gap: var(--_trv-icon-gap-own, var(--tanrei-comp-tree-view-icon-gap));
+    /* TRV-4: whether a chevron's box stands at the start (1 or 0), and at the end. */
+    --_trv-cs: 1;
+    --_trv-ce: 0;
     /* TRV-26: for a fine pointer a regular row is at least the pointer target high. */
     --_trv-min: max(var(--_trv-height), var(--tanrei-sys-target-pointer));
     --_trv-target: var(--tanrei-sys-target-pointer);
-    /* TRV-3: the first level begins at the tree's start edge. */
-    --_trv-from: calc(var(--_trv-indent) * -1);
+    /* TRV-3: the first level begins at the tree's start edge: no step before it. */
+    --_trv-from: 0px;
+    --_trv-step: 0px;
     /* TRV-36, TRV-39: start as a side, by the layout direction — not by a text's own. */
     --_trv-start: left;
     /* The space after the chevron's box, and around the icon after it: by side, because a glyph's own box is
@@ -126,10 +147,26 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    /* TRV-34: a row too deep for the room half of the width leaves it (its glyphs keep their size) is cut at the
+       tree's edge rather than making the page scroll sideways. (clip: no scrolling box, so pinned rows still stick to
+       the product's.) */
+    overflow-x: clip;
     /* Where the element reads two lengths as the cascade computes them (a token is an expression; a property computes
        it): the indent of one level (TRV-3) and the least width of a chevron's own hit area (TRV-26). The property
        draws nothing here: it places the content of a replaced element, and the tree is not one. */
     object-position: var(--_trv-indent) var(--_trv-target);
+    /* TRV-50: the tooltip's waits, read by the element through a transition that names a property never set: its
+       delay is the show delay and its duration the hide delay. */
+    transition: --_trv-tip var(--tanrei-comp-tooltip-motion-hide-delay) linear var(--tanrei-comp-tooltip-motion-show-delay);
+  }
+  /* TRV-4, TRV-44, TRV-49: the chevron at the end, or none. */
+  :where(tanrei-tree-view[chevron='end']) {
+    --_trv-cs: 0;
+    --_trv-ce: 1;
+  }
+  :where(tanrei-tree-view[chevron='none'], tanrei-tree-view[expandable='false']) {
+    --_trv-cs: 0;
+    --_trv-ce: 0;
   }
   :where(tanrei-tree-view[hidden]) {
     display: none;
@@ -151,6 +188,8 @@
     --_trv-indent: var(--tanrei-comp-tree-view-level-indent-compact);
     --_trv-label-font: var(--tanrei-comp-tree-view-label-typescale-compact-font);
     --_trv-label-tracking: var(--tanrei-comp-tree-view-label-typescale-compact-letter-spacing);
+    --_trv-label-size: var(--tanrei-comp-tree-view-label-typescale-compact-font-size);
+    --_trv-label-line: var(--tanrei-comp-tree-view-label-typescale-compact-line-height);
     --_trv-icon-size: var(--tanrei-comp-tree-view-icon-size-compact);
     --_trv-chevron-size: var(--tanrei-comp-tree-view-chevron-size-compact);
     /* TRV-26: the one place where a row is lower than the pointer target. */
@@ -166,7 +205,10 @@
 
   /* ── The lists and the items (TRV-1, TRV-3): no marker, no space; each list one indent further in ───────────── */
   :where(tanrei-tree-view) :where(ul, ol) {
-    --_trv-in: calc(var(--_trv-from) + var(--_trv-indent));
+    /* (The step is its item's: the parent's lead, or the product's number.) */
+    --_trv-in: calc(var(--_trv-from) + var(--_trv-step));
+    /* TRV-43: whether the rows of this level keep an icon's room where they have no icon. */
+    --_trv-reserve: 0;
     display: block;
     box-sizing: border-box;
     margin: 0;
@@ -178,24 +220,43 @@
   }
   :where(tanrei-tree-view) :where(li) {
     --_trv-from: var(--_trv-in);
-    /* TRV-3: where this level's rows begin — never past half of the tree's width. (A percentage: of the tree's
-       width wherever it is read, because every box it is read in is as wide as the tree.) */
-    --_trv-at: min(var(--_trv-in), 50%);
+    /* TRV-3, TRV-43: what this item's row holds before its label — the chevron's box and its gap at the start, and
+       the icon (or its kept room) and the icon gap — is the step of the items it holds while indent is auto; a row
+       that holds nothing before its label steps its items in by the density's level.indent token. */
+    --_trv-has-icon: 0;
+    --_trv-room: max(var(--_trv-has-icon), var(--_trv-reserve));
+    --_trv-lead-li: calc(var(--_trv-cs) * (var(--_trv-chevron-size) + var(--_trv-gap)) + var(--_trv-room) * (var(--_trv-icon-size) + var(--_trv-icon-gap)));
+    /* TRV-3: where this level's rows begin — never so far in that the label begins past half of the tree's width. (A
+       percentage: of the tree's width wherever it is read, because every box it is read in is as wide as the tree.) */
+    --_trv-at: max(0px, min(var(--_trv-in), 50% - var(--_trv-pad-inline) - var(--_trv-lead-li)));
+    --_trv-step: var(--_trv-indent-own, calc(var(--_trv-lead-li) + (1 - var(--_trv-cs)) * (1 - var(--_trv-room)) * var(--_trv-indent)));
+    /* TRV-8: the middle of the row's first leading thing, from its content's start: the chevron at the start; else
+       the icon; else the label's start. */
+    --_trv-guide-x: calc(var(--_trv-cs) * var(--_trv-chevron-size) / 2 + (1 - var(--_trv-cs)) * (var(--_trv-has-icon) * var(--_trv-icon-size) / 2 + (1 - var(--_trv-has-icon)) * var(--_trv-reserve) * (var(--_trv-icon-size) + var(--_trv-icon-gap))));
     display: block;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
-  /* The deepest level that still fits in half of the width, where the browser can round to a step. */
-  @supports (inline-size: round(down, 50%, 1px)) {
-    :where(tanrei-tree-view) :where(li) {
-      --_trv-at: min(var(--_trv-in), round(down, 50%, var(--_trv-indent)));
-    }
+  /* (Asked of the item for itself: whether its row holds an icon.) */
+  :where(tanrei-tree-view) :where(li:has(> :first-child:not(ul, ol) > .tanrei-icon)) {
+    --_trv-has-icon: 1;
+  }
+  /* TRV-43: iconSpace — auto keeps the room in a level where any row has an icon; always in every level; never in none.
+     (Asked of the list for itself.) */
+  :where(tanrei-tree-view:not([icon-space='never'])) :where(ul:has(> li > :first-child:not(ul, ol) > .tanrei-icon), ol:has(> li > :first-child:not(ul, ol) > .tanrei-icon)) {
+    --_trv-reserve: 1;
+  }
+  :where(tanrei-tree-view[icon-space='always']) :where(ul, ol) {
+    --_trv-reserve: 1;
   }
 
   /* ── Open and closed (TRV-9): a closed parent's rows are not drawn and take no space ────────────────────────── */
   :where(tanrei-tree-view) :where(li:not([data-open])) > :where(ul, ol) {
     display: none;
+  }
+  :where(tanrei-tree-view[expandable='false']) :where(li) > :where(ul, ol) {
+    display: block;
   }
   /* TRV-14: closed, and still searched by the browser's find-in-page (written by the element where the browser can). */
   :where(tanrei-tree-view) :where(li:not([data-open])) > :where(ul[hidden='until-found'], ol[hidden='until-found']) {
@@ -215,19 +276,27 @@
     block-size: var(--_trv-min);
   }
 
-  /* ── The guides (TRV-8): one hairline under an open parent's chevron, beside the rows it holds ──────────────── */
-  :where(tanrei-tree-view[guides]) :where(li) > :where(ul, ol) {
+  /* ── The guides (TRV-8): one hairline under an open parent's first leading thing, beside the rows it holds ───── */
+  :where(tanrei-tree-view[guides]:not([guides='none'], [guides='false'], [data-tanrei-flat])) :where(li) > :where(ul, ol) {
     position: relative;
   }
-  :where(tanrei-tree-view[guides]) :where(li) > :where(ul, ol)::before {
+  :where(tanrei-tree-view[guides]:not([guides='none'], [guides='false'], [data-tanrei-flat])) :where(li) > :where(ul, ol)::before {
     content: '';
     position: absolute;
     z-index: 1;
     inset-block: 0;
-    /* (The list inherits where ITS item's row begins: the line stands under that row's chevron.) */
-    inset-inline-start: calc(var(--_trv-at) + var(--_trv-pad-inline) + (var(--_trv-chevron-size) - var(--tanrei-comp-tree-view-guide-width)) / 2);
+    /* (The list inherits where ITS item's row begins, and the middle of that row's first leading thing.) */
+    inset-inline-start: calc(var(--_trv-at) + var(--_trv-pad-inline) + var(--_trv-guide-x) - var(--tanrei-comp-tree-view-guide-width) / 2);
     border-inline-start: var(--tanrei-comp-tree-view-guide-width) solid var(--_trv-guide-color);
     pointer-events: none;
+  }
+  /* guides hover: drawn while a pointer is over the tree or focus is in it, faded in and out. */
+  :where(tanrei-tree-view[guides='hover']) :where(li) > :where(ul, ol)::before {
+    opacity: 0;
+    transition: opacity var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing);
+  }
+  :where(tanrei-tree-view[guides='hover']:is(:hover, :focus-within)) :where(li) > :where(ul, ol)::before {
+    opacity: 1;
   }
 
   /* ── A row (TRV-2, TRV-3, TRV-26): the whole width; its container begins where its level does ───────────────── */
@@ -275,11 +344,14 @@
     position: relative;
     isolation: isolate;
     display: grid;
-    /* What stands before the text: the chevron's box and its gap (and the icon and its gap: below). */
-    --_trv-lead: calc(var(--_trv-chevron-size) + var(--_trv-gap));
+    /* What stands before the text: the chevron's box and its gap at the start, and the icon's kept room (TRV-43); a
+       row with an icon is as wide there as its icon makes it. */
+    --_trv-lead: calc(var(--_trv-cs) * (var(--_trv-chevron-size) + var(--_trv-gap)) + var(--_trv-reserve) * (var(--_trv-icon-size) + var(--_trv-icon-gap)));
+    /* TRV-51: where the container begins — the level's start, or the tree's start edge. */
+    --_trv-box: var(--_trv-at);
     /* TRV-7: the trailing text takes at most half of the width the chevron and the icon leave, so that the label
-       keeps at least as much as it takes. */
-    grid-template-columns: [lead] auto [text] minmax(0, 1fr) [trailing] auto [value] fit-content(calc((100% - var(--_trv-lead)) / 2));
+       keeps at least as much as it takes. TRV-4: an end chevron stands in the last column. */
+    grid-template-columns: [lead] minmax(var(--_trv-lead), auto) [text] minmax(0, 1fr) [trailing] auto [value] fit-content(calc((100% - var(--_trv-lead)) / 2)) [end] auto;
     align-content: center;
     align-items: start;
     box-sizing: border-box;
@@ -294,6 +366,7 @@
     color: var(--_trv-now-label);
     text-align: var(--_trv-start);
     overflow-wrap: anywhere;
+    /* TRV-50: the tooltip of a cut label stands over the text; its waits are the tree's (above). */
     unicode-bidi: plaintext;
     cursor: default;
     -webkit-tap-highlight-color: transparent;
@@ -304,9 +377,8 @@
       color var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing),
       opacity var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing);
   }
-  /* (Asked of the row for itself: whether it holds an icon.) */
-  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):has(> .tanrei-icon)) {
-    --_trv-lead: calc(var(--_trv-chevron-size) + var(--_trv-icon-size) + var(--_trv-gap) * 2);
+  :where(tanrei-tree-view[highlight='full']) :where(li) > :where(:first-child:not(ul, ol)) {
+    --_trv-box: 0px;
   }
   /* TRV-15: the selected condition, on the item's own row and on no other. */
   :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)[aria-selected='true']) {
@@ -353,7 +425,7 @@
     position: absolute;
     z-index: -1;
     inset: 0;
-    inset-inline-start: var(--_trv-at);
+    inset-inline-start: var(--_trv-box);
     box-sizing: border-box;
     background-color: var(--_trv-now-container);
     pointer-events: none;
@@ -418,11 +490,31 @@
   :where(tanrei-tree-view) :where(li[data-open]) > :where(:first-child:not(ul, ol))::before {
     rotate: var(--_trv-turn);
   }
+  /* At the end: the last column, a gap before it; expand_more, turned a half turn while open (the drawer's and the
+     accordion's mark), not mirrored. */
+  :where(tanrei-tree-view[chevron='end']:not([expandable='false'])) :where(li) > :where(:first-child:not(ul, ol))::before {
+    grid-column: end;
+    margin-left: var(--_trv-after-right);
+    margin-right: var(--_trv-after-left);
+    scale: none;
+  }
+  :where(tanrei-tree-view[chevron='end']:not([expandable='false'])) :where(li:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child))::before,
+  :where(tanrei-tree-view[chevron='end']:not([expandable='false'])) :where(li[data-expandable]) > :where(:first-child:not(ul, ol))::before {
+    content: 'expand_more';
+    content: 'expand_more' / '';
+  }
+  :where(tanrei-tree-view[chevron='end']:not([expandable='false'])) :where(li[data-open]) > :where(:first-child:not(ul, ol))::before {
+    rotate: 0.5turn;
+  }
+  /* None, and a tree that is not expandable: no chevron, no box (TRV-44, TRV-49). */
+  :where(tanrei-tree-view[chevron='none'], tanrei-tree-view[expandable='false']) :where(li) > :where(:first-child:not(ul, ol))::before {
+    display: none;
+  }
 
   /* ── The parts of a row (TRV-2): each on the label's first line ─────────────────────────────────────────────── */
   /* TRV-6: the product's own label — ONE element around text with inline content — in the label's place, style and
      color. TRV-39: text of its own direction. */
-  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where(:not(.tanrei-icon, [data-supporting-text], [data-trailing], [data-trailing-text], [data-tanrei-loading-box], .ripple)) {
+  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where(:not(.tanrei-icon, [data-supporting-text], [data-trailing], [data-trailing-text], [data-tanrei-loading-box], .ripple, [data-tanrei-edit], [data-tanrei-tip])) {
     grid-column: text;
     grid-row: 1;
     min-inline-size: 0;
@@ -433,6 +525,15 @@
     color: inherit;
     text-align: inherit;
     unicode-bidi: plaintext;
+    /* One line, cut at the end of its own direction (TRV-6, TRV-39). */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  /* labelWrap: it wraps, breaks where it must, and is never cut. */
+  :where(tanrei-tree-view[label-wrap]:not([label-wrap='false'])) :where(li) > :where(:first-child:not(ul, ol)) > :where(:not(.tanrei-icon, [data-supporting-text], [data-trailing], [data-trailing-text], [data-tanrei-loading-box], .ripple, [data-tanrei-edit], [data-tanrei-tip])) {
+    overflow: visible;
+    white-space: normal;
   }
   /* TRV-39: a label whose name has an isolate of its own — a `<bdi>`, or an element that says its `dir` — is laid out
      in the layout's direction: the name and the supporting text are each a run of their own, and the supporting text
@@ -442,22 +543,42 @@
   :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where(:not(.tanrei-icon, [data-supporting-text], [data-trailing], [data-trailing-text], [data-tanrei-loading-box], .ripple):has(> bdi, > [dir])) {
     unicode-bidi: isolate;
   }
-  /* TRV-7: the supporting text, after the label in the same block of text and on its baseline; it wraps with it. */
+  /* TRV-7: the supporting text — below the label on a line of its own, one line cut with an ellipsis unless
+     supportingWrap; inline, after the label in the same block of text and on its baseline, sharing its line. */
   :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) :where([data-supporting-text]) {
-    margin-inline-start: var(--_trv-gap);
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     font: var(--tanrei-comp-tree-view-supporting-text-typescale-font);
     letter-spacing: var(--tanrei-comp-tree-view-supporting-text-typescale-letter-spacing);
     color: var(--_trv-now-supporting);
     unicode-bidi: plaintext;
     transition: color var(--tanrei-comp-tree-view-motion-state-duration) var(--tanrei-comp-tree-view-motion-state-easing);
   }
+  :where(tanrei-tree-view[supporting-wrap]:not([supporting-wrap='false'])) :where(li) > :where(:first-child:not(ul, ol)) :where([data-supporting-text]) {
+    overflow: visible;
+    white-space: normal;
+  }
+  /* Below, directly in the row: the text column's second line. */
+  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where([data-supporting-text]) {
+    grid-column: text;
+    grid-row: 2;
+    min-inline-size: 0;
+  }
+  /* Inline: in the label's line, a gap after the label's last word. */
+  :where(tanrei-tree-view) :where(li[data-supporting-position='inline']) > :where(:first-child:not(ul, ol)) :where([data-supporting-text]) {
+    display: inline;
+    margin-inline-start: var(--_trv-gap);
+    white-space: inherit;
+  }
   /* Inside the label's element: a place to break before it that has no width, after its gap — so that where it
      begins a line, it begins at the line's start. */
-  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where(*) :where([data-supporting-text])::before {
+  :where(tanrei-tree-view) :where(li[data-supporting-position='inline']) > :where(:first-child:not(ul, ol)) > :where(*) :where([data-supporting-text])::before {
     content: '\200B';
   }
-  /* Directly in the row it has no box of its own: its text goes on in the row's own block of text. */
-  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where([data-supporting-text]) {
+  /* Inline, directly in the row: no box of its own — its text goes on in the row's own block of text. */
+  :where(tanrei-tree-view) :where(li[data-supporting-position='inline']) > :where(:first-child:not(ul, ol)) > :where([data-supporting-text]) {
     display: contents;
   }
   /* TRV-7: the trailing content, placed and given no style: centred on the first line, whatever its height. */
@@ -511,12 +632,58 @@
     align-items: center;
     line-height: 1lh;
     margin-block-start: calc((1lh - var(--_trv-icon-size)) / 2);
-    /* After the chevron's box and its gap, with the gap after itself — on the sides the layout gives. */
-    margin-left: calc(var(--_trv-gap) + var(--_trv-chevron-size) * (1 - var(--_trv-rtl)));
-    margin-right: calc(var(--_trv-gap) + var(--_trv-chevron-size) * var(--_trv-rtl));
+    /* After the chevron's box and its gap where it stands at the start, with the icon gap after itself — on the sides
+       the layout gives. */
+    --_trv-c: calc(var(--_trv-cs) * (var(--_trv-chevron-size) + var(--_trv-gap)));
+    margin-left: calc(var(--_trv-c) * (1 - var(--_trv-rtl)) + var(--_trv-icon-gap) * var(--_trv-rtl));
+    margin-right: calc(var(--_trv-c) * var(--_trv-rtl) + var(--_trv-icon-gap) * (1 - var(--_trv-rtl)));
     color: var(--_trv-now-icon);
     vertical-align: baseline;
   }
+  /* TRV-5: a parent that is open and names a second glyph draws it in the icon's place: the icon's own glyph is set at
+     no size (its box keeps its size: icons.css gives it one), and the open glyph is drawn in the box at the box's size.
+     (Not pushed out of the box: a clipped run of text still lies where it was laid out, beside the box.) A leaf ignores
+     it. */
+  :where(tanrei-tree-view) :where(li[data-open]:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon='']),
+  :where(tanrei-tree-view) :where(li[data-open][data-expandable]) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon='']),
+  :where(tanrei-tree-view[expandable='false']) :where(li:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon='']) {
+    font-size: 0;
+  }
+  :where(tanrei-tree-view) :where(li[data-open]:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before,
+  :where(tanrei-tree-view) :where(li[data-open][data-expandable]) > :where(:first-child:not(ul, ol)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before,
+  :where(tanrei-tree-view[expandable='false']) :where(li:not([data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)) > .tanrei-icon.tanrei-icon[data-open-icon]:not([data-open-icon=''])::before {
+    content: attr(data-open-icon);
+    flex: none;
+    inline-size: var(--_size);
+    font-size: var(--_size);
+    text-align: center;
+  }
+
+  /* ── The tooltip of a cut label or note (TRV-50): an empty tooltip over the text, opened by the element ───────── */
+  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where([data-tanrei-tip]) {
+    grid-column: text;
+    grid-row: 1;
+    position: absolute;
+    inset: 0;
+    display: block;
+    /* A press reaches the row under it; the tooltip's own box takes the pointer, so that it can be hovered. */
+    pointer-events: none;
+  }
+  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > [data-tanrei-tip]::part(container) {
+    pointer-events: auto;
+  }
+
+  /* ── Pinned rows (TRV-53): the rows of the innermost open parents above what is shown, marked by the element ──── */
+  :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-pinned]) {
+    position: sticky;
+    z-index: 2;
+    inset-block-start: var(--_trv-pin-top, 0px);
+    background-color: var(--tanrei-comp-tree-view-sticky-container-color);
+  }
+  :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-pinned='last']) {
+    box-shadow: 0 var(--tanrei-comp-tree-view-sticky-divider-width) 0 0 var(--tanrei-comp-tree-view-sticky-divider-color);
+  }
+
   /* TRV-40: while the icon set cannot draw a glyph, none is drawn and every box is kept. */
   :where(tanrei-tree-view[data-glyphs='pending']) :where(li) > :where(:first-child:not(ul, ol))::before,
   :where(tanrei-tree-view[data-glyphs='pending']) :where(li) > :where(:first-child:not(ul, ol)) > :where(.tanrei-icon) {
@@ -526,6 +693,7 @@
   /* ── The loading row (TRV-13): the indicator in the chevron's box, the product's words after it ─────────────── */
   :where(tanrei-tree-view) :where(li[data-tanrei-loading]) > :where(:first-child)::before {
     content: none;
+    display: none;
   }
   :where(tanrei-tree-view) :where(li[data-tanrei-loading]) > :where(:first-child) > :where([data-tanrei-loading-box]) {
     grid-column: lead;
@@ -543,18 +711,82 @@
     color: var(--tanrei-comp-tree-view-unselected-supporting-text-color);
   }
 
+  /* ── Editing in place (TRV-46, TRV-48): a field in the label's place, the focus indicator around it ─────────── */
+  /* The label and the supporting text give their place to the field: not drawn, and still laid out, so that the row
+     keeps its height. The product's trailing content keeps the color it had from the row. */
+  :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-editing]) {
+    color: transparent;
+  }
+  :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-editing]) :where([data-supporting-text]) {
+    color: transparent;
+  }
+  :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-editing]) > :where([data-trailing]) {
+    color: var(--_trv-now-label);
+  }
+  /* The field's box: over the label's first line, from the text column's start to its end, reaching half a gap past
+     the text on each side so that the indicator does not touch it while the text stays where the label's was. */
+  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where([data-tanrei-edit]) {
+    /* The label's text style and color in the field (the embedded text input draws the typing in its own tokens,
+       which its holder points here). */
+    --tanrei-comp-embedded-text-input-input-typescale-font: var(--_trv-label-font);
+    --tanrei-comp-embedded-text-input-input-typescale-letter-spacing: var(--_trv-label-tracking);
+    --tanrei-comp-embedded-text-input-input-typescale-font-size: var(--_trv-label-size);
+    --tanrei-comp-embedded-text-input-input-typescale-line-height: var(--_trv-label-line);
+    --tanrei-comp-embedded-text-input-standard-input-color: var(--_trv-label);
+    --tanrei-corner-radius: var(--tanrei-comp-tree-view-container-shape);
+    --tanrei-corner-pill: var(--tanrei-comp-tree-view-container-shape-pill, 0);
+    grid-column: text;
+    grid-row: 1;
+    position: absolute;
+    z-index: 1;
+    inset-block-start: calc(var(--_trv-pad-block) / -2);
+    inset-inline: calc(var(--_trv-gap) / -2);
+    display: block;
+    box-sizing: border-box;
+    padding-block: calc(var(--_trv-pad-block) / 2);
+    padding-inline: calc(var(--_trv-gap) / 2);
+    border-radius: var(--tanrei-corner-radius);
+    /* TRV-25: the focus indicator, the outer stroke on the box's edge and the inner one within it. */
+    box-shadow:
+      inset 0 0 0 var(--tanrei-sys-focus-outer-width) var(--tanrei-sys-color-focus-ring),
+      inset 0 0 0 calc(var(--tanrei-sys-focus-outer-width) + var(--tanrei-sys-focus-inner-width)) var(--tanrei-sys-color-focus-ring-inner);
+    /* (Transparent: forced colors repaint it, where a box-shadow is dropped.) */
+    outline: var(--tanrei-sys-focus-outer-width) solid transparent;
+    outline-offset: calc(var(--tanrei-sys-focus-outer-width) * -1);
+    cursor: text;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  /* TRV-30, focus-style glow: the same two colors as a halo inside the box. */
+  @container style(--tanrei-sys-behavior-focus-style: glow) {
+    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where([data-tanrei-edit]) {
+      box-shadow:
+        inset 0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+        inset 0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+    }
+  }
+  :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)[data-focus-style='glow']) > :where([data-tanrei-edit]) {
+    box-shadow:
+      inset 0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+      inset 0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+  }
+  /* TRV-48: a new row draws no fill and answers no pointer of its own: it is its field. */
+  :where(tanrei-tree-view) :where(li[data-tanrei-new]) > :where(:first-child) {
+    cursor: default;
+  }
+
   /* ── States (TRV-24): pressed over focused over hovered, each from its own tokens ───────────────────────────── */
   /* TRV-18: a row answers a pointer where its item opens (a parent) or can be chosen; any other answers nothing. */
-  :where(tanrei-tree-view) :where(li:not([data-disabled], [data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)),
-  :where(tanrei-tree-view) :where(li[data-expandable]:not([data-disabled])) > :where(:first-child:not(ul, ol)),
+  :where(tanrei-tree-view:not([expandable='false'])) :where(li:not([data-disabled], [data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child)),
+  :where(tanrei-tree-view:not([expandable='false'])) :where(li[data-expandable]:not([data-disabled])) > :where(:first-child:not(ul, ol)),
   :where(tanrei-tree-view:is([selection='single'], [selection='multiple'])) :where(li[data-value]:not([data-value=''], [data-disabled])) > :where(:first-child:not(ul, ol)) {
     cursor: pointer;
     -webkit-user-select: none;
     user-select: none;
   }
   @media (hover: hover) {
-    :where(tanrei-tree-view) :where(li:not([data-disabled], [data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child):hover),
-    :where(tanrei-tree-view) :where(li[data-expandable]:not([data-disabled])) > :where(:first-child:not(ul, ol):hover),
+    :where(tanrei-tree-view:not([expandable='false'])) :where(li:not([data-disabled], [data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child):hover),
+    :where(tanrei-tree-view:not([expandable='false'])) :where(li[data-expandable]:not([data-disabled])) > :where(:first-child:not(ul, ol):hover),
     :where(tanrei-tree-view:is([selection='single'], [selection='multiple'])) :where(li[data-value]:not([data-value=''], [data-disabled])) > :where(:first-child:not(ul, ol):hover) {
       --_trv-now-container: var(--_trv-hovered-container);
       --_trv-now-label: var(--_trv-hovered-label);
@@ -593,7 +825,7 @@
     :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):focus-visible)::after {
       --_trv-glow: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
       inset: var(--_trv-glow);
-      inset-inline-start: calc(var(--_trv-at) + var(--_trv-glow));
+      inset-inline-start: calc(var(--_trv-box) + var(--_trv-glow));
       border: 0;
       border-radius: max(0px, calc(var(--tanrei-corner-radius) * var(--_corner-scale) - var(--_trv-glow)));
       /* Transparent, not none: forced colors repaint it in a system color, where a box-shadow is dropped. */
@@ -607,7 +839,7 @@
   :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)[data-focus-style='glow']:focus-visible)::after {
     --_trv-glow: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
     inset: var(--_trv-glow);
-    inset-inline-start: calc(var(--_trv-at) + var(--_trv-glow));
+    inset-inline-start: calc(var(--_trv-box) + var(--_trv-glow));
     border: 0;
     border-radius: max(0px, calc(var(--tanrei-corner-radius) * var(--_corner-scale) - var(--_trv-glow)));
     outline-color: transparent;
@@ -648,7 +880,7 @@
     inset: 0;
     --tanrei-corner-radius: var(--tanrei-comp-tree-view-container-shape);
     --tanrei-corner-pill: var(--tanrei-comp-tree-view-container-shape-pill, 0);
-    inset-inline-start: var(--_trv-at);
+    inset-inline-start: var(--_trv-box);
     background: var(--_trv-pressed-container);
     pointer-events: none;
     clip-path: circle(var(--_r) at var(--_x) var(--_y));
@@ -726,6 +958,9 @@
       animation: none;
       transition: none;
     }
+    :where(tanrei-tree-view[guides='hover']) :where(li) > :where(ul, ol)::before {
+      transition: none;
+    }
     /* The element reads the disclosure's time from here (below): none. */
     :where(tanrei-tree-view) :where(li) > :where(ul, ol) {
       transition-duration: 0s;
@@ -766,8 +1001,8 @@
     :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)[aria-selected='true'])::after {
       border: var(--tanrei-comp-tree-view-guide-width) solid CanvasText;
     }
-    :where(tanrei-tree-view) :where(li:not([data-disabled], [data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child):hover),
-    :where(tanrei-tree-view) :where(li[data-expandable]:not([data-disabled])) > :where(:first-child:not(ul, ol):hover),
+    :where(tanrei-tree-view:not([expandable='false'])) :where(li:not([data-disabled], [data-tanrei-leaf])) > :where(:first-child:not(ul, ol, :only-child):hover),
+    :where(tanrei-tree-view:not([expandable='false'])) :where(li[data-expandable]:not([data-disabled])) > :where(:first-child:not(ul, ol):hover),
     :where(tanrei-tree-view:is([selection='single'], [selection='multiple'])) :where(li[data-value]:not([data-value=''], [data-disabled])) > :where(:first-child:not(ul, ol):hover),
     :where(tanrei-tree-view) :where(li) > :where(:first-child[data-pressed]:not([data-pressed='none'])) {
       --_trv-forced: ButtonText;
@@ -777,9 +1012,22 @@
       --_trv-forced: GrayText;
       opacity: 1;
     }
+    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)) > :where([data-tanrei-edit]) {
+      outline-color: Highlight;
+    }
+    :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol)[data-tanrei-editing]) {
+      color: transparent;
+    }
+    :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-pinned]) {
+      background-color: Canvas;
+    }
+    :where(tanrei-tree-view) :where(li) > :where(:first-child[data-tanrei-pinned='last']) {
+      box-shadow: none;
+      border-block-end: var(--tanrei-comp-tree-view-sticky-divider-width) solid CanvasText;
+    }
     :where(tanrei-tree-view) :where(li) > :where(:first-child:not(ul, ol):focus-visible)::after {
       inset: 0;
-      inset-inline-start: var(--_trv-at);
+      inset-inline-start: var(--_trv-box);
       border: var(--tanrei-sys-focus-outer-width) solid Highlight;
       outline: var(--tanrei-sys-focus-inner-width) solid Highlight;
       box-shadow: none;

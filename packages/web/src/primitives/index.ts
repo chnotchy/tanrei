@@ -6,6 +6,7 @@
 //   ripple      — the ripple layer's styles, and its origin from a pointer or a key
 //   focus-ring  — the keyboard focus indicator (ring or glow), the glow alone (focusGlow) and syncFocusStyle()
 //   target      — the minimum target (::before), and neighbourTarget(): capped toward a neighbour in a row (BGR-4, SPB-6)
+//   cut-text    — isCut() and CutTextTip: a one-line text cut with an ellipsis, shown whole in a tooltip while it is cut (TRV-50)
 //   kept-length — KeptLengths and keptLength(): controls that stand close in a row keep a touch target's length each,
 //                 the gap between two growing only by what they lack (SRC-34, TBR-16)
 //   behavior    — reading a choice of kind from the cascade
@@ -206,6 +207,7 @@ export {
   selectionStates,
 } from './selection.js';
 export { minimumTarget, neighbourTarget } from './target.js';
+export { type CutTextContent, CutTextTip, type CutTextTipOptions, type CutTextTooltip, isCut } from './cut-text.js';
 export { KeptLengths, keptLength } from './kept-length.js';
 export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
 export { RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';

@@ -17510,11 +17510,15 @@ public struct TanreiTreeViewTokens: Sendable, Equatable {
   public var containerShape: CGFloat
   public var guideColor: TanreiPaint
   public var guideWidth: CGFloat
+  public var iconGap: CGFloat
   public var motionDisclosureDuration: Double
   public var motionDisclosureEasing: TanreiCubicBezier
   public var motionFeedbackDuration: Double
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
+  public var stickyContainerColor: TanreiPaint
+  public var stickyDividerColor: TanreiPaint
+  public var stickyDividerWidth: CGFloat
   public var supportingTextTypescale: TanreiTextStyle
   public var trailingTextTypescale: TanreiTextStyle
   public var conditions: TanreiTreeViewConditions
@@ -17532,11 +17536,15 @@ public struct TanreiTreeViewTokens: Sendable, Equatable {
     containerShape: CGFloat,
     guideColor: TanreiPaint,
     guideWidth: CGFloat,
+    iconGap: CGFloat,
     motionDisclosureDuration: Double,
     motionDisclosureEasing: TanreiCubicBezier,
     motionFeedbackDuration: Double,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
+    stickyContainerColor: TanreiPaint,
+    stickyDividerColor: TanreiPaint,
+    stickyDividerWidth: CGFloat,
     supportingTextTypescale: TanreiTextStyle,
     trailingTextTypescale: TanreiTextStyle,
     conditions: TanreiTreeViewConditions,
@@ -17549,11 +17557,15 @@ public struct TanreiTreeViewTokens: Sendable, Equatable {
     self.containerShape = containerShape
     self.guideColor = guideColor
     self.guideWidth = guideWidth
+    self.iconGap = iconGap
     self.motionDisclosureDuration = motionDisclosureDuration
     self.motionDisclosureEasing = motionDisclosureEasing
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
+    self.stickyContainerColor = stickyContainerColor
+    self.stickyDividerColor = stickyDividerColor
+    self.stickyDividerWidth = stickyDividerWidth
     self.supportingTextTypescale = supportingTextTypescale
     self.trailingTextTypescale = trailingTextTypescale
     self.conditions = conditions

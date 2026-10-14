@@ -87813,7 +87813,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A hierarchy of items that open and close: rows that begin further in at each level, a chevron at the start of every\nrow that holds others; read and opened only, or with one item or several chosen. One stop in the focus order, moved\nthrough with the arrow keys. A file tree in a page, the tokens of a design system, the folders of a product.\n\nContract: specs/tree-view.spec.json. The element has **no shadow root**: its items are the product's own nested\nlists, which stay in the document. Without script the page shows the whole hierarchy as the nested list\nit is.\n\n```html\n<tanrei-tree-view label=\"Project files\" selection=\"single\" value=\"src/index.ts\">\n  <ul>\n    <li data-value=\"src\" data-open>\n      <span>\n        <i class=\"tanrei-icon\">folder</i>\n        <bdi>src<small data-supporting-text>what is published</small></bdi>\n        <span data-trailing-text>12 files</span>\n      </span>\n      <ul>\n        <li data-value=\"src/index.ts\"><span>index.ts</span></li>\n      </ul>\n    </li>\n    <li data-expandable><span>node_modules</span></li>\n  </ul>\n</tanrei-tree-view>\n```\n\nAn item is an `<li>` whose FIRST child element is its row and whose `<ul>` holds its items. In the row, a\n`.tanrei-icon` is the icon, an element with `data-trailing` the trailing content, one with `data-trailing-text` the\ntrailing text, and the rest is the label: the row's own text, or ONE element around it (a `<bdi>`: text with inline\ncontent, a name whose direction is not the layout's). An element with `data-supporting-text` is the supporting text,\ninside the label's element or directly in the row. On the `<li>`: `data-value` (what identifies it; without one it\ncannot be chosen), `data-open`, `data-expandable` (it will hold items: give them at `toggle`), `data-loading`,\n`data-disabled`. The element sets and removes `data-open` itself when the user opens or closes a parent.\n\nEverything drawn is `@tanrei/web/tree-view.css` — every value a `--tanrei-comp-tree-view-*` token — which draws the\nwhole look before this script runs; the element adds the same sheet to the root it is connected to. The script adds\nwhat a stylesheet cannot: the tree's roles and states, the single tab stop and the keys, the selection, `change` and\n`toggle`, the answer to a press, the motion of a list that is revealed or hidden, the loading row, opening for the\nbrowser's find-in-page, and the debug reports. Only the rows that are shown are read: a closed parent's items are\nread when it first opens, so a tree costs what it shows.\n\nThe ROW is the tree item (`role=\"treeitem\"`, `aria-selected`, `aria-expanded`, the tab stop and the focus); its\n`<li>` has no role and a nested list is a `group`, so the level comes from the nesting. An `<li>` holds every row\nunder it, so what changes while the tree is used is said on the row: one row's change styles that row alone. A\nserver that draws the selection in the first frame writes `aria-selected=\"true\"` on the row.",
+          "description": "A hierarchy of items that open and close: rows that begin further in at each level, a chevron at the start or the end\nof every row that holds others (or none, the folder glyph opening), names on one line shown whole in a tooltip where\nthey are cut, the rows of the open parents above what is shown pinned at the top of the scrolling box; read and\nopened only, or with one item or several chosen. One stop in the focus order, moved through with the arrow keys. A\nfile tree in a page, the tokens of a design system, the folders of a product.\n\nContract: specs/tree-view.spec.json. The element has **no shadow root**: its items are the product's own nested\nlists, which stay in the document. Without script the page shows the whole hierarchy as the nested list\nit is.\n\n```html\n<tanrei-tree-view label=\"Project files\" selection=\"single\" value=\"src/index.ts\">\n  <ul>\n    <li data-value=\"src\" data-open>\n      <span>\n        <i class=\"tanrei-icon\">folder</i>\n        <bdi>src<small data-supporting-text>what is published</small></bdi>\n        <span data-trailing-text>12 files</span>\n      </span>\n      <ul>\n        <li data-value=\"src/index.ts\"><span>index.ts</span></li>\n      </ul>\n    </li>\n    <li data-expandable><span>node_modules</span></li>\n  </ul>\n</tanrei-tree-view>\n```\n\nAn item is an `<li>` whose FIRST child element is its row and whose `<ul>` holds its items. In the row, a\n`.tanrei-icon` is the icon, an element with `data-trailing` the trailing content, one with `data-trailing-text` the\ntrailing text, and the rest is the label: the row's own text, or ONE element around it (a `<bdi>`: text with inline\ncontent, a name whose direction is not the layout's). An element with `data-supporting-text` is the supporting text,\ninside the label's element or directly in the row. On the `<li>`: `data-value` (what identifies it; without one it\ncannot be chosen), `data-open`, `data-expandable` (it will hold items: give them at `toggle`), `data-loading`,\n`data-disabled`. The element sets and removes `data-open` itself when the user opens or closes a parent.\n\nEverything drawn is `@tanrei/web/tree-view.css` — every value a `--tanrei-comp-tree-view-*` token — which draws the\nwhole look before this script runs; the element adds the same sheet to the root it is connected to. The script adds\nwhat a stylesheet cannot: the tree's roles and states, the single tab stop and the keys, the selection, `change` and\n`toggle`, the answer to a press, the motion of a list that is revealed or hidden, the loading row, opening for the\nbrowser's find-in-page, editing names in place and naming new items (`editable`, `edit()`, `create()`), and the debug\nreports. Only the rows that are shown are read: a closed parent's items are\nread when it first opens, so a tree costs what it shows.\n\nThe ROW is the tree item (`role=\"treeitem\"`, `aria-selected`, `aria-expanded`, the tab stop and the focus); its\n`<li>` has no role and a nested list is a `group`, so the level comes from the nesting. An `<li>` holds every row\nunder it, so what changes while the tree is used is said on the row: one row's change styles that row alone. A\nserver that draws the selection in the first frame writes `aria-selected=\"true\"` on the row.",
           "name": "TanreiTreeView",
           "slots": [
             {
@@ -87896,15 +87896,155 @@
             },
             {
               "kind": "field",
+              "name": "chevron",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiTreeViewChevron"
+              },
+              "default": "'start'",
+              "description": "Where a parent's chevron stands: start (before the icon), end (after the trailing content), none (a parent opens by its icon, its open icon showing the state, and by the arrow keys).",
+              "attribute": "chevron",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "expandable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Whether parents open and close at all; false shows every parent open, with no chevron and no toggle. The attribute `expandable=\"false\"` turns it off.",
+              "attribute": "expandable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "guides",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiTreeViewGuides"
+              },
+              "default": "'none'",
+              "description": "Hairlines down from each open parent beside the rows it holds: none, shown, or hover (while a pointer or focus is in the tree). The bare attribute is shown. Decorative.",
+              "attribute": "guides",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "indent",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How far each level steps in, in pixels; null (`auto`) puts a child's start where its parent's label begins. 0 steps in nothing.",
+              "attribute": "indent"
+            },
+            {
+              "kind": "field",
+              "name": "iconSpace",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiTreeViewIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a row without an icon keeps an icon's room: auto (while another row of its level has an icon), always, never.",
+              "attribute": "icon-space",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "iconGap",
+              "privacy": "public",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The room between the icon and the label, in pixels; null (`auto`) is the token, which no density changes.",
+              "attribute": "icon-gap"
+            },
+            {
+              "kind": "field",
+              "name": "highlight",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiTreeViewHighlight"
+              },
+              "default": "'indented'",
+              "description": "How far a row's fill, state layers and focus ring reach: indented (from its level), full (across the tree).",
+              "attribute": "highlight",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "labelWrap",
               "privacy": "public",
               "type": {
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Draws a hairline down from each open parent beside the rows it holds. Decorative.",
-              "attribute": "guides",
+              "description": "Labels wrap instead of being one line cut with an ellipsis (and shown whole in a tooltip).",
+              "attribute": "label-wrap",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "supportingWrap",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Supporting texts below their labels wrap instead of being one line cut with an ellipsis.",
+              "attribute": "supporting-wrap",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "stickyParents",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Pins the rows of the open parents above what is shown at the top of the scrolling box. On by default; `sticky-parents=\"false\"` turns it off.",
+              "attribute": "sticky-parents",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "stickyMax",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "2",
+              "description": "The most rows pinned at once, the innermost parents winning.",
+              "attribute": "sticky-max"
+            },
+            {
+              "kind": "field",
+              "name": "editable",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets people rename items in place: a double-click on a row's label, or F2, opens a text field; the tree emits `rename` and the product sets the label.",
+              "attribute": "editable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "editLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the field in which a name is edited or a new item named (\"Name\"). Tanrei ships none.",
+              "attribute": "edit-label"
             },
             {
               "kind": "field",
@@ -88447,6 +88587,87 @@
             },
             {
               "kind": "method",
+              "name": "toggleIcon",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "HTMLElement | null"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "Item"
+                  }
+                }
+              ],
+              "description": "The icon of a parent whose chevron is none: a press on it opens and closes the parent (TRV-44). Null otherwise."
+            },
+            {
+              "kind": "method",
+              "name": "checkChevronless",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "Item"
+                  }
+                }
+              ],
+              "description": "TRV-44: with no chevron, a parent with no icon shows nothing of its state on screen; a debug build says so, once."
+            },
+            {
+              "kind": "field",
+              "name": "chevronlessReported",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new WeakSet<Element>()"
+            },
+            {
+              "kind": "field",
+              "name": "bareReported",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "method",
+              "name": "writeLength",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "property",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "number | null"
+                  }
+                }
+              ],
+              "description": "TRV-3, TRV-2: writes a length the product chose, or takes it away for auto; one that is no number of zero or more is auto, reported."
+            },
+            {
+              "kind": "method",
+              "name": "reexpand",
+              "privacy": "private",
+              "description": "TRV-49: the tree became expandable or stopped being so: every parent is drawn as it now counts, at once."
+            },
+            {
+              "kind": "method",
               "name": "checkDepth",
               "privacy": "private",
               "description": "TRV-3: a level whose indent takes more than half of the tree's width is drawn where the deepest one that fits begins; a debug build says the depth, once. Read when the user first acts: it reads the layout."
@@ -88617,6 +88838,430 @@
               "description": "The words of a loading row, and the name of its indicator: the tree's `loadingLabel`."
             },
             {
+              "kind": "field",
+              "name": "editing",
+              "type": {
+                "text": "Editing | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "The field that is open, on an item's name or on a new row's: one at a time."
+            },
+            {
+              "kind": "method",
+              "name": "edit",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "HTMLLIElement"
+                  }
+                }
+              ],
+              "description": "Opens the edit field on an item's name (TRV-45), as F2 and a double-click on its label do: only while the tree is\n`editable`, and not on a disabled item or one whose label is the product's own inline content. Returns whether it\nopened one."
+            },
+            {
+              "kind": "method",
+              "name": "create",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "options",
+                  "default": "{}",
+                  "type": {
+                    "text": "TanreiTreeViewCreateOptions"
+                  }
+                }
+              ],
+              "description": "Asks for a new item (TRV-48): a row of the tree's own, at the level of the selected item and after its rows, with\nan empty field in which the user names it. `create` carries the name; the product adds the item. Returns whether\nthe row was added (a tree with no list has nowhere to put it)."
+            },
+            {
+              "kind": "method",
+              "name": "reference",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Item | null"
+                }
+              },
+              "description": "TRV-48: the item a new row stands beside — the first of these that is shown: the selected item (single: the one\nvalue names; multiple: the focused row where it is selected, else the first selected in the order drawn), the row\nthat has or last had focus, and none."
+            },
+            {
+              "kind": "method",
+              "name": "openField",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TanreiEmbeddedTextInput"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "li",
+                  "type": {
+                    "text": "HTMLLIElement"
+                  }
+                },
+                {
+                  "name": "row",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "text",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "Item | null"
+                  }
+                },
+                {
+                  "name": "create",
+                  "optional": true,
+                  "type": {
+                    "text": "Editing['create']"
+                  }
+                }
+              ],
+              "description": "Puts an edit field in a row: in the label's place, with focus, named by the product's words (TRV-46, TRV-32)."
+            },
+            {
+              "kind": "method",
+              "name": "nameField",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "text": "TanreiEmbeddedTextInput"
+                  }
+                }
+              ],
+              "description": "The field's name: the product's words (TRV-32). Opened all the same without them, and a debug build says so."
+            },
+            {
+              "kind": "method",
+              "name": "takeField",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Editing | null"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "back",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "Takes the field away (and a new row with it). On Enter or Escape focus goes back to the item's row (TRV-46), or\nfrom a new row to the row that had it (TRV-48); a field that lost focus leaves focus where it went."
+            },
+            {
+              "kind": "method",
+              "name": "closeEdit",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "back",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "A field that must close, giving nothing (TRV-46): its item went, became disabled or hidden, or the tree stopped being editable."
+            },
+            {
+              "kind": "method",
+              "name": "commitEdit",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "back",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "Enter, or focus that left the field: the name is given where it is one (TRV-46, TRV-48)."
+            },
+            {
+              "kind": "field",
+              "name": "onDoubleClick",
+              "privacy": "private",
+              "readonly": true,
+              "description": "TRV-45: a double-click on a row's label opens the field on its name, where the tree is editable."
+            },
+            {
+              "kind": "field",
+              "name": "tipRow",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "The row whose text the tooltip shows, or would show."
+            },
+            {
+              "kind": "field",
+              "name": "tipElement",
+              "type": {
+                "text": "TanreiTooltip | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "cutTip",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new CutTextTip({ // (Made and moved into a row only to be opened: a focus that moves changes no row's children.) tip: () => this.tipElement, place: () => void this.placeTip(), content: () => this.cutContent(), // tree-view.css writes the tooltip's waits as a transition of the tree. clock: () => this, })"
+            },
+            {
+              "kind": "method",
+              "name": "placeTip",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TanreiTooltip | null"
+                }
+              },
+              "description": "The tree's one tooltip, in the row whose text it shows: an empty tooltip over the text (tree-view.css), opened by script."
+            },
+            {
+              "kind": "method",
+              "name": "cutContent",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "CutTextContent | null"
+                }
+              },
+              "description": "What is cut in the row the tooltip is for: its label, or the label and its supporting text below it."
+            },
+            {
+              "kind": "field",
+              "name": "anchor",
+              "type": {
+                "text": "Item | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "The item a range is measured from: the one last chosen or unchosen by itself."
+            },
+            {
+              "kind": "field",
+              "name": "rangeBase",
+              "type": {
+                "text": "string[] | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "The values held before the range now being drawn began: a range that shrinks gives back what it took."
+            },
+            {
+              "kind": "method",
+              "name": "multiKey",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                },
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "Item"
+                  }
+                }
+              ],
+              "description": "The multi-select model's keys; true where the key was one of them (and is spent)."
+            },
+            {
+              "kind": "method",
+              "name": "shownRows",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Item[]"
+                }
+              },
+              "description": "The rows shown, in the order drawn."
+            },
+            {
+              "kind": "method",
+              "name": "selectRange",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "from",
+                  "type": {
+                    "text": "Item"
+                  }
+                },
+                {
+                  "name": "to",
+                  "type": {
+                    "text": "Item"
+                  }
+                }
+              ],
+              "description": "Selects every item that can be chosen from `from` to `to`, on what was held before the range began; one change."
+            },
+            {
+              "kind": "method",
+              "name": "selectAll",
+              "privacy": "private",
+              "description": "Selects every item that can be chosen among the rows shown, keeping what is held; one change."
+            },
+            {
+              "kind": "method",
+              "name": "setValues",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "next",
+                  "type": {
+                    "text": "string[]"
+                  }
+                }
+              ],
+              "description": "The new values, drawn and told once where they differ."
+            },
+            {
+              "kind": "field",
+              "name": "scroller",
+              "type": {
+                "text": "Element | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "The scrolling box the tree stands in, the rows pinned in it now, and the frame that will pin them again."
+            },
+            {
+              "kind": "field",
+              "name": "pinned",
+              "type": {
+                "text": "HTMLElement[]"
+              },
+              "privacy": "private",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "pinFrame",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "onScroll",
+              "privacy": "private",
+              "readonly": true,
+              "description": "A scroll anywhere in the tree's root: the box that scrolled, where it holds the tree, is the tree's scrolling box (it may have become one after the tree was drawn)."
+            },
+            {
+              "kind": "field",
+              "name": "scrollRoot",
+              "type": {
+                "text": "Document | ShadowRoot | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "method",
+              "name": "watchScroll",
+              "privacy": "private",
+              "description": "Finds the scrolling box and follows its scroll, or pins nothing where there is none or pinning is off."
+            },
+            {
+              "kind": "method",
+              "name": "unwatchScroll",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "schedulePin",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "unpin",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "pin",
+              "privacy": "private",
+              "description": "Pins the rows of the innermost `stickyMax` open parents of the topmost row shown below the pinned rows, each at\nthe height of the ones above it. Measured twice: the rows the pinned ones cover are not the top's."
+            },
+            {
+              "kind": "method",
+              "name": "pinChain",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Item[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "y",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "max",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "The open parents above the topmost row whose own line reaches below `y`, outer first, the innermost `max` of them."
+            },
+            {
+              "kind": "method",
+              "name": "belowPinned",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "TRV-12, TRV-53: a focused row under the pinned rows is brought into view below them."
+            },
+            {
               "kind": "method",
               "name": "focusRow",
               "privacy": "private",
@@ -88722,6 +89367,12 @@
               },
               "parameters": [
                 {
+                  "name": "item",
+                  "type": {
+                    "text": "Item"
+                  }
+                },
+                {
                   "name": "row",
                   "type": {
                     "text": "HTMLElement"
@@ -88781,6 +89432,12 @@
             },
             {
               "kind": "field",
+              "name": "onPointerOver",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
               "name": "onClick",
               "privacy": "private",
               "readonly": true
@@ -88799,10 +89456,17 @@
               },
               "privacy": "private",
               "readonly": true,
-              "default": "[ ['pointerdown', this.onPointerDown], ['pointerup', this.releasePress], ['pointercancel', this.releasePress], ['pointerout', this.onPointerOut], ['dragstart', this.releasePress], ['click', this.onClick], ['keydown', this.onKeyDown], ['keyup', this.onKeyUp], ['focusin', this.onFocusIn], ['focusout', this.onFocusOut], ['beforematch', this.onBeforeMatch], ]"
+              "default": "[ ['pointerdown', this.onPointerDown], ['pointerup', this.releasePress], ['pointercancel', this.releasePress], ['pointerout', this.onPointerOut], ['pointerover', this.onPointerOver], ['dragstart', this.releasePress], ['click', this.onClick], ['keydown', this.onKeyDown], ['keyup', this.onKeyUp], ['focusin', this.onFocusIn], ['focusout', this.onFocusOut], ['beforematch', this.onBeforeMatch], ['dblclick', this.onDoubleClick], ]"
             }
           ],
           "events": [
+            {
+              "name": "create",
+              "type": {
+                "text": "CustomEvent<TanreiTreeViewCreateDetail>"
+              },
+              "description": "The user named the new item `create()` asked for: `detail.label`, `detail.parent`, and the `<li>` it goes under (`detail.within`, null at the first level) and follows (`detail.after`, null where it is first). The tree's own row is gone; add the item, and the tree moves focus to it."
+            },
             {
               "name": "change",
               "type": {
@@ -88816,6 +89480,13 @@
               },
               "description": "Dispatched on an item's `<li>` (it bubbles): the user, or the browser's find-in-page, opened or closed it; `detail.open` is its new state. The moment to give the items of an `data-expandable` parent.",
               "name": "toggle"
+            },
+            {
+              "type": {
+                "text": "CustomEvent<TanreiTreeViewRenameDetail>"
+              },
+              "description": "Dispatched on an item's `<li>` (it bubbles): the user gave it a new name in place; `detail.label` is the name (trimmed, not empty, not the old one) and `detail.previous` the label it had. The tree changes no label: set it to rename the item.",
+              "name": "rename"
             }
           ],
           "attributes": [
@@ -88865,13 +89536,121 @@
               "fieldName": "density"
             },
             {
+              "name": "chevron",
+              "type": {
+                "text": "TanreiTreeViewChevron"
+              },
+              "default": "'start'",
+              "description": "Where a parent's chevron stands: start (before the icon), end (after the trailing content), none (a parent opens by its icon, its open icon showing the state, and by the arrow keys).",
+              "fieldName": "chevron"
+            },
+            {
+              "name": "expandable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Whether parents open and close at all; false shows every parent open, with no chevron and no toggle. The attribute `expandable=\"false\"` turns it off.",
+              "fieldName": "expandable"
+            },
+            {
               "name": "guides",
+              "type": {
+                "text": "TanreiTreeViewGuides"
+              },
+              "default": "'none'",
+              "description": "Hairlines down from each open parent beside the rows it holds: none, shown, or hover (while a pointer or focus is in the tree). The bare attribute is shown. Decorative.",
+              "fieldName": "guides"
+            },
+            {
+              "name": "indent",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "How far each level steps in, in pixels; null (`auto`) puts a child's start where its parent's label begins. 0 steps in nothing.",
+              "fieldName": "indent"
+            },
+            {
+              "name": "icon-space",
+              "type": {
+                "text": "TanreiTreeViewIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a row without an icon keeps an icon's room: auto (while another row of its level has an icon), always, never.",
+              "fieldName": "iconSpace"
+            },
+            {
+              "name": "icon-gap",
+              "type": {
+                "text": "number | null"
+              },
+              "default": "null",
+              "description": "The room between the icon and the label, in pixels; null (`auto`) is the token, which no density changes.",
+              "fieldName": "iconGap"
+            },
+            {
+              "name": "highlight",
+              "type": {
+                "text": "TanreiTreeViewHighlight"
+              },
+              "default": "'indented'",
+              "description": "How far a row's fill, state layers and focus ring reach: indented (from its level), full (across the tree).",
+              "fieldName": "highlight"
+            },
+            {
+              "name": "label-wrap",
               "type": {
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Draws a hairline down from each open parent beside the rows it holds. Decorative.",
-              "fieldName": "guides"
+              "description": "Labels wrap instead of being one line cut with an ellipsis (and shown whole in a tooltip).",
+              "fieldName": "labelWrap"
+            },
+            {
+              "name": "supporting-wrap",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Supporting texts below their labels wrap instead of being one line cut with an ellipsis.",
+              "fieldName": "supportingWrap"
+            },
+            {
+              "name": "sticky-parents",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "description": "Pins the rows of the open parents above what is shown at the top of the scrolling box. On by default; `sticky-parents=\"false\"` turns it off.",
+              "fieldName": "stickyParents"
+            },
+            {
+              "name": "sticky-max",
+              "type": {
+                "text": "number"
+              },
+              "default": "2",
+              "description": "The most rows pinned at once, the innermost parents winning.",
+              "fieldName": "stickyMax"
+            },
+            {
+              "name": "editable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Lets people rename items in place: a double-click on a row's label, or F2, opens a text field; the tree emits `rename` and the product sets the label.",
+              "fieldName": "editable"
+            },
+            {
+              "name": "edit-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the field in which a name is edited or a new item named (\"Name\"). Tanrei ships none.",
+              "fieldName": "editLabel"
             },
             {
               "name": "loading-label",
@@ -88898,6 +89677,22 @@
           "declaration": {
             "name": "TanreiTreeView",
             "module": "src/components/tree-view/tree-view.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-embedded-text-input",
+          "declaration": {
+            "name": "TanreiEmbeddedTextInput",
+            "module": "/src/components/embedded-text-input/embedded-text-input.js"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-tooltip",
+          "declaration": {
+            "name": "TanreiTooltip",
+            "module": "/src/components/tooltip/tooltip.js"
           }
         },
         {
