@@ -40868,6 +40868,59 @@
             }
           }
         },
+        "pattern": {
+          "checkerboard-size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The side of one checkerboard square: small against what is shown, so a transparent part of a picture reads as transparent rather than as a pattern of its own."
+          },
+          "clear-extent": {
+            "$type": "number",
+            "$value": 0.3,
+            "$description": "The grid-fade pattern: the share of the way from the stage's centre to its corners that the grid leaves clear. From there the grid grows to full strength at the corners, so that a specimen at the centre stands on the plain fill and the grid frames it."
+          },
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.9333,
+                0.9333,
+                0.9333
+              ],
+              "hex": "#eeeeee",
+              "alpha": 1
+            },
+            "$description": "The lines, the dots and every second checkerboard square of the ground pattern. The highest step of the surface ladder: a step from both fills, so the pattern is seen on the outlined and the filled looks in every scheme, and one that a raised contrast level leaves as it is, so the decoration never grows louder than the content it stands behind. Content in on-surface is held at 4.5:1 against it, as against every surface role."
+          },
+          "dot-size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 3,
+              "unit": "px"
+            },
+            "$description": "The diameter of a dot of the dot grid: three strokes, so that a dot in the pattern's quiet color still reads as a point, where one a hairline or two across would be a speck."
+          },
+          "line-thickness": {
+            "$type": "dimension",
+            "$value": {
+              "value": 1,
+              "unit": "px"
+            },
+            "$description": "The width of a line of the grid: the one hairline."
+          },
+          "spacing": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "The distance between two lines of the grid and between two dots, in both directions: a step of the spacing scale, so that a specimen on the grid can be read against it."
+          }
+        },
         "plain": {
           "container": {
             "color": {

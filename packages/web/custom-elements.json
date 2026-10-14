@@ -33451,6 +33451,18 @@
             },
             {
               "kind": "field",
+              "name": "pattern",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiFigurePattern"
+              },
+              "default": "'none'",
+              "description": "The ground pattern behind what is shown, across the stage: `none`, `grid` (lines), `dots` (a dot grid), `grid-fade` (the grid, clear around the centre) or `checkerboard` (where a picture may be transparent). Decoration only; the plain look and forced colors draw none.",
+              "attribute": "pattern",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "resizes",
               "privacy": "private",
               "readonly": true
@@ -33797,6 +33809,15 @@
               "default": "'auto'",
               "description": "How the parts inside the frame are told apart: `divider` draws a line under the header and above the attachment, `gap` draws none and stands the attachment inside the frame; `auto` takes `comp.figure.separation`, the design system's answer.",
               "fieldName": "separation"
+            },
+            {
+              "name": "pattern",
+              "type": {
+                "text": "TanreiFigurePattern"
+              },
+              "default": "'none'",
+              "description": "The ground pattern behind what is shown, across the stage: `none`, `grid` (lines), `dots` (a dot grid), `grid-fade` (the grid, clear around the centre) or `checkerboard` (where a picture may be transparent). Decoration only; the plain look and forced colors draw none.",
+              "fieldName": "pattern"
             }
           ],
           "superclass": {

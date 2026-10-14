@@ -2,7 +2,7 @@
 title: 図
 description: 画像、グラフ、見本、動く例など、見るためのものをひとつ、専用のステージに置きます。枠の有無を選べ、何を示しているかをキャプションで伝えます。上にタイトルと利用者側のコントロールを、下につながったブロックを置くこともできます。
 translationOf: components/figure.mdx
-sourceHash: 73569d4fce0f2d7484ec464c4bd25f4c23fa4f05
+sourceHash: 2b6611651835c6319c8a04774015c79b761f6871
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -169,6 +169,35 @@ Web では、ネイティブの `<figure>` を `<tanrei-figure>` で囲みます
   </tanrei-figure>
 </DemoFrame>
 
+<DemoFrame label="グリッド、ドット、中央に向かって消えるグリッド、市松模様" pattern="none" plain column>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
+    <tanrei-figure pattern="grid">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>grid：24 ごとの線。</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="dots">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>dots：同じ間隔の点。</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="grid-fade">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>grid-fade：中央のまわりを空けたグリッド。</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="checkerboard">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>checkerboard：透明な部分があり得る画像に。</figcaption>
+      </figure>
+    </tanrei-figure>
+  </div>
+</DemoFrame>
+
 <ComponentSpecs name="figure" />
 
 ## ガイドライン
@@ -209,6 +238,21 @@ Outlined は、中を空のままにせず、サーフェスの色で塗りま�
 - 枠のあるステージより狭いコンテンツは、中央に置かれます。Plain では、テキストの端から始まります。
 - ステージの高さは、コンテンツの高さです。その中に複数の例をどう並べるかは、利用者側のレイアウトで決めます。
 
+### 見せるものの下地
+
+| `pattern` | 描き方 | 用途 |
+| --- | --- | --- |
+| `none`（既定） | 見た目の塗りだけ。 | ほとんどの図。ステージいっぱいに広がる画像。 |
+| `grid` | 縦横 24 ごとに細い線。 | グリッドに対して見せるコンポーネントやレイアウト。 |
+| `dots` | そのグリッドの交点ごとに点。 | より控えめな下地に置く絵や図解。 |
+| `grid-fade` | 中央のまわりを空け、角に向かって濃くなるグリッド。 | 大きなステージの中央に置く見本。このサイトの動く例で使っています。 |
+| `checkerboard` | 8 の正方形を、塗りとパターンの色で交互に。 | 透明な部分があり得る画像やアイコン。 |
+
+- パターンは装飾です。コンテンツの後ろに、サーフェスの段階の控えめな 1 色で描き、コントラストを上げても強くなりません。
+- コンテンツを横にスクロールしても動かず、どちらの書字方向でも同じです。
+- Plain は、パターンを描くステージを持たないので描きません。強制カラーモードでは消えます。
+- ステージのまわりに独自のパターンを描かないでください。ここから選ぶか、`comp.figure.pattern` のトークンで描き方を変えます。
+
 ### ページの中で
 
 - 図は与えられた幅いっぱいに広がり、外側に余白を持ちません。プローズの中では、ブロックとしての余白が付き、プローズの幅いっぱいに広がります。キャプションは、テキストのブロックと同じように行長の上限に収まります。
@@ -239,8 +283,8 @@ Outlined は、中を空のままにせず、サーフェスの色で塗りま�
 - ヘッダー、ステージ、アタッチメント、キャプションの中のものは、すべてそのまま操作でき、フォーカスの順序も変わりません。
 - テキストを 200% にすると、タイトルとキャプションは大きくなって折り返し、アクションはタイトルの下に移ります。
 - 右から左のレイアウトでは、ヘッダーが左右反転し、キャプションは右から始まります。ステージで見せているものは反転しません。
-- 強制カラーモードでは、Outlined と Filled にテキストの色の縁が付きます。Plain には付きません。
-- 名前のない図、ステージが空の図、未知のバリアントや区切り方は、デバッグビルドで報告します。
+- 強制カラーモードでは、Outlined と Filled にテキストの色の縁が付きます。Plain には付きません。どの見た目もパターンを描きません。
+- 名前のない図、ステージが空の図、未知のバリアントや区切り方やパターンは、デバッグビルドで報告します。
 
 ### 利用者側で行うこと
 

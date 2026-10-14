@@ -2,7 +2,7 @@
 title: Figura
 description: Coloca una cosa que se mira, una imagen, un gráfico, una muestra o un ejemplo en vivo, en un escenario propio, con marco o sin él, con una leyenda que dice qué muestra y, de forma opcional, un título con tus controles encima y un bloque unido debajo.
 translationOf: components/figure.mdx
-sourceHash: 73569d4fce0f2d7484ec464c4bd25f4c23fa4f05
+sourceHash: 2b6611651835c6319c8a04774015c79b761f6871
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -169,6 +169,35 @@ Esta forma es más corta, y solo se dibuja una vez que el script se ha ejecutado
   </tanrei-figure>
 </DemoFrame>
 
+<DemoFrame label="Cuadrícula, puntos, una cuadrícula que se desvanece hacia el centro y un tablero de ajedrez" pattern="none" plain column>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
+    <tanrei-figure pattern="grid">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Guardar</tanrei-button></div></div>
+        <figcaption>grid: líneas cada 24.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="dots">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Guardar</tanrei-button></div></div>
+        <figcaption>dots: un punto con la misma separación.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="grid-fade">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Guardar</tanrei-button></div></div>
+        <figcaption>grid-fade: la cuadrícula, despejada alrededor del centro.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure pattern="checkerboard">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Guardar</tanrei-button></div></div>
+        <figcaption>checkerboard: donde una imagen puede ser transparente.</figcaption>
+      </figure>
+    </tanrei-figure>
+  </div>
+</DemoFrame>
+
 <ComponentSpecs name="figure" />
 
 ## Pautas
@@ -209,6 +238,21 @@ El aspecto outlined se rellena con el color de la superficie; no se deja vacío.
 - El contenido más estrecho que un escenario con marco se centra. En el aspecto plain empieza en el borde del texto.
 - El escenario es tan alto como su contenido. Cómo se disponen en él varios ejemplos es cosa de tu diseño de página.
 
+### Un fondo detrás de lo que se muestra
+
+| `pattern` | Qué dibuja | Para qué |
+| --- | --- | --- |
+| `none` (predeterminado) | Solo el relleno del aspecto. | La mayoría de las figuras; una imagen que llena el escenario. |
+| `grid` | Una línea fina cada 24, en horizontal y en vertical. | Un componente o una disposición mostrados sobre una cuadrícula. |
+| `dots` | Un punto en cada cruce de esa cuadrícula. | Un dibujo o un diagrama, sobre un fondo más discreto. |
+| `grid-fade` | La cuadrícula, despejada alrededor del centro y cada vez más marcada hacia las esquinas. | Un espécimen en el centro de un escenario grande. Los ejemplos en vivo de este sitio la usan. |
+| `checkerboard` | Cuadrados de 8, alternando el relleno y el color del patrón. | Una imagen o un icono que puede ser transparente. |
+
+- El patrón es decoración. Se dibuja detrás del contenido, en un único color discreto de la escala de superficies, y no se intensifica al subir el contraste.
+- Se queda en su sitio mientras el contenido se desplaza en horizontal, y es igual en las dos direcciones.
+- El aspecto plain no dibuja ninguno, porque no tiene un escenario donde dibujarlo. Los colores forzados lo quitan.
+- No dibujes un patrón propio alrededor del escenario. Elige uno aquí, o cambia su estilo con los tokens `comp.figure.pattern`.
+
 ### En una página
 
 - Una figura ocupa la anchura que se le da y no trae espacio exterior. En la prosa se espacia como un bloque y ocupa toda la anchura de la prosa, mientras que su leyenda se limita a la medida como un bloque de texto.
@@ -239,8 +283,8 @@ El aspecto outlined se rellena con el color de la superficie; no se deja vacío.
 - Todo lo que hay en la cabecera, el escenario, el bloque adjunto y la leyenda se puede seguir usando y conserva su orden de foco.
 - Con el texto al 200%, el título y la leyenda crecen y saltan de línea, y las acciones pasan debajo del título.
 - En un diseño de derecha a izquierda, la cabecera se refleja y la leyenda empieza a la derecha. Lo que se muestra en el escenario nunca se refleja.
-- Con colores forzados, los aspectos outlined y filled tienen un borde del color del texto. El aspecto plain no tiene ninguno.
-- Las compilaciones de depuración notifican una figura sin nombre, una figura cuyo escenario está vacío y una variante o una separación desconocidas.
+- Con colores forzados, los aspectos outlined y filled tienen un borde del color del texto. El aspecto plain no tiene ninguno, y ningún aspecto dibuja un patrón.
+- Las compilaciones de depuración notifican una figura sin nombre, una figura cuyo escenario está vacío y una variante, una separación o un patrón desconocidos.
 
 ### Qué debes hacer tú
 

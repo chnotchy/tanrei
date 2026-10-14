@@ -39,6 +39,11 @@
       "description": "Where the thing shown stands: the product's content, padded inside the frame or reaching its edges, scaled down where it can shrink and scrolled sideways inside the stage where it cannot."
     },
     {
+      "id": "pattern",
+      "description": "The ground pattern behind what is shown, where the product asks for one: grid lines, a dot grid, a grid that fades toward the centre, or a checkerboard, drawn across the stage's box over the frame's fill and under the content. Decoration only.",
+      "optional": true
+    },
+    {
       "id": "attachment",
       "description": "The product's block joined under the stage, inside the frame: the code an example was made from, the data of a chart, the facts about a specimen.",
       "optional": true
@@ -106,6 +111,19 @@
       ],
       "default": "auto",
       "description": "How the parts inside the frame are told apart. auto takes comp.figure.separation, which follows the system's choice. divider draws a line between the header and the stage and between the stage and the attachment, the attachment flush with the frame. gap draws no line and stands the attachment inside the frame with its own shape. The plain look has no frame and draws neither."
+    },
+    {
+      "name": "pattern",
+      "type": "enum",
+      "values": [
+        "none",
+        "grid",
+        "dots",
+        "grid-fade",
+        "checkerboard"
+      ],
+      "default": "none",
+      "description": "The ground pattern drawn behind what is shown, across the stage. none: the plain fill, the default. grid: lines in both directions, the ground of a layout or a design canvas. dots: a dot at every crossing of that grid, a quieter ground for a drawing or a diagram. grid-fade: the grid, clear around the centre and growing toward the edges, so that a specimen at the centre stands on the plain fill and the grid frames it. checkerboard: small squares, the ground that shows where a picture is transparent. Decoration only: it says nothing to assistive technology, and the plain look and forced colors draw none."
     }
   ],
   "slots": [
@@ -150,7 +168,7 @@
     },
     {
       "id": "FIG-3",
-      "text": "THE figure SHALL place the content of its default slot in the stage and draw nothing of its own there, between the frame's fill and that content or over it. WHILE inset is true and variant is not plain THE stage SHALL be padded by comp.figure.stage.padding-block above and below and comp.figure.stage.padding-inline before and after; WHILE inset is false or variant is plain THE stage SHALL have no padding, so that the content reaches the frame's edges. WHILE variant is outlined or filled THE figure SHALL hand the content comp.figure.content.color as the platform's inherited foreground and SHALL place content narrower or shorter than the stage at the stage's centre; WHILE variant is plain it SHALL hand no color and SHALL place content narrower than the stage at the stage's start edge, in line with the text around the figure. Several pieces of content SHALL be stacked in the order given with no space of the figure's between them: how several specimens are arranged is the product's layout.",
+      "text": "THE figure SHALL place the content of its default slot in the stage and draw nothing of its own there, between the frame's fill and that content or over it, but the ground pattern the product asks for (FIG-26), under the content. WHILE inset is true and variant is not plain THE stage SHALL be padded by comp.figure.stage.padding-block above and below and comp.figure.stage.padding-inline before and after; WHILE inset is false or variant is plain THE stage SHALL have no padding, so that the content reaches the frame's edges. WHILE variant is outlined or filled THE figure SHALL hand the content comp.figure.content.color as the platform's inherited foreground and SHALL place content narrower or shorter than the stage at the stage's centre; WHILE variant is plain it SHALL hand no color and SHALL place content narrower than the stage at the stage's start edge, in line with the text around the figure. Several pieces of content SHALL be stacked in the order given with no space of the figure's between them: how several specimens are arranged is the product's layout.",
       "verify": "Under the default system an inset outlined figure has 32 above and below its content and 24 before and after. A test places a 40 wide box in a 400 wide figure of each look: its centre is the stage's centre in outlined and filled, and its start edge is the figure's start edge in plain."
     },
     {
@@ -223,8 +241,8 @@
     },
     {
       "id": "FIG-20",
-      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE figure SHALL draw an edge comp.figure.outline.width wide in the platform's text color inside its frame in the outlined and the filled looks, so that a look whose fill the mode removes is still a bounded stage, and no edge in the plain look, which has none to lose; it SHALL draw the lines of FIG-13 in that text color, its title and caption in that text color, links in the platform's link color and still underlined, and the focus indicator of FIG-6 in the platform's own color for focus; what is shown in the stage is the content's own to adapt.",
-      "verify": "On the web, with forced colors emulated: the fixtures outlined and filled have a visible edge in CanvasText, the fixture plain has none, and no part relies on a background color."
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE figure SHALL draw an edge comp.figure.outline.width wide in the platform's text color inside its frame in the outlined and the filled looks, so that a look whose fill the mode removes is still a bounded stage, and no edge in the plain look, which has none to lose; it SHALL draw the lines of FIG-13 in that text color, its title and caption in that text color, links in the platform's link color and still underlined, and the focus indicator of FIG-6 in the platform's own color for focus, and no ground pattern (FIG-26) in any look, so that nothing but the person's own background stands behind the content; what is shown in the stage is the content's own to adapt.",
+      "verify": "On the web, with forced colors emulated: the fixtures outlined and filled have a visible edge in CanvasText, the fixture plain has none, the pattern fixtures draw no pattern, and no part relies on a background color."
     },
     {
       "id": "FIG-21",
@@ -246,6 +264,11 @@
     {
       "id": "FIG-25",
       "text": "IF the default slot holds nothing THE figure SHALL draw nothing, take no space and expose nothing, and in debug builds report that a figure shows nothing: a title, a caption or an attachment alone is not a figure. IF label is not empty while a title or a caption is given THE figure SHALL ignore label."
+    },
+    {
+      "id": "FIG-26",
+      "text": "WHILE pattern is not none and variant is not plain THE figure SHALL draw a ground pattern in comp.figure.pattern.color across the stage's whole box, over the frame's fill and under the stage's content, centred on the stage and still while the content scrolls (FIG-5): WHILE pattern is grid, lines comp.figure.pattern.line-thickness wide every comp.figure.pattern.spacing across and down; WHILE pattern is dots, dots comp.figure.pattern.dot-size across at the same spacing; WHILE pattern is grid-fade, that grid, clear from the stage's centre to comp.figure.pattern.clear-extent of the way to its edges and growing from there to full strength at its corners; WHILE pattern is checkerboard, squares of side comp.figure.pattern.checkerboard-size, alternately the frame's fill and comp.figure.pattern.color. The pattern SHALL be decoration: it SHALL take no input, be exposed to no assistive technology, be the same in either layout direction, and be covered by the content wherever the content is opaque. WHILE variant is plain THE figure SHALL draw no pattern, because the plain look has no stage to draw one on. IF pattern names a value the figure does not define THE figure SHALL draw none, and in debug builds report the unknown value.",
+      "verify": "Under the default system a grid figure draws a 1 wide line every 24 in surface-container-highest, centred on the stage, and a dots figure a 3 wide dot at the same spacing; a grid-fade figure's stage is its fill at the centre and draws the grid toward its corners; a checkerboard figure draws squares of 8. The same fixtures in the plain look and in forced colors draw no pattern, and a stage that scrolls keeps its pattern in place."
     }
   ],
   "accessibility": {
@@ -270,7 +293,8 @@
       "A status such as do and don't is never given by a color on the frame: the figure has no status. A product that marks a figure as an example to follow or to avoid puts a tag with its glyph and its word at the start of the caption, where it is read as part of the figure's name or description.",
       "The scrolling stage is a focus stop (FIG-6) so that a keyboard user can bring every part of wide content into view (WCAG 2.1.1); it is named, and it shows the system's focus indicator, which is held at 3:1 against every surface role, the two fills of this component among them.",
       "Contrast in the default system: the title is on-surface on surface or surface-container and the caption is on-surface-variant on the surface the figure sits on, both role pairs held at 4.5:1 by the token invariants. The outlined look's edge and the dividers are decorative: the stage is told apart by its position and its caption, not by the line.",
-      "Forced colors (FIG-20): the filled look loses its fill and gains an edge in the text color. The plain look stays unframed."
+      "The ground pattern (FIG-26) is decoration (WCAG 1.1.1): it is not exposed and carries nothing the content and the caption do not. It is drawn in surface-container-highest, a surface role against which on-surface text and the focus indicator are held by the token invariants, so text standing on a line or a dot keeps its contrast; and a raised contrast level does not make it louder. Forced colors remove it (FIG-20).",
+      "Forced colors (FIG-20): the filled look loses its fill and gains an edge in the text color. The plain look stays unframed. No look draws a ground pattern."
     ]
   },
   "tokens": "comp.figure",
@@ -549,9 +573,91 @@
       "direction": "rtl"
     },
     {
+      "id": "pattern-grid",
+      "props": {
+        "pattern": "grid",
+        "label": "A specimen"
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "pattern-dots",
+      "props": {
+        "pattern": "dots",
+        "label": "A specimen"
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "pattern-grid-fade",
+      "props": {
+        "pattern": "grid-fade",
+        "label": "A specimen"
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "pattern-checkerboard",
+      "props": {
+        "pattern": "checkerboard",
+        "label": "A specimen"
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "filled-pattern-grid",
+      "props": {
+        "variant": "filled",
+        "pattern": "grid",
+        "label": "A specimen"
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "filled-pattern-dots",
+      "props": {
+        "variant": "filled",
+        "pattern": "dots",
+        "label": "A specimen"
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "plain-pattern-grid",
+      "props": {
+        "variant": "plain",
+        "pattern": "grid",
+        "caption": "The plain look draws no pattern."
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "title-pattern-grid-fade",
+      "props": {
+        "pattern": "grid-fade",
+        "title": "Variants",
+        "caption": "A filled button and its markup."
+      },
+      "content": "Specimen",
+      "slots": {
+        "actions": "contrast",
+        "attachment": "<tanrei-button variant=\"filled\">Save</tanrei-button>"
+      }
+    },
+    {
+      "id": "pattern-dots-rtl",
+      "props": {
+        "pattern": "dots",
+        "title": "الأشكال"
+      },
+      "content": "Specimen",
+      "direction": "rtl"
+    },
+    {
       "id": "docs-demo",
       "props": {
-        "title": "Variants, sizes and disabled"
+        "title": "Variants, sizes and disabled",
+        "pattern": "grid-fade"
       },
       "content": "Filled Outlined Text",
       "slots": {
@@ -566,7 +672,8 @@
       "id": "docs-demo-code",
       "props": {
         "separation": "divider",
-        "title": "Variants"
+        "title": "Variants",
+        "pattern": "grid-fade"
       },
       "content": "Filled Outlined Text",
       "slots": {
@@ -582,7 +689,8 @@
       "id": "docs-demo-system",
       "props": {
         "title": "Single choice, with glyphs, glyphs alone",
-        "caption": "Drawn under m3-like, a system that ships this component."
+        "caption": "Drawn under m3-like, a system that ships this component.",
+        "pattern": "grid-fade"
       },
       "content": "Day Week Month"
     },
@@ -613,9 +721,10 @@
         "label": "label",
         "variant": "variant",
         "inset": "inset",
-        "separation": "separation"
+        "separation": "separation",
+        "pattern": "pattern"
       },
-      "notes": "Form: `<tanrei-figure>` is a custom element with **no shadow root**, wrapped around a native `<figure>` that stays in the light DOM, so that the figure and its caption are the document's own — read without script, by a crawler, by reader modes and by a screen reader as a figure with its `<figcaption>` (once the element is defined it names the figure by that caption itself, `aria-labelledby`, unless the product gave the `<figure>` an `aria-label`: one engine does not take the name from the caption): `<tanrei-figure><figure><div data-part=\"frame\"><header><p data-part=\"title\">…</p><div data-part=\"actions\">…</div></header><div data-part=\"stage\">…</div><div data-part=\"attachment\">…</div></div><figcaption>…</figcaption></figure></tanrei-figure>`; every part but the stage is optional, and a lone `<img>`, `<picture>`, `<video>`, `<svg>` or `<canvas>` in place of the stage element is its own stage. Everything drawn comes from one stylesheet, `@tanrei/web/figure.css`, whose selectors start at `tanrei-figure` and are wrapped in `:where()`; it styles the page before the element is defined and without script, so a page of figures does not move when the script arrives, and the element adopts the same sheet into the root it is connected to. Props are attributes of the wrapper: `variant`, `separation`, `label`; `inset` is a boolean property that defaults to true and its attribute is the inverse `flush`, as the card's (an HTML boolean attribute cannot default to true). The title is the `headline` attribute (HTML's global `title` would show a tooltip over the whole figure, as on the callout); `headline` and `caption` are conveniences for a figure built by script or by the React wrapper, for which the element writes the parts above itself around its children. What the element adds once defined: `aria-labelledby` on the native figure naming the title where there are both a title and a caption, and `aria-describedby` naming the caption; `aria-label` from `label`; `tabindex=\"0\"`, `role=\"group\"` and the same name on the stage while it scrolls sideways, removed when it does not (FIG-6); the resolved separation as a `data-separation` attribute where a container style query cannot be used; and the debug reports. A native `<figure>` with one `<figcaption>` and no title needs none of that. Under `forced-colors: active` the frame takes a `CanvasText` border in the outlined and filled looks (FIG-20). Pictures take `max-inline-size: 100%` and `block-size: auto` (FIG-4)."
+      "notes": "Form: `<tanrei-figure>` is a custom element with **no shadow root**, wrapped around a native `<figure>` that stays in the light DOM, so that the figure and its caption are the document's own — read without script, by a crawler, by reader modes and by a screen reader as a figure with its `<figcaption>` (once the element is defined it names the figure by that caption itself, `aria-labelledby`, unless the product gave the `<figure>` an `aria-label`: one engine does not take the name from the caption): `<tanrei-figure><figure><div data-part=\"frame\"><header><p data-part=\"title\">…</p><div data-part=\"actions\">…</div></header><div data-part=\"stage\">…</div><div data-part=\"attachment\">…</div></div><figcaption>…</figcaption></figure></tanrei-figure>`; every part but the stage is optional, and a lone `<img>`, `<picture>`, `<video>`, `<svg>` or `<canvas>` in place of the stage element is its own stage. Everything drawn comes from one stylesheet, `@tanrei/web/figure.css`, whose selectors start at `tanrei-figure` and are wrapped in `:where()`; it styles the page before the element is defined and without script, so a page of figures does not move when the script arrives, and the element adopts the same sheet into the root it is connected to. Props are attributes of the wrapper: `variant`, `separation`, `pattern`, `label`; `inset` is a boolean property that defaults to true and its attribute is the inverse `flush`, as the card's (an HTML boolean attribute cannot default to true). The title is the `headline` attribute (HTML's global `title` would show a tooltip over the whole figure, as on the callout); `headline` and `caption` are conveniences for a figure built by script or by the React wrapper, for which the element writes the parts above itself around its children. What the element adds once defined: `aria-labelledby` on the native figure naming the title where there are both a title and a caption, and `aria-describedby` naming the caption; `aria-label` from `label`; `tabindex=\"0\"`, `role=\"group\"` and the same name on the stage while it scrolls sideways, removed when it does not (FIG-6); the resolved separation as a `data-separation` attribute where a container style query cannot be used; and the debug reports. A native `<figure>` with one `<figcaption>` and no title needs none of that. The ground pattern (FIG-26) is the stage's own `background-image`, a set of CSS gradients of the `--tanrei-comp-figure-pattern-*` tokens over a `background-color` of the look's fill, so it takes no element, no input and no place in the accessibility tree, stays in place while the stage scrolls, and stands behind a transparent lone picture too; the fading grid is the grid under a radial gradient of the fill. Under `forced-colors: active` the frame takes a `CanvasText` border in the outlined and filled looks, and the stage draws no pattern (FIG-20). Pictures take `max-inline-size: 100%` and `block-size: auto` (FIG-4)."
     },
     "swiftui": {
       "status": "planned",
@@ -626,9 +735,10 @@
         "label": "accessibilityLabel",
         "variant": "variant",
         "inset": "isInset",
-        "separation": "separation"
+        "separation": "separation",
+        "pattern": "pattern"
       },
-      "notes": "`TanreiFigure(title:caption:variant:isInset:separation:) { content } actions: { … } attachment: { … }`, with `titleContent:` and `captionContent:` view builders for the two slots. The stage is a horizontal `ScrollView` only while its content is wider than it. SwiftUI has no figure trait: the view is an accessibility container (`accessibilityElement(children: .contain)`) whose label is the title, or the caption, or `accessibilityLabel`, with the caption as its hint where there is a title. The content's foreground is set with `foregroundStyle` in the outlined and filled looks."
+      "notes": "`TanreiFigure(title:caption:variant:isInset:separation:pattern:) { content } actions: { … } attachment: { … }`, with `titleContent:` and `captionContent:` view builders for the two slots. The stage is a horizontal `ScrollView` only while its content is wider than it. SwiftUI has no figure trait: the view is an accessibility container (`accessibilityElement(children: .contain)`) whose label is the title, or the caption, or `accessibilityLabel`, with the caption as its hint where there is a title. The content's foreground is set with `foregroundStyle` in the outlined and filled looks. The ground pattern (FIG-26) is to be drawn with a `Canvas` behind the stage's content; not yet written."
     },
     "compose": {
       "status": "planned",
@@ -639,9 +749,10 @@
         "label": "contentDescription",
         "variant": "variant",
         "inset": "inset",
-        "separation": "separation"
+        "separation": "separation",
+        "pattern": "pattern"
       },
-      "notes": "`TanreiFigure(title, caption, contentDescription, variant, inset, separation, actions = { … }, attachment = { … }) { content }`, with `titleContent` and `captionContent` lambdas for the two slots. No `clickable`. The stage takes `horizontalScroll` only while its content is wider than it. A traversal group (`semantics { isTraversalGroup = true }`) with the name as its content description; Compose has no figure role. The content color is provided through `LocalContentColor` in the outlined and filled looks."
+      "notes": "`TanreiFigure(title, caption, contentDescription, variant, inset, separation, pattern, actions = { … }, attachment = { … }) { content }`, with `titleContent` and `captionContent` lambdas for the two slots. No `clickable`. The stage takes `horizontalScroll` only while its content is wider than it. A traversal group (`semantics { isTraversalGroup = true }`) with the name as its content description; Compose has no figure role. The content color is provided through `LocalContentColor` in the outlined and filled looks. The ground pattern (FIG-26) is to be drawn with `Modifier.drawBehind` on the stage; not yet written."
     },
     "flutter": {
       "status": "planned",
@@ -652,9 +763,10 @@
         "label": "semanticLabel",
         "variant": "variant",
         "inset": "inset",
-        "separation": "separation"
+        "separation": "separation",
+        "pattern": "pattern"
       },
-      "notes": "`TanreiFigure(title:, caption:, semanticLabel:, variant:, inset:, separation:, actions:, attachment:, child:)`, with `titleWidget:` and `captionWidget:` for the two slots. One `Semantics(container: true, label:)` around the parts, which stay in the tree. The stage is a horizontal `SingleChildScrollView` only while its child is wider than it. The content's default text and icon styles are set in the outlined and filled looks."
+      "notes": "`TanreiFigure(title:, caption:, semanticLabel:, variant:, inset:, separation:, pattern:, actions:, attachment:, child:)`, with `titleWidget:` and `captionWidget:` for the two slots. One `Semantics(container: true, label:)` around the parts, which stay in the tree. The stage is a horizontal `SingleChildScrollView` only while its child is wider than it. The content's default text and icon styles are set in the outlined and filled looks. The ground pattern (FIG-26) is to be a `CustomPaint` painter behind the stage's child; not yet written."
     },
     "react-native": {
       "status": "planned",
@@ -665,9 +777,10 @@
         "label": "accessibilityLabel",
         "variant": "variant",
         "inset": "inset",
-        "separation": "separation"
+        "separation": "separation",
+        "pattern": "pattern"
       },
-      "notes": "`<Figure title=\"Variants\" caption=\"…\" actions={…} attachment={…}>…</Figure>`; `title` and `caption` take a string or a node (the two slots). A `View` that is not itself `accessible`, so its children stay reachable, with `accessibilityLabel` on a wrapping group where the platform exposes one. The stage is a horizontal `ScrollView` only while its content is wider than it. Follows the app's direction where an ancestor's is not known. The content color is given through Tanrei's text context in the outlined and filled looks."
+      "notes": "`<Figure title=\"Variants\" caption=\"…\" actions={…} attachment={…}>…</Figure>`; `title` and `caption` take a string or a node (the two slots). A `View` that is not itself `accessible`, so its children stay reachable, with `accessibilityLabel` on a wrapping group where the platform exposes one. The stage is a horizontal `ScrollView` only while its content is wider than it. Follows the app's direction where an ancestor's is not known. The content color is given through Tanrei's text context in the outlined and filled looks. `pattern` takes the same five values; the ground pattern (FIG-26) is to be drawn with an SVG pattern behind the stage's content; not yet written."
     }
   }
 }

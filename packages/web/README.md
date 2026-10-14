@@ -8143,7 +8143,7 @@ Good to know:
 
 ## `<tanrei-figure>` (`figure.css`)
 
-`specs/figure.spec.json` (FIG-1 to FIG-25): one thing to look at — a picture, a chart, a specimen, a live example — on
+`specs/figure.spec.json` (FIG-1 to FIG-26): one thing to look at — a picture, a chart, a specimen, a live example — on
 a stage of its own, framed or not, with a caption below, and optionally a title with your controls above and a block
 joined beneath. It is never pressed and has no state.
 
@@ -8179,6 +8179,7 @@ element is its own stage, and a stage or such a picture that is a child of the `
 | `variant` | `outlined` \| `filled` \| `plain` (open) | `outlined` | the surface inside one hairline; a quiet tone and no edge; no fill, edge, padding or line. Reflected |
 | `flush` (`inset`) | boolean | not set (`inset` is `true`) | the stage is not padded, so what is shown reaches the frame's edges and is clipped by its corners. The inverse of the spec's `inset`, as the card's |
 | `separation` | `auto` \| `divider` \| `gap` | `auto` | a line under the header and above the attachment, which is flush with the frame; or no line, and the attachment set in by `comp.figure.attachment.gap`. `auto` is `comp.figure.separation`. The plain look draws neither. Reflected |
+| `pattern` | `none` \| `grid` \| `dots` \| `grid-fade` \| `checkerboard` | `none` | the ground behind what is shown, across the stage: hairlines every `comp.figure.pattern.spacing`; a dot at every crossing of that grid; the grid, clear around the centre and growing toward the corners (the documentation's live examples); squares for a picture that may be transparent. Decoration only, in `comp.figure.pattern.color`. The plain look and forced colors draw none; any other value draws none and is reported. Reflected |
 | `label` | text | — | the accessible name of a figure that draws neither a title nor a caption: the element writes it as the figure's `aria-label`. Ignored where there is one |
 | `headline` | text | — | the spec's `title` (HTML's own `title` would show a tooltip): the element writes it as a `<p data-part="title">`. A title in the markup wins |
 | `caption` | text | — | the element writes it as the `<figcaption>`. A `<figcaption>` in the markup wins |
@@ -8209,6 +8210,10 @@ Good to know:
   cannot be scrolled to.
 - **The stage is the scroll box** (`overflow-x: auto`) and clips what reaches past its padding box: the default
   padding leaves room for a focus ring and a level 2 shadow; a flush or plain stage does not.
+- **The pattern is the stage's own background** (`background-color` the look's fill, `background-image` the
+  pattern's gradients): it takes no element and no input, stays in place while the stage scrolls, shows through a
+  transparent lone picture, and is read on the stage — so a stage scoped to another system (`data-tanrei-system`)
+  draws that system's pattern on its fill. A `background` you set on the stage replaces it.
 - **The attachment is placed, never styled**: a margin in the gap form and nothing else. A block with corners of its
   own (a code block) shows its upper corners under the divider form's line; a block that joins
   squarely is not drawn yet.

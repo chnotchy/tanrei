@@ -7415,6 +7415,12 @@ public struct TanreiFigureTokens: Sendable, Equatable {
   public var headerPaddingInlineEndWithActions: CGFloat
   public var outlineColor: TanreiPaint
   public var outlineWidth: CGFloat
+  public var patternCheckerboardSize: CGFloat
+  public var patternClearExtent: Double
+  public var patternColor: TanreiPaint
+  public var patternDotSize: CGFloat
+  public var patternLineThickness: CGFloat
+  public var patternSpacing: CGFloat
   public var separation: Double
   public var stagePaddingBlock: CGFloat
   public var stagePaddingInline: CGFloat
@@ -7437,6 +7443,12 @@ public struct TanreiFigureTokens: Sendable, Equatable {
     headerPaddingInlineEndWithActions: CGFloat,
     outlineColor: TanreiPaint,
     outlineWidth: CGFloat,
+    patternCheckerboardSize: CGFloat,
+    patternClearExtent: Double,
+    patternColor: TanreiPaint,
+    patternDotSize: CGFloat,
+    patternLineThickness: CGFloat,
+    patternSpacing: CGFloat,
     separation: Double,
     stagePaddingBlock: CGFloat,
     stagePaddingInline: CGFloat,
@@ -7458,6 +7470,12 @@ public struct TanreiFigureTokens: Sendable, Equatable {
     self.headerPaddingInlineEndWithActions = headerPaddingInlineEndWithActions
     self.outlineColor = outlineColor
     self.outlineWidth = outlineWidth
+    self.patternCheckerboardSize = patternCheckerboardSize
+    self.patternClearExtent = patternClearExtent
+    self.patternColor = patternColor
+    self.patternDotSize = patternDotSize
+    self.patternLineThickness = patternLineThickness
+    self.patternSpacing = patternSpacing
     self.separation = separation
     self.stagePaddingBlock = stagePaddingBlock
     self.stagePaddingInline = stagePaddingInline

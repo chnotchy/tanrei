@@ -1,4 +1,4 @@
-// <tanrei-figure> and figure.css, driven by specs/figure.spec.json: every behaviour id (FIG-1…25) is cited by a test
+// <tanrei-figure> and figure.css, driven by specs/figure.spec.json: every behaviour id (FIG-1…26) is cited by a test
 // title, every fixture has a baseline, and every length and color is read back from the tokens — never from a number
 // written here (the numbers of a `verify` are the spec's own, for the default system).
 import fs from 'node:fs';
@@ -876,9 +876,9 @@ test.describe('text size, forced colors, direction, unknown values', () => {
     await whole('text spacing');
   });
 
-  test('FIG-20: in forced colors the outlined and the filled looks have an edge of outline.width in the text color and the plain look none; the lines, the title and the caption are the text color, a link the link color and still underlined, and the stage’s focus ring the platform’s own color for focus', async ({ page }) => {
+  test('FIG-20: in forced colors the outlined and the filled looks have an edge of outline.width in the text color and the plain look none, and no look draws a ground pattern; the lines, the title and the caption are the text color, a link the link color and still underlined, and the stage’s focus ring the platform’s own color for focus', async ({ page }) => {
     await page.emulateMedia({ forcedColors: 'active' });
-    await mountFixtures(page, spec, { icons: true, fixtures: [...some('outlined', 'filled', 'plain', 'separation-divider', 'filled-title-caption'), fx('wide', {}, { title: 'Wide', stage: BOX(900), caption: 'With <a id="link" href="#x">a link</a>.' })] });
+    await mountFixtures(page, spec, { icons: true, fixtures: [...some('outlined', 'filled', 'plain', 'separation-divider', 'filled-title-caption', 'pattern-grid', 'pattern-grid-fade', 'pattern-checkerboard', 'filled-pattern-dots'), fx('wide', {}, { title: 'Wide', stage: BOX(900), caption: 'With <a id="link" href="#x">a link</a>.' })] });
     await size(page, 'wide', 320);
     const [canvasText, linkText, highlight, width] = [await systemColor(page, 'CanvasText'), await systemColor(page, 'LinkText'), await systemColor(page, 'Highlight'), await resolveToken(page, T('outline-width'))];
     // The verify: outlined and filled have a visible edge in CanvasText; plain has none.
@@ -905,8 +905,8 @@ test.describe('text size, forced colors, direction, unknown values', () => {
       expect(await css(page.locator('#link'), 'color')).toBe(linkText);
     }
     expect(await css(page.locator('#link'), 'text-decoration-line')).toBe('underline');
-    // No part relies on a background color.
-    for (const id of ['outlined', 'filled', 'separation-divider']) expect(await figure(page, id).evaluate((el) => [...el.querySelectorAll(':scope > *, :scope > [data-part="frame"] > *')].every((part) => getComputedStyle(part).backgroundImage === 'none'))).toBe(true);
+    // No part relies on a background color, and no look draws a ground pattern (FIG-26).
+    for (const id of ['outlined', 'filled', 'separation-divider', 'pattern-grid', 'pattern-grid-fade', 'pattern-checkerboard', 'filled-pattern-dots']) expect(await figure(page, id).evaluate((el) => [...el.querySelectorAll(':scope > *, :scope > [data-part="frame"] > *')].every((part) => getComputedStyle(part).backgroundImage === 'none'))).toBe(true);
     await tabTo(page, shown(page, 'wide'));
     expect(await css(shown(page, 'wide'), 'outline-color')).toBe(highlight);
   });
@@ -979,7 +979,7 @@ test.describe('text size, forced colors, direction, unknown values', () => {
 
   test('FIG-24: a variant the active design system does not have renders with the default variant’s tokens and is reported; one a design system adds is drawn from its tokens', async ({ page }) => {
     const seen = warnings(page);
-    await mountFixtures(page, spec, { fixtures: [{ ...fixture('outlined'), id: 'unknown', props: { variant: 'glass', label: 'Unknown' } }, { ...fixture('outlined'), id: 'added', props: { variant: 'tinted', label: 'Added' } }, ...some('outlined')] });
+    await mountFixtures(page, spec, { fixtures: [{ ...fixture('outlined'), id: 'unknown', props: { variant: 'glass', label: 'Unknown' } }, { ...fixture('outlined'), id: 'added', props: { variant: 'tinted', label: 'Added' } }, { ...fixture('outlined'), id: 'added-pattern', props: { variant: 'tinted', pattern: 'grid', label: 'Added, on a grid' } }, ...some('outlined')] });
     expect(await css(frame(page, 'unknown'), 'background-color')).toBe(await css(frame(page, 'outlined'), 'background-color'));
     expect(await px(frame(page, 'unknown'), 'outline-width')).toBe(await px(frame(page, 'outlined'), 'outline-width'));
     expect(await px(shown(page, 'unknown'), 'padding-top')).toBe(await px(shown(page, 'outlined'), 'padding-top'));
@@ -993,6 +993,8 @@ test.describe('text size, forced colors, direction, unknown values', () => {
       (el as unknown as { variant: string }).variant = 'tinted';
     });
     await expect.poll(() => css(frame(page, 'added'), 'background-color')).toBe('rgb(10, 20, 30)');
+    // FIG-26: its fill is also the ground its pattern is drawn on.
+    expect(await css(shown(page, 'added-pattern'), 'background-color')).toBe('rgb(10, 20, 30)');
   });
 
   test('FIG-25: a figure whose stage holds nothing draws nothing, takes no space and exposes nothing, and that is reported — a title, a caption or an attachment alone is not a figure; label is ignored while a title or a caption is given', async ({ page }) => {
@@ -1021,6 +1023,127 @@ test.describe('text size, forced colors, direction, unknown values', () => {
     // label is ignored where a caption is given.
     await expect(stage(page, 'labelled').getByRole('figure', { name: 'The caption names it', exact: true })).toHaveCount(1);
     expect(await figure(page, 'labelled').getAttribute('aria-label')).toBeNull();
+  });
+});
+
+test.describe('the ground pattern', () => {
+  /** The stage drawn alone, in CSS pixels, and a reader of its pixels as [r, g, b]. */
+  const pixels = async (locator: Locator) => {
+    const shot = decodePng(await locator.screenshot({ scale: 'css' }));
+    const at = (x: number, y: number) => {
+      const i = (Math.floor(y) * shot.width + Math.floor(x)) * 4;
+      return [shot.data[i], shot.data[i + 1], shot.data[i + 2]];
+    };
+    return { width: shot.width, height: shot.height, at };
+  };
+  const rgb = (color: string) => (color.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+  const close = (a: number[], b: number[], tolerance = 2) => a.every((v, i) => Math.abs(v - b[i]) <= tolerance);
+
+  test('FIG-26: a pattern is drawn in pattern.color across the stage, over the fill and under the content, centred and still while the content scrolls — grid lines of line-thickness every spacing, dots of dot-size at that spacing, the grid cleared toward the centre to clear-extent, squares of checkerboard-size — and is decoration only; the plain look draws none, and a value the figure does not define draws none and is reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, {
+      fixtures: [
+        ...some('outlined', 'pattern-grid', 'pattern-dots', 'pattern-grid-fade', 'pattern-checkerboard', 'filled-pattern-grid', 'plain-pattern-grid', 'pattern-dots-rtl'),
+        { ...fixture('outlined'), id: 'unknown', props: { pattern: 'stripes', label: 'Unknown' } },
+        fx('wide', { pattern: 'grid' }, { title: 'Wide', stage: BOX(900) }),
+      ],
+    });
+    // The verify: under the default system a hairline every 24, dots 3 across, squares of 8, in surface-container-highest.
+    const [spacing, thickness, dot, square] = [await resolveToken(page, T('pattern-spacing')), await resolveToken(page, T('pattern-line-thickness')), await resolveToken(page, T('pattern-dot-size')), await resolveToken(page, T('pattern-checkerboard-size'))];
+    expect([spacing, thickness, dot, square]).toEqual([24, 1, 3, 8]);
+    const extent = Number(await css(host(page, 'outlined'), T('pattern-clear-extent')));
+    expect(extent).toBe(0.3);
+    const ink = rgb(await resolveColor(page, T('pattern-color')));
+    expect(await resolveColor(page, T('pattern-color'))).toBe(await resolveColor(page, '--tanrei-sys-color-surface-container-highest'));
+    const fill = rgb(await resolveColor(page, T('outlined-container-color')));
+
+    // Over the look's fill: the stage is drawn on the fill the frame has, so nothing changes where the pattern is not.
+    for (const id of ['pattern-grid', 'pattern-dots', 'pattern-grid-fade', 'pattern-checkerboard']) {
+      expect(await css(shown(page, id), 'background-color'), id).toBe(await resolveColor(page, T('outlined-container-color')));
+      expect(await css(shown(page, id), 'background-image'), id).not.toBe('none');
+      expect((await css(shown(page, id), 'background-attachment')).split(', ').every((each) => each === 'scroll'), id).toBe(true);
+    }
+    expect(await css(shown(page, 'filled-pattern-grid'), 'background-color')).toBe(await resolveColor(page, T('filled-container-color')));
+
+    // grid: lines every spacing, centred on the stage — a cell is centred on it, so lines stand half a spacing either side
+    // of the centre and every spacing from there.
+    {
+      const shot = await pixels(shown(page, 'pattern-grid'));
+      const row = Math.floor(shot.height / 2);
+      const columns: number[] = [];
+      for (let x = 2; x < shot.width - 2; x++) if (close(shot.at(x, row), ink) && !close(shot.at(x - 1, row), ink)) columns.push(x);
+      const outside = columns.filter((x) => Math.abs(x - shot.width / 2) > 60);
+      expect(outside.length).toBeGreaterThan(8);
+      for (let i = 1; i < outside.length; i++) if (outside[i] - outside[i - 1] < spacing * 2) expect(outside[i] - outside[i - 1]).toBe(spacing);
+      const [left, right] = [shot.width / 2 - spacing / 2 - spacing * 4, shot.width / 2 + spacing / 2 + spacing * 3];
+      expect(columns.some((x) => Math.abs(x - left) <= 1), `a line at ${left} in ${columns.join(' ')}`).toBe(true);
+      expect(columns.some((x) => Math.abs(x - right) <= 1), `a line at ${right} in ${columns.join(' ')}`).toBe(true);
+      // A line is line-thickness wide, and fill lies between two lines.
+      const line = columns.find((x) => Math.abs(x - left) <= 1)!;
+      expect(close(shot.at(line + thickness, row), ink)).toBe(false);
+      expect(close(shot.at(line + spacing / 2, row), fill)).toBe(true);
+    }
+    // dots: one at the centre of each cell, so one in line with the stage's centre, dot-size across.
+    {
+      const shot = await pixels(shown(page, 'pattern-dots'));
+      const [cx, cy] = [shot.width / 2, shot.height / 2];
+      expect(close(shot.at(cx - spacing * 4, cy), ink)).toBe(true);
+      expect(close(shot.at(cx - spacing * 4 + spacing / 2, cy), fill)).toBe(true);
+      expect(close(shot.at(cx - spacing * 4 + dot + 1, cy), fill)).toBe(true);
+    }
+    // grid-fade: the fill alone near the centre, where the grid is cleared, and the grid toward the edges.
+    {
+      const shot = await pixels(shown(page, 'pattern-grid-fade'));
+      const row = Math.floor(shot.height / 2);
+      const lines: number[] = [];
+      const grid = await pixels(shown(page, 'pattern-grid'));
+      for (let x = 2; x < grid.width - 2; x++) if (close(grid.at(x, row), ink) && !close(grid.at(x - 1, row), ink)) lines.push(x);
+      // The ellipse reaches the stage's corners, so the grid is clear to extent × √2 of half the width either side of the centre.
+      const nearCentre = lines.find((x) => Math.abs(x - shot.width / 2) > 40 && Math.abs(x - shot.width / 2) < (shot.width / 2) * extent * Math.SQRT2 - 4)!;
+      expect(nearCentre).toBeDefined();
+      expect(close(shot.at(nearCentre, row), fill, 0)).toBe(true);
+      expect(close(shot.at(lines[0], row), fill, 0)).toBe(false);
+    }
+    // checkerboard: squares of checkerboard-size, the fill and pattern.color in turn.
+    {
+      const shot = await pixels(shown(page, 'pattern-checkerboard'));
+      const [x0, y0] = [shot.width / 2 + square / 2, shot.height / 2 - square / 2];
+      const a = shot.at(x0 - square * 20, y0);
+      const b = shot.at(x0 - square * 21, y0);
+      const c = shot.at(x0 - square * 20, y0 + square);
+      expect([close(a, ink), close(b, fill)]).toEqual([true, true]);
+      expect(close(c, fill)).toBe(true);
+    }
+    // The same in either layout direction.
+    for (const property of ['background-image', 'background-position', 'background-size']) expect(await css(shown(page, 'pattern-dots-rtl'), property), property).toBe(await css(shown(page, 'pattern-dots'), property));
+    // Decoration only: no element, no pseudo-element and nothing in the accessibility tree of the figure's own.
+    expect(await shown(page, 'pattern-grid').evaluate((el) => [el.childElementCount, getComputedStyle(el, '::before').content, getComputedStyle(el, '::after').content])).toEqual([1, 'none', 'none']);
+    expect(await page.locator('[data-fixture="pattern-grid"]').ariaSnapshot()).toBe(await page.locator('[data-fixture="outlined"]').ariaSnapshot());
+    // Read on the stage itself: a stage scoped to other tokens draws on their fill in their color.
+    await shown(page, 'pattern-grid-fade').evaluate((el) => {
+      el.style.setProperty('--tanrei-comp-figure-outlined-container-color', 'rgb(1, 2, 3)');
+      el.style.setProperty('--tanrei-comp-figure-pattern-color', 'rgb(4, 5, 6)');
+    });
+    expect(await css(shown(page, 'pattern-grid-fade'), 'background-color')).toBe('rgb(1, 2, 3)');
+    expect(await css(shown(page, 'pattern-grid-fade'), 'background-image')).toContain('rgb(4, 5, 6)');
+    expect(await css(shown(page, 'pattern-grid-fade'), 'background-image')).toContain('rgb(1, 2, 3)');
+    // Still while the content scrolls: the band above the content is the same before and after a scroll.
+    await size(page, 'wide', 320);
+    const band = async () => {
+      const shot = await pixels(shown(page, 'wide'));
+      return Array.from({ length: shot.width - 4 }, (_, x) => shot.at(x + 2, 4).join(',')).join(' ');
+    };
+    const before = await band();
+    await shown(page, 'wide').evaluate((el) => (el.scrollLeft = 100));
+    expect(await shown(page, 'wide').evaluate((el) => el.scrollLeft)).toBe(100);
+    expect(await band()).toBe(before);
+    // The plain look draws none; neither does a value the figure does not define, which is reported.
+    for (const id of ['plain-pattern-grid', 'unknown']) {
+      expect(await css(shown(page, id), 'background-image'), id).toBe('none');
+      expect(await css(shown(page, id), 'background-color'), id).toBe(await css(shown(page, id === 'unknown' ? 'outlined' : 'plain-pattern-grid'), 'background-color'));
+    }
+    expect(await css(shown(page, 'plain-pattern-grid'), 'background-color')).toBe('rgba(0, 0, 0, 0)');
+    await expect.poll(() => seen.filter((m) => m.includes('FIG-26') && m.includes('"stripes"')).length).toBe(1);
   });
 });
 
@@ -1058,6 +1181,7 @@ test.describe('the element and its stylesheet', () => {
     expect(await px(attachment(page, 'filled-separation-gap'), 'margin-left')).toBe(await resolveToken(page, T('attachment-gap')));
     expect(await px(caption(page, 'caption'), 'margin-top')).toBe(await resolveToken(page, T('caption-gap')));
     near(await px(frame(page, 'outlined'), 'border-top-left-radius'), await resolveToken(page, T('container-shape')), 0.01);
+    expect(await css(shown(page, 'pattern-grid'), 'background-image')).toContain('linear-gradient');
     await expect(stage(page, 'caption').getByRole('figure', { name: 'The medium corner, on a card.' })).toHaveCount(1);
     const before = await geometry(page);
     await page.addScriptTag({ content: fs.readFileSync(path.join(pkg, 'dist/tanrei.bundle.js'), 'utf8'), type: 'module' });
@@ -1143,12 +1267,13 @@ test.describe('fixtures', () => {
   test('every fixture of the spec is mounted', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     await page.waitForFunction(() => !!customElements.get('tanrei-button'));
-    expect(spec.fixtures).toHaveLength(33);
+    expect(spec.fixtures).toHaveLength(42);
     for (const f of spec.fixtures) {
       await expect(host(page, f.id), f.id).toHaveCount(1);
       await expect(shown(page, f.id), f.id).toBeVisible();
       expect(await host(page, f.id).getAttribute('variant'), f.id).toBe(f.props.variant === undefined ? null : String(f.props.variant));
       expect(await host(page, f.id).getAttribute('separation'), f.id).toBe(f.props.separation === undefined ? null : String(f.props.separation));
+      expect(await host(page, f.id).getAttribute('pattern'), f.id).toBe(f.props.pattern === undefined ? null : String(f.props.pattern));
       expect(await host(page, f.id).evaluate((el) => el.hasAttribute('flush')), f.id).toBe(f.props.inset === false);
       const [wantsTitle, wantsCaption] = [f.props.title ?? f.slots?.title, f.props.caption ?? f.slots?.caption];
       if (wantsTitle) await expect(title(page, f.id), f.id).toHaveText(String(wantsTitle));
