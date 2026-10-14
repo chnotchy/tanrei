@@ -42,3 +42,9 @@
 /* A menu a page draws in place (`inline open`, as the Menu's examples do) has no size until its elements are defined:
    its stylesheet holds the block size its surface will have, so the examples under it do not move. */
 @import '@tanrei/web/menu.css' layer(docs.menu);
+/* The Tree view draws every row with this one stylesheet (it has no shadow root): the docs' file trees
+   (components/FileTree.astro) and the Tree view's own page. It is loaded here, for every page, and not by a component
+   that draws a tree: a page that draws one without that component would otherwise have only the copy Theme Studio's
+   bundle carries, in `tanrei.components` — before Starlight's layers, whose reset (`* { margin: 0 }`) then takes the
+   margins that set the icon after the chevron and the supporting text after the label. */
+@import '@tanrei/web/tree-view.css' layer(docs.tree-view);
