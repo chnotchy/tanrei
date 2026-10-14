@@ -3829,7 +3829,7 @@
               "value": 0,
               "unit": "px"
             },
-            "$description": "Padding added to the leading half at its start and, at the default trailing width, to the trailing half at its end (SPB-32); a narrow trailing half takes none. A full outer end takes more of the container away beside the content than the tighter inner corner does, so equal paddings look unequal; this evens them, as the connected button group does. A system whose outer ends are no rounder than its inner corners sets 0."
+            "$description": "Padding added to the leading half at its start and to the trailing half at its end, at either trailing width (SPB-32). A full outer end takes more of the container away beside the content than the tighter inner corner does, so equal paddings look unequal; this evens them, as the connected button group does. A system whose outer ends are no rounder than its inner corners sets 0."
           },
           "padding-block": {
             "large": {

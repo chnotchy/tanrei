@@ -119,7 +119,7 @@
           "outer-inset": {
             "$type": "dimension",
             "$value": "{tanrei.sys.space.space0}",
-            "$description": "Padding added to the leading half at its start and, at the default trailing width, to the trailing half at its end (SPB-32); a narrow trailing half takes none. A full outer end takes more of the container away beside the content than the tighter inner corner does, so equal paddings look unequal; this evens them, as the connected button group does. A system whose outer ends are no rounder than its inner corners sets 0.",
+            "$description": "Padding added to the leading half at its start and to the trailing half at its end, at either trailing width (SPB-32). A full outer end takes more of the container away beside the content than the tighter inner corner does, so equal paddings look unequal; this evens them, as the connected button group does. A system whose outer ends are no rounder than its inner corners sets 0.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product draws this control under full outer ends in one place and under squarer ends in another: how much the rounded end must be compensated is a value of the shape, and a product that changes the shape has to be able to change it.",
@@ -278,7 +278,7 @@
           },
           "padding-inline-narrow": {
             "$type": "dimension",
-            "$description": "The inset on each side of the chevron while trailingWidth is narrow: the trailing half is then the chevron's box and this twice, with no outer padding (SPB-32). The default system holds it at 4 at every size, as comp.button.container.padding-inline-narrow, so that the half is as wide as a narrow icon-only Button (28, 32 and 32). A system that wants a wider handle at one size gives that size a larger value; it should not go below the default's.",
+            "$description": "The inset on each side of the chevron while trailingWidth is narrow: the trailing half is then the chevron's box, this twice and container.outer-inset at its end (SPB-32). The default system holds it at 4 at every size, as comp.button.container.padding-inline-narrow, so that the half is a narrow icon-only Button's width and the outer padding (32, 36 and 36). A system that wants a wider handle at one size gives that size a larger value; it should not go below the default's.",
             "$extensions": {
               "dev.tanrei.vocabulary": {
                 "rationale": "One product gives the menu half the weight of a second button in one place and makes it a slim handle on the main action in another (a toolbar, a table row, a narrow sheet), at the same height.",

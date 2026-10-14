@@ -160,13 +160,11 @@ export const styles = css`
     padding-block: calc(var(--_pad-block) + var(--_add-top)) calc(var(--_pad-block) + var(--_add-bottom));
   }
   /* SPB-12: the trailing half holds the chevron between trailing.padding-inline, or — narrow — between
-     trailing.padding-inline-narrow, of its size. SPB-32: a narrow half takes no outer padding at its round end: it is
-     the chevron's box and that inset twice and no wider, the chevron at its centre — the width of a narrow icon-only
-     Button of its size wherever the two components' tokens agree (BTN-12), as they do in the default system. Under
-     either separation, and in right-to-left: the outer padding was the half's only directional part. */
+     trailing.padding-inline-narrow, of its size. SPB-32: a narrow half keeps the outer padding at its round end (the
+     .trailing rule below): a slim half's chevron is nearer the curve, so it needs the compensation as much as a wide
+     one's — one outer padding wider than a narrow icon-only Button of its size where the two components' tokens agree. */
   :host([trailing-width='narrow']) .trailing {
     --_pad-chevron: var(--_pad-trailing-narrow);
-    --tanrei-group-outer-end: initial;
   }
 
   /* SPB-12: the leading half — as wide as its content: the icon, when it has one, then the label, gap apart, padded at
@@ -190,9 +188,9 @@ export const styles = css`
   .leading.with-icon {
     --_pad-inline-start: var(--_pad-start-icon);
   }
-  /* SPB-12, SPB-32: the trailing half — the chevron centred between its padding on each side, then, at the default
+  /* SPB-12, SPB-32: the trailing half — the chevron centred between its padding on each side, then, at either
      width, container.outer-inset more at its end, the other rounded outer end: the chevron sits half of it nearer the
-     seam. (A narrow half takes none: the rule above.) Its start edge is the seam under a divider. */
+     seam. Its start edge is the seam under a divider. */
   .trailing {
     flex: none;
     --_pad-chevron: var(--_pad-trailing);

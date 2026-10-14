@@ -2,7 +2,7 @@
 title: "带菜单的按钮"
 description: "按一次即可执行主操作，并通过旁边与之相连的第二个按钮，在菜单中提供相关的操作。"
 translationOf: components/button-with-menu.mdx
-sourceHash: da09049dfc3d610609f88d3630ba5407eb6f36c2
+sourceHash: 52a376bf9ba1224db956bf1d3bb5f7de5f2ab5f9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -37,7 +37,7 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
 - 两个半边以一条分隔线或一条间隙连接。设计系统为所有组件统一选择一次，设计系统也可以让这个组件单独不同，而 `separation`（`auto`、`divider`、`gap`）则设置某一个实例。默认系统画分隔线。
 - 前半边在图标一侧的内边距小一级，两个圆形的外端则各多一点内边距。
 - 菜单打开时，后半边保持自己的形状；只有箭头表明打开状态。
-- `trailingWidth`（`default`、`narrow`）画出更窄的后半边：与同尺寸的 narrow 纯图标[按钮](/zh-cn/components/button/)一样宽，即箭头加上两侧各一小段留白。
+- `trailingWidth`（`default`、`narrow`）画出更窄的后半边：箭头加上两侧各一小段留白，圆形的外端和默认宽度一样再多一点内边距。
 :::
 
 <DemoFrame label="变体">
@@ -270,7 +270,7 @@ Material 3 把对应的组件称为 split button；在 m3-like 预设中，带�
 
 ### 窄的后半边
 
-默认情况下，后半边把箭头放在一个边长等于按钮高度的正方形里，圆形的外端再多一点内边距。把 `trailingWidth` 设为 `narrow` 后，它就是附在主操作上的一个细长把手：宽度恰好等于同尺寸的 narrow 纯图标[按钮](/zh-cn/components/button/)（默认系统中为 28 / 32 / 32），箭头居中，两侧各有一小段留白，外端不再加内边距。无论取哪种宽度，前半边都一样。
+默认情况下，后半边把箭头放在一个边长等于按钮高度的正方形里，圆形的外端再多一点内边距。把 `trailingWidth` 设为 `narrow` 后，它就是附在主操作上的一个细长把手：箭头两侧各有一小段留白，圆形的外端也和默认宽度一样多一点内边距，让箭头相对弧线看起来居中（默认系统中为 32 / 36 / 36，即同尺寸 narrow 纯图标[按钮](/zh-cn/components/button/)的宽度再加上这段内边距）。无论取哪种宽度，前半边都一样。
 
 <DemoFrame label="后半边的宽度：default 和 narrow，各种尺寸" plain>
   <tanrei-button-with-menu size="small" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
