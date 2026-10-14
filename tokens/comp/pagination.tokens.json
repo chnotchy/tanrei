@@ -4,23 +4,23 @@
       "pagination": {
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page.",
+            "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results.",
             "since": "0.1.0"
           },
           "dev.tanrei.states": {
             "variants": [
-              "item"
+              "item",
+              "current"
             ],
             "states": [
               "hovered",
               "focused",
-              "pressed"
+              "pressed",
+              "disabled"
             ],
             "perVariant": {
               "container.color": "color",
-              "outline.color": "color",
               "label.color": "color",
-              "title.color": "color",
               "icon.color": "color",
               "state-layer.color": "color"
             },
@@ -30,94 +30,116 @@
             }
           },
           "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium"
+              ],
+              "members": [
+                "container.height"
+              ]
+            },
             "part": {
               "default": "item",
               "from": "states"
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a pagination reads: the gap between its two items and the width under which they stack; an item's corners, padding, edge, the gap between its arrow and its text and between its two lines of text, the two text styles and the arrow's size; the timing of a state change; and the colors of an item's fill, edge, direction label, title, arrow and state layer, at rest and in each state.",
+            "usage": "Everything a pagination reads: the gap between its items; an item's height per size, its least width, inline padding and corners; the text style of a page number and of the short form's sentence; the arrows' size; the color of the ellipsis and of the short form's sentence; the timing of a state change; and the colors of an item's fill, number, arrow and state layer, for a page and for the current page, at rest and in each state.",
             "rules": [
-              "A pagination offers the page before and the page after the one a person is on, in one sequence. Each item is a link: it has a destination, and without one it is not drawn.",
-              "An item is pressed as a whole. Its title is not a second link and is not underlined: the edge, the arrow and its place say what it is.",
-              "The direction word (Previous, Next) is the product's, in its language; the arrows are drawn by the component and mirror in a right-to-left layout.",
-              "Previous is always at the start and next at the end. Do not swap them, and do not move next to the start when there is no previous page.",
+              "A pagination moves through the numbered pages of one list: page numbers with the current one marked, previous and next, and first and last where the product asks for them. It is not for the page before and after in a sequence of titled pages: that is Previous and next links.",
+              "The current page is marked by its fill and by aria-current, never by color alone.",
+              "Previous, next, first and last are icon-only and named by the product's words; the arrows are drawn by the component and mirror in a right-to-left layout.",
+              "Pages that do not fit are left out behind an ellipsis, which is not a control. The number of places stays the same from page to page.",
               "State tokens are valued by the design system's pattern rules; override one token or replace the rule.",
-              "Restyle through these tokens in a layer; never style the anchors by hand."
+              "Restyle through these tokens in a layer; never style the items by hand."
             ]
           }
         },
         "gap": {
           "$type": "dimension",
-          "$value": "{tanrei.sys.space.space200}",
-          "$description": "Space between the previous and the next item, side by side or stacked."
+          "$value": "{tanrei.sys.space.space50}",
+          "$description": "Space between two items of the row, and between the short form's sentence and the controls beside it."
         },
         "container": {
-          "shape": {
+          "height": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.shape.corner.medium}",
-            "$description": "The corners of an item, and of its focus ring. The value an outlined card has, because an item is drawn as one."
-          },
-          "padding": {
-            "$type": "dimension",
-            "$value": "{tanrei.sys.space.space200}",
-            "$description": "Space between an item's edge and its content, on every side."
-          },
-          "gap": {
-            "$type": "dimension",
-            "$value": "{tanrei.sys.space.space150}",
-            "$description": "Space between the arrow and the text beside it."
-          },
-          "min-width": {
-            "$type": "dimension",
-            "$value": {
-              "value": 240,
-              "unit": "px"
-            },
-            "$extensions": {
-              "dev.tanrei.derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 60
+            "$description": "An item's height, per size, and its least width: a page number of one digit stands in a square.",
+            "small": {
+              "$value": {
+                "value": 32,
+                "unit": "px"
               },
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product with long page titles stacks its two items sooner than one whose titles are a word or two; another keeps them side by side on a narrow column."
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
               }
             },
-            "$description": "The least width an item has beside the other one. Where the layout gives the pagination less than two of these and the gap, the items stack."
-          }
-        },
-        "outline": {
-          "width": {
+            "medium": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            }
+          },
+          "padding-inline": {
             "$type": "dimension",
-            "$value": "{tanrei.sys.border.hairline}",
-            "$description": "The thickness of an item's edge."
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Space on each side of a page number that is wider than the square: a number of three digits or more."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}",
+            "$description": "The corners of an item, and of its focus ring. Fully rounded in the default system, as a button is: a page of one digit is a circle."
           }
         },
         "label": {
           "typescale": {
             "$type": "typography",
-            "$value": "{tanrei.sys.typescale.label-small}",
-            "$description": "The direction word (Previous, Next) above the title."
-          },
-          "gap": {
-            "$type": "dimension",
-            "$value": "{tanrei.sys.space.space25}",
-            "$description": "Space between the direction word and the title under it."
-          }
-        },
-        "title": {
-          "typescale": {
-            "$type": "typography",
-            "$value": "{tanrei.sys.typescale.body-large}",
-            "$description": "The destination's title."
+            "$value": "{tanrei.sys.typescale.label}",
+            "$description": "A page number. Its digits are drawn at one width, so that the row keeps its width from page to page."
           }
         },
         "icon": {
           "size": {
             "$type": "dimension",
             "$value": "{tanrei.sys.icon.small}",
-            "$description": "The arrow's box."
+            "$description": "The box of the arrows of previous, next, first and last."
+          }
+        },
+        "ellipsis": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}",
+            "$description": "The ellipsis that stands for the pages left out. It is not a control and has no state."
+          }
+        },
+        "count": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body}",
+            "$description": "The short form's sentence (\"Page 3 of 10\")."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface}",
+            "$description": "The short form's sentence."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Space on each side of the short form's sentence, between it and the controls."
           }
         },
         "item": {
@@ -136,40 +158,55 @@
               },
               "$extensions": {
                 "dev.tanrei.derive": {
-                  "fixed": "An item has no fill at rest; the surface behind it shows through."
+                  "fixed": "A page that is not the current one has no fill at rest; the surface behind it shows through."
                 }
               },
-              "$description": "An item's fill. None at rest: it is where hover, focus and press are drawn."
-            }
-          },
-          "outline": {
-            "color": {
-              "$value": "{tanrei.sys.color.outline-variant}",
-              "$description": "An item's edge: the one hairline."
+              "$description": "The fill of a page and of previous, next, first and last. None at rest: it is where hover, focus and press are drawn."
             }
           },
           "label": {
             "color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "$description": "The direction word: secondary text."
-            }
-          },
-          "title": {
-            "color": {
               "$value": "{tanrei.sys.color.on-surface}",
-              "$description": "The destination's title: the text's own color. An item is pressed as a whole and marked by its edge and its arrow, so its title is not drawn as a text link."
+              "$description": "A page number."
             }
           },
           "icon": {
             "color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "$description": "The arrow."
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The arrows of previous, next, first and last."
             }
           },
           "state-layer": {
             "color": {
-              "$value": "{tanrei.comp.pagination.item.title.color}",
-              "$description": "The color hover, focus and press mix into the container: the title's."
+              "$value": "{tanrei.comp.pagination.item.label.color}",
+              "$description": "The color hover, focus and press mix into an item's container: its number's."
+            }
+          }
+        },
+        "current": {
+          "$type": "color",
+          "container": {
+            "color": {
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "$description": "The fill of the current page, which marks it together with aria-current. The selected segment's color."
+            }
+          },
+          "label": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-secondary-container}",
+              "$description": "The number of the current page."
+            }
+          },
+          "icon": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-secondary-container}",
+              "$description": "Unused in the default system, where the current page draws no arrow; named so that every part has the same parts."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$value": "{tanrei.comp.pagination.current.label.color}",
+              "$description": "The color hover, focus and press mix into the current page's container."
             }
           }
         },

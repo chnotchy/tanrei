@@ -3633,22 +3633,40 @@ export interface TanreiPageHeaderTokens {
 }
 
 /**
+ * Every value of `comp.pagination`'s `size` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `medium` (with a dev-only warning).
+ */
+export interface TanreiPaginationSizeRegistry {
+  small: true;
+  medium: true;
+}
+export type TanreiPaginationSize = keyof TanreiPaginationSizeRegistry;
+export type TanreiCorePaginationSize = "small" | "medium";
+
+/** The tokens of one `size` of `comp.pagination`. */
+export interface TanreiPaginationSizeTokens {
+  readonly containerHeight: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiPaginationSizes = { readonly [Key in TanreiCorePaginationSize]: TanreiPaginationSizeTokens } & { readonly [Key in TanreiPaginationSize]?: TanreiPaginationSizeTokens };
+
+/**
  * Every value of `comp.pagination`'s `part` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `item` (with a dev-only warning).
  */
 export interface TanreiPaginationPartRegistry {
   item: true;
+  current: true;
 }
 export type TanreiPaginationPart = keyof TanreiPaginationPartRegistry;
-export type TanreiCorePaginationPart = "item";
+export type TanreiCorePaginationPart = "item" | "current";
 
 /** What one `part` of `comp.pagination` is drawn from in ONE interaction state. */
 export interface TanreiPaginationPartStateTokens {
   readonly containerColor: TanreiPaint;
-  readonly outlineColor: TanreiPaint;
   readonly labelColor: TanreiPaint;
-  readonly titleColor: TanreiPaint;
   readonly iconColor: TanreiPaint;
   readonly stateLayerColor: TanreiPaint;
 }
@@ -3658,34 +3676,37 @@ export interface TanreiPaginationPartTokens {
   readonly hovered: TanreiPaginationPartStateTokens;
   readonly focused: TanreiPaginationPartStateTokens;
   readonly pressed: TanreiPaginationPartStateTokens;
+  readonly disabled: TanreiPaginationPartStateTokens;
 }
 /** Core values are required; a value a system added is present only in that system. */
 export type TanreiPaginationParts = { readonly [Key in TanreiCorePaginationPart]: TanreiPaginationPartTokens } & { readonly [Key in TanreiPaginationPart]?: TanreiPaginationPartTokens };
 
 /**
  * `comp.pagination`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`parts`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`sizes`, `parts`), keyed by the axis value.
  */
 export interface TanreiPaginationTokens {
-  readonly containerGap: number;
-  readonly containerMinWidth: number;
-  readonly containerPadding: number;
+  readonly containerPaddingInline: number;
   readonly containerShape: number;
+  readonly countColor: TanreiPaint;
+  readonly countPaddingInline: number;
+  readonly countTypescale: TanreiTypescaleRole;
+  readonly disabledContainerShape: number;
+  readonly disabledOpacity: number;
+  readonly ellipsisColor: TanreiPaint;
   readonly focusedContainerShape: number;
   readonly focusedOpacity: number;
   readonly gap: number;
   readonly hoveredContainerShape: number;
   readonly hoveredOpacity: number;
   readonly iconSize: number;
-  readonly labelGap: number;
   readonly labelTypescale: TanreiTypescaleRole;
   readonly motionFeedbackDuration: number;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
-  readonly outlineWidth: number;
   readonly pressedContainerShape: number;
   readonly pressedOpacity: number;
-  readonly titleTypescale: TanreiTypescaleRole;
+  readonly sizes: TanreiPaginationSizes;
   readonly parts: TanreiPaginationParts;
 }
 
@@ -3724,6 +3745,63 @@ export interface TanreiPopoverTokens {
   readonly motionOpenEasing: TanreiCubicBezier;
   readonly offset: number;
   readonly windowMargin: number;
+}
+
+/**
+ * Every value of `comp.previous-next-links`'s `part` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `item` (with a dev-only warning).
+ */
+export interface TanreiPreviousNextLinksPartRegistry {
+  item: true;
+}
+export type TanreiPreviousNextLinksPart = keyof TanreiPreviousNextLinksPartRegistry;
+export type TanreiCorePreviousNextLinksPart = "item";
+
+/** What one `part` of `comp.previous-next-links` is drawn from in ONE interaction state. */
+export interface TanreiPreviousNextLinksPartStateTokens {
+  readonly containerColor: TanreiPaint;
+  readonly outlineColor: TanreiPaint;
+  readonly labelColor: TanreiPaint;
+  readonly titleColor: TanreiPaint;
+  readonly iconColor: TanreiPaint;
+  readonly stateLayerColor: TanreiPaint;
+}
+/** One `part`: the resting state (`enabled`) and every interaction state. States are not extensible. */
+export interface TanreiPreviousNextLinksPartTokens {
+  readonly enabled: TanreiPreviousNextLinksPartStateTokens;
+  readonly hovered: TanreiPreviousNextLinksPartStateTokens;
+  readonly focused: TanreiPreviousNextLinksPartStateTokens;
+  readonly pressed: TanreiPreviousNextLinksPartStateTokens;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiPreviousNextLinksParts = { readonly [Key in TanreiCorePreviousNextLinksPart]: TanreiPreviousNextLinksPartTokens } & { readonly [Key in TanreiPreviousNextLinksPart]?: TanreiPreviousNextLinksPartTokens };
+
+/**
+ * `comp.previous-next-links`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis (`parts`), keyed by the axis value.
+ */
+export interface TanreiPreviousNextLinksTokens {
+  readonly containerGap: number;
+  readonly containerMinWidth: number;
+  readonly containerPadding: number;
+  readonly containerShape: number;
+  readonly focusedContainerShape: number;
+  readonly focusedOpacity: number;
+  readonly gap: number;
+  readonly hoveredContainerShape: number;
+  readonly hoveredOpacity: number;
+  readonly iconSize: number;
+  readonly labelGap: number;
+  readonly labelTypescale: TanreiTypescaleRole;
+  readonly motionFeedbackDuration: number;
+  readonly motionStateDuration: number;
+  readonly motionStateEasing: TanreiCubicBezier;
+  readonly outlineWidth: number;
+  readonly pressedContainerShape: number;
+  readonly pressedOpacity: number;
+  readonly titleTypescale: TanreiTypescaleRole;
+  readonly parts: TanreiPreviousNextLinksParts;
 }
 
 /**
@@ -5490,6 +5568,7 @@ export interface TanreiComponents {
   readonly pageHeader: TanreiPageHeaderTokens;
   readonly pagination: TanreiPaginationTokens;
   readonly popover: TanreiPopoverTokens;
+  readonly previousNextLinks: TanreiPreviousNextLinksTokens;
   readonly progressIndicator: TanreiProgressIndicatorTokens;
   readonly prose: TanreiProseTokens;
   readonly radioButton: TanreiRadioButtonTokens;
@@ -5610,7 +5689,9 @@ declare module './vocabulary' {
   interface TanreiNavigationRailConditionRegistry {}
   interface TanreiOneTimeCodeInputConditionRegistry {}
   interface TanreiPageHeaderSizeRegistry {}
+  interface TanreiPaginationSizeRegistry {}
   interface TanreiPaginationPartRegistry {}
+  interface TanreiPreviousNextLinksPartRegistry {}
   interface TanreiProgressIndicatorSizeRegistry {}
   interface TanreiProseSizeRegistry {}
   interface TanreiRadioButtonConditionRegistry {}

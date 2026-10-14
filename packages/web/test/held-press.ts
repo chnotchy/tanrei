@@ -1,5 +1,5 @@
 // The press a stylesheet holds where no script answers it (link.css, accordion.css, table-of-contents.css,
-// breadcrumbs.css, table.css, pagination.css): what is DRAWN while the control is held down and for press-hold after.
+// breadcrumbs.css, table.css, previous-next-links.css): what is DRAWN while the control is held down and for press-hold after.
 //
 // Those stylesheets say the hold in one form. The pressed container is a layer of its own — an image of that one
 // color, `background-image` — and the state's color under it is clipped away (`background-clip: …, text`): the pressed

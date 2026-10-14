@@ -525,6 +525,15 @@
       ]
     },
     {
+      "key": "firstPageLabel",
+      "readers": [
+        {
+          "component": "pagination",
+          "prop": "firstLabel"
+        }
+      ]
+    },
+    {
       "key": "handleLabel",
       "readers": [
         {
@@ -587,6 +596,15 @@
         {
           "component": "number-input",
           "prop": "incrementLabel"
+        }
+      ]
+    },
+    {
+      "key": "lastPageLabel",
+      "readers": [
+        {
+          "component": "pagination",
+          "prop": "lastLabel"
         }
       ]
     },
@@ -773,6 +791,15 @@
       ]
     },
     {
+      "key": "nextPageLabel",
+      "readers": [
+        {
+          "component": "pagination",
+          "prop": "nextLabel"
+        }
+      ]
+    },
+    {
       "key": "noFileText",
       "readers": [
         {
@@ -791,6 +818,44 @@
         {
           "component": "field-group",
           "prop": "optionalText"
+        }
+      ]
+    },
+    {
+      "key": "pageCountText",
+      "readers": [
+        {
+          "component": "pagination",
+          "prop": "countText"
+        }
+      ],
+      "places": [
+        {
+          "name": "page",
+          "kind": "number",
+          "description": "The current page, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "How many pages there are."
+        }
+      ]
+    },
+    {
+      "key": "pageLabel",
+      "readers": [
+        {
+          "component": "pagination",
+          "prop": "pageLabel"
+        }
+      ],
+      "places": [
+        {
+          "name": "page",
+          "kind": "number",
+          "description": "The page's number, counted from 1.",
+          "required": true
         }
       ]
     },
@@ -840,6 +905,15 @@
         {
           "component": "date-time-picker",
           "prop": "previousMonthLabel"
+        }
+      ]
+    },
+    {
+      "key": "previousPageLabel",
+      "readers": [
+        {
+          "component": "pagination",
+          "prop": "previousLabel"
         }
       ]
     },

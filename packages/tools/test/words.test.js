@@ -83,6 +83,8 @@ test("the repository's words: which keys have places, and each is what its reade
     'imageCountText',
     'liftedText',
     'movedText',
+    'pageCountText',
+    'pageLabel',
     'removeLabel',
     'retryLabel',
     'stepPositionText',

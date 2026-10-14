@@ -23,8 +23,8 @@
    marks) are drawn before the element is defined and with scripting off, where the element will draw them — every
    fenced block of the site is one, its lines written and highlighted where the site is built (lib/markdown.mjs). */
 @import '@tanrei/web/code.css' layer(docs.code);
-/* The pagination at the foot of every page (components/Pagination.astro): classes on the site's own `nav` and anchors. */
-@import '@tanrei/web/pagination.css' layer(docs.pagination);
+/* The previous and next links at the foot of every page (components/PreviousNextLinks.astro): classes on the site's own `nav` and anchors. */
+@import '@tanrei/web/previous-next-links.css' layer(docs.previous-next-links);
 /* The description list and the figure are drawn by their stylesheets before their elements are defined: the facts and
    figures of the splash page and every live example's frame are in their final place when the page is first painted. */
 @import '@tanrei/web/description-list.css' layer(docs.description-list);

@@ -38,8 +38,8 @@ const FOR_ANOTHER_IN_THE_DOCUMENT: Record<string, string> = {
   // which holds its label and its glyph; the rule styles `.tanrei-icon`. Twice: the class, and prose's own anchors.
   ':is(:where(.tanrei-link)):where([aria-label]:has(> .tanrei-icon), .tanrei-prose-anchor) > .tanrei-icon.tanrei-icon': 'link.css',
   ':is(:where(a)):where([aria-label]:has(> .tanrei-icon), .tanrei-prose-anchor) > .tanrei-icon.tanrei-icon': 'prose.css (the link’s rules)',
-  // A pagination item without a title draws its label as the title (PGN). Asked of the item, an anchor of two lines.
-  ':where(.tanrei-pagination-item:not(:has(> .tanrei-pagination-title:not(:empty)))) > :where(.tanrei-pagination-label)': 'pagination.css',
+  // A previous or next link without a title draws its label as the title (PNL). Asked of the item, an anchor of two lines.
+  ':where(.tanrei-previous-next-links-item:not(:has(> .tanrei-previous-next-links-title:not(:empty)))) > :where(.tanrei-previous-next-links-label)': 'previous-next-links.css',
   // What follows a heading's wrapper takes the heading's space after (PRS-6, PRS-7): no value passes between
   // siblings. Asked of the wrapper, which holds a heading and its anchor; one element is restyled.
   ...Object.fromEntries([1, 2, 3, 4, 5, 6].map((n) => [`:where(:is(h${n}, .tanrei-prose-heading:has(> h${n})) + *)`, 'prose.css'])),
@@ -169,7 +169,7 @@ test.describe('where :has() stands', () => {
     expect(stylesANamedElement(':where(li:has(> p) > :not(:first-child))')).toBe(false);
     expect(stylesANamedElement('.field:has(.input:focus) .container::after')).toBe(true);
     expect(stylesANamedElement('.cell:where(:has(> .container[data-pressed])) :is(.indicator, .icon, .label)')).toBe(true);
-    expect(stylesANamedElement(':where(.tanrei-pagination-item:not(:has(> .tanrei-pagination-title))) > :where(.tanrei-pagination-label)')).toBe(true);
+    expect(stylesANamedElement(':where(.tanrei-previous-next-links-item:not(:has(> .tanrei-previous-next-links-title))) > :where(.tanrei-previous-next-links-label)')).toBe(true);
   });
 
   // `:defined` is answered the same way. An engine keeps ONE list,
