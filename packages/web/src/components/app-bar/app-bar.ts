@@ -1,7 +1,15 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
-import { AvailabilityController, OpenAxesController, report } from '../../primitives/index.js';
+import {
+  AvailabilityController,
+  type DividerVisibilityProp,
+  OpenAxesController,
+  SystemWatchController,
+  isDividerVisibility,
+  report,
+  syncDividerVisibility,
+} from '../../primitives/index.js';
 import { AXES, CORE_SIZES, heightProbe, styles } from './app-bar.styles.js';
 import { ownDirection } from '../../styles/product-text.js';
 
@@ -11,11 +19,14 @@ export type TanreiAppBarSize = 'small' | 'large' | (string & {});
 /** Where the top row's title sits: after the navigation button, or centred on the bar. */
 export type TanreiAppBarTitleAlignment = 'start' | 'center';
 
+/** When the bottom edge is drawn (APB-18): `auto` takes `comp.app-bar.outline.visibility`. */
+export type TanreiAppBarDividerVisibility = DividerVisibilityProp;
+
 const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value));
 
 /**
- * Names the current screen at its top edge and holds the way back and the screen's most used actions, flat while the
- * content is at its top and set apart once content scrolls under it.
+ * Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge
+ * drawn as the edge of a region that stays (or, under `divider-visibility="scroll"`, only once content scrolls under it).
  *
  * Contract: specs/app-bar.spec.json. A layout region: no role of its own, never focusable, no events of its
  * own. Its items are the product's icon-only `<tanrei-button>`s — the spec's `navigation` kind with `slot="navigation"` and
@@ -26,6 +37,11 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
  * Scrolled: the bar connects to a scrolling element and sets `scrolled` from it — the document's scrolling element by
  * default, the element whose id `scroll-target` names, or nothing with `scroll-target="none"` (then set `scrolled`
  * yourself). A large bar shrinks one for one with the scroll until only its top row is left (APB-8).
+ *
+ * The bottom edge: `divider-visibility` (`auto | always | scroll`, APB-18). `always` — the default system's — draws it
+ * at rest and under content alike, in the scrolled condition's outline color; `scroll` draws each condition's own (none
+ * at rest in the default system). `auto` takes `comp.app-bar.outline.visibility`. The color and elevation follow
+ * `scrolled` under either.
  *
  * Every visual value comes from `--tanrei-comp-app-bar-*` tokens. The color reaches under `env(safe-area-inset-top)` and
  * the side insets; the content stays inside them (APB-10).
@@ -50,6 +66,7 @@ export class TanreiAppBar extends LitElement {
     subtitle: { type: String },
     titleAlignment: { type: String, attribute: 'title-alignment', reflect: true },
     scrolled: { type: Boolean, reflect: true },
+    dividerVisibility: { type: String, attribute: 'divider-visibility', reflect: true },
     scrollTarget: { type: String, attribute: 'scroll-target' },
     headingLevel: { type: Number, attribute: 'heading-level' },
     hasNavigation: { state: true },
@@ -76,6 +93,13 @@ export class TanreiAppBar extends LitElement {
   scrolled = false;
 
   /**
+   * When the bottom edge is drawn: `always` at rest and while content is under the bar, `scroll` only while content is
+   * under it; `auto` takes `comp.app-bar.outline.visibility`, the design system's answer (always in the default system).
+   * Reflected as `divider-visibility`.
+   */
+  dividerVisibility: TanreiAppBarDividerVisibility = 'auto';
+
+  /**
    * The scrolling element the bar follows (web only): empty follows the document's scrolling element, an id follows the
    * element with that id (in the bar's own document or shadow root), `none` follows nothing.
    */
@@ -97,6 +121,9 @@ export class TanreiAppBar extends LitElement {
 
   /** APB-14: sizes a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'app-bar', behavior: 'APB-14', axes: AXES });
+
+  /** APB-18: where a browser has no style queries, the divider visibility is read when it renders — again when the system is switched. */
+  private readonly system = new SystemWatchController(this);
 
   private source: { target: EventTarget; read: () => number } | null = null;
   private retry = 0;
@@ -246,7 +273,16 @@ export class TanreiAppBar extends LitElement {
     this.connectScroll();
   }
 
+  protected override willUpdate(changed: PropertyValues<this>) {
+    // APB-18: a divider visibility the bar does not define is drawn as auto (no rule matches it).
+    if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
+      report(this, 'APB-18', `divider-visibility "${this.dividerVisibility}" is not a value of the app bar; it is drawn as "auto"`);
+    }
+  }
+
   protected override updated(changed: PropertyValues<this>) {
+    // APB-18: the fallback where style queries are missing — the name the cascade gives, on the container.
+    syncDividerVisibility(this, this.find<HTMLElement>('.container'));
     // APB-14: a size a layer added is a size with its own title row where the active system defines it.
     if (changed.has('size')) {
       const layer = !(CORE_SIZES as readonly string[]).includes(this.size);

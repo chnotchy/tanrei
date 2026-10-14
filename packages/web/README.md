@@ -6250,8 +6250,9 @@ action), not on a system switch alone.
 
 ## `<tanrei-app-bar>`
 
-Names the current screen at its top edge and holds the way back and the screen's most used actions, flat while the
-content is at its top and set apart once content scrolls under it (`specs/app-bar.spec.json`, APB-1…15).
+Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge
+drawn as the edge of a region that stays — or, under `divider-visibility="scroll"`, only once content scrolls under it
+(`specs/app-bar.spec.json`, APB-1…18).
 
 ```html
 <tanrei-app-bar headline="Inbox">
@@ -6276,6 +6277,7 @@ content is at its top and set apart once content scrolls under it (`specs/app-ba
 | `subtitle` | string | `""` | one line under the title; empty draws none |
 | `titleAlignment` / `title-alignment` | `start` \| `center` | `start` | where the top row's title sits (anything else is `start`); a large bar's own title row always starts at the start; reflected |
 | `scrolled` | boolean | `false` | whether content lies under the bar: the scrolled look, and a large bar drawn collapsed. A connected scrolling element sets it; reflected |
+| `dividerVisibility` / `divider-visibility` | `auto` \| `always` \| `scroll` | `auto` | when the bottom edge is drawn: `always` at rest and while content is under the bar, in `scrolled.outline.color`; `scroll` in each condition's own outline color (none at rest in the default system); `auto` takes `comp.app-bar.outline.visibility` (always in the default system, scroll in cupertino and m3-like). Anything else is `auto`, reported (APB-18); reflected |
 | `scrollTarget` / `scroll-target` | string | `""` | web only: the scrolling element the bar follows — empty for the document's scrolling element, an id (looked up in the bar's own document or shadow root, once more on the next frame if it is not there yet; reported if it never is), or `none` |
 | `headingLevel` / `heading-level` | number | `1` | web only: the title's heading level, 1–6 |
 
