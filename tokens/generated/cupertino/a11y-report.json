@@ -2,7 +2,7 @@
   "system": "cupertino",
   "criteria": "not-applied",
   "because": "An imitation preset is held to fidelity to the system it imitates, not to Tanrei's accessibility criteria, in every contrast scheme. These are measurements against the fixed thresholds, kept as information: they are not warnings and not mimicry gaps.",
-  "count": 104,
+  "count": 112,
   "measurements": [
     "[light] on-error on error: 4.03:1 < 4.5:1 (content on filled container)",
     "[light] on-info on info: 4.02:1 < 4.5:1 (content on filled container)",
@@ -107,6 +107,14 @@
     "[dark] secondary on surface-container-highest: 3.73:1 < 4.5:1 (secondary-colored text)",
     "[dark] success on surface-container-highest: 3.17:1 < 4.5:1 (success-colored text)",
     "[dark] warning on surface-container-highest: 3.17:1 < 4.5:1 (warning-colored text)",
-    "[dark] outline on surface-container-highest: 1.29:1 < 3:1 (functional boundary (WCAG 1.4.11))"
+    "[dark] outline on surface-container-highest: 1.29:1 < 3:1 (functional boundary (WCAG 1.4.11))",
+    "[light] comp.radio-button.unselected.fill.color on comp.radio-button.unselected.ring.color: 1.80:1 < 3:1 (the fill of a radio against the ring it meets, at comp.radio-button.fill.opacity 1 over sys.color.surface and the state layer — WCAG 1.4.11)",
+    "[light] comp.radio-button.unselected.hovered.fill.color on comp.radio-button.unselected.hovered.ring.color: 1.80:1 < 3:1 (the fill of a radio against the ring it meets, at comp.radio-button.fill.opacity 1 over sys.color.surface and the state layer — WCAG 1.4.11)",
+    "[light] comp.radio-button.unselected.focused.fill.color on comp.radio-button.unselected.focused.ring.color: 1.80:1 < 3:1 (the fill of a radio against the ring it meets, at comp.radio-button.fill.opacity 1 over sys.color.surface and the state layer — WCAG 1.4.11)",
+    "[light] comp.radio-button.unselected.pressed.fill.color on comp.radio-button.unselected.pressed.ring.color: 1.80:1 < 3:1 (the fill of a radio against the ring it meets, at comp.radio-button.fill.opacity 1 over sys.color.surface and the state layer — WCAG 1.4.11)",
+    "[dark] comp.radio-button.unselected.fill.color on comp.radio-button.unselected.ring.color: 2.70:1 < 3:1 (the fill of a radio against the ring it meets, at comp.radio-button.fill.opacity 1 over sys.color.surface and the state layer — WCAG 1.4.11)",
+    "[dark] comp.radio-button.unselected.hovered.fill.color on comp.radio-button.unselected.hovered.ring.color: 2.70:1 < 3:1 (the fill of a radio against the ring it meets, at comp.radio-button.fill.opacity 1 over sys.color.surface and the state layer — WCAG 1.4.11)",
+    "[dark] comp.radio-button.unselected.focused.fill.color on comp.radio-button.unselected.focused.ring.color: 2.70:1 < 3:1 (the fill of a radio against the ring it meets, at comp.radio-button.fill.opacity 1 over sys.color.surface and the state layer — WCAG 1.4.11)",
+    "[dark] comp.radio-button.unselected.pressed.fill.color on comp.radio-button.unselected.pressed.ring.color: 2.70:1 < 3:1 (the fill of a radio against the ring it meets, at comp.radio-button.fill.opacity 1 over sys.color.surface and the state layer — WCAG 1.4.11)"
   ]
 }

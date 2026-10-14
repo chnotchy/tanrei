@@ -3328,7 +3328,9 @@ private let tanreiComboboxTokens = TanreiComboboxTokens(
 )
 
 private let tanreiCopyButtonTokens = TanreiCopyButtonTokens(
-  confirmationDuration: 2000
+  confirmationDuration: 2000,
+  motionResizeDuration: 500,
+  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1)
 )
 
 private let tanreiDateTimePickerTokens = TanreiDateTimePickerTokens(
@@ -5307,7 +5309,7 @@ private let tanreiMenuTokens = TanreiMenuTokens(
   controlBoxShape: 2,
   controlBoxSize: 18,
   controlFillInset: 0,
-  controlFillOpacity: 0.5,
+  controlFillOpacity: 0.16,
   controlMarkSize: 20,
   controlMarkWeight: 500,
   controlOutlineWidth: 2,
@@ -6677,7 +6679,7 @@ private let tanreiRadioButtonTokens = TanreiRadioButtonTokens(
   containerShape: 9999,
   containerSize: 40,
   fillInset: 0,
-  fillOpacity: 0.5,
+  fillOpacity: 0.16,
   labelGap: 4,
   labelTypescale: tanreiTypescale.body,
   motionFeedbackDuration: 450,
@@ -8544,7 +8546,19 @@ private let tanreiTableTokens = TanreiTableTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   rowGap: 4,
   rowSelectedContainerColor: .role(.secondaryContainer),
+  rowSelectedHoveredContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.08),
+  rowSelectedHoveredTextColor: .role(.onSecondaryContainer),
+  rowSelectedPressedContainerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
+  rowSelectedPressedTextColor: .role(.onSecondaryContainer),
+  rowSelectedStateLayerColor: .role(.onSecondaryContainer),
   rowSelectedTextColor: .role(.onSecondaryContainer),
+  rowUnselectedContainerColor: .none,
+  rowUnselectedHoveredContainerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.08),
+  rowUnselectedHoveredTextColor: .role(.onSurface),
+  rowUnselectedPressedContainerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.1),
+  rowUnselectedPressedTextColor: .role(.onSurface),
+  rowUnselectedStateLayerColor: .role(.onSurface),
+  rowUnselectedTextColor: .role(.onSurface),
   separation: 0,
   statusGap: 16,
   statusPaddingBlock: 8,

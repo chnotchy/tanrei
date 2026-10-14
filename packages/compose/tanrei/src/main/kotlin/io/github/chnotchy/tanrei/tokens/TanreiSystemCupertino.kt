@@ -1,4 +1,4 @@
-// 104 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 112 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 @file:Suppress("unused", "MagicNumber", "MaxLineLength", "LongParameterList", "LargeClass", "LongMethod")
@@ -3235,6 +3235,8 @@ private object CupertinoSystemSource {
     fun copyButton(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiCopyButtonTokens =
         TanreiCopyButtonTokens(
             confirmationDuration = 2000,
+            motionResizeDuration = 500,
+            motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -5045,7 +5047,7 @@ private object CupertinoSystemSource {
             controlBoxShape = 2.dp,
             controlBoxSize = 18.dp,
             controlFillInset = 0.dp,
-            controlFillOpacity = 0.5f,
+            controlFillOpacity = 0.16f,
             controlMarkSize = 20.dp,
             controlMarkWeight = 300f,
             controlOutlineWidth = 2.dp,
@@ -8058,7 +8060,19 @@ private object CupertinoSystemSource {
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             rowGap = 4.dp,
             rowSelectedContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+            rowSelectedHoveredContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+            rowSelectedHoveredTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+            rowSelectedPressedContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+            rowSelectedPressedTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+            rowSelectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
             rowSelectedTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+            rowUnselectedContainerColor = TanreiPaint.None,
+            rowUnselectedHoveredContainerColor = TanreiPaint.None,
+            rowUnselectedHoveredTextColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            rowUnselectedPressedContainerColor = TanreiPaint.None,
+            rowUnselectedPressedTextColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            rowUnselectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            rowUnselectedTextColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
             separation = 0f,
             statusGap = 16.dp,
             statusPaddingBlock = 8.dp,

@@ -1,4 +1,4 @@
-// 104 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 112 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 // The "cupertino" design system as values. Types: ../vocabulary.ts.
@@ -4198,7 +4198,11 @@ export const cupertino = {
         },
       },
     },
-    copyButton: { confirmationDuration: 2000 },
+    copyButton: {
+      confirmationDuration: 2000,
+      motionResizeDuration: 500,
+      motionResizeEasing: [0.27, 1.06, 0.18, 1],
+    },
     dateTimePicker: {
       actionsArrangement: 0,
       actionsGap: 16,
@@ -6534,7 +6538,7 @@ export const cupertino = {
       controlBoxShape: 2,
       controlBoxSize: 18,
       controlFillInset: 0,
-      controlFillOpacity: 0.5,
+      controlFillOpacity: 0.16,
       controlMarkSize: 20,
       controlMarkWeight: 300,
       controlOutlineWidth: 2,
@@ -10294,7 +10298,19 @@ export const cupertino = {
       pressedOpacity: 0.7,
       rowGap: 4,
       rowSelectedContainerColor: { kind: "role", role: "secondaryContainer" },
+      rowSelectedHoveredContainerColor: { kind: "role", role: "secondaryContainer" },
+      rowSelectedHoveredTextColor: { kind: "role", role: "onSecondaryContainer" },
+      rowSelectedPressedContainerColor: { kind: "role", role: "secondaryContainer" },
+      rowSelectedPressedTextColor: { kind: "role", role: "onSecondaryContainer" },
+      rowSelectedStateLayerColor: { kind: "role", role: "onSecondaryContainer" },
       rowSelectedTextColor: { kind: "role", role: "onSecondaryContainer" },
+      rowUnselectedContainerColor: { kind: "none" },
+      rowUnselectedHoveredContainerColor: { kind: "none" },
+      rowUnselectedHoveredTextColor: { kind: "role", role: "onSurface" },
+      rowUnselectedPressedContainerColor: { kind: "none" },
+      rowUnselectedPressedTextColor: { kind: "role", role: "onSurface" },
+      rowUnselectedStateLayerColor: { kind: "role", role: "onSurface" },
+      rowUnselectedTextColor: { kind: "role", role: "onSurface" },
       separation: 0,
       statusGap: 16,
       statusPaddingBlock: 8,

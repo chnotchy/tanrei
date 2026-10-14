@@ -7355,7 +7355,7 @@ A main action with one press, and related actions in a menu from a second, joine
 | `variant` | `filled` \| `tonal` \| `elevated` \| `outlined` | `filled` | emphasis, as Button's variants of the same names; a layer may add values; unknown is drawn as filled and reported (SPB-8); reflected |
 | `size` | `small` \| `medium` \| `large` | `medium` | Button's heights (32 / 40 / 56 in the default system); open as `variant`; reflected |
 | `separation` | `auto` \| `divider` \| `gap` | `auto` | how the two halves are joined (SPB-30, see Separation): `auto` takes `comp.button-with-menu.container.separation`, the system's answer. Anything else is `auto` and reported (SPB-8); reflected |
-| `trailing-width` (`trailingWidth`) | `default` \| `narrow` | `default` | the trailing half holds the chevron in a square of the height, or — narrow — between `trailing.padding-inline-narrow` with no outer padding (28 / 32 / 32 wide in the default system: the width of a narrow icon-only Button, from its own token, SPB-32). Anything else is `default` and reported (SPB-8); reflected |
+| `trailing-width` (`trailingWidth`) | `default` \| `narrow` | `default` | the trailing half holds the chevron in a square of the height, or — narrow — between `trailing.padding-inline-narrow`, then the outer padding at its end (32 / 36 / 36 wide in the default system: a narrow icon-only Button's width and the outer padding, from its own tokens, SPB-32). Anything else is `default` and reported (SPB-8); reflected |
 | `label` | string | `""` | the leading half's text and accessible name. Required (empty is reported, SPB-20) |
 | `menu-label` (`menuLabel`) | string | `""` | the trailing half's accessible name ("More save options"). Required: the chevron alone is not a name |
 | `open` | boolean | `false` | whether the menu is shown; reflected. **The button with menu never opens or closes it**: set it from `toggle` and to false from `close` |
@@ -7396,19 +7396,19 @@ its `::after`'s, which reaches a little past the seam and is cut there, as a con
 stand `container.inner-gap` apart with `container.inner-shape` where they face each other, each half's outline and ring
 inside its own edge: the elevation is read as its `-inset-ring` companion, so the rings of the two halves never meet in
 the gap — an elevation overridden by hand needs its companion overridden too (see Elevation). Under either,
-`container.outer-inset` is added to the leading half's start padding and — at the default trailing width — to the
-trailing half's end padding, so content beside a rounded outer end looks as far from it as from the tighter corner on
-its other side: the trailing half is that much wider, its chevron half of it nearer the seam. **A narrow trailing half
-takes no outer padding (SPB-32):** it is the chevron's box and `trailing.padding-inline-narrow` on each side and no
-wider, the chevron at its centre (16 from the seam, or from the gap, and 16 from the end edge at the medium size), under
-either separation and mirrored in right-to-left. Where the two components' tokens agree, as in the default system, that
-is exactly a narrow icon-only Button's width (28 / 32 / 32); the half reads its own token, so a system can part them.
-The leading half is the same at either trailing width.
+`container.outer-inset` is added to the leading half's start padding and to the trailing half's end padding, at
+either trailing width, so content beside a rounded outer end looks as far from it as from the tighter corner on its
+other side: the trailing half is that much wider, its chevron half of it nearer the seam. **A narrow trailing half takes
+it too (SPB-32):** it is the chevron's box, `trailing.padding-inline-narrow` on each side and the outer padding at its
+end (16 from the seam, or from the gap, and 20 from the end edge at the medium size), under either separation and
+mirrored in right-to-left. Where the two components' tokens agree, as in the default system, that is a narrow icon-only
+Button's width and the outer padding (32 / 36 / 36); a system that sets the outer padding to 0 gets exactly the Button's
+width. The leading half is the same at either trailing width.
 
 **Targets (SPB-6).** Each hit area reaches the target above, below and outward, and toward the other half stops at the
 middle of the gap, or at the seam (`neighbourTarget()`); what a half cannot reach toward the other it reaches outward,
-so a narrow trailing half has its whole target without being drawn wider: at the medium size it reaches 16 past its
-end edge for a coarse pointer (48 − 32), so leave that much room beside it, as beside a narrow icon-only Button.
+so a narrow trailing half has its whole target without being drawn wider: at the medium size it reaches 12 past its
+end edge for a coarse pointer (48 − 36), so leave that much room beside it, as beside a narrow icon-only Button.
 
 **Open (SPB-13, SPB-15, SPB-20, SPB-21).** While open, the chevron (`expand_more`, never mirrored) is turned half a
 turn, over `motion.open-duration` / `-easing` (at once under reduced motion). The trailing half's inner corners are
@@ -7918,8 +7918,21 @@ person changes a row's checkbox the element writes `data-selected` on that row a
 the values of every chosen row in row order. When **you** write or remove `data-selected` the element checks or
 unchecks the row's checkbox and emits nothing. There is no list of values on the element: each row is chosen by what
 it says of itself, so rows given again in another order stay as they were, and nothing is carried over to a row you
-did not give. A press on a row outside its selection cell chooses nothing; a press anywhere in the selection cell is
-the checkbox's.
+did not give. A press anywhere in the selection cell is the checkbox's.
+
+**A press anywhere on a row that can be chosen is its checkbox's**, for a pointer (TBL-58): a click on the row's text,
+its padding or its row header changes the checkbox, with the same `selectionchange`. It does not where the press lands
+on what a cell holds that answers a press itself (a link, a button, a field, a label, anything with a tab index or a
+widget role, a custom element that takes focus, or an element you gave the pointer cursor), where the pointer moved
+more than 8 px, where the release ends a text selection in the row (text stays selectable and copyable), with Control,
+Command, Shift or Alt held, on the second click of a double click, or where your own click handler called
+`preventDefault()` — the element decides a task after the click, so your handler is heard first. The header row, a
+footer row, a placeholder row, a row without a `data-value` and a row whose checkbox is disabled take no such press. The
+row gets no role, tab index or `aria-selected`: the keyboard and assistive technology use its checkbox, as before.
+Under a fine pointer the row is drawn hovered as one target (`data-tanrei-hit`, with the pointer cursor) and pressed as
+one (`data-pressed` on the `<tr>`), from `comp.table.row.unselected.*` or `comp.table.row.selected.*` (TBL-59): the
+fill is laid over the stripe or the chosen fill and changes at once; `ripple`, which has no one box across the cells of
+a row, is drawn as `overlay`, and `dim` dims the row. Over a link or a button in a cell the row is drawn at rest.
 
 ```js
 table.addEventListener('selectionchange', (event) => {
@@ -7985,7 +7998,8 @@ the table is loading the empty row is not drawn, even with no body row.
 checkbox is `checked` (and which work in your form: give them a `name` and a `value`) — and `aria-busy="true"` on a
 table that loads. What needs the script: `<tanrei-checkbox>` itself, the header's checkbox kept in step and choosing
 every row, the event, `data-selected` kept in step, the names taken from row headers, a press beside a native checkbox
-in its cell, and the selection column kept in view with a first column that stays (the element measures where it ends:
+in its cell, a press on the row outside its selection cell and the row's hover and press (without script a row shows
+neither a state nor the pointer cursor, so it promises nothing it does not do), and the selection column kept in view with a first column that stays (the element measures where it ends:
 `data-selection-kept` and `--_table-selection-size` on the element; until then the selection column scrolls with the
 others and the first column is kept at the edge).
 

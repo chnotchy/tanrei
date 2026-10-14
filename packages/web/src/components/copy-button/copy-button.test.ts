@@ -98,6 +98,16 @@ const events = (page: P) => page.evaluate(() => (window as unknown as { __events
 const said = (page: P) => page.evaluate(() => (window as unknown as { __said: { role: string; text: string }[] }).__said);
 const setDuration = (page: P, value: string) => rootTokens(page, { [DURATION]: value });
 const press = (page: P, id: string) => native(page, id).click();
+/** A custom property's value as the given CSS property computes it. */
+const resolveAs = (page: P, property: string, name: string) =>
+  page.evaluate(([p, n]) => {
+    const probe = document.createElement('div');
+    probe.style.setProperty(p, `var(${n})`);
+    document.body.appendChild(probe);
+    const value = getComputedStyle(probe).getPropertyValue(p);
+    probe.remove();
+    return value;
+  }, [property, name] as const);
 
 test.describe('drawn by Button', () => {
   test('CPY-1: it is a Button of its variant and size, drawn from the Button’s own tokens — its container, its glyph, its hit area — icon-only with content_copy, or with that glyph leading and label as its text; it has no color, shape or measure of its own', async ({ page }) => {
@@ -130,9 +140,10 @@ test.describe('drawn by Button', () => {
     await expect(host(page, 'labelled').locator('.labels .shown')).toHaveText('Copy JSON');
     expect(await css(native(page, 'labelled-tonal'), 'background-color')).toBe(await resolveColor(page, B('tonal-container-color')));
     expect((await box(native(page, 'labelled-outlined-large'))).height).toBe(await resolveToken(page, B('container-height-large')));
-    // Nothing of its own: the stylesheet names one token, the duration.
+    // No color, shape or measure of its own: the stylesheet names its times only — the duration, and the motion of a
+    // fitting label's width (CPY-19).
     const tokens = await host(page, 'icon').evaluate((el) => [...((el.constructor as unknown as { styles: { cssText: string } }).styles.cssText.matchAll(/--tanrei-[a-z0-9-]+/g))].map((m) => m[0]));
-    expect([...new Set(tokens)]).toEqual([DURATION]);
+    expect([...new Set(tokens)].sort()).toEqual([DURATION, '--tanrei-comp-copy-button-motion-resize-duration', '--tanrei-comp-copy-button-motion-resize-easing'].sort());
   });
 
   test('CPY-12: a press — a click, Enter, Space — is shown as pressed without delay and for at least sys.motion.duration.press-hold, by the Button', async ({ page }) => {
@@ -514,6 +525,101 @@ test.describe('copying', () => {
     await expect.poll(async () => (await clipboard(page)).writes.at(-1)).toBe('{ "name": "other" }');
   });
 
+  test('CPY-19: with labelWidth fit, the label’s box is as wide as the text it shows; a change of form eases the width over the resize motion, keeping the height, the glyph and the start of the text, and at once where motion is reduced; the default, widest, never changes it', async ({ page }) => {
+    const RESIZE = '--tanrei-comp-copy-button-motion-resize';
+    await mountFixtures(page, spec, { icons: true, fixtures: only('labelled-fit', 'labelled-long-confirmation') });
+    await double(page);
+    const id = 'labelled-fit';
+    const duration = await resolveToken(page, `${RESIZE}-duration`, 'duration');
+    expect(duration).toBeGreaterThan(0);
+    expect(duration).toBe(await resolveToken(page, '--tanrei-sys-motion-spring-standard-default-spatial-duration', 'duration'));
+    const easing = await resolveAs(page, 'transition-timing-function', `${RESIZE}-easing`);
+    expect(easing).toBe(await resolveAs(page, 'transition-timing-function', '--tanrei-sys-motion-spring-standard-default-spatial-easing'));
+    const labels = host(page, id).locator('.labels');
+    expect(await css(labels, 'transition-property')).toBe('inline-size');
+    expect(Number.parseFloat(await css(labels, 'transition-duration')) * 1000).toBe(duration);
+    expect(await css(labels, 'transition-timing-function')).toBe(easing);
+    expect(await host(page, id).getAttribute('label-width')).toBe('fit');
+    /** The label box's width, and the widths of the three texts. */
+    const widths = () =>
+      host(page, id).evaluate((el) => {
+        const box = el.shadowRoot!.querySelector('.labels')!;
+        return { box: box.getBoundingClientRect().width, texts: [...box.children].map((child) => child.getBoundingClientRect().width) };
+      });
+    // At rest it is as wide as "Copy", narrower than the default's box for the same words.
+    const rest = await widths();
+    expect(rest.box).toBeCloseTo(rest.texts[0], 1);
+    expect(rest.texts[1]).toBeGreaterThan(rest.texts[0] * 2);
+    const button = await box(native(page, id));
+    // The same words, outlined and medium, in the default's box: wider by what "Copied to the clipboard" adds to "Copy".
+    expect((await box(native(page, 'labelled-long-confirmation'))).width - button.width).toBeCloseTo(rest.texts[1] - rest.texts[0], 0);
+    const glyphAt = await box(glyph(page, id));
+    // Copied: it widens through widths in between to the width of "Copied to the clipboard"; the height, the glyph and
+    // the start of the text stay where they were.
+    const samples = await host(page, id).evaluate(async (el, ms) => {
+      const root = el.shadowRoot!;
+      const button = root.querySelector('tanrei-button')!.shadowRoot!.querySelector('button')!;
+      (root.querySelector('tanrei-button') as HTMLElement).click();
+      const out: { width: number; height: number; glyph: number; start: number }[] = [];
+      const t0 = performance.now();
+      while (performance.now() - t0 < ms * 1.5 + 200) {
+        await new Promise(requestAnimationFrame);
+        const b = button.getBoundingClientRect();
+        out.push({ width: root.querySelector('.labels')!.getBoundingClientRect().width, height: b.height, glyph: root.querySelector('.glyph')!.getBoundingClientRect().left, start: root.querySelector('.labels .shown')!.getBoundingClientRect().left });
+      }
+      return out;
+    }, duration);
+    expect((await shows(page, id)).form).toBe('copied');
+    expect(samples.some((s) => s.width > rest.texts[0] + 1 && s.width < rest.texts[1] - 1)).toBe(true);
+    expect(samples.at(-1)!.width).toBeCloseTo(rest.texts[1], 1);
+    expect(new Set(samples.map((s) => s.height))).toEqual(new Set([button.height]));
+    expect(new Set(samples.map((s) => Math.round(s.glyph * 100) / 100))).toEqual(new Set([Math.round(glyphAt.x * 100) / 100]));
+    // While the box is narrower than the text, the text is clipped at its end, on one line.
+    expect(await css(labels, 'overflow-x')).toBe('clip');
+    expect(await css(host(page, id).locator('.labels .shown'), 'white-space')).toBe('nowrap');
+    // Failed: the width follows "Could not copy".
+    await answers(page, 'refuses');
+    await press(page, id);
+    await expect.poll(async () => (await shows(page, id)).form).toBe('failed');
+    await expect.poll(async () => (await widths()).box).toBeCloseTo(rest.texts[2], 1);
+    // New words for the form shown: the width follows them too.
+    await host(page, id).evaluate((el) => ((el as unknown as { failedLabel: string }).failedLabel = 'No'));
+    await expect.poll(async () => { const w = await widths(); return w.box - w.texts[2]; }).toBeCloseTo(0, 1);
+    await host(page, id).evaluate((el) => ((el as unknown as { failedLabel: string }).failedLabel = 'Could not copy'));
+
+    // Where motion is reduced, each width is reached at once.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(await css(labels, 'transition-duration')).toBe('0s');
+    await answers(page, 'writes');
+    await press(page, id);
+    await expect.poll(async () => (await shows(page, id)).form).toBe('copied');
+    expect((await widths()).box).toBeCloseTo(rest.texts[1], 1);
+    expect(await labels.evaluate((el) => el.getAnimations().length)).toBe(0);
+
+    // Back to widest (the default): the box holds the widest text again, and keeps it in every form.
+    await host(page, id).evaluate((el) => ((el as unknown as { labelWidth: string }).labelWidth = 'widest'));
+    await expect.poll(async () => (await widths()).box).toBeCloseTo(rest.texts[1], 1);
+    expect(await labels.evaluate((el) => el.style.inlineSize)).toBe('');
+    expect(await host(page, 'labelled-long-confirmation').evaluate((el) => (el as unknown as { labelWidth: string }).labelWidth)).toBe('widest');
+  });
+
+  test('CPY-19: a fitting label’s first width is taken at once, and so is a width a new face gives; icon-only ignores it', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [...only('labelled-fit'), fx('icon-fit', { labelWidth: 'fit', text: 'x', ...WORDS })] });
+    const id = 'labelled-fit';
+    const labels = host(page, id).locator('.labels');
+    // No animation brought it to its width.
+    expect(await labels.evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await labels.evaluate((el) => el.getBoundingClientRect().width - el.children[0].getBoundingClientRect().width)).toBeCloseTo(0, 1);
+    // A wider text face arrives: the box takes the text's new width at once.
+    await host(page, id).evaluate((el) => {
+      const shown = el.shadowRoot!.querySelector<HTMLElement>('.labels .shown')!;
+      shown.style.letterSpacing = '4px';
+    });
+    await expect.poll(async () => labels.evaluate((el) => el.getBoundingClientRect().width - el.children[0].getBoundingClientRect().width)).toBeCloseTo(0, 1);
+    expect(await labels.evaluate((el) => el.getAnimations().length)).toBe(0);
+    await expect(host(page, 'icon-fit').locator('.labels')).toHaveCount(0);
+  });
+
   test('CPY-10: disabled, it is drawn and exposed as a disabled Button, copies nothing and emits nothing; becoming disabled while it shows a confirmation returns it to rest at once', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: only('icon-disabled', 'labelled-disabled', 'icon') });
     await double(page);
@@ -677,7 +783,7 @@ test.describe('fixtures', () => {
   });
 
   test('every fixture is a Button of its variant and size, at rest, with its glyph drawn as a glyph and its name', async ({ page }) => {
-    expect(spec.fixtures.length).toBe(16);
+    expect(spec.fixtures.length).toBe(17);
     for (const f of spec.fixtures) {
       expect(await drawnBy(page, f.id).getAttribute('variant'), f.id).toBe(String(f.props.variant ?? 'text'));
       expect(await drawnBy(page, f.id).getAttribute('size'), f.id).toBe(String(f.props.size ?? 'medium'));
