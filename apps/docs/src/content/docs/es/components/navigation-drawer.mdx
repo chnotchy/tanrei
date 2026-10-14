@@ -2,7 +2,7 @@
 title: Panel de navegación
 description: Muestra los destinos de un producto en un panel situado en el borde de inicio, organizados en secciones y grupos, junto al contenido en una pantalla grande o sobre él en una compacta, y puede contraerse hasta quedar en una columna de iconos.
 translationOf: components/navigation-drawer.mdx
-sourceHash: 77f84450a1e41b37ecd6222ac63251d93e86b9d5
+sourceHash: cd96ff63e43e8ef0ed296da845779627c1968de1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -457,6 +457,20 @@ Un sistema de diseño puede añadir variantes. Una variante que añada se compor
 - **El tacto conserva su objetivo.** Con el tacto, una fila compacta se dibuja al menos con la altura del objetivo táctil. Con puntero, su área de pulsación es la fila y la mitad del espacio a su alrededor: menos que el objetivo de puntero, pero aún por encima de los 24 de WCAG 2.5.8.
 - Un sistema de diseño cambia lo que significa compacto, o añade una densidad, mediante los tokens `.compact` del panel, como `comp.navigation-drawer.item.container.height.compact`.
 
+### Filas compartidas con la vista de árbol
+
+- **Los mismos parámetros que la [vista de árbol](/es/components/tree-view/)**, con los mismos nombres y significados: `chevron`, `guides`, `indent`, `highlight`, `iconSpace`, `expandable`, `labelWrap` y `supportingWrap`, el `supportingText` y el `supportingPosition` de una fila, y `stickyParents` con `stickyMax`.
+- **`chevron`**: `start`, el valor por defecto, dibuja el chevron de un grupo antes de su icono y reserva su espacio en todas las filas, para que los iconos de un nivel se alineen; `end` lo dibuja al final de la fila, después del contenido final; `none` no dibuja ninguno, y pulsar el icono de un grupo lo abre y lo cierra, mostrando su `openIcon` mientras está abierto. Un panel que se puede contraer dibuja `start` como `end`, para que cada icono conserve su sitio en las dos formas, y un panel sin grupos no reserva ese espacio.
+- **`indent`**: `auto` alinea la primera parte de una fila con donde empieza la etiqueta de su grupo, y avanza la sangría del nivel donde el grupo no dibuja nada antes de su etiqueta; un número avanza esos píxeles, y 0 nada. La etiqueta de una fila nunca empieza más allá de la mitad del ancho del panel.
+- **`highlight`**: `indented`, el valor por defecto, empieza el relleno y las capas de estado de una fila anidada donde empieza la fila; `full` los dibuja a lo ancho en todos los niveles.
+- **`iconSpace`** reserva el espacio de un icono en una fila sin él, para que las etiquetas de un nivel se alineen: `auto` donde otra fila del nivel tiene icono, `always` o `never`.
+- **`expandable`** en false muestra todos los grupos abiertos y sin chevron; la fila de un grupo nombra entonces sus elementos y no es un control.
+- **`guides`**: `shown` dibuja una línea junto a los elementos de un grupo abierto, bajo su chevron, si no bajo su icono, si no al inicio de su etiqueta; `hover` solo mientras el puntero está sobre el panel o el foco está dentro.
+- **Una línea.** Las etiquetas y el texto de apoyo ocupan una línea, cortada con puntos suspensivos, y una fila cortada muestra su texto completo en un tooltip al pasar el puntero y con el foco de teclado; `labelWrap` y `supportingWrap` permiten que se ajusten. El nombre accesible siempre es la etiqueta completa.
+- **El texto de apoyo** va bajo la etiqueta (`below`) o después de ella (`inline`), y se lee como la descripción de la fila.
+- **Un grupo** admite texto o contenido final antes de un chevron final, un `openIcon` y `loading`, que dibuja una fila de carga bajo sus elementos, con el nombre del `loadingLabel` del panel.
+- **`stickyParents`**, desactivado por defecto en el panel y activado en la vista de árbol, fija las filas de los grupos abiertos a los que pertenecen las filas de arriba, como mucho `stickyMax` (2), primero las interiores, como hace el desplazamiento fijo de un editor. No se aplica con el panel contraído.
+
 ### Seguir el ancho de la ventana
 
 `responsive` deja que el ancho de la ventana elija cómo se presenta el panel, a partir de los dos puntos de ruptura de su sistema de diseño (1024 y 600 en el sistema predeterminado). En ese caso, `variant` se ignora.
@@ -485,11 +499,11 @@ Da un `href` a cada destino y, al panel, la dirección de la propia página como
 
 ### Filas, grupos y secciones
 
-- La etiqueta de una fila salta de línea en lugar de cortarse, y la fila crece con ella. Las filas miden al menos 48 de alto, la altura de un elemento de [menú](/es/components/menu/), y tienen sus mismas esquinas.
+- Las filas miden al menos 48 de alto, la altura de un elemento de [menú](/es/components/menu/), con sus esquinas. Una etiqueta ocupa una línea y se corta, salvo que `labelWrap` le permita ajustarse y la fila crezca con ella.
 - Da un icono a todos los destinos o a ninguno, para que las etiquetas queden alineadas. Un panel que se puede contraer dibuja cada destino y cada grupo de nivel superior por su icono mientras está contraído, así que da un icono a cada uno.
 - `trailingText` es un texto corto al final de la fila, más discreto que la etiqueta: un recuento («24») o una palabra («Nuevo»). El slot `trailing` contiene cualquier otra cosa, como un glifo o un Badge; prevalece sobre `trailingText` y nunca es interactivo. Un enlace con `target` en `new` termina su fila con `open_in_new` por sí solo, así que no tienes que colocar ese glifo. El contenido final se lee después de la etiqueta y no se dibuja mientras el panel está contraído.
 - `badge` dibuja un Badge sobre el icono, en las dos formas: un punto, o `badgeCount`, con el nombre que le da `badgeLabel`.
-- La fila de un grupo abre y cierra los destinos y grupos que contiene, con el `expand_more` del conjunto de iconos girado media vuelta mientras está abierto. El icono y la etiqueta de cada nivel empiezan una sangría más adentro; su relleno, su capa de estado y su anillo de foco conservan el ancho completo de una fila de nivel superior, de modo que todas las selecciones tienen la misma forma. Un grupo cerrado que contiene el destino seleccionado se dibuja seleccionado, y lo mismo ocurre con un grupo de nivel superior mientras el panel está contraído; activar un grupo con el panel contraído expande el panel y abre el grupo. No pases de tres niveles.
+- La fila de un grupo abre y cierra los destinos y grupos que contiene, con su chevron donde lo pone `chevron` (arriba). Un grupo cerrado que contiene el destino seleccionado se dibuja seleccionado, y lo mismo ocurre con un grupo de nivel superior mientras el panel está contraído; activar un grupo con el panel contraído expande el panel y abre el grupo. No pases de tres niveles.
 - **Un grupo que también es destino** (`selectableGroups`, y un `value` o un `href` en el grupo) divide su fila como lo hace una [vista de árbol](/es/components/tree-view/): su chevron lo abre y lo cierra, el resto de la fila lo elige, y una pulsación nunca hace ambas cosas. El chevron es un control propio, después de la fila en el orden del foco, con un área de pulsación al menos tan ancha como el objetivo de puntero. Con el panel contraído, a diferencia de otro grupo, su celda lo elige y deja el panel contraído; a sus elementos se llega expandiendo el panel. `revealSelected` también abre un grupo así cuando es la página actual, de modo que la barra lateral de un sitio muestra las páginas de la sección que se ve.
 - El título de una sección da nombre a los destinos que tiene debajo. Es un encabezado, no un control. Una sección puede no tener título, como un grupo separado por un divisor y sin nombre.
 - El `divider` de una sección dibuja un divisor delante de ella, para separarla de lo que tiene encima. Nunca colocas un divisor por tu cuenta.

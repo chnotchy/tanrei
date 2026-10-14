@@ -455,6 +455,20 @@ A design system may add variants. A variant it adds behaves as standard.
 - **Touch keeps its target.** For touch a compact row is drawn at least the touch target high. For a pointer its hit area is the row and half the gap around it: below the pointer target, still above the 24 of WCAG 2.5.8.
 - A design system changes what compact means, or adds a density, through the drawer's `.compact` tokens, such as `comp.navigation-drawer.item.container.height.compact`.
 
+### Rows shared with the tree view
+
+- **The same parameters as the [tree view](/components/tree-view/)**, with the same names and meanings: `chevron`, `guides`, `indent`, `highlight`, `iconSpace`, `expandable`, `labelWrap` and `supportingWrap`, a row's `supportingText` and `supportingPosition`, and `stickyParents` with `stickyMax`.
+- **`chevron`**: `start`, the default, draws a group's chevron before its icon and keeps its room on every row, so the icons of a level line up; `end` draws it at the very end of the row, after the trailing content; `none` draws none, and a press on a group's icon opens and closes it, its `openIcon` shown while it is open. A collapsible drawer draws `start` as `end`, so every icon keeps its place in both forms, and a drawer without groups keeps no room for one.
+- **`indent`**: `auto` lines a row's first part up with where its group's label begins, and steps by the level's indent where the group draws nothing before its label; a number steps by that many pixels, and 0 by none. A row's label never begins past half of the drawer's width.
+- **`highlight`**: `indented`, the default, starts a nested row's fill and state layers where the row begins; `full` draws them across the whole width at every level.
+- **`iconSpace`** keeps an icon's room on a row without one, so that the labels of a level line up: `auto` where another row of the level has an icon, `always` or `never`.
+- **`expandable`** false shows every group open, with no chevron; a group's row then names its items and is not a control.
+- **`guides`**: `shown` draws a line beside an open group's items, under its chevron, else its icon, else its label's start; `hover` draws it only while the pointer is over the drawer or focus is in it.
+- **One line.** Labels and supporting text are one line, cut with an ellipsis, and a row that is cut shows its whole text in a tooltip on hover and on keyboard focus; `labelWrap` and `supportingWrap` let them wrap. The accessible name is always the whole label.
+- **Supporting text** stands under the label (`below`) or after it (`inline`), and is read as the row's description.
+- **A group** takes trailing text or content before an end chevron, an `openIcon`, and `loading`, which draws a loading row under its items, named by the drawer's `loadingLabel`.
+- **`stickyParents`**, off by default in the drawer and on in the tree view, pins the rows of the open groups the top rows belong to, at most `stickyMax` (2) of them, the innermost first, as an editor's sticky scroll does. It does not apply while the drawer is collapsed.
+
 ### Following the window's width
 
 `responsive` lets the window's width choose how the drawer is presented, from the two breakpoints of its design system (1024 and 600 in the default system). `variant` is then ignored.
@@ -483,11 +497,11 @@ Give every destination an `href` and the drawer the page's own address as its `v
 
 ### Rows, groups and sections
 
-- A row's label wraps rather than being cut, and the row grows with it. Rows are at least 48 high, the height of a [menu](/components/menu/)'s item, with its corners.
+- Rows are at least 48 high, the height of a [menu](/components/menu/)'s item, with its corners. A label is one line, cut, unless `labelWrap` lets it wrap and the row grow with it.
 - Give every destination an icon, or none, so the labels line up. A collapsible drawer draws each top-level destination and group by its icon while collapsed, so give each one an icon.
 - `trailingText` is short text at the row's end, quieter than the label: a count ("24") or a word ("New"). The `trailing` slot holds anything else, such as a glyph or a Badge; it wins over `trailingText` and is never interactive. A link with `target` `new` ends its row with `open_in_new` by itself, so you do not place that glyph. Trailing content is read after the label, and is not drawn while collapsed.
 - `badge` draws a Badge on the icon, in both forms: a dot, or `badgeCount`, named by `badgeLabel`.
-- A group's row opens and closes the destinations and groups inside it, with the icon set's `expand_more` turned half a turn while open. Each level's icon and label start one indent further in; its fill, its state layer and its focus ring keep the full width of a top-level row, so every selection has the same shape. A closed group that holds the selected destination is drawn selected, and so is a top-level group while collapsed; activating a group while collapsed expands the drawer and opens it. Keep to three levels.
+- A group's row opens and closes the destinations and groups inside it, by its chevron where `chevron` puts it (above). A closed group that holds the selected destination is drawn selected, and so is a top-level group while collapsed; activating a group while collapsed expands the drawer and opens it. Keep to three levels.
 - **A group that is a destination** (`selectableGroups`, and a `value` or an `href` on the group) splits its row as a [tree view](/components/tree-view/) does: its chevron opens and closes it, the rest of the row chooses it, and one press never does both. The chevron is its own control, after the row in the focus order, with a hit area at least the pointer target wide. Collapsed, unlike another group, its cell chooses it and leaves the drawer collapsed; its items are reached by expanding the drawer. `revealSelected` also opens such a group when it is the current page, so a site's sidebar shows the pages of the section shown.
 - A section's heading names the destinations under it. It is a heading, not a control. A section may have no heading, as a divided group without a title.
 - A section's `divider` draws a divider before it, to set it apart from what is above. You never place a divider yourself.
