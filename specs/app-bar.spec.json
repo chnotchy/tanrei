@@ -2,7 +2,7 @@
   "$schema": "./component.schema.json",
   "name": "app-bar",
   "title": "App bar",
-  "summary": "Names the current screen at its top edge and holds the way back and the screen's most used actions, flat while the content is at its top and set apart once content scrolls under it.",
+  "summary": "Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge drawn as the edge of a region that stays (or, where the design system chooses, only once content scrolls under it).",
   "category": "navigation",
   "level": "base",
   "listing": "default",
@@ -35,7 +35,7 @@
     },
     {
       "id": "outline",
-      "description": "The bar's bottom edge, which in the default system appears only once content has scrolled under the bar."
+      "description": "The bar's bottom edge. In the default system it is drawn at rest and while content is under the bar; dividerVisibility scroll draws it only once content has scrolled under the bar."
     }
   ],
   "props": [
@@ -77,6 +77,17 @@
       "type": "boolean",
       "default": false,
       "description": "Whether content lies under the bar. A scrolling view connected to the bar sets it (see platforms); a product without one sets it itself. It selects the bar's scrolled condition, and a large bar is drawn collapsed while it is true."
+    },
+    {
+      "name": "dividerVisibility",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "scroll"
+      ],
+      "default": "auto",
+      "description": "When the bar's bottom edge is drawn. always: at rest and while content is under the bar, so that the edge of the screen's header stands still (an app shell's header, a screen whose content starts right under the bar). scroll: only while content lies under the bar, so that the line itself says the content has moved (the scrolled condition's edge alone). auto takes comp.app-bar.outline.visibility, the design system's answer (always in the default system). The bar's color and elevation follow scrolled under either choice."
     }
   ],
   "items": [
@@ -147,15 +158,15 @@
   "behavior": [
     {
       "id": "APB-1",
-      "text": "WHILE scrolled is false THE app bar SHALL fill its container with comp.app-bar.flat.container.color, raise it by comp.app-bar.flat.container.elevation and draw its bottom edge comp.app-bar.outline.width thick in comp.app-bar.flat.outline.color."
+      "text": "WHILE scrolled is false THE app bar SHALL fill its container with comp.app-bar.flat.container.color, raise it by comp.app-bar.flat.container.elevation and draw its bottom edge comp.app-bar.outline.width thick: in comp.app-bar.scrolled.outline.color WHILE its divider visibility (APB-18) is always, so that the edge stands still whether or not content lies under the bar, and in comp.app-bar.flat.outline.color WHILE it is scroll."
     },
     {
       "id": "APB-2",
-      "text": "WHILE scrolled is true THE app bar SHALL fill its container with comp.app-bar.scrolled.container.color, raise it by comp.app-bar.scrolled.container.elevation and draw its bottom edge comp.app-bar.outline.width thick in comp.app-bar.scrolled.outline.color."
+      "text": "WHILE scrolled is true THE app bar SHALL fill its container with comp.app-bar.scrolled.container.color, raise it by comp.app-bar.scrolled.container.elevation and draw its bottom edge comp.app-bar.outline.width thick in comp.app-bar.scrolled.outline.color, under either divider visibility (APB-18)."
     },
     {
       "id": "APB-3",
-      "text": "WHEN scrolled changes THE app bar SHALL change its container color, elevation and bottom edge over comp.app-bar.motion.condition-duration with comp.app-bar.motion.condition-easing, and at once where motion is reduced."
+      "text": "WHEN scrolled changes THE app bar SHALL change its container color, elevation and bottom edge over comp.app-bar.motion.condition-duration with comp.app-bar.motion.condition-easing, and at once where motion is reduced; WHILE its divider visibility (APB-18) is always the bottom edge SHALL NOT change."
     },
     {
       "id": "APB-4",
@@ -213,6 +224,11 @@
     {
       "id": "APB-17",
       "text": "THE app bar SHALL lay out its title and its subtitle as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE app bar SHALL still place each and align its lines by the layout direction, not by the text's own, and SHALL cut a title or a subtitle that does not fit (APB-5, APB-7) at the end of its own direction, so that a left-to-right label in a right-to-left layout loses its right end and never its beginning."
+    },
+    {
+      "id": "APB-18",
+      "text": "THE app bar SHALL draw its bottom edge (APB-1, APB-2) as its dividerVisibility names: WHILE dividerVisibility is auto, as comp.app-bar.outline.visibility names, which follows sys.behavior.divider-visibility unless a design system sets the app bar apart; WHILE dividerVisibility is always or scroll, as that value names, whatever the tokens say. WHEN dividerVisibility, or the token it follows, changes THE app bar SHALL draw the other form at once, moving no part and keeping the scroll position and focus; WHEN dividerVisibility names a value the app bar does not define THE app bar SHALL treat it as auto and in debug builds report the unknown value. A platform that cannot draw a choice SHALL fall back to the first value, always, and state that in its README.",
+      "verify": "Under the default system every fixture draws the hairline bottom edge at rest: small and small-scrolled differ in nothing the default system paints. With divider-visibility=\"scroll\" small draws no edge and small-scrolled draws it. Under m3-like and cupertino (scroll) the representative fixtures draw what they drew before."
     }
   ],
   "accessibility": {
@@ -453,9 +469,10 @@
         "title": "headline",
         "subtitle": "subtitle",
         "titleAlignment": "titleAlignment",
-        "scrolled": "scrolled"
+        "scrolled": "scrolled",
+        "dividerVisibility": "dividerVisibility"
       },
-      "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar. `titleAlignment` is the `title-alignment` attribute. The slots are `navigation` and `actions`. A web-only `scroll-target` attribute names the id of the scrolling element to connect (default: the document's scrolling element; `none` connects nothing), from which the bar sets `scrolled` itself. A web-only `heading-level` (default 1) sets the title's heading level. Insets are `env(safe-area-inset-top|left|right)`.",
+      "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar. `titleAlignment` is the `title-alignment` attribute. The slots are `navigation` and `actions`. A web-only `scroll-target` attribute names the id of the scrolling element to connect (default: the document's scrolling element; `none` connects nothing), from which the bar sets `scrolled` itself. A web-only `heading-level` (default 1) sets the title's heading level. Insets are `env(safe-area-inset-top|left|right)`. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-app-bar-outline-visibility` from the cascade with a style query, and where the browser has none the bar writes the name it read on its container when it renders.",
       "items": {
         "navigation": {
           "name": "tanrei-button",
@@ -487,9 +504,10 @@
         "title": "title",
         "subtitle": "subtitle",
         "titleAlignment": "titleAlignment",
-        "scrolled": "isScrolled"
+        "scrolled": "isScrolled",
+        "dividerVisibility": "dividerVisibility"
       },
-      "notes": "`TanreiAppBar(_ title:, subtitle:, size:, titleAlignment:, isScrolled: Bool? = nil) { navigation } actions: { … }`, placed with `.safeAreaInset(edge: .top)` in a `NavigationStack` whose system bar is hidden; the system bar's heights, title font and edge cannot be set from the tokens. Hiding it must not lose the interactive back swipe: the implementation keeps it working. The connected scroll view is the one marked `.tanreiAppBarScrollSource()`, applied after the `.safeAreaInset` that holds the bar (the inset's content sees only the environment where the inset is applied); it connects on iOS 18 and macOS 15 and later. `isScrolled: nil` follows it, a value overrides it. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20).",
+      "notes": "`TanreiAppBar(_ title:, subtitle:, size:, titleAlignment:, isScrolled: Bool? = nil) { navigation } actions: { … }`, placed with `.safeAreaInset(edge: .top)` in a `NavigationStack` whose system bar is hidden; the system bar's heights, title font and edge cannot be set from the tokens. Hiding it must not lose the interactive back swipe: the implementation keeps it working. The connected scroll view is the one marked `.tanreiAppBarScrollSource()`, applied after the `.safeAreaInset` that holds the bar (the inset's content sees only the environment where the inset is applied); it connects on iOS 18 and macOS 15 and later. `isScrolled: nil` follows it, a value overrides it. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does.",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -521,9 +539,10 @@
         "title": "title",
         "subtitle": "subtitle",
         "titleAlignment": "titleAlignment",
-        "scrolled": "scrollBehavior"
+        "scrolled": "scrollBehavior",
+        "dividerVisibility": "dividerVisibility"
       },
-      "notes": "Compose idiom (as `TopAppBar`): `TanreiAppBar(title, navigationIcon = { … }, actions = { … }, subtitle, size, titleAlignment, scrollBehavior, windowInsets)`. `scrollBehavior` (`TanreiAppBarDefaults.pinnedScrollBehavior()` for small, `.collapseScrollBehavior()` for large) is connected with `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)`, and its state carries scrolled and the collapse; without one the bar is flat and expanded, and a state created with a given offset draws the scrolled fixtures. `windowInsets` defaults to the status bars plus the horizontal display cutout. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20).",
+      "notes": "Compose idiom (as `TopAppBar`): `TanreiAppBar(title, navigationIcon = { … }, actions = { … }, subtitle, size, titleAlignment, scrollBehavior, windowInsets)`. `scrollBehavior` (`TanreiAppBarDefaults.pinnedScrollBehavior()` for small, `.collapseScrollBehavior()` for large) is connected with `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)`, and its state carries scrolled and the collapse; without one the bar is flat and expanded, and a state created with a given offset draws the scrolled fixtures. `windowInsets` defaults to the status bars plus the horizontal display cutout. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does.",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -555,9 +574,10 @@
         "title": "title",
         "subtitle": "subtitle",
         "titleAlignment": "centerTitle",
-        "scrolled": "scrolledUnder"
+        "scrolled": "scrolledUnder",
+        "dividerVisibility": "dividerVisibility"
       },
-      "notes": "Flutter idiom (as `AppBar` and `SliverAppBar.large`): `TanreiAppBar` is a `PreferredSizeWidget` for `Scaffold.appBar`, with `leading`, `actions`, `title` (a String), `subtitle`, `size` and `centerTitle` (true for center). `scrolledUnder: null` follows the `ScrollNotification`s of the scaffold's body, as `AppBar`'s scrolled-under state does; a bool overrides it. A large bar that collapses is `TanreiSliverAppBar` inside a `CustomScrollView`. Insets through `SafeArea`/`MediaQuery.padding`. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20).",
+      "notes": "Flutter idiom (as `AppBar` and `SliverAppBar.large`): `TanreiAppBar` is a `PreferredSizeWidget` for `Scaffold.appBar`, with `leading`, `actions`, `title` (a String), `subtitle`, `size` and `centerTitle` (true for center). `scrolledUnder: null` follows the `ScrollNotification`s of the scaffold's body, as `AppBar`'s scrolled-under state does; a bool overrides it. A large bar that collapses is `TanreiSliverAppBar` inside a `CustomScrollView`. Insets through `SafeArea`/`MediaQuery.padding`. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does.",
       "items": {
         "navigation": {
           "name": "TanreiButton",
@@ -589,9 +609,10 @@
         "title": "title",
         "subtitle": "subtitle",
         "titleAlignment": "titleAlignment",
-        "scrolled": "scrolled"
+        "scrolled": "scrolled",
+        "dividerVisibility": "dividerVisibility"
       },
-      "notes": "`navigation` and `actions` are React nodes (an icon-only `Button`, and a fragment of up to three). The scroll connection is a hook: `const scroll = useAppBarScroll()` gives `scroll.onScroll` for a `ScrollView` or `FlatList` and `scroll.state` for the bar's `scrollState` prop, which sets scrolled and the collapse; without it the bar draws what `scrolled` says. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20).",
+      "notes": "`navigation` and `actions` are React nodes (an icon-only `Button`, and a fragment of up to three). The scroll connection is a hook: `const scroll = useAppBarScroll()` gives `scroll.onScroll` for a `ScrollView` or `FlatList` and `scroll.state` for the bar's `scrollState` prop, which sets scrolled and the collapse; without it the bar draws what `scrolled` says. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either. Not yet: the title's letter-spacing by the script of its text (APB-5, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; APB-18) — the bar still draws its bottom edge from its condition's outline color, as `scroll` does.",
       "items": {
         "navigation": {
           "name": "Button",
