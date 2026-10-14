@@ -5617,11 +5617,17 @@ public struct TanreiComboboxTokens: Sendable, Equatable {
 /// Component tokens of copy-button (comp.copy-button).
 public struct TanreiCopyButtonTokens: Sendable, Equatable {
   public var confirmationDuration: Double
+  public var motionResizeDuration: Double
+  public var motionResizeEasing: TanreiCubicBezier
 
   public init(
-    confirmationDuration: Double
+    confirmationDuration: Double,
+    motionResizeDuration: Double,
+    motionResizeEasing: TanreiCubicBezier
   ) {
     self.confirmationDuration = confirmationDuration
+    self.motionResizeDuration = motionResizeDuration
+    self.motionResizeEasing = motionResizeEasing
   }
 }
 

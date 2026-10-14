@@ -8291,16 +8291,26 @@ class TanreiComboboxTokens {
 class TanreiCopyButtonTokens {
   const TanreiCopyButtonTokens({
     required this.confirmationDuration,
+    required this.motionResizeDuration,
+    required this.motionResizeEasing,
   });
 
   /// `comp.copy-button.confirmation-duration`
   final int confirmationDuration;
+  /// `comp.copy-button.motion-resize-duration`
+  final int motionResizeDuration;
+  /// `comp.copy-button.motion-resize-easing`
+  final TanreiCubicBezier motionResizeEasing;
 
   /// A copy with the given tokens replaced.
   TanreiCopyButtonTokens copyWith({
     int? confirmationDuration,
+    int? motionResizeDuration,
+    TanreiCubicBezier? motionResizeEasing,
   }) => TanreiCopyButtonTokens(
         confirmationDuration: confirmationDuration ?? this.confirmationDuration,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+        motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
       );
 }
 

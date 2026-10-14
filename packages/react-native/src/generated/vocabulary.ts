@@ -1769,6 +1769,8 @@ export interface TanreiComboboxTokens {
  */
 export interface TanreiCopyButtonTokens {
   readonly confirmationDuration: number;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
 }
 
 /**

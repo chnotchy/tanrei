@@ -3615,6 +3615,8 @@ public data class TanreiComboboxTokens(
 @Immutable
 public data class TanreiCopyButtonTokens(
     public val confirmationDuration: Int,
+    public val motionResizeDuration: Int,
+    public val motionResizeEasing: TanreiCubicBezier,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
     }

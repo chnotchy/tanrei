@@ -3407,6 +3407,8 @@ private object AcmeSystemSource {
     fun copyButton(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiCopyButtonTokens =
         TanreiCopyButtonTokens(
             confirmationDuration = 2000,
+            motionResizeDuration = 500,
+            motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -5211,7 +5213,7 @@ private object AcmeSystemSource {
             controlBoxShape = 2.dp,
             controlBoxSize = 18.dp,
             controlFillInset = 0.dp,
-            controlFillOpacity = 0.5f,
+            controlFillOpacity = 0.16f,
             controlMarkSize = 20.dp,
             controlMarkWeight = 400f,
             controlOutlineWidth = 2.dp,
@@ -6501,7 +6503,7 @@ private object AcmeSystemSource {
             containerShape = 9999.dp,
             containerSize = 40.dp,
             fillInset = 0.dp,
-            fillOpacity = 0.5f,
+            fillOpacity = 0.08f,
             labelGap = 4.dp,
             labelTypescale = typescale.body,
             motionFeedbackDuration = 450,

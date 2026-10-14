@@ -133,7 +133,7 @@ The revision that gave the radio button its present sizes and a ring that thicke
   </div>
 </DemoFrame>
 
-In the default system the radio button is a 20 ring with a 2 stroke, on a round 40 state layer. A selected option draws no dot. Its ring thickens inward to half the radius, and the disc left inside is filled with the ring's color at half opacity. The ring keeps its outer size in both conditions. The ring and the fill are one shape: nothing behind the radio button shows between them at any zoom or display density, or in any frame of the change. When the selection changes, the stroke thickens or thins while the ring's color changes and the fill fades in or out; the fill never grows from the center. A change that comes before the motion ends turns back from where it is, and where motion is reduced, the new condition shows at once and in full.
+In the default system the radio button is a 20 ring with a 2 stroke, on a round 40 state layer. A selected option draws no dot. Its ring thickens inward to half the radius, and the disc left inside is filled with the ring's color at 16 % opacity: a light tint, which stands at least 3:1 apart from the ring. The ring keeps its outer size in both conditions. The ring and the fill are one shape: nothing behind the radio button shows between them at any zoom or display density, or in any frame of the change. When the selection changes, the stroke thickens or thins while the ring's color changes and the fill fades in or out; the fill never grows from the center. A change that comes before the motion ends turns back from where it is, and where motion is reduced, the new condition shows at once and in full.
 
 Each option takes at least 48 of height in layout, the target's size, with the state layer centered in it. Options stacked with no gap between them therefore never share target area. A product that packs its options tighter lowers `option.min-height` in its own layer and accepts that the targets overlap.
 
@@ -183,7 +183,7 @@ A group can start with one option selected when that option is a safe and likely
 - Space selects the focused option. Enter selects it only where the platform activates any focused control with Enter (Android, tvOS); on the web, Enter submits the form.
 - Selecting an option unselects the others. Only the option that became selected reports the change, and activating the selected option does nothing.
 - A click or tap on the label selects the option. The label is part of the hit area, and the hit area meets the minimum target. Each option reserves the target's height in layout, so stacked options keep whole, separate targets.
-- The selection is carried by the ring alone: the selected ring holds 3:1 against every surface in the default system, and it is two and a half times as thick as the unselected one. The translucent fill is decoration and is not counted.
+- The selection is carried by the ring alone: the selected ring holds 3:1 against every surface in the default system, and it is two and a half times as thick as the unselected one. The translucent fill is not counted for that, but it is held 3:1 apart from the ring it meets, in every state, on every surface and in every scheme (WCAG 1.4.11), so the center of the chosen option is seen as well.
 - It shows the focus indicator for keyboard focus only.
 - Where motion is reduced, the new condition shows at once and in full.
 - A missing label is reported in debug builds.

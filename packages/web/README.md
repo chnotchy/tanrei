@@ -7355,7 +7355,7 @@ A main action with one press, and related actions in a menu from a second, joine
 | `variant` | `filled` \| `tonal` \| `elevated` \| `outlined` | `filled` | emphasis, as Button's variants of the same names; a layer may add values; unknown is drawn as filled and reported (SPB-8); reflected |
 | `size` | `small` \| `medium` \| `large` | `medium` | Button's heights (32 / 40 / 56 in the default system); open as `variant`; reflected |
 | `separation` | `auto` \| `divider` \| `gap` | `auto` | how the two halves are joined (SPB-30, see Separation): `auto` takes `comp.button-with-menu.container.separation`, the system's answer. Anything else is `auto` and reported (SPB-8); reflected |
-| `trailing-width` (`trailingWidth`) | `default` \| `narrow` | `default` | the trailing half holds the chevron in a square of the height, or — narrow — between `trailing.padding-inline-narrow` with no outer padding (28 / 32 / 32 wide in the default system: the width of a narrow icon-only Button, from its own token, SPB-32). Anything else is `default` and reported (SPB-8); reflected |
+| `trailing-width` (`trailingWidth`) | `default` \| `narrow` | `default` | the trailing half holds the chevron in a square of the height, or — narrow — between `trailing.padding-inline-narrow`, then the outer padding at its end (32 / 36 / 36 wide in the default system: a narrow icon-only Button's width and the outer padding, from its own tokens, SPB-32). Anything else is `default` and reported (SPB-8); reflected |
 | `label` | string | `""` | the leading half's text and accessible name. Required (empty is reported, SPB-20) |
 | `menu-label` (`menuLabel`) | string | `""` | the trailing half's accessible name ("More save options"). Required: the chevron alone is not a name |
 | `open` | boolean | `false` | whether the menu is shown; reflected. **The button with menu never opens or closes it**: set it from `toggle` and to false from `close` |
@@ -7396,19 +7396,19 @@ its `::after`'s, which reaches a little past the seam and is cut there, as a con
 stand `container.inner-gap` apart with `container.inner-shape` where they face each other, each half's outline and ring
 inside its own edge: the elevation is read as its `-inset-ring` companion, so the rings of the two halves never meet in
 the gap — an elevation overridden by hand needs its companion overridden too (see Elevation). Under either,
-`container.outer-inset` is added to the leading half's start padding and — at the default trailing width — to the
-trailing half's end padding, so content beside a rounded outer end looks as far from it as from the tighter corner on
-its other side: the trailing half is that much wider, its chevron half of it nearer the seam. **A narrow trailing half
-takes no outer padding (SPB-32):** it is the chevron's box and `trailing.padding-inline-narrow` on each side and no
-wider, the chevron at its centre (16 from the seam, or from the gap, and 16 from the end edge at the medium size), under
-either separation and mirrored in right-to-left. Where the two components' tokens agree, as in the default system, that
-is exactly a narrow icon-only Button's width (28 / 32 / 32); the half reads its own token, so a system can part them.
-The leading half is the same at either trailing width.
+`container.outer-inset` is added to the leading half's start padding and to the trailing half's end padding, at
+either trailing width, so content beside a rounded outer end looks as far from it as from the tighter corner on its
+other side: the trailing half is that much wider, its chevron half of it nearer the seam. **A narrow trailing half takes
+it too (SPB-32):** it is the chevron's box, `trailing.padding-inline-narrow` on each side and the outer padding at its
+end (16 from the seam, or from the gap, and 20 from the end edge at the medium size), under either separation and
+mirrored in right-to-left. Where the two components' tokens agree, as in the default system, that is a narrow icon-only
+Button's width and the outer padding (32 / 36 / 36); a system that sets the outer padding to 0 gets exactly the Button's
+width. The leading half is the same at either trailing width.
 
 **Targets (SPB-6).** Each hit area reaches the target above, below and outward, and toward the other half stops at the
 middle of the gap, or at the seam (`neighbourTarget()`); what a half cannot reach toward the other it reaches outward,
-so a narrow trailing half has its whole target without being drawn wider: at the medium size it reaches 16 past its
-end edge for a coarse pointer (48 − 32), so leave that much room beside it, as beside a narrow icon-only Button.
+so a narrow trailing half has its whole target without being drawn wider: at the medium size it reaches 12 past its
+end edge for a coarse pointer (48 − 36), so leave that much room beside it, as beside a narrow icon-only Button.
 
 **Open (SPB-13, SPB-15, SPB-20, SPB-21).** While open, the chevron (`expand_more`, never mirrored) is turned half a
 turn, over `motion.open-duration` / `-easing` (at once under reduced motion). The trailing half's inner corners are

@@ -3356,6 +3356,8 @@ private object M3ExpressiveLikeSystemSource {
     fun copyButton(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiCopyButtonTokens =
         TanreiCopyButtonTokens(
             confirmationDuration = 2000,
+            motionResizeDuration = 500,
+            motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -5160,7 +5162,7 @@ private object M3ExpressiveLikeSystemSource {
             controlBoxShape = 4.dp,
             controlBoxSize = 18.dp,
             controlFillInset = 0.dp,
-            controlFillOpacity = 0.5f,
+            controlFillOpacity = 0.16f,
             controlMarkSize = 20.dp,
             controlMarkWeight = 400f,
             controlOutlineWidth = 2.dp,
