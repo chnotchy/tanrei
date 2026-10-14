@@ -7,7 +7,7 @@
 '@tanrei/flutter': minor
 ---
 
-Navigation drawer: a compact density, and groups that are destinations.
+Navigation drawer: a compact density, groups that are destinations, and the main action on the icons' line.
 
 - `density`: `regular` (the default, the menu item's 48 row it always had) or `compact`, a tree view's compact row for a
   tool used with a pointer whose drawer lists many places: 32 rows with 16 glyphs, 8 paddings and gaps, a 2 gap between
@@ -28,7 +28,11 @@ Navigation drawer: a compact density, and groups that are destinations.
   Authoring Practices' disclosure navigation menu with top-level links). Collapsed, its cell chooses it. A group
   without either still only opens and closes. `revealSelected` also opens a group that is itself the selected
   destination.
-- Web: both, with tests. SwiftUI, Compose, Flutter and React Native stay lagging: neither is built there yet, and their
+- The main action's glyph stands on the destinations' icon line in both forms, at every size of the button, in both
+  densities and every shipped system, in either direction: the drawer places the button from its own tokens (its
+  collapsed square, its padding before a leading glyph, its glyph) instead of centring its measured square. A collapsed
+  square wider than the column (the large main action in the default system) and a trailing glyph are reported.
+- Web: all of it, with tests. SwiftUI, Compose, Flutter and React Native stay lagging: neither is built there yet, and their
   drawers still read the drawer tokens by the names they had before this change.
 - Three new fixtures, `compact`, `compact-collapsed` and `selectable-groups`, whose web baselines are recorded new; no
   other baseline changes.
