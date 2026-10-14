@@ -47,7 +47,7 @@
     },
     {
       "id": "divider",
-      "description": "Hairlines across the sheet: above the actions, drawn while there are actions; and below the header, drawn while the content is scrolled away from its top.",
+      "description": "Hairlines across the sheet: above the actions, drawn while there are actions; and below the header, drawn whenever the header is in the default system, or only while the content is scrolled away from its top under dividerVisibility scroll.",
       "optional": true
     },
     {
@@ -92,6 +92,17 @@
       "default": "",
       "description": "The close button's accessible name (\"Close filters\"). Required while closable is true.",
       "words": "closeLabel"
+    },
+    {
+      "name": "dividerVisibility",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "scroll"
+      ],
+      "default": "auto",
+      "description": "When the divider below the header is drawn. always: whenever the header is drawn, at rest as well as while the content is scrolled, as the divider above the actions always is. scroll: only while the content is scrolled away from its top. auto takes comp.side-sheet.divider.visibility, the design system's answer (always in the default system)."
     }
   ],
   "items": [
@@ -236,7 +247,7 @@
     },
     {
       "id": "SSH-19",
-      "text": "WHILE the header is drawn and the content is scrolled away from its top THE side sheet SHALL draw a divider of comp.side-sheet.divider.width in comp.side-sheet.divider.color across its full width below the header, hidden from assistive technology; WHILE the content is at its top, or there is no header, it SHALL draw none there. It SHALL show and hide this divider at once, without motion."
+      "text": "WHILE the header is drawn THE side sheet SHALL draw a divider of comp.side-sheet.divider.width in comp.side-sheet.divider.color across its full width below the header, hidden from assistive technology: WHILE its divider visibility (SSH-23) is always, at rest as well as while the content is scrolled, as the divider above the actions is drawn whether or not the content scrolls (SSH-11); WHILE it is scroll, only WHILE the content is scrolled away from its top. WHILE there is no header it SHALL draw none there. It SHALL show and hide this divider at once, without motion."
     },
     {
       "id": "SSH-20",
@@ -250,6 +261,11 @@
     {
       "id": "SSH-22",
       "text": "THE side sheet SHALL lay out its headline as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE side sheet SHALL still place the headline and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "SSH-23",
+      "text": "THE side sheet SHALL draw the divider below its header (SSH-19) as its dividerVisibility names: WHILE dividerVisibility is auto, as comp.side-sheet.divider.visibility names, which follows sys.behavior.divider-visibility unless a design system sets the side sheet apart; WHILE dividerVisibility is always or scroll, as that value names, whatever the tokens say. WHEN dividerVisibility, or the token it follows, changes THE side sheet SHALL draw the other form at once, moving no part and keeping the scroll position and focus; WHEN dividerVisibility names a value the side sheet does not define THE side sheet SHALL treat it as auto and in debug builds report the unknown value. A platform that cannot draw a choice SHALL fall back to the first value, always, and state that in its README.",
+      "verify": "Under the default system standard, standard-actions and modal draw the divider below the header at rest. With divider-visibility=\"scroll\" none is drawn there until the content is scrolled. Under m3-like (scroll) nothing changes."
     }
   ],
   "accessibility": {
@@ -426,12 +442,13 @@
         "open": "open",
         "headline": "headline",
         "closable": "closable",
-        "closeLabel": "closeLabel"
+        "closeLabel": "closeLabel",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "close": "close"
       },
-      "notes": "`closeLabel` is the `close-label` attribute. `close` is a CustomEvent whose `detail.reason` is `close`, `scrim`, `escape`, `back` or `drag`; the product sets `open` to false from it. Slots: default and `actions`. The actions are laid out by the button group's placement (BGR-13 to BGR-17) inside the shadow root: the sheet's shadow root uses manual slot assignment, assigns its content children to the default slot, and assigns each action to one of three action slots in the order of the orientation, so focus and the accessibility tree follow the placed order (BGR-15); CSS `order` is not used. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim. Standard: an `<aside>` named by the headline, placed by the product as the last item of a flex row; its width animates. The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.side-sheet.close-button.variant through the internal controller the group gives its items. The `autofocus` attribute on a slotted element marks initial focus. Debug builds (`import.meta.env.DEV` or the package's dev export) report a modal sheet opened with no assigned action (SSH-16). The keyboard's room (SSH-20) is the `visualViewport`'s height. Insets are `env(safe-area-inset-*)`. Snapshot harness: a 720 × 480 viewport with a `surface` page; the standard sheet at the end of a row whose other child fills the rest of the width; the modal sheet opened by `open`, the screenshot being the viewport.",
+      "notes": "`closeLabel` is the `close-label` attribute. `close` is a CustomEvent whose `detail.reason` is `close`, `scrim`, `escape`, `back` or `drag`; the product sets `open` to false from it. Slots: default and `actions`. The actions are laid out by the button group's placement (BGR-13 to BGR-17) inside the shadow root: the sheet's shadow root uses manual slot assignment, assigns its content children to the default slot, and assigns each action to one of three action slots in the order of the orientation, so focus and the accessibility tree follow the placed order (BGR-15); CSS `order` is not used. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim. Standard: an `<aside>` named by the headline, placed by the product as the last item of a flex row; its width animates. The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.side-sheet.close-button.variant through the internal controller the group gives its items. The `autofocus` attribute on a slotted element marks initial focus. Debug builds (`import.meta.env.DEV` or the package's dev export) report a modal sheet opened with no assigned action (SSH-16). The keyboard's room (SSH-20) is the `visualViewport`'s height. Insets are `env(safe-area-inset-*)`. Snapshot harness: a 720 × 480 viewport with a `surface` page; the standard sheet at the end of a row whose other child fills the rest of the width; the modal sheet opened by `open`, the screenshot being the viewport. `dividerVisibility` is the `divider-visibility` attribute (`auto`, `always`, `scroll`); `auto` reads `--tanrei-comp-side-sheet-divider-visibility` from the cascade with a style query, and where the browser has none the sheet writes the name it read on its header when it renders.",
       "items": {
         "action": {
           "name": "tanrei-button",
@@ -456,12 +473,13 @@
         "open": "isPresented",
         "headline": "headline",
         "closable": "closable",
-        "closeLabel": "closeLabel"
+        "closeLabel": "closeLabel",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "close": "onClose"
       },
-      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: standard `TanreiSideSheet(_ headline:, isPresented: Binding<Bool>, closable:, closeLabel:, initialFocus:, onClose:) { content } actions: { … }`, a view the product places at the end of an `HStack`, with `actions:` optional. Modal: the modifier `.tanreiSideSheet(_ headline:, isPresented:, …, content:, actions:)` on the view it covers, with `actions:` a required builder whose subviews the sheet counts through a variadic view, reporting an empty one in debug builds (SSH-16); presented as `tanreiDialog` is (on iOS `.fullScreenCover` with a clear presentation background and the system transition off; Tanrei draws the scrim, the sheet and the drag), and on macOS, which has no full-screen cover, as an overlay of the modified view with the modal trait. Both lay out the actions with the button group's `Layout`. Closing writes false to `isPresented` and then calls `onClose` with the reason. The close button is an icon-only `TanreiButton` whose variant the sheet sets from its token. Initial focus is `.defaultFocus`, or an `@AccessibilityFocusState` binding the product passes as `initialFocus` (without it, VoiceOver starts at the headline); Escape is `.onKeyPress(.escape)` and the escape gesture `.accessibilityAction(.escape)`. The keyboard's safe area lifts the actions (SSH-20). Snapshot harness: renders `TanreiSideSheetSurface` (the sheet and, for a modal sheet, the scrim) in place in a 720 × 480 frame over a `surface` page. Not yet: the headline's letter-spacing by the script of its text (SSH-9, PRS-20).",
+      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: standard `TanreiSideSheet(_ headline:, isPresented: Binding<Bool>, closable:, closeLabel:, initialFocus:, onClose:) { content } actions: { … }`, a view the product places at the end of an `HStack`, with `actions:` optional. Modal: the modifier `.tanreiSideSheet(_ headline:, isPresented:, …, content:, actions:)` on the view it covers, with `actions:` a required builder whose subviews the sheet counts through a variadic view, reporting an empty one in debug builds (SSH-16); presented as `tanreiDialog` is (on iOS `.fullScreenCover` with a clear presentation background and the system transition off; Tanrei draws the scrim, the sheet and the drag), and on macOS, which has no full-screen cover, as an overlay of the modified view with the modal trait. Both lay out the actions with the button group's `Layout`. Closing writes false to `isPresented` and then calls `onClose` with the reason. The close button is an icon-only `TanreiButton` whose variant the sheet sets from its token. Initial focus is `.defaultFocus`, or an `@AccessibilityFocusState` binding the product passes as `initialFocus` (without it, VoiceOver starts at the headline); Escape is `.onKeyPress(.escape)` and the escape gesture `.accessibilityAction(.escape)`. The keyboard's safe area lifts the actions (SSH-20). Snapshot harness: renders `TanreiSideSheetSurface` (the sheet and, for a modal sheet, the scrim) in place in a 720 × 480 frame over a `surface` page. Not yet: the headline's letter-spacing by the script of its text (SSH-9, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; SSH-23) — the divider below the header is still drawn only while the content is scrolled from its top, as `scroll` does.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -486,12 +504,13 @@
         "open": "visible",
         "headline": "headline",
         "closable": "closable",
-        "closeLabel": "closeLabel"
+        "closeLabel": "closeLabel",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "close": "onClose"
       },
-      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: `TanreiSideSheet(visible, onClose: (TanreiSheetCloseReason) -> Unit, headline, variant, closable, closeLabel, initialFocus: FocusRequester?, actions: (@Composable () -> Unit)?, content)`; the caller sets `visible` to false from `onClose`. The actions lambda's receiver is the button group's scope, not `RowScope`, so the flags are its `Modifier.confirming()` and `Modifier.dismissive()` and no inert `weight` or `align` is offered. Its `Layout` sees the actions' measurables and, for a modal sheet, reports none in debug builds (SSH-16); `variant` is a parameter, so the type cannot require actions for the modal form alone. Standard: a composable the product places at the end of a `Row`; its width animates. Modal: drawn in a `Dialog` window of its own, as `TanreiDialog` and the modal drawer are, with the window's own dim off (Tanrei draws the scrim); the window traps focus, answers back and hides the content behind from TalkBack, and the sheet sets a pane title from the headline. The close button is an icon-only `TanreiButton` whose variant the sheet sets from its token. The keyboard's room is `WindowInsets.ime` (SSH-20). Snapshot harness: renders `TanreiSideSheetContent` (the sheet and, for a modal sheet, the scrim) in place in a 720 × 480 dp box over a `surface` page. Not yet: the headline's letter-spacing by the script of its text (SSH-9, PRS-20).",
+      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: `TanreiSideSheet(visible, onClose: (TanreiSheetCloseReason) -> Unit, headline, variant, closable, closeLabel, initialFocus: FocusRequester?, actions: (@Composable () -> Unit)?, content)`; the caller sets `visible` to false from `onClose`. The actions lambda's receiver is the button group's scope, not `RowScope`, so the flags are its `Modifier.confirming()` and `Modifier.dismissive()` and no inert `weight` or `align` is offered. Its `Layout` sees the actions' measurables and, for a modal sheet, reports none in debug builds (SSH-16); `variant` is a parameter, so the type cannot require actions for the modal form alone. Standard: a composable the product places at the end of a `Row`; its width animates. Modal: drawn in a `Dialog` window of its own, as `TanreiDialog` and the modal drawer are, with the window's own dim off (Tanrei draws the scrim); the window traps focus, answers back and hides the content behind from TalkBack, and the sheet sets a pane title from the headline. The close button is an icon-only `TanreiButton` whose variant the sheet sets from its token. The keyboard's room is `WindowInsets.ime` (SSH-20). Snapshot harness: renders `TanreiSideSheetContent` (the sheet and, for a modal sheet, the scrim) in place in a 720 × 480 dp box over a `surface` page. Not yet: the headline's letter-spacing by the script of its text (SSH-9, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; SSH-23) — the divider below the header is still drawn only while the content is scrolled from its top, as `scroll` does.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -516,12 +535,13 @@
         "open": "open",
         "headline": "headline",
         "closable": "showCloseButton",
-        "closeLabel": "closeButtonSemanticLabel"
+        "closeLabel": "closeButtonSemanticLabel",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "close": "onClose"
       },
-      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: `TanreiSideSheet(variant:, open:, onClose: ValueChanged<TanreiSheetCloseReason>, headline:, showCloseButton:, closeButtonSemanticLabel:, actions: [...], child:)`, controlled: the caller sets `open` to false from `onClose`. A modal sheet asserts `actions` non-empty when it opens (SSH-16); the actions are laid out with the button group's render object. Standard: placed at the end of a `Row`. Modal: a controlled overlay in a `Stack` over the page, as the modal navigation drawer, with its own scrim and slide, a `FocusScope` that keeps focus in, the page's semantics blocked, back through `PopScope` and Escape through `Shortcuts`/`Actions`. The close button is an icon-only `TanreiButton` whose variant the sheet sets from its token; the headline is wrapped in `Semantics(header: true)`. The keyboard's room is `MediaQuery.viewInsetsOf(context).bottom` (SSH-20). Snapshot harness: a golden of the whole 720 × 480 surface over a `surface` page. Not yet: the headline's letter-spacing by the script of its text (SSH-9, PRS-20).",
+      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: `TanreiSideSheet(variant:, open:, onClose: ValueChanged<TanreiSheetCloseReason>, headline:, showCloseButton:, closeButtonSemanticLabel:, actions: [...], child:)`, controlled: the caller sets `open` to false from `onClose`. A modal sheet asserts `actions` non-empty when it opens (SSH-16); the actions are laid out with the button group's render object. Standard: placed at the end of a `Row`. Modal: a controlled overlay in a `Stack` over the page, as the modal navigation drawer, with its own scrim and slide, a `FocusScope` that keeps focus in, the page's semantics blocked, back through `PopScope` and Escape through `Shortcuts`/`Actions`. The close button is an icon-only `TanreiButton` whose variant the sheet sets from its token; the headline is wrapped in `Semantics(header: true)`. The keyboard's room is `MediaQuery.viewInsetsOf(context).bottom` (SSH-20). Snapshot harness: a golden of the whole 720 × 480 surface over a `surface` page. Not yet: the headline's letter-spacing by the script of its text (SSH-9, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; SSH-23) — the divider below the header is still drawn only while the content is scrolled from its top, as `scroll` does.",
       "items": {
         "action": {
           "name": "TanreiButton",
@@ -546,12 +566,13 @@
         "open": "open",
         "headline": "headline",
         "closable": "closable",
-        "closeLabel": "closeLabel"
+        "closeLabel": "closeLabel",
+        "dividerVisibility": "dividerVisibility"
       },
       "events": {
         "close": "onClose"
       },
-      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: controlled: `open`, `onClose(reason)`; the caller sets `open` to false from it. `actions` is a React node (a `Button` or a fragment of them); development builds report it empty when a modal sheet opens (SSH-16); the types cannot tie it to `variant`. The content is `children`. Standard: a `View` the product places at the end of a row (`flexDirection: 'row'`). Modal: presented in a transparent `Modal` with `animationType=\"none\"`, `statusBarTranslucent` and `navigationBarTranslucent`; `onRequestClose` (Android back, and Escape on a hardware keyboard) is close with the reason `back` or `escape`. Drags with `PanResponder`. The close button is an icon-only `Button` whose variant the sheet sets from its token; the headline has the `header` role. The keyboard's height comes from `Keyboard` events (SSH-20). Insets come from the sheet's own `insets` prop, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency. Snapshot harness: renders `SideSheetSurface` in place in a 720 × 480 view over a `surface` page. The initial-focus mark is an `initialFocusRef` prop, as on the bottom sheet and the dialog (SSH-3). Not yet: the headline's letter-spacing by the script of its text (SSH-9, PRS-20).",
+      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: controlled: `open`, `onClose(reason)`; the caller sets `open` to false from it. `actions` is a React node (a `Button` or a fragment of them); development builds report it empty when a modal sheet opens (SSH-16); the types cannot tie it to `variant`. The content is `children`. Standard: a `View` the product places at the end of a row (`flexDirection: 'row'`). Modal: presented in a transparent `Modal` with `animationType=\"none\"`, `statusBarTranslucent` and `navigationBarTranslucent`; `onRequestClose` (Android back, and Escape on a hardware keyboard) is close with the reason `back` or `escape`. Drags with `PanResponder`. The close button is an icon-only `Button` whose variant the sheet sets from its token; the headline has the `header` role. The keyboard's height comes from `Keyboard` events (SSH-20). Insets come from the sheet's own `insets` prop, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency. Snapshot harness: renders `SideSheetSurface` in place in a 720 × 480 view over a `surface` page. The initial-focus mark is an `initialFocusRef` prop, as on the bottom sheet and the dialog (SSH-3). Not yet: the headline's letter-spacing by the script of its text (SSH-9, PRS-20). Not built on this platform yet: `dividerVisibility` (auto, always, scroll; SSH-23) — the divider below the header is still drawn only while the content is scrolled from its top, as `scroll` does.",
       "items": {
         "action": {
           "name": "Button",
