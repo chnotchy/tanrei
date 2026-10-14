@@ -200,31 +200,43 @@ export const styles = css`
     inset-inline: calc(${t('container-padding')} * -1);
     block-size: ${t('divider-width')};
     background: ${t('divider-color')};
-    visibility: hidden;
     pointer-events: none;
+  }
+  /* Which divider is drawn is decided on the middle itself, as two private properties the pseudo-elements read: WebKit
+     does not answer a style container query for a pseudo-element. */
+  .middle {
+    --_divider-top: hidden;
+    --_divider-bottom: hidden;
   }
   .middle::before {
     inset-block-start: 0;
+    visibility: var(--_divider-top);
   }
   .middle::after {
     inset-block-end: 0;
+    visibility: var(--_divider-bottom);
   }
-  .middle.scrolls::before,
-  .middle.scrolls.actioned::after {
-    visibility: visible;
+  .middle.scrolls {
+    --_divider-top: visible;
+  }
+  .middle.scrolls.actioned {
+    --_divider-bottom: visible;
   }
   /* DLG-24, scroll: below the header only while the part is not at its top, above the actions only while more of it lies
      below. */
   ${whenScroll(
     'dialog',
     (dialog) => `
-  ${dialog} .middle.scrolls::before,
-  ${dialog} .middle.scrolls.actioned::after {
-    visibility: hidden;
+  ${dialog} .middle.scrolls,
+  ${dialog} .middle.scrolls.actioned {
+    --_divider-top: hidden;
+    --_divider-bottom: hidden;
   }
-  ${dialog} .middle.scrolls.above::before,
-  ${dialog} .middle.scrolls.actioned.below::after {
-    visibility: visible;
+  ${dialog} .middle.scrolls.above {
+    --_divider-top: visible;
+  }
+  ${dialog} .middle.scrolls.actioned.below {
+    --_divider-bottom: visible;
   }`,
   )}
 
