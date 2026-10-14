@@ -398,8 +398,8 @@
             },
             "opacity": {
               "$type": "number",
-              "$value": 0.5,
-              "$description": "The opacity the fill inside a checked ring is drawn at, applied to the control color of the condition and state. The radio button's own value.",
+              "$value": 0.16,
+              "$description": "The opacity the fill inside a checked ring is drawn at, applied to the control color of the condition and state. The radio button's own value; where the fill meets the ring it is held 3:1 against the ring on the menu's sheet, the checked row's fill under it (WCAG 1.4.11).",
               "$extensions": {
                 "dev.tanrei.derive": {
                   "fixed": "An opacity is a proportion; no dial scales it."

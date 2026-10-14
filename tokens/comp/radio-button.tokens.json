@@ -38,7 +38,7 @@
               "Radio buttons come in groups of two or more with one selected; for a single yes/no choice use a checkbox or a switch.",
               "Hover, focus and press show on the container (the round layer behind the ring), never on the ring.",
               "An unselected ring must stay visible (sys.color.outline is at least 3:1).",
-              "In the default system the ring alone carries the selected condition at 3:1 against the surface (sys.color.primary is held to 4.5:1 on every surface); the translucent fill is never counted. A layer may restyle both freely.",
+              "In the default system the ring alone carries the selected condition at 3:1 against the surface (sys.color.primary is held to 4.5:1 on every surface); the translucent fill is never counted for that. The fill is a part of the mark all the same: it is held 3:1 against the ring it meets, or against the gap where fill.inset leaves one (WCAG 1.4.11), in every enabled state and on every surface role. A layer may restyle both freely.",
               "The selected stroke grows inward: the ring's outer diameter never changes with the condition.",
               "The fill never grows or shrinks on its own: it covers what the ring leaves inside it, less fill.inset, and only its color changes with the condition.",
               "The condition is chosen by the props and by the group: error, or a radio group or a field group in error, prefixes the condition (error-unselected, error-selected). Never pick a condition by hand, and never mark one option of a group alone.",
@@ -146,11 +146,11 @@
           },
           "opacity": {
             "$type": "number",
-            "$value": 0.5,
-            "$description": "The opacity the fill is drawn at, applied to the fill color of the condition and state. The fill lies inside the ring, never under it, so a translucent ring (disabled) never shows the fill through it.",
+            "$value": 0.16,
+            "$description": "The opacity the fill is drawn at, applied to the fill color of the condition and state. The fill lies inside the ring, never under it, so a translucent ring (disabled) never shows the fill through it. Where the fill meets the ring (fill.inset 0), the fill as drawn is held 3:1 against the ring in every enabled state, on every surface role (WCAG 1.4.11).",
             "$extensions": {
               "dev.tanrei.derive": {
-                "fixed": "An opacity is a proportion; no dial scales it. No sys opacity is a half: sys.state holds the state-layer and disabled opacities, which are another decision."
+                "fixed": "An opacity is a proportion; no dial scales it. The default system's selection tint: the selecting color at 16 %, the step a checked menu row, a selected list option and the tonal tabs' indicator take, light enough that the fill stands 3:1 apart from the ring it meets (3.17:1 at the least, the focused error form on surface-container-highest in light), where a half did not (1.91:1). sys.state holds the state-layer and disabled opacities, which are another decision."
               }
             }
           }

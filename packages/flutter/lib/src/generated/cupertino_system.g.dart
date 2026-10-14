@@ -1,4 +1,4 @@
-// 104 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 112 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 //
@@ -3436,6 +3436,8 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
   ),
   copyButton: TanreiCopyButtonTokens(
     confirmationDuration: 2000,
+    motionResizeDuration: 500,
+    motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
   ),
   dateTimePicker: TanreiDateTimePickerTokens(
     actionsArrangement: 0.0,
@@ -5384,7 +5386,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     controlBoxShape: 2.0,
     controlBoxSize: 18.0,
     controlFillInset: 0.0,
-    controlFillOpacity: 0.5,
+    controlFillOpacity: 0.16,
     controlMarkSize: 20.0,
     controlMarkWeight: 300.0,
     controlOutlineWidth: 2.0,
@@ -8656,7 +8658,19 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
     rowGap: 4.0,
     rowSelectedContainerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
+    rowSelectedHoveredContainerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
+    rowSelectedHoveredTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+    rowSelectedPressedContainerColor: TanreiPaint.role(TanreiColorRole.secondaryContainer),
+    rowSelectedPressedTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+    rowSelectedStateLayerColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
     rowSelectedTextColor: TanreiPaint.role(TanreiColorRole.onSecondaryContainer),
+    rowUnselectedContainerColor: TanreiPaint.none(),
+    rowUnselectedHoveredContainerColor: TanreiPaint.none(),
+    rowUnselectedHoveredTextColor: TanreiPaint.role(TanreiColorRole.onSurface),
+    rowUnselectedPressedContainerColor: TanreiPaint.none(),
+    rowUnselectedPressedTextColor: TanreiPaint.role(TanreiColorRole.onSurface),
+    rowUnselectedStateLayerColor: TanreiPaint.role(TanreiColorRole.onSurface),
+    rowUnselectedTextColor: TanreiPaint.role(TanreiColorRole.onSurface),
     separation: 0.0,
     statusGap: 16.0,
     statusPaddingBlock: 8.0,

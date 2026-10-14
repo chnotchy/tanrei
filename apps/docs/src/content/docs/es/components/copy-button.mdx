@@ -1,8 +1,8 @@
 ---
 title: Botón de copiar
-description: Un botón que copia un texto dado con una sola pulsación y lo confirma, o dice que no ha podido. Lo dibuja Button y nunca mueve el diseño.
+description: Un botón que copia un texto dado con una sola pulsación y lo confirma, o dice que no ha podido. Lo dibuja Button y, de forma predeterminada, nunca mueve el diseño.
 translationOf: components/copy-button.mdx
-sourceHash: 012770de698440e0cbe97e03a67aa5abd3c3a7f7
+sourceHash: 83b0e3b2e8515dd2490be056fdab9151e53d9e9e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -53,6 +53,16 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
       failed-label="No se pudo copiar"
     ></tanrei-copy-button>
 
+    <!-- Con etiqueta y una anchura que sigue a sus palabras: solo al final de una fila. -->
+    <tanrei-copy-button
+      icon-only="false"
+      label-width="fit"
+      text="sk-test-0000"
+      label="Copiar"
+      copied-label="Copiado en el portapapeles"
+      failed-label="No se pudo copiar"
+    ></tanrei-copy-button>
+
     <script type="module">
       import '@tanrei/web';
 
@@ -86,9 +96,15 @@ SwiftUI, Compose, Flutter y React Native están planificados: los nombres que fi
   <tanrei-button variant="text">Un vecino que no se mueve</tanrei-button>
 </DemoFrame>
 
+<DemoFrame label="Con label-width fit, la anchura sigue a las palabras" plain>
+  <tanrei-copy-button icon-only="false" label-width="fit" variant="outlined" text="sk-test-0000" label="Copiar" copied-label="Copiado en el portapapeles" failed-label="No se pudo copiar"></tanrei-copy-button>
+</DemoFrame>
+
+Con `label-width="fit"`, la forma con etiqueta es tan ancha como las palabras que muestra. Cuando cambian, su anchura pasa suavemente a la de las nuevas palabras en `comp.copy-button.motion.resize-duration`, y cambia de inmediato donde el movimiento está reducido. El valor predeterminado sigue siendo `widest`, porque un control que se mueve justo cuando alguien va a pulsarlo se pulsa por error. Usa `fit` solo donde no haya detrás del botón nada que la persona pueda pulsar a continuación, como al final de una fila.
+
 El botón tiene tres formas: en reposo (el glifo `content_copy`), copiado (`check`) y fallido (`error`). Muestra la forma de copiado solo después de que el navegador haya confirmado la copia, y vuelve al reposo tras `comp.copy-button.confirmation.duration` (2 segundos). Una pulsación mientras muestra una confirmación copia y confirma de nuevo.
 
-Nada se mueve cuando cambia la forma. Los tres glifos se dibujan en una misma caja. La forma con etiqueta conserva en todo momento la anchura de su texto más ancho.
+Nada se mueve cuando cambia la forma. Los tres glifos se dibujan en una misma caja. De forma predeterminada, la forma con etiqueta conserva en todo momento la anchura de su texto más ancho; con `label-width="fit"`, su anchura sigue a sus palabras, como arriba.
 
 El glifo cambia de inmediato, sin movimiento. Los dos segundos son un tiempo para darse cuenta, así que se mantienen donde el movimiento está reducido.
 
@@ -117,6 +133,7 @@ Los eventos son `copied` y `copyfailed`. No se llaman `copy`, porque `copy` es e
 - Di en la etiqueta qué se copia cuando no resulte obvio por su lugar: «Copiar enlace», «Copiar JSON».
 - Escucha `copyfailed` y muestra algo que permanezca, como el texto seleccionado en un campo, cuando la persona necesite conseguir el texto de todos modos.
 - Conserva la variante `text` para un botón de copiar situado junto a su contenido. Elige otra variante cuando copiar sea la acción principal de la vista.
+- Conserva la anchura predeterminada cuando detrás de un botón de copiar con etiqueta haya algo que la persona pueda pulsar a continuación. Elige `label-width="fit"` solo donde no haya nada.
 
 ### Evita
 
@@ -136,6 +153,7 @@ Los eventos son `copied` y `copyfailed`. No se llaman `copy`, porque `copy` es e
 - La forma de solo icono muestra también esas palabras en una burbuja dibujada como un [tooltip](/es/components/tooltip/) plain, mientras dura la confirmación. No toma el foco, no se lee una segunda vez y Escape la cierra.
 - La confirmación es una figura y unas palabras, no un color.
 - En un diseño de derecha a izquierda, el glifo de copiar se refleja, como indica el conjunto de iconos. La marca de verificación y la marca de error, no.
+- La forma con etiqueta conserva su anchura de forma predeterminada, así que nada se mueve bajo un puntero a punto de pulsar. Con `label-width="fit"`, la anchura pasa suavemente a la de las nuevas palabras, y cambia de inmediato donde el movimiento está reducido.
 
 ### Qué debes hacer tú
 

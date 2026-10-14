@@ -35,7 +35,7 @@ This revision brings the following, which only the web draws so far:
 - The two halves are joined by a divider line or by a gap. The design system chooses once for every component, a design system can set this component apart, and `separation` (`auto`, `divider`, `gap`) sets one instance. The default system draws a divider.
 - The padding on the icon's side of the leading half is a step tighter, and both rounded outer ends get a little more padding.
 - The trailing half keeps its shape while the menu is open; the chevron alone shows the open state.
-- `trailingWidth` (`default`, `narrow`) draws a slimmer trailing half: as wide as a narrow icon-only [Button](/components/button/) of the same size, the chevron with a small inset on each side.
+- `trailingWidth` (`default`, `narrow`) draws a slimmer trailing half: the chevron with a small inset on each side, and the little padding at the rounded outer end that the default width has too.
 :::
 
 <DemoFrame label="Variants">
@@ -268,7 +268,7 @@ The two halves are joined in one of two ways. With a **divider** they touch, the
 
 ### A narrow trailing half
 
-By default the trailing half holds the chevron in a square of the button's height, with a little more padding at its rounded outer end. With `trailingWidth` set to `narrow` it is a slim handle on the main action: exactly as wide as a narrow icon-only [Button](/components/button/) of the same size (28 / 32 / 32 in the default system), the chevron centred with a small inset on each side and no outer padding. The leading half is the same at either width.
+By default the trailing half holds the chevron in a square of the button's height, with a little more padding at its rounded outer end. With `trailingWidth` set to `narrow` it is a slim handle on the main action: the chevron with a small inset on each side, and the same little padding at the rounded outer end, so that the chevron looks centred against the curve (32 / 36 / 36 in the default system: the width of a narrow icon-only [Button](/components/button/) of the same size, and that padding). The leading half is the same at either width.
 
 <DemoFrame label="Trailing width: default and narrow, at each size" plain>
   <tanrei-button-with-menu size="small" label="Save" menu-label="More save options"></tanrei-button-with-menu>

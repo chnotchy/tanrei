@@ -77,10 +77,13 @@ function failOn(title, failures) {
   process.exit(1);
 }
 
-/** id + type of every token: vocabulary cannot change without a diff in this one file. */
+/**
+ * id + type of every token: vocabulary cannot change without a diff in this one file. No total is written: it is
+ * Object.keys(tokens).length, and a total on a fixed line would make every two pull requests that add a token conflict.
+ */
 function vocabularyLock(model) {
   const tokens = Object.values(model.tokens).map((t) => [t.id, t.type]).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
-  return { $comment: 'Generated. The vocabulary of the default system. A change here is a vocabulary change: it needs the one-product test and maintainer review.', count: tokens.length, tokens: Object.fromEntries(tokens) };
+  return { $comment: 'Generated. The vocabulary of the default system. A change here is a vocabulary change: it needs the one-product test and maintainer review.', tokens: Object.fromEntries(tokens) };
 }
 
 const readLayer = (id) => loadSystem(REPO_ROOT, id);

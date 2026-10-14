@@ -1,8 +1,8 @@
 ---
 title: コピーボタン
-description: 指定したテキストを 1 回の操作でコピーし、コピーできたこと、またはできなかったことを伝えるボタンです。ボタンコンポーネントが描き、レイアウトを動かしません。
+description: 指定したテキストを 1 回の操作でコピーし、コピーできたこと、またはできなかったことを伝えるボタンです。ボタンコンポーネントが描き、既定ではレイアウトを動かしません。
 translationOf: components/copy-button.mdx
-sourceHash: 012770de698440e0cbe97e03a67aa5abd3c3a7f7
+sourceHash: 83b0e3b2e8515dd2490be056fdab9151e53d9e9e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -53,6 +53,16 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
       failed-label="コピーできませんでした"
     ></tanrei-copy-button>
 
+    <!-- ラベル付きで、幅が文言に合わせて変わる形：行の末尾でだけ使います。 -->
+    <tanrei-copy-button
+      icon-only="false"
+      label-width="fit"
+      text="sk-test-0000"
+      label="コピー"
+      copied-label="クリップボードにコピーしました"
+      failed-label="コピーできませんでした"
+    ></tanrei-copy-button>
+
     <script type="module">
       import '@tanrei/web';
 
@@ -86,9 +96,15 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
   <tanrei-button variant="text">隣のボタンは動きません</tanrei-button>
 </DemoFrame>
 
+<DemoFrame label="label-width を fit にすると、幅が文言に合わせて変わります" plain>
+  <tanrei-copy-button icon-only="false" label-width="fit" variant="outlined" text="sk-test-0000" label="コピー" copied-label="クリップボードにコピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
+</DemoFrame>
+
+`label-width="fit"` を指定すると、ラベル付きの形の幅は、表示している文言の幅になります。文言が変わると、幅は `comp.copy-button.motion.resize-duration` をかけて新しい文言の幅へなめらかに変わります。動きを減らす設定では、すぐに変わります。既定は `widest` のままです。押そうとした瞬間に動くコントロールは、押し間違いのもとになるからです。`fit` は、行の末尾など、ボタンの後ろに次に押されそうなものが何もない場所でだけ使います。
+
 ボタンには 3 つの状態があります。通常（グリフ `content_copy`）、コピー済み（`check`）、失敗（`error`）です。コピー済みの表示に変わるのは、ブラウザーがコピーを確認した後だけです。`comp.copy-button.confirmation.duration`（2 秒）が過ぎると通常に戻ります。確認を表示している間に押すと、もう一度コピーして確認します。
 
-状態が変わっても、何も動きません。3 つのグリフは同じボックスに描きます。ラベル付きの形は、最も長い文言の幅を常に確保します。
+状態が変わっても、何も動きません。3 つのグリフは同じボックスに描きます。ラベル付きの形は、既定では最も長い文言の幅を常に確保します。`label-width="fit"` を指定すると、上の例のように幅が文言に合わせて変わります。
 
 グリフはモーションなしで切り替わります。2 秒は気付くための時間なので、動きを減らす設定でも短くしません。
 
@@ -117,6 +133,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 - 置き場所から何をコピーするかが分からないときは、ラベルで伝えます。「リンクをコピー」「JSON をコピー」などです。
 - ユーザーがそのテキストをどうしても必要とする場面では、`copyfailed` を受け取り、消えない形で対応します。たとえば、テキストを選択した入力欄を表示します。
 - コピーするものの横に置くときは、Text バリアントのままにします。コピーが画面の主なアクションであるときは、別のバリアントを選びます。
+- ラベル付きのコピーボタンの後ろに、次に押されそうなものがあるときは、既定の幅のままにします。`label-width="fit"` は、そうしたものが何もない場所でだけ選びます。
 
 ### 非推奨
 
@@ -136,6 +153,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 - アイコンだけの形では、確認が続く間、その文言をプレーンな[ツールチップ](/ja/components/tooltip/)として描かれる吹き出しにも表示します。吹き出しはフォーカスを取らず、もう一度読み上げられることもなく、Escape で閉じます。
 - 確認は、色ではなく、形と言葉で伝えます。
 - 右から左のレイアウトでは、アイコンセットの定めに従って、コピーのグリフを左右反転します。チェックとエラーの印は反転しません。
+- ラベル付きの形は、既定では幅を変えません。押そうとしているポインターの下で、何も動きません。`label-width="fit"` では、幅が新しい文言に合わせてなめらかに変わり、動きを減らす設定ではすぐに変わります。
 
 ### 利用者側で行うこと
 

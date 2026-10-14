@@ -3615,6 +3615,8 @@ public data class TanreiComboboxTokens(
 @Immutable
 public data class TanreiCopyButtonTokens(
     public val confirmationDuration: Int,
+    public val motionResizeDuration: Int,
+    public val motionResizeEasing: TanreiCubicBezier,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
     }
@@ -9863,7 +9865,19 @@ public data class TanreiTableTokens(
     public val motionStateEasing: TanreiCubicBezier,
     public val rowGap: Dp,
     public val rowSelectedContainerColor: TanreiPaint,
+    public val rowSelectedHoveredContainerColor: TanreiPaint,
+    public val rowSelectedHoveredTextColor: TanreiPaint,
+    public val rowSelectedPressedContainerColor: TanreiPaint,
+    public val rowSelectedPressedTextColor: TanreiPaint,
+    public val rowSelectedStateLayerColor: TanreiPaint,
     public val rowSelectedTextColor: TanreiPaint,
+    public val rowUnselectedContainerColor: TanreiPaint,
+    public val rowUnselectedHoveredContainerColor: TanreiPaint,
+    public val rowUnselectedHoveredTextColor: TanreiPaint,
+    public val rowUnselectedPressedContainerColor: TanreiPaint,
+    public val rowUnselectedPressedTextColor: TanreiPaint,
+    public val rowUnselectedStateLayerColor: TanreiPaint,
+    public val rowUnselectedTextColor: TanreiPaint,
     public val separation: Float,
     public val statusGap: Dp,
     public val statusPaddingBlock: Dp,
@@ -9893,7 +9907,19 @@ public data class TanreiTableTokens(
         addAll(headerContainerColor.roles())
         addAll(headerTextColor.roles())
         addAll(rowSelectedContainerColor.roles())
+        addAll(rowSelectedHoveredContainerColor.roles())
+        addAll(rowSelectedHoveredTextColor.roles())
+        addAll(rowSelectedPressedContainerColor.roles())
+        addAll(rowSelectedPressedTextColor.roles())
+        addAll(rowSelectedStateLayerColor.roles())
         addAll(rowSelectedTextColor.roles())
+        addAll(rowUnselectedContainerColor.roles())
+        addAll(rowUnselectedHoveredContainerColor.roles())
+        addAll(rowUnselectedHoveredTextColor.roles())
+        addAll(rowUnselectedPressedContainerColor.roles())
+        addAll(rowUnselectedPressedTextColor.roles())
+        addAll(rowUnselectedStateLayerColor.roles())
+        addAll(rowUnselectedTextColor.roles())
         addAll(statusTextColor.roles())
         addAll(stickyContainerColor.roles())
         addAll(stripeContainerColor.roles())

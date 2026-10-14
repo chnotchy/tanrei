@@ -50456,6 +50456,174 @@
               }
             }
           }
+        },
+        "row": {
+          "unselected": {
+            "hovered": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.08,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lets a person choose a row of a table by pressing anywhere on it, as a card or a list item that can be chosen is pressed, and must show the row it would choose under the pointer and the press, chosen or not, as one target."
+                    },
+                    "dev.tanrei.state": "hovered",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.table.row.unselected.container.color}",
+                      "with": "{tanrei.comp.table.row.unselected.state-layer.color}",
+                      "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.table.row.unselected.text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lets a person choose a row of a table by pressing anywhere on it, as a card or a list item that can be chosen is pressed, and must show the row it would choose under the pointer and the press, chosen or not, as one target."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              }
+            },
+            "pressed": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "alpha": 0.12,
+                    "hex": "#ffffff"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lets a person choose a row of a table by pressing anywhere on it, as a card or a list item that can be chosen is pressed, and must show the row it would choose under the pointer and the press, chosen or not, as one target."
+                    },
+                    "dev.tanrei.state": "pressed",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.table.row.unselected.container.color}",
+                      "with": "{tanrei.comp.table.row.unselected.state-layer.color}",
+                      "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.table.row.unselected.text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lets a person choose a row of a table by pressing anywhere on it, as a card or a list item that can be chosen is pressed, and must show the row it would choose under the pointer and the press, chosen or not, as one target."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              }
+            }
+          },
+          "selected": {
+            "hovered": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.3451,
+                      0.3255,
+                      0.3961
+                    ],
+                    "hex": "#585365"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lets a person choose a row of a table by pressing anywhere on it, as a card or a list item that can be chosen is pressed, and must show the row it would choose under the pointer and the press, chosen or not, as one target."
+                    },
+                    "dev.tanrei.state": "hovered",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.table.row.selected.container.color}",
+                      "with": "{tanrei.comp.table.row.selected.state-layer.color}",
+                      "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.table.row.selected.text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lets a person choose a row of a table by pressing anywhere on it, as a card or a list item that can be chosen is pressed, and must show the row it would choose under the pointer and the press, chosen or not, as one target."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              }
+            },
+            "pressed": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.3765,
+                      0.3529,
+                      0.4235
+                    ],
+                    "hex": "#605a6c"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lets a person choose a row of a table by pressing anywhere on it, as a card or a list item that can be chosen is pressed, and must show the row it would choose under the pointer and the press, chosen or not, as one target."
+                    },
+                    "dev.tanrei.state": "pressed",
+                    "dev.tanrei.derive": {
+                      "fn": "mix",
+                      "base": "{tanrei.comp.table.row.selected.container.color}",
+                      "with": "{tanrei.comp.table.row.selected.state-layer.color}",
+                      "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                    }
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.table.row.selected.text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lets a person choose a row of a table by pressing anywhere on it, as a card or a list item that can be chosen is pressed, and must show the row it would choose under the pointer and the press, chosen or not, as one target."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              }
+            }
+          }
         }
       },
       "callout": {

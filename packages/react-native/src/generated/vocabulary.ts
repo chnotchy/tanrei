@@ -1769,6 +1769,8 @@ export interface TanreiComboboxTokens {
  */
 export interface TanreiCopyButtonTokens {
   readonly confirmationDuration: number;
+  readonly motionResizeDuration: number;
+  readonly motionResizeEasing: TanreiCubicBezier;
 }
 
 /**
@@ -4882,7 +4884,19 @@ export interface TanreiTableTokens {
   readonly pressedOpacity: number;
   readonly rowGap: number;
   readonly rowSelectedContainerColor: TanreiPaint;
+  readonly rowSelectedHoveredContainerColor: TanreiPaint;
+  readonly rowSelectedHoveredTextColor: TanreiPaint;
+  readonly rowSelectedPressedContainerColor: TanreiPaint;
+  readonly rowSelectedPressedTextColor: TanreiPaint;
+  readonly rowSelectedStateLayerColor: TanreiPaint;
   readonly rowSelectedTextColor: TanreiPaint;
+  readonly rowUnselectedContainerColor: TanreiPaint;
+  readonly rowUnselectedHoveredContainerColor: TanreiPaint;
+  readonly rowUnselectedHoveredTextColor: TanreiPaint;
+  readonly rowUnselectedPressedContainerColor: TanreiPaint;
+  readonly rowUnselectedPressedTextColor: TanreiPaint;
+  readonly rowUnselectedStateLayerColor: TanreiPaint;
+  readonly rowUnselectedTextColor: TanreiPaint;
   readonly separation: number;
   readonly statusGap: number;
   readonly statusPaddingBlock: number;

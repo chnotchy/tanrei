@@ -2,7 +2,8 @@ import { css } from 'lit';
 
 // The copy button has no look of its own (CPY-1): it is drawn by the Button in its shadow root, from the
 // Button's tokens in every state. What is here is what the behaviour needs — the three labels in one box, the live
-// region, and the one token of its own, the time a confirmation is shown.
+// region, the one token of its own, the time a confirmation is shown, and — where the label's width follows its text —
+// the motion of that width.
 export const styles = css`
   /* A Button's place in a row: inline, on the baseline of the text beside it. */
   :host {
@@ -45,6 +46,27 @@ export const styles = css`
   }
   .labels > span:not(.shown) {
     visibility: hidden;
+  }
+
+  /* CPY-19: label-width="fit" — the box is as wide as the text it shows (the width is measured and set on it), and
+     eases to the next text's width over the resize motion; each text keeps its own width on one line, and is clipped
+     at the box's end while the box is narrower than it. Its first width, and one a new face gives, are taken at once
+     (data-instant); where motion is reduced every width is. */
+  .labels[data-fit] {
+    overflow-x: clip;
+    transition: inline-size var(--tanrei-comp-copy-button-motion-resize-duration) var(--tanrei-comp-copy-button-motion-resize-easing);
+  }
+  .labels[data-fit] > span {
+    inline-size: max-content;
+    white-space: nowrap;
+  }
+  .labels[data-instant] {
+    transition: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .labels[data-fit] {
+      transition: none;
+    }
   }
 
   /* CPY-5: the announcements — read, never drawn. */

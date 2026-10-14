@@ -23,10 +23,11 @@ export const leadWithStructure = (warnings) => [...warnings.filter((w) => !/^\[[
 /**
  * A finding against one of Tanrei's accessibility CRITERIA — a contrast pair under its threshold — as opposed to a
  * structural or functional one (a missing role, a press that shows nothing, a height that cannot hold its label, a bare
- * literal). The difference matters for an imitation preset only: the criteria do not apply to it, in any contrast scheme,
+ * literal). A pair of component colors (`comp.<component>.….color on …`) is a criterion as a pair of roles is. The
+ * difference matters for an imitation preset only: the criteria do not apply to it, in any contrast scheme,
  * while a structural or functional failure fails in every system.
  */
-export const isCriterionFinding = (finding) => /^\[[a-z-]+\] [a-z0-9-]+ on [a-z0-9-]+: \d+\.\d+:1 < \d+(\.\d+)?:1 \(/.test(finding);
+export const isCriterionFinding = (finding) => /^\[[a-z-]+\] [a-z0-9.-]+ on [a-z0-9.-]+: \d+\.\d+:1 < \d+(\.\d+)?:1 \(/.test(finding);
 
 /** Why an imitation preset's measurements are information and not warnings — the words its report and headers use. */
 export const PRESET_CRITERIA_NOTE =
@@ -43,6 +44,13 @@ export const presetAccessibilityReport = (system, measurements) => ({
   count: measurements.length,
   measurements,
 });
+
+/**
+ * The components whose colors `checkInvariants` compares in every scheme, and not by role alone: the radio's mark
+ * (the radio button, and the menu's radio item) is drawn over a state layer that a rule derives. A model read one
+ * scheme at a time (`invariantModel`) carries their colors in every scheme, so that it reports what a whole model does.
+ */
+export const COMPONENTS_HELD_IN_EVERY_SCHEME = ['radio-button', 'menu'];
 
 /** WCAG 2.x contrast ratio; a translucent foreground is composited over the background first. */
 export function contrast(fgColor, bgColor) {
@@ -364,6 +372,69 @@ export function checkInvariants(model) {
       const required = scheme.endsWith('-high') && min === TEXT ? HIGH_CONTRAST_TEXT : min;
       const ratio = contrast(fg, bg);
       if (ratio < required) failures.push(`[${scheme}] ${short(fgId)} on ${short(bgId)}: ${ratio.toFixed(2)}:1 < ${required}:1 (${why})`);
+    }
+  }
+
+  // The fill inside a radio's ring (WCAG 1.4.11). The center of a chosen radio is a part of the mark, and it is held
+  // 3:1 against the color it meets: the ring itself where the fill meets the ring (an inset of 0, the default system's
+  // one shape), or the gap where an inset leaves one (a dot, Material's), which shows what the radio stands on. Each is
+  // measured as drawn — the fill at its opacity and the ring over the round state layer of the state, laid over the
+  // ground — at rest, hovered, focused and pressed (a disabled control is exempt, as WCAG exempts an inactive one), on
+  // every surface role for the radio button and on the menu's sheet for a menu's radio item. A condition whose fill
+  // draws nothing (the default system's unselected radio) has no center to hold; the ring against the surface is held
+  // by the role pairs above. Compared from the component colors of the schemes the model carries.
+  const RADIO_MARKS = [
+    {
+      component: 'radio-button',
+      conditions: ['unselected', 'selected', 'error-unselected', 'error-selected'],
+      ring: 'ring', fill: 'fill', opacity: 'fill.opacity', inset: 'fill.inset',
+      grounds: SURFACES.map((surface) => `${CONFIG.namespace}.sys.color.${surface}`),
+    },
+    {
+      // A menu draws the radio look only while its radio items are marked as radios (MNU-40), and fills a checked one.
+      component: 'menu', when: ['radio-item.mark', 'radio'],
+      conditions: ['selected'],
+      ring: 'control', fill: 'control', opacity: 'control.fill.opacity', inset: 'control.fill.inset',
+      grounds: [`${CONFIG.namespace}.comp.menu.surface.color`],
+    },
+  ];
+  const colorOf = (scheme, id) => {
+    const colorRole = id.startsWith(`${CONFIG.namespace}.sys.color.`) ? id.split('.').at(-1) : model.tokens[id] && role(model.tokens[id]);
+    return colorRole && model.colors[scheme]?.[colorRole] ? model.colors[scheme][colorRole].value : inScheme(scheme, id);
+  };
+  for (const mark of RADIO_MARKS) {
+    const at = (rest) => `${CONFIG.namespace}.comp.${mark.component}.${rest}`;
+    if (!model.tokens[at(`${mark.conditions[0]}.${mark.ring}.color`)]) continue;
+    if (mark.when) {
+      const choice = model.tokens[at(mark.when[0])];
+      const target = choice?.alias ? model.tokens[choice.aliasFinal ?? choice.alias] : choice;
+      if (choice?.enum?.values?.[target?.value] !== mark.when[1]) continue;
+    }
+    const opacity = number(at(mark.opacity));
+    const gap = (model.tokens[at(mark.inset)]?.value?.value ?? 0) > 0;
+    for (const scheme of model.schemes) {
+      for (const condition of mark.conditions) {
+        for (const state of STATES) {
+          const part = (name) => inScheme(scheme, at(`${condition}.${state}${name}.color`)) ?? inScheme(scheme, at(`${condition}.${name}.color`));
+          const [ring, fill, layer] = [part(mark.ring), part(mark.fill), part('container')];
+          if (!ring || !fill || rgba(fill).a * opacity === 0) continue;
+          let worst;
+          for (const groundId of mark.grounds) {
+            const surface = colorOf(scheme, groundId);
+            if (!surface || rgba(surface).a < 1) continue;
+            const ground = layer ? flat(layer, surface) : surface;
+            const center = flat(faded(fill, opacity), ground);
+            const ratio = contrast(center, gap ? ground : flat(ring, ground));
+            if (!worst || ratio < worst.ratio) worst = { ratio, groundId };
+          }
+          if (!worst || worst.ratio >= NON_TEXT) continue;
+          const [fillId, besideId] = [at(`${condition}.${state}${mark.fill}.color`), gap ? short(worst.groundId) : short(at(`${condition}.${state}${mark.ring}.color`))];
+          const why = gap
+            ? `the dot of a radio against the gap its fill.inset leaves, which shows ${short(worst.groundId)} through the state layer — WCAG 1.4.11`
+            : `the fill of a radio against the ring it meets, at ${short(at(mark.opacity))} ${opacity} over ${short(worst.groundId)} and the state layer — WCAG 1.4.11`;
+          failures.push(`[${scheme}] ${short(fillId)} on ${besideId}: ${worst.ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (${why})`);
+        }
+      }
     }
   }
 

@@ -159,7 +159,12 @@ export function buildIR(model) {
     } else if (tier === 'dial') {
       ir.dials[[group, ...rest].join('-')] = typeof token.value === 'number' ? token.value : token.value.value;
     } else if (tier === 'comp') {
-      (ir.componentTokens[group] ??= []).push({ ...componentToken(model, token, rest), ...placeOnAxes(model.components?.[group], rest, token) });
+      const entry = { ...componentToken(model, token, rest), ...placeOnAxes(model.components?.[group], rest, token) };
+      // The states a part declares for itself (`dev.tanrei.states` on a group inside the component — a table's row)
+      // are not the component's own state shape: no axis holds them and their name does not begin with the state. The
+      // typed platform shapes carry them as plain tokens, by their whole name (`row-selected-hovered-container-color`).
+      if (entry.state && entry.axis === null && rest[0] !== entry.state) entry.state = null;
+      (ir.componentTokens[group] ??= []).push(entry);
     }
   }
   for (const { token, group, rest } of added) {
