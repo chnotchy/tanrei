@@ -537,7 +537,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-pagination",
       "props": {
         "label": "label",

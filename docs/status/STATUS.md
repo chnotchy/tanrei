@@ -61,7 +61,7 @@ Listing: 81 default · 8 advanced. A component of the first value is shown where
 | Accordion | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Description list | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Figure | base | default | containment | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
-| Pagination | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
+| Pagination | base | default | navigation | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Previous and next links | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
 | Stepper | base | default | navigation | ✓ | ◔ alpha | · planned | · planned | · planned | · planned |
 | Breadcrumbs | base | default | navigation | ✓ | ◌ lagging | · planned | · planned | · planned | · planned |
