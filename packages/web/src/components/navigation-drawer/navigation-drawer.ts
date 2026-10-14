@@ -2052,15 +2052,44 @@ export class TanreiNavigationDrawer extends LitElement {
     this.measure();
   }
 
-  /** The first header button's width (the header slot starts item.gap after it) and the main action's height (NVD-38, NVD-39). */
+  /**
+   * The first header button's width (the header slot starts item.gap after it, NVD-38), and the main action's size
+   * (NVD-39): the header names the button's own tokens for that size, which the slotted button inherits and its place
+   * is computed from — a size a design system added falls back to medium's tokens where the system lacks it, as the
+   * button itself does.
+   */
   private measure() {
     const [button] = this.headerButtons;
     const [main] = this.mainActions;
     const next: Record<string, string> = {};
     if (button?.offsetWidth) next['--_lead'] = `calc(var(--_nvd-column) / 2 + ${button.offsetWidth / 2}px)`;
-    if (main?.offsetHeight) next['--_main-size'] = `${main.offsetHeight}px`;
+    if (main) {
+      const given = main.getAttribute('size') ?? '';
+      const size = /^[a-z0-9][a-z0-9-]*$/.test(given) ? given : 'medium';
+      const token = (name: string) => `var(--tanrei-comp-main-action-button-${name}-${size}, var(--tanrei-comp-main-action-button-${name}-medium))`;
+      next['--_mab-h'] = token('container-height');
+      next['--_mab-pad'] = token('container-padding-inline-start-with-icon');
+      next['--_mab-icon'] = token('icon-size');
+      this.reportMainAction(main);
+    }
     const now = this.measured;
     if (Object.keys(next).length !== Object.keys(now).length || Object.entries(next).some(([key, value]) => now[key] !== value)) this.measured = next;
+  }
+
+  /**
+   * NVD-39: what a debug build is told of a main action whose glyph the drawer cannot keep on the icon column inside it:
+   * a collapsed square wider than the column (it reaches past the column's start edge), and a trailing glyph (it leaves
+   * the column while the drawer is expanded).
+   */
+  private reportMainAction(main: HTMLElement) {
+    const header = this.renderRoot?.querySelector('.header');
+    if (this.collapses && header && main.offsetHeight) {
+      const column = Number.parseFloat(getComputedStyle(header).gridTemplateColumns);
+      if (column && main.offsetHeight > column + 0.5) {
+        report(this, 'NVD-39', `the main action's collapsed square is ${main.offsetHeight} wide and the icon column ${column}; its glyph stays on the column's centre line, so the button reaches past the column's start edge; choose a smaller size`);
+      }
+    }
+    if (main.getAttribute('icon-position') === 'trailing') report(this, 'NVD-39', 'the main action has a trailing glyph, which leaves the icon column while the drawer is expanded; give it a leading glyph');
   }
 
   /** NVD-37: the menu button says whether the drawer is expanded, and that it controls it, on its native button. */
@@ -2182,6 +2211,11 @@ export class TanreiNavigationDrawer extends LitElement {
     const form = changed.has('collapsible') || changed.has('open') || changed.has('expanded') || changed.has('variant') || presentationChanged;
     if (form || has(changed, 'hasButtons')) this.syncMenuButton();
     if (form) this.syncMainAction();
+    // NVD-39: the column the main action is placed on changed width (the form, the density): told again where it does not fit.
+    if (form || changed.has('density')) {
+      const [main] = this.mainActions;
+      if (main) this.reportMainAction(main);
+    }
     // NVD-36: focus on what the collapsed form does not draw goes to the menu button, or else the first focusable element.
     if (this.focusLost) {
       this.focusLost = false;

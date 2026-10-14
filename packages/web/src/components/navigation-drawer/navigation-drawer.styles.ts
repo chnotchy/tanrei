@@ -284,12 +284,30 @@ export const drawerStyles = css`
   /* NVD-52: the header's text is its own run, in the direction of its first strong character, aligned to the layout's
      start edge (src/styles/product-text.ts). */
   ${productText('.title', { align: 'start' })}
-  /* NVD-39: the main action starts where its collapsed square is centred in the icon column, in both forms (--_main-size:
-     its measured height, the side of that square). */
+  /* NVD-39: the main action's glyph is centred on the icon column's centre line in both forms. The button's own tokens
+     for its size — the side of its collapsed square, its padding before a leading glyph and the glyph — are named on the
+     header, which the slotted button inherits them from (medium's here; the element names those of the button's size,
+     a size a design system added included). Collapsed, its square is centred on the line; expanded, its start lies
+     half the column less that padding and half the glyph from the drawer's start. Between the two its start moves with
+     the motion by which the button moves its glyph between its middle and its side (MAB-14). A trailing glyph keeps
+     the collapsed start while expanded. */
+  .header {
+    --_mab-h: var(--tanrei-comp-main-action-button-container-height-medium);
+    --_mab-pad: var(--tanrei-comp-main-action-button-container-padding-inline-start-with-icon-medium);
+    --_mab-icon: var(--tanrei-comp-main-action-button-icon-size-medium);
+  }
   ::slotted([slot='main-action']) {
     grid-column: 1 / -1;
     justify-self: start;
-    margin-inline-start: calc((${d('--_nvd-column')} - var(--_main-size, 0px)) / 2);
+    margin-inline-start: calc(${d('--_nvd-column')} / 2 - var(--_mab-pad) - var(--_mab-icon) / 2);
+    transition: margin-inline-start var(--tanrei-comp-main-action-button-motion-resize-duration) var(--tanrei-comp-main-action-button-motion-resize-easing);
+  }
+  ::slotted([slot='main-action'][icon-position='trailing']),
+  :host([collapsed]) ::slotted([slot='main-action']) {
+    margin-inline-start: calc(${d('--_nvd-column')} / 2 - var(--_mab-h) / 2);
+  }
+  :host([data-instant]) ::slotted([slot='main-action']) {
+    transition: none;
   }
   /* NVD-39: only the first main action is drawn. */
   ::slotted([data-tanrei-drawer-extra]) {
@@ -475,6 +493,9 @@ export const drawerStyles = css`
     }
     .clock {
       transition-delay: 0s;
+    }
+    ::slotted([slot='main-action']) {
+      transition: none;
     }
   }
   @media (forced-colors: active) {

@@ -1149,10 +1149,58 @@ test.describe('the collapsed form', () => {
     const collapsed = await bounds(main);
     const p = await bounds(panel(page, 'd'));
     expect(centre(collapsed).x - p.x).toBeCloseTo(column / 2, 1);
+    // Its glyph does not move: in the default system the padding before it is half its square less the glyph.
     expect(expanded.x).toBeCloseTo(collapsed.x, 1);
     await expect(drawer(page, 'd').getByRole('button', { name: 'Compose' })).toHaveCount(1);
     await expect(drawer(page, 'd').locator('tanrei-main-action-button').nth(1)).toBeHidden();
     await expect.poll(() => seen.filter((w) => w.includes('NVD-39')).length).toBe(1);
+  });
+
+  test('NVD-39: the main action’s glyph is centred on the destinations’ icon line — small, medium and large, regular and compact, expanded and collapsed, left to right and right to left, under the default system, m3-like and cupertino; a square wider than the column and a trailing glyph are reported', async ({ page }) => {
+    test.setTimeout(120_000);
+    const SIZES = ['small', 'medium', 'large'] as const;
+    const DENSITIES = ['regular', 'compact'] as const;
+    const glyph = async (id: string) => centre(await bounds(drawer(page, id).locator('tanrei-main-action-button').locator('.icon-box'))).x;
+    const icon = async (id: string) => centre(await bounds(item(page, id, 0).locator('.icon'))).x;
+    const measured: string[] = [];
+    for (const system of [undefined, 'm3-like', 'cupertino'] as const) {
+      for (const direction of ['ltr', 'rtl'] as const) {
+        const seen = warnings(page);
+        const fixtures = DENSITIES.flatMap((density) =>
+          SIZES.map((size) => ({ ...fixture(`${density}-${size}`, [MENU, { ...MAIN, props: { label: 'Compose', size } }, ...MAIL], { collapsible: true, density }), direction })),
+        );
+        await mount(page, fixtures, { reducedMotion: true, ...(system ? { system } : {}) });
+        for (const form of ['expanded', 'collapsed'] as const) {
+          if (form === 'collapsed') for (const f of fixtures) await setProps(page, f.id, { expanded: false });
+          for (const f of fixtures) {
+            const main = drawer(page, f.id).locator('tanrei-main-action-button');
+            await expect.poll(() => main.evaluate((el: any) => el.extended)).toBe(form === 'expanded');
+            const where = `${system ?? 'tanrei'} ${direction} ${f.id} ${form}`;
+            const [g, i] = [await glyph(f.id), await icon(f.id)];
+            measured.push(`${where}: ${(g - i).toFixed(2)}`);
+            expect(Math.abs(g - i), where).toBeLessThanOrEqual(0.5);
+          }
+        }
+        // Under the default system the line is 36 from the start edge in the regular column and 28 in the compact one.
+        if (!system && direction === 'ltr') {
+          for (const density of DENSITIES) {
+            const p = await bounds(panel(page, `${density}-medium`));
+            expect((await icon(`${density}-medium`)) - p.x).toBe(density === 'regular' ? 36 : 28);
+          }
+        }
+        // Reported: a collapsed square wider than the column — the large one in the default system's columns.
+        if (!system) {
+          await expect.poll(() => seen.filter((w) => w.includes('NVD-39') && w.includes('collapsed square')).length).toBe(2);
+          expect(seen.filter((w) => w.includes('NVD-39') && w.includes('collapsed square') && !w.includes('is 96 wide'))).toEqual([]);
+        }
+      }
+    }
+    test.info().annotations.push({ type: 'glyph minus icon, in px', description: measured.join('; ') });
+    // A trailing glyph is placed as collapsed, and reported.
+    const seen = warnings(page);
+    await mount(page, [fixture('t', [MENU, { ...MAIN, props: { label: 'Compose', iconPosition: 'trailing' } }, ...MAIL], { collapsible: true, expanded: false })], { reducedMotion: true });
+    expect(Math.abs((await glyph('t')) - (await icon('t')))).toBeLessThanOrEqual(0.5);
+    await expect.poll(() => seen.some((w) => w.includes('NVD-39') && w.includes('trailing glyph'))).toBe(true);
   });
 
   test('NVD-40: a modal collapsible drawer keeps its column in the layout in the standard look while closed, and widens over the content from it in the modal look with the scrim, over motion.expand, without resizing the content', async ({ page }) => {
