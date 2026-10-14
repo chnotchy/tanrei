@@ -6148,7 +6148,7 @@ test harness (`test/harness.ts`) in a 400 × 720 window on a `surface` page.
 
 Supplementary content or a secondary task in a panel at the end edge, with a headline, an optional close button and
 actions: `standard`, beside the content in the layout (a layout region), where actions are optional, or
-`modal`, over the content with a scrim, which offers at least one (`specs/side-sheet.spec.json`, SSH-1…20).
+`modal`, over the content with a scrim, which offers at least one (`specs/side-sheet.spec.json`, SSH-1…23).
 
 ```html
 <div style="display: flex; block-size: 100dvh">
@@ -6173,6 +6173,7 @@ actions: `standard`, beside the content in the layout (a layout region), where a
 | `headline` | string | `""` | what the sheet is about, in its header; the modal dialog's or the complementary region's name (an empty one is reported, SSH-12) |
 | `closable` | boolean | `false` | draws the close button at the end of the header; reflected |
 | `closeLabel` / `close-label` | string | `""` | the close button's accessible name (an empty one is reported while `closable`, SSH-5) |
+| `dividerVisibility` / `divider-visibility` | `auto` \| `always` \| `scroll` | `auto` | when the divider below the header is drawn: `always` whenever the header is; `scroll` only while the content is scrolled from its top; `auto` takes `comp.side-sheet.divider.visibility` (always in the default system, scroll in cupertino and m3-like). Anything else is `auto`, reported (SSH-23); reflected |
 
 Slots: default (the content: it gets `content.color` as its color, and plain text the body role; it is laid out as you
 lay it out) and `actions` (Tanrei Buttons, each marked `confirming` or `dismissive`; at least one in a modal sheet). Mark
@@ -6221,8 +6222,9 @@ in the default system, text under m3-like) through the Button's internal group-i
 the Button draws that variant from its own tokens and states (SSH-5). The content is inset by `container.padding-inline`,
 starts below the header (or `container.padding-block` below the top without one), ends `container.padding-block` above
 the bottom without actions, and scrolls between the header and the actions; while it scrolls it is a Tab stop, so the
-keyboard can scroll it. While it is scrolled away from its top, a `divider.width` hairline in `divider.color` is drawn
-across the full width below the header, at once (SSH-19); none without a header. Enlarged text grows the header, scrolls
+keyboard can scroll it. A `divider.width` hairline in `divider.color` is drawn across the full width below the header:
+whenever the header is, under `always`, as the one above the actions is; only while the content is scrolled away from
+its top, at once, under `scroll` (SSH-19, SSH-23); none without a header. Enlarged text grows the header, scrolls
 the content and stacks the actions; the width and the close button stay. Everything is logical, so right-to-left puts
 the sheet at the left edge, mirrored. Parts: `container` (and its `::backdrop`), `outline`, `header`, `headline`,
 `close-button`, `content`, `divider` (both hairlines), `actions`. The fixtures are drawn by the test harness in a

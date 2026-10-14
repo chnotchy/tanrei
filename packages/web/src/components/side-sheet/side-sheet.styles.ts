@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, actionBoxStyles, cornerRadius, focusRing, shape, whenChosen } from '../../primitives/index.js';
+import { type OpenAxis, actionBoxStyles, cornerRadius, dividerVisibilityHost, focusRing, shape, whenChosen, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
@@ -187,18 +187,26 @@ export const styles = css`
     block-size: ${t('divider-width')};
     background: ${t('divider-color')};
   }
-  /* SSH-19: below the header (over the content's top edge), only while the content is scrolled from its top; shown and
-     hidden at once. */
+  /* SSH-19: below the header (over the content's top edge). SSH-23, always: whenever the header is drawn, as the divider
+     above the actions is. */
+  ${dividerVisibilityHost(`${PREFIX}-divider-visibility`)}
   .divider.below-header {
     position: absolute;
     inset-block-start: 100%;
     inset-inline: 0;
-    visibility: hidden;
     pointer-events: none;
   }
-  .header.scrolled .divider.below-header {
-    visibility: visible;
+  /* SSH-23, scroll: only while the content is scrolled from its top; shown and hidden at once. */
+  ${whenScroll(
+    '.header',
+    (header) => `
+  ${header} .divider.below-header {
+    visibility: hidden;
   }
+  ${header}.scrolled .divider.below-header {
+    visibility: visible;
+  }`,
+  )}
 
   /* SSH-11: while the sheet has an action, the divider above the actions (whether or not the content scrolls), then the
      actions container.padding-inline from each side, actions.gap apart, actions.padding-block above and below: fill, a
