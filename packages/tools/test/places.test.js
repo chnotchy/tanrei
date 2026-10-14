@@ -188,19 +188,24 @@ test('the repository: which props declare places, the kind of each name, and `va
     'list.dragHandleLabel',
     'list.liftedText',
     'list.movedText',
+    'pagination.countText',
+    'pagination.href',
+    'pagination.pageLabel',
     'stepper.positionText',
     'text-input.counterNoLimitText',
     'text-input.counterText',
   ]);
   const kinds = new Map(loadSpecs().flatMap(({ spec: each }) => [...each.props, ...(each.items ?? []).flatMap((kind) => kind.props ?? [])].flatMap((p) => p.places ?? []).map((p) => [p.name, p.kind])));
-  assert.deepEqual([...kinds].sort(), [['count', 'number'], ['entry', 'text'], ['label', 'text'], ['limit', 'number'], ['name', 'text'], ['position', 'number'], ['remaining', 'number']]);
+  assert.deepEqual([...kinds].sort(), [['count', 'number'], ['entry', 'text'], ['label', 'text'], ['limit', 'number'], ['name', 'text'], ['page', 'number'], ['position', 'number'], ['remaining', 'number']]);
   // The places that are needed: the row an action acts on (an entry, a file, an item), and the count an overflow says.
   const needed = loadSpecs().flatMap(({ spec: each }) => [...each.props, ...(each.items ?? []).flatMap((kind) => kind.props ?? [])].filter((p) => (p.places ?? []).some((place) => place.required)).map((p) => p.name));
   assert.deepEqual(needed.sort(), [
     'dragHandleLabel',
     'dragHandleLabel',
     'entryRemoveLabel',
+    'href',
     'overflowLabel',
+    'pageLabel',
     'positionText',
     'removeLabel',
     'removeLabel',

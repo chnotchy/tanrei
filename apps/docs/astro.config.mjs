@@ -34,8 +34,8 @@ export default defineConfig({
         Hero: './src/components/Hero.astro',
         // The content column is Tanrei's prose, not Starlight's Markdown styles.
         MarkdownContent: './src/components/MarkdownContent.astro',
-        // The previous and next page at the foot of a page are Tanrei's pagination, with Starlight's words.
-        Pagination: './src/components/Pagination.astro',
+        // The previous and next page at the foot of a page are Tanrei's previous and next links, with Starlight's words.
+        Pagination: './src/components/PreviousNextLinks.astro',
         // The foot of a page: the framework's, then the link to the source repository and its issues.
         Footer: './src/components/frame/Footer.astro',
         // The page frame is Tanrei's app shell and what stands in it (components/frame/): the shell with

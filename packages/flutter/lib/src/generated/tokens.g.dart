@@ -17060,6 +17060,92 @@ class TanreiPageHeaderTokens {
       );
 }
 
+/// The key of a size of pagination (`comp.pagination`, axis `size`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiPaginationSize('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [medium].
+extension type const TanreiPaginationSize(String name) {
+  static const small = TanreiPaginationSize('small');
+  static const medium = TanreiPaginationSize('medium');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiPaginationSize> core = <TanreiPaginationSize>[small, medium];
+}
+
+/// The tokens of one pagination size.
+@immutable
+class TanreiPaginationSizeTokens {
+  const TanreiPaginationSizeTokens({
+    required this.containerHeight,
+  });
+
+  /// `comp.pagination.container-height.<size>`
+  final double containerHeight;
+
+  /// A copy with the given tokens replaced.
+  TanreiPaginationSizeTokens copyWith({
+    double? containerHeight,
+  }) => TanreiPaginationSizeTokens(
+        containerHeight: containerHeight ?? this.containerHeight,
+      );
+}
+
+/// Every size of pagination: the core values by name, the values a design system added in [extra].
+/// Look one up with `sizes[key]`; the lookup is total.
+@immutable
+class TanreiPaginationSizes {
+  const TanreiPaginationSizes({
+    required this.small,
+    required this.medium,
+    this.extra = const <TanreiPaginationSize, TanreiPaginationSizeTokens>{},
+  });
+
+  /// `comp.pagination` size `small`
+  final TanreiPaginationSizeTokens small;
+  /// `comp.pagination` size `medium`
+  final TanreiPaginationSizeTokens medium;
+
+  /// The sizes a design system added to the core vocabulary.
+  final Map<TanreiPaginationSize, TanreiPaginationSizeTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiPaginationSizes copyWith({
+    TanreiPaginationSizeTokens? small,
+    TanreiPaginationSizeTokens? medium,
+    Map<TanreiPaginationSize, TanreiPaginationSizeTokens>? extra,
+  }) => TanreiPaginationSizes(
+        small: small ?? this.small,
+        medium: medium ?? this.medium,
+        extra: extra == null ? this.extra : <TanreiPaginationSize, TanreiPaginationSizeTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [size].
+  ///
+  /// A size this design system does not have resolves to [medium], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiPaginationSizeTokens operator [](TanreiPaginationSize size) => switch (size.name) {
+        'small' => small,
+        'medium' => medium,
+        _ => extra[size] ?? _fallback(size),
+      };
+
+  /// Whether this design system has [size].
+  bool has(TanreiPaginationSize size) => TanreiPaginationSize.core.contains(size) || extra.containsKey(size);
+
+  /// Every size this design system has: the core values, then the added ones.
+  List<TanreiPaginationSize> get keys => <TanreiPaginationSize>[...TanreiPaginationSize.core, ...extra.keys];
+
+  TanreiPaginationSizeTokens _fallback(TanreiPaginationSize size) {
+    assert(() {
+      debugTanreiReportUnknownValue('pagination size', size.name, 'medium');
+      return true;
+    }());
+    return medium;
+  }
+}
+
 /// The key of a part of pagination (`comp.pagination`, axis `part`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -17067,9 +17153,10 @@ class TanreiPageHeaderTokens {
 /// active system does not have renders as [item].
 extension type const TanreiPaginationPart(String name) {
   static const item = TanreiPaginationPart('item');
+  static const current = TanreiPaginationPart('current');
 
   /// The core values, in the order the component declares them.
-  static const List<TanreiPaginationPart> core = <TanreiPaginationPart>[item];
+  static const List<TanreiPaginationPart> core = <TanreiPaginationPart>[item, current];
 }
 
 /// What one part of pagination looks like in one interaction state.
@@ -17077,21 +17164,15 @@ extension type const TanreiPaginationPart(String name) {
 class TanreiPaginationPartStateTokens {
   const TanreiPaginationPartStateTokens({
     required this.containerColor,
-    required this.outlineColor,
     required this.labelColor,
-    required this.titleColor,
     required this.iconColor,
     required this.stateLayerColor,
   });
 
   /// `comp.pagination.<part>.<state>.container-color`
   final TanreiPaint containerColor;
-  /// `comp.pagination.<part>.<state>.outline-color`
-  final TanreiPaint outlineColor;
   /// `comp.pagination.<part>.<state>.label-color`
   final TanreiPaint labelColor;
-  /// `comp.pagination.<part>.<state>.title-color`
-  final TanreiPaint titleColor;
   /// `comp.pagination.<part>.<state>.icon-color`
   final TanreiPaint iconColor;
   /// `comp.pagination.<part>.<state>.state-layer-color`
@@ -17100,16 +17181,12 @@ class TanreiPaginationPartStateTokens {
   /// A copy with the given tokens replaced.
   TanreiPaginationPartStateTokens copyWith({
     TanreiPaint? containerColor,
-    TanreiPaint? outlineColor,
     TanreiPaint? labelColor,
-    TanreiPaint? titleColor,
     TanreiPaint? iconColor,
     TanreiPaint? stateLayerColor,
   }) => TanreiPaginationPartStateTokens(
         containerColor: containerColor ?? this.containerColor,
-        outlineColor: outlineColor ?? this.outlineColor,
         labelColor: labelColor ?? this.labelColor,
-        titleColor: titleColor ?? this.titleColor,
         iconColor: iconColor ?? this.iconColor,
         stateLayerColor: stateLayerColor ?? this.stateLayerColor,
       );
@@ -17124,12 +17201,14 @@ class TanreiPaginationPartTokens {
     required this.hovered,
     required this.focused,
     required this.pressed,
+    required this.disabled,
   });
 
   final TanreiPaginationPartStateTokens enabled;
   final TanreiPaginationPartStateTokens hovered;
   final TanreiPaginationPartStateTokens focused;
   final TanreiPaginationPartStateTokens pressed;
+  final TanreiPaginationPartStateTokens disabled;
 
   /// A copy with the given tokens replaced.
   TanreiPaginationPartTokens copyWith({
@@ -17137,11 +17216,13 @@ class TanreiPaginationPartTokens {
     TanreiPaginationPartStateTokens? hovered,
     TanreiPaginationPartStateTokens? focused,
     TanreiPaginationPartStateTokens? pressed,
+    TanreiPaginationPartStateTokens? disabled,
   }) => TanreiPaginationPartTokens(
         enabled: enabled ?? this.enabled,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,
+        disabled: disabled ?? this.disabled,
       );
 
   /// The tokens of [state]; a state this component does not have resolves to `enabled`.
@@ -17150,7 +17231,7 @@ class TanreiPaginationPartTokens {
         TanreiInteractionState.hovered => hovered,
         TanreiInteractionState.focused => focused,
         TanreiInteractionState.pressed => pressed,
-        TanreiInteractionState.disabled => enabled,
+        TanreiInteractionState.disabled => disabled,
       };
 }
 
@@ -17160,11 +17241,14 @@ class TanreiPaginationPartTokens {
 class TanreiPaginationParts {
   const TanreiPaginationParts({
     required this.item,
+    required this.current,
     this.extra = const <TanreiPaginationPart, TanreiPaginationPartTokens>{},
   });
 
   /// `comp.pagination` part `item`
   final TanreiPaginationPartTokens item;
+  /// `comp.pagination` part `current`
+  final TanreiPaginationPartTokens current;
 
   /// The parts a design system added to the core vocabulary.
   final Map<TanreiPaginationPart, TanreiPaginationPartTokens> extra;
@@ -17173,9 +17257,11 @@ class TanreiPaginationParts {
   /// those with the same key): a copy never loses a value the design system added.
   TanreiPaginationParts copyWith({
     TanreiPaginationPartTokens? item,
+    TanreiPaginationPartTokens? current,
     Map<TanreiPaginationPart, TanreiPaginationPartTokens>? extra,
   }) => TanreiPaginationParts(
         item: item ?? this.item,
+        current: current ?? this.current,
         extra: extra == null ? this.extra : <TanreiPaginationPart, TanreiPaginationPartTokens>{...this.extra, ...extra},
       );
 
@@ -17185,6 +17271,7 @@ class TanreiPaginationParts {
   /// through [debugTanreiReportUnknownValue] and release builds stay silent.
   TanreiPaginationPartTokens operator [](TanreiPaginationPart part_) => switch (part_.name) {
         'item' => item,
+        'current' => current,
         _ => extra[part_] ?? _fallback(part_),
       };
 
@@ -17230,39 +17317,42 @@ class TanreiPaginationStateTokens {
 @immutable
 class TanreiPaginationTokens {
   const TanreiPaginationTokens({
-    required this.containerGap,
-    required this.containerMinWidth,
-    required this.containerPadding,
+    required this.containerPaddingInline,
     required this.containerShape,
+    required this.countColor,
+    required this.countPaddingInline,
+    required this.countTypescale,
+    required this.ellipsisColor,
     required this.gap,
     required this.iconSize,
-    required this.labelGap,
     required this.labelTypescale,
     required this.motionFeedbackDuration,
     required this.motionStateDuration,
     required this.motionStateEasing,
-    required this.outlineWidth,
-    required this.titleTypescale,
+    required this.sizes,
     required this.parts,
     required this.hovered,
     required this.focused,
     required this.pressed,
+    required this.disabled,
   });
 
-  /// `comp.pagination.container-gap`
-  final double containerGap;
-  /// `comp.pagination.container-min-width`
-  final double containerMinWidth;
-  /// `comp.pagination.container-padding`
-  final double containerPadding;
+  /// `comp.pagination.container-padding-inline`
+  final double containerPaddingInline;
   /// `comp.pagination.container-shape`
   final double containerShape;
+  /// `comp.pagination.count-color`
+  final TanreiPaint countColor;
+  /// `comp.pagination.count-padding-inline`
+  final double countPaddingInline;
+  /// `comp.pagination.count-typescale`
+  final TanreiTextStyle countTypescale;
+  /// `comp.pagination.ellipsis-color`
+  final TanreiPaint ellipsisColor;
   /// `comp.pagination.gap`
   final double gap;
   /// `comp.pagination.icon-size`
   final double iconSize;
-  /// `comp.pagination.label-gap`
-  final double labelGap;
   /// `comp.pagination.label-typescale`
   final TanreiTextStyle labelTypescale;
   /// `comp.pagination.motion-feedback-duration`
@@ -17271,10 +17361,8 @@ class TanreiPaginationTokens {
   final int motionStateDuration;
   /// `comp.pagination.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
-  /// `comp.pagination.outline-width`
-  final double outlineWidth;
-  /// `comp.pagination.title-typescale`
-  final TanreiTextStyle titleTypescale;
+  /// The `size` axis: `sizes[size]`.
+  final TanreiPaginationSizes sizes;
   /// The `part` axis: `parts[part]`.
   final TanreiPaginationParts parts;
   /// `comp.pagination.hovered.*`
@@ -17283,44 +17371,48 @@ class TanreiPaginationTokens {
   final TanreiPaginationStateTokens focused;
   /// `comp.pagination.pressed.*`
   final TanreiPaginationStateTokens pressed;
+  /// `comp.pagination.disabled.*`
+  final TanreiPaginationStateTokens disabled;
 
   /// A copy with the given tokens replaced.
   TanreiPaginationTokens copyWith({
-    double? containerGap,
-    double? containerMinWidth,
-    double? containerPadding,
+    double? containerPaddingInline,
     double? containerShape,
+    TanreiPaint? countColor,
+    double? countPaddingInline,
+    TanreiTextStyle? countTypescale,
+    TanreiPaint? ellipsisColor,
     double? gap,
     double? iconSize,
-    double? labelGap,
     TanreiTextStyle? labelTypescale,
     int? motionFeedbackDuration,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
-    double? outlineWidth,
-    TanreiTextStyle? titleTypescale,
+    TanreiPaginationSizes? sizes,
     TanreiPaginationParts? parts,
     TanreiPaginationStateTokens? hovered,
     TanreiPaginationStateTokens? focused,
     TanreiPaginationStateTokens? pressed,
+    TanreiPaginationStateTokens? disabled,
   }) => TanreiPaginationTokens(
-        containerGap: containerGap ?? this.containerGap,
-        containerMinWidth: containerMinWidth ?? this.containerMinWidth,
-        containerPadding: containerPadding ?? this.containerPadding,
+        containerPaddingInline: containerPaddingInline ?? this.containerPaddingInline,
         containerShape: containerShape ?? this.containerShape,
+        countColor: countColor ?? this.countColor,
+        countPaddingInline: countPaddingInline ?? this.countPaddingInline,
+        countTypescale: countTypescale ?? this.countTypescale,
+        ellipsisColor: ellipsisColor ?? this.ellipsisColor,
         gap: gap ?? this.gap,
         iconSize: iconSize ?? this.iconSize,
-        labelGap: labelGap ?? this.labelGap,
         labelTypescale: labelTypescale ?? this.labelTypescale,
         motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
-        outlineWidth: outlineWidth ?? this.outlineWidth,
-        titleTypescale: titleTypescale ?? this.titleTypescale,
+        sizes: sizes ?? this.sizes,
         parts: parts ?? this.parts,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
         pressed: pressed ?? this.pressed,
+        disabled: disabled ?? this.disabled,
       );
 
   /// The variant-independent tokens of [state], or null for a state that has none (`enabled`: the
@@ -17330,7 +17422,7 @@ class TanreiPaginationTokens {
         TanreiInteractionState.hovered => hovered,
         TanreiInteractionState.focused => focused,
         TanreiInteractionState.pressed => pressed,
-        TanreiInteractionState.disabled => null,
+        TanreiInteractionState.disabled => disabled,
       };
 }
 
@@ -17495,6 +17587,280 @@ class TanreiPopoverTokens {
         offset: offset ?? this.offset,
         windowMargin: windowMargin ?? this.windowMargin,
       );
+}
+
+/// The key of a part of previous-next-links (`comp.previous-next-links`, axis `part`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiPreviousNextLinksPart('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [item].
+extension type const TanreiPreviousNextLinksPart(String name) {
+  static const item = TanreiPreviousNextLinksPart('item');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiPreviousNextLinksPart> core = <TanreiPreviousNextLinksPart>[item];
+}
+
+/// What one part of previous-next-links looks like in one interaction state.
+@immutable
+class TanreiPreviousNextLinksPartStateTokens {
+  const TanreiPreviousNextLinksPartStateTokens({
+    required this.containerColor,
+    required this.outlineColor,
+    required this.labelColor,
+    required this.titleColor,
+    required this.iconColor,
+    required this.stateLayerColor,
+  });
+
+  /// `comp.previous-next-links.<part>.<state>.container-color`
+  final TanreiPaint containerColor;
+  /// `comp.previous-next-links.<part>.<state>.outline-color`
+  final TanreiPaint outlineColor;
+  /// `comp.previous-next-links.<part>.<state>.label-color`
+  final TanreiPaint labelColor;
+  /// `comp.previous-next-links.<part>.<state>.title-color`
+  final TanreiPaint titleColor;
+  /// `comp.previous-next-links.<part>.<state>.icon-color`
+  final TanreiPaint iconColor;
+  /// `comp.previous-next-links.<part>.<state>.state-layer-color`
+  final TanreiPaint stateLayerColor;
+
+  /// A copy with the given tokens replaced.
+  TanreiPreviousNextLinksPartStateTokens copyWith({
+    TanreiPaint? containerColor,
+    TanreiPaint? outlineColor,
+    TanreiPaint? labelColor,
+    TanreiPaint? titleColor,
+    TanreiPaint? iconColor,
+    TanreiPaint? stateLayerColor,
+  }) => TanreiPreviousNextLinksPartStateTokens(
+        containerColor: containerColor ?? this.containerColor,
+        outlineColor: outlineColor ?? this.outlineColor,
+        labelColor: labelColor ?? this.labelColor,
+        titleColor: titleColor ?? this.titleColor,
+        iconColor: iconColor ?? this.iconColor,
+        stateLayerColor: stateLayerColor ?? this.stateLayerColor,
+      );
+}
+
+/// The per-state tokens of one previous-next-links part. How a state looks is a value of the design system;
+/// the widget only selects the state.
+@immutable
+class TanreiPreviousNextLinksPartTokens {
+  const TanreiPreviousNextLinksPartTokens({
+    required this.enabled,
+    required this.hovered,
+    required this.focused,
+    required this.pressed,
+  });
+
+  final TanreiPreviousNextLinksPartStateTokens enabled;
+  final TanreiPreviousNextLinksPartStateTokens hovered;
+  final TanreiPreviousNextLinksPartStateTokens focused;
+  final TanreiPreviousNextLinksPartStateTokens pressed;
+
+  /// A copy with the given tokens replaced.
+  TanreiPreviousNextLinksPartTokens copyWith({
+    TanreiPreviousNextLinksPartStateTokens? enabled,
+    TanreiPreviousNextLinksPartStateTokens? hovered,
+    TanreiPreviousNextLinksPartStateTokens? focused,
+    TanreiPreviousNextLinksPartStateTokens? pressed,
+  }) => TanreiPreviousNextLinksPartTokens(
+        enabled: enabled ?? this.enabled,
+        hovered: hovered ?? this.hovered,
+        focused: focused ?? this.focused,
+        pressed: pressed ?? this.pressed,
+      );
+
+  /// The tokens of [state]; a state this component does not have resolves to `enabled`.
+  TanreiPreviousNextLinksPartStateTokens of(TanreiInteractionState state) => switch (state) {
+        TanreiInteractionState.enabled => enabled,
+        TanreiInteractionState.hovered => hovered,
+        TanreiInteractionState.focused => focused,
+        TanreiInteractionState.pressed => pressed,
+        TanreiInteractionState.disabled => enabled,
+      };
+}
+
+/// Every part of previous-next-links: the core values by name, the values a design system added in [extra].
+/// Look one up with `parts[key]`; the lookup is total.
+@immutable
+class TanreiPreviousNextLinksParts {
+  const TanreiPreviousNextLinksParts({
+    required this.item,
+    this.extra = const <TanreiPreviousNextLinksPart, TanreiPreviousNextLinksPartTokens>{},
+  });
+
+  /// `comp.previous-next-links` part `item`
+  final TanreiPreviousNextLinksPartTokens item;
+
+  /// The parts a design system added to the core vocabulary.
+  final Map<TanreiPreviousNextLinksPart, TanreiPreviousNextLinksPartTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiPreviousNextLinksParts copyWith({
+    TanreiPreviousNextLinksPartTokens? item,
+    Map<TanreiPreviousNextLinksPart, TanreiPreviousNextLinksPartTokens>? extra,
+  }) => TanreiPreviousNextLinksParts(
+        item: item ?? this.item,
+        extra: extra == null ? this.extra : <TanreiPreviousNextLinksPart, TanreiPreviousNextLinksPartTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [part].
+  ///
+  /// A part this design system does not have resolves to [item], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiPreviousNextLinksPartTokens operator [](TanreiPreviousNextLinksPart part_) => switch (part_.name) {
+        'item' => item,
+        _ => extra[part_] ?? _fallback(part_),
+      };
+
+  /// Whether this design system has [part].
+  bool has(TanreiPreviousNextLinksPart part_) => TanreiPreviousNextLinksPart.core.contains(part_) || extra.containsKey(part_);
+
+  /// Every part this design system has: the core values, then the added ones.
+  List<TanreiPreviousNextLinksPart> get keys => <TanreiPreviousNextLinksPart>[...TanreiPreviousNextLinksPart.core, ...extra.keys];
+
+  TanreiPreviousNextLinksPartTokens _fallback(TanreiPreviousNextLinksPart part_) {
+    assert(() {
+      debugTanreiReportUnknownValue('previous-next-links part', part_.name, 'item');
+      return true;
+    }());
+    return item;
+  }
+}
+
+/// The tokens of previous-next-links that vary by interaction state but not by variant.
+@immutable
+class TanreiPreviousNextLinksStateTokens {
+  const TanreiPreviousNextLinksStateTokens({
+    required this.containerShape,
+    required this.opacity,
+  });
+
+  /// `comp.previous-next-links.<state>.container-shape`
+  final double containerShape;
+  /// `comp.previous-next-links.<state>.opacity`
+  final double opacity;
+
+  /// A copy with the given tokens replaced.
+  TanreiPreviousNextLinksStateTokens copyWith({
+    double? containerShape,
+    double? opacity,
+  }) => TanreiPreviousNextLinksStateTokens(
+        containerShape: containerShape ?? this.containerShape,
+        opacity: opacity ?? this.opacity,
+      );
+}
+
+/// `comp.previous-next-links.*`
+@immutable
+class TanreiPreviousNextLinksTokens {
+  const TanreiPreviousNextLinksTokens({
+    required this.containerGap,
+    required this.containerMinWidth,
+    required this.containerPadding,
+    required this.containerShape,
+    required this.gap,
+    required this.iconSize,
+    required this.labelGap,
+    required this.labelTypescale,
+    required this.motionFeedbackDuration,
+    required this.motionStateDuration,
+    required this.motionStateEasing,
+    required this.outlineWidth,
+    required this.titleTypescale,
+    required this.parts,
+    required this.hovered,
+    required this.focused,
+    required this.pressed,
+  });
+
+  /// `comp.previous-next-links.container-gap`
+  final double containerGap;
+  /// `comp.previous-next-links.container-min-width`
+  final double containerMinWidth;
+  /// `comp.previous-next-links.container-padding`
+  final double containerPadding;
+  /// `comp.previous-next-links.container-shape`
+  final double containerShape;
+  /// `comp.previous-next-links.gap`
+  final double gap;
+  /// `comp.previous-next-links.icon-size`
+  final double iconSize;
+  /// `comp.previous-next-links.label-gap`
+  final double labelGap;
+  /// `comp.previous-next-links.label-typescale`
+  final TanreiTextStyle labelTypescale;
+  /// `comp.previous-next-links.motion-feedback-duration`
+  final int motionFeedbackDuration;
+  /// `comp.previous-next-links.motion-state-duration`
+  final int motionStateDuration;
+  /// `comp.previous-next-links.motion-state-easing`
+  final TanreiCubicBezier motionStateEasing;
+  /// `comp.previous-next-links.outline-width`
+  final double outlineWidth;
+  /// `comp.previous-next-links.title-typescale`
+  final TanreiTextStyle titleTypescale;
+  /// The `part` axis: `parts[part]`.
+  final TanreiPreviousNextLinksParts parts;
+  /// `comp.previous-next-links.hovered.*`
+  final TanreiPreviousNextLinksStateTokens hovered;
+  /// `comp.previous-next-links.focused.*`
+  final TanreiPreviousNextLinksStateTokens focused;
+  /// `comp.previous-next-links.pressed.*`
+  final TanreiPreviousNextLinksStateTokens pressed;
+
+  /// A copy with the given tokens replaced.
+  TanreiPreviousNextLinksTokens copyWith({
+    double? containerGap,
+    double? containerMinWidth,
+    double? containerPadding,
+    double? containerShape,
+    double? gap,
+    double? iconSize,
+    double? labelGap,
+    TanreiTextStyle? labelTypescale,
+    int? motionFeedbackDuration,
+    int? motionStateDuration,
+    TanreiCubicBezier? motionStateEasing,
+    double? outlineWidth,
+    TanreiTextStyle? titleTypescale,
+    TanreiPreviousNextLinksParts? parts,
+    TanreiPreviousNextLinksStateTokens? hovered,
+    TanreiPreviousNextLinksStateTokens? focused,
+    TanreiPreviousNextLinksStateTokens? pressed,
+  }) => TanreiPreviousNextLinksTokens(
+        containerGap: containerGap ?? this.containerGap,
+        containerMinWidth: containerMinWidth ?? this.containerMinWidth,
+        containerPadding: containerPadding ?? this.containerPadding,
+        containerShape: containerShape ?? this.containerShape,
+        gap: gap ?? this.gap,
+        iconSize: iconSize ?? this.iconSize,
+        labelGap: labelGap ?? this.labelGap,
+        labelTypescale: labelTypescale ?? this.labelTypescale,
+        motionFeedbackDuration: motionFeedbackDuration ?? this.motionFeedbackDuration,
+        motionStateDuration: motionStateDuration ?? this.motionStateDuration,
+        motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        outlineWidth: outlineWidth ?? this.outlineWidth,
+        titleTypescale: titleTypescale ?? this.titleTypescale,
+        parts: parts ?? this.parts,
+        hovered: hovered ?? this.hovered,
+        focused: focused ?? this.focused,
+        pressed: pressed ?? this.pressed,
+      );
+
+  /// The variant-independent tokens of [state], or null for a state that has none (`enabled`: the
+  /// resting tokens of this class apply).
+  TanreiPreviousNextLinksStateTokens? stateTokens(TanreiInteractionState state) => switch (state) {
+        TanreiInteractionState.enabled => null,
+        TanreiInteractionState.hovered => hovered,
+        TanreiInteractionState.focused => focused,
+        TanreiInteractionState.pressed => pressed,
+        TanreiInteractionState.disabled => null,
+      };
 }
 
 /// The key of a size of progress-indicator (`comp.progress-indicator`, axis `size`).
@@ -25614,6 +25980,7 @@ class TanreiSystem {
     required this.pageHeader,
     required this.pagination,
     required this.popover,
+    required this.previousNextLinks,
     required this.progressIndicator,
     required this.prose,
     required this.radioButton,
@@ -25711,6 +26078,7 @@ class TanreiSystem {
   final TanreiPageHeaderTokens pageHeader;
   final TanreiPaginationTokens pagination;
   final TanreiPopoverTokens popover;
+  final TanreiPreviousNextLinksTokens previousNextLinks;
   final TanreiProgressIndicatorTokens progressIndicator;
   final TanreiProseTokens prose;
   final TanreiRadioButtonTokens radioButton;
@@ -25807,6 +26175,7 @@ class TanreiSystem {
     TanreiPageHeaderTokens? pageHeader,
     TanreiPaginationTokens? pagination,
     TanreiPopoverTokens? popover,
+    TanreiPreviousNextLinksTokens? previousNextLinks,
     TanreiProgressIndicatorTokens? progressIndicator,
     TanreiProseTokens? prose,
     TanreiRadioButtonTokens? radioButton,
@@ -25901,6 +26270,7 @@ class TanreiSystem {
         pageHeader: pageHeader ?? this.pageHeader,
         pagination: pagination ?? this.pagination,
         popover: popover ?? this.popover,
+        previousNextLinks: previousNextLinks ?? this.previousNextLinks,
         progressIndicator: progressIndicator ?? this.progressIndicator,
         prose: prose ?? this.prose,
         radioButton: radioButton ?? this.radioButton,

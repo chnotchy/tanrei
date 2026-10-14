@@ -6649,65 +6649,106 @@ private let acmePageHeaderTokens = TanreiPageHeaderTokens(
 )
 
 private let acmePaginationTokens = TanreiPaginationTokens(
-  containerGap: 12,
-  containerMinWidth: 240,
-  containerPadding: 16,
-  containerShape: 8,
-  gap: 16,
+  containerPaddingInline: 8,
+  containerShape: 9999,
+  countColor: .role(.onSurface),
+  countPaddingInline: 8,
+  countTypescale: acmeTypescale.body,
+  ellipsisColor: .role(.onSurfaceVariant),
+  gap: 4,
   iconSize: 20,
-  labelGap: 2,
-  labelTypescale: acmeTypescale.labelSmall,
+  labelTypescale: acmeTypescale.label,
   motionFeedbackDuration: 450,
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
-  outlineWidth: 1,
-  titleTypescale: acmeTypescale.bodyLarge,
+  sizes: TanreiPaginationSizes(
+    small: TanreiPaginationSizeTokens(
+      containerHeight: 32
+    ),
+    medium: TanreiPaginationSizeTokens(
+      containerHeight: 40
+    )
+  ),
   parts: TanreiPaginationParts(
     item: TanreiPaginationPartTokens(
       enabled: TanreiPaginationPartStateTokens(
         containerColor: .none,
-        outlineColor: .role(.outlineVariant),
-        labelColor: .role(.onSurfaceVariant),
-        titleColor: .role(.onSurface),
-        iconColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
         stateLayerColor: .role(.onSurface)
       ),
       hovered: TanreiPaginationPartStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.06),
-        outlineColor: .role(.outlineVariant),
-        labelColor: .role(.onSurfaceVariant),
-        titleColor: .role(.onSurface),
-        iconColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
         stateLayerColor: .role(.onSurface)
       ),
       focused: TanreiPaginationPartStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
-        outlineColor: .role(.outlineVariant),
-        labelColor: .role(.onSurfaceVariant),
-        titleColor: .role(.onSurface),
-        iconColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
         stateLayerColor: .role(.onSurface)
       ),
       pressed: TanreiPaginationPartStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.2),
-        outlineColor: .role(.outlineVariant),
-        labelColor: .role(.onSurfaceVariant),
-        titleColor: .role(.onSurface),
-        iconColor: .role(.onSurfaceVariant),
+        labelColor: .role(.onSurface),
+        iconColor: .role(.onSurface),
         stateLayerColor: .role(.onSurface)
+      ),
+      disabled: TanreiPaginationPartStateTokens(
+        containerColor: .none,
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
+    current: TanreiPaginationPartTokens(
+      enabled: TanreiPaginationPartStateTokens(
+        containerColor: .role(.secondaryContainer),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      hovered: TanreiPaginationPartStateTokens(
+        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.06),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      focused: TanreiPaginationPartStateTokens(
+        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.12),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      pressed: TanreiPaginationPartStateTokens(
+        containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.2),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      disabled: TanreiPaginationPartStateTokens(
+        containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     )
   ),
   hovered: TanreiPaginationStateTokens(
-    containerShape: 8,
+    containerShape: 9999,
     opacity: 1
   ),
   focused: TanreiPaginationStateTokens(
-    containerShape: 8,
+    containerShape: 9999,
     opacity: 1
   ),
   pressed: TanreiPaginationStateTokens(
-    containerShape: 8,
+    containerShape: 9999,
+    opacity: 1
+  ),
+  disabled: TanreiPaginationStateTokens(
+    containerShape: 9999,
     opacity: 1
   )
 )
@@ -6743,6 +6784,70 @@ private let acmePopoverTokens = TanreiPopoverTokens(
   motionOpenEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   offset: 4,
   windowMargin: 8
+)
+
+private let acmePreviousNextLinksTokens = TanreiPreviousNextLinksTokens(
+  containerGap: 12,
+  containerMinWidth: 240,
+  containerPadding: 16,
+  containerShape: 8,
+  gap: 16,
+  iconSize: 20,
+  labelGap: 2,
+  labelTypescale: acmeTypescale.labelSmall,
+  motionFeedbackDuration: 450,
+  motionStateDuration: 150,
+  motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  outlineWidth: 1,
+  titleTypescale: acmeTypescale.bodyLarge,
+  parts: TanreiPreviousNextLinksParts(
+    item: TanreiPreviousNextLinksPartTokens(
+      enabled: TanreiPreviousNextLinksPartStateTokens(
+        containerColor: .none,
+        outlineColor: .role(.outlineVariant),
+        labelColor: .role(.onSurfaceVariant),
+        titleColor: .role(.onSurface),
+        iconColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      hovered: TanreiPreviousNextLinksPartStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.06),
+        outlineColor: .role(.outlineVariant),
+        labelColor: .role(.onSurfaceVariant),
+        titleColor: .role(.onSurface),
+        iconColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      focused: TanreiPreviousNextLinksPartStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.12),
+        outlineColor: .role(.outlineVariant),
+        labelColor: .role(.onSurfaceVariant),
+        titleColor: .role(.onSurface),
+        iconColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      ),
+      pressed: TanreiPreviousNextLinksPartStateTokens(
+        containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.2),
+        outlineColor: .role(.outlineVariant),
+        labelColor: .role(.onSurfaceVariant),
+        titleColor: .role(.onSurface),
+        iconColor: .role(.onSurfaceVariant),
+        stateLayerColor: .role(.onSurface)
+      )
+    )
+  ),
+  hovered: TanreiPreviousNextLinksStateTokens(
+    containerShape: 8,
+    opacity: 1
+  ),
+  focused: TanreiPreviousNextLinksStateTokens(
+    containerShape: 8,
+    opacity: 1
+  ),
+  pressed: TanreiPreviousNextLinksStateTokens(
+    containerShape: 8,
+    opacity: 1
+  )
 )
 
 private let acmeProgressIndicatorTokens = TanreiProgressIndicatorTokens(
@@ -9873,6 +9978,7 @@ extension TanreiSystem {
     pageHeader: acmePageHeaderTokens,
     pagination: acmePaginationTokens,
     popover: acmePopoverTokens,
+    previousNextLinks: acmePreviousNextLinksTokens,
     progressIndicator: acmeProgressIndicatorTokens,
     prose: acmeProseTokens,
     radioButton: acmeRadioButtonTokens,

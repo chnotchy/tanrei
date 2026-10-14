@@ -1,8 +1,8 @@
 ---
-// The previous and next page at the foot of every page, drawn by Tanrei's pagination (specs/pagination.spec.json)
+// The previous and next page at the foot of every page, drawn by Tanrei's previous and next links (specs/previous-next-links.spec.json)
 // in place of Starlight's: this component replaces Starlight's `Pagination` (astro.config.mjs), from
 // the same two entries of the sidebar's order. The markup is the component's contract — a named `nav` around two
-// anchors, each with its direction, its `rel`, a label and a title — and `@tanrei/web/pagination.css` draws it: the
+// anchors, each with its direction, its `rel`, a label and a title — and `@tanrei/web/previous-next-links.css` draws it: the
 // outlined items, the arrows of the icon set (mirrored in a right-to-left language), the two equal columns that keep
 // the next item in its place on the first page, and the stacking in a narrow column.
 //
@@ -15,17 +15,17 @@ const [previousLabel, nextLabel] = [Astro.locals.t('page.previousLink'), Astro.l
 
 {
   (prev || next) && (
-    <nav class="tanrei-pagination print:hidden" aria-label={`${previousLabel} / ${nextLabel}`}>
+    <nav class="tanrei-previous-next-links print:hidden" aria-label={`${previousLabel} / ${nextLabel}`}>
       {prev && (
-        <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href={prev.href}>
-          <span class="tanrei-pagination-label">{previousLabel}</span>
-          <span class="tanrei-pagination-title">{prev.label}</span>
+        <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href={prev.href}>
+          <span class="tanrei-previous-next-links-label">{previousLabel}</span>
+          <span class="tanrei-previous-next-links-title">{prev.label}</span>
         </a>
       )}
       {next && (
-        <a class="tanrei-pagination-item" data-direction="next" rel="next" href={next.href}>
-          <span class="tanrei-pagination-label">{nextLabel}</span>
-          <span class="tanrei-pagination-title">{next.label}</span>
+        <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href={next.href}>
+          <span class="tanrei-previous-next-links-label">{nextLabel}</span>
+          <span class="tanrei-previous-next-links-title">{next.label}</span>
         </a>
       )}
     </nav>

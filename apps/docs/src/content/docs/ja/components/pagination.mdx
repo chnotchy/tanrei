@@ -1,8 +1,8 @@
 ---
 title: ページネーション
-description: ひと続きのページの中で、いまいるページの前のページと次のページを示します。2 つのリンクから成り、それぞれの名前は方向と行き先のタイトルです。
+description: 1 つのリストの番号付きのページを移動します。現在のページに印を付けたページ番号、前と次、必要に応じて最初と最後、そして何ページ中の何ページかを示す短い形があります。
 translationOf: components/pagination.mdx
-sourceHash: f8e943facb9fb849b2ff849fff9dfa64def11fc0
+sourceHash: 0055738fcfa0e80739713bb784bf880bbc361f3a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -15,146 +15,85 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="pagination" />
 
-<DemoFrame label="前と次" column>
-  <nav class="tanrei-pagination" aria-label="このデモのページ" style="inline-size: 100%">
-    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/">
-      <span class="tanrei-pagination-label">前へ</span>
-      <span class="tanrei-pagination-title">リンク</span>
-    </a>
-    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
-      <span class="tanrei-pagination-label">次へ</span>
-      <span class="tanrei-pagination-title">ステップ</span>
-    </a>
-  </nav>
+<DemoFrame label="番号付き、および最初と最後のあるもの" column>
+  <tanrei-pagination label="1 つ目のデモのページ" page="5" count="10" previous-label="前のページ" next-label="次のページ" page-label="{page} ページ"></tanrei-pagination>
+  <tanrei-pagination label="2 つ目のデモのページ" page="12" count="40" first-last previous-label="前のページ" next-label="次のページ" first-label="最初のページ" last-label="最後のページ" page-label="{page} ページ"></tanrei-pagination>
 </DemoFrame>
 
-このページの末尾にあるページネーションも同じコンポーネントです。
-
-ガイドの章や連載の記事のように、それぞれのページにタイトルがある並びをめくるためのものです。番号でめくる形（検索結果のページなど）は、同じコンポーネントに後から加える形で、まだ仕様がありません。
+ページネーションは、1 つのリストを番号でめくります。検索結果、ブログの投稿、テーブルの行などです。ガイドの章のように、タイトルのあるページが続く並びの中で前後のページへ進むものは[前後のリンク](/ja/components/previous-next-links/)です。タイトルは行き先を語りますが、ページ番号は語りません。
 
 ### 使い方
 
-Web では、ページネーションは要素ではなく、プロダクト側の `nav` とアンカーに付けるクラスです。アンカーは文書の中にあるので、スクリプトが動く前からリンクとして働き、クローラーからも、ページ内のアンカーを扱うルーターからも見つけられます。コンポーネント全体を、スタイルシートだけで描きます。
-
-SwiftUI、Compose、Flutter、React Native は計画中です。このページの冒頭で各プラットフォームに添えた名前は仕様が定めたもので、まだ提供していません。React にもまだ `Pagination` コンポーネントはないので、クラスを付けたマークアップを使ってください。
+現在のページと、全部で何ページあるかを渡します。どの番号を表示するかは、ページネーションが決めます。`href` があれば、どのページもそれぞれのアドレスへのリンクになります。なければページはボタンになり、ページが変わったときに表示内容を変えるのはプロダクトです。
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
-    <link rel="stylesheet" href="@tanrei/web/icons.css" />
-    <link rel="stylesheet" href="@tanrei/web/pagination.css" />
+    <!-- リンク: 各ページには、ブックマークや共有、新しいタブで開けるアドレスがあります。{page} にはページ番号が入ります。 -->
+    <tanrei-pagination label="検索結果のページ" page="3" count="12" href="/results/?page={page}"
+      previous-label="前のページ" next-label="次のページ" page-label="{page} ページ"></tanrei-pagination>
 
-    <nav class="tanrei-pagination" aria-label="ページ">
-      <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="https://example.com/guide/installation/">
-        <span class="tanrei-pagination-label">前へ</span>
-        <span class="tanrei-pagination-title">インストール</span>
-      </a>
-      <a class="tanrei-pagination-item" data-direction="next" rel="next" href="https://example.com/guide/design-tokens/">
-        <span class="tanrei-pagination-label">次へ</span>
-        <span class="tanrei-pagination-title">デザイントークン</span>
-      </a>
-    </nav>
-
-    <!-- 最初のページ：前の項目は href なしで書くか、省きます。次の項目の場所は変わりません。 -->
-    <nav class="tanrei-pagination" aria-label="ページ">
-      <a class="tanrei-pagination-item" data-direction="previous"></a>
-      <a class="tanrei-pagination-item" data-direction="next" rel="next" href="https://example.com/guide/installation/">
-        <span class="tanrei-pagination-label">次へ</span>
-        <span class="tanrei-pagination-title">インストール</span>
-      </a>
-    </nav>
+    <!-- ボタン: ページはその場で変わります。要素は自分の page を変えてから change を発行します。キャンセルするとページはそのままです。 -->
+    <tanrei-pagination id="pages" label="ページ" page="1" count="10"
+      previous-label="前のページ" next-label="次のページ" page-label="{page} ページ"></tanrei-pagination>
 
     <script type="module">
-      // 任意：リップルと dim の押下への応え方、次の項目を先に書いたときの並べ替え、デバッグ時の報告。`@tanrei/web` を読み込んでも入ります。
-      import '@tanrei/web/pagination';
+      import '@tanrei/web/components/pagination';
+      document.querySelector('#pages').addEventListener('change', (e) => showPage(e.detail.page));
     </script>
     ```
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import '@tanrei/web/pagination.css';
-    import '@tanrei/web/pagination';
-    import { Link as RouterLink } from 'react-router-dom';
+    import { Pagination } from '@tanrei/react';
 
-    <nav className="tanrei-pagination" aria-label="ページ">
-      {/* ルーターのリンクは自分でアンカーを描くので、そのリンクにクラスを付けます。 */}
-      <RouterLink className="tanrei-pagination-item" data-direction="next" rel="next" to="/guide/design-tokens/">
-        <span className="tanrei-pagination-label">次へ</span>
-        <span className="tanrei-pagination-title">デザイントークン</span>
-      </RouterLink>
-    </nav>
+    <Pagination label="ページ" page={page} count={10}
+      previousLabel="前のページ" nextLabel="次のページ" pageLabel="{page} ページ"
+      onChange={(e) => setPage(e.detail.page)} />
     ```
   </TabItem>
 </Tabs>
 
-| プロパティ | Web での書き方 |
-| --- | --- |
-| `label` | `nav` の `aria-label` |
-| 項目 | `<a class="tanrei-pagination-item">` |
-| `direction` | `data-direction="previous"` または `"next"` と、`rel="prev"` または `rel="next"` |
-| 項目の `label` | `<span class="tanrei-pagination-label">` |
-| `title` | ラベルの後の `<span class="tanrei-pagination-title">` |
-| `href` | `href` |
-| `click` | アンカー自身の `click` |
+SwiftUI、Compose、Flutter、React Native は計画中です。このページの冒頭で各プラットフォームに添えた名前は仕様が定めたもので、まだ提供していません。
+
+言葉はプロダクトのものです。Tanrei は言葉を同梱しません。要素ごとに渡すか、`setWords()` でプロダクト全体に一度だけ渡します（`previousPageLabel`、`nextPageLabel`、`firstPageLabel`、`lastPageLabel`、`pageLabel`、`pageCountText`）。
 
 ## 仕様
 
-<DemoFrame label="次の項目だけでも場所は変わらない。ラベルだけの項目" plain column>
-  <nav class="tanrei-pagination" aria-label="このデモの最初のページ" style="inline-size: 100%">
-    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
-      <span class="tanrei-pagination-label">次へ</span>
-      <span class="tanrei-pagination-title">ステップ</span>
-    </a>
-  </nav>
-  <nav class="tanrei-pagination" aria-label="このデモの記事" style="inline-size: 100%">
-    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-pagination-label">新しい記事</span></a>
-    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-pagination-label">古い記事</span></a>
-  </nav>
+<DemoFrame label="短い形と、小さいサイズ" plain column>
+  <tanrei-pagination label="コンパクトなデモのページ" variant="compact" page="3" count="10" previous-label="前のページ" next-label="次のページ" count-text="{count} ページ中 {page} ページ"></tanrei-pagination>
+  <tanrei-pagination label="小さいデモのページ" size="small" page="4" count="8" previous-label="前のページ" next-label="次のページ" page-label="{page} ページ"></tanrei-pagination>
 </DemoFrame>
 
-<DemoFrame label="狭いカラムでは項目が縦に並ぶ" plain>
-  <nav class="tanrei-pagination" aria-label="このデモの狭いカラム" style="inline-size: 20rem">
-    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/">
-      <span class="tanrei-pagination-label">前へ</span>
-      <span class="tanrei-pagination-title">デザインシステムのトークンが少数のダイヤルからどう導出されるか</span>
-    </a>
-    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
-      <span class="tanrei-pagination-label">次へ</span>
-      <span class="tanrei-pagination-title">右から左のレイアウト</span>
-    </a>
-  </nav>
+<DemoFrame label="狭い列では、番号付きの形が短い形になる" plain>
+  <div style="inline-size: 14rem">
+    <tanrei-pagination label="狭いデモのページ" page="5" count="10" previous-label="前のページ" next-label="次のページ" page-label="{page} ページ" count-text="{count} ページ中 {page} ページ"></tanrei-pagination>
+  </div>
 </DemoFrame>
 
-- **項目は 1 つのリンク**で、全体が押せます。輪郭線のあるコンテナとして描きます。輪郭線は細い線で、塗りはなく、タイトルはテキストの色です。下線は引きません。輪郭線と矢印と置かれた場所で、周りのテキストと見分けられるからです。
-- **矢印はコンポーネントが描きます**。前の項目の先頭側の端に `arrow_back`、次の項目の末尾側の端に `arrow_forward` です。`icons.css` が必要です。
-- **同じ幅の 2 列。** 最初のページでは先頭側の列が空になり、次の項目はほかのページとまったく同じ場所に置かれます。
-- **縦に並ぶ形。** ページネーションの幅が、項目の最小幅 2 つ分と隙間の合計（既定のシステムでは 496）に満たないとき、項目は前を上、次を下にして縦に並びます。これを決めるのはウィンドウの幅ではなく、コンポーネント自身の幅です。
-- **タイトルは折り返し、途中で切れません。** 横に並んだ 2 つの項目は、高いほうの高さにそろいます。タイトルのない項目は、方向だけをタイトルのスタイルで示します。
-- **右から左**のレイアウトでは、前の項目が右に置かれて矢印は右を指し、次の項目が左に置かれて矢印は左を指します。読む順序とフォーカスの順序は、前、次のままです。
+- **表示する番号。** 最初と最後のページ（`boundaries`、既定は 1）、現在のページとその両側の 1 ページずつ（`siblings`、既定は 1）です。その間で省いたページは 1 つの省略記号になります。端に近いときは反対側に多くのページを表示するので、どのページでも行の場所の数は同じで、行の幅も変わりません。
+- **現在のページ**は塗りつぶして描かれ、現在のものとして公開されます。現在のページを押しても何も起きません。
+- **前と次**はアイコンだけです。最初のページと最後のページでは無効になり、場所はそのまま残ります。`first-last` を付けると、その外側に**最初と最後**が描かれます。
+- **短い形**（`variant="compact"`）は、前と次の間にプロダクトの文「10 ページ中 3 ページ」を描きます。文がないときは 2 つの数字をスラッシュでつないだ「3 / 10」を描き、開発ビルドでは言葉が足りないことを報告します。番号付きの形は、与えられた幅に収まらないとき、自分で短い形になります。
+- **2 つのサイズ**: `medium`（40）と `small`（32）。`small` は[テーブル](/ja/components/table/)のステータス行のような詰まった場所のためのものです。
+- **右から左**では、行は右から並び、矢印は反転します。数字は、ページの言語の数字で描かれます。
 
 <ComponentSpecs name="pagination" />
-
-### Web での描き方の違い
-
-- 縦に並ぶ形は、`nav` の幅から決まるグリッド自身の列数で描きます。コンテナクエリもメディアクエリも使いません。
-- パッケージのスクリプトがなくても、スタイルシートがすべての状態を描きます。このとき、押下への応え方はオーバーレイです。次の項目を先に書いた場合、描かれる順序は正しくなりますが、フォーカスの順序は次が先のままです。前の項目を先に書いてください。
-- スタイルシートは、右から左のレイアウトで両方の矢印を反転します。アイコンセットがどちらのグリフも反転の対象にしていないデザインシステムでは、スクリプトが反転を取り消します。スクリプトがなければ、項目に `data-mirror="never"` を書いてください。
-- ページネーションは `.tanrei-prose` の外か、`tanrei-not-prose` を付けた部分の中に置いてください。プローズは、その中のアンカーをテキストリンクとして描きます。
 
 ## ガイドライン
 
 ### 推奨
 
-- めくる対象のコンテンツの後に、1 ページに 1 つだけ置きます。
-- どのページでも両方の項目を書き、行き先のないほうは `href` を付けずにおきます。`href` のない項目は描かれません。
-- 方向は、プロダクトの言葉で書きます。「前へ」と「次へ」、「新しい記事」と「古い記事」などです。
+- めくる対象のリストの後に置きます。リストが長いときは、リストの前にも置きます。
+- ページごとにアドレスがあるならリンク（`href`）を、ページがその場で変わるならボタンを使います。
+- [テーブル](/ja/components/table/)の下では、ステータス行にサイズ `small` の短い形を置きます。1 ページの行数を選べるようにするなら、その横に行数のための[セレクト](/ja/components/select/)を置きます。表示中の行の範囲（「248 件中 1〜10 件」）はテーブルのステータスの文です。
+- ページが変わったら、内容が変わる場所で、何が変わったかを伝えます（見出しや、テーブルのステータスの文など）。ページネーションは何も読み上げさせません。
 
 ### 非推奨
 
-- アドレスを変えずに表示だけを切り替えるボタンとして使わない。項目はリンクです。
-- 隣のページを新しいタブで開かない。ひと続きのページは、その場で入れ替わっていくものです。
-- 項目に独自のグリフを付けない。
+- タイトルのあるページが続く並びで、前後のページへ進むために使わない。それは[前後のリンク](/ja/components/previous-next-links/)です。
+- 1 ページしかないリストに表示しない。
+- 最初のページと最後のページで、前と次を隠さない。無効になり、場所はそのまま残ります。
 
 ## アクセシビリティ
 
@@ -162,13 +101,13 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ### コンポーネントが担うこと
 
-- それぞれの項目はブラウザー自身のリンクで、名前はラベル、タイトルの順です（「次へ デザイントークン」）。どちらも画面に描かれています。
-- 矢印は装飾で、支援技術からは隠されます。
-- 見た目の順序は、読む順序と同じです。左から右でも右から左でも、縦に並んだときも、前、次の順です。
-- キーボードフォーカスのリングは、項目の周りに描きます。タイトルは折り返し、項目は読み手の文字サイズに合わせて大きくなります。
+- 1 つのリストを囲む 1 つのナビゲーションランドマークです。各ページと有効な各コントロールはリンクかボタンで、フォーカス順の 1 つの停止位置です。
+- 現在のページは `aria-current="page"` で公開され、色の違いだけでなく塗りつぶしで描かれます。
+- 無効なコントロールはフォーカス順から外れます。矢印と省略記号は支援技術から隠されます。
+- ページの名前には画面に見える番号が含まれるので、見えているものを声に出して操作する人もそのページを押せます。
 
 ### 利用者側で行うこと
 
-- ランドマークには、`aria-label` でプロダクトの言語の名前を付けます。ページにはほかのナビゲーションもあるので、名前で区別できるようにします。Tanrei は言葉を同梱しません。
-- アンカーに `rel="prev"` と `rel="next"` を書きます。
-- 前の項目を、次の項目より先に書きます。
+- ランドマークに `label` で、プロダクトの言語の名前を付けます。ページにはほかのナビゲーションもあるので、名前で区別できるようにします。
+- コントロールに名前を付けます（`previous-label`、`next-label`、`first-last` があるときは `first-label` と `last-label`）。ページには `page-label` で名前を付けます。Tanrei は言葉を同梱しません。
+- リストを入れ替えたら、何が変わったかを伝えます。ページネーションはフォーカスを自分の項目の 1 つに保ちます。押されたコントロールか、そのコントロールが無効になったときは、新しく現在のページになった項目です。

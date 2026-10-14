@@ -39,8 +39,8 @@ import { setWords, watchWords, wordFor, wordLacking } from './primitives/words.j
 const LINK = 'tanrei-link';
 const PROSE = 'tanrei-prose';
 const NOT_PROSE = 'tanrei-not-prose';
-/** A pagination's landmark (pagination.css): a component of classes, whose anchors are its own as an element's are. */
-const PAGINATION = 'tanrei-pagination';
+/** The landmark of a pair of previous and next links (previous-next-links.css): a component of classes, whose anchors are its own as an element's are. */
+const PREVIOUS_NEXT = 'tanrei-previous-next-links';
 /** The variants the spec defines; a design system may add one, which is known by its tokens. */
 const VARIANTS = ['standard', 'inverse'];
 /** `comp.link.underline.visibility` and the `data-underline` of one link (LNK-27): the first is the fallback. */
@@ -112,12 +112,12 @@ const externalWords = (anchor: Element) => wordFor(anchor, 'externalLabel').trim
 
 /**
  * Whether `anchor` is one of prose's own (PRS-16): inside a `.tanrei-prose` and not inside an island of it — a part
- * marked `tanrei-not-prose`, a pagination's landmark, or one of Tanrei's elements, whose content is that component's.
+ * marked `tanrei-not-prose`, the landmark of a pair of previous and next links, or one of Tanrei's elements, whose content is that component's.
  * The nearest of them decides, as in prose.css (a prose inside an island is prose again).
  */
 function inProse(anchor: Element): boolean {
   for (let parent = anchor.parentElement; parent; parent = parent.parentElement) {
-    if (parent.classList.contains(NOT_PROSE) || parent.classList.contains(PAGINATION) || parent.localName.startsWith('tanrei-')) return false;
+    if (parent.classList.contains(NOT_PROSE) || parent.classList.contains(PREVIOUS_NEXT) || parent.localName.startsWith('tanrei-')) return false;
     if (parent.classList.contains(PROSE)) return true;
   }
   return false;

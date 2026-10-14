@@ -2,7 +2,7 @@
 title: "表格"
 description: "呈现有行有列的数据，带具名的列、可选的行标题、说明文字和表尾行。放不下时在自己的框内滚动。列标题可以请求让各行按这一列排序，行也可以被选择；表格自己从不排序。"
 translationOf: components/table.mdx
-sourceHash: c171558813b62e3eb1090573c79888fc17483cba
+sourceHash: c5bff496ab398c6bb6f372ce183a6a1d35192c1e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -207,12 +207,14 @@ table.addEventListener('sort', (event) => {
     </table>
     <div data-part="status">
       <p role="status">第 1–6 个，共 42 个版本</p>
-      <nav class="tanrei-pagination" aria-label="版本发布的页面">
-        <a class="tanrei-pagination-item" data-direction="next" rel="next" href="#状态行">
-          <span class="tanrei-pagination-label">下一页</span>
-          <span class="tanrei-pagination-title">第 7–12 个版本</span>
-        </a>
-      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--tanrei-comp-table-status-gap)">
+        <tanrei-select size="small" label="每页版本数" value="6">
+          <tanrei-option value="6">6</tanrei-option>
+          <tanrei-option value="12">12</tanrei-option>
+          <tanrei-option value="24">24</tanrei-option>
+        </tanrei-select>
+        <tanrei-pagination label="版本发布的页面" variant="compact" size="small" page="1" count="7" previous-label="上一页" next-label="下一页" count-text="第 {page} 页，共 {count} 页"></tanrei-pagination>
+      </div>
     </div>
   </tanrei-table>
 </DemoFrame>
@@ -224,12 +226,14 @@ table.addEventListener('sort', (event) => {
   <table>…</table>
   <div data-part="status">
     <p role="status">第 1–20 件，共 132 件</p>
-    <nav class="tanrei-pagination" aria-label="商品的页面">…</nav>
+    <tanrei-pagination label="商品的页面" variant="compact" size="small" page="1" count="7" previous-label="上一页" next-label="下一页" count-text="第 {page} 页，共 {count} 页"></tanrei-pagination>
   </div>
 </tanrei-table>
 ```
 
 句子位于起始边缘，分页位于末尾；两者并排放不下时，分页排到句子下方。状态行不随各列横向滚动；如果表格的各行在自己的框内滚动，它会留在表格底部。表格什么都不数，也不写任何文字：“第 1–20 件，共 132 件”是你的，用你的语言写。你更改段落的文本时，新的文本会以礼貌（polite）的方式朗读给辅助技术的用户。如果你的 HTML 里没有这个段落，元素上的 `status` 属性会替你写出它。你自己写了段落时，被朗读的就是你写的那一个，这个属性不改变任何东西。
+
+放在末尾的是尺寸为 `small` 的[分页](/zh-cn/components/pagination/)：像这里一样用紧凑形式，或者在用户按页码跳转时用带页码的形式。如果让用户选择每页显示多少行，就在分页之前放一个用于此事的[下拉选择框](/zh-cn/components/select/)，并把两者放进一个由你布局的元素里；当前显示的行的范围是你的句子，不属于分页。[上一页/下一页链接](/zh-cn/components/previous-next-links/)不放在这里：它们通向有标题的页面，而不是同一个列表中的行。表格只负责摆放你给它的内容：页面变化时，由你更换行和句子。
 
 ### 选择行
 

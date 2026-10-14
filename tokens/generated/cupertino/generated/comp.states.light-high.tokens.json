@@ -45652,19 +45652,7 @@
                 "$value": "{tanrei.comp.pagination.item.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "outline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.pagination.item.outline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -45676,19 +45664,7 @@
                 "$value": "{tanrei.comp.pagination.item.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
-                  },
-                  "dev.tanrei.state": "hovered"
-                }
-              }
-            },
-            "title": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.pagination.item.title.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -45700,7 +45676,7 @@
                 "$value": "{tanrei.comp.pagination.item.icon.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -45712,7 +45688,7 @@
                 "$value": "{tanrei.comp.pagination.item.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
                   },
                   "dev.tanrei.state": "hovered"
                 }
@@ -45726,19 +45702,7 @@
                 "$value": "{tanrei.comp.pagination.item.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "outline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.pagination.item.outline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -45750,19 +45714,7 @@
                 "$value": "{tanrei.comp.pagination.item.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
-                  },
-                  "dev.tanrei.state": "focused"
-                }
-              }
-            },
-            "title": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.pagination.item.title.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -45774,7 +45726,7 @@
                 "$value": "{tanrei.comp.pagination.item.icon.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -45786,7 +45738,7 @@
                 "$value": "{tanrei.comp.pagination.item.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
                   },
                   "dev.tanrei.state": "focused"
                 }
@@ -45800,19 +45752,7 @@
                 "$value": "{tanrei.comp.pagination.item.container.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "outline": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.pagination.item.outline.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -45824,19 +45764,7 @@
                 "$value": "{tanrei.comp.pagination.item.label.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
-                  },
-                  "dev.tanrei.state": "pressed"
-                }
-              }
-            },
-            "title": {
-              "color": {
-                "$type": "color",
-                "$value": "{tanrei.comp.pagination.item.title.color}",
-                "$extensions": {
-                  "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -45848,7 +45776,7 @@
                 "$value": "{tanrei.comp.pagination.item.icon.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
-                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
                   },
                   "dev.tanrei.state": "pressed"
                 }
@@ -45858,6 +45786,690 @@
               "color": {
                 "$type": "color",
                 "$value": "{tanrei.comp.pagination.item.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.item.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "disabled"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "current": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.pagination.current.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "hovered": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+              },
+              "dev.tanrei.state": "hovered",
+              "dev.tanrei.derive": {
+                "fixed": "Tanrei shows state by color, not by dimming the whole control."
+              }
+            }
+          },
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.pagination.container.shape}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                },
+                "dev.tanrei.state": "hovered"
+              }
+            }
+          }
+        },
+        "focused": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+              },
+              "dev.tanrei.state": "focused",
+              "dev.tanrei.derive": {
+                "fixed": "Tanrei shows state by color, not by dimming the whole control."
+              }
+            }
+          },
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.pagination.container.shape}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                },
+                "dev.tanrei.state": "focused"
+              }
+            }
+          }
+        },
+        "pressed": {
+          "opacity": {
+            "$type": "number",
+            "$value": 0.7,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+              },
+              "dev.tanrei.state": "pressed",
+              "dev.tanrei.derive": {
+                "fixed": "Pressed is shown by dimming the whole control; there is no hover state."
+              }
+            }
+          },
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.pagination.container.shape}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                },
+                "dev.tanrei.state": "pressed"
+              }
+            }
+          }
+        },
+        "disabled": {
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+              },
+              "dev.tanrei.state": "disabled",
+              "dev.tanrei.derive": {
+                "fixed": "Tanrei shows state by color, not by dimming the whole control."
+              }
+            }
+          },
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.pagination.container.shape}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product splits a long list into numbered pages — search results, the posts of a blog, the rows of a table — and offers a row of page numbers with the current one marked, previous and next, sometimes first and last, and a short form that says only which page of how many where the row has no room. A dense table pages with a smaller row than a page of results."
+                },
+                "dev.tanrei.state": "disabled"
+              }
+            }
+          }
+        }
+      },
+      "previous-next-links": {
+        "item": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.outline.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "title": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.title.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.outline.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "title": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.title.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.container.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.outline.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "title": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.title.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.previous-next-links.item.state-layer.color}",
                 "$extensions": {
                   "dev.tanrei.vocabulary": {
                     "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
@@ -45885,7 +46497,7 @@
           "container": {
             "shape": {
               "$type": "dimension",
-              "$value": "{tanrei.comp.pagination.container.shape}",
+              "$value": "{tanrei.comp.previous-next-links.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
                   "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
@@ -45912,7 +46524,7 @@
           "container": {
             "shape": {
               "$type": "dimension",
-              "$value": "{tanrei.comp.pagination.container.shape}",
+              "$value": "{tanrei.comp.previous-next-links.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
                   "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."
@@ -45939,7 +46551,7 @@
           "container": {
             "shape": {
               "$type": "dimension",
-              "$value": "{tanrei.comp.pagination.container.shape}",
+              "$value": "{tanrei.comp.previous-next-links.container.shape}",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
                   "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page."

@@ -211,6 +211,7 @@ As common nouns: page titles, headings, running text.
 | One-time-code input | ワンタイムコード入力欄 | 一次性验证码输入框 |
 | Page header | ページヘッダー | 页头 |
 | Pagination | ページネーション | 分页 |
+| Previous and next links | 前後のリンク | 上一页/下一页链接 |
 | Popover | ポップオーバー | 弹出框 |
 | Progress indicator | プログレスインジケーター | 进度指示器 |
 | Radio button | ラジオボタン | 单选按钮 |
@@ -432,6 +433,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | One-time-code input | Entrada de código de un solo uso — feminine, short «la entrada»; «Campo de código de un solo uso» is the One-time-code field, and neither is shortened to «campo de código», which is the text field of `type="code"` | वन-टाइम कोड इनपुट | حقل إدخال الرمز لمرة واحدة — short «حقل الرمز»; never «حقل الشيفرة», which is the text field of `type="code"` |
 | Page header | Cabecera de página | पेज हेडर | رأس الصفحة |
 | Pagination | Paginación | पेजिनेशन | التنقل بين الصفحات |
+| Previous and next links | Enlaces anterior y siguiente — plural, «los enlaces» | पिछला और अगला लिंक | روابط السابق والتالي |
 | Popover | Popover — in running text «el popover», masculine, lower case | पॉपओवर | اللوحة المنبثقة |
 | Progress indicator | Indicador de progreso | प्रोग्रेस इंडिकेटर | مؤشر التقدم |
 | Radio button | Botón de opción | रेडियो बटन | زر الاختيار |

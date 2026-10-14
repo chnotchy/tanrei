@@ -1,21 +1,21 @@
-// `@tanrei/web/pagination` — the script side of `@tanrei/web/pagination.css` (specs/pagination.spec.json), for a
-// page that uses `class="tanrei-pagination"` without the components. `@tanrei/web` loads it too.
+// `@tanrei/web/previous-next-links` — the script side of `@tanrei/web/previous-next-links.css` (specs/previous-next-links.spec.json), for a
+// page that uses `class="tanrei-previous-next-links"` without the components. `@tanrei/web` loads it too.
 //
-// The pagination is classes on the product's own `nav` and anchors, and the stylesheet alone draws it in every state.
+// The previous and next links are classes on the product's own `nav` and anchors, and the stylesheet alone draws it in every state.
 // This adds what a stylesheet cannot, through listeners on the document, as the Link's script does (src/link.ts) — no
 // anchor is wrapped, replaced or given a listener of its own:
 //
-//   - the shared press primitive (PGN-10, PGN-11): `data-pressed` named after `sys.behavior.pressed-feedback`
-//     (overlay, ripple, dim, none), on pointer down and on Enter — never Space (PGN-14) — held for press-hold;
-//   - the order (PGN-1): items given next-first are put previous-first, so the focus order is the reading order;
-//   - `rel="prev"` and `rel="next"` where the product left them out (PGN-2);
-//   - the refusals of PGN-3: an address that is only white space, names a script or cannot be read is taken off the
+//   - the shared press primitive (PNL-10, PNL-11): `data-pressed` named after `sys.behavior.pressed-feedback`
+//     (overlay, ripple, dim, none), on pointer down and on Enter — never Space (PNL-14) — held for press-hold;
+//   - the order (PNL-1): items given next-first are put previous-first, so the focus order is the reading order;
+//   - `rel="prev"` and `rel="next"` where the product left them out (PNL-2);
+//   - the refusals of PNL-3: an address that is only white space, names a script or cannot be read is taken off the
 //     anchor, which is then not drawn;
-//   - `data-focus-style`, where the browser has no style queries to read `sys.behavior.focus-style` with (PGN-12);
-//   - `data-tanrei-unmirrored`, where the active icon set does not mark the arrows as mirrored (PGN-21);
-//   - every debug report (PGN-1, PGN-3, PGN-7).
+//   - `data-focus-style`, where the browser has no style queries to read `sys.behavior.focus-style` with (PNL-12);
+//   - `data-tanrei-unmirrored`, where the active icon set does not mark the arrows as mirrored (PNL-21);
+//   - every debug report (PNL-1, PNL-3, PNL-7).
 //
-// What the browser gives an anchor stays the browser's (PGN-2, PGN-14): Enter fires `click` and then follows the
+// What the browser gives an anchor stays the browser's (PNL-2, PNL-14): Enter fires `click` and then follows the
 // address unless the product cancelled the click; a modified or a middle click opens a tab. Nothing here follows a link.
 import { syncFocusStyle } from './primitives/focus-ring.js';
 import { type IconSet, iconSets, systemIconSets } from './generated/icon-sets.js';
@@ -23,15 +23,15 @@ import { LINK_KEYS, readDestination } from './primitives/link.js';
 import { PressController } from './primitives/press.js';
 import { report } from './primitives/report.js';
 
-const ROOT = 'tanrei-pagination';
-const ITEM = 'tanrei-pagination-item';
-const LABEL = 'tanrei-pagination-label';
+const ROOT = 'tanrei-previous-next-links';
+const ITEM = 'tanrei-previous-next-links-item';
+const LABEL = 'tanrei-previous-next-links-label';
 const UNMIRRORED = 'data-tanrei-unmirrored';
 type Direction = 'previous' | 'next';
-/** The glyph each direction draws (PGN-6), which the stylesheet writes; named here to ask the icon set about it. */
+/** The glyph each direction draws (PNL-6), which the stylesheet writes; named here to ask the icon set about it. */
 const ARROWS: Record<Direction, string> = { previous: 'arrow_back', next: 'arrow_forward' };
 const REL: Record<Direction, string> = { previous: 'prev', next: 'next' };
-/** What the observer re-reads a pagination for. */
+/** What the observer re-reads a pair of previous and next links for. */
 const ATTRIBUTES = ['href', 'class', 'data-direction', 'aria-label', 'aria-labelledby', 'data-tanrei-system'];
 
 /** The item a node is in: an anchor with the item's class. */
@@ -40,7 +40,7 @@ function itemOf(node: EventTarget | null): HTMLAnchorElement | null {
   return anchor instanceof HTMLAnchorElement && anchor.classList.contains(ITEM) ? anchor : null;
 }
 
-/** An item's direction: the two the pagination has, `next` where none is written (the prop's default), or null. */
+/** An item's direction: the two the previous and next links have, `next` where none is written (the prop's default), or null. */
 function directionOf(item: Element): Direction | null {
   const written = item.getAttribute('data-direction');
   return written === null || written === 'next' ? 'next' : written === 'previous' ? 'previous' : null;
@@ -69,38 +69,38 @@ const live = (item: HTMLAnchorElement) => item.hasAttribute('href');
 /** The anchors whose address was refused and taken off: said once, as a refusal. */
 const refused = new WeakSet<Element>();
 
-/** One item, read when it is seen and again when it changes (PGN-2, PGN-3, PGN-7, PGN-21). */
+/** One item, read when it is seen and again when it changes (PNL-2, PNL-3, PNL-7, PNL-21). */
 function readItem(item: HTMLAnchorElement) {
   const given = item.getAttribute('href');
   if (given !== null) {
     const { href, refusal } = readDestination(given);
     if (href === null) {
-      // White space is no destination and no finding (PGN-3): the sequence has no page on that side.
+      // White space is no destination and no finding (PNL-3): the sequence has no page on that side.
       item.removeAttribute('href');
       if (refusal) {
         refused.add(item);
-        report(item, 'PGN-3', refusal === 'script' ? 'href names a script to run, not a place to go; it is taken off and the item is not drawn' : `href "${given}" cannot be read as an address; it is taken off and the item is not drawn`);
+        report(item, 'PNL-3', refusal === 'script' ? 'href names a script to run, not a place to go; it is taken off and the item is not drawn' : `href "${given}" cannot be read as an address; it is taken off and the item is not drawn`);
       }
     }
   }
   const direction = directionOf(item);
   if (!direction) {
-    report(item, 'PGN-3', `data-direction "${item.getAttribute('data-direction')}" is not a direction it has ("previous" or "next"); the item is not drawn`);
+    report(item, 'PNL-3', `data-direction "${item.getAttribute('data-direction')}" is not a direction it has ("previous" or "next"); the item is not drawn`);
     return;
   }
   if (!live(item)) return;
-  // PGN-2: how the destination relates to the page.
+  // PNL-2: how the destination relates to the page.
   if (!item.hasAttribute('rel')) item.setAttribute('rel', REL[direction]);
-  // PGN-7: the direction is said in words by the label.
+  // PNL-7: the direction is said in words by the label.
   if (!(item.querySelector(`:scope > .${LABEL}`)?.textContent ?? '').trim()) {
-    report(item, 'PGN-7', 'its label is empty, so it does not say its direction in words: the arrow is hidden from assistive technology; give it a span with class "tanrei-pagination-label"');
+    report(item, 'PNL-7', 'its label is empty, so it does not say its direction in words: the arrow is hidden from assistive technology; give it a span with class "tanrei-previous-next-links-label"');
   }
-  // PGN-21: the icon set says whether the arrow is mirrored in a right-to-left layout; the stylesheet mirrors it
+  // PNL-21: the icon set says whether the arrow is mirrored in a right-to-left layout; the stylesheet mirrors it
   // unless this mark says the active set does not.
   item.toggleAttribute(UNMIRRORED, !arrowSet(item)?.mirrored.has(ARROWS[direction]));
 }
 
-/** One landmark (PGN-1, PGN-3): its name, the order of its items, and a second item of a direction. */
+/** One landmark (PNL-1, PNL-3): its name, the order of its items, and a second item of a direction. */
 function readRoot(root: Element) {
   const items = [...root.querySelectorAll<HTMLAnchorElement>(`:scope > a.${ITEM}`)];
   for (const item of items) readItem(item);
@@ -108,14 +108,14 @@ function readRoot(root: Element) {
   for (const item of items) {
     const direction = directionOf(item);
     if (!direction) continue;
-    if (seen.has(direction)) report(item, 'PGN-3', `it is a second "${direction}" item; a pagination holds at most one of each, and this one is not drawn`);
+    if (seen.has(direction)) report(item, 'PNL-3', `it is a second "${direction}" item; a pair of previous and next links holds at most one of each, and this one is not drawn`);
     else seen.set(direction, item);
   }
-  // PGN-1: previous, then next, in the document and so in the focus order, whatever order the product gave them in.
+  // PNL-1: previous, then next, in the document and so in the focus order, whatever order the product gave them in.
   const [previous, next] = [seen.get('previous'), seen.get('next')];
   if (previous && next && next.compareDocumentPosition(previous) & Node.DOCUMENT_POSITION_FOLLOWING) next.before(previous);
   if (items.some(live) && !(root.getAttribute('aria-label') ?? '').trim() && !root.hasAttribute('aria-labelledby')) {
-    report(root, 'PGN-1', 'the landmark has no accessible name; give it aria-label ("Pages"), which tells it from the page’s other navigation');
+    report(root, 'PNL-1', 'the landmark has no accessible name; give it aria-label ("Pages"), which tells it from the page’s other navigation');
   }
 }
 
@@ -131,7 +131,7 @@ function pressOf(item: HTMLAnchorElement): PressController {
   if (!press) {
     press = new PressController(item, {
       container: () => item,
-      // The item's first transition is the hold (pagination.css), so its delay is press-hold as a time.
+      // The item's first transition is the hold (previous-next-links.css), so its delay is press-hold as a time.
       holdCarrier: () => item,
       disabled: () => !live(item),
       keys: LINK_KEYS,
@@ -141,17 +141,17 @@ function pressOf(item: HTMLAnchorElement): PressController {
   return press;
 }
 
-const OBSERVING = Symbol.for('tanrei.observe-pagination');
+const OBSERVING = Symbol.for('tanrei.observe-previous-next-links');
 type Stop = (() => void) & { owner?: object };
 type Observed = (Document | ShadowRoot) & { [OBSERVING]?: Stop };
 const OWNER = {};
 
 /**
- * Adds the script side of the pagination to every `.tanrei-pagination` under `root`, now and as the page changes.
- * `@tanrei/web` and `@tanrei/web/pagination` call it for the document when they load; call it yourself for a shadow
+ * Adds the script side of the previous and next links to every `.tanrei-previous-next-links` under `root`, now and as the page changes.
+ * `@tanrei/web` and `@tanrei/web/previous-next-links` call it for the document when they load; call it yourself for a shadow
  * root of your own. Calling it twice for one root observes once. Returns a function that stops.
  */
-export function observePagination(root: Document | ShadowRoot = document): () => void {
+export function observePreviousNextLinks(root: Document | ShadowRoot = document): () => void {
   const observed = root as Observed;
   const running = observed[OBSERVING];
   if (running?.owner === OWNER) return running;
@@ -238,4 +238,4 @@ export function observePagination(root: Document | ShadowRoot = document): () =>
   return stop;
 }
 
-if (typeof document !== 'undefined') observePagination(document);
+if (typeof document !== 'undefined') observePreviousNextLinks(document);

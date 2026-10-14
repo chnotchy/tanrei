@@ -159,8 +159,8 @@ test.describe('the stylesheet', () => {
     const marks = [...read('dist/prose.css').matchAll(/^ *((?::where\([^()]+\)(?:, )?)+) \{\n\s*--_prose-own: 0;/gm)].map((m) => [...m[1].matchAll(/:where\(([^()]+)\)/g)].map((n) => n[1]));
     expect(marks).toHaveLength(1);
     expect(marks[0][0]).toBe('.tanrei-not-prose');
-    // …and the landmark of a pagination: a component of classes, which is no element.
-    expect(marks[0].slice(1).sort()).toEqual([...tags, '.tanrei-pagination'].sort());
+    // …and the landmark of a pair of previous and next links: a component of classes, which is no element.
+    expect(marks[0].slice(1).sort()).toEqual([...tags, '.tanrei-previous-next-links'].sort());
     expect(read('src/styles/prose.css').match(/:where\(\.tanrei-not-prose\)/g)).toHaveLength(1);
     // …and every element rule asks the parent for it (one style query), after the two rules that set it.
     const sheet = read('dist/prose.css').replace(/\/\*[\s\S]*?\*\//g, '');
@@ -193,7 +193,7 @@ test.describe('the stylesheet', () => {
     // 1. Islands are told by a value (`--_prose-own`), never by a selector: a Tanrei tag name is written in the rule
     //    that marks the islands, as the subject of a rule about that element (a callout's measure, a figure's caption)
     //    — and nowhere inside `:not()`, and never before a descendant combinator.
-    const island = /\.tanrei-not-prose|\btanrei-(?!prose|not-prose|link|icon|steps|code\b|pagination)[a-z]/;
+    const island = /\.tanrei-not-prose|\btanrei-(?!prose|not-prose|link|icon|steps|code\b|previous-next-links)[a-z]/;
     const nots = (selector: string): string[] => compounds(selector).flatMap((c) => functions(c.text)).flatMap((fn) => [...(fn.name === 'not' ? [fn.argument] : []), ...list(fn.argument).flatMap((inner) => nots(inner.text))]);
     for (const selector of rules) {
       for (const not of nots(selector)) expect(not, `an island inside :not(): ${selector}`).not.toMatch(island);

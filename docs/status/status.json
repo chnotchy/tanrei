@@ -919,7 +919,8 @@
         "checkbox",
         "tag",
         "empty-state",
-        "pagination"
+        "pagination",
+        "select"
       ],
       "hasSpec": true,
       "docs": "/components/table/",
@@ -1057,6 +1058,24 @@
       "uses": [],
       "hasSpec": true,
       "docs": "/components/pagination/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "previous-next-links",
+      "title": "Previous and next links",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/previous-next-links/",
       "platforms": {
         "web": "lagging",
         "swiftui": "planned",
@@ -1789,13 +1808,13 @@
     "web": {
       "planned": 0,
       "lagging": 83,
-      "alpha": 5,
+      "alpha": 6,
       "beta": 0,
       "stable": 0,
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 59,
+      "planned": 60,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1803,7 +1822,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 59,
+      "planned": 60,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1811,7 +1830,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 59,
+      "planned": 60,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1819,7 +1838,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 59,
+      "planned": 60,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,

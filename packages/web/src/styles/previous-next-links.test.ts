@@ -1,6 +1,6 @@
-// `.tanrei-pagination` (pagination.css, src/pagination.ts), driven by specs/pagination.spec.json: every behaviour id
-// (PGN-1…22) is cited by a test title, every fixture has a baseline, and every length, color and time is read back from
-// the tokens, never from a number written here. A fixture cannot set a width, so the stacked form (PGN-5) is a test
+// `.tanrei-previous-next-links` (previous-next-links.css, src/previous-next-links.ts), driven by specs/previous-next-links.spec.json: every behaviour id
+// (PNL-1…22) is cited by a test title, every fixture has a baseline, and every length, color and time is read back from
+// the tokens, never from a number written here. A fixture cannot set a width, so the stacked form (PNL-5) is a test
 // that sets the stage's width; several fixtures share a landmark's name, so the tests of the name give their own markup.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -15,13 +15,13 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '../..');
 const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
 
-const spec = loadSpec('pagination');
+const spec = loadSpec('previous-next-links');
 type P = Page;
 type Direction = 'previous' | 'next';
-const T = (name: string) => `--tanrei-comp-pagination-${name}`;
+const T = (name: string) => `--tanrei-comp-previous-next-links-${name}`;
 const stage = (page: P, id: string) => page.locator(`[data-fixture="${id}"]`);
 const nav = (page: P, id: string) => fixtureHost(page, spec, id);
-const item = (page: P, id: string, direction: Direction) => nav(page, id).locator(`.tanrei-pagination-item[data-direction="${direction}"]`);
+const item = (page: P, id: string, direction: Direction) => nav(page, id).locator(`.tanrei-previous-next-links-item[data-direction="${direction}"]`);
 /** The pseudo-element that is an item's arrow, and the one that is its hit area. */
 const ARROW: Record<Direction, string> = { previous: '::before', next: '::after' };
 const TARGET: Record<Direction, string> = { previous: '::after', next: '::before' };
@@ -39,12 +39,12 @@ const mount = async (page: P, html: string, { direction, ...options }: MountOpti
   await mountFixtures(page, spec, { icons: true, fixtures: [{ id: 't', props: {}, content: html, ...(direction ? { direction } : {}) }], ...options });
 };
 const anchor = (direction: Direction, { href = `#${direction}`, label = direction === 'previous' ? 'Previous' : 'Next', title = direction === 'previous' ? 'Installation' : 'Design tokens', attributes = '' } = {}) =>
-  `<a class="tanrei-pagination-item" data-direction="${direction}" ${href === null ? '' : `href="${href}"`} ${attributes}><span class="tanrei-pagination-label">${label}</span><span class="tanrei-pagination-title">${title}</span></a>`;
-const pages = (inner = `${anchor('previous')}${anchor('next')}`, attributes = 'aria-label="Pages"') => `<nav class="tanrei-pagination" ${attributes}>${inner}</nav>`;
+  `<a class="tanrei-previous-next-links-item" data-direction="${direction}" ${href === null ? '' : `href="${href}"`} ${attributes}><span class="tanrei-previous-next-links-label">${label}</span><span class="tanrei-previous-next-links-title">${title}</span></a>`;
+const pages = (inner = `${anchor('previous')}${anchor('next')}`, attributes = 'aria-label="Pages"') => `<nav class="tanrei-previous-next-links" ${attributes}>${inner}</nav>`;
 /** A page with the stylesheets and NO script of the package: what the stylesheet alone does. */
 const bare = (page: P, body: string) =>
-  page.setContent(`<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>pagination</title>
-    <style>${read('dist/tokens.css')}</style><style>${read('dist/icons.css')}</style><style>${read('dist/pagination.css')}</style>
+  page.setContent(`<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>previous and next links</title>
+    <style>${read('dist/tokens.css')}</style><style>${read('dist/icons.css')}</style><style>${read('dist/previous-next-links.css')}</style>
     <style>body { margin: 16px; inline-size: 720px; background: var(--tanrei-sys-color-surface); }</style>
     </head><body>${body}</body></html>`);
 
@@ -71,7 +71,7 @@ const rgba = (color: string): number[] => {
   return [...parts.slice(0, 3).map(Math.round), Math.round((parts[3] ?? 1) * 100) / 100];
 };
 const color = async (page: P, name: string) => rgba(await resolveColor(page, name));
-/** A color of `target` once it has settled: a state changes over the motion tokens (PGN-13). */
+/** A color of `target` once it has settled: a state changes over the motion tokens (PNL-13). */
 const drawn = async (target: Locator, property: string, pseudo?: string) => {
   let last = await css(target, property, pseudo);
   for (let reads = 0; reads < 60; reads++) {
@@ -96,7 +96,7 @@ const keepHere = (target: Locator) => target.evaluate((el) => el.addEventListene
 
 test.describe('the stylesheet', () => {
   test('every value is a token: no literal color, length, duration or opacity', () => {
-    const body = read('src/styles/pagination.css').replace(/\/\*[\s\S]*?\*\//g, '');
+    const body = read('src/styles/previous-next-links.css').replace(/\/\*[\s\S]*?\*\//g, '');
     const literals = [...body.matchAll(/:\s*([^;{}]+);/g)]
       .map((m) => m[1].replace(/var\([^()]*(\([^()]*\))*[^()]*\)/g, '').replace(/calc\(|\)/g, ''))
       .flatMap((value) => value.match(/#[0-9a-f]{3,8}\b|\brgba?\(|\bhsl|\b\d*\.?\d+(px|rem|em|ms|s)\b/gi) ?? []);
@@ -104,19 +104,19 @@ test.describe('the stylesheet', () => {
     expect(literals.filter((literal) => !['0px', '0s'].includes(literal))).toEqual([]);
   });
 
-  test('a rule has no specificity: one class of the product wins, even in the same layer and written first; the corner rule is the shared one (PGN-12)', async ({ page }) => {
-    await mount(page, `<style>@layer tanrei.components { .mine { row-gap: 3px; } .mine > .one { padding: 7px; } .mine .word { letter-spacing: 3px; } }</style><nav class="tanrei-pagination mine" aria-label="Pages"><a class="tanrei-pagination-item one" href="#a"><span class="tanrei-pagination-label word">Next</span></a></nav>`);
+  test('a rule has no specificity: one class of the product wins, even in the same layer and written first; the corner rule is the shared one (PNL-12)', async ({ page }) => {
+    await mount(page, `<style>@layer tanrei.components { .mine { row-gap: 3px; } .mine > .one { padding: 7px; } .mine .word { letter-spacing: 3px; } }</style><nav class="tanrei-previous-next-links mine" aria-label="Pages"><a class="tanrei-previous-next-links-item one" href="#a"><span class="tanrei-previous-next-links-label word">Next</span></a></nav>`);
     expect(await css(page.locator('.mine'), 'row-gap')).toBe('3px');
     expect(await css(page.locator('.one'), 'padding-top')).toBe('7px');
     expect(await css(page.locator('.word'), 'letter-spacing')).toBe('3px');
     const { SHAPE_CSS } = (await import(path.join(pkg, 'dist/styles/shape.js'))) as { SHAPE_CSS: string };
-    expect(read('dist/pagination.css').replace(/\s+/g, ' ')).toContain(SHAPE_CSS.slice(SHAPE_CSS.indexOf('@supports'), SHAPE_CSS.indexOf('[data-tanrei-shape]::before')).replaceAll('[data-tanrei-shape]', ':where(.tanrei-pagination-item)').replace(/\s+/g, ' ').trim());
-    expect(read('src/styles/pagination.css')).not.toContain('superellipse');
+    expect(read('dist/previous-next-links.css').replace(/\s+/g, ' ')).toContain(SHAPE_CSS.slice(SHAPE_CSS.indexOf('@supports'), SHAPE_CSS.indexOf('[data-tanrei-shape]::before')).replaceAll('[data-tanrei-shape]', ':where(.tanrei-previous-next-links-item)').replace(/\s+/g, ' ').trim());
+    expect(read('src/styles/previous-next-links.css')).not.toContain('superellipse');
   });
 });
 
 test.describe('the landmark and its links', () => {
-  test('PGN-1 one navigation landmark named by label, holding the previous item and then the next and nothing else, in the document and in the focus order, in both directions and whatever order the product gave; an empty label still renders and is reported', async ({ page }) => {
+  test('PNL-1 one navigation landmark named by label, holding the previous item and then the next and nothing else, in the document and in the focus order, in both directions and whatever order the product gave; an empty label still renders and is reported', async ({ page }) => {
     for (const direction of ['ltr', 'rtl'] as const) {
       await mount(page, `<button id="before">before</button>${pages()}<button id="after">after</button>`, { direction });
       const landmark = page.getByRole('navigation', { name: 'Pages', exact: true });
@@ -129,7 +129,7 @@ test.describe('the landmark and its links', () => {
     }
     // Given next-first: the script puts them previous-first; the stylesheet alone already draws them so.
     await mount(page, `<button id="before">before</button>${pages(`${anchor('next')}${anchor('previous')}`)}`);
-    const landmark = page.locator('.tanrei-pagination');
+    const landmark = page.locator('.tanrei-previous-next-links');
     await expect.poll(() => landmark.evaluate((el) => [...el.children].map((child) => child.getAttribute('data-direction')))).toEqual(['previous', 'next']);
     await page.locator('#before').focus();
     await tab(page);
@@ -140,12 +140,12 @@ test.describe('the landmark and its links', () => {
     // No name: it still renders, and a debug build is told.
     const seen = reports(page);
     await mount(page, pages(undefined, ''));
-    await expect(page.locator('.tanrei-pagination-item')).toHaveCount(2);
-    await expect(page.locator('.tanrei-pagination-item').first()).toBeVisible();
-    await expect.poll(() => seen.filter((line) => line.includes('PGN-1'))).toHaveLength(1);
+    await expect(page.locator('.tanrei-previous-next-links-item')).toHaveCount(2);
+    await expect(page.locator('.tanrei-previous-next-links-item').first()).toBeVisible();
+    await expect.poll(() => seen.filter((line) => line.includes('PNL-1'))).toHaveLength(1);
   });
 
-  test('PGN-2 with scripting off an item is the document’s own anchor: two links with their href, rel prev and rel next, each named by its label and then its title, the arrow not in the name', async ({ browser, page }) => {
+  test('PNL-2 with scripting off an item is the document’s own anchor: two links with their href, rel prev and rel next, each named by its label and then its title, the arrow not in the name', async ({ browser, page }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const off = await context.newPage();
     const both = spec.fixtures.find((f) => f.id === 'both')!;
@@ -170,7 +170,7 @@ test.describe('the landmark and its links', () => {
     await expect(page.getByRole('link', { name: 'Next Design tokens', exact: true })).toHaveCount(1);
   });
 
-  test('PGN-3 an item without a destination is not drawn and not exposed; a script’s address, an unreadable one, an unknown direction and a second item of a direction are not drawn and are reported; with no destination at all nothing is drawn, no room is taken and there is no landmark', async ({ page }) => {
+  test('PNL-3 an item without a destination is not drawn and not exposed; a script’s address, an unreadable one, an unknown direction and a second item of a direction are not drawn and are reported; with no destination at all nothing is drawn, no room is taken and there is no landmark', async ({ page }) => {
     await mountSpec(page, ['next-only']);
     await expect(nav(page, 'next-only').locator('a')).toHaveCount(2);
     await expect(nav(page, 'next-only').getByRole('link')).toHaveCount(1);
@@ -182,7 +182,7 @@ test.describe('the landmark and its links', () => {
       pages(`${anchor('previous', { href: '   ' })}${anchor('next')}`, 'aria-label="White space" id="space"'),
       pages(`${anchor('previous', { href: 'javascript:void(0)' })}${anchor('next')}`, 'aria-label="Script" id="script"'),
       pages(`${anchor('previous', { href: 'http://' })}${anchor('next')}`, 'aria-label="Unreadable" id="unreadable"'),
-      pages(`${anchor('previous')}<a class="tanrei-pagination-item" data-direction="first" href="#first" id="unknown"><span class="tanrei-pagination-label">First</span></a>`, 'aria-label="Unknown" id="direction"'),
+      pages(`${anchor('previous')}<a class="tanrei-previous-next-links-item" data-direction="first" href="#first" id="unknown"><span class="tanrei-previous-next-links-label">First</span></a>`, 'aria-label="Unknown" id="direction"'),
       pages(`${anchor('previous')}${anchor('next')}${anchor('next', { attributes: 'id="second"' })}`, 'aria-label="Twice" id="twice"'),
     ].join(''));
     for (const id of ['space', 'script', 'unreadable']) {
@@ -194,25 +194,25 @@ test.describe('the landmark and its links', () => {
     expect(await css(page.locator('#unknown'), 'display')).toBe('none');
     expect(await css(page.locator('#second'), 'display')).toBe('none');
     await expect(page.locator('#twice').getByRole('link')).toHaveCount(2);
-    await expect.poll(() => seen.filter((line) => line.includes('PGN-3')).length).toBe(4);
-    const said = seen.filter((line) => line.includes('PGN-3')).join('\n');
+    await expect.poll(() => seen.filter((line) => line.includes('PNL-3')).length).toBe(4);
+    const said = seen.filter((line) => line.includes('PNL-3')).join('\n');
     for (const words of ['names a script', 'cannot be read', 'data-direction "first"', 'a second "next" item']) expect(said).toContain(words);
     // White space is no finding.
     expect(said).not.toContain('"   "');
 
     // No item has a destination.
-    await mount(page, `<p id="before" style="margin:0">Before.</p>${pages(`${anchor('previous', { href: '' })}<a class="tanrei-pagination-item" data-direction="next"><span class="tanrei-pagination-label">Next</span></a>`)}<p id="after" style="margin:0">After.</p>`);
-    expect(await css(page.locator('.tanrei-pagination'), 'display')).toBe('none');
+    await mount(page, `<p id="before" style="margin:0">Before.</p>${pages(`${anchor('previous', { href: '' })}<a class="tanrei-previous-next-links-item" data-direction="next"><span class="tanrei-previous-next-links-label">Next</span></a>`)}<p id="after" style="margin:0">After.</p>`);
+    expect(await css(page.locator('.tanrei-previous-next-links'), 'display')).toBe('none');
     near((await box(page.locator('#after'))).y, (await box(page.locator('#before'))).bottom, 'no room', 0.05);
     await expect(page.getByRole('navigation')).toHaveCount(0);
     // A destination given later draws it.
     await page.locator('[data-direction="next"]').evaluate((a) => a.setAttribute('href', '#next'));
-    expect(await css(page.locator('.tanrei-pagination'), 'display')).toBe('grid');
+    expect(await css(page.locator('.tanrei-previous-next-links'), 'display')).toBe('grid');
     await expect(page.getByRole('navigation', { name: 'Pages' })).toHaveCount(1);
 
     // The stylesheet alone: no href, an empty one, a script's.
     await page.goto('about:blank');
-    await bare(page, `${pages(`${anchor('previous', { href: '' })}${anchor('next')}`, 'aria-label="One" id="one"')}${pages(`<a class="tanrei-pagination-item" data-direction="previous">x</a>${anchor('next', { href: 'JavaScript:void(0)' })}`, 'aria-label="None" id="none"')}`);
+    await bare(page, `${pages(`${anchor('previous', { href: '' })}${anchor('next')}`, 'aria-label="One" id="one"')}${pages(`<a class="tanrei-previous-next-links-item" data-direction="previous">x</a>${anchor('next', { href: 'JavaScript:void(0)' })}`, 'aria-label="None" id="none"')}`);
     expect(await css(page.locator('#one [data-direction="previous"]'), 'display')).toBe('none');
     expect(await css(page.locator('#one [data-direction="next"]'), 'display')).toBe('grid');
     expect(await css(page.locator('#none'), 'display')).toBe('none');
@@ -220,11 +220,11 @@ test.describe('the landmark and its links', () => {
 });
 
 test.describe('inside a prose', () => {
-  for (const order of [['prose', 'pagination'], ['pagination', 'prose']] as const) {
-    test(`PGN-2, PGN-10 (and PRS-16: a component placed in the flow keeps its own styles): a pagination inside a prose is drawn by its own rules and not as prose’s links, with ${order[1]}.css loaded last, and a press on an item is answered once`, async ({ page }) => {
+  for (const order of [['prose', 'previous-next-links'], ['previous-next-links', 'prose']] as const) {
+    test(`PNL-2, PNL-10 (and PRS-16: a component placed in the flow keeps its own styles): a pair of previous and next links inside a prose is drawn by its own rules and not as prose’s links, with ${order[1]}.css loaded last, and a press on an item is answered once`, async ({ page }) => {
       await mount(page, `<div id="out">${pages()}</div><div class="tanrei-prose"><p>Text with <a id="plain" href="#x">a link</a>.</p>${pages()}</div>`, { system: 'm3-like' });
       for (const name of order) await page.addStyleTag({ content: read(`dist/${name}.css`) });
-      const next = (where: string) => page.locator(`${where} .tanrei-pagination-item[data-direction="next"]`);
+      const next = (where: string) => page.locator(`${where} .tanrei-previous-next-links-item[data-direction="next"]`);
       const [outside, inside] = [next('#out'), next('.tanrei-prose')];
       // Prose is there, and its own anchors are the Link's.
       expect(await css(page.locator('#plain'), 'text-decoration-line')).toBe('underline');
@@ -234,11 +234,11 @@ test.describe('inside a prose', () => {
       for (const pseudo of ['::before', '::after']) {
         for (const property of ['content', 'position', 'inline-size', 'color']) expect(await css(inside, property, pseudo), `${pseudo} ${property}`).toBe(await css(outside, property, pseudo));
       }
-      for (const part of ['.tanrei-pagination-label', '.tanrei-pagination-title']) {
+      for (const part of ['.tanrei-previous-next-links-label', '.tanrei-previous-next-links-title']) {
         for (const property of ['font-size', 'color', 'text-decoration-line']) expect(await css(inside.locator(part), property), `${part} ${property}`).toBe(await css(outside.locator(part), property));
       }
       expect((await box(inside)).height, 'as tall as outside a prose').toBe((await box(outside)).height);
-      // One press, one answer: the pagination's own script, and not the Link's as well.
+      // One press, one answer: the previous and next links's own script, and not the Link's as well.
       expect(await css(page.locator('html'), '--tanrei-sys-behavior-pressed-feedback')).toBe('ripple');
       await inside.scrollIntoViewIfNeeded();
       const place = await box(inside);
@@ -252,7 +252,7 @@ test.describe('inside a prose', () => {
 });
 
 test.describe('layout', () => {
-  test('PGN-4 the row is two columns of equal width, the gap apart, the previous item at the start and the next at the end, both as high as the taller; an item that is not drawn leaves its column empty, so the next item keeps its place and width', async ({ page }) => {
+  test('PNL-4 the row is two columns of equal width, the gap apart, the previous item at the start and the next at the end, both as high as the taller; an item that is not drawn leaves its column empty, so the next item keeps its place and width', async ({ page }) => {
     await mountSpec(page, ['both', 'next-only', 'previous-only', 'long-titles']);
     const gap = await resolveToken(page, T('gap'));
     const outer = await box(nav(page, 'both'));
@@ -279,7 +279,7 @@ test.describe('layout', () => {
     near(first.width, previous.width, 'half the row', 0.01);
   });
 
-  test('PGN-5 given less width than two minimum item widths and the gap, the items stack — each as wide as the pagination, previous above next, the gap between, no room for an item that is not drawn — by the width it is given, not the window’s', async ({ page }) => {
+  test('PNL-5 given less width than two minimum item widths and the gap, the items stack — each as wide as the previous and next links, previous above next, the gap between, no room for an item that is not drawn — by the width it is given, not the window’s', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await mount(page, `<div id="column">${pages()}</div><div id="alone">${pages(`${anchor('previous', { href: '' })}${anchor('next')}`, 'aria-label="First page"')}</div>`);
     await page.addStyleTag({ content: '.stage { padding: 0 !important; }' });
@@ -302,21 +302,21 @@ test.describe('layout', () => {
     for (const narrow of [limit - 1, 400, 320, 200]) {
       await width(narrow);
       const [a, b] = [await box(previous), await box(next)];
-      near(a.width, narrow, `${narrow}: previous as wide as the pagination`, 0.05);
-      near(b.width, narrow, `${narrow}: next as wide as the pagination`, 0.05);
+      near(a.width, narrow, `${narrow}: previous as wide as the previous and next links`, 0.05);
+      near(b.width, narrow, `${narrow}: next as wide as the previous and next links`, 0.05);
       near(b.y - a.bottom, gap, `${narrow}: previous above next, the gap between`, 0.05);
       // No room kept for an item that is not drawn.
       const only = page.locator('#alone [data-direction="next"]');
-      near((await box(page.locator('#alone .tanrei-pagination'))).height, (await box(only)).height, `${narrow}: next alone`, 0.01);
-      near((await box(only)).y, (await box(page.locator('#alone'))).y, `${narrow}: next alone begins the pagination`, 0.01);
+      near((await box(page.locator('#alone .tanrei-previous-next-links'))).height, (await box(only)).height, `${narrow}: next alone`, 0.01);
+      near((await box(only)).y, (await box(page.locator('#alone'))).y, `${narrow}: next alone begins the previous and next links`, 0.01);
     }
     // The window did not change; and in a narrow window a wide container still draws a row.
     expect(page.viewportSize()!.width).toBe(1280);
-    expect(read('src/styles/pagination.css').replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/@media[^{]*(width|inline-size)/);
+    expect(read('src/styles/previous-next-links.css').replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/@media[^{]*(width|inline-size)/);
     // A layer's own minimum width moves the limit.
     await width(600);
     near((await box(previous)).y, (await box(next)).y, 'a row at 600', 0.01);
-    await page.addStyleTag({ content: ':root { --tanrei-comp-pagination-container-min-width: 320px; }' });
+    await page.addStyleTag({ content: ':root { --tanrei-comp-previous-next-links-container-min-width: 320px; }' });
     expect((await box(next)).y).toBeGreaterThan((await box(previous)).bottom);
     // Given next-first and no script to reorder them, the stacked order is still previous, then next.
     await page.goto('about:blank');
@@ -324,7 +324,7 @@ test.describe('layout', () => {
     expect((await box(page.locator('[data-direction="previous"]'))).bottom).toBeLessThanOrEqual((await box(page.locator('[data-direction="next"]'))).y);
   });
 
-  test('PGN-6 an item is a container with the container shape and an edge inside it, its content the padding from the edge: the arrow in a box of the icon size at the start edge of the previous item and the end edge of the next, centred on the height, the gap from the text, whose lines begin at it', async ({ page }) => {
+  test('PNL-6 an item is a container with the container shape and an edge inside it, its content the padding from the edge: the arrow in a box of the icon size at the start edge of the previous item and the end edge of the next, centred on the height, the gap from the text, whose lines begin at it', async ({ page }) => {
     await mountSpec(page, ['both', 'long-titles']);
     const [padding, gap, icon, edge, radius] = await Promise.all([T('container-padding'), T('container-gap'), T('icon-size'), T('outline-width'), T('container-shape')].map((name) => resolveToken(page, name)));
     expect([radius, edge, padding, icon, gap]).toEqual([8, 1, 16, 20, 12]);
@@ -352,7 +352,7 @@ test.describe('layout', () => {
         expect(await css(one, 'grid-column-start', arrow)).toBe(direction === 'previous' ? '1' : '2');
         // The text fills the rest, beside the arrow.
         for (const part of ['label', 'title']) {
-          const text = await box(one.locator(`.tanrei-pagination-${part}`));
+          const text = await box(one.locator(`.tanrei-previous-next-links-${part}`));
           if (direction === 'previous') {
             near(text.x, outer.x + padding + icon + gap, `${id} ${direction} ${part}: after the arrow`, 0.05);
             near(text.right, outer.right - padding, `${id} ${direction} ${part}: to the padding`, 0.05);
@@ -362,25 +362,25 @@ test.describe('layout', () => {
           }
         }
         // Its lines are aligned to the start in the previous item and to the end in the next.
-        expect(await css(one.locator('.tanrei-pagination-title'), 'text-align')).toBe(direction === 'previous' ? 'left' : 'right');
-        const title = await textBox(one.locator('.tanrei-pagination-title'));
+        expect(await css(one.locator('.tanrei-previous-next-links-title'), 'text-align')).toBe(direction === 'previous' ? 'left' : 'right');
+        const title = await textBox(one.locator('.tanrei-previous-next-links-title'));
         if (direction === 'previous') near(title.x, outer.x + padding + icon + gap, 'the title begins beside the arrow', 0.5);
         else near(title.right, outer.right - padding - icon - gap, 'the title ends beside the arrow', 0.5);
         // The content is centred on the item's height: the padding above the label and under the title where it is the taller.
-        const [label, last] = [await box(one.locator('.tanrei-pagination-label')), await box(one.locator('.tanrei-pagination-title'))];
+        const [label, last] = [await box(one.locator('.tanrei-previous-next-links-label')), await box(one.locator('.tanrei-previous-next-links-title'))];
         near(label.y - outer.y, outer.bottom - last.bottom, `${id} ${direction}: centred`, 0.05);
         expect(label.y - outer.y).toBeGreaterThanOrEqual(padding - 0.05);
       }
     }
-    // The verify of PGN-15's numbers: 16, a 16 line, 2, a 26 line, 16.
+    // The verify of PNL-15's numbers: 16, a 16 line, 2, a 26 line, 16.
     near((await box(item(page, 'both', 'next'))).height, 76, '16, a 16 line, 2, a 26 line, 16', 0.05);
   });
 
-  test('PGN-7 the label and the title are set in their text styles, the label gap apart, wrap and are never cut; without a title the label stands alone in the title’s style and color; without a label the title stands alone and it is reported', async ({ page }) => {
+  test('PNL-7 the label and the title are set in their text styles, the label gap apart, wrap and are never cut; without a title the label stands alone in the title’s style and color; without a label the title stands alone and it is reported', async ({ page }) => {
     const seen = reports(page);
     await mountSpec(page, ['both', 'long-titles', 'labels-only']);
     const one = item(page, 'both', 'next');
-    const [label, title] = [one.locator('.tanrei-pagination-label'), one.locator('.tanrei-pagination-title')];
+    const [label, title] = [one.locator('.tanrei-previous-next-links-label'), one.locator('.tanrei-previous-next-links-title')];
     expect(await px(label, 'font-size')).toBe(await resolveToken(page, T('label-typescale-font-size')));
     expect(await css(label, 'font-weight')).toBe(await computed(page, 'font-weight', T('label-typescale-font-weight')));
     expect(await px(title, 'font-size')).toBe(await resolveToken(page, T('title-typescale-font-size')));
@@ -391,7 +391,7 @@ test.describe('layout', () => {
     expect(await css(title, 'text-decoration-line')).toBe('none');
     // Wrapped, nothing hidden.
     for (const direction of ['previous', 'next'] as const) {
-      const long = item(page, 'long-titles', direction).locator('.tanrei-pagination-title');
+      const long = item(page, 'long-titles', direction).locator('.tanrei-previous-next-links-title');
       expect((await box(long)).height).toBeGreaterThan(2 * (await px(long, 'line-height')) - 1);
       expect([await css(long, 'overflow-x'), await css(long, 'text-overflow'), await css(long, 'white-space')]).toEqual(['visible', 'clip', 'normal']);
       expect(await long.evaluate((el) => el.scrollWidth <= el.clientWidth && el.scrollHeight <= el.clientHeight)).toBe(true);
@@ -400,28 +400,28 @@ test.describe('layout', () => {
     }
     // A run with no place to break, longer than the line, breaks inside itself.
     await mount(page, pages(`${anchor('previous', { title: 'averyveryverylongidentifierwithoutanybreakopportunity_thatislongerthantheline_andmustbreakinsideitself' })}${anchor('next')}`));
-    const run = page.locator('[data-direction="previous"] .tanrei-pagination-title');
+    const run = page.locator('[data-direction="previous"] .tanrei-previous-next-links-title');
     expect((await box(run)).height).toBeGreaterThan(await px(run, 'line-height'));
     expect((await textBox(run)).right).toBeLessThanOrEqual((await box(page.locator('[data-direction="previous"]'))).right);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
     // Labels alone.
     await mountSpec(page, ['labels-only']);
     for (const [direction, text] of [['previous', 'Newer'], ['next', 'Older']] as const) {
-      const alone = item(page, 'labels-only', direction).locator('.tanrei-pagination-label');
+      const alone = item(page, 'labels-only', direction).locator('.tanrei-previous-next-links-label');
       await expect(alone).toHaveText(text);
       expect(await px(alone, 'font-size')).toBe(await resolveToken(page, T('title-typescale-font-size')));
       expect(await css(alone, 'font-weight')).toBe(await computed(page, 'font-weight', T('title-typescale-font-weight')));
       expect(rgba(await css(alone, 'color'))).toEqual(await color(page, T('item-title-color')));
-      expect(await css(item(page, 'labels-only', direction).locator('.tanrei-pagination-title'), 'display')).toBe('none');
+      expect(await css(item(page, 'labels-only', direction).locator('.tanrei-previous-next-links-title'), 'display')).toBe('none');
     }
-    expect(seen.filter((line) => line.includes('PGN-7'))).toEqual([]);
+    expect(seen.filter((line) => line.includes('PNL-7'))).toEqual([]);
     // No label: the title alone, and a report.
     await mount(page, pages(`${anchor('previous', { label: '' })}${anchor('next')}`));
     const untitled = page.locator('[data-direction="previous"]');
-    await expect(untitled.locator('.tanrei-pagination-title')).toBeVisible();
-    expect(await css(untitled.locator('.tanrei-pagination-label'), 'display')).toBe('none');
-    expect(await px(untitled.locator('.tanrei-pagination-title'), 'margin-top')).toBe(0);
-    await expect.poll(() => seen.filter((line) => line.includes('PGN-7'))).toHaveLength(1);
+    await expect(untitled.locator('.tanrei-previous-next-links-title')).toBeVisible();
+    expect(await css(untitled.locator('.tanrei-previous-next-links-label'), 'display')).toBe('none');
+    expect(await px(untitled.locator('.tanrei-previous-next-links-title'), 'margin-top')).toBe(0);
+    await expect.poll(() => seen.filter((line) => line.includes('PNL-7'))).toHaveLength(1);
   });
 });
 
@@ -429,8 +429,8 @@ test.describe('states', () => {
   const parts = async (page: P, one: Locator, direction: Direction) => ({
     container: await drawn(one, 'background-color'),
     outline: await drawn(one, 'border-top-color'),
-    label: await drawn(one.locator('.tanrei-pagination-label'), 'color'),
-    title: await drawn(one.locator('.tanrei-pagination-title'), 'color'),
+    label: await drawn(one.locator('.tanrei-previous-next-links-label'), 'color'),
+    title: await drawn(one.locator('.tanrei-previous-next-links-title'), 'color'),
     icon: await drawn(one, 'color', ARROW[direction]),
   });
   const tokens = async (page: P, state: '' | 'hovered-' | 'focused-' | 'pressed-') => ({
@@ -441,7 +441,7 @@ test.describe('states', () => {
     icon: await color(page, T(`item-${state}icon-color`)),
   });
 
-  test('PGN-8 under acme, where the three states differ, an item’s container, outline, label, title and arrow come from the tokens of the highest state — pressed over focused over hovered — and focus by pointer does not select the focused state', async ({ page }) => {
+  test('PNL-8 under acme, where the three states differ, an item’s container, outline, label, title and arrow come from the tokens of the highest state — pressed over focused over hovered — and focus by pointer does not select the focused state', async ({ page }) => {
     await mountSpec(page, ['both'], { system: 'acme', systemCss: await acmeSystemCss() });
     const one = item(page, 'both', 'next');
     const [rest, hovered, focused, down] = [await tokens(page, ''), await tokens(page, 'hovered-'), await tokens(page, 'focused-'), await tokens(page, 'pressed-')];
@@ -478,7 +478,7 @@ test.describe('states', () => {
     expect(await css(next, 'outline-style')).toBe('none');
   });
 
-  test('PGN-9 keyboard focus shows the system’s focus indicator around the item’s container, without animation; focus by pointer shows none', async ({ page }) => {
+  test('PNL-9 keyboard focus shows the system’s focus indicator around the item’s container, without animation; focus by pointer shows none', async ({ page }) => {
     await mountSpec(page, ['both']);
     const one = item(page, 'both', 'previous');
     expect(await css(one, 'outline-style')).toBe('none');
@@ -516,7 +516,7 @@ test.describe('states', () => {
   const pressLog = (page: P) => page.evaluate(() => (window as any).press as { down?: number; on?: number; off?: number; up?: number; seen?: string[] });
   const CLOCK = 1;
 
-  test('PGN-10 PGN-14 a press by Enter or a click is shown at once and for at least press-hold, even when the press ends sooner, and the navigation is not held back for it', async ({ page }) => {
+  test('PNL-10 PNL-14 a press by Enter or a click is shown at once and for at least press-hold, even when the press ends sooner, and the navigation is not held back for it', async ({ page }) => {
     for (const how of ['Enter', 'click'] as const) {
       await mount(page, pages(`${anchor('previous')}${anchor('next', { href: '#there' })}`));
       await rootTokens(page, { '--tanrei-sys-motion-duration-press-hold': '400ms' });
@@ -540,7 +540,7 @@ test.describe('states', () => {
       expect(rgba(log.seen![1]), `${how}: pressed at once`).toEqual(await color(page, T('item-pressed-container-color')));
       expect(log.off! - log.down!, `${how}: held`).toBeGreaterThanOrEqual(hold - CLOCK);
       expect(log.up! - log.down!, `${how}: the press itself was shorter`).toBeLessThan(hold);
-      // PGN-14: the address opened while the press was still shown.
+      // PNL-14: the address opened while the press was still shown.
       const went = await page.evaluate(() => (window as any).went as number);
       expect(went, `${how}: followed`).toBeDefined();
       expect(went, `${how}: not held back`).toBeLessThan(log.off!);
@@ -550,7 +550,7 @@ test.describe('states', () => {
     }
   });
 
-  test('PGN-10 without the package’s script the stylesheet alone shows the press at once and holds it for press-hold', async ({ page }) => {
+  test('PNL-10 without the package’s script the stylesheet alone shows the press at once and holds it for press-hold', async ({ page }) => {
     await bare(page, pages());
     await rootTokens(page, { '--tanrei-sys-motion-duration-press-hold': '1500ms' });
     const next = page.locator('[data-direction="next"]');
@@ -565,7 +565,7 @@ test.describe('states', () => {
     expect(await bg()).toEqual(hovered);
   });
 
-  test('PGN-11 ripple (m3-like): the layer grows from the point of contact — from the center for the keyboard — and the container stays with the state under the press, while the other parts are the pressed tokens’; the control is the pressed item, never both', async ({ page }) => {
+  test('PNL-11 ripple (m3-like): the layer grows from the point of contact — from the center for the keyboard — and the container stays with the state under the press, while the other parts are the pressed tokens’; the control is the pressed item, never both', async ({ page }) => {
     await mountSpec(page, ['both'], { system: 'm3-like' });
     expect(await css(page.locator('html'), '--tanrei-sys-behavior-pressed-feedback')).toBe('ripple');
     const one = item(page, 'both', 'next');
@@ -580,7 +580,7 @@ test.describe('states', () => {
     await expect(ripple).toHaveCount(1);
     expect(await drawn(one, 'background-color')).toEqual(hovered);
     expect(await drawn(ripple, 'background-color')).toEqual(await color(page, T('item-pressed-container-color')));
-    expect(await drawn(one.locator('.tanrei-pagination-title'), 'color')).toEqual(await color(page, T('item-pressed-title-color')));
+    expect(await drawn(one.locator('.tanrei-previous-next-links-title'), 'color')).toEqual(await color(page, T('item-pressed-title-color')));
     expect(await drawn(one, 'border-top-color')).toEqual(await color(page, T('item-pressed-outline-color')));
     near(Number.parseFloat(await ripple.evaluate((el: HTMLElement) => el.style.getPropertyValue('--_x'))), 30 - (await px(one, 'border-left-width')), 'the point of contact', 1.5);
     expect(await css(ripple, 'animation-duration')).toBe(`${(await resolveToken(page, T('motion-feedback-duration'), 'duration')) / 1000}s`);
@@ -609,7 +609,7 @@ test.describe('states', () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
   });
 
-  test('PGN-11 dim (cupertino) applies the pressed opacity to the whole item and draws no layer; none answers nothing; the default is the overlay, on the whole container at once', async ({ page }) => {
+  test('PNL-11 dim (cupertino) applies the pressed opacity to the whole item and draws no layer; none answers nothing; the default is the overlay, on the whole container at once', async ({ page }) => {
     await mountSpec(page, ['both'], { system: 'cupertino' });
     expect(await css(page.locator('html'), '--tanrei-sys-behavior-pressed-feedback')).toBe('dim');
     let one = item(page, 'both', 'next');
@@ -637,17 +637,17 @@ test.describe('states', () => {
     await page.mouse.up();
     await expect(one).not.toHaveAttribute('data-pressed', 'overlay', { timeout: 5000 });
     await rootTokens(page, { '--tanrei-sys-behavior-pressed-feedback': 'none' });
-    await page.addStyleTag({ content: ':root { --tanrei-comp-pagination-item-pressed-container-color: rgb(10, 20, 30); --tanrei-comp-pagination-item-pressed-title-color: rgb(40, 50, 60); }' });
+    await page.addStyleTag({ content: ':root { --tanrei-comp-previous-next-links-item-pressed-container-color: rgb(10, 20, 30); --tanrei-comp-previous-next-links-item-pressed-title-color: rgb(40, 50, 60); }' });
     const hovered = await color(page, T('item-hovered-container-color'));
     await expect.poll(under).toEqual(hovered);
     await page.mouse.down();
     await expect(one).toHaveAttribute('data-pressed', 'none');
     expect(await under()).toEqual(hovered);
-    expect(await drawn(one.locator('.tanrei-pagination-title'), 'color')).toEqual(await color(page, T('item-hovered-title-color')));
+    expect(await drawn(one.locator('.tanrei-previous-next-links-title'), 'color')).toEqual(await color(page, T('item-hovered-title-color')));
     await page.mouse.up();
   });
 
-  test('PGN-12 the corners are eased by sys.shape.corner-smoothing where the browser can (cupertino), and keyboard focus is a glow where sys.behavior.focus-style says so (acme)', async ({ page }) => {
+  test('PNL-12 the corners are eased by sys.shape.corner-smoothing where the browser can (cupertino), and keyboard focus is a glow where sys.behavior.focus-style says so (acme)', async ({ page }) => {
     await mountSpec(page, ['both'], { system: 'cupertino' });
     const one = item(page, 'both', 'next');
     const eases = await page.evaluate(() => CSS.supports('corner-shape', 'superellipse(1)'));
@@ -671,7 +671,7 @@ test.describe('states', () => {
     expect((await drawn(item(page, 'both', 'previous'), 'outline-color'))[3]).toBe(1);
   });
 
-  test('PGN-13 an item changes between its states over the motion tokens, and at once where motion is reduced', async ({ page }) => {
+  test('PNL-13 an item changes between its states over the motion tokens, and at once where motion is reduced', async ({ page }) => {
     await mountSpec(page, ['both']);
     const one = item(page, 'both', 'next');
     const timing = (target: Locator, pseudo?: string) =>
@@ -689,11 +689,11 @@ test.describe('states', () => {
       const found = moving[property] ?? moving[`${property.replace('border-color', 'border-top-color')}`];
       expect(found, property).toEqual([duration, easing]);
     }
-    for (const part of [one.locator('.tanrei-pagination-label'), one.locator('.tanrei-pagination-title')]) expect((await timing(part)).color).toEqual([duration, easing]);
+    for (const part of [one.locator('.tanrei-previous-next-links-label'), one.locator('.tanrei-previous-next-links-title')]) expect((await timing(part)).color).toEqual([duration, easing]);
     expect((await timing(one, '::after')).color).toEqual([duration, easing]);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     expect(Object.keys(await timing(one))).not.toEqual(expect.arrayContaining(['background-color']));
-    expect(Object.keys(await timing(one.locator('.tanrei-pagination-title')))).not.toContain('color');
+    expect(Object.keys(await timing(one.locator('.tanrei-previous-next-links-title')))).not.toContain('color');
     await one.hover();
     expect(rgba(await css(one, 'background-color'))).toEqual(await color(page, T('item-hovered-container-color')));
     await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -701,7 +701,7 @@ test.describe('states', () => {
 });
 
 test.describe('activation', () => {
-  test('PGN-14 Enter and a click emit click once and follow the address; a cancelled click opens nothing; Space emits nothing, shows no press and is left to the page; a modified click is left to the browser', async ({ page }) => {
+  test('PNL-14 Enter and a click emit click once and follow the address; a cancelled click opens nothing; Space emits nothing, shows no press and is left to the page; a modified click is left to the browser', async ({ page }) => {
     await mount(page, `${pages(`${anchor('previous')}${anchor('next', { href: '#there', attributes: 'id="one"' })}`)}<div style="block-size: 3000px"></div>`);
     const next = page.locator('#one');
     await page.evaluate(() => {
@@ -733,7 +733,7 @@ test.describe('activation', () => {
     await tabTo(page, next); // (Safari does not focus a link that is clicked.)
     await page.keyboard.press('Enter');
     expect(await page.evaluate(() => [(window as any).clicks, location.hash])).toEqual([4, '']);
-    // A click with the new-tab modifier reaches the browser uncancelled by the pagination (the test stops it at the window).
+    // A click with the new-tab modifier reaches the browser uncancelled by the previous and next links (the test stops it at the window).
     const cancelled = await page.evaluate(
       () =>
         new Promise<boolean>((resolve) => {
@@ -744,7 +744,7 @@ test.describe('activation', () => {
     expect(cancelled).toBe(false);
   });
 
-  test('PGN-15 an item at least a target high extends nothing; one below the minimum target has its hit area extended on both axes to the target of the input, without changing its visual size', async ({ page }) => {
+  test('PNL-15 an item at least a target high extends nothing; one below the minimum target has its hit area extended on both axes to the target of the input, without changing its visual size', async ({ page }) => {
     await mountSpec(page, ['both', 'labels-only']);
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     for (const [id, direction] of [['both', 'previous'], ['both', 'next'], ['labels-only', 'next']] as const) {
@@ -755,7 +755,7 @@ test.describe('activation', () => {
     }
     near((await box(item(page, 'both', 'next'))).height, 76, '16, a 16 line, 2, a 26 line, 16', 0.05);
     // A layer with less padding: the label alone is lower than the target.
-    await page.addStyleTag({ content: ':root { --tanrei-comp-pagination-container-padding: 4px; }' });
+    await page.addStyleTag({ content: ':root { --tanrei-comp-previous-next-links-container-padding: 4px; }' });
     const low = item(page, 'labels-only', 'next');
     const size = await box(low);
     expect(size.height).toBeLessThan(pointer);
@@ -768,25 +768,25 @@ test.describe('activation', () => {
     await page.mouse.click(size.x + size.width / 2, size.y - (pointer - size.height) / 2 + 1);
     expect(await page.evaluate(() => (window as any).hit)).toBe(true);
     // Touch input: the touch target.
-    const sheet = read('src/styles/pagination.css').replace(/\s+/g, ' ');
-    expect(sheet).toContain('@media (pointer: coarse) { :where(.tanrei-pagination-item) { --_pgn-target: var(--tanrei-sys-target-touch); } }');
+    const sheet = read('src/styles/previous-next-links.css').replace(/\s+/g, ' ');
+    expect(sheet).toContain('@media (pointer: coarse) { :where(.tanrei-previous-next-links-item) { --_pnl-target: var(--tanrei-sys-target-touch); } }');
   });
 
-  test('PGN-16 an item opens its destination where the person is: no target is written, read or marked, and no state is drawn for a destination already visited', async ({ page }) => {
+  test('PNL-16 an item opens its destination where the person is: no target is written, read or marked, and no state is drawn for a destination already visited', async ({ page }) => {
     await mountSpec(page, ['both']);
     for (const direction of ['previous', 'next'] as const) {
       const one = item(page, 'both', direction);
       expect(await one.evaluate((a: HTMLAnchorElement) => [a.target, a.hasAttribute('target'), a.hasAttribute('aria-description')])).toEqual(['', false, false]);
       for (const pseudo of ['::before', '::after']) expect(await css(one, 'content', pseudo)).not.toContain('open_in_new');
     }
-    const sheet = read('src/styles/pagination.css').replace(/\/\*[\s\S]*?\*\//g, '');
+    const sheet = read('src/styles/previous-next-links.css').replace(/\/\*[\s\S]*?\*\//g, '');
     expect(sheet).not.toMatch(/:visited|:link\b|\[target|open_in_new/);
-    expect(read('src/pagination.ts').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/window\.open|\.target\b = |setAttribute\('target'/);
+    expect(read('src/previous-next-links.ts').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/window\.open|\.target\b = |setAttribute\('target'/);
     // One rule colors an item whether followed or not.
-    expect(sheet).toMatch(/color: var\(--_pgn-now-title\)/);
+    expect(sheet).toMatch(/color: var\(--_pnl-now-title\)/);
   });
 
-  test('PGN-17 each arrow is a glyph of the system’s icon set — arrow_back and arrow_forward — drawn as the icon helper draws one: the unselected family and fill, the system’s weight, the optical size following its box, in the icon color; no glyph from the product and no path', async ({ page }) => {
+  test('PNL-17 each arrow is a glyph of the system’s icon set — arrow_back and arrow_forward — drawn as the icon helper draws one: the unselected family and fill, the system’s weight, the optical size following its box, in the icon color; no glyph from the product and no path', async ({ page }) => {
     await mountSpec(page, ['both']);
     const html = page.locator('html');
     const family = (value: string) => value.split(',')[0].trim().replace(/^["']|["']$/g, '');
@@ -806,20 +806,20 @@ test.describe('activation', () => {
       expect(await arrow('opacity')).toBe('1');
       expect(await one.locator('svg, img, .tanrei-icon').count()).toBe(0);
     }
-    expect(read('src/styles/pagination.css')).not.toMatch(/<svg|path\(|url\(/);
+    expect(read('src/styles/previous-next-links.css')).not.toMatch(/<svg|path\(|url\(/);
     // Another system's icon set draws them: its own family.
     await mountSpec(page, ['both'], { system: 'm3-like' });
     expect(family(await css(item(page, 'both', 'next'), 'font-family', '::after'))).toBe(family(await css(page.locator('html'), '--tanrei-sys-icon-family-unselected')));
     // Without the icon stylesheet no arrow is drawn and none takes room.
     await page.goto('about:blank');
-    await page.setContent(`<!doctype html><html lang="en" data-tanrei-theme="light"><head><style>${read('dist/tokens.css')}</style><style>${read('dist/pagination.css')}</style></head><body style="inline-size:720px">${pages()}</body></html>`);
+    await page.setContent(`<!doctype html><html lang="en" data-tanrei-theme="light"><head><style>${read('dist/tokens.css')}</style><style>${read('dist/previous-next-links.css')}</style></head><body style="inline-size:720px">${pages()}</body></html>`);
     const bareNext = page.locator('[data-direction="next"]');
     expect([await px(bareNext, 'width', '::after'), await css(bareNext, 'opacity', '::after'), await px(bareNext, 'column-gap')]).toEqual([0, '0', 0]);
   });
 });
 
 test.describe('forced colors, scaling, direction', () => {
-  test('PGN-18 while the platform forces its colors each item’s edge, label, title and arrow are its link color, the edge keeps its width, and the focus ring is its highlight', async ({ page }) => {
+  test('PNL-18 while the platform forces its colors each item’s edge, label, title and arrow are its link color, the edge keeps its width, and the focus ring is its highlight', async ({ page }) => {
     await page.emulateMedia({ forcedColors: 'active' });
     await mountSpec(page, ['both', 'labels-only']);
     const system = (name: string) => page.evaluate((keyword) => { const probe = document.createElement('div'); probe.style.cssText = `color: ${keyword}; forced-color-adjust: none`; document.body.append(probe); const out = getComputedStyle(probe).color; probe.remove(); return out; }, name);
@@ -830,8 +830,8 @@ test.describe('forced colors, scaling, direction', () => {
         expect(rgba(await css(one, 'border-top-color')), `${id} ${direction}`).toEqual(linkText);
         expect(await px(one, 'border-top-width')).toBe(await resolveToken(page, T('outline-width')));
         expect(await css(one, 'border-top-style')).toBe('solid');
-        expect(rgba(await css(one.locator('.tanrei-pagination-label'), 'color'))).toEqual(linkText);
-        if (id === 'both') expect(rgba(await css(one.locator('.tanrei-pagination-title'), 'color'))).toEqual(linkText);
+        expect(rgba(await css(one.locator('.tanrei-previous-next-links-label'), 'color'))).toEqual(linkText);
+        if (id === 'both') expect(rgba(await css(one.locator('.tanrei-previous-next-links-title'), 'color'))).toEqual(linkText);
         expect(rgba(await css(one, 'color', ARROW[direction]))).toEqual(linkText);
       }
     }
@@ -841,26 +841,26 @@ test.describe('forced colors, scaling, direction', () => {
     await page.emulateMedia({ forcedColors: 'none' });
   });
 
-  test('PGN-19 with the text size enlarged each item grows with its text, both of a row to the taller; the padding, the gaps and the arrow’s box are the tokens’; it still stacks by the width it has; no text is cut or overlaps and the page does not scroll sideways', async ({ page }) => {
+  test('PNL-19 with the text size enlarged each item grows with its text, both of a row to the taller; the padding, the gaps and the arrow’s box are the tokens’; it still stacks by the width it has; no text is cut or overlaps and the page does not scroll sideways', async ({ page }) => {
     const measure = async (enlarged: boolean) => {
       await mountSpec(page, ['long-titles']);
       if (enlarged) await page.addStyleTag({ content: 'html { font-size: 200%; }' });
       await page.evaluate(() => document.fonts.ready);
       const [previous, next] = [item(page, 'long-titles', 'previous'), item(page, 'long-titles', 'next')];
-      const title = previous.locator('.tanrei-pagination-title');
+      const title = previous.locator('.tanrei-previous-next-links-title');
       return {
         title: await px(title, 'font-size'),
-        label: await px(previous.locator('.tanrei-pagination-label'), 'font-size'),
+        label: await px(previous.locator('.tanrei-previous-next-links-label'), 'font-size'),
         heights: [(await box(previous)).height, (await box(next)).height],
         padding: [(await px(previous, 'padding-top')) + (await px(previous, 'border-top-width')), await resolveToken(page, T('container-padding'))],
         gap: [await px(previous, 'column-gap'), await resolveToken(page, T('container-gap'))],
-        between: [(await box(title)).y - (await box(previous.locator('.tanrei-pagination-label'))).bottom, await resolveToken(page, T('label-gap'))],
+        between: [(await box(title)).y - (await box(previous.locator('.tanrei-previous-next-links-label'))).bottom, await resolveToken(page, T('label-gap'))],
         arrow: [await px(previous, 'width', '::before'), await resolveToken(page, T('icon-size'))],
         stacked: (await box(next)).y > (await box(previous)).y + 1,
         rowGap: [await px(nav(page, 'long-titles'), 'row-gap'), await resolveToken(page, T('gap'))],
         limit: 2 * (await resolveToken(page, T('container-min-width'))) + (await resolveToken(page, T('gap'))),
         sideways: await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth),
-        cut: await page.evaluate(() => [...document.querySelectorAll('.tanrei-pagination-label, .tanrei-pagination-title')].some((el) => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1)),
+        cut: await page.evaluate(() => [...document.querySelectorAll('.tanrei-previous-next-links-label, .tanrei-previous-next-links-title')].some((el) => el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1)),
       };
     };
     const [rest, large] = [await measure(false), await measure(true)];
@@ -884,14 +884,14 @@ test.describe('forced colors, scaling, direction', () => {
     const [a, b] = [page.locator('[data-direction="previous"]'), page.locator('[data-direction="next"]')];
     near((await box(a)).y, (await box(b)).y, 'a row', 0.01);
     near((await box(a)).height, (await box(b)).height, 'the height of the taller', 0.01);
-    expect((await box(a.locator('.tanrei-pagination-title'))).y).toBeGreaterThanOrEqual((await box(a.locator('.tanrei-pagination-label'))).bottom);
-    expect((await textBox(a.locator('.tanrei-pagination-title'))).bottom).toBeLessThanOrEqual((await box(a)).bottom);
+    expect((await box(a.locator('.tanrei-previous-next-links-title'))).y).toBeGreaterThanOrEqual((await box(a.locator('.tanrei-previous-next-links-label'))).bottom);
+    expect((await textBox(a.locator('.tanrei-previous-next-links-title'))).bottom).toBeLessThanOrEqual((await box(a)).bottom);
   });
 
-  test('PGN-20 the pagination takes its direction from an ancestor inside the page and has none of its own; a change while it is shown is drawn at once, keeping its focus', async ({ page }) => {
+  test('PNL-20 the previous and next links take its direction from an ancestor inside the page and has none of its own; a change while it is shown is drawn at once, keeping its focus', async ({ page }) => {
     await mount(page, `<section id="around" dir="rtl" style="inline-size:720px">${pages()}</section>`);
     expect(await page.evaluate(() => document.documentElement.dir)).toBe('');
-    const landmark = page.locator('.tanrei-pagination');
+    const landmark = page.locator('.tanrei-previous-next-links');
     expect(await landmark.evaluate((el) => el.hasAttribute('dir') || !!el.querySelector('[dir]'))).toBe(false);
     const [previous, next] = [page.locator('[data-direction="previous"]'), page.locator('[data-direction="next"]')];
     expect((await box(previous)).x).toBeGreaterThan((await box(next)).x);
@@ -913,18 +913,18 @@ test.describe('forced colors, scaling, direction', () => {
     expect((await box(page.locator('[data-direction="previous"]'))).x).toBeGreaterThan((await box(page.locator('[data-direction="next"]'))).x);
   });
 
-  test('PGN-21 right to left the previous item stands at the right with its arrow at its right edge and the next at the left with its arrow at its left edge, both arrows mirrored as the icon set marks them; an icon set that marks neither draws them unmirrored; the reading and focus order stay previous, then next', async ({ page }) => {
+  test('PNL-21 right to left the previous item stands at the right with its arrow at its right edge and the next at the left with its arrow at its left edge, both arrows mirrored as the icon set marks them; an icon set that marks neither draws them unmirrored; the reading and focus order stay previous, then next', async ({ page }) => {
     await mountSpec(page, ['both-rtl', 'next-only-rtl', 'both']);
     const outer = await box(nav(page, 'both-rtl'));
     const [previous, next] = [item(page, 'both-rtl', 'previous'), item(page, 'both-rtl', 'next')];
-    await expect(previous.locator('.tanrei-pagination-label')).toHaveText('السابق');
-    await expect(next.locator('.tanrei-pagination-label')).toHaveText('التالي');
+    await expect(previous.locator('.tanrei-previous-next-links-label')).toHaveText('السابق');
+    await expect(next.locator('.tanrei-previous-next-links-label')).toHaveText('التالي');
     near((await box(previous)).right, outer.right, 'previous at the right', 0.05);
     near((await box(next)).x, outer.x, 'next at the left', 0.05);
     const [padding, gap, icon] = await Promise.all([T('container-padding'), T('container-gap'), T('icon-size')].map((name) => resolveToken(page, name)));
     // The arrow's column is at the item's outer edge: the text ends (previous) or begins (next) the arrow and the gap from the padding.
-    near((await box(previous.locator('.tanrei-pagination-title'))).right, (await box(previous)).right - padding - icon - gap, 'the previous item’s arrow at its right edge', 0.05);
-    near((await box(next.locator('.tanrei-pagination-title'))).x, (await box(next)).x + padding + icon + gap, 'the next item’s arrow at its left edge', 0.05);
+    near((await box(previous.locator('.tanrei-previous-next-links-title'))).right, (await box(previous)).right - padding - icon - gap, 'the previous item’s arrow at its right edge', 0.05);
+    near((await box(next.locator('.tanrei-previous-next-links-title'))).x, (await box(next)).x + padding + icon + gap, 'the next item’s arrow at its left edge', 0.05);
     expect([await css(previous, 'text-align'), await css(next, 'text-align')]).toEqual(['right', 'left']);
     // Mirrored left to right, each in its own box: arrow_back then points right and arrow_forward left.
     const mirrored = async (one: Locator, direction: Direction) => (await css(one, 'transform', ARROW[direction])).replace(/\s/g, '');
@@ -954,15 +954,15 @@ test.describe('forced colors, scaling, direction', () => {
     // …and the product's word for one use.
     expect(await mirrored(page.locator('#never [data-direction="previous"]'), 'previous')).toBe('none');
     expect(await mirrored(page.locator('#never [data-direction="next"]'), 'next')).toBe('matrix(-1,0,0,1,0,0)');
-    // The pagination mirrors no glyph itself beyond that mark: the row and the content are placed by logical start and end.
-    expect(read('src/styles/pagination.css').replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/(?<!-)\b(left|right):|margin-(left|right)|padding-(left|right)|border-(left|right)/);
+    // The previous and next links mirrors no glyph itself beyond that mark: the row and the content are placed by logical start and end.
+    expect(read('src/styles/previous-next-links.css').replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/(?<!-)\b(left|right):|margin-(left|right)|padding-(left|right)|border-(left|right)/);
   });
 
-  test('PGN-22 a label and a title are text of their own direction, isolated: a left-to-right title in a right-to-left pagination reads in its own order and its lines are aligned as the Arabic label above it', async ({ page }) => {
+  test('PNL-22 a label and a title are text of their own direction, isolated: a left-to-right title in a right-to-left pair reads in its own order and its lines are aligned as the Arabic label above it', async ({ page }) => {
     await mountSpec(page, ['ltr-title-rtl', 'long-titles-rtl']);
     for (const [direction, text] of [['previous', 'Web Components 1.2'], ['next', 'Jetpack Compose']] as const) {
       const one = item(page, 'ltr-title-rtl', direction);
-      const [label, title] = [one.locator('.tanrei-pagination-label'), one.locator('.tanrei-pagination-title')];
+      const [label, title] = [one.locator('.tanrei-previous-next-links-label'), one.locator('.tanrei-previous-next-links-title')];
       await expect(title).toHaveText(text);
       for (const part of [label, title]) expect(await css(part, 'unicode-bidi')).toBe('plaintext');
       expect(await css(title, 'direction')).toBe('rtl');
@@ -976,22 +976,22 @@ test.describe('forced colors, scaling, direction', () => {
       expect(await css(title, 'text-align')).toBe(direction === 'previous' ? 'right' : 'left');
     }
     // Arabic titles that wrap: aligned the same way on every line.
-    const long = item(page, 'long-titles-rtl', 'previous').locator('.tanrei-pagination-title');
+    const long = item(page, 'long-titles-rtl', 'previous').locator('.tanrei-previous-next-links-title');
     expect((await box(long)).height).toBeGreaterThan(await px(long, 'line-height'));
     near((await textBox(long)).right, (await box(long)).right, 'the lines begin at the right', 0.5);
-    // An Arabic title in a left-to-right pagination: placed by the layout, at the left in the previous item.
+    // An Arabic title in a left-to-right pair: placed by the layout, at the left in the previous item.
     await mount(page, pages(`${anchor('previous', { title: 'التثبيت' })}${anchor('next', { title: 'رموز التصميم' })}`));
-    const title = page.locator('[data-direction="previous"] .tanrei-pagination-title');
+    const title = page.locator('[data-direction="previous"] .tanrei-previous-next-links-title');
     near((await textBox(title)).x, (await box(title)).x, 'at the left', 0.5);
-    near((await textBox(page.locator('[data-direction="next"] .tanrei-pagination-title'))).right, (await box(page.locator('[data-direction="next"] .tanrei-pagination-title'))).right, 'at the right', 0.5);
+    near((await textBox(page.locator('[data-direction="next"] .tanrei-previous-next-links-title'))).right, (await box(page.locator('[data-direction="next"] .tanrei-previous-next-links-title'))).right, 'at the right', 0.5);
   });
 });
 
 test.describe('without the script', () => {
-  test('the stylesheet alone draws every fixture: with scripting off the layout is the same box for box (PGN-2, PGN-4, PGN-6)', async ({ page, browser }) => {
+  test('the stylesheet alone draws every fixture: with scripting off the layout is the same box for box (PNL-2, PNL-4, PNL-6)', async ({ page, browser }) => {
     const document = (await fixturesDocument(spec, { icons: true })).replace(/<script type="module">[\s\S]*<\/script>/, '');
     const measure = (p: P) =>
-      p.evaluate(() => [...document.querySelectorAll('.tanrei-pagination, .tanrei-pagination-item, .tanrei-pagination-label, .tanrei-pagination-title')].map((el) => { const r = el.getBoundingClientRect(); return [el.className, Math.round(r.left * 8), Math.round(r.top * 8), Math.round(r.width * 8), Math.round(r.height * 8)].join(' '); }));
+      p.evaluate(() => [...document.querySelectorAll('.tanrei-previous-next-links, .tanrei-previous-next-links-item, .tanrei-previous-next-links-label, .tanrei-previous-next-links-title')].map((el) => { const r = el.getBoundingClientRect(); return [el.className, Math.round(r.left * 8), Math.round(r.top * 8), Math.round(r.width * 8), Math.round(r.height * 8)].join(' '); }));
     await mountSpec(page);
     const context = await browser.newContext({ javaScriptEnabled: false, deviceScaleFactor: 2 });
     const off = await context.newPage();
@@ -1008,7 +1008,7 @@ test.describe('fixtures', () => {
   test('all 9 fixtures are mounted and visible, each a nav with the class around its anchors on a stage 720 wide, and the review gallery draws the same document', async ({ page }) => {
     expect(spec.fixtures).toHaveLength(9);
     await mountSpec(page);
-    await expect(page.locator('.stage > nav.tanrei-pagination')).toHaveCount(9);
+    await expect(page.locator('.stage > nav.tanrei-previous-next-links')).toHaveCount(9);
     for (const f of spec.fixtures) {
       const landmark = nav(page, f.id);
       await expect(landmark, f.id).toHaveCount(1);
@@ -1020,14 +1020,14 @@ test.describe('fixtures', () => {
         const link = item(page, f.id, one.props.direction as Direction);
         await expect(link, f.id).toBeVisible();
         await expect(link).toHaveAttribute('href', String(one.props.href));
-        await expect(link.locator('.tanrei-pagination-label')).toHaveText(String(one.props.label));
-        if (one.props.title) await expect(link.locator('.tanrei-pagination-title')).toHaveText(String(one.props.title));
+        await expect(link.locator('.tanrei-previous-next-links-label')).toHaveText(String(one.props.label));
+        if (one.props.title) await expect(link.locator('.tanrei-previous-next-links-title')).toHaveText(String(one.props.title));
       }
       if (f.direction === 'rtl') expect(await css(landmark, 'direction')).toBe('rtl');
     }
     const gallery = await fixturesDocument(spec, { icons: true, assets: { font: '/f.css', tokens: '/t.css', system: (id) => `/${id}.css`, icons: () => '/i.css', bundle: '/b.js' } });
     for (const f of spec.fixtures) expect(gallery, f.id).toContain(`data-fixture="${f.id}"`);
-    expect(gallery.match(/<div class="stage" data-fixture="[^"]+"(?: dir="rtl")?><nav class="tanrei-pagination"/g)).toHaveLength(9);
+    expect(gallery.match(/<div class="stage" data-fixture="[^"]+"(?: dir="rtl")?><nav class="tanrei-previous-next-links"/g)).toHaveLength(9);
   });
 
   for (const theme of ['light', 'dark'] as const) {

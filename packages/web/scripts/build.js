@@ -112,9 +112,9 @@ fs.writeFileSync(
   'dist/prose.css',
   `${withCode(byName(prose).replaceAll(NOT_PROSE, ['.tanrei-not-prose', ...new Set(tags)].map((name) => `:where(${name})`).join(', ')).replace(LINK_RULES, between(link, 'link:rules').replace(/^/gm, '  ').trim()))}\n@layer tanrei.components {\n  ${between(link, 'link:keyframes').trim()}\n  ${between(code, 'code:context').trim()}\n}\n`,
 );
-// The steps (specs/steps.spec.json) and the pagination (specs/pagination.spec.json) are classes on the product's own
+// The steps (specs/steps.spec.json) and the previous and next links (specs/previous-next-links.spec.json) are classes on the product's own
 // elements, one stylesheet each. The corners are the shared rule, written for the marker's ring in place of the
-// `steps:shape` mark and for an item in place of `pagination:shape`. The steps' rules are also written at the end of
+// `steps:shape` mark and for an item in place of `previous-next-links:shape`. The steps' rules are also written at the end of
 // dist/prose.css: prose reaches into a set of steps (it is not an island) and both stylesheets have no specificity, so
 // the one loaded last would decide the list's inset, gaps, measure and the title's text style — with the same rules in
 // both, a set of steps is drawn the same whichever comes last (src/styles/steps.test.ts holds the two together).
@@ -136,10 +136,10 @@ if (!timelineSource.includes(TIMELINE_SHAPE)) throw new Error('timeline.css: now
 const timeline = timelineSource.replace(TIMELINE_SHAPE, TIMELINE_MARKERS.map(shapeFor).join('\n  '));
 fs.writeFileSync('dist/timeline.css', timeline);
 fs.appendFileSync('dist/prose.css', `/* The timeline's own rules (timeline.css), said again after prose's: see scripts/build.js. */\n${between(timeline, 'timeline:rules').trim()}\n`);
-const PAGINATION_SHAPE = '/* pagination:shape */';
-const paginationSource = writeGlyphAxes(sheet('src/styles/pagination.css'));
-if (!paginationSource.includes(PAGINATION_SHAPE)) throw new Error('pagination.css: nowhere to write the corner rule');
-fs.writeFileSync('dist/pagination.css', paginationSource.replace(PAGINATION_SHAPE, shapeFor(':where(.tanrei-pagination-item)')));
+const PREVIOUS_NEXT_SHAPE = '/* previous-next-links:shape */';
+const previousNextSource = writeGlyphAxes(sheet('src/styles/previous-next-links.css'));
+if (!previousNextSource.includes(PREVIOUS_NEXT_SHAPE)) throw new Error('previous-next-links.css: nowhere to write the corner rule');
+fs.writeFileSync('dist/previous-next-links.css', previousNextSource.replace(PREVIOUS_NEXT_SHAPE, shapeFor(':where(.tanrei-previous-next-links-item)')));
 // The table (specs/table.spec.json) is an element with no shadow root and one stylesheet that draws everything:
 // dist/table.css is the source as it is, for a page that draws its tables before any script runs, and the same text
 // (without its comments) is written into the element, which adds it to the root it is connected to — the compiled
@@ -331,4 +331,4 @@ fs.rmSync('dist/links/node', { recursive: true, force: true });
 fs.mkdirSync('dist/links/node', { recursive: true });
 for (const file of fs.readdirSync('src/links/node')) if (/\.(?:js|d\.ts)$/.test(file)) fs.copyFileSync(`src/links/node/${file}`, `dist/links/node/${file}`);
 fs.chmodSync('dist/links/node/cli.js', 0o755);
-console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/pagination.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/systems/*.css, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));
+console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/systems/*.css, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));

@@ -10,7 +10,8 @@
     "checkbox",
     "tag",
     "empty-state",
-    "pagination"
+    "pagination",
+    "select"
   ],
   "anatomy": [
     {
@@ -92,7 +93,7 @@
     },
     {
       "id": "status",
-      "description": "One line under the last row, outside the columns: the product's sentence about what the table shows now (how many rows, how many chosen) at the start edge, and its pagination at the end edge. It does not scroll sideways with the columns.",
+      "description": "One line under the last row, outside the columns: the product's sentence about what the table shows now (the range of rows shown, how many are chosen) at the start edge, and its pagination at the end edge. It does not scroll sideways with the columns.",
       "optional": true
     }
   ],
@@ -357,7 +358,7 @@
     },
     {
       "name": "pagination",
-      "description": "What stands at the end edge of the status line: the product's Pagination, or its own controls for the part of the rows that is shown. The table places it and does nothing else to it. A fixture's string is drawn as plain text in its place.",
+      "description": "What stands at the end edge of the status line: one element, the product's Pagination — at size small, and compact where the product does not page by number — or a group the product lays out of a Select for the rows per page and that Pagination, as the table paginations of Carbon and MUI are. The range of rows shown (\"1–20 of 132\") is the status text, not the slot's. It is never Previous and next links, which lead to titled pages and not to the rows of one list. The table places it and does nothing else to it. A fixture's string is drawn as plain text in its place.",
       "fixture": "text"
     }
   ],
@@ -7627,7 +7628,7 @@
         }
       ],
       "slots": {
-        "pagination": "Next: products 5 to 8"
+        "pagination": "Page 1 of 33"
       }
     },
     {
@@ -7745,7 +7746,7 @@
         }
       ],
       "slots": {
-        "pagination": "Next: products 5 to 8"
+        "pagination": "Page 1 of 33"
       }
     },
     {
@@ -7893,7 +7894,7 @@
         }
       ],
       "slots": {
-        "pagination": "Next: products 5 to 8"
+        "pagination": "Page 1 of 33"
       }
     },
     {
@@ -8153,7 +8154,7 @@
         }
       ],
       "slots": {
-        "pagination": "التالي"
+        "pagination": "الصفحة 1 من 1"
       }
     },
     {

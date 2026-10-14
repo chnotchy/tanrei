@@ -149,7 +149,7 @@ const SUBJECTS = [
   // event under way in its primary fill, the empty ring, the connector, and the gaps.
   subject('timeline', (fixture) => fixture.id === 'plan', { icons: true }),
   // Both items: the preset's corners (eased in cupertino), hairline, paddings and text roles, and the arrows of its icon set.
-  subject('pagination', (fixture) => fixture.id === 'both', { icons: true }),
+  subject('previous-next-links', (fixture) => fixture.id === 'both', { icons: true }),
   // The facts of an order, ruled: the term's label style and quiet color beside the value's running text, the term
   // column, and how the preset tells facts apart (a hairline, or m3-like's gap). And four figures: the preset's
   // heading style as the figure, its label under it, in columns.
@@ -261,6 +261,10 @@ const SUBJECTS = [
   // A folded trail: a link in the preset's link color with its underline, the overflow button, the separators of its
   // icon set, and the current page heavier in its text color.
   subject('breadcrumbs', (fixture) => fixture.id === 'long-trail', { icons: true }),
+  // First and last, page 12 of 40: the current page's fill and number in the preset's colors, its corners (round in
+  // every preset, eased where a preset's are not), the pages' text role in figures of one width, the ellipses, and the
+  // arrows of its icon set.
+  subject('pagination', (fixture) => fixture.id === 'first-last', { icons: true }),
   subject('tree-view', (fixture) => fixture.id === 'all-parts', { icons: true }),
   // A row of the preset's filter chips that wraps: the chips as the preset draws them (some on, with its check), the
   // distance the preset keeps between two of them and between two lines — the group itself draws nothing.

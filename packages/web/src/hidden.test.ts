@@ -34,7 +34,7 @@ const OPENABLE = declarations.filter((declaration) => declaration.attributes?.so
  * manifest. The element is the one the component's documentation writes the class on (a `div` where none is named
  * here — the class's rules do not ask for a tag).
  */
-const ELEMENT: Record<string, string> = { 'tanrei-link': 'a', 'tanrei-code': 'code', 'tanrei-steps': 'ol', 'tanrei-timeline': 'ol', 'tanrei-pagination': 'nav', 'tanrei-prose': 'div' };
+const ELEMENT: Record<string, string> = { 'tanrei-link': 'a', 'tanrei-code': 'code', 'tanrei-steps': 'ol', 'tanrei-timeline': 'ol', 'tanrei-previous-next-links': 'nav', 'tanrei-prose': 'div' };
 const CLASSES = fs
   .readdirSync(path.join(repo, 'specs'))
   .filter((file) => file.endsWith('.spec.json'))
@@ -44,7 +44,7 @@ const CLASSES = fs
   .map((spec) => spec.platforms!.web!.name!)
   .sort();
 /** The classes a class-form component writes on the product's elements inside it, which name a `display` of their own. */
-const INNER_CLASSES = ['tanrei-pagination-item', 'tanrei-icon', 'tanrei-skeleton-placeholder'];
+const INNER_CLASSES = ['tanrei-previous-next-links-item', 'tanrei-icon', 'tanrei-skeleton-placeholder'];
 
 /** Every stylesheet the package ships for a page (the tokens apart). */
 const SHEETS = fs
@@ -122,7 +122,7 @@ test.describe('hidden hides', () => {
   test('the registry is read: every tag of the manifest, and the class-form components', () => {
     expect(TAGS.length).toBeGreaterThanOrEqual(84);
     expect(OPENABLE).toContain('tanrei-dialog');
-    expect(CLASSES).toEqual(expect.arrayContaining(['tanrei-code', 'tanrei-link', 'tanrei-pagination', 'tanrei-prose', 'tanrei-steps', 'tanrei-timeline']));
+    expect(CLASSES).toEqual(expect.arrayContaining(['tanrei-code', 'tanrei-link', 'tanrei-previous-next-links', 'tanrei-prose', 'tanrei-steps', 'tanrei-timeline']));
   });
 
   test('every element of the package with the hidden attribute has no box in the document', async ({ page }) => {

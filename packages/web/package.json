@@ -15,7 +15,7 @@
     "./dist/link.js",
     "./dist/steps.js",
     "./dist/timeline.js",
-    "./dist/pagination.js",
+    "./dist/previous-next-links.js",
     "./dist/components/**/*.js",
     "./dist/tanrei.bundle.js",
     "**/*.css"
@@ -53,9 +53,9 @@
       "types": "./dist/highlight/index.d.ts",
       "default": "./dist/highlight/index.js"
     },
-    "./pagination": {
-      "types": "./dist/pagination.d.ts",
-      "default": "./dist/pagination.js"
+    "./previous-next-links": {
+      "types": "./dist/previous-next-links.d.ts",
+      "default": "./dist/previous-next-links.js"
     },
     "./links": {
       "types": "./dist/links/index.d.ts",
@@ -72,7 +72,7 @@
     "./link.css": "./dist/link.css",
     "./steps.css": "./dist/steps.css",
     "./timeline.css": "./dist/timeline.css",
-    "./pagination.css": "./dist/pagination.css",
+    "./previous-next-links.css": "./dist/previous-next-links.css",
     "./table.css": "./dist/table.css",
     "./description-list.css": "./dist/description-list.css",
     "./figure.css": "./dist/figure.css",

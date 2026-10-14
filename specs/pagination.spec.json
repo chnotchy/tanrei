@@ -2,39 +2,40 @@
   "$schema": "./component.schema.json",
   "name": "pagination",
   "title": "Pagination",
-  "summary": "Offers the page before and the page after the one a person is on, in a sequence of pages: two links, each named by a direction and the title of where it leads.",
+  "summary": "Moves through the numbered pages of one list — search results, the posts of a blog, the rows of a table: a row of page numbers with the current page marked and the pages that do not fit left out behind an ellipsis, previous and next, first and last where the product asks for them, and a short form that says which page of how many. Each page is a link to its address, or a button where the product changes the page in place.",
   "category": "navigation",
   "level": "base",
   "listing": "default",
   "anatomy": [
     {
       "id": "root",
-      "description": "The navigation landmark: one row with a place for the previous item at its start and a place for the next item at its end. It draws nothing of its own."
+      "description": "The navigation landmark: as wide as its layout gives it, holding one row of items at its start edge. It draws nothing of its own."
     },
     {
-      "id": "container",
-      "description": "An item's shape: the whole of it is one link. It has no fill at rest and is where hover, focus and press are drawn."
-    },
-    {
-      "id": "outline",
-      "description": "An item's edge: the one hairline, which bounds what is pressed."
-    },
-    {
-      "id": "icon",
-      "description": "The arrow the pagination draws in an item: arrow_back at the start edge of the previous item, arrow_forward at the end edge of the next. Decorative; mirrored in a right-to-left layout by the icon helper."
+      "id": "item",
+      "description": "One place of the row that can be pressed: a page, or one of the controls first, previous, next and last. As high as its size, at least as wide, and where hover, focus and press are drawn."
     },
     {
       "id": "label",
-      "description": "The direction in a word of the product's (\"Previous\", \"Next\"), above the title."
+      "description": "A page's number, in the digits of the language of where the pagination is used."
     },
     {
-      "id": "title",
-      "description": "The title of the page the item leads to. It wraps and is never cut.",
+      "id": "icon",
+      "description": "The arrow of a control, from the system's icon set: first_page, chevron_left, chevron_right and last_page. Decorative; mirrored in a right-to-left layout by the icon helper."
+    },
+    {
+      "id": "ellipsis",
+      "description": "The mark that stands for the pages left out, in a place as wide as an item. It is not a control and is hidden from assistive technology.",
+      "optional": true
+    },
+    {
+      "id": "count",
+      "description": "The short form's sentence, between previous and next: which page of how many (\"Page 3 of 10\").",
       "optional": true
     },
     {
       "id": "focus-ring",
-      "description": "The indicator shown for keyboard focus, around an item's container."
+      "description": "The indicator shown for keyboard focus, around an item."
     }
   ],
   "props": [
@@ -42,527 +43,623 @@
       "name": "label",
       "type": "string",
       "default": "",
-      "description": "The accessible name of the landmark (\"Pages\", \"Chapter navigation\"), in the product's language. Tanrei ships no words of its own. It tells this landmark from the page's other navigation, so it is required."
-    }
-  ],
-  "items": [
+      "description": "The accessible name of the landmark (\"Pages\", \"Search results pages\"), in the product's language. Tanrei ships no words of its own. It tells this landmark from the page's other navigation, so it is required."
+    },
     {
-      "name": "item",
-      "summary": "One neighbouring page of the sequence: a link to it, named by a direction and its title.",
-      "props": [
-        {
-          "name": "direction",
-          "type": "enum",
-          "values": [
-            "previous",
-            "next"
-          ],
-          "default": "next",
-          "description": "Which neighbour the item leads to. previous: the page before, placed at the start with the arrow arrow_back. next: the page after, placed at the end with the arrow arrow_forward. A pagination holds at most one item of each."
-        },
-        {
-          "name": "label",
-          "type": "string",
-          "default": "",
-          "description": "The direction in the product's words (\"Previous\", \"Next\"; \"Newer\", \"Older\"). It is drawn above the title and begins the item's accessible name."
-        },
-        {
-          "name": "title",
-          "type": "string",
-          "default": "",
-          "description": "The title of the page the item leads to (\"Installation\"). Empty, the item shows its direction alone (PGN-7)."
-        },
-        {
-          "name": "href",
-          "type": "string",
-          "default": "",
-          "description": "The destination: an address as the platform's links take one. Empty, there is no page on that side and the item is not drawn (PGN-3), so a product can always give both items and leave one without a destination on the first and the last page."
-        }
+      "name": "page",
+      "type": "number",
+      "default": 1,
+      "description": "The current page, counted from 1. Activating another page sets it (PGN-7)."
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "default": 1,
+      "description": "How many pages there are. Below 1 the pagination draws nothing (PGN-3)."
+    },
+    {
+      "name": "siblings",
+      "type": "number",
+      "default": 1,
+      "description": "How many pages are shown on each side of the current page in the numbered form (PGN-2)."
+    },
+    {
+      "name": "boundaries",
+      "type": "number",
+      "default": 1,
+      "description": "How many pages are always shown at the start and at the end of the numbered form (PGN-2)."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "numbered",
+        "compact"
       ],
-      "events": [
+      "default": "numbered",
+      "description": "numbered: the page numbers, with the controls on either side; it draws the compact form where its row does not fit (PGN-11). compact: the controls and the sentence that says which page of how many, never the numbers — for a narrow place, a table's status line, or a list whose pages are not reached by number."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium"
+      ],
+      "default": "medium",
+      "axis": "tanrei.comp.pagination.size",
+      "description": "An item's height (32 / 40 under the default system). small is for a dense place, such as the status line of a compact table. The hit area always meets the minimum target. A design system may add sizes."
+    },
+    {
+      "name": "firstLast",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws first and last on either side of previous and next, for a list long enough that its ends are worth a control of their own."
+    },
+    {
+      "name": "href",
+      "type": "string",
+      "default": "",
+      "description": "The address of a page, with the place {page}, which the pagination fills with the page's number (\"/results/?page={page}\"). Not empty, every page and every control is a link to its page's address (PGN-6). Empty, they are buttons, and the product changes what is shown when the page changes (PGN-7).",
+      "places": [
         {
-          "name": "click",
-          "description": "The item was activated by pointer, touch, Enter or assistive technology. It is emitted before the destination opens; a product that takes the navigation itself (a client-side router) cancels it (PGN-14)."
+          "name": "page",
+          "kind": "number",
+          "description": "The number of the page the link leads to, counted from 1.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "previousLabel",
+      "type": "string",
+      "default": "",
+      "description": "The previous control's accessible name (\"Previous page\"). Empty reads the product's words. Required.",
+      "words": "previousPageLabel"
+    },
+    {
+      "name": "nextLabel",
+      "type": "string",
+      "default": "",
+      "description": "The next control's accessible name (\"Next page\"). Empty reads the product's words. Required.",
+      "words": "nextPageLabel"
+    },
+    {
+      "name": "firstLabel",
+      "type": "string",
+      "default": "",
+      "description": "The first control's accessible name (\"First page\"). Empty reads the product's words. Required while firstLast is true.",
+      "words": "firstPageLabel"
+    },
+    {
+      "name": "lastLabel",
+      "type": "string",
+      "default": "",
+      "description": "The last control's accessible name (\"Last page\"). Empty reads the product's words. Required while firstLast is true.",
+      "words": "lastPageLabel"
+    },
+    {
+      "name": "pageLabel",
+      "type": "string",
+      "default": "",
+      "description": "A page's accessible name, with the place {page}, which the pagination fills with the page's number as it draws it (\"Page {page}\", \"{page}ページ\"). Empty reads the product's words; where neither gives one, a page is named by its number alone.",
+      "words": "pageLabel",
+      "places": [
+        {
+          "name": "page",
+          "kind": "number",
+          "description": "The page's number, counted from 1.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "countText",
+      "type": "string",
+      "default": "",
+      "description": "The short form's sentence, which the product writes whole in its own language with two places the pagination fills: {page} with the current page and {count} with the number of pages (\"Page {page} of {count}\", \"{count}ページ中{page}ページ\"). Empty reads the product's words; where neither gives one, the short form draws the two numbers with a slash between them (\"3 / 10\"), and a debug build reports it.",
+      "words": "pageCountText",
+      "places": [
+        {
+          "name": "page",
+          "kind": "number",
+          "description": "The current page, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "How many pages there are."
         }
       ]
     }
   ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The user asked for another page, by a page or by first, previous, next or last; carries the page asked for. It is emitted before the page changes and before a link opens its address; a product that cancels it keeps the page as it was and opens nothing — its own router has taken the navigation (PGN-7)."
+    }
+  ],
   "states": [
     "enabled",
+    "disabled",
     "hovered",
     "focused",
-    "pressed"
+    "pressed",
+    "selected"
   ],
   "behavior": [
     {
       "id": "PGN-1",
-      "text": "THE pagination SHALL be one navigation landmark named by label that holds its items in reading order — the previous item, then the next item, whatever order the product gave them in — and nothing else; WHILE label is empty THE pagination SHALL still render, and in debug builds report that the landmark has no accessible name.",
-      "verify": "On the web: a nav element with the accessible name of label; the previous anchor precedes the next anchor in the document and in the focus order, in both layout directions."
+      "text": "THE pagination SHALL be one navigation landmark named by label that holds its items as one list in reading order — first, previous, the pages and ellipses, next, last; in the compact form first, previous, the count sentence, next, last — and nothing else; WHILE label is empty THE pagination SHALL still render, and in debug builds report that the landmark has no accessible name.",
+      "verify": "On the web: a nav element with the accessible name of label holding one list; its items in that order in the document and in the focus order, in both layout directions."
     },
     {
       "id": "PGN-2",
-      "text": "WHILE an item's href is a destination THE pagination SHALL draw that item as the platform's own link to it (the web's anchor element in the document itself, not in a shadow root; SwiftUI's Link; on Compose, Flutter and React Native an element with the platform's link semantics whose address is opened by the platform's opener), so that whatever the platform gives a link — on the web its context menu, opening in a new tab or window, copying and dragging its address, the address shown before it is followed, a crawler that reads it, and a link that works before any script has run — is the platform's, and not the pagination's to draw or to take over; it SHALL expose the link role, named by the item's label followed by its title, with the arrow hidden from assistive technology, and WHERE the platform's links can say how a destination relates to the page (the web's rel) SHALL say previous for the previous item and next for the next.",
-      "verify": "On the web, with scripting turned off: two a elements with their href, rel prev and rel next; the accessible name of the fixture both's next item is \"Next Design tokens\"."
+      "text": "THE numbered form SHALL show the pages 1 to boundaries, the pages count − boundaries + 1 to count, and the current page with siblings pages on each side of it, and SHALL draw an ellipsis in place of the pages left out between two of these runs; WHERE the ellipsis would stand for one page only THE numbered form SHALL draw that page instead. WHILE the current page is near an end THE numbered form SHALL show more pages on the other side of it, so that the row holds the same number of places — 2 × boundaries + 2 × siblings + 3 — on every page whenever count is at least that many, and the row keeps its width from page to page.",
+      "verify": "Under siblings 1 and boundaries 1: page 1 of 10 is 1 2 3 4 5 … 10; page 5 is 1 … 4 5 6 … 10; page 10 is 1 … 6 7 8 9 10; page 2 of 5 is 1 2 3 4 5. Under siblings 2 and boundaries 2, page 10 of 30 is 1 2 … 8 9 10 11 12 … 29 30."
     },
     {
       "id": "PGN-3",
-      "text": "IF an item's href is empty or only white space THE pagination SHALL draw nothing for that item and expose nothing for it, because the sequence has no page on that side; IF it names a script to run rather than a place to go (the web's javascript: scheme) or cannot be read as an address by the platform, or direction names a value the pagination does not have, or a second item has the direction of an earlier one, THE pagination SHALL likewise draw nothing for that item and in debug builds report it. WHILE no item has a destination THE pagination SHALL draw nothing, take no room and expose no landmark.",
-      "verify": "The fixture next-only holds a previous item with an empty href: one link is exposed and one is drawn."
+      "text": "THE pagination SHALL read count as a whole number, and WHILE it is below 1 or cannot be read SHALL draw nothing, take no room and expose no landmark; it SHALL read page as a whole number held between 1 and count, and siblings and boundaries as whole numbers of 0 or more (boundaries 0 shows no end pages, so that an ellipsis stands at an end), and in debug builds report each value it had to change.",
+      "verify": "count 0 draws nothing; page 12 of 10 draws page 10 as current and reports it."
     },
     {
       "id": "PGN-4",
-      "text": "THE pagination SHALL lay its row out in two columns of equal width, comp.pagination.gap apart, with the previous item in the column at the start and the next item in the column at the end, each as wide as its column and both as high as the taller of the two; an item that is not drawn SHALL leave its column empty, so that the next item stands at the same place and has the same width on every page of the sequence.",
-      "verify": "The fixtures both and next-only draw their next item at the same place and width."
+      "text": "THE pagination SHALL draw the current page from the current tokens (comp.pagination.current.container.color, comp.pagination.current.label.color and so on) and every other page and every control from the item tokens, and SHALL expose the current page as the current one (on the web aria-current=\"page\") while keeping it the same kind of element as the other pages: a link to its own address while href is given, a button otherwise. WHEN the current page is activated THE pagination SHALL emit no change; a current page that is a link still opens its own address, as any link does.",
+      "verify": "The fixture middle: the page 5 is drawn filled and is the one element with aria-current."
     },
     {
       "id": "PGN-5",
-      "text": "WHERE the layout gives the pagination less width than two times comp.pagination.container.min-width plus comp.pagination.gap THE pagination SHALL stack its items instead: each drawn item as wide as the pagination, the previous item above the next, comp.pagination.gap between them, and no room kept for an item that is not drawn. It SHALL decide this by the width it is given, not by the window's.",
-      "verify": "Under the default system the items stack below a width of 496. Test by setting the width of the stage; a fixture cannot."
+      "text": "WHILE the current page is 1 THE pagination SHALL draw first and previous disabled, and WHILE it is count, next and last disabled: drawn from the disabled state's tokens, exposed as disabled, out of the focus order and not activatable, and in their places, so that the row keeps its width; a disabled control of a pagination with href SHALL have no address.",
+      "verify": "The fixture first-page: previous is disabled, not focusable and has no href in the fixture links-first; next is a link to page 2."
     },
     {
       "id": "PGN-6",
-      "text": "THE pagination SHALL draw each item as a container with corners comp.pagination.container.shape and an edge comp.pagination.outline.width wide inside it, its content comp.pagination.container.padding from the edge on every side: the arrow in a box comp.pagination.icon.size large — arrow_back at the start edge of the previous item, arrow_forward at the end edge of the next — centred on the item's height, comp.pagination.container.gap from the text, and the text filling the rest of the width, its lines aligned to the start in the previous item and to the end in the next, so that each item's text stands beside its arrow.",
-      "verify": "Under the default system: corners 8, an edge of 1, 16 of padding, a 20 arrow 12 from the text."
+      "text": "WHILE href is not empty THE pagination SHALL draw every page and every enabled control as the platform's own link to href with {page} filled with the page it leads to, written as a whole number in Western digits whatever the language, so that whatever the platform gives a link — on the web its context menu, opening in a new tab, copying its address, the address shown before it is followed — is the platform's; it SHALL expose the link role and WHERE the platform's links can say how a destination relates to the page (the web's rel) SHALL say prev for previous and next for next. IF href does not hold the place {page}, or names a script to run (the web's javascript: scheme), THE pagination SHALL draw buttons as if href were empty and in debug builds report it.",
+      "verify": "The fixture links: the page 4 is an anchor to /results/?page=4; previous is an anchor to /results/?page=2 with rel prev."
     },
     {
       "id": "PGN-7",
-      "text": "THE pagination SHALL set an item's label in comp.pagination.label.typescale and, comp.pagination.label.gap under it, its title in comp.pagination.title.typescale; it SHALL wrap both where their language allows a break and, for a run with no such place that is longer than the line, inside the run, and SHALL NOT cut them, draw an ellipsis or scroll. WHILE an item's title is empty THE pagination SHALL draw its label alone, in the title's text style and color. WHILE an item's label is empty THE pagination SHALL draw its title alone and in debug builds report that the item does not say its direction in words.",
-      "verify": "The fixture long-titles wraps both titles on the stage; nothing is hidden and both items have the height of the taller. The fixture labels-only draws \"Newer\" and \"Older\" in the title's style."
+      "text": "WHEN the user activates a page other than the current one, or an enabled control, by pointer, touch, Enter, Space on a button or assistive technology THE pagination SHALL emit change exactly once with the page it leads to — first 1, previous page − 1, next page + 1, last count — and then, unless the product cancelled it, SHALL make that page the current one and, while href is given, open the link's address where the person is; WHEN the product cancels change THE pagination SHALL keep the page it had and open nothing. A link SHALL NOT be activated by Space, which scrolls the page as it does on any link.",
+      "verify": "On the web: clicking page 4 of the fixture default fires change with page 4 and page becomes 4; a listener that calls preventDefault() keeps page 1 and, in the fixture links, the address where it is."
     },
     {
       "id": "PGN-8",
-      "text": "WHILE an item is hovered, keyboard-focused or pressed THE pagination SHALL render its container, outline, label, title, arrow and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered (comp.pagination.item.container.color, comp.pagination.item.outline.color, comp.pagination.item.label.color, comp.pagination.item.title.color and comp.pagination.item.icon.color at rest); focus gained by pointer or touch SHALL NOT select the focused state."
+      "text": "THE pagination SHALL draw previous, next, first and last as icons only — chevron_left, chevron_right, first_page and last_page of the system's icon set, through the platform's icon helper, in a box of comp.pagination.icon.size, in the icon color of their state, with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max — and SHALL name them by previousLabel, nextLabel, firstLabel and lastLabel, taking each from the product's words WHILE it is empty; WHILE a control's name is empty in both THE pagination SHALL still draw it and in debug builds report that it has no accessible name. It SHALL take no glyph from the product and SHALL draw no path of its own.",
+      "verify": "The fixture first-last: four controls, each named by its label; the arrows are hidden from assistive technology."
     },
     {
       "id": "PGN-9",
-      "text": "WHEN an item receives keyboard focus THE pagination SHALL show the focus ring around that item's container without animation — the system's focus indicator, sys.focus.offset from the container, sys.focus.outer-width wide in the focus-ring color, with the inner stroke of sys.focus.inner-width where the system has one; focus gained by pointer or touch SHALL NOT show it."
+      "text": "THE pagination SHALL draw a page's number in comp.pagination.label.typescale, in the digits the platform's number formatting gives for the language where it is used, without grouping separators (1205, not 1,205), and in figures of one width, and SHALL name the page by pageLabel with {page} filled by the number as it is drawn, taking pageLabel from the product's words WHILE it is empty and naming the page by its number alone WHILE neither gives one; the number drawn SHALL stay part of the name, so that a person who says what they see can activate the page.",
+      "verify": "The fixture default: the page 2 is named \"Page 2\" and shows 2; in the fixture rtl the numbers are the digits the platform gives for ar (under a regional language such as ar-EG, ٣ for 3)."
     },
     {
       "id": "PGN-10",
-      "text": "WHEN an item is pressed by pointer, touch or Enter THE pagination SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+      "text": "THE pagination SHALL draw an ellipsis as the character … in comp.pagination.label.typescale and comp.pagination.ellipsis.color, centred in a place as wide as an item is high (comp.pagination.container.height.medium for medium, and so on), hidden from assistive technology, out of the focus order and with no state: the pages left out are said by the numbers on either side of it.",
+      "verify": "The fixture middle: two ellipses, neither exposed nor focusable."
     },
     {
       "id": "PGN-11",
-      "text": "WHILE pressed THE pagination SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, title, icon, outline, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.pagination.motion.feedback-duration with motion.state-easing, fades over motion.state-duration with motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
-      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay. The control is the pressed item, never both."
+      "text": "WHILE variant is compact, or variant is numbered and the width the layout gives the pagination is less than its numbered row needs, THE pagination SHALL draw the compact form: first and previous, then countText with {page} and {count} filled, comp.pagination.count.padding-inline on each side, in comp.pagination.count.typescale and comp.pagination.count.color, then next and last; WHILE countText is empty in both the prop and the product's words THE compact form SHALL draw the two numbers with a slash between them (\"3 / 10\") and in debug builds report it. It SHALL decide this by the width it is given, not by the window's, and the width it asks of a layout that sizes it by its content SHALL be the width of its numbered row, so that it draws the numbered form again where the room comes back. The sentence is text, not a control and not a live region: the product says what changed where the content changes.",
+      "verify": "The fixture compact draws \"Page 3 of 10\" between previous and next. Test the numbered form's fall-back by setting the width of the stage; a fixture cannot."
     },
     {
       "id": "PGN-12",
-      "text": "THE pagination SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
-      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+      "text": "THE pagination SHALL lay its items out in one row at the start edge of its box, comp.pagination.gap apart, each item the container height of its size high (comp.pagination.container.height.medium for medium, and so on) and at least as wide, a page's number centred in it with comp.pagination.container.padding-inline on each side where the number is wider than the square, and each control's arrow centred in its square; it SHALL NOT wrap the row.",
+      "verify": "Under the default system: medium items 40 high and 40 wide for one digit, 4 apart; small items 32."
     },
     {
       "id": "PGN-13",
-      "text": "THE pagination SHALL change an item between its states over comp.pagination.motion.state-duration with comp.pagination.motion.state-easing, and at once where motion is reduced."
+      "text": "WHILE an item is hovered, keyboard-focused, pressed or disabled THE pagination SHALL render its container, label, arrow and opacity from the component tokens of the highest-precedence active state of its part (item or current), with precedence disabled over pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state."
     },
     {
       "id": "PGN-14",
-      "text": "WHEN the user activates an item by pointer, touch or Enter THE pagination SHALL emit that item's click exactly once and then open its href where the person is, unless the product cancelled that click, in which case it SHALL open nothing: the product's own router has taken the navigation. It SHALL NOT hold the navigation back for sys.motion.duration.press-hold. THE pagination SHALL NOT activate an item on Space, which on the web scrolls the page as it does on any link, and SHALL NOT show the pressed state for it; WHERE the platform gives its links other keys or gestures (on the web a modified or a middle click that opens a new tab, on Apple platforms a long press that previews) THE pagination SHALL leave them to the platform.",
-      "verify": "On the web: Enter follows the link and fires click once; Space fires no click and leaves the page to scroll; a click listener that calls preventDefault() keeps the page where it is."
+      "text": "WHEN an item receives keyboard focus THE pagination SHALL show the focus ring around that item without animation — the system's focus indicator, sys.focus.offset from the container, sys.focus.outer-width wide in the focus-ring color, with the inner stroke of sys.focus.inner-width where the system has one; focus gained by pointer or touch SHALL NOT show it."
     },
     {
       "id": "PGN-15",
-      "text": "WHERE the visual size of an item is below the minimum target THE pagination SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch.",
-      "verify": "Under the default system an item is 76 high or more (16 of padding, a 16 label line, 2, a 26 title line, 16 of padding), so nothing is extended; a layer with less padding is where this is seen."
+      "text": "WHEN an enabled item is pressed by pointer, touch, Enter or, on a button, Space THE pagination SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner; it SHALL NOT hold the change or the navigation back for press-hold."
     },
     {
       "id": "PGN-16",
-      "text": "THE pagination SHALL open a destination in the context the person is in and in no other, SHALL draw no mark for a new context and SHALL draw no state for a destination already visited: the pages of one sequence replace one another, and an item's colors say what it is and what state it is in."
+      "text": "WHILE pressed THE pagination SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole item and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, icon, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.pagination.motion.feedback-duration with comp.pagination.motion.state-easing, fades over comp.pagination.motion.state-duration with comp.pagination.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
     },
     {
       "id": "PGN-17",
-      "text": "THE pagination SHALL draw each arrow through the platform's icon helper, as a glyph of the system's icon set, in the icon color of its state, with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; it SHALL take no glyph from the product and SHALL draw no path of its own."
+      "text": "THE pagination SHALL ease its item corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
     },
     {
       "id": "PGN-18",
-      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE pagination SHALL draw each item's edge, label, title and arrow in the platform's link color, keeping the edge comp.pagination.outline.width wide so that what is pressed stays bounded, and SHALL draw the focus ring in the platform's highlight color.",
-      "verify": "On the web, with forced colors emulated: the text and the border are LinkText."
+      "text": "THE pagination SHALL change an item between its states over comp.pagination.motion.state-duration with comp.pagination.motion.state-easing, and at once where motion is reduced; WHEN the current page changes THE pagination SHALL draw the new row at once, without a motion of its own."
     },
     {
       "id": "PGN-19",
-      "text": "WHILE the text size is enlarged THE pagination SHALL grow each item with its text — both items of a row to the height of the taller — keeping comp.pagination.container.padding, comp.pagination.container.gap, comp.pagination.label.gap, comp.pagination.gap and the arrow at comp.pagination.icon.size, and SHALL still stack by the width it is given (PGN-5).",
-      "verify": "At 200 % text size no text is cut or overlaps, and the page does not scroll sideways."
+      "text": "THE pagination SHALL make each enabled item one stop of the focus order, in the order of PGN-1, as the links and buttons of a navigation region are, and SHALL take no arrow key: Tab and Shift+Tab move between items. WHEN the current page changes by an item the person activated THE pagination SHALL keep focus on an item: on the page now current where the person activated a page, and on the control they activated where it is still enabled, otherwise on the page now current — and in the compact form, which draws no pages, on the nearest enabled control (previous after next or last, next after previous or first).",
+      "verify": "Activating next on page 9 of 10 (fixture default, page set to 9): next is disabled on page 10, and focus is on the page 10."
     },
     {
       "id": "PGN-20",
-      "text": "THE pagination SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the pagination is shown THE pagination SHALL draw itself for the new direction at once, without a motion of its own, keeping its focus.",
-      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+      "text": "WHERE the visual size of an item is below the minimum target THE pagination SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size and without overlapping the hit area of its neighbour beyond the gap between them; a platform that cannot tell the input type SHALL use sys.target.touch.",
+      "verify": "Under the default system a small item is 32 high and its hit area sys.target.touch (48) for touch."
     },
     {
       "id": "PGN-21",
-      "text": "WHERE the layout direction is right-to-left THE pagination SHALL mirror its row and each item's content by logical start and end, so that the previous item stands at the right with its arrow at its right edge and the next item at the left with its arrow at its left edge, and SHALL draw both arrows mirrored left to right, so that the previous item's points to the right and the next item's to the left: the icon helper mirrors them inside their own boxes because the system's icon set marks arrow_back and arrow_forward as mirrored. THE pagination SHALL NOT mirror a glyph itself, and the reading and focus order SHALL stay previous, then next.",
-      "verify": "The fixture both-rtl: «السابق» at the right with an arrow pointing right, «التالي» at the left with an arrow pointing left. A system whose icon set marks neither name draws them unmirrored."
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE pagination SHALL draw the numbers, the arrows and the count sentence in the platform's text or link color, the current page in the platform's highlight colors, a disabled control in the platform's disabled text color, and the focus ring in the platform's highlight color.",
+      "verify": "On the web, with forced colors emulated: the current page is Highlight with HighlightText; a disabled control is GrayText."
     },
     {
       "id": "PGN-22",
-      "text": "THE pagination SHALL lay out each label and each title as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right name, a number with its sign or unit and a version keep their own order in a right-to-left layout and reorder nothing beside them; THE pagination SHALL still place the text and align its lines by the layout direction and the item's side (PGN-6), not by the text's own.",
-      "verify": "The fixture ltr-title-rtl draws a left-to-right title in a right-to-left stage: the title reads in its own order and its lines are aligned as the Arabic label above it."
+      "text": "WHILE the text size is enlarged THE pagination SHALL grow each item with its number, never below the container height of its size (comp.pagination.container.height.medium for medium, and so on), keeping comp.pagination.gap and the arrows at comp.pagination.icon.size, and SHALL draw the compact form where the grown row no longer fits (PGN-11).",
+      "verify": "At 200 % text size no number is cut or overlaps, and the page does not scroll sideways."
+    },
+    {
+      "id": "PGN-23",
+      "text": "THE pagination SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHERE that direction is right-to-left THE pagination SHALL lay its row from the right — first at the right edge, last at the left — keeping the reading and focus order of PGN-1, and SHALL draw the arrows mirrored where the system's icon set marks them as mirrored; THE pagination SHALL NOT mirror a glyph itself. WHEN the direction changes while the pagination is shown THE pagination SHALL draw itself for the new direction at once, keeping its focus.",
+      "verify": "The fixture rtl: page 1 at the right; previous at the right of the numbers with chevron_left mirrored to point right."
+    },
+    {
+      "id": "PGN-24",
+      "text": "THE pagination SHALL lay out the count sentence as text of its own direction, isolated from the text around it, and each number as a number that keeps its own order in a right-to-left layout, so that \"3 / 10\" reads 3 then 10 in either direction.",
+      "verify": "The fixture rtl-compact: the sentence reads in Arabic, with its numbers in place."
     }
   ],
   "accessibility": {
     "role": "navigation",
     "keyboard": [
       {
-        "keys": "Tab",
-        "action": "Moves focus to the previous item, then to the next: each drawn item is a tab stop, as the links of a navigation region are."
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus through the enabled items in reading order: each page and each enabled control is a tab stop, as the links of a navigation region are. The current page is a stop too; a disabled control is not."
       },
       {
         "keys": "Enter",
-        "action": "Follows the focused item. Space does what it does on any link (on the web it scrolls the page)."
+        "action": "Activates the focused item: goes to its page."
+      },
+      {
+        "keys": "Space",
+        "action": "Activates the focused item where the items are buttons. Where they are links it scrolls the page, as on any link."
       }
     ],
-    "labeling": "The landmark is named by label, which is required: a page has other navigation, and the name tells this one apart. Each item is a link named by its label and then its title (\"Next Design tokens\"), both of which are drawn, so the name a person hears holds the words a person sees; the arrow is decorative. Nothing is added to the name.",
+    "labeling": "The landmark is named by label, which is required: a page has other navigation, and the name tells this one apart. Each page is named by pageLabel with its number (\"Page 3\"), which holds the number a person sees; the current page is exposed as the current one (aria-current=\"page\"), so the name says nothing of it. The controls are icon-only and named by previousLabel, nextLabel, firstLabel and lastLabel. The arrows and the ellipsis are hidden from assistive technology.",
     "minimumTarget": true,
     "notes": [
-      "An item is a link and never a button: it has a destination, and without one it is not drawn. Paging that changes what is shown without an address — the pages of a result set in place — is a numbered form, which this component does not draw.",
-      "An item is pressed as a whole, so its title is not a second link and is not underlined. A text link is underlined because nothing else tells it from the text beside it; an item is told by its edge, its arrow and its place, none of which is a color. In forced colors the edge and the text take the platform's link color (PGN-18).",
-      "The reading and focus order is previous, then next, in both layout directions and when the items stack; the visual order follows it (WCAG 1.3.2, 2.4.3).",
-      "The direction is said in words by label. The arrow repeats it for sighted people and is hidden from assistive technology; an item with an empty label is reported in debug builds.",
-      "The next item keeps its place when there is no previous page (PGN-4): a person who pages through a sequence finds it where it was.",
-      "Text must remain readable at 200% text size: titles wrap and are never cut, the items grow, and the row stacks by the width it has (PGN-5, PGN-19).",
-      "Contrast in the default system: the title is on-surface and the label and the arrow on-surface-variant, both held to 4.5:1 (7:1 in the high-contrast schemes) on every surface by the token invariants. The edge is outline-variant, the one hairline: it is not held to 3:1, and it does not need to be, because the label, the title and the arrow identify the item without it (WCAG 1.4.11 asks 3:1 of what is required to identify a control). The focus ring is held to 3:1 against every surface.",
+      "A pagination pages one list by number. The page before and after in a sequence of titled pages — the chapters of a guide, the articles of a series — is Previous and next links, which say by title where they lead.",
+      "Links or buttons: a page with an address of its own (a result page a person can bookmark, share or open in a tab) is a link; a list whose page changes in place (the rows of a table, a dialog's list) is a button. href decides.",
+      "The current page is marked by its fill and by aria-current, never by color alone: its fill differs from the rest in lightness, and forced colors draw it in the highlight colors (PGN-21).",
+      "Disabled controls keep their places, so a person who pages through a list finds next where it was (PGN-5). They are out of the focus order: there is nothing to go to.",
+      "The ellipsis is not a control. A person reaches a page it stands for by moving towards it, or by the product's own way to jump to a page; a pagination does not draw a field to type a page into.",
+      "How many rows a page holds, and the range of rows shown (\"1–10 of 248\"), are the list's and not the pagination's: a table says them in its status line, where the pagination stands beside a Select for the rows per page.",
+      "The short form is text: when the page changes, the product says what changed where the content changes (a heading, a status). The pagination announces nothing.",
+      "Contrast in the default system: the numbers and arrows are on-surface, held to 4.5:1 (7:1 in the high-contrast schemes) by the token invariants, and the current page's number on-secondary-container on its fill. The focus ring is held to 3:1 against every surface.",
       "How a state looks is a value decision of the active design system (a state-layer mix in Tanrei, a dim or no hover at all elsewhere). The pagination reads the state's tokens and never computes the effect itself.",
-      "A pagination belongs after the content it pages, once per page. A product that prints its pages hides it in print."
+      "A pagination belongs after the list it pages, and where the list is long, before it too; both name the same landmark by different labels."
     ]
   },
   "tokens": "comp.pagination",
   "fixtures": [
     {
-      "id": "both",
+      "id": "default",
       "props": {
-        "label": "Pages"
-      },
-      "items": [
-        {
-          "kind": "item",
-          "props": {
-            "direction": "previous",
-            "label": "Previous",
-            "title": "Installation",
-            "href": "/getting-started/installation/"
-          }
-        },
-        {
-          "kind": "item",
-          "props": {
-            "direction": "next",
-            "label": "Next",
-            "title": "Design tokens",
-            "href": "/foundations/tokens/"
-          }
-        }
-      ]
+        "label": "Pages",
+        "page": 1,
+        "count": 10,
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "pageLabel": "Page {page}"
+      }
     },
     {
-      "id": "next-only",
+      "id": "middle",
       "props": {
-        "label": "Pages"
-      },
-      "items": [
-        {
-          "kind": "item",
-          "props": {
-            "direction": "previous",
-            "label": "Previous",
-            "title": "",
-            "href": ""
-          }
-        },
-        {
-          "kind": "item",
-          "props": {
-            "direction": "next",
-            "label": "Next",
-            "title": "Installation",
-            "href": "/getting-started/installation/"
-          }
-        }
-      ]
+        "label": "Pages",
+        "page": 5,
+        "count": 10,
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "pageLabel": "Page {page}"
+      }
     },
     {
-      "id": "previous-only",
+      "id": "last-page",
       "props": {
-        "label": "Pages"
-      },
-      "items": [
-        {
-          "kind": "item",
-          "props": {
-            "direction": "previous",
-            "label": "Previous",
-            "title": "Release notes",
-            "href": "/project/releases/"
-          }
-        }
-      ]
+        "label": "Pages",
+        "page": 10,
+        "count": 10,
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "pageLabel": "Page {page}"
+      }
     },
     {
-      "id": "long-titles",
+      "id": "few-pages",
       "props": {
-        "label": "Pages"
-      },
-      "items": [
-        {
-          "kind": "item",
-          "props": {
-            "direction": "previous",
-            "label": "Previous",
-            "title": "How the tokens of a design system are derived from a handful of dials, and what a product layer may change",
-            "href": "/foundations/derivation/"
-          }
-        },
-        {
-          "kind": "item",
-          "props": {
-            "direction": "next",
-            "label": "Next",
-            "title": "Right-to-left layouts: where a component takes its direction from, which glyphs mirror and which never do",
-            "href": "/foundations/right-to-left/"
-          }
-        }
-      ]
+        "label": "Pages",
+        "page": 2,
+        "count": 5,
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "pageLabel": "Page {page}"
+      }
     },
     {
-      "id": "labels-only",
+      "id": "single-page",
       "props": {
-        "label": "Posts"
-      },
-      "items": [
-        {
-          "kind": "item",
-          "props": {
-            "direction": "previous",
-            "label": "Newer",
-            "title": "",
-            "href": "/blog/2/"
-          }
-        },
-        {
-          "kind": "item",
-          "props": {
-            "direction": "next",
-            "label": "Older",
-            "title": "",
-            "href": "/blog/4/"
-          }
-        }
-      ]
+        "label": "Pages",
+        "page": 1,
+        "count": 1,
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "pageLabel": "Page {page}"
+      }
     },
     {
-      "id": "both-rtl",
+      "id": "first-last",
       "props": {
-        "label": "الصفحات"
+        "label": "Pages",
+        "page": 12,
+        "count": 40,
+        "firstLast": true,
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "firstLabel": "First page",
+        "lastLabel": "Last page",
+        "pageLabel": "Page {page}"
+      }
+    },
+    {
+      "id": "wide-neighbourhood",
+      "props": {
+        "label": "Pages",
+        "page": 10,
+        "count": 30,
+        "siblings": 2,
+        "boundaries": 2,
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "pageLabel": "Page {page}"
+      }
+    },
+    {
+      "id": "large-numbers",
+      "props": {
+        "label": "Pages",
+        "page": 1205,
+        "count": 2480,
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "pageLabel": "Page {page}"
+      }
+    },
+    {
+      "id": "links",
+      "props": {
+        "label": "Search results pages",
+        "page": 3,
+        "count": 12,
+        "href": "/results/?page={page}",
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "pageLabel": "Page {page}"
+      }
+    },
+    {
+      "id": "links-first",
+      "props": {
+        "label": "Posts pages",
+        "page": 1,
+        "count": 12,
+        "href": "/blog/page/{page}/",
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "pageLabel": "Page {page}"
+      }
+    },
+    {
+      "id": "small",
+      "props": {
+        "label": "Table pages",
+        "page": 4,
+        "count": 8,
+        "size": "small",
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "pageLabel": "Page {page}"
+      }
+    },
+    {
+      "id": "compact",
+      "props": {
+        "label": "Pages",
+        "page": 3,
+        "count": 10,
+        "variant": "compact",
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "countText": "Page {page} of {count}"
+      }
+    },
+    {
+      "id": "compact-first-last",
+      "props": {
+        "label": "Table pages",
+        "page": 1,
+        "count": 25,
+        "variant": "compact",
+        "size": "small",
+        "firstLast": true,
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page",
+        "firstLabel": "First page",
+        "lastLabel": "Last page",
+        "countText": "Page {page} of {count}"
+      }
+    },
+    {
+      "id": "compact-numbers",
+      "props": {
+        "label": "Pages",
+        "page": 3,
+        "count": 10,
+        "variant": "compact",
+        "previousLabel": "Previous page",
+        "nextLabel": "Next page"
+      }
+    },
+    {
+      "id": "rtl",
+      "props": {
+        "label": "الصفحات",
+        "page": 3,
+        "count": 10,
+        "firstLast": true,
+        "previousLabel": "الصفحة السابقة",
+        "nextLabel": "الصفحة التالية",
+        "firstLabel": "الصفحة الأولى",
+        "lastLabel": "الصفحة الأخيرة",
+        "pageLabel": "الصفحة {page}"
       },
-      "items": [
-        {
-          "kind": "item",
-          "props": {
-            "direction": "previous",
-            "label": "السابق",
-            "title": "التثبيت",
-            "href": "/ar/getting-started/installation/"
-          }
-        },
-        {
-          "kind": "item",
-          "props": {
-            "direction": "next",
-            "label": "التالي",
-            "title": "رموز التصميم",
-            "href": "/ar/foundations/tokens/"
-          }
-        }
-      ],
       "direction": "rtl"
     },
     {
-      "id": "next-only-rtl",
+      "id": "rtl-compact",
       "props": {
-        "label": "الصفحات"
+        "label": "الصفحات",
+        "page": 3,
+        "count": 10,
+        "variant": "compact",
+        "previousLabel": "الصفحة السابقة",
+        "nextLabel": "الصفحة التالية",
+        "countText": "الصفحة {page} من {count}"
       },
-      "items": [
-        {
-          "kind": "item",
-          "props": {
-            "direction": "next",
-            "label": "التالي",
-            "title": "التثبيت",
-            "href": "/ar/getting-started/installation/"
-          }
-        }
-      ],
-      "direction": "rtl"
-    },
-    {
-      "id": "long-titles-rtl",
-      "props": {
-        "label": "الصفحات"
-      },
-      "items": [
-        {
-          "kind": "item",
-          "props": {
-            "direction": "previous",
-            "label": "السابق",
-            "title": "كيف تُشتق رموز نظام التصميم من عدد قليل من القيم الأساسية وما الذي يمكن لطبقة المنتج أن تغيّره",
-            "href": "/ar/foundations/derivation/"
-          }
-        },
-        {
-          "kind": "item",
-          "props": {
-            "direction": "next",
-            "label": "التالي",
-            "title": "التخطيط من اليمين إلى اليسار: من أين يأخذ المكوّن اتجاهه وأي الرموز تنعكس وأيها لا ينعكس أبدًا",
-            "href": "/ar/foundations/right-to-left/"
-          }
-        }
-      ],
-      "direction": "rtl"
-    },
-    {
-      "id": "ltr-title-rtl",
-      "props": {
-        "label": "الصفحات"
-      },
-      "items": [
-        {
-          "kind": "item",
-          "props": {
-            "direction": "previous",
-            "label": "السابق",
-            "title": "Web Components 1.2",
-            "href": "/ar/platforms/web/"
-          }
-        },
-        {
-          "kind": "item",
-          "props": {
-            "direction": "next",
-            "label": "التالي",
-            "title": "Jetpack Compose",
-            "href": "/ar/platforms/compose/"
-          }
-        }
-      ],
       "direction": "rtl"
     }
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-pagination",
       "props": {
-        "label": "aria-label"
+        "label": "label",
+        "page": "page",
+        "count": "count",
+        "siblings": "siblings",
+        "boundaries": "boundaries",
+        "variant": "variant",
+        "size": "size",
+        "firstLast": "firstLast",
+        "href": "href",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
+        "firstLabel": "firstLabel",
+        "lastLabel": "lastLabel",
+        "pageLabel": "pageLabel",
+        "countText": "countText"
       },
-      "items": {
-        "item": {
-          "name": "tanrei-pagination-item",
-          "props": {
-            "direction": "data-direction",
-            "label": "tanrei-pagination-label",
-            "title": "tanrei-pagination-title",
-            "href": "href"
-          },
-          "events": {
-            "click": "click"
-          },
-          "notes": "A class on the product's own anchor. `data-direction` is `previous` or `next`; the anchor also carries `rel=\"prev\"` or `rel=\"next\"`. The label and the title are two spans with their classes, in that order."
-        }
+      "events": {
+        "change": "change"
       },
-      "notes": "Classes on the product's own elements, as Link is: `<nav class=\"tanrei-pagination\" aria-label=\"Pages\"><a class=\"tanrei-pagination-item\" data-direction=\"previous\" rel=\"prev\" href=\"…\"><span class=\"tanrei-pagination-label\">Previous</span><span class=\"tanrei-pagination-title\">Installation</span></a><a class=\"tanrei-pagination-item\" data-direction=\"next\" rel=\"next\" href=\"…\">…</a></nav>`, styled by a stylesheet of the package. The anchors are in the document, so they are links before any script runs and for whatever reads the page as built (PGN-2). The stylesheet alone gives the whole component: the two columns are a grid in which each item takes the column of its `data-direction`, whatever its place in the markup, and an anchor without `href` is not displayed (PGN-3); stacking is a container query on the nav (PGN-5); the arrows are the items' `::before` and `::after` in the icon font, mirrored under `:dir(rtl)`; the states and the press-hold are the stylesheet's as they are Link's. The package's script, where it is loaded, adds through its one listener on the document what a stylesheet cannot: the shared press primitive (ripple and dim, PGN-11), the reordering of items given next-first so that the focus order is right, and every debug report. The web is not a custom element here, so `packages/tools/src/conventions.js` needs an entry for where the implementation lives, as prose has. React: `Pagination` renders the same markup and takes a `render` prop for a router's link."
+      "notes": "`<tanrei-pagination label=\"Pages\" page=\"3\" count=\"10\" previous-label=\"Previous page\" next-label=\"Next page\" page-label=\"Page {page}\">`; the attributes are the props in kebab case (`first-last`, `count-text`). The element draws a `nav` with `aria-label` around one `ol` in its shadow root; each page and control is an `a` (with `href`) or a `button`, the current page with `aria-current=\"page\"`, a disabled link an `a` without `href` and with `aria-disabled=\"true\"` and `role=\"link\"`. `change` is a cancelable `CustomEvent` whose `detail` is `{ page }`, fired before `page` changes and, for a link, before the browser follows it. The narrow form is decided by a ResizeObserver on the element against its numbered row, which is kept in the layout at no height so that the element asks for its width. React: the generated `Pagination` wrapper, with `onChange`."
     },
     "swiftui": {
       "status": "planned",
       "name": "TanreiPagination",
       "props": {
-        "label": "label"
+        "label": "label",
+        "page": "page",
+        "count": "count",
+        "siblings": "siblings",
+        "boundaries": "boundaries",
+        "variant": "variant",
+        "size": "size",
+        "firstLast": "showsFirstLast",
+        "href": "destination",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
+        "firstLabel": "firstLabel",
+        "lastLabel": "lastLabel",
+        "pageLabel": "pageLabel",
+        "countText": "countText"
       },
-      "items": {
-        "item": {
-          "name": "TanreiPaginationItem",
-          "props": {
-            "direction": "direction",
-            "label": "label",
-            "title": "title",
-            "href": "destination"
-          },
-          "events": {
-            "click": "action"
-          },
-          "notes": "`TanreiPaginationItem(.next, label: \"Next\", title: \"Design tokens\", destination: url, action:)`; `destination` is an optional `URL`, and `nil` is the empty href."
-        }
+      "events": {
+        "change": "onChange"
       },
-      "notes": "`TanreiPagination(label:previous:next:)`, each item optional. Each item is built on SwiftUI's `Link`; `action` runs before the address opens and returns whether the link should still open it (the environment's `OpenURLAction` does the opening). The container has the navigation landmark through an accessibility container with `label`. The row stacks with `ViewThatFits` measured against the proposed width."
+      "notes": "`TanreiPagination(label:page: $page, count:, destination: { page in URL? })`: `page` is a `Binding<Int>`; `destination` is a closure from a page to an optional `URL`, the idiom for the href with its place; with one, each item is a `Link`. `onChange` returns whether to take the page. The narrow form is a `ViewThatFits` of the numbered row and the compact one."
     },
     "compose": {
       "status": "planned",
       "name": "TanreiPagination",
       "props": {
-        "label": "contentDescription"
+        "label": "contentDescription",
+        "page": "page",
+        "count": "count",
+        "siblings": "siblings",
+        "boundaries": "boundaries",
+        "variant": "variant",
+        "size": "size",
+        "firstLast": "showFirstLast",
+        "href": "hrefFor",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
+        "firstLabel": "firstLabel",
+        "lastLabel": "lastLabel",
+        "pageLabel": "pageLabel",
+        "countText": "countText"
       },
-      "items": {
-        "item": {
-          "name": "TanreiPaginationItem",
-          "props": {
-            "direction": "direction",
-            "label": "label",
-            "title": "title",
-            "href": "href"
-          },
-          "events": {
-            "click": "onClick"
-          },
-          "notes": "A data class; `href` is nullable. `onClick` returns false to keep the address closed; otherwise `LocalUriHandler.current` opens it."
-        }
+      "events": {
+        "change": "onPageChange"
       },
-      "notes": "`TanreiPagination(previous, next, contentDescription, modifier)`. Compose has no navigation landmark and no link role for a clickable element: the row is a semantics group named by `contentDescription`, and its README says what is not exposed. Stacking reads the incoming constraints (`BoxWithConstraints`)."
+      "notes": "`TanreiPagination(page, count, onPageChange = { page -> true }, contentDescription = …)`; `hrefFor: ((Int) -> String)?` opens through `LocalUriHandler`. Compose has no navigation landmark and no link role for a clickable element: the row is a semantics group named by `contentDescription`, the current page `selected`, and its README says what is not exposed. The narrow form reads the incoming constraints (`SubcomposeLayout`)."
     },
     "flutter": {
       "status": "planned",
       "name": "TanreiPagination",
       "props": {
-        "label": "semanticLabel"
+        "label": "semanticLabel",
+        "page": "page",
+        "count": "count",
+        "siblings": "siblings",
+        "boundaries": "boundaries",
+        "variant": "variant",
+        "size": "size",
+        "firstLast": "showFirstLast",
+        "href": "hrefFor",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
+        "firstLabel": "firstLabel",
+        "lastLabel": "lastLabel",
+        "pageLabel": "pageLabel",
+        "countText": "countText"
       },
-      "items": {
-        "item": {
-          "name": "TanreiPaginationItem",
-          "props": {
-            "direction": "direction",
-            "label": "label",
-            "title": "title",
-            "href": "href"
-          },
-          "events": {
-            "click": "onPressed"
-          },
-          "notes": "A value class; `href` is nullable. `onPressed` returns false to keep the address closed; otherwise the opener the app provides opens it."
-        }
+      "events": {
+        "change": "onPageChanged"
       },
-      "notes": "`TanreiPagination(previous: …, next: …, semanticLabel: …)`. `Semantics(container: true, label:)` around the row; each item `Semantics(link: true)`, with `linkUrl` where the engine has it. Stacking reads the incoming constraints (`LayoutBuilder`)."
+      "notes": "`TanreiPagination(page: 3, count: 10, onPageChanged: (page) => true, semanticLabel: …)`; `hrefFor: String Function(int)?` makes each item `Semantics(link: true)` with `linkUrl`, opened by the opener the app provides. The narrow form reads the incoming constraints (`LayoutBuilder`)."
     },
     "react-native": {
       "status": "planned",
       "name": "Pagination",
       "props": {
-        "label": "accessibilityLabel"
+        "label": "accessibilityLabel",
+        "page": "page",
+        "count": "count",
+        "siblings": "siblings",
+        "boundaries": "boundaries",
+        "variant": "variant",
+        "size": "size",
+        "firstLast": "showFirstLast",
+        "href": "hrefFor",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
+        "firstLabel": "firstLabel",
+        "lastLabel": "lastLabel",
+        "pageLabel": "pageLabel",
+        "countText": "countText"
       },
-      "items": {
-        "item": {
-          "name": "PaginationItem",
-          "props": {
-            "direction": "direction",
-            "label": "label",
-            "title": "title",
-            "href": "href"
-          },
-          "events": {
-            "click": "onPress"
-          },
-          "notes": "An object of the `previous` or the `next` prop. `onPress` receives an event whose `preventDefault()` keeps the address closed; otherwise `Linking.openURL(href)`."
-        }
+      "events": {
+        "change": "onPageChange"
       },
-      "notes": "`<Pagination accessibilityLabel=\"Pages\" previous={{ label, title, href }} next={…} />`. Each item is a `Pressable` with `accessibilityRole=\"link\"`; the row has `accessibilityRole=\"navigation\"` where the platform maps it (the web target) and is a labelled group elsewhere. Stacking reads `onLayout`. Follows the app's direction where an ancestor's is not known."
+      "notes": "`<Pagination accessibilityLabel=\"Pages\" page={3} count={10} onPageChange={(event) => …} />`; `onPageChange` receives an event with `page` whose `preventDefault()` keeps the page. Each item is a `Pressable` with `accessibilityRole=\"link\"` (with `hrefFor`) or `\"button\"`, the current page `accessibilityState={{ selected: true }}`. The narrow form reads `onLayout`."
     }
   }
 }

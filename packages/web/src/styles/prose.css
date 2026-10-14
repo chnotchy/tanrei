@@ -32,7 +32,7 @@
  *   that of the parent. So the island itself is a block of the prose, nothing inside it is, and a prose inside an
  *   island is prose again at any depth. The build (scripts/build.js) writes the tag names of every Tanrei element
  *   beside `.tanrei-not-prose` in that one rule, from `custom-elements.json`; this source file names the class alone
- *   — and the landmark of a pagination, a component that is classes and no element (pagination.css).
+ *   — and the landmark of a pair of previous and next links, a component that is classes and no element (previous-next-links.css).
  *   (A pseudo-element asks its own element: the marker of a list item that is itself marked `tanrei-not-prose` is not
  *   prose's.) A browser without style queries draws the container's text style and no element rule.
  * - WHAT IT COSTS is part of how it is written (prose.test.ts and
@@ -114,10 +114,10 @@
   /* 1 on a prose and 0 on an island, inherited: what an element's PARENT holds says whether the element is prose's
      own (see HOW IT IS WRITTEN). An element that is both — a prose that is itself a Tanrei element — is a prose: the
      later rule. */
-  /* A pagination is a component placed in the flow (PRS-16) that is classes on the product's own `nav` and anchors,
-     not an element: its landmark is an island as an element is, so its anchors are the pagination's and not prose's
+  /* A pair of previous and next links is a component placed in the flow (PRS-16) that is classes on the product's own `nav` and anchors,
+     not an element: its landmark is an island as an element is, so its anchors are the component's and not prose's
      links, whichever of the two stylesheets is loaded last. (src/link.ts leaves their presses to it likewise.) */
-  :where(.tanrei-not-prose), :where(.tanrei-pagination) {
+  :where(.tanrei-not-prose), :where(.tanrei-previous-next-links) {
     --_prose-own: 0;
   }
   :where(.tanrei-prose) {

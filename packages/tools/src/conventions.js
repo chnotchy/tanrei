@@ -21,8 +21,8 @@ const KOTLIN_BASE = `${CONFIG.packages.mavenGroup}.${CONFIG.namespace}`.replaceA
  * A component whose web form is a class on the product's own element is placed the same way: the
  * link is `class="tanrei-link"` on an anchor, so its web implementation is a stylesheet and its test stands beside it.
  * Inline code is `class="tanrei-code"` on a `code` element, in the code stylesheet. Steps are
- * `class="tanrei-steps"` on the product's own ordered list, and the pagination is
- * `class="tanrei-pagination"` on the product's own `nav` around its anchors. The timeline is
+ * `class="tanrei-steps"` on the product's own ordered list, and the previous and next links are
+ * `class="tanrei-previous-next-links"` on the product's own `nav` around its anchors. The timeline is
  * `class="tanrei-timeline"` on the product's own ordered list, the steps' form. Their docs pages are a component's, where
  * the table puts them.
  *
@@ -116,10 +116,10 @@ export const OVERRIDES = {
       test: 'packages/web/src/styles/steps.test.ts',
     },
   },
-  pagination: {
+  'previous-next-links': {
     web: {
-      implementation: 'packages/web/src/styles/pagination.css',
-      test: 'packages/web/src/styles/pagination.test.ts',
+      implementation: 'packages/web/src/styles/previous-next-links.css',
+      test: 'packages/web/src/styles/previous-next-links.test.ts',
     },
   },
   timeline: {
