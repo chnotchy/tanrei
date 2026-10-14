@@ -508,8 +508,8 @@ test.describe('drawing', () => {
   });
 
   test('NVD-13: an expanded row across the inner width, at least item.container.height, its corners; the icon on the icon column, the wrapping label item.gap after it, the trailing content item.padding-inline from its end; mirrored in right-to-left', async ({ page }) => {
-    await mount(page, [fixture('r', [d('inbox', 'Inbox', 'inbox', { trailingText: '24' }), d('long', 'A destination with a name long enough to wrap onto a second line', 'label', { trailingText: 'New' }), d('plain', 'Plain')])]);
-    const [height, radius, ipi, gap, column, pi] = await Promise.all([T('item-container-height-regular'), T('item-container-shape'), T('item-padding-inline-regular'), T('item-gap-regular'), T('collapsed-container-width-regular'), T('container-padding-inline')].map((n) => px(page, n)));
+    await mount(page, [fixture('r', [d('inbox', 'Inbox', 'inbox', { trailingText: '24' }), d('long', 'A destination with a name long enough to wrap onto a second line', 'label', { trailingText: 'New' }), d('plain', 'Plain')], { labelWrap: true })]);
+    const [height, radius, ipi, gap, column, pi] = await Promise.all([T('item-container-height-regular'), T('item-container-shape'), T('item-padding-inline-regular'), T('item-gap'), T('collapsed-container-width-regular'), T('container-padding-inline')].map((n) => px(page, n)));
     const p = await bounds(panel(page, 'r'));
     const [row, icon, label, trailing] = await Promise.all(['.container', '.icon', '.label', '.trailing-text'].map((s) => bounds(item(page, 'r', 0).locator(s))));
     expect(row.height).toBe(height);
@@ -521,9 +521,9 @@ test.describe('drawing', () => {
     expect(label.x - (icon.x + icon.width)).toBeCloseTo(gap, 1);
     expect(row.x + row.width - (trailing.x + trailing.width)).toBeCloseTo(ipi, 1);
     expect(trailing.x - (label.x + label.width)).toBeGreaterThanOrEqual(gap - 0.5);
-    // Without an icon: the label item.padding-inline from the row's start.
-    expect((await bounds(item(page, 'r', 2).locator('.label'))).x - row.x).toBeCloseTo(ipi, 1);
-    // Wrapping, not truncating: the row grows.
+    // Without an icon, among rows that have one, the icon's room is kept (iconSpace auto): the labels stand in one column.
+    expect((await bounds(item(page, 'r', 2).locator('.label'))).x).toBeCloseTo(label.x, 1);
+    // labelWrap: wrapping, not truncating, the row grows.
     expect((await bounds(item(page, 'r', 1).locator('.container'))).height).toBeGreaterThan(height);
     expect(await item(page, 'r', 1).locator('.label').evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
@@ -532,58 +532,71 @@ test.describe('drawing', () => {
     expect(rt.x - rr.x).toBeCloseTo(ipi, 1);
   });
 
-  test('NVD-13: a nested destination’s item container is as wide as a top-level one’s — its fill, state layer and focus indicator with it — and its content alone starts item.nest-indent further in per level: its label under its group’s label, a nested icon centred one indent further', async ({ page }) => {
-    await mount(page, only('groups-nested', 'nested-icons'), { reducedMotion: true });
-    const [nest, pi, ipi, column] = await Promise.all([T('item-nest-indent-regular'), T('container-padding-inline'), T('item-padding-inline-regular'), T('collapsed-container-width-regular')].map((n) => px(page, n)));
+  test('NVD-13, NVD-69, NVD-70: a nested row’s content begins one step of indent further per level — in auto, what its group’s row draws before its label, so its icon stands where its group’s label begins — and its item container begins there under highlight indented, or at the drawer’s padding under full', async ({ page }) => {
+    const end = (id: string, props: Fixture['props'] = {}) => ({ ...spec.fixtures.find((f) => f.id === id)!, id: `${id}-${props.highlight ?? 'indented'}`, props: { ...spec.fixtures.find((f) => f.id === id)!.props, chevron: 'end', ...props } });
+    await mount(page, [end('groups-nested', { highlight: 'full' }), end('groups-nested'), end('nested-icons')], { reducedMotion: true });
+    const [pi, ipi, column] = await Promise.all([T('container-padding-inline'), T('item-padding-inline-regular'), T('collapsed-container-width-regular')].map((n) => px(page, n)));
     // The verify, under the default system.
-    expect([nest, pi, ipi, column]).toEqual([36, 12, 12, 72]);
-    const p = await bounds(panel(page, 'groups-nested'));
+    expect([pi, ipi, column]).toEqual([12, 12, 72]);
+    const full = 'groups-nested-full';
+    const p = await bounds(panel(page, full));
     const startOf = async (locator: Locator) => (await bounds(locator)).x - p.x;
-    // groups-nested: Foundations (group) › Color, Design tokens (group) › Overview, Tiers.
-    const top = await bounds(group(page, 'groups-nested', 0).locator('.row > .container').first());
+    // groups-nested: Foundations (group, an icon) › Color, Design tokens (group, no icon) › Overview, Tiers.
+    const top = await bounds(group(page, full, 0).locator('.row > .container').first());
     expect(top.x - p.x).toBe(12);
     expect(top.height).toBe(48);
     // The top-level icon has 12 on its start side inside its item container, as above and below it.
-    const topIcon = await bounds(group(page, 'groups-nested', 0).locator('.icon').first());
+    const topIcon = await bounds(group(page, full, 0).locator('.icon').first());
     expect([topIcon.x - top.x, topIcon.y - top.y, top.y + top.height - (topIcon.y + topIcon.height)]).toEqual([12, 12, 12]);
     expect(topIcon.x + topIcon.width / 2 - p.x).toBe(36);
-    // One level deep: the item container starts 12 from the drawer's start edge, as a top-level one does, and its label
-    // 60, under its group's label.
-    expect(await startOf(box(page, 'groups-nested', 0))).toBe(12);
-    expect(await startOf(item(page, 'groups-nested', 0).locator('.label'))).toBe(60);
-    expect(await startOf(group(page, 'groups-nested', 0).locator('.label').first())).toBe(60);
-    // Two levels deep: 12 and 96.
-    expect(await startOf(box(page, 'groups-nested', 1))).toBe(12);
-    expect(await startOf(item(page, 'groups-nested', 1).locator('.label'))).toBe(96);
-    // Every item container ends padding-inline inside the drawer's end edge, however deep it is nested.
+    // One level deep (auto): one icon and gap further, so the label is under its group's label, 60.
+    expect(await startOf(item(page, full, 0).locator('.label'))).toBe(60);
+    expect(await startOf(group(page, full, 0).locator('.label').first())).toBe(60);
+    // Two levels deep: Design tokens draws nothing before its label, so its items step by nothing (the tree view's rule).
+    expect(await startOf(item(page, full, 1).locator('.label'))).toBe(60);
+    // highlight full: every item container begins at the drawer's padding and ends at its end padding.
     for (const n of [0, 1]) {
-      const c = await bounds(box(page, 'groups-nested', n));
-      expect(p.x + p.width - (c.x + c.width), `${n}`).toBe(12);
+      const c = await bounds(box(page, full, n));
+      expect([c.x - p.x, p.x + p.width - (c.x + c.width)], `${n}`).toEqual([12, 12]);
     }
-    // The fill, the state layer and the focus indicator are that box: hovered, a nested destination shows a state layer
-    // as wide as a top-level row's, from the drawer's padding.
-    const nested = item(page, 'groups-nested', 0);
+    const nested = item(page, full, 0);
     await nested.locator('.cell').hover();
     await expect.poll(() => css(nested.locator('.row > .container > .indicator'), 'background-color')).toBe(await resolveColor(page, T('unselected-hovered-item-container-color')));
-    const [fill, c] = [await bounds(nested.locator('.row > .container > .indicator')), await bounds(box(page, 'groups-nested', 0))];
-    expect([fill.x, fill.width]).toEqual([c.x, c.width]);
+    const fill = await bounds(nested.locator('.row > .container > .indicator'));
     expect([fill.x, fill.width]).toEqual([top.x, top.width]);
+    // highlight indented (the default): the nested item container begins where its content's level begins, its fill too.
+    const ind = 'groups-nested-indented';
+    const q = await bounds(panel(page, ind));
+    const c = await bounds(box(page, ind, 0));
+    expect(c.x - q.x).toBe(48);
+    expect(q.x + q.width - (c.x + c.width)).toBe(12);
+    const inner = item(page, ind, 0);
+    await inner.locator('.cell').hover();
+    await expect.poll(() => css(inner.locator('.row > .container > .indicator'), 'background-color')).toBe(await resolveColor(page, T('unselected-hovered-item-container-color')));
+    expect((await bounds(inner.locator('.row > .container > .indicator'))).x).toBe(c.x);
     await page.mouse.click(700, 5);
-    await tabTo(page, nested.locator('.cell'));
-    await expect(box(page, 'groups-nested', 0)).toHaveCSS('outline-style', 'solid');
-    // nested-icons: a nested destination's icon is centred 72 from the start edge, its trailing text padding-inline from the end.
-    const q = await bounds(panel(page, 'nested-icons'));
-    const icon = await bounds(item(page, 'nested-icons', 2).locator('.icon'));
-    expect(icon.x + icon.width / 2 - q.x).toBe(72);
-    const [row, trailing] = [await bounds(box(page, 'nested-icons', 2)), await bounds(item(page, 'nested-icons', 2).locator('.trailing-text'))];
-    expect(row.x - q.x).toBe(12);
-    expect(row.x + row.width - (trailing.x + trailing.width)).toBeCloseTo(ipi, 1);
+    await tabTo(page, inner.locator('.cell'));
+    await expect(box(page, ind, 0)).toHaveCSS('outline-style', 'solid');
+    // nested-icons: a nested icon is centred 72 from the start edge, starting at 60 where its group's label starts; its
+    // trailing text item.padding-inline and an end chevron's room from the end.
+    const n = 'nested-icons-indented';
+    const r = await bounds(panel(page, n));
+    const icon = await bounds(item(page, n, 2).locator('.icon'));
+    const groupLabel = await bounds(group(page, n, 0).locator('.label').first());
+    expect(icon.x + icon.width / 2 - r.x).toBe(72);
+    expect(icon.x).toBe(groupLabel.x);
+    const [row, trailing] = [await bounds(box(page, n, 2)), await bounds(item(page, n, 2).locator('.trailing-text'))];
+    expect(row.x - r.x).toBe(48);
+    const chevron = await px(page, T('item-trailing-icon-size-regular'));
+    const gap = await px(page, T('item-gap'));
+    expect(row.x + row.width - (trailing.x + trailing.width)).toBeCloseTo(ipi + chevron + gap, 1);
     // Mirrored in right-to-left.
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
-    const [rp, rc] = [await bounds(panel(page, 'groups-nested')), await bounds(box(page, 'groups-nested', 0))];
+    const [rp, rc] = [await bounds(panel(page, full)), await bounds(box(page, full, 0))];
     expect(rp.x + rp.width - (rc.x + rc.width)).toBe(12);
     expect(rc.x - rp.x).toBe(12);
-    expect(rp.x + rp.width - ((await bounds(item(page, 'groups-nested', 0).locator('.label'))).x + (await bounds(item(page, 'groups-nested', 0).locator('.label'))).width)).toBe(60);
+    const label = await bounds(item(page, full, 0).locator('.label'));
+    expect(rp.x + rp.width - (label.x + label.width)).toBe(60);
   });
 
   test('NVD-6: a nested destination’s hit area is the drawer’s full width, however deep it is nested, and a press outside the item container answers on it', async ({ page }) => {
@@ -898,7 +911,7 @@ test.describe('the collapsed form', () => {
       expect([c.x - p.x, c.y - p.y, c.height]).toEqual([expandedRow.x - e.x, expandedRow.y - e.y, expandedRow.height]);
       // No label: neither the expanded one nor a short one under the icon.
       await expect(item(page, 'collapsed', n).locator('.short')).toHaveCSS('opacity', '0');
-      await expect(item(page, 'collapsed', n).locator('.label')).toHaveCSS('opacity', '0');
+      await expect(item(page, 'collapsed', n).locator('.row > .text')).toHaveCSS('opacity', '0');
     }
     await expect(item(page, 'collapsed', 0).locator('.trailing')).toHaveCSS('opacity', '0');
     // The selected one is filled exactly as the expanded row is.
@@ -1002,7 +1015,7 @@ test.describe('the collapsed form', () => {
         const rowDuring = container.getBoundingClientRect();
         return {
           width: timing(el.shadowRoot.querySelector('.drawer'), ['inline-size', 'width']),
-          label: timing(root.querySelector('.label'), ['opacity']),
+          label: timing(root.querySelector('.text'), ['opacity']),
           short: timing(root.querySelector('.short'), ['opacity']),
           container: timing(container, ['inline-size', 'width']),
           containerMoves: moving(container),
@@ -1091,7 +1104,7 @@ test.describe('the collapsed form', () => {
     // line it stands in, which is the row's centre.)
     await drawer(page, 'h').evaluate((el) => el.insertAdjacentHTML('beforeend', '<span slot="header" id="title" style="display: block">Mail</span>'));
     await drawer(page, 't').evaluate((el) => el.insertAdjacentHTML('beforeend', '<span slot="header" id="t-title">Mail</span>'));
-    const [column, itemGap, gap, pi] = await Promise.all([T('collapsed-container-width-regular'), T('header-item-gap'), T('item-gap-regular'), T('container-padding-inline')].map((n) => px(page, n)));
+    const [column, itemGap, gap, pi] = await Promise.all([T('collapsed-container-width-regular'), T('header-item-gap'), T('item-gap'), T('container-padding-inline')].map((n) => px(page, n)));
     const p = await bounds(panel(page, 'h'));
     const buttons = drawer(page, 'h').locator('tanrei-button[slot="header-button"]');
     const [first, second] = [await bounds(buttons.nth(0)), await bounds(buttons.nth(1))];
@@ -1344,27 +1357,29 @@ test.describe('the collapsed form', () => {
     await expect.poll(() => seen.filter((w) => w.includes('NVD-43')).length).toBe(2);
   });
 
-  test('NVD-44: a group’s row is drawn as a destination’s with its chevron — expand_more at trailing-icon.size, turned half a turn while open; its items’ content one nest-indent further, their item containers as wide as its own; open and close move the cells below over motion.disclosure', async ({ page }) => {
-    await mount(page, only('groups', 'groups-nested'), { reducedMotion: false });
-    const [nest, trailing, height] = await Promise.all([T('item-nest-indent-regular'), T('item-trailing-icon-size-regular'), T('item-container-height-regular')].map((n) => px(page, n)));
-    const chevron = group(page, 'groups', 0).locator('.chevron').first();
+  test('NVD-44, NVD-68: a group’s row is drawn as a destination’s with its chevron — at the end expand_more at trailing-icon.size, turned half a turn while open; at the start chevron_right, turned a quarter turn; open and close move the cells below over motion.disclosure', async ({ page }) => {
+    const groups = spec.fixtures.find((f) => f.id === 'groups')!;
+    await mount(page, [{ ...groups, id: 'end', props: { ...groups.props, chevron: 'end' } }, { ...groups, id: 'start' }], { reducedMotion: false });
+    const [trailing, height] = await Promise.all([T('item-trailing-icon-size-regular'), T('item-container-height-regular')].map((n) => px(page, n)));
+    const chevron = group(page, 'end', 0).locator('.chevron').first();
     await expect(chevron).toHaveText('expand_more');
     expect((await bounds(chevron)).width).toBe(trailing);
     expect(await css(chevron, 'rotate')).toBe('180deg');
-    expect(await css(group(page, 'groups', 1).locator('.chevron').first(), 'rotate')).toBe('none');
-    expect((await bounds(groupRow(page, 'groups', 0))).height).toBeGreaterThanOrEqual(height);
-    // Labels without icons start one nest-indent further per level (Color at one level, Overview at two).
-    const labelX = async (locator: Locator) => (await bounds(locator.locator('.label'))).x;
-    expect((await labelX(item(page, 'groups-nested', 1))) - (await labelX(item(page, 'groups-nested', 0)))).toBeCloseTo(nest, 1);
-    // …but not their item containers: each one's starts where its group's does.
-    const boxX = async (locator: Locator) => (await bounds(locator.locator('.row > .container').first())).x;
-    expect((await boxX(item(page, 'groups-nested', 0))) - (await boxX(group(page, 'groups-nested', 0)))).toBeCloseTo(0, 1);
-    expect((await boxX(item(page, 'groups-nested', 1))) - (await boxX(group(page, 'groups-nested', 1)))).toBeCloseTo(0, 1);
+    expect(await css(group(page, 'end', 1).locator('.chevron').first(), 'rotate')).toBe('none');
+    expect((await bounds(groupRow(page, 'end', 0))).height).toBeGreaterThanOrEqual(height);
+    // At the start (the default): chevron_right, pointing down while open; every row of the drawer keeps its box, so the
+    // icons of a level stand in one column.
+    const start = group(page, 'start', 0).locator('.chevron').first();
+    await expect(start).toHaveText('chevron_right');
+    expect(await css(start, 'rotate')).toBe('90deg');
+    expect(await css(group(page, 'start', 1).locator('.chevron').first(), 'rotate')).toBe('none');
+    const iconX = async (locator: Locator) => (await bounds(locator.locator('.icon').first())).x;
+    expect(await iconX(group(page, 'start', 0))).toBe(await iconX(item(page, 'start', 0)));
     const disclosure = await resolveToken(page, T('motion-disclosure-duration'), 'duration');
-    expect(Number.parseFloat(await css(group(page, 'groups', 0).locator('.items').first(), 'transition-duration'))).toBeCloseTo(disclosure / 1000, 3);
-    const below = (await bounds(groupRow(page, 'groups', 1))).y;
-    await groupRow(page, 'groups', 0).click();
-    await expect.poll(async () => (await bounds(groupRow(page, 'groups', 1))).y).toBeLessThan(below);
+    expect(Number.parseFloat(await css(group(page, 'end', 0).locator('.items').first(), 'transition-duration'))).toBeCloseTo(disclosure / 1000, 3);
+    const below = (await bounds(groupRow(page, 'end', 1))).y;
+    await groupRow(page, 'end', 0).click();
+    await expect.poll(async () => (await bounds(groupRow(page, 'end', 1))).y).toBeLessThan(below);
     await expect.poll(() => css(chevron, 'rotate')).toBe('none');
   });
 
@@ -1428,19 +1443,20 @@ test.describe('the collapsed form', () => {
     await expect.poll(() => activeValue(page)).toBe('group:Projects');
   });
 
-  test('NVD-48: groups nested deeper than three levels still render, their content one nest-indent further per level, and are reported', async ({ page }) => {
+  test('NVD-48, NVD-69: groups nested deeper than three levels still render, each level a step further in — the start chevron and its gap where a group has no icon — no row beginning past half of the drawer’s inner width, and are reported', async ({ page }) => {
     const seen = warnings(page);
     await mount(page, [fixture('deep', [grp('1', [grp('2', [grp('3', [grp('4', [d('x', 'Deep')], { open: true })], { open: true })], { open: true })], { icon: 'folder', open: true })], { value: 'x' })], { reducedMotion: true });
     await expect(cell(page, 'deep', 0)).toBeVisible();
-    const nest = await px(page, T('item-nest-indent-regular'));
-    const x3 = (await bounds(group(page, 'deep', 2).locator('.label').first())).x;
-    const x4 = (await bounds(group(page, 'deep', 3).locator('.label').first())).x;
-    expect(x4 - x3).toBeCloseTo(nest, 1);
-    // Each level's content indents; its item container keeps a top-level row's width.
-    const starts = await Promise.all([0, 1, 2, 3].map(async (n) => (await bounds(group(page, 'deep', n).locator('.row > .container').first())).x));
-    for (const n of [1, 2, 3]) expect(starts[n] - starts[n - 1], `level ${n}`).toBeCloseTo(0, 1);
-    expect((await bounds(box(page, 'deep', 0))).x - starts[3]).toBeCloseTo(0, 1);
-    expect((await bounds(item(page, 'deep', 0).locator('.label'))).x - x4).toBeCloseTo(nest, 1);
+    const [chevron, gap, icon, width, pad] = await Promise.all([T('item-trailing-icon-size-regular'), T('item-gap'), T('item-icon-size-regular'), T('container-width'), T('container-padding-inline')].map((n) => px(page, n)));
+    const p = await bounds(panel(page, 'deep'));
+    const starts = await Promise.all([0, 1, 2, 3].map(async (n) => (await bounds(group(page, 'deep', n).locator('.row > .container').first())).x - p.x));
+    // Group 1 draws a chevron and an icon before its label; groups 2 and 3 a chevron alone.
+    expect(starts[1] - starts[0]).toBeCloseTo(chevron + gap + icon + gap, 1);
+    expect(starts[2] - starts[1]).toBeCloseTo(chevron + gap, 1);
+    // From there on a row would begin past half of the inner width: it begins there.
+    const half = pad + (width - 2 * pad) / 2;
+    expect(starts[3]).toBeCloseTo(half, 1);
+    expect((await bounds(box(page, 'deep', 0))).x - p.x).toBeCloseTo(half, 1);
     await expect.poll(() => seen.filter((w) => w.includes('NVD-48')).length).toBe(1);
   });
 
@@ -2657,10 +2673,10 @@ test.describe('density', () => {
   test('NVD-65: compact draws every row, glyph, gap, indent and heading from the compact tokens, and a nested icon stands where its group’s label starts (NVD-13’s verify)', async ({ page }) => {
     await mount(page, [COMPACT, fixture('r', MAIL)], { reducedMotion: true });
     const [height, icon, gap, heading, nest, itemGap] = await Promise.all(
-      ['item-container-height-compact', 'item-icon-size-compact', 'container-gap-compact', 'heading-height-compact', 'item-nest-indent-compact', 'item-gap-compact'].map((n) => px(page, T(n))),
+      ['item-container-height-compact', 'item-icon-size-compact', 'container-gap-compact', 'heading-height-compact', 'item-nest-indent-compact', 'item-gap'].map((n) => px(page, T(n))),
     );
     // The verify, under the default system.
-    expect([height, icon, gap, heading, nest, itemGap]).toEqual([32, 16, 2, 28, 24, 8]);
+    expect([height, icon, gap, heading, nest, itemGap]).toEqual([32, 16, 2, 28, 24, 12]);
     const p = await bounds(panel(page, 'compact'));
     const x = (b: { x: number }) => b.x - p.x;
     // compact: Home, then the section Projects › Tanrei (group) › Tokens, Components (group) › Button, Tree view; Archive.
@@ -2669,21 +2685,26 @@ test.describe('density', () => {
     expect(row.height).toBe(32);
     expect([homeIcon.width, homeIcon.height]).toEqual([16, 16]);
     expect(x(homeIcon) + homeIcon.width / 2).toBe(28);
-    expect(x(homeLabel)).toBe(44);
+    expect(x(homeLabel)).toBe(48);
     expect(centre(homeIcon).y).toBeCloseTo(centre(row).y, 0);
-    // One level deep (Tokens): its icon centred 52 from the start edge, starting at 44 — where its group's label starts.
+    // One level deep (Tokens): its icon centred 56 from the start edge, starting at 48 — where its group's label starts.
     const tanrei = group(page, 'compact', 0);
     const tanreiLabel = await bounds(tanrei.locator('.label').first());
     const tokensIcon = await bounds(item(page, 'compact', 1).locator('.icon'));
-    expect(x(tokensIcon) + tokensIcon.width / 2).toBe(52);
+    expect(x(tokensIcon) + tokensIcon.width / 2).toBe(56);
     expect(x(tokensIcon)).toBe(x(tanreiLabel));
-    // Two levels deep (Button): 76 and 68, under the label of the group that holds it.
+    // Two levels deep (Button): 84 and 76, under the label of the group that holds it.
     const componentsLabel = await bounds(group(page, 'compact', 1).locator('.label').first());
     const buttonIcon = await bounds(item(page, 'compact', 2).locator('.icon'));
-    expect(x(buttonIcon) + buttonIcon.width / 2).toBe(76);
+    expect(x(buttonIcon) + buttonIcon.width / 2).toBe(84);
     expect(x(buttonIcon)).toBe(x(componentsLabel));
-    // Every item container keeps the full width, at any depth.
-    for (const n of [0, 2, 3]) expect([x(await bounds(box(page, 'compact', n))), (await bounds(box(page, 'compact', n))).width], `${n}`).toEqual([row.x - p.x, row.width]);
+    // Every item container ends at the drawer's end padding, and (highlight indented) begins where its row's level does:
+    // its icon item.padding-inline in.
+    for (const n of [0, 2, 3]) {
+      const [c, i] = [await bounds(box(page, 'compact', n)), await bounds(item(page, 'compact', n).locator('.icon'))];
+      expect(c.x + c.width, `${n}`).toBe(row.x + row.width);
+      expect(i.x - c.x, `${n}`).toBe(homeIcon.x - row.x);
+    }
     // container.gap between two cells; the heading's row at its least height.
     const [first, second] = [await bounds(cell(page, 'compact', 2)), await bounds(cell(page, 'compact', 3))];
     expect(second.y - (first.y + first.height)).toBeCloseTo(gap, 1);
@@ -2842,7 +2863,7 @@ test.describe('groups that are destinations', () => {
   });
 
   test('NVD-67: the chevron opens and the row chooses — a press on the chevron toggles and chooses nothing, a press just before its hit area chooses and toggles nothing; its hit area reaches the cell’s end and is at least the pointer target wide; hover anywhere shows on the item container', async ({ page }) => {
-    await mount(page, [SELECTABLE], { reducedMotion: true });
+    await mount(page, [{ ...SELECTABLE, props: { ...SELECTABLE.props, chevron: 'end' } }], { reducedMotion: true });
     await wire(page);
     const id = 'selectable-groups';
     const target = await px(page, '--tanrei-sys-target-pointer');
@@ -2930,6 +2951,209 @@ test.describe('groups that are destinations', () => {
     await mount(page, [fixture('s', [{ kind: 'group', props: { label: 'Components', value: 'components' }, items: [d('button', 'Button'), nested] }, d('home', 'Home')], { selectableGroups: true, revealSelected: true, value: 'navigation' })], { reducedMotion: true });
     expect(await page.evaluate(() => [...document.querySelectorAll<any>('tanrei-navigation-drawer-group')].map((g) => g.open))).toEqual([true, true]);
     await expect(groupRow(page, 's', 1)).toHaveAttribute('aria-current', 'page');
+  });
+});
+
+test.describe('the row model shared with the tree view', () => {
+  const F = (id: string) => spec.fixtures.find((f) => f.id === id)!;
+  const with_ = (id: string, props: Fixture['props'], as = id) => ({ ...F(id), id: as, props: { ...F(id).props, ...props } });
+  const x = async (locator: Locator) => (await bounds(locator)).x;
+  const glyphText = (locator: Locator) => locator.locator('.icon').first().textContent();
+
+  test('NVD-68: with chevron none a press on a group’s icon opens and closes it and its icon shows openIcon while open; a group without an icon opens by its row unless it is a destination, which its row chooses while the arrows still open it; a group without an icon or an openIcon is reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [F('chevron-none'), with_('selectable-groups', { chevron: 'none' }, 'sel'), fixture('bare', [grp('Plain', [d('a', 'A')], { open: true })], { chevron: 'none' })], { reducedMotion: true });
+    await wire(page);
+    const projects = group(page, 'chevron-none', 0);
+    expect(await projects.locator('.chevron').count()).toBe(0);
+    expect(await glyphText(projects)).toBe('folder_open');
+    await projects.locator('.icon').first().click();
+    expect(await log(page)).toEqual(['toggle:Projects:false:false']);
+    expect(await glyphText(projects)).toBe('folder');
+    // A destination group with an icon: the icon is its toggle, the label chooses.
+    await page.evaluate(() => ((window as any).log.length = 0));
+    await group(page, 'sel', 0).locator('.label').first().click();
+    expect(await log(page)).toEqual(['change:foundations:foundations']);
+    await group(page, 'sel', 0).locator('.toggle').first().click();
+    expect((await log(page)).at(-1)).toBe('toggle:Foundations:true:true');
+    // A group without an icon opens by its row; reported, as nothing shows whether it is open.
+    await groupRow(page, 'bare', 0).click();
+    expect((await log(page)).at(-1)).toBe('toggle:Plain:false:false');
+    await expect.poll(() => seen.some((w) => w.includes('NVD-68') && w.includes('"Plain"'))).toBe(true);
+  });
+
+  test('NVD-69: auto lines a nested row’s first part up with its group’s label; indent 0 begins it where its group’s row begins; a number steps by that many pixels', async ({ page }) => {
+    await mount(page, [F('chevron-end'), with_('chevron-end', { indent: 0 }, 'zero'), with_('chevron-end', { indent: 20 }, 'twenty')], { reducedMotion: true });
+    for (const [id, expectStart] of [
+      ['chevron-end', async () => x(group(page, 'chevron-end', 0).locator('.label').first())],
+      ['zero', async () => x(group(page, 'zero', 0).locator('.icon').first())],
+      ['twenty', async () => (await x(group(page, 'twenty', 0).locator('.icon').first())) + 20],
+    ] as const) {
+      expect(await x(item(page, id, 1).locator('.icon')), id).toBeCloseTo(await expectStart(), 1);
+    }
+  });
+
+  test('NVD-71: iconSpace auto keeps an icon’s room where another row of the level has an icon; never keeps none; always keeps it everywhere', async ({ page }) => {
+    await mount(page, [F('icon-space'), with_('icon-space', { iconSpace: 'never' }, 'never'), with_('icon-space', { iconSpace: 'always' }, 'always')], { reducedMotion: true });
+    const label = (id: string, n: number) => x(item(page, id, n).locator('.label'));
+    expect(await label('icon-space', 1)).toBeCloseTo(await label('icon-space', 0), 1);
+    // Work and Family: no row of their level has an icon.
+    const ipi = await px(page, T('item-padding-inline-regular'));
+    expect((await label('icon-space', 3)) - (await x(box(page, 'icon-space', 3)))).toBeCloseTo(ipi, 1);
+    expect((await label('never', 1)) - (await x(box(page, 'never', 1)))).toBeCloseTo(ipi, 1);
+    expect((await label('always', 3)) - (await x(box(page, 'always', 3)))).toBeGreaterThan(ipi + 1);
+  });
+
+  test('NVD-72: while expandable is false every group is shown open, draws no chevron, takes no focus and is not exposed as expandable; a press on its row does nothing', async ({ page }) => {
+    await mount(page, [F('not-expandable')], { reducedMotion: true });
+    await wire(page);
+    const id = 'not-expandable';
+    for (const n of [0, 1, 2]) await expect(cell(page, id, n)).toBeVisible();
+    expect(await drawer(page, id).locator('.chevron').count()).toBe(0);
+    for (const n of [0, 1]) {
+      const row = group(page, id, n).locator('#row');
+      await expect(row).not.toHaveAttribute('aria-expanded');
+      await expect(row).toHaveAttribute('aria-hidden', 'true');
+    }
+    await group(page, id, 0).locator('#row').click();
+    expect(await log(page)).toEqual([]);
+    await tabTo(page, cell(page, id, 0));
+    await tab(page);
+    await expect(cell(page, id, 1)).toBeFocused();
+    await tab(page);
+    await expect(cell(page, id, 2)).toBeFocused();
+    // The list of a group's items is named by its label.
+    await expect(drawer(page, id).getByRole('list', { name: 'Foundations' })).toHaveCount(1);
+  });
+
+  test('NVD-73: a guide line runs from an open group’s row to its last shown row, under the start chevron, else the icon, else the label’s start; hover draws it only while the pointer is over the drawer; indent 0 draws none', async ({ page }) => {
+    await mount(page, [F('guides'), F('guides-chevron-none'), with_('chevron-end', { guides: 'shown', indent: 0 }, 'zero'), with_('chevron-end', { guides: 'hover' }, 'hover'), fixture('labels', [grp('Folders', [d('a', 'A'), d('b', 'B')], { open: true })], { guides: 'shown', chevron: 'end' })], { reducedMotion: true });
+    const line = (id: string, n: number) =>
+      group(page, id, n).evaluate((el) => {
+        const fold = el.shadowRoot!.querySelector('.fold')!;
+        const style = getComputedStyle(fold, '::before');
+        const box = fold.getBoundingClientRect();
+        const start = Number.parseFloat(style.insetInlineStart);
+        return { display: style.display, opacity: style.opacity, centre: box.left + start + Number.parseFloat(style.width) / 2, top: box.top, bottom: box.bottom };
+      });
+    const centreOf = async (locator: Locator) => centre(await bounds(locator)).x;
+    // Chevron start: under the chevron.
+    const g = await line('guides', 0);
+    expect(g.display).toBe('block');
+    expect(g.centre).toBeCloseTo(await centreOf(group(page, 'guides', 0).locator('.chevron').first()), 0);
+    expect(g.top).toBeCloseTo((await bounds(groupRow(page, 'guides', 0))).y + (await bounds(groupRow(page, 'guides', 0))).height, 0);
+    const lastRow = await bounds(cell(page, 'guides', 3));
+    expect(g.bottom).toBeCloseTo(lastRow.y + lastRow.height, 0);
+    // Chevron none: under the icon.
+    expect((await line('guides-chevron-none', 0)).centre).toBeCloseTo(await centreOf(group(page, 'guides-chevron-none', 0).locator('.icon').first()), 0);
+    // No icon and an end chevron: at the label's start.
+    expect((await line('labels', 0)).centre).toBeCloseTo(await x(group(page, 'labels', 0).locator('.label').first()), 0);
+    // indent 0: none.
+    expect((await line('zero', 0)).display).toBe('none');
+    // hover: drawn while the pointer is over the drawer.
+    await page.mouse.move(1200, 700);
+    await expect.poll(async () => (await line('hover', 0)).opacity).toBe('0');
+    await groupRow(page, 'hover', 0).hover();
+    await expect.poll(async () => (await line('hover', 0)).opacity).toBe('1');
+  });
+
+  test('NVD-74: supporting text below the label grows the row; inline it stands after the label on its line; it is read as the row’s description', async ({ page }) => {
+    await mount(page, [F('supporting')], { reducedMotion: true });
+    const id = 'supporting';
+    const height = await px(page, T('item-container-height-regular'));
+    const [label, note] = [await bounds(item(page, id, 0).locator('.label')), await bounds(item(page, id, 0).locator('.supporting'))];
+    expect(note.y).toBeGreaterThanOrEqual(label.y + label.height - 0.5);
+    const row = await bounds(box(page, id, 0));
+    const padBlock = await px(page, T('item-padding-block-regular'));
+    expect(row.height).toBeGreaterThanOrEqual(height);
+    expect(row.y + row.height - (note.y + note.height)).toBeGreaterThanOrEqual(padBlock - 0.5);
+    const [l2, n2] = [await bounds(item(page, id, 1).locator('.label')), await bounds(item(page, id, 1).locator('.supporting'))];
+    expect(n2.x).toBeGreaterThan(l2.x + l2.width);
+    expect(Math.abs(centre(n2).y - centre(l2).y)).toBeLessThan(4);
+    await expect(cell(page, id, 0)).toHaveAttribute('aria-description', '3 new');
+    await expect(groupRow(page, id, 0)).toHaveAttribute('aria-description', '2 folders');
+  });
+
+  test('NVD-75: a label that does not fit is one line ending in an ellipsis and its whole text is shown in a tooltip on hover and keyboard focus — never for a row drawn whole; Escape dismisses it; labelWrap wraps and shows none', async ({ page }) => {
+    await mount(page, [F('one-line'), F('label-wrap')], { reducedMotion: true });
+    const tip = (id: string, n: number) => item(page, id, n).locator('tanrei-tooltip.tip');
+    const long = item(page, 'one-line', 1).locator('.label');
+    expect(await long.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+    expect(await css(long, 'text-overflow')).toBe('ellipsis');
+    await cell(page, 'one-line', 0).hover();
+    await page.waitForTimeout((await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration')) + 150);
+    expect(await tip('one-line', 0).count()).toBe(0);
+    await cell(page, 'one-line', 1).hover();
+    await expect.poll(() => tip('one-line', 1).evaluate((el: any) => el.open)).toBe(true);
+    expect(await tip('one-line', 1).evaluate((el: any) => el.text)).toBe('A destination whose name is far too long for one line of the drawer — and a note that is also longer than the row can hold');
+    await page.keyboard.press('Escape');
+    await expect.poll(() => tip('one-line', 1).evaluate((el: any) => el.open)).toBe(false);
+    await page.mouse.move(1200, 700);
+    // Keyboard focus shows it at once.
+    await page.mouse.click(1200, 700);
+    await tabTo(page, cell(page, 'one-line', 1));
+    await expect.poll(() => tip('one-line', 1).evaluate((el: any) => el.open)).toBe(true);
+    // The accessible name is the whole label.
+    await expect(cell(page, 'one-line', 1)).toHaveAttribute('aria-label', 'A destination whose name is far too long for one line of the drawer');
+    // labelWrap: drawn whole, so no tooltip.
+    expect(await item(page, 'label-wrap', 1).locator('.label').evaluate((el) => el.scrollWidth <= el.clientWidth + 0.5)).toBe(true);
+    await cell(page, 'label-wrap', 1).hover();
+    await page.waitForTimeout((await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration')) + 150);
+    expect(await tip('label-wrap', 1).count()).toBe(0);
+  });
+
+  test('NVD-76: an open group that is loading draws a loading row under its items, one step further in, named by loadingLabel, taking no focus; its list is busy', async ({ page }) => {
+    await mount(page, [F('group-loading')], { reducedMotion: true });
+    const archive = group(page, 'group-loading', 0);
+    const row = archive.locator('.loading-row');
+    await expect(row).toBeVisible();
+    await expect(row).toContainText('Loading…');
+    await expect(archive.locator('#items')).toHaveAttribute('aria-busy', 'true');
+    expect(await row.evaluate((el) => el.querySelectorAll('[tabindex], button, a').length)).toBe(0);
+    const [loading, item2025] = [await bounds(row.locator('.loading-box')), await bounds(item(page, 'group-loading', 1).locator('.icon'))];
+    expect(loading.x).toBeCloseTo(item2025.x, 0);
+    expect(loading.y).toBeGreaterThan(item2025.y);
+  });
+
+  test('NVD-77: with stickyParents the rows of the open groups the top rows belong to are pinned, the innermost stickyMax of them, each under the one above, the last with its line; Tab to a row under them scrolls it below them; none while collapsed or off', async ({ page }) => {
+    await mount(page, [{ ...F('sticky'), props: { ...F('sticky').props, scrollOffset: 0 } }], { reducedMotion: true });
+    const id = 'sticky';
+    const scroller = drawer(page, id).locator('[part="content"]');
+    const pinned = () => drawer(page, id).evaluate((el) => [...el.querySelectorAll<any>('tanrei-navigation-drawer-group')].filter((g) => g.isPinned).map((g) => g.label));
+    expect(await pinned()).toEqual([]);
+    await scroller.evaluate((el) => (el.scrollTop = 220));
+    await expect.poll(pinned).toEqual(['2026', 'February']);
+    const top = (await bounds(scroller)).y;
+    const rows = await Promise.all([0, 1].map(async (n) => bounds(groupRow(page, id, n))));
+    expect(rows[0].y).toBeCloseTo(top, 0);
+    expect(rows[1].y).toBeCloseTo(rows[0].y + rows[0].height, 0);
+    expect(await group(page, id, 1).locator('.pinned-last').count()).toBe(1);
+    // A focused row under the pinned rows is brought in below them.
+    await page.mouse.click(790, 5);
+    const target = cell(page, id, 3);
+    await target.evaluate((el: any) => el.scrollIntoView({ block: 'start' }));
+    await scroller.evaluate((el) => (el.scrollTop = 220));
+    await tabTo(page, target);
+    const b = await bounds(target);
+    expect(b.y).toBeGreaterThanOrEqual(rows[1].y + rows[1].height - 1);
+    // stickyMax 1: the innermost alone.
+    await setProps(page, id, { stickyMax: 1 });
+    await scroller.evaluate((el) => (el.scrollTop = 221));
+    await expect.poll(pinned).toEqual(['February']);
+    // Off: none.
+    await setProps(page, id, { stickyParents: false });
+    await scroller.evaluate((el) => (el.scrollTop = 222));
+    await expect.poll(pinned).toEqual([]);
+  });
+
+  test('NVD-39, NVD-68: with a start chevron the main action’s glyph moves with the destinations’ icons, a chevron’s room and a gap further in', async ({ page }) => {
+    await mount(page, [fixture('s', [MENU, MAIN, d('home', 'Home', 'home'), grp('Projects', [d('a', 'A', 'palette')], { icon: 'folder', open: true })], { value: 'home' })], { reducedMotion: true });
+    const glyph = centre(await bounds(drawer(page, 's').locator('tanrei-main-action-button').locator('.icon-box'))).x;
+    const icon = centre(await bounds(item(page, 's', 0).locator('.icon'))).x;
+    expect(Math.abs(glyph - icon)).toBeLessThanOrEqual(0.5);
+    const p = await bounds(panel(page, 's'));
+    const [chevron, gap] = await Promise.all([T('item-trailing-icon-size-regular'), T('item-gap')].map((n) => px(page, n)));
+    expect(icon - p.x).toBeCloseTo(36 + chevron + gap, 1);
   });
 });
 

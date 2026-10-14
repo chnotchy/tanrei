@@ -32,6 +32,7 @@ import { ownDirection } from '../../styles/product-text.js';
 import { TanreiBadge } from '../badge/badge.js';
 import { TanreiDivider } from '../divider/divider.js';
 import { TanreiTooltip } from '../tooltip/tooltip.js';
+import '../loading-indicator/loading-indicator.js';
 import { AXES, cellStyles, drawerStyles, groupStyles, sectionStyles } from './navigation-drawer.styles.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
@@ -112,9 +113,48 @@ export interface DrawerCellContext extends DestinationContext {
   current: boolean;
   /** A group: it is a destination as well (selectableGroups and a value or an href, NVD-66). A destination: always. */
   destination: boolean;
+  /** Where a group's chevron is drawn (NVD-68): the drawer's `chevron`, start drawn as end while it is collapsible. */
+  chevron: 'start' | 'end' | 'none';
+  /** How much further than the drawer's padding the row begins, a CSS length (NVD-69). */
+  inset: string;
+  /** The row keeps the icon's room: it has an icon, or iconSpace keeps it (NVD-71). */
+  iconRoom: boolean;
+  /** How far the row's fill and state layers reach (NVD-70). */
+  highlight: 'indented' | 'full';
+  /** Groups open and close at all (NVD-72). */
+  expandable: boolean;
+  /** A group's guide line (NVD-73): how it is drawn, and where (a CSS length from the cell's start); its items' inset. */
+  guides: 'none' | 'shown' | 'hover';
+  guideAt: string;
+  childInset: string;
+  /** The label and the supporting text wrap instead of being cut (NVD-75). */
+  labelWrap: boolean;
+  supportingWrap: boolean;
 }
 
-const REST: DrawerCellContext = { selected: false, position: 0, size: 0, labelShown: true, collapsed: false, collapsible: false, shortShown: false, labels: false, level: 0, current: false, destination: false };
+const REST: DrawerCellContext = {
+  selected: false,
+  position: 0,
+  size: 0,
+  labelShown: true,
+  collapsed: false,
+  collapsible: false,
+  shortShown: false,
+  labels: false,
+  level: 0,
+  current: false,
+  destination: false,
+  chevron: 'end',
+  inset: '0px',
+  iconRoom: false,
+  highlight: 'indented',
+  expandable: true,
+  guides: 'none',
+  guideAt: '0px',
+  childInset: '0px',
+  labelWrap: false,
+  supportingWrap: false,
+};
 
 /**
  * What a destination and a group's row share: the cell — the drawer's full width, the hit area — with its row laid out
@@ -130,8 +170,28 @@ abstract class DrawerCell extends LitElement {
     shortLabel: { type: String, attribute: 'short-label' },
     icon: { type: String },
     disabled: { type: Boolean, reflect: true },
+    supportingText: { type: String, attribute: 'supporting-text' },
+    supportingPosition: { type: String, attribute: 'supporting-position' },
+    trailingText: { type: String, attribute: 'trailing-text' },
     context: { state: true },
+    trailing: { state: true },
+    tipText: { state: true },
   };
+
+  /** A few words about the row, under its label (`below`, the default) or after it (`inline`), read as its description (NVD-74). */
+  supportingText = '';
+
+  /** Where the supporting text stands: `below` (the default) or `inline`. */
+  supportingPosition: 'below' | 'inline' = 'below';
+
+  /** Short text at the end of the expanded row ("24", "New"), quieter than the label; the trailing slot's content wins. */
+  trailingText = '';
+
+  /** What the trailing slot holds: whether anything, whether one glyph, and what it says. */
+  protected trailing = { filled: false, glyph: false, text: '' };
+
+  /** NVD-75: the full text a tooltip shows while the row's label or supporting text is cut; null while none is wanted. */
+  protected tipText: string | null = null;
 
   /** Its name, drawn beside the icon while the drawer is expanded and always its accessible name. Required. */
   label = '';
@@ -155,7 +215,7 @@ abstract class DrawerCell extends LitElement {
    * icon set mirrors their names in right-to-left (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark. A
    * group's chevron (`expand_more`, NVD-44) is not named here.
    */
-  protected readonly mirror = new GlyphMirrorController(this, { drawn: '.icon, .link-mark', slots: 'slot[name="trailing"]' });
+  protected readonly mirror = new GlyphMirrorController(this, { drawn: '.icon, .link-mark, .chevron.start', slots: 'slot[name="trailing"]' });
 
   /** NVD-8, NVD-9: the pressed state, press-hold and the answer the system chooses (src/primitives/press.ts). */
   protected readonly press = new PressController(this, {
@@ -212,9 +272,40 @@ abstract class DrawerCell extends LitElement {
   /** NVD-10: where style queries are missing, the focus style is read when focus arrives. NVD-56: keyboard focus names a collapsed cell, without the hover's delay. */
   protected readonly onFocus = () => {
     syncFocusStyle(this, this.cell);
-    if (!this.cell?.matches(':focus-visible') || !this.unnamed) return;
-    this.nameWhenInView();
+    if (!this.cell?.matches(':focus-visible') || !this.wantsName()) return;
+    void this.readyName().then(() => this.nameWhenInView());
   };
+
+  /**
+   * NVD-75: what is cut in the expanded row — the label, the supporting text — as the full text a tooltip shows, or
+   * null where everything is drawn whole. Measured when it is asked for (a hover, a focus), never on every frame.
+   */
+  private cutText(): string | null {
+    if (this.context.collapsed) return null;
+    const cut = (selector: string) => {
+      const element = this.renderRoot?.querySelector<HTMLElement>(selector);
+      return !!element && element.scrollWidth > element.clientWidth + 0.5;
+    };
+    const label = !this.context.labelWrap && cut('.label');
+    const supporting = !!this.supportingText && !this.context.supportingWrap && cut('.supporting');
+    if (!label && !supporting) return null;
+    return supporting ? `${this.label} — ${this.supportingText}` : this.label;
+  }
+
+  /** NVD-56, NVD-75: whether the cell shows its name in a tooltip now: a collapsed cell without a label, or a cut row. */
+  private wantsName(): boolean {
+    return this.unnamed || this.cutText() !== null;
+  }
+
+  /** The tooltip a cut row shows is drawn when it is first wanted, with the text that is cut (NVD-75). */
+  private async readyName() {
+    if (this.unnamed) return;
+    const text = this.cutText();
+    if (text !== this.tipText) {
+      this.tipText = text;
+      await this.updateComplete;
+    }
+  }
 
   /**
    * NVD-56: keyboard focus opens the name once the cell can be seen. A tooltip whose anchor lies wholly outside the
@@ -234,7 +325,7 @@ abstract class DrawerCell extends LitElement {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       this.sightline?.disconnect();
       this.sightline = null;
-      if (this.cell?.matches(':focus-visible') && this.unnamed) this.showName(true);
+      if (this.cell?.matches(':focus-visible') && (this.unnamed || this.tipText)) this.showName(true);
     });
     this.sightline.observe(tip);
   }
@@ -274,11 +365,14 @@ abstract class DrawerCell extends LitElement {
 
   /** NVD-56: a fine pointer resting on the cell shows its name after the tooltip's show delay; a touch does not. */
   protected readonly onPointerEnter = (event: PointerEvent) => {
-    if (event.pointerType === 'touch' || !this.unnamed || this.disabled) return;
+    if (event.pointerType === 'touch' || this.disabled || !this.wantsName()) return;
     this.hovered = true;
     clearTimeout(this.tipTimer);
     this.tipTimer = setTimeout(() => {
-      if (this.hovered && this.unnamed) this.showName(true);
+      if (!this.hovered) return;
+      void this.readyName().then(() => {
+        if (this.hovered && (this.unnamed || this.tipText)) this.showName(true);
+      });
     }, this.tipWaits().show);
   };
 
@@ -332,8 +426,10 @@ abstract class DrawerCell extends LitElement {
     if (!this.told) askDestinationContext(this);
     const before = (changed as Map<PropertyKey, unknown>).get('context') as DrawerCellContext | undefined;
     if (before && before.selected !== this.context.selected && before.collapsed === this.context.collapsed) markConditionChange(this.cell);
-    // NVD-56: a cell that draws its label again, or leaves the collapsed form, has no tooltip to leave open.
-    if (!this.unnamed) clearTimeout(this.tipTimer);
+    // NVD-56: a cell that draws its label again, or leaves the collapsed form, has no tooltip to leave open; NVD-75: a
+    // change of form, of text or of wrapping measures what is cut again when it is next asked.
+    if (changed.has('label') || changed.has('supportingText') || (before && (before.collapsed !== this.context.collapsed || before.labelWrap !== this.context.labelWrap || before.supportingWrap !== this.context.supportingWrap))) this.tipText = null;
+    if (!this.unnamed && !this.tipText) clearTimeout(this.tipTimer);
   }
 
   protected override updated(changed: PropertyValues<this>) {
@@ -370,18 +466,87 @@ abstract class DrawerCell extends LitElement {
 
   /** The cell's classes: its condition, its state and its form. */
   protected cellClasses(extra: ClassInfo = {}): ClassInfo {
-    const { selected, collapsed, collapsible, shortShown, labels } = this.context;
-    return { cell: true, selected, d: this.disabled, collapsed, collapsible, 'short-shown': shortShown, 'no-labels': !labels, 'no-icon': !this.icon, ...extra };
+    const { selected, collapsed, collapsible, shortShown, labels, chevron, iconRoom, highlight, labelWrap, supportingWrap } = this.context;
+    return {
+      cell: true,
+      selected,
+      d: this.disabled,
+      collapsed,
+      collapsible,
+      'short-shown': shortShown,
+      'no-labels': !labels,
+      'no-icon': !this.icon,
+      // NVD-68, NVD-70, NVD-71, NVD-74, NVD-75: the row model's geometry.
+      'chevron-start': chevron === 'start',
+      'icon-room': iconRoom,
+      'highlight-full': highlight === 'full',
+      'label-wrap': labelWrap,
+      'supporting-wrap': supportingWrap,
+      ...extra,
+    };
   }
 
-  /** Its level of nesting, for the item container's, the icon's and the label's indent (NVD-13, NVD-44). */
+  /** NVD-69: how much further than the drawer's padding the row begins. */
   protected cellStyle(): StyleInfo {
-    return { '--_level': String(this.context.level) };
+    // NVD-69: a row whose levels would begin it past half of the drawer's inner width begins there.
+    return { '--_inset': `min(${this.context.inset || '0px'}, calc((var(--tanrei-comp-navigation-drawer-container-width) - 2 * var(--tanrei-comp-navigation-drawer-container-padding-inline)) / 2))` };
+  }
+
+  /** The glyph's name: the icon (a group draws its openIcon while open, NVD-68). */
+  protected get glyphName(): string {
+    return this.icon;
   }
 
   /** The glyph (hidden from assistive technology); a destination puts its badge on it. */
   protected glyph(): TemplateResult {
-    return html`<span part="icon" class="icon" aria-hidden="true">${this.icon}</span>`;
+    return html`<span part="icon" class="icon" aria-hidden="true">${this.glyphName}</span>`;
+  }
+
+  /** NVD-68: an end chevron's room, kept empty on a destination's row so that the trailing texts of a level stand in one column. */
+  protected endRoom(): TemplateResult | typeof nothing {
+    return this.context.chevron === 'end' && !this.context.collapsed ? html`<span class="chevron end room" aria-hidden="true"></span>` : nothing;
+  }
+
+  /** NVD-68: what the start chevron's box holds — nothing on a destination's row, which keeps the room. */
+  protected startChevron(): TemplateResult | typeof nothing {
+    return nothing;
+  }
+
+  /** NVD-15, NVD-43: what the trailing slot holds, and what it says as part of the description. */
+  protected onTrailingChange(event: Event) {
+    const assigned = (event.target as HTMLSlotElement).assignedElements({ flatten: true });
+    const text = assigned
+      .filter((element) => element.getAttribute('aria-hidden') !== 'true')
+      .map((element) => element.getAttribute('aria-label') ?? element.textContent?.trim() ?? '')
+      .filter(Boolean)
+      .join(' ');
+    // One plain element holding text only is a glyph of the icon set (a ligature), drawn at trailing-icon.size.
+    const glyph = assigned.length === 1 && !assigned[0].localName.includes('-') && !assigned[0].children.length && !!assigned[0].textContent?.trim();
+    this.trailing = { filled: assigned.length > 0, glyph, text };
+    if (assigned.some((element) => findInteractive(element))) report(this, 'NVD-43', 'the trailing slot holds a focusable element; trailing content is not interactive, so it is kept out of the focus order');
+  }
+
+  /**
+   * NVD-43: the trailing slot's content, or else the trailing text; inert, and part of the description (NVD-15). `mark`:
+   * a link that opens a new context ends its row with the icon set's `open_in_new` where the product put neither there
+   * (NVD-63). `after`: what stands after the trailing content at the very end of the row (a group's end chevron, NVD-68).
+   */
+  protected trailingContent(mark = false, after: TemplateResult | typeof nothing = nothing) {
+    const { filled, glyph } = this.trailing;
+    const text = !filled && !!this.trailingText;
+    const marked = mark && !filled && !text;
+    return html`<span class=${classMap({ trailing: true, filled: filled || text || marked || after !== nothing })} aria-hidden="true" inert>
+      <span class=${classMap({ 'trailing-slot': true, filled, glyph })}><slot name="trailing" @slotchange=${this.onTrailingChange}></slot></span>
+      ${text ? html`<span part="trailing-text" class="trailing-text">${this.trailingText}</span>` : nothing}
+      ${marked ? html`<span part="link-mark" class="link-mark">${LINK_MARK}</span>` : nothing}
+      ${after}
+    </span>`;
+  }
+
+  /** NVD-15, NVD-74: what the row says after its name: its supporting text, then its trailing content's text. */
+  protected get rowDescription(): string[] {
+    const trailing = this.trailing.filled ? this.trailing.text : this.trailingText;
+    return [this.supportingText, trailing].filter((part): part is string => !!part);
   }
 
   /**
@@ -391,17 +556,22 @@ abstract class DrawerCell extends LitElement {
    * assistive technology: the cell is named by the label, and the tooltip says nothing a second time.
    */
   protected row(trailing: TemplateResult | typeof nothing) {
+    const inline = this.supportingPosition === 'inline';
+    const tip = this.unnamed ? this.label : this.tipText;
     return html`
       <span class="row">
         <span part="container" class="container" data-tanrei-shape><span part="active-indicator" class="indicator" aria-hidden="true"></span></span>
+        ${this.context.chevron === 'start' && !this.context.collapsed ? html`<span class="start-chevron" aria-hidden="true">${this.startChevron()}</span>` : nothing}
         <span class="lead" aria-hidden="true">
           <span part="icon-indicator" class="icon-indicator" data-tanrei-shape></span>
           ${this.icon ? this.glyph() : nothing}
         </span>
-        <span part="label" class="label" aria-hidden="true">${this.label}</span>
+        <span class=${classMap({ text: true, inline })} aria-hidden="true"
+          ><span part="label" class="label">${this.label}</span>${this.supportingText ? html`<span part="supporting-text" class="supporting">${this.supportingText}</span>` : nothing}</span
+        >
         ${trailing}
         <span part="short-label" class="short" aria-hidden="true"><span class="short-text" dir=${ownDirection(this.shortLabel || this.label)}>${this.shortLabel || this.label}</span></span>
-        ${this.unnamed ? html`<tanrei-tooltip class="tip" no-describe aria-hidden="true" placement="end" .text=${this.label}></tanrei-tooltip>` : nothing}
+        ${tip ? html`<tanrei-tooltip class="tip" no-describe aria-hidden="true" placement="end" .text=${tip}></tanrei-tooltip>` : nothing}
       </span>
       <span class="hold"></span><span class="tip-clock"></span>
     `;
@@ -443,7 +613,6 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
   static override properties: PropertyDeclarations = {
     // Its own accessor (below): a link without a value reads its href. Reflected by hand, as it was given.
     value: { type: String, noAccessor: true },
-    trailingText: { type: String, attribute: 'trailing-text' },
     badge: { type: Boolean, reflect: true },
     badgeCount: { type: Number, attribute: 'badge-count' },
     badgeLabel: { type: String, attribute: 'badge-label' },
@@ -452,7 +621,6 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
     targetLabel: { type: String, attribute: 'target-label' },
     rel: { type: String },
     download: { type: String },
-    trailing: { state: true },
   };
 
   private given = '';
@@ -471,9 +639,6 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
     this.given = value ?? '';
     this.requestUpdate('value', before);
   }
-
-  /** Short text at the end of the expanded row ("24", "New"), quieter than the label; the trailing slot's content wins. */
-  trailingText = '';
 
   /** Draws a Tanrei badge on the icon, in both forms, from `badgeCount` and `badgeLabel`. */
   badge = false;
@@ -522,9 +687,6 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
     return { href: this.href, counted: plain && !form.disabled && !form.opensNew && this.download === null };
   }
 
-  /** What the trailing slot holds: whether anything, whether one glyph, and what it says. */
-  private trailing = { filled: false, glyph: false, text: '' };
-
   /** @internal The drawer's side (`DestinationsController`). */
   setDestinationContext(context: DestinationContext) {
     this.setDrawerContext({ ...REST, ...context });
@@ -545,20 +707,6 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
     if (this.leaveToGroup(event)) return;
     this.press.onKeyDown(event);
   };
-
-  /** NVD-15, NVD-43: what the trailing slot holds, and what it says as part of the description. */
-  private onTrailingChange(event: Event) {
-    const assigned = (event.target as HTMLSlotElement).assignedElements({ flatten: true });
-    const text = assigned
-      .filter((element) => element.getAttribute('aria-hidden') !== 'true')
-      .map((element) => element.getAttribute('aria-label') ?? element.textContent?.trim() ?? '')
-      .filter(Boolean)
-      .join(' ');
-    // One plain element holding text only is a glyph of the icon set (a ligature), drawn at trailing-icon.size.
-    const glyph = assigned.length === 1 && !assigned[0].localName.includes('-') && !assigned[0].children.length && !!assigned[0].textContent?.trim();
-    this.trailing = { filled: assigned.length > 0, glyph, text };
-    if (assigned.some((element) => findInteractive(element))) report(this, 'NVD-43', 'the trailing slot holds a focusable element; trailing content is not interactive, so it is kept out of the focus order');
-  }
 
   protected override updated(changed: PropertyValues<this>) {
     super.updated(changed);
@@ -583,32 +731,17 @@ export class TanreiNavigationDrawerItem extends DrawerCell implements Destinatio
     return html`<tanrei-badge .count=${this.badgeCount ?? null} label=${this.badgeLabel}>${glyph}</tanrei-badge>`;
   }
 
-  /**
-   * NVD-43: the trailing slot's content, or else the trailing text; inert, and part of the description (NVD-15).
-   * NVD-63: a link that opens a new context ends its row with the icon set's `open_in_new` where the product put
-   * neither there — drawn as a glyph of the trailing slot is, and mirrored by the icon set's list.
-   */
-  private trailingContent(mark: boolean) {
-    const { filled, glyph } = this.trailing;
-    const text = !filled && !!this.trailingText;
-    const marked = mark && !filled && !text;
-    return html`<span class=${classMap({ trailing: true, filled: filled || text || marked })} aria-hidden="true" inert>
-      <span class=${classMap({ 'trailing-slot': true, filled, glyph })}><slot name="trailing" @slotchange=${this.onTrailingChange}></slot></span>
-      ${text ? html`<span part="trailing-text" class="trailing-text">${this.trailingText}</span>` : nothing}
-      ${marked ? html`<span part="link-mark" class="link-mark">${LINK_MARK}</span>` : nothing}
-    </span>`;
-  }
-
   protected override render() {
     const { selected } = this.context;
     const classes = this.cellClasses();
     // NVD-15, NVD-42: the badge's description, and then the trailing content, after the name and the state.
-    const trailing = this.trailing.filled ? this.trailing.text : this.trailingText;
     // NVD-59: with an address it is a link — the anchor's address, target, rel and disabled form are the link
-    // primitive's. NVD-63: one that opens a new context says so last, whether its mark is drawn or not.
+    // primitive's. NVD-63: one that opens a new context says so last, whether its mark is drawn or not. NVD-74: the
+    // supporting text first, then the badge's description, then the trailing content.
     const link = this.link.form;
-    const description = this.link.describe(badgeDescription(this.badge, this.badgeCount, this.badgeLabel), trailing) ?? nothing;
-    const content = this.row(this.trailingContent(!!link?.opensNew));
+    const [supporting, ...rest] = this.supportingText ? this.rowDescription : ['', ...this.rowDescription];
+    const description = this.link.describe(supporting, badgeDescription(this.badge, this.badgeCount, this.badgeLabel), ...rest) ?? nothing;
+    const content = this.row(this.trailingContent(!!link?.opensNew, this.endRoom()));
     if (link) {
       return html`<a
         part="cell"
@@ -694,10 +827,55 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     // Its own accessor (below): a link without a value reads its href. Reflected by hand, as it was given.
     value: { type: String, noAccessor: true },
     href: { type: String },
+    openIcon: { type: String, attribute: 'open-icon' },
+    loading: { type: Boolean, reflect: true },
+    pin: { state: true },
   };
 
   /** Whether its items are shown under its row while the drawer is expanded. Reflected; the drawer sets it on activation. */
   open = false;
+
+  /** A second glyph, drawn in the icon's place while the group is open (`folder_open` beside `folder`, NVD-68). */
+  openIcon = '';
+
+  /** The product is fetching the group's items: while open, a loading row is drawn under them and the list is busy (NVD-76). */
+  loading = false;
+
+  /** NVD-77: where the row is pinned (its distance from the top of the space the items scroll in), and whether it is the last pinned row; null while it is not. */
+  private pin: { top: number; last: boolean } | null = null;
+
+  /** @internal NVD-77: the drawer pins the row, or lets it go. */
+  setPinned(pin: { top: number; last: boolean } | null) {
+    const now = this.pin;
+    if (now === pin || (now && pin && now.top === pin.top && now.last === pin.last)) return;
+    this.pin = pin;
+  }
+
+  /** @internal NVD-77: the row is pinned now. */
+  get isPinned(): boolean {
+    return !!this.pin;
+  }
+
+  /** @internal NVD-77: the row's height, for the rows pinned under it. */
+  get rowHeight(): number {
+    const row = this.renderRoot?.querySelector<HTMLElement>('.split, .cell, .static');
+    return row?.offsetHeight ?? 0;
+  }
+
+  /** @internal The row the drawer measures and pins: the row's own box (the split of a destination group). */
+  get rowBox(): HTMLElement | null {
+    return this.renderRoot?.querySelector<HTMLElement>('.split, .cell, .static') ?? null;
+  }
+
+  /** NVD-68: while open (and drawn so), a group draws its openIcon where it has one. */
+  protected override get glyphName(): string {
+    return this.open && this.openIcon && !this.context.collapsed && this.context.expandable ? this.openIcon : this.icon;
+  }
+
+  /** NVD-68: the start chevron, chevron_right turned a quarter turn while open (the icon set mirrors it in right-to-left). */
+  protected override startChevron() {
+    return html`<span part="chevron" class="chevron start">chevron_right</span>`;
+  }
 
   private given = '';
 
@@ -820,6 +998,8 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     // NVD-66, NVD-67: the row of a group that is a destination chooses it — the drawer's own click listener does, as for
     // an item — and neither opens nor closes it, in either form.
     if (this.context.destination) return;
+    // NVD-72: a group that does not open and close has nothing to do; collapsed, its cell still expands the drawer.
+    if (!this.context.expandable && !this.context.collapsed) return;
     // NVD-47: a group's cell in the collapsed drawer expands the drawer with the group open.
     if (this.context.collapsed) {
       this.drawer?.expandToGroup(this);
@@ -830,7 +1010,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
 
   private readonly onKeyDown = (event: KeyboardEvent) => {
     const arrow = this.arrow(event.key);
-    if (arrow && !this.context.collapsed) {
+    if (arrow && !this.context.collapsed && this.context.expandable) {
       // NVD-45: toward the end opens a closed group; toward the start closes an open one, or leaves for the group above.
       if (arrow === 'end' && !this.open) {
         event.preventDefault();
@@ -877,6 +1057,8 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
 
   protected override updated(changed: PropertyValues<this>) {
     super.updated(changed);
+    // NVD-68: without a chevron, a group that has no icon shows nothing on screen of being open or closed.
+    if (this.context.chevron === 'none' && this.context.expandable && !this.icon && !this.openIcon && this.hasUpdated) report(this, 'NVD-68', `the group "${this.label}" has no icon and no openIcon while chevron is none, so nothing on screen shows whether it is open; give it an icon`);
     // NVD-46: a group without a label is a button and a list without a name.
     if (changed.has('label') && !this.label.trim()) report(this, 'NVD-46', 'label is empty, so the group has no accessible name; give it a label');
     // The value as it was given, for a selector or a product that reads it; an href is not written back as one.
@@ -888,18 +1070,58 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
     notifyDestinationUpdate(this, changed);
   }
 
+  /** NVD-72: the items are shown: open (or every group open while groups do not open and close), and the drawer expanded. */
+  private get shown(): boolean {
+    return (this.open || !this.context.expandable) && !this.context.collapsed;
+  }
+
+  /** NVD-68: where the group's own toggle stands while its row is a destination: over its chevron, or its icon (none). */
+  private get toggleAt(): 'start' | 'end' | 'icon' | null {
+    const { chevron, expandable, collapsed } = this.context;
+    if (!expandable || collapsed) return null;
+    if (chevron === 'none') return this.icon ? 'icon' : null;
+    return chevron;
+  }
+
+  /** NVD-77: the pinned row's place and its edge. */
+  private pinStyle(): StyleInfo {
+    return this.pin ? { '--_pin-top': `${this.pin.top}px` } : {};
+  }
+
+  private pinClasses(): ClassInfo {
+    return { pinned: !!this.pin, 'pinned-last': !!this.pin?.last };
+  }
+
   protected override render() {
-    const shown = this.open && !this.context.collapsed;
-    if (this.context.destination) return this.renderDestination(shown);
+    const shown = this.shown;
+    const { destination, expandable, collapsed } = this.context;
+    if (destination) return this.renderDestination(shown);
+    // NVD-72: a group that does not open and close is not a control while the drawer is expanded: its row names the list.
+    if (!expandable && !collapsed) {
+      return html`<div
+          id="row"
+          class=${classMap({ ...this.cellClasses({ open: true, static: true }), ...this.pinClasses() })}
+          style=${styleMap({ ...this.cellStyle(), ...this.pinStyle() })}
+          aria-hidden="true"
+          aria-label=${this.label || nothing}
+          @pointerenter=${this.onPointerEnter}
+          @pointerleave=${this.onPointerLeave}
+        >
+          ${this.row(this.trailingContent(false))}
+        </div>
+        ${this.fold(shown)}`;
+    }
+    const description = this.rowDescription.join(', ') || nothing;
     return html`<button
         part="cell"
         id="row"
-        class=${classMap(this.cellClasses({ open: shown }))}
-        style=${styleMap(this.cellStyle())}
+        class=${classMap({ ...this.cellClasses({ open: shown }), ...this.pinClasses() })}
+        style=${styleMap({ ...this.cellStyle(), ...this.pinStyle() })}
         type="button"
         ?disabled=${this.disabled}
         aria-label=${this.label || nothing}
-        aria-expanded=${String(shown)}
+        aria-description=${description}
+        aria-expanded=${expandable || collapsed ? String(shown) : nothing}
         aria-controls="items"
         @click=${this.onClick}
         @pointerdown=${this.press.onPointerDown}
@@ -912,34 +1134,52 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
         @blur=${this.onBlur}
         @focus=${this.onFocus}
       >
-        ${this.row(this.chevron())}
+        ${this.row(this.trailingContent(false, this.endChevron()))}
       </button>
       ${this.fold(shown)}`;
   }
 
-  /** NVD-44: the chevron at the end of the row (drawn, hidden from assistive technology: the row or the toggle says the state). */
-  private chevron() {
-    return html`<span class="trailing filled" aria-hidden="true"><span part="chevron" class="chevron">expand_more</span></span>`;
+  /** NVD-44, NVD-68: the chevron at the very end of the row, after its trailing content, while chevron is end. */
+  private endChevron() {
+    const { chevron, expandable } = this.context;
+    if (!expandable || (chevron !== 'end' && !this.context.collapsed)) return nothing;
+    return html`<span part="chevron" class="chevron end">expand_more</span>`;
   }
 
-  /** NVD-44, NVD-46: the items, revealed and hidden under the row, a list named by the group's label. */
+  /**
+   * NVD-44, NVD-46, NVD-73, NVD-76: the items, revealed and hidden under the row, a list named by the group's label, busy
+   * while the group is loading; the guide line beside them; and the loading row after them.
+   */
   private fold(shown: boolean) {
+    const { guides, guideAt, childInset, highlight } = this.context;
+    const loading = this.loading && shown;
+    const loadingLabel = this.drawer?.loadingLabel ?? '';
     return html`<div class=${classMap({ items: true, shown })} ?inert=${!shown}>
-      <div class="fold"><div part="items" id="items" class="list" role="list" aria-labelledby="row"><slot></slot></div></div>
+      <div class=${classMap({ fold: true, [`guides-${guides}`]: true })} style=${styleMap({ '--_guide-at': guideAt, '--_child-inset': childInset })}>
+        <div part="items" id="items" class="list" role="list" aria-labelledby="row" aria-busy=${this.loading ? 'true' : nothing}><slot></slot></div>
+          ${loading
+            ? html`<div class=${classMap({ 'loading-row': true, 'highlight-full': highlight === 'full' })} role="none" aria-hidden=${loadingLabel ? nothing : 'true'}>
+                <span class="loading-box"><tanrei-loading-indicator size="small" label=${loadingLabel}></tanrei-loading-indicator></span>
+                ${loadingLabel ? html`<span class="loading-label" aria-hidden="true">${loadingLabel}</span>` : nothing}
+              </div>`
+            : nothing}
+      </div>
     </div>`;
   }
 
   /**
    * NVD-66, NVD-67: a group that is a destination. Its row is the destination — the link or the button an item is, with
-   * `aria-current` while it is the selected one — and, while the drawer is expanded, its chevron is a button of its own
-   * laid over the end of the cell, after the row in the focus order, which alone opens and closes the group.
+   * `aria-current` while it is the selected one — and, while the drawer is expanded and its groups open and close, its
+   * own toggle is a button of its own laid over its chevron (start or end) or, without a chevron, over its icon, after the
+   * row in the focus order, which alone opens and closes the group.
    */
   private renderDestination(shown: boolean) {
-    const { current, collapsed } = this.context;
+    const { current } = this.context;
     const classes = classMap(this.cellClasses({ open: shown }));
     const style = styleMap(this.cellStyle());
     const form = this.linkForm;
-    const content = this.row(this.chevron());
+    const content = this.row(this.trailingContent(false, this.endChevron()));
+    const description = this.rowDescription.join(', ') || nothing;
     const row = form
       ? html`<a
           part="cell"
@@ -949,6 +1189,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
           ${linkAttributes(form)}
           aria-current=${current ? 'page' : nothing}
           aria-label=${this.label || nothing}
+          aria-description=${description}
           @click=${this.onClick}
           @pointerdown=${this.press.onPointerDown}
           @pointerup=${this.press.release}
@@ -970,6 +1211,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
           ?disabled=${this.disabled}
           aria-current=${current ? 'page' : nothing}
           aria-label=${this.label || nothing}
+          aria-description=${description}
           @click=${this.onClick}
           @pointerdown=${this.press.onPointerDown}
           @pointerup=${this.press.release}
@@ -983,11 +1225,11 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
         >
           ${content}
         </button>`;
-    const toggle = collapsed
-      ? nothing
-      : html`<button
+    const at = this.toggleAt;
+    const toggle = at
+      ? html`<button
           part="toggle"
-          class="toggle"
+          class=${classMap({ toggle: true, [`toggle-${at}`]: true })}
           type="button"
           data-tanrei-shape
           ?disabled=${this.disabled}
@@ -1002,8 +1244,9 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
           @keyup=${this.onToggleKeyUp}
           @focus=${this.onToggleFocus}
           @blur=${this.press.onBlur}
-        ></button>`;
-    return html`<div class="split">${row}${toggle}</div>
+        ></button>`
+      : nothing;
+    return html`<div class=${classMap({ split: true, ...this.pinClasses() })} style=${styleMap({ ...this.cellStyle(), ...this.pinStyle() })}>${row}${toggle}</div>
       ${this.fold(shown)}`;
   }
 }
@@ -1078,7 +1321,26 @@ interface Place {
   level: number;
   position: number;
   size: number;
+  /** NVD-69: where the row begins, past the drawer's padding (a CSS length), and where its items' rows begin. */
+  inset: string;
+  childInset: string;
+  /** NVD-71: it keeps the icon's room. */
+  iconRoom: boolean;
+  /** NVD-73: a group's guide line, from the cell's start edge (a CSS length). */
+  guideAt: string;
 }
+
+/** The lengths the row model is reckoned in, as the cells read them (the drawer's density, NVD-65). */
+const LEN = {
+  pad: 'var(--tanrei-comp-navigation-drawer-container-padding-inline)',
+  itemPad: 'var(--_nvd-pad)',
+  gap: 'var(--tanrei-comp-navigation-drawer-item-gap)',
+  icon: 'var(--_nvd-icon)',
+  chevron: 'var(--_nvd-trailing-icon)',
+  nest: 'var(--_nvd-indent)',
+  /** Where a row's first part begins when it is a chevron or an icon: the icon on the icon column (NVD-13). */
+  first: 'calc(var(--_nvd-column) / 2 - var(--tanrei-comp-navigation-drawer-container-padding-inline) - var(--_nvd-icon) / 2)',
+} as const;
 
 /** What the drawer knows at a sync: what shows the selection, its top-level cells, and where every cell stands. */
 interface Snapshot {
@@ -1180,6 +1442,28 @@ export class TanreiNavigationDrawer extends LitElement {
     },
     collapsedLabels: { type: String, attribute: 'collapsed-labels', reflect: true },
     density: { type: String, reflect: true },
+    chevron: { type: String, reflect: true },
+    guides: { type: String, reflect: true },
+    indent: {
+      // auto (or no attribute) is null; a number is that many pixels.
+      converter: {
+        fromAttribute: (value: string | null) => (value === null || value.trim() === '' || value.trim() === 'auto' ? null : Number(value)),
+        toAttribute: (value: number | null) => (value === null || value === undefined ? null : String(value)),
+      },
+    },
+    highlight: { type: String, reflect: true },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
+    expandable: {
+      type: Boolean,
+      reflect: true,
+      // True unless the attribute says "false", as expanded.
+      converter: { fromAttribute: (value: string | null) => value !== 'false', toAttribute: (value: boolean) => (value ? '' : 'false') },
+    },
+    labelWrap: { type: Boolean, attribute: 'label-wrap', reflect: true },
+    supportingWrap: { type: Boolean, attribute: 'supporting-wrap', reflect: true },
+    stickyParents: { type: Boolean, attribute: 'sticky-parents', reflect: true },
+    stickyMax: { type: Number, attribute: 'sticky-max' },
+    loadingLabel: { type: String, attribute: 'loading-label' },
     responsive: { type: Boolean, reflect: true },
     decided: { state: true },
     value: { type: String },
@@ -1218,6 +1502,39 @@ export class TanreiNavigationDrawer extends LitElement {
    * `regular` and reported (NVD-26). Reflected.
    */
   density: TanreiNavigationDrawerDensity = 'regular';
+
+  /** Where a group's chevron is drawn (NVD-68): `start` (the default), `end` or `none`. A collapsible drawer draws start as end. Reflected. */
+  chevron: 'start' | 'end' | 'none' = 'start';
+
+  /** The guide line beside an open group's items (NVD-73): `none` (the default), `shown` or `hover`. Reflected. */
+  guides: 'none' | 'shown' | 'hover' = 'none';
+
+  /** How much further each level begins (NVD-69): null (`indent="auto"`, the default) lines a row up with its group's label; a number of pixels; 0 none. */
+  indent: number | null = null;
+
+  /** How far a nested row's fill and state layers reach (NVD-70): `indented` (the default) or `full`. Reflected. */
+  highlight: 'indented' | 'full' = 'indented';
+
+  /** Whether a row without an icon keeps the icon's room (NVD-71): `auto` (the default), `always` or `never`. Reflected. */
+  iconSpace: 'auto' | 'always' | 'never' = 'auto';
+
+  /** Whether groups open and close at all (NVD-72); `expandable="false"` shows every group open, without chevrons. Reflected. */
+  expandable = true;
+
+  /** Lets labels wrap (NVD-75); while false a label is one line, cut, with its full text in a tooltip. Reflected. */
+  labelWrap = false;
+
+  /** Lets supporting text wrap, as labelWrap lets labels. Reflected. */
+  supportingWrap = false;
+
+  /** Pins the rows of the open groups the top rows belong to while their items scroll under them (NVD-77). Not while collapsed. Reflected. */
+  stickyParents = false;
+
+  /** At most how many group rows are pinned, the innermost winning (NVD-77). */
+  stickyMax = 2;
+
+  /** What the loading row under a group that is fetching its items says, and its name ("Loading…", NVD-76): your words. */
+  loadingLabel = '';
 
   /** Lets the window's width choose the drawer's presentation (NVD-53): standard where it is wide, its column where it is narrower (while `collapsible`), modal where it is narrow. Reflected. */
   responsive = false;
@@ -1316,6 +1633,7 @@ export class TanreiNavigationDrawer extends LitElement {
     synced: (_, items) => {
       this.syncStructure(items);
       this.viewSelection();
+      this.schedulePins();
     },
     // NVD-60: a link is followed, not selected.
     link: (item, event) => item.linkActivation(event),
@@ -1536,7 +1854,65 @@ export class TanreiNavigationDrawer extends LitElement {
   private readonly onScroll = (event: Event) => {
     const scroller = event.currentTarget as HTMLElement;
     this.lastScroll = { scroller, top: scroller.scrollTop };
+    this.schedulePins();
   };
+
+  /** NVD-77: how high the pinned rows stand together, the room above which nothing else is in view. */
+  private pinnedHeight = 0;
+  private pinFrame = 0;
+
+  /** NVD-77: the pinned rows are reckoned again in the next frame (once per frame, however many scrolls). */
+  private schedulePins() {
+    if (this.pinFrame) return;
+    this.pinFrame = requestAnimationFrame(() => {
+      this.pinFrame = 0;
+      this.updatePins();
+    });
+  }
+
+  /**
+   * NVD-77: the rows of the open groups that hold the first row shown below the pinned rows are pinned at the top of the
+   * space the items scroll in, at most stickyMax of them, the innermost winning (as VS Code keeps its innermost scopes),
+   * each directly under the one above: the row itself, with the platform's sticky position, so that it leaves as its
+   * group's last row scrolls past. None while the drawer is collapsed or stickyParents is off.
+   */
+  private updatePins() {
+    const scroller = this.scroller;
+    const groups = this.groups;
+    const max = Number.isInteger(this.stickyMax) && this.stickyMax > 0 ? this.stickyMax : 2;
+    const pinned: TanreiNavigationDrawerGroup[] = [];
+    if (this.stickyParents && !this.collapsed && scroller && scroller.clientHeight && scroller.scrollTop > 0) {
+      const top = scroller.getBoundingClientRect().top + scroller.clientTop;
+      // The open groups, outermost first, whose items run past the top of the space: each pins under those above it.
+      let edge = top;
+      const chain: TanreiNavigationDrawerGroup[] = [];
+      for (const group of groups) {
+        if (!(group.open || !this.expandable) || groupsOf(group).some((outer) => !(outer.open || !this.expandable))) continue;
+        const box = group.getBoundingClientRect();
+        const row = group.rowHeight;
+        if (box.top < edge - 0.5 && box.bottom > edge + row) {
+          chain.push(group);
+          edge += row;
+        }
+      }
+      pinned.push(...chain.slice(-max));
+    }
+    let at = 0;
+    // A sticky row is held inside the space's padding: the pinned rows begin at its very top, over the padding.
+    const inset = scroller ? Number.parseFloat(getComputedStyle(scroller).paddingBlockStart) || 0 : 0;
+    for (const group of groups) {
+      const index = pinned.indexOf(group);
+      if (index < 0) {
+        group.setPinned(null);
+        continue;
+      }
+      group.setPinned({ top: at - inset, last: index === pinned.length - 1 });
+      at += group.rowHeight;
+    }
+    this.pinnedHeight = at;
+    // NVD-77: the browser's own scrolling into view (a focus, a find) leaves room for the pinned rows too.
+    if (scroller) scroller.style.scrollPaddingBlockStart = at ? `${at}px` : '';
+  }
 
   /**
    * NVD-61: keyboard focus that moves to a cell which is not wholly in view scrolls it into view by the least distance
@@ -1561,12 +1937,15 @@ export class TanreiNavigationDrawer extends LitElement {
     if (!scroller || !row || !scroller.clientHeight) return;
     const box = row.getBoundingClientRect();
     if (!box.height) return;
-    const top = scroller.getBoundingClientRect().top + scroller.clientTop;
+    // NVD-77: below the pinned rows — a pinned row itself is in view where it stands.
+    const pinned = cell instanceof TanreiNavigationDrawerGroup && cell.isPinned;
+    const top = scroller.getBoundingClientRect().top + scroller.clientTop + (pinned ? 0 : this.pinnedHeight);
     const bottom = top + scroller.clientHeight;
     // A row taller than the space shows its start.
     if (box.top < top - 0.5 || box.height > scroller.clientHeight) this.scrollItemsTo(scroller, scroller.scrollTop + box.top - top);
     else if (box.bottom > bottom + 0.5) this.scrollItemsTo(scroller, scroller.scrollTop + box.bottom - bottom);
     else this.lastScroll = { scroller, top: scroller.scrollTop };
+    this.updatePins();
   }
 
   /** NVD-61: the items go to the offset the product gave; `orStart`: to their start, the default, where it gave none. */
@@ -1593,7 +1972,7 @@ export class TanreiNavigationDrawer extends LitElement {
     const space = scroller.getBoundingClientRect();
     const box = row.getBoundingClientRect();
     if (!box.height) return;
-    const top = space.top + scroller.clientTop;
+    const top = space.top + scroller.clientTop + this.pinnedHeight;
     // Half a pixel of slack: a row that a fractional layout puts a hair past the edge is in view.
     if (box.top >= top - 0.5 && box.bottom <= top + scroller.clientHeight + 0.5) return;
     this.scrollItemsTo(scroller, scroller.scrollTop + box.top + box.height / 2 - (top + scroller.clientHeight / 2));
@@ -1639,6 +2018,8 @@ export class TanreiNavigationDrawer extends LitElement {
     this.setAttribute('data-as', this.modal ? 'modal' : 'standard');
     this.toggleAttribute('data-collapsible', this.collapses);
     this.toggleAttribute('data-open', this.isOpen);
+    // NVD-39, NVD-68: where the chevrons are drawn moves the icon column's line, which the main action follows.
+    this.setAttribute('data-chevron', this.chevronAs);
     const presentation = this.presentation;
     if (presentation) this.setAttribute('presentation', presentation);
     else this.removeAttribute('presentation');
@@ -1734,6 +2115,8 @@ export class TanreiNavigationDrawer extends LitElement {
     this.unwatchWidths();
     cancelAnimationFrame(this.paintFrame);
     cancelAnimationFrame(this.instantFrame);
+    cancelAnimationFrame(this.pinFrame);
+    this.pinFrame = 0;
     this.removeAttribute('data-instant');
     clearTimeout(this.formTimer);
     clearTimeout(this.presentTimer);
@@ -1748,30 +2131,58 @@ export class TanreiNavigationDrawer extends LitElement {
     if (selected) {
       const groups = groupsOf(selected);
       if (this.collapsed && groups.length) shower = groups[0];
-      else shower = groups.find((group) => !group.open) ?? selected;
+      else shower = (this.expandable ? groups.find((group) => !group.open) : undefined) ?? selected;
     }
     // The cells of each level, in reading order: a group's are those it holds directly or through anything that is not
     // a group (a section inside it draws only its items, NVD-17); the top level's are those no group holds.
     const places = new Map<Element, Place>();
     const top: DrawerCell[] = [];
-    const walk = (parent: Element, level: number, cells: DrawerCell[]) => {
+    this.hasGroups = !!this.querySelector(GROUP);
+    this.setAttribute('data-chevron', this.chevronAs);
+    const chevronStart = this.chevronAs === 'start';
+    const space = this.iconSpace === 'always' || this.iconSpace === 'never' ? this.iconSpace : 'auto';
+    const indent = typeof this.indent === 'number' && Number.isFinite(this.indent) && this.indent >= 0 ? this.indent : null;
+    /** NVD-71: whether a cell of `level` keeps the icon's room. */
+    const room = (cell: DrawerCell, cells: DrawerCell[]) => !!cell.icon || space === 'always' || (space === 'auto' && cells.some((other) => !!other.icon));
+    /** NVD-69: one step past a group's row: what it draws before its label, or the nesting indent where it draws nothing. */
+    const step = (iconRoom: boolean) => {
+      if (indent !== null) return `${indent}px`;
+      const parts = [...(chevronStart ? [`${LEN.chevron} + ${LEN.gap}`] : []), ...(iconRoom ? [`${LEN.icon} + ${LEN.gap}`] : [])];
+      return parts.length ? parts.join(' + ') : '0px';
+    };
+    /** NVD-73: under a group's first part — its start chevron, its icon or the icon's room, or its label's start. */
+    const guide = (cell: DrawerCell, inset: string, iconRoom: boolean) => {
+      const lead = chevronStart ? `${LEN.first} + ${LEN.chevron} / 2` : cell.icon ? `${LEN.first} + ${LEN.icon} / 2` : iconRoom ? `${LEN.first} + ${LEN.icon} + ${LEN.gap}` : LEN.itemPad;
+      return `calc(${LEN.pad} + ${inset} + ${lead})`;
+    };
+    const place = (cells: DrawerCell[], level: number, inset: string) => {
+      cells.forEach((cell, index) => {
+        const iconRoom = room(cell, cells);
+        const childInset = `calc(${inset} + ${step(iconRoom)})`;
+        places.set(cell, { level, position: index + 1, size: cells.length, inset, childInset, iconRoom, guideAt: guide(cell, inset, iconRoom) });
+      });
+    };
+    const walk = (parent: Element, level: number, cells: DrawerCell[], groups: [TanreiNavigationDrawerGroup, DrawerCell[]][]) => {
       for (const child of parent.children) {
         if (child instanceof DrawerCell) cells.push(child);
         if (child instanceof TanreiNavigationDrawerGroup) {
           const inner: DrawerCell[] = [];
-          walk(child, level + 1, inner);
-          inner.forEach((cell, index) => places.set(cell, { level: level + 1, position: index + 1, size: inner.length }));
-        } else if (child.firstElementChild) walk(child, level, cells);
+          groups.push([child, inner]);
+          walk(child, level + 1, inner, groups);
+        } else if (child.firstElementChild) walk(child, level, cells, groups);
       }
     };
-    walk(this, 0, top);
-    top.forEach((cell, index) => places.set(cell, { level: 0, position: index + 1, size: top.length }));
+    const groups: [TanreiNavigationDrawerGroup, DrawerCell[]][] = [];
+    walk(this, 0, top, groups);
+    place(top, 0, '0px');
+    // In reading order a group is placed before the cells it holds, so each takes where its group's items begin.
+    for (const [group, inner] of groups) place(inner, (places.get(group)?.level ?? 0) + 1, places.get(group)?.childInset ?? '0px');
     return { selected, shower, top, places };
   }
 
   private cellContext(cell: DrawerCell, selected: boolean): DrawerCellContext {
     const { shower, places } = this.snapshot;
-    const { level, position, size } = places.get(cell) ?? { level: groupsOf(cell).length, position: 0, size: 0 };
+    const { level, position, size, inset, childInset, iconRoom, guideAt } = places.get(cell) ?? { level: groupsOf(cell).length, position: 0, size: 0, inset: '0px', childInset: '0px', iconRoom: !!cell.icon, guideAt: '0px' };
     const mode = this.labelsMode;
     const group = cell instanceof TanreiNavigationDrawerGroup;
     // A group is drawn selected while it shows the selection (NVD-47) or is it (NVD-66), however it is asked.
@@ -1788,8 +2199,31 @@ export class TanreiNavigationDrawer extends LitElement {
       shortShown: mode === 'always' || (mode === 'selected' && cell === shower),
       labels: mode !== 'never',
       level,
+      chevron: this.chevronAs,
+      inset,
+      childInset,
+      iconRoom,
+      highlight: this.highlight === 'full' ? 'full' : 'indented',
+      expandable: this.expandable,
+      // NVD-73: no guide is drawn while a level steps by nothing.
+      guides: this.indent === 0 ? 'none' : this.guides === 'shown' || this.guides === 'hover' ? this.guides : 'none',
+      guideAt,
+      labelWrap: this.labelWrap,
+      supportingWrap: this.supportingWrap,
     };
   }
+
+  /** NVD-68: where a group's chevron is drawn — start drawn as end while the drawer is collapsible, unknown as start. */
+  private get chevronAs(): 'start' | 'end' | 'none' {
+    // NVD-72: groups that do not open and close draw no chevron and keep no room for one; NVD-68: nor does a drawer that
+    // has no group to open.
+    if (!this.expandable || !this.hasGroups) return 'none';
+    const chevron = this.chevron === 'end' || this.chevron === 'none' ? this.chevron : 'start';
+    return chevron === 'start' && this.collapses ? 'end' : chevron;
+  }
+
+  /** NVD-68: whether the drawer holds a group (read at each sync: a chevron's room is kept only where there is one). */
+  private hasGroups = false;
 
   /** The groups and sections are told the form and the selection too; and what a debug build reports about the structure. */
   private syncStructure(items: DrawerDestination[]) {
