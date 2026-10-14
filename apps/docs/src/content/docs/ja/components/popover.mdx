@@ -2,7 +2,7 @@
 title: ポップオーバー
 description: 押したコントロールの横に開く小さなサーフェスに、読んだり操作したりできるコンテンツを表示します。コントロールに付いて動き、ページのほかの部分を暗くしたり、ふさいだりしません。
 translationOf: components/popover.mdx
-sourceHash: 19cb5fd0f6cb90c5f432216ae31e97068033e853
+sourceHash: 0cb00559eb724f296bcb42056ea8485e6c9ba336
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -131,7 +131,7 @@ SwiftUI、Compose、Flutter、React Native は計画中です。このページ�
 
 ポップオーバーの幅はコンテンツの幅で、`comp.popover.container.min-width`（160）から `container.max-width`（400）の間に収まります。`width="anchor"` を指定すると、アンカーと同じ幅になります。フィールドの下に開くサーフェスに使います。どの場合も、ウィンドウの幅から余白を引いた幅を超えることはありません。
 
-高さはパーツの高さの合計で、`container.max-height`（480）と、置かれた側の余裕が上限です。それを超えると、ヘッダーとアクションはその場に残り、その間でコンテンツがスクロールします。コンテンツがスクロールされているときはヘッダーの下に、下にまだ続きがある間はアクションの上に、区切り線が現れます。
+高さはパーツの高さの合計で、`container.max-height`（480）と、置かれた側の余裕が上限です。それを超えると、ヘッダーとアクションはその場に残り、その間でコンテンツがスクロールします。コンテンツがスクロールする間は、ヘッダーの下とアクションの上に区切り線を引きます。`dividerVisibility` を `scroll`（Web では `divider-visibility`）にすると、ヘッダーの下の線はコンテンツがスクロールされてから、アクションの上の線は下にまだ続きがある間だけ引かれます。`cupertino` と `m3-like` は、すべてのポップオーバーでこちらを選んでいます。SwiftUI、Compose、Flutter、React Native は、追従するまでこの描き方です。
 
 コンテンツが自分で余白を持つ場合や、端まで届く場合（リストなど）は、`inset` を false にします（Web では `no-inset`）。
 

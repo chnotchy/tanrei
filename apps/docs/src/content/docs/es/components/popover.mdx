@@ -2,7 +2,7 @@
 title: Popover
 description: Muestra contenido que una persona puede leer y manejar en una superficie pequeña que se abre junto al control que pulsó y se queda con él, sin oscurecer ni bloquear el resto de la página.
 translationOf: components/popover.mdx
-sourceHash: 19cb5fd0f6cb90c5f432216ae31e97068033e853
+sourceHash: 0cb00559eb724f296bcb42056ea8485e6c9ba336
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -131,7 +131,7 @@ Sigue al ancla cuando el ancla se mueve, y conserva el lado en el que está mien
 
 Un popover es tan ancho como su contenido, entre `comp.popover.container.min-width` (160) y `container.max-width` (400). Con `width="anchor"` es tan ancho como el ancla, para una superficie que se despliega desde un campo. Nunca es más ancho que la ventana menos los márgenes.
 
-Es tan alto como sus partes, hasta `container.max-height` (480) y el sitio que tiene su lado. A partir de ahí el contenido se desplaza entre la cabecera y las acciones, que se quedan en su lugar. Aparece un divisor bajo la cabecera en cuanto el contenido se ha desplazado, y sobre las acciones mientras queda más contenido debajo.
+Es tan alto como sus partes, hasta `container.max-height` (480) y el sitio que tiene su lado. A partir de ahí el contenido se desplaza entre la cabecera y las acciones, que se quedan en su lugar. Mientras el contenido se desplaza, se dibuja un divisor bajo la cabecera y otro sobre las acciones. Define `dividerVisibility` como `scroll` (`divider-visibility` en la web) para dibujar el de la cabecera solo cuando el contenido se ha desplazado, y el de las acciones solo mientras queda más contenido debajo; `cupertino` y `m3-like` lo eligen para todos los popovers. SwiftUI, Compose, Flutter y React Native lo dibujan así hasta que se pongan al día.
 
 Pon `inset` en false (`no-inset` en la web) para un contenido que trae su propio margen interior o que llega hasta los bordes, como una lista.
 

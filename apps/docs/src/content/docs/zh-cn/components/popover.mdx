@@ -2,7 +2,7 @@
 title: "弹出框"
 description: "在一小块表面上显示可供阅读和操作的内容；它在用户按下的控件旁边打开并跟随这个控件，既不让页面的其余部分变暗，也不阻挡它。"
 translationOf: components/popover.mdx
-sourceHash: 19cb5fd0f6cb90c5f432216ae31e97068033e853
+sourceHash: 0cb00559eb724f296bcb42056ea8485e6c9ba336
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -131,7 +131,7 @@ SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各�
 
 弹出框与它的内容一样宽，介于 `comp.popover.container.min-width`（160）和 `container.max-width`（400）之间。设置 `width="anchor"` 后，它与锚点一样宽，适合从输入框下方展开的表面。它绝不会比窗口减去边距后的宽度更宽。
 
-它与各个部件加起来一样高，上限是 `container.max-height`（480）和所在一侧的可用空间。超过这个高度时，内容在页眉和操作之间滚动，页眉和操作留在原位。内容被滚动之后，页眉下方会出现一道分隔线；下面还有更多内容时，操作上方也会出现一道。
+它与各个部件加起来一样高，上限是 `container.max-height`（480）和所在一侧的可用空间。超过这个高度时，内容在页眉和操作之间滚动，页眉和操作留在原位。只要内容在滚动，页眉下方和操作上方就各有一道分隔线。把 `dividerVisibility` 设为 `scroll`（在 Web 上是 `divider-visibility`），页眉下方的分隔线就只在内容被滚动之后出现，操作上方的只在下面还有更多内容时出现；`cupertino` 和 `m3-like` 为所有弹出框选择了这种方式。SwiftUI、Compose、Flutter 和 React Native 在跟上之前都这样绘制。
 
 对于自带内边距或一直延伸到边缘的内容，例如列表，请把 `inset` 设为 false（在 Web 上是 `no-inset`）。
 
