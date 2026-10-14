@@ -1,6 +1,6 @@
 ---
 title: Copy button
-description: A Button that copies a given text with one press and confirms it, or says that it could not. It is drawn by Button and never moves the layout.
+description: A Button that copies a given text with one press and confirms it, or says that it could not. It is drawn by Button and, by default, never moves the layout.
 ---
 
 import { Tabs, TabItem } from '../../../components/tabs';
@@ -51,6 +51,16 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
       failed-label="Could not copy"
     ></tanrei-copy-button>
 
+    <!-- Labelled, with a width that follows its words: only at the end of a row. -->
+    <tanrei-copy-button
+      icon-only="false"
+      label-width="fit"
+      text="sk-test-0000"
+      label="Copy"
+      copied-label="Copied to the clipboard"
+      failed-label="Could not copy"
+    ></tanrei-copy-button>
+
     <script type="module">
       import '@tanrei/web';
 
@@ -84,9 +94,15 @@ SwiftUI, Compose, Flutter and React Native are planned: the names beside each pl
   <tanrei-button variant="text">A neighbour that does not move</tanrei-button>
 </DemoFrame>
 
+<DemoFrame label="With label-width fit, the width follows the words" plain>
+  <tanrei-copy-button icon-only="false" label-width="fit" variant="outlined" text="sk-test-0000" label="Copy" copied-label="Copied to the clipboard" failed-label="Could not copy"></tanrei-copy-button>
+</DemoFrame>
+
+With `label-width="fit"` the labelled form is as wide as the words it shows. When they change, its width eases to the new words over `comp.copy-button.motion.resize-duration`, and changes at once where motion is reduced. The default stays `widest`, because a control that moves as someone reaches for it gets pressed by mistake. Use `fit` only where nothing a person may press next stands after the button, such as at the end of a row.
+
 The button has three forms: at rest (the glyph `content_copy`), copied (`check`) and failed (`error`). It shows the copied form only after the browser has confirmed the copy, and returns to rest after `comp.copy-button.confirmation.duration` (2 seconds). A press while it shows a confirmation copies and confirms again.
 
-Nothing moves when the form changes. The three glyphs are drawn in one box. The labelled form keeps the width of its widest text at all times.
+Nothing moves when the form changes. The three glyphs are drawn in one box. By default the labelled form keeps the width of its widest text at all times; with `label-width="fit"` its width follows its words, as above.
 
 The glyph changes at once, with no motion. The two seconds are a time to notice, so they are kept where motion is reduced.
 
@@ -115,6 +131,7 @@ The events are `copied` and `copyfailed`. They are not named `copy`, because `co
 - Say what is copied in the label when it is not obvious from its place: "Copy link", "Copy JSON".
 - Listen for `copyfailed` and show something that stays, such as the text selected in a field, when the person must still get the text.
 - Keep the text variant for a copy button beside its content. Choose another variant when copying is the view's main action.
+- Keep the default width when something a person may press next stands after a labelled copy button. Choose `label-width="fit"` only where nothing does.
 
 ### Don't
 
@@ -134,6 +151,7 @@ The events are `copied` and `copyfailed`. They are not named `copy`, because `co
 - The icon-only form also shows those words in a bubble drawn as a plain [tooltip](/components/tooltip/), for as long as the confirmation lasts. It takes no focus, is not read a second time, and Escape closes it.
 - The confirmation is a shape and words, not a color.
 - In a right-to-left layout the copy glyph is mirrored, as the icon set says. The check and the error mark are not.
+- The labelled form keeps its width by default, so nothing moves under a pointer about to press it. With `label-width="fit"` the width eases to the new words, and changes at once where motion is reduced.
 
 ### What you need to do
 

@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { CONFIG } from './config.js';
+import { COMPONENTS_HELD_IN_EVERY_SCHEME } from './invariants.js';
 import { TokenReadError, readBundle } from './reader.js';
 import { SCHEMES } from './scheme.js';
 
@@ -257,9 +258,10 @@ function assertEveryRole(colors) {
 }
 
 /** Every token of the light scheme, and the role colors of every scheme: what the invariants read. Not for an emitter. */
-function partialModel(base, systemId, components, colors) {
+function partialModel(base, systemId, components, colors, otherSchemes = {}) {
   const tokens = simplifyAll(base);
-  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { light: Object.fromEntries(Object.entries(tokens).filter(([id, t]) => id.startsWith(COMP) && t.type === 'color')) }, components, partial: true };
+  const light = Object.fromEntries(Object.entries(tokens).filter(([id, t]) => id.startsWith(COMP) && t.type === 'color'));
+  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { ...otherSchemes, light }, components, partial: true };
 }
 
 // ── What the invariants read ─────────────────────────────────────────────
@@ -269,21 +271,38 @@ function partialModel(base, systemId, components, colors) {
  * @param {{ apply: (input: { scheme: string }) => Record<string, object> }} [reader] the bundle, when it is already read
  */
 export async function colorsFromBundle(files, systemId = NS, reader = readBundle(files, systemId)) {
+  return (await schemeColors(reader)).colors;
+}
+
+/**
+ * The role colors of every scheme and, for the components whose colors `checkInvariants` compares in every scheme
+ * (`COMPONENTS_HELD_IN_EVERY_SCHEME`), their component colors in every scheme: a few hundred tokens, not the
+ * thousands of every component.
+ */
+async function schemeColors(reader) {
   const colors = {};
+  const componentColors = {};
+  const held = COMPONENTS_HELD_IN_EVERY_SCHEME.map((component) => `${COMP}${component}.`);
   for (const scheme of SCHEMES) {
     colors[scheme] = {};
-    for (const [id, token] of Object.entries(reader.apply({ scheme }))) if (id.startsWith(SYS_COLOR)) colors[scheme][id.slice(SYS_COLOR.length)] = simplify(token);
+    componentColors[scheme] = {};
+    for (const [id, token] of Object.entries(reader.apply({ scheme }))) {
+      if (id.startsWith(SYS_COLOR)) colors[scheme][id.slice(SYS_COLOR.length)] = simplify(token);
+      else if (token.$type === 'color' && held.some((prefix) => id.startsWith(prefix))) componentColors[scheme][id] = simplify(token);
+    }
   }
   assertEveryRole(colors);
-  return colors;
+  return { colors, componentColors };
 }
 
 /**
  * What `checkInvariants` reads, without the component colors of five more schemes: every token of the light scheme
- * (`light`, the resolved set) and the role colors of every scheme. The same warnings as the full model's.
+ * (`light`, the resolved set), the role colors of every scheme, and the colors of the few components it compares in
+ * every scheme. The same warnings as the full model's.
  */
 export async function invariantModel(files, systemId, light, reader) {
-  return partialModel(light, systemId, componentDeclarations(null, systemId, (name) => files[name]), await colorsFromBundle(files, systemId, reader));
+  const { colors, componentColors } = await schemeColors(reader);
+  return partialModel(light, systemId, componentDeclarations(null, systemId, (name) => files[name]), colors, componentColors);
 }
 
 export const byPrefix = (model, prefix) =>

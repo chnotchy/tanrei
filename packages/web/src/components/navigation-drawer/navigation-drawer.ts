@@ -213,13 +213,34 @@ abstract class DrawerCell extends LitElement {
   protected readonly onFocus = () => {
     syncFocusStyle(this, this.cell);
     if (!this.cell?.matches(':focus-visible') || !this.unnamed) return;
-    // In the next frame: the browser brings a focused cell into view first, and a tooltip whose anchor is outside the
-    // window does not open.
-    cancelAnimationFrame(this.tipFrame);
-    this.tipFrame = requestAnimationFrame(() => {
-      if (this.cell?.matches(':focus-visible')) this.showName(true);
-    });
+    this.nameWhenInView();
   };
+
+  /**
+   * NVD-56: keyboard focus opens the name once the cell can be seen. A tooltip whose anchor lies wholly outside the
+   * window closes again at once, and the browser brings a focused cell into view in its own time — WebKit sometimes a
+   * few frames after the focus, after the next frame has been drawn. So the name is opened when the tooltip's box is
+   * first seen in the window (at once where it already is), for as long as the cell keeps keyboard focus.
+   */
+  private nameWhenInView() {
+    const tip = this.tip;
+    this.sightline?.disconnect();
+    if (!tip) return;
+    if (typeof IntersectionObserver !== 'function') {
+      this.showName(true);
+      return;
+    }
+    this.sightline = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      this.sightline?.disconnect();
+      this.sightline = null;
+      if (this.cell?.matches(':focus-visible') && this.unnamed) this.showName(true);
+    });
+    this.sightline.observe(tip);
+  }
+
+  /** NVD-56: waits for a focused cell to be seen before its name is opened (`nameWhenInView()`). */
+  private sightline: IntersectionObserver | null = null;
 
   /** NVD-56: whether this cell is one the collapsed drawer draws without a label, so that its name is shown beside it. */
   protected get unnamed(): boolean {
@@ -231,13 +252,15 @@ abstract class DrawerCell extends LitElement {
   }
 
   private tipTimer: ReturnType<typeof setTimeout> | undefined;
-  private tipFrame = 0;
   private hovered = false;
 
   /** NVD-56: shows or hides the cell's name beside it. The tooltip is the tooltip component's plain one, opened by the cell. */
   private showName(shown: boolean) {
     clearTimeout(this.tipTimer);
-    if (!shown) cancelAnimationFrame(this.tipFrame);
+    if (!shown) {
+      this.sightline?.disconnect();
+      this.sightline = null;
+    }
     const tip = this.tip;
     if (tip && tip.open !== shown) tip.open = shown;
   }
@@ -299,7 +322,8 @@ abstract class DrawerCell extends LitElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     clearTimeout(this.tipTimer);
-    cancelAnimationFrame(this.tipFrame);
+    this.sightline?.disconnect();
+    this.sightline = null;
     this.hovered = false;
   }
 

@@ -3499,6 +3499,8 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
   ),
   copyButton: TanreiCopyButtonTokens(
     confirmationDuration: 2000,
+    motionResizeDuration: 500,
+    motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
   ),
   dateTimePicker: TanreiDateTimePickerTokens(
     actionsArrangement: 1.0,
@@ -5447,7 +5449,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     controlBoxShape: 4.0,
     controlBoxSize: 18.0,
     controlFillInset: 0.0,
-    controlFillOpacity: 0.5,
+    controlFillOpacity: 0.16,
     controlMarkSize: 20.0,
     controlMarkWeight: 400.0,
     controlOutlineWidth: 2.0,

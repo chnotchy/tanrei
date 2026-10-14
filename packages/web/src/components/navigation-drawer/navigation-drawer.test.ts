@@ -1719,6 +1719,26 @@ test.describe('a collapsed cell’s name', () => {
     await page.waitForTimeout((await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration')) + 150);
     expect(await tip(page, 'collapsed', 3).evaluate((el: any) => el.open)).toBe(false);
   });
+
+  test('NVD-56: keyboard focus on a cell outside the window shows its name once the browser has brought it into view, however many frames that takes', async ({ page }) => {
+    // The page scrolls smoothly, so the focused cell comes into view over many frames, as WebKit sometimes brings it a
+    // few frames late: the name must not be lost to a tooltip that opened while its anchor was still out of sight.
+    await page.setViewportSize({ width: 800, height: 300 });
+    await mount(page, only('collapsible-expanded', 'collapsed'), { reducedMotion: true });
+    await page.addStyleTag({ content: 'html { scroll-behavior: smooth; }' });
+    await page.mouse.click(790, 5);
+    await tabTo(page, cell(page, 'collapsed', 0));
+    // Back to the top of the page, with focus where it is: the next cell is then well below the window.
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    const target = cell(page, 'collapsed', 1);
+    expect((await bounds(target)).y).toBeGreaterThan(300);
+    await tab(page);
+    await expect(target).toBeFocused();
+    await expect(surface(page, 'collapsed', 1)).toBeVisible();
+    await expect(surface(page, 'collapsed', 1)).toHaveText('Sent');
+    const [shown, c] = [await bounds(surface(page, 'collapsed', 1)), await bounds(box(page, 'collapsed', 1))];
+    expect(shown.x).toBeGreaterThanOrEqual(c.x + c.width);
+  });
 });
 
 test.describe('a drawer that follows the window', () => {

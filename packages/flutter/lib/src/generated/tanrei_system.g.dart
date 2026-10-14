@@ -3451,6 +3451,8 @@ const TanreiSystem tanreiSystem = TanreiSystem(
   ),
   copyButton: TanreiCopyButtonTokens(
     confirmationDuration: 2000,
+    motionResizeDuration: 500,
+    motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
   ),
   dateTimePicker: TanreiDateTimePickerTokens(
     actionsArrangement: 0.0,
@@ -5399,7 +5401,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     controlBoxShape: 2.0,
     controlBoxSize: 18.0,
     controlFillInset: 0.0,
-    controlFillOpacity: 0.5,
+    controlFillOpacity: 0.16,
     controlMarkSize: 20.0,
     controlMarkWeight: 500.0,
     controlOutlineWidth: 2.0,
@@ -6776,7 +6778,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     containerShape: 9999.0,
     containerSize: 40.0,
     fillInset: 0.0,
-    fillOpacity: 0.5,
+    fillOpacity: 0.16,
     labelGap: 4.0,
     labelTypescale: _typescaleBody,
     motionFeedbackDuration: 450,

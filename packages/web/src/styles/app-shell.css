@@ -28,8 +28,8 @@
  * the footer, the navigation bar. The stylesheet places them on a grid by name and never reorders focus.
  *
  * Attributes of the element: `scroll` (page | main), `header-position` (sticky | static), `main-width`
- * (contained | full), `aside-order` (after | before), `separation` (auto | divider | gap), `navigation-open`,
- * `aside-label`.
+ * (contained | full), `aside-order` (after | before), `footer-hidden`, `separation` (auto | divider | gap),
+ * `navigation-open`, `aside-label`.
  *
  * This stylesheet lays the whole frame out before and without script (APS-24): the window's class is three media
  * conditions, a region that the class does not show has no box, the skip link is an anchor to the main region's id.
@@ -249,6 +249,12 @@
     position: relative;
     z-index: 1;
     background-color: var(--tanrei-comp-app-shell-container-color);
+  }
+  /* APS-31: `footer-hidden` leaves a filled footer out: no box, so no room, no line, no landmark and no focus stop, and
+     the navigation and the aside stay in view to the end of the page (the measured height is 0). The one
+     `!important` of the frame: a product's own `display` on its `<footer>` must not bring back what it asked to hide. */
+  :where(tanrei-app-shell[footer-hidden]) > :where([slot='footer']) {
+    display: none !important;
   }
 
   /* APS-13: the navigation bar, at the bottom edge of a compact window, in view while the page scrolls; the page

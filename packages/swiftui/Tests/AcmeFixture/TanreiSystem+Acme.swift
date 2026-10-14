@@ -3452,7 +3452,9 @@ private let acmeComboboxTokens = TanreiComboboxTokens(
 )
 
 private let acmeCopyButtonTokens = TanreiCopyButtonTokens(
-  confirmationDuration: 2000
+  confirmationDuration: 2000,
+  motionResizeDuration: 500,
+  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1)
 )
 
 private let acmeDateTimePickerTokens = TanreiDateTimePickerTokens(
@@ -5425,7 +5427,7 @@ private let acmeMenuTokens = TanreiMenuTokens(
   controlBoxShape: 2,
   controlBoxSize: 18,
   controlFillInset: 0,
-  controlFillOpacity: 0.5,
+  controlFillOpacity: 0.16,
   controlMarkSize: 20,
   controlMarkWeight: 400,
   controlOutlineWidth: 2,
@@ -6815,7 +6817,7 @@ private let acmeRadioButtonTokens = TanreiRadioButtonTokens(
   containerShape: 9999,
   containerSize: 40,
   fillInset: 0,
-  fillOpacity: 0.5,
+  fillOpacity: 0.08,
   labelGap: 4,
   labelTypescale: acmeTypescale.body,
   motionFeedbackDuration: 450,

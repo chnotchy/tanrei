@@ -3421,7 +3421,9 @@ private let m3LikeComboboxTokens = TanreiComboboxTokens(
 )
 
 private let m3LikeCopyButtonTokens = TanreiCopyButtonTokens(
-  confirmationDuration: 2000
+  confirmationDuration: 2000,
+  motionResizeDuration: 500,
+  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1)
 )
 
 private let m3LikeDateTimePickerTokens = TanreiDateTimePickerTokens(
@@ -5394,7 +5396,7 @@ private let m3LikeMenuTokens = TanreiMenuTokens(
   controlBoxShape: 4,
   controlBoxSize: 18,
   controlFillInset: 0,
-  controlFillOpacity: 0.5,
+  controlFillOpacity: 0.16,
   controlMarkSize: 20,
   controlMarkWeight: 400,
   controlOutlineWidth: 2,
