@@ -52150,7 +52150,7 @@
               "name": "cutTip",
               "privacy": "private",
               "readonly": true,
-              "default": "new CutTextTip({ tip: () => this.placeCutTip(), content: () => this.cutContent(), clock: () => this.renderRoot?.querySelector('.tip-clock') ?? null, })",
+              "default": "new CutTextTip({ // The tooltip where there is one; it is made and laid over the row only to open (`place`). tip: () => this.cutTipElement, place: () => void this.placeCutTip(), content: () => this.cutContent(), clock: () => this.renderRoot?.querySelector('.tip-clock') ?? null, })",
               "description": "NVD-75: the tooltip that shows a cut label or supporting text whole (the tree view's, src/primitives/cut-text.ts): one\ntooltip of the cell's, made when first wanted and laid over the row's item container (the styles' \\`.cut-tip\\`).",
               "inheritedFrom": {
                 "name": "DrawerCell",
@@ -53321,7 +53321,7 @@
               "name": "cutTip",
               "privacy": "private",
               "readonly": true,
-              "default": "new CutTextTip({ tip: () => this.placeCutTip(), content: () => this.cutContent(), clock: () => this.renderRoot?.querySelector('.tip-clock') ?? null, })",
+              "default": "new CutTextTip({ // The tooltip where there is one; it is made and laid over the row only to open (`place`). tip: () => this.cutTipElement, place: () => void this.placeCutTip(), content: () => this.cutContent(), clock: () => this.renderRoot?.querySelector('.tip-clock') ?? null, })",
               "description": "NVD-75: the tooltip that shows a cut label or supporting text whole (the tree view's, src/primitives/cut-text.ts): one\ntooltip of the cell's, made when first wanted and laid over the row's item container (the styles' \\`.cut-tip\\`).",
               "inheritedFrom": {
                 "name": "DrawerCell",

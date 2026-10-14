@@ -285,7 +285,9 @@ abstract class DrawerCell extends LitElement {
    * tooltip of the cell's, made when first wanted and laid over the row's item container (the styles' \`.cut-tip\`).
    */
   private readonly cutTip = new CutTextTip({
-    tip: () => this.placeCutTip(),
+    // The tooltip where there is one; it is made and laid over the row only to open (`place`).
+    tip: () => this.cutTipElement,
+    place: () => void this.placeCutTip(),
     content: () => this.cutContent(),
     clock: () => this.renderRoot?.querySelector('.tip-clock') ?? null,
   });
