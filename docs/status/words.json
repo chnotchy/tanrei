@@ -628,6 +628,10 @@
           "prop": "loadingLabel"
         },
         {
+          "component": "navigation-drawer",
+          "prop": "loadingLabel"
+        },
+        {
           "component": "skeleton",
           "prop": "label"
         },

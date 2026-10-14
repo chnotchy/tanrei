@@ -148,6 +148,84 @@
       "description": "Which cells draw their short label under the icon while the drawer is collapsed: none of them (the default: a collapsed drawer is the expanded one with its labels gone), only the selected one's, or all of them, for a product or a design system whose collapsed column is labelled. A label that is not drawn is still the destination's accessible name."
     },
     {
+      "name": "density",
+      "type": "enum",
+      "values": [
+        "regular",
+        "compact"
+      ],
+      "default": "regular",
+      "description": "How much room a row takes, in a tree view's words. regular (a 48 row with a 24 glyph in the default system, a menu item's row) is the drawer of a product used by touch as well as by pointer. compact (a 32 row with a 16 glyph, a tree view's compact row) is for a tool used with a pointer whose drawer lists many places. It sets the rows, the section headings, the paddings, the glyphs, the nesting indent and the collapsed column alike — never the gap between the icon and the label — so both forms follow it; for touch a row is never lower than the touch target in either. A design system may add values.",
+      "axis": "tanrei.comp.navigation-drawer.density"
+    },
+    {
+      "name": "chevron",
+      "type": "enum",
+      "values": [
+        "start",
+        "end",
+        "none"
+      ],
+      "default": "start",
+      "description": "Where a group's chevron is drawn, as the tree view's: start, before its icon (every row then keeps the chevron's room, so the icons of a level stand in one column); end, at the very end of the row, after its trailing content; none, no chevron — the arrow keys still open and close a group, and with a pointer a press on the group's icon does, the icon showing openIcon while the group is open (NVD-68). A collapsible drawer draws start as end, so that every icon keeps its point in both forms."
+    },
+    {
+      "name": "guides",
+      "type": "enum",
+      "values": [
+        "none",
+        "shown",
+        "hover"
+      ],
+      "default": "none",
+      "description": "Whether an open group draws a line down beside what it holds, as the tree view's: none; shown, always; hover, while the pointer is over the drawer or focus is in it, fading in and out (NVD-73)."
+    },
+    {
+      "name": "indent",
+      "type": "number",
+      "default": null,
+      "description": "How much further a level's rows begin than their group's, as the tree view's: null (auto, the default) lines a row's first part (its chevron, icon or label) up with where its group's label begins, and steps by comp.navigation-drawer.item.nest-indent where the group has neither a start chevron nor an icon; a number steps by that many units of the layout at every level, 0 none (NVD-69). On the web the attribute takes auto or a number."
+    },
+    {
+      "name": "highlight",
+      "type": "enum",
+      "values": [
+        "indented",
+        "full"
+      ],
+      "default": "indented",
+      "description": "How far the selected fill and the hover and press layers of a nested row reach, as the tree view's: indented, from where the row begins (its indent) to the end; full, across the drawer's whole inner width at every level (NVD-70)."
+    },
+    {
+      "name": "iconSpace",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "never"
+      ],
+      "default": "auto",
+      "description": "Whether a row without an icon keeps the icon's room, as the tree view's: auto, where another row of its level has an icon, so that the labels of a level line up; always; never (NVD-71)."
+    },
+    {
+      "name": "expandable",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether groups open and close at all, as the tree view's. While false every group is shown open, draws no chevron, has no toggle and is not exposed as expandable: its row names the list of its items (NVD-72). It is not collapsible, which narrows the drawer itself."
+    },
+    {
+      "name": "labelWrap",
+      "type": "boolean",
+      "default": false,
+      "description": "Lets a row's label wrap onto more lines, as the tree view's. While false (the default) a label is one line, cut with an ellipsis, and its full text is shown in a tooltip on hover and keyboard focus wherever it is cut (NVD-75)."
+    },
+    {
+      "name": "supportingWrap",
+      "type": "boolean",
+      "default": false,
+      "description": "Lets a row's supporting text wrap, as labelWrap lets its label."
+    },
+    {
       "name": "responsive",
       "type": "boolean",
       "default": false,
@@ -166,10 +244,35 @@
       "description": "Opens the groups that hold the selected destination when the drawer first appears and whenever value changes, so that the place the product is showing is drawn and not only the closed group that holds it (NVD-58). A site's sidebar sets it; while false a closed group stays closed and its row shows the selection (NVD-47). The user may still close such a group afterwards."
     },
     {
+      "name": "selectableGroups",
+      "type": "boolean",
+      "default": false,
+      "description": "Lets a group be a destination as well as a row that opens and closes: a setting of the product's, off by default. While true a group that has a value or an href is a place of its own (NVD-66) — a section's overview page in a site, a folder that is shown when it is chosen — which the drawer's value selects, whose activation emits change or reselect and which an href makes a link; its chevron becomes a control of its own that opens and closes it, and the rest of its row chooses it (NVD-67). A group without either still only opens and closes. While false every group only opens and closes, whatever value or href it has."
+    },
+    {
       "name": "scrollOffset",
       "type": "number",
       "default": 0,
       "description": "How far the drawer's items are scrolled from their start, in the units of the layout. The product may set it, before the drawer first appears included, and the drawer scrolls there at once; reading it gives the present distance. It is the handle by which a product keeps a long drawer where the user left it from one page to the next (NVD-61, NVD-62); the drawer stores nothing itself."
+    },
+    {
+      "name": "stickyParents",
+      "type": "boolean",
+      "default": false,
+      "description": "Keeps the rows of the open groups that the rows at the top of the drawer belong to pinned there while their items scroll under them, as the tree view's (on by default there, off here) and as VS Code's sticky scroll (NVD-77). Not applied while the drawer is collapsed."
+    },
+    {
+      "name": "stickyMax",
+      "type": "number",
+      "default": 2,
+      "description": "At most how many group rows are pinned, one per level, the innermost winning, as VS Code keeps its innermost scopes (NVD-77)."
+    },
+    {
+      "name": "loadingLabel",
+      "type": "string",
+      "default": "",
+      "description": "What the loading row under a group that is fetching its items says (\"Loading…\"), and its accessible name, as the tree view's: Tanrei ships no words of its own.",
+      "words": "loadingLabel"
     },
     {
       "name": "label",
@@ -217,6 +320,22 @@
           "type": "string",
           "default": "",
           "description": "Its name, drawn beside the icon while the drawer is expanded and always its accessible name. Required."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "A few words about the row (\"3 new\", \"shared with the team\"), under its label or after it (supportingPosition), quieter than the label, read as its description after its name. Empty draws none (NVD-74)."
+        },
+        {
+          "name": "supportingPosition",
+          "type": "enum",
+          "values": [
+            "below",
+            "inline"
+          ],
+          "default": "below",
+          "description": "Where the supporting text stands, as the tree view's: below, on a line of its own under the label; inline, after the label on its line (NVD-74)."
         },
         {
           "name": "shortLabel",
@@ -270,7 +389,7 @@
     },
     {
       "name": "group",
-      "summary": "A group of destinations under a row that opens and closes it: an icon, a label and a chevron. It holds destinations and groups, not sections, and their rows start further in than its own.",
+      "summary": "A group of destinations under a row that opens and closes it: an icon, a label and a chevron. It holds destinations and groups, not sections, and their rows start further in than its own. While the drawer's selectableGroups is true and it has a value or an href, it is a destination as well (NVD-66): its row chooses it and its chevron opens and closes it.",
       "container": true,
       "props": [
         {
@@ -292,6 +411,34 @@
           "description": "The name of its glyph in the system's icon set, drawn as a destination's icon."
         },
         {
+          "name": "openIcon",
+          "type": "string",
+          "default": "",
+          "description": "A second glyph, drawn in the icon's place while the group is open (folder_open beside folder), as the tree view's. Ignored while icon is empty."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "A few words about the group (\"3 new\", \"shared with the team\"), under its label or after it (supportingPosition), quieter than the label, read as its description after its name. Empty draws none (NVD-74)."
+        },
+        {
+          "name": "supportingPosition",
+          "type": "enum",
+          "values": [
+            "below",
+            "inline"
+          ],
+          "default": "below",
+          "description": "Where the supporting text stands, as the tree view's: below, on a line of its own under the label; inline, after the label on its line (NVD-74)."
+        },
+        {
+          "name": "trailingText",
+          "type": "string",
+          "default": "",
+          "description": "Short text at the end of the group's expanded row (a count), before an end chevron, as a destination's; the trailing slot's content, when there is any, is drawn instead."
+        },
+        {
           "name": "disabled",
           "type": "boolean",
           "default": false,
@@ -302,12 +449,36 @@
           "type": "boolean",
           "default": false,
           "description": "Whether its items are shown under its row while the drawer is expanded."
+        },
+        {
+          "name": "loading",
+          "type": "boolean",
+          "default": false,
+          "description": "Says that the product is fetching the group's items: while the group is open a loading row is drawn under it, after any items it already holds, and the list of its items is exposed as busy (NVD-76)."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "What identifies the group as a destination, read only while the drawer's selectableGroups is true (NVD-66): the drawer's value selects the group whose value equals it, as it selects a destination, and change and reselect carry it. Unique among the drawer's destinations and groups. Empty on a link, its href stands as its value; empty with no href, the group is not a destination and only opens and closes."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "The address the group leads to as a destination, read only while the drawer's selectableGroups is true: not empty, its row is a link and not a button (NVD-59, NVD-60), opened where the person is. Ignored while selectableGroups is false."
         }
       ],
       "events": [
         {
           "name": "toggle",
           "description": "The user opened or closed the group from its row, or from its cell in the collapsed drawer, or the drawer opened it to show the selected destination (NVD-58); carries its new open state."
+        }
+      ],
+      "slots": [
+        {
+          "name": "trailing",
+          "description": "Content at the end of the group's expanded row, before an end chevron, in place of trailingText: a glyph of the icon set or a Badge, as a destination's trailing slot. Not interactive."
         }
       ]
     },
@@ -391,7 +562,7 @@
   "events": [
     {
       "name": "change",
-      "description": "The user activated a destination that is not the selected one; carries its value and, for a link, its href. For a link it comes before the link is followed, only for an activation that follows it in place (NVD-60), and a product that cancels it follows the link itself."
+      "description": "The user activated a destination that is not the selected one, or a group that is one (NVD-66); carries its value and, for a link, its href. For a link it comes before the link is followed, only for an activation that follows it in place (NVD-60), and a product that cancels it follows the link itself."
     },
     {
       "name": "reselect",
@@ -442,7 +613,8 @@
     },
     {
       "id": "NVD-6",
-      "text": "THE navigation drawer SHALL make each cell (a destination's or a group's row) its hit area, across the drawer's full width inside its insets, however deep it is nested (NVD-13), and the cell's height with half of comp.navigation-drawer.container.gap above and below it, in both forms, and SHALL NOT let it fall below sys.target.pointer high for a fine pointer or sys.target.touch for touch; a system whose geometry gives less SHALL still extend the hit area without changing the drawn cell. Hover and press over any part of the hit area SHALL answer on the item container."
+      "text": "THE navigation drawer SHALL make each cell (a destination's or a group's row) its hit area, across the drawer's full width inside its insets, however deep it is nested (NVD-13), and the cell's height with half of comp.navigation-drawer.container.gap.regular above and below it, in both forms, and SHALL NOT let it fall below sys.target.pointer high for a fine pointer WHILE density is regular, nor below sys.target.touch for touch; a system whose geometry gives less SHALL still extend the hit area without changing the drawn cell. WHILE density is compact, for a fine pointer the hit area SHALL be the cell and half of the gap above and below it, the one place where a cell of the drawer is lower than the pointer target (still above the 24 of WCAG 2.5.8); WHERE input is touch, or the platform cannot tell the input type, a compact cell SHALL be drawn at least sys.target.touch high, because cells whose hit areas touch cannot extend them over each other. Hover and press over any part of the hit area SHALL answer on the item container.",
+      "verify": "Under the default system: a regular cell is 48 high and its hit area 52 for every input; a compact cell is 32 high and its hit area 34 for a mouse, and a compact cell is drawn 48 high for touch."
     },
     {
       "id": "NVD-7",
@@ -464,20 +636,20 @@
     },
     {
       "id": "NVD-11",
-      "text": "THE navigation drawer SHALL be comp.navigation-drawer.container.width wide while expanded and comp.navigation-drawer.collapsed.container.width wide while collapsed, beside the start inset, and the full height of its parent, filled with its variant's container color (comp.navigation-drawer.container.color.standard or comp.navigation-drawer.container.color.modal), raised by its variant's elevation (comp.navigation-drawer.container.elevation.standard, comp.navigation-drawer.container.elevation.modal), with its end corners rounded by its variant's shape (comp.navigation-drawer.container.shape.standard, comp.navigation-drawer.container.shape.modal) and square start corners, and edged at its end by comp.navigation-drawer.outline.width of its variant's outline color (comp.navigation-drawer.outline.color.standard, comp.navigation-drawer.outline.color.modal); right-to-left layouts SHALL put it at the right edge, mirrored."
+      "text": "THE navigation drawer SHALL be comp.navigation-drawer.container.width wide while expanded and comp.navigation-drawer.collapsed.container.width.regular wide while collapsed, beside the start inset, and the full height of its parent, filled with its variant's container color (comp.navigation-drawer.container.color.standard or comp.navigation-drawer.container.color.modal), raised by its variant's elevation (comp.navigation-drawer.container.elevation.standard, comp.navigation-drawer.container.elevation.modal), with its end corners rounded by its variant's shape (comp.navigation-drawer.container.shape.standard, comp.navigation-drawer.container.shape.modal) and square start corners, and edged at its end by comp.navigation-drawer.outline.width of its variant's outline color (comp.navigation-drawer.outline.color.standard, comp.navigation-drawer.outline.color.modal); right-to-left layouts SHALL put it at the right edge, mirrored."
     },
     {
       "id": "NVD-12",
-      "text": "THE navigation drawer SHALL lay out, comp.navigation-drawer.container.padding-inline from its start and end and comp.navigation-drawer.container.padding-block from its top and bottom (measured to the first and last cell, not to their hit areas), its header (NVD-38) and then, comp.navigation-drawer.header.gap below it (at the padding WHILE the header is empty), its items in reading order: destinations, groups and sections, a section laying out its divider, its heading and its items in that order, and an open group its row and then its items; it SHALL put comp.navigation-drawer.container.gap between two cells, and WHILE the items are taller than the space below the header it SHALL scroll them and keep the header in place, in both forms."
+      "text": "THE navigation drawer SHALL lay out, comp.navigation-drawer.container.padding-inline from its start and end and comp.navigation-drawer.container.padding-block from its top and bottom (measured to the first and last cell, not to their hit areas), its header (NVD-38) and then, comp.navigation-drawer.header.gap below it (at the padding WHILE the header is empty), its items in reading order: destinations, groups and sections, a section laying out its divider, its heading and its items in that order, and an open group its row and then its items; it SHALL put comp.navigation-drawer.container.gap.regular between two cells, and WHILE the items are taller than the space below the header it SHALL scroll them and keep the header in place, in both forms."
     },
     {
       "id": "NVD-13",
-      "text": "WHILE the drawer is expanded THE navigation drawer SHALL draw each destination as an item container that starts comp.navigation-drawer.container.padding-inline inside the drawer's start edge and ends comp.navigation-drawer.container.padding-inline inside its end edge at every level of nesting, so that the fill, the state layer and the focus indicator of a nested destination are as wide as a top-level one's and its content alone starts further in, comp.navigation-drawer.item.nest-indent for each level (NVD-44); comp.navigation-drawer.item.container.height high unless its label's lines need more, with corners comp.navigation-drawer.item.container.shape, holding in reading order: its icon, centered on the icon column's center line (half of comp.navigation-drawer.collapsed.container.width from the drawer's start edge, and comp.navigation-drawer.item.nest-indent further per level of nesting) and on the cell's icon line (NVD-31), with its icon indicator centered behind it and taking no space; its label in comp.navigation-drawer.item.label.typescale, comp.navigation-drawer.item.gap after the icon (or comp.navigation-drawer.item.padding-inline from the item container's start, and comp.navigation-drawer.item.nest-indent further per level of nesting, WHILE its icon is empty), wrapping rather than truncating; and its trailing content (NVD-43) at the end, comp.navigation-drawer.item.gap after the label and comp.navigation-drawer.item.padding-inline from the item container's end. Right-to-left layouts SHALL mirror it.",
-      "verify": "Under the default system a row is 48 high and the icon column's center line is 36 from the drawer's start edge, so a top-level icon has 12 on its start side inside its item container, as it has above and below it. In `groups-nested` a destination one level deep has its item container start 12 from the drawer's start edge, as a top-level one's does, and its label 60, under its group's label; two levels deep they are 12 and 96. In `nested-icons` a nested destination's icon is centered 72 from the start edge. A hovered or selected nested destination shows a state layer and a fill that start at the drawer's padding, as wide as a top-level row's."
+      "text": "WHILE the drawer is expanded THE navigation drawer SHALL draw each destination as an item container that ends comp.navigation-drawer.container.padding-inline inside the drawer's end edge and starts comp.navigation-drawer.container.padding-inline inside its start edge, further in by the row's indent (NVD-69) WHILE highlight is indented and at that same place at every level WHILE highlight is full (NVD-70), its content starting the row's indent further in either way; comp.navigation-drawer.item.container.height.regular high unless its label's lines need more, with corners comp.navigation-drawer.item.container.shape, holding in reading order: its icon, centered on the icon column's center line (half of comp.navigation-drawer.collapsed.container.width.regular from the drawer's start edge, the row's indent further, and a chevron's room and comp.navigation-drawer.item.gap further WHILE chevron is start) and on the cell's icon line (NVD-31), with its icon indicator centered behind it and taking no space; a group's start chevron before it WHILE chevron is start (NVD-68); its label in comp.navigation-drawer.item.label.typescale.regular, comp.navigation-drawer.item.gap after the icon or the icon's room (NVD-71), or comp.navigation-drawer.item.padding-inline.regular from where the row's content starts WHILE it has neither, on one line unless labelWrap is true (NVD-75), and its supporting text (NVD-74); and its trailing content (NVD-43) at the end, before an end chevron, comp.navigation-drawer.item.gap after the label and comp.navigation-drawer.item.padding-inline.regular from the item container's end. Right-to-left layouts SHALL mirror it.",
+      "verify": "Under the default system a row is 48 high and the icon column's center line is 36 from the drawer's start edge, so a top-level icon has 12 on its start side inside its item container, as it has above and below it (chevron end). In `nested-icons` (chevron end) a nested destination's icon is centered 72 from the start edge, its start 60, where its group's label starts, and its item container starts there too (highlight indented); in `highlight-full` it starts 12 from the start edge, as a top-level one's does. In `compact` (chevron end) a top-level icon is 16 and centered 28 from the start edge and its label 48 from it; one level deep the icon is centered 56, starting at 48, where its group's label starts."
     },
     {
       "id": "NVD-14",
-      "text": "THE navigation drawer SHALL draw each icon at comp.navigation-drawer.item.icon.size with the family and fill of its condition (selected for the selected destination, unselected for every other), sys.icon.weight, and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max."
+      "text": "THE navigation drawer SHALL draw each icon at comp.navigation-drawer.item.icon.size.regular with the family and fill of its condition (selected for the selected destination, unselected for every other), sys.icon.weight, and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max."
     },
     {
       "id": "NVD-15",
@@ -485,7 +657,7 @@
     },
     {
       "id": "NVD-16",
-      "text": "WHILE a section's heading is not empty THE navigation drawer SHALL draw it in comp.navigation-drawer.heading.typescale and comp.navigation-drawer.heading.color, in a row at least comp.navigation-drawer.heading.height high with the text vertically centered and starting where the destinations' labels start WHILE they have no icon (comp.navigation-drawer.item.padding-inline inside the drawer's inner edge), and SHALL expose it as a heading that is not focusable; WHILE the drawer is collapsed it SHALL keep the row at its height, draw no text in it and hide it from assistive technology; WHILE the heading is empty the section SHALL draw no heading row. THE navigation drawer SHALL set the heading's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them."
+      "text": "WHILE a section's heading is not empty THE navigation drawer SHALL draw it in comp.navigation-drawer.heading.typescale and comp.navigation-drawer.heading.color, in a row at least comp.navigation-drawer.heading.height.regular high with the text vertically centered and starting where the destinations' labels start WHILE they have no icon (comp.navigation-drawer.item.padding-inline.regular inside the drawer's inner edge), and SHALL expose it as a heading that is not focusable; WHILE the drawer is collapsed it SHALL keep the row at its height, draw no text in it and hide it from assistive technology; WHILE the heading is empty the section SHALL draw no heading row. THE navigation drawer SHALL set the heading's letter-spacing by the script of its text, as every title is set (PRS-20): no negative letter-spacing WHERE its language is Chinese, Japanese or Korean, and none WHERE its script joins its letters or stacks marks on them."
     },
     {
       "id": "NVD-17",
@@ -525,11 +697,11 @@
     },
     {
       "id": "NVD-26",
-      "text": "WHEN variant names a value that the active design system does not have THE navigation drawer SHALL render with the default value's tokens, and in debug builds report the unknown value."
+      "text": "WHEN variant or density names a value that the active design system does not have THE navigation drawer SHALL render with that axis's default value's tokens, and in debug builds report the unknown value."
     },
     {
       "id": "NVD-27",
-      "text": "WHILE the text size is enlarged THE navigation drawer SHALL keep both its widths, grow each cell and section heading with its text in both forms alike (their heights are minimums, NVD-31), keep short labels on one line and truncate them, and SHALL NOT scale its icons, icon indicators or trailing glyphs; WHERE the platform offers a large-content viewer for bar items (iOS) a long press on a collapsed destination SHALL show its icon and label enlarged."
+      "text": "WHILE the text size is enlarged THE navigation drawer SHALL keep both its widths, grow each cell and section heading with its text in both forms alike (their heights are minimums, NVD-31), keep one-line labels, one-line supporting text and short labels on one line and cut them (NVD-75), and SHALL NOT scale its icons, icon indicators or trailing glyphs; WHERE the platform offers a large-content viewer for bar items (iOS) a long press on a collapsed destination SHALL show its icon and label enlarged."
     },
     {
       "id": "NVD-28",
@@ -545,12 +717,12 @@
     },
     {
       "id": "NVD-31",
-      "text": "WHILE collapsible is true THE navigation drawer SHALL give every cell the same height and the same place in both forms, so that each icon, each header button and the main action's glyph is drawn at exactly the same point expanded, collapsed and while moving between them: a cell's icon line SHALL lie below its top by the larger of half the expanded row's height (NVD-13) and comp.navigation-drawer.collapsed.item.container.padding-block plus half of comp.navigation-drawer.item.icon-indicator.height, and the cell SHALL reach below that line by the larger of half the expanded row's height and half of comp.navigation-drawer.item.icon-indicator.height plus, WHILE collapsedLabels is not never, comp.navigation-drawer.collapsed.item.gap and one line of comp.navigation-drawer.collapsed.item.label.typescale, plus comp.navigation-drawer.collapsed.item.container.padding-block; both forms SHALL center the icon on that line. A section heading's row, and the header slot's row, SHALL keep their heights in both forms. The one exception is an open group, whose items the collapsed drawer does not draw (NVD-47): the cells after it move up while the drawer collapses and back while it expands. WHILE collapsible is false a cell SHALL be the expanded row alone.",
+      "text": "WHILE collapsible is true THE navigation drawer SHALL give every cell the same height and the same place in both forms, so that each icon, each header button and the main action's glyph is drawn at exactly the same point expanded, collapsed and while moving between them: a cell's icon line SHALL lie below its top by the larger of half the expanded row's height (NVD-13) and comp.navigation-drawer.collapsed.item.container.padding-block.regular plus half of comp.navigation-drawer.item.icon-indicator.height.regular, and the cell SHALL reach below that line by the larger of half the expanded row's height and half of comp.navigation-drawer.item.icon-indicator.height.regular plus, WHILE collapsedLabels is not never, comp.navigation-drawer.collapsed.item.gap and one line of comp.navigation-drawer.collapsed.item.label.typescale, plus comp.navigation-drawer.collapsed.item.container.padding-block.regular; both forms SHALL center the icon on that line. A section heading's row, and the header slot's row, SHALL keep their heights in both forms. The one exception is an open group, whose items the collapsed drawer does not draw (NVD-47): the cells after it move up while the drawer collapses and back while it expands. WHILE collapsible is false a cell SHALL be the expanded row alone.",
       "verify": "Under the default system, with collapsedLabels never, a cell is 48 high in both forms and its icon line is 24 below its top: `collapsed` and `collapsible-expanded` draw every icon, the menu button and the main action's glyph at the same points. With collapsedLabels always a cell grows to hold the short label in both forms alike (`collapsed-labels-always`)."
     },
     {
       "id": "NVD-32",
-      "text": "WHILE the drawer is collapsed THE navigation drawer SHALL draw only the cells that are not inside a group (top-level destinations and groups, in a section or not), each as an item container comp.navigation-drawer.collapsed.item.container.width wide, centered in the icon column, with corners comp.navigation-drawer.collapsed.item.container.shape, each at most half its height, holding, comp.navigation-drawer.collapsed.item.container.padding-block below its top, the icon indicator, comp.navigation-drawer.item.icon-indicator.width wide and comp.navigation-drawer.item.icon-indicator.height high with corners comp.navigation-drawer.item.icon-indicator.shape, its icon centered in it on the cell's icon line; and WHILE its short label is drawn (NVD-33), comp.navigation-drawer.collapsed.item.gap below the icon indicator, the short label centered on one line in comp.navigation-drawer.collapsed.item.label.typescale, truncated at its end with an ellipsis inside comp.navigation-drawer.collapsed.item.container.padding-inline, and comp.navigation-drawer.collapsed.item.container.padding-block below it. It SHALL draw no trailing content. Every part is laid out in every system; a transparent color hides a part without changing the layout.",
+      "text": "WHILE the drawer is collapsed THE navigation drawer SHALL draw only the cells that are not inside a group (top-level destinations and groups, in a section or not), each as an item container comp.navigation-drawer.collapsed.item.container.width.regular wide, centered in the icon column, with corners comp.navigation-drawer.collapsed.item.container.shape, each at most half its height, holding, comp.navigation-drawer.collapsed.item.container.padding-block.regular below its top, the icon indicator, comp.navigation-drawer.item.icon-indicator.width.regular wide and comp.navigation-drawer.item.icon-indicator.height.regular high with corners comp.navigation-drawer.item.icon-indicator.shape, its icon centered in it on the cell's icon line; and WHILE its short label is drawn (NVD-33), comp.navigation-drawer.collapsed.item.gap below the icon indicator, the short label centered on one line in comp.navigation-drawer.collapsed.item.label.typescale, truncated at its end with an ellipsis inside comp.navigation-drawer.collapsed.item.container.padding-inline, and comp.navigation-drawer.collapsed.item.container.padding-block.regular below it. It SHALL draw no trailing content. Every part is laid out in every system; a transparent color hides a part without changing the layout.",
       "verify": "Under the default system, in `collapsed`: every cell's item container is 48 by 48 with the expanded row's corners (comp.navigation-drawer.item.container.shape), its icon at the point it has in `collapsible-expanded`, and no label is drawn; the selected one is filled exactly as the expanded row is, and none is a capsule. Under `m3-like`, in `collapsed-labels-always`, the cell is Material's: a 56 by 32 indicator behind the glyph and the short label under it."
     },
     {
@@ -563,11 +735,11 @@
     },
     {
       "id": "NVD-35",
-      "text": "WHEN the drawer changes form (NVD-30) THE navigation drawer SHALL, over comp.navigation-drawer.motion.expand-duration with comp.navigation-drawer.motion.expand-easing: move its end edge between comp.navigation-drawer.collapsed.container.width and comp.navigation-drawer.container.width, a standard drawer's content beside it resizing with it; keep every icon, header button and the main action's glyph in place (NVD-31); change each item container between its two sizes and corners as one shape around the same icon line (WHERE the two forms give it the same height and corners, as the default system does, its end edge alone moves), and cross-fade its color and those of its icon indicator, icon and label from one form's condition to the other's; clip the expanded labels, trailing content, headings' text and the header slot at the moving edge and fade them out over the first half of the change when collapsing, and in over the second half when expanding; and fade the short labels in over the second half when collapsing, and out over the first half when expanding. It SHALL NOT stretch, reshape or recolor a header button on the way (NVD-38). WHERE motion is reduced it SHALL change form at once."
+      "text": "WHEN the drawer changes form (NVD-30) THE navigation drawer SHALL, over comp.navigation-drawer.motion.expand-duration with comp.navigation-drawer.motion.expand-easing: move its end edge between comp.navigation-drawer.collapsed.container.width.regular and comp.navigation-drawer.container.width, a standard drawer's content beside it resizing with it; keep every icon, header button and the main action's glyph in place (NVD-31); change each item container between its two sizes and corners as one shape around the same icon line (WHERE the two forms give it the same height and corners, as the default system does, its end edge alone moves), and cross-fade its color and those of its icon indicator, icon and label from one form's condition to the other's; clip the expanded labels, trailing content, headings' text and the header slot at the moving edge and fade them out over the first half of the change when collapsing, and in over the second half when expanding; and fade the short labels in over the second half when collapsing, and out over the first half when expanding. It SHALL NOT stretch, reshape or recolor a header button on the way (NVD-38). WHERE motion is reduced it SHALL change form at once."
     },
     {
       "id": "NVD-36",
-      "text": "WHEN the drawer changes form THE navigation drawer SHALL keep focus where it is, and SHALL take what the collapsed form does not draw (the header slot's content, the headings' text, trailing content, the items inside groups) out of the focus order and away from assistive technology WHILE it is collapsed; IF focus is on such content when the drawer collapses THE navigation drawer SHALL move it to the menu button (NVD-37), or else to the first focusable element of the drawer. A destination's role, name and state SHALL be the same in both forms."
+      "text": "WHEN the drawer changes form THE navigation drawer SHALL keep focus where it is, and SHALL take what the collapsed form does not draw (the header slot's content, the headings' text, trailing content, the chevron of a group that is a destination, the items inside groups) out of the focus order and away from assistive technology WHILE it is collapsed; IF focus is on such content when the drawer collapses THE navigation drawer SHALL move it to the menu button (NVD-37), or else to the first focusable element of the drawer. A destination's role, name and state SHALL be the same in both forms."
     },
     {
       "id": "NVD-37",
@@ -579,7 +751,8 @@
     },
     {
       "id": "NVD-39",
-      "text": "WHILE the drawer holds a main-action item THE navigation drawer SHALL draw it as the Main Action Button it is, collapsed to its icon (extended false) WHILE the drawer is collapsed and extended with its label WHILE the drawer is expanded, changing with the drawer over comp.navigation-drawer.motion.expand-duration; it SHALL center it in the icon column while collapsed and start it at the same place while expanded, so that its glyph does not move WHERE the button's padding before its glyph is half the difference of its height and its glyph (as in the default system); its label SHALL remain its accessible name in both forms. IF the drawer holds more than one main-action item THE navigation drawer SHALL draw the first, and in debug builds report the rest."
+      "text": "WHILE the drawer holds a main-action item THE navigation drawer SHALL draw it as the Main Action Button it is, collapsed to its icon (extended false) WHILE the drawer is collapsed and extended with its label WHILE the drawer is expanded, changing with the drawer over comp.navigation-drawer.motion.expand-duration; it SHALL place the button so that the center of its glyph lies on the icon column's center line, the line the destinations' icons are centered on (NVD-13, NVD-31), in both forms, at every size of the button, in every density and design system and in either layout direction: the icon column's center line lying a chevron's room and comp.navigation-drawer.item.gap further from the start WHILE chevron is start (NVD-68): WHILE the drawer is collapsed the button's start SHALL lie half the column's width less half the button's height (the side of its collapsed square, comp.main-action-button.container.height.medium for medium, and so on) from the drawer's start edge, and WHILE it is expanded half the column's width less the button's padding before a leading glyph and half that glyph (comp.main-action-button.container.padding-inline-start-with-icon.medium and comp.main-action-button.icon.size.medium for medium, and so on), each read from the button's own tokens for its size and never measured or written as a number; WHEN the drawer changes form the button's start SHALL move between the two over comp.main-action-button.motion.resize-duration with comp.main-action-button.motion.resize-easing, the motion with which the button moves its glyph between the middle and its side (MAB-14), at once where motion is reduced. A button whose collapsed square is wider than the icon column (a large one in the default system's columns) SHALL still be placed so, reaching past the column's start edge, and in debug builds THE navigation drawer SHALL report it; a button whose glyph is trailing SHALL be placed so while collapsed and, while expanded, start where it starts collapsed, and in debug builds THE navigation drawer SHALL report that its glyph leaves the column while expanded. Its label SHALL remain its accessible name in both forms. IF the drawer holds more than one main-action item THE navigation drawer SHALL draw the first, and in debug builds report the rest.",
+      "verify": "Test, for the small, medium and large main action, in a regular and a compact drawer, expanded and collapsed, left to right and right to left, under the default system, m3-like and cupertino: the center of the button's glyph is the center of every top-level destination's icon, to half a pixel (36 from the drawer's start edge in the default system's regular column, 28 in its compact one). The large button in a collapsed default drawer is reported; no other is."
     },
     {
       "id": "NVD-40",
@@ -596,27 +769,27 @@
     },
     {
       "id": "NVD-43",
-      "text": "WHILE a destination's trailing slot holds content THE navigation drawer SHALL draw it at the end of the expanded row: a glyph at comp.navigation-drawer.item.trailing-icon.size in its condition's trailing icon color (comp.navigation-drawer.unselected.item.trailing-icon.color, comp.navigation-drawer.selected.item.trailing-icon.color), anything else as it draws itself; WHILE the slot is empty and trailingText is not empty it SHALL draw trailingText there, on one line and never truncated, in comp.navigation-drawer.item.trailing-text.typescale and its condition's trailing text color (comp.navigation-drawer.unselected.item.trailing-text.color, comp.navigation-drawer.selected.item.trailing-text.color); IF both are given it SHALL draw the slot's content and in debug builds report trailingText. IF the slot holds a focusable element THE navigation drawer SHALL keep it out of the focus order, and in debug builds report that trailing content is not interactive."
+      "text": "WHILE a destination's trailing slot holds content THE navigation drawer SHALL draw it at the end of the expanded row: a glyph at comp.navigation-drawer.item.trailing-icon.size.regular in its condition's trailing icon color (comp.navigation-drawer.unselected.item.trailing-icon.color, comp.navigation-drawer.selected.item.trailing-icon.color), anything else as it draws itself; WHILE the slot is empty and trailingText is not empty it SHALL draw trailingText there, on one line and never truncated, in comp.navigation-drawer.item.trailing-text.typescale and its condition's trailing text color (comp.navigation-drawer.unselected.item.trailing-text.color, comp.navigation-drawer.selected.item.trailing-text.color); IF both are given it SHALL draw the slot's content and in debug builds report trailingText. IF the slot holds a focusable element THE navigation drawer SHALL keep it out of the focus order, and in debug builds report that trailing content is not interactive."
     },
     {
       "id": "NVD-44",
-      "text": "THE navigation drawer SHALL draw a group's row as a destination's in either form (NVD-13, NVD-32), with its icon, label and short label, and in place of trailing content its chevron: the icon set's expand_more at comp.navigation-drawer.item.trailing-icon.size in its condition's trailing icon color, turned half a turn WHILE the group is open; WHILE the group is open and the drawer expanded it SHALL draw the group's items below its row, each one's content comp.navigation-drawer.item.nest-indent further from the start than its group's, its item container as wide as its group's (NVD-13); WHEN open changes it SHALL reveal or hide those items, moving the cells below, and turn the chevron, over comp.navigation-drawer.motion.disclosure-duration with comp.navigation-drawer.motion.disclosure-easing, at once where motion is reduced. A group's row SHALL answer hover, focus and press, show its focus ring, and follow press-hold, pressed-feedback, corner smoothing and focus style exactly as a destination does (NVD-4 to NVD-10), from the unselected condition unless NVD-47 says otherwise."
+      "text": "THE navigation drawer SHALL draw a group's row as a destination's in either form (NVD-13, NVD-32), with its icon, label and short label, its trailing content (NVD-43, a group's trailing slot and trailingText as a destination's), and its chevron where chevron puts it (NVD-68): the icon set's expand_more at comp.navigation-drawer.item.trailing-icon.size.regular in its condition's trailing icon color, turned half a turn WHILE the group is open; WHILE the group is open and the drawer expanded it SHALL draw the group's items below its row, each one's row starting one step of indent further in (NVD-69, NVD-70); WHEN open changes it SHALL reveal or hide those items, moving the cells below, and turn the chevron, over comp.navigation-drawer.motion.disclosure-duration with comp.navigation-drawer.motion.disclosure-easing, at once where motion is reduced. A group's row SHALL answer hover, focus and press, show its focus ring, and follow press-hold, pressed-feedback, corner smoothing and focus style exactly as a destination does (NVD-4 to NVD-10), from the unselected condition unless NVD-47 says otherwise."
     },
     {
       "id": "NVD-45",
-      "text": "WHEN the user activates a group's row by pointer, touch, Enter or Space WHILE the drawer is expanded THE navigation drawer SHALL emit the group's toggle exactly once with its new open state, SHALL NOT emit change, reselect or close, and on the web SHALL set the group's open itself (a controlled platform leaves it to the caller); WHEN focus is on a closed group's row and the user presses the arrow key toward the end of the line (Right in a left-to-right layout) it SHALL open the group, and on an open group's row the arrow key toward the start SHALL close it; WHEN focus is on an item inside an open group and the user presses the arrow key toward the start, it SHALL move focus to that group's row. WHILE a group's disabled is true THE navigation drawer SHALL NOT emit toggle for it, SHALL NOT make its row focusable and SHALL expose it as disabled."
+      "text": "WHEN the user activates, WHILE expandable is true and the drawer is expanded, a group's row by pointer, touch, Enter or Space and the group is not a destination (NVD-66), or activates the chevron of a group that is one (NVD-67), or the icon of a group while chevron is none (NVD-68), THE navigation drawer SHALL emit the group's toggle exactly once with its new open state, SHALL NOT emit change, reselect or close, and on the web SHALL set the group's open itself (a controlled platform leaves it to the caller); WHEN focus is on a closed group's row and the user presses the arrow key toward the end of the line (Right in a left-to-right layout) it SHALL open the group, and on an open group's row the arrow key toward the start SHALL close it; WHEN focus is on an item inside an open group and the user presses the arrow key toward the start, it SHALL move focus to that group's row. WHILE a group's disabled is true THE navigation drawer SHALL NOT emit toggle, change or reselect for it, SHALL NOT make its row or its chevron focusable and SHALL expose it as disabled."
     },
     {
       "id": "NVD-46",
-      "text": "THE navigation drawer SHALL expose a group's row as one button named by its label, with its expanded or collapsed state and its icon and chevron hidden, controlling its items, and its items as a list named by the group's label inside the drawer's list: on the web a button with aria-expanded and aria-controls and a nested list labelled by it; on Apple platforms a button whose value is expanded or collapsed, as a disclosure group reads; on Android the expanded state with the expand and collapse actions; in Flutter the expanded semantics flag; in React Native accessibilityState.expanded. WHILE a group is closed, or the drawer collapsed, its items SHALL be neither exposed nor focusable. WHILE a group's label is empty THE navigation drawer SHALL still render it, and in debug builds report that it has no accessible name."
+      "text": "THE navigation drawer SHALL expose a group's row as one button named by its label, with its expanded or collapsed state and its icon and chevron hidden, controlling its items, and its items as a list named by the group's label inside the drawer's list: on the web a button with aria-expanded and aria-controls and a nested list labelled by it; on Apple platforms a button whose value is expanded or collapsed, as a disclosure group reads; on Android the expanded state with the expand and collapse actions; in Flutter the expanded semantics flag; in React Native accessibilityState.expanded. WHILE a group is a destination (NVD-66) THE navigation drawer SHALL instead expose its row as that destination, as NVD-23 says (a link while it has an href and a button otherwise, named by its label, with its selected state), and its chevron as one more button, named by the group's label, with the group's expanded or collapsed state and controlling its items, which stay a list named by the group's label: on the web the row is the link or button with aria-current and the chevron a button with aria-expanded and aria-controls, each its own Tab stop, as the disclosure navigation menu with top-level links of the WAI-ARIA Authoring Practices is; on the other platforms the row carries the selected state and the chevron the expanded state with the expand and collapse actions. WHILE expandable is false, NVD-72 says instead what a group's row is. WHILE a group is closed, or the drawer collapsed, its items SHALL be neither exposed nor focusable. WHILE a group's label is empty THE navigation drawer SHALL still render it, and in debug builds report that it has no accessible name."
     },
     {
       "id": "NVD-47",
-      "text": "WHILE the selected destination is inside a closed group, or inside a group WHILE the drawer is collapsed, THE navigation drawer SHALL draw the row that shows it (the outermost closed group that holds it; collapsed, its top-level group) from its form's selected condition; WHILE the drawer is collapsed it SHALL draw each top-level group as one cell and none of its items; WHEN the user activates a group's cell WHILE the drawer is collapsed THE navigation drawer SHALL emit expandedChange with true, and the group's toggle with true WHILE it is closed, SHALL on the web apply both itself, and SHALL move focus to the group's row once the drawer is expanded."
+      "text": "WHILE the selected destination is inside a closed group, or inside a group WHILE the drawer is collapsed, THE navigation drawer SHALL draw the row that shows it (the outermost closed group that holds it; collapsed, its top-level group) from its form's selected condition; WHILE the drawer is collapsed it SHALL draw each top-level group as one cell and none of its items; WHEN the user activates the cell of a group that is not a destination (NVD-66) WHILE the drawer is collapsed THE navigation drawer SHALL emit expandedChange with true, and the group's toggle with true WHILE it is closed, SHALL on the web apply both itself, and SHALL move focus to the group's row once the drawer is expanded."
     },
     {
       "id": "NVD-48",
-      "text": "IF groups nest more than three levels deep THE navigation drawer SHALL still render them, indenting each level's content by comp.navigation-drawer.item.nest-indent, and in debug builds report the depth."
+      "text": "IF groups nest more than three levels deep THE navigation drawer SHALL still render them, indenting each level's content by comp.navigation-drawer.item.nest-indent.regular, and in debug builds report the depth."
     },
     {
       "id": "NVD-49",
@@ -653,7 +826,7 @@
     },
     {
       "id": "NVD-56",
-      "text": "WHILE the drawer is collapsed and a cell draws no short label (NVD-33) THE navigation drawer SHALL show that cell's label, WHEN the cell is hovered with a fine pointer or receives keyboard focus, as the platform shows the name of a control that is an icon alone (a plain tooltip beside the cell, toward the content, on the web and on desktop; nothing more than the large-content viewer of NVD-27 on a touch platform), and SHALL NOT add it to the cell's accessible name or description, which already hold it.",
+      "text": "WHILE the drawer is collapsed and a cell draws no short label (NVD-33), and WHILE it is expanded and a row's label or supporting text is cut (NVD-75), THE navigation drawer SHALL show that cell's label (and, where its supporting text is cut, its supporting text after it), WHEN the cell is hovered with a fine pointer or receives keyboard focus, as the platform shows the name of a control that is an icon alone (a plain tooltip beside the cell, toward the content, on the web and on desktop; nothing more than the large-content viewer of NVD-27 on a touch platform), and SHALL NOT add it to the cell's accessible name or description, which already hold it.",
       "verify": "Test in `collapsed`: hovering Sent shows \"Sent\" beside the cell and the accessibility tree is unchanged; in `collapsed-labels-always` nothing is shown, because the label is drawn."
     },
     {
@@ -663,7 +836,7 @@
     },
     {
       "id": "NVD-58",
-      "text": "WHILE revealSelected is true THE navigation drawer SHALL, WHEN it first appears with a selected destination and WHEN value changes to a destination, draw every closed group that holds that destination open, whatever its open said (a state the product gave back included, NVD-62), and SHALL emit each such group's toggle exactly once with true, the web setting the group's open itself and a controlled platform leaving its open to the caller, as NVD-45 says; WHEN the drawer first appears it SHALL draw them open in its first frame, without the motion of NVD-44, and afterwards with it. It SHALL NOT emit change, reselect or close for it, and SHALL NOT open again a group the user closes afterwards until value changes: that group's row then shows the selection (NVD-47). WHILE the drawer is collapsed it SHALL open them all the same, for the form in which they are drawn. WHILE revealSelected is false THE navigation drawer SHALL leave every group as its open says.",
+      "text": "WHILE revealSelected is true THE navigation drawer SHALL, WHEN it first appears with a selected destination and WHEN value changes to a destination, draw every closed group that holds that destination open — and, WHERE the selected destination is a group (NVD-66), that group as well, so that a site's sidebar shows the pages of the section whose page is shown — whatever its open said (a state the product gave back included, NVD-62), and SHALL emit each such group's toggle exactly once with true, the web setting the group's open itself and a controlled platform leaving its open to the caller, as NVD-45 says; WHEN the drawer first appears it SHALL draw them open in its first frame, without the motion of NVD-44, and afterwards with it. It SHALL NOT emit change, reselect or close for it, and SHALL NOT open again a group the user closes afterwards until value changes: that group's row then shows the selection (NVD-47). WHILE the drawer is collapsed it SHALL open them all the same, for the form in which they are drawn. WHILE revealSelected is false THE navigation drawer SHALL leave every group as its open says.",
       "verify": "`site-sidebar`: every group's open is false and the selected destination is inside Components; Components is drawn open with Navigation drawer selected in it, and the other groups closed. Test: closing Components by its row then draws its row selected, and it stays closed until value changes; `group-closed-selected` (revealSelected false) is drawn as before."
     },
     {
@@ -688,12 +861,77 @@
     },
     {
       "id": "NVD-63",
-      "text": "WHILE a destination is a link and its target is new THE navigation drawer SHALL open its href in a new context, as BTN-24 says for a link button (on the web a new tab or window that is given no handle to the page that opened it), and, WHILE the drawer is expanded and the destination has neither trailing slot content nor trailingText, SHALL draw the glyph open_in_new of the system's icon set as its trailing content, as NVD-43 draws a glyph: at comp.navigation-drawer.item.trailing-icon.size, in its condition's trailing icon color (comp.navigation-drawer.unselected.item.trailing-icon.color, comp.navigation-drawer.selected.item.trailing-icon.color), through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name, and hidden from assistive technology; WHILE the product has put trailing content there THE navigation drawer SHALL draw no mark of its own. Whether a mark is drawn or not, and in both forms, it SHALL expose targetLabel as part of the destination's description, after its badge's description and its trailing content (NVD-15), and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE navigation drawer SHALL draw no mark and SHALL ignore targetLabel.",
+      "text": "WHILE a destination is a link and its target is new THE navigation drawer SHALL open its href in a new context, as BTN-24 says for a link button (on the web a new tab or window that is given no handle to the page that opened it), and, WHILE the drawer is expanded and the destination has neither trailing slot content nor trailingText, SHALL draw the glyph open_in_new of the system's icon set as its trailing content, as NVD-43 draws a glyph: at comp.navigation-drawer.item.trailing-icon.size.regular, in its condition's trailing icon color (comp.navigation-drawer.unselected.item.trailing-icon.color, comp.navigation-drawer.selected.item.trailing-icon.color), through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name, and hidden from assistive technology; WHILE the product has put trailing content there THE navigation drawer SHALL draw no mark of its own. Whether a mark is drawn or not, and in both forms, it SHALL expose targetLabel as part of the destination's description, after its badge's description and its trailing content (NVD-15), and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE navigation drawer SHALL draw no mark and SHALL ignore targetLabel.",
       "verify": "`site-sidebar`: Source code ends in open_in_new and is described as \"opens in a new tab\"; no other row has a mark."
     },
     {
       "id": "NVD-64",
       "text": "WHEN a destination's target names a value the navigation drawer does not define THE navigation drawer SHALL treat it as same, and in debug builds report the unknown value. IF a destination's href is only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE navigation drawer SHALL make the destination a button without a destination, and in the last two cases report it in debug builds, as BTN-26 says for a button. WHILE a destination's href is empty THE navigation drawer SHALL ignore its target and targetLabel."
+    },
+    {
+      "id": "NVD-65",
+      "text": "THE navigation drawer SHALL draw its cells, its section headings, the gaps between its cells, its nesting indent and its collapsed column from the tokens of its density: WHILE density is regular from comp.navigation-drawer.container.gap.regular, comp.navigation-drawer.item.container.height.regular, comp.navigation-drawer.item.padding-inline.regular, comp.navigation-drawer.item.padding-block.regular, comp.navigation-drawer.item.nest-indent.regular, comp.navigation-drawer.item.icon.size.regular, comp.navigation-drawer.item.icon-indicator.width.regular, comp.navigation-drawer.item.icon-indicator.height.regular, comp.navigation-drawer.item.label.typescale.regular, comp.navigation-drawer.item.trailing-icon.size.regular, comp.navigation-drawer.collapsed.container.width.regular, comp.navigation-drawer.collapsed.item.container.width.regular, comp.navigation-drawer.collapsed.item.container.padding-block.regular and comp.navigation-drawer.heading.height.regular, and WHILE density is compact from comp.navigation-drawer.container.gap.compact, comp.navigation-drawer.item.container.height.compact, comp.navigation-drawer.item.padding-inline.compact, comp.navigation-drawer.item.padding-block.compact, comp.navigation-drawer.item.nest-indent.compact, comp.navigation-drawer.item.icon.size.compact, comp.navigation-drawer.item.icon-indicator.width.compact, comp.navigation-drawer.item.icon-indicator.height.compact, comp.navigation-drawer.item.label.typescale.compact, comp.navigation-drawer.item.trailing-icon.size.compact, comp.navigation-drawer.collapsed.container.width.compact, comp.navigation-drawer.collapsed.item.container.width.compact, comp.navigation-drawer.collapsed.item.container.padding-block.compact and comp.navigation-drawer.heading.height.compact. No density SHALL change comp.navigation-drawer.item.gap, the room between the icon (or its room), the label and the trailing content, as no density changes the tree view's. Wherever another behaviour names one of these tokens by its regular value, THE navigation drawer SHALL read the value of its density instead, in both forms and while moving between them, so that every icon keeps one point in both forms (NVD-31) in each density and a nested destination's icon stands where its group's label starts in each. WHEN density changes while the drawer is shown THE navigation drawer SHALL draw the new density at once, without the motions of NVD-35, NVD-41 and NVD-44, keeping its form, its selection, every group's open, its scroll offset where the range allows, and focus, and SHALL emit nothing for it.",
+      "verify": "Under the default system: the fixture `compact` draws 32 rows with 16 glyphs, a 2 gap between cells, 28 headings and nested icons under their groups' labels (NVD-13's verify); `compact-collapsed` is a 56 column whose cells are 32 by 32, every icon at the point it has in the same drawer expanded. Test: setting density to compact and back on a shown drawer emits nothing and keeps focus on the cell that had it."
+    },
+    {
+      "id": "NVD-66",
+      "text": "WHILE selectableGroups is true THE navigation drawer SHALL treat each group whose value or href is not empty as a destination as well as a group: the drawer's value SHALL select it as it selects a destination, its href standing as its value while its value is empty (NVD-59), and NVD-29 SHALL count it among the destinations in reading order, before the items it holds; its row SHALL be drawn from the selected parts in its form while it is selected (NVD-3, NVD-41) and from the parts NVD-47 names while it is not and a destination it holds is shown by it; its activation SHALL emit change or reselect as NVD-1 says and close a modal drawer as NVD-21 says; and WHILE its href is not empty its row SHALL be a link as NVD-59, NVD-60 and NVD-64 say, opened where the person is. WHILE selectableGroups is false, and for a group whose value and href are both empty, THE navigation drawer SHALL ignore the group's value and href, the group SHALL only open and close (NVD-45), and in debug builds it SHALL report once a group that has a value or an href while selectableGroups is false. WHEN selectableGroups changes while the drawer is shown THE navigation drawer SHALL draw the new form of each group at once, keeping value, every group's open and focus where the element that had it is still drawn, and SHALL emit nothing for it.",
+      "verify": "The fixture `selectable-groups`: the group Components is selected and drawn from the selected parts; its row is the current page; Foundations is a destination that is not selected; Resources has no value and only opens and closes. Test: a press on Foundations' label emits one change with its value and no toggle; with selectableGroups false the same press emits one toggle and no change."
+    },
+    {
+      "id": "NVD-67",
+      "text": "WHILE a group is a destination (NVD-66) and the drawer is expanded THE navigation drawer SHALL split its row in two: its chevron SHALL be a control of its own, which opens and closes the group as NVD-45 says and SHALL NOT change the selection, and the rest of the row SHALL be the destination, which a press, Enter or Space (Enter alone for a link) activates as NVD-1 says and which SHALL NOT open or close the group: the chevron opens and the row chooses, and one press never does both. The chevron's hit area SHALL be the part of the cell's hit area from the middle of the gap before the chevron's box to the cell's end edge, at least sys.target.pointer wide for a fine pointer and sys.target.touch wide for touch, reaching over the end of the label where the row gives less; the rest of the cell's hit area SHALL be the row's. A hover anywhere on the cell SHALL show on the item container, a press on the chevron SHALL show the pressed state on the item container as a press on the row does (NVD-8, NVD-9), and keyboard focus on the chevron SHALL show the focus ring around the chevron's own box, at the corners of the item container, and not around the row. With focus on the row the arrow keys SHALL open, close and leave the group as NVD-45 says. WHILE the drawer is collapsed the group's cell SHALL be the destination alone: its activation SHALL emit change or reselect, and SHALL NOT expand the drawer or open the group; its items are reached by expanding the drawer.",
+      "verify": "Test in `selectable-groups`: a press on Components' chevron emits one toggle and no change; a press 1 pixel before the chevron's hit area emits one change (or reselect) and no toggle; Tab moves from Components' row to its chevron and then to its first item; Enter on the chevron toggles, and Right on the row opens a closed group. Collapsed, a press on a group that is a destination emits change and leaves the drawer collapsed."
+    },
+    {
+      "id": "NVD-68",
+      "text": "THE navigation drawer SHALL draw a group's chevron where chevron says, as the tree view does. WHILE chevron is start THE navigation drawer SHALL keep a box of comp.navigation-drawer.item.trailing-icon.size.regular at the start of every expanded row's content, comp.navigation-drawer.item.gap before its icon, the icon's room or its label, draw the chevron in it on a group's row and nothing on a destination's, so that the icons and labels of a level each stand in one column, and turn it a quarter turn from pointing toward the end of the line WHILE the group is closed to pointing down WHILE it is open. WHILE chevron is end it SHALL draw expand_more at the very end of the row, after its trailing content, turned half a turn WHILE open. WHILE chevron is none it SHALL draw no chevron and keep no room for one: the arrow keys SHALL still open and close a group (NVD-45); a press on a group's icon SHALL open and close it and choose nothing; WHILE the group is open its icon SHALL be drawn as its openIcon where it has one; a group without an icon SHALL open and close by a press anywhere on its row, unless it is a destination (NVD-66), whose row then chooses it and which the pointer cannot open or close. WHILE the drawer is collapsible THE navigation drawer SHALL draw start as end, so that every icon keeps one point in both forms (NVD-31). WHEN chevron names a value it does not define it SHALL draw start, and in debug builds report the value.",
+      "verify": "In `chevron-none` a press on Projects' folder icon opens it and draws folder_open; a press on its label does the same for a group that is not a destination; in `selectable-groups` with chevron none a press on Foundations' label emits change and opens nothing, and Right opens it. In `groups` (chevron start) the labels of every row of a level start on one line."
+    },
+    {
+      "id": "NVD-69",
+      "text": "THE navigation drawer SHALL begin each row's content, and WHILE highlight is indented its item container, one step of indent further from the start than its group's row for each group that holds it, as the tree view does. WHILE indent is null (auto) a step SHALL be what the group's row draws before its label — its start chevron's room and comp.navigation-drawer.item.gap WHILE chevron is start, and its icon (or the icon's room, NVD-71) and comp.navigation-drawer.item.gap — so that a row's first part (its start chevron, its icon or its label) lines up with where its group's label begins, and comp.navigation-drawer.item.nest-indent.regular WHERE the group's row draws neither. WHILE indent is a number a step SHALL be that many units of the layout, and 0 SHALL begin every row where its group's row begins. WHILE the steps of a row's levels would begin its label past half of the drawer's width THE navigation drawer SHALL begin the row so that its label begins there, as the tree view does, so that a deep row keeps room for its name, at 200 % text too. A step SHALL NOT change a row's height, its hit area (NVD-6), which stays the drawer's width, or the collapsed form, which draws no nested row (NVD-32). WHEN indent is negative or not a number THE navigation drawer SHALL draw auto, and in debug builds report the value.",
+      "verify": "Test: in `nested-icons` a nested icon starts where its group's label starts (auto); with indent 0 it starts where its group's icon starts; with indent 20 it starts 20 further than its group's. In a drawer of five levels the labels of the third level and below begin at half of the drawer's width."
+    },
+    {
+      "id": "NVD-70",
+      "text": "WHILE highlight is indented THE navigation drawer SHALL draw a nested row's item container — its selected fill, its hover and press layers and its focus indicator — from where the row begins (NVD-69) to the drawer's padding at its end, and WHILE highlight is full from the drawer's padding at its start to its padding at its end at every level, the content starting where the row begins either way; WHEN highlight names a value it does not define it SHALL draw indented, and in debug builds report the value.",
+      "verify": "Test: a hovered nested destination's state layer starts where its row begins under indented, and 12 from the drawer's start edge under full."
+    },
+    {
+      "id": "NVD-71",
+      "text": "WHILE iconSpace is auto THE navigation drawer SHALL keep an icon's room, empty, on a row without an icon WHERE another row of its level (the same group's rows, or the drawer's top-level rows) has an icon, so that the labels of the level start on one line; WHILE it is always on every row without an icon; and WHILE it is never on none, the label then starting comp.navigation-drawer.item.padding-inline.regular from where the row's content starts. The room is the icon's box and and counts toward the next level's step (NVD-69).",
+      "verify": "In `icon-space` the label of Drafts, which has no icon, starts where Inbox's label does."
+    },
+    {
+      "id": "NVD-72",
+      "text": "WHILE expandable is false THE navigation drawer SHALL draw every group open whatever its open says, draw no chevron and keep no room for one, emit no toggle, and SHALL expose no group as expandable: a group that is a destination (NVD-66) SHALL be that destination alone, and every other group's row SHALL be drawn, take no focus, answer no pointer and be hidden from assistive technology, its label naming the list of its items, which stays a list inside the drawer's list. WHILE the drawer is collapsed it SHALL still draw each top-level group as one cell, whose activation expands the drawer (NVD-47).",
+      "verify": "In `not-expandable` every group's items are shown, no row carries aria-expanded, and Tab passes from the last destination before a group to its first item."
+    },
+    {
+      "id": "NVD-73",
+      "text": "WHILE guides is shown THE navigation drawer SHALL draw, for each open group that shows at least one row under it while the drawer is expanded, one line comp.navigation-drawer.guide.width wide in comp.navigation-drawer.guide.color from the lower edge of the group's row to the lower edge of the last row shown under it, centred under the group's first part — its start chevron, else its icon or the icon's room, else at the start of its label — as the tree view does; WHILE guides is hover it SHALL draw the same lines only while the pointer is over the drawer or focus is in it, fading them in and out over comp.navigation-drawer.motion.state-duration with comp.navigation-drawer.motion.state-easing (at once where motion is reduced); WHILE guides is none it SHALL draw none. The lines SHALL take no space, keep their color and full opacity in every state of the rows beside them, be hidden from assistive technology, and continue under a pinned group row (NVD-77); WHILE indent is 0 no line SHALL be drawn. In forced colors they SHALL be drawn in the system's line color.",
+      "verify": "Test: with guides shown, the line under an open group's icon is centred on the icon (chevron end or none), on the chevron (chevron start), or at the label's start (a group without an icon and chevron end), and runs to the last shown row's lower edge; with guides hover it is transparent until the pointer comes over the drawer."
+    },
+    {
+      "id": "NVD-74",
+      "text": "WHILE a destination's or a group's supportingText is not empty THE navigation drawer SHALL draw it in comp.navigation-drawer.item.supporting-text.typescale and its condition's supporting-text color (comp.navigation-drawer.unselected.item.supporting-text.color, comp.navigation-drawer.selected.item.supporting-text.color): WHILE supportingPosition is below on a line of its own under the label, the row growing to hold it with comp.navigation-drawer.item.padding-block.regular above and below its text, and WHILE it is inline after the label on its line, comp.navigation-drawer.item.gap after it; it SHALL be one line unless supportingWrap is true (NVD-75), SHALL be read as the row's description after its name and state, and SHALL NOT be drawn while the drawer is collapsed.",
+      "verify": "In `supporting`: Inbox's \"3 new\" stands under its label, comp.navigation-drawer.item.padding-block.regular above the row's lower edge; Drafts' stands after its label on the same line."
+    },
+    {
+      "id": "NVD-75",
+      "text": "WHILE labelWrap is false THE navigation drawer SHALL draw each row's label on one line, cut with an ellipsis at the end of its own direction where it does not fit, and WHILE supportingWrap is false the same for its supporting text, below or inline; WHILE either is true that text SHALL wrap and the row grow with it. THE row's accessible name SHALL be its full label, and its description its full supporting text, whatever is drawn. WHEN a row whose label or supporting text is cut is hovered with a fine pointer, after the tooltip's show delay, or receives keyboard focus, THE navigation drawer SHALL show the full text in a plain tooltip beside the row, toward the content (NVD-56), which Escape dismisses, which stays while the pointer is over the row or focus is on it, and which SHALL NOT be shown for a row whose text is drawn whole.",
+      "verify": "In `one-line`: the long label is drawn on one line ending with an ellipsis; hovering it shows its full text, and hovering a short one shows nothing; in `label-wrap` the same label wraps and no tooltip is shown."
+    },
+    {
+      "id": "NVD-76",
+      "text": "WHILE an open group's loading is true THE navigation drawer SHALL draw one loading row under it, after the rows of any items it already holds, one step of indent further in (NVD-69): a Loading indicator component of the small size in the place of a row's icon, and after it loadingLabel in comp.navigation-drawer.item.supporting-text.typescale and comp.navigation-drawer.unselected.item.supporting-text.color, in a row of comp.navigation-drawer.item.container.height.regular. It is not a destination: it SHALL take no focus and answer no pointer, SHALL be counted among no items, and SHALL be named by loadingLabel; THE navigation drawer SHALL expose the list of the group's items as busy WHILE loading is true, and announce nothing itself. WHILE loadingLabel is empty it SHALL draw the indicator alone and in debug builds report that the loading row has no name.",
+      "verify": "In `group-loading` the open group Archive draws a loading row under its one item, the row not focusable, and its list carries aria-busy."
+    },
+    {
+      "id": "NVD-77",
+      "text": "WHILE stickyParents is true and the drawer is expanded THE navigation drawer SHALL keep pinned at the top of the space its items scroll in the rows of the open groups that hold the first row shown below the pinned rows, at most stickyMax of them, the innermost winning as VS Code keeps its innermost scopes, one per level and each directly under the one above: each pinned row SHALL be the row itself (no copy is drawn or exposed), keep its own fill, state and focus ring, stay interactive as its row is, be drawn over the rows scrolling under it on comp.navigation-drawer.sticky.container.color (a modal drawer's on its own container color), and leave as its group's last row scrolls past, as the platform's sticky position does; the last pinned row SHALL draw an edge comp.navigation-drawer.sticky.divider.width wide in comp.navigation-drawer.sticky.divider.color at its lower side. WHEN keyboard focus moves to a row hidden under the pinned rows THE navigation drawer SHALL scroll it into view below them (NVD-61's least distance, measured from their lower edge), and bring the selection into view below them (NVD-57). Nothing is animated beyond the scroll itself. WHILE the drawer is collapsed, or stickyParents is false, no row SHALL be pinned. WHEN stickyMax is not a positive whole number it SHALL pin 2, and in debug builds report the value.",
+      "verify": "In `sticky` (a long open group under a long open group, scrolled): the two group rows are pinned, the outer above the inner, the inner with the edge under it; the rows under them scroll beneath; with stickyMax 1 only the inner one is pinned; Tab to a row under the pinned rows scrolls it to just below them."
     }
   ],
   "accessibility": {
@@ -701,11 +939,11 @@
     "keyboard": [
       {
         "keys": "Tab / Shift+Tab",
-        "action": "Moves focus through the header's content, then the destinations and group rows that are shown and not disabled; inside an open modal drawer it wraps around and never leaves the drawer; from an open standard drawer, expanded or collapsed, it moves on to the content, and the drawer stays as it is."
+        "action": "Moves focus through the header's content, then the destinations and group rows that are shown and not disabled, and after the row of a group that is a destination its chevron; inside an open modal drawer it wraps around and never leaves the drawer; from an open standard drawer, expanded or collapsed, it moves on to the content, and the drawer stays as it is."
       },
       {
         "keys": "Enter or Space",
-        "action": "Activates the focused destination (Enter only for a destination that is a link: it follows the link, and Space is left to the platform), and a modal drawer then closes; on a group's row, opens or closes the group; on a group's cell in the collapsed drawer, expands the drawer with the group open; on the menu button, changes the drawer's form."
+        "action": "Activates the focused destination (Enter only for a destination that is a link: it follows the link, and Space is left to the platform), and a modal drawer then closes; on a group's row, opens or closes the group, or, for a group that is a destination (NVD-66), activates it as a destination and leaves it as it is; on that group's chevron, opens or closes the group; on a group's cell in the collapsed drawer, expands the drawer with the group open; on the menu button, changes the drawer's form."
       },
       {
         "keys": "Enter with a modifier key, on a link (the web)",
@@ -728,6 +966,7 @@
       "A drawer of links is a navigation landmark holding lists of links and disclosure buttons, the pattern assistive technology users know from site navigation: every link and every group's row is its own Tab stop, and the arrow keys only open, close and leave a group. It is deliberately not a choice per use. One Tab stop with roving arrow keys is a tree's or a menu's model, would hide links from the browser's own ways of listing and following them, and would make the same component answer the keyboard in two ways. A long tree is passed by the landmark, by the headings of its sections, by closing its groups, and by the page's skip link.",
       "Showing the selection (NVD-57, NVD-58) scrolls the drawer and opens groups without moving focus and without an announcement: the page's own title and heading say where the user is, and the current destination carries its state for whoever reaches it.",
       "Groups are disclosures, not a tree: a group's row is a button with an expanded state that shows or hides a named list, and every shown destination stays its own tab stop, as the links of a navigation region are. A tree's single tab stop and arrow-key roving would make the drawer's keyboard model depend on whether it has groups; the arrow keys here only open, close and leave a group.",
+      "A group that is a destination (selectableGroups, NVD-66) is the WAI-ARIA Authoring Practices' disclosure navigation menu with top-level links: its row is the link or button of its own page, with the current-page state, and its chevron a separate disclosure button for its items, each a Tab stop. The two are never one control: a row that both navigates and toggles would announce one action and do two, and a keyboard user could not open the group without leaving the page. The chevron is named by the group's label, as Tanrei ships no words of its own; its role and its expanded state tell it from the row.",
       "Collapsing hides the header slot, the headings' text, trailing content and the items inside groups from assistive technology and focus; it changes no destination's role, name or state, and the menu button announces the change as its expanded state.",
       "A responsive drawer (NVD-53 to NVD-55) changes what it is with the window's width — a layout region where the window is wide, a modal overlay where it is narrow — and each presentation has the semantics of the drawer it stands for. A change of presentation closes an open overlay, releases focus that was kept inside it and announces nothing by itself; the presentation is never the only way to reach a destination, because the product's menu button opens the modal presentation.",
       "The standard form is a layout region, not an overlay, expanded or collapsed: opening it moves focus in, to the selected destination or else the first, closing it returns focus to where it was, and focus leaving it never closes it. The modal form is a modal overlay: it keeps focus in and draws a scrim; a collapsible modal drawer's column is a layout region while the drawer is closed. The web presents the open modal drawer with a modal <dialog> element (showModal gives inertness and Escape); Compose draws it in a window of its own (a Dialog, as TanreiDialog is) and Flutter as a controlled overlay in a Stack over the page, each with a scrim, trapping focus and answering back; SwiftUI, which has no side presentation, overlays it with the modal trait and the escape gesture; React Native presents it in a transparent Modal.",
@@ -1595,7 +1834,8 @@
       "props": {
         "open": true,
         "value": "website",
-        "label": "Workspace"
+        "label": "Workspace",
+        "chevron": "end"
       },
       "items": [
         {
@@ -1653,6 +1893,1004 @@
       ]
     },
     {
+      "id": "compact",
+      "props": {
+        "open": true,
+        "density": "compact",
+        "value": "tree-view",
+        "label": "Workspace",
+        "chevron": "end"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "section",
+          "props": {
+            "heading": "Projects"
+          },
+          "items": [
+            {
+              "kind": "group",
+              "props": {
+                "label": "Tanrei",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "tokens",
+                    "label": "Tokens",
+                    "icon": "palette",
+                    "trailingText": "412"
+                  }
+                },
+                {
+                  "kind": "group",
+                  "props": {
+                    "label": "Components",
+                    "icon": "widgets",
+                    "open": true
+                  },
+                  "items": [
+                    {
+                      "kind": "destination",
+                      "props": {
+                        "value": "button",
+                        "label": "Button",
+                        "icon": "smart_button"
+                      }
+                    },
+                    {
+                      "kind": "destination",
+                      "props": {
+                        "value": "tree-view",
+                        "label": "Tree view",
+                        "icon": "account_tree"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "archive",
+                    "label": "Archive",
+                    "icon": "inventory_2",
+                    "disabled": true
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "group",
+              "props": {
+                "label": "Website",
+                "icon": "language"
+              },
+              "items": [
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "pages",
+                    "label": "Pages",
+                    "icon": "description"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact-collapsed",
+      "props": {
+        "open": true,
+        "collapsible": true,
+        "expanded": false,
+        "density": "compact",
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "badge": true,
+            "badgeCount": 3,
+            "badgeLabel": "3 unread"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "drafts",
+            "label": "Drafts",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Folders",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "work",
+                "label": "Work",
+                "icon": "work"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "trash",
+            "label": "Trash",
+            "icon": "delete"
+          }
+        }
+      ]
+    },
+    {
+      "id": "chevron-end",
+      "props": {
+        "open": true,
+        "chevron": "end",
+        "value": "posts",
+        "label": "Workspace"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Projects",
+            "icon": "folder",
+            "openIcon": "folder_open",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "tanrei",
+                "label": "Tanrei",
+                "icon": "palette"
+              }
+            },
+            {
+              "kind": "group",
+              "props": {
+                "label": "Website",
+                "icon": "folder",
+                "openIcon": "folder_open",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "pages",
+                    "label": "Pages",
+                    "icon": "description"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "posts",
+                    "label": "Posts",
+                    "icon": "article"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "chevron-none",
+      "props": {
+        "open": true,
+        "chevron": "none",
+        "value": "posts",
+        "label": "Workspace"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Projects",
+            "icon": "folder",
+            "openIcon": "folder_open",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "tanrei",
+                "label": "Tanrei",
+                "icon": "palette"
+              }
+            },
+            {
+              "kind": "group",
+              "props": {
+                "label": "Website",
+                "icon": "folder",
+                "openIcon": "folder_open",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "pages",
+                    "label": "Pages",
+                    "icon": "description"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "posts",
+                    "label": "Posts",
+                    "icon": "article"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "guides",
+      "props": {
+        "open": true,
+        "guides": "shown",
+        "value": "posts",
+        "label": "Workspace"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Projects",
+            "icon": "folder",
+            "openIcon": "folder_open",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "tanrei",
+                "label": "Tanrei",
+                "icon": "palette"
+              }
+            },
+            {
+              "kind": "group",
+              "props": {
+                "label": "Website",
+                "icon": "folder",
+                "openIcon": "folder_open",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "pages",
+                    "label": "Pages",
+                    "icon": "description"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "posts",
+                    "label": "Posts",
+                    "icon": "article"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "guides-chevron-none",
+      "props": {
+        "open": true,
+        "guides": "shown",
+        "chevron": "none",
+        "value": "posts",
+        "label": "Workspace"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Projects",
+            "icon": "folder",
+            "openIcon": "folder_open",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "tanrei",
+                "label": "Tanrei",
+                "icon": "palette"
+              }
+            },
+            {
+              "kind": "group",
+              "props": {
+                "label": "Website",
+                "icon": "folder",
+                "openIcon": "folder_open",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "pages",
+                    "label": "Pages",
+                    "icon": "description"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "posts",
+                    "label": "Posts",
+                    "icon": "article"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "indent-zero",
+      "props": {
+        "open": true,
+        "indent": 0,
+        "chevron": "end",
+        "value": "posts",
+        "label": "Workspace"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Projects",
+            "icon": "folder",
+            "openIcon": "folder_open",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "tanrei",
+                "label": "Tanrei",
+                "icon": "palette"
+              }
+            },
+            {
+              "kind": "group",
+              "props": {
+                "label": "Website",
+                "icon": "folder",
+                "openIcon": "folder_open",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "pages",
+                    "label": "Pages",
+                    "icon": "description"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "posts",
+                    "label": "Posts",
+                    "icon": "article"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "highlight-full",
+      "props": {
+        "open": true,
+        "highlight": "full",
+        "chevron": "end",
+        "value": "posts",
+        "label": "Workspace"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Projects",
+            "icon": "folder",
+            "openIcon": "folder_open",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "tanrei",
+                "label": "Tanrei",
+                "icon": "palette"
+              }
+            },
+            {
+              "kind": "group",
+              "props": {
+                "label": "Website",
+                "icon": "folder",
+                "openIcon": "folder_open",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "pages",
+                    "label": "Pages",
+                    "icon": "description"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "posts",
+                    "label": "Posts",
+                    "icon": "article"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "icon-space",
+      "props": {
+        "open": true,
+        "chevron": "end",
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "drafts",
+            "label": "Drafts"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Labels",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "work",
+                "label": "Work"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "family",
+                "label": "Family"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "not-expandable",
+      "props": {
+        "open": true,
+        "expandable": false,
+        "value": "color",
+        "label": "Docs"
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "label": "Foundations",
+            "icon": "palette"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "color",
+                "label": "Color",
+                "icon": "contrast"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "type",
+                "label": "Typography",
+                "icon": "text_fields"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Components",
+            "icon": "widgets"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "button",
+                "label": "Button",
+                "icon": "smart_button"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "supporting",
+      "props": {
+        "open": true,
+        "chevron": "end",
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "supportingText": "3 new"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "drafts",
+            "label": "Drafts",
+            "icon": "draft",
+            "supportingText": "saved 2 min ago",
+            "supportingPosition": "inline"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Shared",
+            "icon": "folder_shared",
+            "supportingText": "2 folders",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "team",
+                "label": "Team",
+                "icon": "group",
+                "supportingText": "shared with 12 people"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "one-line",
+      "props": {
+        "open": true,
+        "chevron": "end",
+        "value": "long",
+        "label": "Projects"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "short",
+            "label": "Atlas",
+            "icon": "deployed_code"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "long",
+            "label": "A destination whose name is far too long for one line of the drawer",
+            "icon": "deployed_code",
+            "supportingText": "and a note that is also longer than the row can hold"
+          }
+        }
+      ]
+    },
+    {
+      "id": "label-wrap",
+      "props": {
+        "open": true,
+        "chevron": "end",
+        "labelWrap": true,
+        "supportingWrap": true,
+        "value": "long",
+        "label": "Projects"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "short",
+            "label": "Atlas",
+            "icon": "deployed_code"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "long",
+            "label": "A destination whose name is far too long for one line of the drawer",
+            "icon": "deployed_code",
+            "supportingText": "and a note that is also longer than the row can hold"
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-loading",
+      "props": {
+        "open": true,
+        "chevron": "end",
+        "value": "inbox",
+        "label": "Mail",
+        "loadingLabel": "Loading…"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Archive",
+            "icon": "archive",
+            "open": true,
+            "loading": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "2025",
+                "label": "2025",
+                "icon": "inventory_2"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sticky",
+      "props": {
+        "open": true,
+        "chevron": "end",
+        "stickyParents": true,
+        "value": "a-3-4",
+        "label": "Archive",
+        "scrollOffset": 220
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "label": "2026",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "a-1",
+                "label": "January",
+                "icon": "event"
+              }
+            },
+            {
+              "kind": "group",
+              "props": {
+                "label": "February",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "a-3-0",
+                    "label": "Week 1",
+                    "icon": "date_range"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "a-3-1",
+                    "label": "Week 2",
+                    "icon": "date_range"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "a-3-2",
+                    "label": "Week 3",
+                    "icon": "date_range"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "a-3-3",
+                    "label": "Week 4",
+                    "icon": "date_range"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "a-3-4",
+                    "label": "Week 5",
+                    "icon": "date_range"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "a-3-5",
+                    "label": "Week 6",
+                    "icon": "date_range"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "a-3-6",
+                    "label": "Week 7",
+                    "icon": "date_range"
+                  }
+                },
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "a-3-7",
+                    "label": "Week 8",
+                    "icon": "date_range"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "a-4",
+                "label": "March",
+                "icon": "event"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "older",
+            "label": "Older",
+            "icon": "history"
+          }
+        }
+      ]
+    },
+    {
       "id": "group-closed-selected",
       "props": {
         "open": true,
@@ -1698,6 +2936,95 @@
             "label": "Settings",
             "icon": "settings"
           }
+        }
+      ]
+    },
+    {
+      "id": "selectable-groups",
+      "props": {
+        "open": true,
+        "value": "components",
+        "label": "Documentation",
+        "selectableGroups": true
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Foundations",
+            "icon": "palette",
+            "value": "foundations"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "color",
+                "label": "Color",
+                "icon": "contrast"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "type",
+                "label": "Typography",
+                "icon": "text_fields"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Components",
+            "icon": "widgets",
+            "value": "components",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "button",
+                "label": "Button",
+                "icon": "smart_button"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "navigation-drawer",
+                "label": "Navigation drawer",
+                "icon": "menu_open"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Resources",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "downloads",
+                "label": "Downloads",
+                "icon": "download"
+              }
+            }
+          ]
         }
       ]
     },
@@ -3362,11 +4689,24 @@
         "collapsible": "collapsible",
         "expanded": "expanded",
         "collapsedLabels": "collapsedLabels",
+        "density": "density",
+        "chevron": "chevron",
+        "guides": "guides",
+        "indent": "indent",
+        "highlight": "highlight",
+        "iconSpace": "iconSpace",
+        "expandable": "expandable",
+        "labelWrap": "labelWrap",
+        "supportingWrap": "supportingWrap",
         "responsive": "responsive",
         "value": "value",
         "label": "label",
         "revealSelected": "revealSelected",
-        "scrollOffset": "scrollOffset"
+        "selectableGroups": "selectableGroups",
+        "scrollOffset": "scrollOffset",
+        "stickyParents": "stickyParents",
+        "stickyMax": "stickyMax",
+        "loadingLabel": "loadingLabel"
       },
       "events": {
         "change": "change",
@@ -3375,7 +4715,7 @@
         "expandedChange": "expandedchange",
         "presentationChange": "presentationchange"
       },
-      "notes": "Children are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` elements, in order; header buttons (icon-only `<tanrei-button>`s) and the main action (`<tanrei-main-action-button>`) are children with `slot=\"header-button\"` and `slot=\"main-action\"`, and the header slot is `header`. `collapsedLabels` is the `collapsed-labels` attribute; `expanded` is reflected, and so is a read-only `collapsed` state attribute for styling. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim; Escape and a press on the backdrop close it, the host sets `open` to false and fires `close`; a collapsible modal drawer keeps its column in the host's layout box and widens the dialog from it. Standard: a `<nav>` named by `label`. The drawer selects the activated destination itself (sets `value`) before firing `change`, sets `expanded` (or `open`) before firing `expandedchange`, and sets a group's `open` before the group fires `toggle`. It sets `aria-expanded` and `aria-controls` on its first header button's inner button through the Button's `ariaExpanded` / `ariaControlsElements` element properties, and the Main Action Button's `extended` from its own form. `responsive` is an attribute: the element reads its system's `breakpoint.expanded` and `breakpoint.collapsed` custom properties from its computed style, listens to the two widths with `matchMedia`, exposes the result as the read-only `presentation` property (reflected as a state attribute for styling) and fires `presentationchange` with `detail.presentation`; nothing about the presentation is written to `variant`, `open` or `expanded`, and nothing is kept in storage. Before the element is upgraded, and in the React wrapper on a server, no dialog is open and nothing is inert. A collapsed cell that draws no label shows its name in a plain tooltip. Insets are `env(safe-area-inset-*)`. It lags the spec: it ships an earlier form of the drawer, with a separate rail element beside it. It does not yet follow NVD-57 to NVD-64, nor the parts of NVD-1, NVD-21 and NVD-23 that go with them. `reveal-selected` is an attribute. `scroll-offset` is an attribute read once, for the first frame, and `scrollOffset` a property whose getter returns the scroller's present `scrollTop` and whose setter writes it; the scroller has `overscroll-behavior: contain` and `scroll-behavior: auto`, and bringing the selection into view is a write to `scrollTop`, never `scrollIntoView` (which would also scroll the page). For a link destination `change` and `reselect` are cancelable, carry `detail.href` beside `detail.value`, and are fired from the anchor's `click` only when `event.button` is 0, no modifier key is down, the click was not already cancelled, and the item's `target` is `same` and it has no `download`; cancelling one calls `preventDefault()` on that click. The drawer does not set `value` for a link. Nothing is read from or written to `sessionStorage` or `localStorage`: a site keeps the groups' `open` and `scrollOffset` itself (on `toggle` and on `pagehide`) and writes them back as attributes in the page's markup, or in an inline script placed after the drawer's markup, before the elements are upgraded.",
+      "notes": "Children are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` elements, in order; header buttons (icon-only `<tanrei-button>`s) and the main action (`<tanrei-main-action-button>`) are children with `slot=\"header-button\"` and `slot=\"main-action\"`, and the header slot is `header`. `collapsedLabels` is the `collapsed-labels` attribute; `expanded` is reflected, and so is a read-only `collapsed` state attribute for styling. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim; Escape and a press on the backdrop close it, the host sets `open` to false and fires `close`; a collapsible modal drawer keeps its column in the host's layout box and widens the dialog from it. Standard: a `<nav>` named by `label`. The drawer selects the activated destination itself (sets `value`) before firing `change`, sets `expanded` (or `open`) before firing `expandedchange`, and sets a group's `open` before the group fires `toggle`. It sets `aria-expanded` and `aria-controls` on its first header button's inner button through the Button's `ariaExpanded` / `ariaControlsElements` element properties, and the Main Action Button's `extended` from its own form. `responsive` is an attribute: the element reads its system's `breakpoint.expanded` and `breakpoint.collapsed` custom properties from its computed style, listens to the two widths with `matchMedia`, exposes the result as the read-only `presentation` property (reflected as a state attribute for styling) and fires `presentationchange` with `detail.presentation`; nothing about the presentation is written to `variant`, `open` or `expanded`, and nothing is kept in storage. Before the element is upgraded, and in the React wrapper on a server, no dialog is open and nothing is inert. A collapsed cell that draws no label shows its name in a plain tooltip. Insets are `env(safe-area-inset-*)`. It lags the spec: it ships an earlier form of the drawer, with a separate rail element beside it. It does not yet follow NVD-57 to NVD-64, nor the parts of NVD-1, NVD-21 and NVD-23 that go with them. `reveal-selected` is an attribute. `scroll-offset` is an attribute read once, for the first frame, and `scrollOffset` a property whose getter returns the scroller's present `scrollTop` and whose setter writes it; the scroller has `overscroll-behavior: contain` and `scroll-behavior: auto`, and bringing the selection into view is a write to `scrollTop`, never `scrollIntoView` (which would also scroll the page). For a link destination `change` and `reselect` are cancelable, carry `detail.href` beside `detail.value`, and are fired from the anchor's `click` only when `event.button` is 0, no modifier key is down, the click was not already cancelled, and the item's `target` is `same` and it has no `download`; cancelling one calls `preventDefault()` on that click. The drawer does not set `value` for a link. Nothing is read from or written to `sessionStorage` or `localStorage`: a site keeps the groups' `open` and `scrollOffset` itself (on `toggle` and on `pagehide`) and writes them back as attributes in the page's markup, or in an inline script placed after the drawer's markup, before the elements are upgraded. `density` is reflected; a value a design system added is read from its own tokens, falling back to regular's. `selectableGroups` is the `selectable-groups` attribute. The attributes are `chevron`, `guides`, `indent` (auto or a number), `highlight`, `icon-space`, `expandable` (`expandable=\"false\"` turns it off), `label-wrap`, `supporting-wrap`, `sticky-parents`, `sticky-max` and `loading-label`; on the items `supporting-text`, `supporting-position`, and on a group `open-icon`, `trailing-text`, `loading` and the `trailing` slot.",
       "items": {
         "destination": {
           "name": "tanrei-navigation-drawer-item",
@@ -3385,6 +4725,8 @@
             "target": "target",
             "targetLabel": "targetLabel",
             "label": "label",
+            "supportingText": "supportingText",
+            "supportingPosition": "supportingPosition",
             "shortLabel": "shortLabel",
             "icon": "icon",
             "disabled": "disabled",
@@ -3401,13 +4743,20 @@
             "label": "label",
             "shortLabel": "shortLabel",
             "icon": "icon",
+            "openIcon": "openIcon",
+            "supportingText": "supportingText",
+            "supportingPosition": "supportingPosition",
+            "trailingText": "trailingText",
             "disabled": "disabled",
-            "open": "open"
+            "open": "open",
+            "loading": "loading",
+            "value": "value",
+            "href": "href"
           },
           "events": {
             "toggle": "toggle"
           },
-          "notes": "Holds `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>` children. Its row is a `<button aria-expanded aria-controls>` and its items a nested list labelled by it; `open` is reflected. `toggle` bubbles, with `detail.open`; the drawer's own `expandedchange` is a different event."
+          "notes": "Holds `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>` children. Its row is a `<button aria-expanded aria-controls>` and its items a nested list labelled by it; `open` is reflected. `toggle` bubbles, with `detail.open`; the drawer's own `expandedchange` is a different event. While the drawer's `selectable-groups` is set and the group has a `value` or an `href`, its row is the destination — an `<a href>` or a `<button>` with `aria-current=\"page\"` while selected — and its chevron a second `<button aria-expanded aria-controls>` after it, named by the group's label; a group without either keeps the one row button. The group's `value` property reads its `href` attribute while it has no `value`, as an item's does."
         },
         "section": {
           "name": "tanrei-navigation-drawer-section",
@@ -3448,11 +4797,24 @@
         "collapsible": "isCollapsible",
         "expanded": "isExpanded",
         "collapsedLabels": "collapsedLabelVisibility",
+        "density": "density",
+        "chevron": "chevron",
+        "guides": "guides",
+        "indent": "indent",
+        "highlight": "highlight",
+        "iconSpace": "iconSpace",
+        "expandable": "expandable",
+        "labelWrap": "labelWrap",
+        "supportingWrap": "supportingWrap",
         "responsive": "isResponsive",
         "value": "selection",
         "label": "accessibilityLabel",
         "revealSelected": "revealsSelection",
-        "scrollOffset": "scrollOffset"
+        "selectableGroups": "selectableGroups",
+        "scrollOffset": "scrollOffset",
+        "stickyParents": "stickyParents",
+        "stickyMax": "stickyMax",
+        "loadingLabel": "loadingLabel"
       },
       "events": {
         "change": "selection",
@@ -3461,7 +4823,7 @@
         "expandedChange": "isExpanded",
         "presentationChange": "onPresentationChange"
       },
-      "notes": "`TanreiNavigationDrawer(variant:, isPresented: Binding<Bool>, selection: Binding<Value>, isCollapsible:, isExpanded: Binding<Bool>, collapsedLabelVisibility:, onReselect:) { TanreiNavigationDrawerItem(…); TanreiNavigationDrawerGroup(…) { … }; TanreiNavigationDrawerSection(…) { … } } header: { … } headerButtons: { … } mainAction: { … }`, and for a modal drawer the modifier `.tanreiNavigationDrawer(isPresented:…)` on the content it covers. Closing writes `false` to `isPresented` (close); the menu button writes `isExpanded` (expandedChange). The modal drawer carries the modal trait and answers the escape gesture (`accessibilityAction(.escape)`). It lags the spec: it ships an earlier form of the drawer (no collapsed form, groups or trailing slot; its `badge:` string is the trailing text), with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from a `GeometryReader` on the window's scene, or `horizontalSizeClass` where the product prefers Apple's own classes; `onPresentationChange` is a closure. Also not built yet (NVD-57 to NVD-64): `revealsSelection: Bool`, and `scrollOffset: Binding<CGFloat>` over the items' `ScrollView` (a `ScrollPosition` where the deployment target has it), which the product may keep in `@SceneStorage`. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20).",
+      "notes": "`TanreiNavigationDrawer(variant:, isPresented: Binding<Bool>, selection: Binding<Value>, isCollapsible:, isExpanded: Binding<Bool>, collapsedLabelVisibility:, onReselect:) { TanreiNavigationDrawerItem(…); TanreiNavigationDrawerGroup(…) { … }; TanreiNavigationDrawerSection(…) { … } } header: { … } headerButtons: { … } mainAction: { … }`, and for a modal drawer the modifier `.tanreiNavigationDrawer(isPresented:…)` on the content it covers. Closing writes `false` to `isPresented` (close); the menu button writes `isExpanded` (expandedChange). The modal drawer carries the modal trait and answers the escape gesture (`accessibilityAction(.escape)`). It lags the spec: it ships an earlier form of the drawer (no collapsed form, groups or trailing slot; its `badge:` string is the trailing text), with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from a `GeometryReader` on the window's scene, or `horizontalSizeClass` where the product prefers Apple's own classes; `onPresentationChange` is a closure. Also not built yet (NVD-57 to NVD-64): `revealsSelection: Bool`, and `scrollOffset: Binding<CGFloat>` over the items' `ScrollView` (a `ScrollPosition` where the deployment target has it), which the product may keep in `@SceneStorage`. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up. Not built yet: selectableGroups (NVD-66, NVD-67) — a group that is a destination, with its row choosing it and its chevron a control of its own that opens and closes it. Not built yet: the row model shared with the tree view (chevron, guides, indent, highlight, iconSpace, expandable, labelWrap and supportingWrap, supporting text, one-line labels with a tooltip where cut, a group's trailing content, openIcon and loading row, stickyParents and stickyMax; NVD-68 to NVD-77).",
       "items": {
         "destination": {
           "name": "TanreiNavigationDrawerItem",
@@ -3471,6 +4833,8 @@
             "target": "target",
             "targetLabel": "targetLabel",
             "label": "title",
+            "supportingText": "supportingText",
+            "supportingPosition": "supportingPosition",
             "shortLabel": "shortTitle",
             "icon": "icon",
             "disabled": "disabled",
@@ -3487,8 +4851,15 @@
             "label": "title",
             "shortLabel": "shortTitle",
             "icon": "icon",
+            "openIcon": "openIcon",
+            "supportingText": "supportingText",
+            "supportingPosition": "supportingPosition",
+            "trailingText": "trailingText",
             "disabled": "disabled",
-            "open": "isExpanded"
+            "open": "isExpanded",
+            "loading": "loading",
+            "value": "value",
+            "href": "destination"
           },
           "events": {
             "toggle": "isExpanded"
@@ -3534,11 +4905,24 @@
         "collapsible": "collapsible",
         "expanded": "expanded",
         "collapsedLabels": "collapsedLabelVisibility",
+        "density": "density",
+        "chevron": "chevron",
+        "guides": "guides",
+        "indent": "indent",
+        "highlight": "highlight",
+        "iconSpace": "iconSpace",
+        "expandable": "expandable",
+        "labelWrap": "labelWrap",
+        "supportingWrap": "supportingWrap",
         "responsive": "responsive",
         "value": "selected",
         "label": "contentDescription",
         "revealSelected": "revealSelected",
-        "scrollOffset": "scrollState"
+        "selectableGroups": "selectableGroups",
+        "scrollOffset": "scrollState",
+        "stickyParents": "stickyParents",
+        "stickyMax": "stickyMax",
+        "loadingLabel": "loadingLabel"
       },
       "events": {
         "change": "onClick",
@@ -3547,7 +4931,7 @@
         "expandedChange": "onExpandedChange",
         "presentationChange": "onPresentationChange"
       },
-      "notes": "Compose idiom (as `ModalNavigationDrawer` and `DismissibleNavigationDrawer`, and Material 3 Expressive's `WideNavigationRail` for the collapsed form): `TanreiNavigationDrawer(variant, drawerState, collapsible, expanded, onExpandedChange, collapsedLabelVisibility, header = { … }, headerButtons = { … }, mainAction = { … }, drawerContent = { TanreiNavigationDrawerItem(…); TanreiNavigationDrawerGroup(…) { … }; TanreiNavigationDrawerSection(…) { … } }, content = { … })`. `drawerState` (`rememberTanreiDrawerState`) is open or closed; the drawer closes it itself on the scrim, back and drag, and its `confirmValueChange` sees the close. As for the bar, the drawer's `value` and a destination's `value` both map to the item's `selected`, and one `onClick` covers change and reselect. The modal sheet sets a pane title from `contentDescription` and is drawn in a window of its own (a `Dialog`), as `TanreiDialog` is, which traps focus, handles back and hides the content behind from TalkBack. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `LocalWindowInfo.current.containerSize` (or `currentWindowAdaptiveInfo()` where the product has it); `onPresentationChange` is a lambda and `drawerState` is closed by the drawer when the presentation changes. Also not built yet (NVD-57 to NVD-64): `revealSelected: Boolean`, and a hoisted `scrollState: ScrollState = rememberScrollState()`, which is saved and restored by `rememberSaveable` as any scroll state is; the drawer writes nothing itself. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20).",
+      "notes": "Compose idiom (as `ModalNavigationDrawer` and `DismissibleNavigationDrawer`, and Material 3 Expressive's `WideNavigationRail` for the collapsed form): `TanreiNavigationDrawer(variant, drawerState, collapsible, expanded, onExpandedChange, collapsedLabelVisibility, header = { … }, headerButtons = { … }, mainAction = { … }, drawerContent = { TanreiNavigationDrawerItem(…); TanreiNavigationDrawerGroup(…) { … }; TanreiNavigationDrawerSection(…) { … } }, content = { … })`. `drawerState` (`rememberTanreiDrawerState`) is open or closed; the drawer closes it itself on the scrim, back and drag, and its `confirmValueChange` sees the close. As for the bar, the drawer's `value` and a destination's `value` both map to the item's `selected`, and one `onClick` covers change and reselect. The modal sheet sets a pane title from `contentDescription` and is drawn in a window of its own (a `Dialog`), as `TanreiDialog` is, which traps focus, handles back and hides the content behind from TalkBack. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `LocalWindowInfo.current.containerSize` (or `currentWindowAdaptiveInfo()` where the product has it); `onPresentationChange` is a lambda and `drawerState` is closed by the drawer when the presentation changes. Also not built yet (NVD-57 to NVD-64): `revealSelected: Boolean`, and a hoisted `scrollState: ScrollState = rememberScrollState()`, which is saved and restored by `rememberSaveable` as any scroll state is; the drawer writes nothing itself. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up. Not built yet: selectableGroups (NVD-66, NVD-67) — a group that is a destination, with its row choosing it and its chevron a control of its own that opens and closes it. Not built yet: the row model shared with the tree view (chevron, guides, indent, highlight, iconSpace, expandable, labelWrap and supportingWrap, supporting text, one-line labels with a tooltip where cut, a group's trailing content, openIcon and loading row, stickyParents and stickyMax; NVD-68 to NVD-77).",
       "items": {
         "destination": {
           "name": "TanreiNavigationDrawerItem",
@@ -3557,6 +4941,8 @@
             "target": "target",
             "targetLabel": "targetLabel",
             "label": "label",
+            "supportingText": "supportingText",
+            "supportingPosition": "supportingPosition",
             "shortLabel": "shortLabel",
             "icon": "icon",
             "disabled": "enabled",
@@ -3573,8 +4959,15 @@
             "label": "label",
             "shortLabel": "shortLabel",
             "icon": "icon",
+            "openIcon": "openIcon",
+            "supportingText": "supportingText",
+            "supportingPosition": "supportingPosition",
+            "trailingText": "trailingText",
             "disabled": "enabled",
-            "open": "expanded"
+            "open": "expanded",
+            "loading": "loading",
+            "value": "selected",
+            "href": "href"
           },
           "events": {
             "toggle": "onExpandedChange"
@@ -3620,11 +5013,24 @@
         "collapsible": "collapsible",
         "expanded": "extended",
         "collapsedLabels": "labelType",
+        "density": "density",
+        "chevron": "chevron",
+        "guides": "guides",
+        "indent": "indent",
+        "highlight": "highlight",
+        "iconSpace": "iconSpace",
+        "expandable": "expandable",
+        "labelWrap": "labelWrap",
+        "supportingWrap": "supportingWrap",
         "responsive": "responsive",
         "value": "selectedIndex",
         "label": "semanticLabel",
         "revealSelected": "revealSelected",
-        "scrollOffset": "scrollController"
+        "selectableGroups": "selectableGroups",
+        "scrollOffset": "scrollController",
+        "stickyParents": "stickyParents",
+        "stickyMax": "stickyMax",
+        "loadingLabel": "loadingLabel"
       },
       "events": {
         "change": "onDestinationSelected",
@@ -3633,7 +5039,7 @@
         "expandedChange": "onExtendedChanged",
         "presentationChange": "onPresentationChanged"
       },
-      "notes": "Flutter idiom (as `NavigationDrawer`, with the rail widget's `extended` and `labelType` for the collapsed form): `TanreiNavigationDrawer(variant:, collapsible:, extended:, onExtendedChanged:, labelType:, selectedIndex:, onDestinationSelected:, headerButtons: [...], mainAction:, header:, children: [TanreiNavigationDrawerDestination(…), TanreiNavigationDrawerGroup(…), TanreiNavigationDrawerSection(…), …])`. A destination's value is its index among the destinations, counted in reading order through sections and groups, open or not, as `NavigationDrawer` counts its destinations. `labelType` is `all`, `selected` or `none`. `open` shows or hides the drawer in both variants. A modal drawer is a controlled overlay in a `Stack` over the page — not `Scaffold.drawer`, which would need Material — with its own scrim and motion, a `FocusScope` that keeps focus in, and the page's semantics blocked; Escape, back (`PopScope`), a drag or fling, the menu button and choosing a destination call `onClose` once. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `MediaQuery.sizeOf(context).width`; `onPresentationChanged` is a `ValueChanged<TanreiNavigationDrawerPresentation>` and `onClose` is called when a change of presentation closes the drawer. Also not built yet (NVD-57 to NVD-64): `revealSelected: bool`, and `scrollController: ScrollController?` (its `initialScrollOffset` is the first frame's offset); a `PageStorageKey` or a `restorationId` on the product's side keeps the offset, the drawer writes nothing itself. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20).",
+      "notes": "Flutter idiom (as `NavigationDrawer`, with the rail widget's `extended` and `labelType` for the collapsed form): `TanreiNavigationDrawer(variant:, collapsible:, extended:, onExtendedChanged:, labelType:, selectedIndex:, onDestinationSelected:, headerButtons: [...], mainAction:, header:, children: [TanreiNavigationDrawerDestination(…), TanreiNavigationDrawerGroup(…), TanreiNavigationDrawerSection(…), …])`. A destination's value is its index among the destinations, counted in reading order through sections and groups, open or not, as `NavigationDrawer` counts its destinations. `labelType` is `all`, `selected` or `none`. `open` shows or hides the drawer in both variants. A modal drawer is a controlled overlay in a `Stack` over the page — not `Scaffold.drawer`, which would need Material — with its own scrim and motion, a `FocusScope` that keeps focus in, and the page's semantics blocked; Escape, back (`PopScope`), a drag or fling, the menu button and choosing a destination call `onClose` once. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `MediaQuery.sizeOf(context).width`; `onPresentationChanged` is a `ValueChanged<TanreiNavigationDrawerPresentation>` and `onClose` is called when a change of presentation closes the drawer. Also not built yet (NVD-57 to NVD-64): `revealSelected: bool`, and `scrollController: ScrollController?` (its `initialScrollOffset` is the first frame's offset); a `PageStorageKey` or a `restorationId` on the product's side keeps the offset, the drawer writes nothing itself. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up. Not built yet: selectableGroups (NVD-66, NVD-67) — a group that is a destination, with its row choosing it and its chevron a control of its own that opens and closes it. Not built yet: the row model shared with the tree view (chevron, guides, indent, highlight, iconSpace, expandable, labelWrap and supportingWrap, supporting text, one-line labels with a tooltip where cut, a group's trailing content, openIcon and loading row, stickyParents and stickyMax; NVD-68 to NVD-77).",
       "items": {
         "destination": {
           "name": "TanreiNavigationDrawerDestination",
@@ -3643,6 +5049,8 @@
             "target": "target",
             "targetLabel": "targetSemanticLabel",
             "label": "label",
+            "supportingText": "supportingText",
+            "supportingPosition": "supportingPosition",
             "shortLabel": "shortLabel",
             "icon": "icon",
             "disabled": "enabled",
@@ -3659,8 +5067,15 @@
             "label": "label",
             "shortLabel": "shortLabel",
             "icon": "icon",
+            "openIcon": "openIcon",
+            "supportingText": "supportingText",
+            "supportingPosition": "supportingPosition",
+            "trailingText": "trailingText",
             "disabled": "enabled",
-            "open": "expanded"
+            "open": "expanded",
+            "loading": "loading",
+            "value": "value",
+            "href": "href"
           },
           "events": {
             "toggle": "onExpansionChanged"
@@ -3706,11 +5121,24 @@
         "collapsible": "collapsible",
         "expanded": "expanded",
         "collapsedLabels": "collapsedLabelVisibility",
+        "density": "density",
+        "chevron": "chevron",
+        "guides": "guides",
+        "indent": "indent",
+        "highlight": "highlight",
+        "iconSpace": "iconSpace",
+        "expandable": "expandable",
+        "labelWrap": "labelWrap",
+        "supportingWrap": "supportingWrap",
         "responsive": "responsive",
         "value": "value",
         "label": "accessibilityLabel",
         "revealSelected": "revealSelected",
-        "scrollOffset": "scrollOffset"
+        "selectableGroups": "selectableGroups",
+        "scrollOffset": "scrollOffset",
+        "stickyParents": "stickyParents",
+        "stickyMax": "stickyMax",
+        "loadingLabel": "loadingLabel"
       },
       "events": {
         "change": "onValueChange",
@@ -3719,7 +5147,7 @@
         "expandedChange": "onExpandedChange",
         "presentationChange": "onPresentationChange"
       },
-      "notes": "Controlled: `open`, `expanded`, `value`, `onValueChange`, `onExpandedChange`, `onClose`, an `items` data array, `headerButtons` and `mainAction` elements and a `header` node. A modal drawer is presented in a transparent `Modal` with its own motion and scrim; `onRequestClose` (Android back) calls `onClose`. Destinations have the `button` role with `accessibilityState.selected`; group rows the `button` role with `accessibilityState.expanded`; headings the `header` role. Insets come from its own `insets` prop, falling back to `TanreiProvider`'s. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `useWindowDimensions()`; `onPresentationChange` receives `'standard' | 'column' | 'modal'`, and `onClose` is called when a change of presentation closes the drawer. Also not built yet (NVD-57 to NVD-64): `revealSelected`, and `scrollOffset` as the first frame's offset with a ref method `getScrollOffset()` for reading it; the drawer writes to no storage. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20).",
+      "notes": "Controlled: `open`, `expanded`, `value`, `onValueChange`, `onExpandedChange`, `onClose`, an `items` data array, `headerButtons` and `mainAction` elements and a `header` node. A modal drawer is presented in a transparent `Modal` with its own motion and scrim; `onRequestClose` (Android back) calls `onClose`. Destinations have the `button` role with `accessibilityState.selected`; group rows the `button` role with `accessibilityState.expanded`; headings the `header` role. Insets come from its own `insets` prop, falling back to `TanreiProvider`'s. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose content alone starts further in while their item containers keep the full width (NVD-13), the header slot's inherited text style and color (NVD-38), a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `useWindowDimensions()`; `onPresentationChange` receives `'standard' | 'column' | 'modal'`, and `onClose` is called when a change of presentation closes the drawer. Also not built yet (NVD-57 to NVD-64): `revealSelected`, and `scrollOffset` as the first frame's offset with a ref method `getScrollOffset()` for reading it; the drawer writes to no storage. Not yet: the heading's letter-spacing by the script of its text (NVD-16, PRS-20). Not built yet: density (NVD-65), a `density` parameter as the tree view's on this platform; and this platform's drawer still reads the tokens that the density axis made per density (the row height, paddings, gap, nesting indent, icon sizes, label style, the collapsed column and the heading height), each now one value per density in the generated tokens, so it does not build against them until it catches up. Not built yet: selectableGroups (NVD-66, NVD-67) — a group that is a destination, with its row choosing it and its chevron a control of its own that opens and closes it. Not built yet: the row model shared with the tree view (chevron, guides, indent, highlight, iconSpace, expandable, labelWrap and supportingWrap, supporting text, one-line labels with a tooltip where cut, a group's trailing content, openIcon and loading row, stickyParents and stickyMax; NVD-68 to NVD-77).",
       "items": {
         "destination": {
           "name": "NavigationDrawerDestination",
@@ -3729,6 +5157,8 @@
             "target": "target",
             "targetLabel": "targetLabel",
             "label": "label",
+            "supportingText": "supportingText",
+            "supportingPosition": "supportingPosition",
             "shortLabel": "shortLabel",
             "icon": "icon",
             "disabled": "disabled",
@@ -3745,8 +5175,15 @@
             "label": "label",
             "shortLabel": "shortLabel",
             "icon": "icon",
+            "openIcon": "openIcon",
+            "supportingText": "supportingText",
+            "supportingPosition": "supportingPosition",
+            "trailingText": "trailingText",
             "disabled": "disabled",
-            "open": "open"
+            "open": "open",
+            "loading": "loading",
+            "value": "value",
+            "href": "href"
           },
           "events": {
             "toggle": "onToggle"

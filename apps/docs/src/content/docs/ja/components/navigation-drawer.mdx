@@ -2,7 +2,7 @@
 title: ナビゲーションドロワー
 description: プロダクトの行き先を、先頭側の端のパネルにセクションやグループでまとめて並べます。大きい画面ではコンテンツの横に、コンパクトな画面ではコンテンツの上に重ねて表示し、アイコンの列まで折りたたむこともできます。
 translationOf: components/navigation-drawer.mdx
-sourceHash: 1200db5dc3b8b23273bf2e66c4c46a1625667586
+sourceHash: cd96ff63e43e8ef0ed296da845779627c1968de1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="navigation-drawer" />
 
 :::note[仕様は改訂済み、各プラットフォームは追従待ち]
-このページは、仕様の現在の形のナビゲーションドロワーを説明しています。`collapsible` のドロワーはアイコンの列まで狭まり、これがナビゲーションレールの代わりになります。折りたたんだドロワーは、展開したドロワーからラベルがなくなっただけのもので、各項目をアイコンの後ろで切った形です。メニューボタンでまた広がり、どのアイコンも位置を変えません。行き先の `badge` のテキストは `trailingText` になって控えめに描かれ、`trailing` スロットにはグリフやバッジを置けます。`badge` は、アイコンに付けるバッジになりました。`group` の項目で、入れ子の行き先を開閉できます。項目の高さは 48 で、メニューの項目と同じです。`responsive` を付けると、ウィンドウの幅がドロワーの表示のしかたを選びます。`href` を持つ行き先はリンクで、`revealSelected` と `scrollOffset` によってドロワーはサイトのサイドバーになります。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（項目の高さ 44、`badge` は項目の末尾のテキスト、折りたたんだ形、グループ、リンクの行き先、幅に応じた表示はなく、ナビゲーションレールは別のコンポーネント）を提供しており、これらの例もその版のものです。
+このページは、仕様の現在の形のナビゲーションドロワーを説明しています。`collapsible` のドロワーはアイコンの列まで狭まり、これがナビゲーションレールの代わりになります。折りたたんだドロワーは、展開したドロワーからラベルがなくなっただけのもので、各項目をアイコンの後ろで切った形です。メニューボタンでまた広がり、どのアイコンも位置を変えません。行き先の `badge` のテキストは `trailingText` になって控えめに描かれ、`trailing` スロットにはグリフやバッジを置けます。`badge` は、アイコンに付けるバッジになりました。`group` の項目で、入れ子の行き先を開閉できます。項目の高さは 48 で、メニューの項目と同じです。`responsive` を付けると、ウィンドウの幅がドロワーの表示のしかたを選びます。`href` を持つ行き先はリンクで、`revealSelected` と `scrollOffset` によってドロワーはサイトのサイドバーになります。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（項目の高さ 44、`badge` は項目の末尾のテキスト、折りたたんだ形、グループ、リンクの行き先、幅に応じた表示はなく、ナビゲーションレールは別のコンポーネント）を提供しており、これらの例もその版のものです。 コンパクトな `density` と、行き先にもなるグループ（`selectableGroups`）はさらに新しく、今のところ Web だけです。
 :::
 
 <DemoFrame label="2 つのセクションを持つスタンダードのドロワー">
@@ -62,6 +62,39 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </tanrei-navigation-drawer>
 </DemoFrame>
 
+<DemoFrame label="コンパクトなドロワー：ポインターで使うツール向けに、項目の高さ 32、グリフ 16。入れ子のアイコンはグループのラベルの位置にそろいます" plain>
+  <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
+    <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-section heading="Projects">
+      <tanrei-navigation-drawer-group label="Tanrei" icon="folder" open>
+        <tanrei-navigation-drawer-item value="tokens" label="Tokens" icon="palette" trailing-text="412"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-group label="Components" icon="widgets" open>
+          <tanrei-navigation-drawer-item value="button" label="Button" icon="smart_button"></tanrei-navigation-drawer-item>
+          <tanrei-navigation-drawer-item value="tree-view" label="Tree view" icon="account_tree"></tanrei-navigation-drawer-item>
+        </tanrei-navigation-drawer-group>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer-section>
+    <tanrei-navigation-drawer-item value="settings" label="Settings" icon="settings"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="行き先にもなるグループ：selectable-groups を付けると、グループの行はそれを選び、シェブロンが開閉します" plain>
+  <tanrei-navigation-drawer open selectable-groups value="components" label="Documentation" style="block-size: 22rem">
+    <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="Foundations" icon="palette" value="foundations">
+      <tanrei-navigation-drawer-item value="color" label="Color" icon="contrast"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="typography" label="Typography" icon="text_fields"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Components" icon="widgets" value="components" open>
+      <tanrei-navigation-drawer-item value="button" label="Button" icon="smart_button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="tabs" label="Tabs" icon="tab"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Resources" icon="folder">
+      <tanrei-navigation-drawer-item value="downloads" label="Downloads" icon="download"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
 ### 使い方
 
 ナビゲーションドロワーが持つ項目は 5 種類です。`destination`（行き先）は、アイコン（省略可）、ラベル、末尾の内容（省略可）でできた 1 行の項目で、`href` を持つとリンクになります。`group`（グループ）は、中の行き先やグループを開閉する行です。`section`（セクション）は行き先やグループをまとめるもので、`heading`（見出し）と、前に引く `divider`（区切り線）を持てます。セクションは入れ子にできず、グループはセクションを持てません。`header-button`（最初のものがメニューボタン）と `main-action` はヘッダーに置きます。Web では子要素の `<tanrei-navigation-drawer-item>`、`<tanrei-navigation-drawer-group>`、`<tanrei-navigation-drawer-section>` と、`header-button` と `main-action` のスロットに入れるアイコンだけの `<tanrei-button>` と `<tanrei-main-action-button>` です。追従待ちのプラットフォームは、行き先とセクションをそれぞれの流儀で受け取ります。SwiftUI では `TanreiNavigationDrawerItem` と `TanreiNavigationDrawerSection` のビュー、Compose では同じ名前の呼び出し、Flutter では `children:` に並べた `TanreiNavigationDrawerDestination` と `TanreiNavigationDrawerSection`、React Native では配列 `items` の中の行き先とセクションの要素です。React Native のセクションは、自分の `items` を持つことで行き先と見分けられます。
@@ -69,6 +102,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 選択は、行き先の値によってドロワーが持ちます。行き先がどのセクションにあってもかまいません。`change` と `reselect` はナビゲーションバーと同じです。Compose にはドロワー全体の値がなく、今の項目に利用者側で `selected` を付け、その `onClick` が change と reselect を兼ねます。Flutter は番号で選び、番号はセクションをまたいで読み上げ順に数えます。
 
 `href` を持つ行き先はリンクであり、ボタンではありません。ブラウザーはほかのリンクと同じようにたどり、ドロワーは押されただけではそれを選択しません。どの行き先が今の場所かは、移った先のページが伝えます。ドロワーの `value` に、その行き先の値を、値がなければ書かれたとおりの `href` を設定します。リンクをふつうに実行したときにも `change` と `reselect` は発火します。どちらも `href` を持ち、キャンセルできるので、クライアントサイドのルーターはここで遷移を引き取れます。リンクの行き先は、今のところ Web で使えます。
+
+グループの行はグループを開閉するだけで、何も選びません。グループがそれ自体ひとつの場所でもあるとき（サイトでセクションの概要ページがある、選ぶとフォルダーの中身を表示する、など）は、ドロワーに `selectableGroups` を付け、グループに `value` か `href` を与えます。するとグループの行は行き先の行と同じようにそれを選び、シェブロンはグループを開閉する独立した操作部品になります。どちらも持たないグループは、これまでどおり開閉するだけです。行き先にもなるグループは、今のところ Web で使えます。
+
+`density` は既定の `regular` か `compact` です。`compact` は項目の高さ 32、グリフ 16 で、アイコンの列も狭く、行き先の多いドロワーをポインターで使うツール向けです。コンパクトな密度は、今のところ Web で使えます。
 
 ドロワーには 2 つのバリアントがあり、1 つのプロダクトでたいてい両方を使います。ウィンドウの幅が足りればスタンダード、足りなければモーダルです。
 
@@ -409,8 +446,30 @@ Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追
 - **`expanded`** は、スタンダードの折りたためるドロワーの形を選びます。モーダルの折りたためるドロワーは、閉じている間も列をレイアウトに残し、`open` でコンテンツの上へスクリム付きで広がります。
 - **メニューボタン** は最初の `header-button` です。ドロワーが折りたためる間は、展開しているか折りたたんでいるかを伝え、ドロワーを制御するボタンとして扱われます。押すと、求めた形を付けて `expandedChange` を発火します。Web はそれを自分で反映し、ほかのプラットフォームでは利用者側で `expanded` か `open` を設定します。グリフと名前は利用者側で決めます。
 - **`collapsedLabels`** は、どのセルがアイコンの下に短いラベルを描くかを選びます。既定の `never`（描かない）、`selected`（選択中のものだけ）、`always`（すべて）です。ラベル付きの列は、それを求めるプロダクトやデザインシステムのためのものです。そのときセルは `shortLabel`（なければラベル）を描き、ツールチップは出しません。どれでも、ラベルはアクセシブルネームのままです。
-- **どのアイコンも位置を変えません。** アイコンはどちらの形でも同じ列と同じ高さに並び、どのセルも高さを保つので、形が変わるときに動くのは末尾側の端だけです。端が通り過ぎるとラベルが消え、ラベル付きの列では短いラベルが現れます。唯一の例外は開いているグループで、折りたたんだドロワーはその中身を描かないため、その下のセルが上に詰まります。
+- **どのアイコンも位置を変えません。** アイコンはどちらの形でも同じ列と同じ高さに並び、どのセルも高さを保つので、形が変わるときに動くのは末尾側の端だけです。端が通り過ぎるとラベルが消え、ラベル付きの列では短いラベルが現れます。唯一の例外は開いているグループで、折りたたんだドロワーはその中身を描かないため、その下のセルが上に詰まります。 メインアクションのグリフも、どちらの形でも、ボタンのどのサイズでも、どちらの密度でも、行き先のアイコンと同じ線の上に立ちます。ドロワーはボタン自身のトークンから位置を決めます。列より幅の広い折りたたみ時の正方形（既定のシステムの大きいメインアクション）は列の端からはみ出し、デバッグビルドで報告します。small か medium を使い、コンパクトなドロワーでは、medium の正方形が列いっぱいになるので small を使います。
 - **選択は、その場で色が変わります。** 新しく選ばれると、展開していても折りたたんでいても、項目はその場で色を変えます。選択を示すために何かが伸びたり、縮んだり、滑ったりすることはありません。
+
+### 密度
+
+- **`regular`**（既定）は、高さ 48 の項目に 24 のグリフで、[メニュー](/ja/components/menu/)の項目と同じ高さです。タッチでもポインターでも使うプロダクト向けです。
+- **`compact`** は[ツリービュー](/ja/components/tree-view/)のコンパクトな行と同じです。高さ 32、グリフ 16、行の内側の余白 8、行の間 2、見出しの高さ 28 で、折りたたむとアイコンの列の幅は 56 です。ファイルブラウザーやエディターのサイドバーのように、行き先の多いドロワーをポインターで使うツールに使います。
+- **どちらの密度でも、入れ子のアイコンがそろいます。** 階層が 1 つ深くなるごとに中身を 1 段字下げし、その幅はその密度のアイコンと間隔の和なので、入れ子の行き先のアイコンはグループのラベルの始まる位置に立ち、同じ階層のアイコンは 1 列に並びます。
+- **タッチのターゲットは保ちます。** タッチでは、コンパクトな項目も少なくともタッチターゲットの高さで描きます。ポインターでは、ヒット領域は項目とその上下の間隔の半分です。ポインターターゲットより小さくなりますが、WCAG 2.5.8 の 24 は上回ります。
+- デザインシステムは、ドロワーの `.compact` のトークン（`comp.navigation-drawer.item.container.height.compact` など）で、コンパクトの中身を変えたり、密度を加えたりできます。
+
+### ツリービューと共有する行
+
+- **[ツリービュー](/ja/components/tree-view/)と同じパラメーター**を、同じ名前と意味で持ちます。`chevron`、`guides`、`indent`、`highlight`、`iconSpace`、`expandable`、`labelWrap` と `supportingWrap`、行の `supportingText` と `supportingPosition`、そして `stickyParents` と `stickyMax` です。
+- **`chevron`**：既定の `start` は、グループのシェブロンをアイコンの前に描き、すべての行でその場所を空けるので、同じ階層のアイコンがそろいます。`end` は行の最後、末尾の内容の後に描きます。`none` は描かず、グループのアイコンを押すと開閉し、開いている間は `openIcon` を表示します。折りたためるドロワーは `start` を `end` として描くので、どちらの形でもアイコンの位置は変わりません。グループのないドロワーはその場所を空けません。
+- **`indent`**：`auto` は、行の最初の部分をグループのラベルが始まる位置にそろえ、グループがラベルの前に何も描かないときはその階層のインデントだけ字下げします。数値はその px だけ、0 は字下げしません。行のラベルがドロワーの幅の半分より先から始まることはありません。
+- **`highlight`**：既定の `indented` は、入れ子の行の塗りとステートレイヤーを行の始まる位置から描き、`full` はどの階層でも幅いっぱいに描きます。
+- **`iconSpace`** は、アイコンのない行にもアイコンの場所を空け、同じ階層のラベルをそろえます。`auto`（同じ階層のほかの行にアイコンがあるとき）、`always`、`never` です。
+- **`expandable`** を false にすると、すべてのグループを開いた状態で、シェブロンなしで表示します。グループの行はその中身の名前になり、操作できるものではなくなります。
+- **`guides`**：`shown` は、開いたグループの中身の横に、シェブロン、なければアイコン、なければラベルの始まりの下に線を描きます。`hover` は、ポインターがドロワーの上にある間か、フォーカスが中にある間だけ描きます。
+- **1 行**：ラベルと補足テキストは 1 行で、入りきらなければ省略記号で切り、切れている行は、ホバーとキーボードフォーカスで全文をツールチップに表示します。`labelWrap` と `supportingWrap` で折り返せます。アクセシブルネームは常にラベル全文です。
+- **補足テキスト**は、ラベルの下（`below`）か後ろ（`inline`）に置き、行の説明として読み上げます。
+- **グループ**は、末尾のシェブロンの前に末尾のテキストや内容を、また `openIcon` と `loading` を持てます。`loading` は中身の下に読み込み中の行を描き、その名前はドロワーの `loadingLabel` です。
+- **`stickyParents`**（ドロワーでは既定でオフ、ツリービューではオン）は、上に見えている行が属する開いたグループの行を、エディターのスティッキースクロールのように、内側のものから最大 `stickyMax`（2）個まで上端に固定します。折りたたんでいる間は働きません。
 
 ### ウィンドウの幅に合わせる
 
@@ -440,11 +499,12 @@ Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追
 
 ### 行き先、グループ、セクション
 
-- 行き先のラベルは切られずに折り返し、項目もそれに合わせて高くなります。項目の高さは最小 48 で、[メニュー](/ja/components/menu/)の項目と同じ高さ、同じ角の丸みです。
+- 項目の高さは最小 48 で、[メニュー](/ja/components/menu/)の項目と同じ高さ、同じ角の丸みです。ラベルは 1 行で切り詰め、`labelWrap` を付けると折り返して項目も高くなります。
 - ラベルの位置がそろうように、アイコンはすべての行き先に付けるか、どれにも付けないかのどちらかにします。折りたためるドロワーは、折りたたんだときに最上位の行き先とグループをアイコンで描くので、それぞれにアイコンを付けます。
 - `trailingText` は、項目の末尾にラベルより控えめに描く短いテキストです。「24」のような件数か、「新着」のような言葉を書きます。そのほかのもの、たとえばグリフやバッジは `trailing` スロットに入れます。スロットは `trailingText` より優先され、操作はできません。`target` が `new` のリンクは、自分で項目の末尾に `open_in_new` を描くので、このグリフを利用者側で置くことはありません。末尾の内容はラベルの後に読み上げ、折りたたんでいる間は描きません。
 - `badge` は、どちらの形でもアイコンにバッジを描きます。点か `badgeCount` の数字で、名前は `badgeLabel` です。
-- グループの行は、中の行き先やグループを開閉します。アイコンセットの `expand_more` が、開いている間は半回転します。階層が 1 つ深くなるごとに、アイコンとラベルを 1 段字下げします。塗り、ステートレイヤー、フォーカスリングは最上位の行と同じ幅いっぱいのままなので、どの選択も同じ形になります。選択中の行き先を含む閉じたグループは選択中として描き、折りたたんでいる間は最上位のグループも同じです。折りたたんでいる間にグループを押すと、ドロワーが展開してグループが開きます。階層は 3 つまでにします。
+- グループの行は、`chevron` が置く位置のシェブロン（上記）で、中の行き先やグループを開閉します。選択中の行き先を含む閉じたグループは選択中として描き、折りたたんでいる間は最上位のグループも同じです。折りたたんでいる間にグループを押すと、ドロワーが展開してグループが開きます。階層は 3 つまでにします。
+- **行き先にもなるグループ**（`selectableGroups` を付け、グループに `value` か `href` を与えたもの）は、[ツリービュー](/ja/components/tree-view/)と同じように行を 2 つに分けます。シェブロンが開閉し、行の残りがそれを選び、1 回押して両方が起きることはありません。シェブロンは行の次にフォーカスが移る独立した操作部品で、ヒット領域の幅は少なくともポインターターゲットです。折りたたんでいる間は、ほかのグループと違い、セルを押すとそれを選び、ドロワーは折りたたんだままです。中の行き先には、ドロワーを展開してたどります。`revealSelected` は、そのようなグループが今のページのときにもそれを開くので、サイトのサイドバーは表示中のセクションのページを示します。
 - セクションの見出しは、その下の行き先をまとめて名付けるものです。見出しであって、操作できるものではありません。見出しのないセクションも作れます。タイトルのない、区切っただけのグループです。
 - セクションの `divider` は、上にあるものと区切るために、セクションの前に区切り線を描きます。区切り線を利用者側で置くことはありません。
 - ヘッダーには、アイコンの列に縦に並ぶヘッダーボタンと、その下のメインアクションがあります。ヘッダーのスロットは展開している間メニューボタンの横に置かれ、タイトルやアカウントの切り替えに使います。折りたたんでいる間は描きません。そこに置いたただのテキストは、ドロワーのタイトルのスタイル（`comp.navigation-drawer.header.typescale` と `comp.navigation-drawer.header.color`）で描きます。自分でスタイルを指定した要素は、そのスタイルのままです。
@@ -461,7 +521,7 @@ Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追
 
 - 「サインアウト」や「新規作成」のようなアクションをドロワーに置かない。ドロワーの項目は場所です。
 - セクションを入れ子にしたり、グループにセクションを入れたりしない。デバッグビルドで報告し、内側のセクションの行き先をその場所に描きます。
-- グループの行を行き先として使わない。開閉するだけのものです。
+- `selectableGroups` を付けずにグループに `value` や `href` を与えて、行で選べるようにしようとしない。開閉するだけで、デバッグビルドで報告します。
 - スタンダードが収まる幅のウィンドウでモーダルを使わない。
 
 ## アクセシビリティ
@@ -476,6 +536,7 @@ Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追
 - リンクの行き先は、どの状態でもボタンの行き先とまったく同じように描き、訪問済みの見た目はありません。コンテキストメニュー、新しいタブで開くこと、ドラッグ、ホバーで出るアドレスなど、ブラウザーがリンクに与えるものはすべて残ります。新しいタブで開くリンクは、説明の最後に `targetLabel` を読み上げます。
 - 折りたたんだセルのツールチップは、ポインターやキーボードを目で見て使う人のためのものです。支援技術からは隠します。支援技術は、もともとラベルをセルの名前として読み上げます。
 - グループの行は、展開状態を持ち、入れ子のリストを制御するボタンです。閉じたグループでは右（左から右に書くレイアウトの場合）で開き、開いたグループでは左で閉じ、グループの中では左でその行へ移ります。Tab は表示中のすべての行をたどります。
+- 行き先にもなるグループは、WAI-ARIA Authoring Practices の「トップレベルのリンクを持つ開閉式ナビゲーションメニュー」です。行はリンクかボタンで、今のページのときは `aria-current="page"` を持ち、シェブロンはグループのラベルを名前とする別のボタンで、展開状態を持ち、入れ子のリストを制御します。どちらも Tab で止まり、行の上では右と左でこれまでどおりグループを開閉できます。
 - ドロワーが折りたためる間、メニューボタンは展開しているか折りたたんでいるかを伝え、ドロワーを制御するボタンとして扱われます。形が変わっても、フォーカスはそれまでのセルにとどまります。
 - セクションの見出しは見出しとして伝え、フォーカスは受け取りません。
 - Tab はヘッダーの中身と、無効でないすべての行き先を順にたどります。Enter と Space でフォーカス中の行き先を実行します（Web のリンクでは Enter だけ）。無効な行き先はフォーカスを受け取らず、無効であることを伝えます。
@@ -483,7 +544,7 @@ Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追
 - フォーカスリングは項目の周りに、キーボードフォーカスのときだけ描きます。全部は見えていない項目にキーボードフォーカスが移ると、見えるところまで最小限だけスクロールします。
 - ヒット領域は、どちらの形でもセル全体で、最小ターゲットを下回ることはありません。
 - 文字を大きくしても、どちらの形の幅も変わらず、項目と見出しが高くなります。ラベルは折り返し、短いラベルは切り詰め、アイコンは拡大しません。
-- ラベルのない行き先、`label` のないモーダルのドロワー、どの行き先も指していない値、重複した値、入れ子のセクション、グループの中のセクション、3 つより深い階層、デザインシステムにないバリアント、メニューボタンのない折りたためるドロワー、`trailing` スロットの中のフォーカスできる要素、`javascript:` のアドレスや読み取れない `href`、定義にない `target`、`target` が `new` なのに `targetLabel` のないリンクは、デバッグビルドで報告します。
+- ラベルのない行き先、`label` のないモーダルのドロワー、どの行き先も指していない値、重複した値、入れ子のセクション、グループの中のセクション、3 つより深い階層、デザインシステムにないバリアント、メニューボタンのない折りたためるドロワー、`trailing` スロットの中のフォーカスできる要素、`javascript:` のアドレスや読み取れない `href`、定義にない `target`、`target` が `new` なのに `targetLabel` のないリンクは、デバッグビルドで報告します。 デザインシステムにない密度と、`selectableGroups` を付けていないのに `value` か `href` を持つグループも報告します。
 
 プラットフォームごとの既知の制約：
 

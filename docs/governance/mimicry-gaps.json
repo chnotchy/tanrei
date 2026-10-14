@@ -505,7 +505,7 @@
       "trait": "Material 3 Expressive's navigation rail is 96 wide collapsed and 220 to 360 wide expanded, and its expanded active indicator hugs its content rather than filling the row.",
       "kind": "appearance",
       "status": "open",
-      "proposal": "m3-expressive-like inherits m3-like's Material 3 values for the navigation drawer (80 collapsed, 360 expanded, a full-width pill). Setting comp.navigation-drawer.collapsed.container.width to 96 and container.width to 220 in m3-expressive-like, once its fidelity map covers the rail, would close the widths; a hugging expanded indicator would need a token for the indicator's width in the expanded form."
+      "proposal": "m3-expressive-like inherits m3-like's Material 3 values for the navigation drawer (80 collapsed, 360 expanded, a full-width pill). Setting comp.navigation-drawer.collapsed.container.width.regular to 96 and container.width to 220 in m3-expressive-like, once its fidelity map covers the rail, would close the widths; a hugging expanded indicator would need a token for the indicator's width in the expanded form."
     },
     {
       "id": "side-sheet-action-emphasis",
@@ -577,6 +577,17 @@
       "status": "open",
       "trait": "Material 3's collapsed navigation column draws a label under every icon. In Tanrei whether a collapsed cell has a label is the prop collapsedLabels, whose default is never. A system cannot default a prop, so a product on m3-like or m3-expressive-like must set collapsedLabels=\"always\" itself to get Material's column; the presets' representative collapsed fixture is collapsed-labels-always.",
       "proposal": "A way for a system to default a prop (the text field's variant would need the same), or a choice of kind for this one prop — which fails the one-product test as a sys.behavior value, since it concerns one component, and component choices do not reach the native emitters as typed values yet. Until then the product sets the prop."
+    },
+    {
+      "id": "navigation-drawer-compact-density",
+      "systems": [
+        "Material 3",
+        "Apple HIG"
+      ],
+      "kind": "appearance",
+      "status": "open",
+      "trait": "Material 3's navigation drawer has one row size, and so has the iPadOS sidebar; macOS sizes its sidebar's rows by the person's Sidebar icon size setting, not by the app. Tanrei's drawer has a compact density (NVD-65), and m3-like, m3-expressive-like and cupertino give it Tanrei's own compact values, which neither original publishes.",
+      "proposal": "Material has no compact drawer to follow, so m3-like's compact stays Tanrei's. cupertino could value compact from the macOS sidebar's small size once its fidelity map covers the macOS sidebar; until then a product on cupertino that wants Apple's own rows keeps the regular density."
     },
     {
       "id": "date-time-picker-period-place",

@@ -32832,7 +32832,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered",
                     "dev.tanrei.derive": {
@@ -32850,7 +32850,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.icon-indicator.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -32862,7 +32862,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -32874,7 +32874,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.unselected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -32886,7 +32898,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -32898,7 +32910,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -32910,7 +32922,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -32922,7 +32934,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -32947,7 +32959,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused",
                     "dev.tanrei.derive": {
@@ -32965,7 +32977,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.icon-indicator.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -32977,7 +32989,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -32989,7 +33001,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.unselected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33001,7 +33025,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33013,7 +33037,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33025,7 +33049,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33037,7 +33061,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33062,7 +33086,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed",
                     "dev.tanrei.derive": {
@@ -33080,7 +33104,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.icon-indicator.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33092,7 +33116,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33104,7 +33128,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.unselected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33116,7 +33152,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33128,7 +33164,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33140,7 +33176,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33152,7 +33188,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33168,7 +33204,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.container.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled"
                   }
@@ -33180,7 +33216,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.unselected.item.icon-indicator.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled"
                   }
@@ -33201,7 +33237,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33227,7 +33263,33 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.902,
+                      0.8784,
+                      0.9137
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#e6e0e9"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33253,7 +33315,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33279,7 +33341,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33305,7 +33367,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33331,7 +33393,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33362,7 +33424,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered",
                     "dev.tanrei.derive": {
@@ -33380,7 +33442,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.icon-indicator.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33392,7 +33454,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33404,7 +33466,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.selected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33416,7 +33490,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33428,7 +33502,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33440,7 +33514,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33452,7 +33526,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33476,7 +33550,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused",
                     "dev.tanrei.derive": {
@@ -33494,7 +33568,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.icon-indicator.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33506,7 +33580,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33518,7 +33592,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.selected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33530,7 +33616,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33542,7 +33628,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33554,7 +33640,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33566,7 +33652,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -33590,7 +33676,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed",
                     "dev.tanrei.derive": {
@@ -33608,7 +33694,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.icon-indicator.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33620,7 +33706,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33632,7 +33718,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.selected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33644,7 +33742,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33656,7 +33754,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33668,7 +33766,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33680,7 +33778,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -33696,7 +33794,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.container.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled"
                   }
@@ -33708,7 +33806,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.selected.item.icon-indicator.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled"
                   }
@@ -33729,7 +33827,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33755,7 +33853,33 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.902,
+                      0.8784,
+                      0.9137
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#e6e0e9"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33781,7 +33905,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33807,7 +33931,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33833,7 +33957,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33859,7 +33983,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -33891,7 +34015,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered",
                     "dev.tanrei.derive": {
@@ -33918,7 +34042,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered",
                     "dev.tanrei.derive": {
@@ -33936,7 +34060,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33948,7 +34072,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33960,7 +34096,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33972,7 +34108,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33984,7 +34120,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -33996,7 +34132,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -34021,7 +34157,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused",
                     "dev.tanrei.derive": {
@@ -34048,7 +34184,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused",
                     "dev.tanrei.derive": {
@@ -34066,7 +34202,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34078,7 +34214,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34090,7 +34238,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34102,7 +34250,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34114,7 +34262,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34126,7 +34274,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34151,7 +34299,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed",
                     "dev.tanrei.derive": {
@@ -34178,7 +34326,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed",
                     "dev.tanrei.derive": {
@@ -34196,7 +34344,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34208,7 +34356,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34220,7 +34380,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34232,7 +34392,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34244,7 +34404,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34256,7 +34416,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34272,7 +34432,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.container.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled"
                   }
@@ -34284,7 +34444,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.icon-indicator.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled"
                   }
@@ -34305,7 +34465,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -34331,7 +34491,33 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.902,
+                      0.8784,
+                      0.9137
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#e6e0e9"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -34357,7 +34543,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -34383,7 +34569,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -34409,7 +34595,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -34435,7 +34621,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -34467,7 +34653,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered",
                     "dev.tanrei.derive": {
@@ -34493,7 +34679,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered",
                     "dev.tanrei.derive": {
@@ -34511,7 +34697,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -34523,7 +34709,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "hovered"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -34535,7 +34733,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -34547,7 +34745,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -34559,7 +34757,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -34571,7 +34769,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "hovered"
                   }
@@ -34596,7 +34794,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused",
                     "dev.tanrei.derive": {
@@ -34622,7 +34820,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused",
                     "dev.tanrei.derive": {
@@ -34640,7 +34838,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34652,7 +34850,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "focused"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34664,7 +34874,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34676,7 +34886,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34688,7 +34898,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34700,7 +34910,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "focused"
                   }
@@ -34725,7 +34935,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed",
                     "dev.tanrei.derive": {
@@ -34751,7 +34961,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed",
                     "dev.tanrei.derive": {
@@ -34769,7 +34979,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34781,7 +34991,19 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.label.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "pressed"
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.supporting-text.color}",
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34793,7 +35015,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.trailing-text.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34805,7 +35027,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.trailing-icon.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34817,7 +35039,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.badge.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34829,7 +35051,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.state-layer.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "pressed"
                   }
@@ -34845,7 +35067,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.container.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled"
                   }
@@ -34857,7 +35079,7 @@
                   "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.icon-indicator.color}",
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled"
                   }
@@ -34878,7 +35100,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -34904,7 +35126,33 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
+                    },
+                    "dev.tanrei.state": "disabled",
+                    "dev.tanrei.derive": {
+                      "fn": "alpha",
+                      "of": "{tanrei.sys.color.on-surface}",
+                      "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                    }
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.902,
+                      0.8784,
+                      0.9137
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#e6e0e9"
+                  },
+                  "$extensions": {
+                    "dev.tanrei.vocabulary": {
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -34930,7 +35178,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -34956,7 +35204,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -34982,7 +35230,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -35008,7 +35256,7 @@
                   },
                   "$extensions": {
                     "dev.tanrei.vocabulary": {
-                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                      "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
                     },
                     "dev.tanrei.state": "disabled",
                     "dev.tanrei.derive": {
@@ -35028,7 +35276,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
               },
               "dev.tanrei.state": "hovered",
               "dev.tanrei.derive": {
@@ -35043,7 +35291,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
               },
               "dev.tanrei.state": "focused",
               "dev.tanrei.derive": {
@@ -35058,7 +35306,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
               },
               "dev.tanrei.state": "pressed",
               "dev.tanrei.derive": {
@@ -35073,7 +35321,7 @@
             "$value": 1,
             "$extensions": {
               "dev.tanrei.vocabulary": {
-                "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable."
+                "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, some unavailable, and its rows as roomy as a menu's in a product used by touch as well as by pointer, or as dense as a tree view's compact rows in a tool used with a pointer whose drawer lists many places."
               },
               "dev.tanrei.state": "disabled",
               "dev.tanrei.derive": {

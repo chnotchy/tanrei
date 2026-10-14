@@ -3343,6 +3343,7 @@ export interface TanreiNavigationDrawerConditionStateTokens {
   readonly itemIconIndicatorColor: TanreiPaint;
   readonly itemIconColor: TanreiPaint;
   readonly itemLabelColor: TanreiPaint;
+  readonly itemSupportingTextColor: TanreiPaint;
   readonly itemTrailingTextColor: TanreiPaint;
   readonly itemTrailingIconColor: TanreiPaint;
   readonly itemBadgeColor: TanreiPaint;
@@ -3360,45 +3361,67 @@ export interface TanreiNavigationDrawerConditionTokens {
 export type TanreiNavigationDrawerConditions = { readonly [Key in TanreiCoreNavigationDrawerCondition]: TanreiNavigationDrawerConditionTokens } & { readonly [Key in TanreiNavigationDrawerCondition]?: TanreiNavigationDrawerConditionTokens };
 
 /**
+ * Every value of `comp.navigation-drawer`'s `density` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `regular` (with a dev-only warning).
+ */
+export interface TanreiNavigationDrawerDensityRegistry {
+  regular: true;
+  compact: true;
+}
+export type TanreiNavigationDrawerDensity = keyof TanreiNavigationDrawerDensityRegistry;
+export type TanreiCoreNavigationDrawerDensity = "regular" | "compact";
+
+/** The tokens of one `density` of `comp.navigation-drawer`. */
+export interface TanreiNavigationDrawerDensityTokens {
+  readonly containerGap: number;
+  readonly itemContainerHeight: number;
+  readonly itemPaddingInline: number;
+  readonly itemPaddingBlock: number;
+  readonly itemNestIndent: number;
+  readonly itemIconSize: number;
+  readonly itemIconIndicatorWidth: number;
+  readonly itemIconIndicatorHeight: number;
+  readonly itemLabelTypescale: TanreiTypescaleRole;
+  readonly itemTrailingIconSize: number;
+  readonly collapsedContainerWidth: number;
+  readonly collapsedItemContainerWidth: number;
+  readonly collapsedItemContainerPaddingBlock: number;
+  readonly headingHeight: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiNavigationDrawerDensitys = { readonly [Key in TanreiCoreNavigationDrawerDensity]: TanreiNavigationDrawerDensityTokens } & { readonly [Key in TanreiNavigationDrawerDensity]?: TanreiNavigationDrawerDensityTokens };
+
+/**
  * `comp.navigation-drawer`: one member per token that is on no axis (a per-state one carries the state in its name,
- * `<state><Part>`), then one holder per axis (`variants`, `conditions`), keyed by the axis value.
+ * `<state><Part>`), then one holder per axis (`variants`, `conditions`, `densitys`), keyed by the axis value.
  */
 export interface TanreiNavigationDrawerTokens {
   readonly breakpointCollapsed: number;
   readonly breakpointExpanded: number;
-  readonly collapsedContainerWidth: number;
-  readonly collapsedItemContainerPaddingBlock: number;
   readonly collapsedItemContainerPaddingInline: number;
   readonly collapsedItemContainerShape: number;
-  readonly collapsedItemContainerWidth: number;
   readonly collapsedItemGap: number;
   readonly collapsedItemLabelTypescale: TanreiTypescaleRole;
-  readonly containerGap: number;
   readonly containerPaddingBlock: number;
   readonly containerPaddingInline: number;
   readonly containerWidth: number;
   readonly disabledOpacity: number;
   readonly focusedOpacity: number;
+  readonly guideColor: TanreiPaint;
+  readonly guideWidth: number;
   readonly headerColor: TanreiPaint;
   readonly headerGap: number;
   readonly headerItemGap: number;
   readonly headerTypescale: TanreiTypescaleRole;
   readonly headingColor: TanreiPaint;
-  readonly headingHeight: number;
   readonly headingTypescale: TanreiTypescaleRole;
   readonly hoveredOpacity: number;
   readonly itemBadgeTypescale: TanreiTypescaleRole;
-  readonly itemContainerHeight: number;
   readonly itemContainerShape: number;
   readonly itemGap: number;
-  readonly itemIconIndicatorHeight: number;
   readonly itemIconIndicatorShape: number;
-  readonly itemIconIndicatorWidth: number;
-  readonly itemIconSize: number;
-  readonly itemLabelTypescale: TanreiTypescaleRole;
-  readonly itemNestIndent: number;
-  readonly itemPaddingInline: number;
-  readonly itemTrailingIconSize: number;
+  readonly itemSupportingTextTypescale: TanreiTypescaleRole;
   readonly itemTrailingTextTypescale: TanreiTypescaleRole;
   readonly motionDisclosureDuration: number;
   readonly motionDisclosureEasing: TanreiCubicBezier;
@@ -3417,8 +3440,12 @@ export interface TanreiNavigationDrawerTokens {
   readonly pressedOpacity: number;
   readonly scrimBlur: number;
   readonly scrimColor: TanreiPaint;
+  readonly stickyContainerColor: TanreiPaint;
+  readonly stickyDividerColor: TanreiPaint;
+  readonly stickyDividerWidth: number;
   readonly variants: TanreiNavigationDrawerVariants;
   readonly conditions: TanreiNavigationDrawerConditions;
+  readonly densitys: TanreiNavigationDrawerDensitys;
 }
 
 /**
@@ -5579,6 +5606,7 @@ declare module './vocabulary' {
   interface TanreiNavigationBarConditionRegistry {}
   interface TanreiNavigationDrawerVariantRegistry {}
   interface TanreiNavigationDrawerConditionRegistry {}
+  interface TanreiNavigationDrawerDensityRegistry {}
   interface TanreiNavigationRailConditionRegistry {}
   interface TanreiOneTimeCodeInputConditionRegistry {}
   interface TanreiPageHeaderSizeRegistry {}

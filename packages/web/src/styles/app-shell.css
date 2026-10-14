@@ -342,7 +342,10 @@
     }
     /* APS-24: the column of a drawer that is not defined yet keeps its place. */
     :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible]:not(:defined)) {
-      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width);
+      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-regular);
+    }
+    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible][density='compact']:not(:defined)) {
+      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width-compact);
     }
     /* APS-13: not shown, kept from focus and from assistive technology, and given no space. */
     :where(tanrei-app-shell) > :where([slot='navigation-bar']) {

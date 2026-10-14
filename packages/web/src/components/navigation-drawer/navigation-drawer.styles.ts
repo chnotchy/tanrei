@@ -44,16 +44,61 @@ const variantBlock = (variant: string, selector: string, fallback: string | null
   --_shape-pill: ${fallback ? `var(${PREFIX}-container-shape-${variant}-pill, var(${PREFIX}-container-shape-${fallback}-pill, 0))` : `var(${PREFIX}-container-shape-${variant}-pill, 0)`};
 }`;
 
+export const CORE_DENSITIES = ['regular', 'compact'] as const;
+export const DEFAULT_DENSITY = 'regular';
+
 /**
- * The open axis (NVD-26): a variant a layer added gets its block on demand, built by the same function and
- * falling back to standard's tokens (and presented as a standard drawer); a value the active system lacks is reported.
+ * NVD-65: the members of the density axis (`dev.tanrei.axes.density.members`), as the private custom properties the
+ * drawer sets on its host for its density and its cells, groups and sections inherit (`*` is the density). Every
+ * length, glyph size and text style below that a density changes is read through these, never from a token directly.
+ */
+const DENSITY_MEMBERS: readonly (readonly [string, string])[] = [
+  ['--_nvd-gap', 'container-gap-*'],
+  ['--_nvd-height', 'item-container-height-*'],
+  ['--_nvd-pad', 'item-padding-inline-*'],
+  ['--_nvd-pad-block', 'item-padding-block-*'],
+  ['--_nvd-indent', 'item-nest-indent-*'],
+  ['--_nvd-icon', 'item-icon-size-*'],
+  ['--_nvd-ind-w', 'item-icon-indicator-width-*'],
+  ['--_nvd-ind-h', 'item-icon-indicator-height-*'],
+  ['--_nvd-label-font', 'item-label-typescale-*-font'],
+  ['--_nvd-label-tracking', 'item-label-typescale-*-letter-spacing'],
+  ['--_nvd-trailing-icon', 'item-trailing-icon-size-*'],
+  ['--_nvd-column', 'collapsed-container-width-*'],
+  ['--_nvd-pill', 'collapsed-item-container-width-*'],
+  ['--_nvd-pill-pad', 'collapsed-item-container-padding-block-*'],
+  ['--_nvd-heading', 'heading-height-*'],
+];
+
+/** One density's members under `selector`; a value the core does not have falls back to the default's tokens. */
+const densityBlock = (density: string, selector: string, fallback: string | null = null) => `${selector} {${DENSITY_MEMBERS.map(
+  ([name, token]) => `\n  ${name}: ${fallback ? `var(${PREFIX}-${token.replace('*', density)}, var(${PREFIX}-${token.replace('*', fallback)}))` : `var(${PREFIX}-${token.replace('*', density)})`};`,
+).join('')}
+}`;
+
+/**
+ * A member as a cell, a group or a section reads it: the drawer's value for its density, or the default density's
+ * token where the element stands outside a drawer.
+ */
+const D = (name: string) => {
+  const member = DENSITY_MEMBERS.find(([n]) => n === name);
+  if (!member) throw new Error(`not a density member: ${name}`);
+  return `var(${name}, var(${PREFIX}-${member[1].replace('*', DEFAULT_DENSITY)}))`;
+};
+const d = (name: string) => unsafeCSS(D(name));
+
+/**
+ * The open axes (NVD-26): a variant or a density a layer added gets its block on demand, built by the same function and
+ * falling back to the default's tokens (a variant is presented as a standard drawer); a value the active system lacks
+ * is reported.
  */
 export const AXES: readonly OpenAxis[] = [
   { name: 'variant', core: CORE_VARIANTS, default: DEFAULT_VARIANT, rules: (value, selector) => variantBlock(value, selector, DEFAULT_VARIANT), probe: (value) => `${PREFIX}-container-color-${value}` },
+  { name: 'density', core: CORE_DENSITIES, default: DEFAULT_DENSITY, rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY), probe: (value) => `${PREFIX}-item-container-height-${value}` },
 ];
 
 /** The icon column's width (the collapsed drawer's) and the drawer's inner padding. */
-const COLUMN = T('collapsed-container-width');
+const COLUMN = D('--_nvd-column');
 const PAD_INLINE = T('container-padding-inline');
 /** One line of the short label: its typescale's size times its line height (a number). */
 const SHORT_LINE = `calc(${T('collapsed-item-label-typescale-font-size')} * ${T('collapsed-item-label-typescale-line-height')})`;
@@ -84,13 +129,13 @@ export const drawerStyles = css`
     --_inset-start: env(safe-area-inset-left, 0px);
     --_form-width: ${t('container-width')};
     --_width: calc(var(--_form-width) + var(--_inset-start));
-    --_column-width: calc(${t('collapsed-container-width')} + var(--_inset-start));
+    --_column-width: calc(${d('--_nvd-column')} + var(--_inset-start));
   }
   :host(:dir(rtl)) {
     --_inset-start: env(safe-area-inset-right, 0px);
   }
   :host([collapsed]) {
-    --_form-width: ${t('collapsed-container-width')};
+    --_form-width: ${d('--_nvd-column')};
   }
   /* NVD-35: while the drawer changes form, every part the form recolors cross-fades over the change's motion, and a
      group's items move with it (inherited by the cells, groups and sections). */
@@ -122,6 +167,34 @@ export const drawerStyles = css`
   }
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, ':host'))}
   ${unsafeCSS(CORE_VARIANTS.filter((v) => v !== DEFAULT_VARIANT).map((v) => variantBlock(v, `:host([data-as='${v}'])`)).join('\n'))}
+  /* NVD-65: the density's members, set on the host and inherited by its cells, groups and sections (a density a
+     layer added: AXES). NVD-6: for a fine pointer a regular cell's hit area is at least the pointer target, a compact
+     one's the cell and half the gap around it; for touch a compact cell is drawn at least the touch target high. */
+  /* NVD-73: guides hover — the lines are drawn while the pointer is over the drawer or focus is in it (inherited by the
+     groups, which fade them). NVD-77: the surface pinned rows stand on: a modal drawer's own container color. */
+  :host {
+    --_nvd-sticky-bg: ${t('sticky-container-color')};
+  }
+  :host([data-as='modal']) {
+    --_nvd-sticky-bg: var(--_bg);
+  }
+  :host(:hover),
+  :host(:focus-within) {
+    --_nvd-guides-on: 1;
+  }
+  ${unsafeCSS(densityBlock(DEFAULT_DENSITY, ':host'))}
+  ${unsafeCSS(CORE_DENSITIES.filter((v) => v !== DEFAULT_DENSITY).map((v) => densityBlock(v, `:host([density='${v}'])`)).join('\n'))}
+  :host {
+    --_nvd-target: var(--tanrei-sys-target-pointer);
+  }
+  :host([density='compact']) {
+    --_nvd-target: 0px;
+  }
+  @media (pointer: coarse) {
+    :host([density='compact']) {
+      --_nvd-height: max(${t('item-container-height-compact')}, var(--tanrei-sys-target-touch));
+    }
+  }
   /* NVD-40: a collapsible modal drawer's column, while it is closed, is drawn as a standard drawer's. */
   ${unsafeCSS(variantBlock(DEFAULT_VARIANT, '.column'))}
   :host([hidden]) {
@@ -181,7 +254,7 @@ export const drawerStyles = css`
     box-sizing: border-box;
     display: grid;
     flex: none;
-    grid-template-columns: ${t('collapsed-container-width')} minmax(0, 1fr);
+    grid-template-columns: ${d('--_nvd-column')} minmax(0, 1fr);
     align-items: center;
     row-gap: ${t('header-item-gap')};
     inline-size: ${t('container-width')};
@@ -204,7 +277,7 @@ export const drawerStyles = css`
     letter-spacing: ${t('header-typescale-letter-spacing')};
     color: ${t('header-color')};
     /* --_lead: where the first header button ends, from the drawer's start (measured: the button is the product's). */
-    margin-inline-start: calc(var(--_lead, calc(${t('collapsed-container-width')} / 2)) + ${t('item-gap')} - ${t('collapsed-container-width')});
+    margin-inline-start: calc(var(--_lead, calc(${d('--_nvd-column')} / 2)) + ${t('item-gap')} - ${d('--_nvd-column')});
     padding-inline-end: ${t('container-padding-inline')};
     opacity: 1;
     transition: opacity ${unsafeCSS(SECOND_HALF)};
@@ -223,12 +296,41 @@ export const drawerStyles = css`
   /* NVD-52: the header's text is its own run, in the direction of its first strong character, aligned to the layout's
      start edge (src/styles/product-text.ts). */
   ${productText('.title', { align: 'start' })}
-  /* NVD-39: the main action starts where its collapsed square is centred in the icon column, in both forms (--_main-size:
-     its measured height, the side of that square). */
-  ::slotted([slot='main-action']) {
+  /* NVD-39: the main action's glyph is centred on the icon column's centre line in both forms. The button's own tokens
+     for its size — the side of its collapsed square, its padding before a leading glyph and the glyph — are named on the
+     header, which the slotted button inherits them from (medium's here; the element names those of the button's size,
+     a size a design system added included). Collapsed, its square is centred on the line; expanded, its start lies
+     half the column less that padding and half the glyph from the drawer's start. Between the two its start moves with
+     the motion by which the button moves its glyph between its middle and its side (MAB-14). A trailing glyph keeps
+     the collapsed start while expanded. */
+  .header {
+    /* NVD-39, NVD-68: a start chevron's room and the gap move the icon column's line, which the main action follows. */
+    --_chev-shift: 0px;
+    --_mab-h: var(--tanrei-comp-main-action-button-container-height-medium);
+    --_mab-pad: var(--tanrei-comp-main-action-button-container-padding-inline-start-with-icon-medium);
+    --_mab-icon: var(--tanrei-comp-main-action-button-icon-size-medium);
+  }
+  :host([data-chevron='start']) .header {
+    --_chev-shift: calc(${d('--_nvd-trailing-icon')} + ${t('item-gap')});
+  }
+  /* The place is the drawer's own box around the slot, never a margin on the product's element, which a page's reset
+     (\`* { margin: 0 }\`) would win over. */
+  .main {
+    display: flex;
     grid-column: 1 / -1;
     justify-self: start;
-    margin-inline-start: calc((${t('collapsed-container-width')} - var(--_main-size, 0px)) / 2);
+    margin-inline-start: calc(${d('--_nvd-column')} / 2 + var(--_chev-shift) - var(--_mab-pad) - var(--_mab-icon) / 2);
+    transition: margin-inline-start var(--tanrei-comp-main-action-button-motion-resize-duration) var(--tanrei-comp-main-action-button-motion-resize-easing);
+  }
+  .main:not(.filled) {
+    display: none;
+  }
+  :host([data-main-trailing]) .main,
+  :host([collapsed]) .main {
+    margin-inline-start: calc(${d('--_nvd-column')} / 2 + var(--_chev-shift) - var(--_mab-h) / 2);
+  }
+  :host([data-instant]) .main {
+    transition: none;
   }
   /* NVD-39: only the first main action is drawn. */
   ::slotted([data-tanrei-drawer-extra]) {
@@ -242,7 +344,7 @@ export const drawerStyles = css`
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
-    gap: ${t('container-gap')};
+    gap: ${d('--_nvd-gap')};
     min-block-size: 0;
     overflow-x: hidden;
     overflow-y: auto;
@@ -415,6 +517,9 @@ export const drawerStyles = css`
     .clock {
       transition-delay: 0s;
     }
+    .main {
+      transition: none;
+    }
   }
   @media (forced-colors: active) {
     .drawer {
@@ -439,7 +544,7 @@ export const sectionStyles = css`
   .section {
     display: flex;
     flex-direction: column;
-    gap: ${t('container-gap')};
+    gap: ${d('--_nvd-gap')};
   }
   tanrei-divider {
     align-self: stretch;
@@ -449,7 +554,7 @@ export const sectionStyles = css`
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    min-block-size: ${t('heading-height')};
+    min-block-size: ${d('--_nvd-heading')};
     margin: 0;
     overflow-x: clip;
   }
@@ -457,7 +562,7 @@ export const sectionStyles = css`
     box-sizing: border-box;
     flex: none;
     inline-size: ${t('container-width')};
-    padding-inline: calc(${t('container-padding-inline')} + ${t('item-padding-inline')});
+    padding-inline: calc(${t('container-padding-inline')} + ${d('--_nvd-pad')});
     font: ${t('heading-typescale-font')};
     letter-spacing: ${t('heading-typescale-letter-spacing')};
     color: ${t('heading-color')};
@@ -475,7 +580,7 @@ export const sectionStyles = css`
   .items {
     display: flex;
     flex-direction: column;
-    gap: ${t('container-gap')};
+    gap: ${d('--_nvd-gap')};
   }
   @media (prefers-reduced-motion: reduce) {
     .heading-text,
@@ -489,7 +594,7 @@ export const sectionStyles = css`
  * The parts each condition colors in every state: the item container (the active indicator), the icon indicator, the
  * icon, the label (and the short label), the trailing text and the trailing glyph.
  */
-const PARTS = { c: 'item-container-color', n: 'item-icon-indicator-color', i: 'item-icon-color', l: 'item-label-color', tt: 'item-trailing-text-color', ti: 'item-trailing-icon-color' } as const;
+const PARTS = { c: 'item-container-color', n: 'item-icon-indicator-color', i: 'item-icon-color', l: 'item-label-color', s: 'item-supporting-text-color', tt: 'item-trailing-text-color', ti: 'item-trailing-icon-color' } as const;
 const set = (suffix: string, skip?: string) =>
   Object.keys(PARTS)
     .filter((key) => key !== skip)
@@ -502,16 +607,22 @@ const set = (suffix: string, skip?: string) =>
  * keeps every selector at the same specificity, so the order `stateRules()` writes them in is the precedence.
  */
 const on = (state: string) => {
-  if (state === ':hover') return '.cell:where(:hover)';
+  // NVD-67: a hover on the chevron's own button, laid over the end of the cell, is a hover on the cell.
+  if (state === ':hover') return '.cell:where(:hover, .split:hover > *):where(:not(.static))';
   if (state === ':focus-visible') return '.cell:where(:focus-visible)';
   if (state === ':disabled') return '.cell:where(.d)';
   return `.cell:where(:has(.container${state}))`;
 };
 
-/** From the row's start (the drawer's inner edge) to the icon column's centre line, at the cell's level of nesting. */
-const ICON_LINE_X = `calc(${COLUMN} / 2 + var(--_level, 0) * ${T('item-nest-indent')} - ${PAD_INLINE})`;
+/**
+ * NVD-13, NVD-68: where a row's first part — its start chevron or its icon — begins, from where its content begins (the
+ * drawer's padding and the row's indent, NVD-69): the icon on the icon column's centre line, so that a top-level icon
+ * keeps one point in both forms.
+ */
+const FIRST = `calc(${COLUMN} / 2 - ${PAD_INLINE} - ${D('--_nvd-icon')} / 2)`;
+const INSET = 'var(--_inset, 0px)';
 /** From the row's start to the collapsed pill's start: the pill is centred in the icon column. */
-const PILL_X = `calc(${COLUMN} / 2 - ${T('collapsed-item-container-width')} / 2 - ${PAD_INLINE})`;
+const PILL_X = `calc(${COLUMN} / 2 - ${D('--_nvd-pill')} / 2 - ${PAD_INLINE})`;
 
 /**
  * A cell — a destination's, or a group's row (NVD-4…10, NVD-13, NVD-14, NVD-27, NVD-31…35, NVD-41, NVD-43, NVD-44). The
@@ -526,6 +637,9 @@ export const cellStyles = css`
   :host {
     display: block;
     outline: none;
+    /* NVD-65: the glyph sizes of the drawer's density, as properties the icon helper reads. */
+    --_nvd-cell-icon: ${d('--_nvd-icon')};
+    --_nvd-cell-trailing-icon: ${d('--_nvd-trailing-icon')};
   }
   :host([hidden]) {
     display: none;
@@ -565,14 +679,15 @@ export const cellStyles = css`
      the cell reaches the larger of half the expanded row and half the icon indicator, the short label's gap and line
      (unless collapsedLabels is never) and collapsed padding-block below it. The row is centred on that line. */
   .cell.collapsible {
-    padding-block-start: max(0px, calc(${t('collapsed-item-container-padding-block')} + ${t('item-icon-indicator-height')} / 2 - ${t('item-container-height')} / 2));
-    padding-block-end: max(0px, calc(${t('item-icon-indicator-height')} / 2 + var(--_labels) + ${t('collapsed-item-container-padding-block')} - ${t('item-container-height')} / 2));
+    padding-block-start: max(0px, calc(${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-height')} / 2));
+    padding-block-end: max(0px, calc(${d('--_nvd-ind-h')} / 2 + var(--_labels) + ${d('--_nvd-pill-pad')} - ${d('--_nvd-height')} / 2));
   }
   /* Nothing inside the cell is hit-tested: a press anywhere in it lands on the native button or link itself. */
   .cell * {
     pointer-events: none;
   }
-  .cell.d {
+  .cell.d,
+  .cell.static {
     cursor: default;
   }
   /* NVD-6: the hit area is the cell with half of container.gap above and below, and never below the minimum target. */
@@ -581,13 +696,86 @@ export const cellStyles = css`
     position: absolute;
     inset-inline: 0;
     inset-block-start: 50%;
-    block-size: max(calc(100% + ${t('container-gap')}), var(--tanrei-sys-target-pointer));
+    block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--_nvd-target, var(--tanrei-sys-target-pointer)));
     transform: translateY(-50%);
   }
   @media (pointer: coarse) {
     .cell::before {
-      block-size: max(calc(100% + ${t('container-gap')}), var(--tanrei-sys-target-touch));
+      block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--tanrei-sys-target-touch));
     }
+  }
+
+  /* NVD-67: a group that is a destination — its row (the cell) is the destination, and its chevron a button of its own
+     laid over the end of the cell: its box is the item container's end, from the middle of the gap before the chevron,
+     with the item container's corners (the focus ring is drawn around it); its hit area reaches the cell's end edge and
+     is at least the target wide, the cell's height with half of container.gap above and below. */
+  .split {
+    position: relative;
+  }
+  .toggle {
+    all: unset;
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 1;
+    inset-block: 0;
+    inset-inline-end: ${t('container-padding-inline')};
+    inline-size: calc(${d('--_nvd-pad')} + ${d('--_nvd-trailing-icon')} + ${t('item-gap')} / 2);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    ${unsafeCSS(cornerRadius(`${PREFIX}-item-container-shape`))}
+  }
+  .toggle:disabled {
+    cursor: default;
+  }
+  .toggle::before {
+    content: '';
+    position: absolute;
+    inset-inline-end: calc(${t('container-padding-inline')} * -1);
+    inset-block-start: 50%;
+    inline-size: max(calc(100% + ${t('container-padding-inline')}), var(--tanrei-sys-target-pointer));
+    block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--_nvd-target, var(--tanrei-sys-target-pointer)));
+    transform: translateY(-50%);
+  }
+  @media (pointer: coarse) {
+    .toggle::before {
+      inline-size: max(calc(100% + ${t('container-padding-inline')}), var(--tanrei-sys-target-touch));
+      block-size: max(calc(100% + ${d('--_nvd-gap')}), var(--tanrei-sys-target-touch));
+    }
+  }
+  /* NVD-68: over a start chevron, or over the icon of a group without a chevron: the box from the middle of the gap
+     before it to the middle of the gap after it, its hit area at least the target wide around it. */
+  .toggle.toggle-start,
+  .toggle.toggle-icon {
+    inset-inline-end: auto;
+    inset-inline-start: calc(${t('container-padding-inline')} + ${unsafeCSS(INSET)} + ${unsafeCSS(FIRST)} - ${t('item-gap')} / 2);
+    inline-size: calc(${d('--_nvd-trailing-icon')} + ${t('item-gap')});
+  }
+  .toggle.toggle-icon {
+    inline-size: calc(${d('--_nvd-icon')} + ${t('item-gap')});
+  }
+  :is(.toggle-start, .toggle-icon)::before {
+    inset-inline-end: auto;
+    inset-inline-start: calc(50% - max(100%, var(--tanrei-sys-target-pointer)) / 2);
+    inline-size: max(100%, var(--tanrei-sys-target-pointer));
+  }
+  @media (pointer: coarse) {
+    :is(.toggle-start, .toggle-icon)::before {
+      inset-inline-start: calc(50% - max(100%, var(--tanrei-sys-target-touch)) / 2);
+      inline-size: max(100%, var(--tanrei-sys-target-touch));
+    }
+  }
+  ${focusRing((focus) => `.toggle${focus}`)}
+
+  /* NVD-77: a pinned row: the row itself, held at the top of the space the items scroll in under the rows pinned above
+     it, over what scrolls under it on the drawer's surface; the last one draws the line where the scrolling rows begin. */
+  .pinned {
+    position: sticky;
+    inset-block-start: var(--_pin-top, 0px);
+    z-index: 3;
+    background: var(--_nvd-sticky-bg);
+  }
+  .pinned.pinned-last {
+    box-shadow: inset 0 calc(-1 * ${t('sticky-divider-width')}) 0 0 ${t('sticky-divider-color')};
   }
 
   /* NVD-13: the expanded row, across the expanded drawer's inner width (whatever the form: the cell clips it). */
@@ -599,8 +787,9 @@ export const cellStyles = css`
     align-items: center;
     gap: ${t('item-gap')};
     inline-size: calc(${t('container-width')} - 2 * ${t('container-padding-inline')});
-    min-block-size: ${t('item-container-height')};
-    padding-inline-end: ${t('item-padding-inline')};
+    min-block-size: ${d('--_nvd-height')};
+    padding-inline-start: ${unsafeCSS(INSET)};
+    padding-inline-end: ${d('--_nvd-pad')};
   }
 
   /* NVD-13, NVD-32, NVD-35: the item container — the expanded row, as wide at every level of nesting (a nested
@@ -615,8 +804,8 @@ export const cellStyles = css`
     z-index: -1;
     isolation: isolate;
     inset-block-start: 0;
-    inset-inline-start: 0;
-    inline-size: 100%;
+    inset-inline-start: ${unsafeCSS(INSET)};
+    inline-size: calc(100% - ${unsafeCSS(INSET)});
     block-size: 100%;
     ${unsafeCSS(cornerRadius(`${PREFIX}-item-container-shape`))}
     transition:
@@ -626,15 +815,20 @@ export const cellStyles = css`
       block-size ${unsafeCSS(MORPH)},
       border-radius ${unsafeCSS(MORPH)};
   }
+  /* NVD-70: highlight full — across the drawer's whole inner width at every level. */
+  .cell.highlight-full .container {
+    inset-inline-start: 0;
+    inline-size: 100%;
+  }
   .cell.collapsed .container {
-    inset-block-start: calc(50% - ${t('item-icon-indicator-height')} / 2 - ${t('collapsed-item-container-padding-block')});
+    inset-block-start: calc(50% - ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-pill-pad')});
     inset-inline-start: ${unsafeCSS(PILL_X)};
-    inline-size: ${t('collapsed-item-container-width')};
-    block-size: calc(2 * ${t('collapsed-item-container-padding-block')} + ${t('item-icon-indicator-height')} + var(--_labels));
+    inline-size: ${d('--_nvd-pill')};
+    block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')} + var(--_labels));
     ${unsafeCSS(cornerRadius(`${PREFIX}-collapsed-item-container-shape`))}
   }
   .cell.collapsed:not(.short-shown) .container {
-    block-size: calc(2 * ${t('collapsed-item-container-padding-block')} + ${t('item-icon-indicator-height')});
+    block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')});
   }
   /* NVD-41: a collapsed cell that gains or loses its short label (collapsedLabels selected) changes over the selection motion. */
   .cell[data-condition-change] .container {
@@ -662,15 +856,30 @@ export const cellStyles = css`
     display: grid;
     flex: none;
     place-items: center;
-    inline-size: ${t('item-icon-size')};
-    block-size: ${t('item-icon-size')};
-    margin-inline-start: calc(${unsafeCSS(ICON_LINE_X)} - ${t('item-icon-size')} / 2);
+    inline-size: ${d('--_nvd-icon')};
+    block-size: ${d('--_nvd-icon')};
+    margin-inline-start: ${unsafeCSS(FIRST)};
   }
-  /* NVD-49: without an icon the icon indicator is still drawn, empty, on the icon column, taking no space. */
-  .cell.no-icon .lead {
+  /* NVD-68: a start chevron's box comes first, and the icon (or its room) a gap after it. */
+  .cell.chevron-start .lead {
+    margin-inline-start: 0;
+  }
+  .start-chevron {
+    display: grid;
+    flex: none;
+    place-items: center;
+    inline-size: ${d('--_nvd-trailing-icon')};
+    block-size: ${d('--_nvd-trailing-icon')};
+    margin-inline-start: ${unsafeCSS(FIRST)};
+    opacity: 1;
+    transition: opacity ${unsafeCSS(SECOND_HALF)};
+  }
+  /* NVD-49, NVD-71: without an icon or its room the icon indicator is still drawn, empty, on the icon column, taking no
+     space (the collapsed cell's); with the room kept (iconSpace) the box stands in its place, empty. */
+  .cell.no-icon:not(.icon-room) .lead {
     position: absolute;
-    inset-block-start: calc(50% - ${t('item-icon-size')} / 2);
-    inset-inline-start: calc(${unsafeCSS(ICON_LINE_X)} - ${t('item-icon-size')} / 2);
+    inset-block-start: calc(50% - ${d('--_nvd-icon')} / 2);
+    inset-inline-start: calc(${unsafeCSS(INSET)} + ${unsafeCSS(FIRST)});
     margin: 0;
   }
   .icon-indicator {
@@ -678,8 +887,8 @@ export const cellStyles = css`
     z-index: -1;
     top: 50%;
     left: 50%;
-    inline-size: ${t('item-icon-indicator-width')};
-    block-size: ${t('item-icon-indicator-height')};
+    inline-size: ${d('--_nvd-ind-w')};
+    block-size: ${d('--_nvd-ind-h')};
     translate: -50% -50%;
     ${unsafeCSS(cornerRadius(`${PREFIX}-item-icon-indicator-shape`))}
     background: var(--_n);
@@ -695,7 +904,7 @@ export const cellStyles = css`
   .cell.selected[data-condition-change] .icon-indicator {
     transition: none;
   }
-  ${iconGlyph('.icon', { size: `${PREFIX}-item-icon-size`, selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.icon', { size: '--_nvd-cell-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   .icon {
     color: var(--_i);
     transition:
@@ -706,21 +915,56 @@ export const cellStyles = css`
   /* NVD-13: the label, item.gap after the icon — or item.padding-inline (and the nesting indent) from the row's start
      without one — wrapping rather than truncating; the row grows with it. NVD-35: it fades out over the first half of a
      collapse and in over the second half of an expansion, clipped at the moving edge. */
-  .label {
+  .text {
+    display: flex;
     flex: 1 1 auto;
+    flex-direction: column;
     min-inline-size: 0;
-    padding-block: max(0px, calc((${t('item-container-height')} - 1lh) / 2));
-    font: ${t('item-label-typescale-font')};
-    letter-spacing: ${t('item-label-typescale-letter-spacing')};
-    color: var(--_l);
-    overflow-wrap: break-word;
+    padding-block: ${d('--_nvd-pad-block')};
     opacity: 1;
-    transition:
-      color var(--_recolor-duration) var(--_recolor-easing),
-      opacity ${unsafeCSS(SECOND_HALF)};
+    transition: opacity ${unsafeCSS(SECOND_HALF)};
   }
-  .cell.no-icon .label {
-    margin-inline-start: calc(${t('item-padding-inline')} + var(--_level, 0) * ${t('item-nest-indent')});
+  /* NVD-74: inline supporting text after the label, on its line. */
+  .text.inline {
+    flex-direction: row;
+    align-items: baseline;
+    gap: ${t('item-gap')};
+  }
+  /* The label keeps its width before the inline supporting text gives up any of its own (cut only past the row's width). */
+  .text.inline .label {
+    flex-shrink: 0;
+    max-inline-size: 100%;
+  }
+  .cell.no-icon:not(.icon-room):not(.chevron-start) .text {
+    margin-inline-start: ${d('--_nvd-pad')};
+  }
+  /* NVD-75: one line, cut with an ellipsis, unless labelWrap / supportingWrap. */
+  .label,
+  .supporting {
+    min-inline-size: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .label {
+    flex: 0 1 auto;
+    font: ${d('--_nvd-label-font')};
+    letter-spacing: ${d('--_nvd-label-tracking')};
+    color: var(--_l);
+    transition: color var(--_recolor-duration) var(--_recolor-easing);
+  }
+  .supporting {
+    flex: 0 4 auto;
+    font: ${t('item-supporting-text-typescale-font')};
+    letter-spacing: ${t('item-supporting-text-typescale-letter-spacing')};
+    color: var(--_s);
+    transition: color var(--_recolor-duration) var(--_recolor-easing);
+  }
+  .cell.label-wrap .label,
+  .cell.supporting-wrap .supporting {
+    overflow: visible;
+    white-space: normal;
+    overflow-wrap: break-word;
   }
 
   /* NVD-43: the trailing content at the row's end, item.gap after the label and item.padding-inline from the end: the
@@ -732,6 +976,7 @@ export const cellStyles = css`
     display: flex;
     flex: none;
     align-items: center;
+    gap: ${t('item-gap')};
     opacity: 1;
     transition: opacity ${unsafeCSS(SECOND_HALF)};
   }
@@ -755,29 +1000,43 @@ export const cellStyles = css`
     color: var(--_ti);
     transition: color var(--_recolor-duration) var(--_recolor-easing);
   }
-  ${iconGlyph('.trailing-slot.glyph', { size: `${PREFIX}-item-trailing-icon-size`, selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.trailing-slot.glyph', { size: '--_nvd-cell-trailing-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   .trailing-slot.glyph.filled {
     display: inline-flex;
     color: var(--_ti);
     transition: color var(--_recolor-duration) var(--_recolor-easing);
   }
   /* NVD-63: the mark of a link that opens a new context, drawn as a glyph of the trailing slot is. */
-  ${iconGlyph('.link-mark', { size: `${PREFIX}-item-trailing-icon-size`, selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
+  ${iconGlyph('.link-mark', { size: '--_nvd-cell-trailing-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   .link-mark {
     color: var(--_ti);
     transition: color var(--_recolor-duration) var(--_recolor-easing);
   }
-  ${iconGlyph('.chevron', { size: `${PREFIX}-item-trailing-icon-size`, selected: '.cell.selected', duration: `${PREFIX}-motion-disclosure-duration`, easing: `${PREFIX}-motion-disclosure-easing` })}
+  ${iconGlyph('.chevron', { size: '--_nvd-cell-trailing-icon', selected: '.cell.selected', duration: `${PREFIX}-motion-disclosure-duration`, easing: `${PREFIX}-motion-disclosure-easing` })}
   .chevron {
     color: var(--_ti);
     transition:
       color var(--_recolor-duration) var(--_recolor-easing),
       rotate ${t('motion-disclosure-duration')} ${t('motion-disclosure-easing')};
   }
-  .cell.open .chevron {
+  /* NVD-68: an end chevron turns half a turn while open; a start one a quarter turn, from the end of the line to down
+     (the icon set mirrors chevron_right in right-to-left, so it turns the other way there). */
+  .cell.open .chevron.end {
     rotate: 0.5turn;
   }
-  .cell.collapsed :is(.label, .trailing) {
+  /* The room of an end chevron on a destination's row: the box, empty. */
+  .chevron.room {
+    display: inline-block;
+    flex: none;
+    inline-size: ${d('--_nvd-trailing-icon')};
+  }
+  .cell.open .chevron.start {
+    rotate: 0.25turn;
+  }
+  :host(:dir(rtl)) .cell.open .chevron.start {
+    rotate: -0.25turn;
+  }
+  .cell.collapsed :is(.text, .trailing) {
     opacity: 0;
     transition:
       color var(--_recolor-duration) var(--_recolor-easing),
@@ -790,9 +1049,9 @@ export const cellStyles = css`
      over the selection motion (NVD-41). */
   .short {
     position: absolute;
-    inset-block-start: calc(50% + ${t('item-icon-indicator-height')} / 2 + ${t('collapsed-item-gap')});
+    inset-block-start: calc(50% + ${d('--_nvd-ind-h')} / 2 + ${t('collapsed-item-gap')});
     inset-inline-start: calc(${unsafeCSS(PILL_X)} + ${t('collapsed-item-container-padding-inline')});
-    inline-size: calc(${t('collapsed-item-container-width')} - 2 * ${t('collapsed-item-container-padding-inline')});
+    inline-size: calc(${d('--_nvd-pill')} - 2 * ${t('collapsed-item-container-padding-inline')});
     overflow: hidden;
     text-align: center;
     white-space: nowrap;
@@ -809,7 +1068,7 @@ export const cellStyles = css`
      layout's start edge; the trailing text is as wide as itself and stays at the row's end; the short label stays
      centred and, too long (NVD-32), loses the end of ITS direction — a left-to-right one its right end, never its
      beginning (src/styles/product-text.ts). */
-  ${productText('.label', { align: 'start' })}
+  ${productText(':is(.label, .supporting)', { align: 'start' })}
   ${productText(':is(.trailing-text, .short-text)')}
   /* The short label's text, in a box of its own inside the one the layout places (.short, whose inline-start inset is
      the layout's): the box that cuts it takes the text's direction (ownDirection()), so the ellipsis is drawn at the
@@ -835,11 +1094,26 @@ export const cellStyles = css`
      and answering no pointer itself (the cell is the one hit target): the cell opens it, beside the item container. */
   .tip {
     position: absolute;
-    inset-block-start: calc(50% - ${t('item-icon-indicator-height')} / 2 - ${t('collapsed-item-container-padding-block')});
+    inset-block-start: calc(50% - ${d('--_nvd-ind-h')} / 2 - ${d('--_nvd-pill-pad')});
     inset-inline-start: ${unsafeCSS(PILL_X)};
     display: block;
-    inline-size: ${t('collapsed-item-container-width')};
-    block-size: calc(2 * ${t('collapsed-item-container-padding-block')} + ${t('item-icon-indicator-height')});
+    inline-size: ${d('--_nvd-pill')};
+    block-size: calc(2 * ${d('--_nvd-pill-pad')} + ${d('--_nvd-ind-h')});
+  }
+  /* NVD-75: the tooltip of a cut row (src/primitives/cut-text.ts) lies over the row's item container and opens beside
+     it; the cell is the row's one hit target, and the tooltip's own container answers the pointer, so that it can be
+     hovered (WCAG 1.4.13). */
+  .cut-tip {
+    position: absolute;
+    display: block;
+    inset-block-start: 0;
+    inset-inline-start: ${unsafeCSS(INSET)};
+    inline-size: calc(100% - ${unsafeCSS(INSET)});
+    block-size: 100%;
+    pointer-events: none;
+  }
+  .cut-tip::part(container) {
+    pointer-events: auto;
   }
   /* The tooltip's own waits, read through real properties (a duration token is an expression). */
   .tip-clock {
@@ -862,7 +1136,7 @@ export const cellStyles = css`
     cursor: default;${set('-d')}
     opacity: ${T('disabled-opacity')};`,
   })}
-  .cell:where(:has(.container[data-pressed]:not([data-pressed='none']))) :is(.indicator, .icon-indicator, .icon, .label, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) {
+  .cell:where(:has(.container[data-pressed]:not([data-pressed='none']))) :is(.indicator, .icon-indicator, .icon, .label, .supporting, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) {
     transition-duration: 0s;
   }
   ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
@@ -880,14 +1154,17 @@ export const cellStyles = css`
     .indicator,
     .icon-indicator,
     .icon,
+    .text,
     .label,
+    .supporting,
+    .start-chevron,
     .trailing,
     .trailing-text,
     .trailing-slot,
     .link-mark,
     .chevron,
     .short,
-    .cell.collapsed :is(.label, .trailing),
+    .cell.collapsed :is(.text, .trailing),
     .cell.collapsed.short-shown .short,
     .cell[data-condition-change] .short {
       transition: none;
@@ -901,10 +1178,10 @@ export const cellStyles = css`
       background: Highlight;
       forced-color-adjust: none;
     }
-    .cell.selected :is(.icon, .label, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) {
+    .cell.selected :is(.icon, .label, .supporting, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) {
       color: HighlightText;
     }
-    .cell.d :is(.icon, .label, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) {
+    .cell.d :is(.icon, .label, .supporting, .short, .trailing-text, .trailing-slot, .link-mark, .chevron) {
       color: GrayText;
     }
   }
@@ -936,18 +1213,74 @@ export const groupStyles = css`
   }
   /* The row that folds to nothing: the list's own gap from the group's row is inside it, so a closed group takes no space. */
   .fold {
+    position: relative;
     min-block-size: 0;
   }
   .list {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: ${t('container-gap')};
-    padding-block-start: ${t('container-gap')};
+    gap: ${d('--_nvd-gap')};
+    padding-block-start: ${d('--_nvd-gap')};
+  }
+  /* NVD-73: the guide line, from the lower edge of the group's row to the lower edge of the last row shown under it,
+     centred under the group's first part (--_guide-at, from the cell's start), taking no space. */
+  .fold::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    display: none;
+    inset-block: 0;
+    inset-inline-start: calc(var(--_guide-at, 0px) - ${t('guide-width')} / 2);
+    inline-size: ${t('guide-width')};
+    background: ${t('guide-color')};
+    pointer-events: none;
+  }
+  .fold.guides-shown::before,
+  .fold.guides-hover::before {
+    display: block;
+  }
+  .fold.guides-hover::before {
+    opacity: var(--_nvd-guides-on, 0);
+    transition: opacity ${t('motion-state-duration')} ${t('motion-state-easing')};
+  }
+  /* NVD-76: the loading row, one step further in than the group's row: the indicator in a row's icon place, its words after. */
+  .loading-row {
+    box-sizing: border-box;
+    display: flex;
+    margin-block-start: ${d('--_nvd-gap')};
+    align-items: center;
+    gap: ${t('item-gap')};
+    min-block-size: ${d('--_nvd-height')};
+    padding-inline-start: calc(${t('container-padding-inline')} + var(--_child-inset, 0px) + ${unsafeCSS(FIRST)});
+    padding-inline-end: calc(${t('container-padding-inline')} + ${d('--_nvd-pad')});
+  }
+  .loading-box {
+    display: grid;
+    flex: none;
+    place-items: center;
+    inline-size: ${d('--_nvd-icon')};
+    block-size: ${d('--_nvd-icon')};
+  }
+  .loading-label {
+    min-inline-size: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: ${t('item-supporting-text-typescale-font')};
+    letter-spacing: ${t('item-supporting-text-typescale-letter-spacing')};
+    color: ${t('unselected-item-supporting-text-color')};
   }
   @media (prefers-reduced-motion: reduce) {
     .items,
-    .items.shown {
+    .items.shown,
+    .fold.guides-hover::before {
       transition: none;
+    }
+  }
+  @media (forced-colors: active) {
+    .fold::before {
+      background: CanvasText;
     }
   }
 `;

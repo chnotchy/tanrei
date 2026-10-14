@@ -98,7 +98,7 @@ export interface TanreiWords {
   incrementLabel?: string;
   /** Read by `file-upload.liftedText`, `list.liftedText`. A word with places: `{label}` (text), `{position}` (number), `{count}` (number). */
   liftedText?: string;
-  /** Read by `image-preview.loadingLabel`, `skeleton.label`, `tree-view.loadingLabel`. */
+  /** Read by `image-preview.loadingLabel`, `navigation-drawer.loadingLabel`, `skeleton.label`, `tree-view.loadingLabel`. */
   loadingLabel?: string;
   /** Read by `menubar.overflowLabel`. */
   menubarOverflowLabel?: string;
@@ -237,7 +237,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   imageErrorText: ['image-preview.errorText'],
   incrementLabel: ['number-input.incrementLabel'],
   liftedText: ['file-upload.liftedText', 'list.liftedText'],
-  loadingLabel: ['image-preview.loadingLabel', 'skeleton.label', 'tree-view.loadingLabel'],
+  loadingLabel: ['image-preview.loadingLabel', 'navigation-drawer.loadingLabel', 'skeleton.label', 'tree-view.loadingLabel'],
   menubarOverflowLabel: ['menubar.overflowLabel'],
   minuteLabel: ['date-time-picker.minuteLabel'],
   moveAfterLabel: ['file-upload.moveAfterLabel', 'list.moveAfterLabel'],

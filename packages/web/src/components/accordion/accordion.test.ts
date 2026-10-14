@@ -168,9 +168,9 @@ test.describe('the column, the header and its parts', () => {
       // The text is centred in the row: what the height has beyond it is shared.
       near(label.top - row.top, row.bottom - label.bottom, 1);
     }
-    // The compact header is a navigation drawer's row: its height, its text style, its chevron.
-    expect(await resolveToken(page, T('container-height-compact'))).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-item-container-height'));
-    expect(await resolveToken(page, T('chevron-size-compact'))).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-item-trailing-icon-size'));
+    // The compact header is a regular navigation drawer's row: its height, its text style, its chevron.
+    expect(await resolveToken(page, T('container-height-compact'))).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-item-container-height-regular'));
+    expect(await resolveToken(page, T('chevron-size-compact'))).toBe(await resolveToken(page, '--tanrei-comp-navigation-drawer-item-trailing-icon-size-regular'));
     // Every part, container.gap apart.
     const gap = await resolveToken(page, T('container-gap'));
     const all = header(page, 'all-parts', 1);

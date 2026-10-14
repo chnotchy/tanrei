@@ -55,7 +55,20 @@
     "split-button/pressed/opacity": "button-with-menu/pressed/opacity",
     "split-button/trailing/padding-inline/large": "button-with-menu/trailing/padding-inline/large",
     "split-button/trailing/padding-inline/medium": "button-with-menu/trailing/padding-inline/medium",
-    "split-button/trailing/padding-inline/small": "button-with-menu/trailing/padding-inline/small"
+    "split-button/trailing/padding-inline/small": "button-with-menu/trailing/padding-inline/small",
+    "navigation-drawer/container/gap": "navigation-drawer/container/gap/regular",
+    "navigation-drawer/item/container/height": "navigation-drawer/item/container/height/regular",
+    "navigation-drawer/item/padding-inline": "navigation-drawer/item/padding-inline/regular",
+    "navigation-drawer/item/nest-indent": "navigation-drawer/item/nest-indent/regular",
+    "navigation-drawer/item/icon/size": "navigation-drawer/item/icon/size/regular",
+    "navigation-drawer/item/icon-indicator/width": "navigation-drawer/item/icon-indicator/width/regular",
+    "navigation-drawer/item/icon-indicator/height": "navigation-drawer/item/icon-indicator/height/regular",
+    "navigation-drawer/item/label/typescale": "navigation-drawer/item/label/typescale/regular",
+    "navigation-drawer/item/trailing-icon/size": "navigation-drawer/item/trailing-icon/size/regular",
+    "navigation-drawer/collapsed/container/width": "navigation-drawer/collapsed/container/width/regular",
+    "navigation-drawer/collapsed/item/container/width": "navigation-drawer/collapsed/item/container/width/regular",
+    "navigation-drawer/collapsed/item/container/padding-block": "navigation-drawer/collapsed/item/container/padding-block/regular",
+    "navigation-drawer/heading/height": "navigation-drawer/heading/height/regular"
   },
   "textStyles": {
     "tanrei/typescale/display-medium": "tanrei/typescale/display",

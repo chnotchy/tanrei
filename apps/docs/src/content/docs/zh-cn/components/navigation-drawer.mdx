@@ -2,7 +2,7 @@
 title: "导航抽屉"
 description: "在起始侧边缘的一块面板里，按分区和分组列出产品的目的地：在大屏幕上位于内容旁边，在 compact 屏幕上盖在内容之上，还可以收起为一列图标。"
 translationOf: components/navigation-drawer.mdx
-sourceHash: 1200db5dc3b8b23273bf2e66c4c46a1625667586
+sourceHash: cd96ff63e43e8ef0ed296da845779627c1968de1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="navigation-drawer" />
 
 :::note[规格已修订，尚未覆盖所有平台]
-本页描述的是规格当前所定的导航抽屉。`collapsible` 的抽屉可以收窄为一列图标，由此取代了导航轨道（navigation rail）：收起的抽屉就是去掉标签的展开抽屉，每一行都在图标之后截断，它的菜单按钮再把它展宽，每个图标都留在原位。目的地的 `badge` 文本改为 `trailingText`，画得更低调，另有 `trailing` 插槽用来放图标或 `Badge`；`badge` 现在指图标上的徽标。`group` 项用来展开和折叠嵌套的目的地。行高为 48，与菜单项的高度相同。`responsive` 让窗口的宽度决定抽屉的呈现方式。带 `href` 的目的地是链接，`revealSelected` 和 `scrollOffset` 则让抽屉可以充当网站的侧边栏。Web 组件已经做到了这一切，本页的演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——行高 44，`badge` 是行末的文本，没有收起形态、分组、链接目的地和响应式呈现，另有一个独立的导航轨道；这些平台的示例展示的也是那个版本。
+本页描述的是规格当前所定的导航抽屉。`collapsible` 的抽屉可以收窄为一列图标，由此取代了导航轨道（navigation rail）：收起的抽屉就是去掉标签的展开抽屉，每一行都在图标之后截断，它的菜单按钮再把它展宽，每个图标都留在原位。目的地的 `badge` 文本改为 `trailingText`，画得更低调，另有 `trailing` 插槽用来放图标或 `Badge`；`badge` 现在指图标上的徽标。`group` 项用来展开和折叠嵌套的目的地。行高为 48，与菜单项的高度相同。`responsive` 让窗口的宽度决定抽屉的呈现方式。带 `href` 的目的地是链接，`revealSelected` 和 `scrollOffset` 则让抽屉可以充当网站的侧边栏。Web 组件已经做到了这一切，本页的演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——行高 44，`badge` 是行末的文本，没有收起形态、分组、链接目的地和响应式呈现，另有一个独立的导航轨道；这些平台的示例展示的也是那个版本。 紧凑的 `density` 和同时作为目的地的分组（`selectableGroups`）更新一些，目前只在 Web 上提供。
 :::
 
 <DemoFrame label="带两个分区的标准抽屉">
@@ -62,6 +62,39 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </tanrei-navigation-drawer>
 </DemoFrame>
 
+<DemoFrame label="紧凑的抽屉，供用指针操作的工具使用：32 高的行和 16 的字形，每个嵌套图标都对齐到其分组标签的起点" plain>
+  <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
+    <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-section heading="Projects">
+      <tanrei-navigation-drawer-group label="Tanrei" icon="folder" open>
+        <tanrei-navigation-drawer-item value="tokens" label="Tokens" icon="palette" trailing-text="412"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-group label="Components" icon="widgets" open>
+          <tanrei-navigation-drawer-item value="button" label="Button" icon="smart_button"></tanrei-navigation-drawer-item>
+          <tanrei-navigation-drawer-item value="tree-view" label="Tree view" icon="account_tree"></tanrei-navigation-drawer-item>
+        </tanrei-navigation-drawer-group>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer-section>
+    <tanrei-navigation-drawer-item value="settings" label="Settings" icon="settings"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="同时作为目的地的分组：设置 selectable-groups 后，分组的行选中它，而它的展开箭头负责展开和折叠" plain>
+  <tanrei-navigation-drawer open selectable-groups value="components" label="Documentation" style="block-size: 22rem">
+    <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="Foundations" icon="palette" value="foundations">
+      <tanrei-navigation-drawer-item value="color" label="Color" icon="contrast"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="typography" label="Typography" icon="text_fields"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Components" icon="widgets" value="components" open>
+      <tanrei-navigation-drawer-item value="button" label="Button" icon="smart_button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="tabs" label="Tabs" icon="tab"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Resources" icon="folder">
+      <tanrei-navigation-drawer-item value="downloads" label="Downloads" icon="download"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
 ### 用法
 
 导航抽屉有五种项。`destination`（目的地）是一行，包含可选的图标、标签，以及行末可选的后置内容；带 `href` 时它是链接。`group`（分组）也是一行，用来展开和折叠它里面的目的地和分组。`section`（分区）把目的地和分组归在一个可选的 `heading` 之下，前面可以加一条可选的 `divider`；分区不能嵌套，分组里也不能放分区。`header-button`（第一个是菜单按钮）和 `main-action` 位于页眉。在 Web 上，它们是 `<tanrei-navigation-drawer-item>`、`<tanrei-navigation-drawer-group>` 和 `<tanrei-navigation-drawer-section>` 子元素，以及放在 `header-button` 和 `main-action` 插槽里的纯图标 `<tanrei-button>` 和一个 `<tanrei-main-action-button>`。待跟进的平台按各自的惯用方式接收目的地和分区：在 SwiftUI 上是 `TanreiNavigationDrawerItem` 和 `TanreiNavigationDrawerSection` 视图，在 Compose 上是同名的调用，在 Flutter 上是 `children:` 中的 `TanreiNavigationDrawerDestination` 和 `TanreiNavigationDrawerSection` 对象，在 React Native 上是 `items` 数组中的目的地条目和分区条目，其中分区靠它自己的 `items` 来区分。
@@ -69,6 +102,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 选择属于抽屉，以目的地的值来表示，无论这个目的地位于何处。`change` 和 `reselect` 的工作方式与导航栏相同。Compose 没有抽屉级别的值：由你把当前项标记为 `selected`，它的 `onClick` 同时充当 change 和 reselect。Flutter 按索引选择，索引按阅读顺序跨各个分区连续计数。
 
 带 `href` 的目的地是链接，而不是按钮。浏览器像跟随任何链接一样跟随它，抽屉不会因为按下而选中它：由到达的页面说明哪个目的地是当前的——把抽屉的 `value` 设为那个目的地的值；目的地没有值时，设为它原样书写的 `href`。对链接的普通激活仍会触发 `change` 和 `reselect`。它们带着链接的 `href`，并且可以取消，客户端路由就是这样接管导航的。目前只有 Web 提供链接目的地。
+
+分组的行只负责展开和折叠分组，不选中任何东西。当一个分组本身也是一个地方时（例如网站中某个分区的概览页，或选中后会显示内容的文件夹），请给抽屉设置 `selectableGroups`，并给分组一个 `value` 或 `href`：这样它的行会像目的地的行一样选中它，而它的展开箭头成为单独的控件，负责展开和折叠。两者都没有的分组仍然只展开和折叠。同时作为目的地的分组目前在 Web 上提供。
+
+`density` 可以是默认的 `regular`，也可以是 `compact`：32 高的行、16 的字形和更窄的图标列，供目的地很多、用指针操作的工具使用。紧凑密度目前在 Web 上提供。
 
 抽屉有两种变体，一个产品通常两种都用：窗口足够宽时用标准，不够宽时用模态。
 
@@ -409,8 +446,30 @@ Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上�
 - **`expanded`** 选择可收起的标准抽屉处于哪种形态。可收起的模态抽屉在关闭时把它那一列留在布局中，`open` 让它在遮罩之上、内容上方展宽。
 - **菜单按钮**是第一个 `header-button`。抽屉可收起时，它暴露为已展开或已收起，并控制着抽屉；激活它会触发 `expandedChange`，带着所要求的形态。Web 会自己应用这个形态；在其他平台上，由你据此设置 `expanded` 或 `open`。它的图标和名称由你决定。
 - **`collapsedLabels`** 选择哪些单元格在图标下方绘制短标签：`never`（默认）、只有 `selected` 的那个，或 `always`。带标签的图标列是为想要它的产品或设计系统准备的。这时单元格绘制它的 `shortLabel`（没有提供时绘制它的标签），并且不显示工具提示。无论哪种情况，标签都仍是无障碍名称。
-- **每个图标都留在原位。** 两种形态下，图标都排在同一列、同一条线上，每个单元格也保持自己的高度，所以形态变化时移动的只有末尾侧边缘：边缘经过标签时标签淡出，在带标签的图标列中短标签淡入。展开的分组是唯一的例外：收起的抽屉不绘制它的项，所以下方的单元格会上移。
+- **每个图标都留在原位。** 两种形态下，图标都排在同一列、同一条线上，每个单元格也保持自己的高度，所以形态变化时移动的只有末尾侧边缘：边缘经过标签时标签淡出，在带标签的图标列中短标签淡入。展开的分组是唯一的例外：收起的抽屉不绘制它的项，所以下方的单元格会上移。 主操作的字形在两种形态下、按钮的任何尺寸、任一密度中，都与目的地的图标位于同一条线上：抽屉依据按钮自己的令牌来放置它。收起时比图标列更宽的正方形（默认系统中的大号主操作）会超出列的边缘，调试构建会报告这一点；请使用小号或中号，在紧凑的抽屉中使用小号，因为中号的正方形会占满整列。
 - **选择在原位变色。** 新的选择让各行在原地改变颜色，展开和收起时都是如此。不会有任何东西通过放大、缩小或滑动来表示选择。
+
+### 密度
+
+- **`regular`**（默认）的行高 48，字形 24，与[菜单](/zh-cn/components/menu/)的项一样高，适合既用触摸也用指针的产品。
+- **`compact`** 采用[树视图](/zh-cn/components/tree-view/)的紧凑行：高 32，字形 16，行内边距 8，行间距 2，标题高 28，收起时图标列宽 56。用于目的地很多、用指针操作的工具，例如文件浏览器或编辑器的侧边栏。
+- **两种密度下，嵌套图标都对齐。** 每深一层，内容向内缩进一档，缩进量等于该密度的图标加间距，因此嵌套目的地的图标正好位于其分组标签开始的位置，同一层的图标排成一列。
+- **触摸保持其目标尺寸。** 用触摸时，紧凑的行至少按触摸目标的高度绘制。用指针时，点击区域是这一行加上上下各半个间距：小于指针目标，但仍大于 WCAG 2.5.8 的 24。
+- 设计系统可以通过抽屉的 `.compact` 令牌（例如 `comp.navigation-drawer.item.container.height.compact`）改变紧凑的含义，或增加新的密度。
+
+### 与树视图共享的行
+
+- **与[树视图](/zh-cn/components/tree-view/)相同的参数**，名称和含义都相同：`chevron`、`guides`、`indent`、`highlight`、`iconSpace`、`expandable`、`labelWrap` 和 `supportingWrap`，行的 `supportingText` 和 `supportingPosition`，以及 `stickyParents` 和 `stickyMax`。
+- **`chevron`**：默认的 `start` 把分组的展开箭头画在图标之前，并在每一行都留出它的位置，让同一层的图标对齐；`end` 把它画在行的最末端、尾部内容之后；`none` 不画，按下分组的图标即可展开和折叠，展开时显示它的 `openIcon`。可收起的抽屉把 `start` 画成 `end`，这样两种形态下每个图标都留在原位；没有分组的抽屉不留这个位置。
+- **`indent`**：`auto` 让行的第一个部分对齐到其分组标签开始的位置，分组在标签前什么都不画时按该层的缩进；数值按相应的像素缩进，0 不缩进。行的标签绝不会从超过抽屉一半宽度的位置开始。
+- **`highlight`**：默认的 `indented` 让嵌套行的填充和状态层从行开始的位置画起；`full` 在每一层都画满整个宽度。
+- **`iconSpace`** 为没有图标的行保留图标的位置，让同一层的标签对齐：`auto`（同一层有别的行带图标时）、`always`、`never`。
+- **`expandable`** 为 false 时，所有分组都以展开状态显示，没有展开箭头；分组的行只是为其内容命名，不是控件。
+- **`guides`**：`shown` 在展开的分组内容旁画一条线，位于其展开箭头之下，没有则在图标之下，再没有则在标签开始处；`hover` 只在指针位于抽屉上方或焦点在其中时画。
+- **一行**：标签和辅助文本都是一行，放不下时以省略号截断；被截断的行在悬停和键盘聚焦时用工具提示显示全文；`labelWrap` 和 `supportingWrap` 允许换行。无障碍名称始终是完整的标签。
+- **辅助文本**放在标签下方（`below`）或之后（`inline`），并作为行的描述被朗读。
+- **分组**可以在末端展开箭头之前带尾部文本或内容，还可以有 `openIcon` 和 `loading`；`loading` 会在内容下方画一个加载行，以抽屉的 `loadingLabel` 命名。
+- **`stickyParents`**（抽屉中默认关闭，树视图中默认开启）像编辑器的粘性滚动那样，把顶部可见行所属的展开分组的行固定在顶端，最多 `stickyMax`（2）个，内层优先。抽屉收起时不起作用。
 
 ### 跟随窗口的宽度
 
@@ -440,11 +499,12 @@ Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上�
 
 ### 行、分组与分区
 
-- 行的标签会换行而不是被截断，行随之变高。行高至少为 48，即[菜单](/zh-cn/components/menu/)项的高度，并带有菜单项的圆角。
+- 行高至少为 48，与[菜单](/zh-cn/components/menu/)的项一样高，圆角也相同。标签只有一行并会被截断，除非设置 `labelWrap` 让它换行、行随之增高。
 - 要么给每个目的地都配上图标，要么都不配，这样标签才能对齐。可收起的抽屉在收起时靠图标来绘制每个顶级目的地和分组，所以请给它们每一个都配上图标。
 - `trailingText` 是行末的简短文本，比标签更低调：一个计数（“24”）或一个词（“新”）。`trailing` 插槽用来放其他任何东西，例如一个图标或一个 `Badge`；它优先于 `trailingText`，并且永远不可交互。`target` 为 `new` 的链接会自动以 `open_in_new` 作为行的结尾，所以你不必自己放这个图标。后置内容在标签之后朗读，收起时不绘制。
 - `badge` 在图标上绘制一个 `Badge`，两种形态下都有：一个圆点，或 `badgeCount`，由 `badgeLabel` 命名。
-- 分组的行用来展开和折叠它里面的目的地和分组，行上是图标集的 `expand_more`，展开时旋转半圈。每一级的图标和标签再向内缩进一档；它的填充、状态层和焦点环保持顶级行的全宽，所以每一种选中状态的形状都相同。包含选中目的地的分组在折叠时画成选中的样子，抽屉收起时的顶级分组也是如此；在抽屉收起时激活某个分组，会展开抽屉并展开这个分组。嵌套不要超过三级。
+- 分组的行通过 `chevron` 所放位置的展开箭头（见上文）展开和折叠其中的目的地和分组。包含选中目的地的分组在折叠时画成选中的样子，抽屉收起时的顶级分组也是如此；在抽屉收起时激活某个分组，会展开抽屉并展开这个分组。嵌套不要超过三级。
+- **同时作为目的地的分组**（设置了 `selectableGroups`，且分组有 `value` 或 `href`）会像[树视图](/zh-cn/components/tree-view/)那样把行分成两部分：展开箭头负责展开和折叠，行的其余部分选中它，一次按下绝不会同时做两件事。展开箭头是单独的控件，在焦点顺序中位于行之后，点击区域至少有指针目标那么宽。抽屉收起时，与其他分组不同，按下它的单元格会选中它，抽屉保持收起；它里面的目的地需要展开抽屉后才能到达。当这样的分组就是当前页面时，`revealSelected` 也会展开它，因此网站的侧边栏会显示当前分区的各个页面。
 - 分区的标题为它下面的目的地命名。它是标题元素（heading），不是控件。分区可以没有标题，这时它是一个没有名称、只以分隔线隔开的组。
 - 分区的 `divider` 在它前面绘制一条分隔线，把它与上面的内容分开。你永远不需要自己放分隔线。
 - 页眉容纳各个页眉按钮（它们在图标列中上下堆叠），以及它们下方的主操作。页眉插槽在展开时位于菜单按钮旁边，用来放标题或账户切换器，收起时不绘制。放在这里的纯文本以抽屉的标题样式绘制（`comp.navigation-drawer.header.typescale` 和 `comp.navigation-drawer.header.color`）；自己设置了样式的元素保留它自己的样式。
@@ -461,7 +521,7 @@ Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上�
 
 - 不要用抽屉放“退出登录”或“写邮件”这样的操作。它的行代表的是去处。
 - 不要在分区里嵌套分区，也不要把分区放进分组。调试构建会报告这种情况，并在原处直接绘制内层分区的目的地。
-- 不要把分组的行当作目的地。它只负责展开和折叠。
+- 不要在没有设置 `selectableGroups` 时给分组 `value` 或 `href`，指望它的行能选中它。它只会展开和折叠，调试构建会报告这一点。
 - 不要在宽度足以容纳标准抽屉的窗口上使用模态抽屉。
 
 ## 无障碍
@@ -476,6 +536,7 @@ Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上�
 - 链接目的地在每一种状态下都与按钮目的地画得完全一样，没有“已访问”的外观。它保留浏览器赋予链接的一切：上下文菜单、在新标签页中打开、拖动，以及悬停时显示地址。在新标签页中打开的链接，会在其描述的末尾朗读它的 `targetLabel`。
 - 收起单元格的工具提示是给使用指针或键盘、视力正常的用户看的。它对辅助技术隐藏，因为辅助技术本来就把标签作为单元格的名称来朗读。
 - 分组的行是一个带展开状态的按钮，控制着它的嵌套列表。右方向键（在从左到右的布局中）展开折叠的分组，左方向键折叠展开的分组，在分组内部按左方向键则移到分组的行上。Tab 依次经过每一个显示出来的行。
+- 同时作为目的地的分组就是 WAI-ARIA Authoring Practices 中“带顶层链接的展开式导航菜单”：它的行是链接或按钮，是当前页面时带有 `aria-current="page"`；它的展开箭头是另一个按钮，以分组的标签命名，带有展开状态，并控制嵌套列表。两者各是一个 Tab 停靠点，在行上仍可用右方向键和左方向键展开和折叠分组。
 - 抽屉可收起时，它的菜单按钮暴露为已展开或已收起，并控制着抽屉。形态变化时，焦点留在原来所在的单元格上。
 - 分区的标题暴露为标题元素，并且不可聚焦。
 - Tab 依次经过页眉的内容和每一个未禁用的目的地。Enter 和 Space 激活获得焦点的目的地（对 Web 上的链接只有 Enter）。禁用的目的地不接受焦点，并朗读为已禁用。
@@ -483,7 +544,7 @@ Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上�
 - 焦点环绘制在行的周围，只在键盘聚焦时显示。键盘焦点落在没有完全可见的行上时，会以最短的距离把它滚入可见范围。
 - 两种形态下，点击区域都是整个单元格，并且绝不小于最小目标。
 - 文本变大时，两种形态的宽度都保持不变，行和分区标题则变高。标签会换行；短标签会被截断。图标不会缩放。
-- 调试构建会报告：目的地没有标签、模态抽屉没有 `label`、值不对应任何目的地、同一个值被使用了两次、嵌套的分区、分组里的分区、超过三级的嵌套、设计系统中没有的变体、可收起的抽屉没有菜单按钮、`trailing` 插槽里有可聚焦的元素、`href` 是 `javascript:` 地址或无法解析、未知的 `target`，以及 `target` 为 `new` 却没有 `targetLabel` 的链接。
+- 调试构建会报告：目的地没有标签、模态抽屉没有 `label`、值不对应任何目的地、同一个值被使用了两次、嵌套的分区、分组里的分区、超过三级的嵌套、设计系统中没有的变体、可收起的抽屉没有菜单按钮、`trailing` 插槽里有可聚焦的元素、`href` 是 `javascript:` 地址或无法解析、未知的 `target`，以及 `target` 为 `new` 却没有 `targetLabel` 的链接。 设计系统中没有的密度，以及在未设置 `selectableGroups` 时带有 `value` 或 `href` 的分组，也会被报告。
 
 已知的平台差距：
 

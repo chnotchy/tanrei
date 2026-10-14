@@ -14,7 +14,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="navigation-drawer" />
 
 :::note[A revised spec, not yet on every platform]
-This page describes the navigation drawer as the spec has it now. A `collapsible` drawer narrows to a column of icons, which replaces the navigation rail: the collapsed drawer is the expanded one with its labels gone, each row cut after its icon, and its menu button widens it again with every icon in place. A destination's `badge` text becomes `trailingText`, drawn quieter, and a `trailing` slot holds a glyph or a Badge; `badge` is now a badge on the icon. `group` items open and close nested destinations. Rows are 48 high, the height of a menu's item. `responsive` lets the window's width choose how the drawer is presented. A destination with an `href` is a link, and `revealSelected` and `scrollOffset` make the drawer a site's sidebar. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, with 44 rows, `badge` as text at the row's end, no collapsed form, groups, link destinations or responsive presentation, and a separate navigation rail, and their samples show that revision.
+This page describes the navigation drawer as the spec has it now. A `collapsible` drawer narrows to a column of icons, which replaces the navigation rail: the collapsed drawer is the expanded one with its labels gone, each row cut after its icon, and its menu button widens it again with every icon in place. A destination's `badge` text becomes `trailingText`, drawn quieter, and a `trailing` slot holds a glyph or a Badge; `badge` is now a badge on the icon. `group` items open and close nested destinations. Rows are 48 high, the height of a menu's item. `responsive` lets the window's width choose how the drawer is presented. A destination with an `href` is a link, and `revealSelected` and `scrollOffset` make the drawer a site's sidebar. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, with 44 rows, `badge` as text at the row's end, no collapsed form, groups, link destinations or responsive presentation, and a separate navigation rail, and their samples show that revision. The compact `density` and groups that are destinations (`selectableGroups`) are newer still, and on the web only.
 :::
 
 <DemoFrame label="A standard drawer with two sections">
@@ -60,6 +60,39 @@ This page describes the navigation drawer as the spec has it now. A `collapsible
   </tanrei-navigation-drawer>
 </DemoFrame>
 
+<DemoFrame label="A compact drawer, for a tool used with a pointer: 32 rows and 16 glyphs, each nested icon where its group's label starts" plain>
+  <tanrei-navigation-drawer open density="compact" value="tree-view" label="Workspace" style="block-size: 22rem">
+    <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-section heading="Projects">
+      <tanrei-navigation-drawer-group label="Tanrei" icon="folder" open>
+        <tanrei-navigation-drawer-item value="tokens" label="Tokens" icon="palette" trailing-text="412"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-group label="Components" icon="widgets" open>
+          <tanrei-navigation-drawer-item value="button" label="Button" icon="smart_button"></tanrei-navigation-drawer-item>
+          <tanrei-navigation-drawer-item value="tree-view" label="Tree view" icon="account_tree"></tanrei-navigation-drawer-item>
+        </tanrei-navigation-drawer-group>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer-section>
+    <tanrei-navigation-drawer-item value="settings" label="Settings" icon="settings"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="Groups that are destinations: with selectable-groups, a group's row chooses it and its chevron opens and closes it" plain>
+  <tanrei-navigation-drawer open selectable-groups value="components" label="Documentation" style="block-size: 22rem">
+    <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="Foundations" icon="palette" value="foundations">
+      <tanrei-navigation-drawer-item value="color" label="Color" icon="contrast"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="typography" label="Typography" icon="text_fields"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Components" icon="widgets" value="components" open>
+      <tanrei-navigation-drawer-item value="button" label="Button" icon="smart_button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="tabs" label="Tabs" icon="tab"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Resources" icon="folder">
+      <tanrei-navigation-drawer-item value="downloads" label="Downloads" icon="download"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
 ### Usage
 
 A navigation drawer has five kinds of item. A `destination` is a row with an optional icon, a label and optional trailing content at its end; with an `href` it is a link. A `group` is a row that opens and closes the destinations and groups inside it. A `section` groups destinations and groups under an optional `heading`, with an optional `divider` before it; sections do not nest, and groups do not hold sections. A `header-button` (the first is the menu button) and a `main-action` sit in the header. On the web they are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` children, and icon-only `<tanrei-button>`s and a `<tanrei-main-action-button>` in the `header-button` and `main-action` slots. The lagging platforms take destinations and sections in their own idiom: `TanreiNavigationDrawerItem` and `TanreiNavigationDrawerSection` views on SwiftUI and calls on Compose, `TanreiNavigationDrawerDestination` and `TanreiNavigationDrawerSection` objects in Flutter's `children:`, and destination and section entries of an `items` array on React Native, where a section is told apart by its own `items`.
@@ -67,6 +100,10 @@ A navigation drawer has five kinds of item. A `destination` is a row with an opt
 The selection belongs to the drawer, by a destination's value, wherever the destination stands. `change` and `reselect` work as for the navigation bar. Compose has no drawer-level value: you mark the current item `selected`, and its `onClick` serves as both change and reselect. Flutter selects by index, counted through the sections in reading order.
 
 A destination with an `href` is a link and not a button. The browser follows it as it follows any link, and the drawer does not select it by a press: the page that arrives says which destination is current, by setting the drawer's `value` to that destination's value, or to its `href` as written where it has no value. `change` and `reselect` still fire for a plain activation of a link. They carry its `href` and can be cancelled, which is how a client-side router takes the navigation. Link destinations are on the web today.
+
+A group's row opens and closes it and chooses nothing. Where a group is a place of its own as well (a section's overview page in a site, a folder that is shown when it is chosen), set the drawer's `selectableGroups` and give the group a `value` or an `href`: its row then chooses it, as a destination's row does, and its chevron becomes a control of its own that opens and closes it. A group without either still only opens and closes. Groups that are destinations are on the web today.
+
+`density` is `regular`, the default, or `compact`: 32 rows with 16 glyphs and a narrower column of icons, for a tool used with a pointer whose drawer lists many places. The compact density is on the web today.
 
 The drawer has two variants, and one product usually uses both: standard where the window is wide enough, modal where it is not.
 
@@ -407,8 +444,30 @@ A design system may add variants. A variant it adds behaves as standard.
 - **`expanded`** chooses the form of a standard collapsible drawer. A modal collapsible drawer keeps its column in the layout while closed, and `open` widens it over the content, above a scrim.
 - **The menu button** is the first `header-button`. While the drawer is collapsible, it is exposed as expanded or collapsed, controlling the drawer, and activating it emits `expandedChange` with the form asked for. The web applies it itself; elsewhere you set `expanded` or `open` from it. You choose its glyph and name.
 - **`collapsedLabels`** chooses which cells draw a short label under the icon: `never`, which is the default, the `selected` one, or `always`. A labelled column is for a product or a design system that wants one. A cell then draws its `shortLabel`, or its label if you give none, and shows no tooltip. The label stays the accessible name either way.
-- **Every icon stays in place.** The icons sit on one column and one line in both forms, and every cell keeps its height, so the change of form moves only the end edge: the labels fade out as the edge passes them, and in a labelled column the short labels fade in. An open group is the one exception: the collapsed drawer does not draw its items, so the cells below move up.
+- **Every icon stays in place.** The icons sit on one column and one line in both forms, and every cell keeps its height, so the change of form moves only the end edge: the labels fade out as the edge passes them, and in a labelled column the short labels fade in. An open group is the one exception: the collapsed drawer does not draw its items, so the cells below move up. The main action's glyph stands on the same line as the destinations' icons in both forms, at every size of the button and in either density: the drawer places the button from its own tokens. A collapsed square wider than the column (a large main action in the default system) reaches past the column's edge, and debug builds report it; use the small or the medium one, and the small one in a compact drawer, where the medium square fills the column.
 - **The selection changes color in place.** A new selection recolors the rows where they stand, expanded or collapsed. Nothing grows, shrinks or slides to show it.
+
+### Density
+
+- **`regular`**, the default, has rows 48 high with 24 glyphs, the height of a [menu](/components/menu/)'s item, for a product used by touch as well as by pointer.
+- **`compact`** has a [tree view](/components/tree-view/)'s compact rows: 32 high with 16 glyphs, 8 inside each row, 2 between rows and 28 for a heading, and a column of icons 56 wide when collapsed. Use it for a tool used with a pointer whose drawer lists many places, such as a file browser or an editor's sidebar.
+- **Nested icons line up in both densities.** Each level's content starts one indent further in, and the indent is the density's icon and gap, so a nested destination's icon stands where its group's label starts and the icons of one level stand in one column.
+- **Touch keeps its target.** For touch a compact row is drawn at least the touch target high. For a pointer its hit area is the row and half the gap around it: below the pointer target, still above the 24 of WCAG 2.5.8.
+- A design system changes what compact means, or adds a density, through the drawer's `.compact` tokens, such as `comp.navigation-drawer.item.container.height.compact`.
+
+### Rows shared with the tree view
+
+- **The same parameters as the [tree view](/components/tree-view/)**, with the same names and meanings: `chevron`, `guides`, `indent`, `highlight`, `iconSpace`, `expandable`, `labelWrap` and `supportingWrap`, a row's `supportingText` and `supportingPosition`, and `stickyParents` with `stickyMax`.
+- **`chevron`**: `start`, the default, draws a group's chevron before its icon and keeps its room on every row, so the icons of a level line up; `end` draws it at the very end of the row, after the trailing content; `none` draws none, and a press on a group's icon opens and closes it, its `openIcon` shown while it is open. A collapsible drawer draws `start` as `end`, so every icon keeps its place in both forms, and a drawer without groups keeps no room for one.
+- **`indent`**: `auto` lines a row's first part up with where its group's label begins, and steps by the level's indent where the group draws nothing before its label; a number steps by that many pixels, and 0 by none. A row's label never begins past half of the drawer's width.
+- **`highlight`**: `indented`, the default, starts a nested row's fill and state layers where the row begins; `full` draws them across the whole width at every level.
+- **`iconSpace`** keeps an icon's room on a row without one, so that the labels of a level line up: `auto` where another row of the level has an icon, `always` or `never`.
+- **`expandable`** false shows every group open, with no chevron; a group's row then names its items and is not a control.
+- **`guides`**: `shown` draws a line beside an open group's items, under its chevron, else its icon, else its label's start; `hover` draws it only while the pointer is over the drawer or focus is in it.
+- **One line.** Labels and supporting text are one line, cut with an ellipsis, and a row that is cut shows its whole text in a tooltip on hover and on keyboard focus; `labelWrap` and `supportingWrap` let them wrap. The accessible name is always the whole label.
+- **Supporting text** stands under the label (`below`) or after it (`inline`), and is read as the row's description.
+- **A group** takes trailing text or content before an end chevron, an `openIcon`, and `loading`, which draws a loading row under its items, named by the drawer's `loadingLabel`.
+- **`stickyParents`**, off by default in the drawer and on in the tree view, pins the rows of the open groups the top rows belong to, at most `stickyMax` (2) of them, the innermost first, as an editor's sticky scroll does. It does not apply while the drawer is collapsed.
 
 ### Following the window's width
 
@@ -438,11 +497,12 @@ Give every destination an `href` and the drawer the page's own address as its `v
 
 ### Rows, groups and sections
 
-- A row's label wraps rather than being cut, and the row grows with it. Rows are at least 48 high, the height of a [menu](/components/menu/)'s item, with its corners.
+- Rows are at least 48 high, the height of a [menu](/components/menu/)'s item, with its corners. A label is one line, cut, unless `labelWrap` lets it wrap and the row grow with it.
 - Give every destination an icon, or none, so the labels line up. A collapsible drawer draws each top-level destination and group by its icon while collapsed, so give each one an icon.
 - `trailingText` is short text at the row's end, quieter than the label: a count ("24") or a word ("New"). The `trailing` slot holds anything else, such as a glyph or a Badge; it wins over `trailingText` and is never interactive. A link with `target` `new` ends its row with `open_in_new` by itself, so you do not place that glyph. Trailing content is read after the label, and is not drawn while collapsed.
 - `badge` draws a Badge on the icon, in both forms: a dot, or `badgeCount`, named by `badgeLabel`.
-- A group's row opens and closes the destinations and groups inside it, with the icon set's `expand_more` turned half a turn while open. Each level's icon and label start one indent further in; its fill, its state layer and its focus ring keep the full width of a top-level row, so every selection has the same shape. A closed group that holds the selected destination is drawn selected, and so is a top-level group while collapsed; activating a group while collapsed expands the drawer and opens it. Keep to three levels.
+- A group's row opens and closes the destinations and groups inside it, by its chevron where `chevron` puts it (above). A closed group that holds the selected destination is drawn selected, and so is a top-level group while collapsed; activating a group while collapsed expands the drawer and opens it. Keep to three levels.
+- **A group that is a destination** (`selectableGroups`, and a `value` or an `href` on the group) splits its row as a [tree view](/components/tree-view/) does: its chevron opens and closes it, the rest of the row chooses it, and one press never does both. The chevron is its own control, after the row in the focus order, with a hit area at least the pointer target wide. Collapsed, unlike another group, its cell chooses it and leaves the drawer collapsed; its items are reached by expanding the drawer. `revealSelected` also opens such a group when it is the current page, so a site's sidebar shows the pages of the section shown.
 - A section's heading names the destinations under it. It is a heading, not a control. A section may have no heading, as a divided group without a title.
 - A section's `divider` draws a divider before it, to set it apart from what is above. You never place a divider yourself.
 - The header holds the header buttons, stacked in the icon column, and the main action below them. The header slot sits beside the menu button while expanded, for a title or an account switcher, and is not drawn while collapsed. Plain text placed there is drawn in the drawer's title style (`comp.navigation-drawer.header.typescale` and `comp.navigation-drawer.header.color`); an element of yours that sets its own style keeps it.
@@ -459,7 +519,7 @@ Give every destination an `href` and the drawer the page's own address as its `v
 
 - Don't use the drawer for actions such as "Sign out" or "Compose". Its rows are places.
 - Don't nest a section in a section, or put a section in a group. Debug builds report it and draw the inner section's destinations in its place.
-- Don't use a group's row as a destination. It only opens and closes.
+- Don't give a group a `value` or an `href` while `selectableGroups` is off and expect its row to choose it. It only opens and closes, and debug builds report it.
 - Don't use a modal drawer on a window wide enough for a standard one.
 
 ## Accessibility
@@ -474,6 +534,7 @@ Give every destination an `href` and the drawer the page's own address as its `v
 - A link destination is drawn exactly as a button destination, in every state, with no visited look. It keeps everything a browser gives a link: its context menu, opening in a new tab, dragging and the address on hover. One that opens a new tab reads its `targetLabel` at the end of its description.
 - A collapsed cell's tooltip is for sighted pointer and keyboard users. It is hidden from assistive technology, which already reads the label as the cell's name.
 - A group's row is a button with an expanded state that controls its nested list. Right (in a left-to-right layout) opens a closed group, Left closes an open one, and Left inside a group moves to its row. Tab moves through every shown row.
+- A group that is a destination is the WAI-ARIA Authoring Practices' disclosure navigation menu with top-level links: its row is a link or a button, with `aria-current="page"` while it is the current page, and its chevron a separate button named by the group's label, with the expanded state, controlling the nested list. Each is a Tab stop, and Right and Left still open and close the group from its row.
 - While the drawer is collapsible, its menu button is exposed as expanded or collapsed, controlling the drawer. Focus stays on the cell it was on when the form changes.
 - A section's heading is exposed as a heading and is not focusable.
 - Tab moves through the header's content and every destination that is not disabled. Enter and Space activate the focused destination (Enter only, for a link on the web). Disabled destinations take no focus and are announced as disabled.
@@ -481,7 +542,7 @@ Give every destination an `href` and the drawer the page's own address as its `v
 - The focus ring is drawn around the row, for keyboard focus only. Keyboard focus on a row that is not wholly in view scrolls it into view by the least distance.
 - The hit area is the whole cell, in both forms, and never less than the minimum target.
 - Larger text keeps both forms' widths and makes rows and headings taller. Labels wrap; short labels are cut. Icons are not scaled.
-- Debug builds report a destination without a label, a modal drawer without a `label`, a value that names no destination, a value used twice, a nested section, a section in a group, nesting deeper than three levels, a variant the design system does not have, a collapsible drawer without a menu button, a focusable element in the `trailing` slot, an `href` that is a `javascript:` address or cannot be read, an unknown `target`, and a link with `target` `new` and no `targetLabel`.
+- Debug builds report a destination without a label, a modal drawer without a `label`, a value that names no destination, a value used twice, a nested section, a section in a group, nesting deeper than three levels, a variant the design system does not have, a collapsible drawer without a menu button, a focusable element in the `trailing` slot, an `href` that is a `javascript:` address or cannot be read, an unknown `target`, and a link with `target` `new` and no `targetLabel`. They also report a density the design system does not have, and a group with a `value` or an `href` while `selectableGroups` is off.
 
 Known platform gaps:
 

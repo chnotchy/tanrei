@@ -58468,6 +58468,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -58592,6 +58607,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -58702,6 +58732,21 @@
                 }
               },
               "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
                 "color": {
                   "$type": "color",
                   "$value": {
@@ -58842,6 +58887,22 @@
                 }
               }
             },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                },
+                "$description": "Seen only while the drawer collapses: the supporting text fades out with the expanded label."
+              }
+            },
             "trailing-icon": {
               "color": {
                 "$type": "color",
@@ -58953,6 +59014,21 @@
                 }
               },
               "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
                 "color": {
                   "$type": "color",
                   "$value": {
@@ -59093,6 +59169,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -59217,6 +59308,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.1882,
+                      0.1882,
+                      0.1961
+                    ],
+                    "hex": "#303032",
+                    "alpha": 1
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -59337,6 +59443,21 @@
                       0.5804
                     ],
                     "hex": "#004494",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.1882,
+                      0.1882,
+                      0.1961
+                    ],
+                    "hex": "#303032",
                     "alpha": 1
                   }
                 }
@@ -59467,6 +59588,22 @@
                 }
               }
             },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1882,
+                    0.1882,
+                    0.1961
+                  ],
+                  "hex": "#303032",
+                  "alpha": 1
+                },
+                "$description": "Seen only while the drawer collapses: the supporting text fades out with the expanded label."
+              }
+            },
             "trailing-icon": {
               "color": {
                 "$type": "color",
@@ -59592,6 +59729,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.1882,
+                      0.1882,
+                      0.1961
+                    ],
+                    "hex": "#303032",
+                    "alpha": 1
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -59628,23 +59780,39 @@
         "collapsed": {
           "container": {
             "width": {
-              "$type": "dimension",
-              "$value": {
-                "value": 72,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                }
               },
-              "$description": "The collapsed drawer's width, not counting the system inset at its start: the icon column. Every icon's center is half of it from the start edge, in both forms. In the default system it is container.padding-inline, item.padding-inline and the icon, mirrored: 12 + 12 + 24 + 12 + 12, so that a collapsed row is the expanded one cut after its icon's padding."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 72,
+                  "unit": "px"
+                }
+              }
             }
           },
           "item": {
             "container": {
               "padding-block": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 12,
-                  "unit": "px"
+                "compact": {
+                  "$type": "dimension",
+                  "$value": {
+                    "value": 8,
+                    "unit": "px"
+                  }
                 },
-                "$description": "Inside the collapsed item container, above the icon indicator and below it (below the short label where one is drawn). In the default system it equals item.padding-inline, so the icon has the same space on every side and the collapsed cell is as high as the expanded row."
+                "regular": {
+                  "$type": "dimension",
+                  "$value": {
+                    "value": 12,
+                    "unit": "px"
+                  }
+                }
               },
               "padding-inline": {
                 "$type": "dimension",
@@ -59663,12 +59831,20 @@
                 "$description": "The collapsed item container's corners, at most half its height. The expanded row's own corners: collapsing a drawer removes its labels and changes no shape."
               },
               "width": {
-                "$type": "dimension",
-                "$value": {
-                  "value": 48,
-                  "unit": "px"
+                "compact": {
+                  "$type": "dimension",
+                  "$value": {
+                    "value": 32,
+                    "unit": "px"
+                  }
                 },
-                "$description": "The collapsed item container's width, centered in the icon column: the box around the icon, which carries hover, focus and press and is the active indicator while the destination is selected. In the default system it is the icon with item.padding-inline on each side, a square as high as the row."
+                "regular": {
+                  "$type": "dimension",
+                  "$value": {
+                    "value": 48,
+                    "unit": "px"
+                  }
+                }
               }
             },
             "gap": {
@@ -59776,12 +59952,20 @@
             }
           },
           "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 4,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              }
             },
-            "$description": "Between two cells (a destination's or a group's), so that a selected row and a hovered neighbour stay two shapes. Each cell's hit area reaches half of it above and below."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              }
+            }
           },
           "padding-block": {
             "$type": "dimension",
@@ -59834,6 +60018,30 @@
           "opacity": {
             "$type": "number",
             "$value": 1
+          }
+        },
+        "guide": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0.3,
+              "hex": "#000000"
+            },
+            "$description": "The guide line of a drawer whose guides is shown, or hover while the pointer is over it or focus is in it: the one hairline. Decorative."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 1,
+              "unit": "px"
+            },
+            "$description": "The guide line's width: a hairline, in every density."
           }
         },
         "header": {
@@ -59906,12 +60114,20 @@
             }
           },
           "height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 36,
-              "unit": "px"
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              }
             },
-            "$description": "A section heading's minimum height; its text is centered in it. The row keeps this height while the drawer is collapsed, so the cells below it do not move."
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 36,
+                "unit": "px"
+              }
+            }
           },
           "typescale": {
             "$type": "typography",
@@ -59971,12 +60187,20 @@
           },
           "container": {
             "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 48,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 32,
+                  "unit": "px"
+                }
               },
-              "$description": "The expanded item container's least height: the destination's row, which is also its active indicator and carries hover, focus and press. A menu item's height, so that a list of places and a list of commands are rows of one size; with the default icon it leaves item.padding-inline above and below the glyph."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 48,
+                  "unit": "px"
+                }
+              }
             },
             "shape": {
               "$type": "dimension",
@@ -59993,16 +60217,24 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Between the icon, the label and the trailing content of an expanded row."
+            "$description": "Between the icon (or the icon's kept room), the label and the trailing content of an expanded row, the same in every density: a compact drawer draws its rows lower and its glyphs smaller and keeps a name as far from its glyph as a regular one does (the tree view's icon.gap)."
           },
           "icon-indicator": {
             "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
+                  "unit": "px"
+                }
               },
-              "$description": "The icon indicator's height; while collapsed, the short label sits collapsed.item.gap below it."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
+                  "unit": "px"
+                }
+              }
             },
             "shape": {
               "$type": "dimension",
@@ -60013,24 +60245,137 @@
               "$description": "The radius of the icon indicator's four corners, at most half its height."
             },
             "width": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
+                  "unit": "px"
+                }
               },
-              "$description": "The icon indicator's width, centered on the icon. It is laid out in every system, transparent or not; in the default system it is the icon's own box."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
+                  "unit": "px"
+                }
+              }
             }
           },
           "icon": {
             "size": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
+                  "unit": "px"
+                }
+              },
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
+                  "unit": "px"
+                }
               }
             }
           },
           "label": {
+            "typescale": {
+              "compact": {
+                "$type": "typography",
+                "$value": {
+                  "fontFamily": [
+                    "-apple-system",
+                    "BlinkMacSystemFont",
+                    "system-ui",
+                    "Inter",
+                    "sans-serif"
+                  ],
+                  "fontSize": {
+                    "value": 17,
+                    "unit": "px"
+                  },
+                  "fontWeight": 400,
+                  "letterSpacing": {
+                    "value": 0,
+                    "unit": "px"
+                  },
+                  "lineHeight": 1.2941
+                }
+              },
+              "regular": {
+                "$type": "typography",
+                "$value": {
+                  "fontFamily": [
+                    "-apple-system",
+                    "BlinkMacSystemFont",
+                    "system-ui",
+                    "Inter",
+                    "sans-serif"
+                  ],
+                  "fontSize": {
+                    "value": 17,
+                    "unit": "px"
+                  },
+                  "fontWeight": 400,
+                  "letterSpacing": {
+                    "value": 0,
+                    "unit": "px"
+                  },
+                  "lineHeight": 1.2941
+                }
+              }
+            }
+          },
+          "nest-indent": {
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              }
+            },
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 36,
+                "unit": "px"
+              }
+            }
+          },
+          "padding-block": {
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 2,
+                "unit": "px"
+              }
+            },
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              }
+            }
+          },
+          "padding-inline": {
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            },
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 12,
+                "unit": "px"
+              }
+            }
+          },
+          "supporting-text": {
             "typescale": {
               "$type": "typography",
               "$value": {
@@ -60042,7 +60387,7 @@
                   "sans-serif"
                 ],
                 "fontSize": {
-                  "value": 17,
+                  "value": 13,
                   "unit": "px"
                 },
                 "fontWeight": 400,
@@ -60050,34 +60395,27 @@
                   "value": 0,
                   "unit": "px"
                 },
-                "lineHeight": 1.2941
-              }
+                "lineHeight": 1.3846
+              },
+              "$description": "The supporting text under or after a row's label: a tree view's note, a list item's supporting text."
             }
-          },
-          "nest-indent": {
-            "$type": "dimension",
-            "$value": {
-              "value": 36,
-              "unit": "px"
-            },
-            "$description": "How much further toward the end a nested destination's content (its icon and label) starts, per level of nesting. Its item container, with its fill, state layer and focus indicator, keeps the full width of a top-level row. With the default icon and gap, a nested destination's label starts under its group's label."
-          },
-          "padding-inline": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
-            },
-            "$description": "Inside the row: before the label of a destination without an icon, and after the trailing content; a menu item's. In the default system it is also the space an icon has on its start side, because the icon column is placed by it (collapsed.container.width)."
           },
           "trailing-icon": {
             "size": {
-              "$type": "dimension",
-              "$value": {
-                "value": 20,
-                "unit": "px"
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 16,
+                  "unit": "px"
+                }
               },
-              "$description": "A glyph at the row's end: the trailing slot's glyph, and a group's chevron."
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 20,
+                  "unit": "px"
+                }
+              }
             }
           },
           "trailing-text": {
@@ -60378,6 +60716,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -60502,6 +60855,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -60612,6 +60980,21 @@
                 }
               },
               "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
                 "color": {
                   "$type": "color",
                   "$value": {
@@ -60751,6 +61134,21 @@
                 }
               }
             },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "hex": "#ffffff",
+                  "alpha": 1
+                }
+              }
+            },
             "trailing-icon": {
               "color": {
                 "$type": "color",
@@ -60875,6 +61273,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "hex": "#ffffff",
+                    "alpha": 1
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -60904,6 +61317,47 @@
                     "alpha": 1
                   }
                 }
+              }
+            }
+          }
+        },
+        "sticky": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.9882,
+                  0.9725,
+                  0.9804
+                ],
+                "hex": "#fcf8fa",
+                "alpha": 1
+              },
+              "$description": "Under a pinned row's own fill: the drawer's surface, opaque, so that the rows scrolling under the pinned rows are hidden. A modal drawer's pinned rows stand on its own container color."
+            }
+          },
+          "divider": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0.3,
+                "hex": "#000000"
+              },
+              "$description": "The line under the last pinned row, where the rows that scroll under it begin."
+            },
+            "width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 1,
+                "unit": "px"
               }
             }
           }
@@ -60987,6 +61441,21 @@
                 }
               },
               "state-layer": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0,
+                      0,
+                      0
+                    ],
+                    "alpha": 0.38,
+                    "hex": "#000000"
+                  }
+                }
+              },
+              "supporting-text": {
                 "color": {
                   "$type": "color",
                   "$value": {
@@ -61125,6 +61594,21 @@
                   }
                 }
               },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.1882,
+                      0.1882,
+                      0.1961
+                    ],
+                    "hex": "#303032",
+                    "alpha": 1
+                  }
+                }
+              },
               "trailing-icon": {
                 "color": {
                   "$type": "color",
@@ -61245,6 +61729,21 @@
                       0
                     ],
                     "hex": "#000000",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.1882,
+                      0.1882,
+                      0.1961
+                    ],
+                    "hex": "#303032",
                     "alpha": 1
                   }
                 }
@@ -61373,6 +61872,21 @@
                 }
               }
             },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1882,
+                    0.1882,
+                    0.1961
+                  ],
+                  "hex": "#303032",
+                  "alpha": 1
+                }
+              }
+            },
             "trailing-icon": {
               "color": {
                 "$type": "color",
@@ -61492,6 +62006,21 @@
                       0
                     ],
                     "hex": "#000000",
+                    "alpha": 1
+                  }
+                }
+              },
+              "supporting-text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.1882,
+                      0.1882,
+                      0.1961
+                    ],
+                    "hex": "#303032",
                     "alpha": 1
                   }
                 }
