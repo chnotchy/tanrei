@@ -2,7 +2,7 @@
 title: "应用外壳"
 description: "为页面或应用搭起框架。它安放页眉、导航、主内容、侧栏和页脚，根据窗口的宽度决定各自的呈现方式，并让键盘一步就能到达内容。"
 translationOf: components/app-shell.mdx
-sourceHash: dd71f17af916d5f24fc18262c73dccc55a1dc27e
+sourceHash: 2ff9e4348ad75d75ba89e58f897847dad7e29cb1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -161,7 +161,7 @@ import ComponentAccessibility from '../../../../components/ComponentAccessibilit
 | `divider` | 一条细线，画在页脚上方、位于内容旁边的侧栏的起始边，以及主内容与上下排列的侧栏之间。 |
 | `gap` | 不画线。间距不变。 |
 
-这些线不占空间。外壳不在页眉、导航、公告或导航栏周围画线：这些组件自己绘制边线。
+这些线不占空间。外壳不在页眉、导航、公告或导航栏周围画线：这些组件自己绘制边线。页眉中的应用栏把底边作为留在原位的区域的边缘，在静止时就画出，页面在它下方滚动时也保持；如果只想在有内容位于应用栏下方时显示它，把应用栏的 `dividerVisibility` 设为 `scroll`。
 
 ### 推荐
 

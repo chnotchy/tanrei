@@ -159,7 +159,7 @@ The shell measures the sticky header and gives the page's scrolling view that mu
 | `divider` | A hairline above the footer, at the start edge of an aside beside the content, and between the main content and a stacked aside. |
 | `gap` | No line. The same spaces. |
 
-The lines take no room. The shell draws none around the header, the navigation, the announcement or the navigation bar: those components draw their own edges.
+The lines take no room. The shell draws none around the header, the navigation, the announcement or the navigation bar: those components draw their own edges. The app bar in the header draws its bottom edge at rest, as the edge of a region that stays, and keeps it while the page scrolls under it; set the bar's `dividerVisibility` to `scroll` to show it only once content is under the bar.
 
 ### Do
 
