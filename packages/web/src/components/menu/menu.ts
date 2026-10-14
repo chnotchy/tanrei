@@ -63,10 +63,16 @@ export interface TanreiSubmenuToggleDetail {
 }
 /** How the menu tells a group from what is next to it (MNU-35): `auto` takes `comp.menu.separation`. */
 export type TanreiMenuSeparation = SeparationProp;
+/**
+ * Whether a row keeps the room of the mark and leading icon columns where it draws nothing there (MNU-59): `auto` while
+ * another item of its section draws in the column, `always` on every row, `never` only where the row itself draws in it.
+ */
+export type TanreiMenuIconSpace = 'auto' | 'always' | 'never';
+const ICON_SPACES: readonly TanreiMenuIconSpace[] = ['auto', 'always', 'never'];
 
 type Condition = 'unselected' | 'selected' | 'current' | 'destructive' | 'expanded';
 
-/** What the menu tells each item: where it is in its surface, and which columns that surface reserves. */
+/** What the menu tells each item: where it is in its surface, and which columns its section and its surface keep (MNU-19, MNU-59). */
 interface ItemContext {
   position: number;
   size: number;
@@ -786,7 +792,7 @@ export abstract class TanreiMenuItemBase extends TanreiMenuRowBase {
  *
  * @tag tanrei-menu-item
  * @csspart container - The row: its color, corners, every state, the ripple and the focus ring.
- * @csspart mark - The mark column (reserved while the surface holds a checkbox or radio item).
+ * @csspart mark - The mark column (kept in a row without a mark as the menu's `iconSpace` says, MNU-59).
  * @csspart leading-icon - The leading glyph.
  * @csspart label - The item's text.
  * @csspart supporting-text - The line below the label.
@@ -1001,7 +1007,7 @@ let opened = 0;
  * @tag tanrei-submenu
  * @slot - The submenu's items: `<tanrei-menu-item>`, `<tanrei-menu-checkbox-item>`, `<tanrei-menu-radio-item>`, `<tanrei-submenu>` and `<tanrei-menu-group>` children.
  * @csspart container - The row: its color, corners, every state, the ripple and the focus ring; filled from the expanded condition while the submenu is open.
- * @csspart mark - The mark column, empty in a submenu item (reserved while the surface holds a checkbox or radio item).
+ * @csspart mark - The mark column, empty in a submenu item (kept in a row without a mark as the menu's `iconSpace` says, MNU-59).
  * @csspart leading-icon - The leading glyph.
  * @csspart label - The item's text.
  * @csspart supporting-text - The line below the label.
@@ -1308,6 +1314,7 @@ export class TanreiMenu extends LitElement {
     open: { type: Boolean, reflect: true },
     placement: { type: String, reflect: true },
     separation: { type: String, reflect: true },
+    iconSpace: { type: String, attribute: 'icon-space', reflect: true },
     anchor: { type: String, reflect: true },
     inline: { type: Boolean, reflect: true },
     blocks: { state: true },
@@ -1325,6 +1332,15 @@ export class TanreiMenu extends LitElement {
    * the menu and to every submenu of it.
    */
   separation: TanreiMenuSeparation = 'auto';
+
+  /**
+   * Whether a row keeps the room of the mark column and of the leading icon column where it draws nothing there, so that
+   * the labels of a section — a group, or a run of items outside any group — start on one line (MNU-59). `auto` (the
+   * default): while another item of its section draws in that column (a checkbox or radio item its mark, an item its
+   * leading icon), so a section without marks or icons draws its labels where the row's content starts. `always`: every
+   * row keeps both. `never`: only a row that draws in a column has it. It applies to the menu and to every submenu of it.
+   */
+  iconSpace: TanreiMenuIconSpace = 'auto';
 
   /** The id of the anchor element, in the menu's own document or shadow root (as the HTML `anchor` attribute). */
   anchor = '';
@@ -1571,10 +1587,30 @@ export class TanreiMenu extends LitElement {
     // with every trail of a page) asks the cascade nothing.
     let variant: string | null = null;
     const shortcut = () => (variant ??= getComputedStyle(this).getPropertyValue(SHORTCUT_VARIANT).trim() || DEFAULT_SHORTCUT_VARIANT);
+    // MNU-59: an unknown value is auto.
+    const space: TanreiMenuIconSpace = ICON_SPACES.includes(this.iconSpace) ? this.iconSpace : 'auto';
+    const marks = (row: TanreiMenuRowBase) => row instanceof TanreiMenuCheckboxItem || row instanceof TanreiMenuRadioItem;
     for (const [level, rows] of tree) {
-      // MNU-19: each surface reserves its own columns.
-      const markColumn = rows.some((row) => row instanceof TanreiMenuCheckboxItem || row instanceof TanreiMenuRadioItem);
-      const iconColumn = rows.some((row) => !!row.leadingIcon);
+      // MNU-59: the mark and leading icon columns are decided for each section of the surface — a group (its outermost,
+      // MNU-29), or a run of adjacent rows outside any group: the tiles of MNU-36 — each column by itself.
+      const sections: TanreiMenuRowBase[][] = [];
+      const sectionOf = new Map<TanreiMenuRowBase, TanreiMenuRowBase[]>();
+      let previous: TanreiMenuGroup | null | undefined;
+      for (const row of rows) {
+        const group = this.groupOf(row);
+        if (!sections.length || group !== previous) sections.push([]);
+        previous = group;
+        const section = sections[sections.length - 1];
+        section.push(row);
+        sectionOf.set(row, section);
+      }
+      const columns = new Map<TanreiMenuRowBase[], { mark: boolean; icon: boolean }>();
+      for (const section of sections) {
+        columns.set(section, {
+          mark: space === 'always' || (space === 'auto' && section.some(marks)),
+          icon: space === 'always' || (space === 'auto' && section.some((row) => !!row.leadingIcon)),
+        });
+      }
       // MNU-55: a link item's mark reserves the column as a trailing icon does.
       const trailingIconColumn = rows.some((row) => row instanceof TanreiSubmenu || (row instanceof TanreiMenuItemBase && !!row.trailingIcon) || row.linkMarked);
       // MNU-29: which radio items each group checks, and what a debug build reports about them.
@@ -1596,6 +1632,8 @@ export class TanreiMenu extends LitElement {
       rows.forEach((row, index) => {
         const group = this.groupOf(row);
         const radioChecked = row instanceof TanreiMenuRadioItem && !!group && group.value !== null && group.value !== undefined && group.value === row.value;
+        // The row's own mark or icon is always drawn in its column (renderRow); the section decides the others' room.
+        const { mark: markColumn, icon: iconColumn } = columns.get(sectionOf.get(row)!)!;
         row.setMenuContext({ position: index + 1, size: rows.length, markColumn, iconColumn, trailingIconColumn, radioChecked, shortcutVariant: shortcut(), groupMarkIcon: group?.markIcon ?? '' });
         row.syncMark();
       });
@@ -2194,6 +2232,10 @@ export class TanreiMenu extends LitElement {
     // MNU-35: a separation the menu does not define is auto (no rule matches the attribute); a debug build says so.
     if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'MNU-35', `separation "${this.separation}" is not a value the menu defines; it is drawn as "auto"`);
+    }
+    // MNU-59: an iconSpace the menu does not define is auto; a debug build says so.
+    if (changed.has('iconSpace') && !ICON_SPACES.includes(this.iconSpace)) {
+      report(this, 'MNU-59', `iconSpace "${this.iconSpace}" is not a value the menu defines; it is drawn as "auto"`);
     }
   }
 

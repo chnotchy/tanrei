@@ -2,7 +2,7 @@
 title: Menú
 description: Un conjunto corto de acciones u opciones en una superficie temporal que se abre desde el elemento que lo pidió.
 translationOf: components/menu.mdx
-sourceHash: 9a8dc360265403b726b449afeb72b858a802a373
+sourceHash: 2106a64d0831a3f48beba511b4ee3f8ed02897e3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -61,7 +61,7 @@ El ancla es tu propio botón, botón de icono o campo. El menú no la dibuja: le
 
 Un menú tiene cinco tipos de elemento: `item` (una acción), `checkbox-item`, `radio-item`, `submenu` (un elemento que abre otro nivel del menú a su lado) y `group`, que contiene elementos de los otros tipos. Cada plataforma los recibe como recibe cualquier conjunto de hijos repetidos: elementos hijos en la web, vistas en un view builder en SwiftUI, llamadas en una lambda de contenido en Compose, widgets en `menuChildren` en Flutter y, en React Native, un array `items` de objetos planos que se distinguen por `kind`. El `checked` de un elemento de casilla de verificación es suyo. Cuál de los elementos de opción está marcado pertenece a su grupo, por valor.
 
-El atajo de teclado de un elemento es su propiedad `shortcut`, escrita con los nombres de tecla neutros del [atajo de teclado](/es/components/keyboard-shortcut/) (`mod+c`). El menú lo dibuja al final de la fila con el componente de atajo de teclado, como ⌘C en los teclados de Apple y Ctrl+C en los demás, y lo expone como el atajo de teclado del elemento. No hace que las teclas funcionen: las vincula tu producto. `trailingText` es para todo lo que no sea un atajo, como un recuento o «Beta». La web dibuja todo esto, y el aspecto actual. SwiftUI, Compose, Flutter y React Native van rezagados: hasta que se pongan al día, no tienen la propiedad `shortcut` y escriben el atajo en `trailingText`, como hacen sus ejemplos de abajo. Tampoco tienen submenús, `separation` ni `markIcon`, y todavía dibujan la marca de verificación como una marca propia en un recuadro de 16, no rellenan ninguna fila marcada y empiezan el título de un grupo donde empiezan las etiquetas.
+El atajo de teclado de un elemento es su propiedad `shortcut`, escrita con los nombres de tecla neutros del [atajo de teclado](/es/components/keyboard-shortcut/) (`mod+c`). El menú lo dibuja al final de la fila con el componente de atajo de teclado, como ⌘C en los teclados de Apple y Ctrl+C en los demás, y lo expone como el atajo de teclado del elemento. No hace que las teclas funcionen: las vincula tu producto. `trailingText` es para todo lo que no sea un atajo, como un recuento o «Beta». La web dibuja todo esto, y el aspecto actual. SwiftUI, Compose, Flutter y React Native van rezagados: hasta que se pongan al día, no tienen la propiedad `shortcut` y escriben el atajo en `trailingText`, como hacen sus ejemplos de abajo. Tampoco tienen submenús, `separation`, `iconSpace` ni `markIcon`, y todavía dibujan la marca de verificación como una marca propia en un recuadro de 16, no rellenan ninguna fila marcada y empiezan el título de un grupo donde empiezan las etiquetas.
 
 Un elemento con un `href` es un elemento de enlace: el enlace propio de la plataforma, que se dibuja exactamente igual que una acción y al que se llega con las mismas teclas. Una activación corriente emite el `click` del elemento, cierra el menú y después abre el destino. `target` y `targetLabel` son los del [botón](/es/components/button/). `current` marca el elemento de enlace de la página en la que está la persona: se dibuja con un relleno propio, sin marca de verificación. La web incluye los elementos de enlace; SwiftUI, Compose, Flutter y React Native todavía no los tienen.
 
@@ -283,6 +283,37 @@ Un elemento con un `href` es un elemento de enlace: el enlace propio de la plata
   </tanrei-menu>
 </DemoFrame>
 
+<DemoFrame label="Columnas de marca e icono: iconSpace auto, el valor predeterminado, y never" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="Cortar" leading-icon="content_cut"></tanrei-menu-item>
+    <tanrei-menu-item label="Copiar" leading-icon="content_copy"></tanrei-menu-item>
+    <tanrei-menu-item label="Pegar"></tanrei-menu-item>
+    <tanrei-menu-group label="Ver">
+      <tanrei-menu-checkbox-item label="Mostrar cuadrícula" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Mostrar reglas"></tanrei-menu-checkbox-item>
+      <tanrei-menu-item label="Ajustar a la ventana"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="Ajustes"></tanrei-menu-item>
+      <tanrei-menu-item label="Ayuda"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open icon-space="never">
+    <tanrei-menu-item label="Cortar" leading-icon="content_cut"></tanrei-menu-item>
+    <tanrei-menu-item label="Copiar" leading-icon="content_copy"></tanrei-menu-item>
+    <tanrei-menu-item label="Pegar"></tanrei-menu-item>
+    <tanrei-menu-group label="Ver">
+      <tanrei-menu-checkbox-item label="Mostrar cuadrícula" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Mostrar reglas"></tanrei-menu-checkbox-item>
+      <tanrei-menu-item label="Ajustar a la ventana"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="Ajustes"></tanrei-menu-item>
+      <tanrei-menu-item label="Ayuda"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
 <DemoFrame label="Marcas: el recuadro y el anillo del sistema predeterminado, y una simple marca de verificación indicada con mark-icon" plain>
   <tanrei-menu inline open>
     <tanrei-menu-group label="Mostrar">
@@ -371,6 +402,16 @@ Un elemento de casilla de verificación o de opción que se activa con un toque,
 - Los elementos de opción van dentro de un grupo. Un elemento de opción fuera de un grupo nunca está marcado, y las compilaciones de depuración lo notifican.
 - Un grupo no puede contener otro grupo. Los elementos del grupo interior se dibujan como si fueran del grupo exterior.
 
+### Columnas de marca e icono
+
+La marca de un elemento de casilla de verificación o de opción está en la columna de marca, al principio de la fila, y un icono inicial en la columna de icono que la sigue. `iconSpace` decide qué filas guardan el espacio de una columna en la que no dibujan nada:
+
+- **`auto`** (el valor predeterminado) decide por sección: un grupo, o una serie de elementos seguidos fuera de cualquier grupo. Una fila guarda el espacio de una columna mientras otro elemento de su sección dibuje en ella, así que las etiquetas de una sección empiezan en una misma línea. Una sección sin marcas ni iconos empieza sus etiquetas donde empieza el contenido de la fila, sin espacio vacío delante.
+- **`always`** guarda las dos columnas en todas las filas, así que todas las etiquetas del menú empiezan en una misma línea.
+- **`never`** da una columna solo a la fila que dibuja en ella, así que cada etiqueta empieza justo después de su propia marca o icono.
+
+Cada superficie decide por sí misma, y un submenú sigue el `iconSpace` de su menú. El título de un grupo empieza donde empieza el contenido de las filas, guarden lo que guarden. La [vista de árbol](/es/components/tree-view/) y el [panel de navegación](/es/components/navigation-drawer/) tienen el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado.
+
 ### Enlaces
 
 Un elemento de enlace es el enlace propio de la plataforma, así que funcionan el menú contextual del navegador, la apertura en una pestaña nueva y la dirección que se muestra al pasar el cursor. No tiene aspecto propio: se dibuja igual que la acción de la fila de al lado, en todos los estados.
@@ -394,7 +435,7 @@ Un elemento de submenú es una fila que termina con el `chevron_right` del conju
 - **Dónde se coloca.** Junto a la superficie que contiene su elemento, en el lado de fin, con su primera fila a la altura de la fila del elemento; en el otro lado cuando en ese no hay sitio. En una ventana demasiado estrecha para cualquiera de los dos, se coloca encima de su nivel superior y deja una franja de este sin cubrir: una pulsación en la franja cierra el submenú. El menú nunca sustituye su propio contenido por el del submenú.
 - **`open` y `toggle`.** El `open` de un elemento de submenú es suyo. El menú lo define y el elemento emite `toggle` cuando la persona abre o cierra el submenú. Un cambio de `open` hecho por ti, y el cierre de todo el menú, no emiten ningún `toggle`.
 - **Profundidad.** No pases de dos niveles de submenú por debajo del menú. Un tercero se sigue dibujando, y las compilaciones de depuración lo notifican, igual que notifican un submenú sin elementos.
-- El `value` de un grupo solo llega a los elementos de opción de su propia superficie, y cada superficie dibuja sus propias columnas de marca y de icono.
+- El `value` de un grupo solo llega a los elementos de opción de su propia superficie, y cada superficie decide sus propias columnas de marca y de icono.
 
 ### Apertura, foco y cierre
 
@@ -454,12 +495,12 @@ También depende de la plataforma que una pulsación fuera llegue además a lo q
 - Cada elemento tiene como mínimo la altura del objetivo mínimo, y toda la fila es su área de pulsación.
 - Los elementos crecen con un texto más grande, y la superficie permite el desplazamiento cuando ya no cabe en la pantalla.
 - Mientras la fuente de iconos todavía no puede dibujar una marca que es un glifo, como la marca de verificación, el menú no dibuja nada en su lugar, nunca la palabra «check». Conserva el ancho de la columna y sigue exponiendo el estado marcado, y muestra la marca cuando la fuente se ha cargado.
-- Las compilaciones de depuración notifican un elemento sin etiqueta, un elemento de opción fuera de un grupo, un valor de grupo que no nombra ninguno de sus elementos de opción, dos elementos de opción que comparten un valor, un grupo dentro de un grupo, un elemento con atajo y texto final a la vez, un `separation` que el menú no define, un tercer nivel de submenú y un submenú sin elementos. También notifican un elemento de enlace que abre un contexto nuevo sin `targetLabel`, un `href` en un elemento de casilla de verificación, de opción o de submenú, un `href` que nombra un script o que no se puede leer, un `target` que el menú no define, y `current` en un elemento sin `href`.
+- Las compilaciones de depuración notifican un elemento sin etiqueta, un elemento de opción fuera de un grupo, un valor de grupo que no nombra ninguno de sus elementos de opción, dos elementos de opción que comparten un valor, un grupo dentro de un grupo, un elemento con atajo y texto final a la vez, un `separation` o un `iconSpace` que el menú no define, un tercer nivel de submenú y un submenú sin elementos. También notifican un elemento de enlace que abre un contexto nuevo sin `targetLabel`, un `href` en un elemento de casilla de verificación, de opción o de submenú, un `href` que nombra un script o que no se puede leer, un `target` que el menú no define, y `current` en un elemento sin `href`.
 
 Carencias conocidas por plataforma:
 
 - SwiftUI, Compose, Flutter y React Native no tienen elementos de enlace: ahí un elemento todavía no admite `href`.
-- SwiftUI, Compose, Flutter y React Native no tienen submenús, `separation`, `markIcon` ni relleno en una fila marcada. Todavía dibujan la marca de verificación como una marca propia en un recuadro de 16, y empiezan el título de un grupo donde empiezan las etiquetas.
+- SwiftUI, Compose, Flutter y React Native no tienen submenús, `separation`, `iconSpace`, `markIcon` ni relleno en una fila marcada. Guardan las columnas de marca e icono en todas las filas de un menú en el que algún elemento dibuje en ellas. Todavía dibujan la marca de verificación como una marca propia en un recuadro de 16, y empiezan el título de un grupo donde empiezan las etiquetas.
 - El punto donde empieza el título con `m3-like` y `cupertino` sigue la regla de Tanrei y no se ha medido frente a los originales.
 - Web: el menú no escucha la petición de cierre de la plataforma, como el gesto de retroceso de Android, así que `back` nunca se envía.
 - Web: `aria-haspopup` y `aria-expanded` se definen en el ancla. En un ancla que es un elemento personalizado, como un `<tanrei-button>` de solo icono, van en el botón que está dentro de su shadow root. `aria-controls` y el nombre del menú, que procede del ancla, no pueden cruzar un shadow root.
