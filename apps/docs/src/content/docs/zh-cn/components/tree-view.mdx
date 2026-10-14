@@ -2,7 +2,7 @@
 title: "树视图"
 description: "由可以展开和折叠的项组成的层级结构。每深一级，行就多缩进一些；凡是包含其他项的行，开头都有一个 V 形箭头。它可以只供阅读和展开，也可以在其中选择一项或多项；它在焦点顺序中只占一个停靠点。"
 translationOf: components/tree-view.mdx
-sourceHash: 28052c4faa3d22c7b1abecd14a506d12c439dd11
+sourceHash: f70a47c13a2aa39f74d0811ee7a1d630714145e2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -127,6 +127,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | `data-expandable` | 这个项将会包含你尚未给出的子项。它会得到一个 V 形箭头；`toggle` 表明它已展开时，再给出它的子项。 |
 | `data-loading` | 你正在获取它的子项。它展开期间，下方会画出一个加载行，带有树的 `loading-label`。 |
 | `data-disabled` | 用户无法选择、展开或折叠它。方向键仍然可以到达它。 |
+| `data-supporting-position` | 设为 `inline` 时，把辅助文本放在标签后面、同一行上。不设时，辅助文本在标签下方。 |
 
 | 事件 | 何时 | `detail` |
 | --- | --- | --- |
@@ -208,38 +209,31 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 compact 的行比指针目标还矮。这是可以接受的，因为它是按名称明确要求的，从来不是默认值。对触摸而言，两种密度下行的高度都达到触摸目标。
 
-### 引导线
+### 箭头
 
-`guides` 从每个展开的父项向下画一道细线，位于它所包含的各行旁边。在很深的树里使用它，因为那里单靠缩进已经看不出哪些行是一组的。它不占空间。
-
-### 缩进
-
-<DemoFrame label="indent compact：文件夹下叶项的图标位于文件夹图标的正下方" plain>
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" indent="compact" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+<DemoFrame label="chevron end：像菜单那样，把标记放在值之后" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" chevron="end" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
-        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>src</bdi></span>
+        <span><bdi>src</bdi><span data-trailing-text>12</span></span>
         <ul>
-          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
-          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+          <li><span><bdi>components</bdi><span data-trailing-text>9</span></span><ul><li><span><bdi>button.ts</bdi><span data-trailing-text>4 KB</span></span></li></ul></li>
+          <li><span><bdi>index.ts</bdi><span data-trailing-text>1 KB</span></span></li>
         </ul>
       </li>
-      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+      <li><span><bdi>package.json</bdi><span data-trailing-text>2 KB</span></span></li>
     </ul>
   </tanrei-tree-view>
 </DemoFrame>
 
-| `indent` | 叶项的行 | 用于 |
+| `chevron` | 位置 | 用于 |
 | --- | --- | --- |
-| `regular`（默认） | 保留空着的箭头框 | 同一层的图标和名字各自对齐成一列。 |
-| `compact` | 不保留箭头框 | 叶项的图标正好位于父项图标的下方，只有文件的一层不为它从不画的箭头占位置。 |
+| `start`（默认） | 在图标之前；展开时转动四分之一圈 | 文件树和树模式。 |
+| `end` | 在后置文本之后；`expand_more`，展开时转动半圈 | 设置等像菜单一样阅读的树：导航抽屉的位置。 |
+| `none` | 不画 | 用自己的字形表示状态的文件夹。 |
 
-每一层向里缩进多少，是各密度的令牌 `comp.tree-view.level.indent`。它的默认值是一个箭头框加一个间距，所以子项的箭头正好从父项图标开始的位置开始。在你的设计系统的层里可以把它设为任意值，所有平台都会跟随。
-
-### 会展开的文件夹
-
-<DemoFrame label="disclosure icon：文件夹字形表示展开和折叠，按下它即可展开或折叠" plain>
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" disclosure="icon" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+<DemoFrame label="chevron none：文件夹字形表示展开和折叠，指针移上去时出现引导线" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="项目文件" chevron="none" guides="hover" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
@@ -253,7 +247,49 @@ compact 的行比指针目标还矮。这是可以接受的，因为它是按名
   </tanrei-tree-view>
 </DemoFrame>
 
-使用 `disclosure="icon"` 时不画箭头。图标指定了展开字形（`data-open-icon="folder_open"`）的父项，用字形表示展开和折叠；按下字形就像按下箭头一样展开或折叠它。没有展开字形的父项保留箭头，所以没有哪个父项会缺少表示状态的标记。在默认的 `disclosure="chevron"` 下，展开字形画在箭头旁边。
+使用 `chevron="none"` 时，图标指定了展开字形（`data-open-icon="folder_open"`）的父项用字形表示展开和折叠，按下字形即可展开或折叠。没有图标的父项通过按下它的行来展开或折叠；但如果按下行会选择它，则选择优先，由方向键来展开。方向键始终可以展开和折叠。
+
+`expandable="false"` 会去掉展开和折叠本身：每个父项都显示为展开，没有箭头，也没有切换，没有哪一行带有展开或折叠的状态。用于始终完整显示的结构。
+
+### 引导线
+
+`guides="shown"`（或不带值的属性）从每个展开的父项向下画一道细线，位于它所包含的各行旁边。`guides="hover"` 只在指针位于树上方或焦点在树内时才画。在很深的树里使用它，因为那里单靠缩进已经看不出哪些行是一组的。线位于父项行中第一个前置元素的中心下方：开头的箭头；没有则为图标；再没有则为标签的起点。它不占空间；缩进为 0 时不画。
+
+### 缩进
+
+| `indent` | 子项从哪里开始 |
+| --- | --- |
+| `auto`（默认） | 从父项标签开始的位置：每一级的距离取决于父项行中标签之前的内容——开头的箭头、图标。标签之前什么都没有的行，按该级的缩进令牌把子项向里移。 |
+| 数字 | 比父项多缩进这么多像素。`0` 不设层级缩进，也不画引导线。 |
+
+### 图标及其位置
+
+`icon-space="auto"`（默认）在同一级有其他行带图标时，也为没有图标的行保留图标的位置，使同一级的标签对齐成一列。`always` 为每一行保留，`never` 只在有图标的行保留。`icon-gap` 以像素设定图标与标签之间的距离；保持 `auto` 时为令牌 `comp.tree-view.icon.gap`，两种密度相同。
+
+### 高亮
+
+`highlight="indented"`（默认）从该级开始的位置绘制行的填充、悬停与按下以及焦点环，让填充体现层级。`highlight="full"` 则像文件浏览器那样横跨整棵树绘制。两种情况下点击区域都是整个宽度。
+
+### 单行
+
+标签和辅助文本各占一行，放不下的部分用省略号截断。被截断的文本在悬停和键盘聚焦时在工具提示中完整显示，按 Escape 可隐藏；无障碍名称始终是完整的标签。设置 `label-wrap` 和 `supporting-wrap` 后，它们改为换行。辅助文本位于标签下方；在 `<li>` 上加 `data-supporting-position="inline"` 会把它放在标签后面、同一行上。请把标签放进它自己的元素（`<bdi>`）：直接写在行里的标签会换行。
+
+### 固定的父项
+
+在可滚动的框中，所显示的行之上那些展开的父项的行，会像编辑器的粘性滚动一样固定在框的顶部，它们的子项从下面滚过。最多固定 `sticky-max` 行（2），里层的父项优先。固定的就是这些行本身：按下固定的父项会将它折叠，键盘移到被它们遮住的行时，会滚动到固定行的下方。`sticky-parents="false"` 关闭此功能。不在自己的滚动框中的树不会固定任何行。
+
+### 选择多项
+
+| 按键或操作 | 多选时 |
+| --- | --- |
+| Space、Enter、按下 | 选择或取消选择该项，并把它作为锚点。 |
+| Shift+下、Shift+上 | 移动焦点，并选择从锚点到焦点行的范围；往回移动会缩小范围。 |
+| Shift+Space、按住 Shift 按下 | 选择从锚点到该行的范围。 |
+| Ctrl+Shift+Home、Ctrl+Shift+End | 选择从焦点行到所显示的第一行或最后一行。 |
+| Ctrl+A | 选择所显示的、可以选择的所有行。 |
+
+在 Apple 平台上用 Command 代替 Ctrl。每次操作只触发一次 `change`。
+
 
 ### 重命名和新项
 
@@ -287,7 +323,7 @@ tree.addEventListener('create', (event) => {
 
 ### 很深的树与很窄的窗口
 
-每一级都比上一级多缩进一个单位。如果某一级的缩进会占去树宽度的一半以上，它的行就从放得下的最深一级开始的位置开始，所以名称始终保有一半的宽度。辅助技术得到的仍然是真实的级别。
+每一级都比上一级更靠里。如果这样会让某行的标签从树宽度的一半之后才开始，这一行最多只缩进到让标签正好从一半处开始，所以名称始终保有一半的宽度。辅助技术仍然会得知真正的层级。
 
 ### 在服务器上渲染
 
@@ -319,14 +355,16 @@ tree.addEventListener('create', (event) => {
 - Home 和 End 前往第一行和最后一行。键入字母会移到标签以这些字母开头的下一行。`*` 展开与获得焦点的行同级的所有折叠着的父项。
 - Enter 和 Space 做的事与按下这一行相同。选择从不跟随焦点。
 - 设置 `editable` 时，F2 在有焦点的行的名字上打开输入框。Enter 确定名字，Escape 放弃，焦点回到这一行。输入法正在组字时，这两个键都归输入法。输入框的名称是 `edit-label`，新行是它那一层里带有输入框的树项。
-- 使用 `disclosure="icon"` 时，展开和折叠由字形和 `aria-expanded` 告知，从不只靠颜色。
+- 使用 `chevron="none"` 时，展开和折叠由字形和 `aria-expanded` 告知，从不只靠颜色，方向键始终可以展开和折叠。使用 `expandable="false"` 时，没有哪一行带有 `aria-expanded`；分组仍然告知层级。
+- 多选时，Shift 加方向键或 Space 选择从锚点开始的范围，Ctrl（Command）加 Shift 加 Home 或 End 选择到第一行或最后一行，Ctrl（Command）加 A 选择所显示的全部。
+- 固定的父项行就是这些行本身，所以辅助技术在原位置只会遇到每一行一次。
 - 展开、折叠和选择都由行自己的状态来表明。不会朗读任何内容，焦点也不移动。
 - 父项折叠时如果获得焦点的行在它里面，焦点就交给这个父项。获得焦点的行被移除时，焦点交给它后面的那一行。
 - 焦点环画在行的内部，所以滚动框不会把它裁掉。在禁用的行上，焦点环仍以正常的浓度绘制：行变淡，焦点环不变淡。
 - V 形箭头、图标和引导线对辅助技术隐藏。加载行也是隐藏的：由父项说明它正忙。
-- 文本为 200% 时，标签会换行，行会增高。只有后置文本才会被截断。
+- 标签和辅助文本各占一行；被截断的文本在悬停和键盘聚焦时在工具提示中完整显示，按 Escape 可隐藏，指针可以移到工具提示上，无障碍名称始终是完整的。设置 `label-wrap` 和 `supporting-wrap` 时，文本为 200% 时它们会换行，行会增高。
 - 在强制颜色模式下，选中的行采用系统的选中颜色，并加上一道边线。
-- 调试构建会报告：空的 `label`、没有标签的项、行里的控件、不对应任何项的值、两个值相同的项、未知的 `density`、`selection`、`indent` 或 `disclosure`、在 `disclosure="icon"` 下没有展开字形的父项，以及没有 `edit-label` 的输入框。
+- 调试构建会报告：空的 `label`、没有标签的项、直接写在行里的标签、行里的控件、不对应任何项的值、两个值相同的项、未知的 `density`、`selection`、`chevron`、`guides`、`icon-space` 或 `highlight`、不是数字的 `indent` 或 `icon-gap`、在 `chevron="none"` 下没有图标的父项，以及没有 `edit-label` 的输入框。
 
 ### 需要你做的事
 

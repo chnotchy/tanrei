@@ -125,6 +125,7 @@ A row may also hold its label as plain text, with no `<bdi>` around it. Use the 
 | `data-expandable` | The item will hold items you have not given yet. It gets a chevron; give its items when `toggle` says it opened. |
 | `data-loading` | You are fetching its items. While it is open a loading row is drawn under it, with the tree's `loading-label`. |
 | `data-disabled` | It cannot be chosen, opened or closed by the user. The arrow keys still reach it. |
+| `data-supporting-position` | `inline` puts its supporting text after its label, on its line. Without it the note stands below the label. |
 
 | Event | When | `detail` |
 | --- | --- | --- |
@@ -206,38 +207,31 @@ The tree draws the selected fill on the item's own row. It does not mark a paren
 
 A compact row is lower than the pointer target. That is accepted because it is asked for by name and is never the default. For touch a row is the touch target high in both densities.
 
-### Guides
+### Chevron
 
-`guides` draws a hairline down from each open parent beside the rows it holds. Use it in a deep tree, where the indent alone no longer shows which rows belong together. It takes no space.
-
-### Indent
-
-<DemoFrame label="indent compact: the leaves under a folder have their icons under the folder's icon" plain>
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" indent="compact" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+<DemoFrame label="chevron end: the mark after the value, as a menu draws it" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" chevron="end" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
-        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>src</bdi></span>
+        <span><bdi>src</bdi><span data-trailing-text>12</span></span>
         <ul>
-          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
-          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+          <li><span><bdi>components</bdi><span data-trailing-text>9</span></span><ul><li><span><bdi>button.ts</bdi><span data-trailing-text>4 KB</span></span></li></ul></li>
+          <li><span><bdi>index.ts</bdi><span data-trailing-text>1 KB</span></span></li>
         </ul>
       </li>
-      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+      <li><span><bdi>package.json</bdi><span data-trailing-text>2 KB</span></span></li>
     </ul>
   </tanrei-tree-view>
 </DemoFrame>
 
-| `indent` | A leaf's row | Use for |
+| `chevron` | Where it stands | Use for |
 | --- | --- | --- |
-| `regular` (default) | Keeps the chevron's box, empty | Icons and names of one level each stand in one column. |
-| `compact` | Keeps no box | A leaf's icon stands under its parent's icon, and a level of files takes no room for a chevron it never draws. |
+| `start` (default) | Before the icon; it turns a quarter turn | File trees and the tree pattern. |
+| `end` | After the trailing text; `expand_more`, which turns a half turn | Settings and other trees read like a menu: the navigation drawer's place. |
+| `none` | Nowhere | Folders that show their state by their own glyph. |
 
-How far each level steps in is the token `comp.tree-view.level.indent` of each density. Its default is the chevron's box and one gap, so a child's chevron stands where its parent's icon begins. Set it in your design system's layer to any amount; every platform follows.
-
-### Folders that open
-
-<DemoFrame label="disclosure icon: the folder glyph shows open and closed, and a press on it opens and closes" plain>
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" disclosure="icon" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+<DemoFrame label="chevron none: the folder glyph shows open and closed; the guides appear under the pointer" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Project files" chevron="none" guides="hover" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
@@ -251,7 +245,49 @@ How far each level steps in is the token `comp.tree-view.level.indent` of each d
   </tanrei-tree-view>
 </DemoFrame>
 
-With `disclosure="icon"` no chevron is drawn. A parent whose icon names an open glyph (`data-open-icon="folder_open"`) shows open and closed by its glyph, and a press on the glyph opens and closes it as a press on a chevron does. A parent with no open glyph keeps its chevron, so no parent is left without a mark of its state. With the default `disclosure="chevron"` an open glyph is drawn beside the chevron.
+With `chevron="none"`, a parent whose icon names an open glyph (`data-open-icon="folder_open"`) shows open and closed by its glyph, and a press on the glyph opens and closes it. A parent without an icon opens by a press on its row, unless its row chooses: then selection wins, and the arrow keys open it. The arrow keys always open and close.
+
+`expandable="false"` turns opening and closing off: every parent is shown open, with no chevron and no toggle, and no row says that it is expanded or collapsed. Use it for a structure that is always shown whole.
+
+### Guides
+
+`guides="shown"` (or the bare attribute) draws a hairline down from each open parent beside the rows it holds. `guides="hover"` draws them only while the pointer is over the tree or focus is in it. Use them in a deep tree, where the indent alone no longer shows which rows belong together. A line stands under the parent's first leading thing: the chevron at the start, else its icon, else the start of its label. It takes no space, and no line is drawn while the indent is 0.
+
+### Indent
+
+| `indent` | Where a child begins |
+| --- | --- |
+| `auto` (default) | Where its parent's label begins: the step follows what the parent's row holds before its label — the chevron at the start, the icon. A row with nothing before its label steps its items in by the level's indent token. |
+| a number | That many pixels further in than its parent. `0` sets no level in, and draws no guides. |
+
+### Icons and their room
+
+`icon-space="auto"` (the default) keeps an icon's room on a row without an icon while another row of its level has one, so that the labels of a level stand in one column. `always` keeps it on every row, and `never` only where there is an icon. `icon-gap` sets the room between the icon and the label in pixels; left `auto` it is the token `comp.tree-view.icon.gap`, the same in both densities.
+
+### Highlight
+
+`highlight="indented"` (the default) draws a row's fill, its hover and press and its focus ring from where its level begins, so that the fill shows the level. `highlight="full"` draws them across the whole tree, as file browsers do. The hit area is the whole width either way.
+
+### One line
+
+A label and its note are one line each, cut with an ellipsis where they do not fit. A cut one is shown whole in a tooltip on hover and on keyboard focus, which Escape hides; the accessible name is always the whole label. `label-wrap` and `supporting-wrap` let them wrap instead. The note stands below its label; `data-supporting-position="inline"` on the `<li>` puts it after the label, on its line. Give the label its element (`<bdi>`): a label written as the row's own text wraps.
+
+### Pinned parents
+
+In a scrolling box, the rows of the open parents above what is shown stay pinned at its top while their items scroll under them, as an editor's sticky scroll does. At most `sticky-max` rows (2) are pinned, the innermost parents. They are the rows themselves: a press on a pinned parent closes it, and a row the keyboard reaches under them is scrolled below them. `sticky-parents="false"` turns it off. A tree that is not in a scrolling box of its own pins nothing.
+
+### Choosing several
+
+| Key or press | In a multiple selection |
+| --- | --- |
+| Space, Enter, a press | Chooses or unchooses the item, and makes it the anchor. |
+| Shift+Down, Shift+Up | Moves focus and selects from the anchor to the focused row; going back shrinks the range. |
+| Shift+Space, a Shift-press | Selects from the anchor to the row. |
+| Ctrl+Shift+Home, Ctrl+Shift+End | Selects from the focused row to the first or the last row shown. |
+| Ctrl+A | Selects every row shown that can be chosen. |
+
+On Apple platforms Command takes the place of Ctrl. Each gesture fires one `change`.
+
 
 ### Renaming and new items
 
@@ -285,7 +321,7 @@ Filtering is yours too. Give the tree the items that match, set `data-open` on t
 
 ### Deep trees and narrow windows
 
-Each level begins one indent further in. Where a level's indent would take more than half of the tree's width, its rows begin where the deepest level that fits begins, so names keep half of the width. Assistive technology is still told the true level.
+Each level begins further in. Where that would put a row's label past half of the tree's width, the row begins no further in than puts its label at half of the width, so names keep half of the width. Assistive technology is still told the true level.
 
 ### Rendering on a server
 
@@ -317,14 +353,16 @@ Everything is drawn before the script loads except the selected fill, which appe
 - Home and End go to the first and the last row. Typing letters moves to the next row whose label begins with them. `*` opens every closed parent among the focused row and its siblings.
 - Enter and Space do what a press on the row does. Selection never follows focus.
 - With `editable`, F2 opens a text field on the focused row's name. Enter gives the name and Escape gives it up, and focus goes back to the row. While an input method is composing, both keys are the input method's. The field is named by `edit-label`, and a new row is a tree item at its level holding the field.
-- With `disclosure="icon"` open and closed are told by the glyph and by `aria-expanded`, never by color.
+- With `chevron="none"` open and closed are told by the glyph and by `aria-expanded`, never by color, and the arrow keys always open and close. With `expandable="false"` no row carries `aria-expanded`; the groups still tell the level.
+- In a multiple selection Shift with the arrows or Space selects a range from the anchor, Ctrl (Command) with Shift and Home or End selects to the first or last row, and Ctrl (Command) with A selects everything shown.
+- Pinned parent rows are the rows themselves, so assistive technology meets each once, in its place.
 - Opening, closing and choosing are told by the row's own state. Nothing is announced and focus does not move.
 - A parent that closes around the focused row takes the focus. A focused row that is removed gives focus to the row after it.
 - The focus ring is drawn inside the row, so a scrolling box does not clip it. On a disabled row it is drawn at full strength: the row is faded, its ring is not.
 - The chevron, the icons and the guides are hidden from assistive technology. The loading row is hidden too: the parent says that it is busy.
-- At 200% text labels wrap and rows grow. Only a trailing text is ever cut.
+- A label and a note are one line each; a cut one is shown whole in a tooltip on hover and on keyboard focus, which Escape hides and the pointer can move onto, and the accessible name is always whole. With `label-wrap` and `supporting-wrap`, at 200% text they wrap and the rows grow.
 - In forced colors a selected row takes the system's selection colors and an edge.
-- An empty `label`, an item without a label, a control in a row, a value that names no item, two items with one value, an unknown `density`, `selection`, `indent` or `disclosure`, a parent with no open glyph under `disclosure="icon"` and a field without `edit-label` are reported in debug builds.
+- An empty `label`, an item without a label, a label written as the row's own text, a control in a row, a value that names no item, two items with one value, an unknown `density`, `selection`, `chevron`, `guides`, `icon-space` or `highlight`, an `indent` or `icon-gap` that is not a number, a parent with no icon under `chevron="none"` and a field without `edit-label` are reported in debug builds.
 
 ### What you need to do
 

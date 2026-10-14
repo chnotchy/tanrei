@@ -2,7 +2,7 @@
 title: ツリービュー
 description: 開閉できる項目の階層です。行は段が深くなるごとに内側から始まり、ほかの項目を持つ行の先頭にはシェブロンが付きます。読んで開くだけのツリーにも、1 つまたは複数の項目を選ぶツリーにもなり、フォーカスが止まる位置は全体で 1 つです。
 translationOf: components/tree-view.mdx
-sourceHash: 28052c4faa3d22c7b1abecd14a506d12c439dd11
+sourceHash: f70a47c13a2aa39f74d0811ee7a1d630714145e2
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -127,6 +127,7 @@ Web では、プロダクト側の入れ子のリストを `<tanrei-tree-view>` 
 | `data-expandable` | まだ渡していない項目を、あとで持つ項目です。シェブロンが付きます。`toggle` で開いたと分かったときに、項目を渡します。 |
 | `data-loading` | 利用者側で項目を取得している最中です。開いている間、その下に読み込み中の行を、ツリーの `loading-label` とともに描きます。 |
 | `data-disabled` | ユーザーは選ぶことも開閉することもできません。矢印キーでは届きます。 |
+| `data-supporting-position` | `inline` にすると、補足テキストをラベルの後ろ、同じ行に置きます。指定しなければラベルの下に置きます。 |
 
 | イベント | 発火するとき | `detail` |
 | --- | --- | --- |
@@ -208,38 +209,31 @@ Web では、プロダクト側の入れ子のリストを `<tanrei-tree-view>` 
 
 compact の行は、ポインターのターゲットより低くなります。名前を指定して選ぶもので、既定にはならないため、これを認めています。タッチでは、どちらの密度でも行はタッチターゲットの高さになります。
 
-### ガイド
+### シェブロン
 
-`guides` を設定すると、開いている親から、その下位の行の横に細い線を下へ引きます。インデントだけではどの行がまとまりなのか分かりにくい、深いツリーで使います。場所は取りません。
-
-### インデント
-
-<DemoFrame label="indent compact：フォルダーの下の葉のアイコンが、フォルダーのアイコンの真下に来る" plain>
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="プロジェクトのファイル" indent="compact" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+<DemoFrame label="chevron end：メニューのように、値の後ろに印を置く" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="プロジェクトのファイル" chevron="end" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
-        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>src</bdi></span>
+        <span><bdi>src</bdi><span data-trailing-text>12</span></span>
         <ul>
-          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>components</bdi></span><ul><li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>button.ts</bdi></span></li></ul></li>
-          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>index.ts</bdi></span></li>
+          <li><span><bdi>components</bdi><span data-trailing-text>9</span></span><ul><li><span><bdi>button.ts</bdi><span data-trailing-text>4 KB</span></span></li></ul></li>
+          <li><span><bdi>index.ts</bdi><span data-trailing-text>1 KB</span></span></li>
         </ul>
       </li>
-      <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>package.json</bdi></span></li>
+      <li><span><bdi>package.json</bdi><span data-trailing-text>2 KB</span></span></li>
     </ul>
   </tanrei-tree-view>
 </DemoFrame>
 
-| `indent` | 葉の行 | 使う場面 |
+| `chevron` | 置く場所 | 使う場面 |
 | --- | --- | --- |
-| `regular`（既定） | シェブロンの枠を空のまま保つ | 同じ段のアイコンと名前が、それぞれ 1 列にそろいます。 |
-| `compact` | 枠を保たない | 葉のアイコンが親のアイコンの真下に来て、ファイルだけの段は描かないシェブロンの場所を取りません。 |
+| `start`（既定） | アイコンの前。開くと 1/4 回転します | ファイルツリーと、ツリーパターン。 |
+| `end` | 末尾テキストの後ろ。`expand_more` で、開くと半回転します | 設定など、メニューのように読むツリー。ナビゲーションドロワーと同じ位置です。 |
+| `none` | 置かない | 自分のグリフで開閉を示すフォルダー。 |
 
-1 段ごとにどれだけ内側へ寄るかは、密度ごとのトークン `comp.tree-view.level.indent` です。既定値はシェブロンの枠と隙間 1 つ分なので、子のシェブロンは親のアイコンが始まる位置に来ます。デザインシステムのレイヤーで任意の量に変えられ、すべてのプラットフォームが従います。
-
-### 開くフォルダー
-
-<DemoFrame label="disclosure icon：フォルダーのグリフが開閉を示し、押すと開閉する" plain>
-  <tanrei-tree-view class="not-content tanrei-not-prose" label="プロジェクトのファイル" disclosure="icon" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+<DemoFrame label="chevron none：フォルダーのグリフが開閉を示し、ガイドはポインターを重ねると現れる" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="プロジェクトのファイル" chevron="none" guides="hover" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
     <ul>
       <li data-open>
         <span><span class="tanrei-icon" aria-hidden="true" data-open-icon="folder_open">folder</span><bdi>src</bdi></span>
@@ -253,7 +247,49 @@ compact の行は、ポインターのターゲットより低くなります。
   </tanrei-tree-view>
 </DemoFrame>
 
-`disclosure="icon"` ではシェブロンを描きません。アイコンに開いたときのグリフ（`data-open-icon="folder_open"`）を指定した親は、グリフで開閉を示し、そのグリフを押すとシェブロンと同じように開閉します。開いたときのグリフを持たない親はシェブロンを残すので、状態の印がない親はできません。既定の `disclosure="chevron"` では、開いたときのグリフはシェブロンの横に描きます。
+`chevron="none"` では、アイコンに開いたときのグリフ（`data-open-icon="folder_open"`）を指定した親は、グリフで開閉を示し、グリフを押すと開閉します。アイコンのない親は行を押すと開閉します。ただし行で選べるときは選択が優先され、矢印キーで開きます。矢印キーは常に開閉します。
+
+`expandable="false"` にすると開閉そのものをなくします。すべての親を開いた状態で表示し、シェブロンもトグルもなく、どの行も展開・折りたたみの状態を持ちません。常に全体を見せる構造に使います。
+
+### ガイド
+
+`guides="shown"`（または値なしの属性）を設定すると、開いている親から、その下位の行の横に細い線を下へ引きます。`guides="hover"` では、ポインターがツリーの上にあるときと、フォーカスがツリーの中にあるときだけ引きます。インデントだけではどの行がまとまりなのか分かりにくい、深いツリーで使います。線は親の行の最初の要素の中央の下に立ちます。先頭のシェブロン、なければアイコン、なければラベルの始まりです。場所は取らず、インデントが 0 のときは引きません。
+
+### インデント
+
+| `indent` | 子が始まる位置 |
+| --- | --- |
+| `auto`（既定） | 親のラベルが始まる位置。段の幅は、親の行でラベルより前にあるもの（先頭のシェブロン、アイコン）に従います。ラベルの前に何もない行は、段のインデントのトークン分だけ子を内側へ寄せます。 |
+| 数値 | 親よりその px だけ内側。`0` では段を付けず、ガイドも引きません。 |
+
+### アイコンとその場所
+
+`icon-space="auto"`（既定）は、同じ段にアイコンを持つ行があるあいだ、アイコンのない行にもアイコンの場所を取り、段のラベルを 1 列にそろえます。`always` はすべての行で取り、`never` はアイコンのある行だけです。`icon-gap` はアイコンとラベルのあいだを px で決めます。`auto` のままなら、どちらの密度でも同じトークン `comp.tree-view.icon.gap` です。
+
+### ハイライト
+
+`highlight="indented"`（既定）は、行の塗り、ホバーと押下、フォーカスリングを、その段が始まる位置から描くので、塗りが段を示します。`highlight="full"` では、ファイルブラウザーのようにツリーの幅いっぱいに描きます。当たり判定はどちらでも幅全体です。
+
+### 1 行
+
+ラベルと補足テキストはそれぞれ 1 行で、収まらないところは省略記号で切ります。切った文字列は、ホバーとキーボードフォーカスでツールチップに全文を表示し、Escape で隠れます。アクセシブルネームは常にラベルの全文です。`label-wrap` と `supporting-wrap` を設定すると、切らずに折り返します。補足テキストはラベルの下に置き、`<li>` に `data-supporting-position="inline"` を付けるとラベルの後ろ、同じ行に置きます。ラベルは要素（`<bdi>`）に入れます。行に直接書いたラベルは折り返します。
+
+### 固定される親
+
+スクロールする枠の中では、表示中の行の上にある開いた親の行が、エディターのスティッキースクロールのように枠の上端に固定され、その下を子がスクロールします。固定するのは最大 `sticky-max` 行（2）で、内側の親が優先です。固定される行は行そのものです。固定された親を押すと閉じ、キーボードでその下に隠れた行に移ると、固定された行の下までスクロールします。`sticky-parents="false"` で無効になります。自分のスクロール枠の中にないツリーは何も固定しません。
+
+### 複数を選ぶ
+
+| キーや操作 | 複数選択では |
+| --- | --- |
+| Space、Enter、押す | 項目を選ぶか選択を外し、それを起点にします。 |
+| Shift+下、Shift+上 | フォーカスを移し、起点からフォーカスのある行までを選びます。戻ると範囲が縮みます。 |
+| Shift+Space、Shift を押しながら押す | 起点からその行までを選びます。 |
+| Ctrl+Shift+Home、Ctrl+Shift+End | フォーカスのある行から、表示中の最初または最後の行までを選びます。 |
+| Ctrl+A | 表示中で選べる行をすべて選びます。 |
+
+Apple のプラットフォームでは Ctrl の代わりに Command です。1 回の操作で `change` は 1 回発火します。
+
 
 ### 名前の変更と新しい項目
 
@@ -287,7 +323,7 @@ tree.addEventListener('create', (event) => {
 
 ### 深いツリーと狭いウィンドウ
 
-行は、段が 1 つ深くなるごとにインデント 1 つ分内側から始まります。ある段のインデントがツリーの幅の半分を超えるときは、収まるいちばん深い段と同じ位置から行が始まります。名前のために幅の半分が残ります。支援技術には、本当の段が伝わります。
+段が深くなるごとに内側から始まります。行のラベルがツリーの幅の半分より先から始まってしまうときは、ラベルがちょうど半分から始まる位置までしか内側へ寄せないので、名前は幅の半分を保ちます。支援技術には本当の段がそのまま伝わります。
 
 ### サーバーで描画するとき
 
@@ -319,14 +355,16 @@ tree.addEventListener('create', (event) => {
 - Home と End は最初と最後の行に移動します。文字を入力すると、その文字で始まるラベルの次の行に移動します。`*` は、フォーカスのある行と同じ段にある閉じた親をすべて開きます。
 - Enter と Space は、行を押したときと同じことをします。選択がフォーカスに付いて動くことはありません。
 - `editable` のとき、F2 でフォーカスのある行の名前の上に入力欄を開きます。Enter で確定、Escape で取り消し、フォーカスは行に戻ります。入力メソッドの変換中は、どちらのキーも入力メソッドのものです。入力欄の名前は `edit-label` で、新しい行は入力欄を持つ、その段のツリー項目です。
-- `disclosure="icon"` では、開閉はグリフと `aria-expanded` で伝わり、色だけで伝えることはありません。
+- `chevron="none"` では、開閉はグリフと `aria-expanded` で伝わり、色だけで伝えることはありません。矢印キーは常に開閉します。`expandable="false"` ではどの行も `aria-expanded` を持たず、グループが段を伝えます。
+- 複数選択では、Shift と矢印キーまたは Space で起点からの範囲を、Ctrl（Command）と Shift と Home または End で最初または最後の行までを、Ctrl（Command）と A で表示中のすべてを選びます。
+- 固定される親の行は行そのものなので、支援技術はそれぞれの行に、その位置で 1 回だけ出会います。
 - 開く、閉じる、選ぶことは、行自身の状態で伝わります。何も読み上げず、フォーカスも動かしません。
 - フォーカスのある行を持つ親が閉じると、フォーカスはその親に移ります。フォーカスのある行が取り除かれると、次の行に移ります。
 - フォーカスリングは行の内側に描くので、スクロールするボックスに切られません。無効な行でも普段の濃さで描きます。行は薄くなりますが、リングは薄くなりません。
 - シェブロン、アイコン、ガイドは支援技術から隠します。読み込み中の行も隠します。親が、読み込み中であることを伝えます。
-- 文字サイズ 200% では、ラベルが折り返し、行が高くなります。切り詰められるのは末尾テキストだけです。
+- ラベルと補足テキストはそれぞれ 1 行です。切った文字列はホバーとキーボードフォーカスでツールチップに全文を表示し、Escape で隠れ、ポインターをその上へ移せます。アクセシブルネームは常に全文です。`label-wrap` と `supporting-wrap` を設定すると、文字サイズ 200% で折り返し、行が高くなります。
 - 強制カラーモードでは、選ばれた行はシステムの選択色になり、縁が付きます。
-- 空の `label`、ラベルのない項目、行の中のコントロール、どの項目の値でもない選択、同じ値を持つ 2 つの項目、未知の `density`・`selection`・`indent`・`disclosure`、`disclosure="icon"` で開いたときのグリフを持たない親、`edit-label` のない入力欄は、デバッグビルドで報告します。
+- 空の `label`、ラベルのない項目、行に直接書いたラベル、行の中のコントロール、どの項目の値でもない選択、同じ値を持つ 2 つの項目、未知の `density`・`selection`・`chevron`・`guides`・`icon-space`・`highlight`、数値でない `indent`・`icon-gap`、`chevron="none"` でアイコンのない親、`edit-label` のない入力欄は、デバッグビルドで報告します。
 
 ### 利用者側で行うこと
 
