@@ -44467,7 +44467,7 @@
               "name": "container"
             },
             {
-              "description": "The mark column (reserved while the surface holds a checkbox or radio item).",
+              "description": "The mark column (kept in a row without a mark as the menu's `iconSpace` says, MNU-59).",
               "name": "mark"
             },
             {
@@ -46784,7 +46784,7 @@
               "name": "container"
             },
             {
-              "description": "The mark column, empty in a submenu item (reserved while the surface holds a checkbox or radio item).",
+              "description": "The mark column, empty in a submenu item (kept in a row without a mark as the menu's `iconSpace` says, MNU-59).",
               "name": "mark"
             },
             {
@@ -47706,6 +47706,18 @@
             },
             {
               "kind": "field",
+              "name": "iconSpace",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMenuIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a row keeps the room of the mark column and of the leading icon column where it draws nothing there, so that\nthe labels of a section — a group, or a run of items outside any group — start on one line (MNU-59). `auto` (the\ndefault): while another item of its section draws in that column (a checkbox or radio item its mark, an item its\nleading icon), so a section without marks or icons draws its labels where the row's content starts. `always`: every\nrow keeps both. `never`: only a row that draws in a column has it. It applies to the menu and to every submenu of it.",
+              "attribute": "icon-space",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "anchor",
               "privacy": "public",
               "type": {
@@ -48537,6 +48549,15 @@
               "default": "'auto'",
               "description": "How a group is told from what is next to it: `divider` draws a line between them, `gap` leaves empty space and no\nline. `auto` takes `comp.menu.separation`, the design system's answer (divider in the default system). It applies to\nthe menu and to every submenu of it.",
               "fieldName": "separation"
+            },
+            {
+              "name": "icon-space",
+              "type": {
+                "text": "TanreiMenuIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a row keeps the room of the mark column and of the leading icon column where it draws nothing there, so that\nthe labels of a section — a group, or a run of items outside any group — start on one line (MNU-59). `auto` (the\ndefault): while another item of its section draws in that column (a checkbox or radio item its mark, an item its\nleading icon), so a section without marks or icons draws its labels where the row's content starts. `always`: every\nrow keeps both. `never`: only a row that draws in a column has it. It applies to the menu and to every submenu of it.",
+              "fieldName": "iconSpace"
             },
             {
               "name": "anchor",
