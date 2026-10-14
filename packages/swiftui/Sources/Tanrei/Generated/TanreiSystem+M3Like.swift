@@ -5396,7 +5396,7 @@ private let m3LikeMenuTokens = TanreiMenuTokens(
   controlBoxShape: 4,
   controlBoxSize: 18,
   controlFillInset: 0,
-  controlFillOpacity: 0.5,
+  controlFillOpacity: 0.16,
   controlMarkSize: 20,
   controlMarkWeight: 400,
   controlOutlineWidth: 2,

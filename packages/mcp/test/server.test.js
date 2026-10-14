@@ -503,7 +503,13 @@ test('diff_systems: counts first, details paginated', async () => {
   assert.match(ext.note, /EXTENSIONS[\s\S]*declaredBy[\s\S]*Neither is an error/);
   // Extending changes no core value; what the fixture also SETS under "tokens" (its choices, icon families, state opacities) does, and says who set it.
   const core = Object.keys(extended.tokens).filter((id) => !DECLARED.some(([declared]) => id === declared || id.startsWith(`${declared}.`)) && !/\.(3x|danger)(\.|$)/.test(id));
-  const all = (await server.call('diff_systems', { a: 'tanrei', b: extendedFile, limit: 200 })).data;
+  // Every page: the state colors that follow the fixture's state opacities fill more than one.
+  const all = { changes: [] };
+  for (let offset = 0; offset !== null; ) {
+    const page = (await server.call('diff_systems', { a: 'tanrei', b: extendedFile, limit: 200, offset })).data;
+    all.changes.push(...page.changes);
+    offset = page.nextOffset;
+  }
   assert.deepEqual(all.changes.filter((c) => c.setBy).map((c) => c.id).sort(), core.sort());
   assert.deepEqual(all.changes.find((c) => c.id === 'tanrei.sys.behavior.focus-style'), { id: 'tanrei.sys.behavior.focus-style', a: 'ring', b: 'glow', setBy: ['acme'] }, 'a choice of kind is shown by name');
 });

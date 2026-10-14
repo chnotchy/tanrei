@@ -1,4 +1,4 @@
-// 104 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 112 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 @file:Suppress("unused", "MagicNumber", "MaxLineLength", "LongParameterList", "LargeClass", "LongMethod")
@@ -5041,7 +5041,7 @@ private object CupertinoSystemSource {
             controlBoxShape = 2.dp,
             controlBoxSize = 18.dp,
             controlFillInset = 0.dp,
-            controlFillOpacity = 0.5f,
+            controlFillOpacity = 0.16f,
             controlMarkSize = 20.dp,
             controlMarkWeight = 300f,
             controlOutlineWidth = 2.dp,

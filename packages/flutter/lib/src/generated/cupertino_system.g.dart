@@ -1,4 +1,4 @@
-// 104 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 112 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 //
@@ -5386,7 +5386,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     controlBoxShape: 2.0,
     controlBoxSize: 18.0,
     controlFillInset: 0.0,
-    controlFillOpacity: 0.5,
+    controlFillOpacity: 0.16,
     controlMarkSize: 20.0,
     controlMarkWeight: 300.0,
     controlOutlineWidth: 2.0,

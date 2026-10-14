@@ -1,4 +1,4 @@
-/* 104 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json */
+/* 112 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json */
 /* GENERATED FILE — DO NOT EDIT. Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`. */
 @layer tanrei.tokens {
   [data-tanrei-system="cupertino"] {
@@ -4522,7 +4522,7 @@
     --tanrei-comp-menu-control-box-shape: var(--tanrei-dial-shape-unit);
     --tanrei-comp-menu-control-box-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 4.5), 0.25px);
     --tanrei-comp-menu-control-fill-inset: 0px;
-    --tanrei-comp-menu-control-fill-opacity: 0.5;
+    --tanrei-comp-menu-control-fill-opacity: 0.16;
     --tanrei-comp-menu-control-mark-size: var(--tanrei-sys-icon-small);
     --tanrei-comp-menu-control-mark-weight: var(--tanrei-sys-icon-mark-weight);
     --tanrei-comp-menu-control-outline-width: var(--tanrei-sys-border-thick);
