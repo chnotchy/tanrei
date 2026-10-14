@@ -9793,11 +9793,12 @@ public struct TanreiMenuCondition: RawRepresentable, Hashable, Sendable, CustomS
 
   public static let unselected = TanreiMenuCondition(rawValue: "unselected")
   public static let selected = TanreiMenuCondition(rawValue: "selected")
+  public static let current = TanreiMenuCondition(rawValue: "current")
   public static let destructive = TanreiMenuCondition(rawValue: "destructive")
   public static let expanded = TanreiMenuCondition(rawValue: "expanded")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiMenuCondition] = [.unselected, .selected, .destructive, .expanded]
+  public static let core: [TanreiMenuCondition] = [.unselected, .selected, .current, .destructive, .expanded]
   /// The default: what a value the current design system does not have falls back to.
   public static let fallback = TanreiMenuCondition.unselected
 }
@@ -9880,6 +9881,7 @@ public struct TanreiMenuConditionTokens: Sendable, Equatable {
 public struct TanreiMenuConditions: Sendable, Equatable {
   public var unselected: TanreiMenuConditionTokens
   public var selected: TanreiMenuConditionTokens
+  public var current: TanreiMenuConditionTokens
   public var destructive: TanreiMenuConditionTokens
   public var expanded: TanreiMenuConditionTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
@@ -9888,12 +9890,14 @@ public struct TanreiMenuConditions: Sendable, Equatable {
   public init(
     unselected: TanreiMenuConditionTokens,
     selected: TanreiMenuConditionTokens,
+    current: TanreiMenuConditionTokens,
     destructive: TanreiMenuConditionTokens,
     expanded: TanreiMenuConditionTokens,
     extra: [TanreiMenuCondition: TanreiMenuConditionTokens] = [:]
   ) {
     self.unselected = unselected
     self.selected = selected
+    self.current = current
     self.destructive = destructive
     self.expanded = expanded
     self.extra = extra
@@ -9904,6 +9908,7 @@ public struct TanreiMenuConditions: Sendable, Equatable {
     switch key {
     case .unselected: return unselected
     case .selected: return selected
+    case .current: return current
     case .destructive: return destructive
     case .expanded: return expanded
     default: return extra[key]

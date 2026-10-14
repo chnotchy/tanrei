@@ -7,7 +7,9 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { emitCss } from '../src/emit/css.js';
 import { buildIR } from '../src/ir.js';
+import { buildModel } from '../src/model.js';
 import { TARGETS, buildProductSystem } from '../src/product.js';
 import { resolveSystem, validateSystem } from '../src/resolve.js';
 
@@ -80,4 +82,28 @@ test('the tokens output says it exactly, whatever the code targets can do', asyn
     const doc = JSON.stringify(built.files.tokens[`generated/comp.states.${scheme}.tokens.json`]).toLowerCase();
     assert.ok(doc.includes(`#${colors[PRESSED][scheme]}`), `${scheme}: #${colors[PRESSED][scheme]}`);
   }
+});
+
+// A `mix` or `alpha` may take its amount per scheme (a context map). The default system withholds a checked menu row's
+// fill at standard contrast and gives it at medium and high: every platform states that per scheme, and the current
+// link item's fill, which has no such map, stays one paint.
+test('an alpha whose amount is a context map is a per-scheme paint, and the CSS states each level where it changes', async () => {
+  const model = await buildModel();
+  const ir = buildIR(model);
+  const paint = (id) => ir.componentTokens.menu.find((t) => t.id === id).paint;
+  const checked = paint('tanrei.comp.menu.selected.container.color');
+  assert.equal(checked.kind, 'scheme');
+  for (const scheme of ir.schemes) assert.equal(checked.by[scheme].kind, 'alpha', scheme);
+  assert.deepEqual(ir.schemes.map((scheme) => checked.by[scheme].amount), [0, 0.16, 0.16, 0, 0.16, 0.16]);
+  const disabled = paint('tanrei.comp.menu.selected.disabled.container.color');
+  assert.deepEqual(ir.schemes.map((scheme) => disabled.by[scheme].amount), [0, 0.12, 0.12, 0, 0.12, 0.12], 'a level that names a token takes its value');
+  // A state that mixes it follows it per scheme too.
+  assert.equal(paint('tanrei.comp.menu.selected.hovered.container.color').kind, 'scheme');
+  assert.deepEqual(paint('tanrei.comp.menu.current.container.color'), { kind: 'alpha', of: paint('tanrei.comp.menu.current.state-layer.color'), amount: 0.16 });
+  const name = '--tanrei-comp-menu-selected-container-color';
+  const blocks = emitCss(model).split(/\n {2}(?=\[data-|@media)/);
+  const declared = (selector) => blocks.filter((block) => selector.test(block.split('\n')[0])).map((block) => block.split('\n').find((line) => line.trim().startsWith(`${name}:`))?.trim());
+  const at = (amount) => `${name}: color-mix(in srgb, var(--tanrei-comp-menu-selected-state-layer-color) ${amount}%, transparent);`;
+  assert.ok(blocks[0].includes(at(0)), 'standard contrast, in the base block');
+  for (const selector of [/data-tanrei-contrast="medium"/, /data-tanrei-contrast="high"/, /prefers-contrast: more/]) assert.deepEqual(declared(selector), [at(16)], String(selector));
 });

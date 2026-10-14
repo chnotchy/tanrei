@@ -2134,7 +2134,7 @@ test.describe('entries that act', () => {
     expect((await box(page.locator('#same'))).width).toBeCloseTo(before.width + gap + size, 1);
   });
 
-  test('MBR-38: the current link item is exposed as the current page and drawn from the selected condition — the fill and colors of the menu’s selected row — at its label’s own weight; it stays a link; the bar never sets it, its width does not change with it, and more than one and one without a destination are reported', async ({ page }) => {
+  test('MBR-38: the current link item is exposed as the current page and drawn from the selected condition — the fill and colors of the menu’s current link item — at its label’s own weight; it stays a link; the bar never sets it, its width does not change with it, and more than one and one without a destination are reported', async ({ page }) => {
     const seen = warnings(page);
     await mountFixtures(page, spec, { icons: true, reducedMotion: true });
     await wire(page);
@@ -2143,13 +2143,15 @@ test.describe('entries that act', () => {
     await expect(preview).not.toHaveAttribute('aria-current');
     // The label's own weight and size: the place is told by the fill, never by a heavier label.
     for (const property of ['font-weight', 'font-size']) expect(await css(history, property), property).toBe(await css(preview, property));
-    // The selected condition, whose colors are the menu's selected row's: the same fill in a bar and in a menu.
+    // The selected condition, whose colors are the menu's current link item's: the same fill in a bar and in a menu.
     const fill = await resolveColor(page, T('selected-container-color'));
-    expect(fill).toBe(await resolveColor(page, '--tanrei-comp-menu-selected-container-color'));
+    expect(fill).toBe(await resolveColor(page, '--tanrei-comp-menu-current-container-color'));
+    // Not a checked row's fill: the default system withholds that one at standard contrast, and keeps this one.
+    expect(fill).not.toBe(await resolveColor(page, '--tanrei-comp-menu-selected-container-color'));
     expect(await css(itemContainer(page, 'link-current', 'History'), 'background-color')).toBe(fill);
     expect(await css(itemContainer(page, 'link-current', 'History'), 'background-color')).not.toBe(await css(itemContainer(page, 'link-current', 'Preview'), 'background-color'));
     expect(await css(history, 'color')).toBe(await resolveColor(page, T('selected-label-color')));
-    expect(await resolveColor(page, T('selected-label-color'))).toBe(await resolveColor(page, '--tanrei-comp-menu-selected-label-color'));
+    expect(await resolveColor(page, T('selected-label-color'))).toBe(await resolveColor(page, '--tanrei-comp-menu-current-label-color'));
     // Never mistaken for the title of an open menu: not the expanded condition.
     await expect(item(page, 'link-current', 'History').locator('.title')).not.toHaveClass(/expanded/);
     expect(fill).not.toBe(await resolveColor(page, T('expanded-container-color')));
@@ -2438,12 +2440,12 @@ test.describe('entries that act', () => {
       expect(tree.filter((node) => node.role === 'menuitem' && node.parent === 'menubar').map((node) => `${node.name}:${node.expanded}:${node.popup}`)).toEqual(['File:false:menu', 'More:true:menu']);
     }
     // A folded link item that opens a new context is marked as the menu marks its own; a current one is the menu's own
-    // current link item (MNU-58): filled from the selected condition, at its label's own weight.
+    // current link item (MNU-58): filled from the current condition, at its label's own weight.
     const row = (label: string) => item(page, 'fold', label).locator('tanrei-menu-item');
     await expect(row('Source').locator('.link-mark')).toHaveCount(1);
     await expect(row('Documentation').locator('.link-mark')).toHaveCount(0);
     expect(await css(row('History').locator('.label'), 'font-weight')).toBe(await css(row('Documentation').locator('.label'), 'font-weight'));
-    expect(await css(row('History').locator('.row'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-menu-selected-container-color'));
+    expect(await css(row('History').locator('.row'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-menu-current-container-color'));
     expect(await css(row('Documentation').locator('.row'), 'background-color')).not.toBe(await css(row('History').locator('.row'), 'background-color'));
     // An action: the listener on the bar item's own element hears it once, while the overflow item's menu is still shown.
     await page.evaluate(() => {

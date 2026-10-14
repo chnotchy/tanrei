@@ -127,13 +127,29 @@ test('a mix or alpha amount may be a context map, read for the scheme like a rol
   assert.equal(stateDocument(rules, 'dark-high').pressed.container.color.$value.alpha, 0.75, 'the last value repeats for a contrast the list does not reach — here it does');
   assert.equal(stateDocument(rules, 'light-high').pressed.container.color.$value.alpha, 0.5);
   for (const scheme of ['light', 'light-medium', 'light-high', 'dark', 'dark-medium', 'dark-high']) assert.match(stateDocument(rules, scheme).hovered.container.color.$value.hex, /^#[0-9a-f]{6}$/, `${scheme}: a real color`);
-  assert.deepEqual(stateDocument(rules).hovered.container.color.$extensions['dev.tanrei.derive'].amount, [0.1, 0.2, 0.5], 'the rule travels as written');
+  // The rule travels with the amount of the scheme it is written into, so that an emitter that restates it (CSS
+  // color-mix, a native paint) restates that scheme's; the rest of the rule as written.
+  assert.deepEqual(stateDocument(rules).hovered.container.color.$extensions['dev.tanrei.derive'], { fn: 'mix', base: '{tanrei.comp.chip.filled.container.color}', with: '{tanrei.comp.chip.filled.label.color}', amount: 0.1 });
+  assert.equal(stateDocument(rules, 'light-medium').hovered.container.color.$extensions['dev.tanrei.derive'].amount, 0.2);
+  assert.equal(stateDocument(rules, 'dark-high').pressed.container.color.$extensions['dev.tanrei.derive'].amount, 0.75);
   const refuse = (amount, pattern, scheme = 'light') => assert.throws(() => stateDocument([...rest, { match: 'tanrei.comp.*.*.*.container.color', derive: { fn: 'mix', base: '{tanrei.comp.$1.$2.container.color}', with: '{tanrei.comp.$1.$2.label.color}', amount } }], scheme), (error) => error instanceof SystemError && /^tanrei\.comp\.chip\.filled\.hovered\.container\.color: the "mix" rule's amount/.test(error.message) && pattern.test(error.message));
-  refuse('lots', /must be a number from 0 to 1, a "\{…\}" reference to one, or a context map of numbers .* — not "lots"/);
+  refuse('lots', /must be a number from 0 to 1, a "\{…\}" reference to one, or a context map of those .* — not "lots"/);
   refuse([0.1, 'x'], /not \[0\.1,"x"\]/, 'light-medium');
   refuse({ light: [0.1] }, /cannot be read for scheme "dark": context map has no "dark" entry/, 'dark');
   // Without a scheme the engine cannot read a context map: it says so instead of computing NaN.
   assert.throws(() => generateStateDocument({ system: { id: 'test', tokens: {}, rules: [...rest, { match: 'tanrei.comp.*.*.*.container.color', derive: { fn: 'alpha', of: '{tanrei.comp.$1.$2.container.color}', amount: [0.1] } }] }, documents: chip, note: 'test', roleColor: (role) => roles.light[role] }), (error) => error instanceof SystemError && /the "alpha" rule's amount \[0\.1\] is a context map, and generateStateDocument was called without a scheme/.test(error.message));
+});
+
+test('an entry of a context map may name a token: a fill withheld at standard contrast and given at the others, by the system\'s own opacity', () => {
+  const documents = { ...chip, 'sys/state.tokens.json': { tanrei: { sys: { state: { fill: { $type: 'number', $value: 0.3, $extensions: voc } } } } } };
+  const rules = [...rest, { match: 'tanrei.comp.*.*.*.container.color', derive: { fn: 'alpha', of: '{tanrei.comp.$1.$2.container.color}', amount: [0, '{tanrei.sys.state.fill}'] } }];
+  const at = (scheme) => generateStateDocument({ system: { id: 'test', tokens: {}, rules }, documents, note: 'test', roleColor: (role) => roles[scheme.split('-')[0]][role], scheme }).tanrei.comp.chip.filled.hovered.container.color;
+  assert.equal(at('light').$value.alpha, 0, 'standard: none');
+  assert.equal(at('light-medium').$value.alpha, 0.3, 'medium: the token it names');
+  assert.equal(at('dark-high').$value.alpha, 0.3);
+  // Each scheme's document carries that scheme's amount: a number, or the reference itself.
+  assert.equal(at('light').$extensions['dev.tanrei.derive'].amount, 0);
+  assert.equal(at('light-high').$extensions['dev.tanrei.derive'].amount, '{tanrei.sys.state.fill}');
 });
 
 test('a text style declared with "derive" alone is refused where it is declared, with what to write', () => {

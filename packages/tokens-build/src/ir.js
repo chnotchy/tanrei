@@ -213,7 +213,7 @@ export function buildIR(model) {
  */
 function paintOf(model, id) {
   // Two rules are decided per scheme at build time — `tone` (a palette tone) and `contrast-pick` (a choice among
-  // tokens). Where the schemes agree the paint is an ordinary one; where they differ it is
+  // tokens) — and a `mix` or `alpha` may take its amount per scheme. Where the schemes agree the paint is an ordinary one; where they differ it is
   //   { kind: 'scheme', by: { light: <paint>, 'light-medium': <paint>, …, 'dark-high': <paint> } }
   // and a platform evaluates the paint of the scheme it is drawing in.
   const flags = { perScheme: false };
@@ -238,6 +238,9 @@ function paintIn(model, scheme, id, trail, flags) {
     return target.value;
   };
   if (rule?.fn === 'tone' || rule?.fn === 'contrast-pick') flags.perScheme = true;
+  // A mix or alpha whose amount is a context map is written into each scheme with that scheme's amount: where they
+  // differ, so does the paint.
+  if ((rule?.fn === 'mix' || rule?.fn === 'alpha') && model.schemes.some((s) => model.componentColors?.[s]?.[id] && model.componentColors[s][id].derive?.amount !== rule.amount)) flags.perScheme = true;
   if (rule?.fn === 'mix') return { kind: 'mix', base: ref(rule.base), with: ref(rule.with), amount: amount(rule.amount) };
   if (rule?.fn === 'alpha') return { kind: 'alpha', of: ref(rule.of), amount: amount(rule.amount) };
   if (token.alias) return paintIn(model, scheme, token.alias, next, flags);

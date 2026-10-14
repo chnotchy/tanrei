@@ -67,7 +67,7 @@ test('a contrast-pick rule on a Button state: the alias of each scheme', async (
   assert.match(css, /--tanrei-comp-button-filled-pressed-label-color: light-dark\(var\(--tanrei-ref-palette-brand-99\), var\(--tanrei-ref-palette-brand-10\)\);/);
 });
 
-test('a system without such a rule: no component color is declared per scheme; the default system\'s only ones are the snackbar\'s inverse status colors and the code block\'s seven syntax colors of six hues', async () => {
+test('a system without such a rule: no component color is declared per scheme; the default system\'s only ones are the snackbar\'s inverse status colors and the code block\'s seven syntax colors of six hues, and the contrast blocks raise the fill of a checked menu row and a chosen option', async () => {
   // The default system values four parts of each of the snackbar's four inverse status forms by a `tone` rule in the default
   // system's layer (the tones of the other theme): sixteen component colors that differ per scheme, on purpose. Every
   // other color of those forms follows them by alias and stays one expression. The presets pin all of it back.
@@ -79,6 +79,10 @@ test('a system without such a rule: no component color is declared per scheme; t
   // m3-like (and the systems that extend it) values the bands of an added and a removed line by a `tone` rule, a step
   // darker in the high-contrast dark scheme so that its syntax colors keep 7:1 on them: two more there.
   const BANDS = /^\s*--tanrei-comp-code-block-line-(added|removed)-container-color: light-dark\(/;
+  // The default system withholds the fill of a checked menu row, and of the chosen option of a select or a combobox, at
+  // standard contrast and gives it at medium and high (an `alpha` whose amount is a context map): one expression in the base
+  // block, raised in the contrast blocks. The presets pin those fills to none.
+  const CHECKED = /^\s*--tanrei-comp-(menu-selected(-disabled)?-container-color|(select|combobox)-(stacked|filled|outlined)(-disabled)?-selected-option-container-color): color-mix\(/;
   for (const system of ['tanrei', 'm3-like', 'cupertino']) {
     const css = emitCss(await (await resolveSystem({ system })).model(), system === 'tanrei' ? {} : { scope: system });
     const base = css.slice(0, css.indexOf('@media (prefers-contrast: more)'));
@@ -92,7 +96,8 @@ test('a system without such a rule: no component color is declared per scheme; t
       // The bar keeps its tone at every contrast level; the text, the glyph and the edge strengthen, as the roles they mirror do —
       // and so does every syntax hue.
       assert.ok(raised.length > 0);
-      assert.deepEqual(raised.filter((line) => !SYNTAX.test(line) && (!MIRRORED.test(line) || /-container-color:/.test(line))), []);
+      assert.deepEqual(raised.filter((line) => !SYNTAX.test(line) && !CHECKED.test(line) && (!MIRRORED.test(line) || /-container-color:/.test(line))), []);
+      assert.equal(new Set(raised.filter((line) => CHECKED.test(line)).map((line) => line.trim())).size, 14, "the checked row's fill and its disabled one, in the menu and in each select and combobox variant");
       assert.ok(raised.some((line) => SYNTAX.test(line)));
     } else {
       const bands = system === 'm3-like' ? 2 : 0;

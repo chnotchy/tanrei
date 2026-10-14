@@ -22,6 +22,8 @@ let fixtureSystem = null;
 const resolveFixture = () => (fixtureSystem ??= resolveSystem({ layers: [fixture] }));
 let shippedModel = null;
 const shipped = () => (shippedModel ??= buildModel());
+/** A checked row's fill, per contrast scheme in the default system, and every state that lays a layer over it. */
+const CHECKED_FILL = /^tanrei\.comp\.(menu\.selected(\.(hovered|focused|pressed|disabled))?\.container|(select|combobox)\.(stacked|filled|outlined)(\.(hovered|focused|pressed|disabled))?\.selected-option\.container)\.color$/;
 const only = (files) => { const texts = Object.values(files); assert.equal(texts.length, 1); return texts[0]; };
 
 test('a tone rule on a Button state becomes TanreiPaint.Scheme with the bundle\'s value of every scheme, by name', async () => {
@@ -38,7 +40,7 @@ test('a tone rule on a Button state becomes TanreiPaint.Scheme with the bundle\'
   // colors — the snackbar's inverse status forms and the code block's syntax hues —
   // which the fixture inherits.)
   assert.equal(ir.componentTokens.button.filter((token) => token.paint?.kind === 'scheme').length, 2, 'only the two colors whose schemes disagree');
-  assert.deepEqual(Object.entries(ir.componentTokens).filter(([component, tokens]) => !['button', 'snackbar', 'code-block'].includes(component) && tokens.some((token) => token.paint?.kind === 'scheme')).map(([component]) => component), []);
+  assert.deepEqual(Object.entries(ir.componentTokens).filter(([component, tokens]) => !['button', 'snackbar', 'code-block'].includes(component) && tokens.some((token) => token.paint?.kind === 'scheme' && !CHECKED_FILL.test(token.id))).map(([component]) => component), []);
   // Every scheme's colors say which scheme they are: that is what a per-scheme paint is evaluated against.
   for (const scheme of ir.schemes) assert.match(kotlin, new RegExp(`fun ${member[scheme]}Colors\\(\\): TanreiColors = TanreiColors\\(\\n\\s+TanreiScheme\\.${member[scheme][0].toUpperCase()}${member[scheme].slice(1)},`));
 });
@@ -54,7 +56,7 @@ test('a per-scheme paint that does not name exactly the six schemes stops the em
   assert.throws(() => emitKotlin(unknown, { externalPackage: 'com.example.design' }), /unknown: sepia/);
 });
 
-test('the vocabulary declares the per-scheme paint; the default system uses it for the snackbar\'s inverse status forms and the code block\'s seven syntax colors of six hues alone', async () => {
+test('the vocabulary declares the per-scheme paint; the default system uses it for the snackbar\'s inverse status forms and the code block\'s seven syntax colors of six hues, and for the fill of a checked menu row and a chosen option, alone', async () => {
   const files = emitKotlin(buildIR(await shipped()));
   const [vocabulary, values] = [Object.entries(files).find(([file]) => file.endsWith('TanreiTokens.kt'))[1], Object.entries(files).find(([file]) => !file.endsWith('TanreiTokens.kt'))[1]];
   assert.match(vocabulary, /public data class Scheme\(/);
@@ -66,12 +68,16 @@ test('the vocabulary declares the per-scheme paint; the default system uses it f
   const perScheme = Object.entries(ir.componentTokens).flatMap(([component, tokens]) => tokens.filter((token) => token.paint?.kind === 'scheme').map((token) => [component, token.id]));
   // Seven of the code block's syntax colors are tones of palettes the default system declares for syntax.
   const SYNTAX = /^tanrei\.comp\.code-block\.syntax\.color\.(keyword|constant|tag|string|function|property|type)$/;
+  // The fill of a checked menu row and of a select's or a combobox's chosen option, withheld at standard contrast and given
+  // at medium and high, and every state that lays a layer over it: 5 of the menu's, 15 each of the select's and the combobox's.
+  const checked = perScheme.filter(([, id]) => CHECKED_FILL.test(id));
+  assert.deepEqual(checked.map(([component]) => component).reduce((n, c) => ({ ...n, [c]: (n[c] ?? 0) + 1 }), {}), { combobox: 15, menu: 5, select: 15 });
   const [snackbar, code] = [perScheme.filter(([component]) => component === 'snackbar'), perScheme.filter(([component]) => component === 'code-block')];
-  assert.deepEqual(perScheme.filter(([component]) => component !== 'snackbar' && component !== 'code-block'), []);
+  assert.deepEqual(perScheme.filter(([component, id]) => component !== 'snackbar' && component !== 'code-block' && !CHECKED_FILL.test(id)), []);
   assert.deepEqual(snackbar.filter(([, id]) => !/\.inverse-(info|warning|error|success)\./.test(id)), []);
   assert.deepEqual(code.filter(([, id]) => !SYNTAX.test(id)), []);
   assert.deepEqual([snackbar.length, code.length], [116, 7]);
-  assert.equal(values.match(/TanreiPaint\.Scheme\(/g).length, 123);
+  assert.equal(values.match(/TanreiPaint\.Scheme\(/g).length, 158);
 });
 
 test('every generic class the IR can answer has a decided platform font; an undecided one stops the emitter by name', async () => {

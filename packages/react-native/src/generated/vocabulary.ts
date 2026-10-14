@@ -3054,11 +3054,12 @@ export interface TanreiMainActionButtonTokens {
 export interface TanreiMenuConditionRegistry {
   unselected: true;
   selected: true;
+  current: true;
   destructive: true;
   expanded: true;
 }
 export type TanreiMenuCondition = keyof TanreiMenuConditionRegistry;
-export type TanreiCoreMenuCondition = "unselected" | "selected" | "destructive" | "expanded";
+export type TanreiCoreMenuCondition = "unselected" | "selected" | "current" | "destructive" | "expanded";
 
 /** What one `condition` of `comp.menu` is drawn from in ONE interaction state. */
 export interface TanreiMenuConditionStateTokens {

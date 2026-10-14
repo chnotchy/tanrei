@@ -16,7 +16,8 @@
 //             | { "$value": <literal> }
 //             | { "derive": { "fn": "mix", "base": ref, "with": ref, "amount": ref|n|[std, medium, high]|{ light, dark } } }
 //             | { "derive": { "fn": "alpha", "of": ref, "amount": ref|n|[std, medium, high]|{ light, dark } } }
-//                 an amount is 0–1; a context map (contexts.js) is read for the scheme being generated, as a role's is
+//                 an amount is 0–1; a context map (contexts.js) is read for the scheme being generated, as a role's is,
+//                 each of its entries a number or a ref; the rule is written into each scheme with that scheme's amount
 //             | { "derive": { "fn": "tone", "palette": "<name>", "tone": n | [std, medium, high] | { light, dark } } }
 //                 an explicit tone of a declared palette per state — a ramp that is not monotonic (Fluent: rest 80,
 //                 hover 70, pressed 40) cannot be said with a mix
@@ -38,6 +39,8 @@ export const COLOR_RULES = new Set(['mix', 'alpha', 'tone', 'contrast-pick']);
 /** Does this layer operation value a color by a color rule? Such a color is valued per scheme, with the state tokens. */
 export const isColorRule = (op) => Boolean(op && !('$value' in op) && COLOR_RULES.has(op.derive?.fn));
 const isRef = (v) => typeof v === 'string' && /^\{[^}]+\}$/.test(v);
+/** Does a mix or alpha rule's amount vary by scheme (a context map: [standard, medium, high] or { light, dark })? */
+const hasContextAmount = (rule) => (rule.fn === 'mix' || rule.fn === 'alpha') && rule.amount !== null && typeof rule.amount === 'object';
 const refId = (v) => v.slice(1, -1);
 const clone = (v) => JSON.parse(JSON.stringify(v));
 
@@ -297,7 +300,9 @@ export function generateStateDocument({ system, documents, roleColor, toneColor,
     } catch (error) {
       throw new SystemError(`${id}: the "${rule.fn}" rule's amount cannot be read for scheme "${scheme}": ${error.message}`);
     }
-    if (typeof n !== 'number' || !Number.isFinite(n)) throw new SystemError(`${id}: the "${rule.fn}" rule's amount must be a number from 0 to 1, a "{…}" reference to one, or a context map of numbers ([standard, medium, high] or { "light": […], "dark": […] }) — not ${JSON.stringify(v)}`);
+    // A context map may name a token for a level, as the amount itself may (`[0, "{…disabled-container-opacity}"]`).
+    if (isMap && isRef(n)) return resolve(refId(n), trail);
+    if (typeof n !== 'number' || !Number.isFinite(n)) throw new SystemError(`${id}: the "${rule.fn}" rule's amount must be a number from 0 to 1, a "{…}" reference to one, or a context map of those ([standard, medium, high] or { "light": […], "dark": […] }) — not ${JSON.stringify(v)}`);
     return n;
   };
 
@@ -362,9 +367,12 @@ export function generateStateDocument({ system, documents, roleColor, toneColor,
       written = aliasOnly ? { token: Object.freeze({ $type: entry.type, $value: op.$value, $extensions }) } : { $extensions };
       plan.written.set(entry.id, written);
     }
+    // A mix or alpha whose amount is a context map is written with the amount of THIS scheme (a number, or the token it
+    // names), so that an emitter that restates the rule (CSS color-mix, a native paint) restates this scheme's.
+    const $extensions = op?.derive && hasContextAmount(op.derive) ? Object.freeze({ ...written.$extensions, [DERIVE]: { ...op.derive, amount: inContext(op.derive.amount, scheme) } }) : written.$extensions;
     // Colors a rule computed are written as concrete values for this scheme. A contrast-pick CHOOSES a token: it is
     // written as the alias it chose in this scheme, with the rule next to it.
-    node[parts.at(-1)] = written.token ?? { $type: entry.type, $value: picked.has(entry.id) ? picked.get(entry.id) : entry.type === 'color' ? toDtcgColor(value) : value, $extensions: written.$extensions };
+    node[parts.at(-1)] = written.token ?? { $type: entry.type, $value: picked.has(entry.id) ? picked.get(entry.id) : entry.type === 'color' ? toDtcgColor(value) : value, $extensions };
   }
   return root;
 }

@@ -20222,7 +20222,7 @@
                     0.149,
                     0.149
                   ],
-                  "alpha": 0.2272,
+                  "alpha": 0.08,
                   "hex": "#262626"
                 },
                 "$extensions": {
@@ -20359,7 +20359,7 @@
                     0.149,
                     0.149
                   ],
-                  "alpha": 0.244,
+                  "alpha": 0.1,
                   "hex": "#262626"
                 },
                 "$extensions": {
@@ -20496,7 +20496,7 @@
                     0.149,
                     0.149
                   ],
-                  "alpha": 0.244,
+                  "alpha": 0.1,
                   "hex": "#262626"
                 },
                 "$extensions": {
@@ -20633,7 +20633,7 @@
                     0.1059,
                     0.1059
                   ],
-                  "alpha": 0.12,
+                  "alpha": 0,
                   "hex": "#1b1b1b"
                 },
                 "$extensions": {
@@ -20644,7 +20644,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.sys.color.on-surface}",
-                    "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                    "amount": 0
                   }
                 }
               }
@@ -20880,7 +20880,7 @@
                   0.149,
                   0.149
                 ],
-                "alpha": 0.16,
+                "alpha": 0,
                 "hex": "#262626"
               },
               "$extensions": {
@@ -20890,6 +20890,706 @@
                 "dev.tanrei.derive": {
                   "fn": "alpha",
                   "of": "{tanrei.comp.menu.selected.state-layer.color}",
+                  "amount": 0
+                }
+              }
+            }
+          }
+        },
+        "current": {
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.149,
+                    0.149,
+                    0.149
+                  ],
+                  "alpha": 0.2272,
+                  "hex": "#262626"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "hovered",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.menu.current.container.color}",
+                    "with": "{tanrei.comp.menu.current.state-layer.color}",
+                    "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.supporting-text.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.trailing-text.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.leading-icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.trailing-icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.mark.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "control": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.control.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "control-mark": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.control-mark.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "hovered"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.149,
+                    0.149,
+                    0.149
+                  ],
+                  "alpha": 0.244,
+                  "hex": "#262626"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "focused",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.menu.current.container.color}",
+                    "with": "{tanrei.comp.menu.current.state-layer.color}",
+                    "amount": "{tanrei.sys.state.focus-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.supporting-text.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.trailing-text.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.leading-icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.trailing-icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.mark.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "control": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.control.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "control-mark": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.control-mark.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "focused"
+                }
+              }
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.149,
+                    0.149,
+                    0.149
+                  ],
+                  "alpha": 0.244,
+                  "hex": "#262626"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "pressed",
+                  "dev.tanrei.derive": {
+                    "fn": "mix",
+                    "base": "{tanrei.comp.menu.current.container.color}",
+                    "with": "{tanrei.comp.menu.current.state-layer.color}",
+                    "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.label.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.supporting-text.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.trailing-text.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.leading-icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.trailing-icon.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.mark.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "control": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.control.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "control-mark": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.control-mark.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.menu.current.state-layer.color}",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "pressed"
+                }
+              }
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1059,
+                    0.1059,
+                    0.1059
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#1b1b1b"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1059,
+                    0.1059,
+                    0.1059
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1b1b1b"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1059,
+                    0.1059,
+                    0.1059
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1b1b1b"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1059,
+                    0.1059,
+                    0.1059
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1b1b1b"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1059,
+                    0.1059,
+                    0.1059
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1b1b1b"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1059,
+                    0.1059,
+                    0.1059
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1b1b1b"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1059,
+                    0.1059,
+                    0.1059
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1b1b1b"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "control": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1059,
+                    0.1059,
+                    0.1059
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1b1b1b"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "control-mark": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1059,
+                    0.1059,
+                    0.1059
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1b1b1b"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1059,
+                    0.1059,
+                    0.1059
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#1b1b1b"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                  },
+                  "dev.tanrei.state": "disabled",
+                  "dev.tanrei.derive": {
+                    "fn": "alpha",
+                    "of": "{tanrei.sys.color.on-surface}",
+                    "amount": "{tanrei.sys.state.disabled-content-opacity}"
+                  }
+                }
+              }
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.149,
+                  0.149,
+                  0.149
+                ],
+                "alpha": 0.16,
+                "hex": "#262626"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product offers short sets of actions and choices in a surface that opens from a button or a field — plain actions, on/off options and one-of-several options, some destructive, some disabled, in groups, and where a set needs a second level, in a submenu that opens beside the item that names it."
+                },
+                "dev.tanrei.derive": {
+                  "fn": "alpha",
+                  "of": "{tanrei.comp.menu.current.state-layer.color}",
                   "amount": 0.16
                 }
               }
@@ -54226,7 +54926,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.2272,
+                    "alpha": 0.08,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -54394,7 +55094,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -54562,7 +55262,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -54771,7 +55471,7 @@
                       0.1059,
                       0.1059
                     ],
-                    "alpha": 0.12,
+                    "alpha": 0,
                     "hex": "#1b1b1b"
                   },
                   "$extensions": {
@@ -54782,7 +55482,7 @@
                     "dev.tanrei.derive": {
                       "fn": "alpha",
                       "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                      "amount": 0
                     }
                   }
                 }
@@ -54930,7 +55630,7 @@
                     0.149,
                     0.149
                   ],
-                  "alpha": 0.16,
+                  "alpha": 0,
                   "hex": "#262626"
                 },
                 "$extensions": {
@@ -54940,7 +55640,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.select.stacked.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": 0
                   }
                 }
               }
@@ -55037,7 +55737,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.2272,
+                    "alpha": 0.08,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -55205,7 +55905,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -55373,7 +56073,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -55582,7 +56282,7 @@
                       0.1059,
                       0.1059
                     ],
-                    "alpha": 0.12,
+                    "alpha": 0,
                     "hex": "#1b1b1b"
                   },
                   "$extensions": {
@@ -55593,7 +56293,7 @@
                     "dev.tanrei.derive": {
                       "fn": "alpha",
                       "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                      "amount": 0
                     }
                   }
                 }
@@ -55741,7 +56441,7 @@
                     0.149,
                     0.149
                   ],
-                  "alpha": 0.16,
+                  "alpha": 0,
                   "hex": "#262626"
                 },
                 "$extensions": {
@@ -55751,7 +56451,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.select.filled.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": 0
                   }
                 }
               }
@@ -55848,7 +56548,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.2272,
+                    "alpha": 0.08,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -56016,7 +56716,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -56184,7 +56884,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -56393,7 +57093,7 @@
                       0.1059,
                       0.1059
                     ],
-                    "alpha": 0.12,
+                    "alpha": 0,
                     "hex": "#1b1b1b"
                   },
                   "$extensions": {
@@ -56404,7 +57104,7 @@
                     "dev.tanrei.derive": {
                       "fn": "alpha",
                       "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                      "amount": 0
                     }
                   }
                 }
@@ -56552,7 +57252,7 @@
                     0.149,
                     0.149
                   ],
-                  "alpha": 0.16,
+                  "alpha": 0,
                   "hex": "#262626"
                 },
                 "$extensions": {
@@ -56562,7 +57262,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.select.outlined.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": 0
                   }
                 }
               }
@@ -56721,7 +57421,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.2272,
+                    "alpha": 0.08,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -56889,7 +57589,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -57057,7 +57757,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -57266,7 +57966,7 @@
                       0.1059,
                       0.1059
                     ],
-                    "alpha": 0.12,
+                    "alpha": 0,
                     "hex": "#1b1b1b"
                   },
                   "$extensions": {
@@ -57277,7 +57977,7 @@
                     "dev.tanrei.derive": {
                       "fn": "alpha",
                       "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                      "amount": 0
                     }
                   }
                 }
@@ -57425,7 +58125,7 @@
                     0.149,
                     0.149
                   ],
-                  "alpha": 0.16,
+                  "alpha": 0,
                   "hex": "#262626"
                 },
                 "$extensions": {
@@ -57435,7 +58135,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.combobox.stacked.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": 0
                   }
                 }
               }
@@ -57532,7 +58232,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.2272,
+                    "alpha": 0.08,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -57700,7 +58400,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -57868,7 +58568,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -58077,7 +58777,7 @@
                       0.1059,
                       0.1059
                     ],
-                    "alpha": 0.12,
+                    "alpha": 0,
                     "hex": "#1b1b1b"
                   },
                   "$extensions": {
@@ -58088,7 +58788,7 @@
                     "dev.tanrei.derive": {
                       "fn": "alpha",
                       "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                      "amount": 0
                     }
                   }
                 }
@@ -58236,7 +58936,7 @@
                     0.149,
                     0.149
                   ],
-                  "alpha": 0.16,
+                  "alpha": 0,
                   "hex": "#262626"
                 },
                 "$extensions": {
@@ -58246,7 +58946,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.combobox.filled.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": 0
                   }
                 }
               }
@@ -58343,7 +59043,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.2272,
+                    "alpha": 0.08,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -58511,7 +59211,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -58679,7 +59379,7 @@
                       0.149,
                       0.149
                     ],
-                    "alpha": 0.244,
+                    "alpha": 0.1,
                     "hex": "#262626"
                   },
                   "$extensions": {
@@ -58888,7 +59588,7 @@
                       0.1059,
                       0.1059
                     ],
-                    "alpha": 0.12,
+                    "alpha": 0,
                     "hex": "#1b1b1b"
                   },
                   "$extensions": {
@@ -58899,7 +59599,7 @@
                     "dev.tanrei.derive": {
                       "fn": "alpha",
                       "of": "{tanrei.sys.color.on-surface}",
-                      "amount": "{tanrei.sys.state.disabled-container-opacity}"
+                      "amount": 0
                     }
                   }
                 }
@@ -59047,7 +59747,7 @@
                     0.149,
                     0.149
                   ],
-                  "alpha": 0.16,
+                  "alpha": 0,
                   "hex": "#262626"
                 },
                 "$extensions": {
@@ -59057,7 +59757,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.combobox.outlined.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": 0
                   }
                 }
               }

@@ -5353,6 +5353,68 @@ private let cupertinoMenuTokens = TanreiMenuTokens(
         stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
+    current: TanreiMenuConditionTokens(
+      enabled: TanreiMenuConditionStateTokens(
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
+        labelColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
+        leadingIconColor: .role(.onSecondaryContainer),
+        trailingIconColor: .role(.onSecondaryContainer),
+        markColor: .none,
+        controlColor: .none,
+        controlMarkColor: .none,
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      hovered: TanreiMenuConditionStateTokens(
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
+        labelColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
+        leadingIconColor: .role(.onSecondaryContainer),
+        trailingIconColor: .role(.onSecondaryContainer),
+        markColor: .none,
+        controlColor: .none,
+        controlMarkColor: .none,
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      focused: TanreiMenuConditionStateTokens(
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
+        labelColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
+        leadingIconColor: .role(.onSecondaryContainer),
+        trailingIconColor: .role(.onSecondaryContainer),
+        markColor: .none,
+        controlColor: .none,
+        controlMarkColor: .none,
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      pressed: TanreiMenuConditionStateTokens(
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
+        labelColor: .role(.onSecondaryContainer),
+        supportingTextColor: .role(.onSecondaryContainer),
+        trailingTextColor: .role(.onSecondaryContainer),
+        leadingIconColor: .role(.onSecondaryContainer),
+        trailingIconColor: .role(.onSecondaryContainer),
+        markColor: .none,
+        controlColor: .none,
+        controlMarkColor: .none,
+        stateLayerColor: .role(.onSecondaryContainer)
+      ),
+      disabled: TanreiMenuConditionStateTokens(
+        containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        supportingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        trailingTextColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        leadingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        trailingIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        markColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        controlColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        controlMarkColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+      )
+    ),
     destructive: TanreiMenuConditionTokens(
       enabled: TanreiMenuConditionStateTokens(
         containerColor: .none,
@@ -5546,31 +5608,31 @@ private let cupertinoMenubarTokens = TanreiMenubarTokens(
     ),
     selected: TanreiMenubarConditionTokens(
       enabled: TanreiMenubarConditionStateTokens(
-        containerColor: .none,
-        labelColor: .role(.onSurface),
-        iconColor: .role(.onSurface),
-        stateLayerColor: .role(.onSurface)
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
       ),
       hovered: TanreiMenubarConditionStateTokens(
-        containerColor: .none,
-        labelColor: .role(.onSurface),
-        iconColor: .role(.onSurface),
-        stateLayerColor: .role(.onSurface)
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
       ),
       focused: TanreiMenubarConditionStateTokens(
-        containerColor: .none,
-        labelColor: .role(.onSurface),
-        iconColor: .role(.onSurface),
-        stateLayerColor: .role(.onSurface)
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
       ),
       pressed: TanreiMenubarConditionStateTokens(
-        containerColor: .none,
-        labelColor: .role(.onSurface),
-        iconColor: .role(.onSurface),
-        stateLayerColor: .role(.onSurface)
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
+        labelColor: .role(.onSecondaryContainer),
+        iconColor: .role(.onSecondaryContainer),
+        stateLayerColor: .role(.onSecondaryContainer)
       ),
       disabled: TanreiMenubarConditionStateTokens(
-        containerColor: .none,
+        containerColor: .alpha(of: .role(.onSecondaryContainer), amount: 0.16),
         labelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         iconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         stateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
