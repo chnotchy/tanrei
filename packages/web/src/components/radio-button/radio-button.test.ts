@@ -961,8 +961,10 @@ test.describe('press, feedback, corners and focus style', () => {
     await expect.poll(() => begun(page, 'o0')).toEqual(expect.arrayContaining([`ring padding-top ${duration}`, `ring background-color ${duration}`, `fill background-color ${duration}`]));
     await host(page, 'o0').evaluate((el) => ((el as any).checked = false));
     await settle(page, 'o0');
-    // A fill color that would show a pass through black: blue, fading from the transparent unselected fill.
-    await override(page, { [T('motion-selection-duration')]: '1200ms', [T('motion-selection-easing')]: 'linear', [T('selected-fill-color')]: 'rgb(0, 0, 255)' });
+    // A fill color that would show a pass through black: blue, fading from the transparent unselected fill. At half
+    // opacity: the default system's light tint (16 %) leaves a frame's channels a few levels of 8-bit precision, which
+    // WebKit rounds before it un-premultiplies them, and the path of the color is what is read here, not its strength.
+    await override(page, { [T('motion-selection-duration')]: '1200ms', [T('motion-selection-easing')]: 'linear', [T('selected-fill-color')]: 'rgb(0, 0, 255)', [T('fill-opacity')]: '0.5' });
     const opacity = Number(await token(page, T('fill-opacity')));
     const select = await sample(page, 'o0', 1500, [[0, true]]);
     const middle = select.filter((f) => f.stroke > w + 0.2 && f.stroke < S - 0.2);

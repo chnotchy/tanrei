@@ -598,7 +598,7 @@
     {
       "id": "MNU-40",
       "text": "WHILE a radio item's mark is the radio look (MNU-38) THE menu SHALL draw, whether the item is checked or not, a ring of outer diameter comp.menu.control.ring.size in the control color of its condition and state, the outer diameter the same in both conditions: WHILE the item is not checked the ring SHALL be stroked at comp.menu.control.ring.width inside that diameter; WHILE it is checked it SHALL be stroked at comp.menu.control.ring.selected-width-share of the ring's radius, or at comp.menu.control.ring.width where that is wider, the stroke growing inward, and the area inside the ring's inner edge, less comp.menu.control.fill.inset all round, SHALL be filled in the same control color at comp.menu.control.fill.opacity, ring and fill being one shape where they touch; a fill whose diameter would be zero or less SHALL NOT be drawn. THE menu SHALL draw no dot and no round state layer of its own.",
-      "verify": "Fixtures radio-checked, radio-none-checked, radio-checked-disabled and group-titles: in the default system the ring is 20 across, 2 thick when unchecked and 5 thick with a half-opaque centre when checked, the same ring the radio button draws."
+      "verify": "Fixtures radio-checked, radio-none-checked, radio-checked-disabled and group-titles: in the default system the ring is 20 across, 2 thick when unchecked and 5 thick with a centre of the control color at 16 % when checked, the same ring the radio button draws; the build holds that centre 3:1 apart from the ring on the sheet, the checked row's fill and its state under it (WCAG 1.4.11), 4.67:1 at the least (the focused row in dark)."
     },
     {
       "id": "MNU-41",

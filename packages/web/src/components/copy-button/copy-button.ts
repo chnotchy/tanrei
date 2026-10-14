@@ -13,6 +13,9 @@ export type TanreiCopyButtonVariant = keyof TanreiButtonVariantRegistry;
 /** The Button size it is drawn at: the Button's own values. */
 export type TanreiCopyButtonSize = keyof TanreiButtonSizeRegistry;
 
+/** How wide the labelled form's text box is (CPY-7, CPY-19): the widest of its three texts, or the one it shows. */
+export type TanreiCopyButtonLabelWidth = 'widest' | 'fit';
+
 /** What `copied` carries: the text that is now on the clipboard. */
 export interface TanreiCopyButtonCopiedDetail {
   text: string;
@@ -38,6 +41,7 @@ const DEFAULT_SIZE = 'medium';
  *
  *     <tanrei-copy-button text="npm install @tanrei/web" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
  *     <tanrei-copy-button icon-only="false" variant="tonal" text="…" label="Copy link" copied-label="Link copied" failed-label="Could not copy"></tanrei-copy-button>
+ *     <tanrei-copy-button icon-only="false" label-width="fit" text="…" label="Copy" copied-label="Copied to the clipboard" failed-label="Could not copy"></tanrei-copy-button>
  *
  * It has no color, shape or measure of its own: its shadow root holds a `<tanrei-button>` of the `variant` and `size`
  * you name, so every Button token, state and behaviour applies unchanged — the press and its hold, the focus
@@ -54,6 +58,11 @@ const DEFAULT_SIZE = 'medium';
  * on every activation. The icon-only form also shows those words for as long as its glyph does, in a small bubble
  * drawn as a plain Tooltip is (a `<tanrei-tooltip>` around the Button), which takes no focus and is not read a second
  * time.
+ *
+ * The labelled form keeps the width of its widest text, so nothing beside it moves when its words change. With
+ * `label-width="fit"` its width follows the text it shows instead, eased over
+ * `--tanrei-comp-copy-button-motion-resize-duration` (at once where motion is reduced): for a button with nothing after
+ * it in its row that a person may press next.
  *
  * The events are `copied` and `copyfailed`, not `copy`: `copy` is the document's own clipboard event.
  *
@@ -78,6 +87,7 @@ export class TanreiCopyButton extends LitElement {
     failedLabel: { type: String, attribute: 'failed-label' },
     // True unless the attribute says `false`: an HTML boolean cannot default to true.
     iconOnly: { attribute: 'icon-only', converter: { fromAttribute: (value: string | null) => value === null || value.trim().toLowerCase() !== 'false' } },
+    labelWidth: { type: String, attribute: 'label-width', reflect: true },
     variant: { type: String, reflect: true },
     size: { type: String, reflect: true },
     disabled: { type: Boolean, reflect: true },
@@ -98,6 +108,13 @@ export class TanreiCopyButton extends LitElement {
 
   /** True draws the glyph alone, named by `label`. False (`icon-only="false"`) draws the glyph and the label as text. */
   iconOnly = true;
+
+  /**
+   * How wide the labelled form's text box is. `widest`, the default, keeps it as wide as the widest of its three texts
+   * at all times, so the button never changes its width (CPY-7). `fit` makes it as wide as the text it shows, and eases
+   * its width to the new text when the form changes (CPY-19). Ignored while icon-only.
+   */
+  labelWidth: TanreiCopyButtonLabelWidth = 'widest';
 
   /**
    * The Button variant it is drawn as — `filled`, `tonal`, `elevated`, `outlined` or `text`. The default, text, is the
@@ -134,6 +151,15 @@ export class TanreiCopyButton extends LitElement {
     { firstInFrame: true },
   );
 
+  /** CPY-19: the width the label's box was given last, while labelWidth is fit; undefined before the first. */
+  private fitted: number | undefined;
+
+  /** CPY-19: a new face changes the texts' widths; the box takes the new width at once. */
+  private readonly resized = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.fit(false));
+
+  /** The label's box the observer watches the texts of. */
+  private observed: Element | null = null;
+
   private get button() {
     return this.renderRoot?.querySelector('tanrei-button') ?? null;
   }
@@ -154,8 +180,16 @@ export class TanreiCopyButton extends LitElement {
     else if (!this.disabled) super.click();
   }
 
+  override connectedCallback() {
+    super.connectedCallback();
+    // Back in a document: the texts are watched again (CPY-19).
+    if (this.hasUpdated) this.watchLabels();
+  }
+
   override disconnectedCallback() {
     super.disconnectedCallback();
+    this.resized?.disconnect();
+    this.observed = null;
     // The timer does not outlive the element: it is at rest when it comes back.
     this.rest();
     this.pending = false;
@@ -257,7 +291,47 @@ export class TanreiCopyButton extends LitElement {
     else if (changed.has('iconOnly') && !this.iconOnly && this.confirmation) this.confirmation.open = false;
   }
 
+  /** CPY-19: watches the three texts of the label's box, while labelWidth is fit. */
+  private watchLabels() {
+    const labels = this.renderRoot?.querySelector('.labels[data-fit]') ?? null;
+    if (labels === this.observed) return;
+    this.resized?.disconnect();
+    this.observed = labels;
+    if (labels) for (const each of labels.children) this.resized?.observe(each);
+  }
+
+  /**
+   * CPY-19: while labelWidth is fit, the label's box is as wide as the text it shows. A change of form, or of the words
+   * shown, eases the width over the resize motion (the box's own transition, none where motion is reduced); the first
+   * width, and one a new face gives, are taken at once (`animate` false).
+   */
+  private fit(animate: boolean) {
+    const labels = this.renderRoot?.querySelector<HTMLElement>('.labels[data-fit]');
+    if (!labels) {
+      this.fitted = undefined;
+      return;
+    }
+    const shown = labels.querySelector<HTMLElement>('.shown');
+    // The text's own width (it is max-content wide), not its rendered box: an ancestor's transform does not change it.
+    const width = shown ? Number.parseFloat(getComputedStyle(shown).inlineSize) : Number.NaN;
+    // Not laid out yet (the Button has not drawn its slot): the observer brings the first width.
+    if (!Number.isFinite(width) || width === this.fitted) return;
+    const first = this.fitted === undefined;
+    this.fitted = width;
+    if (first || !animate) {
+      labels.setAttribute('data-instant', '');
+      labels.style.inlineSize = `${width}px`;
+      // The width is in the style before the transition comes back, so nothing animates.
+      void getComputedStyle(labels).inlineSize;
+      labels.removeAttribute('data-instant');
+    } else labels.style.inlineSize = `${width}px`;
+  }
+
   protected override updated(changed: PropertyValues) {
+    // CPY-19: the box of a fitting label follows the text it shows; a new box (labelled again, or fit again) starts anew.
+    if (this.renderRoot.querySelector('.labels[data-fit]') !== this.observed) this.fitted = undefined;
+    this.watchLabels();
+    this.fit(true);
     if (!changed.has('label') && !changed.has('copiedLabel') && !changed.has('failedLabel') && !changed.has('iconOnly')) return;
     // CPY-17: it still renders and copies; a debug build says which words are missing.
     if (this.words.lacks('copyLabel', this.label)) report(this, 'CPY-17', this.iconOnly ? 'label is empty, so the icon-only button has no accessible name; give it a label' : 'label is empty; give the button its text');
@@ -289,7 +363,7 @@ export class TanreiCopyButton extends LitElement {
         @click=${this.onClick}
       >
         <span slot="icon" class="glyph"><span class="ink">${GLYPHS[this.form]}</span></span>
-        ${this.iconOnly ? nothing : html`<span class="labels">${text('label', this.words.get('copyLabel', this.label))}${text('copied', this.words.get('copiedLabel', this.copiedLabel))}${text('failed', this.words.get('copyFailedLabel', this.failedLabel))}</span>`}
+        ${this.iconOnly ? nothing : html`<span class="labels" ?data-fit=${this.labelWidth === 'fit'} style=${this.labelWidth === 'fit' && this.fitted !== undefined ? `inline-size: ${this.fitted}px` : ''}>${text('label', this.words.get('copyLabel', this.label))}${text('copied', this.words.get('copiedLabel', this.copiedLabel))}${text('failed', this.words.get('copyFailedLabel', this.failedLabel))}</span>`}
       </tanrei-button></tanrei-tooltip>
       <span class="live" role="status"></span>
       <span class="live" role="alert"></span>
