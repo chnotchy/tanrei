@@ -65382,20 +65382,12 @@
             }
           },
           "gap": {
-            "compact": {
-              "$type": "dimension",
-              "$value": {
-                "value": 8,
-                "unit": "px"
-              }
+            "$type": "dimension",
+            "$value": {
+              "value": 12,
+              "unit": "px"
             },
-            "regular": {
-              "$type": "dimension",
-              "$value": {
-                "value": 12,
-                "unit": "px"
-              }
-            }
+            "$description": "Between the icon (or the icon's kept room), the label and the trailing content of an expanded row, the same in every density: a compact drawer draws its rows lower and its glyphs smaller and keeps a name as far from its glyph as a regular one does (the tree view's icon.gap)."
           },
           "icon-indicator": {
             "height": {
@@ -65698,23 +65690,6 @@
               "unit": "ms"
             },
             "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
-          },
-          "guide-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 150,
-              "unit": "ms"
-            },
-            "$description": "How long the guide lines take to fade in and out while the pointer comes over the drawer and leaves it (guides hover). At once where motion is reduced."
-          },
-          "guide-easing": {
-            "$type": "cubicBezier",
-            "$value": [
-              0.2,
-              0,
-              0,
-              1
-            ]
           },
           "selection-duration": {
             "$type": "duration",
@@ -66517,7 +66492,23 @@
           }
         },
         "sticky": {
-          "outline": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.0431,
+                  0.0431,
+                  0.0431
+                ],
+                "hex": "#0b0b0b",
+                "alpha": 1
+              },
+              "$description": "Under a pinned row's own fill: the drawer's surface, opaque, so that the rows scrolling under the pinned rows are hidden. A modal drawer's pinned rows stand on its own container color."
+            }
+          },
+          "divider": {
             "color": {
               "$type": "color",
               "$value": {
@@ -66530,15 +66521,14 @@
                 "alpha": 0.48,
                 "hex": "#ffffff"
               },
-              "$description": "The edge under the last pinned row, which sets the pinned rows apart from the rows scrolling under them."
+              "$description": "The line under the last pinned row, where the rows that scroll under it begin."
             },
             "width": {
               "$type": "dimension",
               "$value": {
                 "value": 1,
                 "unit": "px"
-              },
-              "$description": "The width of the edge under the last pinned row."
+              }
             }
           }
         },

@@ -3375,7 +3375,6 @@ export interface TanreiNavigationDrawerDensityTokens {
   readonly itemContainerHeight: number;
   readonly itemPaddingInline: number;
   readonly itemPaddingBlock: number;
-  readonly itemGap: number;
   readonly itemNestIndent: number;
   readonly itemIconSize: number;
   readonly itemIconIndicatorWidth: number;
@@ -3417,6 +3416,7 @@ export interface TanreiNavigationDrawerTokens {
   readonly hoveredOpacity: number;
   readonly itemBadgeTypescale: TanreiTypescaleRole;
   readonly itemContainerShape: number;
+  readonly itemGap: number;
   readonly itemIconIndicatorShape: number;
   readonly itemSupportingTextTypescale: TanreiTypescaleRole;
   readonly itemTrailingTextTypescale: TanreiTypescaleRole;
@@ -3429,8 +3429,6 @@ export interface TanreiNavigationDrawerTokens {
   readonly motionExpandDuration: number;
   readonly motionExpandEasing: TanreiCubicBezier;
   readonly motionFeedbackDuration: number;
-  readonly motionGuideDuration: number;
-  readonly motionGuideEasing: TanreiCubicBezier;
   readonly motionSelectionDuration: number;
   readonly motionSelectionEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
@@ -3439,8 +3437,9 @@ export interface TanreiNavigationDrawerTokens {
   readonly pressedOpacity: number;
   readonly scrimBlur: number;
   readonly scrimColor: TanreiPaint;
-  readonly stickyOutlineColor: TanreiPaint;
-  readonly stickyOutlineWidth: number;
+  readonly stickyContainerColor: TanreiPaint;
+  readonly stickyDividerColor: TanreiPaint;
+  readonly stickyDividerWidth: number;
   readonly variants: TanreiNavigationDrawerVariants;
   readonly conditions: TanreiNavigationDrawerConditions;
   readonly densitys: TanreiNavigationDrawerDensitys;

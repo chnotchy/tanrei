@@ -46,7 +46,7 @@
               "The icon indicator is a box behind the glyph alone. The default system leaves it transparent in every condition; a layer that marks a collapsed destination behind its glyph only fills it in the collapsed conditions and clears the collapsed item container.",
               "Every icon sits on the same point in both forms: its center is half the collapsed width from the drawer's start edge (plus the nesting indent), and its row keeps its height. Change collapsed.container.width, not a padding, to move the icon column; in the default system it is container.padding-inline, item.padding-inline and half the icon, twice.",
               "A nested destination's content (icon and label) starts item.nest-indent further in; its item container, fill, state layer and focus indicator keep the full width of a top-level row, so that every selection has the same shape and the drawn row matches its hit area.",
-              "density is the product's choice for its drawer: regular is a menu's row, for a product used by touch as well as by pointer; compact is a tree view's compact row, for a tool used with a pointer whose drawer lists many places. Touch always gets rows of the touch target. In each density keep item.nest-indent the density's icon and item.gap, so that a nested destination's icon stands where its group's label starts, and collapsed.container.width the column the density's icon and paddings make.",
+              "density is the product's choice for its drawer: regular is a menu's row, for a product used by touch as well as by pointer; compact is a tree view's compact row, for a tool used with a pointer whose drawer lists many places. Touch always gets rows of the touch target. In each density keep item.nest-indent the density's icon and item.gap (which no density changes), so that a nested destination's icon stands where its group's label starts, and collapsed.container.width the column the density's icon and paddings make.",
               "A look that draws no item container at rest draws none when disabled.",
               "A modal drawer is set apart by its elevation and the scrim; a standard one by its end edge.",
               "The trailing text is quieter than the label: a regular weight in the supporting-text color.",
@@ -86,7 +86,6 @@
                 "item.container.height",
                 "item.padding-inline",
                 "item.padding-block",
-                "item.gap",
                 "item.nest-indent",
                 "item.icon.size",
                 "item.icon-indicator.width",
@@ -470,13 +469,8 @@
           },
           "gap": {
             "$type": "dimension",
-            "$description": "Between the icon, the label and the trailing content of an expanded row, per density.",
-            "regular": {
-              "$value": "{tanrei.sys.space.space150}"
-            },
-            "compact": {
-              "$value": "{tanrei.sys.space.space100}"
-            }
+            "$description": "Between the icon (or the icon's kept room), the label and the trailing content of an expanded row, the same in every density: a compact drawer draws its rows lower and its glyphs smaller and keeps a name as far from its glyph as a regular one does (the tree view's icon.gap).",
+            "$value": "{tanrei.sys.space.space150}"
           },
           "nest-indent": {
             "$type": "dimension",
@@ -985,27 +979,6 @@
                 "since": "0.1.0"
               }
             }
-          },
-          "guide-duration": {
-            "$type": "duration",
-            "$value": "{tanrei.sys.motion.duration.short3}",
-            "$description": "How long the guide lines take to fade in and out while the pointer comes over the drawer and leaves it (guides hover). At once where motion is reduced.",
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "One product shows its guide lines only while the pointer is over the drawer, and fades them rather than flashing them.",
-                "since": "0.1.0"
-              }
-            }
-          },
-          "guide-easing": {
-            "$type": "cubicBezier",
-            "$value": "{tanrei.sys.motion.easing.standard}",
-            "$extensions": {
-              "dev.tanrei.vocabulary": {
-                "rationale": "The curve of guide-duration.",
-                "since": "0.1.0"
-              }
-            }
           }
         },
         "guide": {
@@ -1033,16 +1006,22 @@
               "since": "0.1.0"
             }
           },
-          "outline": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.navigation-drawer.container.color.standard}",
+              "$description": "Under a pinned row's own fill: the drawer's surface, opaque, so that the rows scrolling under the pinned rows are hidden. A modal drawer's pinned rows stand on its own container color."
+            }
+          },
+          "divider": {
             "color": {
               "$type": "color",
               "$value": "{tanrei.sys.color.outline-variant}",
-              "$description": "The edge under the last pinned row, which sets the pinned rows apart from the rows scrolling under them."
+              "$description": "The line under the last pinned row, where the rows that scroll under it begin."
             },
             "width": {
               "$type": "dimension",
-              "$value": "{tanrei.sys.border.hairline}",
-              "$description": "The width of the edge under the last pinned row."
+              "$value": "{tanrei.sys.border.hairline}"
             }
           }
         }

@@ -59,7 +59,6 @@
     "navigation-drawer/container/gap": "navigation-drawer/container/gap/regular",
     "navigation-drawer/item/container/height": "navigation-drawer/item/container/height/regular",
     "navigation-drawer/item/padding-inline": "navigation-drawer/item/padding-inline/regular",
-    "navigation-drawer/item/gap": "navigation-drawer/item/gap/regular",
     "navigation-drawer/item/nest-indent": "navigation-drawer/item/nest-indent/regular",
     "navigation-drawer/item/icon/size": "navigation-drawer/item/icon/size/regular",
     "navigation-drawer/item/icon-indicator/width": "navigation-drawer/item/icon-indicator/width/regular",

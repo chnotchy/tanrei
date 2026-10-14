@@ -10870,7 +10870,6 @@ public struct TanreiNavigationDrawerDensityTokens: Sendable, Equatable {
   public var itemContainerHeight: CGFloat
   public var itemPaddingInline: CGFloat
   public var itemPaddingBlock: CGFloat
-  public var itemGap: CGFloat
   public var itemNestIndent: CGFloat
   public var itemIconSize: CGFloat
   public var itemIconIndicatorWidth: CGFloat
@@ -10887,7 +10886,6 @@ public struct TanreiNavigationDrawerDensityTokens: Sendable, Equatable {
     itemContainerHeight: CGFloat,
     itemPaddingInline: CGFloat,
     itemPaddingBlock: CGFloat,
-    itemGap: CGFloat,
     itemNestIndent: CGFloat,
     itemIconSize: CGFloat,
     itemIconIndicatorWidth: CGFloat,
@@ -10903,7 +10901,6 @@ public struct TanreiNavigationDrawerDensityTokens: Sendable, Equatable {
     self.itemContainerHeight = itemContainerHeight
     self.itemPaddingInline = itemPaddingInline
     self.itemPaddingBlock = itemPaddingBlock
-    self.itemGap = itemGap
     self.itemNestIndent = itemNestIndent
     self.itemIconSize = itemIconSize
     self.itemIconIndicatorWidth = itemIconIndicatorWidth
@@ -10988,6 +10985,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var headingTypescale: TanreiTextStyle
   public var itemBadgeTypescale: TanreiTextStyle
   public var itemContainerShape: CGFloat
+  public var itemGap: CGFloat
   public var itemIconIndicatorShape: CGFloat
   public var itemSupportingTextTypescale: TanreiTextStyle
   public var itemTrailingTextTypescale: TanreiTextStyle
@@ -11000,8 +10998,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var motionExpandDuration: Double
   public var motionExpandEasing: TanreiCubicBezier
   public var motionFeedbackDuration: Double
-  public var motionGuideDuration: Double
-  public var motionGuideEasing: TanreiCubicBezier
   public var motionSelectionDuration: Double
   public var motionSelectionEasing: TanreiCubicBezier
   public var motionStateDuration: Double
@@ -11009,8 +11005,9 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
   public var outlineWidth: CGFloat
   public var scrimBlur: CGFloat
   public var scrimColor: TanreiPaint
-  public var stickyOutlineColor: TanreiPaint
-  public var stickyOutlineWidth: CGFloat
+  public var stickyContainerColor: TanreiPaint
+  public var stickyDividerColor: TanreiPaint
+  public var stickyDividerWidth: CGFloat
   public var variants: TanreiNavigationDrawerVariants
   public var conditions: TanreiNavigationDrawerConditions
   public var densitys: TanreiNavigationDrawerDensitys
@@ -11043,6 +11040,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     headingTypescale: TanreiTextStyle,
     itemBadgeTypescale: TanreiTextStyle,
     itemContainerShape: CGFloat,
+    itemGap: CGFloat,
     itemIconIndicatorShape: CGFloat,
     itemSupportingTextTypescale: TanreiTextStyle,
     itemTrailingTextTypescale: TanreiTextStyle,
@@ -11055,8 +11053,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     motionExpandDuration: Double,
     motionExpandEasing: TanreiCubicBezier,
     motionFeedbackDuration: Double,
-    motionGuideDuration: Double,
-    motionGuideEasing: TanreiCubicBezier,
     motionSelectionDuration: Double,
     motionSelectionEasing: TanreiCubicBezier,
     motionStateDuration: Double,
@@ -11064,8 +11060,9 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     outlineWidth: CGFloat,
     scrimBlur: CGFloat,
     scrimColor: TanreiPaint,
-    stickyOutlineColor: TanreiPaint,
-    stickyOutlineWidth: CGFloat,
+    stickyContainerColor: TanreiPaint,
+    stickyDividerColor: TanreiPaint,
+    stickyDividerWidth: CGFloat,
     variants: TanreiNavigationDrawerVariants,
     conditions: TanreiNavigationDrawerConditions,
     densitys: TanreiNavigationDrawerDensitys,
@@ -11093,6 +11090,7 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.headingTypescale = headingTypescale
     self.itemBadgeTypescale = itemBadgeTypescale
     self.itemContainerShape = itemContainerShape
+    self.itemGap = itemGap
     self.itemIconIndicatorShape = itemIconIndicatorShape
     self.itemSupportingTextTypescale = itemSupportingTextTypescale
     self.itemTrailingTextTypescale = itemTrailingTextTypescale
@@ -11105,8 +11103,6 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.motionExpandDuration = motionExpandDuration
     self.motionExpandEasing = motionExpandEasing
     self.motionFeedbackDuration = motionFeedbackDuration
-    self.motionGuideDuration = motionGuideDuration
-    self.motionGuideEasing = motionGuideEasing
     self.motionSelectionDuration = motionSelectionDuration
     self.motionSelectionEasing = motionSelectionEasing
     self.motionStateDuration = motionStateDuration
@@ -11114,8 +11110,9 @@ public struct TanreiNavigationDrawerTokens: Sendable, Equatable {
     self.outlineWidth = outlineWidth
     self.scrimBlur = scrimBlur
     self.scrimColor = scrimColor
-    self.stickyOutlineColor = stickyOutlineColor
-    self.stickyOutlineWidth = stickyOutlineWidth
+    self.stickyContainerColor = stickyContainerColor
+    self.stickyDividerColor = stickyDividerColor
+    self.stickyDividerWidth = stickyDividerWidth
     self.variants = variants
     self.conditions = conditions
     self.densitys = densitys

@@ -9273,6 +9273,7 @@ export const m3ExpressiveLike = {
       hoveredOpacity: 1,
       itemBadgeTypescale: "label",
       itemContainerShape: 9999,
+      itemGap: 12,
       itemIconIndicatorShape: 9999,
       itemSupportingTextTypescale: "bodySmall",
       itemTrailingTextTypescale: "label",
@@ -9285,8 +9286,6 @@ export const m3ExpressiveLike = {
       motionExpandDuration: 500,
       motionExpandEasing: [0.27, 1.06, 0.18, 1],
       motionFeedbackDuration: 450,
-      motionGuideDuration: 150,
-      motionGuideEasing: [0.2, 0, 0, 1],
       motionSelectionDuration: 350,
       motionSelectionEasing: [0.27, 1.06, 0.18, 1],
       motionStateDuration: 150,
@@ -9295,8 +9294,9 @@ export const m3ExpressiveLike = {
       pressedOpacity: 1,
       scrimBlur: 0,
       scrimColor: { kind: "role", role: "scrim" },
-      stickyOutlineColor: { kind: "role", role: "outlineVariant" },
-      stickyOutlineWidth: 1,
+      stickyContainerColor: { kind: "role", role: "surfaceContainerLow" },
+      stickyDividerColor: { kind: "role", role: "outlineVariant" },
+      stickyDividerWidth: 1,
       variants: {
         standard: {
           containerColor: { kind: "role", role: "surfaceContainerLow" },
@@ -9744,8 +9744,8 @@ export const m3ExpressiveLike = {
         },
       },
       densitys: {
-        regular: { containerGap: 0, itemContainerHeight: 56, itemPaddingInline: 16, itemPaddingBlock: 4, itemGap: 12, itemNestIndent: 36, itemIconSize: 24, itemIconIndicatorWidth: 56, itemIconIndicatorHeight: 32, itemLabelTypescale: "label", itemTrailingIconSize: 20, collapsedContainerWidth: 80, collapsedItemContainerWidth: 56, collapsedItemContainerPaddingBlock: 0, headingHeight: 36 },
-        compact: { containerGap: 2, itemContainerHeight: 32, itemPaddingInline: 8, itemPaddingBlock: 2, itemGap: 8, itemNestIndent: 24, itemIconSize: 16, itemIconIndicatorWidth: 16, itemIconIndicatorHeight: 16, itemLabelTypescale: "label", itemTrailingIconSize: 16, collapsedContainerWidth: 56, collapsedItemContainerWidth: 32, collapsedItemContainerPaddingBlock: 8, headingHeight: 28 },
+        regular: { containerGap: 0, itemContainerHeight: 56, itemPaddingInline: 16, itemPaddingBlock: 4, itemNestIndent: 36, itemIconSize: 24, itemIconIndicatorWidth: 56, itemIconIndicatorHeight: 32, itemLabelTypescale: "label", itemTrailingIconSize: 20, collapsedContainerWidth: 80, collapsedItemContainerWidth: 56, collapsedItemContainerPaddingBlock: 0, headingHeight: 36 },
+        compact: { containerGap: 2, itemContainerHeight: 32, itemPaddingInline: 8, itemPaddingBlock: 2, itemNestIndent: 24, itemIconSize: 16, itemIconIndicatorWidth: 16, itemIconIndicatorHeight: 16, itemLabelTypescale: "label", itemTrailingIconSize: 16, collapsedContainerWidth: 56, collapsedItemContainerWidth: 32, collapsedItemContainerPaddingBlock: 8, headingHeight: 28 },
       },
     },
     navigationRail: {

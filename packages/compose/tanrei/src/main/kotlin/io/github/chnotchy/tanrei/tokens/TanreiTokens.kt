@@ -6878,7 +6878,6 @@ public data class TanreiNavigationDrawerDensityTokens(
     public val itemContainerHeight: Dp,
     public val itemPaddingInline: Dp,
     public val itemPaddingBlock: Dp,
-    public val itemGap: Dp,
     public val itemNestIndent: Dp,
     public val itemIconSize: Dp,
     public val itemIconIndicatorWidth: Dp,
@@ -6945,6 +6944,7 @@ public data class TanreiNavigationDrawerTokens(
     public val headingTypescale: TanreiTextStyle,
     public val itemBadgeTypescale: TanreiTextStyle,
     public val itemContainerShape: Dp,
+    public val itemGap: Dp,
     public val itemIconIndicatorShape: Dp,
     public val itemSupportingTextTypescale: TanreiTextStyle,
     public val itemTrailingTextTypescale: TanreiTextStyle,
@@ -6957,8 +6957,6 @@ public data class TanreiNavigationDrawerTokens(
     public val motionExpandDuration: Int,
     public val motionExpandEasing: TanreiCubicBezier,
     public val motionFeedbackDuration: Int,
-    public val motionGuideDuration: Int,
-    public val motionGuideEasing: TanreiCubicBezier,
     public val motionSelectionDuration: Int,
     public val motionSelectionEasing: TanreiCubicBezier,
     public val motionStateDuration: Int,
@@ -6966,8 +6964,9 @@ public data class TanreiNavigationDrawerTokens(
     public val outlineWidth: Dp,
     public val scrimBlur: Dp,
     public val scrimColor: TanreiPaint,
-    public val stickyOutlineColor: TanreiPaint,
-    public val stickyOutlineWidth: Dp,
+    public val stickyContainerColor: TanreiPaint,
+    public val stickyDividerColor: TanreiPaint,
+    public val stickyDividerWidth: Dp,
     public val hovered: TanreiNavigationDrawerStateTokens,
     public val focused: TanreiNavigationDrawerStateTokens,
     public val pressed: TanreiNavigationDrawerStateTokens,
@@ -6990,7 +6989,8 @@ public data class TanreiNavigationDrawerTokens(
         addAll(headerColor.roles())
         addAll(headingColor.roles())
         addAll(scrimColor.roles())
-        addAll(stickyOutlineColor.roles())
+        addAll(stickyContainerColor.roles())
+        addAll(stickyDividerColor.roles())
         addAll(variants.referencedRoles())
         addAll(conditions.referencedRoles())
     }
