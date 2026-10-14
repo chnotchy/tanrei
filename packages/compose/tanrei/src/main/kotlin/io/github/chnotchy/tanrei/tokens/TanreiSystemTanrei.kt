@@ -3159,6 +3159,8 @@ private object TanreiSystemSource {
     fun copyButton(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiCopyButtonTokens =
         TanreiCopyButtonTokens(
             confirmationDuration = 2000,
+            motionResizeDuration = 500,
+            motionResizeEasing = TanreiCubicBezier(x1 = 0.27f, y1 = 1.06f, x2 = 0.18f, y2 = 1f),
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -4963,7 +4965,7 @@ private object TanreiSystemSource {
             controlBoxShape = 2.dp,
             controlBoxSize = 18.dp,
             controlFillInset = 0.dp,
-            controlFillOpacity = 0.5f,
+            controlFillOpacity = 0.16f,
             controlMarkSize = 20.dp,
             controlMarkWeight = 500f,
             controlOutlineWidth = 2.dp,
@@ -6253,7 +6255,7 @@ private object TanreiSystemSource {
             containerShape = 9999.dp,
             containerSize = 40.dp,
             fillInset = 0.dp,
-            fillOpacity = 0.5f,
+            fillOpacity = 0.16f,
             labelGap = 4.dp,
             labelTypescale = typescale.body,
             motionFeedbackDuration = 450,
@@ -7976,7 +7978,19 @@ private object TanreiSystemSource {
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             rowGap = 4.dp,
             rowSelectedContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+            rowSelectedHoveredContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
+            rowSelectedHoveredTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+            rowSelectedPressedContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
+            rowSelectedPressedTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+            rowSelectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
             rowSelectedTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
+            rowUnselectedContainerColor = TanreiPaint.None,
+            rowUnselectedHoveredContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.08f),
+            rowUnselectedHoveredTextColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            rowUnselectedPressedContainerColor = TanreiPaint.Mix(base = TanreiPaint.None, with = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.1f),
+            rowUnselectedPressedTextColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            rowUnselectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            rowUnselectedTextColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
             separation = 0f,
             statusGap = 16.dp,
             statusPaddingBlock = 8.dp,

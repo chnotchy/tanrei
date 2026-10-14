@@ -2489,6 +2489,8 @@
     --tanrei-comp-combobox-status-typescale-line-height: var(--tanrei-sys-typescale-body-small-line-height);
     --tanrei-comp-combobox-status-typescale-font: var(--tanrei-sys-typescale-body-small-font);
     --tanrei-comp-copy-button-confirmation-duration: 2000ms;
+    --tanrei-comp-copy-button-motion-resize-duration: var(--tanrei-sys-motion-spring-standard-default-spatial-duration);
+    --tanrei-comp-copy-button-motion-resize-easing: var(--tanrei-sys-motion-spring-standard-default-spatial-easing);
     --tanrei-comp-date-time-picker-actions-arrangement: fill;
     --tanrei-comp-date-time-picker-actions-gap: var(--tanrei-sys-space-space200);
     --tanrei-comp-date-time-picker-actions-padding-block: var(--tanrei-sys-space-space150);
@@ -4430,7 +4432,7 @@
     --tanrei-comp-menu-control-box-shape: var(--tanrei-dial-shape-unit);
     --tanrei-comp-menu-control-box-size: round(nearest, calc(var(--tanrei-dial-size-unit) * 4.5), 0.25px);
     --tanrei-comp-menu-control-fill-inset: 0px;
-    --tanrei-comp-menu-control-fill-opacity: 0.5;
+    --tanrei-comp-menu-control-fill-opacity: 0.16;
     --tanrei-comp-menu-control-mark-size: var(--tanrei-sys-icon-small);
     --tanrei-comp-menu-control-mark-weight: var(--tanrei-sys-icon-mark-weight);
     --tanrei-comp-menu-control-outline-width: var(--tanrei-sys-border-thick);
@@ -5708,7 +5710,7 @@
     --tanrei-comp-radio-button-error-unselected-ring-color: var(--tanrei-sys-color-error);
     --tanrei-comp-radio-button-error-unselected-state-layer-color: var(--tanrei-comp-radio-button-error-unselected-ring-color);
     --tanrei-comp-radio-button-fill-inset: 0px;
-    --tanrei-comp-radio-button-fill-opacity: 0.5;
+    --tanrei-comp-radio-button-fill-opacity: 0.16;
     --tanrei-comp-radio-button-focused-container-shape: var(--tanrei-comp-radio-button-container-shape);
     --tanrei-comp-radio-button-focused-container-shape-pill: 1;
     --tanrei-comp-radio-button-focused-opacity: 1;
@@ -7449,7 +7451,19 @@
     --tanrei-comp-table-pressed-opacity: 1;
     --tanrei-comp-table-row-gap: var(--tanrei-sys-space-space50);
     --tanrei-comp-table-row-selected-container-color: var(--tanrei-sys-color-secondary-container);
+    --tanrei-comp-table-row-selected-hovered-container-color: color-mix(in srgb, var(--tanrei-comp-table-row-selected-container-color), var(--tanrei-comp-table-row-selected-state-layer-color) calc(var(--tanrei-sys-state-hover-state-layer-opacity) * 100%));
+    --tanrei-comp-table-row-selected-hovered-text-color: var(--tanrei-comp-table-row-selected-text-color);
+    --tanrei-comp-table-row-selected-pressed-container-color: color-mix(in srgb, var(--tanrei-comp-table-row-selected-container-color), var(--tanrei-comp-table-row-selected-state-layer-color) calc(var(--tanrei-sys-state-pressed-state-layer-opacity) * 100%));
+    --tanrei-comp-table-row-selected-pressed-text-color: var(--tanrei-comp-table-row-selected-text-color);
+    --tanrei-comp-table-row-selected-state-layer-color: var(--tanrei-comp-table-row-selected-text-color);
     --tanrei-comp-table-row-selected-text-color: var(--tanrei-sys-color-on-secondary-container);
+    --tanrei-comp-table-row-unselected-container-color: rgb(0 0 0 / 0);
+    --tanrei-comp-table-row-unselected-hovered-container-color: color-mix(in srgb, var(--tanrei-comp-table-row-unselected-container-color), var(--tanrei-comp-table-row-unselected-state-layer-color) calc(var(--tanrei-sys-state-hover-state-layer-opacity) * 100%));
+    --tanrei-comp-table-row-unselected-hovered-text-color: var(--tanrei-comp-table-row-unselected-text-color);
+    --tanrei-comp-table-row-unselected-pressed-container-color: color-mix(in srgb, var(--tanrei-comp-table-row-unselected-container-color), var(--tanrei-comp-table-row-unselected-state-layer-color) calc(var(--tanrei-sys-state-pressed-state-layer-opacity) * 100%));
+    --tanrei-comp-table-row-unselected-pressed-text-color: var(--tanrei-comp-table-row-unselected-text-color);
+    --tanrei-comp-table-row-unselected-state-layer-color: var(--tanrei-comp-table-cell-text-color);
+    --tanrei-comp-table-row-unselected-text-color: var(--tanrei-comp-table-cell-text-color);
     --tanrei-comp-table-separation: var(--tanrei-sys-behavior-separation);
     --tanrei-comp-table-sort-container-color: rgb(0 0 0 / 0);
     --tanrei-comp-table-sort-focused-container-color: color-mix(in srgb, var(--tanrei-comp-table-sort-container-color), var(--tanrei-comp-table-sort-state-layer-color) calc(var(--tanrei-sys-state-focus-state-layer-opacity) * 100%));

@@ -626,6 +626,8 @@
     {"match": "tanrei.comp.*.*.focused.container.color", "$value": "{tanrei.comp.$1.$2.container.color}"},
     {"match": "tanrei.comp.*.*.pressed.container.color", "$value": "{tanrei.comp.$1.$2.container.color}"},
     {"match": "tanrei.comp.*.*.hovered.*.container.color", "$value": "{tanrei.comp.$1.$2.$3.container.color}", "reason": "No state layer, for the container of a condition too."},
+    {"match": "tanrei.comp.table.row.*.hovered.container.color", "$value": "{tanrei.comp.table.row.$1.container.color}", "reason": "Apple platforms have no hover: a row that can be chosen stays at rest under the pointer."},
+    {"match": "tanrei.comp.table.row.*.pressed.container.color", "$value": "{tanrei.comp.table.row.$1.container.color}", "reason": "No state layer: a pressed row that can be chosen is dimmed as a whole (pressed-feedback dim), its fill at rest."},
     {"match": "tanrei.comp.*.*.focused.*.container.color", "$value": "{tanrei.comp.$1.$2.$3.container.color}", "reason": "No state layer, for the container of a condition too."},
     {"match": "tanrei.comp.*.*.pressed.*.container.color", "$value": "{tanrei.comp.$1.$2.$3.container.color}", "reason": "No state layer, for the container of a condition too."},
     {"match": "tanrei.comp.*.pressed.opacity", "$value": 0.7, "reason": "Pressed is shown by dimming the whole control; there is no hover state."},

@@ -2,7 +2,7 @@
 title: Tabla
 description: Presenta datos que tienen filas y columnas, con columnas con nombre y, de forma opcional, encabezados de fila, una leyenda y filas de pie. Se desplaza dentro de su propia caja cuando no cabe. El encabezado de una columna puede pedir las filas en su orden y las filas se pueden elegir; la tabla nunca ordena por sí misma.
 translationOf: components/table.mdx
-sourceHash: ad48baa8f17b9aee7128ff50a80331d6af74aaaa
+sourceHash: c171558813b62e3eb1090573c79888fc17483cba
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -294,7 +294,7 @@ table.addEventListener('selectionchange', (event) => {
 - Una fila sin `data-value` no se puede elegir. Deja vacía su celda de selección, como en una fila de pie.
 - La casilla de verificación de la fila de encabezado está marcada mientras todas las filas están elegidas, indeterminada mientras lo están algunas y deshabilitada mientras no hay ninguna fila que elegir. Representa las filas que se le dieron a la tabla, nunca las filas de otras páginas.
 - La columna de selección no es una columna de datos. `row-headers` y `sticky-first-column` se refieren a la columna que la sigue, y el `index` de un evento `sort` no la cuenta.
-- Una pulsación en una fila fuera de su celda de selección no elige nada.
+- Una pulsación en cualquier punto de una fila que se puede elegir cambia su casilla de verificación, igual que una pulsación en la casilla. Un enlace, un botón o un campo de sus celdas conservan su propia pulsación, y un arrastre, una selección de texto, el segundo clic de un doble clic o un clic con una tecla modificadora no cambian nada. La fila muestra el paso del cursor y la pulsación como un todo; el teclado sigue en la casilla.
 
 El navegador tiene un evento propio llamado `selectionchange`, para un cambio en la selección de texto, y un campo de texto dentro de una celda lo envía a través de la tabla. El evento de la tabla es un `CustomEvent` que lleva `detail.values`; el del navegador no lo es. Compruébalo, como hace el ejemplo.
 
@@ -480,6 +480,7 @@ Una fila no tiene altura propia. Es tan alta como la más alta de sus celdas.
 ### Pautas para elegir filas
 
 - Deja que las personas elijan filas donde actúan sobre varios registros a la vez: eliminar, exportar, mover. Para un solo registro, pon la acción en su fila.
+- Una pulsación en cualquier punto de una fila la elige. Si una fila también abre su registro, pon para eso un enlace en su encabezado de fila, no una pulsación en la fila.
 - Di en la línea de estado cuántas filas están elegidas («Seleccionados: 3 de 132»). La tabla no cuenta nada.
 - Pon encima de la tabla los botones que actúan sobre las filas elegidas. Son tuyos; la tabla te dice qué está elegido.
 - Ofrece «todos los 132» con un control tuyo. La casilla de verificación de la fila de encabezado elige las filas que se le dieron a la tabla, nunca las filas de otras páginas.
@@ -539,9 +540,10 @@ Una fila no tiene altura propia. Es tan alta como la más alta de sus celdas.
 - Cada casilla de verificación es una parada propia en el orden del foco: primero la casilla y los botones de ordenar de la fila de encabezado, y después la casilla de cada fila. Espacio la marca o la desmarca.
 - La casilla de verificación de una fila que no tiene nombre propio recibe su nombre de la celda de encabezado de la fila.
 - Una pulsación en cualquier punto de una celda de selección pulsa su casilla de verificación. Cuando sustituyes las filas o cambias su orden mientras una casilla tiene el foco, el foco va a la casilla de la fila que tiene el mismo `data-value`.
+- Para un puntero, una fila que se puede elegir es un objetivo más grande para su casilla de verificación. La fila no recibe rol, parada de foco ni estado seleccionado, así que el teclado y un lector de pantalla encuentran la casilla, con su nombre, como antes, y el texto de la fila se sigue pudiendo seleccionar y copiar.
 - Con colores forzados, el relleno de una fila elegida desaparece, y la casilla de verificación sigue diciendo que la fila está elegida.
 - Mientras `loading` está definido, la tabla se expone como ocupada (`aria-busy`). Las filas de marcador de posición quedan ocultas para la tecnología de apoyo, así que una persona oye que la tabla está ocupada y no filas de nada. La tabla no anuncia nada por sí misma cuando la carga empieza ni cuando termina.
-- Sin script, la columna de selección, una fila elegida (`data-selected`, o una casilla de verificación nativa que está marcada) y las filas de marcador de posición se dibujan igualmente, y las casillas de verificación nativas funcionan en tu formulario. Mantener al día la casilla de la fila de encabezado y el evento `selectionchange` necesitan script.
+- Sin script, la columna de selección, una fila elegida (`data-selected`, o una casilla de verificación nativa que está marcada) y las filas de marcador de posición se dibujan igualmente, y las casillas de verificación nativas funcionan en tu formulario. Mantener al día la casilla de la fila de encabezado y el evento `selectionchange` necesitan script. Sin script, una fila no muestra el paso del cursor ni el cursor de puntero, y una pulsación junto a su casilla no cambia nada.
 - Las compilaciones de depuración notifican una tabla sin nombre, una densidad, una separación o una selección desconocidas, una fila de pie situada antes del cuerpo, una fila con más o con menos celdas que columnas, una columna que se puede ordenar sin encabezado, dos columnas ordenadas a la vez, la casilla de verificación de una fila sin nombre y una fila de marcador de posición en una tabla que no está en carga.
 
 ### Qué debes hacer tú

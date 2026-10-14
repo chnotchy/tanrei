@@ -2140,6 +2140,31 @@
               "reason": "A row holds trailing content it cannot recolor, so a disabled row dims as a whole, as a list item does."
             },
             {
+              "match": "tanrei.comp.table.row.*.hovered.container.color",
+              "derive": {
+                "fn": "mix",
+                "base": "{tanrei.comp.table.row.$1.container.color}",
+                "with": "{tanrei.comp.table.row.$1.state-layer.color}",
+                "amount": "{tanrei.sys.state.hover-state-layer-opacity}"
+              },
+              "reason": "A row that can be chosen is one target: hover mixes its condition's state-layer color into its fill, as a list item's and a tree row's. Its id is one segment deeper than a component's variant, so the generic rules do not reach it."
+            },
+            {
+              "match": "tanrei.comp.table.row.*.pressed.container.color",
+              "derive": {
+                "fn": "mix",
+                "base": "{tanrei.comp.table.row.$1.container.color}",
+                "with": "{tanrei.comp.table.row.$1.state-layer.color}",
+                "amount": "{tanrei.sys.state.pressed-state-layer-opacity}"
+              },
+              "reason": "A press on a row that can be chosen mixes its condition's state-layer color into its fill, as a list item's and a tree row's."
+            },
+            {
+              "match": "tanrei.comp.table.row.*.*.text.color",
+              "$value": "{tanrei.comp.table.row.$1.text.color}",
+              "reason": "A row's text keeps its condition's color under hover and press; the fill carries the state answer."
+            },
+            {
               "match": "tanrei.comp.link.inverse.disabled.*.color",
               "derive": {
                 "fn": "alpha",

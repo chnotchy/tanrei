@@ -1,4 +1,4 @@
-// 104 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
+// 112 contrast measurement(s) below Tanrei's thresholds in system "cupertino", which do not apply to an imitation preset. See tokens/generated/cupertino/a11y-report.json
 // GENERATED FILE — DO NOT EDIT.
 // Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
 // System values of "cupertino". Generated the same way for every system; the types are in TanreiTokens.swift.
@@ -3211,7 +3211,9 @@ private let cupertinoComboboxTokens = TanreiComboboxTokens(
 )
 
 private let cupertinoCopyButtonTokens = TanreiCopyButtonTokens(
-  confirmationDuration: 2000
+  confirmationDuration: 2000,
+  motionResizeDuration: 500,
+  motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1)
 )
 
 private let cupertinoDateTimePickerTokens = TanreiDateTimePickerTokens(
@@ -5184,7 +5186,7 @@ private let cupertinoMenuTokens = TanreiMenuTokens(
   controlBoxShape: 2,
   controlBoxSize: 18,
   controlFillInset: 0,
-  controlFillOpacity: 0.5,
+  controlFillOpacity: 0.16,
   controlMarkSize: 20,
   controlMarkWeight: 300,
   controlOutlineWidth: 2,
@@ -8421,7 +8423,19 @@ private let cupertinoTableTokens = TanreiTableTokens(
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
   rowGap: 4,
   rowSelectedContainerColor: .role(.secondaryContainer),
+  rowSelectedHoveredContainerColor: .role(.secondaryContainer),
+  rowSelectedHoveredTextColor: .role(.onSecondaryContainer),
+  rowSelectedPressedContainerColor: .role(.secondaryContainer),
+  rowSelectedPressedTextColor: .role(.onSecondaryContainer),
+  rowSelectedStateLayerColor: .role(.onSecondaryContainer),
   rowSelectedTextColor: .role(.onSecondaryContainer),
+  rowUnselectedContainerColor: .none,
+  rowUnselectedHoveredContainerColor: .none,
+  rowUnselectedHoveredTextColor: .role(.onSurface),
+  rowUnselectedPressedContainerColor: .none,
+  rowUnselectedPressedTextColor: .role(.onSurface),
+  rowUnselectedStateLayerColor: .role(.onSurface),
+  rowUnselectedTextColor: .role(.onSurface),
   separation: 0,
   statusGap: 16,
   statusPaddingBlock: 8,

@@ -3919,7 +3919,7 @@
               "value": 4,
               "unit": "px"
             },
-            "$description": "Padding added to the leading half at its start and, at the default trailing width, to the trailing half at its end (SPB-32); a narrow trailing half takes none. A full outer end takes more of the container away beside the content than the tighter inner corner does, so equal paddings look unequal; this evens them, as the connected button group does. A system whose outer ends are no rounder than its inner corners sets 0."
+            "$description": "Padding added to the leading half at its start and to the trailing half at its end, at either trailing width (SPB-32). A full outer end takes more of the container away beside the content than the tighter inner corner does, so equal paddings look unequal; this evens them, as the connected button group does. A system whose outer ends are no rounder than its inner corners sets 0."
           },
           "padding-block": {
             "large": {
@@ -29974,6 +29974,25 @@
             },
             "$description": "How long the button shows the copied or the failed form before it returns to rest: long enough to be seen by someone looking at where the text will be pasted, short enough that a second copy a moment later is confirmed anew."
           }
+        },
+        "motion": {
+          "resize-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 500,
+              "unit": "ms"
+            },
+            "$description": "How long the label's box takes to change its width to the text now shown, while labelWidth is fit (CPY-19). Unused while labelWidth is widest; at once where motion is reduced."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.27,
+              1.06,
+              0.18,
+              1
+            ]
+          }
         }
       },
       "date-time-picker": {
@@ -55043,8 +55062,8 @@
             },
             "opacity": {
               "$type": "number",
-              "$value": 0.5,
-              "$description": "The opacity the fill inside a checked ring is drawn at, applied to the control color of the condition and state. The radio button's own value."
+              "$value": 0.16,
+              "$description": "The opacity the fill inside a checked ring is drawn at, applied to the control color of the condition and state. The radio button's own value; where the fill meets the ring it is held 3:1 against the ring on the menu's sheet, the checked row's fill under it (WCAG 1.4.11)."
             }
           },
           "mark": {
@@ -69980,8 +69999,8 @@
           },
           "opacity": {
             "$type": "number",
-            "$value": 0.5,
-            "$description": "The opacity the fill is drawn at, applied to the fill color of the condition and state. The fill lies inside the ring, never under it, so a translucent ring (disabled) never shows the fill through it."
+            "$value": 0.16,
+            "$description": "The opacity the fill is drawn at, applied to the fill color of the condition and state. The fill lies inside the ring, never under it, so a translucent ring (disabled) never shows the fill through it. Where the fill meets the ring (fill.inset 0), the fill as drawn is held 3:1 against the ring in every enabled state, on every surface role (WCAG 1.4.11)."
           }
         },
         "focused": {
@@ -89248,6 +89267,86 @@
                 "$description": "The fill of a body row that is selected, across the row's whole width, in place of a stripe: the quiet selection, a selected list item's and a selected tree row's. A first column kept in view takes it over sticky.container.color."
               }
             },
+            "hovered": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2,
+                      0.2,
+                      0.2
+                    ],
+                    "hex": "#333333",
+                    "alpha": 1
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.8863,
+                      0.8863,
+                      0.8863
+                    ],
+                    "hex": "#e2e2e2",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "pressed": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.2157,
+                      0.2157,
+                      0.2157
+                    ],
+                    "hex": "#373737",
+                    "alpha": 1
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.8863,
+                      0.8863,
+                      0.8863
+                    ],
+                    "hex": "#e2e2e2",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8863,
+                    0.8863,
+                    0.8863
+                  ],
+                  "hex": "#e2e2e2",
+                  "alpha": 1
+                },
+                "$description": "The color hover and press mix into a chosen row (TBL-59): its text color, as a selected list item's and a selected tree row's."
+              }
+            },
             "text": {
               "color": {
                 "$type": "color",
@@ -89262,6 +89361,120 @@
                   "alpha": 1
                 },
                 "$description": "The text of the cells and of the row header of a selected row. What a cell holds that is not plain text (a tag, a link, inline code) keeps its own colors."
+              }
+            }
+          },
+          "unselected": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$description": "The fill of a body row that can be chosen and is not, at rest: none of its own, so that its stripe, or the fill of a column kept in view, shows. Its hovered and pressed fills are laid over what shows (TBL-59)."
+              }
+            },
+            "hovered": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.9216,
+                      0.9216,
+                      0.9216
+                    ],
+                    "alpha": 0.08,
+                    "hex": "#ebebeb"
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.9216,
+                      0.9216,
+                      0.9216
+                    ],
+                    "hex": "#ebebeb",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "pressed": {
+              "container": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.9216,
+                      0.9216,
+                      0.9216
+                    ],
+                    "alpha": 0.1,
+                    "hex": "#ebebeb"
+                  }
+                }
+              },
+              "text": {
+                "color": {
+                  "$type": "color",
+                  "$value": {
+                    "colorSpace": "srgb",
+                    "components": [
+                      0.9216,
+                      0.9216,
+                      0.9216
+                    ],
+                    "hex": "#ebebeb",
+                    "alpha": 1
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.9216,
+                    0.9216,
+                    0.9216
+                  ],
+                  "hex": "#ebebeb",
+                  "alpha": 1
+                },
+                "$description": "The color hover and press mix into a row that can be chosen and is not (TBL-59): its text color."
+              }
+            },
+            "text": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.9216,
+                    0.9216,
+                    0.9216
+                  ],
+                  "hex": "#ebebeb",
+                  "alpha": 1
+                },
+                "$description": "The text of the cells of a body row that can be chosen and is not: a cell's own color."
               }
             }
           }

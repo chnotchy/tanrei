@@ -71,6 +71,11 @@
  *                                    the selection column is kept in view with the first column, which is held where
  *                                    the selection column ends — a length that has to be measured (TBL-42)
  *   data-selected (on a body row)    kept in step with the row's checkbox (TBL-44)
+ *   data-tanrei-hit (on a body row)  a fine pointer is over a row that can be chosen where a press would change its
+ *                                    checkbox: the row is drawn hovered, with the pointer cursor (TBL-59)
+ *   data-tanrei-reading (on a body row)   for the moment the element reads the cursor the product gave what is
+ *                                    pressed, the row's own pointer is set aside (TBL-58)
+ *   data-pressed (on a body row)     the answer to a press of a row that can be chosen: overlay, dim, none (TBL-59)
  *   data-glyphs="pending"            the icon set cannot draw a sort mark yet: none is drawn, every box is kept (TBL-56)
  *   data-pressed (on a sort button)  the answer to a press the system names: overlay, ripple, dim, none (TBL-38)
  *   data-focus-style (on a sort button)   the focus style, where the browser has no style queries (TBL-39)
@@ -238,6 +243,8 @@
        table inside a cell of a chosen row is not drawn as chosen. */
     --_table-row-fill: initial;
     --_table-row-text: initial;
+    /* TBL-59: what a row that can be chosen lays over that fill under a pointer and a press. */
+    --_table-row-state: initial;
 
     grid-area: 1 / 1;
     /* Under the box's own focus ring (TBL-22): a cell that stays in view is positioned, and would be drawn over it. */
@@ -438,21 +445,50 @@
   :where(tanrei-table[selection='multiple'][striped]) > :where(table) > :where(tbody) > :where(tr:nth-child(even of :not([hidden]))) {
     --_table-row-fill: var(--tanrei-comp-table-stripe-container-color);
   }
+  /* TBL-59: the hovered and pressed colors of a row that can be chosen, by its condition — not chosen, then chosen. The
+     row also carries press-hold as a time, which the press primitive reads when a press ends (it has no transition). */
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])) {
+    --_table-row-hovered: var(--tanrei-comp-table-row-unselected-hovered-container-color);
+    --_table-row-hovered-text: var(--tanrei-comp-table-row-unselected-hovered-text-color);
+    --_table-row-pressed: var(--tanrei-comp-table-row-unselected-pressed-container-color);
+    --_table-row-pressed-text: var(--tanrei-comp-table-row-unselected-pressed-text-color);
+    transition-property: none;
+    transition-delay: var(--tanrei-sys-motion-duration-press-hold);
+  }
   :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])):where([data-selected], :has(> [data-part='selection'] > input:checked)) {
     --_table-row-fill: var(--tanrei-comp-table-row-selected-container-color);
     --_table-row-text: var(--tanrei-comp-table-row-selected-text-color);
+    --_table-row-hovered: var(--tanrei-comp-table-row-selected-hovered-container-color);
+    --_table-row-hovered-text: var(--tanrei-comp-table-row-selected-hovered-text-color);
+    --_table-row-pressed: var(--tanrei-comp-table-row-selected-pressed-container-color);
+    --_table-row-pressed-text: var(--tanrei-comp-table-row-selected-pressed-text-color);
+  }
+  /* TBL-58, TBL-59: only the element's script makes a row answer a press, so only what it writes draws one — the
+     row under a fine pointer (`data-tanrei-hit`) and the row pressed (`data-pressed`); without script a row shows
+     neither a state nor the pointer. Pressed over hovered; ripple has no one box across the cells and is overlay
+     (the element writes it so); dim keeps the colors of the state under the press and dims the row. */
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-tanrei-hit]) {
+    --_table-row-state: var(--_table-row-hovered);
+    --_table-row-text: var(--_table-row-hovered-text);
+  }
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-tanrei-hit]:not([data-tanrei-reading])) {
+    cursor: pointer;
+  }
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-pressed='overlay']) {
+    --_table-row-state: var(--_table-row-pressed);
+    --_table-row-text: var(--_table-row-pressed-text);
+  }
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-pressed='dim']) {
+    opacity: var(--tanrei-comp-table-pressed-opacity);
   }
   /* The fill is across the row, paddings and the selection cell included, short of the space of `separation: gap`,
-     over the fill of a cell kept in view; it changes at once. What a cell holds keeps its own colors (TBL-15). */
+     over the fill of a cell kept in view, and the state of a row that can be chosen over it; both change at once.
+     What a cell holds keeps its own colors (TBL-15). */
   :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr) > :where(th, td) {
-    background-image: linear-gradient(var(--_table-row-fill, transparent), var(--_table-row-fill, transparent));
+    background-image: linear-gradient(var(--_table-row-state, transparent), var(--_table-row-state, transparent)), linear-gradient(var(--_table-row-fill, transparent), var(--_table-row-fill, transparent));
     background-repeat: no-repeat;
     background-size: 100% calc(100% - var(--_table-row-gap));
     color: var(--_table-row-text, var(--tanrei-comp-table-cell-text-color));
-  }
-  /* TBL-47: the checkbox's hit area is its whole selection cell (the element passes a press on the cell on). */
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])) > :where([data-part='selection']) {
-    cursor: pointer;
   }
 
   /* ── A row that stands for a record that has not arrived (TBL-50): a body row at least one line of text tall,

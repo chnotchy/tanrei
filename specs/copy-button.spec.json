@@ -2,7 +2,7 @@
   "$schema": "./component.schema.json",
   "name": "copy-button",
   "title": "Copy button",
-  "summary": "Copies a given text to the clipboard with one press and confirms it — its glyph becomes a check for a moment and assistive technology is told — or says that it could not; it is drawn by Button and never moves the layout.",
+  "summary": "Copies a given text to the clipboard with one press and confirms it — its glyph becomes a check for a moment and assistive technology is told — or says that it could not; it is drawn by Button and, unless asked to fit its words, never moves the layout.",
   "category": "actions",
   "level": "composed",
   "listing": "default",
@@ -23,7 +23,7 @@
     },
     {
       "id": "label",
-      "description": "The button's text, where it is not icon-only: label at rest, copiedLabel and failedLabel in the two other forms, in a box as wide as the widest of the three.",
+      "description": "The button's text, where it is not icon-only: label at rest, copiedLabel and failedLabel in the two other forms, in a box as wide as the widest of the three (labelWidth widest) or as the one shown (labelWidth fit).",
       "optional": true
     }
   ],
@@ -60,6 +60,16 @@
       "type": "boolean",
       "default": true,
       "description": "True draws the glyph alone, named by label. False draws the glyph and the label as text."
+    },
+    {
+      "name": "labelWidth",
+      "type": "enum",
+      "values": [
+        "widest",
+        "fit"
+      ],
+      "default": "widest",
+      "description": "How wide the labelled form's text box is. widest, the default, keeps it as wide as the widest of label, copiedLabel and failedLabel at all times, so the button never changes its width and nothing beside it moves (CPY-7). fit makes it as wide as the text it shows, and eases its width to the new text when the form changes (CPY-19): for a button with nothing after it in its row that a person may press next. Ignored while iconOnly is true."
     },
     {
       "name": "variant",
@@ -138,7 +148,7 @@
     },
     {
       "id": "CPY-7",
-      "text": "THE copy button SHALL NOT move or resize anything when it changes form: the three glyphs are drawn in one box; WHILE iconOnly is false the label's box SHALL be as wide as the widest of label, copiedLabel and failedLabel at all times, the shown text at its start; the button's width and height SHALL be the same in every form; and the copy button SHALL open no popover, menu or other surface of its own but the confirmation of CPY-18, which takes no room.",
+      "text": "THE copy button SHALL NOT move or resize anything when it changes form, but as CPY-19 says WHILE labelWidth is fit: the three glyphs are drawn in one box; WHILE iconOnly is false and labelWidth is widest the label's box SHALL be as wide as the widest of label, copiedLabel and failedLabel at all times, the shown text at its start, and the button's width and height SHALL be the same in every form; its height SHALL be the same in every form whatever labelWidth is; and the copy button SHALL open no popover, menu or other surface of its own but the confirmation of CPY-18, which takes no room.",
       "verify": "A test reads the button's box at rest, in the copied form and in the failed form of the fixture labelled-long-confirmation: the three are equal."
     },
     {
@@ -147,7 +157,7 @@
     },
     {
       "id": "CPY-9",
-      "text": "THE copy button SHALL change its glyph and its text at once, without a motion, in both directions; the time of comp.copy-button.confirmation.duration is a time to notice and SHALL NOT be shortened or skipped where motion is reduced. WHEN text changes WHILE the copy button is in the copied form THE copy button SHALL return to rest at once: what was copied is no longer what would be."
+      "text": "THE copy button SHALL change its glyph and its text at once, without a motion, in both directions (WHILE labelWidth is fit only the width of the text's box moves, as CPY-19 says); the time of comp.copy-button.confirmation.duration is a time to notice and SHALL NOT be shortened or skipped where motion is reduced. WHEN text changes WHILE the copy button is in the copied form THE copy button SHALL return to rest at once: what was copied is no longer what would be."
     },
     {
       "id": "CPY-10",
@@ -187,6 +197,11 @@
       "id": "CPY-18",
       "text": "WHEN the copy button takes the copied or the failed form WHILE iconOnly is true THE copy button SHALL show copiedLabel or failedLabel as a plain Tooltip (TIP) of its button — drawn from the Tooltip's own tokens and placed as it places itself, at the top by default — for as long as the form lasts, and SHALL close it at the return to rest; each answer of CPY-8 SHALL show it anew. It SHALL take no focus and no room, move nothing, and SHALL NOT open or close on hover, focus or a long press; it SHALL be closed by Escape and by another tooltip that opens, as any tooltip is, and SHALL be kept from assistive technology, which hears the words once, from the announcement of CPY-5. WHILE iconOnly is false THE copy button SHALL show no such bubble: its label says it.",
       "verify": "Press the fixture icon: the check shows and \"Copied\" stands above the button for comp.copy-button.confirmation.duration, then both go; focus stays on the button and a screen reader says \"Copied\" once. Press labelled: its label reads \"Copied\" and no bubble opens."
+    },
+    {
+      "id": "CPY-19",
+      "text": "WHILE iconOnly is false and labelWidth is fit THE copy button SHALL make the label's box as wide as the text it shows, and its button as wide as that box and its glyph make it, the text on one line; WHEN the shown text changes — the form changes, or the words of the form shown do — THE copy button SHALL change the box's width from the width it has to the new text's over comp.copy-button.motion.resize-duration with comp.copy-button.motion.resize-easing, keeping its height, its glyph and the start of its text in place and clipping the text at the box's end while the box is narrower than it, and SHALL change the width at once where motion is reduced. THE copy button SHALL take its first width, and a width that changes because the text's face has arrived, at once. A change of form during the motion SHALL continue from the width reached.",
+      "verify": "A test presses the fixture labelled-fit: at rest its label's box is as wide as \"Copy\"; pressed, it widens through widths in between to the width of \"Copied to the clipboard\" over the token's time, keeps its height, and returns to the width of \"Copy\" with the form; with motion reduced each width is reached at once."
     }
   ],
   "accessibility": {
@@ -209,7 +224,7 @@
       "The confirmation is not given by color: the glyph changes shape (check, error) in the Button's own icon color, and the words are announced. No success or error color is used.",
       "The confirmation returns by itself after comp.copy-button.confirmation.duration. Nothing a person must act on is in it, so no timing control is needed (WCAG 2.2.1); a failure a person must act on is the product's to show, on copyfailed, in something that stays.",
       "A sighted person using the icon-only form sees the check and, for as long as it shows, the same words in a bubble drawn as a plain Tooltip (CPY-18): the change of a glyph alone can be missed by a person who does not know the check, or who reads the page magnified. The bubble is not read a second time: the announcement of CPY-5 is the one assistive technology hears.",
-      "The labelled form's visible text is its name (WCAG 2.5.3) in every form; its width is reserved for the widest of the three texts, so neighbouring controls do not move under a pointer about to press them (CPY-7).",
+      "The labelled form's visible text is its name (WCAG 2.5.3) in every form. By default (labelWidth widest) its width is reserved for the widest of the three texts, so neighbouring controls do not move under a pointer about to press them (CPY-7). labelWidth fit lets the width follow the text — a change the person asked for by pressing, eased over a short motion and at once where motion is reduced (WCAG 2.3.3) — and is for a button that nothing a person may press next stands after; its own box still keeps the minimum target in every form.",
       "Copying needs the platform's permission and, on the web, a secure page and a press by the person: a copy asked for by script alone may be refused, and is then a failure (CPY-4)."
     ]
   },
@@ -351,6 +366,18 @@
       }
     },
     {
+      "id": "labelled-fit",
+      "props": {
+        "iconOnly": false,
+        "labelWidth": "fit",
+        "variant": "outlined",
+        "text": "sk-test-0000",
+        "label": "Copy",
+        "copiedLabel": "Copied to the clipboard",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
       "id": "labelled-disabled",
       "props": {
         "iconOnly": false,
@@ -396,13 +423,14 @@
         "iconOnly": "iconOnly",
         "variant": "variant",
         "size": "size",
-        "disabled": "disabled"
+        "disabled": "disabled",
+        "labelWidth": "labelWidth"
       },
       "events": {
         "copied": "copied",
         "copyfailed": "copyfailed"
       },
-      "notes": "`<tanrei-copy-button text=\"…\" label=\"Copy\" copied-label=\"Copied\" failed-label=\"Could not copy\">`, with `icon-only=\"false\"` for the labelled form. Its shadow root holds a `<tanrei-button>` (so every Button token and state applies unchanged) and one visually hidden live region: `role=\"status\"` for the copied announcement and `role=\"alert\"` for the failed one, emptied and set again on each activation so the same words are spoken twice (CPY-5). CPY-2 is `navigator.clipboard.writeText(text)`, which needs a secure context and the person's activation; where the API is missing or the promise rejects, that is CPY-4 — no `document.execCommand` fallback. The events are named `copied` and `copyfailed`, not `copy`, because `copy` is the document's own clipboard event and bubbles. CPY-7: the three labels are stacked in one grid cell, two of them `visibility: hidden`. The timer is a `setTimeout` of the token's value read from the custom property, cleared on a new activation and on disconnect."
+      "notes": "`<tanrei-copy-button text=\"…\" label=\"Copy\" copied-label=\"Copied\" failed-label=\"Could not copy\">`, with `icon-only=\"false\"` for the labelled form. Its shadow root holds a `<tanrei-button>` (so every Button token and state applies unchanged) and one visually hidden live region: `role=\"status\"` for the copied announcement and `role=\"alert\"` for the failed one, emptied and set again on each activation so the same words are spoken twice (CPY-5). CPY-2 is `navigator.clipboard.writeText(text)`, which needs a secure context and the person's activation; where the API is missing or the promise rejects, that is CPY-4 — no `document.execCommand` fallback. The events are named `copied` and `copyfailed`, not `copy`, because `copy` is the document's own clipboard event and bubbles. CPY-7: the three labels are stacked in one grid cell, two of them `visibility: hidden`. CPY-19 (`label-width=\"fit\"`): the box's `inline-size` is set to the shown text's measured width and transitions over the resize tokens (none under `prefers-reduced-motion: reduce`), clipped at its end with `overflow-x: clip`; a `ResizeObserver` on the three texts takes a new face's widths at once. The timer is a `setTimeout` of the token's value read from the custom property, cleared on a new activation and on disconnect."
     },
     "swiftui": {
       "status": "planned",
@@ -415,13 +443,14 @@
         "iconOnly": "iconOnly",
         "variant": "variant",
         "size": "size",
-        "disabled": "disabled"
+        "disabled": "disabled",
+        "labelWidth": "labelWidth"
       },
       "events": {
         "copied": "onCopied",
         "copyfailed": "onCopyFailed"
       },
-      "notes": "`TanreiCopyButton(text:, label:, copiedLabel:, failedLabel:, iconOnly:, variant:, size:)` over `TanreiButton`. Writes `UIPasteboard.general.string` (`NSPasteboard.general` on macOS), which does not fail; the failed form is reached only where no pasteboard exists (a preview). Announces with `AccessibilityNotification.Announcement`, at high priority for the failed form. `disabled` is the environment's `isEnabled`."
+      "notes": "`TanreiCopyButton(text:, label:, copiedLabel:, failedLabel:, iconOnly:, variant:, size:)` over `TanreiButton`. Writes `UIPasteboard.general.string` (`NSPasteboard.general` on macOS), which does not fail; the failed form is reached only where no pasteboard exists (a preview). Announces with `AccessibilityNotification.Announcement`, at high priority for the failed form. `disabled` is the environment's `isEnabled`. It owes labelWidth (CPY-19) as well: fit, a width that follows the shown text, eased over comp.copy-button.motion.resize-duration and at once where motion is reduced."
     },
     "compose": {
       "status": "planned",
@@ -434,13 +463,14 @@
         "iconOnly": "iconOnly",
         "variant": "variant",
         "size": "size",
-        "disabled": "enabled"
+        "disabled": "enabled",
+        "labelWidth": "labelWidth"
       },
       "events": {
         "copied": "onCopied",
         "copyfailed": "onCopyFailed"
       },
-      "notes": "`TanreiCopyButton(text, label, copiedLabel, failedLabel, iconOnly, variant, size, enabled)` over `TanreiButton`, writing through the platform clipboard of the composition. Android 13 and later show the system's own confirmation of a copy: there the copy button still changes its glyph and leaves the announcement of copiedLabel to the system, so the person is told once; the README says so. Earlier versions announce through a polite live region on the button's semantics."
+      "notes": "`TanreiCopyButton(text, label, copiedLabel, failedLabel, iconOnly, variant, size, enabled)` over `TanreiButton`, writing through the platform clipboard of the composition. Android 13 and later show the system's own confirmation of a copy: there the copy button still changes its glyph and leaves the announcement of copiedLabel to the system, so the person is told once; the README says so. Earlier versions announce through a polite live region on the button's semantics. It owes labelWidth (CPY-19) as well: fit, a width that follows the shown text, eased over comp.copy-button.motion.resize-duration and at once where motion is reduced."
     },
     "flutter": {
       "status": "planned",
@@ -453,13 +483,14 @@
         "iconOnly": "iconOnly",
         "variant": "variant",
         "size": "size",
-        "disabled": "enabled"
+        "disabled": "enabled",
+        "labelWidth": "labelWidth"
       },
       "events": {
         "copied": "onCopied",
         "copyfailed": "onCopyFailed"
       },
-      "notes": "`TanreiCopyButton(text: …, label: …, copiedLabel: …, failedLabel: …)` over `TanreiButton`. `Clipboard.setData(ClipboardData(text: text))`; a `PlatformException` is CPY-4. Announces with `SemanticsService.announce`, assertively for the failed form. On Android 13 and later the same rule as Compose's applies."
+      "notes": "`TanreiCopyButton(text: …, label: …, copiedLabel: …, failedLabel: …)` over `TanreiButton`. `Clipboard.setData(ClipboardData(text: text))`; a `PlatformException` is CPY-4. Announces with `SemanticsService.announce`, assertively for the failed form. On Android 13 and later the same rule as Compose's applies. It owes labelWidth (CPY-19) as well: fit, a width that follows the shown text, eased over comp.copy-button.motion.resize-duration and at once where motion is reduced."
     },
     "react-native": {
       "status": "planned",
@@ -472,13 +503,14 @@
         "iconOnly": "iconOnly",
         "variant": "variant",
         "size": "size",
-        "disabled": "disabled"
+        "disabled": "disabled",
+        "labelWidth": "labelWidth"
       },
       "events": {
         "copied": "onCopied",
         "copyfailed": "onCopyFailed"
       },
-      "notes": "`<CopyButton text=\"…\" label=\"Copy\" copiedLabel=\"Copied\" failedLabel=\"Could not copy\" />` over `Button`. React Native has no clipboard in its core: the package takes the app's writer (`write={(text) => Clipboard.setStringAsync(text)}`) or a provider set once at the app's root, and a missing writer is CPY-4 with a debug report. Which of the two, and whether a clipboard module becomes an optional peer dependency, is the platform agent's to propose. Announces with `AccessibilityInfo.announceForAccessibility`. Follows the app's direction where an ancestor's is not known."
+      "notes": "`<CopyButton text=\"…\" label=\"Copy\" copiedLabel=\"Copied\" failedLabel=\"Could not copy\" />` over `Button`. React Native has no clipboard in its core: the package takes the app's writer (`write={(text) => Clipboard.setStringAsync(text)}`) or a provider set once at the app's root, and a missing writer is CPY-4 with a debug report. Which of the two, and whether a clipboard module becomes an optional peer dependency, is the platform agent's to propose. Announces with `AccessibilityInfo.announceForAccessibility`. Follows the app's direction where an ancestor's is not known. It owes labelWidth (CPY-19) as well: fit, a width that follows the shown text, eased over comp.copy-button.motion.resize-duration and at once where motion is reduced."
     }
   }
 }

@@ -8269,16 +8269,26 @@ class TanreiComboboxTokens {
 class TanreiCopyButtonTokens {
   const TanreiCopyButtonTokens({
     required this.confirmationDuration,
+    required this.motionResizeDuration,
+    required this.motionResizeEasing,
   });
 
   /// `comp.copy-button.confirmation-duration`
   final int confirmationDuration;
+  /// `comp.copy-button.motion-resize-duration`
+  final int motionResizeDuration;
+  /// `comp.copy-button.motion-resize-easing`
+  final TanreiCubicBezier motionResizeEasing;
 
   /// A copy with the given tokens replaced.
   TanreiCopyButtonTokens copyWith({
     int? confirmationDuration,
+    int? motionResizeDuration,
+    TanreiCubicBezier? motionResizeEasing,
   }) => TanreiCopyButtonTokens(
         confirmationDuration: confirmationDuration ?? this.confirmationDuration,
+        motionResizeDuration: motionResizeDuration ?? this.motionResizeDuration,
+        motionResizeEasing: motionResizeEasing ?? this.motionResizeEasing,
       );
 }
 
@@ -22867,7 +22877,19 @@ class TanreiTableTokens {
     required this.motionStateEasing,
     required this.rowGap,
     required this.rowSelectedContainerColor,
+    required this.rowSelectedHoveredContainerColor,
+    required this.rowSelectedHoveredTextColor,
+    required this.rowSelectedPressedContainerColor,
+    required this.rowSelectedPressedTextColor,
+    required this.rowSelectedStateLayerColor,
     required this.rowSelectedTextColor,
+    required this.rowUnselectedContainerColor,
+    required this.rowUnselectedHoveredContainerColor,
+    required this.rowUnselectedHoveredTextColor,
+    required this.rowUnselectedPressedContainerColor,
+    required this.rowUnselectedPressedTextColor,
+    required this.rowUnselectedStateLayerColor,
+    required this.rowUnselectedTextColor,
     required this.separation,
     required this.statusGap,
     required this.statusPaddingBlock,
@@ -22916,8 +22938,32 @@ class TanreiTableTokens {
   final double rowGap;
   /// `comp.table.row-selected-container-color`
   final TanreiPaint rowSelectedContainerColor;
+  /// `comp.table.row-selected-hovered-container-color`
+  final TanreiPaint rowSelectedHoveredContainerColor;
+  /// `comp.table.row-selected-hovered-text-color`
+  final TanreiPaint rowSelectedHoveredTextColor;
+  /// `comp.table.row-selected-pressed-container-color`
+  final TanreiPaint rowSelectedPressedContainerColor;
+  /// `comp.table.row-selected-pressed-text-color`
+  final TanreiPaint rowSelectedPressedTextColor;
+  /// `comp.table.row-selected-state-layer-color`
+  final TanreiPaint rowSelectedStateLayerColor;
   /// `comp.table.row-selected-text-color`
   final TanreiPaint rowSelectedTextColor;
+  /// `comp.table.row-unselected-container-color`
+  final TanreiPaint rowUnselectedContainerColor;
+  /// `comp.table.row-unselected-hovered-container-color`
+  final TanreiPaint rowUnselectedHoveredContainerColor;
+  /// `comp.table.row-unselected-hovered-text-color`
+  final TanreiPaint rowUnselectedHoveredTextColor;
+  /// `comp.table.row-unselected-pressed-container-color`
+  final TanreiPaint rowUnselectedPressedContainerColor;
+  /// `comp.table.row-unselected-pressed-text-color`
+  final TanreiPaint rowUnselectedPressedTextColor;
+  /// `comp.table.row-unselected-state-layer-color`
+  final TanreiPaint rowUnselectedStateLayerColor;
+  /// `comp.table.row-unselected-text-color`
+  final TanreiPaint rowUnselectedTextColor;
   /// `comp.table.separation`
   final double separation;
   /// `comp.table.status-gap`
@@ -22962,7 +23008,19 @@ class TanreiTableTokens {
     TanreiCubicBezier? motionStateEasing,
     double? rowGap,
     TanreiPaint? rowSelectedContainerColor,
+    TanreiPaint? rowSelectedHoveredContainerColor,
+    TanreiPaint? rowSelectedHoveredTextColor,
+    TanreiPaint? rowSelectedPressedContainerColor,
+    TanreiPaint? rowSelectedPressedTextColor,
+    TanreiPaint? rowSelectedStateLayerColor,
     TanreiPaint? rowSelectedTextColor,
+    TanreiPaint? rowUnselectedContainerColor,
+    TanreiPaint? rowUnselectedHoveredContainerColor,
+    TanreiPaint? rowUnselectedHoveredTextColor,
+    TanreiPaint? rowUnselectedPressedContainerColor,
+    TanreiPaint? rowUnselectedPressedTextColor,
+    TanreiPaint? rowUnselectedStateLayerColor,
+    TanreiPaint? rowUnselectedTextColor,
     double? separation,
     double? statusGap,
     double? statusPaddingBlock,
@@ -22993,7 +23051,19 @@ class TanreiTableTokens {
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
         rowGap: rowGap ?? this.rowGap,
         rowSelectedContainerColor: rowSelectedContainerColor ?? this.rowSelectedContainerColor,
+        rowSelectedHoveredContainerColor: rowSelectedHoveredContainerColor ?? this.rowSelectedHoveredContainerColor,
+        rowSelectedHoveredTextColor: rowSelectedHoveredTextColor ?? this.rowSelectedHoveredTextColor,
+        rowSelectedPressedContainerColor: rowSelectedPressedContainerColor ?? this.rowSelectedPressedContainerColor,
+        rowSelectedPressedTextColor: rowSelectedPressedTextColor ?? this.rowSelectedPressedTextColor,
+        rowSelectedStateLayerColor: rowSelectedStateLayerColor ?? this.rowSelectedStateLayerColor,
         rowSelectedTextColor: rowSelectedTextColor ?? this.rowSelectedTextColor,
+        rowUnselectedContainerColor: rowUnselectedContainerColor ?? this.rowUnselectedContainerColor,
+        rowUnselectedHoveredContainerColor: rowUnselectedHoveredContainerColor ?? this.rowUnselectedHoveredContainerColor,
+        rowUnselectedHoveredTextColor: rowUnselectedHoveredTextColor ?? this.rowUnselectedHoveredTextColor,
+        rowUnselectedPressedContainerColor: rowUnselectedPressedContainerColor ?? this.rowUnselectedPressedContainerColor,
+        rowUnselectedPressedTextColor: rowUnselectedPressedTextColor ?? this.rowUnselectedPressedTextColor,
+        rowUnselectedStateLayerColor: rowUnselectedStateLayerColor ?? this.rowUnselectedStateLayerColor,
+        rowUnselectedTextColor: rowUnselectedTextColor ?? this.rowUnselectedTextColor,
         separation: separation ?? this.separation,
         statusGap: statusGap ?? this.statusGap,
         statusPaddingBlock: statusPaddingBlock ?? this.statusPaddingBlock,

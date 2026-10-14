@@ -2,7 +2,7 @@
 title: Estructura de la aplicación
 description: Enmarca una página o una aplicación. Coloca una cabecera, la navegación, el contenido principal, un contenido complementario y un pie, decide según el ancho de la ventana cómo se muestra cada uno y permite que el teclado llegue al contenido en un solo paso.
 translationOf: components/app-shell.mdx
-sourceHash: b0533c6c20102f75d922adf1e96c3bd00dd7d019
+sourceHash: dd71f17af916d5f24fc18262c73dccc55a1dc27e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -147,6 +147,12 @@ La estructura mide la cabecera fija y da ese mismo margen interior a la vista de
 - Da nombre al contenido complementario con `asideLabel`, en tu idioma.
 - Una hoja lateral puesta en el contenido complementario conserva su propio ancho y su borde. Define su variante a partir de `windowclasschange`.
 
+### El pie
+
+- El pie se muestra mientras llenas su región. Si no la llenas, no hay pie ni región de referencia.
+- `footerHidden` (`footer-hidden`) oculta un pie que ya llenaste, sin quitarlo del marcado. Úsalo en una pantalla que es una tarea y no una página del sitio: un pago, un inicio de sesión, un editor. El pie no ocupa entonces espacio, no dibuja ninguna línea, no es una región de referencia y no tiene ninguna parada del teclado, y la navegación y el contenido complementario siguen a la vista hasta el final de la página.
+- Si ocultas el pie mientras el foco está en él, el foco pasa a la región principal.
+
 ### Líneas entre regiones
 
 | `separation` | Qué dibuja |
@@ -180,6 +186,7 @@ Las líneas no ocupan sitio. La estructura no dibuja ninguna alrededor de la cab
 - Tab recorre las regiones en el orden de lectura, el mismo en todas las clases de ventana y en las dos direcciones del diseño, de izquierda a derecha y de derecha a izquierda. Una región que no se muestra no tiene ninguna parada.
 - El destino de un enlace y un elemento con el foco nunca quedan debajo de la cabecera fija ni de la barra de navegación.
 - Cuando la clase de la ventana cambia y el foco estaba en algo que ya no se muestra, como el botón de menú, el foco pasa a la región principal.
+- Un pie oculto (`footerHidden`) no está en el árbol de accesibilidad y no tiene ninguna parada del teclado.
 - Con el texto al 200% en una ventana de 320 de ancho, el marco es una sola columna y nada se desplaza hacia los lados.
 - Con colores forzados, las líneas y la caja del enlace de salto se dibujan con el color de texto del sistema.
 - En un diseño de derecha a izquierda, la navegación queda a la derecha y el contenido complementario a la izquierda. El orden del foco no cambia.

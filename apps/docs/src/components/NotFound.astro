@@ -84,9 +84,8 @@ const home = homeHref(route);
 </script>
 
 <style is:global>
-  /* The block before its element is defined, in a layer of the docs' own (styles/prose.css says why). */
-  @import '@tanrei/web/empty-state.css' layer(docs.empty-state);
-
+  /* (The block before its element is defined is `@tanrei/web/empty-state.css`'s, loaded by styles/prose.css in a layer
+     of the docs' own.) */
   /* The description is a paragraph of the page's own: its margins are not the empty state's. */
   .docs-not-found > p {
     margin: 0;

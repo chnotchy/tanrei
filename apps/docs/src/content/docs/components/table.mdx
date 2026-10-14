@@ -292,7 +292,7 @@ table.addEventListener('selectionchange', (event) => {
 - A row without `data-value` cannot be chosen. Leave its selection cell empty, as in a footer row.
 - The header's checkbox is checked while every row is chosen, indeterminate while some are, and disabled while there is no row to choose. It stands for the rows the table was given, never for the rows of other pages.
 - The selection column is not a column of data. `row-headers` and `sticky-first-column` mean the column after it, and the `index` of a `sort` event does not count it.
-- A press on a row outside its selection cell chooses nothing.
+- A press anywhere on a row that can be chosen changes its checkbox, as a press on the checkbox does. A link, a button or a field in its cells keeps its own press, and a drag, a text selection, the second click of a double click or a click with a modifier key changes nothing. The row is drawn hovered and pressed as one; the keyboard stays on the checkbox.
 
 The browser has its own event named `selectionchange`, for a change of the text selection, and a text field in a cell sends it through the table. The table's event is a `CustomEvent` that carries `detail.values`; the browser's is not. Check for that, as the example does.
 
@@ -478,6 +478,7 @@ A row has no height of its own. It is as tall as its tallest cell.
 ### Guidance for choosing rows
 
 - Let people choose rows where they act on several records at once: delete, export, move. For one record, put the action in its row.
+- A press anywhere on a row chooses it. Where a row also opens its record, put a link in its row header for that, not a press on the row.
 - Say how many rows are chosen in the status line ("3 of 132 selected"). The table counts nothing.
 - Put the buttons that act on the chosen rows above the table. They are yours; the table tells you what is chosen.
 - Offer "all 132" with a control of your own. The header's checkbox chooses the rows the table was given, never the rows of other pages.
@@ -537,9 +538,10 @@ A row has no height of its own. It is as tall as its tallest cell.
 - Each checkbox is its own stop in the focus order: the header row's checkbox and sort buttons first, then each row's checkbox. Space checks or unchecks it.
 - A row's checkbox that has no name of its own is named by the row's header cell.
 - A press anywhere in a selection cell presses its checkbox. When you replace or reorder the rows while a checkbox has focus, focus goes to the checkbox of the row with the same `data-value`.
+- For a pointer, a row that can be chosen is a larger target for its checkbox. The row gets no role, no focus stop and no selected state, so the keyboard and a screen reader meet the checkbox, named as before, and the text of the row can still be selected and copied.
 - In forced colors the fill of a chosen row is gone, and the checkbox still says that the row is chosen.
 - While `loading` is set, the table is exposed as busy (`aria-busy`). Placeholder rows are hidden from assistive technology, so a person hears that the table is busy and not rows of nothing. The table announces nothing itself when loading begins or ends.
-- Without script the selection column, a chosen row (`data-selected`, or a native checkbox that is checked) and placeholder rows are drawn all the same, and native checkboxes work in your form. The header's checkbox kept in step and the `selectionchange` event need script.
+- Without script the selection column, a chosen row (`data-selected`, or a native checkbox that is checked) and placeholder rows are drawn all the same, and native checkboxes work in your form. The header's checkbox kept in step and the `selectionchange` event need script. Without script a row shows no hover and no pointer cursor, and a press beside its checkbox changes nothing.
 - A table with no name, an unknown density, separation or selection, a footer row given before the body, a row with more or fewer cells than columns, a sortable column without a header, two columns sorted at once, a row's checkbox without a name and a placeholder row in a table that is not loading are reported in debug builds.
 
 ### What you need to do
