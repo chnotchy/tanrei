@@ -2,7 +2,7 @@
 title: टेबल
 description: पंक्तियों और कॉलम वाला डेटा दिखाती है, नाम वाले कॉलम, वैकल्पिक पंक्ति हेडर, कैप्शन और फ़ुटर पंक्तियों के साथ। जब वह अपनी जगह में नहीं समाती तो अपने ही बॉक्स में स्क्रॉल होती है। कॉलम का हेडर पंक्तियों को अपने क्रम में माँग सकता है और पंक्तियाँ चुनी जा सकती हैं; टेबल ख़ुद कभी सॉर्ट नहीं करती।
 translationOf: components/table.mdx
-sourceHash: c171558813b62e3eb1090573c79888fc17483cba
+sourceHash: c5bff496ab398c6bb6f372ce183a6a1d35192c1e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -207,12 +207,14 @@ table.addEventListener('sort', (event) => {
     </table>
     <div data-part="status">
       <p role="status">42 में से 1–6 रिलीज़</p>
-      <nav class="tanrei-pagination" aria-label="रिलीज़ के पेज">
-        <a class="tanrei-pagination-item" data-direction="next" rel="next" href="#स्थिति-पंक्ति">
-          <span class="tanrei-pagination-label">अगला</span>
-          <span class="tanrei-pagination-title">रिलीज़ 7 से 12</span>
-        </a>
-      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--tanrei-comp-table-status-gap)">
+        <tanrei-select size="small" label="हर पेज पर रिलीज़" value="6">
+          <tanrei-option value="6">6</tanrei-option>
+          <tanrei-option value="12">12</tanrei-option>
+          <tanrei-option value="24">24</tanrei-option>
+        </tanrei-select>
+        <tanrei-pagination label="रिलीज़ के पेज" variant="compact" size="small" page="1" count="7" previous-label="पिछला पेज" next-label="अगला पेज" count-text="{count} में से पेज {page}"></tanrei-pagination>
+      </div>
     </div>
   </tanrei-table>
 </DemoFrame>
@@ -224,12 +226,14 @@ table.addEventListener('sort', (event) => {
   <table>…</table>
   <div data-part="status">
     <p role="status">132 में से 1–20</p>
-    <nav class="tanrei-pagination" aria-label="प्रॉडक्ट के पेज">…</nav>
+    <tanrei-pagination label="प्रॉडक्ट के पेज" variant="compact" size="small" page="1" count="7" previous-label="पिछला पेज" next-label="अगला पेज" count-text="{count} में से पेज {page}"></tanrei-pagination>
   </div>
 </tanrei-table>
 ```
 
 वाक्य शुरुआती किनारे पर रहता है और पेजिनेशन अंतिम किनारे पर; जहाँ दोनों अगल-बगल नहीं समाते, वहाँ पेजिनेशन वाक्य के नीचे चला जाता है। स्थिति पंक्ति कॉलम के साथ आड़ी स्क्रॉल नहीं होती, और जिस टेबल की पंक्तियाँ उसके अपने बॉक्स में स्क्रॉल होती हैं, उसमें यह सबसे नीचे रहती है। टेबल कुछ नहीं गिनती और कोई शब्द नहीं लिखती: "132 में से 1–20" आपका है, आपकी भाषा में। जब आप पैराग्राफ़ का टेक्स्ट बदलते हैं, तो सहायक तकनीक को बिना टोके (polite) बताया जाता है। जहाँ आपके मार्कअप में वह पैराग्राफ़ नहीं है, वहाँ एलिमेंट का `status` ऐट्रिब्यूट उसे आपके लिए लिख देता है। जो पैराग्राफ़ आपने ख़ुद लिखा है, वही पढ़ा जाता है, और तब यह ऐट्रिब्यूट कुछ नहीं बदलता।
+
+अंतिम किनारे पर `small` साइज़ का [पेजिनेशन](/hi/components/pagination/) रहता है: यहाँ की तरह कॉम्पैक्ट, या नंबर वाला, जहाँ लोग किसी पेज पर उसके नंबर से जाते हैं। जहाँ लोग चुनते हैं कि एक पेज में कितनी पंक्तियाँ हों, वहाँ पेजिनेशन से पहले उसके लिए एक [सिलेक्ट](/hi/components/select/) रखें, और दोनों को एक ऐसे एलिमेंट में रखें जिसका लेआउट आप तय करते हैं; दिखाई जा रही पंक्तियों की रेंज आपका वाक्य है, पेजिनेशन का हिस्सा नहीं। [पिछला और अगला लिंक](/hi/components/previous-next-links/) यहाँ नहीं आते: वे शीर्षक वाले पेजों तक ले जाते हैं, एक ही सूची की पंक्तियों तक नहीं। टेबल बस वही रखती है जो आप उसे देते हैं: पेज बदलने पर पंक्तियाँ और वाक्य आप बदलें।
 
 ### पंक्तियाँ चुनना
 

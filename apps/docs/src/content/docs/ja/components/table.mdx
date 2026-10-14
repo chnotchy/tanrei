@@ -2,7 +2,7 @@
 title: テーブル
 description: 行と列のあるデータを示します。列の見出し、行見出し、キャプション、フッター行を持てます。収まらないときは自身の枠の中でスクロールします。列の見出しは、その列の順に行を並べるよう求めることができ、行は選択できます。テーブル自身は並べ替えません。
 translationOf: components/table.mdx
-sourceHash: c171558813b62e3eb1090573c79888fc17483cba
+sourceHash: c5bff496ab398c6bb6f372ce183a6a1d35192c1e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -207,12 +207,14 @@ table.addEventListener('sort', (event) => {
     </table>
     <div data-part="status">
       <p role="status">42 件中 1〜6 件</p>
-      <nav class="tanrei-pagination" aria-label="リリースのページ">
-        <a class="tanrei-pagination-item" data-direction="next" rel="next" href="#ステータス行">
-          <span class="tanrei-pagination-label">次へ</span>
-          <span class="tanrei-pagination-title">7〜12 件目</span>
-        </a>
-      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--tanrei-comp-table-status-gap)">
+        <tanrei-select size="small" label="1 ページのリリース数" value="6">
+          <tanrei-option value="6">6</tanrei-option>
+          <tanrei-option value="12">12</tanrei-option>
+          <tanrei-option value="24">24</tanrei-option>
+        </tanrei-select>
+        <tanrei-pagination label="リリースのページ" variant="compact" size="small" page="1" count="7" previous-label="前のページ" next-label="次のページ" count-text="{count} ページ中 {page} ページ"></tanrei-pagination>
+      </div>
     </div>
   </tanrei-table>
 </DemoFrame>
@@ -224,12 +226,14 @@ table.addEventListener('sort', (event) => {
   <table>…</table>
   <div data-part="status">
     <p role="status">132 件中 1〜20 件</p>
-    <nav class="tanrei-pagination" aria-label="商品のページ">…</nav>
+    <tanrei-pagination label="商品のページ" variant="compact" size="small" page="1" count="7" previous-label="前のページ" next-label="次のページ" count-text="{count} ページ中 {page} ページ"></tanrei-pagination>
   </div>
 </tanrei-table>
 ```
 
 文は開始側の端に、ページネーションは終了側の端に置かれます。2 つが横に並んで収まらないときは、ページネーションが文の下に来ます。ステータス行は列と一緒に横にスクロールせず、行が自身の枠の中でスクロールするテーブルでは、枠の下端にとどまります。テーブルは何も数えず、言葉も書きません。「132 件中 1〜20 件」は、プロダクトがプロダクトの言語で書く文です。段落のテキストを変えると、支援技術に控えめに伝わります。マークアップに段落がない場合は、要素の `status` 属性がこの段落を代わりに書きます。自分で書いた段落があれば、読まれるのはその段落で、属性は何も変えません。
+
+終了側の端に置くのは、サイズ `small` の[ページネーション](/ja/components/pagination/)です。ここのようにコンパクトな形にするか、番号でページを選ぶ場合は番号の形にします。1 ページに表示する行数を選べるようにする場合は、そのための[セレクト](/ja/components/select/)をページネーションの前に置き、2 つを 1 つの要素にまとめてレイアウトします。表示中の行の範囲はプロダクトの文であり、ページネーションのものではありません。[前後のリンク](/ja/components/previous-next-links/)はここには置きません。前後のリンクはタイトルのあるページへ導くもので、1 つのリストの行へ導くものではないからです。テーブルは渡されたものを配置するだけです。ページが変わったら、行と文をプロダクトが変えます。
 
 ### 行の選択
 
