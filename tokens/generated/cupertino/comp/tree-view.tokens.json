@@ -205,6 +205,17 @@
             "compact": {
               "$value": "{tanrei.sys.icon.extra-small}"
             }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "The room between the icon (or the icon's kept room) and the label, the same in every density: a compact tree draws its rows lower and its glyphs smaller, and keeps a name as far from its glyph as a regular one does. A product's iconGap overrides it.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product sets a name apart from its glyph by one distance in every tree it draws, dense or not, apart from the gaps between a row's other parts.",
+                "since": "0.1.0"
+              }
+            }
           }
         },
         "chevron": {
@@ -235,11 +246,37 @@
           "color": {
             "$type": "color",
             "$value": "{tanrei.sys.color.outline-variant}",
-            "$description": "The guide line of a tree whose guides is true: the one hairline. Decorative: the hierarchy is told by the indent and, to assistive technology, by the structure."
+            "$description": "The guide line of a tree whose guides is shown (or hover, while the pointer or focus is in it): the one hairline. Decorative: the hierarchy is told by the indent and, to assistive technology, by the structure."
           },
           "width": {
             "$type": "dimension",
             "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "sticky": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product keeps the rows of the open parents above a long tree's visible rows pinned at the top of its scrolling box, as an editor's sticky scroll does: those rows need a fill that hides what scrolls under them and a line that says where the pinned rows end, which a system may draw apart from the tree's selection and its dividers.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface}",
+              "$description": "Under a pinned row's own fill: the surface the tree stands on, opaque, so that the rows scrolling under the pinned rows are hidden."
+            }
+          },
+          "divider": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.outline-variant}",
+              "$description": "The line under the last pinned row, where the rows that scroll under it begin."
+            },
+            "width": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.hairline}"
+            }
           }
         },
         "unselected": {

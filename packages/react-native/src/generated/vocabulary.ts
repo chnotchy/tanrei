@@ -5376,12 +5376,16 @@ export interface TanreiTreeViewTokens {
   readonly guideColor: TanreiPaint;
   readonly guideWidth: number;
   readonly hoveredOpacity: number;
+  readonly iconGap: number;
   readonly motionDisclosureDuration: number;
   readonly motionDisclosureEasing: TanreiCubicBezier;
   readonly motionFeedbackDuration: number;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedOpacity: number;
+  readonly stickyContainerColor: TanreiPaint;
+  readonly stickyDividerColor: TanreiPaint;
+  readonly stickyDividerWidth: number;
   readonly supportingTextTypescale: TanreiTypescaleRole;
   readonly trailingTextTypescale: TanreiTypescaleRole;
   readonly conditions: TanreiTreeViewConditions;

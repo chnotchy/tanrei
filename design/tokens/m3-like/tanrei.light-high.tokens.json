@@ -96657,7 +96657,7 @@
               "hex": "#79747e",
               "alpha": 1
             },
-            "$description": "The guide line of a tree whose guides is true: the one hairline. Decorative: the hierarchy is told by the indent and, to assistive technology, by the structure."
+            "$description": "The guide line of a tree whose guides is shown (or hover, while the pointer or focus is in it): the one hairline. Decorative: the hierarchy is told by the indent and, to assistive technology, by the structure."
           },
           "width": {
             "$type": "dimension",
@@ -96674,6 +96674,14 @@
           }
         },
         "icon": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 12,
+              "unit": "px"
+            },
+            "$description": "The room between the icon (or the icon's kept room) and the label, the same in every density: a compact tree draws its rows lower and its glyphs smaller, and keeps a name as far from its glyph as a regular one does. A product's iconGap overrides it."
+          },
           "size": {
             "compact": {
               "$type": "dimension",
@@ -97337,6 +97345,47 @@
                 ],
                 "hex": "#1d192b",
                 "alpha": 1
+              }
+            }
+          }
+        },
+        "sticky": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.9961,
+                  0.9686,
+                  1
+                ],
+                "hex": "#fef7ff",
+                "alpha": 1
+              },
+              "$description": "Under a pinned row's own fill: the surface the tree stands on, opaque, so that the rows scrolling under the pinned rows are hidden."
+            }
+          },
+          "divider": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.4745,
+                  0.4549,
+                  0.4941
+                ],
+                "hex": "#79747e",
+                "alpha": 1
+              },
+              "$description": "The line under the last pinned row, where the rows that scroll under it begin."
+            },
+            "width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 1,
+                "unit": "px"
               }
             }
           }
