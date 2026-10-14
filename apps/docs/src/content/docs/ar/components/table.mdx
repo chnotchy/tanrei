@@ -2,7 +2,7 @@
 title: الجدول
 description: يعرض بيانات لها صفوف وأعمدة، بأعمدة مسمّاة، ومعه اختياريًّا ترويسات صفوف وشرح وصفوف تذييل. يُمرَّر داخل صندوقه حين لا يتسع له المكان. تستطيع ترويسة العمود أن تطلب الصفوف بترتيبه، ويمكن اختيار الصفوف؛ أما الجدول نفسه فلا يفرز أبدًا.
 translationOf: components/table.mdx
-sourceHash: c171558813b62e3eb1090573c79888fc17483cba
+sourceHash: c5bff496ab398c6bb6f372ce183a6a1d35192c1e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -207,12 +207,14 @@ table.addEventListener('sort', (event) => {
     </table>
     <div data-part="status">
       <p role="status">الإصدارات 1 إلى 6 من 42</p>
-      <nav class="tanrei-pagination" aria-label="صفحات الإصدارات">
-        <a class="tanrei-pagination-item" data-direction="next" rel="next" href="#سطر-الحالة">
-          <span class="tanrei-pagination-label">التالي</span>
-          <span class="tanrei-pagination-title">الإصدارات 7 إلى 12</span>
-        </a>
-      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--tanrei-comp-table-status-gap)">
+        <tanrei-select size="small" label="الإصدارات في كل صفحة" value="6">
+          <tanrei-option value="6">6</tanrei-option>
+          <tanrei-option value="12">12</tanrei-option>
+          <tanrei-option value="24">24</tanrei-option>
+        </tanrei-select>
+        <tanrei-pagination label="صفحات الإصدارات" variant="compact" size="small" page="1" count="7" previous-label="الصفحة السابقة" next-label="الصفحة التالية" count-text="الصفحة {page} من {count}"></tanrei-pagination>
+      </div>
     </div>
   </tanrei-table>
 </DemoFrame>
@@ -224,12 +226,14 @@ table.addEventListener('sort', (event) => {
   <table>…</table>
   <div data-part="status">
     <p role="status">1 إلى 20 من 132</p>
-    <nav class="tanrei-pagination" aria-label="صفحات المنتجات">…</nav>
+    <tanrei-pagination label="صفحات المنتجات" variant="compact" size="small" page="1" count="7" previous-label="الصفحة السابقة" next-label="الصفحة التالية" count-text="الصفحة {page} من {count}"></tanrei-pagination>
   </div>
 </tanrei-table>
 ```
 
 تقف الجملة عند حافة البداية والتنقل بين الصفحات عند حافة النهاية؛ وحيث لا يتسع المكان لهما جنبًا إلى جنب، ينزل التنقل بين الصفحات تحت الجملة. لا يُمرَّر سطر الحالة أفقيًّا مع الأعمدة، ويبقى في أسفل الجدول الذي تُمرَّر صفوفه داخل صندوقه. الجدول لا يعدّ شيئًا ولا يكتب كلمة: «1 إلى 20 من 132» لك أنت، بلغتك. وحين تغيّر نص الفقرة، تُخبَر التقنيات المساعدة بتهذيب. والخاصية `status` على العنصر تكتب تلك الفقرة عنك حيث لا فقرة في ترميزك. أما الفقرة التي كتبتها بنفسك فهي التي تُقرأ، ولا تغيّر الخاصية عندئذ شيئًا.
+
+ما يقف عند حافة النهاية هو [التنقل بين الصفحات](/ar/components/pagination/) بالحجم `small`: بشكله المختصر كما هنا، أو بأرقام الصفحات حيث ينتقل الناس إلى صفحة برقمها. وحيث يختار الناس عدد الصفوف في كل صفحة، ضع قبله [عنصر الاختيار](/ar/components/select/) الخاص بذلك، والاثنين معًا في عنصر واحد ترتّبه أنت؛ ونطاق الصفوف المعروضة جملتك أنت، لا جزء من التنقل بين الصفحات. أما [روابط السابق والتالي](/ar/components/previous-next-links/) فلا مكان لها هنا: فهي تقود إلى صفحات لها عناوين، لا إلى صفوف قائمة واحدة. الجدول يضع ما تعطيه إياه فقط: حين تتغير الصفحة، غيّر أنت الصفوف والجملة.
 
 ### اختيار الصفوف
 

@@ -11773,6 +11773,75 @@ public struct TanreiPageHeaderTokens: Sendable, Equatable {
   }
 }
 
+/// A value of pagination's `size` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiPaginationSize(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiPaginationSize: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let small = TanreiPaginationSize(rawValue: "small")
+  public static let medium = TanreiPaginationSize(rawValue: "medium")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiPaginationSize] = [.small, .medium]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiPaginationSize.medium
+}
+
+/// Everything of pagination that depends on its size.
+public struct TanreiPaginationSizeTokens: Sendable, Equatable {
+  public var containerHeight: CGFloat
+
+  public init(
+    containerHeight: CGFloat
+  ) {
+    self.containerHeight = containerHeight
+  }
+}
+
+/// The sizes of pagination: named fields for the core values, `extra` for what a design system added.
+/// Read one with `sizes[key]`.
+public struct TanreiPaginationSizes: Sendable, Equatable {
+  public var small: TanreiPaginationSizeTokens
+  public var medium: TanreiPaginationSizeTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiPaginationSize: TanreiPaginationSizeTokens]
+
+  public init(
+    small: TanreiPaginationSizeTokens,
+    medium: TanreiPaginationSizeTokens,
+    extra: [TanreiPaginationSize: TanreiPaginationSizeTokens] = [:]
+  ) {
+    self.small = small
+    self.medium = medium
+    self.extra = extra
+  }
+
+  /// The tokens of one pagination size, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiPaginationSize) -> TanreiPaginationSizeTokens? {
+    switch key {
+    case .small: return small
+    case .medium: return medium
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a pagination size this design system does not have reads the tokens of `medium`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiPaginationSize) -> TanreiPaginationSizeTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no pagination size \"\(key.rawValue)\"; using \"medium\"")
+    return medium
+  }
+
+  /// Every pagination size of this design system: the core ones, then what it added.
+  public var keys: [TanreiPaginationSize] { TanreiPaginationSize.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
 /// A value of pagination's `part` axis.
 ///
 /// The set is open: the constants are the values every design system has; a value one system
@@ -11784,9 +11853,10 @@ public struct TanreiPaginationPart: RawRepresentable, Hashable, Sendable, Custom
   public var description: String { rawValue }
 
   public static let item = TanreiPaginationPart(rawValue: "item")
+  public static let current = TanreiPaginationPart(rawValue: "current")
 
   /// The values every design system has, in the order the component declares them.
-  public static let core: [TanreiPaginationPart] = [.item]
+  public static let core: [TanreiPaginationPart] = [.item, .current]
   /// The default: what a value the current design system does not have falls back to.
   public static let fallback = TanreiPaginationPart.item
 }
@@ -11794,24 +11864,18 @@ public struct TanreiPaginationPart: RawRepresentable, Hashable, Sendable, Custom
 /// How one part of pagination is drawn in one state.
 public struct TanreiPaginationPartStateTokens: Sendable, Equatable {
   public var containerColor: TanreiPaint
-  public var outlineColor: TanreiPaint
   public var labelColor: TanreiPaint
-  public var titleColor: TanreiPaint
   public var iconColor: TanreiPaint
   public var stateLayerColor: TanreiPaint
 
   public init(
     containerColor: TanreiPaint,
-    outlineColor: TanreiPaint,
     labelColor: TanreiPaint,
-    titleColor: TanreiPaint,
     iconColor: TanreiPaint,
     stateLayerColor: TanreiPaint
   ) {
     self.containerColor = containerColor
-    self.outlineColor = outlineColor
     self.labelColor = labelColor
-    self.titleColor = titleColor
     self.iconColor = iconColor
     self.stateLayerColor = stateLayerColor
   }
@@ -11824,28 +11888,30 @@ public struct TanreiPaginationPartTokens: Sendable, Equatable {
   public var hovered: TanreiPaginationPartStateTokens
   public var focused: TanreiPaginationPartStateTokens
   public var pressed: TanreiPaginationPartStateTokens
+  public var disabled: TanreiPaginationPartStateTokens
 
   public init(
     enabled: TanreiPaginationPartStateTokens,
     hovered: TanreiPaginationPartStateTokens,
     focused: TanreiPaginationPartStateTokens,
-    pressed: TanreiPaginationPartStateTokens
+    pressed: TanreiPaginationPartStateTokens,
+    disabled: TanreiPaginationPartStateTokens
   ) {
     self.enabled = enabled
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed
+    self.disabled = disabled
   }
 
   /// The tokens of this part of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
-  /// `nil` for `disabled`, which pagination has no group for.
-  public subscript(state state: TanreiInteraction) -> TanreiPaginationPartStateTokens? {
+  public subscript(state state: TanreiInteraction) -> TanreiPaginationPartStateTokens {
     switch state {
     case .enabled: return enabled
     case .hovered: return hovered
     case .focused: return focused
     case .pressed: return pressed
-    case .disabled: return nil
+    case .disabled: return disabled
     }
   }
 }
@@ -11854,14 +11920,17 @@ public struct TanreiPaginationPartTokens: Sendable, Equatable {
 /// Read one with `parts[key]`.
 public struct TanreiPaginationParts: Sendable, Equatable {
   public var item: TanreiPaginationPartTokens
+  public var current: TanreiPaginationPartTokens
   /// What a design system added, by key. Empty in a system that adds nothing.
   public var extra: [TanreiPaginationPart: TanreiPaginationPartTokens]
 
   public init(
     item: TanreiPaginationPartTokens,
+    current: TanreiPaginationPartTokens,
     extra: [TanreiPaginationPart: TanreiPaginationPartTokens] = [:]
   ) {
     self.item = item
+    self.current = current
     self.extra = extra
   }
 
@@ -11869,6 +11938,7 @@ public struct TanreiPaginationParts: Sendable, Equatable {
   public func value(for key: TanreiPaginationPart) -> TanreiPaginationPartTokens? {
     switch key {
     case .item: return item
+    case .current: return current
     default: return extra[key]
     }
   }
@@ -11901,19 +11971,19 @@ public struct TanreiPaginationStateTokens: Sendable, Equatable {
 
 /// Component tokens of pagination (comp.pagination).
 public struct TanreiPaginationTokens: Sendable, Equatable {
-  public var containerGap: CGFloat
-  public var containerMinWidth: CGFloat
-  public var containerPadding: CGFloat
+  public var containerPaddingInline: CGFloat
   public var containerShape: CGFloat
+  public var countColor: TanreiPaint
+  public var countPaddingInline: CGFloat
+  public var countTypescale: TanreiTextStyle
+  public var ellipsisColor: TanreiPaint
   public var gap: CGFloat
   public var iconSize: CGFloat
-  public var labelGap: CGFloat
   public var labelTypescale: TanreiTextStyle
   public var motionFeedbackDuration: Double
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
-  public var outlineWidth: CGFloat
-  public var titleTypescale: TanreiTextStyle
+  public var sizes: TanreiPaginationSizes
   public var parts: TanreiPaginationParts
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiPaginationStateTokens
@@ -11921,54 +11991,58 @@ public struct TanreiPaginationTokens: Sendable, Equatable {
   public var focused: TanreiPaginationStateTokens
   /// Values of the pressed state shared by every variant.
   public var pressed: TanreiPaginationStateTokens
+  /// Values of the disabled state shared by every variant.
+  public var disabled: TanreiPaginationStateTokens
 
   public init(
-    containerGap: CGFloat,
-    containerMinWidth: CGFloat,
-    containerPadding: CGFloat,
+    containerPaddingInline: CGFloat,
     containerShape: CGFloat,
+    countColor: TanreiPaint,
+    countPaddingInline: CGFloat,
+    countTypescale: TanreiTextStyle,
+    ellipsisColor: TanreiPaint,
     gap: CGFloat,
     iconSize: CGFloat,
-    labelGap: CGFloat,
     labelTypescale: TanreiTextStyle,
     motionFeedbackDuration: Double,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
-    outlineWidth: CGFloat,
-    titleTypescale: TanreiTextStyle,
+    sizes: TanreiPaginationSizes,
     parts: TanreiPaginationParts,
     hovered: TanreiPaginationStateTokens,
     focused: TanreiPaginationStateTokens,
-    pressed: TanreiPaginationStateTokens
+    pressed: TanreiPaginationStateTokens,
+    disabled: TanreiPaginationStateTokens
   ) {
-    self.containerGap = containerGap
-    self.containerMinWidth = containerMinWidth
-    self.containerPadding = containerPadding
+    self.containerPaddingInline = containerPaddingInline
     self.containerShape = containerShape
+    self.countColor = countColor
+    self.countPaddingInline = countPaddingInline
+    self.countTypescale = countTypescale
+    self.ellipsisColor = ellipsisColor
     self.gap = gap
     self.iconSize = iconSize
-    self.labelGap = labelGap
     self.labelTypescale = labelTypescale
     self.motionFeedbackDuration = motionFeedbackDuration
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
-    self.outlineWidth = outlineWidth
-    self.titleTypescale = titleTypescale
+    self.sizes = sizes
     self.parts = parts
     self.hovered = hovered
     self.focused = focused
     self.pressed = pressed
+    self.disabled = disabled
   }
 
   /// The values shared by every variant of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
-  /// `nil` for `enabled`, `disabled`, which pagination has no group for.
+  /// `nil` for `enabled`, which pagination has no group for.
   public subscript(state state: TanreiInteraction) -> TanreiPaginationStateTokens? {
     switch state {
     case .enabled: return nil
     case .hovered: return hovered
     case .focused: return focused
     case .pressed: return pressed
-    case .disabled: return nil
+    case .disabled: return disabled
     }
   }
 }
@@ -12071,6 +12145,206 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
     self.motionOpenEasing = motionOpenEasing
     self.offset = offset
     self.windowMargin = windowMargin
+  }
+}
+
+/// A value of previous-next-links's `part` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiPreviousNextLinksPart(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiPreviousNextLinksPart: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let item = TanreiPreviousNextLinksPart(rawValue: "item")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiPreviousNextLinksPart] = [.item]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiPreviousNextLinksPart.item
+}
+
+/// How one part of previous-next-links is drawn in one state.
+public struct TanreiPreviousNextLinksPartStateTokens: Sendable, Equatable {
+  public var containerColor: TanreiPaint
+  public var outlineColor: TanreiPaint
+  public var labelColor: TanreiPaint
+  public var titleColor: TanreiPaint
+  public var iconColor: TanreiPaint
+  public var stateLayerColor: TanreiPaint
+
+  public init(
+    containerColor: TanreiPaint,
+    outlineColor: TanreiPaint,
+    labelColor: TanreiPaint,
+    titleColor: TanreiPaint,
+    iconColor: TanreiPaint,
+    stateLayerColor: TanreiPaint
+  ) {
+    self.containerColor = containerColor
+    self.outlineColor = outlineColor
+    self.labelColor = labelColor
+    self.titleColor = titleColor
+    self.iconColor = iconColor
+    self.stateLayerColor = stateLayerColor
+  }
+}
+
+/// One part of previous-next-links: a complete set of values per state. A component draws a state from that
+/// state's tokens and never computes how a state looks. Read one with `[state: …]`.
+public struct TanreiPreviousNextLinksPartTokens: Sendable, Equatable {
+  public var enabled: TanreiPreviousNextLinksPartStateTokens
+  public var hovered: TanreiPreviousNextLinksPartStateTokens
+  public var focused: TanreiPreviousNextLinksPartStateTokens
+  public var pressed: TanreiPreviousNextLinksPartStateTokens
+
+  public init(
+    enabled: TanreiPreviousNextLinksPartStateTokens,
+    hovered: TanreiPreviousNextLinksPartStateTokens,
+    focused: TanreiPreviousNextLinksPartStateTokens,
+    pressed: TanreiPreviousNextLinksPartStateTokens
+  ) {
+    self.enabled = enabled
+    self.hovered = hovered
+    self.focused = focused
+    self.pressed = pressed
+  }
+
+  /// The tokens of this part of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
+  /// `nil` for `disabled`, which previous-next-links has no group for.
+  public subscript(state state: TanreiInteraction) -> TanreiPreviousNextLinksPartStateTokens? {
+    switch state {
+    case .enabled: return enabled
+    case .hovered: return hovered
+    case .focused: return focused
+    case .pressed: return pressed
+    case .disabled: return nil
+    }
+  }
+}
+
+/// The parts of previous-next-links: named fields for the core values, `extra` for what a design system added.
+/// Read one with `parts[key]`.
+public struct TanreiPreviousNextLinksParts: Sendable, Equatable {
+  public var item: TanreiPreviousNextLinksPartTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiPreviousNextLinksPart: TanreiPreviousNextLinksPartTokens]
+
+  public init(
+    item: TanreiPreviousNextLinksPartTokens,
+    extra: [TanreiPreviousNextLinksPart: TanreiPreviousNextLinksPartTokens] = [:]
+  ) {
+    self.item = item
+    self.extra = extra
+  }
+
+  /// The tokens of one previous-next-links part, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiPreviousNextLinksPart) -> TanreiPreviousNextLinksPartTokens? {
+    switch key {
+    case .item: return item
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a previous-next-links part this design system does not have reads the tokens of `item`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiPreviousNextLinksPart) -> TanreiPreviousNextLinksPartTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no previous-next-links part \"\(key.rawValue)\"; using \"item\"")
+    return item
+  }
+
+  /// Every previous-next-links part of this design system: the core ones, then what it added.
+  public var keys: [TanreiPreviousNextLinksPart] { TanreiPreviousNextLinksPart.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
+/// Values of previous-next-links that depend on the state but not on the variant.
+public struct TanreiPreviousNextLinksStateTokens: Sendable, Equatable {
+  public var containerShape: CGFloat
+  public var opacity: Double
+
+  public init(
+    containerShape: CGFloat,
+    opacity: Double
+  ) {
+    self.containerShape = containerShape
+    self.opacity = opacity
+  }
+}
+
+/// Component tokens of previous-next-links (comp.previous-next-links).
+public struct TanreiPreviousNextLinksTokens: Sendable, Equatable {
+  public var containerGap: CGFloat
+  public var containerMinWidth: CGFloat
+  public var containerPadding: CGFloat
+  public var containerShape: CGFloat
+  public var gap: CGFloat
+  public var iconSize: CGFloat
+  public var labelGap: CGFloat
+  public var labelTypescale: TanreiTextStyle
+  public var motionFeedbackDuration: Double
+  public var motionStateDuration: Double
+  public var motionStateEasing: TanreiCubicBezier
+  public var outlineWidth: CGFloat
+  public var titleTypescale: TanreiTextStyle
+  public var parts: TanreiPreviousNextLinksParts
+  /// Values of the hovered state shared by every variant.
+  public var hovered: TanreiPreviousNextLinksStateTokens
+  /// Values of the focused state shared by every variant.
+  public var focused: TanreiPreviousNextLinksStateTokens
+  /// Values of the pressed state shared by every variant.
+  public var pressed: TanreiPreviousNextLinksStateTokens
+
+  public init(
+    containerGap: CGFloat,
+    containerMinWidth: CGFloat,
+    containerPadding: CGFloat,
+    containerShape: CGFloat,
+    gap: CGFloat,
+    iconSize: CGFloat,
+    labelGap: CGFloat,
+    labelTypescale: TanreiTextStyle,
+    motionFeedbackDuration: Double,
+    motionStateDuration: Double,
+    motionStateEasing: TanreiCubicBezier,
+    outlineWidth: CGFloat,
+    titleTypescale: TanreiTextStyle,
+    parts: TanreiPreviousNextLinksParts,
+    hovered: TanreiPreviousNextLinksStateTokens,
+    focused: TanreiPreviousNextLinksStateTokens,
+    pressed: TanreiPreviousNextLinksStateTokens
+  ) {
+    self.containerGap = containerGap
+    self.containerMinWidth = containerMinWidth
+    self.containerPadding = containerPadding
+    self.containerShape = containerShape
+    self.gap = gap
+    self.iconSize = iconSize
+    self.labelGap = labelGap
+    self.labelTypescale = labelTypescale
+    self.motionFeedbackDuration = motionFeedbackDuration
+    self.motionStateDuration = motionStateDuration
+    self.motionStateEasing = motionStateEasing
+    self.outlineWidth = outlineWidth
+    self.titleTypescale = titleTypescale
+    self.parts = parts
+    self.hovered = hovered
+    self.focused = focused
+    self.pressed = pressed
+  }
+
+  /// The values shared by every variant of one interaction state: the state a component resolved with `TanreiInteraction.resolve`.
+  /// `nil` for `enabled`, `disabled`, which previous-next-links has no group for.
+  public subscript(state state: TanreiInteraction) -> TanreiPreviousNextLinksStateTokens? {
+    switch state {
+    case .enabled: return nil
+    case .hovered: return hovered
+    case .focused: return focused
+    case .pressed: return pressed
+    case .disabled: return nil
+    }
   }
 }
 
@@ -17943,6 +18217,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _popover.value }
     set { _popover.value = newValue }
   }
+  public var previousNextLinks: TanreiPreviousNextLinksTokens {
+    get { _previousNextLinks.value }
+    set { _previousNextLinks.value = newValue }
+  }
   public var progressIndicator: TanreiProgressIndicatorTokens {
     get { _progressIndicator.value }
     set { _progressIndicator.value = newValue }
@@ -18098,6 +18376,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _pageHeader: TanreiBox<TanreiPageHeaderTokens>
   private var _pagination: TanreiBox<TanreiPaginationTokens>
   private var _popover: TanreiBox<TanreiPopoverTokens>
+  private var _previousNextLinks: TanreiBox<TanreiPreviousNextLinksTokens>
   private var _progressIndicator: TanreiBox<TanreiProgressIndicatorTokens>
   private var _prose: TanreiBox<TanreiProseTokens>
   private var _radioButton: TanreiBox<TanreiRadioButtonTokens>
@@ -18193,6 +18472,7 @@ public struct TanreiSystem: Sendable, Equatable {
     pageHeader: TanreiPageHeaderTokens,
     pagination: TanreiPaginationTokens,
     popover: TanreiPopoverTokens,
+    previousNextLinks: TanreiPreviousNextLinksTokens,
     progressIndicator: TanreiProgressIndicatorTokens,
     prose: TanreiProseTokens,
     radioButton: TanreiRadioButtonTokens,
@@ -18287,6 +18567,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._pageHeader = TanreiBox(pageHeader)
     self._pagination = TanreiBox(pagination)
     self._popover = TanreiBox(popover)
+    self._previousNextLinks = TanreiBox(previousNextLinks)
     self._progressIndicator = TanreiBox(progressIndicator)
     self._prose = TanreiBox(prose)
     self._radioButton = TanreiBox(radioButton)

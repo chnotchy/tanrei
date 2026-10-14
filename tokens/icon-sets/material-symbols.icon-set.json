@@ -14,7 +14,7 @@
     "license": "Apache-2.0",
     "revision": "737e3324305806514d7909874fa1818ae1808232",
     "obtained": "2026-10-06",
-    "method": "A glyph is listed when its published Android vector drawable carries android:autoMirrored=\"true\". 4150 glyph names were read at this revision; 257 carry the flag. Regenerate the list from the source; never edit it by hand."
+    "method": "A glyph is listed when its published Android vector drawable carries android:autoMirrored=\"true\". 4150 glyph names were read at this revision; 257 carry the flag. One name is added that the source does not flag: first_page, the pair of last_page (which it flags) and drawn mirrored in right-to-left by Material's own guidance on bidirectionality. Regenerate the list from the source and keep that one addition; never edit it otherwise."
   },
   "mirrored": [
     "360",
@@ -106,6 +106,7 @@
     "feed",
     "filter_arrow_right",
     "fire_truck",
+    "first_page",
     "flag",
     "flight_land",
     "flight_takeoff",

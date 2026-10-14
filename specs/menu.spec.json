@@ -20,12 +20,12 @@
     },
     {
       "id": "mark",
-      "description": "What shows whether a checkbox or radio item is chosen, in the mark column at the start of the row. By default it is the look of the matching control, drawn as a mark: a box for a checkbox item (empty, or filled with the icon set's check) and a ring for a radio item (thin, or heavy with its fill), in both conditions. Where the design system chooses the check (comp.menu.checkbox-item.mark, comp.menu.radio-item.mark) or the item or its group names a glyph (markIcon), it is that glyph of the system's icon set while the item is checked and nothing while it is not. It is never a control of its own: it takes no focus and no press, and the item stays a menu item checkbox or a menu item radio. Its column is reserved in every item of a surface that has a checkbox or radio item.",
+      "description": "What shows whether a checkbox or radio item is chosen, in the mark column at the start of the row. By default it is the look of the matching control, drawn as a mark: a box for a checkbox item (empty, or filled with the icon set's check) and a ring for a radio item (thin, or heavy with its fill), in both conditions. Where the design system chooses the check (comp.menu.checkbox-item.mark, comp.menu.radio-item.mark) or the item or its group names a glyph (markIcon), it is that glyph of the system's icon set while the item is checked and nothing while it is not. It is never a control of its own: it takes no focus and no press, and the item stays a menu item checkbox or a menu item radio. Its column is kept, empty, in the other rows of its section while iconSpace is auto, in every row while it is always, and in its own row only while it is never (MNU-59).",
       "optional": true
     },
     {
       "id": "leading-icon",
-      "description": "An icon before the label. Its column is reserved in every item of a menu where any item has one.",
+      "description": "An icon before the label. Its column is kept, empty, in the other rows of its section while iconSpace is auto, in every row while it is always, and in its own row only while it is never (MNU-59).",
       "optional": true
     },
     {
@@ -111,6 +111,17 @@
       ],
       "default": "auto",
       "description": "How a group is told from what is next to it. divider: a line between them. gap: empty space and no line. Auto takes comp.menu.separation, the design system's answer (divider in the default system). It applies to the menu and to every submenu of it."
+    },
+    {
+      "name": "iconSpace",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "never"
+      ],
+      "default": "auto",
+      "description": "Whether a row keeps the room of the mark column and of the leading icon column where it has nothing to draw there, so that the labels of a section start on one line — a section being a group, or a run of adjacent items outside any group. auto: a row keeps a column's room while another item of its section draws in that column (a checkbox or radio item its mark, an item its leading icon), so that a section without marks or icons draws its labels where the row's content starts. always: every row keeps both. never: only a row that draws in a column has it. The tree view's and the navigation drawer's iconSpace, with the same values and default. It applies to the menu and to every submenu of it (MNU-59)."
     }
   ],
   "items": [
@@ -502,7 +513,7 @@
     },
     {
       "id": "MNU-19",
-      "text": "THE menu SHALL lay out an item as one row: comp.menu.container.padding-inline from each edge, the mark column (while any item of the surface is a checkbox or radio item), the leading icon column (while any item has a leading icon), the label with the supporting text below it taking the remaining width, then the trailing column, which holds the shortcut or the trailing text, and the trailing icon column, which holds the trailing icon or, in a submenu item, the submenu indicator (MNU-42) or, in a link item that opens a new context and names no trailing icon, its mark (MNU-55), each comp.menu.container.gap from the next; an empty column SHALL keep its width in every item of the same surface so that labels align, each surface — the menu's and each submenu's — reserving its own columns, and WHEN the layout direction is right-to-left THE menu SHALL mirror the row.",
+      "text": "THE menu SHALL lay out an item as one row: comp.menu.container.padding-inline from each edge, the mark column and the leading icon column, each where MNU-59 keeps it, the label with the supporting text below it taking the remaining width, then the trailing column, which holds the shortcut or the trailing text, and the trailing icon column, which holds the trailing icon or, in a submenu item, the submenu indicator (MNU-42) or, in a link item that opens a new context and names no trailing icon, its mark (MNU-55), each comp.menu.container.gap from the next; an empty trailing icon column SHALL keep its width in every item of the same surface so that shortcuts, trailing text and trailing icons align, each surface — the menu's and each submenu's — reserving its own, and WHEN the layout direction is right-to-left THE menu SHALL mirror the row.",
       "verify": "Fixtures render the open menu in place: the harness draws the surface at its natural size, with its elevation and without an anchor, placement or open motion (on the web the `inline` test attribute; on the other platforms the test-only in-place initializer each README names). The fixture's items are the menu's items in order, a group item and a submenu item holding their own; open, placement and separation apply to the menu. A submenu item whose open is true is drawn with its submenu's surface placed against it as MNU-46 says, on a stage wide enough for every open level (so the harness never flips or overlaps a submenu), without the open motion and without moving focus; a submenu item whose open is false draws its row only. A fixture's direction is set on the stage. Every harness sets the ambient keyboard convention to apple (KBS-2), so every platform draws the same keys."
     },
     {
@@ -687,6 +698,11 @@
       "id": "MNU-58",
       "text": "WHILE a link item's current is true THE menu SHALL expose it as the current item of its set (on the web aria-current with the value page, on the item's link; on a platform without that state, the selected state) and SHALL draw its row from the current condition: a fill as MNU-37 lays one, in comp.menu.current.container.color at rest, and that condition's colors for its label, supporting text, trailing text and icons, its icons in the selected family and fill, in every state and in every contrast scheme; it SHALL draw no mark in the mark column, keep its label's own weight, and SHALL keep it a link item in every other respect (MNU-53 to MNU-56). The current destination is where the person is, not a choice the menu holds: it carries no check, and it is told from its neighbours by the fill the menu draws for the row the person is on, as a navigation drawer marks its current destination, while assistive technology is told by the state. Its fill is its own and not a checked row's: a checked row has its mark and may go without a fill (MNU-37), the current row has only its fill, so a design system that withholds the one keeps the other. WHERE the platform draws with a person's own forced colors, which remove the fill, THE menu SHALL draw a line of sys.border.thick inside the current item's row in the platform's link color. THE menu SHALL NOT set current itself on any activation: where the product is, is the product's to say. WHILE an item's href is empty THE menu SHALL ignore its current and in debug builds report it.",
       "verify": "Fixture links-current: Components is filled (in the default system a layer of its label color at 16% over the sheet, in every contrast scheme), has no mark and its label's regular weight; Guides and Patterns are drawn as in the fixture links. Its fill is comp.menu.current.container.color, which at standard contrast differs from comp.menu.selected.container.color (transparent there). On the web its anchor carries aria-current=\"page\" and role menuitem, and the accessibility tree shows three menu items and no link."
+    },
+    {
+      "id": "MNU-59",
+      "text": "THE menu SHALL decide the mark column and the leading icon column for each section of a surface — a group, with the items of a group inside it (MNU-29), or a run of adjacent items outside any group: the parts MNU-36 draws as tiles — and each of the two columns by itself. WHILE iconSpace is auto a row SHALL keep a column, empty where it draws nothing in it, WHERE an item of its section draws in it — a checkbox or radio item its mark, whether checked or not and whatever the mark is (MNU-38), an item its leading icon — so that the labels of a section start on one line, and a section where no item draws in a column SHALL keep no room for it, its labels starting that much nearer the row's start; WHILE iconSpace is always every row SHALL keep both columns, whether or not any item of the surface draws in them; WHILE iconSpace is never a row SHALL have a column only where it draws in it itself. The room kept is the column's box (comp.menu.mark.size for the mark, comp.menu.leading-icon.size for the icon) and comp.menu.container.gap after it, draws nothing and is nothing to assistive technology. A submenu item has no mark and so draws nothing in the mark column (MNU-42). Each surface SHALL be decided by itself, every submenu with the menu's iconSpace; a group's title SHALL keep its own place whatever the columns of its section are (MNU-28). WHEN an item is added or removed, or an item's kind or leadingIcon changes, THE menu SHALL decide the item's section again; WHEN iconSpace names a value the menu does not define THE menu SHALL treat it as auto and in debug builds report the unknown value.",
+      "verify": "Fixture icon-space-auto (in the default system): Cut and Copy have icons and Paste has none, so Paste's label starts where Copy's does, with no mark column before any of them; in the group View, Show grid and Show rulers are checkbox items and Zoom to fit an action, whose label starts where theirs do, after the mark column and with no icon column; in the last group, Settings and Help have neither, so their labels start at the row's content start, 16 from the sheet's edge (its padding of 4 and the row's of 12). Fixture icon-space-always: the same items, every label after both columns. Fixture icon-space-never: Paste's and Zoom to fit's labels start at the row's content start, each other label after its own mark or icon only. Test a leadingIcon given to Settings (its group then keeps the icon's room on Help), a submenu, and an unknown value (auto, reported)."
     }
   ],
   "accessibility": {
@@ -2144,6 +2160,227 @@
           ]
         }
       ]
+    },
+    {
+      "id": "icon-space-auto",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Cut",
+            "leadingIcon": "content_cut"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Copy",
+            "leadingIcon": "content_copy"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Paste"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "title": "View"
+          },
+          "items": [
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show grid",
+                "checked": true
+              }
+            },
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show rulers"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Zoom to fit"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Settings"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Help"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "icon-space-always",
+      "props": {
+        "open": true,
+        "iconSpace": "always"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Cut",
+            "leadingIcon": "content_cut"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Copy",
+            "leadingIcon": "content_copy"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Paste"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "title": "View"
+          },
+          "items": [
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show grid",
+                "checked": true
+              }
+            },
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show rulers"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Zoom to fit"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Settings"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Help"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "icon-space-never",
+      "props": {
+        "open": true,
+        "iconSpace": "never"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Cut",
+            "leadingIcon": "content_cut"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Copy",
+            "leadingIcon": "content_copy"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Paste"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "title": "View"
+          },
+          "items": [
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show grid",
+                "checked": true
+              }
+            },
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show rulers"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Zoom to fit"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Settings"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Help"
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "platforms": {
@@ -2153,7 +2390,8 @@
       "props": {
         "open": "open",
         "placement": "placement",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "close": "close"
@@ -2247,7 +2485,8 @@
       "props": {
         "open": "isPresented",
         "placement": "placement",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "close": "isPresented"
@@ -2335,7 +2574,7 @@
           "notes": "`TanreiMenuSection(_ title:) { … }` as `Section`; `TanreiMenuSection(_ title:, selection:) { TanreiMenuOption … }` for radio items, as an inline `Picker`. Writing the binding is change."
         }
       },
-      "notes": "A modifier on the anchor, `.tanreiMenu(isPresented:placement:) { … }`, as `.popover`, presented with `presentationCompactAdaptation(.popover)` so it stays a popover on iPhone; a press outside does not reach what is under it. The content builder takes the item views. `disabled` follows `.disabled(_:)`. Closing writes `false` to `isPresented`, which is close. SwiftUI's own `Menu` is not used: its items cannot be tokenised. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet."
+      "notes": "A modifier on the anchor, `.tanreiMenu(isPresented:placement:) { … }`, as `.popover`, presented with `presentationCompactAdaptation(.popover)` so it stays a popover on iPhone; a press outside does not reach what is under it. The content builder takes the item views. `disabled` follows `.disabled(_:)`. Closing writes `false` to `isPresented`, which is close. SwiftUI's own `Menu` is not used: its items cannot be tokenised. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them."
     },
     "compose": {
       "status": "lagging",
@@ -2343,7 +2582,8 @@
       "props": {
         "open": "expanded",
         "placement": "placement",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "close": "onDismissRequest"
@@ -2429,7 +2669,7 @@
           "notes": "`TanreiMenuGroup(title, selectedValue, onSelectedValueChange) { TanreiRadioMenuItem(text, value) }`; the caller keeps `selectedValue`."
         }
       },
-      "notes": "Compose idiom, as `DropdownMenu`: `TanreiMenu(expanded, onDismissRequest, placement) { TanreiMenuItem(text, onClick, …); TanreiMenuGroup { … } }` inside the anchor's `Box`, shown in a `Popup`; the item composables are called in its content lambda. The caller closes it, so close is `onDismissRequest` and it carries the reason; the caller also keeps each checkbox item's `checked` (state hoisting). A press outside does not reach what is under it. `enabled` is the inverse flag. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet."
+      "notes": "Compose idiom, as `DropdownMenu`: `TanreiMenu(expanded, onDismissRequest, placement) { TanreiMenuItem(text, onClick, …); TanreiMenuGroup { … } }` inside the anchor's `Box`, shown in a `Popup`; the item composables are called in its content lambda. The caller closes it, so close is `onDismissRequest` and it carries the reason; the caller also keeps each checkbox item's `checked` (state hoisting). A press outside does not reach what is under it. `enabled` is the inverse flag. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them."
     },
     "flutter": {
       "status": "lagging",
@@ -2437,7 +2677,8 @@
       "props": {
         "open": "controller",
         "placement": "placement",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "close": "onClose"
@@ -2525,7 +2766,7 @@
           "notes": "`TanreiMenuGroup<T>(title:, groupValue:, onChanged:, children:)`, which is also the `RadioGroup` of its radio items."
         }
       },
-      "notes": "Flutter idiom, as `MenuAnchor`: `TanreiMenuAnchor(controller:, placement:, menuChildren: […], builder:)` shown in the `Overlay`; the item widgets go in `menuChildren`. `MenuController.open()` and `.close()` are open, `onClose` is close. A press outside also reaches what is under it (`consumeOutsideTap: false`). Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet."
+      "notes": "Flutter idiom, as `MenuAnchor`: `TanreiMenuAnchor(controller:, placement:, menuChildren: […], builder:)` shown in the `Overlay`; the item widgets go in `menuChildren`. `MenuController.open()` and `.close()` are open, `onClose` is close. A press outside also reaches what is under it (`consumeOutsideTap: false`). Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them."
     },
     "react-native": {
       "status": "lagging",
@@ -2533,7 +2774,8 @@
       "props": {
         "open": "visible",
         "placement": "placement",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "close": "onDismiss"
@@ -2619,7 +2861,7 @@
           "notes": "`{ kind: 'group', title?, value?, onValueChange?, items: (MenuItem | MenuCheckboxItem | MenuRadioItem)[] }`."
         }
       },
-      "notes": "`<Menu visible anchorRef placement onDismiss items={[…]}>`: `items` is an array whose element type is the union of the five kinds, told apart by a `kind` field (`'item'`, `'checkbox-item'`, `'radio-item'`, `'submenu'`, `'group'`). Presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the anchor (`measureInWindow`); Android's back button (`BackHandler`) is close. A press outside closes the menu and does not reach what is under it. Controlled: the caller sets `visible` to false from `onDismiss` and keeps each checkbox item's `checked` and each group's `value`. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet."
+      "notes": "`<Menu visible anchorRef placement onDismiss items={[…]}>`: `items` is an array whose element type is the union of the five kinds, told apart by a `kind` field (`'item'`, `'checkbox-item'`, `'radio-item'`, `'submenu'`, `'group'`). Presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the anchor (`measureInWindow`); Android's back button (`BackHandler`) is close. A press outside closes the menu and does not reach what is under it. Controlled: the caller sets `visible` to false from `onDismiss` and keeps each checkbox item's `checked` and each group's `value`. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them."
     }
   }
 }

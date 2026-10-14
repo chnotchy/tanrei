@@ -672,6 +672,9 @@
             "tanrei.comp.button.text.disabled.container.color": {
               "$value": "{tanrei.comp.button.text.container.color}"
             },
+            "tanrei.comp.pagination.item.disabled.container.color": {
+              "$value": "{tanrei.comp.pagination.item.container.color}"
+            },
             "tanrei.comp.checkbox.unselected.disabled.box.color": {
               "$value": "{tanrei.comp.checkbox.unselected.box.color}"
             },

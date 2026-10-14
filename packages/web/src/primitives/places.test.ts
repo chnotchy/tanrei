@@ -133,7 +133,7 @@ test.describe('a word with places', () => {
   });
 
   test('the keys of the product’s words that have places are the specs’, and every place is a number or a text', () => {
-    expect(Object.keys(wordPlaces).sort()).toEqual(['avatarGroupOverflowLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'dragHandleLabel', 'entriesAddedText', 'entryAddedText', 'entryRemoveLabel', 'entryRemovedText', 'filesDroppedText', 'filesRefusedText', 'imageCountText', 'liftedText', 'movedText', 'removeLabel', 'retryLabel', 'stepPositionText']);
+    expect(Object.keys(wordPlaces).sort()).toEqual(['avatarGroupOverflowLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'dragHandleLabel', 'entriesAddedText', 'entryAddedText', 'entryRemoveLabel', 'entryRemovedText', 'filesDroppedText', 'filesRefusedText', 'imageCountText', 'liftedText', 'movedText', 'pageCountText', 'pageLabel', 'removeLabel', 'retryLabel', 'stepPositionText']);
     expect(wordPlaces.movedText).toEqual([
       { name: 'label', kind: 'text' },
       { name: 'position', kind: 'number' },
@@ -141,6 +141,6 @@ test.describe('a word with places', () => {
     ]);
     expect(wordPlaces.entryRemoveLabel).toEqual([{ name: 'entry', kind: 'text', required: true }]);
     const kinds = new Map(Object.values(wordPlaces).flatMap((places) => places!.map((place) => [place.name, place.kind])));
-    expect([...kinds].sort()).toEqual([['count', 'number'], ['entry', 'text'], ['label', 'text'], ['limit', 'number'], ['name', 'text'], ['position', 'number'], ['remaining', 'number']]);
+    expect([...kinds].sort()).toEqual([['count', 'number'], ['entry', 'text'], ['label', 'text'], ['limit', 'number'], ['name', 'text'], ['page', 'number'], ['position', 'number'], ['remaining', 'number']]);
   });
 });

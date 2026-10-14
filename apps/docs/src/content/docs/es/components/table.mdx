@@ -2,7 +2,7 @@
 title: Tabla
 description: Presenta datos que tienen filas y columnas, con columnas con nombre y, de forma opcional, encabezados de fila, una leyenda y filas de pie. Se desplaza dentro de su propia caja cuando no cabe. El encabezado de una columna puede pedir las filas en su orden y las filas se pueden elegir; la tabla nunca ordena por sí misma.
 translationOf: components/table.mdx
-sourceHash: c171558813b62e3eb1090573c79888fc17483cba
+sourceHash: c5bff496ab398c6bb6f372ce183a6a1d35192c1e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -207,12 +207,14 @@ La tabla le da espacio por encima y por debajo y la anchura de su caja, y lo man
     </table>
     <div data-part="status">
       <p role="status">1–6 de 42 versiones</p>
-      <nav class="tanrei-pagination" aria-label="Páginas de las versiones">
-        <a class="tanrei-pagination-item" data-direction="next" rel="next" href="#la-línea-de-estado">
-          <span class="tanrei-pagination-label">Siguiente</span>
-          <span class="tanrei-pagination-title">Versiones 7 a 12</span>
-        </a>
-      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--tanrei-comp-table-status-gap)">
+        <tanrei-select size="small" label="Versiones por página" value="6">
+          <tanrei-option value="6">6</tanrei-option>
+          <tanrei-option value="12">12</tanrei-option>
+          <tanrei-option value="24">24</tanrei-option>
+        </tanrei-select>
+        <tanrei-pagination label="Páginas de las versiones" variant="compact" size="small" page="1" count="7" previous-label="Página anterior" next-label="Página siguiente" count-text="Página {page} de {count}"></tanrei-pagination>
+      </div>
     </div>
   </tanrei-table>
 </DemoFrame>
@@ -224,12 +226,14 @@ Después de la tabla, dentro del elemento, escribe la línea de estado: tu frase
   <table>…</table>
   <div data-part="status">
     <p role="status">1–20 de 132</p>
-    <nav class="tanrei-pagination" aria-label="Páginas de los productos">…</nav>
+    <tanrei-pagination label="Páginas de los productos" variant="compact" size="small" page="1" count="7" previous-label="Página anterior" next-label="Página siguiente" count-text="Página {page} de {count}"></tanrei-pagination>
   </div>
 </tanrei-table>
 ```
 
 La frase queda en el borde de inicio y la paginación en el de fin; donde las dos no caben una al lado de la otra, la paginación pasa debajo de la frase. La línea de estado no se desplaza en horizontal con las columnas, y se queda en la parte inferior de una tabla cuyas filas se desplazan dentro de su propia caja. La tabla no cuenta nada ni escribe ningún texto: «1–20 de 132» es tuyo, en tu idioma. Cuando cambias el texto del párrafo, se le dice a la tecnología de apoyo de forma cortés. El atributo `status` del elemento escribe ese párrafo por ti donde tu marcado no tiene ninguno. Un párrafo que has escrito tú es el que se lee, y entonces el atributo no cambia nada.
+
+Lo que queda en el borde de fin es una [paginación](/es/components/pagination/) de tamaño `small`: compacta, como aquí, o con números donde la gente va a una página por su número. Donde la gente elige cuántas filas tiene una página, pon antes de la paginación un [select](/es/components/select/) para eso, los dos en un elemento que tú dispones; el rango de filas que se muestra es tu frase, no de la paginación. Los [enlaces anterior y siguiente](/es/components/previous-next-links/) no van aquí: llevan a páginas con título, no a las filas de una lista. La tabla solo coloca lo que le das: cuando cambia la página, cambia tú las filas y la frase.
 
 ### Elegir filas
 

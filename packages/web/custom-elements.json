@@ -44517,7 +44517,7 @@
               "name": "container"
             },
             {
-              "description": "The mark column (reserved while the surface holds a checkbox or radio item).",
+              "description": "The mark column (kept in a row without a mark as the menu's `iconSpace` says, MNU-59).",
               "name": "mark"
             },
             {
@@ -46834,7 +46834,7 @@
               "name": "container"
             },
             {
-              "description": "The mark column, empty in a submenu item (reserved while the surface holds a checkbox or radio item).",
+              "description": "The mark column, empty in a submenu item (kept in a row without a mark as the menu's `iconSpace` says, MNU-59).",
               "name": "mark"
             },
             {
@@ -47756,6 +47756,18 @@
             },
             {
               "kind": "field",
+              "name": "iconSpace",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMenuIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a row keeps the room of the mark column and of the leading icon column where it draws nothing there, so that\nthe labels of a section — a group, or a run of items outside any group — start on one line (MNU-59). `auto` (the\ndefault): while another item of its section draws in that column (a checkbox or radio item its mark, an item its\nleading icon), so a section without marks or icons draws its labels where the row's content starts. `always`: every\nrow keeps both. `never`: only a row that draws in a column has it. It applies to the menu and to every submenu of it.",
+              "attribute": "icon-space",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "anchor",
               "privacy": "public",
               "type": {
@@ -48587,6 +48599,15 @@
               "default": "'auto'",
               "description": "How a group is told from what is next to it: `divider` draws a line between them, `gap` leaves empty space and no\nline. `auto` takes `comp.menu.separation`, the design system's answer (divider in the default system). It applies to\nthe menu and to every submenu of it.",
               "fieldName": "separation"
+            },
+            {
+              "name": "icon-space",
+              "type": {
+                "text": "TanreiMenuIconSpace"
+              },
+              "default": "'auto'",
+              "description": "Whether a row keeps the room of the mark column and of the leading icon column where it draws nothing there, so that\nthe labels of a section — a group, or a run of items outside any group — start on one line (MNU-59). `auto` (the\ndefault): while another item of its section draws in that column (a checkbox or radio item its mark, an item its\nleading icon), so a section without marks or icons draws its labels where the row's content starts. `always`: every\nrow keeps both. `never`: only a row that draws in a column has it. It applies to the menu and to every submenu of it.",
+              "fieldName": "iconSpace"
             },
             {
               "name": "anchor",
@@ -61902,6 +61923,932 @@
           "declaration": {
             "name": "TanreiPageHeader",
             "module": "src/components/page-header/page-header.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/pagination/pagination.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "CORE_SIZES",
+          "type": {
+            "text": "['small', 'medium']"
+          },
+          "default": "['small', 'medium']"
+        },
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "readonly OpenAxis[]"
+          },
+          "default": "[ { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: (value) => `${PREFIX}-container-height-${value}` }, ]",
+          "description": "PGN-12: a size a layer added gets its block on demand, built by the same function and falling back to the default's\ntoken; a value the active system lacks is reported in debug builds (src/primitives/axes.ts)."
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "default": "css` /* PGN-11, PGN-12: as wide as the layout gives it, asking a layout that sizes it by its content for the width of its widest form (.measure below) and for no least width. */ :host { display: block; box-sizing: border-box; min-inline-size: 0; --_gap: ${t('gap')}; } /* PGN-3: no page — nothing is drawn, no room is taken, no landmark is exposed. */ :host([hidden]), :host([data-empty]) { display: none; } ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))} ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, `:host([size='${size}'])`)).join('\\n'))} nav { display: block; min-inline-size: 0; } /* PGN-1, PGN-12: one row at the start edge, comp.pagination.gap apart, never wrapped. The row is as wide as the element and asks for no width of its own: the width the element asks for is the measuring copy's to say. */ .row, .sizer { display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: var(--_gap); margin: 0; padding: 0; list-style: none; } .row { box-sizing: border-box; inline-size: 0; min-inline-size: 100%; } .slot { display: flex; flex: none; align-items: center; } /* PGN-11: a copy of the widest form the variant draws — the numbered row, or the compact one — laid out at no height, clipped and unseen, so that the element's own width as its content is that row's, and its least width is none (a grid track of minmax(0, max-content)). The element compares the copy with its own width to choose the form. */ .measure { display: grid; grid-template-columns: minmax(0, max-content); block-size: 0; overflow: hidden; overflow: clip; visibility: hidden; pointer-events: none; } .sizer { inline-size: max-content; justify-self: start; } ${unsafeCSS(conditionBlock(PREFIX, 'item', PARTS, '.item'))} ${unsafeCSS(conditionBlock(PREFIX, 'current', PARTS, '.item.current'))} /* PGN-9, PGN-12, PGN-22: an item is the size's container height high and at least as wide, its number centred with comp.pagination.container.padding-inline on each side where it is wider than the square, its arrow centred in it; it grows with its number where the text is enlarged, never below the height. */ .item { all: unset; box-sizing: border-box; position: relative; /* Its own stacking context, so the ripple sits above the container color and below the content. */ isolation: isolate; display: inline-flex; align-items: center; justify-content: center; min-inline-size: var(--_height); min-block-size: var(--_height); padding-inline: ${t('container-padding-inline')}; ${unsafeCSS(selectionContainerShape)} background: var(--_c); color: var(--_l); font: ${t('label-typescale-font')}; letter-spacing: ${t('label-typescale-letter-spacing')}; /* PGN-9: figures of one width, so that the row keeps its width from page to page. */ font-variant-numeric: tabular-nums; white-space: nowrap; text-decoration: none; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; /* PGN-18: an item changes between its states over the state motion. */ transition-property: background-color, color, opacity; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } /* PGN-17: the one corner rule, after the item's reset (all: unset). */ ${shape} /* PGN-20: the hit area reaches the minimum target above and below, and along the row toward a neighbour no further than half the gap between them, so that no two hit areas overlap; at the row's two ends it reaches the whole target. */ ${minimumTarget('.item')} ${neighbourTarget('.item')} .item { --_cap-start: calc(var(--_gap) / 2); --_cap-end: calc(var(--_gap) / 2); } .slot:first-child > .item { --_cap-start: initial; } .slot:last-child > .item { --_cap-end: initial; } /* PGN-4, PGN-13, PGN-16: each state paints from that state's tokens of the item's part (item, or current); pressed > focused > hovered, disabled over all. Pressed is data-pressed=\"<feedback>\" (PressController): overlay paints the pressed tokens on the whole container; ripple and dim paint everything else from them while the container color stays with the state under the press; none paints nothing. */ ${unsafeCSS(conditionStates(PREFIX, PARTS, { container: 'c', root: '.item', on }))} .item[data-pressed]:not([data-pressed='none']) .glyph { transition-duration: 0s; } /* PGN-16 ripple: the pressed container color of the item's part, grown over motion.feedback-duration and faded over motion.state-duration, both with motion.state-easing, clipped to the item's corners. */ ${rippleStyles({ color: '--_c-p', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} /* PGN-14, PGN-17: the ring (or the glow) around the item, for keyboard focus only, never animated. */ ${focusRing((focus) => `.item${focus}`)} /* PGN-8: the arrows of the icon set, unselected, at comp.pagination.icon.size, in the icon color of the item's state; PGN-23: iconGlyph() mirrors in right-to-left the glyph GlyphMirrorController marked, in its own box. */ ${iconGlyph('.glyph', { size: `${PREFIX}-icon-size`, selected: ':not(*)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} .glyph { color: var(--_i); transition: color ${t('motion-state-duration')} ${t('motion-state-easing')}; } /* Nothing in an arrow's place until the icon set can draw it (GlyphDrawnController sets data-drawn); its box keeps its room, so no width changes when the font arrives. */ .glyph:not([data-drawn]) .ink { visibility: hidden; } /* The ligature's own width, which GlyphDrawnController compares with the glyph box. */ .ink { display: inline-block; vertical-align: top; } /* PGN-10: the ellipsis, the character drawn in the number's text style and its own color, centred in a place as wide as an item is high. No state, no hit area. */ .ellipsis { display: inline-flex; align-items: center; justify-content: center; inline-size: var(--_height); min-block-size: var(--_height); color: ${t('ellipsis-color')}; font: ${t('label-typescale-font')}; letter-spacing: ${t('label-typescale-letter-spacing')}; -webkit-user-select: none; user-select: none; } /* PGN-11: the compact form's sentence, comp.pagination.count.padding-inline on each side, in its own text style and color, on one line. */ .count-slot { min-block-size: var(--_height); } .count { display: block; padding-inline: ${t('count-padding-inline')}; color: ${t('count-color')}; font: ${t('count-typescale-font')}; letter-spacing: ${t('count-typescale-letter-spacing')}; font-variant-numeric: tabular-nums; white-space: nowrap; } /* PGN-24: the sentence is text of its own direction, isolated from the text around it; one without a letter (\"3 / 10\") reads from the left in either direction. */ ${productText('.count')} /* PGN-15: an element that is always rendered carries press-hold for PressController. */ ${pressHold('.hold')} .hold { display: none; } /* PGN-18: the row drawn for a new page is drawn at once, without a motion of its own (the element marks it for two frames); and every change of state is at once where motion is reduced. */ .row.still .item, .row.still .glyph { transition: none; } @media (prefers-reduced-motion: reduce) { .item, .glyph { transition: none; } } /* PGN-21: the person's own colors — the numbers, the arrows and the sentence in the text color (the link color for a link), the current page in the highlight colors, a disabled control in the disabled text color. The focus ring is focusRing()'s, in the highlight color. */ @media (forced-colors: active) { .item, .item .glyph, .count, .ellipsis { color: CanvasText; } a.item, a.item .glyph { color: LinkText; } .item.current { forced-color-adjust: none; background: Highlight; color: HighlightText; } .item.current .glyph { color: HighlightText; } .item${unsafeCSS(DISABLED)}, .item${unsafeCSS(DISABLED)} .glyph { color: GrayText; } .item:focus-visible { outline-color: Highlight; } } `"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CORE_SIZES",
+          "declaration": {
+            "name": "CORE_SIZES",
+            "module": "src/components/pagination/pagination.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/pagination/pagination.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/pagination/pagination.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/pagination/pagination.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "pageItems",
+          "return": {
+            "type": {
+              "text": "(number | 'ellipsis')[]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "page",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "name": "count",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "name": "siblings",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "name": "boundaries",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "description": "PGN-2: the places of the numbered form — the pages 1 to `boundaries`, `count − boundaries + 1` to `count`, and the\ncurrent page with `siblings` on each side, with an ellipsis in place of the pages left out between two runs, a page\nin place of an ellipsis that would stand for that page alone, and more pages on the far side of a current page near\nan end, so that the row holds 2 × boundaries + 2 × siblings + 3 places whenever `count` is at least that many. The\nalgorithm of MUI's `usePagination`, as most pagination of the web counts it."
+        },
+        {
+          "kind": "class",
+          "description": "Moves through the numbered pages of one list — search results, the posts of a blog, the rows of a table: a row of\npage numbers with the current page marked and the pages that do not fit left out behind an ellipsis, previous and\nnext, first and last where the product asks for them, and a short form that says which page of how many.\n\nContract: specs/pagination.spec.json. The shadow root holds a `nav` named by `label` around one ordered list; each\npage and each control is an `<a href>` while `href` holds the place `{page}` — every link the browser's own — and a\n`<button>` otherwise. The current page carries `aria-current=\"page\"`; a disabled control is a disabled button, or an\nanchor without `href`, with `role=\"link\"` and `aria-disabled=\"true\"`, out of the focus order.\n\n```html\n<tanrei-pagination label=\"Pages\" page=\"3\" count=\"10\" previous-label=\"Previous page\" next-label=\"Next page\" page-label=\"Page {page}\"></tanrei-pagination>\n```\n\n`change` is fired when the person asks for another page, before the page changes and, for a link, before the browser\nfollows it; cancel it and the page stays and nothing is followed (a router takes the navigation). Not cancelled, the\nelement takes the page itself — it needs no listener to page.\n\n`variant=\"numbered\"` draws the compact form where the width its layout gives it is less than its numbered row needs:\nthe element keeps a copy of that row in its layout at no height, so a layout that sizes it by its content gives it\nthe row's width, and it compares the two whenever either changes. Every visual value is a\n`--tanrei-comp-pagination-*` token; how a press is answered and how keyboard focus is drawn are the system's choices\nof kind (`--tanrei-sys-behavior-*`), read from the cascade.",
+          "name": "TanreiPagination",
+          "cssParts": [
+            {
+              "description": "The navigation landmark.",
+              "name": "nav"
+            },
+            {
+              "description": "The ordered list of the items.",
+              "name": "list"
+            },
+            {
+              "description": "A page or a control: its fill, corners, every state, the ripple and the focus ring.",
+              "name": "item"
+            },
+            {
+              "description": "The current page (also `item`).",
+              "name": "current"
+            },
+            {
+              "description": "First, previous, next or last (also `item`).",
+              "name": "control"
+            },
+            {
+              "description": "A page's number.",
+              "name": "label"
+            },
+            {
+              "description": "A control's arrow (hidden from assistive technology).",
+              "name": "icon"
+            },
+            {
+              "description": "The mark that stands for the pages left out (hidden from assistive technology).",
+              "name": "ellipsis"
+            },
+            {
+              "description": "The compact form's sentence.",
+              "name": "count"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "label",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the navigation landmark (\"Pages\", \"Search results pages\"), in the product's language. Required: it tells this landmark from the page's other navigation.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "page",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "The current page, counted from 1. The element sets it when the person asks for another page and `change` was not cancelled.",
+              "attribute": "page"
+            },
+            {
+              "kind": "field",
+              "name": "count",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "How many pages there are. Below 1 the element draws nothing and takes no room.",
+              "attribute": "count"
+            },
+            {
+              "kind": "field",
+              "name": "siblings",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "How many pages are shown on each side of the current page in the numbered form.",
+              "attribute": "siblings"
+            },
+            {
+              "kind": "field",
+              "name": "boundaries",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "How many pages are always shown at the start and at the end of the numbered form.",
+              "attribute": "boundaries"
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiPaginationVariant"
+              },
+              "default": "'numbered'",
+              "description": "`numbered` draws the page numbers, and the compact form where they do not fit its width; `compact` draws the controls and the sentence that says which page of how many.",
+              "attribute": "variant",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiPaginationSize"
+              },
+              "default": "'medium'",
+              "description": "An item's height (32 / 40 in the default system). The hit area always meets the minimum target.",
+              "attribute": "size",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "firstLast",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws first and last on either side of previous and next.",
+              "attribute": "first-last"
+            },
+            {
+              "kind": "field",
+              "name": "href",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The address of a page, with the place `{page}` the element fills with the page's number (\"/results/?page={page}\"). Given, every page and control is a link; empty, they are buttons.",
+              "attribute": "href"
+            },
+            {
+              "kind": "field",
+              "name": "previousLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The previous control's accessible name (\"Previous page\"). Empty reads the product's words (`previousPageLabel`). Required.",
+              "attribute": "previous-label"
+            },
+            {
+              "kind": "field",
+              "name": "nextLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The next control's accessible name (\"Next page\"). Empty reads the product's words (`nextPageLabel`). Required.",
+              "attribute": "next-label"
+            },
+            {
+              "kind": "field",
+              "name": "firstLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The first control's accessible name (\"First page\"). Empty reads the product's words (`firstPageLabel`). Required while `firstLast` is true.",
+              "attribute": "first-label"
+            },
+            {
+              "kind": "field",
+              "name": "lastLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The last control's accessible name (\"Last page\"). Empty reads the product's words (`lastPageLabel`). Required while `firstLast` is true.",
+              "attribute": "last-label"
+            },
+            {
+              "kind": "field",
+              "name": "pageLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A page's accessible name, with the place `{page}` the element fills with the number as it draws it (\"Page {page}\"). Empty reads the product's words (`pageLabel`); where neither gives one, a page is named by its number alone.",
+              "attribute": "page-label"
+            },
+            {
+              "kind": "field",
+              "name": "countText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The compact form's sentence, with the places `{page}` and `{count}` (\"Page {page} of {count}\"). Empty reads the product's words (`pageCountText`); where neither gives one, the two numbers are drawn with a slash between them.",
+              "attribute": "count-text"
+            },
+            {
+              "kind": "field",
+              "name": "narrow",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "PGN-11: the numbered form does not fit the width the element is given."
+            },
+            {
+              "kind": "field",
+              "name": "availability",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new AvailabilityController(this, 'pagination')"
+            },
+            {
+              "kind": "field",
+              "name": "axes",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new OpenAxesController(this, { component: 'pagination', behavior: 'PGN-12', axes: AXES })",
+              "description": "PGN-12: sizes a design system adds, and a value the active system does not have (src/primitives/axes.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "words",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new WordsController(this)",
+              "description": "The product's words, read where the instance gives none (src/primitives/words.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "mirror",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new GlyphMirrorController(this, { drawn: '.row .glyph' })",
+              "description": "PGN-23: an arrow is drawn mirrored where the icon set marks its name (src/primitives/glyph-mirror.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "drawnGlyphs",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new GlyphDrawnController(this, () => this.renderRoot?.querySelectorAll<HTMLElement>('.row .glyph') ?? [])",
+              "description": "An arrow is drawn only while the icon set can draw it (src/primitives/glyph.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "sizes",
+              "privacy": "private",
+              "readonly": true,
+              "description": "PGN-11: the width the element is given, and the width its numbered row needs."
+            },
+            {
+              "kind": "field",
+              "name": "observed",
+              "type": {
+                "text": "Element[]"
+              },
+              "privacy": "private",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "presses",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new WeakMap<HTMLElement, PressController>()",
+              "description": "PGN-15, PGN-16: one press for each item element, made when it is first pressed."
+            },
+            {
+              "kind": "field",
+              "name": "pressControllers",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new Set<{ element: HTMLElement; press: PressController }>()"
+            },
+            {
+              "kind": "field",
+              "name": "focusAfter",
+              "type": {
+                "text": "{ control: Control | null; ring: boolean | undefined } | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "PGN-19: where focus goes after the page changed, and whether it shows its ring."
+            },
+            {
+              "kind": "field",
+              "name": "drawnPage",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0",
+              "description": "PGN-18: the current page that was drawn last."
+            },
+            {
+              "kind": "method",
+              "name": "whole",
+              "privacy": "private",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "unknown"
+                  }
+                }
+              ],
+              "description": "PGN-3: a whole number read from `value`; NaN where it cannot be read."
+            },
+            {
+              "kind": "field",
+              "name": "pages",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "description": "PGN-3: how many pages, as drawn; 0 draws nothing.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "current",
+              "type": {
+                "text": "number"
+              },
+              "description": "PGN-3: the current page as drawn, held between 1 and the count.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "atLeastZero",
+              "privacy": "private",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "unknown"
+                  }
+                }
+              ],
+              "description": "PGN-3: siblings or boundaries as drawn: a whole number of 0 or more (1 where it cannot be read)."
+            },
+            {
+              "kind": "field",
+              "name": "compact",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "description": "PGN-11: whether the compact form is drawn — asked for, or the numbered form does not fit.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "template",
+              "type": {
+                "text": "string | null"
+              },
+              "privacy": "private",
+              "description": "PGN-6: the address template while it is a destination with the place {page}; null for buttons.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "address",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "page",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "PGN-6: the address of `page`: {page} filled with the number in Western digits."
+            },
+            {
+              "kind": "method",
+              "name": "numberFormat",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Intl.NumberFormat"
+                }
+              },
+              "description": "PGN-9: a number as the element's language writes a whole number."
+            },
+            {
+              "kind": "method",
+              "name": "controls",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Slot[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "which",
+                  "type": {
+                    "text": "readonly Control[]"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "slots",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Slot[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "compact",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "PGN-1: the items of a form, in reading order."
+            },
+            {
+              "kind": "method",
+              "name": "countSentence",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "format",
+                  "type": {
+                    "text": "Intl.NumberFormat"
+                  }
+                }
+              ],
+              "description": "PGN-11: the compact form's sentence, each number written as the element's language writes it."
+            },
+            {
+              "kind": "method",
+              "name": "pageName",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string | null"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "number",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "PGN-9: a page's accessible name: pageLabel with {page} filled by its number as drawn; null names it by the number alone."
+            },
+            {
+              "kind": "method",
+              "name": "controlName",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "Control"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "onItemClick",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "pressOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "PressController"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "onPointerDown",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onRelease",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onKeyDown",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onKeyUp",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onBlur",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onFocus",
+              "privacy": "private",
+              "readonly": true,
+              "description": "PGN-14, PGN-17: the focus style is read when focus arrives, for a browser without style queries."
+            },
+            {
+              "kind": "method",
+              "name": "decide",
+              "privacy": "private",
+              "description": "PGN-11: the numbered form does not fit while its row is wider than the room the element is given."
+            },
+            {
+              "kind": "method",
+              "name": "observe",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "moveFocus",
+              "privacy": "private",
+              "description": "PGN-19: focus stays on an item when the page changed by one the person activated — on the page now current where\nthey activated a page, on the control they activated while it is still enabled, else on the page now current (in\nthe compact form, which draws no page, on the nearest enabled control)."
+            },
+            {
+              "kind": "method",
+              "name": "reports",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "changed",
+                  "type": {
+                    "text": "PropertyValues<this>"
+                  }
+                }
+              ],
+              "description": "What a debug build says (PGN-1, PGN-3, PGN-6, PGN-8, PGN-9, PGN-11), once per element and message."
+            },
+            {
+              "kind": "method",
+              "name": "item",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "slot",
+                  "type": {
+                    "text": "Extract<Slot, { kind: 'page' | 'control' }>"
+                  }
+                },
+                {
+                  "name": "format",
+                  "type": {
+                    "text": "Intl.NumberFormat"
+                  }
+                },
+                {
+                  "name": "link",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "One page or control, as a link or as a button (PGN-4, PGN-5, PGN-6, PGN-8, PGN-9)."
+            },
+            {
+              "kind": "method",
+              "name": "copy",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "slot",
+                  "type": {
+                    "text": "Slot"
+                  }
+                },
+                {
+                  "name": "format",
+                  "type": {
+                    "text": "Intl.NumberFormat"
+                  }
+                }
+              ],
+              "description": "PGN-11: the copy of a form, measured: the same boxes in the same classes, with nothing to press or to read."
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<TanreiPaginationChangeDetail>"
+              },
+              "description": "The person asked for another page: `detail.page`. Fired before the page changes and before a link is followed; cancelable — `preventDefault()` keeps the page and opens nothing.",
+              "name": "change"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The accessible name of the navigation landmark (\"Pages\", \"Search results pages\"), in the product's language. Required: it tells this landmark from the page's other navigation.",
+              "fieldName": "label"
+            },
+            {
+              "name": "page",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "The current page, counted from 1. The element sets it when the person asks for another page and `change` was not cancelled.",
+              "fieldName": "page"
+            },
+            {
+              "name": "count",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "How many pages there are. Below 1 the element draws nothing and takes no room.",
+              "fieldName": "count"
+            },
+            {
+              "name": "siblings",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "How many pages are shown on each side of the current page in the numbered form.",
+              "fieldName": "siblings"
+            },
+            {
+              "name": "boundaries",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "How many pages are always shown at the start and at the end of the numbered form.",
+              "fieldName": "boundaries"
+            },
+            {
+              "name": "variant",
+              "type": {
+                "text": "TanreiPaginationVariant"
+              },
+              "default": "'numbered'",
+              "description": "`numbered` draws the page numbers, and the compact form where they do not fit its width; `compact` draws the controls and the sentence that says which page of how many.",
+              "fieldName": "variant"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "TanreiPaginationSize"
+              },
+              "default": "'medium'",
+              "description": "An item's height (32 / 40 in the default system). The hit area always meets the minimum target.",
+              "fieldName": "size"
+            },
+            {
+              "name": "first-last",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Draws first and last on either side of previous and next.",
+              "fieldName": "firstLast"
+            },
+            {
+              "name": "href",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The address of a page, with the place `{page}` the element fills with the page's number (\"/results/?page={page}\"). Given, every page and control is a link; empty, they are buttons.",
+              "fieldName": "href"
+            },
+            {
+              "name": "previous-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The previous control's accessible name (\"Previous page\"). Empty reads the product's words (`previousPageLabel`). Required.",
+              "fieldName": "previousLabel"
+            },
+            {
+              "name": "next-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The next control's accessible name (\"Next page\"). Empty reads the product's words (`nextPageLabel`). Required.",
+              "fieldName": "nextLabel"
+            },
+            {
+              "name": "first-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The first control's accessible name (\"First page\"). Empty reads the product's words (`firstPageLabel`). Required while `firstLast` is true.",
+              "fieldName": "firstLabel"
+            },
+            {
+              "name": "last-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The last control's accessible name (\"Last page\"). Empty reads the product's words (`lastPageLabel`). Required while `firstLast` is true.",
+              "fieldName": "lastLabel"
+            },
+            {
+              "name": "page-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A page's accessible name, with the place `{page}` the element fills with the number as it draws it (\"Page {page}\"). Empty reads the product's words (`pageLabel`); where neither gives one, a page is named by its number alone.",
+              "fieldName": "pageLabel"
+            },
+            {
+              "name": "count-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The compact form's sentence, with the places `{page}` and `{count}` (\"Page {page} of {count}\"). Empty reads the product's words (`pageCountText`); where neither gives one, the two numbers are drawn with a slash between them.",
+              "fieldName": "countText"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "tanrei-pagination",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "pageItems",
+          "declaration": {
+            "name": "pageItems",
+            "module": "src/components/pagination/pagination.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TanreiPagination",
+          "declaration": {
+            "name": "TanreiPagination",
+            "module": "src/components/pagination/pagination.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-pagination",
+          "declaration": {
+            "name": "TanreiPagination",
+            "module": "src/components/pagination/pagination.ts"
           }
         }
       ]

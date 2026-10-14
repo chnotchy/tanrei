@@ -373,6 +373,13 @@
       "listing": "default"
     },
     {
+      "name": "previous-next-links",
+      "title": "Previous and next links",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
       "name": "stepper",
       "title": "Stepper",
       "category": "navigation",

@@ -1,0 +1,194 @@
+{
+  "tanrei": {
+    "comp": {
+      "previous-next-links": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product has pages that are read in an order: the chapters of a guide, the articles of a series, the steps of a course. At the foot of each it offers the page before and the page after, each named by its title, as two large places to press that a reader finds at the same spot on every page.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "item"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "outline.color": "color",
+              "label.color": "color",
+              "title.color": "color",
+              "icon.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number",
+              "container.shape": "dimension"
+            }
+          },
+          "dev.tanrei.axes": {
+            "part": {
+              "default": "item",
+              "from": "states"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a pair of previous and next links reads: the gap between its two items and the width under which they stack; an item's corners, padding, edge, the gap between its arrow and its text and between its two lines of text, the two text styles and the arrow's size; the timing of a state change; and the colors of an item's fill, edge, direction label, title, arrow and state layer, at rest and in each state.",
+            "rules": [
+              "A pair of previous and next links offers the page before and the page after the one a person is on, in one sequence. Each item is a link: it has a destination, and without one it is not drawn.",
+              "An item is pressed as a whole. Its title is not a second link and is not underlined: the edge, the arrow and its place say what it is.",
+              "The direction word (Previous, Next) is the product's, in its language; the arrows are drawn by the component and mirror in a right-to-left layout.",
+              "Previous is always at the start and next at the end. Do not swap them, and do not move next to the start when there is no previous page.",
+              "State tokens are valued by the design system's pattern rules; override one token or replace the rule.",
+              "Restyle through these tokens in a layer; never style the anchors by hand."
+            ]
+          }
+        },
+        "gap": {
+          "$type": "dimension",
+          "$value": "{tanrei.sys.space.space200}",
+          "$description": "Space between the previous and the next item, side by side or stacked."
+        },
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.medium}",
+            "$description": "The corners of an item, and of its focus ring. The value an outlined card has, because an item is drawn as one."
+          },
+          "padding": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "Space between an item's edge and its content, on every side."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Space between the arrow and the text beside it."
+          },
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 240,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 60
+              },
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product with long page titles stacks its two items sooner than one whose titles are a word or two; another keeps them side by side on a narrow column."
+              }
+            },
+            "$description": "The least width an item has beside the other one. Where the layout gives the previous and next links less than two of these and the gap, the items stack."
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "The thickness of an item's edge."
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label-small}",
+            "$description": "The direction word (Previous, Next) above the title."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space25}",
+            "$description": "Space between the direction word and the title under it."
+          }
+        },
+        "title": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-large}",
+            "$description": "The destination's title."
+          }
+        },
+        "icon": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.small}",
+            "$description": "The arrow's box."
+          }
+        },
+        "item": {
+          "$type": "color",
+          "container": {
+            "color": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "An item has no fill at rest; the surface behind it shows through."
+                }
+              },
+              "$description": "An item's fill. None at rest: it is where hover, focus and press are drawn."
+            }
+          },
+          "outline": {
+            "color": {
+              "$value": "{tanrei.sys.color.outline-variant}",
+              "$description": "An item's edge: the one hairline."
+            }
+          },
+          "label": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The direction word: secondary text."
+            }
+          },
+          "title": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The destination's title: the text's own color. An item is pressed as a whole and marked by its edge and its arrow, so its title is not drawn as a text link."
+            }
+          },
+          "icon": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The arrow."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$value": "{tanrei.comp.previous-next-links.item.title.color}",
+              "$description": "The color hover, focus and press mix into the container: the title's."
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
+          }
+        }
+      }
+    }
+  }
+}

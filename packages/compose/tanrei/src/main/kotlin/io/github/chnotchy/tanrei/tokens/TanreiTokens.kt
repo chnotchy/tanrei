@@ -7377,6 +7377,53 @@ public data class TanreiPageHeaderTokens(
 }
 
 /**
+ * A size of pagination: the key of one entry of [TanreiPaginationSizes]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Medium].
+ */
+@JvmInline
+public value class TanreiPaginationSize(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Small: TanreiPaginationSize = TanreiPaginationSize("small")
+        public val Medium: TanreiPaginationSize = TanreiPaginationSize("medium")
+    }
+}
+
+/** The tokens of one size of pagination. */
+@Immutable
+public data class TanreiPaginationSizeTokens(
+    public val containerHeight: Dp,
+)
+
+/**
+ * Every size of pagination: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiPaginationSizes(
+    public val small: TanreiPaginationSizeTokens,
+    public val medium: TanreiPaginationSizeTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiPaginationSize, TanreiPaginationSizeTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiPaginationSize> get() = linkedSetOf(TanreiPaginationSize.Small, TanreiPaginationSize.Medium) + extra.keys
+
+    public operator fun contains(key: TanreiPaginationSize): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiPaginationSize): TanreiPaginationSizeTokens? = when (key) {
+        TanreiPaginationSize.Small -> small
+        TanreiPaginationSize.Medium -> medium
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [medium]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiPaginationSize): TanreiPaginationSizeTokens = find(key) ?: medium
+}
+
+/**
  * A part of pagination: the key of one entry of [TanreiPaginationParts]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
  * A key the current system does not have draws as [Item].
@@ -7387,6 +7434,7 @@ public value class TanreiPaginationPart(public val key: String) {
 
     public companion object {
         public val Item: TanreiPaginationPart = TanreiPaginationPart("item")
+        public val Current: TanreiPaginationPart = TanreiPaginationPart("current")
     }
 }
 
@@ -7394,17 +7442,13 @@ public value class TanreiPaginationPart(public val key: String) {
 @Immutable
 public data class TanreiPaginationPartStateTokens(
     public val containerColor: TanreiPaint,
-    public val outlineColor: TanreiPaint,
     public val labelColor: TanreiPaint,
-    public val titleColor: TanreiPaint,
     public val iconColor: TanreiPaint,
     public val stateLayerColor: TanreiPaint,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(containerColor.roles())
-        addAll(outlineColor.roles())
         addAll(labelColor.roles())
-        addAll(titleColor.roles())
         addAll(iconColor.roles())
         addAll(stateLayerColor.roles())
     }
@@ -7417,16 +7461,17 @@ public data class TanreiPaginationPartTokens(
     public val hovered: TanreiPaginationPartStateTokens,
     public val focused: TanreiPaginationPartStateTokens,
     public val pressed: TanreiPaginationPartStateTokens,
+    public val disabled: TanreiPaginationPartStateTokens,
 ) {
     public operator fun get(state: TanreiInteractionState): TanreiPaginationPartStateTokens = when (state) {
         TanreiInteractionState.Enabled -> enabled
         TanreiInteractionState.Hovered -> hovered
         TanreiInteractionState.Focused -> focused
         TanreiInteractionState.Pressed -> pressed
-        TanreiInteractionState.Disabled -> enabled
+        TanreiInteractionState.Disabled -> disabled
     }
 
-    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + pressed.referencedRoles()
+    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + pressed.referencedRoles() + disabled.referencedRoles()
 }
 
 /**
@@ -7435,17 +7480,19 @@ public data class TanreiPaginationPartTokens(
 @Immutable
 public data class TanreiPaginationParts(
     public val item: TanreiPaginationPartTokens,
+    public val current: TanreiPaginationPartTokens,
     /** Values a design system added to the vocabulary, by key. */
     public val extra: Map<TanreiPaginationPart, TanreiPaginationPartTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiPaginationPart> get() = linkedSetOf(TanreiPaginationPart.Item) + extra.keys
+    public val keys: Set<TanreiPaginationPart> get() = linkedSetOf(TanreiPaginationPart.Item, TanreiPaginationPart.Current) + extra.keys
 
     public operator fun contains(key: TanreiPaginationPart): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
     public fun find(key: TanreiPaginationPart): TanreiPaginationPartTokens? = when (key) {
         TanreiPaginationPart.Item -> item
+        TanreiPaginationPart.Current -> current
         else -> extra[key]
     }
 
@@ -7454,6 +7501,7 @@ public data class TanreiPaginationParts(
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(item.referencedRoles())
+        addAll(current.referencedRoles())
         extra.values.forEach { addAll(it.referencedRoles()) }
     }
 }
@@ -7465,25 +7513,26 @@ public data class TanreiPaginationStateTokens(
     public val opacity: Float,
 )
 
-/** `comp.pagination`. Members are flat tokens, then per-state tokens, then one holder per axis (`parts[part]`). */
+/** `comp.pagination`. Members are flat tokens, then per-state tokens, then one holder per axis (`sizes[size]`, `parts[part]`). */
 @Immutable
 public data class TanreiPaginationTokens(
-    public val containerGap: Dp,
-    public val containerMinWidth: Dp,
-    public val containerPadding: Dp,
+    public val containerPaddingInline: Dp,
     public val containerShape: Dp,
+    public val countColor: TanreiPaint,
+    public val countPaddingInline: Dp,
+    public val countTypescale: TanreiTextStyle,
+    public val ellipsisColor: TanreiPaint,
     public val gap: Dp,
     public val iconSize: Dp,
-    public val labelGap: Dp,
     public val labelTypescale: TanreiTextStyle,
     public val motionFeedbackDuration: Int,
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
-    public val outlineWidth: Dp,
-    public val titleTypescale: TanreiTextStyle,
     public val hovered: TanreiPaginationStateTokens,
     public val focused: TanreiPaginationStateTokens,
     public val pressed: TanreiPaginationStateTokens,
+    public val disabled: TanreiPaginationStateTokens,
+    public val sizes: TanreiPaginationSizes,
     public val parts: TanreiPaginationParts,
 ) {
     /** `container-shape` of [state]. */
@@ -7492,7 +7541,7 @@ public data class TanreiPaginationTokens(
         TanreiInteractionState.Hovered -> hovered.containerShape
         TanreiInteractionState.Focused -> focused.containerShape
         TanreiInteractionState.Pressed -> pressed.containerShape
-        TanreiInteractionState.Disabled -> containerShape
+        TanreiInteractionState.Disabled -> disabled.containerShape
     }
 
     /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
@@ -7501,10 +7550,12 @@ public data class TanreiPaginationTokens(
         TanreiInteractionState.Hovered -> hovered.opacity
         TanreiInteractionState.Focused -> focused.opacity
         TanreiInteractionState.Pressed -> pressed.opacity
-        TanreiInteractionState.Disabled -> 1f
+        TanreiInteractionState.Disabled -> disabled.opacity
     }
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(countColor.roles())
+        addAll(ellipsisColor.roles())
         addAll(parts.referencedRoles())
     }
 }
@@ -7550,6 +7601,139 @@ public data class TanreiPopoverTokens(
         addAll(contentColor.roles())
         addAll(dividerColor.roles())
         addAll(headlineColor.roles())
+    }
+}
+
+/**
+ * A part of previous-next-links: the key of one entry of [TanreiPreviousNextLinksParts]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Item].
+ */
+@JvmInline
+public value class TanreiPreviousNextLinksPart(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Item: TanreiPreviousNextLinksPart = TanreiPreviousNextLinksPart("item")
+    }
+}
+
+/** What one part of previous-next-links draws in one interaction state. */
+@Immutable
+public data class TanreiPreviousNextLinksPartStateTokens(
+    public val containerColor: TanreiPaint,
+    public val outlineColor: TanreiPaint,
+    public val labelColor: TanreiPaint,
+    public val titleColor: TanreiPaint,
+    public val iconColor: TanreiPaint,
+    public val stateLayerColor: TanreiPaint,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(containerColor.roles())
+        addAll(outlineColor.roles())
+        addAll(labelColor.roles())
+        addAll(titleColor.roles())
+        addAll(iconColor.roles())
+        addAll(stateLayerColor.roles())
+    }
+}
+
+/** One part of previous-next-links: a full set of tokens per interaction state. */
+@Immutable
+public data class TanreiPreviousNextLinksPartTokens(
+    public val enabled: TanreiPreviousNextLinksPartStateTokens,
+    public val hovered: TanreiPreviousNextLinksPartStateTokens,
+    public val focused: TanreiPreviousNextLinksPartStateTokens,
+    public val pressed: TanreiPreviousNextLinksPartStateTokens,
+) {
+    public operator fun get(state: TanreiInteractionState): TanreiPreviousNextLinksPartStateTokens = when (state) {
+        TanreiInteractionState.Enabled -> enabled
+        TanreiInteractionState.Hovered -> hovered
+        TanreiInteractionState.Focused -> focused
+        TanreiInteractionState.Pressed -> pressed
+        TanreiInteractionState.Disabled -> enabled
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = enabled.referencedRoles() + hovered.referencedRoles() + focused.referencedRoles() + pressed.referencedRoles()
+}
+
+/**
+ * Every part of previous-next-links: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiPreviousNextLinksParts(
+    public val item: TanreiPreviousNextLinksPartTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiPreviousNextLinksPart, TanreiPreviousNextLinksPartTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiPreviousNextLinksPart> get() = linkedSetOf(TanreiPreviousNextLinksPart.Item) + extra.keys
+
+    public operator fun contains(key: TanreiPreviousNextLinksPart): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiPreviousNextLinksPart): TanreiPreviousNextLinksPartTokens? = when (key) {
+        TanreiPreviousNextLinksPart.Item -> item
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [item]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiPreviousNextLinksPart): TanreiPreviousNextLinksPartTokens = find(key) ?: item
+
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(item.referencedRoles())
+        extra.values.forEach { addAll(it.referencedRoles()) }
+    }
+}
+
+/** What every variant of previous-next-links shares in one interaction state. */
+@Immutable
+public data class TanreiPreviousNextLinksStateTokens(
+    public val containerShape: Dp,
+    public val opacity: Float,
+)
+
+/** `comp.previous-next-links`. Members are flat tokens, then per-state tokens, then one holder per axis (`parts[part]`). */
+@Immutable
+public data class TanreiPreviousNextLinksTokens(
+    public val containerGap: Dp,
+    public val containerMinWidth: Dp,
+    public val containerPadding: Dp,
+    public val containerShape: Dp,
+    public val gap: Dp,
+    public val iconSize: Dp,
+    public val labelGap: Dp,
+    public val labelTypescale: TanreiTextStyle,
+    public val motionFeedbackDuration: Int,
+    public val motionStateDuration: Int,
+    public val motionStateEasing: TanreiCubicBezier,
+    public val outlineWidth: Dp,
+    public val titleTypescale: TanreiTextStyle,
+    public val hovered: TanreiPreviousNextLinksStateTokens,
+    public val focused: TanreiPreviousNextLinksStateTokens,
+    public val pressed: TanreiPreviousNextLinksStateTokens,
+    public val parts: TanreiPreviousNextLinksParts,
+) {
+    /** `container-shape` of [state]. */
+    public fun containerShape(state: TanreiInteractionState): Dp = when (state) {
+        TanreiInteractionState.Enabled -> containerShape
+        TanreiInteractionState.Hovered -> hovered.containerShape
+        TanreiInteractionState.Focused -> focused.containerShape
+        TanreiInteractionState.Pressed -> pressed.containerShape
+        TanreiInteractionState.Disabled -> containerShape
+    }
+
+    /** `opacity` of [state]; the resting state has no such token and is never dimmed. */
+    public fun opacity(state: TanreiInteractionState): Float = when (state) {
+        TanreiInteractionState.Enabled -> 1f
+        TanreiInteractionState.Hovered -> hovered.opacity
+        TanreiInteractionState.Focused -> focused.opacity
+        TanreiInteractionState.Pressed -> pressed.opacity
+        TanreiInteractionState.Disabled -> 1f
+    }
+
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(parts.referencedRoles())
     }
 }
 
@@ -11095,6 +11279,7 @@ public data class TanreiSystem(
     public val pageHeader: TanreiPageHeaderTokens,
     public val pagination: TanreiPaginationTokens,
     public val popover: TanreiPopoverTokens,
+    public val previousNextLinks: TanreiPreviousNextLinksTokens,
     public val progressIndicator: TanreiProgressIndicatorTokens,
     public val prose: TanreiProseTokens,
     public val radioButton: TanreiRadioButtonTokens,
@@ -11179,6 +11364,7 @@ public data class TanreiSystem(
         addAll(pageHeader.referencedRoles())
         addAll(pagination.referencedRoles())
         addAll(popover.referencedRoles())
+        addAll(previousNextLinks.referencedRoles())
         addAll(progressIndicator.referencedRoles())
         addAll(prose.referencedRoles())
         addAll(radioButton.referencedRoles())

@@ -1,0 +1,175 @@
+---
+title: 前後のリンク
+description: ひと続きのページの中で、いまいるページの前のページと次のページを示します。2 つのリンクから成り、それぞれの名前は方向と行き先のタイトルです。
+translationOf: components/previous-next-links.mdx
+sourceHash: f0b866b0992a5ea7997d1128521d78df773b99ab
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="previous-next-links" />
+
+<DemoFrame label="前と次" column>
+  <nav class="tanrei-previous-next-links" aria-label="このデモのページ" style="inline-size: 100%">
+    <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
+      <span class="tanrei-previous-next-links-label">前へ</span>
+      <span class="tanrei-previous-next-links-title">リンク</span>
+    </a>
+    <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-previous-next-links-label">次へ</span>
+      <span class="tanrei-previous-next-links-title">ステップ</span>
+    </a>
+  </nav>
+</DemoFrame>
+
+このページの末尾にある前後のリンクも同じコンポーネントです。
+
+ガイドの章、連載の記事、ブログの投稿のように、それぞれのページにタイトルがある並びをたどるためのものです。1 つのリストを番号でめくる場合（検索結果のページ、テーブルの行など）は、独立したコンポーネントである[ページネーション](/ja/components/pagination/)を使います。ページ番号は行き先について何も語りませんが、タイトルは語ります。
+
+### 使い方
+
+Web では、前後のリンクは要素ではなく、プロダクト側の `nav` とアンカーに付けるクラスです。アンカーは文書の中にあるので、スクリプトが動く前からリンクとして働き、クローラーからも、ページ内のアンカーを扱うルーターからも見つけられます。コンポーネント全体を、スタイルシートだけで描きます。
+
+SwiftUI、Compose、Flutter、React Native は計画中です。このページの冒頭で各プラットフォームに添えた名前は仕様が定めたもので、まだ提供していません。React にもまだ `PreviousNextLinks` コンポーネントはないので、クラスを付けたマークアップを使ってください。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/previous-next-links.css" />
+
+    <nav class="tanrei-previous-next-links" aria-label="ページ">
+      <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="https://example.com/guide/installation/">
+        <span class="tanrei-previous-next-links-label">前へ</span>
+        <span class="tanrei-previous-next-links-title">インストール</span>
+      </a>
+      <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="https://example.com/guide/design-tokens/">
+        <span class="tanrei-previous-next-links-label">次へ</span>
+        <span class="tanrei-previous-next-links-title">デザイントークン</span>
+      </a>
+    </nav>
+
+    <!-- 最初のページ：前の項目は href なしで書くか、省きます。次の項目の場所は変わりません。 -->
+    <nav class="tanrei-previous-next-links" aria-label="ページ">
+      <a class="tanrei-previous-next-links-item" data-direction="previous"></a>
+      <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="https://example.com/guide/installation/">
+        <span class="tanrei-previous-next-links-label">次へ</span>
+        <span class="tanrei-previous-next-links-title">インストール</span>
+      </a>
+    </nav>
+
+    <script type="module">
+      // 任意：リップルと dim の押下への応え方、次の項目を先に書いたときの並べ替え、デバッグ時の報告。`@tanrei/web` を読み込んでも入ります。
+      import '@tanrei/web/previous-next-links';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/previous-next-links.css';
+    import '@tanrei/web/previous-next-links';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <nav className="tanrei-previous-next-links" aria-label="ページ">
+      {/* ルーターのリンクは自分でアンカーを描くので、そのリンクにクラスを付けます。 */}
+      <RouterLink className="tanrei-previous-next-links-item" data-direction="next" rel="next" to="/guide/design-tokens/">
+        <span className="tanrei-previous-next-links-label">次へ</span>
+        <span className="tanrei-previous-next-links-title">デザイントークン</span>
+      </RouterLink>
+    </nav>
+    ```
+  </TabItem>
+</Tabs>
+
+| プロパティ | Web での書き方 |
+| --- | --- |
+| `label` | `nav` の `aria-label` |
+| 項目 | `<a class="tanrei-previous-next-links-item">` |
+| `direction` | `data-direction="previous"` または `"next"` と、`rel="prev"` または `rel="next"` |
+| 項目の `label` | `<span class="tanrei-previous-next-links-label">` |
+| `title` | ラベルの後の `<span class="tanrei-previous-next-links-title">` |
+| `href` | `href` |
+| `click` | アンカー自身の `click` |
+
+## 仕様
+
+<DemoFrame label="次の項目だけでも場所は変わらない。ラベルだけの項目" plain column>
+  <nav class="tanrei-previous-next-links" aria-label="このデモの最初のページ" style="inline-size: 100%">
+    <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-previous-next-links-label">次へ</span>
+      <span class="tanrei-previous-next-links-title">ステップ</span>
+    </a>
+  </nav>
+  <nav class="tanrei-previous-next-links" aria-label="このデモの記事" style="inline-size: 100%">
+    <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-previous-next-links-label">新しい記事</span></a>
+    <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-previous-next-links-label">古い記事</span></a>
+  </nav>
+</DemoFrame>
+
+<DemoFrame label="狭いカラムでは項目が縦に並ぶ" plain>
+  <nav class="tanrei-previous-next-links" aria-label="このデモの狭いカラム" style="inline-size: 20rem">
+    <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
+      <span class="tanrei-previous-next-links-label">前へ</span>
+      <span class="tanrei-previous-next-links-title">デザインシステムのトークンが少数のダイヤルからどう導出されるか</span>
+    </a>
+    <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-previous-next-links-label">次へ</span>
+      <span class="tanrei-previous-next-links-title">右から左のレイアウト</span>
+    </a>
+  </nav>
+</DemoFrame>
+
+- **項目は 1 つのリンク**で、全体が押せます。輪郭線のあるコンテナとして描きます。輪郭線は細い線で、塗りはなく、タイトルはテキストの色です。下線は引きません。輪郭線と矢印と置かれた場所で、周りのテキストと見分けられるからです。
+- **矢印はコンポーネントが描きます**。前の項目の先頭側の端に `arrow_back`、次の項目の末尾側の端に `arrow_forward` です。`icons.css` が必要です。
+- **同じ幅の 2 列。** 最初のページでは先頭側の列が空になり、次の項目はほかのページとまったく同じ場所に置かれます。
+- **縦に並ぶ形。** 前後のリンクの幅が、項目の最小幅 2 つ分と隙間の合計（既定のシステムでは 496）に満たないとき、項目は前を上、次を下にして縦に並びます。これを決めるのはウィンドウの幅ではなく、コンポーネント自身の幅です。
+- **タイトルは折り返し、途中で切れません。** 横に並んだ 2 つの項目は、高いほうの高さにそろいます。タイトルのない項目は、方向だけをタイトルのスタイルで示します。
+- **右から左**のレイアウトでは、前の項目が右に置かれて矢印は右を指し、次の項目が左に置かれて矢印は左を指します。読む順序とフォーカスの順序は、前、次のままです。
+
+<ComponentSpecs name="previous-next-links" />
+
+### Web での描き方の違い
+
+- 縦に並ぶ形は、`nav` の幅から決まるグリッド自身の列数で描きます。コンテナクエリもメディアクエリも使いません。
+- パッケージのスクリプトがなくても、スタイルシートがすべての状態を描きます。このとき、押下への応え方はオーバーレイです。次の項目を先に書いた場合、描かれる順序は正しくなりますが、フォーカスの順序は次が先のままです。前の項目を先に書いてください。
+- スタイルシートは、右から左のレイアウトで両方の矢印を反転します。アイコンセットがどちらのグリフも反転の対象にしていないデザインシステムでは、スクリプトが反転を取り消します。スクリプトがなければ、項目に `data-mirror="never"` を書いてください。
+- 前後のリンクは `.tanrei-prose` の外か、`tanrei-not-prose` を付けた部分の中に置いてください。プローズは、その中のアンカーをテキストリンクとして描きます。
+
+## ガイドライン
+
+### 推奨
+
+- コンテンツの後に、1 ページに 1 つだけ置きます。
+- どのページでも両方の項目を書き、行き先のないほうは `href` を付けずにおきます。`href` のない項目は描かれません。
+- 方向は、プロダクトの言葉で書きます。「前へ」と「次へ」、「新しい記事」と「古い記事」などです。
+
+### 非推奨
+
+- アドレスを変えずに表示だけを切り替えるボタンとして使わない。項目はリンクです。
+- リストやテーブルを番号でめくるために使わない。それは[ページネーション](/ja/components/pagination/)の役目です。
+- 隣のページを新しいタブで開かない。ひと続きのページは、その場で入れ替わっていくものです。
+- 項目に独自のグリフを付けない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="previous-next-links" />
+
+### コンポーネントが担うこと
+
+- それぞれの項目はブラウザー自身のリンクで、名前はラベル、タイトルの順です（「次へ デザイントークン」）。どちらも画面に描かれています。
+- 矢印は装飾で、支援技術からは隠されます。
+- 見た目の順序は、読む順序と同じです。左から右でも右から左でも、縦に並んだときも、前、次の順です。
+- キーボードフォーカスのリングは、項目の周りに描きます。タイトルは折り返し、項目は読み手の文字サイズに合わせて大きくなります。
+
+### 利用者側で行うこと
+
+- ランドマークには、`aria-label` でプロダクトの言語の名前を付けます。ページにはほかのナビゲーションもあるので、名前で区別できるようにします。Tanrei は言葉を同梱しません。
+- アンカーに `rel="prev"` と `rel="next"` を書きます。
+- 前の項目を、次の項目より先に書きます。

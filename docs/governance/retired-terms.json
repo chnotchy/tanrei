@@ -1626,6 +1626,56 @@
         ".changeset/",
         "CHANGELOG.md"
       ]
+    },
+    {
+      "term": "tanrei-pagination-item",
+      "since": "2026-10-14",
+      "reason": "the previous/next pair of titled links became a component of its own, Previous and next links; Pagination is numbered page navigation",
+      "replacedBy": "tanrei-previous-next-links-item (Previous and next links), or <tanrei-pagination> for numbered pages",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "tanrei-pagination-label",
+      "since": "2026-10-14",
+      "reason": "the previous/next pair of titled links became a component of its own, Previous and next links; Pagination is numbered page navigation",
+      "replacedBy": "tanrei-previous-next-links-label",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "tanrei-pagination-title",
+      "since": "2026-10-14",
+      "reason": "the previous/next pair of titled links became a component of its own, Previous and next links; Pagination is numbered page navigation",
+      "replacedBy": "tanrei-previous-next-links-title",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "observePagination",
+      "since": "2026-10-14",
+      "reason": "the previous/next pair of titled links became a component of its own, Previous and next links; Pagination is numbered page navigation",
+      "replacedBy": "observePreviousNextLinks",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "pagination.css",
+      "since": "2026-10-14",
+      "reason": "the previous/next pair of titled links became a component of its own, Previous and next links; Pagination is numbered page navigation",
+      "replacedBy": "previous-next-links.css (Previous and next links); <tanrei-pagination> needs no stylesheet",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
     }
   ]
 }

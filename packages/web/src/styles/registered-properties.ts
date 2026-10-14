@@ -27,7 +27,7 @@
 //       · a length the tree view's element reads from script (the indent of a level, the least width of a chevron's
 //         hit area): said in a real property that draws nothing on the tree (`object-position`), which computes it.
 //     The press that a stylesheet holds where no script answers it (the table of contents, the breadcrumbs, a table's
-//     sort button, the pagination) is an unregistered property that steps as well: `transition-behavior: allow-discrete`.
+//     sort button, the previous and next links) is an unregistered property that steps as well: `transition-behavior: allow-discrete`.
 //
 // src/styles/registered-properties.test.ts holds it in three engines: no `@property` rule in any stylesheet of `dist/`,
 // no `CSS.registerProperty()` in any source, and none of the names below answering on a page of every element.
@@ -42,11 +42,11 @@ export const RETIRED_NAMES: readonly string[] = [
   '--_tanrei-switch-progress',
   ...['c', 't', 'o', 'h', 'l', 'hs'].flatMap((key) => [`--_tanrei-switch-${key}0`, `--_tanrei-switch-${key}1`]),
   '--_tanrei-calendar-progress',
-  // The press a stylesheet holds where no script answers it (TOC-20, BRC-18, TBL-37, PGN-10): a property that steps.
+  // The press a stylesheet holds where no script answers it (TOC-20, BRC-18, TBL-37, PNL-10): a property that steps.
   '--_toc-pressed',
   '--_brc-pressed',
   '--_table-pressed',
-  '--_pgn-pressed',
+  '--_pnl-pressed',
   // The link's and prose's four: a line's height as a length, the hold of a press on an inline box and the color
   // under it (LNK-8, LNK-11).
   '--_link-line',

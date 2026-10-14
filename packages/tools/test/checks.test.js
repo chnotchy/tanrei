@@ -73,12 +73,12 @@ test('a component that is a class and a stylesheet on the web is placed by its o
   assert.equal(PLATFORMS.web.implementation('timeline'), 'packages/web/src/styles/timeline.css');
   assert.equal(PLATFORMS.web.test('timeline'), 'packages/web/src/styles/timeline.test.ts');
   assert.equal(PLATFORMS.web.stylesheet('timeline'), undefined);
-  // The pagination is classes on the product's own `nav` and anchors.
-  assert.equal(PLATFORMS.web.implementation('pagination'), 'packages/web/src/styles/pagination.css');
-  assert.equal(PLATFORMS.web.test('pagination'), 'packages/web/src/styles/pagination.test.ts');
-  assert.equal(PLATFORMS.web.stylesheet('pagination'), undefined);
-  assert.deepEqual(DOCS_PAGES('pagination'), ['apps/docs/src/content/docs/components/pagination.mdx', 'apps/docs/src/content/docs/ja/components/pagination.mdx']);
-  for (const platform of CONFIG.platforms.filter((p) => p !== 'web')) assert.match(PLATFORMS[platform].implementation('pagination'), /[Pp]agination/);
+  // The previous and next links are classes on the product's own `nav` and anchors.
+  assert.equal(PLATFORMS.web.implementation('previous-next-links'), 'packages/web/src/styles/previous-next-links.css');
+  assert.equal(PLATFORMS.web.test('previous-next-links'), 'packages/web/src/styles/previous-next-links.test.ts');
+  assert.equal(PLATFORMS.web.stylesheet('previous-next-links'), undefined);
+  assert.deepEqual(DOCS_PAGES('previous-next-links'), ['apps/docs/src/content/docs/components/previous-next-links.mdx', 'apps/docs/src/content/docs/ja/components/previous-next-links.mdx']);
+  for (const platform of CONFIG.platforms.filter((p) => p !== 'web')) assert.match(PLATFORMS[platform].implementation('previous-next-links'), /[Pp]revious[Nn]ext[Ll]inks|previous_next_links/);
 });
 
 /** Components that are, like the table, an element with no shadow root and one light-DOM stylesheet. */

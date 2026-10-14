@@ -175,6 +175,7 @@
     "tanrei.sys.color.shadow": {"derive": {"fn": "tone", "palette": "neutral", "tone": [0]}},
     "tanrei.comp.button.outlined.disabled.container.color": {"$value": "{tanrei.comp.button.outlined.container.color}"},
     "tanrei.comp.button.text.disabled.container.color": {"$value": "{tanrei.comp.button.text.container.color}"},
+    "tanrei.comp.pagination.item.disabled.container.color": {"$value": "{tanrei.comp.pagination.item.container.color}"},
     "tanrei.comp.checkbox.unselected.disabled.box.color": {"$value": "{tanrei.comp.checkbox.unselected.box.color}"},
     "tanrei.comp.checkbox.error-unselected.disabled.box.color": {"$value": "{tanrei.comp.checkbox.error-unselected.box.color}"},
     "tanrei.comp.radio-button.unselected.disabled.fill.color": {"$value": "{tanrei.comp.radio-button.unselected.fill.color}"},

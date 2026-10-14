@@ -2,7 +2,7 @@
 title: "菜单"
 description: "一小组操作或选项，显示在一个临时表面上，这个表面从请求它的元素处打开。"
 translationOf: components/menu.mdx
-sourceHash: 9a8dc360265403b726b449afeb72b858a802a373
+sourceHash: 2106a64d0831a3f48beba511b4ee3f8ed02897e3
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -61,7 +61,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 菜单有五种项：`item`（一个操作）、`checkbox-item`、`radio-item`、`submenu`（在旁边打开下一级菜单的项）和 `group`（容纳其他几种项）。每个平台接收它们的方式，与它接收任何重复子项的方式相同：在 Web 上是子元素，在 SwiftUI 上是视图构建器中的视图，在 Compose 上是内容 lambda 中的调用，在 Flutter 上是 `menuChildren` 中的 widget，在 React Native 上是一个由普通对象组成、以 `kind` 区分种类的 `items` 数组。复选项的 `checked` 属于它自己。哪个单选项被选中，则由它所在的组按值决定。
 
-项的键盘快捷键是它的 `shortcut` 属性，用[键盘快捷键](/zh-cn/components/keyboard-shortcut/)组件那套与平台无关的按键名称来写（`mod+c`）。菜单用键盘快捷键组件把它画在行的末尾：在 Apple 的键盘上是 ⌘C，在其他键盘上是 Ctrl+C；同时把它作为该项的键盘快捷键暴露出来。它并不会让这些按键生效：按键要由你的产品来绑定。`trailingText` 用于快捷键以外的任何内容，例如数量或“Beta”。Web 会画出这一切，以及当前的外观。SwiftUI、Compose、Flutter 和 React Native 待跟进：在跟上之前，它们没有 `shortcut` 属性，而是像下面的示例那样把快捷键写在 `trailingText` 里。它们也没有子菜单、`separation` 和 `markIcon`，并且仍然在 16 的方框里用各自的标记来画对勾，不给选中的行加填充，组的标题则从标签开始的位置画起。
+项的键盘快捷键是它的 `shortcut` 属性，用[键盘快捷键](/zh-cn/components/keyboard-shortcut/)组件那套与平台无关的按键名称来写（`mod+c`）。菜单用键盘快捷键组件把它画在行的末尾：在 Apple 的键盘上是 ⌘C，在其他键盘上是 Ctrl+C；同时把它作为该项的键盘快捷键暴露出来。它并不会让这些按键生效：按键要由你的产品来绑定。`trailingText` 用于快捷键以外的任何内容，例如数量或“Beta”。Web 会画出这一切，以及当前的外观。SwiftUI、Compose、Flutter 和 React Native 待跟进：在跟上之前，它们没有 `shortcut` 属性，而是像下面的示例那样把快捷键写在 `trailingText` 里。它们也没有子菜单、`separation`、`iconSpace` 和 `markIcon`，并且仍然在 16 的方框里用各自的标记来画对勾，不给选中的行加填充，组的标题则从标签开始的位置画起。
 
 带 `href` 的项是链接项：它是平台自己的链接，画法与操作完全相同，也用同样的按键移到它上面。普通激活会触发该项的 `click`，关闭菜单，然后打开目的地。`target` 和 `targetLabel` 与 [Button](/zh-cn/components/button/) 的相同。`current` 标出用户当前所在页面的链接项：它以自己的填充绘制，不画对勾。目前只有 Web 提供链接项；SwiftUI、Compose、Flutter 和 React Native 还没有。
 
@@ -283,6 +283,37 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </tanrei-menu>
 </DemoFrame>
 
+<DemoFrame label="标记列和图标列：iconSpace 的 auto（默认）和 never" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="剪切" leading-icon="content_cut"></tanrei-menu-item>
+    <tanrei-menu-item label="复制" leading-icon="content_copy"></tanrei-menu-item>
+    <tanrei-menu-item label="粘贴"></tanrei-menu-item>
+    <tanrei-menu-group label="视图">
+      <tanrei-menu-checkbox-item label="显示网格" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="显示标尺"></tanrei-menu-checkbox-item>
+      <tanrei-menu-item label="适合窗口"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="设置"></tanrei-menu-item>
+      <tanrei-menu-item label="帮助"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open icon-space="never">
+    <tanrei-menu-item label="剪切" leading-icon="content_cut"></tanrei-menu-item>
+    <tanrei-menu-item label="复制" leading-icon="content_copy"></tanrei-menu-item>
+    <tanrei-menu-item label="粘贴"></tanrei-menu-item>
+    <tanrei-menu-group label="视图">
+      <tanrei-menu-checkbox-item label="显示网格" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="显示标尺"></tanrei-menu-checkbox-item>
+      <tanrei-menu-item label="适合窗口"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="设置"></tanrei-menu-item>
+      <tanrei-menu-item label="帮助"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
 <DemoFrame label="标记：默认系统的方框和圆环，以及用 mark-icon 指定的单纯对勾" plain>
   <tanrei-menu inline open>
     <tanrei-menu-group label="显示">
@@ -371,6 +402,16 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 单选项应当放在组里。组外的单选项永远不会被选中，并会在调试构建中报告。
 - 组不能包含另一个组。内层组的项会被当作外层组的项来绘制。
 
+### 标记列和图标列
+
+复选项或单选项的标记位于行首的标记列中，前置图标位于其后的图标列中。`iconSpace` 决定哪些行要为自己不画任何内容的列保留空间：
+
+- **`auto`**（默认）按分区决定：分区是一个组，或组外一串相邻的项。只要同一分区的另一项在某列中画了内容，这一行就保留该列的空间，因此一个分区的标签从同一条线开始。没有标记也没有图标的分区，标签从行内容开始的位置起画，前面不留空白。
+- **`always`** 在每一行都保留这两列，因此菜单的所有标签都从同一条线开始。
+- **`never`** 只给在该列中画了内容的行设这一列，因此每个标签紧跟在它自己的标记或图标之后开始。
+
+每个表面各自决定，子菜单跟随其菜单的 `iconSpace`。无论组内各行保留什么，组的标题都从行内容开始的位置起画。[树视图](/zh-cn/components/tree-view/)和[导航抽屉](/zh-cn/components/navigation-drawer/)也有同样的 `iconSpace`，取值和默认值都相同。
+
 ### 链接
 
 链接项是平台自己的链接，所以浏览器的上下文菜单、在新标签页中打开，以及悬停时显示的地址都照常可用。它没有自己的外观：在每一种状态下，它都画得与相邻行的操作一样。
@@ -394,7 +435,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **放在哪里。** 放在容纳该项的表面旁边，位于末尾侧，它的第一行与该项所在的行齐平；末尾侧没有空间时放在另一侧。窗口太窄、两侧都放不下时，它叠放在父级之上，并让父级露出一条窄边：在这条窄边上按下会关闭子菜单。菜单绝不会用子菜单的内容替换自己的内容。
 - **`open` 与 `toggle`。** 子菜单项的 `open` 属于它自己。用户打开或关闭子菜单时，由菜单设置它，并由该项触发 `toggle`。你自己对 `open` 的更改，以及整个菜单的关闭，都不触发 `toggle`。
 - **深度。** 菜单之下的子菜单请不要超过两级。第三级仍然会画出来，并会在调试构建中报告；没有项的子菜单也会被报告。
-- 组的 `value` 只作用于它自己所在表面中的单选项，每个表面各自绘制自己的标记列和图标列。
+- 组的 `value` 只作用于它自己所在表面中的单选项，每个表面各自决定自己的标记列和图标列。
 
 ### 打开、焦点和关闭
 
@@ -454,12 +495,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 每一项的高度不小于最小目标，整行都是它的点击区域。
 - 文本变大时，项随之增高；表面在屏幕上放不下时可以滚动。
 - 图标字体还无法画出某个图标标记（例如对勾）时，菜单在它的位置上什么也不画，绝不会画出“check”这个单词。它保留这一列的宽度，仍然暴露选中状态，并在字体加载完成后显示标记。
-- 调试构建会报告：没有标签的项、组外的单选项、没有指向组内任何单选项的组值、两个值相同的单选项、组内的组、同时有快捷键和后置文本的项、菜单没有定义的 `separation`、第三级子菜单，以及没有项的子菜单。它们还会报告：会打开新上下文却没有 `targetLabel` 的链接项；复选项、单选项或子菜单项上的 `href`；指向脚本或无法解析的 `href`；菜单没有定义的 `target`；以及没有 `href` 的项上的 `current`。
+- 调试构建会报告：没有标签的项、组外的单选项、没有指向组内任何单选项的组值、两个值相同的单选项、组内的组、同时有快捷键和后置文本的项、菜单没有定义的 `separation` 或 `iconSpace`、第三级子菜单，以及没有项的子菜单。它们还会报告：会打开新上下文却没有 `targetLabel` 的链接项；复选项、单选项或子菜单项上的 `href`；指向脚本或无法解析的 `href`；菜单没有定义的 `target`；以及没有 `href` 的项上的 `current`。
 
 已知的平台差距：
 
 - SwiftUI、Compose、Flutter 和 React Native 没有链接项：在这些平台上，项还不接受 `href`。
-- SwiftUI、Compose、Flutter 和 React Native 没有子菜单、`separation` 和 `markIcon`，选中的行也没有填充。它们仍然在 16 的方框里用各自的标记来画对勾，组的标题从标签开始的位置画起。
+- SwiftUI、Compose、Flutter 和 React Native 没有子菜单、`separation`、`iconSpace` 和 `markIcon`，选中的行也没有填充。只要菜单中有任何一项在标记列或图标列中画了内容，它们就在每一行都保留该列。它们仍然在 16 的方框里用各自的标记来画对勾，组的标题从标签开始的位置画起。
 - 在 `m3-like` 和 `cupertino` 下，标题从哪里开始遵循的是 Tanrei 的规则，还没有对照原版测量过。
 - Web：菜单不监听平台的关闭请求，例如 Android 的返回手势，所以从不发送 `back`。
 - Web：`aria-haspopup` 和 `aria-expanded` 设置在锚点上。锚点是自定义元素（例如只有图标的 `<tanrei-button>`）时，它们设置在其 shadow root 内的按钮上。`aria-controls` 以及来自锚点的菜单名称无法跨越 shadow root。

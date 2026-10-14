@@ -205,12 +205,14 @@ The table gives it room above and below and the width of its box, and keeps it i
     </table>
     <div data-part="status">
       <p role="status">1–6 of 42 releases</p>
-      <nav class="tanrei-pagination" aria-label="Pages of the releases">
-        <a class="tanrei-pagination-item" data-direction="next" rel="next" href="#the-status-line">
-          <span class="tanrei-pagination-label">Next</span>
-          <span class="tanrei-pagination-title">Releases 7 to 12</span>
-        </a>
-      </nav>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: var(--tanrei-comp-table-status-gap)">
+        <tanrei-select size="small" label="Releases per page" value="6">
+          <tanrei-option value="6">6</tanrei-option>
+          <tanrei-option value="12">12</tanrei-option>
+          <tanrei-option value="24">24</tanrei-option>
+        </tanrei-select>
+        <tanrei-pagination label="Pages of the releases" variant="compact" size="small" page="1" count="7" previous-label="Previous page" next-label="Next page" count-text="Page {page} of {count}"></tanrei-pagination>
+      </div>
     </div>
   </tanrei-table>
 </DemoFrame>
@@ -222,12 +224,14 @@ After the table, inside the element, write the status line: your sentence in a p
   <table>…</table>
   <div data-part="status">
     <p role="status">1–20 of 132</p>
-    <nav class="tanrei-pagination" aria-label="Pages of the products">…</nav>
+    <tanrei-pagination label="Pages of the products" variant="compact" size="small" page="1" count="7" previous-label="Previous page" next-label="Next page" count-text="Page {page} of {count}"></tanrei-pagination>
   </div>
 </tanrei-table>
 ```
 
 The sentence stands at the start edge and the pagination at the end; where the two do not fit side by side, the pagination goes under the sentence. The status line does not scroll sideways with the columns, and it stays at the bottom of a table whose rows scroll in its own box. The table counts nothing and writes no word: "1–20 of 132" is yours, in your language. When you change the paragraph's text, assistive technology is told politely. The `status` attribute on the element writes that paragraph for you where your markup has none. A paragraph you wrote yourself is the one that is read, and the attribute then changes nothing.
+
+What stands at the end is a [Pagination](/components/pagination/) at size `small`: compact, as here, or numbered where people go to a page by its number. Where people choose how many rows a page holds, put a [Select](/components/select/) for it before the pagination, the two in one element you lay out; the range of rows shown is your sentence, not the pagination's. [Previous and next links](/components/previous-next-links/) do not belong here: they lead to titled pages, not to the rows of one list. The table only places what you give it: when the page changes, change the rows and the sentence.
 
 ### Choosing rows
 

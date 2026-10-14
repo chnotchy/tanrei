@@ -1477,27 +1477,41 @@ const STAGING: Record<string, Staging> = {
       return `<ol class="tanrei-timeline" role="list" ${attributes}${lang}>${events.join('')}</ol>`;
     },
   },
-  // The pagination is classes on the product's `nav` and anchors (the spec's web note): `label` is the landmark's
-  // `aria-label`, and each item an `<a class="tanrei-pagination-item">` with `data-direction`, `rel`, its `href` — left
+  // The previous and next links are classes on the product's `nav` and anchors (the spec's web note): `label` is the landmark's
+  // `aria-label`, and each item an `<a class="tanrei-previous-next-links-item">` with `data-direction`, `rel`, its `href` — left
   // out where the fixture's is empty — and two spans, the label and the title. The stage is a column of text, 720 wide,
-  // so the two items stand side by side (the stacked form is a test's: PGN-5). The right-to-left fixtures are drawn
+  // so the two items stand side by side (the stacked form is a test's: PNL-5). The right-to-left fixtures are drawn
   // with the language ar. Several fixtures share a landmark's name, which no page does: each then adds its id to it.
   // Markup given by a test is used as it is.
-  pagination: {
-    css: () => `${read('dist/icons.css')}\n${read('dist/pagination.css')}
-      .stage:has(> .tanrei-pagination) { box-sizing: border-box; inline-size: 752px; max-inline-size: 100%; }`,
+  'previous-next-links': {
+    css: () => `${read('dist/icons.css')}\n${read('dist/previous-next-links.css')}
+      .stage:has(> .tanrei-previous-next-links) { box-sizing: border-box; inline-size: 752px; max-inline-size: 100%; }`,
     element: (f) => {
       if (f.content?.includes('<')) return f.content;
       const quote = (v: unknown) => String(v).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
       const name = String(f.props.label ?? '');
-      const shared = loadSpec('pagination').fixtures.filter((other) => other.props.label === name).length > 1;
+      const shared = loadSpec('previous-next-links').fixtures.filter((other) => other.props.label === name).length > 1;
       const items = (f.items ?? []).map((item) => {
         const { direction, label, title, href } = item.props;
         const destination = String(href ?? '').trim() ? ` href="${quote(href)}"` : '';
-        return `<a class="tanrei-pagination-item" data-direction="${quote(direction)}" rel="${direction === 'previous' ? 'prev' : 'next'}"${destination}><span class="tanrei-pagination-label">${quote(label ?? '')}</span><span class="tanrei-pagination-title">${quote(title ?? '')}</span></a>`;
+        return `<a class="tanrei-previous-next-links-item" data-direction="${quote(direction)}" rel="${direction === 'previous' ? 'prev' : 'next'}"${destination}><span class="tanrei-previous-next-links-label">${quote(label ?? '')}</span><span class="tanrei-previous-next-links-title">${quote(title ?? '')}</span></a>`;
       });
-      return `<nav class="tanrei-pagination"${name ? ` aria-label="${quote(shared ? `${name} (${f.id})` : name)}"` : ''}${f.direction === 'rtl' ? ' lang="ar"' : ''}>${items.join('')}</nav>`;
+      return `<nav class="tanrei-previous-next-links"${name ? ` aria-label="${quote(shared ? `${name} (${f.id})` : name)}"` : ''}${f.direction === 'rtl' ? ' lang="ar"' : ''}>${items.join('')}</nav>`;
     },
+  },
+  // A pagination is as wide as its layout gives it (PGN-11): on the column of stages it is as wide as its content, the
+  // width of its numbered row. The right-to-left fixtures are drawn with the language ar (their numbers in its digits,
+  // PGN-9). Several of the spec's fixtures share a landmark's name, which no page does: each then adds its id to it (it is
+  // not drawn). A test's own fixture is staged as it is written.
+  pagination: {
+    props: (props, f) => {
+      const name = String(props.label ?? '');
+      const fixtures = loadSpec('pagination').fixtures;
+      const own = fixtures.some((other) => other.id === f.id && other.props.label === name);
+      const shared = fixtures.filter((other) => other.props.label === name).length > 1;
+      return own && shared && name ? { ...props, label: `${name} (${f.id})` } : props;
+    },
+    wrap: (element, f) => framedLanguage(element, f, 'tanrei-pagination'),
   },
   // A table is the scroll box of a native table (the spec's web note): the element around `tableMarkup`'s table, with
   // the stylesheet a page loads to draw it before the element is defined. Its box is 720 wide, as a column of text is,

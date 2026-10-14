@@ -1,0 +1,175 @@
+---
+title: روابط السابق والتالي
+description: الصفحة التي قبل الصفحة التي يقف عليها الشخص والصفحة التي بعدها، في تسلسل من الصفحات. رابطان، يسمّي كلًّا منهما اتجاهٌ وعنوانُ الصفحة التي يقود إليها.
+translationOf: components/previous-next-links.mdx
+sourceHash: f0b866b0992a5ea7997d1128521d78df773b99ab
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="previous-next-links" />
+
+<DemoFrame label="السابق والتالي" column>
+  <nav class="tanrei-previous-next-links" aria-label="صفحات هذا العرض التوضيحي" style="inline-size: 100%">
+    <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
+      <span class="tanrei-previous-next-links-label">السابق</span>
+      <span class="tanrei-previous-next-links-title">الرابط</span>
+    </a>
+    <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-previous-next-links-label">التالي</span>
+      <span class="tanrei-previous-next-links-title">الخطوات</span>
+    </a>
+  </nav>
+</DemoFrame>
+
+روابط السابق والتالي التي في أسفل هذه الصفحة هي المكوّن نفسه.
+
+تقود عبر تسلسل لصفحاته عناوين: فصول دليل، أو مقالات سلسلة، أو منشورات مدوّنة. أما التنقل بين صفحات قائمة واحدة بالأرقام (صفحات نتائج البحث، صفوف جدول) فهو [التنقل بين الصفحات](/ar/components/pagination/)، وهو مكوّن قائم بذاته: رقم الصفحة لا يقول شيئًا عن وجهتها، والعنوان يقول.
+
+### الاستخدام
+
+على الويب، روابط السابق والتالي أصناف (classes) على عنصر `nav` وعناصر anchor التي تكتبها أنت، لا عنصر مستقل. وعناصر anchor موجودة في المستند، فهي روابط قبل أن يعمل أي سكربت، ويجدها الزاحف والموجِّه الذي يعمل على عناصر anchor في الصفحة. وورقة الأنماط وحدها ترسم المكوّن كله.
+
+أما SwiftUI و Compose و Flutter و React Native فمخطَّط لها: الأسماء التي بجانب كل منصة في أعلى هذه الصفحة هي ما تعطيها إياه المواصفة، ولا شيء منها متاح هناك بعد. وليس في React مكوّن `PreviousNextLinks` بعد كذلك، فاستخدم الترميز مع الأصناف.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/previous-next-links.css" />
+
+    <nav class="tanrei-previous-next-links" aria-label="الصفحات">
+      <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="https://example.com/guide/installation/">
+        <span class="tanrei-previous-next-links-label">السابق</span>
+        <span class="tanrei-previous-next-links-title">التثبيت</span>
+      </a>
+      <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="https://example.com/guide/design-tokens/">
+        <span class="tanrei-previous-next-links-label">التالي</span>
+        <span class="tanrei-previous-next-links-title">رموز التصميم</span>
+      </a>
+    </nav>
+
+    <!-- الصفحة الأولى: اكتب عنصر «السابق» بلا href، أو احذفه. وعنصر «التالي» يحتفظ بمكانه. -->
+    <nav class="tanrei-previous-next-links" aria-label="الصفحات">
+      <a class="tanrei-previous-next-links-item" data-direction="previous"></a>
+      <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="https://example.com/guide/installation/">
+        <span class="tanrei-previous-next-links-label">التالي</span>
+        <span class="tanrei-previous-next-links-title">التثبيت</span>
+      </a>
+    </nav>
+
+    <script type="module">
+      // اختياري: استجابة الضغط بالتموّج والتعتيم، وترتيب العناصر التي كُتب «التالي» فيها أولًا، وتقارير التنقيح. والحزمة `@tanrei/web` تحمّله أيضًا.
+      import '@tanrei/web/previous-next-links';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/previous-next-links.css';
+    import '@tanrei/web/previous-next-links';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <nav className="tanrei-previous-next-links" aria-label="الصفحات">
+      {/* رابط الموجِّه يرسم عنصر anchor خاصًّا به: أعطِه الصنف. */}
+      <RouterLink className="tanrei-previous-next-links-item" data-direction="next" rel="next" to="/guide/design-tokens/">
+        <span className="tanrei-previous-next-links-label">التالي</span>
+        <span className="tanrei-previous-next-links-title">رموز التصميم</span>
+      </RouterLink>
+    </nav>
+    ```
+  </TabItem>
+</Tabs>
+
+| الخاصية | على الويب |
+| --- | --- |
+| `label` | الخاصية `aria-label` على عنصر `nav` |
+| عنصر | `<a class="tanrei-previous-next-links-item">` |
+| `direction` | القيمة `data-direction="previous"` أو `"next"`، مع `rel="prev"` أو `rel="next"` |
+| التسمية `label` للعنصر | `<span class="tanrei-previous-next-links-label">` |
+| `title` | العنصر `<span class="tanrei-previous-next-links-title">`، بعد التسمية |
+| `href` | `href` |
+| `click` | الحدث `click` لعنصر anchor نفسه |
+
+## المواصفات
+
+<DemoFrame label="«التالي» وحده يحتفظ بمكانه، وتسميات بلا عناوين" plain column>
+  <nav class="tanrei-previous-next-links" aria-label="الصفحة الأولى في هذا العرض التوضيحي" style="inline-size: 100%">
+    <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-previous-next-links-label">التالي</span>
+      <span class="tanrei-previous-next-links-title">الخطوات</span>
+    </a>
+  </nav>
+  <nav class="tanrei-previous-next-links" aria-label="منشورات هذا العرض التوضيحي" style="inline-size: 100%">
+    <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-previous-next-links-label">الأحدث</span></a>
+    <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-previous-next-links-label">الأقدم</span></a>
+  </nav>
+</DemoFrame>
+
+<DemoFrame label="في عمود ضيق يُرصّ العنصران أحدهما فوق الآخر" plain>
+  <nav class="tanrei-previous-next-links" aria-label="العمود الضيق في هذا العرض التوضيحي" style="inline-size: 20rem">
+    <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="../link/">
+      <span class="tanrei-previous-next-links-label">السابق</span>
+      <span class="tanrei-previous-next-links-title">كيف تُشتق رموز نظام التصميم من بضعة أقراص ضبط</span>
+    </a>
+    <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-previous-next-links-label">التالي</span>
+      <span class="tanrei-previous-next-links-title">التخطيطات من اليمين إلى اليسار</span>
+    </a>
+  </nav>
+</DemoFrame>
+
+- **العنصر رابط واحد**، يُضغط كله، ويُرسم حاويةً لها حدّ: الخط الرفيع الواحد، بلا تعبئة، والعنوان بلون النص. وليس تحته خط، لأن حافته وسهمه وموضعه تميّزه من النص الذي حوله.
+- **السهمان من المكوّن نفسه**: الرسم `arrow_back` عند حافة البداية في عنصر «السابق»، والرسم `arrow_forward` عند حافة النهاية في عنصر «التالي». ويحتاجان إلى الملف `icons.css`.
+- **عمودان متساويان.** في الصفحة الأولى يكون عمود البداية فارغًا، ويكون عنصر «التالي» حيث هو بالضبط في كل صفحة أخرى.
+- **الرصّ.** حيث يُعطى المكوّن أقل من ضعف الحد الأدنى لعرض العنصر مضافًا إليه الفجوة (496 في النظام الافتراضي)، يُرصّ العنصران، «السابق» فوق «التالي». ويقرر ذلك عرض المكوّن نفسه، لا عرض النافذة.
+- **العنوان يلتفّ ولا يُقصّ أبدًا.** عنصرا الصف الواحد يأخذان ارتفاع أطولهما. ومن دون عنوان يعرض العنصر اتجاهه وحده، بنمط العنوان.
+- **من اليمين إلى اليسار**، يقف «السابق» في اليمين بسهم يشير إلى اليمين، و«التالي» في اليسار بسهم يشير إلى اليسار. ويبقى ترتيب القراءة وترتيب التركيز: «السابق» ثم «التالي».
+
+<ComponentSpecs name="previous-next-links" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- الهيئة المرصوصة يرسمها عدد أعمدة الشبكة نفسها، من العرض الذي لعنصر `nav`. ولا يدخل في ذلك استعلام حاوية (container query) ولا استعلام وسائط (media query).
+- من دون سكربت الحزمة ترسم ورقة الأنماط كل الحالات، ويكون التراكب هو استجابة الضغط، والعنصران اللذان كُتب «التالي» فيهما أولًا يُرسمان بالترتيب الصحيح لكنهما يبقيان في ترتيب التركيز كما كُتبا. فاكتب عنصر «السابق» أولًا.
+- ورقة الأنماط تعكس السهمين في التخطيط من اليمين إلى اليسار. ومع نظام تصميم لا تعلّم مجموعة أيقوناته أيًّا من الاسمين بأنه يُعكس، يزيل السكربت العكس؛ ومن دون السكربت، اكتب `data-mirror="never"` على العنصرين.
+- أبقِ المكوّن خارج `.tanrei-prose`، أو داخل جزء معلَّم بالصنف `tanrei-not-prose`: النص المتصل (prose) يرسم عناصر anchor التي فيه روابط نصية.
+
+## الإرشادات
+
+### افعل
+
+- ضعها بعد المحتوى، مرة واحدة في الصفحة.
+- أعطِ العنصرين في كل صفحة، واترك الذي لا وجهة له بلا `href`. فهو لا يُرسم.
+- اكتب الاتجاه بكلمات منتجك: «السابق» و«التالي»، أو «الأحدث» و«الأقدم».
+
+### لا تفعل
+
+- لا تستخدمها لأزرار تغيّر ما يُعرض وليس لها عنوان وجهة. العنصر رابط.
+- لا تستخدمها للتنقل بين صفحات قائمة أو جدول بالأرقام: ذلك عمل [التنقل بين الصفحات](/ar/components/pagination/).
+- لا تفتح صفحة مجاورة في تبويب جديد. صفحات التسلسل الواحد يحلّ بعضها محل بعض.
+- لا تعطِ العنصرين رسوم أيقونات من عندك.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="previous-next-links" />
+
+### ما يتكفل به المكوّن
+
+- كل عنصر هو رابط المتصفح نفسه، تسمّيه تسميته ثم عنوانه («التالي رموز التصميم»)، وكلاهما مرسوم.
+- السهمان زخرفيان ومخفيان عن التقنيات المساعدة.
+- الترتيب المرئي يتبع ترتيب القراءة: «السابق» ثم «التالي»، في الاتجاهين وحين يُرصّ العنصران.
+- حلقة تركيز لوحة المفاتيح تُرسم حول العنصر. والعناوين تلتفّ، والعنصران يكبران مع مقاس النص عند القارئ.
+
+### ما عليك فعله
+
+- سمِّ المَعلم (landmark) بالخاصية `aria-label`، بلغة منتجك. ففي الصفحة وسائل تنقل أخرى، والاسم يميّز هذا المَعلم منها. ولا يقدّم Tanrei كلمات من عنده.
+- اكتب `rel="prev"` و `rel="next"` على عناصر anchor.
+- اكتب عنصر «السابق» قبل عنصر «التالي».

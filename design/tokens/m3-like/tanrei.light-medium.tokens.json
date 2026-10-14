@@ -66738,6 +66738,1203 @@
       },
       "pagination": {
         "container": {
+          "height": {
+            "medium": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              }
+            },
+            "small": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "Space on each side of a page number that is wider than the square: a number of three digits or more."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 9999,
+              "unit": "px"
+            },
+            "$description": "The corners of an item, and of its focus ring. Fully rounded in the default system, as a button is: a page of one digit is a circle."
+          }
+        },
+        "count": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.0784,
+                0.0706,
+                0.0941
+              ],
+              "hex": "#141218",
+              "alpha": 1
+            },
+            "$description": "The short form's sentence."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "Space on each side of the short form's sentence, between it and the controls."
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Roboto",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 14,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0.25,
+                "unit": "px"
+              },
+              "lineHeight": 1.4286
+            },
+            "$description": "The short form's sentence (\"Page 3 of 10\")."
+          }
+        },
+        "current": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.9098,
+                  0.8706,
+                  0.9725
+                ],
+                "hex": "#e8def8",
+                "alpha": 1
+              },
+              "$description": "The fill of the current page, which marks it together with aria-current. The selected segment's color."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#141218"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8157,
+                    0.7765,
+                    0.8745
+                  ],
+                  "hex": "#d0c6df",
+                  "alpha": 1
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.098,
+                    0.1686
+                  ],
+                  "hex": "#1d192b",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.098,
+                    0.1686
+                  ],
+                  "hex": "#1d192b",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.098,
+                    0.1686
+                  ],
+                  "hex": "#1d192b",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8471,
+                    0.8078,
+                    0.9098
+                  ],
+                  "hex": "#d8cee8",
+                  "alpha": 1
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.098,
+                    0.1686
+                  ],
+                  "hex": "#1d192b",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.098,
+                    0.1686
+                  ],
+                  "hex": "#1d192b",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.098,
+                    0.1686
+                  ],
+                  "hex": "#1d192b",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.1137,
+                  0.098,
+                  0.1686
+                ],
+                "hex": "#1d192b",
+                "alpha": 1
+              },
+              "$description": "Unused in the default system, where the current page draws no arrow; named so that every part has the same parts."
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.1137,
+                  0.098,
+                  0.1686
+                ],
+                "hex": "#1d192b",
+                "alpha": 1
+              },
+              "$description": "The number of the current page."
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.8157,
+                    0.7765,
+                    0.8745
+                  ],
+                  "hex": "#d0c6df",
+                  "alpha": 1
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.098,
+                    0.1686
+                  ],
+                  "hex": "#1d192b",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.098,
+                    0.1686
+                  ],
+                  "hex": "#1d192b",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.1137,
+                    0.098,
+                    0.1686
+                  ],
+                  "hex": "#1d192b",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.1137,
+                  0.098,
+                  0.1686
+                ],
+                "hex": "#1d192b",
+                "alpha": 1
+              },
+              "$description": "The color hover, focus and press mix into the current page's container."
+            }
+          }
+        },
+        "disabled": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 9999,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "ellipsis": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.2392,
+                0.2275,
+                0.2627
+              ],
+              "hex": "#3d3a43",
+              "alpha": 1
+            },
+            "$description": "The ellipsis that stands for the pages left out. It is not a control and has no state."
+          }
+        },
+        "focused": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 9999,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "gap": {
+          "$type": "dimension",
+          "$value": {
+            "value": 4,
+            "unit": "px"
+          },
+          "$description": "Space between two items of the row, and between the short form's sentence and the controls beside it."
+        },
+        "hovered": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 9999,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        },
+        "icon": {
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 20,
+              "unit": "px"
+            },
+            "$description": "The box of the arrows of previous, next, first and last."
+          }
+        },
+        "item": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "The fill of a page and of previous, next, first and last. None at rest: it is where hover, focus and press are drawn."
+            }
+          },
+          "disabled": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.38,
+                  "hex": "#141218"
+                }
+              }
+            }
+          },
+          "focused": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#141218"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "hex": "#141218",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "hex": "#141218",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "hex": "#141218",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "hovered": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.08,
+                  "hex": "#141218"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "hex": "#141218",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "hex": "#141218",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "hex": "#141218",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.0784,
+                  0.0706,
+                  0.0941
+                ],
+                "hex": "#141218",
+                "alpha": 1
+              },
+              "$description": "The arrows of previous, next, first and last."
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.0784,
+                  0.0706,
+                  0.0941
+                ],
+                "hex": "#141218",
+                "alpha": 1
+              },
+              "$description": "A page number."
+            }
+          },
+          "pressed": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "alpha": 0.12,
+                  "hex": "#141218"
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "hex": "#141218",
+                  "alpha": 1
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "hex": "#141218",
+                  "alpha": 1
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0.0784,
+                    0.0706,
+                    0.0941
+                  ],
+                  "hex": "#141218",
+                  "alpha": 1
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0.0784,
+                  0.0706,
+                  0.0941
+                ],
+                "hex": "#141218",
+                "alpha": 1
+              },
+              "$description": "The color hover, focus and press mix into an item's container: its number's."
+            }
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Roboto",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 14,
+                "unit": "px"
+              },
+              "fontWeight": 500,
+              "letterSpacing": {
+                "value": 0.1,
+                "unit": "px"
+              },
+              "lineHeight": 1.4286
+            },
+            "$description": "A page number. Its digits are drawn at one width, so that the row keeps its width from page to page."
+          }
+        },
+        "motion": {
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 450,
+              "unit": "ms"
+            },
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
+          },
+          "state-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            }
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ]
+          }
+        },
+        "pressed": {
+          "container": {
+            "shape": {
+              "$type": "dimension",
+              "$value": {
+                "value": 9999,
+                "unit": "px"
+              }
+            }
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1
+          }
+        }
+      },
+      "popover": {
+        "actions": {
+          "arrangement": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "How the actions sit. fill: a full-width Button group, the actions sharing the container's inner width equally. end: at their own widths, aligned to the end. Either stacks into a column when the row does not fit (POP-15). The value is an index into dev.tanrei.enum.values; platforms receive the name."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "Between two actions, in a row or stacked. At sys.target.touch minus the lowest Button (small, 32) or more, every action keeps its whole target in a column, as comp.dialog.actions.gap and comp.side-sheet.actions.gap do."
+          },
+          "margin-block-start": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "Between the content (or the header, where there is no content) and the actions."
+          },
+          "variant": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The Button variant the popover gives an action whose variant the product did not set (POP-16). An action whose variant is set keeps it. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+          }
+        },
+        "arrow": {
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 6,
+              "unit": "px"
+            },
+            "$description": "From the container's edge to the arrow's tip. The container stands this much farther from the anchor while an arrow is drawn, so the tip keeps the offset."
+          },
+          "inset": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "The least distance between the arrow's base and either end of the edge it stands on. Where the corner radius is larger, the radius is the least distance, so the arrow never stands on a curve."
+          },
+          "visible": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "Whether a popover whose arrow the product did not set draws one (POP-10). off: the container alone, as a menu. on: a triangle on the edge that faces the anchor. A popover whose arrow is set keeps what it was given. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 12,
+              "unit": "px"
+            },
+            "$description": "The arrow's base, along the container's edge. The tooltip's."
+          }
+        },
+        "close-button": {
+          "variant": {
+            "$type": "number",
+            "$value": 4,
+            "$description": "The Button variant of the close button, an icon-only small Button (POP-13). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+          }
+        },
+        "container": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.9961,
+                0.9686,
+                1
+              ],
+              "hex": "#fef7ff",
+              "alpha": 1
+            },
+            "$description": "The popover's sheet: the menu's, the docked picker's and the search view's color, so that every surface that opens from a control is the same sheet."
+          },
+          "elevation": {
+            "$type": "shadow",
+            "$value": [
+              {
+                "offsetX": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "offsetY": {
+                  "value": 1,
+                  "unit": "px"
+                },
+                "blur": {
+                  "value": 2,
+                  "unit": "px"
+                },
+                "spread": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "color": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.3,
+                  "hex": "#000000"
+                },
+                "inset": false
+              },
+              {
+                "offsetX": {
+                  "value": 0,
+                  "unit": "px"
+                },
+                "offsetY": {
+                  "value": 2,
+                  "unit": "px"
+                },
+                "blur": {
+                  "value": 6,
+                  "unit": "px"
+                },
+                "spread": {
+                  "value": 2,
+                  "unit": "px"
+                },
+                "color": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0.15,
+                  "hex": "#000000"
+                },
+                "inset": false
+              }
+            ],
+            "$description": "The level of the menu's sheet: above the page and its raised parts, below a dialog."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 12,
+              "unit": "px"
+            },
+            "$description": "Between the header and the content."
+          },
+          "max-height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 480,
+              "unit": "px"
+            },
+            "$description": "The greatest height of a popover, whatever room the window has; taller content scrolls between the header and the actions. A popover that would need more is a dialog's or a sheet's content."
+          },
+          "max-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 400,
+              "unit": "px"
+            },
+            "$description": "The greatest width of a popover sized by its content; longer content wraps. Wider than a menu (a popover holds sentences and fields, a menu holds labels), narrower than a dialog."
+          },
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 160,
+              "unit": "px"
+            },
+            "$description": "The least width of a popover sized by its content: the menu's, so that the popover and the menu one control could open are never narrower than each other."
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "From the container's top and bottom edges to its first and last part."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "From the container's start and end edges to the header, the content (while inset) and the actions."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": {
+              "value": 12,
+              "unit": "px"
+            }
+          }
+        },
+        "content": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.0784,
+                0.0706,
+                0.0941
+              ],
+              "hex": "#141218",
+              "alpha": 1
+            },
+            "$description": "Handed to the content as the platform's inherited foreground."
+          }
+        },
+        "divider": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.6824,
+                0.6627,
+                0.7059
+              ],
+              "hex": "#aea9b4",
+              "alpha": 1
+            },
+            "$description": "The one hairline, below the header and above the actions while the content scrolls."
+          },
+          "visibility": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "When the dividers below the header and above the actions are drawn while the content scrolls between them. always: both, whenever the content scrolls, wherever it is scrolled to. scroll: below the header only while the content is scrolled away from its top, above the actions only while more of it lies below (POP-8). Under either choice none is drawn while everything fits, or where there is no header or no action on that side. Follows the system's choice; the dividerVisibility prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 1,
+              "unit": "px"
+            }
+          }
+        },
+        "header": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "Between the headline and the close button."
+          }
+        },
+        "headline": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.0784,
+                0.0706,
+                0.0941
+              ],
+              "hex": "#141218",
+              "alpha": 1
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Roboto",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 14,
+                "unit": "px"
+              },
+              "fontWeight": 500,
+              "letterSpacing": {
+                "value": 0.1,
+                "unit": "px"
+              },
+              "lineHeight": 1.4286
+            },
+            "$description": "The smallest heading: a popover's headline labels a small surface. The rich tooltip's title has the same style; a dialog's headline is one step larger."
+          }
+        },
+        "motion": {
+          "close-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 100,
+              "unit": "ms"
+            },
+            "$description": "How long the container takes to fade out. The menu's."
+          },
+          "close-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.3,
+              0,
+              0.8,
+              0.15
+            ]
+          },
+          "open-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 200,
+              "unit": "ms"
+            },
+            "$description": "How long the container takes to fade in and grow from the anchor's side. The menu's."
+          },
+          "open-easing": {
+            "$type": "cubicBezier",
+            "$value": [
+              0.05,
+              0.7,
+              0.1,
+              1
+            ]
+          }
+        },
+        "offset": {
+          "$type": "dimension",
+          "$value": {
+            "value": 4,
+            "unit": "px"
+          },
+          "$description": "The gap between the anchor's edge and the nearest part of the popover, on the side the popover is placed: the container's edge, or the arrow's tip while an arrow is drawn. A popover whose offset prop is set uses that in its place. The menu's and the tooltip's distance."
+        },
+        "window-margin": {
+          "$type": "dimension",
+          "$value": {
+            "value": 8,
+            "unit": "px"
+          },
+          "$description": "The least distance between the popover and the edges of the window's safe area and the on-screen keyboard; the popover flips, shifts, narrows or, in a window smaller than itself, covers its anchor to keep it."
+        }
+      },
+      "previous-next-links": {
+        "container": {
           "gap": {
             "$type": "dimension",
             "$value": {
@@ -66752,7 +67949,7 @@
               "value": 240,
               "unit": "px"
             },
-            "$description": "The least width an item has beside the other one. Where the layout gives the pagination less than two of these and the gap, the items stack."
+            "$description": "The least width an item has beside the other one. Where the layout gives the previous and next links less than two of these and the gap, the items stack."
           },
           "padding": {
             "$type": "dimension",
@@ -67297,351 +68494,6 @@
             },
             "$description": "The destination's title."
           }
-        }
-      },
-      "popover": {
-        "actions": {
-          "arrangement": {
-            "$type": "number",
-            "$value": 0,
-            "$description": "How the actions sit. fill: a full-width Button group, the actions sharing the container's inner width equally. end: at their own widths, aligned to the end. Either stacks into a column when the row does not fit (POP-15). The value is an index into dev.tanrei.enum.values; platforms receive the name."
-          },
-          "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 16,
-              "unit": "px"
-            },
-            "$description": "Between two actions, in a row or stacked. At sys.target.touch minus the lowest Button (small, 32) or more, every action keeps its whole target in a column, as comp.dialog.actions.gap and comp.side-sheet.actions.gap do."
-          },
-          "margin-block-start": {
-            "$type": "dimension",
-            "$value": {
-              "value": 16,
-              "unit": "px"
-            },
-            "$description": "Between the content (or the header, where there is no content) and the actions."
-          },
-          "variant": {
-            "$type": "number",
-            "$value": 1,
-            "$description": "The Button variant the popover gives an action whose variant the product did not set (POP-16). An action whose variant is set keeps it. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
-          }
-        },
-        "arrow": {
-          "height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 6,
-              "unit": "px"
-            },
-            "$description": "From the container's edge to the arrow's tip. The container stands this much farther from the anchor while an arrow is drawn, so the tip keeps the offset."
-          },
-          "inset": {
-            "$type": "dimension",
-            "$value": {
-              "value": 8,
-              "unit": "px"
-            },
-            "$description": "The least distance between the arrow's base and either end of the edge it stands on. Where the corner radius is larger, the radius is the least distance, so the arrow never stands on a curve."
-          },
-          "visible": {
-            "$type": "number",
-            "$value": 0,
-            "$description": "Whether a popover whose arrow the product did not set draws one (POP-10). off: the container alone, as a menu. on: a triangle on the edge that faces the anchor. A popover whose arrow is set keeps what it was given. The value is an index into dev.tanrei.enum.values; platforms receive the name."
-          },
-          "width": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
-            },
-            "$description": "The arrow's base, along the container's edge. The tooltip's."
-          }
-        },
-        "close-button": {
-          "variant": {
-            "$type": "number",
-            "$value": 4,
-            "$description": "The Button variant of the close button, an icon-only small Button (POP-13). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
-          }
-        },
-        "container": {
-          "color": {
-            "$type": "color",
-            "$value": {
-              "colorSpace": "srgb",
-              "components": [
-                0.9961,
-                0.9686,
-                1
-              ],
-              "hex": "#fef7ff",
-              "alpha": 1
-            },
-            "$description": "The popover's sheet: the menu's, the docked picker's and the search view's color, so that every surface that opens from a control is the same sheet."
-          },
-          "elevation": {
-            "$type": "shadow",
-            "$value": [
-              {
-                "offsetX": {
-                  "value": 0,
-                  "unit": "px"
-                },
-                "offsetY": {
-                  "value": 1,
-                  "unit": "px"
-                },
-                "blur": {
-                  "value": 2,
-                  "unit": "px"
-                },
-                "spread": {
-                  "value": 0,
-                  "unit": "px"
-                },
-                "color": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0,
-                    0,
-                    0
-                  ],
-                  "alpha": 0.3,
-                  "hex": "#000000"
-                },
-                "inset": false
-              },
-              {
-                "offsetX": {
-                  "value": 0,
-                  "unit": "px"
-                },
-                "offsetY": {
-                  "value": 2,
-                  "unit": "px"
-                },
-                "blur": {
-                  "value": 6,
-                  "unit": "px"
-                },
-                "spread": {
-                  "value": 2,
-                  "unit": "px"
-                },
-                "color": {
-                  "colorSpace": "srgb",
-                  "components": [
-                    0,
-                    0,
-                    0
-                  ],
-                  "alpha": 0.15,
-                  "hex": "#000000"
-                },
-                "inset": false
-              }
-            ],
-            "$description": "The level of the menu's sheet: above the page and its raised parts, below a dialog."
-          },
-          "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
-            },
-            "$description": "Between the header and the content."
-          },
-          "max-height": {
-            "$type": "dimension",
-            "$value": {
-              "value": 480,
-              "unit": "px"
-            },
-            "$description": "The greatest height of a popover, whatever room the window has; taller content scrolls between the header and the actions. A popover that would need more is a dialog's or a sheet's content."
-          },
-          "max-width": {
-            "$type": "dimension",
-            "$value": {
-              "value": 400,
-              "unit": "px"
-            },
-            "$description": "The greatest width of a popover sized by its content; longer content wraps. Wider than a menu (a popover holds sentences and fields, a menu holds labels), narrower than a dialog."
-          },
-          "min-width": {
-            "$type": "dimension",
-            "$value": {
-              "value": 160,
-              "unit": "px"
-            },
-            "$description": "The least width of a popover sized by its content: the menu's, so that the popover and the menu one control could open are never narrower than each other."
-          },
-          "padding-block": {
-            "$type": "dimension",
-            "$value": {
-              "value": 16,
-              "unit": "px"
-            },
-            "$description": "From the container's top and bottom edges to its first and last part."
-          },
-          "padding-inline": {
-            "$type": "dimension",
-            "$value": {
-              "value": 16,
-              "unit": "px"
-            },
-            "$description": "From the container's start and end edges to the header, the content (while inset) and the actions."
-          },
-          "shape": {
-            "$type": "dimension",
-            "$value": {
-              "value": 12,
-              "unit": "px"
-            }
-          }
-        },
-        "content": {
-          "color": {
-            "$type": "color",
-            "$value": {
-              "colorSpace": "srgb",
-              "components": [
-                0.0784,
-                0.0706,
-                0.0941
-              ],
-              "hex": "#141218",
-              "alpha": 1
-            },
-            "$description": "Handed to the content as the platform's inherited foreground."
-          }
-        },
-        "divider": {
-          "color": {
-            "$type": "color",
-            "$value": {
-              "colorSpace": "srgb",
-              "components": [
-                0.6824,
-                0.6627,
-                0.7059
-              ],
-              "hex": "#aea9b4",
-              "alpha": 1
-            },
-            "$description": "The one hairline, below the header and above the actions while the content scrolls."
-          },
-          "visibility": {
-            "$type": "number",
-            "$value": 1,
-            "$description": "When the dividers below the header and above the actions are drawn while the content scrolls between them. always: both, whenever the content scrolls, wherever it is scrolled to. scroll: below the header only while the content is scrolled away from its top, above the actions only while more of it lies below (POP-8). Under either choice none is drawn while everything fits, or where there is no header or no action on that side. Follows the system's choice; the dividerVisibility prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name."
-          },
-          "width": {
-            "$type": "dimension",
-            "$value": {
-              "value": 1,
-              "unit": "px"
-            }
-          }
-        },
-        "header": {
-          "gap": {
-            "$type": "dimension",
-            "$value": {
-              "value": 8,
-              "unit": "px"
-            },
-            "$description": "Between the headline and the close button."
-          }
-        },
-        "headline": {
-          "color": {
-            "$type": "color",
-            "$value": {
-              "colorSpace": "srgb",
-              "components": [
-                0.0784,
-                0.0706,
-                0.0941
-              ],
-              "hex": "#141218",
-              "alpha": 1
-            }
-          },
-          "typescale": {
-            "$type": "typography",
-            "$value": {
-              "fontFamily": [
-                "Roboto",
-                "system-ui",
-                "sans-serif"
-              ],
-              "fontSize": {
-                "value": 14,
-                "unit": "px"
-              },
-              "fontWeight": 500,
-              "letterSpacing": {
-                "value": 0.1,
-                "unit": "px"
-              },
-              "lineHeight": 1.4286
-            },
-            "$description": "The smallest heading: a popover's headline labels a small surface. The rich tooltip's title has the same style; a dialog's headline is one step larger."
-          }
-        },
-        "motion": {
-          "close-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 100,
-              "unit": "ms"
-            },
-            "$description": "How long the container takes to fade out. The menu's."
-          },
-          "close-easing": {
-            "$type": "cubicBezier",
-            "$value": [
-              0.3,
-              0,
-              0.8,
-              0.15
-            ]
-          },
-          "open-duration": {
-            "$type": "duration",
-            "$value": {
-              "value": 200,
-              "unit": "ms"
-            },
-            "$description": "How long the container takes to fade in and grow from the anchor's side. The menu's."
-          },
-          "open-easing": {
-            "$type": "cubicBezier",
-            "$value": [
-              0.05,
-              0.7,
-              0.1,
-              1
-            ]
-          }
-        },
-        "offset": {
-          "$type": "dimension",
-          "$value": {
-            "value": 4,
-            "unit": "px"
-          },
-          "$description": "The gap between the anchor's edge and the nearest part of the popover, on the side the popover is placed: the container's edge, or the arrow's tip while an arrow is drawn. A popover whose offset prop is set uses that in its place. The menu's and the tooltip's distance."
-        },
-        "window-margin": {
-          "$type": "dimension",
-          "$value": {
-            "value": 8,
-            "unit": "px"
-          },
-          "$description": "The least distance between the popover and the edges of the window's safe area and the on-screen keyboard; the popover flips, shifts, narrows or, in a window smaller than itself, covers its anchor to keep it."
         }
       },
       "progress-indicator": {

@@ -74,7 +74,7 @@ stylesheet of the package has an `@property` rule and no script of it registers 
 |---|---|
 | a line's height as a length, so that a part whose font is its own (a glyph, a task's mark, a trailing text) can centre itself on the first line of its parent's text | the part says `1lh` in its own `line-height` — there the unit is the PARENT's line, as a length — and reads it back as its own `1lh`; a glyph's one line of text, then taller than its box, is centred on the box by a flex container |
 | a state's color changing over the state motion under a held press (LNK-11) | the background's own transition |
-| the hold of a press that no script answers (LNK-8, ACC-21, TOC-20, BRC-18, TBL-37, PGN-10) | the pressed color is an image of one color, and the state's color under it is clipped away (`background-clip: border-box, text`), both said by two unregistered names that step back after press-hold (`transition-behavior: allow-discrete`); the two properties have no transition, so nothing fades while the press is held. The hold ends in a step |
+| the hold of a press that no script answers (LNK-8, ACC-21, TOC-20, BRC-18, TBL-37, PNL-10) | the pressed color is an image of one color, and the state's color under it is clipped away (`background-clip: border-box, text`), both said by two unregistered names that step back after press-hold (`transition-behavior: allow-discrete`); the two properties have no transition, so nothing fades while the press is held. The hold ends in a step |
 | the accordion's clock, whose transition the element hears | an unregistered name that changes in one step over the disclosure motion |
 | the tree view's depth as a length, computed once where it is set | the sum as it is written, one `calc()` longer a level, handed down in two unregistered names (a list adds an indent, an item hands it on) and computed where a real property reads it |
 | a length the tree view's element reads from script (the indent of a level, the least width of a chevron's hit area) | said in a real property that draws nothing on the tree — `object-position`, which places the content of a replaced element and of no other — and read from its computed value |
@@ -7475,7 +7475,7 @@ attribute — `<tanrei-field>: required-text is empty and the product's words ha
 
 **What it is not**: a translation system. It holds a few dozen strings: no plural rule, no interpolation, no fallback
 chain between languages beyond a region's tag reading its language's set. A product with a localization library
-hands the strings from it. Components drawn in the light DOM by a stylesheet alone (link, pagination, steps, prose)
+hands the strings from it. Components drawn in the light DOM by a stylesheet alone (link, previous and next links, steps, prose)
 have no element to read the words: theirs are the product's own markup, and the link's script reads `externalLabel`
 for the anchors it describes (`setExternalLabel()` is the same set, under its first name).
 
@@ -7818,7 +7818,7 @@ stylesheet draws them only where `icons.css` is.
     </tr></thead>
     <tbody>…</tbody>
   </table>
-  <div data-part="status"><p role="status">1–20 of 132</p><nav class="tanrei-pagination">…</nav></div>
+  <div data-part="status"><p role="status">1–20 of 132</p><tanrei-pagination variant="compact" size="small" …></tanrei-pagination></div>
 </tanrei-table>
 ```
 
@@ -7865,7 +7865,10 @@ alone.
 
 **The status line** is a `<div data-part="status">` after the table, inside the element: your sentence in a
 `<p role="status">` — told politely to assistive technology when its text changes, and not when it is first drawn —
-and whatever stands at the end edge, usually a `<nav class="tanrei-pagination">` (`pagination.css`). The table places
+and whatever stands at the end edge: one element, usually a `<tanrei-pagination size="small">` — compact where you do
+not page by number — or your own group of a `<tanrei-select>` for the rows per page and that pagination. The range of
+rows shown ("1–20 of 132") is your sentence, not the pagination's. Previous and next links do not belong here: they
+lead to titled pages, not to the rows of one list. The table places
 the two (the sentence at the start, the pagination at the end; one under the other where they do not fit), keeps the
 line out of the sideways scroll and at the bottom of a box that scrolls its rows, filled with
 `--tanrei-comp-table-sticky-container-color`, and does nothing else: it counts nothing, writes no word, and neither
@@ -8772,6 +8775,97 @@ no least width, so it folds when the row is narrower and unfolds when there is r
 - Before the element is defined a level takes presses on its own box only, and a separator is its `::after`, hidden
   from assistive technology by the alternative text of `content` where the browser has it.
 
+## Pagination (`<tanrei-pagination>`)
+
+`specs/pagination.spec.json` (PGN-1 to PGN-24): moves through the numbered pages of one list (search results, the
+posts of a blog, the rows of a table). It draws a row of page numbers with the current page marked. The pages that do
+not fit are left out behind an ellipsis. Previous and next stand on either side, with first and last where you ask for
+them. A short form says which page of how many. For the page before and after in a sequence of titled pages, use the
+previous and next links (below) instead.
+
+```html
+<tanrei-pagination label="Pages" page="3" count="10" previous-label="Previous page" next-label="Next page" page-label="Page {page}"></tanrei-pagination>
+
+<!-- Pages with addresses of their own: every page and control is a link. -->
+<tanrei-pagination label="Search results pages" page="3" count="12" href="/results/?page={page}" previous-label="Previous page" next-label="Next page" page-label="Page {page}"></tanrei-pagination>
+```
+
+```js
+import '@tanrei/web/components/pagination';
+pagination.addEventListener('change', (event) => {
+  // event.detail.page: the page asked for. Fired before the page changes and before a link is followed.
+  // event.preventDefault() keeps the page and follows nothing: your router takes it from here.
+});
+```
+
+| The spec's | On the web |
+| --- | --- |
+| `label` | `label`: the name of the navigation landmark. Required |
+| `page` | `page` (from 1). The element sets it itself after an uncancelled `change` |
+| `count` | `count`. Below 1, or a value that is not a number, draws nothing and takes no room |
+| `siblings`, `boundaries` | `siblings`, `boundaries` (both 1 by default) |
+| `variant` | `variant="numbered"` (the default) or `"compact"` |
+| `size` | `size="medium"` (the default) or `"small"`, or a size your design system adds |
+| `firstLast` | `first-last` |
+| `href` | `href`, with the place `{page}` |
+| `previousLabel`, `nextLabel`, `firstLabel`, `lastLabel` | `previous-label`, `next-label`, `first-label`, `last-label`; words `previousPageLabel`, `nextPageLabel`, `firstPageLabel`, `lastPageLabel` |
+| `pageLabel` | `page-label`, with the place `{page}`; word `pageLabel` |
+| `countText` | `count-text`, with the places `{page}` and `{count}`; word `pageCountText` |
+| `change` | `change`: a cancelable `CustomEvent`, `detail: { page }` |
+
+React: `import { Pagination } from '@tanrei/react'` and `<Pagination … onChange={(e) => setPage(e.detail.page)} />`.
+
+**What it draws.** The shadow root holds a `<nav>` named by `label` around one `<ol>`. Its items are, in order: first,
+previous, the pages and ellipses, next and last. In the compact form, the sentence takes the place of the pages. The
+current page carries `aria-current="page"` and the current tokens' fill. The arrows are the icon set's `first_page`,
+`chevron_left`, `chevron_right` and `last_page`. They are hidden from assistive technology and mirrored in a
+right-to-left layout where the icon set marks them. The controls are icon-only and named by their labels. A page is
+named by `page-label` with its number filled in, and by its number alone where no label is given. The numbers are
+drawn in the digits of the language of the nearest `lang` (`Intl.NumberFormat`), in figures of one width. Parts:
+`nav`, `list`, `item` (with `current` or `control`), `label`, `icon`, `ellipsis`, `count`.
+
+**Which pages are shown (PGN-2).** The same algorithm as MUI's `usePagination`. The row always shows the first and
+last `boundaries` pages, and the current page with `siblings` pages on each side of it. Every other run of pages becomes
+an ellipsis, except one that would stand for a single page: that page is shown instead. Near an end, the row shows more
+pages on the far side. So whenever `count` is large enough, the row holds 2 × boundaries + 2 × siblings + 3 places on
+every page, and its width stays put.
+
+**Links or buttons.** Give `href`, with the place `{page}`, when each page has an address of its own: a page someone
+can bookmark, share or open in a tab. Every page and every enabled control is then the browser's own `<a href>`, with
+`{page}` filled in Western digits whatever the language. Previous carries `rel="prev"` and next `rel="next"`. Middle
+clicks, modified clicks, the context menu and the status bar all stay the browser's. Leave `href` empty when the list
+changes page in place (the rows of a table, a dialog's list): the items are then `<button>`s. An `href` without
+`{page}`, or one that runs a script, draws buttons, and a debug build reports it. Enter activates both forms. Space
+activates a button; on a link it scrolls the page, as on any link. A disabled control is a disabled `<button>`, or an
+`<a>` without `href` that carries `role="link"` and `aria-disabled="true"`. It stays in its place and is not a Tab stop.
+
+**`change`.** It fires once for each page asked for. The current page fires nothing. For a link, the page is taken
+after the browser has read the address, so a link to the same document (`#page={page}`) updates the element too, and
+a link to another page leaves this one as usual. Once a page has been activated, focus is on the page now current, or
+stays on the control that was activated while that control is enabled. When a control becomes disabled (next on the
+last page), focus moves to the current page; in the compact form, which draws no pages, it moves to the nearest
+enabled control. The element takes no arrow key: each enabled item is one Tab stop.
+
+**The compact form and the narrow fallback (PGN-11).** `variant="compact"` draws the controls and the sentence (`Page
+3 of 10`). The sentence is text: not a control and not a live region, so tell the reader of the change where the
+content changes. Where no sentence is given, the two numbers are drawn with a slash between them (`3 / 10`), and a
+debug build reports it. `variant="numbered"` draws the compact form whenever its row is wider than the width the layout
+gives it. It decides this by its own width, never the window's. The element keeps a copy of its numbered row in its
+layout, at no height, clipped and unseen. A layout that sizes it by its content (a flex item, an inline block, a grid
+`auto` track) therefore gives it the width of that row, and asks for no least width. A ResizeObserver compares the row
+with the element's width, so the numbers return when the room comes back, and when enlarged text no longer fits, the
+compact form is drawn. The element is `display: block` by default, as wide as its container.
+
+**What differs on the web**:
+
+- The current page fills its item from the current tokens. A page change draws the new row at once, with no
+  transition, and every other change of state takes the state motion.
+- Along the row, a hit area reaches toward each neighbour by half the gap at most, so the hit areas never overlap. At
+  the row's two ends it reaches the whole target. With the touch target of the default system (48) and the gap (4), a
+  small item's hit area is the full target high but only 4 wider than the item.
+- Until the icon font can draw an arrow, its box keeps its room and shows nothing.
+- The narrow fallback keeps a second, unseen copy of the row in the shadow root. It is `inert` and `aria-hidden`.
+
 ## `<tanrei-tree-view>` (`tree-view.css`)
 
 `specs/tree-view.spec.json` (TRV-1 to TRV-42): a hierarchy of items that open and close — rows that begin further in
@@ -9280,22 +9374,22 @@ What the stylesheet alone cannot do:
 - **A long-form body outside a prose** is not set as prose (TML-5): give the list a `.tanrei-prose` ancestor, as a
   page of text has.
 
-## Pagination (`pagination.css`, `class="tanrei-pagination"`)
+## Previous and next links (`previous-next-links.css`, `class="tanrei-previous-next-links"`)
 
-`specs/pagination.spec.json` (PGN-1 to PGN-22): the page before and the page after the one a person is on — two links,
+`specs/previous-next-links.spec.json` (PNL-1 to PNL-22): the page before and the page after the one a person is on — two links,
 each pressed as a whole and drawn as an outlined container with the title of where it leads and the component's own
 arrow. On the web it is **classes on your own `nav` and anchors**, not an element: the anchors are in the document, so
 they are links before any script runs. It is not in `custom-elements.json`.
 
 ```html
-<nav class="tanrei-pagination" aria-label="Pages">
-  <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="/getting-started/installation/">
-    <span class="tanrei-pagination-label">Previous</span>
-    <span class="tanrei-pagination-title">Installation</span>
+<nav class="tanrei-previous-next-links" aria-label="Pages">
+  <a class="tanrei-previous-next-links-item" data-direction="previous" rel="prev" href="/getting-started/installation/">
+    <span class="tanrei-previous-next-links-label">Previous</span>
+    <span class="tanrei-previous-next-links-title">Installation</span>
   </a>
-  <a class="tanrei-pagination-item" data-direction="next" rel="next" href="/foundations/tokens/">
-    <span class="tanrei-pagination-label">Next</span>
-    <span class="tanrei-pagination-title">Design tokens</span>
+  <a class="tanrei-previous-next-links-item" data-direction="next" rel="next" href="/foundations/tokens/">
+    <span class="tanrei-previous-next-links-label">Next</span>
+    <span class="tanrei-previous-next-links-title">Design tokens</span>
   </a>
 </nav>
 ```
@@ -9304,13 +9398,13 @@ they are links before any script runs. It is not in `custom-elements.json`.
 |---|---|
 | `label` | `aria-label` on the `nav`. Tanrei ships no words. |
 | an item's `direction` | `data-direction="previous"` or `"next"` (none is `next`), with `rel="prev"` or `rel="next"`. Any other value is not drawn. |
-| an item's `label`, `title` | `<span class="tanrei-pagination-label">`, then `<span class="tanrei-pagination-title">`. An empty span is not drawn. |
-| `href` | `href`. Without one — or with an empty one or a `javascript:` one — the item is not drawn (PGN-3), so both items can always be written. |
+| an item's `label`, `title` | `<span class="tanrei-previous-next-links-label">`, then `<span class="tanrei-previous-next-links-title">`. An empty span is not drawn. |
+| `href` | `href`. Without one — or with an empty one or a `javascript:` one — the item is not drawn (PNL-3), so both items can always be written. |
 | `click` | the anchor's own `click`; cancel it to route yourself. |
 
 - **The row** is a grid whose columns are counted from the width the `nav` has: two where two items of
-  `comp.pagination.container.min-width` and the gap fit, one where they do not (PGN-5). The previous item takes the
-  first column and the next item the last, so next keeps its place when it is alone (PGN-4), and in one column the
+  `comp.previous-next-links.container.min-width` and the gap fit, one where they do not (PNL-5). The previous item takes the
+  first column and the next item the last, so next keeps its place when it is alone (PNL-4), and in one column the
   second goes to the next row. The tokens are read where they are used, which a container query's condition cannot do
   in every engine — so there is none, and no media query either.
 - **The arrows** are `::before` (previous) and `::after` (next) in the icon set's font, so they need `icons.css`;
@@ -9318,7 +9412,7 @@ they are links before any script runs. It is not in `custom-elements.json`.
 - **States** are the stylesheet's: hover, keyboard focus (ring, or glow by a style query), and `:active` as the
   overlay, held for press-hold by a delayed step of a custom property that no one registers
   (`transition-behavior: allow-discrete`; where the browser does not know it, the press ends with the pointer).
-- **`@tanrei/web/pagination`** (loaded by `@tanrei/web` too) adds the shared press primitive (ripple, dim, none), puts
+- **`@tanrei/web/previous-next-links`** (loaded by `@tanrei/web` too) adds the shared press primitive (ripple, dim, none), puts
   items given next-first in previous-first order, adds a missing `rel`, takes off an address that is white space, a
   script or unreadable, writes `data-focus-style` where the browser has no style queries, takes the mirroring off
   (`data-tanrei-unmirrored`) where the active icon set marks neither arrow, and makes every debug report.
@@ -9331,9 +9425,9 @@ What differs, and what the stylesheet alone cannot do:
 - A stylesheet cannot ask the icon set which names mirror: both arrows are mirrored in a right-to-left layout, which is
   what every shipped system's icon set says. For a set that marks neither, the script says so; without it, write
   `data-mirror="never"` on the items.
-- Inside a `.tanrei-prose` the pagination is an island, as a Tanrei element is: prose spaces the `nav` as a block and
-  leaves its anchors to the pagination — they are not drawn as prose's links, and the Link's script does not answer
-  their presses — whichever of `prose.css` and `pagination.css` is loaded last.
+- Inside a `.tanrei-prose` the previous and next links are an island, as a Tanrei element is: prose spaces the `nav` as a block and
+  leaves its anchors to the component — they are not drawn as prose's links, and the Link's script does not answer
+  their presses — whichever of `prose.css` and `previous-next-links.css` is loaded last.
 
 ## Code (`code.css`, `class="tanrei-code"`, `<tanrei-code-block>`, `<tanrei-copy-button>`, `@tanrei/web/highlight`)
 

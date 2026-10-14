@@ -84,6 +84,8 @@ export interface TanreiWords {
   filesDroppedText?: string;
   /** Read by `drop-zone.refusedText`. A word with places: `{count}` (number). */
   filesRefusedText?: string;
+  /** Read by `pagination.firstLabel`. */
+  firstPageLabel?: string;
   /** Read by `bottom-sheet.handleLabel`. */
   handleLabel?: string;
   /** Read by `code-block.highlightedLabel`. */
@@ -96,6 +98,8 @@ export interface TanreiWords {
   imageErrorText?: string;
   /** Read by `number-input.incrementLabel`. */
   incrementLabel?: string;
+  /** Read by `pagination.lastLabel`. */
+  lastPageLabel?: string;
   /** Read by `file-upload.liftedText`, `list.liftedText`. A word with places: `{label}` (text), `{position}` (number), `{count}` (number). */
   liftedText?: string;
   /** Read by `image-preview.loadingLabel`, `navigation-drawer.loadingLabel`, `skeleton.label`, `tree-view.loadingLabel`. */
@@ -120,10 +124,16 @@ export interface TanreiWords {
   nextImageLabel?: string;
   /** Read by `calendar.nextMonthLabel`, `date-time-picker.nextMonthLabel`. */
   nextMonthLabel?: string;
+  /** Read by `pagination.nextLabel`. */
+  nextPageLabel?: string;
   /** Read by `file-upload.emptyText`. */
   noFileText?: string;
   /** Read by `field.optionalText`, `field-group.optionalText`. */
   optionalText?: string;
+  /** Read by `pagination.countText`. A word with places: `{page}` (number), `{count}` (number). */
+  pageCountText?: string;
+  /** Read by `pagination.pageLabel`. A word with places: `{page}` (number, needed). */
+  pageLabel?: string;
   /** Read by `carousel.pauseLabel`. */
   pauseLabel?: string;
   /** Read by `date-time-picker.periodLabel`. */
@@ -134,6 +144,8 @@ export interface TanreiWords {
   previousImageLabel?: string;
   /** Read by `calendar.previousMonthLabel`, `date-time-picker.previousMonthLabel`. */
   previousMonthLabel?: string;
+  /** Read by `pagination.previousLabel`. */
+  previousPageLabel?: string;
   /** Read by `date-time-picker.rangeErrorText`. */
   rangeErrorText?: string;
   /** Read by `date-time-picker.rangeLabel`. */
@@ -186,7 +198,7 @@ export interface TanreiWords {
 export type WordKey = keyof TanreiWords;
 
 /** Every key of the product's words, in alphabetical order. */
-export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'dragHandleHint', 'dragHandleLabel', 'dropZoneRefusingText', 'dropZoneText', 'duplicateEntryText', 'editLabel', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'filesDroppedText', 'filesRefusedText', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'liftedText', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveAfterLabel', 'moveBeforeLabel', 'moveToEndLabel', 'moveToStartLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextMonthLabel', 'noFileText', 'optionalText', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousMonthLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stepCompletedText', 'stepErrorText', 'stepPositionText', 'stopLabel', 'targetLabel', 'todayLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
+export const wordKeys: readonly WordKey[] = ['addedLabel', 'attachLabel', 'avatarGroupOverflowLabel', 'backLabel', 'breadcrumbsOverflowLabel', 'busyLabel', 'cancelLabel', 'cancelledText', 'characterCountNoLimitText', 'characterCountText', 'clearLabel', 'closeLabel', 'confirmLabel', 'copiedLabel', 'copyFailedLabel', 'copyLabel', 'dateLabel', 'decrementLabel', 'dialLabel', 'dragHandleHint', 'dragHandleLabel', 'dropZoneRefusingText', 'dropZoneText', 'duplicateEntryText', 'editLabel', 'emptyText', 'endLabel', 'entriesAddedText', 'entryAddedText', 'entryLimitText', 'entryModeLabel', 'entryRemoveLabel', 'entryRemovedText', 'expandLabel', 'externalLabel', 'fileCountErrorText', 'fileSizeErrorText', 'fileTypeErrorText', 'filesDroppedText', 'filesRefusedText', 'firstPageLabel', 'handleLabel', 'highlightedLabel', 'hourLabel', 'imageCountText', 'imageErrorText', 'incrementLabel', 'lastPageLabel', 'liftedText', 'loadingLabel', 'menubarOverflowLabel', 'minuteLabel', 'moveAfterLabel', 'moveBeforeLabel', 'moveToEndLabel', 'moveToStartLabel', 'movedText', 'nextDayLabel', 'nextImageLabel', 'nextMonthLabel', 'nextPageLabel', 'noFileText', 'optionalText', 'pageCountText', 'pageLabel', 'pauseLabel', 'periodLabel', 'playLabel', 'previousImageLabel', 'previousMonthLabel', 'previousPageLabel', 'rangeErrorText', 'rangeLabel', 'removeLabel', 'removedLabel', 'requiredText', 'resizeLabel', 'retryLabel', 'segmentEmptyText', 'selectAllLabel', 'sendLabel', 'sortedAscendingLabel', 'sortedDescendingLabel', 'startLabel', 'stepCompletedText', 'stepErrorText', 'stepPositionText', 'stopLabel', 'targetLabel', 'todayLabel', 'wheelsLabel', 'yearViewLabel', 'zoomInLabel', 'zoomOutLabel'];
 
 /** The props that read each key, as `<component>.<prop>` and, for an item kind, `<component>/<kind>.<prop>`. */
 export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
@@ -230,12 +242,14 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   fileTypeErrorText: ['chat-composer.typeErrorText', 'file-upload.typeErrorText'],
   filesDroppedText: ['drop-zone.droppedText'],
   filesRefusedText: ['drop-zone.refusedText'],
+  firstPageLabel: ['pagination.firstLabel'],
   handleLabel: ['bottom-sheet.handleLabel'],
   highlightedLabel: ['code-block.highlightedLabel'],
   hourLabel: ['date-time-picker.hourLabel'],
   imageCountText: ['image-preview.countText'],
   imageErrorText: ['image-preview.errorText'],
   incrementLabel: ['number-input.incrementLabel'],
+  lastPageLabel: ['pagination.lastLabel'],
   liftedText: ['file-upload.liftedText', 'list.liftedText'],
   loadingLabel: ['image-preview.loadingLabel', 'navigation-drawer.loadingLabel', 'skeleton.label', 'tree-view.loadingLabel'],
   menubarOverflowLabel: ['menubar.overflowLabel'],
@@ -248,13 +262,17 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   nextDayLabel: ['date-time-picker.nextDayLabel'],
   nextImageLabel: ['image-preview.nextLabel'],
   nextMonthLabel: ['calendar.nextMonthLabel', 'date-time-picker.nextMonthLabel'],
+  nextPageLabel: ['pagination.nextLabel'],
   noFileText: ['file-upload.emptyText'],
   optionalText: ['field.optionalText', 'field-group.optionalText'],
+  pageCountText: ['pagination.countText'],
+  pageLabel: ['pagination.pageLabel'],
   pauseLabel: ['carousel.pauseLabel'],
   periodLabel: ['date-time-picker.periodLabel'],
   playLabel: ['carousel.playLabel'],
   previousImageLabel: ['image-preview.previousLabel'],
   previousMonthLabel: ['calendar.previousMonthLabel', 'date-time-picker.previousMonthLabel'],
+  previousPageLabel: ['pagination.previousLabel'],
   rangeErrorText: ['date-time-picker.rangeErrorText'],
   rangeLabel: ['date-time-picker.rangeLabel'],
   removeLabel: ['file-item.removeLabel'],
@@ -307,6 +325,8 @@ export const wordPlaces: Readonly<Partial<Record<WordKey, readonly WordPlace[]>>
   imageCountText: [{ name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
   liftedText: [{ name: 'label', kind: 'text' }, { name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
   movedText: [{ name: 'label', kind: 'text' }, { name: 'position', kind: 'number' }, { name: 'count', kind: 'number' }],
+  pageCountText: [{ name: 'page', kind: 'number' }, { name: 'count', kind: 'number' }],
+  pageLabel: [{ name: 'page', kind: 'number', required: true }],
   removeLabel: [{ name: 'name', kind: 'text', required: true }],
   retryLabel: [{ name: 'name', kind: 'text', required: true }],
   stepPositionText: [{ name: 'position', kind: 'number', required: true }, { name: 'count', kind: 'number' }],

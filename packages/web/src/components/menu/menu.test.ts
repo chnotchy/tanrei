@@ -1,4 +1,4 @@
-// <tanrei-menu> and its items, driven by specs/menu.spec.json: every behaviour id (MNU-1…57) is cited by a test title,
+// <tanrei-menu> and its items, driven by specs/menu.spec.json: every behaviour id (MNU-1…59) is cited by a test title,
 // every fixture has a baseline (drawn in place with the `inline` test attribute), and every state, condition and choice
 // of kind is read back from the tokens — never from a number written here.
 import fs from 'node:fs';
@@ -764,6 +764,67 @@ test.describe('items', () => {
     const rtl = await measure();
     expect(rtl.r.x + rtl.r.width - (rtl.m.x + rtl.m.width)).toBeCloseTo(pad, 1);
     expect(rtl.ti.x - rtl.r.x).toBeCloseTo(pad, 1);
+  });
+
+  test('MNU-59: the mark and icon columns are kept for each section — auto where another item of the section draws in them, always on every row, never only where the row does — each surface by itself, decided again on a change, an unknown value drawn as auto', async ({ page }) => {
+    const seen = warnings(page);
+    const spaced = spec.fixtures.filter((f) => f.id.startsWith('icon-space-'));
+    expect(spaced.map((f) => f.id)).toEqual(['icon-space-auto', 'icon-space-always', 'icon-space-never']);
+    const [auto] = spaced;
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        ...spaced,
+        inline('icon-space-odd', auto.items!, { iconSpace: 'sometimes' }),
+        inline('icon-space-sub', [sub('Share', [it('Copy link', { leadingIcon: 'link' }), it('Send')], { open: true }), it('Print')]),
+      ],
+    });
+    const [pad, gap, mark, icon] = await Promise.all(['container-padding-inline', 'container-gap', 'mark-size', 'leading-icon-size'].map((n) => resolveToken(page, T(n))));
+    /** Where a row's label starts, from its row's start edge. */
+    const at = async (id: string, label: string) => {
+      const host = labelled(page, id, label);
+      const [r, l] = [await bounds(rowOf(host)), await bounds(rowOf(host).locator('.text .label'))];
+      return l.x - r.x;
+    };
+    const none = pad;
+    const markOnly = pad + mark + gap;
+    const iconOnly = pad + icon + gap;
+    const both = pad + mark + gap + icon + gap;
+    const expectStarts = async (id: string, starts: Record<string, number>) => {
+      for (const [label, x] of Object.entries(starts)) expect(await at(id, label), `${id}: ${label}`).toBeCloseTo(x, 1);
+    };
+    // auto (the default): each section keeps what one of its items draws, and nothing else.
+    expect(await menu(page, 'icon-space-auto').evaluate((el: any) => el.iconSpace)).toBe('auto');
+    const autoStarts = { Cut: iconOnly, Copy: iconOnly, Paste: iconOnly, 'Show grid': markOnly, 'Show rulers': markOnly, 'Zoom to fit': markOnly, Settings: none, Help: none };
+    await expectStarts('icon-space-auto', autoStarts);
+    // A kept room draws nothing and is nothing to assistive technology; a column no row of the section uses is not there.
+    await expect(rowOf(labelled(page, 'icon-space-auto', 'Paste')).locator('.leading-icon.empty[aria-hidden="true"]')).toHaveCount(1);
+    await expect(rowOf(labelled(page, 'icon-space-auto', 'Paste')).locator('.column.mark')).toHaveCount(0);
+    await expect(rowOf(labelled(page, 'icon-space-auto', 'Zoom to fit')).locator('.column.mark[aria-hidden="true"]')).toHaveCount(1);
+    await expect(rowOf(labelled(page, 'icon-space-auto', 'Zoom to fit')).locator('.column.leading')).toHaveCount(0);
+    await expect(rowOf(labelled(page, 'icon-space-auto', 'Help')).locator('.column.mark, .column.leading')).toHaveCount(0);
+    // always: both columns on every row; never: a column only where the row itself draws in it.
+    await expectStarts('icon-space-always', Object.fromEntries(Object.keys(autoStarts).map((label) => [label, both])));
+    await expectStarts('icon-space-never', { Cut: iconOnly, Copy: iconOnly, Paste: none, 'Show grid': markOnly, 'Show rulers': markOnly, 'Zoom to fit': none, Settings: none, Help: none });
+    // An unknown value is auto, and a debug build says so.
+    await expectStarts('icon-space-odd', autoStarts);
+    await expect.poll(() => seen.filter((w) => w.includes('MNU-59')).length).toBe(1);
+    expect(seen.join('\n')).toMatch(/iconSpace "sometimes" is not a value the menu defines; it is drawn as "auto" \(MNU-59\)/);
+    // An icon given to one item keeps its room on the other rows of its section only; a change of the prop is followed.
+    await labelled(page, 'icon-space-auto', 'Settings').evaluate((el: any) => (el.leadingIcon = 'settings'));
+    await expect.poll(() => at('icon-space-auto', 'Help')).toBeCloseTo(iconOnly, 1);
+    await expectStarts('icon-space-auto', { 'Show grid': markOnly, Paste: iconOnly });
+    await menu(page, 'icon-space-auto').evaluate((el: any) => (el.iconSpace = 'never'));
+    await expect.poll(() => at('icon-space-auto', 'Paste')).toBeCloseTo(none, 1);
+    await expectStarts('icon-space-auto', { Help: none, Settings: iconOnly });
+    // Each surface by itself: the submenu keeps the icon's room for Send, the menu's own surface keeps none for Print;
+    // the submenu follows the menu's iconSpace.
+    await expectStarts('icon-space-sub', { 'Copy link': iconOnly, Send: iconOnly, Print: none, Share: none });
+    await menu(page, 'icon-space-sub').evaluate((el: any) => (el.iconSpace = 'never'));
+    await expect.poll(() => at('icon-space-sub', 'Send')).toBeCloseTo(none, 1);
+    await menu(page, 'icon-space-sub').evaluate((el: any) => (el.iconSpace = 'always'));
+    await expect.poll(() => at('icon-space-sub', 'Print')).toBeCloseTo(both, 1);
+    await expectStarts('icon-space-sub', { Send: both, Share: both });
   });
 
   test('MNU-20: at least container.height tall, padded above and below, texts in their roles, growing with the content and enlarged text', async ({ page }) => {

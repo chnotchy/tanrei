@@ -1,8 +1,8 @@
 ---
 title: पेजिनेशन
-description: पेजों के क्रम में उस पेज से पहले का और उसके बाद का पेज, जिस पर व्यक्ति अभी है। दो लिंक, जिनमें से हर एक का नाम एक दिशा और उस जगह के शीर्षक से बनता है जहाँ वह ले जाता है।
+description: एक ही सूची के नंबर वाले पेजों के बीच ले जाता है। मौजूदा पेज पर निशान के साथ पेज नंबर, पिछला और अगला, ज़रूरत हो तो पहला और आख़िरी, और एक छोटा रूप जो बताता है कि कितने में से कौन-सा पेज है।
 translationOf: components/pagination.mdx
-sourceHash: f8e943facb9fb849b2ff849fff9dfa64def11fc0
+sourceHash: 0055738fcfa0e80739713bb784bf880bbc361f3a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -15,146 +15,85 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <ComponentAvailability name="pagination" />
 
-<DemoFrame label="पिछला और अगला" column>
-  <nav class="tanrei-pagination" aria-label="इस डेमो के पेज" style="inline-size: 100%">
-    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/">
-      <span class="tanrei-pagination-label">पिछला</span>
-      <span class="tanrei-pagination-title">लिंक</span>
-    </a>
-    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
-      <span class="tanrei-pagination-label">अगला</span>
-      <span class="tanrei-pagination-title">चरण</span>
-    </a>
-  </nav>
+<DemoFrame label="नंबर वाला, और पहला और आख़िरी के साथ" column>
+  <tanrei-pagination label="पहले डेमो के पेज" page="5" count="10" previous-label="पिछला पेज" next-label="अगला पेज" page-label="पेज {page}"></tanrei-pagination>
+  <tanrei-pagination label="दूसरे डेमो के पेज" page="12" count="40" first-last previous-label="पिछला पेज" next-label="अगला पेज" first-label="पहला पेज" last-label="आख़िरी पेज" page-label="पेज {page}"></tanrei-pagination>
 </DemoFrame>
 
-इस पेज के अंत में दिखने वाला पेजिनेशन यही कंपोनेंट है।
-
-यह उस क्रम के पेज पलटता है जिसके पेजों के शीर्षक होते हैं: किसी गाइड के अध्याय, किसी सीरीज़ के लेख। नंबर से पेज बदलना (नतीजों के किसी सेट के पेज) इसी कंपोनेंट का आगे आने वाला रूप है, और उसका स्पेक अभी नहीं लिखा गया है।
+पेजिनेशन एक सूची के पेज नंबर से बदलता है: खोज नतीजे, किसी ब्लॉग की पोस्ट, किसी टेबल की पंक्तियाँ। शीर्षक वाले पेजों के किसी क्रम में, जैसे किसी गाइड के अध्यायों में, पिछला और अगला पेज [पिछला और अगला लिंक](/hi/components/previous-next-links/) हैं: शीर्षक बताता है कि वह कहाँ ले जाता है, पेज नंबर नहीं बताता।
 
 ### इस्तेमाल
 
-वेब पर पेजिनेशन कोई एलिमेंट नहीं, आपके अपने `nav` और ऐंकर पर लगी क्लास हैं। ऐंकर दस्तावेज़ में ही हैं, इसलिए वे किसी स्क्रिप्ट के चलने से पहले ही लिंक हैं, और क्रॉलर और पेज के ऐंकर पर काम करने वाला राउटर, दोनों उन्हें पा लेते हैं। अकेली स्टाइलशीट पूरा कंपोनेंट बना देती है।
-
-SwiftUI, Compose, Flutter और React Native नियोजित हैं: इस पेज के शुरू में हर प्लैटफ़ॉर्म के साथ दिए गए नाम वे हैं जो स्पेक उन्हें देता है, और वहाँ अभी कुछ उपलब्ध नहीं है। React में भी अभी `Pagination` कंपोनेंट नहीं है, इसलिए क्लास वाला मार्कअप इस्तेमाल करें।
+मौजूदा पेज दें, और यह कि कुल कितने पेज हैं। कौन-से नंबर दिखाने हैं, यह पेजिनेशन ख़ुद तय करता है। `href` होने पर हर पेज अपने पते का लिंक होता है। उसके बिना पेज बटन होते हैं, और पेज बदलने पर दिखाई जा रही चीज़ आप बदलते हैं।
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
-    <link rel="stylesheet" href="@tanrei/web/icons.css" />
-    <link rel="stylesheet" href="@tanrei/web/pagination.css" />
+    <!-- लिंक: हर पेज का एक पता है जिसे बुकमार्क, शेयर या नए टैब में खोला जा सकता है। {page} में उसका नंबर भरा जाता है। -->
+    <tanrei-pagination label="खोज नतीजों के पेज" page="3" count="12" href="/results/?page={page}"
+      previous-label="पिछला पेज" next-label="अगला पेज" page-label="पेज {page}"></tanrei-pagination>
 
-    <nav class="tanrei-pagination" aria-label="पेज">
-      <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="https://example.com/guide/installation/">
-        <span class="tanrei-pagination-label">पिछला</span>
-        <span class="tanrei-pagination-title">इंस्टॉलेशन</span>
-      </a>
-      <a class="tanrei-pagination-item" data-direction="next" rel="next" href="https://example.com/guide/design-tokens/">
-        <span class="tanrei-pagination-label">अगला</span>
-        <span class="tanrei-pagination-title">डिज़ाइन टोकन</span>
-      </a>
-    </nav>
-
-    <!-- पहला पेज: पिछला आइटम href के बिना लिखें, या उसे छोड़ दें। अगला आइटम अपनी जगह रहता है। -->
-    <nav class="tanrei-pagination" aria-label="पेज">
-      <a class="tanrei-pagination-item" data-direction="previous"></a>
-      <a class="tanrei-pagination-item" data-direction="next" rel="next" href="https://example.com/guide/installation/">
-        <span class="tanrei-pagination-label">अगला</span>
-        <span class="tanrei-pagination-title">इंस्टॉलेशन</span>
-      </a>
-    </nav>
+    <!-- बटन: पेज अपनी जगह पर बदलता है। एलिमेंट पहले अपना page बदलता है, फिर change भेजता है; उसे रद्द करें तो पेज वही रहता है। -->
+    <tanrei-pagination id="pages" label="पेज" page="1" count="10"
+      previous-label="पिछला पेज" next-label="अगला पेज" page-label="पेज {page}"></tanrei-pagination>
 
     <script type="module">
-      // वैकल्पिक: रिपल और dim फ़ीडबैक, अगला आइटम पहले लिखे जाने पर आइटम का क्रम, और डीबग रिपोर्ट। `@tanrei/web` भी इसे लोड करता है।
-      import '@tanrei/web/pagination';
+      import '@tanrei/web/components/pagination';
+      document.querySelector('#pages').addEventListener('change', (e) => showPage(e.detail.page));
     </script>
     ```
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import '@tanrei/web/pagination.css';
-    import '@tanrei/web/pagination';
-    import { Link as RouterLink } from 'react-router-dom';
+    import { Pagination } from '@tanrei/react';
 
-    <nav className="tanrei-pagination" aria-label="पेज">
-      {/* राउटर का लिंक अपना ऐंकर ख़ुद रेंडर करता है: उसे क्लास दें। */}
-      <RouterLink className="tanrei-pagination-item" data-direction="next" rel="next" to="/guide/design-tokens/">
-        <span className="tanrei-pagination-label">अगला</span>
-        <span className="tanrei-pagination-title">डिज़ाइन टोकन</span>
-      </RouterLink>
-    </nav>
+    <Pagination label="पेज" page={page} count={10}
+      previousLabel="पिछला पेज" nextLabel="अगला पेज" pageLabel="पेज {page}"
+      onChange={(e) => setPage(e.detail.page)} />
     ```
   </TabItem>
 </Tabs>
 
-| प्रॉपर्टी | वेब पर |
-| --- | --- |
-| `label` | `nav` पर `aria-label` |
-| आइटम | `<a class="tanrei-pagination-item">` |
-| `direction` | `data-direction="previous"` या `"next"`, `rel="prev"` या `rel="next"` के साथ |
-| आइटम का `label` | `<span class="tanrei-pagination-label">` |
-| `title` | `<span class="tanrei-pagination-title">`, लेबल के बाद |
-| `href` | `href` |
-| `click` | ऐंकर का अपना `click` |
+SwiftUI, Compose, Flutter और React Native नियोजित हैं: इस पेज के शुरू में हर प्लैटफ़ॉर्म के साथ दिए गए नाम वे हैं जो स्पेक उन्हें देता है, और वहाँ अभी कुछ उपलब्ध नहीं है।
+
+शब्द आपके हैं: Tanrei अपना कोई शब्द साथ नहीं देता। उन्हें हर एलिमेंट पर दें, या पूरे प्रॉडक्ट के लिए एक बार `setWords()` से दें (`previousPageLabel`, `nextPageLabel`, `firstPageLabel`, `lastPageLabel`, `pageLabel`, `pageCountText`)।
 
 ## स्पेक
 
-<DemoFrame label="अकेला अगला आइटम अपनी जगह रहता है; सिर्फ़ लेबल" plain column>
-  <nav class="tanrei-pagination" aria-label="इस डेमो का पहला पेज" style="inline-size: 100%">
-    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
-      <span class="tanrei-pagination-label">अगला</span>
-      <span class="tanrei-pagination-title">चरण</span>
-    </a>
-  </nav>
-  <nav class="tanrei-pagination" aria-label="इस डेमो की पोस्ट" style="inline-size: 100%">
-    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-pagination-label">नई पोस्ट</span></a>
-    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-pagination-label">पुरानी पोस्ट</span></a>
-  </nav>
+<DemoFrame label="छोटा रूप, और छोटा साइज़" plain column>
+  <tanrei-pagination label="कॉम्पैक्ट डेमो के पेज" variant="compact" page="3" count="10" previous-label="पिछला पेज" next-label="अगला पेज" count-text="{count} में से पेज {page}"></tanrei-pagination>
+  <tanrei-pagination label="छोटे डेमो के पेज" size="small" page="4" count="8" previous-label="पिछला पेज" next-label="अगला पेज" page-label="पेज {page}"></tanrei-pagination>
 </DemoFrame>
 
-<DemoFrame label="सँकरे कॉलम में आइटम एक के ऊपर एक आते हैं" plain>
-  <nav class="tanrei-pagination" aria-label="इस डेमो का सँकरा कॉलम" style="inline-size: 20rem">
-    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/">
-      <span class="tanrei-pagination-label">पिछला</span>
-      <span class="tanrei-pagination-title">डिज़ाइन सिस्टम के टोकन मुट्ठी भर डायल से कैसे डिराइव होते हैं</span>
-    </a>
-    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
-      <span class="tanrei-pagination-label">अगला</span>
-      <span class="tanrei-pagination-title">दाएँ से बाएँ वाले लेआउट</span>
-    </a>
-  </nav>
+<DemoFrame label="पतले कॉलम में नंबर वाला रूप छोटा रूप बन जाता है" plain>
+  <div style="inline-size: 14rem">
+    <tanrei-pagination label="पतले डेमो के पेज" page="5" count="10" previous-label="पिछला पेज" next-label="अगला पेज" page-label="पेज {page}" count-text="{count} में से पेज {page}"></tanrei-pagination>
+  </div>
 </DemoFrame>
 
-- **एक आइटम एक लिंक है**, जो पूरा का पूरा दबाया जाता है और आउटलाइन वाले कंटेनर के रूप में बनता है: वही एक बारीक रेखा, कोई फ़िल नहीं, और शीर्षक टेक्स्ट के रंग में। उस पर अंडरलाइन नहीं होती, क्योंकि उसका किनारा, उसका ऐरो और उसकी जगह उसे आसपास के टेक्स्ट से अलग दिखाते हैं।
-- **ऐरो कंपोनेंट के अपने हैं**: पिछले आइटम के शुरुआती किनारे पर `arrow_back`, और अगले आइटम के अंतिम किनारे पर `arrow_forward`। इनके लिए `icons.css` चाहिए।
-- **दो बराबर कॉलम।** पहले पेज पर शुरुआती कॉलम ख़ाली रहता है, और अगला आइटम ठीक वहीं होता है जहाँ वह हर दूसरे पेज पर होता है।
-- **एक के ऊपर एक आना।** जहाँ पेजिनेशन को आइटम की दो न्यूनतम चौड़ाइयों और गैप से कम जगह मिलती है (डिफ़ॉल्ट सिस्टम में 496), वहाँ आइटम एक के ऊपर एक आते हैं, पिछला ऊपर और अगला नीचे। यह कंपोनेंट की अपनी चौड़ाई से तय होता है, विंडो की चौड़ाई से नहीं।
-- **शीर्षक रैप होता है और कभी काटा नहीं जाता।** एक पंक्ति के दोनों आइटम उनमें से ज़्यादा ऊँचे आइटम की ऊँचाई लेते हैं। शीर्षक के बिना आइटम सिर्फ़ अपनी दिशा दिखाता है, शीर्षक के स्टाइल में।
-- **दाएँ से बाएँ** वाले लेआउट में पिछला आइटम दाईं ओर रहता है, दाईं ओर इशारा करते ऐरो के साथ, और अगला बाईं ओर, बाईं ओर इशारा करते ऐरो के साथ। पढ़ने और फ़ोकस का क्रम वही रहता है: पहले पिछला, फिर अगला।
+- **कौन-से नंबर दिखते हैं।** पहला और आख़िरी पेज (`boundaries`, डिफ़ॉल्ट 1), मौजूदा पेज और उसके दोनों ओर एक-एक पेज (`siblings`, डिफ़ॉल्ट 1)। इनके बीच छोड़े गए पेज एक एलिप्सिस बन जाते हैं। किसी छोर के पास दूसरी ओर ज़्यादा पेज दिखते हैं, ताकि हर पेज पर पंक्ति में जगहों की गिनती एक ही रहे और उसकी चौड़ाई न बदले।
+- **मौजूदा पेज** भरे हुए रंग से बनता है और मौजूदा पेज के रूप में बताया जाता है। उसे दबाने से कुछ नहीं होता।
+- **पिछला और अगला** सिर्फ़ आइकन हैं। पहले और आख़िरी पेज पर वे डिसेबल होते हैं, और अपनी जगह बनाए रखते हैं। `first-last` के साथ उनके दोनों ओर **पहला और आख़िरी** बनते हैं।
+- **छोटा रूप** (`variant="compact"`) पिछला और अगला के बीच आपका वाक्य, "10 में से पेज 3", दिखाता है। वाक्य न हो तो वह दोनों नंबर स्लैश के साथ, "3 / 10", दिखाता है, और डेवलपमेंट बिल्ड बताता है कि शब्द नहीं दिए गए। नंबर वाला रूप, मिली हुई चौड़ाई में न समाने पर, ख़ुद छोटा रूप बन जाता है।
+- **दो साइज़**: `medium` (40) और `small` (32), भीड़ वाली जगह के लिए, जैसे किसी [टेबल](/hi/components/table/) की स्थिति पंक्ति।
+- **दाएँ से बाएँ** में पंक्ति दाईं ओर से लगती है और ऐरो मिरर होते हैं। नंबर पेज की भाषा के अंकों में लिखे जाते हैं।
 
 <ComponentSpecs name="pagination" />
-
-### वेब क्या अलग ढंग से बनाता है
-
-- एक के ऊपर एक वाला रूप ग्रिड के अपने कॉलम की गिनती से बनता है, उस चौड़ाई से जो `nav` के पास है। इसमें न कोई कंटेनर क्वेरी शामिल है, न कोई मीडिया क्वेरी।
-- पैकेज की स्क्रिप्ट के बिना स्टाइलशीट हर स्टेट बनाती है, और दबाने पर फ़ीडबैक ओवरले होता है। जिन आइटम में अगला पहले लिखा गया है, वे सही क्रम में बनते हैं, पर फ़ोकस के क्रम में अगला ही पहले रहता है। पिछला आइटम पहले लिखें।
-- स्टाइलशीट दाएँ से बाएँ वाले लेआउट में दोनों ऐरो मिरर करती है। जिस डिज़ाइन सिस्टम का आइकन सेट दोनों में से किसी भी नाम को मिरर होने वाला नहीं बताता, उसमें स्क्रिप्ट मिरर करना हटा देती है; स्क्रिप्ट के बिना, आइटम पर `data-mirror="never"` लिखें।
-- पेजिनेशन को `.tanrei-prose` के बाहर रखें, या `tanrei-not-prose` से चिह्नित हिस्से के भीतर: प्रोज़ अपने ऐंकर को टेक्स्ट लिंक के रूप में बनाता है।
 
 ## दिशानिर्देश
 
 ### करें
 
-- इसे उस कॉन्टेंट के बाद रखें जिसके पेज यह पलटता है, हर पेज पर एक बार।
-- हर पेज पर दोनों आइटम दें, और जिसका कोई गंतव्य नहीं है उसे `href` के बिना छोड़ दें। वह दिखाया नहीं जाता।
-- दिशा अपने प्रॉडक्ट के शब्दों में लिखें: "पिछला" और "अगला", या "नई पोस्ट" और "पुरानी पोस्ट"।
+- इसे उस सूची के बाद रखें जिसके पेज यह बदलता है, और सूची लंबी हो तो उससे पहले भी।
+- जब हर पेज का अपना पता हो तो लिंक (`href`) इस्तेमाल करें, और जब पेज अपनी जगह पर बदले तो बटन।
+- किसी [टेबल](/hi/components/table/) के नीचे, स्थिति पंक्ति में `small` साइज़ का छोटा रूप रखें, और जहाँ लोग हर पेज की पंक्तियाँ चुनते हैं वहाँ उसके बगल में उसके लिए एक [सिलेक्ट](/hi/components/select/) रखें। दिखाई जा रही पंक्तियों की रेंज ("248 में से 1–10") टेबल का स्थिति टेक्स्ट है।
+- पेज बदलने पर, जहाँ कॉन्टेंट बदलता है वहाँ बताएँ कि क्या बदला: कोई हेडिंग, या टेबल का स्थिति टेक्स्ट। पेजिनेशन ख़ुद कुछ नहीं बताता।
 
 ### न करें
 
-- इसे उन बटनों के लिए इस्तेमाल न करें जो बिना किसी पते के, दिखाई जा रही चीज़ को बदलते हैं। आइटम एक लिंक है।
-- पड़ोसी पेज को नए टैब में न खोलें। एक क्रम के पेज एक-दूसरे की जगह लेते हैं।
-- आइटम को अपने ग्लिफ़ न दें।
+- शीर्षक वाले पेजों के किसी क्रम में पिछले और अगले पेज के लिए इसे इस्तेमाल न करें। वह [पिछला और अगला लिंक](/hi/components/previous-next-links/) है।
+- एक ही पेज वाली सूची के लिए इसे न दिखाएँ।
+- पहले और आख़िरी पेज पर पिछला और अगला न छिपाएँ। वे डिसेबल होते हैं और अपनी जगह बनाए रखते हैं।
 
 ## सुलभता
 
@@ -162,13 +101,13 @@ SwiftUI, Compose, Flutter और React Native नियोजित हैं: �
 
 ### कंपोनेंट क्या सँभालता है
 
-- हर आइटम ब्राउज़र का अपना लिंक है, जिसका नाम उसके लेबल और फिर उसके शीर्षक से बनता है ("अगला डिज़ाइन टोकन"), और ये दोनों दिखाए जाते हैं।
-- ऐरो सजावटी हैं और सहायक तकनीक से छिपे रहते हैं।
-- दिखने का क्रम पढ़ने के क्रम के साथ चलता है: पहले पिछला, फिर अगला, दोनों दिशाओं में, और तब भी जब आइटम एक के ऊपर एक हों।
-- कीबोर्ड की फ़ोकस रिंग आइटम के चारों ओर बनती है। शीर्षक रैप होते हैं, और आइटम पाठक के टेक्स्ट साइज़ के साथ बढ़ते हैं।
+- एक सूची के चारों ओर एक नेविगेशन लैंडमार्क। हर पेज और हर एनेबल कंट्रोल एक लिंक या बटन है, और फ़ोकस क्रम का एक पड़ाव।
+- मौजूदा पेज `aria-current="page"` से बताया जाता है, और सिर्फ़ दूसरे रंग से नहीं, भरे हुए रंग से बनता है।
+- डिसेबल कंट्रोल फ़ोकस क्रम से बाहर रहते हैं। ऐरो और एलिप्सिस सहायक तकनीक से छिपे रहते हैं।
+- किसी पेज के नाम में वह नंबर होता है जो दिखता है, इसलिए जो व्यक्ति दिखने वाली चीज़ बोलकर काम करता है, वह भी उसे दबा सकता है।
 
 ### आपको क्या करना है
 
-- लैंडमार्क को `aria-label` से नाम दें, अपने प्रॉडक्ट की भाषा में। पेज पर दूसरे नेविगेशन भी होते हैं, और यह नाम इसे उनसे अलग पहचान देता है। Tanrei अपना कोई शब्द साथ नहीं देता।
-- ऐंकर पर `rel="prev"` और `rel="next"` लिखें।
-- पिछला आइटम अगले आइटम से पहले लिखें।
+- लैंडमार्क को `label` से नाम दें, अपने प्रॉडक्ट की भाषा में। पेज पर दूसरे नेविगेशन भी होते हैं, और यह नाम इसे उनसे अलग पहचान देता है।
+- कंट्रोल को नाम दें (`previous-label`, `next-label`, और `first-last` के साथ `first-label` और `last-label`), और हर पेज को `page-label` से। Tanrei अपना कोई शब्द साथ नहीं देता।
+- सूची बदलने पर बताएँ कि क्या बदला। पेजिनेशन फ़ोकस अपने किसी एक आइटम पर बनाए रखता है: दबाया गया कंट्रोल, या, अगर वह कंट्रोल डिसेबल हो गया हो, तो नया मौजूदा पेज।

@@ -2044,8 +2044,8 @@ test.describe('no rows, and the status line', () => {
       fixtures: [
         ...some('status', 'status-pagination', 'status-long', 'basic'),
         { ...data, id: 'gap', props: { caption: 'Gap', separation: 'gap', status: '1–4 of 132' } },
-        { ...fixture('wide'), id: 'wide-status', props: { caption: 'Wide with a status', status: '6 regions' }, slots: { pagination: 'Next' } },
-        raw('alone', { label: 'Pagination alone' }, '<table><thead><tr><th scope="col">A</th></tr></thead><tbody><tr><td>1</td></tr></tbody></table><div data-part="status"><span id="next">Next</span></div>'),
+        { ...fixture('wide'), id: 'wide-status', props: { caption: 'Wide with a status', status: '6 regions' }, slots: { pagination: 'Page 1 of 2' } },
+        raw('alone', { label: 'Pagination alone' }, '<table><thead><tr><th scope="col">A</th></tr></thead><tbody><tr><td>1</td></tr></tbody></table><div data-part="status"><span id="next">Page 1 of 2</span></div>'),
         raw('nothing', { label: 'An empty status' }, '<table><thead><tr><th scope="col">A</th></tr></thead><tbody><tr><td>1</td></tr></tbody></table><div data-part="status"><p role="status"></p></div>'),
       ],
     });
@@ -2168,7 +2168,7 @@ test.describe('no rows, and the status line', () => {
     await expect(statusLine(page, 'status').locator('> [role="status"]')).toHaveCount(1);
     await expect(written).toHaveText('4 products');
     // The table writes no word: what the line says is what the fixture gave.
-    expect(await statusLine(page, 'status-pagination').evaluate((el) => (el as HTMLElement).innerText.replace(/\s+/g, ' ').trim())).toBe('1–4 of 132 Next: products 5 to 8');
+    expect(await statusLine(page, 'status-pagination').evaluate((el) => (el as HTMLElement).innerText.replace(/\s+/g, ' ').trim())).toBe('1–4 of 132 Page 1 of 33');
     // The pagination is placed, and nothing else: no attribute, no style of the table's on what it holds, no event.
     const next = statusLine(page, 'status-pagination').locator('> span');
     expect(await next.evaluate((el) => el.getAttributeNames())).toEqual([]);

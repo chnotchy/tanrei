@@ -211,6 +211,9 @@
           "$ref": "comp/pagination.tokens.json"
         },
         {
+          "$ref": "comp/previous-next-links.tokens.json"
+        },
+        {
           "$ref": "comp/breadcrumbs.tokens.json"
         },
         {

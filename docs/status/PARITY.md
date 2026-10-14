@@ -45,6 +45,27 @@ Each row is one spec fixture; each cell is that platform's committed baseline. C
 | `open` | <img src="../../packages/web/snapshots/modal-layer/open.png" alt="web open" width="160"> |
 | `no-scrim` | <img src="../../packages/web/snapshots/modal-layer/no-scrim.png" alt="web no-scrim" width="160"> |
 
+## Pagination
+
+| Fixture | Web Components |
+| --- | --- |
+| `default` | <img src="../../packages/web/snapshots/pagination/default.png" alt="web default" width="160"> |
+| `middle` | <img src="../../packages/web/snapshots/pagination/middle.png" alt="web middle" width="160"> |
+| `last-page` | <img src="../../packages/web/snapshots/pagination/last-page.png" alt="web last-page" width="160"> |
+| `few-pages` | <img src="../../packages/web/snapshots/pagination/few-pages.png" alt="web few-pages" width="160"> |
+| `single-page` | <img src="../../packages/web/snapshots/pagination/single-page.png" alt="web single-page" width="160"> |
+| `first-last` | <img src="../../packages/web/snapshots/pagination/first-last.png" alt="web first-last" width="160"> |
+| `wide-neighbourhood` | <img src="../../packages/web/snapshots/pagination/wide-neighbourhood.png" alt="web wide-neighbourhood" width="160"> |
+| `large-numbers` | <img src="../../packages/web/snapshots/pagination/large-numbers.png" alt="web large-numbers" width="160"> |
+| `links` | <img src="../../packages/web/snapshots/pagination/links.png" alt="web links" width="160"> |
+| `links-first` | <img src="../../packages/web/snapshots/pagination/links-first.png" alt="web links-first" width="160"> |
+| `small` | <img src="../../packages/web/snapshots/pagination/small.png" alt="web small" width="160"> |
+| `compact` | <img src="../../packages/web/snapshots/pagination/compact.png" alt="web compact" width="160"> |
+| `compact-first-last` | <img src="../../packages/web/snapshots/pagination/compact-first-last.png" alt="web compact-first-last" width="160"> |
+| `compact-numbers` | <img src="../../packages/web/snapshots/pagination/compact-numbers.png" alt="web compact-numbers" width="160"> |
+| `rtl` | <img src="../../packages/web/snapshots/pagination/rtl.png" alt="web rtl" width="160"> |
+| `rtl-compact` | <img src="../../packages/web/snapshots/pagination/rtl-compact.png" alt="web rtl-compact" width="160"> |
+
 ## Stepper
 
 | Fixture | Web Components |
