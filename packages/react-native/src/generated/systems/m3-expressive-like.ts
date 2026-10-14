@@ -5344,7 +5344,11 @@ export const m3ExpressiveLike = {
         },
       },
     },
-    copyButton: { confirmationDuration: 2000 },
+    copyButton: {
+      confirmationDuration: 2000,
+      motionResizeDuration: 500,
+      motionResizeEasing: [0.27, 1.06, 0.18, 1],
+    },
     dateTimePicker: {
       actionsArrangement: 1,
       actionsGap: 8,

@@ -3455,6 +3455,8 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
   ),
   copyButton: TanreiCopyButtonTokens(
     confirmationDuration: 2000,
+    motionResizeDuration: 500,
+    motionResizeEasing: TanreiCubicBezier(0.27, 1.06, 0.18, 1.0),
   ),
   dateTimePicker: TanreiDateTimePickerTokens(
     actionsArrangement: 0.0,
