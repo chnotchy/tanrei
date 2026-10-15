@@ -3438,6 +3438,7 @@ private let m3ExpressiveLikeDateTimePickerTokens = TanreiDateTimePickerTokens(
   separatorColor: .role(.onSurface),
   separatorTypescale: m3ExpressiveLikeTypescaleDisplayLarge,
   timeEntryModes: 2,
+  timeUnavailableOpacity: 0.38,
   wheelGap: 4,
   wheelHeight: 240,
   wheelLabelColor: .role(.onSurfaceVariant),

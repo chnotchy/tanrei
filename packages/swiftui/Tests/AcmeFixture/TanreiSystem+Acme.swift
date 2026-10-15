@@ -3437,6 +3437,7 @@ private let acmeDateTimePickerTokens = TanreiDateTimePickerTokens(
   separatorColor: .role(.onSurface),
   separatorTypescale: acmeTypescale.display,
   timeEntryModes: 0,
+  timeUnavailableOpacity: 0.38,
   wheelGap: 4,
   wheelHeight: 240,
   wheelLabelColor: .role(.onSurfaceVariant),

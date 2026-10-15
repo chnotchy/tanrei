@@ -2187,6 +2187,7 @@
     "tanrei.comp.date-time-picker.separator.color": "color",
     "tanrei.comp.date-time-picker.separator.typescale": "typography",
     "tanrei.comp.date-time-picker.time.entry-modes": "number",
+    "tanrei.comp.date-time-picker.time.unavailable-opacity": "number",
     "tanrei.comp.date-time-picker.unselected.focused.selector.container.color": "color",
     "tanrei.comp.date-time-picker.unselected.focused.selector.label.color": "color",
     "tanrei.comp.date-time-picker.unselected.focused.selector.outline.color": "color",

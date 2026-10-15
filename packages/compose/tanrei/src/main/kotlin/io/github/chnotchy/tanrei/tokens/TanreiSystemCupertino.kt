@@ -3223,6 +3223,7 @@ private object CupertinoSystemSource {
             separatorColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
             separatorTypescale = typescale.display,
             timeEntryModes = 1f,
+            timeUnavailableOpacity = 0.38f,
             wheelGap = 4.dp,
             wheelHeight = 240.dp,
             wheelLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),

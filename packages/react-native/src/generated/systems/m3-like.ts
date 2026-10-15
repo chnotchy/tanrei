@@ -5245,6 +5245,7 @@ export const m3Like = {
       separatorColor: { kind: "role", role: "onSurface" },
       separatorTypescale: "displayLarge",
       timeEntryModes: 2,
+      timeUnavailableOpacity: 0.38,
       wheelGap: 4,
       wheelHeight: 240,
       wheelLabelColor: { kind: "role", role: "onSurfaceVariant" },

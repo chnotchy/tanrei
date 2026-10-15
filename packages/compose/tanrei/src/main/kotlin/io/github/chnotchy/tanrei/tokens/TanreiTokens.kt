@@ -3787,6 +3787,7 @@ public data class TanreiDateTimePickerTokens(
     public val separatorColor: TanreiPaint,
     public val separatorTypescale: TanreiTextStyle,
     public val timeEntryModes: Float,
+    public val timeUnavailableOpacity: Float,
     public val wheelGap: Dp,
     public val wheelHeight: Dp,
     public val wheelLabelColor: TanreiPaint,

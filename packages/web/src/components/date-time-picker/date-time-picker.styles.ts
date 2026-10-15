@@ -488,6 +488,10 @@ export const styles = css`
   .row.on {
     color: ${t('wheel-selected-label-color')};
   }
+  /* DTM-50: an hour, a minute or a period outside min and max keeps its place on the wheel, faded. */
+  .row[data-unavailable] {
+    opacity: ${t('time-unavailable-opacity')};
+  }
   .wheel.typing .row.on {
     color: ${t('selected-selector-label-color')};
   }
@@ -680,6 +684,10 @@ export const styles = css`
   }
   .number.inner {
     --_r: var(--_inner);
+  }
+  /* DTM-50: a number outside min and max keeps its place on the dial, faded. */
+  .number[data-unavailable] {
+    opacity: ${t('time-unavailable-opacity')};
   }
   .center {
     position: absolute;

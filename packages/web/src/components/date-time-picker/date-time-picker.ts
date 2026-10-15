@@ -18,6 +18,7 @@ import {
   SHEET_TOUCH_SLOP,
   SystemWatchController,
   WEEKDAY_NAMES,
+  addDays,
   ambientLocale,
   asciiDigits,
   clockText,
@@ -143,6 +144,19 @@ const EMPTY: Moment = { date: null, time: null };
 type Choice = Record<End, Moment>;
 const NO_CHOICE: Choice = { value: EMPTY, start: EMPTY, end: EMPTY };
 
+/**
+ * A bound of min or max (DTM-49): its date (empty in mode time) and its time as minutes of the day — null where the
+ * bound is a calendar date, which bounds the dates alone.
+ */
+interface Bound {
+  date: string;
+  minutes: number | null;
+}
+/** The last minute of a day. */
+const DAY_END = 24 * 60 - 1;
+const minutesOf = (time: ClockTime) => time.hour * 60 + time.minute;
+const timeAt = (minutes: number): ClockTime => ({ hour: Math.floor(minutes / 60), minute: minutes % 60 });
+
 /** The props, read once per update: unknown values replaced by the defaults, malformed values dropped (DTM-40). */
 interface Config {
   presentation: TanreiDateTimePickerPresentation;
@@ -154,8 +168,12 @@ interface Config {
   unit: Unit;
   layout: TanreiDateTimePickerLayout;
   locale: string;
+  /** The calendar's bounds: the dates of min and max (DTM-11, DTM-49); empty in mode time. */
   min: string;
   max: string;
+  /** DTM-49: the earliest and the latest time offered, min rounded up and max down to minuteStep; null for no bound. */
+  low: Bound | null;
+  high: Bound | null;
   today: string;
   disabledDates: string[];
   firstDayOfWeek: string;
@@ -390,10 +408,14 @@ export class TanreiDateTimePicker extends LitElement {
   /** The last value of the chosen span when `range` is true, in the mode's form; empty while only `start` is chosen. */
   end = '';
 
-  /** The earliest date that can be chosen (it bounds the calendar only); empty for no limit. */
+  /**
+   * The earliest value that can be chosen, in the mode's form — as a Text field's `min` is: "2026-09-17" (date),
+   * "09:00" (time), "2026-09-17T09:00" (date-time; a date alone bounds only the dates there). It bounds the calendar by
+   * its date and the time by its time: earlier times stay in place, faded, and cannot be chosen. Empty for no limit.
+   */
   min = '';
 
-  /** The latest date that can be chosen; empty for no limit. */
+  /** The latest value that can be chosen, in the mode's form ("2026-09-30", "17:00", "2026-09-30T17:00"); empty for no limit. */
   max = '';
 
   /** Dates that cannot be chosen, passed to the calendar. The `disabled-dates` attribute is a space-separated list or a JSON array. */
@@ -668,13 +690,8 @@ export class TanreiDateTimePicker extends LitElement {
       report(this, 'DTM-40', `${name} "${text}" is not an ISO 8601 calendar date (YYYY-MM-DD); it is ignored`);
       return '';
     };
-    let min = isoDate('min', this.min);
-    let max = isoDate('max', this.max);
-    if (min && max && min > max) {
-      report(this, 'DTM-40', `min "${this.min}" is after max "${this.max}"; both are ignored`);
-      min = '';
-      max = '';
-    }
+    const stepped = known ? step : 1;
+    const { low, high } = this.readBounds(mode, stepped, isoDate);
     const today = isoDate('today', this.today);
     const disabledDates = (this.disabledDates ?? []).filter((entry) => isoDate('an entry of disabledDates', entry) !== '');
     let value = this.parseMoment('value', this.value, mode);
@@ -694,7 +711,57 @@ export class TanreiDateTimePicker extends LitElement {
       end = null;
     }
     const committed: Choice = { value: value ?? EMPTY, start: start ?? EMPTY, end: end ?? EMPTY };
-    return { presentation, mode, range, cycle, step: known ? step : 1, entryMode, unit, layout, locale, min, max, today, disabledDates, firstDayOfWeek, startView, committed };
+    const [min, max] = mode === 'time' ? ['', ''] : [low?.date ?? '', high?.date ?? ''];
+    return { presentation, mode, range, cycle, step: stepped, entryMode, unit, layout, locale, min, max, low, high, today, disabledDates, firstDayOfWeek, startView, committed };
+  }
+
+  /**
+   * DTM-40, DTM-49: min and max in the mode's form — a calendar date in mode date, a time in mode time, a date and time
+   * or a calendar date in mode date-time — each a bound, min rounded up and max down to the step, so that the picker
+   * offers no time the Text field it opens from refuses. Anything else is ignored and reported; both are ignored, and
+   * reported, where min is after max or no time of the step lies between them.
+   */
+  private readBounds(mode: TanreiDateTimePickerMode, step: number, isoDate: (name: string, text: string) => string): { low: Bound | null; high: Bound | null } {
+    const read = (name: 'min' | 'max', text: string): Bound | null => {
+      if (!text) return null;
+      if (mode === 'date') {
+        const date = isoDate(name, text);
+        return date ? { date, minutes: null } : null;
+      }
+      if (mode === 'time') {
+        const time = parseClockTime(text);
+        if (time) return { date: '', minutes: minutesOf(time) };
+      } else {
+        if (parseIsoDate(text)) return { date: text, minutes: null };
+        const [date, time, ...rest] = text.split('T');
+        const clock = parseClockTime(time);
+        if (parseIsoDate(date) && clock && !rest.length) return { date, minutes: minutesOf(clock) };
+      }
+      const form = mode === 'time' ? 'a time of day (HH:MM)' : 'a date and time (YYYY-MM-DDTHH:MM) or a calendar date (YYYY-MM-DD)';
+      report(this, 'DTM-40', `${name} "${text}" is not ${form}, the ${mode} mode's form; it is ignored`);
+      return null;
+    };
+    // A bound's place in time; a calendar date's min is its first minute and its max its last.
+    const at = (bound: Bound, fallback: number) => `${bound.date}T${String(bound.minutes ?? fallback).padStart(4, '0')}`;
+    let low = read('min', this.min);
+    let high = read('max', this.max);
+    if (low && high && at(low, 0) > at(high, DAY_END)) {
+      report(this, 'DTM-40', `min "${this.min}" is after max "${this.max}"; both are ignored`);
+      return { low: null, high: null };
+    }
+    if (low && low.minutes !== null) {
+      const minutes = Math.ceil(low.minutes / step) * step;
+      // A min the step carries past the day's last minute: the earliest time offered is the next day's first.
+      if (minutes > DAY_END) low = mode === 'time' ? { date: '', minutes: DAY_END + 1 } : { date: isoOf(addDays(parseIsoDate(low.date)!, 1)), minutes: 0 };
+      else low = { ...low, minutes };
+    }
+    if (high && high.minutes !== null) high = { ...high, minutes: high.minutes - (high.minutes % step) };
+    const empty = (low && low.minutes !== null && low.minutes > DAY_END) || (low && high && at(low, 0) > at(high, DAY_END));
+    if (empty) {
+      report(this, 'DTM-40', `no time of minuteStep ${step} lies between min "${this.min}" and max "${this.max}"; both are ignored`);
+      return { low: null, high: null };
+    }
+    return { low, high };
   }
 
   /** DTM-8: a moment in the mode's form; `""` while a part the mode needs is missing. */
@@ -749,6 +816,8 @@ export class TanreiDateTimePicker extends LitElement {
     const now = roundDown(deviceTime(), step);
     const fill = (moment: Moment): Moment => (this.hasTime ? { ...moment, time: moment.time ? roundDown(moment.time, step) : now } : moment);
     this.pending = { value: fill(committed.value), start: fill(committed.start), end: fill(committed.end) };
+    // DTM-49: a value, or the device's time, outside min and max starts at the nearer bound.
+    this.keepWithin();
     this.editing = range ? 'start' : 'value';
     this.entry = entryMode;
     this.shownUnit = unit;
@@ -771,8 +840,75 @@ export class TanreiDateTimePicker extends LitElement {
     return this.pending[this.editing].time ?? { hour: 0, minute: 0 };
   }
 
+  /** DTM-49: the pending time of the end the time section sets becomes `time`, moved into min and max where it lies outside them. */
   private setTime(time: ClockTime) {
-    this.pending = { ...this.pending, [this.editing]: { ...this.pending[this.editing], time } };
+    this.pending = { ...this.pending, [this.editing]: { ...this.pending[this.editing], time: this.within(time) } };
+  }
+
+  // ── The bounds of the time (DTM-49, DTM-50) ───────────────────────────────────────────────────────────────────────
+
+  /**
+   * DTM-49: the earliest and the latest time offered to `end`, in minutes of the day: min's and max's times in mode
+   * time; in mode date-time a bound's time on the bound's own date only, and none before a date is chosen.
+   */
+  private timeRange(end: End = this.editing): [number, number] {
+    const { mode, low, high } = this.cfg;
+    if (mode === 'time') return [low?.minutes ?? 0, high?.minutes ?? DAY_END];
+    const date = this.pending[end].date;
+    if (mode !== 'date-time' || !date) return [0, DAY_END];
+    const iso = isoOf(date);
+    const on = (bound: Bound | null) => (bound && bound.minutes !== null && bound.date === iso ? bound.minutes : null);
+    return [on(low) ?? 0, on(high) ?? DAY_END];
+  }
+
+  /** DTM-49: `time` moved into the times offered to `end` — the earliest where it is before them, the latest where after. */
+  private within(time: ClockTime, end: End = this.editing): ClockTime {
+    const [earliest, latest] = this.timeRange(end);
+    const minutes = minutesOf(time);
+    return minutes < earliest ? timeAt(earliest) : minutes > latest ? timeAt(latest) : time;
+  }
+
+  /** DTM-49: every end's pending time moved into the times offered to it (after a date or the bounds changed). */
+  private keepWithin() {
+    if (!this.hasTime) return;
+    for (const end of ['value', 'start', 'end'] as const) {
+      const time = this.pending[end].time;
+      if (!time) continue;
+      const kept = this.within(time, end);
+      if (kept !== time) this.pending = { ...this.pending, [end]: { ...this.pending[end], time: kept } };
+    }
+  }
+
+  /**
+   * DTM-50: whether `time`'s value of `unit` can be chosen — an hour with at least one minute offered (the bounds are
+   * on the step, so a minute the hour shares with them is one), a minute offered in its hour.
+   */
+  private offers(unit: Unit, time: ClockTime): boolean {
+    const [earliest, latest] = this.timeRange();
+    if (unit === 'minute') return minutesOf(time) >= earliest && minutesOf(time) <= latest;
+    return time.hour * 60 + 59 >= earliest && time.hour * 60 <= latest;
+  }
+
+  /** DTM-50: whether a period (0 before noon, 1 after) has a time offered. */
+  private offersPeriod(period: 0 | 1): boolean {
+    const [earliest, latest] = this.timeRange();
+    return period * 720 + 719 >= earliest && period * 720 <= latest;
+  }
+
+  /** DTM-50: the period's spin button's minimum and maximum — the periods that have a time offered. */
+  private get periodReach(): [number, number] {
+    const [before, after] = [this.offersPeriod(0), this.offersPeriod(1)];
+    return [before || !after ? 0 : 1, after || !before ? 1 : 0];
+  }
+
+  /** DTM-50: the move from index `at` of a wheel to its nearest available row — none where it is one — back toward where it came from (`moved`) on a tie. */
+  private toOffered(unit: Unit, at: number, moved: number): number {
+    const n = this.values(unit).length;
+    const back = moved > 0 ? -1 : 1;
+    for (let k = 0; k <= n / 2; k++) {
+      for (const d of k ? [back * k, -back * k] : [0]) if (this.offers(unit, this.withIndex(unit, at + d))) return d;
+    }
+    return 0;
   }
 
   /** DTM-6: OK is enabled while the pending choice is complete and a date-time range's end is not before its start. */
@@ -843,6 +979,8 @@ export class TanreiDateTimePicker extends LitElement {
       // DTM-11: a chosen start selects the start's range field, a chosen end the end's.
       if (this.hasTime) this.selectEnd(detail.end ? 'end' : 'start');
     }
+    // DTM-49: a date that is a bound's own date moves a pending time outside the bound into it.
+    this.keepWithin();
     // DTM-7: a docked picker for a date only commits a completed choice (any day; a range's end).
     if (!this.pendingUntilOk && (!range || detail.end)) this.commit('select');
   };
@@ -928,24 +1066,48 @@ export class TanreiDateTimePicker extends LitElement {
     return { ...time, hour: this.cfg.cycle === 'h12' ? hourOf12(value, periodOf(time.hour)) : value };
   }
 
-  /** DTM-20, DTM-22: the keys of a wheel or a selector. Returns the new time, or null for a key that is not theirs. */
+  /**
+   * DTM-20, DTM-22: the keys of a wheel or a selector, over the available values only (DTM-50): Up and Down the next
+   * and the previous available one, wrapping past the unavailable ones; Page Up and Page Down five on, or the available
+   * value nearest that on the way; Home and End the first and the last available. Returns the new time — the pending
+   * one where nothing is available that way — or null for a key that is not theirs.
+   */
   private keyTime(unit: Unit, key: string): ClockTime | null {
     const index = this.indexOf(unit);
-    const last = this.values(unit).length - 1;
+    const n = this.values(unit).length;
     const pageable = unit === 'minute' && this.cfg.step === 1;
+    const offered = (at: number) => {
+      const time = this.withIndex(unit, at);
+      return this.offers(unit, time) ? time : null;
+    };
+    /** The first available value of `count`, from `from` on in the direction `by`. */
+    const scan = (from: number, by: 1 | -1, count: number) => {
+      for (let k = 0; k < count; k++) {
+        const time = offered(from + by * k);
+        if (time) return time;
+      }
+      return this.time;
+    };
+    const page = (by: 1 | -1) => {
+      for (let k = 5; k >= 1; k--) {
+        const time = offered(index + by * k);
+        if (time) return time;
+      }
+      return this.time;
+    };
     switch (key) {
       case 'ArrowUp':
-        return this.withIndex(unit, index + 1);
+        return scan(index + 1, 1, n - 1);
       case 'ArrowDown':
-        return this.withIndex(unit, index - 1);
+        return scan(index - 1, -1, n - 1);
       case 'PageUp':
-        return pageable ? this.withIndex(unit, index + 5) : null;
+        return pageable ? page(1) : null;
       case 'PageDown':
-        return pageable ? this.withIndex(unit, index - 5) : null;
+        return pageable ? page(-1) : null;
       case 'Home':
-        return this.withIndex(unit, 0);
+        return scan(0, 1, n);
       case 'End':
-        return this.withIndex(unit, last);
+        return scan(n - 1, -1, n);
       default:
         return null;
     }
@@ -962,11 +1124,14 @@ export class TanreiDateTimePicker extends LitElement {
     return periodPlace(locale) === 'before' ? `${period} ${hour}` : `${hour} ${period}`;
   }
 
+  /** DTM-20, DTM-22, DTM-50: a spin button's value, and as its minimum and maximum the smallest and the largest available value. */
   private spinAria(unit: Unit) {
     const values = this.values(unit);
     const time = this.time;
     const now = unit === 'minute' ? time.minute : this.cfg.cycle === 'h12' ? shownHour12(time.hour) : time.hour;
-    return { now, min: values[0], max: values[values.length - 1], text: this.valueText(unit) };
+    const available = values.filter((_, index) => this.offers(unit, this.withIndex(unit, index)));
+    const reach = available.length ? available : values;
+    return { now, min: Math.min(...reach), max: Math.max(...reach), text: this.valueText(unit) };
   }
 
   // ── The wheels (DTM-18 … DTM-20) ──────────────────────────────────────────────────────────────────────────────────
@@ -1018,6 +1183,8 @@ export class TanreiDateTimePicker extends LitElement {
     const wheel = this.wheels[unit];
     const { duration } = this.rowMetrics(element);
     wheel.at += rows;
+    // DTM-50: a row outside min and max is passed by — the rows settle on the nearest available one.
+    wheel.at += this.toOffered(unit, wheel.at, rows);
     wheel.shift = 0;
     wheel.pointer = null;
     clearTimeout(wheel.settling);
@@ -1287,7 +1454,8 @@ export class TanreiDateTimePicker extends LitElement {
     const time = this.time;
     const { cycle, step } = this.cfg;
     const next: ClockTime = typed.unit === 'minute' ? { ...time, minute: value - (value % step) } : { ...time, hour: cycle === 'h12' ? hourOf12(value, periodOf(time.hour)) : value };
-    if (clockText(next) === clockText(time)) return;
+    // DTM-50: a value outside min and max is not taken, as a number that is no value of the unit is not.
+    if (clockText(next) === clockText(time) || !this.offers(typed.unit, next)) return;
     const wheel = this.wheels[typed.unit];
     clearTimeout(wheel.settling);
     wheel.settling = 0;
@@ -1400,7 +1568,8 @@ export class TanreiDateTimePicker extends LitElement {
   private setPeriod(period: 0 | 1) {
     this.endEntry(true);
     const time = this.time;
-    if (periodOf(time.hour) === period) return;
+    // DTM-50: a period with no time between min and max is not taken.
+    if (periodOf(time.hour) === period || !this.offersPeriod(period)) return;
     this.setTime({ ...time, hour: hourOf12(shownHour12(time.hour), period) });
   }
 
@@ -1510,6 +1679,8 @@ export class TanreiDateTimePicker extends LitElement {
     const wheel = this.periodWheel;
     const { duration } = this.rowMetrics(element);
     wheel.at = Math.min(1, Math.max(0, Math.round(period)));
+    // DTM-50: a name with no time between min and max is passed by — the rows settle back on the pending one.
+    if (!this.offersPeriod(wheel.at ? 1 : 0)) wheel.at = periodOf(this.time.hour);
     wheel.shift = 0;
     wheel.pointer = null;
     clearTimeout(wheel.settling);
@@ -1698,14 +1869,25 @@ export class TanreiDateTimePicker extends LitElement {
     const dy = event.clientY - (box.top + box.height / 2);
     const degrees = ((Math.atan2(dx, -dy) * 180) / Math.PI + 360) % 360;
     const time = this.time;
+    /** How far apart two angles are, the shorter way round. */
+    const apart = (a: number, b: number) => Math.abs(((a - b + 540) % 360) - 180);
+    /** DTM-50: of the values one ring holds, the available one nearest the pointer's angle; null where none is. */
+    const nearest = (candidates: { time: ClockTime; angle: number }[], unit: Unit) =>
+      candidates.filter((c) => this.offers(unit, c.time)).sort((a, b) => apart(a.angle, degrees) - apart(b.angle, degrees))[0]?.time ?? null;
     if (this.shownUnit === 'minute') {
-      const step = this.cfg.step;
-      this.setTime({ ...time, minute: (Math.round(degrees / (6 * step)) * step) % 60 });
+      const minute = nearest(
+        this.minuteValues.map((value) => ({ time: { ...time, minute: value }, angle: value * 6 })),
+        'minute',
+      );
+      if (minute) this.setTime(minute);
       return;
     }
-    const index = Math.round(degrees / 30) % 12;
     if (this.cfg.cycle === 'h12') {
-      this.setTime({ ...time, hour: hourOf12(index === 0 ? 12 : index, periodOf(time.hour)) });
+      const hour = nearest(
+        this.hourValues.map((value) => ({ time: { ...time, hour: hourOf12(value, periodOf(time.hour)) }, angle: (value % 12) * 30 })),
+        'hour',
+      );
+      if (hour) this.setTime(hour);
       return;
     }
     const radius = (selector: string) => {
@@ -1713,8 +1895,21 @@ export class TanreiDateTimePicker extends LitElement {
       return number ? Math.hypot(number.left + number.width / 2 - (box.left + box.width / 2), number.top + number.height / 2 - (box.top + box.height / 2)) : 0;
     };
     const distance = Math.hypot(dx, dy);
-    const inner = Math.abs(distance - radius('.face .hours .inner')) < Math.abs(distance - radius('.face .hours .outer'));
-    this.setTime({ ...time, hour: index + (inner ? 12 : 0) });
+    const [inner, outer] = [radius('.face .hours .inner'), radius('.face .hours .outer')];
+    const index = Math.round(degrees / 30) % 12;
+    const ringHour = index + (Math.abs(distance - inner) < Math.abs(distance - outer) ? 12 : 0);
+    if (this.offers('hour', { ...time, hour: ringHour })) {
+      this.setTime({ ...time, hour: ringHour });
+      return;
+    }
+    // DTM-50: the number under the pointer is unavailable — the available one nearest the pointer, on either ring.
+    const point = (hour: number) => {
+      const at = direction((hour % 12) * 30);
+      const r = hour >= 12 ? inner : outer;
+      return Math.hypot(at.x * r - dx, at.y * r - dy);
+    };
+    const hour = this.hourValues.filter((value) => this.offers('hour', { ...time, hour: value })).sort((a, b) => point(a) - point(b))[0];
+    if (hour !== undefined) this.setTime({ ...time, hour });
   }
 
   private readonly onDialDown = (event: PointerEvent) => {
@@ -2139,6 +2334,8 @@ export class TanreiDateTimePicker extends LitElement {
       // DTM-7: a docked picker for a date only shows what the product sets while it is open; any other keeps its pending choice (DTM-6).
       if (this.open && !this.pendingUntilOk && (changed.has('value') || changed.has('start') || changed.has('end'))) this.pending = this.cfg.committed;
       if (!this.session) this.pending = this.cfg.committed;
+      // DTM-49: bounds set while the picker is open move a pending time outside them into them.
+      else if (changed.has('min') || changed.has('max') || changed.has('minuteStep')) this.keepWithin();
     }
     if (this.session) this.syncWheels();
     // DTM-26: the handle turns along the shorter arc to the value it shows.
@@ -2336,7 +2533,15 @@ export class TanreiDateTimePicker extends LitElement {
       <span class="ring" data-tanrei-shape aria-hidden="true"></span>
       <span class="measure" aria-hidden="true">${this.periodNames(null)}</span>
       <div class="rows" aria-hidden="true">
-        ${names.map((name, at) => html`<span class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })} style=${styleMap({ '--_at': String(at - position) })}>${name}</span>`)}
+        ${names.map(
+          (name, at) =>
+            html`<span
+              class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })}
+              ?data-unavailable=${!this.offersPeriod(at ? 1 : 0)}
+              style=${styleMap({ '--_at': String(at - position) })}
+              >${name}</span
+            >`,
+        )}
       </div>
       <div
         class="entry"
@@ -2345,8 +2550,8 @@ export class TanreiDateTimePicker extends LitElement {
         tabindex="0"
         aria-label=${ifDefined(this.say.periodLabel || undefined)}
         aria-valuenow=${pending}
-        aria-valuemin="0"
-        aria-valuemax="1"
+        aria-valuemin=${this.periodReach[0]}
+        aria-valuemax=${this.periodReach[1]}
         aria-valuetext=${names[pending]}
         @keydown=${this.onPeriodKeyDown}
         @focus=${this.periodHandlers.onFocus}
@@ -2372,8 +2577,8 @@ export class TanreiDateTimePicker extends LitElement {
       tabindex="0"
       aria-label=${ifDefined(this.say.periodLabel || undefined)}
       aria-valuenow=${pending}
-      aria-valuemin="0"
-      aria-valuemax="1"
+      aria-valuemin=${this.periodReach[0]}
+      aria-valuemax=${this.periodReach[1]}
       aria-valuetext=${names[pending]}
       data-tanrei-shape
       ?data-ring=${this.ringed === 'period'}
@@ -2440,7 +2645,12 @@ export class TanreiDateTimePicker extends LitElement {
           rows,
           (at) => at,
           (at) =>
-            html`<span class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })} style=${styleMap({ '--_at': String(at - position) })}>${text(at)}</span>`,
+            html`<span
+              class=${classMap({ row: true, on: Math.abs(at - position) < 0.5 })}
+              ?data-unavailable=${!this.offers(unit, this.withIndex(unit, at))}
+              style=${styleMap({ '--_at': String(at - position) })}
+              >${text(at)}</span
+            >`,
         )}
       </div>
       <input
@@ -2545,16 +2755,28 @@ export class TanreiDateTimePicker extends LitElement {
   }
 
   /** DTM-23: the numbers of a unit around the dial, clockwise from the top (two rings for the 24-hour hours). */
+  /** DTM-23, DTM-50: … each with whether the value it names is available. */
   private dialNumbers(unit: Unit) {
     const { locale, cycle, step } = this.cfg;
+    const time = this.time;
     if (unit === 'minute') {
       const every = step <= 5 ? 5 : step;
-      return stepMinutes(every).map((minute) => ({ text: numberText(locale, minute, 2), inner: false, ...direction(minute * 6) }));
+      return stepMinutes(every).map((minute) => ({
+        text: numberText(locale, minute, 2),
+        inner: false,
+        available: this.offers('minute', { ...time, minute }),
+        ...direction(minute * 6),
+      }));
     }
-    const ring = (inner: boolean, value: (index: number) => number, digits: number) =>
-      Array.from({ length: 12 }, (_, index) => ({ text: numberText(locale, value(index), digits), inner, ...direction(index * 30) }));
-    if (cycle === 'h12') return ring(false, (index) => (index === 0 ? 12 : index), 1);
-    return [...ring(false, (index) => index, 2), ...ring(true, (index) => index + 12, 2)];
+    const ring = (inner: boolean, value: (index: number) => number, hour: (value: number) => number, digits: number) =>
+      Array.from({ length: 12 }, (_, index) => ({
+        text: numberText(locale, value(index), digits),
+        inner,
+        available: this.offers('hour', { ...time, hour: hour(value(index)) }),
+        ...direction(index * 30),
+      }));
+    if (cycle === 'h12') return ring(false, (index) => (index === 0 ? 12 : index), (value) => hourOf12(value, periodOf(time.hour)), 1);
+    return [...ring(false, (index) => index, (value) => value, 2), ...ring(true, (index) => index + 12, (value) => value, 2)];
   }
 
   private numbers() {
@@ -2562,7 +2784,10 @@ export class TanreiDateTimePicker extends LitElement {
       html`<div class=${classMap({ numbers: true, [`${unit}s`]: true, faded: this.shownUnit !== unit })}>
         ${this.dialNumbers(unit).map(
           (number) =>
-            html`<span class=${classMap({ number: true, inner: number.inner, outer: !number.inner })} style=${styleMap({ '--_x': String(number.x), '--_y': String(number.y) })}
+            html`<span
+              class=${classMap({ number: true, inner: number.inner, outer: !number.inner })}
+              ?data-unavailable=${!number.available}
+              style=${styleMap({ '--_x': String(number.x), '--_y': String(number.y) })}
               >${number.text}</span
             >`,
         )}

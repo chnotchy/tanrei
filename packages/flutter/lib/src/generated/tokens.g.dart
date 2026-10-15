@@ -8553,6 +8553,7 @@ class TanreiDateTimePickerTokens {
     required this.separatorColor,
     required this.separatorTypescale,
     required this.timeEntryModes,
+    required this.timeUnavailableOpacity,
     required this.wheelGap,
     required this.wheelHeight,
     required this.wheelLabelColor,
@@ -8715,6 +8716,8 @@ class TanreiDateTimePickerTokens {
   final TanreiTextStyle separatorTypescale;
   /// `comp.date-time-picker.time-entry-modes`
   final double timeEntryModes;
+  /// `comp.date-time-picker.time-unavailable-opacity`
+  final double timeUnavailableOpacity;
   /// `comp.date-time-picker.wheel-gap`
   final double wheelGap;
   /// `comp.date-time-picker.wheel-height`
@@ -8819,6 +8822,7 @@ class TanreiDateTimePickerTokens {
     TanreiPaint? separatorColor,
     TanreiTextStyle? separatorTypescale,
     double? timeEntryModes,
+    double? timeUnavailableOpacity,
     double? wheelGap,
     double? wheelHeight,
     TanreiPaint? wheelLabelColor,
@@ -8907,6 +8911,7 @@ class TanreiDateTimePickerTokens {
         separatorColor: separatorColor ?? this.separatorColor,
         separatorTypescale: separatorTypescale ?? this.separatorTypescale,
         timeEntryModes: timeEntryModes ?? this.timeEntryModes,
+        timeUnavailableOpacity: timeUnavailableOpacity ?? this.timeUnavailableOpacity,
         wheelGap: wheelGap ?? this.wheelGap,
         wheelHeight: wheelHeight ?? this.wheelHeight,
         wheelLabelColor: wheelLabelColor ?? this.wheelLabelColor,

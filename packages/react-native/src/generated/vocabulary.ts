@@ -1884,6 +1884,7 @@ export interface TanreiDateTimePickerTokens {
   readonly separatorColor: TanreiPaint;
   readonly separatorTypescale: TanreiTypescaleRole;
   readonly timeEntryModes: number;
+  readonly timeUnavailableOpacity: number;
   readonly wheelGap: number;
   readonly wheelHeight: number;
   readonly wheelLabelColor: TanreiPaint;
