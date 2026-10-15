@@ -5078,8 +5078,9 @@ than `container.gap.docked`, one item centred, every item centred across the row
 insets, and the items stay above and inside them (TBR-3). Floating: `display: inline-flex`, as long as its items —
 `container.padding-inline.floating` at each end and `container.gap.floating` between (0 in the default system), two
 neighbours standing further apart only as far as each needs to keep `sys.target.touch` of length along the axis
-(TBR-16: medium Buttons 8 apart, large ones touching, small ones 16; the toolbar measures its items and writes their
-lengths on them as `--tanrei-kept-*` custom properties, `src/primitives/kept-length.ts`, not a styling API) — at least
+(TBR-16: medium Buttons 8 apart, large ones touching, small ones 16; the toolbar measures its items and lays the space
+between two of them as an element of its own container, `src/primitives/kept-length.ts`, writing nothing on the items,
+so a page's reset such as `* { margin: 0 }` leaves the spacing as it is) — at least
 `container.size.floating` across, rounded by `container.shape.floating` (the shared corner rule, so smoothing eases a
 non-pill corner) with its edge all round; it never positions itself, draws no scrim and reads no inset (TBR-5): place it
 where your layout wants it. Vertical (floating only) stacks the items top to bottom whatever the direction, the paddings
@@ -7127,8 +7128,8 @@ button) `container.padding-inline` (`-with-button`) from the start, `container.g
 buttons (the clear button, then the trailing slot's) `container.button-gap` from one another, 0 in the default system,
 and two of them further apart only as far as each needs to keep `sys.target.touch` of length along the row (SRC-34: the
 small clear button and a medium Button 12 apart, two medium Buttons 8, two of 48 or more touching; the search measures
-its buttons and writes their lengths on them as `--tanrei-kept-*` custom properties, `src/primitives/kept-length.ts`,
-not a styling API) — the last one
+its buttons and lays the space before each trailing button as an element of its own trailing box,
+`src/primitives/kept-length.ts`, writing nothing on the product's buttons, so a page's reset leaves it) — the last one
 `container.padding-inline-with-button` from the end when it is a button, `container.padding-inline` when it is the input;
 mirrored in right-to-left. Its edge is a border inside the bar in the state's outline color and width — clear at rest in
 the default system, the focused outline under focus by pointer or keyboard (never a ring; a glow as well under
