@@ -49,7 +49,7 @@
   "slots": [
     {
       "name": "default",
-      "description": "The anchor the badge sits on: an icon, an icon-only Button, a navigation item or an avatar. In fixtures the anchor is the glyph of the system's icon set that the fixture's content names, drawn at the icon size sys.icon.medium in the color on-surface-variant; its accessible name is that glyph name (\"mail\"), and the badge adds the fixture's label to it as its value (\"mail, 3 unread\")."
+      "description": "The anchor the badge sits on, which it needs: an icon, an icon-only Button, a navigation item or an avatar. Its first element is the anchor; a badge with no element to sit on draws nothing (BDG-16). In fixtures the anchor is the glyph of the system's icon set that the fixture's content names, drawn at the icon size sys.icon.medium in the color on-surface-variant; its accessible name is that glyph name (\"mail\"), and the badge adds the fixture's label to it as its value (\"mail, 3 unread\")."
     }
   ],
   "states": [
@@ -116,6 +116,10 @@
       "id": "BDG-15",
       "text": "THE badge SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the badge is shown THE badge SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows and its state.",
       "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "BDG-16",
+      "text": "IF the badge has no anchor THE badge SHALL draw nothing, take no space and expose nothing to assistive technology, whatever its count and label, and in debug builds report that a badge needs an anchor; WHEN an anchor is given to it THE badge SHALL draw itself on that anchor (BDG-1, BDG-3) and describe it (BDG-8) at once, and WHEN its anchor is taken away it SHALL give the anchor back its own description and draw nothing again."
     }
   ],
   "accessibility": {
@@ -127,6 +131,7 @@
       "Not interactive: the badge takes no input (BDG-7), so the minimum target is the anchor's and the badge never shrinks or covers it for input.",
       "A dot conveys its meaning by color and position only, so a dot without a label fails for screen reader users (BDG-9); give it one (\"new messages\").",
       "Where the count must be announced when it changes (a live chat), the product uses a live region; the badge does not announce by itself (BDG-10).",
+      "A badge marks an anchor and never stands alone in a line or a row (BDG-16). A count that stands by itself, such as the count at the end of a navigation drawer's row, a tree view's row or a menu item, is text, read in its place as the row's own words: that component's trailing text. A word that names a state is a tag.",
       "How the description reaches the anchor is each platform's idiom: the web sets it on the slotted anchor (an ID reference cannot cross the shadow root), Apple platforms append it to the anchor's accessibility value, Compose merges it into the anchor's semantics as a state description, Flutter adds it to the anchor's semantics value, React Native to its accessibility value."
     ]
   },
