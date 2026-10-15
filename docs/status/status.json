@@ -360,7 +360,7 @@
         "tooltip"
       ],
       "hasSpec": true,
-      "docs": null,
+      "docs": "/components/list-row/",
       "platforms": {
         "web": "lagging",
         "swiftui": "planned",
