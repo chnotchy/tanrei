@@ -2,7 +2,7 @@
 title: Insignia
 description: Marca un icono, un elemento de navegación o un avatar con un punto o un número pequeño para indicar que hay algo pendiente.
 translationOf: components/badge.mdx
-sourceHash: a4ece32edcc7d1571544b3c3cbf6afac6aa68eff
+sourceHash: 74073b748fa7daa98b80d466a68d0d373c3a788a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -169,7 +169,7 @@ Los tres se distinguen por lo que hacen:
 2. Si se pulsa, se selecciona o se quita, es un chip. Si lleva a algún sitio, es un enlace.
 3. Si es una palabra que solo dice qué es una cosa o en qué estado está, es un tag.
 
-Un número que aparece por sí solo en una fila, como la cantidad de resultados junto a un encabezado, tampoco es una insignia: una insignia siempre tiene un ancla. Escríbelo como texto, o como un tag cuando nombre un estado.
+Un número que aparece por sí solo en una fila, como la cantidad de resultados junto a un encabezado, tampoco es una insignia: una insignia siempre tiene un ancla, y una que no tiene dónde situarse no dibuja nada. Escribe ese número como texto, leído en su lugar junto con las demás palabras de la fila: al final de un elemento de un [panel de navegación](/es/components/navigation-drawer/) es el `trailingText` del elemento. Cuando nombre un estado, usa un tag.
 
 ### Cómo elegir una forma
 
@@ -205,6 +205,7 @@ Un número por encima de `max` se muestra como `max+` (999+ de forma predetermin
 - El punto y el número dibujados quedan ocultos para la tecnología de apoyo, de modo que el número nunca se lee dos veces.
 - La etiqueta (o, si no la hay, el número mostrado, como «999+») pasa a formar parte del ancla, de modo que el ancla se anuncia una sola vez con ambos: «Bandeja de entrada, botón, 3 sin leer». Cada plataforma usa su estilo propio: un `aria-description` en el ancla en la web, el valor de accesibilidad en las plataformas de Apple, Flutter y React Native, y una descripción de estado en Compose.
 - Un número igual a 0 no añade nada: el ancla se anuncia como se anunciaría sin insignia.
+- Una insignia sin ancla no dibuja nada, no ocupa espacio y no dice nada, y las compilaciones de depuración lo notifican. Si más tarde recibe un ancla, se dibuja sobre ella en ese mismo momento.
 - Un cambio de número o de etiqueta actualiza lo que dice el ancla, sin un anuncio que interrumpa a la persona.
 - No recibe entrada ni ocupa espacio, así que el área de pulsación del ancla queda intacta.
 - Un punto sin etiqueta, un número negativo y un `max` inferior a 1 se notifican en las compilaciones de depuración.

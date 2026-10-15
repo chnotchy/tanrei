@@ -167,7 +167,7 @@ The three are told apart by what they do:
 2. If it is pressed, selected or removed, it is a chip. If it leads somewhere, it is a link.
 3. If it is a word that only says what a thing is or what state it is in, it is a tag.
 
-A count that stands by itself in a row, such as the number of results beside a heading, is not a badge either: a badge always has an anchor. Write it as text, or as a tag where it names a state.
+A count that stands by itself in a row, such as the number of results beside a heading, is not a badge either: a badge always has an anchor, and one with nothing to sit on draws nothing. Write such a count as text, read in its place with the row's other words: at the end of a [navigation drawer](/components/navigation-drawer/) item it is the item's `trailingText`. Where it names a state, use a tag.
 
 ### Choosing a form
 
@@ -203,6 +203,7 @@ A count above `max` shows as `max+` (999+ by default), so the badge never grows 
 - The drawn dot and number are hidden from assistive technology, so the count is never read twice.
 - The label (or, without one, the displayed count such as "999+") becomes part of the anchor, so the anchor is announced once with both: "Inbox, button, 3 unread". Each platform uses its own idiom: an `aria-description` on the anchor on the web, the accessibility value on Apple platforms, Flutter and React Native, and a state description on Compose.
 - A count of 0 adds nothing: the anchor is announced as it would be without a badge.
+- A badge with no anchor draws nothing, takes no space and says nothing, and a debug build reports it. Given an anchor later, it draws on it at once.
 - A change of count or label updates what the anchor says, without an announcement that would interrupt the person.
 - It takes no input and no space, so the anchor's hit area stays whole.
 - A dot without a label, a negative count and a `max` below 1 are reported in debug builds.
