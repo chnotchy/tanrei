@@ -5012,6 +5012,38 @@ private let m3LikeLinkTokens = TanreiLinkTokens(
   )
 )
 
+private let m3LikeListRowTokens = TanreiListRowTokens(
+  containerGap: 16,
+  containerPaddingInlineEnd: 24,
+  containerPaddingInlineStart: 16,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: m3LikeTypescale.bodyLarge,
+  leadingIconColor: .role(.onSurfaceVariant),
+  leadingIconSize: 24,
+  overlineColor: .role(.onSurfaceVariant),
+  overlineTypescale: m3LikeTypescale.labelSmall,
+  supportingTextColor: .role(.onSurfaceVariant),
+  supportingTextTypescale: m3LikeTypescale.bodySmall,
+  trailingIconColor: .role(.onSurfaceVariant),
+  trailingIconSize: 24,
+  trailingTextColor: .role(.onSurfaceVariant),
+  trailingTextTypescale: m3LikeTypescale.bodySmall,
+  densitys: TanreiListRowDensitys(
+    regular: TanreiListRowDensityTokens(
+      containerHeightOneLine: 56,
+      containerHeightTwoLine: 72,
+      containerHeightThreeLine: 88,
+      containerPaddingBlock: 8
+    ),
+    compact: TanreiListRowDensityTokens(
+      containerHeightOneLine: 40,
+      containerHeightTwoLine: 56,
+      containerHeightThreeLine: 72,
+      containerPaddingBlock: 4
+    )
+  )
+)
+
 private let m3LikeListTokens = TanreiListTokens(
   containerGap: 16,
   containerHeight: 56,
@@ -9935,6 +9967,7 @@ extension TanreiSystem {
     keyboardShortcut: m3LikeKeyboardShortcutTokens,
     linkCard: m3LikeLinkCardTokens,
     link: m3LikeLinkTokens,
+    listRow: m3LikeListRowTokens,
     list: m3LikeListTokens,
     loadingIndicator: m3LikeLoadingIndicatorTokens,
     mainActionButton: m3LikeMainActionButtonTokens,

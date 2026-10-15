@@ -201,6 +201,7 @@ As common nouns: page titles, headings, running text.
 | Link | リンク | 链接 |
 | Link card | リンクカード | 链接卡片 |
 | List | リスト | 列表 |
+| List row | リスト行 — its parts: オーバーライン, 見出し (headline), 補足テキスト, 末尾テキスト | 列表行 — its parts: 上标文本 (overline), 标题 (headline), 辅助文本, 后置文本 |
 | Loading indicator | ローディングインジケーター | 加载指示器 |
 | Main action button | メインアクションボタン | 主操作按钮 |
 | Menu | メニュー | 菜单 |
@@ -423,6 +424,7 @@ As common nouns: page titles, headings, running text. The API name (`Button`, `t
 | Link | Enlace | लिंक | الرابط |
 | Link card | Tarjeta de enlace | लिंक कार्ड | بطاقة الرابط |
 | List | Lista | लिस्ट | القائمة (list) — `Menu` is قائمة الخيارات |
+| List row | Fila de lista — its parts: sobretítulo (overline), titular (headline), texto de apoyo, texto final | लिस्ट पंक्ति — its parts: ओवरलाइन, हेडलाइन, सहायक टेक्स्ट, अंतिम टेक्स्ट | صف القائمة — its parts: السطر العلوي (overline)، العنوان الرئيسي (headline)، النص المساعد، النص في النهاية |
 | Loading indicator | Indicador de carga | लोडिंग इंडिकेटर | مؤشر التحميل |
 | Main action button | Botón de acción principal | मुख्य ऐक्शन बटन | زر الإجراء الرئيسي |
 | Menu | Menú | मेन्यू | قائمة الخيارات |

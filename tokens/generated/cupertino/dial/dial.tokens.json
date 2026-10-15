@@ -4231,6 +4231,18 @@
               "$value": "{tanrei.sys.typescale.body-large}",
               "reason": "Apple's list rows set their title in Body (17pt), which is body-large here; cupertino's body is 15pt."
             },
+            "tanrei.comp.list-row.headline.typescale": {
+              "$value": "{tanrei.sys.typescale.body-large}",
+              "reason": "Apple's list rows set their title in Body (17pt), which is body-large here; cupertino's body is 15pt."
+            },
+            "tanrei.comp.list-row.container.height.one-line.regular": {
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 11
+              },
+              "reason": "Apple's list row of one line is 44 points tall, as this preset's list items are."
+            },
             "tanrei.comp.code-block.line.added.container.color": {
               "$value": {
                 "colorSpace": "srgb",

@@ -5044,6 +5044,38 @@ private let m3ExpressiveLikeLinkTokens = TanreiLinkTokens(
   )
 )
 
+private let m3ExpressiveLikeListRowTokens = TanreiListRowTokens(
+  containerGap: 16,
+  containerPaddingInlineEnd: 24,
+  containerPaddingInlineStart: 16,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: m3ExpressiveLikeTypescale.bodyLarge,
+  leadingIconColor: .role(.onSurfaceVariant),
+  leadingIconSize: 24,
+  overlineColor: .role(.onSurfaceVariant),
+  overlineTypescale: m3ExpressiveLikeTypescale.labelSmall,
+  supportingTextColor: .role(.onSurfaceVariant),
+  supportingTextTypescale: m3ExpressiveLikeTypescale.bodySmall,
+  trailingIconColor: .role(.onSurfaceVariant),
+  trailingIconSize: 24,
+  trailingTextColor: .role(.onSurfaceVariant),
+  trailingTextTypescale: m3ExpressiveLikeTypescale.bodySmall,
+  densitys: TanreiListRowDensitys(
+    regular: TanreiListRowDensityTokens(
+      containerHeightOneLine: 56,
+      containerHeightTwoLine: 72,
+      containerHeightThreeLine: 88,
+      containerPaddingBlock: 8
+    ),
+    compact: TanreiListRowDensityTokens(
+      containerHeightOneLine: 40,
+      containerHeightTwoLine: 56,
+      containerHeightThreeLine: 72,
+      containerPaddingBlock: 4
+    )
+  )
+)
+
 private let m3ExpressiveLikeListTokens = TanreiListTokens(
   containerGap: 16,
   containerHeight: 56,
@@ -9967,6 +9999,7 @@ extension TanreiSystem {
     keyboardShortcut: m3ExpressiveLikeKeyboardShortcutTokens,
     linkCard: m3ExpressiveLikeLinkCardTokens,
     link: m3ExpressiveLikeLinkTokens,
+    listRow: m3ExpressiveLikeListRowTokens,
     list: m3ExpressiveLikeListTokens,
     loadingIndicator: m3ExpressiveLikeLoadingIndicatorTokens,
     mainActionButton: m3ExpressiveLikeMainActionButtonTokens,

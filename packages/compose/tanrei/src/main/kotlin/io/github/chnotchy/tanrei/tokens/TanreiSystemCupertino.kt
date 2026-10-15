@@ -98,6 +98,7 @@ private object CupertinoSystemSource {
             keyboardShortcut = keyboardShortcut(typescale, elevation),
             linkCard = linkCard(typescale, elevation),
             link = link(typescale, elevation),
+            listRow = listRow(typescale, elevation),
             list = list(typescale, elevation),
             loadingIndicator = loadingIndicator(typescale, elevation),
             mainActionButton = mainActionButton(typescale, elevation),
@@ -4713,6 +4714,30 @@ private object CupertinoSystemSource {
                         currentStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.InverseOnSurface), amount = 0.38f),
                     ),
                 ),
+            ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun listRow(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiListRowTokens =
+        TanreiListRowTokens(
+            containerGap = 16.dp,
+            containerPaddingInlineEnd = 16.dp,
+            containerPaddingInlineStart = 16.dp,
+            headlineColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            headlineTypescale = typescale.bodyLarge,
+            leadingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            leadingIconSize = 24.dp,
+            overlineColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            overlineTypescale = typescale.labelSmall,
+            supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            supportingTextTypescale = typescale.bodySmall,
+            trailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            trailingIconSize = 24.dp,
+            trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            trailingTextTypescale = typescale.bodySmall,
+            densitys = TanreiListRowDensitys(
+                regular = TanreiListRowDensityTokens(containerHeightOneLine = 44.dp, containerHeightTwoLine = 72.dp, containerHeightThreeLine = 88.dp, containerPaddingBlock = 8.dp),
+                compact = TanreiListRowDensityTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 72.dp, containerPaddingBlock = 4.dp),
             ),
         )
 

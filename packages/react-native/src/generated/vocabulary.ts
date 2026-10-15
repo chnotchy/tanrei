@@ -2878,6 +2878,51 @@ export interface TanreiLinkTokens {
 }
 
 /**
+ * Every value of `comp.list-row`'s `density` axis. The core values are listed here; a system that adds one
+ * declares it by module augmentation — its generated file does that. At runtime a value the active system
+ * does not have falls back to `regular` (with a dev-only warning).
+ */
+export interface TanreiListRowDensityRegistry {
+  regular: true;
+  compact: true;
+}
+export type TanreiListRowDensity = keyof TanreiListRowDensityRegistry;
+export type TanreiCoreListRowDensity = "regular" | "compact";
+
+/** The tokens of one `density` of `comp.list-row`. */
+export interface TanreiListRowDensityTokens {
+  readonly containerHeightOneLine: number;
+  readonly containerHeightTwoLine: number;
+  readonly containerHeightThreeLine: number;
+  readonly containerPaddingBlock: number;
+}
+/** Core values are required; a value a system added is present only in that system. */
+export type TanreiListRowDensitys = { readonly [Key in TanreiCoreListRowDensity]: TanreiListRowDensityTokens } & { readonly [Key in TanreiListRowDensity]?: TanreiListRowDensityTokens };
+
+/**
+ * `comp.list-row`: one member per token that is on no axis (a per-state one carries the state in its name,
+ * `<state><Part>`), then one holder per axis (`densitys`), keyed by the axis value.
+ */
+export interface TanreiListRowTokens {
+  readonly containerGap: number;
+  readonly containerPaddingInlineEnd: number;
+  readonly containerPaddingInlineStart: number;
+  readonly headlineColor: TanreiPaint;
+  readonly headlineTypescale: TanreiTypescaleRole;
+  readonly leadingIconColor: TanreiPaint;
+  readonly leadingIconSize: number;
+  readonly overlineColor: TanreiPaint;
+  readonly overlineTypescale: TanreiTypescaleRole;
+  readonly supportingTextColor: TanreiPaint;
+  readonly supportingTextTypescale: TanreiTypescaleRole;
+  readonly trailingIconColor: TanreiPaint;
+  readonly trailingIconSize: number;
+  readonly trailingTextColor: TanreiPaint;
+  readonly trailingTextTypescale: TanreiTypescaleRole;
+  readonly densitys: TanreiListRowDensitys;
+}
+
+/**
  * Every value of `comp.list`'s `condition` axis. The core values are listed here; a system that adds one
  * declares it by module augmentation — its generated file does that. At runtime a value the active system
  * does not have falls back to `unselected` (with a dev-only warning).
@@ -5566,6 +5611,7 @@ export interface TanreiComponents {
   readonly keyboardShortcut: TanreiKeyboardShortcutTokens;
   readonly linkCard: TanreiLinkCardTokens;
   readonly link: TanreiLinkTokens;
+  readonly listRow: TanreiListRowTokens;
   readonly list: TanreiListTokens;
   readonly loadingIndicator: TanreiLoadingIndicatorTokens;
   readonly mainActionButton: TanreiMainActionButtonTokens;
@@ -5688,6 +5734,7 @@ declare module './vocabulary' {
   interface TanreiKeyboardShortcutVariantRegistry {}
   interface TanreiLinkCardVariantRegistry {}
   interface TanreiLinkVariantRegistry {}
+  interface TanreiListRowDensityRegistry {}
   interface TanreiListConditionRegistry {}
   interface TanreiLoadingIndicatorSizeRegistry {}
   interface TanreiMainActionButtonSizeRegistry {}

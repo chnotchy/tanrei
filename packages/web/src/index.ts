@@ -253,7 +253,10 @@ export {
   type TanreiListMoveDetail,
   type TanreiListOrientation,
   type TanreiListSelection,
+  type TanreiListItemFrame,
+  type TanreiListItemContent,
 } from './components/list/list.js';
+export { TanreiListRow, type TanreiListRowDensity } from './components/list-row/list-row.js';
 export {
   TanreiMainActionButton,
   type TanreiMainActionButtonIconPosition,

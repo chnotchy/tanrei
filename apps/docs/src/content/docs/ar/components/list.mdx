@@ -2,7 +2,7 @@
 title: القائمة (list)
 description: تحمل مجموعة من عناصر المنتج نفسه (صفوفًا، ومربعات، وبطاقات، وملفات) في عمود واحد، أو سطر واحد، أو أسطر تلتف فتصنع شبكة. يقرؤها الناس، ويفتحونها واحدًا بعد آخر، ويختارون منها، أو يسحبونها إلى ترتيب آخر.
 translationOf: components/list.mdx
-sourceHash: 44e7c407804448e2e2a34486b365e5f53b561213
+sourceHash: a7c35532dba932b8eb282a4f36d7986db3c048ce
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -30,11 +30,9 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 <style>{`
   .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
-  .demo-row { display: flex; flex-direction: column; }
-  .demo-row small { color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-body-small-font); }
 `}</style>
 
-القائمة صندوق. ما يعرضه كل عنصر هو محتواك أنت: نص، أو صورة، أو بطاقة، أو [عنصر الملف](/ar/components/file-item/) (file item). وتتولى القائمة كل ما حول العناصر: كيف تُرتَّب، والمسافة والخطوط بينها، وما هي بالنسبة إلى التقنيات المساعدة، وكيف ينتقل تركيز لوحة المفاتيح بينها، وأيها مختار، وكيف يضعها الناس في ترتيب آخر.
+القائمة صندوق. ما يعرضه كل عنصر هو محتواك أنت: نص، أو صورة، أو بطاقة، أو [عنصر الملف](/ar/components/file-item/) (file item)، أو [صف القائمة](/ar/components/list-row/) (list row)، وهو الصف المؤلف من عنوان رئيسي وسطر أو سطرين من النص المساعد وشيء قبلهما وشيء بعدهما، ومنه تتألف معظم القوائم. وتتولى القائمة كل ما حول العناصر: كيف تُرتَّب، والمسافة والخطوط بينها، وما هي بالنسبة إلى التقنيات المساعدة، وكيف ينتقل تركيز لوحة المفاتيح بينها، وأيها مختار، وكيف يضعها الناس في ترتيب آخر.
 
 <DemoFrame label="عمود، وسطر، وشبكة تلتف" plain>
   <tanrei-list gap="small" style="inline-size: 16rem">
@@ -58,9 +56,9 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 <DemoFrame label="عناصر تفتح شيئًا، وعناصر هي روابط، واختيار واحد" plain>
   <tanrei-list dividers style="inline-size: 16rem">
-    <tanrei-list-item interactive><span class="demo-row">Wi-Fi<small>Connected</small></span></tanrei-list-item>
-    <tanrei-list-item href="#list-demo-button"><span class="demo-row">Button<small>Actions and toggles</small></span></tanrei-list-item>
-    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+    <tanrei-list-item interactive><tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected"></tanrei-list-row></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-button"><tanrei-list-row leading-icon="smart_button" headline="Button" supporting-text="Actions and toggles"></tanrei-list-row></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab"><tanrei-list-row leading-icon="code" headline="Source code"></tanrei-list-row></tanrei-list-item>
   </tanrei-list>
   <tanrei-list selection="single" label="Theme" value="light" style="inline-size: 16rem">
     <tanrei-list-item value="light">Light</tanrei-list-item>
@@ -90,9 +88,11 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
       <tanrei-list-item><img src="2.jpg" alt="Market street" /></tanrei-list-item>
     </tanrei-list>
 
-    <!-- Items that are one button or one link each, with lines between them. -->
+    <!-- Items that are one button or one link each, with lines between them. A list row draws a headline and its lines. -->
     <tanrei-list dividers>
-      <tanrei-list-item interactive>Wi-Fi</tanrei-list-item>
+      <tanrei-list-item interactive>
+        <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected"></tanrei-list-row>
+      </tanrei-list-item>
       <tanrei-list-item href="/privacy/">Privacy policy</tanrei-list-item>
       <tanrei-list-item href="https://example.com/tanrei" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
     </tanrei-list>

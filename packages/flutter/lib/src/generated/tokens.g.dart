@@ -13441,6 +13441,200 @@ class TanreiLinkTokens {
       };
 }
 
+/// The key of a density of list-row (`comp.list-row`, axis `density`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiListRowDensity('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [regular].
+extension type const TanreiListRowDensity(String name) {
+  static const regular = TanreiListRowDensity('regular');
+  static const compact = TanreiListRowDensity('compact');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiListRowDensity> core = <TanreiListRowDensity>[regular, compact];
+}
+
+/// The tokens of one list-row density.
+@immutable
+class TanreiListRowDensityTokens {
+  const TanreiListRowDensityTokens({
+    required this.containerHeightOneLine,
+    required this.containerHeightTwoLine,
+    required this.containerHeightThreeLine,
+    required this.containerPaddingBlock,
+  });
+
+  /// `comp.list-row.container-height-one-line.<density>`
+  final double containerHeightOneLine;
+  /// `comp.list-row.container-height-two-line.<density>`
+  final double containerHeightTwoLine;
+  /// `comp.list-row.container-height-three-line.<density>`
+  final double containerHeightThreeLine;
+  /// `comp.list-row.container-padding-block.<density>`
+  final double containerPaddingBlock;
+
+  /// A copy with the given tokens replaced.
+  TanreiListRowDensityTokens copyWith({
+    double? containerHeightOneLine,
+    double? containerHeightTwoLine,
+    double? containerHeightThreeLine,
+    double? containerPaddingBlock,
+  }) => TanreiListRowDensityTokens(
+        containerHeightOneLine: containerHeightOneLine ?? this.containerHeightOneLine,
+        containerHeightTwoLine: containerHeightTwoLine ?? this.containerHeightTwoLine,
+        containerHeightThreeLine: containerHeightThreeLine ?? this.containerHeightThreeLine,
+        containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
+      );
+}
+
+/// Every density of list-row: the core values by name, the values a design system added in [extra].
+/// Look one up with `densitys[key]`; the lookup is total.
+@immutable
+class TanreiListRowDensitys {
+  const TanreiListRowDensitys({
+    required this.regular,
+    required this.compact,
+    this.extra = const <TanreiListRowDensity, TanreiListRowDensityTokens>{},
+  });
+
+  /// `comp.list-row` density `regular`
+  final TanreiListRowDensityTokens regular;
+  /// `comp.list-row` density `compact`
+  final TanreiListRowDensityTokens compact;
+
+  /// The densitys a design system added to the core vocabulary.
+  final Map<TanreiListRowDensity, TanreiListRowDensityTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiListRowDensitys copyWith({
+    TanreiListRowDensityTokens? regular,
+    TanreiListRowDensityTokens? compact,
+    Map<TanreiListRowDensity, TanreiListRowDensityTokens>? extra,
+  }) => TanreiListRowDensitys(
+        regular: regular ?? this.regular,
+        compact: compact ?? this.compact,
+        extra: extra == null ? this.extra : <TanreiListRowDensity, TanreiListRowDensityTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [density].
+  ///
+  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiListRowDensityTokens operator [](TanreiListRowDensity density) => switch (density.name) {
+        'regular' => regular,
+        'compact' => compact,
+        _ => extra[density] ?? _fallback(density),
+      };
+
+  /// Whether this design system has [density].
+  bool has(TanreiListRowDensity density) => TanreiListRowDensity.core.contains(density) || extra.containsKey(density);
+
+  /// Every density this design system has: the core values, then the added ones.
+  List<TanreiListRowDensity> get keys => <TanreiListRowDensity>[...TanreiListRowDensity.core, ...extra.keys];
+
+  TanreiListRowDensityTokens _fallback(TanreiListRowDensity density) {
+    assert(() {
+      debugTanreiReportUnknownValue('list-row density', density.name, 'regular');
+      return true;
+    }());
+    return regular;
+  }
+}
+
+/// `comp.list-row.*`
+@immutable
+class TanreiListRowTokens {
+  const TanreiListRowTokens({
+    required this.containerGap,
+    required this.containerPaddingInlineEnd,
+    required this.containerPaddingInlineStart,
+    required this.headlineColor,
+    required this.headlineTypescale,
+    required this.leadingIconColor,
+    required this.leadingIconSize,
+    required this.overlineColor,
+    required this.overlineTypescale,
+    required this.supportingTextColor,
+    required this.supportingTextTypescale,
+    required this.trailingIconColor,
+    required this.trailingIconSize,
+    required this.trailingTextColor,
+    required this.trailingTextTypescale,
+    required this.densitys,
+  });
+
+  /// `comp.list-row.container-gap`
+  final double containerGap;
+  /// `comp.list-row.container-padding-inline-end`
+  final double containerPaddingInlineEnd;
+  /// `comp.list-row.container-padding-inline-start`
+  final double containerPaddingInlineStart;
+  /// `comp.list-row.headline-color`
+  final TanreiPaint headlineColor;
+  /// `comp.list-row.headline-typescale`
+  final TanreiTextStyle headlineTypescale;
+  /// `comp.list-row.leading-icon-color`
+  final TanreiPaint leadingIconColor;
+  /// `comp.list-row.leading-icon-size`
+  final double leadingIconSize;
+  /// `comp.list-row.overline-color`
+  final TanreiPaint overlineColor;
+  /// `comp.list-row.overline-typescale`
+  final TanreiTextStyle overlineTypescale;
+  /// `comp.list-row.supporting-text-color`
+  final TanreiPaint supportingTextColor;
+  /// `comp.list-row.supporting-text-typescale`
+  final TanreiTextStyle supportingTextTypescale;
+  /// `comp.list-row.trailing-icon-color`
+  final TanreiPaint trailingIconColor;
+  /// `comp.list-row.trailing-icon-size`
+  final double trailingIconSize;
+  /// `comp.list-row.trailing-text-color`
+  final TanreiPaint trailingTextColor;
+  /// `comp.list-row.trailing-text-typescale`
+  final TanreiTextStyle trailingTextTypescale;
+  /// The `density` axis: `densitys[density]`.
+  final TanreiListRowDensitys densitys;
+
+  /// A copy with the given tokens replaced.
+  TanreiListRowTokens copyWith({
+    double? containerGap,
+    double? containerPaddingInlineEnd,
+    double? containerPaddingInlineStart,
+    TanreiPaint? headlineColor,
+    TanreiTextStyle? headlineTypescale,
+    TanreiPaint? leadingIconColor,
+    double? leadingIconSize,
+    TanreiPaint? overlineColor,
+    TanreiTextStyle? overlineTypescale,
+    TanreiPaint? supportingTextColor,
+    TanreiTextStyle? supportingTextTypescale,
+    TanreiPaint? trailingIconColor,
+    double? trailingIconSize,
+    TanreiPaint? trailingTextColor,
+    TanreiTextStyle? trailingTextTypescale,
+    TanreiListRowDensitys? densitys,
+  }) => TanreiListRowTokens(
+        containerGap: containerGap ?? this.containerGap,
+        containerPaddingInlineEnd: containerPaddingInlineEnd ?? this.containerPaddingInlineEnd,
+        containerPaddingInlineStart: containerPaddingInlineStart ?? this.containerPaddingInlineStart,
+        headlineColor: headlineColor ?? this.headlineColor,
+        headlineTypescale: headlineTypescale ?? this.headlineTypescale,
+        leadingIconColor: leadingIconColor ?? this.leadingIconColor,
+        leadingIconSize: leadingIconSize ?? this.leadingIconSize,
+        overlineColor: overlineColor ?? this.overlineColor,
+        overlineTypescale: overlineTypescale ?? this.overlineTypescale,
+        supportingTextColor: supportingTextColor ?? this.supportingTextColor,
+        supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
+        trailingIconColor: trailingIconColor ?? this.trailingIconColor,
+        trailingIconSize: trailingIconSize ?? this.trailingIconSize,
+        trailingTextColor: trailingTextColor ?? this.trailingTextColor,
+        trailingTextTypescale: trailingTextTypescale ?? this.trailingTextTypescale,
+        densitys: densitys ?? this.densitys,
+      );
+}
+
 /// The key of a condition of list (`comp.list`, axis `condition`).
 ///
 /// The set is open: the constants are the core values, and a design system may add its own —
@@ -26027,6 +26221,7 @@ class TanreiSystem {
     required this.keyboardShortcut,
     required this.linkCard,
     required this.link,
+    required this.listRow,
     required this.list,
     required this.loadingIndicator,
     required this.mainActionButton,
@@ -26125,6 +26320,7 @@ class TanreiSystem {
   final TanreiKeyboardShortcutTokens keyboardShortcut;
   final TanreiLinkCardTokens linkCard;
   final TanreiLinkTokens link;
+  final TanreiListRowTokens listRow;
   final TanreiListTokens list;
   final TanreiLoadingIndicatorTokens loadingIndicator;
   final TanreiMainActionButtonTokens mainActionButton;
@@ -26222,6 +26418,7 @@ class TanreiSystem {
     TanreiKeyboardShortcutTokens? keyboardShortcut,
     TanreiLinkCardTokens? linkCard,
     TanreiLinkTokens? link,
+    TanreiListRowTokens? listRow,
     TanreiListTokens? list,
     TanreiLoadingIndicatorTokens? loadingIndicator,
     TanreiMainActionButtonTokens? mainActionButton,
@@ -26317,6 +26514,7 @@ class TanreiSystem {
         keyboardShortcut: keyboardShortcut ?? this.keyboardShortcut,
         linkCard: linkCard ?? this.linkCard,
         link: link ?? this.link,
+        listRow: listRow ?? this.listRow,
         list: list ?? this.list,
         loadingIndicator: loadingIndicator ?? this.loadingIndicator,
         mainActionButton: mainActionButton ?? this.mainActionButton,

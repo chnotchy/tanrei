@@ -4897,6 +4897,38 @@ private let cupertinoLinkTokens = TanreiLinkTokens(
   )
 )
 
+private let cupertinoListRowTokens = TanreiListRowTokens(
+  containerGap: 16,
+  containerPaddingInlineEnd: 16,
+  containerPaddingInlineStart: 16,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: cupertinoTypescale.bodyLarge,
+  leadingIconColor: .role(.onSurfaceVariant),
+  leadingIconSize: 24,
+  overlineColor: .role(.onSurfaceVariant),
+  overlineTypescale: cupertinoTypescale.labelSmall,
+  supportingTextColor: .role(.onSurfaceVariant),
+  supportingTextTypescale: cupertinoTypescale.bodySmall,
+  trailingIconColor: .role(.onSurfaceVariant),
+  trailingIconSize: 24,
+  trailingTextColor: .role(.onSurfaceVariant),
+  trailingTextTypescale: cupertinoTypescale.bodySmall,
+  densitys: TanreiListRowDensitys(
+    regular: TanreiListRowDensityTokens(
+      containerHeightOneLine: 44,
+      containerHeightTwoLine: 72,
+      containerHeightThreeLine: 88,
+      containerPaddingBlock: 8
+    ),
+    compact: TanreiListRowDensityTokens(
+      containerHeightOneLine: 40,
+      containerHeightTwoLine: 56,
+      containerHeightThreeLine: 72,
+      containerPaddingBlock: 4
+    )
+  )
+)
+
 private let cupertinoListTokens = TanreiListTokens(
   containerGap: 12,
   containerHeight: 44,
@@ -9820,6 +9852,7 @@ extension TanreiSystem {
     keyboardShortcut: cupertinoKeyboardShortcutTokens,
     linkCard: cupertinoLinkCardTokens,
     link: cupertinoLinkTokens,
+    listRow: cupertinoListRowTokens,
     list: cupertinoListTokens,
     loadingIndicator: cupertinoLoadingIndicatorTokens,
     mainActionButton: cupertinoMainActionButtonTokens,

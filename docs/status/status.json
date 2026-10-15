@@ -350,6 +350,26 @@
       }
     },
     {
+      "name": "list-row",
+      "title": "List row",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "tooltip"
+      ],
+      "hasSpec": true,
+      "docs": "/components/list-row/",
+      "platforms": {
+        "web": "alpha",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
       "name": "tabs",
       "title": "Tabs",
       "category": "navigation",
@@ -1808,13 +1828,13 @@
     "web": {
       "planned": 0,
       "lagging": 83,
-      "alpha": 6,
+      "alpha": 7,
       "beta": 0,
       "stable": 0,
       "deprecated": 0
     },
     "swiftui": {
-      "planned": 60,
+      "planned": 61,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1822,7 +1842,7 @@
       "deprecated": 0
     },
     "compose": {
-      "planned": 60,
+      "planned": 61,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1830,7 +1850,7 @@
       "deprecated": 0
     },
     "flutter": {
-      "planned": 60,
+      "planned": 61,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
@@ -1838,7 +1858,7 @@
       "deprecated": 0
     },
     "react-native": {
-      "planned": 60,
+      "planned": 61,
       "lagging": 29,
       "alpha": 0,
       "beta": 0,
