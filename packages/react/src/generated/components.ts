@@ -198,7 +198,7 @@ export const AvatarGroup = createComponent({
  * Marks an icon, a navigation item or an avatar with a dot or a small count to show that something is waiting.
  *
  * Children, by their `slot`:
- * - default — The anchor the badge sits on: an icon, an icon button, a navigation item or an avatar. Its first element is the one that is described.
+ * - default — The anchor the badge sits on, which it needs: an icon, an icon button, a navigation item or an avatar. Its first element is the one that is described; with none, the badge draws nothing (BDG-16).
  */
 export const Badge = createComponent({
   tagName: 'tanrei-badge',
@@ -1285,7 +1285,7 @@ export const NavigationDrawerGroup = createComponent({
  * One destination of a navigation drawer — the spec's item kind `destination`: an icon, a label (a short label while the drawer is collapsed), optional trailing content at the end of its row and an optional badge on its icon. A child of `<tanrei-navigation-drawer>`, of one of its sections or of one of its groups, in order.
  *
  * Children, by their `slot`:
- * - `trailing` — Content at the end of the expanded row, in place of `trailing-text`: a glyph of the icon set (drawn at comp.navigation-drawer.item.trailing-icon.size, e.g. `open_in_new`), a badge, a short text. Not interactive.
+ * - `trailing` — Content at the end of the expanded row, in place of `trailing-text`: a glyph of the icon set (drawn at comp.navigation-drawer.item.trailing-icon.size, e.g. `open_in_new`), a short text. Not interactive. A count belongs in `trailing-text`, and a badge on the icon (`badge`): a badge needs an anchor, and the end of the row has none.
  */
 export const NavigationDrawerItem = createComponent({
   tagName: 'tanrei-navigation-drawer-item',
