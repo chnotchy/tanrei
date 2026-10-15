@@ -2932,7 +2932,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Marks an icon, a navigation item or an avatar with a dot or a small count to show that something is waiting.\n\nContract: specs/badge.spec.json. Wrap the anchor: `<tanrei-badge count=\"3\" label=\"3 unread\"><tanrei-button variant=\"text\"\nlabel=\"Inbox\"><span slot=\"icon\">inbox</span></tanrei-button></tanrei-badge>`. No `count` is the dot, `count=\"0\"` draws nothing, a count\nabove `max` shows as `999+`. Every visual value is a `--tanrei-comp-badge-*` token.\n\nThe badge is not in the accessibility tree: what it says reaches assistive technology through its anchor. It sets\n`aria-description` on the slotted anchor — `label`, or the displayed count when there is no label — so the anchor is\nannounced with its own name followed by it (\"Inbox, button, 3 unread\"). An anchor that is a Tanrei component passes\nit on to its native element. The badge takes no space and no input, and never announces a change by itself.",
+          "description": "Marks an icon, a navigation item or an avatar with a dot or a small count to show that something is waiting.\n\nContract: specs/badge.spec.json. Wrap the anchor: `<tanrei-badge count=\"3\" label=\"3 unread\"><tanrei-button variant=\"text\"\nlabel=\"Inbox\"><span slot=\"icon\">inbox</span></tanrei-button></tanrei-badge>`. No `count` is the dot, `count=\"0\"` draws nothing, a count\nabove `max` shows as `999+`. Every visual value is a `--tanrei-comp-badge-*` token.\n\nThe badge is not in the accessibility tree: what it says reaches assistive technology through its anchor. It sets\n`aria-description` on the slotted anchor — `label`, or the displayed count when there is no label — so the anchor is\nannounced with its own name followed by it (\"Inbox, button, 3 unread\"). An anchor that is a Tanrei component passes\nit on to its native element. The badge takes no space and no input, and never announces a change by itself.\n\nA badge needs an anchor: with no element in its slot it draws nothing and says nothing, and a debug build reports it\n(BDG-16). A count that stands by itself in a row is that row's text (a navigation drawer item's `trailing-text`).",
           "name": "TanreiBadge",
           "cssParts": [
             {
@@ -2946,7 +2946,7 @@
           ],
           "slots": [
             {
-              "description": "The anchor the badge sits on: an icon, an icon button, a navigation item or an avatar. Its first element is the one that is described.",
+              "description": "The anchor the badge sits on, which it needs: an icon, an icon button, a navigation item or an avatar. Its first element is the one that is described; with none, the badge draws nothing (BDG-16).",
               "name": ""
             }
           ],
@@ -3066,6 +3066,26 @@
                   }
                 }
               ]
+            },
+            {
+              "kind": "field",
+              "name": "assigned",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "BDG-16: whether the slot has been read, so that a badge is not reported as anchorless before its first assignment."
+            },
+            {
+              "kind": "field",
+              "name": "missing",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "BDG-16: whether the badge is without an anchor, so that it is reported once each time it is left without one."
             },
             {
               "kind": "method",
@@ -51887,7 +51907,7 @@
           ],
           "slots": [
             {
-              "description": "Content at the end of the expanded row, in place of `trailing-text`: a glyph of the icon set (drawn at comp.navigation-drawer.item.trailing-icon.size, e.g. `open_in_new`), a badge, a short text. Not interactive.",
+              "description": "Content at the end of the expanded row, in place of `trailing-text`: a glyph of the icon set (drawn at comp.navigation-drawer.item.trailing-icon.size, e.g. `open_in_new`), a short text. Not interactive. A count belongs in `trailing-text`, and a badge on the icon (`badge`): a badge needs an anchor, and the end of the row has none.",
               "name": "trailing"
             }
           ],

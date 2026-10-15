@@ -93,7 +93,7 @@
     },
     {
       "id": "item.trailing",
-      "description": "The end of an expanded row: the trailing slot's content (a badge, a glyph such as open_in_new) or else the destination's trailing text (\"24\", \"New\"), quieter than the label. Not interactive; part of the destination's description.",
+      "description": "The end of an expanded row: the trailing slot's content (a glyph such as open_in_new) or else the destination's trailing text (a count such as \"24\", a word such as \"New\"), quieter than the label. Not interactive; part of the destination's description.",
       "optional": true
     },
     {
@@ -383,7 +383,7 @@
       "slots": [
         {
           "name": "trailing",
-          "description": "Content at the end of the expanded row, in place of trailingText: a badge, a glyph (open_in_new for a destination that opens elsewhere), a short text. Not interactive. A fixture item's content is a glyph drawn here."
+          "description": "Content at the end of the expanded row, in place of trailingText: a glyph (open_in_new for a destination that opens elsewhere), a short text. Not interactive. A count belongs in trailingText, and a badge on the icon (badge): a Badge needs an anchor, and the end of the row has none. A fixture item's content is a glyph drawn here."
         }
       ]
     },
@@ -478,7 +478,7 @@
       "slots": [
         {
           "name": "trailing",
-          "description": "Content at the end of the group's expanded row, before an end chevron, in place of trailingText: a glyph of the icon set or a Badge, as a destination's trailing slot. Not interactive."
+          "description": "Content at the end of the group's expanded row, before an end chevron, in place of trailingText: a glyph of the icon set, as a destination's trailing slot. Not interactive. A count belongs in trailingText."
         }
       ]
     },
