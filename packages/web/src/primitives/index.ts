@@ -89,6 +89,9 @@
 //   separation  — sys.behavior.separation as a component reads it: separationHost() (the attribute over the
 //                 component token, as `--_separation` on the host), whenGap() (the gap form's rules: a style query, and
 //                 `data-separation` where a browser has none), separationOf(), syncSeparation()
+//   divider-visibility — sys.behavior.divider-visibility as a component reads it (APB-18, DLG-24, POP-38, SSH-23):
+//                 dividerVisibilityHost(), whenScroll() (the scroll form's rules), dividerVisibilityOf(),
+//                 syncDividerVisibility()
 //   follow      — FollowController: an overlay placed by script follows its anchor by events (scroll, resize, sizes, a place
 //                 that changed with no event, a motion beginning), frame by frame only while something moves (TIP-9,
 //                 MNU-2, FBM-13, SRC-7, DTM-2)
@@ -266,6 +269,17 @@ export {
 } from './locale-date.js';
 export * from './calendar-date.js';
 export { SystemWatchController } from './system-watch.js';
+export {
+  DIVIDER_VISIBILITIES,
+  DIVIDER_VISIBILITY_VALUES,
+  type DividerVisibility,
+  type DividerVisibilityProp,
+  dividerVisibilityHost,
+  dividerVisibilityOf,
+  isDividerVisibility,
+  syncDividerVisibility,
+  whenScroll,
+} from './divider-visibility.js';
 export { SEPARATIONS, SEPARATION_VALUES, type Separation, type SeparationProp, separationHost, separationOf, styleQueries, syncSeparation, whenGap } from './separation.js';
 export { afterClick } from './after-click.js';
 export { SUBMIT_BUTTON, type SubmitButtonState, defaultButton, markPassingSubmitter, pressDefaultButton, watchNativeInputs } from './default-button.js';

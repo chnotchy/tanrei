@@ -129,7 +129,7 @@ It follows the anchor when the anchor moves, and keeps the side it is on for as 
 
 A popover is as wide as its content, between `comp.popover.container.min-width` (160) and `container.max-width` (400). With `width="anchor"` it is as wide as the anchor, for a surface that drops from a field. It is never wider than the window less the margins.
 
-It is as tall as its parts, up to `container.max-height` (480) and the room its side has. Beyond that the content scrolls between the header and the actions, which stay. A divider appears below the header once the content is scrolled, and above the actions while more content lies below.
+It is as tall as its parts, up to `container.max-height` (480) and the room its side has. Beyond that the content scrolls between the header and the actions, which stay. A divider is drawn below the header and another above the actions for as long as the content scrolls. Set `dividerVisibility` to `scroll` (`divider-visibility` on the web) to draw the one below the header only once the content is scrolled, and the one above the actions only while more content lies below; `cupertino` and `m3-like` choose that for every popover. SwiftUI, Compose, Flutter and React Native draw it that way until they catch up.
 
 Set `inset` to false (`no-inset` on the web) for content that pads itself or reaches the edges, such as a list.
 

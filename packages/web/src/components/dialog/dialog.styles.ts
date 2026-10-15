@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { actionBoxStyles, focusRing, iconGlyph, whenChosen as chosen } from '../../primitives/index.js';
+import { actionBoxStyles, dividerVisibilityHost, focusRing, iconGlyph, whenScroll, whenChosen as chosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
@@ -21,6 +21,8 @@ export const styles = css`
   :host {
     display: contents;
   }
+  /* DLG-24: the divider visibility — its attribute's, else comp.dialog.divider.visibility's. */
+  ${dividerVisibilityHost(`${PREFIX}-divider-visibility`)}
 
   /* DLG-17: the resolved compact.window-width, which the script matches the window against. */
   .probe {
@@ -189,8 +191,8 @@ export const styles = css`
   }`,
   )}
 
-  /* DLG-11: a hairline below the header while the scrolled part is not at its top, and above the actions while more of
-     it lies below; none while everything fits. */
+  /* DLG-11: a hairline below the header and one above the actions while the supporting text and the content scroll;
+     none while everything fits. DLG-24, always: both for as long as the part scrolls, at its top included. */
   .middle::before,
   .middle::after {
     content: '';
@@ -198,19 +200,45 @@ export const styles = css`
     inset-inline: calc(${t('container-padding')} * -1);
     block-size: ${t('divider-width')};
     background: ${t('divider-color')};
-    visibility: hidden;
     pointer-events: none;
+  }
+  /* Which divider is drawn is decided on the middle itself, as two private properties the pseudo-elements read: WebKit
+     does not answer a style container query for a pseudo-element. */
+  .middle {
+    --_divider-top: hidden;
+    --_divider-bottom: hidden;
   }
   .middle::before {
     inset-block-start: 0;
+    visibility: var(--_divider-top);
   }
   .middle::after {
     inset-block-end: 0;
+    visibility: var(--_divider-bottom);
   }
-  .middle.above::before,
-  .middle.below::after {
-    visibility: visible;
+  .middle.scrolls {
+    --_divider-top: visible;
   }
+  .middle.scrolls.actioned {
+    --_divider-bottom: visible;
+  }
+  /* DLG-24, scroll: below the header only while the part is not at its top, above the actions only while more of it lies
+     below. */
+  ${whenScroll(
+    'dialog',
+    (dialog) => `
+  ${dialog} .middle.scrolls,
+  ${dialog} .middle.scrolls.actioned {
+    --_divider-top: hidden;
+    --_divider-bottom: hidden;
+  }
+  ${dialog} .middle.scrolls.above {
+    --_divider-top: visible;
+  }
+  ${dialog} .middle.scrolls.actioned.below {
+    --_divider-bottom: visible;
+  }`,
+  )}
 
   /* DLG-12: no room left for the scrolled part: everything scrolls together. */
   dialog.whole {

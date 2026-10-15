@@ -128,7 +128,7 @@ export const Accordion = createComponent({
 });
 
 /**
- * Names the current screen at its top edge and holds the way back and the screen's most used actions, flat while the content is at its top and set apart once content scrolls under it.
+ * Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge drawn as the edge of a region that stays (or, under `divider-visibility="scroll"`, only once content scrolls under it).
  *
  * Children, by their `slot`:
  * - `navigation` — The navigation item: one icon-only `<tanrei-button>` (back, menu or close) at the start.

@@ -10,6 +10,7 @@ import {
   BUTTON_VARIANTS,
   DismissController,
   type DismissReason,
+  type DividerVisibilityProp,
   GROUP_ITEM,
   GROUP_PLACE,
   type GroupItem,
@@ -25,6 +26,7 @@ import {
   focusOverlay,
   giveVariant,
   hostAria,
+  isDividerVisibility,
   keepOverlayFocusAfterPress,
   numericAttribute,
   overlayDepth,
@@ -32,6 +34,7 @@ import {
   report,
   returnOverlayFocus,
   shadeFilter,
+  syncDividerVisibility,
   syncFocusStyle,
   tabThroughOverlay,
   usableLength,
@@ -49,6 +52,8 @@ import { ARRANGEMENTS, ARROW_PROPERTY, CHOICE, PREFIX, styles } from './popover.
 export type TanreiPopoverPlacement = AnchoredPlacement;
 /** What decides the container's width: its content, or its anchor (POP-7). */
 export type TanreiPopoverWidth = 'content' | 'anchor';
+/** When the dividers are drawn while the content scrolls (POP-38): `auto` takes `comp.popover.divider.visibility`. */
+export type TanreiPopoverDividerVisibility = DividerVisibilityProp;
 /** Where focus is when the popover has opened: in it, or left where it is (POP-19). */
 export type TanreiPopoverInitialFocus = 'popover' | 'anchor';
 /** Why the popover asks to be closed (POP-21). The web has no back of its own, so it never sends `back`. */
@@ -105,6 +110,10 @@ let ids = 0;
  * (`comp.popover.actions.variant`). `arrow` draws a triangle that points at the anchor, one shape with the container
  * (unset, the system's `comp.popover.arrow.visible` decides).
  *
+ * Content taller than the room scrolls between the header and the actions, with a divider below the header and one above
+ * the actions (POP-8): for as long as it scrolls while `divider-visibility` is `always` (the default system's), only
+ * while content lies beyond each line while it is `scroll`; `auto` takes `comp.popover.divider.visibility` (POP-38).
+ *
  * Every visual value comes from `--tanrei-comp-popover-*` tokens.
  *
  * @tag tanrei-popover
@@ -116,7 +125,7 @@ let ids = 0;
  * @csspart headline - The headline (a heading).
  * @csspart close-button - The close button, an icon-only `<tanrei-button>`.
  * @csspart content - The scrolling box that holds the content.
- * @csspart divider - A hairline below the header and above the actions, while the content scrolls (hidden from assistive technology).
+ * @csspart divider - A hairline below the header and above the actions, while the content scrolls, as `divider-visibility` says (hidden from assistive technology).
  * @csspart actions - The row (or column) of actions.
  * @fires {CustomEvent<TanreiPopoverCloseDetail>} close - The popover asks to be closed: `detail.reason` is `escape`, `outside`, `focus-out`, `close` (its close button) or `anchor-hidden`. Set `open` to false.
  */
@@ -148,6 +157,7 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     label: { type: String },
     closable: { type: Boolean, reflect: true },
     closeLabel: { type: String, attribute: 'close-label' },
+    dividerVisibility: { type: String, attribute: 'divider-visibility', reflect: true },
     anchor: { type: String },
     anchorElement: { attribute: false },
     opener: { type: String },
@@ -204,6 +214,13 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
 
   /** The close button's accessible name ("Close filters"). Required while `closable` (POP-13). The attribute is `close-label`. */
   closeLabel = '';
+
+  /**
+   * When the dividers are drawn while the content scrolls: `always` for as long as it scrolls, `scroll` only while
+   * content lies beyond each line; `auto` takes `comp.popover.divider.visibility`, the design system's answer (always in
+   * the default system). Reflected as `divider-visibility`.
+   */
+  dividerVisibility: TanreiPopoverDividerVisibility = 'auto';
 
   /** The id of the anchor — the element the popover stands beside — in the popover's own tree (its document or shadow root). */
   anchor = '';
@@ -462,10 +479,11 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
   }
 
   /**
-   * POP-8: what scrolls, and the dividers. The content scrolls between the header and the actions — a Tab stop while it
-   * does, so the keyboard can scroll it — with a divider below the header while it is scrolled away from its top and
-   * one above the actions while more of it lies below; where the header and the actions alone leave no room for it,
-   * everything scrolls together and no divider is drawn. At once, without motion.
+   * POP-8, POP-38: what scrolls, and the dividers. The content scrolls between the header and the actions — a Tab stop
+   * while it does, so the keyboard can scroll it — with a divider below the header and one above the actions: for as
+   * long as it scrolls under always (`data-scrolls`), and under scroll the first while it is scrolled away from its top
+   * (`data-scrolled`) and the second while more of it lies below (`data-more`); where the header and the actions alone
+   * leave no room for it, everything scrolls together and no divider is drawn. At once, without motion.
    */
   private syncScroll() {
     const clip = this.find('.clip');
@@ -484,6 +502,9 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     const scrolls = (element: HTMLElement) => element.scrollHeight > element.clientHeight + 0.5;
     stop(content, !crowded && scrolls(content));
     stop(clip, crowded && scrolls(clip));
+    const ruled = !crowded && (!!header || !!footer) && scrolls(content);
+    if (clip.hasAttribute('data-scrolls') !== ruled) clip.toggleAttribute('data-scrolls', ruled);
+    syncDividerVisibility(this, clip);
     const scrolled = !crowded && !!header && content.scrollTop > 0.5;
     const more = !crowded && !!footer && content.scrollTop + content.clientHeight < content.scrollHeight - 0.5;
     if (clip.hasAttribute('data-scrolled') !== scrolled) clip.toggleAttribute('data-scrolled', scrolled);
@@ -601,8 +622,11 @@ export class TanreiPopover extends LitElement implements VariantHost, PlacingGro
     this.first = false;
   }
 
-  /** What a debug build reports (POP-4, POP-13, POP-29, POP-37). */
+  /** What a debug build reports (POP-4, POP-13, POP-29, POP-37, POP-38). */
   private reportProps(changed: PropertyValues<this>) {
+    if (changed.has('dividerVisibility') && !isDividerVisibility(this.dividerVisibility)) {
+      report(this, 'POP-38', `divider-visibility "${String(this.dividerVisibility)}" is not a value of the popover; it is drawn as "auto"`);
+    }
     if (changed.has('placement') && !PLACEMENTS.includes(this.placement)) {
       report(this, 'POP-37', `placement "${String(this.placement)}" is not one of ${PLACEMENTS.join(', ')}; the popover is placed as "${DEFAULT_PLACEMENT}"`);
     }

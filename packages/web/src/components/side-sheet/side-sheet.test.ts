@@ -1,4 +1,4 @@
-// <tanrei-side-sheet>, driven by specs/side-sheet.spec.json: every behaviour id (SSH-1…20) is cited by a test title,
+// <tanrei-side-sheet>, driven by specs/side-sheet.spec.json: every behaviour id (SSH-1…23) is cited by a test title,
 // every fixture has a baseline, and every value is read back from the tokens.
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
@@ -900,8 +900,34 @@ test.describe('actions and scrolling', () => {
     }
   });
 
-  test('SSH-19: a divider.width hairline in divider.color across the full width below the header (hidden) only while the content is scrolled from its top, at once; none without a header', async ({ page }) => {
-    await mount(page, [fx('s', { variant: 'standard' }, LONG, ACTIONS), fx('bare', { variant: 'standard', headline: '', closable: false }, LONG)]);
+  test('SSH-19: under always — the default — a divider.width hairline in divider.color across the full width below the header (hidden) whenever the header is drawn: at rest, scrolled, and when the content does not scroll; none without a header', async ({ page }) => {
+    await mount(page, [fx('s', { variant: 'standard' }, LONG, ACTIONS), fx('short', { variant: 'standard' }), fx('modal', { variant: 'modal' }, LONG, ACTIONS), fx('bare', { variant: 'standard', headline: '', closable: false }, LONG)]);
+    const line = await px(page, T('divider-width'));
+    for (const id of ['s', 'short']) {
+      await expect(headerDivider(page, id), id).toBeVisible();
+      await expect(headerDivider(page, id), id).toHaveAttribute('aria-hidden', 'true');
+    }
+    const [s, h, d] = [await bounds(sheet(page)), await bounds(header(page)), await bounds(headerDivider(page))];
+    expect([d.x, d.width]).toEqual([s.x, s.width]);
+    expect(d.y).toBeCloseTo(h.y + h.height, 1);
+    expect(d.height).toBeCloseTo(line, 1);
+    await expect(headerDivider(page)).toHaveCSS('background-color', await resolveColor(page, T('divider-color')));
+    await content(page).evaluate((el) => (el.scrollTop = 120));
+    await expect(headerDivider(page)).toBeVisible();
+    await content(page).evaluate((el) => (el.scrollTop = 0));
+    await expect(headerDivider(page)).toBeVisible();
+    // The modal sheet the same.
+    await host(page, 'modal').evaluate(async (el: any) => {
+      el.open = true;
+      await el.updateComplete;
+    });
+    await expect(headerDivider(page, 'modal')).toBeVisible();
+    await content(page, 'bare').evaluate((el) => (el.scrollTop = 120));
+    await expect(headerDivider(page, 'bare')).toHaveCount(0);
+  });
+
+  test('SSH-19: under scroll a divider.width hairline in divider.color across the full width below the header (hidden) only while the content is scrolled from its top, at once; none without a header', async ({ page }) => {
+    await mount(page, [fx('s', { variant: 'standard', dividerVisibility: 'scroll' }, LONG, ACTIONS), fx('bare', { variant: 'standard', headline: '', closable: false, dividerVisibility: 'scroll' }, LONG)]);
     const line = await px(page, T('divider-width'));
     await expect(headerDivider(page)).toBeHidden();
     await expect(headerDivider(page)).toHaveAttribute('aria-hidden', 'true');
@@ -920,6 +946,36 @@ test.describe('actions and scrolling', () => {
     // No header: no divider there, scrolled or not.
     await content(page, 'bare').evaluate((el) => (el.scrollTop = 120));
     await expect(headerDivider(page, 'bare')).toHaveCount(0);
+  });
+
+  test('SSH-23: auto follows comp.side-sheet.divider.visibility, which follows sys.behavior.divider-visibility; the attribute overrides it; a change is drawn at once, keeping the scroll position; an unknown value is auto and reported', async ({ page }) => {
+    const seen = reports(page);
+    await mount(page, [fx('s', { variant: 'standard' }, LONG, ACTIONS)]);
+    await expect(headerDivider(page)).toBeVisible();
+    await override(page, { '--tanrei-sys-behavior-divider-visibility': 'scroll' });
+    await expect(headerDivider(page)).toBeHidden();
+    await override(page, { [T('divider-visibility')]: 'always' });
+    await expect(headerDivider(page)).toBeVisible();
+    await host(page).evaluate(async (el: any) => {
+      el.dividerVisibility = 'scroll';
+      await el.updateComplete;
+    });
+    await expect(host(page)).toHaveAttribute('divider-visibility', 'scroll');
+    await expect(headerDivider(page)).toBeHidden();
+    await content(page).evaluate((el) => (el.scrollTop = 120));
+    await expect(headerDivider(page)).toBeVisible();
+    await host(page).evaluate(async (el: any) => {
+      el.dividerVisibility = 'always';
+      await el.updateComplete;
+    });
+    expect(await content(page).evaluate((el) => el.scrollTop)).toBe(120);
+    await content(page).evaluate((el) => (el.scrollTop = 0));
+    await host(page).evaluate(async (el: any) => {
+      el.setAttribute('divider-visibility', 'sometimes');
+      await el.updateComplete;
+    });
+    await expect(headerDivider(page)).toBeVisible();
+    await expect.poll(() => seen.some((m) => m.text.includes('SSH-23') && m.text.includes('sometimes'))).toBe(true);
   });
 
   test('SSH-20: while the on-screen keyboard covers the bottom, the header stays, the divider and actions sit directly above it, the content scrolls in the room left and the focused element is scrolled into it; the actions return when it hides; at once', async ({ page }) => {

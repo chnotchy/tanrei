@@ -5246,7 +5246,7 @@ name and role are never touched. Parts: `container`, `arrow`, `title`, `supporti
 ## `<tanrei-popover>`
 
 Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays
-with it, without dimming or blocking the rest of the page (`specs/popover.spec.json`, POP-1…37).
+with it, without dimming or blocking the rest of the page (`specs/popover.spec.json`, POP-1…38).
 
 ```html
 <tanrei-button id="share" variant="outlined">Share</tanrei-button>
@@ -5281,6 +5281,7 @@ with it, without dimming or blocking the rest of the page (`specs/popover.spec.j
 | `label` | string | `""` | the dialog's name where it draws no headline; never drawn. Neither given: it still opens, reported (POP-29) |
 | `closable` | boolean | `false` | draws the close button at the end of the header; reflected |
 | `closeLabel` / `close-label` | string | `""` | the close button's accessible name; empty while `closable` is reported (POP-13) |
+| `dividerVisibility` / `divider-visibility` | `auto` \| `always` \| `scroll` | `auto` | when the dividers are drawn while the content scrolls: `always` for as long as it scrolls, at its top included; `scroll` below the header only once scrolled and above the actions only while more lies below; `auto` takes `comp.popover.divider.visibility` (always in the default system, scroll in cupertino and m3-like). Anything else is `auto`, reported (POP-38); reflected |
 | `inline` | boolean | `false` | **for tests**: draws the open container in place — inside its positioned ancestor, which stands for the window — not in the top layer. It then answers no dismissal and moves no focus |
 
 | Slot | |
@@ -5320,8 +5321,9 @@ out of sight (also inside a scrolling ancestor): `close`, reason `anchor-hidden`
 widths, also while they are a column — between the least and greatest width, and never wider than the window less the
 margins. As tall as its parts, up to `container.max-height` and the room. Beyond that the header and the actions stay
 and the content scrolls between them, a Tab stop while it does; the dividers (`part="divider"`) are drawn below the
-header while it is scrolled from its top and above the actions while more lies below. Where the header and the actions
-alone leave no room for the content, the whole container scrolls instead.
+header and above the actions — for as long as it scrolls under `always`, and under `scroll` the first only while it is
+scrolled from its top and the second only while more lies below (POP-38). Where the header and the actions alone leave
+no room for the content, the whole container scrolls instead, with no divider.
 
 **Focus (POP-19, POP-20, POP-22).** Opening moves focus to the slotted element marked `autofocus`, else to the
 container; the container shows its focus indicator only when the popover was opened from the keyboard (a press leaves
@@ -5998,7 +6000,7 @@ fixtures are drawn by the test harness: a modal one in a 480 × 720 window (800 
 ## `<tanrei-dialog>`
 
 Stops a person for a decision the task cannot go on without, in a surface that dims and blocks everything behind it
-(`specs/dialog.spec.json`, DLG-1…16).
+(`specs/dialog.spec.json`, DLG-1…24).
 
 ```html
 <tanrei-button id="discard">Discard</tanrei-button>
@@ -6018,6 +6020,7 @@ Stops a person for a decision the task cannot go on without, in a surface that d
 | `supportingText` / `supporting-text` | string | `""` | what will happen; the accessible description |
 | `alert` | boolean | `false` | an `alertdialog`, read as soon as it opens; reflected |
 | `closedBy` / `closedby` | `any` \| `none` | `any` | the spec's `dismissible`, as HTML's own attribute: `none` ignores Escape, back and the scrim (any other value is `any`); reflected |
+| `dividerVisibility` / `divider-visibility` | `auto` \| `always` \| `scroll` | `auto` | when the dividers are drawn while the supporting text and the content scroll: `always` for as long as they scroll, at their top included; `scroll` below the headline only once scrolled and above the actions only while more lies below; `auto` takes `comp.dialog.divider.visibility` (always in the default system, scroll in cupertino and m3-like). Anything else is `auto`, reported (DLG-24); reflected |
 
 Slots: default (custom content: it gets `content.color`, and plain text the body role), `icon` (a glyph's ligature text,
 drawn at `icon.size` in `icon.color`, unselected; with it the icon and the headline are centred), `actions` (Tanrei
@@ -6048,9 +6051,10 @@ least `container.margin` from every edge and the safe area, as wide as its conte
 by `container.padding` and `container.gap` apart, an empty part left out, the actions `actions.margin-block-start` below.
 The actions are a row at the end, `actions.gap` apart, and a column at the end when their widths do not fit the row. When
 the dialog is taller than the window less the margins, the supporting text and the content scroll between the headline and
-the actions, with a `divider.width` line in `divider.color` across the container below the headline once scrolled and above
-the actions while more lies below; when the scrolled part would have less than a line of room, the whole dialog scrolls
-instead. Everything is logical, so RTL mirrors. Parts: `container`, `icon`, `headline`, `supporting-text`, `content`,
+the actions, with a `divider.width` line in `divider.color` across the container below the headline and another above the
+actions — both for as long as that part scrolls under `always`, and under `scroll` the first only once scrolled and the
+second only while more lies below (DLG-24); when the scrolled part would have less than a line of room, the whole dialog
+scrolls instead, with no divider. Everything is logical, so RTL mirrors. Parts: `container`, `icon`, `headline`, `supporting-text`, `content`,
 `actions`.
 
 ## `<tanrei-bottom-sheet>`
@@ -6144,7 +6148,7 @@ test harness (`test/harness.ts`) in a 400 × 720 window on a `surface` page.
 
 Supplementary content or a secondary task in a panel at the end edge, with a headline, an optional close button and
 actions: `standard`, beside the content in the layout (a layout region), where actions are optional, or
-`modal`, over the content with a scrim, which offers at least one (`specs/side-sheet.spec.json`, SSH-1…20).
+`modal`, over the content with a scrim, which offers at least one (`specs/side-sheet.spec.json`, SSH-1…23).
 
 ```html
 <div style="display: flex; block-size: 100dvh">
@@ -6169,6 +6173,7 @@ actions: `standard`, beside the content in the layout (a layout region), where a
 | `headline` | string | `""` | what the sheet is about, in its header; the modal dialog's or the complementary region's name (an empty one is reported, SSH-12) |
 | `closable` | boolean | `false` | draws the close button at the end of the header; reflected |
 | `closeLabel` / `close-label` | string | `""` | the close button's accessible name (an empty one is reported while `closable`, SSH-5) |
+| `dividerVisibility` / `divider-visibility` | `auto` \| `always` \| `scroll` | `auto` | when the divider below the header is drawn: `always` whenever the header is; `scroll` only while the content is scrolled from its top; `auto` takes `comp.side-sheet.divider.visibility` (always in the default system, scroll in cupertino and m3-like). Anything else is `auto`, reported (SSH-23); reflected |
 
 Slots: default (the content: it gets `content.color` as its color, and plain text the body role; it is laid out as you
 lay it out) and `actions` (Tanrei Buttons, each marked `confirming` or `dismissive`; at least one in a modal sheet). Mark
@@ -6217,8 +6222,9 @@ in the default system, text under m3-like) through the Button's internal group-i
 the Button draws that variant from its own tokens and states (SSH-5). The content is inset by `container.padding-inline`,
 starts below the header (or `container.padding-block` below the top without one), ends `container.padding-block` above
 the bottom without actions, and scrolls between the header and the actions; while it scrolls it is a Tab stop, so the
-keyboard can scroll it. While it is scrolled away from its top, a `divider.width` hairline in `divider.color` is drawn
-across the full width below the header, at once (SSH-19); none without a header. Enlarged text grows the header, scrolls
+keyboard can scroll it. A `divider.width` hairline in `divider.color` is drawn across the full width below the header:
+whenever the header is, under `always`, as the one above the actions is; only while the content is scrolled away from
+its top, at once, under `scroll` (SSH-19, SSH-23); none without a header. Enlarged text grows the header, scrolls
 the content and stacks the actions; the width and the close button stay. Everything is logical, so right-to-left puts
 the sheet at the left edge, mirrored. Parts: `container` (and its `::backdrop`), `outline`, `header`, `headline`,
 `close-button`, `content`, `divider` (both hairlines), `actions`. The fixtures are drawn by the test harness in a
@@ -6250,8 +6256,9 @@ action), not on a system switch alone.
 
 ## `<tanrei-app-bar>`
 
-Names the current screen at its top edge and holds the way back and the screen's most used actions, flat while the
-content is at its top and set apart once content scrolls under it (`specs/app-bar.spec.json`, APB-1…15).
+Names the current screen at its top edge and holds the way back and the screen's most used actions, its bottom edge
+drawn as the edge of a region that stays — or, under `divider-visibility="scroll"`, only once content scrolls under it
+(`specs/app-bar.spec.json`, APB-1…18).
 
 ```html
 <tanrei-app-bar headline="Inbox">
@@ -6276,6 +6283,7 @@ content is at its top and set apart once content scrolls under it (`specs/app-ba
 | `subtitle` | string | `""` | one line under the title; empty draws none |
 | `titleAlignment` / `title-alignment` | `start` \| `center` | `start` | where the top row's title sits (anything else is `start`); a large bar's own title row always starts at the start; reflected |
 | `scrolled` | boolean | `false` | whether content lies under the bar: the scrolled look, and a large bar drawn collapsed. A connected scrolling element sets it; reflected |
+| `dividerVisibility` / `divider-visibility` | `auto` \| `always` \| `scroll` | `auto` | when the bottom edge is drawn: `always` at rest and while content is under the bar, in `scrolled.outline.color`; `scroll` in each condition's own outline color (none at rest in the default system); `auto` takes `comp.app-bar.outline.visibility` (always in the default system, scroll in cupertino and m3-like). Anything else is `auto`, reported (APB-18); reflected |
 | `scrollTarget` / `scroll-target` | string | `""` | web only: the scrolling element the bar follows — empty for the document's scrolling element, an id (looked up in the bar's own document or shadow root, once more on the next frame if it is not there yet; reported if it never is), or `none` |
 | `headingLevel` / `heading-level` | number | `1` | web only: the title's heading level, 1–6 |
 

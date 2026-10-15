@@ -1,4 +1,4 @@
-// <tanrei-popover>, driven by specs/popover.spec.json: every behaviour id (POP-1…37) is cited by a test title, every
+// <tanrei-popover>, driven by specs/popover.spec.json: every behaviour id (POP-1…38) is cited by a test title, every
 // fixture has a baseline, and every color, length and time is read back from the tokens. The fixtures are drawn in
 // place (`inline`), each on its 480 × 480 stage; what a fixture cannot hold — the top layer, the window's edges, focus,
 // dismissal, nesting — is tested on the real overlay, mounted by the tests as a product would write it: its own opener,
@@ -628,9 +628,9 @@ test.describe('size and layout', () => {
     expect(120 - 2 * margin).toBeLessThan(min);
   });
 
-  test('POP-8: the container is at most its greatest height and the room its side leaves; beyond that the header and the actions stay and the content scrolls between them, a Tab stop, with a divider below the header once it is scrolled and one above the actions while more lies below; nothing is drawn while everything fits; where the header and the actions leave no room, everything scrolls together', async ({ page }) => {
+  test('POP-8: the container is at most its greatest height and the room its side leaves; beyond that the header and the actions stay and the content scrolls between them, a Tab stop, under scroll with a divider below the header once it is scrolled and one above the actions while more lies below; nothing is drawn while everything fits; where the header and the actions leave no room, everything scrolls together', async ({ page }) => {
     const scrolling = spec.fixtures.find((f) => f.id === 'scrolling')!;
-    await mount(page, `${anchorAt(200, 20)}${popover('headline="What changed" closable close-label="Close what changed"', `${scrolling.content}<tanrei-button slot="actions" confirming>Manage storage</tanrei-button>`)}`, { width: 800, height: 900 });
+    await mount(page, `${anchorAt(200, 20)}${popover('headline="What changed" closable close-label="Close what changed" divider-visibility="scroll"', `${scrolling.content}<tanrei-button slot="actions" confirming>Manage storage</tanrei-button>`)}`, { width: 800, height: 900 });
     await open(page);
     const content = part(page, '.content');
     const clip = part(page, '.clip');
@@ -690,6 +690,58 @@ test.describe('size and layout', () => {
     const last = await rect(host(page).locator('tanrei-button[dismissive]'));
     expect(bottom(last)).toBeLessThanOrEqual(bottom(await rect(container(page))) + 0.5);
     expect(await part(page, '.clip').evaluate((el) => [...el.querySelectorAll('.divider')].map((d) => getComputedStyle(d).visibility))).toEqual(['hidden', 'hidden']);
+  });
+
+  test('POP-8: under always — the default — both dividers stand for as long as the content scrolls, at its top and its end included; none while everything fits, and none on a side without a header', async ({ page }) => {
+    const scrolling = spec.fixtures.find((f) => f.id === 'scrolling')!;
+    await mount(page, `${anchorAt(200, 20)}${popover('headline="What changed" closable close-label="Close what changed"', `${scrolling.content}<tanrei-button slot="actions" confirming>Manage storage</tanrei-button>`)}`, { width: 800, height: 900 });
+    await open(page);
+    const content = part(page, '.content');
+    const shown = () => part(page, '.clip').evaluate((el) => [...el.querySelectorAll('.divider')].map((divider) => getComputedStyle(divider).visibility));
+    expect(await content.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    // At rest, nothing scrolled: the header and the actions are ruled off from the content.
+    expect(await shown()).toEqual(['visible', 'visible']);
+    await content.evaluate((el) => el.scrollTo(0, 60));
+    await settle(page);
+    expect(await shown()).toEqual(['visible', 'visible']);
+    await content.evaluate((el) => el.scrollTo(0, el.scrollHeight));
+    await settle(page);
+    expect(await shown()).toEqual(['visible', 'visible']);
+    // Everything fits: none.
+    await host(page).evaluate((el) => (el.firstChild!.textContent = 'Short.'));
+    await expect.poll(() => content.evaluate((el) => el.hasAttribute('tabindex'))).toBe(false);
+    expect(await shown()).toEqual(['hidden', 'hidden']);
+    // No header: only the divider above the actions.
+    await host(page).evaluate((el, text) => (el.firstChild!.textContent = text), scrolling.content!);
+    await set(page, { headline: '', closable: false });
+    await settle(page);
+    expect(await part(page, '.divider.below-header').count()).toBe(0);
+    await expect.poll(shown).toEqual(['visible']);
+  });
+
+  test('POP-38: auto follows comp.popover.divider.visibility, which follows sys.behavior.divider-visibility; the attribute overrides it; a change is drawn at once, keeping the scroll position; an unknown value is auto and reported', async ({ page }) => {
+    const seen = warnings(page);
+    const scrolling = spec.fixtures.find((f) => f.id === 'scrolling')!;
+    await mount(page, `${anchorAt(200, 20)}${popover('headline="What changed"', `${scrolling.content}<tanrei-button slot="actions" confirming>Manage storage</tanrei-button>`)}`, { width: 800, height: 900 });
+    await open(page);
+    const below = () => part(page, '.divider.below-header').evaluate((el) => getComputedStyle(el).visibility);
+    expect(await below()).toBe('visible');
+    await override(page, { '--tanrei-sys-behavior-divider-visibility': 'scroll' });
+    await expect.poll(below).toBe('hidden');
+    await override(page, { [T('divider-visibility')]: 'always' });
+    await expect.poll(below).toBe('visible');
+    await set(page, { dividerVisibility: 'scroll' });
+    await expect(host(page)).toHaveAttribute('divider-visibility', 'scroll');
+    await expect.poll(below).toBe('hidden');
+    await part(page, '.content').evaluate((el) => el.scrollTo(0, 60));
+    await expect.poll(below).toBe('visible');
+    await set(page, { dividerVisibility: 'always' });
+    expect(await part(page, '.content').evaluate((el) => el.scrollTop)).toBe(60);
+    await part(page, '.content').evaluate((el) => el.scrollTo(0, 0));
+    await host(page).evaluate((el) => el.setAttribute('divider-visibility', 'sometimes'));
+    await settle(page);
+    await expect.poll(below).toBe('visible');
+    await expect.poll(() => seen.some((text) => text.includes('POP-38') && text.includes('sometimes'))).toBe(true);
   });
 
   test('POP-8: the keyboard focus of what scrolls — the content, or everything where everything scrolls together — is drawn inside its edges and stays there while it scrolls; its inner stroke does not move away with what is scrolled', async ({ page }) => {

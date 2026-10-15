@@ -4,6 +4,7 @@ import {
   ActionPlacement,
   AvailabilityController,
   BUTTON_VARIANTS,
+  type DividerVisibilityProp,
   HOST_VARIANT,
   OpenAxesController,
   type VariantHost,
@@ -16,12 +17,14 @@ import {
   deepActive,
   focusWithin,
   holdPageScroll,
+  isDividerVisibility,
   keyboardCover,
   modalLayer,
   modalSheetKeys,
   onBackdrop,
   report,
   returnFocus,
+  syncDividerVisibility,
   watchEscape,
   WordsController,
 } from '../../primitives/index.js';
@@ -30,6 +33,9 @@ import { AXES, styles } from './side-sheet.styles.js';
 
 /** The core variants (standard, modal), plus any a design system adds: only `modal` is presented as a modal overlay. */
 export type TanreiSideSheetVariant = 'standard' | 'modal' | (string & {});
+
+/** When the divider below the header is drawn (SSH-23): `auto` takes `comp.side-sheet.divider.visibility`. */
+export type TanreiSideSheetDividerVisibility = DividerVisibilityProp;
 /** Why the sheet asks to close (SSH-4, SSH-5). The web has no back of its own; Android's back gesture arrives as `back`. */
 export type TanreiSideSheetCloseReason = 'close' | 'scrim' | 'escape' | 'back' | 'drag';
 
@@ -82,8 +88,10 @@ const ARRANGEMENTS = ['fill', 'start'] as const;
  * slotted element marked `autofocus`, else the sheet (also when it is mounted open), and returns where it was when it
  * closes.
  *
- * The content scrolls between the header and the actions; a divider appears below the header while it is scrolled from
- * its top. While the on-screen keyboard covers the bottom of the sheet, the actions sit directly above it (the
+ * The content scrolls between the header and the actions. The divider below the header is drawn whenever the header is
+ * while `divider-visibility` is `always` (the default system's), as the one above the actions is, and only while the
+ * content is scrolled from its top while it is `scroll`; `auto` takes `comp.side-sheet.divider.visibility` (SSH-19,
+ * SSH-23). While the on-screen keyboard covers the bottom of the sheet, the actions sit directly above it (the
  * `visualViewport`).
  *
  * Every visual value comes from `--tanrei-comp-side-sheet-*` tokens. The color reaches under
@@ -98,7 +106,7 @@ const ARRANGEMENTS = ['fill', 'start'] as const;
  * @csspart headline - The headline (a heading).
  * @csspart close-button - The close button, an icon-only `<tanrei-button>`.
  * @csspart content - The box that insets and scrolls the content.
- * @csspart divider - A hairline: above the actions while there are actions, and below the header while the content is scrolled from its top (hidden from assistive technology).
+ * @csspart divider - A hairline: above the actions while there are actions, and below the header as `divider-visibility` says (hidden from assistive technology).
  * @csspart actions - The row (or column) of actions.
  * @fires {CustomEvent<TanreiSideSheetCloseDetail>} close - The sheet asks to be closed: `detail.reason` is `close` (its close button), or for a modal sheet `scrim`, `escape`, `back` or `drag`. Set `open` to false.
  */
@@ -118,6 +126,7 @@ export class TanreiSideSheet extends LitElement implements VariantHost {
     headline: { type: String },
     closable: { type: Boolean, reflect: true },
     closeLabel: { type: String, attribute: 'close-label' },
+    dividerVisibility: { type: String, attribute: 'divider-visibility', reflect: true },
     hasActions: { state: true },
   };
 
@@ -135,6 +144,13 @@ export class TanreiSideSheet extends LitElement implements VariantHost {
 
   /** The close button's accessible name ("Close filters"). Required while `closable` (SSH-5). */
   closeLabel = '';
+
+  /**
+   * When the divider below the header is drawn: `always` whenever the header is, `scroll` only while the content is
+   * scrolled from its top; `auto` takes `comp.side-sheet.divider.visibility`, the design system's answer (always in the
+   * default system). Reflected as `divider-visibility`.
+   */
+  dividerVisibility: TanreiSideSheetDividerVisibility = 'auto';
 
   /** SSH-11, SSH-16: whether the sheet has at least one action. */
   private hasActions = false;
@@ -420,11 +436,15 @@ export class TanreiSideSheet extends LitElement implements VariantHost {
     this.syncHeaderDivider();
   }
 
-  /** SSH-19: a divider below the header while the content is scrolled away from its top; at once, without motion. */
+  /**
+   * SSH-19, SSH-23: the divider below the header — whenever the header is drawn under always, while the content is
+   * scrolled away from its top under scroll (`scrolled`); at once, without motion.
+   */
   private syncHeaderDivider() {
     const header = this.renderRoot?.querySelector<HTMLElement>('.header');
     const content = this.renderRoot?.querySelector<HTMLElement>('.content');
     if (header && content) header.classList.toggle('scrolled', content.scrollTop > 0.5);
+    syncDividerVisibility(this, header);
   }
 
   private readonly onScroll = () => this.syncHeaderDivider();
@@ -535,6 +555,11 @@ export class TanreiSideSheet extends LitElement implements VariantHost {
     }
     if ((changed.has('closable') || changed.has('closeLabel')) && this.closable && this.words.lacks('closeLabel', this.closeLabel)) {
       report(this, 'SSH-5', 'close-label is empty, so the close button has no accessible name; give it a close-label');
+    }
+    // SSH-23: a divider visibility the sheet does not define is drawn as auto (no rule matches it).
+    if (changed.has('dividerVisibility')) {
+      if (!isDividerVisibility(this.dividerVisibility)) report(this, 'SSH-23', `divider-visibility "${this.dividerVisibility}" is not a value of the side sheet; it is drawn as "auto"`);
+      this.syncHeaderDivider();
     }
 
     const variantChanged = changed.has('variant') && changed.get('variant') !== undefined;

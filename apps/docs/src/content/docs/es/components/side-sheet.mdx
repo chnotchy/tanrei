@@ -2,7 +2,7 @@
 title: Hoja lateral
 description: Contiene contenido complementario o una tarea secundaria en un panel situado en el borde de fin, con un titular, un botón de cierre opcional y acciones opcionales, junto al contenido en una ventana ancha o sobre él en una compacta.
 translationOf: components/side-sheet.mdx
-sourceHash: 5882e5c9679bb13517baa13179ee2fb6e066f749
+sourceHash: fc5ffa5244c401cdf4301f894820d0b9cb2b1dc7
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,7 +16,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="side-sheet" />
 
 :::note[Una especificación revisada que aún no está en todas las plataformas]
-Esta página describe las acciones y el botón de cierre de la hoja lateral tal como los define ahora la especificación, igual que los del diálogo. Las acciones son una fila a todo el ancho de botones de variante tonal, colocados según su función: cada una se marca como `confirming` o `dismissive`, y una hoja modal debe ofrecer al menos una. El botón de cierre es tonal. Bajo la cabecera aparece un divisor mientras el contenido está desplazado, y las acciones se mantienen por encima del teclado en pantalla. El componente web ya hace todo esto, y las demostraciones también; arriba sigue marcado como rezagado hasta que la revisión se haya examinado. SwiftUI, Compose, Flutter y React Native también van rezagados: hasta que se pongan al día ofrecen la revisión anterior, con un botón de icono estándar para cerrar y las acciones en una fila desde el borde de inicio en el orden dado, opcionales en ambas formas y separadas por 8.
+Esta página describe las acciones y el botón de cierre de la hoja lateral tal como los define ahora la especificación, igual que los del diálogo. Las acciones son una fila a todo el ancho de botones de variante tonal, colocados según su función: cada una se marca como `confirming` o `dismissive`, y una hoja modal debe ofrecer al menos una. El botón de cierre es tonal. Bajo la cabecera hay siempre un divisor, como sobre las acciones, y las acciones se mantienen por encima del teclado en pantalla. El componente web ya hace todo esto, y las demostraciones también; arriba sigue marcado como rezagado hasta que la revisión se haya examinado. SwiftUI, Compose, Flutter y React Native también van rezagados: hasta que se pongan al día ofrecen la revisión anterior, con un botón de icono estándar para cerrar y las acciones en una fila desde el borde de inicio en el orden dado, opcionales en ambas formas y separadas por 8.
 :::
 
 <DemoFrame label="Una hoja estándar al final de una fila">
@@ -249,7 +249,7 @@ Una hoja modal nunca es tan ancha como una ventana estrecha. Se queda al menos u
 
 Las acciones se reparten a partes iguales el ancho interior de la hoja, con 16 entre ellas. En una fila, la acción dismissive está al inicio y la confirming al final, con las acciones sin marca entre ambas en el orden dado. Cuando una etiqueta tendría que saltar de línea en su parte, se apilan en una columna con la acción confirming arriba. El foco y los lectores de pantalla siguen el orden de colocación. Define la `variant` de un botón para dar otro aspecto a esa acción; un producto que quiera otro aspecto para todas las hojas lo define una sola vez en su capa (`actions.variant`, y `actions.arrangement` para una fila compacta al inicio, o `close-button.variant` para el botón de cierre).
 
-La cabecera y las acciones permanecen en su sitio mientras el contenido se desplaza. El divisor de encima de las acciones se dibuja siempre; un divisor igual aparece bajo la cabecera mientras el contenido está desplazado respecto a su parte superior. Mientras el teclado en pantalla cubre la parte inferior de la hoja, las acciones suben hasta quedar justo encima de él, y el contenido se desplaza en el espacio que queda. El color de la hoja llega por debajo de los márgenes interiores del sistema en su fin, su parte superior y su parte inferior, y su cabecera, su contenido y sus acciones se quedan dentro de ellos. En un diseño de derecha a izquierda, la hoja se sitúa en el borde izquierdo, reflejada.
+La cabecera y las acciones permanecen en su sitio mientras el contenido se desplaza. El divisor de encima de las acciones se dibuja siempre, y en el sistema predeterminado también un divisor igual bajo la cabecera: ambos son bordes de un panel que se queda junto a la página. Define `dividerVisibility` como `scroll` (`divider-visibility` en la web) para dibujar el de la cabecera solo mientras el contenido está desplazado respecto a su parte superior; `cupertino` y `m3-like` lo eligen para todas las hojas. Mientras el teclado en pantalla cubre la parte inferior de la hoja, las acciones suben hasta quedar justo encima de él, y el contenido se desplaza en el espacio que queda. El color de la hoja llega por debajo de los márgenes interiores del sistema en su fin, su parte superior y su parte inferior, y su cabecera, su contenido y sus acciones se quedan dentro de ellos. En un diseño de derecha a izquierda, la hoja se sitúa en el borde izquierdo, reflejada.
 
 ### Apertura, foco y cierre
 
@@ -297,6 +297,7 @@ La cabecera y las acciones permanecen en su sitio mientras el contenido se despl
 
 Carencias conocidas por plataforma:
 
+- SwiftUI, Compose, Flutter y React Native: `dividerVisibility` espera a que esas plataformas se pongan al día. Dibujan el divisor bajo la cabecera solo mientras el contenido está desplazado, como hace `scroll`.
 - Web: en Firefox, una hoja modal desaparece de inmediato en lugar de salir deslizándose, como le ocurre al diálogo. Los arrastres táctiles y los márgenes reales del área segura no están cubiertos por ninguna prueba.
 - SwiftUI no tiene ni un rol de diálogo ni uno de región complementaria: la hoja es un contenedor que recibe su nombre de su titular, con el rasgo modal mientras es modal. SwiftUI no puede dar el foco del teclado a la propia hoja: sin marca, VoiceOver pasa al titular y el foco del teclado se queda donde estaba. Al cerrarse, el foco del teclado no vuelve a ningún elemento; en iOS, la cubierta modal devuelve VoiceOver, y una hoja estándar lo deja ir. Una hoja estándar no se recorta mientras se desliza, así que colócala en el borde de fin de la fila de la ventana. En macOS, una hoja modal cubre solo la vista a la que está unido el modificador, así que únelo a la raíz de la ventana.
 - SwiftUI: el texto sin formato del contenido toma la fuente del cuerpo sin su interlineado, así que no queda colocado exactamente donde lo colocan las demás plataformas. Escape y el gesto de escape de iOS están conectados, pero ninguna prueba los ejecuta.

@@ -2,7 +2,7 @@
 title: Estructura de la aplicación
 description: Enmarca una página o una aplicación. Coloca una cabecera, la navegación, el contenido principal, un contenido complementario y un pie, decide según el ancho de la ventana cómo se muestra cada uno y permite que el teclado llegue al contenido en un solo paso.
 translationOf: components/app-shell.mdx
-sourceHash: dd71f17af916d5f24fc18262c73dccc55a1dc27e
+sourceHash: 2ff9e4348ad75d75ba89e58f897847dad7e29cb1
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -161,7 +161,7 @@ La estructura mide la cabecera fija y da ese mismo margen interior a la vista de
 | `divider` | Una línea fina encima del pie, en el borde de inicio de un contenido complementario que está junto al contenido, y entre el contenido principal y un contenido complementario apilado. |
 | `gap` | Ninguna línea. Los mismos espacios. |
 
-Las líneas no ocupan sitio. La estructura no dibuja ninguna alrededor de la cabecera, la navegación, el anuncio ni la barra de navegación: esos componentes dibujan sus propios bordes.
+Las líneas no ocupan sitio. La estructura no dibuja ninguna alrededor de la cabecera, la navegación, el anuncio ni la barra de navegación: esos componentes dibujan sus propios bordes. La barra de la aplicación de la cabecera dibuja su borde inferior en reposo, como borde de una región que no se mueve, y lo mantiene mientras la página se desplaza por debajo; define el `dividerVisibility` de la barra como `scroll` para mostrarlo solo cuando hay contenido debajo de ella.
 
 ### Recomendado
 

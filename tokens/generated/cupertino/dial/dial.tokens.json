@@ -2815,6 +2815,10 @@
               "$value": 2,
               "reason": "Apple's forms draw no required mark beside a label."
             },
+            "tanrei.sys.behavior.divider-visibility": {
+              "$value": 1,
+              "reason": "Apple's navigation bars and toolbars draw their hairline only while content lies under them: at the scroll edge their appearance has no shadow (scrollEdgeAppearance), and a sheet's bar follows the same rule."
+            },
             "tanrei.sys.shape.corner-smoothing": {
               "$value": 0.6,
               "reason": "Apple platforms draw continuous corners: Figma's 60 % corner smoothing."

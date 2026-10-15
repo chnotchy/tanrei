@@ -1,4 +1,4 @@
-// <tanrei-dialog>, driven by specs/dialog.spec.json: every behaviour id (DLG-1…20) is cited by a test title, every
+// <tanrei-dialog>, driven by specs/dialog.spec.json: every behaviour id (DLG-1…24) is cited by a test title, every
 // fixture has a baseline (the 640 × 640 window, 360 × 640 for the compact ones, since the dialog and its scrim are in the
 // top layer), and every value is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
@@ -563,8 +563,30 @@ test.describe('layout', () => {
     expect(await innerStrokeAtEdges(page, scroll), 'scrolled to its end').toEqual({ top: true, bottom: true });
   });
 
-  test('DLG-11: long content scrolls between the fixed header and actions, with a divider below the header once scrolled and above the actions while more lies below; none while everything fits', async ({ page }) => {
+  test('DLG-11: long content scrolls between the fixed header and actions; under always both dividers stand for as long as it scrolls, at its top included; none while everything fits', async ({ page }) => {
     await mount(page, [closed('scrolling'), closed('basic')]);
+    await open(page, 'scrolling');
+    const d = dialog(page, 'scrolling');
+    const scroll = d.locator('.scroll');
+    const divider = (which: '::before' | '::after') => css(d.locator('.middle'), 'visibility', which);
+    expect(await scroll.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    // At rest, nothing scrolled: the header and the actions are ruled off from the part that scrolls.
+    expect([await divider('::before'), await divider('::after')]).toEqual(['visible', 'visible']);
+    await scroll.evaluate((el) => (el.scrollTop = 100));
+    await expect.poll(() => divider('::before')).toBe('visible');
+    expect(await divider('::after')).toBe('visible');
+    await scroll.evaluate((el) => (el.scrollTop = el.scrollHeight));
+    await expect.poll(() => scroll.evaluate((el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 1)).toBe(true);
+    expect([await divider('::before'), await divider('::after')]).toEqual(['visible', 'visible']);
+    await close(page, 'scrolling');
+    await open(page, 'basic');
+    expect(await css(dialog(page, 'basic').locator('.middle'), 'visibility', '::before')).toBe('hidden');
+    expect(await css(dialog(page, 'basic').locator('.middle'), 'visibility', '::after')).toBe('hidden');
+  });
+
+  test('DLG-11: under scroll, a divider below the header once scrolled and above the actions while more lies below; none while everything fits', async ({ page }) => {
+    const scrolling = closed('scrolling');
+    await mount(page, [{ ...scrolling, props: { ...scrolling.props, dividerVisibility: 'scroll' } }, { ...closed('basic'), props: { ...closed('basic').props, dividerVisibility: 'scroll' } }]);
     await open(page, 'scrolling');
     const d = dialog(page, 'scrolling');
     const scroll = d.locator('.scroll');
@@ -595,6 +617,48 @@ test.describe('layout', () => {
     await expect(dialog(page, 'basic').locator('.scroll')).not.toHaveAttribute('tabindex');
     expect(await css(dialog(page, 'basic').locator('.middle'), 'visibility', '::before')).toBe('hidden');
     expect(await css(dialog(page, 'basic').locator('.middle'), 'visibility', '::after')).toBe('hidden');
+  });
+
+  test('DLG-24: auto follows comp.dialog.divider.visibility, which follows sys.behavior.divider-visibility; the attribute overrides it; a change is drawn at once; an unknown value is auto and reported', async ({ page }) => {
+    const seen = reports(page);
+    await mount(page, [closed('scrolling')]);
+    await open(page, 'scrolling');
+    const d = dialog(page, 'scrolling');
+    const before = () => css(d.locator('.middle'), 'visibility', '::before');
+    const after = () => css(d.locator('.middle'), 'visibility', '::after');
+    // The default system's choice is always.
+    expect(await token(page, T('divider-visibility'))).toBe('always');
+    expect(await before()).toBe('visible');
+    // The system's choice set to scroll: the content is at its top, so the divider below the header goes, at once.
+    await override(page, { '--tanrei-sys-behavior-divider-visibility': 'scroll' });
+    await expect.poll(before).toBe('hidden');
+    expect(await after()).toBe('visible');
+    // The component token set apart from the system's choice.
+    await override(page, { [T('divider-visibility')]: 'always' });
+    await expect.poll(before).toBe('visible');
+    // The attribute overrides the token.
+    await host(page, 'scrolling').evaluate(async (el: any) => {
+      el.dividerVisibility = 'scroll';
+      await el.updateComplete;
+    });
+    await expect(host(page, 'scrolling')).toHaveAttribute('divider-visibility', 'scroll');
+    await expect.poll(before).toBe('hidden');
+    // The scroll position is kept across a change.
+    await d.locator('.scroll').evaluate((el) => (el.scrollTop = 60));
+    await expect.poll(before).toBe('visible');
+    await host(page, 'scrolling').evaluate(async (el: any) => {
+      el.dividerVisibility = 'always';
+      await el.updateComplete;
+    });
+    expect(await d.locator('.scroll').evaluate((el) => el.scrollTop)).toBe(60);
+    // A value the dialog does not define is drawn as auto (the token's always here) and reported.
+    await host(page, 'scrolling').evaluate(async (el: any) => {
+      el.setAttribute('divider-visibility', 'sometimes');
+      await el.updateComplete;
+    });
+    await d.locator('.scroll').evaluate((el) => (el.scrollTop = 0));
+    await expect.poll(before).toBe('visible');
+    await expect.poll(() => seen.some((m) => m.text.includes('DLG-24') && m.text.includes('sometimes'))).toBe(true);
   });
 
   test('DLG-12: with no room left for the scrolled part (large text, a short window) all the parts scroll together, and nothing is cut off', async ({ page }) => {

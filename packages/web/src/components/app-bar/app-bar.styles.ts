@@ -1,12 +1,13 @@
 import { css, unsafeCSS } from 'lit';
-import type { OpenAxis } from '../../primitives/index.js';
+import { type OpenAxis, dividerVisibilityHost, whenScroll } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
 // Every visual value is a token (tokens/comp/app-bar.tokens.json). The bar has no interaction states: its navigation and
 // action items are the product's icon buttons, which paint themselves from their own tokens (APB-11). What the bar paints
 // is its condition (flat or scrolled: the container color, its elevation and the bottom edge) and its size (the heights
-// and the title's and subtitle's text roles).
+// and the title's and subtitle's text roles). Whether the bottom edge follows the condition is the divider visibility
+// (APB-18): under always it is the scrolled condition's edge in both.
 /** The values every design system has. A layer may add more; those get their styles on demand. */
 export const CORE_SIZES = ['small', 'large'] as const;
 export const DEFAULT_SIZE = 'small';
@@ -69,6 +70,8 @@ export const styles = css`
   :host([scrolled]) {
     ${unsafeCSS(condition('scrolled'))}
   }
+  /* APB-18: the divider visibility — its attribute's, else comp.app-bar.outline.visibility's. */
+  ${dividerVisibilityHost(`${PREFIX}-outline-visibility`)}
   ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
   ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => sizeBlock(size, `:host([size='${size}'])`)).join('\n'))}
   :host([hidden]) {
@@ -93,16 +96,25 @@ export const styles = css`
     transition-duration: ${t('motion-condition-duration')};
     transition-timing-function: ${t('motion-condition-easing')};
   }
-  /* APB-1, APB-2: the bottom edge, inside the bar (it never changes the bar's height). */
+  /* APB-1, APB-2: the bottom edge, inside the bar (it never changes the bar's height). APB-18, always: the scrolled
+     condition's edge in both conditions, so that it stands still. */
   .outline {
     position: absolute;
     inset-inline: 0;
     inset-block-end: 0;
     block-size: ${t('outline-width')};
-    background: var(--_o);
+    background: ${t('scrolled-outline-color')};
     pointer-events: none;
     transition: background-color ${unsafeCSS(CONDITION_MOTION)};
   }
+  /* APB-18, scroll: each condition's own edge (none at rest in the default system). */
+  ${whenScroll(
+    '.container',
+    (container) => `
+  ${container} .outline {
+    background: var(--_o);
+  }`,
+  )}
 
   /* APB-4: the top row — at least the small bar's height (a large bar's top row is always the small height); the
      navigation item padding-inline from the start edge, the title block, the actions padding-inline from the end edge,
@@ -232,8 +244,18 @@ export const styles = css`
     }
   }
   @media (forced-colors: active) {
-    :host([scrolled]) .outline {
+    .outline {
       background: CanvasText;
     }
+    ${whenScroll(
+      '.container',
+      (container) => `
+    ${container} .outline {
+      background: transparent;
+    }
+    :host([scrolled]) ${container} .outline {
+      background: CanvasText;
+    }`,
+    )}
   }
 `;

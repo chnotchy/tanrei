@@ -967,6 +967,13 @@ public struct TanreiTypefaces: Sendable, Equatable {
   }
 }
 
+/// The choice `tanrei.sys.behavior.divider-visibility`.
+/// A design system chooses among these; it cannot add one. The first is the default.
+public enum TanreiDividerVisibility: String, Sendable, Hashable, CaseIterable {
+  case always
+  case scroll
+}
+
 /// How keyboard focus is drawn from the two focus colors and the focus measures (BTN-10).
 /// A design system chooses among these; it cannot add one. The first is the default.
 public enum TanreiFocusStyle: String, Sendable, Hashable, CaseIterable {
@@ -1008,6 +1015,8 @@ public enum TanreiSeparation: String, Sendable, Hashable, CaseIterable {
 
 /// Choices of kind: what a design system does, where the other tokens say how much.
 public struct TanreiBehavior: Sendable, Equatable {
+  /// `tanrei.sys.behavior.divider-visibility`
+  public var dividerVisibility: TanreiDividerVisibility
   /// `tanrei.sys.behavior.focus-style`
   public var focusStyle: TanreiFocusStyle
   /// `tanrei.sys.behavior.link-underline`
@@ -1020,12 +1029,14 @@ public struct TanreiBehavior: Sendable, Equatable {
   public var separation: TanreiSeparation
 
   public init(
+    dividerVisibility: TanreiDividerVisibility,
     focusStyle: TanreiFocusStyle,
     linkUnderline: TanreiLinkUnderline,
     pressedFeedback: TanreiPressedFeedback,
     requirementMark: TanreiRequirementMark,
     separation: TanreiSeparation
   ) {
+    self.dividerVisibility = dividerVisibility
     self.focusStyle = focusStyle
     self.linkUnderline = linkUnderline
     self.pressedFeedback = pressedFeedback
@@ -1502,6 +1513,7 @@ public struct TanreiAppBarTokens: Sendable, Equatable {
   public var containerPaddingInline: CGFloat
   public var motionConditionDuration: Double
   public var motionConditionEasing: TanreiCubicBezier
+  public var outlineVisibility: Double
   public var outlineWidth: CGFloat
   public var subtitleColor: TanreiPaint
   public var titleColor: TanreiPaint
@@ -1516,6 +1528,7 @@ public struct TanreiAppBarTokens: Sendable, Equatable {
     containerPaddingInline: CGFloat,
     motionConditionDuration: Double,
     motionConditionEasing: TanreiCubicBezier,
+    outlineVisibility: Double,
     outlineWidth: CGFloat,
     subtitleColor: TanreiPaint,
     titleColor: TanreiPaint,
@@ -1529,6 +1542,7 @@ public struct TanreiAppBarTokens: Sendable, Equatable {
     self.containerPaddingInline = containerPaddingInline
     self.motionConditionDuration = motionConditionDuration
     self.motionConditionEasing = motionConditionEasing
+    self.outlineVisibility = outlineVisibility
     self.outlineWidth = outlineWidth
     self.subtitleColor = subtitleColor
     self.titleColor = titleColor
@@ -6159,6 +6173,7 @@ public struct TanreiDialogTokens: Sendable, Equatable {
   public var containerShape: CGFloat
   public var contentColor: TanreiPaint
   public var dividerColor: TanreiPaint
+  public var dividerVisibility: Double
   public var dividerWidth: CGFloat
   public var headerGap: CGFloat
   public var headlineColor: TanreiPaint
@@ -6193,6 +6208,7 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     containerShape: CGFloat,
     contentColor: TanreiPaint,
     dividerColor: TanreiPaint,
+    dividerVisibility: Double,
     dividerWidth: CGFloat,
     headerGap: CGFloat,
     headlineColor: TanreiPaint,
@@ -6226,6 +6242,7 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     self.containerShape = containerShape
     self.contentColor = contentColor
     self.dividerColor = dividerColor
+    self.dividerVisibility = dividerVisibility
     self.dividerWidth = dividerWidth
     self.headerGap = headerGap
     self.headlineColor = headlineColor
@@ -12052,6 +12069,7 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
   public var containerShape: CGFloat
   public var contentColor: TanreiPaint
   public var dividerColor: TanreiPaint
+  public var dividerVisibility: Double
   public var dividerWidth: CGFloat
   public var headerGap: CGFloat
   public var headlineColor: TanreiPaint
@@ -12084,6 +12102,7 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
     containerShape: CGFloat,
     contentColor: TanreiPaint,
     dividerColor: TanreiPaint,
+    dividerVisibility: Double,
     dividerWidth: CGFloat,
     headerGap: CGFloat,
     headlineColor: TanreiPaint,
@@ -12115,6 +12134,7 @@ public struct TanreiPopoverTokens: Sendable, Equatable {
     self.containerShape = containerShape
     self.contentColor = contentColor
     self.dividerColor = dividerColor
+    self.dividerVisibility = dividerVisibility
     self.dividerWidth = dividerWidth
     self.headerGap = headerGap
     self.headlineColor = headlineColor
@@ -13874,6 +13894,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
   public var containerWidth: CGFloat
   public var contentColor: TanreiPaint
   public var dividerColor: TanreiPaint
+  public var dividerVisibility: Double
   public var dividerWidth: CGFloat
   public var headerGap: CGFloat
   public var headerHeight: CGFloat
@@ -13900,6 +13921,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
     containerWidth: CGFloat,
     contentColor: TanreiPaint,
     dividerColor: TanreiPaint,
+    dividerVisibility: Double,
     dividerWidth: CGFloat,
     headerGap: CGFloat,
     headerHeight: CGFloat,
@@ -13925,6 +13947,7 @@ public struct TanreiSideSheetTokens: Sendable, Equatable {
     self.containerWidth = containerWidth
     self.contentColor = contentColor
     self.dividerColor = dividerColor
+    self.dividerVisibility = dividerVisibility
     self.dividerWidth = dividerWidth
     self.headerGap = headerGap
     self.headerHeight = headerHeight

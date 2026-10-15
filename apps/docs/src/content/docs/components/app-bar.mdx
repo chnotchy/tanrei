@@ -1,6 +1,6 @@
 ---
 title: App bar
-description: Names the current screen at its top edge and holds the way back and a few of the screen's actions. It lies flat while the content is at its top and sets itself apart once content scrolls under it.
+description: Names the current screen at its top edge and holds the way back and a few of the screen's actions. Its bottom edge stands as the edge of the screen's header, and it takes its scrolled look once content scrolls under it.
 ---
 
 import { Tabs, TabItem } from '../../../components/tabs';
@@ -236,7 +236,9 @@ A design system may add sizes. On SwiftUI, Compose, Flutter and React Native, a 
 
 ### Scrolling
 
-- **Flat and scrolled.** While the content is at its top, the bar lies flat. Once content lies under it, the bar takes its scrolled look: in the default system a hairline bottom edge, in `m3-like` a tinted container. The change eases over the bar's condition motion and happens at once where motion is reduced.
+- **The bottom edge stands.** In the default system the bar draws a hairline bottom edge at rest and while content is under it. The bar is the edge of a region that stays in place, as an app shell's header is, so its line does not come and go with the scroll.
+- **Or it follows the scroll.** Set `dividerVisibility` to `scroll` (`divider-visibility` on the web) to draw the edge only once content lies under the bar, so that the line itself says the content has moved. A design system makes that choice for every bar, sheet and dialog with `sys.behavior.divider-visibility`, or for bars alone with `comp.app-bar.outline.visibility`. `cupertino` and `m3-like` choose `scroll`, as their originals do.
+- **Flat and scrolled.** While the content is at its top, the bar lies flat. Once content lies under it, the bar takes its scrolled look: in `m3-like` a tinted container, in `cupertino` a filled one. The change eases over the bar's condition motion and happens at once where motion is reduced.
 - **A large bar is scrolled only once it has fully collapsed.** Until then, the collapse itself shows that the content has moved.
 - **The bar stays put.** It does not hide while the content scrolls down. That is a screen's scroll behaviour, not the bar's.
 
@@ -277,6 +279,7 @@ A design system may add sizes. On SwiftUI, Compose, Flutter and React Native, a 
 
 Known platform gaps:
 
+- SwiftUI, Compose, Flutter and React Native: `dividerVisibility` waits for those platforms to catch up. They draw the bottom edge only once content lies under the bar, as `scroll` does.
 - SwiftUI, Compose, Flutter and React Native: the right-to-left rules (a glyph mirrored where the icon set marks it, a title laid out in its own direction) wait for those platforms to catch up, as does a button with an `href`.
 - Web: every size follows `rem`, so a larger browser text size grows the icon buttons with the text. Enlarging Tanrei's type alone does not.
 - Web: a large bar that follows the document's own scroll and sits `position: sticky` in the document's flow moves the content by its collapse as well as by the scroll, so the content moves twice as fast while the bar collapses. Put a bar that collapses above a scrolling element (`scroll-target`) or in a fixed header.

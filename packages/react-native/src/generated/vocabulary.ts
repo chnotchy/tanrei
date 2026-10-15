@@ -336,12 +336,14 @@ export interface TanreiIconStyle {
  * Choices of kind: behaviour that is a name, not an amount. The names are vocabulary — a system chooses
  * among them. The first name of each is the default, and what a platform draws when it cannot draw the choice.
  */
+export type TanreiDividerVisibility = "always" | "scroll";
 export type TanreiFocusStyle = "ring" | "glow";
 export type TanreiLinkUnderline = "always" | "hover" | "never";
 export type TanreiPressedFeedback = "overlay" | "ripple" | "dim" | "none";
 export type TanreiRequirementMark = "tag" | "asterisk" | "none";
 export type TanreiSeparation = "divider" | "gap";
 export interface TanreiBehavior {
+  readonly dividerVisibility: TanreiDividerVisibility;
   readonly focusStyle: TanreiFocusStyle;
   readonly linkUnderline: TanreiLinkUnderline;
   readonly pressedFeedback: TanreiPressedFeedback;
@@ -560,6 +562,7 @@ export interface TanreiAppBarTokens {
   readonly containerPaddingInline: number;
   readonly motionConditionDuration: number;
   readonly motionConditionEasing: TanreiCubicBezier;
+  readonly outlineVisibility: number;
   readonly outlineWidth: number;
   readonly subtitleColor: TanreiPaint;
   readonly titleColor: TanreiPaint;
@@ -1952,6 +1955,7 @@ export interface TanreiDialogTokens {
   readonly containerShape: number;
   readonly contentColor: TanreiPaint;
   readonly dividerColor: TanreiPaint;
+  readonly dividerVisibility: number;
   readonly dividerWidth: number;
   readonly headerGap: number;
   readonly headlineColor: TanreiPaint;
@@ -3735,6 +3739,7 @@ export interface TanreiPopoverTokens {
   readonly containerShape: number;
   readonly contentColor: TanreiPaint;
   readonly dividerColor: TanreiPaint;
+  readonly dividerVisibility: number;
   readonly dividerWidth: number;
   readonly headerGap: number;
   readonly headlineColor: TanreiPaint;
@@ -4280,6 +4285,7 @@ export interface TanreiSideSheetTokens {
   readonly containerWidth: number;
   readonly contentColor: TanreiPaint;
   readonly dividerColor: TanreiPaint;
+  readonly dividerVisibility: number;
   readonly dividerWidth: number;
   readonly headerGap: number;
   readonly headerHeight: number;

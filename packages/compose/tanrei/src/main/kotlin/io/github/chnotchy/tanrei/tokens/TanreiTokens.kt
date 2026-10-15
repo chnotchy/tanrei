@@ -679,6 +679,9 @@ public data class TanreiElevation(
     }
 }
 
+/** `sys.behavior.divider-visibility`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
+public enum class TanreiDividerVisibility { Always, Scroll }
+
 /** `sys.behavior.focus-style`. The first value is the default, and what a platform that cannot draw a choice falls back to. */
 public enum class TanreiFocusStyle { Ring, Glow }
 
@@ -697,6 +700,7 @@ public enum class TanreiSeparation { Divider, Gap }
 /** Choices of kind: what no amount can express. Components read them and never branch on a system's id. */
 @Immutable
 public data class TanreiBehavior(
+    public val dividerVisibility: TanreiDividerVisibility,
     public val focusStyle: TanreiFocusStyle,
     public val linkUnderline: TanreiLinkUnderline,
     public val pressedFeedback: TanreiPressedFeedback,
@@ -1013,6 +1017,7 @@ public data class TanreiAppBarTokens(
     public val containerPaddingInline: Dp,
     public val motionConditionDuration: Int,
     public val motionConditionEasing: TanreiCubicBezier,
+    public val outlineVisibility: Float,
     public val outlineWidth: Dp,
     public val subtitleColor: TanreiPaint,
     public val titleColor: TanreiPaint,
@@ -3917,6 +3922,7 @@ public data class TanreiDialogTokens(
     public val containerShape: Dp,
     public val contentColor: TanreiPaint,
     public val dividerColor: TanreiPaint,
+    public val dividerVisibility: Float,
     public val dividerWidth: Dp,
     public val headerGap: Dp,
     public val headlineColor: TanreiPaint,
@@ -7577,6 +7583,7 @@ public data class TanreiPopoverTokens(
     public val containerShape: Dp,
     public val contentColor: TanreiPaint,
     public val dividerColor: TanreiPaint,
+    public val dividerVisibility: Float,
     public val dividerWidth: Dp,
     public val headerGap: Dp,
     public val headlineColor: TanreiPaint,
@@ -8676,6 +8683,7 @@ public data class TanreiSideSheetTokens(
     public val containerWidth: Dp,
     public val contentColor: TanreiPaint,
     public val dividerColor: TanreiPaint,
+    public val dividerVisibility: Float,
     public val dividerWidth: Dp,
     public val headerGap: Dp,
     public val headerHeight: Dp,

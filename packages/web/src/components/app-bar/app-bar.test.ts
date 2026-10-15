@@ -1,4 +1,4 @@
-// <tanrei-app-bar>, driven by specs/app-bar.spec.json: every behaviour id (APB-1…15) is cited by a test title, every
+// <tanrei-app-bar>, driven by specs/app-bar.spec.json: every behaviour id (APB-1…18) is cited by a test title, every
 // fixture has a baseline, and every length, color and duration is read back from the tokens — never from a number
 // written here.
 import AxeBuilder from '@axe-core/playwright';
@@ -49,10 +49,11 @@ const drawnCondition = (page: P, id: string) =>
     const outline = root.querySelector('.outline')!;
     return { color: container.backgroundColor, elevation: container.boxShadow, edge: getComputedStyle(outline).backgroundColor, edgeHeight: outline.getBoundingClientRect().height };
   });
-const expectedCondition = async (page: P, condition: 'flat' | 'scrolled') => ({
+/** What a condition draws; the edge is its own color under divider visibility scroll, the scrolled one's under always (APB-18). */
+const expectedCondition = async (page: P, condition: 'flat' | 'scrolled', visibility: 'always' | 'scroll' = 'always') => ({
   color: await resolveColor(page, T(`${condition}-container-color`)),
   elevation: await resolveShadow(page, T(`${condition}-container-elevation`)),
-  edge: await resolveColor(page, T(`${condition}-outline-color`)),
+  edge: await resolveColor(page, T(`${visibility === 'always' ? 'scrolled' : condition}-outline-color`)),
   edgeHeight: await resolveToken(page, T('outline-width')),
 });
 
@@ -84,19 +85,28 @@ const scrollTo = async (page: P, top: number) => {
 };
 
 test.describe('condition', () => {
-  test('APB-1: while scrolled is false the bar fills with flat.container.color, raised by flat.container.elevation, its bottom edge outline.width thick in flat.outline.color', async ({ page }) => {
+  test('APB-1: while scrolled is false the bar fills with flat.container.color, raised by flat.container.elevation, its bottom edge outline.width thick — in scrolled.outline.color under always, in flat.outline.color under scroll', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     const flat = await expectedCondition(page, 'flat');
     for (const f of spec.fixtures.filter((each) => !each.props.scrolled)) expect(await drawnCondition(page, f.id), f.id).toEqual(flat);
     await expect(bar(page, 'small')).not.toHaveAttribute('scrolled');
+    // The default system's choice is always: the edge is drawn at rest, a visible line.
+    expect(flat.edge).not.toBe('rgba(0, 0, 0, 0)');
+    // Under scroll the flat condition's own edge (none in the default system).
+    const scroll = spec.fixtures.filter((each) => !each.props.scrolled).map((f) => ({ ...f, id: `${f.id}-scroll`, props: { ...f.props, dividerVisibility: 'scroll' } }));
+    await mountFixtures(page, spec, { icons: true, fixtures: scroll });
+    const own = await expectedCondition(page, 'flat', 'scroll');
+    for (const f of scroll) expect(await drawnCondition(page, f.id), f.id).toEqual(own);
   });
 
   test('APB-2: while scrolled is true the bar fills with scrolled.container.color, raised by scrolled.container.elevation, its bottom edge in scrolled.outline.color', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
     const scrolled = await expectedCondition(page, 'scrolled');
     for (const f of spec.fixtures.filter((each) => each.props.scrolled)) expect(await drawnCondition(page, f.id), f.id).toEqual(scrolled);
-    // The two conditions differ visibly in the default system: the edge is what says content is under the bar.
-    expect(scrolled.edge).not.toBe((await expectedCondition(page, 'flat')).edge);
+    // Under either divider visibility the scrolled edge is scrolled.outline.color (APB-18).
+    expect(await expectedCondition(page, 'scrolled', 'scroll')).toEqual(scrolled);
+    // Under scroll the two conditions differ visibly in the default system: the edge is what says content is under the bar.
+    expect(scrolled.edge).not.toBe((await expectedCondition(page, 'flat', 'scroll')).edge);
     // The edge is inside the bar: it does not change the bar's height.
     const [flatBar, scrolledBar] = [await bounds(bar(page, 'small')), await bounds(bar(page, 'small-scrolled'))];
     expect(scrolledBar.height).toBe(flatBar.height);
@@ -105,8 +115,16 @@ test.describe('condition', () => {
     expect([edge.x, edge.width]).toEqual([own.x, own.width]);
   });
 
-  test('APB-3: a change of scrolled moves color, elevation and edge over motion.condition-duration with motion.condition-easing; at once where motion is reduced', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('bar', { title: 'Inbox' }, [BACK])] });
+  test('APB-3: a change of scrolled moves color, elevation and edge over motion.condition-duration with motion.condition-easing; at once where motion is reduced; under always the edge does not change', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('bar', { title: 'Inbox', dividerVisibility: 'scroll' }, [BACK]), fixture('still', { title: 'Inbox' }, [BACK])] });
+    // Under always the edge is the same line in both conditions: nothing of it moves when scrolled changes.
+    const still = await css(inner(page, 'still', '.outline'), 'background-color');
+    await bar(page, 'still').evaluate(async (el: any) => {
+      el.scrolled = true;
+      await el.updateComplete;
+    });
+    expect(await inner(page, 'still', '.outline').evaluate((el) => el.getAnimations().length)).toBe(0);
+    expect(await css(inner(page, 'still', '.outline'), 'background-color')).toBe(still);
     const duration = await resolveToken(page, T('motion-condition-duration'), 'duration');
     const easing = await page.evaluate((n) => {
       const probe = document.createElement('div');
@@ -599,6 +617,92 @@ test.describe('insets and items', () => {
   });
 });
 
+test.describe('divider visibility', () => {
+  const edge = (page: P, locator: Locator) => css(locator.locator('.outline'), 'background-color');
+
+  test('APB-18: always — the default — draws the edge on a connected bar at rest, with nothing scrolled, and keeps it while the content scrolls', async ({ page }) => {
+    await scrollPage(page, 'headline="Inbox" scroll-target="list"');
+    const line = await resolveColor(page, T('scrolled-outline-color'));
+    await expect(screenBar(page)).not.toHaveAttribute('scrolled');
+    expect(await edge(page, screenBar(page))).toBe(line);
+    await scrollTo(page, 120);
+    await expect(screenBar(page)).toHaveAttribute('scrolled');
+    expect(await edge(page, screenBar(page))).toBe(line);
+    await scrollTo(page, 0);
+    expect(await edge(page, screenBar(page))).toBe(line);
+  });
+
+  test('APB-18: scroll draws the edge only while content lies under the bar, and follows the scroll both ways', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await scrollPage(page, 'headline="Inbox" scroll-target="list" divider-visibility="scroll"');
+    const [none, line] = [await resolveColor(page, T('flat-outline-color')), await resolveColor(page, T('scrolled-outline-color'))];
+    expect(await edge(page, screenBar(page))).toBe(none);
+    await scrollTo(page, 120);
+    expect(await edge(page, screenBar(page))).toBe(line);
+    await scrollTo(page, 0);
+    expect(await edge(page, screenBar(page))).toBe(none);
+  });
+
+  test('APB-18: auto follows comp.app-bar.outline.visibility; the attribute overrides it; a change is drawn at once; an unknown value is auto and reported', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const seen = warnings(page);
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [fixture('auto', { title: 'Inbox' }, [BACK]), fixture('always', { title: 'Inbox', dividerVisibility: 'always' }, [BACK]), fixture('unknown', { title: 'Inbox' }, [BACK])],
+    });
+    const [none, line] = [await resolveColor(page, T('flat-outline-color')), await resolveColor(page, T('scrolled-outline-color'))];
+    // The component token aliases sys.behavior.divider-visibility, which the default system sets to always.
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--tanrei-comp-app-bar-outline-visibility').trim())).toBe('always');
+    expect(await edge(page, bar(page, 'auto'))).toBe(line);
+    // A layer that sets the token to scroll: auto follows it, at once; always keeps the line whatever the token says.
+    await override(page, { [T('outline-visibility')]: 'scroll' });
+    await expect.poll(() => edge(page, bar(page, 'auto'))).toBe(none);
+    expect(await edge(page, bar(page, 'always'))).toBe(line);
+    // The system-wide choice reaches the bar through its token.
+    await override(page, { [T('outline-visibility')]: 'var(--tanrei-sys-behavior-divider-visibility)', '--tanrei-sys-behavior-divider-visibility': 'scroll' });
+    await expect.poll(() => edge(page, bar(page, 'auto'))).toBe(none);
+    await override(page, { '--tanrei-sys-behavior-divider-visibility': 'always' });
+    await expect.poll(() => edge(page, bar(page, 'auto'))).toBe(line);
+    // An attribute set on the instance: the other form at once.
+    await bar(page, 'auto').evaluate(async (el: any) => {
+      el.dividerVisibility = 'scroll';
+      await el.updateComplete;
+    });
+    await expect(bar(page, 'auto')).toHaveAttribute('divider-visibility', 'scroll');
+    expect(await edge(page, bar(page, 'auto'))).toBe(none);
+    // A value the bar does not define is drawn as auto (always here) and reported in debug builds.
+    await bar(page, 'unknown').evaluate(async (el: any) => {
+      el.setAttribute('divider-visibility', 'sometimes');
+      await el.updateComplete;
+    });
+    expect(await edge(page, bar(page, 'unknown'))).toBe(line);
+    await expect.poll(() => seen.some((m) => m.includes('APB-18') && m.includes('sometimes'))).toBe(true);
+  });
+
+  test('APB-18: where the browser has no style queries the bar writes the name it reads on its container, and the same rules draw it', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('bar', { title: 'Inbox', dividerVisibility: 'scroll' }, [BACK])] });
+    const written = await inner(page, 'bar', '.container').evaluate((el) => (el as HTMLElement).dataset.dividerVisibility ?? null);
+    const supported = await page.evaluate(() => {
+      const outer = document.createElement('div');
+      const inner = document.createElement('div');
+      outer.style.setProperty('--probe', 'on');
+      const sheet = document.createElement('style');
+      sheet.textContent = '@container style(--probe: on) { [data-probe] { --answer: yes; } }';
+      inner.setAttribute('data-probe', '');
+      outer.append(inner);
+      document.head.append(sheet);
+      document.body.append(outer);
+      const answer = getComputedStyle(inner).getPropertyValue('--answer').trim() === 'yes';
+      outer.remove();
+      sheet.remove();
+      return answer;
+    });
+    // With style queries the cascade answers and nothing is written; without them the name is written for the rules.
+    expect(written).toBe(supported ? null : 'scroll');
+    expect(await css(inner(page, 'bar', '.outline'), 'background-color')).toBe(await resolveColor(page, T('flat-outline-color')));
+  });
+});
+
 test.describe('accessibility', () => {
   test('no axe violations in light and dark', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
@@ -608,12 +712,25 @@ test.describe('accessibility', () => {
     }
   });
 
-  test('forced colors: the scrolled bar keeps its bottom edge in a system color', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'small-scrolled') });
+  test('forced colors: the bottom edge is a system color wherever it is drawn — at rest under always, only while scrolled under scroll', async ({ page }) => {
+    // Without motion, so that the switch to forced colors is not sampled half-way through the edge's transition.
+    await mountFixtures(page, spec, {
+      icons: true,
+      reducedMotion: true,
+      fixtures: [...spec.fixtures.filter((f) => f.id === 'small-scrolled' || f.id === 'small'), fixture('rest-scroll', { title: 'Inbox', dividerVisibility: 'scroll' }, [BACK])],
+    });
     await page.emulateMedia({ forcedColors: 'active' });
     const forced = await page.evaluate(() => matchMedia('(forced-colors: active)').matches);
     test.skip(!forced, 'forced colors are not emulated by this browser');
-    expect(await css(inner(page, 'small-scrolled', '.outline'), 'background-color')).not.toBe('rgba(0, 0, 0, 0)');
+    // Forced colors keep a color's alpha: an edge that is drawn is opaque, one that is not stays fully transparent.
+    const alpha = async (id: string) => {
+      const color = await css(inner(page, id, '.outline'), 'background-color');
+      const match = /rgba\([^)]*,\s*([\d.]+)\)/.exec(color);
+      return match ? Number(match[1]) : 1;
+    };
+    expect(await alpha('small-scrolled')).toBe(1);
+    expect(await alpha('small')).toBe(1);
+    expect(await alpha('rest-scroll')).toBe(0);
   });
 });
 
