@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
-import { acmeSystemCss, presetFontFaces, resolveToken } from '../test/harness.js';
+import { acmeSystemCss, glyphsDrawn, glyphsSpelled, loadSpec, mountFixtures, presetFontFaces, resolveToken } from '../test/harness.js';
 import { opticalSize } from '../test/icons.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -180,4 +180,39 @@ test('m3-like is drawn in ITS faces when they are registered: Material Symbols O
   // Selected is the same family, filled (a variable set): the two drawings differ.
   const [off, on] = await Promise.all(['#icon', '#on'].map((id) => page.locator(id).screenshot()));
   expect(off.equals(on)).toBe(false);
+});
+
+// ── What a page of fixtures draws before it is measured or pictured ─────────────────────────────────────────────
+test('a page of fixtures that draws a glyph has the icon face drawing it when it is mounted, whether it asked for the faces or not: its ink is one em, not the name spelled out', async ({ page }) => {
+  // A Button's baselines were recorded from a page mounted without the faces: on the Linux recorder, which has no icon
+  // font, each glyph was its name in a serif fallback, clipped by its 1 em box (`ad` for `add`, `fav` for `favorite`).
+  const button = loadSpec('button');
+  const ids = ['filled-leading-icon', 'filled-icon', 'filled-trailing-icon-large', 'outlined-link-new'];
+  await mountFixtures(page, button, { fixtures: button.fixtures.filter((f) => ids.includes(f.id)) });
+  const loaded = await page.evaluate(() => [...document.fonts].filter((face) => face.status === 'loaded').map((face) => face.family.replaceAll('"', '')));
+  expect(loaded, 'the icon face is registered by the page and loaded, not a copy installed on the machine').toContain('Material Symbols Rounded');
+  for (const id of ids.filter((id) => id !== 'outlined-link-new')) {
+    const [ink, size] = await page.locator(`[data-fixture="${id}"] [slot="icon"]`).evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return [range.getBoundingClientRect().width, parseFloat(getComputedStyle(el).fontSize)];
+    });
+    expect(ink, `${id}: one glyph, ${ink} wide at ${size}`).toBeLessThanOrEqual(size + 1);
+  }
+  // The new-context mark the link draws in its shadow tree is a glyph too.
+  expect(await page.evaluate(glyphsSpelled, ['Material Symbols Rounded'])).toEqual([]);
+});
+
+test('a glyph drawn as its name is found — without a face the page registered, or spelled in one — and a mount waiting for it fails, naming it', async ({ page }) => {
+  await page.setContent(`<!doctype html><html><body><span style="font-family: 'Material Symbols Rounded'; font-size: 24px">add</span></body></html>`);
+  const bare = await page.evaluate(glyphsSpelled, ['Material Symbols Rounded']);
+  expect(bare).toHaveLength(1);
+  expect(bare[0]).toContain('"add" in Material Symbols Rounded, which the page has no loaded face of');
+  await expect(glyphsDrawn(page, ['Material Symbols Rounded'])).rejects.toThrow(/glyphs drawn as their names[\s\S]*"add"/);
+  // With the face: a name the set has is one glyph; a name it does not have is spelled out, wider than 1.5 em.
+  await mount(page, `<span class="tanrei-icon">favorite</span><span class="tanrei-icon">no_such_glyph_here</span>`);
+  await page.evaluate(() => document.fonts.load('24px "Material Symbols Rounded"', 'favorite'));
+  const spelled = await page.evaluate(glyphsSpelled, ['Material Symbols Rounded']);
+  expect(spelled).toHaveLength(1);
+  expect(spelled[0]).toContain('"no_such_glyph_here"');
 });
