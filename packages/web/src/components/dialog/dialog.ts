@@ -9,9 +9,12 @@ import {
   GlyphMirrorController,
   HOST_VARIANT,
   type VariantHost,
+  WordsController,
   assignSlot,
+  closeRequestReason,
   compChoice,
   deepActive,
+  giveVariant,
   holdPageScroll,
   isDisabledControl,
   isDividerVisibility,
@@ -19,7 +22,9 @@ import {
   report,
   syncDividerVisibility,
   trapFocus,
+  watchEscape,
 } from '../../primitives/index.js';
+import '../button/button.js';
 import { styles } from './dialog.styles.js';
 
 /** HTML's `closedby` values: `any` (Escape, back and a press on the scrim dismiss) or `none` (nothing does). */
@@ -27,6 +32,18 @@ export type TanreiDialogClosedBy = 'any' | 'none' | 'closerequest';
 
 /** When the dividers are drawn while the scrolled part scrolls (DLG-24): `auto` takes `comp.dialog.divider.visibility`. */
 export type TanreiDialogDividerVisibility = DividerVisibilityProp;
+
+/** What decides the container's width outside a compact window (DLG-27): its widest part, or one of three fixed widths. */
+export type TanreiDialogWidth = 'content' | 'small' | 'medium' | 'large';
+const WIDTHS: readonly string[] = ['content', 'small', 'medium', 'large'];
+
+/** Why the dialog was dismissed (DLG-5, DLG-25). The web has no back of its own; Android's back gesture arrives as `back`. */
+export type TanreiDialogDismissReason = 'escape' | 'back' | 'scrim' | 'close';
+
+/** `cancel`'s detail: why the person asked to close the dialog. */
+export interface TanreiDialogDismissDetail {
+  reason: TanreiDialogDismissReason;
+}
 
 /** The dialogs open in this window, bottom to top (DLG-15). */
 const stack: TanreiDialog[] = [];
@@ -46,9 +63,16 @@ const ARRANGEMENTS = ['fill', 'end'] as const;
  * (Tab wraps), and returns where it was when the dialog closes. It is an operated modal overlay.
  * Centred in the window, or at the bottom of a window narrower than `comp.dialog.compact.window-width` (DLG-17).
  *
- * While `closedby` is not `none`, Escape, the platform's back and a press on the scrim fire `cancel`, which is
- * cancelable: the dialog then closes itself unless you call `preventDefault()`, as a native `<dialog>` does. Actions
- * never close it: close it from their handlers with `open = false`. `close` follows every close.
+ * While `closedby` is not `none`, Escape, the platform's back, a press on the scrim and — while `closable` — its close
+ * button fire `cancel`, whose `detail.reason` says which (`escape`, `back`, `scrim`, `close`). It is cancelable: the
+ * dialog then closes itself unless you call `preventDefault()`, as a native `<dialog>` does. Actions never close it:
+ * close it from their handlers with `open = false`. `close` follows every close.
+ *
+ * `closable` draws an icon-only `<tanrei-button>` with the close glyph at the end of the header, named by
+ * `close-label`, in the variant `comp.dialog.close-button.variant` names (text in the default system); it is drawn only
+ * while `closedby` is not `none`. `width` is `content` (the default: as wide as its widest part, between the minimum
+ * and maximum width) or `small`, `medium` or `large` (`comp.dialog.width.*`), never wider than the window less its
+ * margins; a compact window places every width alike.
  *
  * The actions are `<tanrei-button slot="actions">` children, each marked `confirming` or `dismissive`, placed as a
  * full-width button group places them: dismissive at the start and confirming at the end of a row, confirming on top of
@@ -68,11 +92,13 @@ const ARRANGEMENTS = ['fill', 'end'] as const;
  * @slot actions - The answers, one at least: Tanrei Buttons, each marked `confirming` or `dismissive`. The dialog places them and gives those without a `variant` its own.
  * @csspart container - The dialog's surface (the native `<dialog>`): its color, corners, elevation and padding.
  * @csspart icon - The box the icon is drawn in.
+ * @csspart header - The row that holds the icon, the headline and the close button.
  * @csspart headline - The headline.
+ * @csspart close-button - The close button, an icon-only `<tanrei-button>`.
  * @csspart supporting-text - The supporting text.
  * @csspart content - The box the custom content is slotted into.
  * @csspart actions - The row (or column) of actions.
- * @fires cancel - Escape, back or a press on the scrim asked to close it (only while `closedby` is not `none`). Cancelable: `preventDefault()` keeps it open.
+ * @fires {CustomEvent<TanreiDialogDismissDetail>} cancel - Escape, back, a press on the scrim or the close button asked to close it (only while `closedby` is not `none`): `detail.reason` is `escape`, `back`, `scrim` or `close`. Cancelable: `preventDefault()` keeps it open.
  * @fires close - The dialog closed, whatever closed it.
  */
 export class TanreiDialog extends LitElement implements VariantHost {
@@ -82,6 +108,8 @@ export class TanreiDialog extends LitElement implements VariantHost {
    * `data-mirror` says so (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark.
    */
   private readonly mirror = new GlyphMirrorController(this, { slots: 'slot[name="icon"]' });
+  /** The product's words, read where the instance gives none (src/primitives/words.ts). */
+  private readonly words = new WordsController(this);
   static override styles = [styles, hiddenHost];
 
   // The children are assigned by hand: the actions to three slots in the order the orientation places them (BGR-15),
@@ -95,6 +123,9 @@ export class TanreiDialog extends LitElement implements VariantHost {
     alert: { type: Boolean, reflect: true },
     closedBy: { type: String, attribute: 'closedby', reflect: true },
     dividerVisibility: { type: String, attribute: 'divider-visibility', reflect: true },
+    closable: { type: Boolean, reflect: true },
+    closeLabel: { type: String, attribute: 'close-label' },
+    width: { type: String, reflect: true },
     filled: { state: true },
   };
 
@@ -119,6 +150,22 @@ export class TanreiDialog extends LitElement implements VariantHost {
    * system's answer (always in the default system). Reflected as `divider-visibility`.
    */
   dividerVisibility: TanreiDialogDividerVisibility = 'auto';
+
+  /**
+   * Draws the close button at the end of the header: a visible way to dismiss the dialog, as Escape and the scrim are.
+   * It is drawn only while `closedby` is not `none`. Reflected.
+   */
+  closable = false;
+
+  /** The close button's accessible name ("Close settings"). Required while `closable` (DLG-25). The attribute is `close-label`. */
+  closeLabel = '';
+
+  /**
+   * What decides the container's width outside a compact window: `content` (the default) is as wide as its widest
+   * part, between `comp.dialog.container.min-width` and `max-width`; `small`, `medium` and `large` are
+   * `comp.dialog.width.*`, whatever it holds. Never wider than the window less its margins. Reflected.
+   */
+  width: TanreiDialogWidth = 'content';
 
   /** Which parts hold something (DLG-8: an empty part is left out). */
   private filled = { icon: false, content: false, actions: false };
@@ -211,11 +258,22 @@ export class TanreiDialog extends LitElement implements VariantHost {
     this.placement.assign(root.querySelectorAll<HTMLSlotElement>('.actions slot'));
   }
 
-  /** DLG-5: Escape, back or the scrim: `cancel`, and — unless it was cancelled — closing. Only the topmost dialog. */
-  private requestDismiss() {
+  /**
+   * DLG-5, DLG-25: Escape, back, the scrim or the close button: `cancel` with the reason, and — unless it was cancelled —
+   * closing. Only the topmost dialog.
+   */
+  private requestDismiss(reason: TanreiDialogDismissReason) {
     if (!this.dismissible || !this.shown || stack[stack.length - 1] !== this) return;
-    const allowed = this.dispatchEvent(new Event('cancel', { cancelable: true }));
+    const allowed = this.dispatchEvent(new CustomEvent<TanreiDialogDismissDetail>('cancel', { cancelable: true, detail: { reason } }));
     if (allowed) this.open = false;
+  }
+
+  /** DLG-25: the close button asks once for each activation. */
+  private readonly onCloseClick = () => this.requestDismiss('close');
+
+  /** DLG-25: the close button is drawn while closable, and only while the dialog is dismissible. */
+  private get closeShown(): boolean {
+    return this.closable && this.dismissible;
   }
 
   /** DLG-5: Escape is answered here, so the browser's own close request (and its limits) never runs. */
@@ -224,7 +282,7 @@ export class TanreiDialog extends LitElement implements VariantHost {
       if (event.defaultPrevented) return;
       event.preventDefault();
       event.stopPropagation();
-      this.requestDismiss();
+      this.requestDismiss('escape');
       return;
     }
     if (event.key === 'Tab') this.trap(event);
@@ -233,7 +291,7 @@ export class TanreiDialog extends LitElement implements VariantHost {
   /** DLG-5: the platform's back (a close request without a key: Android's back) arrives as the native cancel. */
   private readonly onNativeCancel = (event: Event) => {
     event.preventDefault();
-    this.requestDismiss();
+    this.requestDismiss(closeRequestReason(event));
   };
 
   /** DLG-5: a press that starts and ends on the scrim (outside the surface) dismisses. */
@@ -244,7 +302,7 @@ export class TanreiDialog extends LitElement implements VariantHost {
   private readonly onClick = (event: MouseEvent) => {
     const scrim = this.pressedScrim && this.onScrim(event);
     this.pressedScrim = false;
-    if (scrim) this.requestDismiss();
+    if (scrim) this.requestDismiss('scrim');
   };
 
   private onScrim(event: MouseEvent): boolean {
@@ -296,6 +354,8 @@ export class TanreiDialog extends LitElement implements VariantHost {
     dialog.classList.toggle('compact', this.readCompact());
     dialog.dataset.iconPlacement = this.choice('icon-placement', ICON_PLACEMENTS);
     dialog.dataset.arrangement = this.choice('actions-arrangement', ARRANGEMENTS);
+    // DLG-25: the close button's variant, as the tokens name it now.
+    giveVariant(this.renderRoot?.querySelector('tanrei-button.close'), this.choice('close-button-variant', BUTTON_VARIANTS));
     // DLG-24: the divider visibility, where style queries are missing.
     syncDividerVisibility(this, dialog);
   }
@@ -315,6 +375,8 @@ export class TanreiDialog extends LitElement implements VariantHost {
     const dialog = this.dialog;
     if (!dialog || this.shown || !this.isConnected) return;
     this.opener = deepActive();
+    // DLG-5: an Escape the dialog did not see itself still reads as escape, not back.
+    watchEscape();
     // Placed before it is shown, so that its entrance is the one of its placement (DLG-13, DLG-18).
     this.giveVariant();
     this.layout();
@@ -444,6 +506,20 @@ export class TanreiDialog extends LitElement implements VariantHost {
       report(this, 'DLG-24', `divider-visibility "${this.dividerVisibility}" is not a value of the dialog; it is drawn as "auto"`);
     }
     if (changed.has('dividerVisibility') && this.dialog) syncDividerVisibility(this, this.dialog);
+    // DLG-25: an unnamed close button is still drawn, and reported; a close button on a dialog that cannot be dismissed
+    // is not drawn, and reported.
+    if (changed.has('closable') || changed.has('closeLabel') || changed.has('closedBy')) {
+      if (this.closeShown && this.words.lacks('closeLabel', this.closeLabel)) {
+        report(this, 'DLG-25', 'close-label is empty, so the close button has no accessible name; give it a close-label');
+      }
+      if (this.closable && !this.dismissible) {
+        report(this, 'DLG-25', 'closable is ignored while closedby is none: a dialog the person must answer offers no way out but its actions');
+      }
+    }
+    // DLG-27: a width the dialog does not define is drawn as content.
+    if (changed.has('width') && !WIDTHS.includes(this.width)) {
+      report(this, 'DLG-27', `width "${this.width}" is not a value of the dialog; it is drawn as "content"`);
+    }
     if (changed.has('open')) {
       if (this.open) this.present();
       else if (this.shown) this.withdraw();
@@ -455,7 +531,9 @@ export class TanreiDialog extends LitElement implements VariantHost {
     const icon = this.filled.icon;
     const headline = this.headline.trim();
     const supporting = this.supportingText.trim();
-    const head = icon || !!headline;
+    const close = this.closeShown;
+    const head = icon || !!headline || close;
+    const width = WIDTHS.includes(this.width) ? this.width : 'content';
     const middle = !!supporting || this.filled.content;
     return html`
       <span class="probe" aria-hidden="true"></span>
@@ -467,14 +545,22 @@ export class TanreiDialog extends LitElement implements VariantHost {
         aria-describedby=${supporting ? 'supporting' : nothing}
         tabindex="-1"
         data-tanrei-shape
+        data-width=${width}
         @keydown=${this.onKeyDown}
         @cancel=${this.onNativeCancel}
         @pointerdown=${this.onPointerDown}
         @click=${this.onClick}
       >
-        <div class=${classMap({ head: true, 'with-icon': icon })} ?hidden=${!head}>
-          <span class="icon-line" ?hidden=${!icon}><span part="icon" class="icon" aria-hidden="true"><slot name="icon"></slot></span></span>
-          ${headline ? html`<h2 id="headline" part="headline" class="headline">${this.headline}</h2>` : nothing}
+        <div part="header" class=${classMap({ header: true, closable: close })} ?hidden=${!head}>
+          <div class=${classMap({ head: true, 'with-icon': icon })}>
+            <span class="icon-line" ?hidden=${!icon}><span part="icon" class="icon" aria-hidden="true"><slot name="icon"></slot></span></span>
+            ${headline ? html`<h2 id="headline" part="headline" class="headline">${this.headline}</h2>` : nothing}
+          </div>
+          ${close
+            ? html`<span class="close-box"
+                ><tanrei-button part="close-button" class="close" size="small" label=${this.words.get('closeLabel', this.closeLabel)} @click=${this.onCloseClick}><span slot="icon">close</span></tanrei-button></span
+              >`
+            : nothing}
         </div>
         <div class="middle" ?hidden=${!middle}>
           <div class="scroll" data-tanrei-shape @scroll=${this.onScroll}>
