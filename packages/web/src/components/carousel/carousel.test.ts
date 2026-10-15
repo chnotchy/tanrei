@@ -23,6 +23,9 @@ const scroller = (page: P, id: string) => carousel(page, id).locator('.scroller'
 const indicator = (page: P, id: string) => carousel(page, id).locator('.indicator');
 const dots = (page: P, id: string) => carousel(page, id).locator('.dot');
 const playback = (page: P, id: string) => carousel(page, id).locator('.playback');
+/** The previous or the next control (CRL-41): a `<tanrei-button>`, and the native button inside it. */
+const nav = (page: P, id: string, control: 'previous' | 'next') => carousel(page, id).locator(`tanrei-button.${control}`);
+const navButton = (page: P, id: string, control: 'previous' | 'next') => nav(page, id, control).locator('button');
 const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
@@ -240,6 +243,7 @@ const focused = (page: P) =>
     while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
     const host = (active?.getRootNode() as ShadowRoot | undefined)?.host;
     if (host?.localName === 'tanrei-carousel-item') return host.getAttribute('label');
+    if (host?.localName === 'tanrei-button') return host.classList.contains('previous') ? 'previous' : 'next';
     if (active?.classList.contains('playback')) return 'playback';
     if (active?.classList.contains('indicator')) return 'indicator';
     return null;
@@ -249,7 +253,7 @@ const GLYPHS = ['landscape', 'forest', 'water', 'park', 'sunny', 'filter_hdr'];
 /** A fixture of the test's own: `count` items, with the defaults unless `props` says otherwise. */
 const fixture = (id: string, props: Fixture['props'], count = 6, content?: (i: number) => string): Fixture => ({
   id,
-  props: { label: 'Walks near you', ...props },
+  props: { label: 'Walks near you', previousLabel: 'Previous walk', nextLabel: 'Next walk', ...props },
   items: Array.from({ length: count }, (_, i) => ({ kind: 'item', props: { label: LABELS[i % 6] }, content: content ? content(i) : GLYPHS[i % 6] })),
 });
 /** The state layer as drawn: its color and opacity. */
@@ -763,6 +767,8 @@ test.describe('behavior', () => {
   test('CRL-4: an item on its way between the last slot and an edge slot has no hit area beyond its drawn container and half the gap on each side', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: only('centered') });
     const id = 'centered';
+    // The items' own hit areas: the next control, which stands over the row's end, out of the way (CRL-41).
+    await carousel(page, id).evaluate((el) => el.setAttribute('navigation', 'none'));
     const [gap, pointer] = [await resolveToken(page, T('layout-gap')), await resolveToken(page, '--tanrei-sys-target-pointer')];
     const hit = (index: number) =>
       container(page, id, index).evaluate((el) => {
@@ -1455,17 +1461,25 @@ test.describe('behavior', () => {
     await expect(container(page, 'fixed-width', 1)).toHaveAttribute('tabindex', '0');
   });
 
-  test('CRL-17: at most three Tab stops — the playback control first, the items, then the indicator; arrows wrap under loop, Home and End do not', async ({ page }) => {
+  test('CRL-17: at most five Tab stops — the playback control first, previous and next, the items, then the indicator; arrows wrap under loop, Home and End do not', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, fixtures: [...only('autoplay'), ...only('loop')] });
     await tabTo(page, playback(page, 'autoplay'));
     expect(await focused(page)).toBe('playback');
-    // Straight to the items: the row that scrolls them is no stop of its own (Firefox makes a scroller one).
+    await tab(page);
+    expect(await focused(page)).toBe('previous');
+    await tab(page);
+    expect(await focused(page)).toBe('next');
+    // Then the items: the row that scrolls them is no stop of its own (Firefox makes a scroller one).
     await tab(page);
     expect(await focused(page)).toBe('Coast path');
     await tab(page);
     expect(await focused(page)).toBe('indicator');
+    // The next carousel: no playback control, no indicator.
     await tab(page);
-    expect(await focused(page)).toBe('Coast path'); // the next carousel: no playback control, no indicator
+    expect(await focused(page)).toBe('previous');
+    await tab(page);
+    await tab(page);
+    expect(await focused(page)).toBe('Coast path');
     // Loop: from the first item, Left Arrow goes to the last; Home and End still go to the ends.
     await page.keyboard.press('ArrowLeft');
     expect(await focused(page)).toBe('Dunes');
@@ -1535,9 +1549,10 @@ test.describe('behavior', () => {
     const list = carousel(page, id);
     expect(await list.getAttribute('role')).toBeNull();
     await expect(list.locator('.stage')).toHaveAttribute('role', 'list');
-    // Every item, those that are not drawn included (CRL-12), in order.
+    // Every item, those that are not drawn included (CRL-12), in order; the previous and next controls before the list,
+    // outside it, exposed while auto hides them (CRL-41, CRL-42).
     const five = LABELS.slice(0, 5);
-    expect(await list.ariaSnapshot()).toBe(['- list "Featured walks":', ...five.flatMap((l) => ['  - listitem:', `    - button "${l}"`])].join('\n'));
+    expect(await list.ariaSnapshot()).toBe(['- button "Previous walk" [disabled]', '- button "Next walk"', '- list "Featured walks":', ...five.flatMap((l) => ['  - listitem:', `    - button "${l}"`])].join('\n'));
     for (let i = 0; i < 5; i++) {
       await expect(item(page, id, i)).toHaveAttribute('aria-posinset', String(i + 1));
       await expect(item(page, id, i)).toHaveAttribute('aria-setsize', '5');
@@ -1560,7 +1575,7 @@ test.describe('behavior', () => {
     await mountFixtures(page, spec, {
       icons: true,
       fixtures: [
-        { id: 'unnamed', props: {}, items: [{ kind: 'item', props: {}, content: 'landscape' }, { kind: 'item', props: { label: 'With a link' }, content: '<a href="#x">More</a>' }] },
+        { id: 'unnamed', props: { navigation: 'none' }, items: [{ kind: 'item', props: {}, content: 'landscape' }, { kind: 'item', props: { label: 'With a link' }, content: '<a href="#x">More</a>' }] },
       ],
     });
     expect((await boxes(page, 'unnamed'))[0]).toEqual([100, 200]);
@@ -2284,7 +2299,8 @@ test.describe('behavior', () => {
     const s = await step(page, id);
     await page.clock.runFor(every / 2);
     // Hovered: the time holds.
-    await item(page, id, 1).hover();
+    // The hero: the middle of the item beside it lies under the next control (CRL-41).
+    await item(page, id, 0).hover();
     await page.clock.runFor(every * 2);
     expect(await offset(page, id)).toBe(0);
     // It continues from the time it held: half an interval to go.
@@ -2333,6 +2349,7 @@ test.describe('behavior', () => {
     // Out and back in: the hover hold applies again.
     await page.mouse.move(1200, 700);
     await away(page);
+    // The hero, now the second item: the middle of an item beside it lies under a previous or next control (CRL-41).
     await item(page, id, 1).hover();
     await page.clock.runFor(every * 2);
     expect(await offset(page, id)).toBe(s);
@@ -2427,7 +2444,8 @@ test.describe('behavior', () => {
     // Held: it stops, where the carousel's clock had got to (a quarter more passes on the page clock alone first).
     await page.clock.runFor(every / 4);
     await carousel(page, id).evaluate((el) => el.addEventListener('pointerenter', () => ((window as unknown as { __heldAt: number }).__heldAt = performance.now()), { once: true }));
-    await item(page, id, 1).hover();
+    // The hero: the middle of the item beside it lies under the next control (CRL-41).
+    await item(page, id, 0).hover();
     const held = await part();
     const counted = began + (await page.evaluate(() => (window as unknown as { __heldAt: number }).__heldAt)) - at;
     expect(counted / every).toBeGreaterThan(0.74);
@@ -2528,6 +2546,220 @@ test.describe('behavior', () => {
     await expect(icon).toHaveCSS('visibility', 'hidden');
     // The accessible name is there all the same.
     await expect(control).toHaveAttribute('aria-label', 'Pause the slideshow');
+  });
+
+  // ── The previous and next controls (CRL-41 – CRL-43) ──
+
+  test('CRL-41: a previous control over the row’s inline start and a next one over its end, centred on the row — icon-only medium Buttons in the token’s variant, with the chevrons and their names', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [...only('navigation'), fixture('one', { navigation: 'always' }, 1), fixture('none', { navigation: 'none' })] });
+    const id = 'navigation';
+    const host = await bounds(carousel(page, id));
+    const row = await bounds(scroller(page, id));
+    const padding = await resolveToken(page, T('layout-padding-inline'));
+    const previous = await bounds(navButton(page, id, 'previous'));
+    const next = await bounds(navButton(page, id, 'next'));
+    expect(round(previous.x - host.x)).toBe(padding);
+    expect(round(host.x + host.width - (next.x + next.width))).toBe(padding);
+    for (const box of [previous, next]) {
+      expect(box.width).toBe(box.height);
+      expect(round(box.y + box.height / 2 - row.y)).toBe(row.height / 2);
+    }
+    // Over the items: the control is what a press at its middle reaches.
+    expect(
+      await page.evaluate(([x, y]) => {
+        let at: Element | null = document.elementFromPoint(x, y);
+        while (at?.shadowRoot) {
+          const inner = at.shadowRoot.elementFromPoint(x, y);
+          if (!inner || inner === at) break;
+          at = inner;
+        }
+        return at?.closest('tanrei-button') ? 'tanrei-button' : ((at?.getRootNode() as ShadowRoot).host?.localName ?? null);
+      }, [next.x + next.width / 2, next.y + next.height / 2]),
+    ).toBe('tanrei-button');
+    // The glyphs, the names and the variant the token names (tonal by default), through the Button's own channel.
+    await expect(nav(page, id, 'previous').locator('[slot="icon"]')).toHaveText('chevron_left');
+    await expect(nav(page, id, 'next').locator('[slot="icon"]')).toHaveText('chevron_right');
+    await expect(navButton(page, id, 'previous')).toHaveAttribute('aria-label', 'Previous walk');
+    await expect(navButton(page, id, 'next')).toHaveAttribute('aria-label', 'Next walk');
+    expect(await nav(page, id, 'next').getAttribute('size')).toBe('medium');
+    expect(await css(navButton(page, id, 'next'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
+    await override(page, { [T('navigation-button-variant')]: 'outlined' });
+    await expect.poll(() => css(navButton(page, id, 'next'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-outlined-container-color'));
+    // Outside the list, and not among its items.
+    expect(await carousel(page, id).locator('[role="list"] tanrei-button').count()).toBe(0);
+    // Fewer than two resting positions, or none asked for: neither is drawn.
+    await expect(carousel(page, 'one').locator('tanrei-button')).toHaveCount(0);
+    await expect(carousel(page, 'none').locator('tanrei-button')).toHaveCount(0);
+  });
+
+  test('CRL-41: auto draws nothing for a coarse pointer that cannot hover; always draws them there too', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'only Chromium can emulate a coarse pointer (touch emulation over CDP)');
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+    await cdp.send('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' });
+    expect(await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches)).toBe(false);
+    await mountFixtures(page, spec, { icons: true, fixtures: only('centered', 'navigation') });
+    await expect(nav(page, 'centered', 'next')).toBeHidden();
+    await expect(nav(page, 'navigation', 'next')).toBeVisible();
+    // Nothing of auto takes focus: back from the items, Tab leaves the carousel.
+    await tabTo(page, container(page, 'centered', 0));
+    await tab(page, { back: true });
+    expect(await focused(page)).toBeNull();
+  });
+
+  test('CRL-42: auto shows the controls while the carousel is hovered or holds focus, fading over motion.state-duration; hidden, they keep their Tab stops and their names; always shows them', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only('centered', 'navigation') });
+    const id = 'centered';
+    const opacity = (control: 'previous' | 'next', at = id) => css(nav(page, at, control), 'opacity').then(Number);
+    await page.mouse.move(1200, 700);
+    expect(await opacity('previous')).toBe(0);
+    expect(await opacity('next')).toBe(0);
+    await expect(navButton(page, id, 'next')).toHaveAttribute('aria-label', 'Next walk');
+    expect(await opacity('next', 'navigation')).toBe(1);
+    // The fade: the state motion.
+    const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
+    expect(Number.parseFloat(await css(nav(page, id, 'next'), 'transition-duration')) * 1000).toBe(duration);
+    expect(await css(nav(page, id, 'next'), 'transition-property')).toBe('opacity');
+    // Hovered: shown.
+    await item(page, id, 0).hover();
+    await expect.poll(() => opacity('next')).toBe(1);
+    await page.mouse.move(1200, 700);
+    await expect.poll(() => opacity('next')).toBe(0);
+    // Focus within: shown, from the first of them on (the Tab sequence reaches them though they were hidden).
+    await tabTo(page, navButton(page, id, 'previous'));
+    expect(await focused(page)).toBe('previous');
+    await expect.poll(() => opacity('previous')).toBe(1);
+    await tab(page);
+    expect(await focused(page)).toBe('next');
+    await tab(page);
+    expect(await focused(page)).toBe('Coast path');
+    await expect.poll(() => opacity('next')).toBe(1);
+    await away(page);
+    await page.mouse.move(1200, 700);
+    await expect.poll(() => opacity('next')).toBe(0);
+    // At once where motion is reduced.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(await css(nav(page, id, 'next'), 'transition-duration')).toBe('0s');
+  });
+
+  test('CRL-43: a press moves the row one resting position over the scroll motion; presses add up; disabled at the ends, keeping focus; the Tab stop follows', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only('navigation') });
+    const id = 'navigation';
+    const s = await step(page, id);
+    // At the first position previous is disabled (but reachable), next is not.
+    await expect(navButton(page, id, 'previous')).toHaveAttribute('aria-disabled', 'true');
+    expect(await navButton(page, id, 'next').getAttribute('aria-disabled')).toBeNull();
+    await nav(page, id, 'previous').click();
+    await page.waitForTimeout(300);
+    expect(await offset(page, id)).toBe(0);
+    // Over the scroll motion.
+    await trace(page, id);
+    await nav(page, id, 'next').click();
+    await expect.poll(() => offset(page, id)).toBe(s);
+    expect((await traced(page)).filter((o) => o > 0 && o < s).length, 'animated').toBeGreaterThan(1);
+    await expect(navButton(page, id, 'previous')).not.toHaveAttribute('aria-disabled', 'true');
+    // Two presses while the row moves go two positions on: the second counts from where the first is going.
+    await nav(page, id, 'next').evaluate((el) => {
+      (el as HTMLElement).click();
+      (el as HTMLElement).click();
+    });
+    await expect.poll(() => offset(page, id)).toBe(3 * s);
+    // The keyboard: Enter on next up to the end; focus stays on it, disabled, and the items' Tab stop is the last item.
+    await tabTo(page, navButton(page, id, 'next'));
+    await page.keyboard.press('Enter');
+    await expect.poll(() => offset(page, id)).toBe(4 * s);
+    await expect(navButton(page, id, 'next')).toHaveAttribute('aria-disabled', 'true');
+    expect(await focused(page)).toBe('next');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(300);
+    expect(await offset(page, id)).toBe(4 * s);
+    expect(await focused(page)).toBe('next');
+    await expect(container(page, id, 4)).toHaveAttribute('tabindex', '0');
+    await tab(page);
+    expect(await focused(page)).toBe('Dunes');
+    // Back with previous, by Space.
+    await tab(page, { back: true });
+    await tab(page, { back: true });
+    expect(await focused(page)).toBe('previous');
+    await page.keyboard.press('Space');
+    await expect.poll(() => offset(page, id)).toBe(3 * s);
+    await expect(container(page, id, 3)).toHaveAttribute('tabindex', '0');
+  });
+
+  test('CRL-43: between two resting positions a press goes to the nearer one on its side; under loop the ends go round; at once where motion is reduced', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fixture('free', { navigation: 'always', fluidWidth: false, snap: false }, 5), fixture('round', { navigation: 'always', loop: true }, 5)] });
+    const s = await step(page, 'free');
+    await boxesAt(page, 'free', 1.5 * s);
+    await nav(page, 'free', 'next').click();
+    await expect.poll(() => offset(page, 'free')).toBe(2 * s);
+    await boxesAt(page, 'free', 1.5 * s);
+    await nav(page, 'free', 'previous').click();
+    await expect.poll(() => offset(page, 'free')).toBe(s);
+    // Loop: neither is ever disabled; previous from the first item brings the last to slot 0.
+    await expect(navButton(page, 'round', 'previous')).not.toHaveAttribute('aria-disabled', 'true');
+    await nav(page, 'round', 'previous').click();
+    await expect(container(page, 'round', 4)).toHaveAttribute('tabindex', '0');
+    await atRest(page, 'round');
+    await nav(page, 'round', 'next').click();
+    await expect(container(page, 'round', 0)).toHaveAttribute('tabindex', '0');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await trace(page, 'free');
+    await nav(page, 'free', 'next').click();
+    await expect.poll(() => traced(page)).toEqual([2 * s]);
+  });
+
+  test('CRL-17, CRL-33, CRL-43: the Tab stops in order — playback, previous, next, the items, the indicator — and a press of next is the person’s move: autoplay’s time starts from zero once the row is at rest', async ({ page }) => {
+    await clockPage(page, [fixture('tabs', { navigation: 'always', autoplay: true, indicator: true, playLabel: 'Play the slideshow', pauseLabel: 'Pause the slideshow' })]);
+    const id = 'tabs';
+    const every = await interval(page);
+    const s = await step(page, id);
+    // The time has run most of an interval; a press of next (no hover, no focus left behind) moves the row…
+    await page.clock.runFor(every - 1000);
+    await nav(page, id, 'next').evaluate((el) => (el as HTMLElement).click());
+    await page.clock.runFor(100);
+    await expect.poll(() => offset(page, id)).toBe(s);
+    // …and the interval starts again from zero: no advance where the old one would have ended.
+    await page.clock.runFor(every - 400);
+    expect(await offset(page, id)).toBe(s);
+    await page.clock.runFor(500);
+    await expect.poll(() => offset(page, id)).toBe(2 * s);
+    // The order of the stops.
+    await tabTo(page, playback(page, id));
+    const order = [await focused(page)];
+    for (let i = 0; i < 4; i++) {
+      await tab(page);
+      order.push(await focused(page));
+    }
+    // The items' stop is the item the press brought: the advance after it moved neither focus nor the stop (CRL-32).
+    expect(order).toEqual(['playback', 'previous', 'next', 'Old forest', 'indicator']);
+  });
+
+  test('CRL-23, CRL-41: right-to-left puts the previous control at the right and the next at the left; the Button marks the chevrons for mirroring as the icon set says', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only('navigation') });
+    await page.evaluate(() => (document.documentElement.dir = 'rtl'));
+    const id = 'navigation';
+    const host = await bounds(carousel(page, id));
+    const padding = await resolveToken(page, T('layout-padding-inline'));
+    await expect.poll(async () => {
+      const previous = await bounds(navButton(page, id, 'previous'));
+      return round(host.x + host.width - (previous.x + previous.width));
+    }).toBe(padding);
+    expect(round((await bounds(navButton(page, id, 'next'))).x - host.x)).toBe(padding);
+    await expect(nav(page, id, 'previous').locator('[slot="icon"]')).toHaveAttribute('data-tanrei-mirrored', '');
+    // Next still moves on, and its item becomes the Tab stop.
+    const s = await step(page, id);
+    await nav(page, id, 'next').click();
+    await expect.poll(() => offset(page, id)).toBe(s);
+    await expect(container(page, id, 1)).toHaveAttribute('tabindex', '0');
+  });
+
+  test('CRL-20, CRL-24: controls without their names are reported; an unknown navigation is drawn as auto and reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, { icons: true, fixtures: [{ ...fixture('nameless', {}), props: { label: 'Walks near you', navigation: 'sideways' } }] });
+    await expect.poll(() => seen.filter((w) => w.includes('CRL-24') && w.includes('navigation "sideways"')).length).toBe(1);
+    await expect.poll(() => seen.filter((w) => w.includes('CRL-20') && /previous|next/.test(w)).length).toBe(2);
+    await expect(nav(page, 'nameless', 'next')).toHaveClass(/\bauto\b/);
+    expect(await navButton(page, 'nameless', 'next').getAttribute('aria-label')).toBeNull();
   });
 });
 
