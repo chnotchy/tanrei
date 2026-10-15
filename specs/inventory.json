@@ -121,6 +121,13 @@
       "listing": "default"
     },
     {
+      "name": "list-row",
+      "title": "List row",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
       "name": "tabs",
       "title": "Tabs",
       "category": "navigation",

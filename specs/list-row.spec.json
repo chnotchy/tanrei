@@ -1,0 +1,418 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "list-row",
+  "title": "List row",
+  "summary": "One row of text with something before it and something after it — a headline, a short line above it and a line or two below it; a glyph, a picture or a control at its start; a short value, a glyph or a control at its end — placed in a List's item, which it fits in every mode of the List, or standing alone.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "tooltip"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The row's box: as wide as its layout gives it, at least the height of its number of lines, padded at its start, its end, above and below — or, inside a list item that is an action, a link or an option, padded by that item. It draws no fill, no edge, no divider and no state of its own."
+    },
+    {
+      "id": "leading",
+      "description": "The part at the row's start: the product's content of the leading slot (an avatar, a picture, a checkbox, a radio button, a switch), or else the glyph leadingIcon names.",
+      "optional": true
+    },
+    {
+      "id": "overline",
+      "description": "A short line above the headline: a category, a source, a time. One line.",
+      "optional": true
+    },
+    {
+      "id": "headline",
+      "description": "The row's name, on one line. The list item the row is in is named by it."
+    },
+    {
+      "id": "supporting-text",
+      "description": "The line or two under the headline: what the row is about, its state, a preview of a message.",
+      "optional": true
+    },
+    {
+      "id": "trailing-text",
+      "description": "A short value at the row's end: a count, a size, a time, the current value of a setting. One line, never more than half of the row.",
+      "optional": true
+    },
+    {
+      "id": "trailing",
+      "description": "The product's content of the trailing slot, after the trailing text: a switch, a checkbox, an icon-only Button, a badge.",
+      "optional": true
+    },
+    {
+      "id": "trailing-icon",
+      "description": "A glyph at the row's very end: a chevron that says the row opens something, a status glyph. Decorative.",
+      "optional": true
+    },
+    {
+      "id": "tooltip",
+      "description": "The whole of a headline or a supporting text that is cut (LRW-7): a plain tooltip with the headline, or a rich one with the headline as its title and the supporting text, over the row's text on hover and on the keyboard focus of the list item the row is in. Only while something is cut.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "headline",
+      "type": "string",
+      "default": "",
+      "description": "The row's name, drawn on one line and cut with an ellipsis where it does not fit (the whole in the tooltip). The list item the row is in is named by it where the item has no label of its own."
+    },
+    {
+      "name": "overline",
+      "type": "string",
+      "default": "",
+      "description": "A short line above the headline: a category, a source, a time. One line, cut where it does not fit. Empty: none."
+    },
+    {
+      "name": "supportingText",
+      "type": "string",
+      "default": "",
+      "description": "The text under the headline, on as many lines as supportingLines says and cut on the last of them with an ellipsis (the whole in the tooltip). Empty: none."
+    },
+    {
+      "name": "supportingLines",
+      "type": "number",
+      "default": 1,
+      "description": "How many lines the supporting text may take: 1 or 2. Two lines make the row a three-line row (LRW-3). Another number is read as the nearer of the two."
+    },
+    {
+      "name": "leadingIcon",
+      "type": "string",
+      "default": "",
+      "description": "The name of a glyph of the system's icon set drawn at the row's start: what the row is (a place, a setting, a kind of file). Decorative. The leading slot's content is drawn in its place where the slot holds any. Empty: none."
+    },
+    {
+      "name": "trailingText",
+      "type": "string",
+      "default": "",
+      "description": "A short value at the row's end: a count, a size, a time, a setting's current value. One line, never more than half of the row's inner width. Empty: none."
+    },
+    {
+      "name": "trailingIcon",
+      "type": "string",
+      "default": "",
+      "description": "The name of a glyph of the system's icon set drawn at the row's very end: a chevron that says the row opens something (chevron_right), a status. Decorative, and mirrored in a right-to-left layout where the icon set says the glyph points. Empty: none."
+    },
+    {
+      "name": "density",
+      "type": "enum",
+      "values": [
+        "regular",
+        "compact"
+      ],
+      "default": "regular",
+      "description": "How much room the row takes: its least heights and the space above and below its text. regular (56, 72 and 88 for one, two and three lines in the default system) is for a product used by touch as well as by pointer; compact (40, 56 and 72) is for a tool used with a pointer. An item that is an action, a link or an option is never lower than the list's own minimum height and the target. A design system may add values.",
+      "axis": "tanrei.comp.list-row.density"
+    }
+  ],
+  "slots": [
+    {
+      "name": "leading",
+      "description": "Content at the row's start in place of leadingIcon: an avatar, a picture, or — while the row is static — a checkbox, a radio button or a switch. Drawn at its own size and given no style.",
+      "fixture": "text"
+    },
+    {
+      "name": "trailing",
+      "description": "Content at the row's end, after the trailing text and before the trailing glyph: a badge, or — while the row is static — a switch, a checkbox or an icon-only Button. Drawn at its own size and given no style.",
+      "fixture": "icon-only-button"
+    }
+  ],
+  "states": [
+    "enabled",
+    "selected",
+    "disabled"
+  ],
+  "behavior": [
+    {
+      "id": "LRW-1",
+      "text": "THE list row SHALL be as wide as its layout gives it — and WHERE its layout sizes it to its content (an item of a horizontal list) as wide as its parts on one line — and SHALL lay out from its start edge: the leading part (LRW-4), the text (LRW-2), which takes the width that is left, and the trailing part (LRW-6), comp.list-row.container.gap apart, an absent part taking no room and no gap. WHILE it draws its own paddings (LRW-8) it SHALL keep comp.list-row.container.padding-inline-start before its first part, comp.list-row.container.padding-inline-end after its last, and the padding of its density (comp.list-row.container.padding-block.regular for regular, comp.list-row.container.padding-block.compact for compact) above its first line and below its last. THE list row SHALL draw no fill, no edge, no divider and no state of its own, SHALL take no focus and SHALL emit no event: it is never pressable by itself.",
+      "verify": "The fixture all-parts in a stage 360 wide: the glyph, the text and the trailing text and glyph stand in that order from the start edge, the gap apart, the paddings at the edges; the row is 360 wide; no background color and no border."
+    },
+    {
+      "id": "LRW-2",
+      "text": "THE list row SHALL draw its headline in comp.list-row.headline.typescale and comp.list-row.headline.color on one line, cut at the end of its own direction with an ellipsis where it does not fit; WHILE overline is not empty, the overline above it in comp.list-row.overline.typescale and comp.list-row.overline.color, on one line cut the same way; WHILE supportingText is not empty, the supporting text below it in comp.list-row.supporting-text.typescale and comp.list-row.supporting-text.color, starting where the headline starts, on at most as many lines as supportingLines says — wrapping at the spaces of its words and cut with an ellipsis at the end of its last line where it takes more. The overline, the headline and the supporting text SHALL follow one another with no space between their lines. WHEN supportingLines is not 1 or 2 THE list row SHALL read it as the nearer of the two (1 for anything less than 1.5 or not a number) and in debug builds report it. The whole of every text SHALL be in what assistive technology is given (LRW-10), cut or not.",
+      "verify": "The fixture long-text in a stage 360 wide: the headline and the supporting text are one line each, ending in an ellipsis. The fixture supporting-two-lines: the supporting text takes two lines and the second ends in an ellipsis."
+    },
+    {
+      "id": "LRW-3",
+      "text": "THE list row SHALL count its lines of text: one line WHILE it has a headline alone; two lines WHILE it has an overline or a supporting text of one line besides the headline; three lines WHILE it has both an overline and a supporting text, or a supporting text WHILE supportingLines is 2. It SHALL be at least the height of that count in its density — comp.list-row.container.height.one-line.regular, comp.list-row.container.height.two-line.regular or comp.list-row.container.height.three-line.regular for regular, comp.list-row.container.height.one-line.compact, comp.list-row.container.height.two-line.compact or comp.list-row.container.height.three-line.compact for compact — growing with its text and never clipping it, and SHALL centre its text in the height it has. WHILE it has one or two lines it SHALL centre the leading and the trailing part on the text; WHILE it has three it SHALL align them with the top of the text, so that a picture beside three lines stays with the headline.",
+      "verify": "The fixtures one-line, two-line and three-line are 56, 72 and 88 tall in the default system, and compact-one-line and compact 40 and 56. In three-line the glyph's top is level with the overline's top; in two-line the glyph is centred on the text."
+    },
+    {
+      "id": "LRW-4",
+      "text": "WHERE the leading slot holds content THE list row SHALL draw that content at the row's start, at its own size and given no style, and SHALL NOT draw leadingIcon; WHERE it holds none and leadingIcon is not empty, THE list row SHALL draw that glyph of the system's icon set in a box of comp.list-row.leading-icon.size in comp.list-row.leading-icon.color, hidden from assistive technology, nothing in its place until the icon set can draw it, mirrored in a right-to-left layout WHERE the icon set says the glyph points. WHEN both are given THE list row SHALL draw the slot's content and in debug builds report that leadingIcon is not drawn.",
+      "verify": "The fixture leading-icon draws the glyph wifi in a 24 box. The fixture leading-picture draws the slot's content and no glyph."
+    },
+    {
+      "id": "LRW-5",
+      "text": "WHILE a list row has no leading part THE list row SHALL begin its text at its start padding, and WHILE it has no trailing part its text SHALL reach its end padding; it SHALL keep no room for a part it does not draw. A column of rows of which some have a leading part SHALL NOT be lined up by the row: lining up the texts of rows with and without a glyph is the product's, which gives every row a glyph or none.",
+      "verify": "The fixture one-line: the headline begins at the start padding and the text box ends at the end padding."
+    },
+    {
+      "id": "LRW-6",
+      "text": "WHILE trailingText is not empty THE list row SHALL draw it after the text, on one line, in comp.list-row.trailing-text.typescale and comp.list-row.trailing-text.color; it SHALL NOT wrap, and WHILE it would take more than half of the row's inner width it SHALL be cut at the end of its own direction with an ellipsis, so that the text keeps at least half. After it THE list row SHALL draw the trailing slot's content, at its own size and given no style, and after that, WHILE trailingIcon is not empty, that glyph of the system's icon set in a box of comp.list-row.trailing-icon.size in comp.list-row.trailing-icon.color, hidden from assistive technology, nothing in its place until the icon set can draw it, and mirrored in a right-to-left layout WHERE the icon set says the glyph points (a chevron_right points to the start there). The trailing text, the slot's content and the glyph SHALL be comp.list-row.container.gap apart.",
+      "verify": "The fixture trailing-text: the value stands at the end. The fixture all-parts: the value, then the chevron, at the end. The fixture rtl: the chevron points left and stands at the left end."
+    },
+    {
+      "id": "LRW-7",
+      "text": "WHILE a row's headline or its supporting text is cut (LRW-2) THE list row SHALL show the whole of it in a Tooltip component over the row's text WHEN a fine pointer rests on the row for the tooltip's show delay and WHEN the list item the row is the content of receives keyboard focus, and SHALL hide it WHEN the pointer leaves the row and the tooltip for the hide delay, WHEN that focus leaves, WHEN the user presses Escape (which then does nothing else), and WHEN the row is pressed; the tooltip SHALL stay while the pointer is over it (WCAG 1.4.13: dismissible, hoverable, persistent). It SHALL hold the headline alone WHERE the row has no supporting text, and the headline as the title and the supporting text as the text of a rich tooltip WHERE it has one. WHILE neither is cut THE list row SHALL show no tooltip. The tooltip SHALL be hidden from assistive technology, which is given the whole text (LRW-10); no touch long-press opens it, because a long press on a row is the platform's (and the List's, which lifts an item of a reorderable list).",
+      "verify": "Test in the fixture long-text: hovering the row shows the tooltip with the whole headline as its title and the whole supporting text after the show delay; Escape hides it; hovering the row of one-line shows none."
+    },
+    {
+      "id": "LRW-8",
+      "text": "WHILE a list row is the content of a list item that is an action, a link or an option (LST-48) THE list row SHALL draw no padding of its own — the item's paddings are the row's (LST-8) — and SHALL be at least its height (LRW-3) less twice comp.list.container.padding-block tall, so that the item is as tall as the row standing alone and a column that mixes static items and actions keeps one height; WHILE it stands alone, or is the content of a static item or of an item of a reorderable list, THE list row SHALL draw its own paddings (LRW-1). The row SHALL fit every arrangement of the List: in a column it is as wide as the list; in a line it is as wide as its parts and never cut; in lines that wrap it is never wider than the list, and cut where it must be; in a reorderable list the List's handle stands before it, the item's gap away.",
+      "verify": "In a list of the fixture's rows, an interactive item, a link item and an option that hold the row of two-line are 72 tall, as the row of two-line standing alone is, and the headline starts comp.list.container.padding-inline-start from the item's start edge. In a reorderable list the handle stands before the row's leading glyph."
+    },
+    {
+      "id": "LRW-9",
+      "text": "WHILE a list row is the content of a list item that is a selected option (LST-48) THE list row SHALL draw every text and glyph it draws in the content color the item hands its content (comp.list.selected.content.color, LST-8) instead of its own colors, so that the row reads on the selected fill as the item's own text does; the opacity of a disabled item (LST-15) SHALL apply to the whole row, its slots' content included, unchanged. THE list row SHALL leave the color of its slots' content to that content.",
+      "verify": "In a selectable list whose selected option holds the row of three-line, the headline, the overline and the supporting text are all comp.list.selected.content.color; in the options that are not selected they are the row's own colors."
+    },
+    {
+      "id": "LRW-10",
+      "text": "THE list row SHALL expose its texts to assistive technology as text, in the order they are drawn — the overline, the headline, the supporting text, the trailing text — whole, whether cut or not, and its glyphs not at all; it SHALL add no role, name or state of its own. WHILE it is the content of a list item, the item SHALL be named by the row's headline and described by its overline, supporting text and trailing text where the item is an action, a link or an option (LST-49). WHILE headline is empty THE list row SHALL still draw the rest, and in debug builds report that it has no headline, so that the item it is in has no name.",
+      "verify": "On the web: the row's texts are in its accessibility tree in that order; the glyphs are aria-hidden; the row's host has no role. An interactive item holding the row of three-line is a button named \"Wi-Fi\" and described by its overline and its supporting text."
+    },
+    {
+      "id": "LRW-11",
+      "text": "WHILE a list row stands alone, or is the content of a static item or of an item of a reorderable list, THE list row SHALL leave a control in its leading or trailing slot its own semantics, focus, keys and press, in the order the row draws them; the product names such a control with the row's headline (\"Wi-Fi\" for a switch, \"Remove Inter\" for a button). WHILE it is the content of an action, a link or an option, a control in its slots is the List's to report (LST-20), and THE list row SHALL draw it as given.",
+      "verify": "The fixture trailing-control: the icon-only Button is a Tab stop of its own and is pressed as a Button; a row in a reorderable list keeps a Button in its trailing slot pressable and focusable after the handle."
+    },
+    {
+      "id": "LRW-12",
+      "text": "THE list row SHALL lay out its overline, its headline, its supporting text and its trailing text each as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right name, an address or a number with its unit keeps its order in a right-to-left layout; THE list row SHALL still place them and align their lines by the layout direction, so that in a right-to-left layout the leading part stands at the right edge and the trailing part at the left, and SHALL cut each at the end of its own direction.",
+      "verify": "The fixture rtl: the glyph stands at the right edge, the trailing part at the left, the text aligned to the right."
+    },
+    {
+      "id": "LRW-13",
+      "text": "WHILE the text size is enlarged THE list row SHALL grow its texts with it, keep its paddings and gaps and grow in height; a headline and a supporting text SHALL still be cut with an ellipsis and shown whole in the tooltip of LRW-7, the trailing text SHALL keep to half of the row, and THE list row SHALL set no fixed height, SHALL lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing (a cut text is whole in its tooltip and in what assistive technology is given), and SHALL need no horizontal scrolling at a width of 320 points with text at 200 %.",
+      "verify": "The fixture all-parts at 200 % text in a stage 320 wide: no horizontal overflow, the row taller than at 100 %, the headline cut and whole in the accessibility tree."
+    },
+    {
+      "id": "LRW-14",
+      "text": "WHEN density names a value that the active design system does not have THE list row SHALL render with the default density's tokens and in debug builds report the unknown value; a density a design system added SHALL be drawn from that density's tokens, as the core values are. WHEN headline, overline, supportingText, trailingText, leadingIcon, trailingIcon, supportingLines or density changes while the row is shown THE list row SHALL draw the new form at once, without a motion of its own, and the list item it is in SHALL take the new name and description (LST-49)."
+    },
+    {
+      "id": "LRW-15",
+      "text": "WHILE forced colors are active THE list row SHALL draw its texts and its glyphs in the system's text color, and in the system's color for disabled text WHILE it is the content of a disabled item; it SHALL draw nothing that carries meaning in a color alone."
+    }
+  ],
+  "accessibility": {
+    "role": "none of its own: its texts are text (the content of a list item, or of the page)",
+    "keyboard": [],
+    "labeling": "The row's texts are read in the order they are drawn: overline, headline, supporting text, trailing text. Its glyphs are decorative and hidden. A list item that holds the row is named by the row's headline where the item has no label, and an item that is an action, a link or an option is described by the row's overline, supporting text and trailing text (LST-49). A control in a slot is named by the product, with the row's headline.",
+    "minimumTarget": true,
+    "notes": [
+      "The row is never pressable. Pressing, focus, hover, selection, the check, the handle and the dividers are the List's: a row that opens something is the content of an interactive item or a link item, and a row that is chosen is the content of an option. This keeps one element per item for assistive technology, and one target per item for a pointer.",
+      "The row learns from the list item it is in what that item is (LST-48): inside an action, a link or an option it leaves the paddings to the item, and inside a selected option it takes the item's selected content color. Standing alone, or in a static item, it pads itself and draws its own colors.",
+      "A control in a slot (a switch, a checkbox, an icon-only Button) belongs only in a static row — standing alone, or in a static or reorderable item — where it keeps its own semantics and focus. An action, a link or an option is one element to assistive technology and cannot hold another one.",
+      "The headline, the overline and the supporting text are cut where they do not fit and shown whole in a tooltip; assistive technology always gets the whole text.",
+      "Wherever a row stands in a column of rows that some have a leading glyph and some do not, give every row a glyph or none, so that the texts line up."
+    ]
+  },
+  "tokens": "comp.list-row",
+  "fixtures": [
+    {
+      "id": "one-line",
+      "props": {
+        "headline": "Wi-Fi"
+      }
+    },
+    {
+      "id": "two-line",
+      "props": {
+        "headline": "Wi-Fi",
+        "supportingText": "Connected to Harbour"
+      }
+    },
+    {
+      "id": "three-line",
+      "props": {
+        "overline": "Network",
+        "headline": "Wi-Fi",
+        "supportingText": "Connected to Harbour"
+      }
+    },
+    {
+      "id": "supporting-two-lines",
+      "props": {
+        "headline": "Mira Okada",
+        "supportingText": "The harbour photos are in the shared folder now, and the market street ones will follow after lunch once they are sorted.",
+        "supportingLines": 2
+      }
+    },
+    {
+      "id": "leading-icon",
+      "props": {
+        "leadingIcon": "wifi",
+        "headline": "Wi-Fi",
+        "supportingText": "Connected to Harbour"
+      }
+    },
+    {
+      "id": "leading-picture",
+      "props": {
+        "headline": "Mira Okada",
+        "supportingText": "Online"
+      },
+      "slots": {
+        "leading": "MO"
+      }
+    },
+    {
+      "id": "trailing-text",
+      "props": {
+        "headline": "Storage",
+        "supportingText": "Photos, documents and backups",
+        "trailingText": "12 GB"
+      }
+    },
+    {
+      "id": "trailing-icon",
+      "props": {
+        "headline": "Display",
+        "trailingIcon": "chevron_right"
+      }
+    },
+    {
+      "id": "trailing-control",
+      "props": {
+        "leadingIcon": "description",
+        "headline": "brief.pdf",
+        "supportingText": "820 KB"
+      },
+      "slots": {
+        "trailing": "more_vert"
+      }
+    },
+    {
+      "id": "all-parts",
+      "props": {
+        "leadingIcon": "folder",
+        "overline": "Shared",
+        "headline": "Harbour photos",
+        "supportingText": "48 items, edited today",
+        "trailingText": "2.4 GB",
+        "trailingIcon": "chevron_right"
+      }
+    },
+    {
+      "id": "long-text",
+      "props": {
+        "leadingIcon": "mail",
+        "headline": "Re: the harbour photos, the market street series and the captions for the autumn issue",
+        "supportingText": "The captions are in the shared document now; the market street series will follow after lunch.",
+        "trailingText": "09:41"
+      }
+    },
+    {
+      "id": "compact",
+      "props": {
+        "leadingIcon": "description",
+        "headline": "brief.pdf",
+        "supportingText": "820 KB",
+        "density": "compact"
+      }
+    },
+    {
+      "id": "compact-one-line",
+      "props": {
+        "headline": "brief.pdf",
+        "trailingText": "820 KB",
+        "density": "compact"
+      }
+    },
+    {
+      "id": "rtl",
+      "direction": "rtl",
+      "props": {
+        "leadingIcon": "folder",
+        "headline": "صور الميناء",
+        "supportingText": "48 عنصرًا",
+        "trailingText": "2.4 GB",
+        "trailingIcon": "chevron_right"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "planned",
+      "name": "tanrei-list-row",
+      "props": {
+        "headline": "headline",
+        "overline": "overline",
+        "supportingText": "supportingText",
+        "supportingLines": "supportingLines",
+        "leadingIcon": "leadingIcon",
+        "trailingText": "trailingText",
+        "trailingIcon": "trailingIcon",
+        "density": "density"
+      },
+      "notes": "`<tanrei-list-row headline=\"Wi-Fi\" supporting-text=\"Connected\" leading-icon=\"wifi\">`, placed as the direct child of a `tanrei-list-item` or on its own. The attributes are `supporting-text`, `supporting-lines`, `leading-icon`, `trailing-text` and `trailing-icon`. The slots are `leading` and `trailing` (`slot=\"leading\"` on the product's element). The item tells the row what it is through an internal property it sets on its direct children; a row nested deeper in an item's content draws itself as standing alone. The tooltip is a `tanrei-tooltip` in the row's shadow root, made when it first opens."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiListRow",
+      "props": {
+        "headline": "headline",
+        "overline": "overline",
+        "supportingText": "supportingText",
+        "supportingLines": "supportingLineLimit",
+        "leadingIcon": "leadingIcon",
+        "trailingText": "trailingText",
+        "trailingIcon": "trailingIcon",
+        "density": "density"
+      },
+      "notes": "`TanreiListRow(headline:, overline:, supportingText:, leadingIcon:, trailingText:, trailingIcon:) { leading } trailing: { trailing }` with view builders for the two slots. It reads what its TanreiListItem is from the environment the item sets. The tooltip is the platform's `.help(_:)` on macOS and nothing on iOS, where a cut text is whole in the accessibility label."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiListRow",
+      "props": {
+        "headline": "headline",
+        "overline": "overline",
+        "supportingText": "supportingText",
+        "supportingLines": "supportingMaxLines",
+        "leadingIcon": "leadingIcon",
+        "trailingText": "trailingText",
+        "trailingIcon": "trailingIcon",
+        "density": "density"
+      },
+      "notes": "`TanreiListRow(headline = \"Wi-Fi\", supportingText = …, leading = { … }, trailing = { … })` with composable lambdas for the two slots. It reads what its TanreiListItem is from a CompositionLocal the item provides."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiListRow",
+      "props": {
+        "headline": "headline",
+        "overline": "overline",
+        "supportingText": "supportingText",
+        "supportingLines": "supportingMaxLines",
+        "leadingIcon": "leadingIcon",
+        "trailingText": "trailingText",
+        "trailingIcon": "trailingIcon",
+        "density": "density"
+      },
+      "notes": "`TanreiListRow(headline: 'Wi-Fi', supportingText: …, leading: …, trailing: …)` with widgets for the two slots. It reads what its TanreiListItem is from an InheritedWidget the item places above its content."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "ListRow",
+      "props": {
+        "headline": "headline",
+        "overline": "overline",
+        "supportingText": "supportingText",
+        "supportingLines": "supportingLines",
+        "leadingIcon": "leadingIcon",
+        "trailingText": "trailingText",
+        "trailingIcon": "trailingIcon",
+        "density": "density"
+      },
+      "notes": "`<ListRow headline=\"Wi-Fi\" supportingText=\"…\" leading={…} trailing={…} />` with React nodes for the two slots. It reads what its ListItem is from a context the item provides."
+    }
+  }
+}

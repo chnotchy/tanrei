@@ -49946,6 +49946,290 @@
           }
         }
       },
+      "list-row": {
+        "container": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "Between the leading part, the text and the trailing part, and between the trailing text, the trailing slot's content and the trailing glyph."
+          },
+          "height": {
+            "one-line": {
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 40,
+                  "unit": "px"
+                }
+              },
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                }
+              }
+            },
+            "three-line": {
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 72,
+                  "unit": "px"
+                }
+              },
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 88,
+                  "unit": "px"
+                }
+              }
+            },
+            "two-line": {
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                }
+              },
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 72,
+                  "unit": "px"
+                }
+              }
+            }
+          },
+          "padding-block": {
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              }
+            },
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            }
+          },
+          "padding-inline-end": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "After the row's last part, while the row draws its own paddings."
+          },
+          "padding-inline-start": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "Before the row's first part, while the row draws its own paddings. The same as a list item's, so that a row in a static item and one in an action line up."
+          }
+        },
+        "headline": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.1137,
+                0.1059,
+                0.1255
+              ],
+              "hex": "#1d1b20",
+              "alpha": 1
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Roboto",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 16,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0.5,
+                "unit": "px"
+              },
+              "lineHeight": 1.5
+            },
+            "$description": "The row's name. The text style a list item hands plain text, so that a row and a plain item read alike."
+          }
+        },
+        "leading-icon": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.2863,
+                0.2706,
+                0.3098
+              ],
+              "hex": "#49454f",
+              "alpha": 1
+            }
+          },
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "The box of the glyph before the text."
+          }
+        },
+        "overline": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.2863,
+                0.2706,
+                0.3098
+              ],
+              "hex": "#49454f",
+              "alpha": 1
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Roboto",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 12,
+                "unit": "px"
+              },
+              "fontWeight": 500,
+              "letterSpacing": {
+                "value": 0.5004,
+                "unit": "px"
+              },
+              "lineHeight": 1.3333
+            },
+            "$description": "The short line above the headline: a category, a source, a time."
+          }
+        },
+        "supporting-text": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.2863,
+                0.2706,
+                0.3098
+              ],
+              "hex": "#49454f",
+              "alpha": 1
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Roboto",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 12,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0.3996,
+                "unit": "px"
+              },
+              "lineHeight": 1.3333
+            },
+            "$description": "The line or two under the headline."
+          }
+        },
+        "trailing-icon": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.2863,
+                0.2706,
+                0.3098
+              ],
+              "hex": "#49454f",
+              "alpha": 1
+            }
+          },
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "The box of the glyph at the row's end: a chevron that says the row opens something, a status."
+          }
+        },
+        "trailing-text": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.2863,
+                0.2706,
+                0.3098
+              ],
+              "hex": "#49454f",
+              "alpha": 1
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Roboto",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 12,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0.3996,
+                "unit": "px"
+              },
+              "lineHeight": 1.3333
+            },
+            "$description": "The short value at the row's end: a count, a size, a time, a setting's current value."
+          }
+        }
+      },
       "list": {
         "container": {
           "gap": {

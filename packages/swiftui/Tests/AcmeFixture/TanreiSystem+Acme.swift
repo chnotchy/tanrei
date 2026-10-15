@@ -5038,6 +5038,38 @@ private let acmeLinkTokens = TanreiLinkTokens(
   )
 )
 
+private let acmeListRowTokens = TanreiListRowTokens(
+  containerGap: 16,
+  containerPaddingInlineEnd: 16,
+  containerPaddingInlineStart: 16,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: acmeTypescale.body,
+  leadingIconColor: .role(.onSurfaceVariant),
+  leadingIconSize: 24,
+  overlineColor: .role(.onSurfaceVariant),
+  overlineTypescale: acmeTypescale.labelSmall,
+  supportingTextColor: .role(.onSurfaceVariant),
+  supportingTextTypescale: acmeTypescale.bodySmall,
+  trailingIconColor: .role(.onSurfaceVariant),
+  trailingIconSize: 24,
+  trailingTextColor: .role(.onSurfaceVariant),
+  trailingTextTypescale: acmeTypescale.bodySmall,
+  densitys: TanreiListRowDensitys(
+    regular: TanreiListRowDensityTokens(
+      containerHeightOneLine: 56,
+      containerHeightTwoLine: 72,
+      containerHeightThreeLine: 88,
+      containerPaddingBlock: 8
+    ),
+    compact: TanreiListRowDensityTokens(
+      containerHeightOneLine: 40,
+      containerHeightTwoLine: 56,
+      containerHeightThreeLine: 72,
+      containerPaddingBlock: 4
+    )
+  )
+)
+
 private let acmeListTokens = TanreiListTokens(
   containerGap: 16,
   containerHeight: 48,
@@ -9969,6 +10001,7 @@ extension TanreiSystem {
     keyboardShortcut: acmeKeyboardShortcutTokens,
     linkCard: acmeLinkCardTokens,
     link: acmeLinkTokens,
+    listRow: acmeListRowTokens,
     list: acmeListTokens,
     loadingIndicator: acmeLoadingIndicatorTokens,
     mainActionButton: acmeMainActionButtonTokens,

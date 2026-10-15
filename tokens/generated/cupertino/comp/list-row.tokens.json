@@ -1,0 +1,223 @@
+{
+  "tanrei": {
+    "comp": {
+      "list-row": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product shows rows of the same shape again and again — a person, a setting, a message, a place, a file — each a name with a line or two about it, a glyph, a picture or a control before it, and a value, a glyph or a control after it; it shows them in its lists and on their own, with the room of a touch screen or packed closer for a tool used with a pointer.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.axes": {
+            "density": {
+              "default": "regular",
+              "values": [
+                "regular",
+                "compact"
+              ],
+              "members": [
+                "container.height.one-line",
+                "container.height.two-line",
+                "container.height.three-line",
+                "container.padding-block"
+              ]
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a list row reads: per density (regular, compact) its least height for one, two and three lines of text and the space above and below its text; the space before and after its parts and between them; the text style and the color of its overline, headline, supporting text and trailing text; and the box and the color of its leading and trailing glyphs.",
+            "rules": [
+              "A list row is the content of a list item, or stands alone. It draws text and glyphs, never a fill, an edge, a divider or a state: hover, focus, press, the selected fill, the check, the handle and the divider are the List's.",
+              "Put a row as the direct child of a list item. The item tells it what it is: inside an action, a link or an option the item's paddings are the row's, and a selected option recolors every text and glyph of the row in its content color.",
+              "A row never makes itself pressable. To make a row open something, make its list item interactive or give it an href; to choose rows, make the list selectable.",
+              "Put a control (a switch, a checkbox, an icon-only Button) in the leading or trailing slot only while the row is static: a row standing alone, or the content of a static or reorderable item.",
+              "The headline is the row's name: the list item is named by it. Keep the overline a short category, and the trailing text a short value.",
+              "compact is for a tool used with a pointer: an item that is an action, a link or an option is never lower than the list's own minimum height and the target, whatever this says.",
+              "Restyle through these tokens in a layer; never draw the row's parts by hand in a list item."
+            ]
+          }
+        },
+        "container": {
+          "height": {
+            "$type": "dimension",
+            "$description": "The least height of a row, per number of lines of its text and per density: one line (a headline), two lines (a headline with an overline or with one line of supporting text), three lines (a headline with an overline and supporting text, or with two lines of supporting text). A minimum: a row grows with enlarged text. Inside a list item that is an action, a link or an option, the item's own padding is part of it.",
+            "one-line": {
+              "regular": {
+                "$value": {
+                  "value": 44,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.size.unit}",
+                    "by": 11
+                  }
+                }
+              },
+              "compact": {
+                "$value": {
+                  "value": 40,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.size.unit}",
+                    "by": 10
+                  }
+                }
+              }
+            },
+            "two-line": {
+              "regular": {
+                "$value": {
+                  "value": 72,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.size.unit}",
+                    "by": 18
+                  }
+                }
+              },
+              "compact": {
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.size.unit}",
+                    "by": 14
+                  }
+                }
+              }
+            },
+            "three-line": {
+              "regular": {
+                "$value": {
+                  "value": 88,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.size.unit}",
+                    "by": 22
+                  }
+                }
+              },
+              "compact": {
+                "$value": {
+                  "value": 72,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.size.unit}",
+                    "by": 18
+                  }
+                }
+              }
+            }
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$description": "Above the first line and below the last line of a row's text, per density, while the row draws its own paddings (standing alone, or in a static item). It holds the room when the text is enlarged.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.space.space50}"
+            }
+          },
+          "padding-inline-start": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "Before the row's first part, while the row draws its own paddings. The same as a list item's, so that a row in a static item and one in an action line up."
+          },
+          "padding-inline-end": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "After the row's last part, while the row draws its own paddings."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "Between the leading part, the text and the trailing part, and between the trailing text, the trailing slot's content and the trailing glyph."
+          }
+        },
+        "overline": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label-small}",
+            "$description": "The short line above the headline: a category, a source, a time."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          }
+        },
+        "headline": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-large}",
+            "$description": "The row's name. The text style a list item hands plain text, so that a row and a plain item read alike.",
+            "$extensions": {}
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface}"
+          }
+        },
+        "supporting-text": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}",
+            "$description": "The line or two under the headline."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          }
+        },
+        "trailing-text": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}",
+            "$description": "The short value at the row's end: a count, a size, a time, a setting's current value."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          }
+        },
+        "leading-icon": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.medium}",
+            "$description": "The box of the glyph before the text."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          }
+        },
+        "trailing-icon": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.medium}",
+            "$description": "The box of the glyph at the row's end: a chevron that says the row opens something, a status."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          }
+        }
+      }
+    }
+  }
+}

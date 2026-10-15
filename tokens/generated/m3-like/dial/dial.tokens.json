@@ -5116,6 +5116,14 @@
             "tanrei.comp.list.content.typescale": {
               "$value": "{tanrei.sys.typescale.body-large}"
             },
+            "tanrei.comp.list-row.headline.typescale": {
+              "$value": "{tanrei.sys.typescale.body-large}",
+              "reason": "Material's list item sets its headline in Body Large, as this preset's list items set their content."
+            },
+            "tanrei.comp.list-row.container.padding-inline-end": {
+              "$value": "{tanrei.sys.space.space300}",
+              "reason": "Material's list item keeps 24 after its last part, as this preset's list items do."
+            },
             "tanrei.comp.code-block.line.added.container.color": {
               "derive": {
                 "fn": "tone",

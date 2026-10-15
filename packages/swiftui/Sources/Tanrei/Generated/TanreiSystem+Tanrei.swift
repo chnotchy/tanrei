@@ -4914,6 +4914,38 @@ private let tanreiLinkTokens = TanreiLinkTokens(
   )
 )
 
+private let tanreiListRowTokens = TanreiListRowTokens(
+  containerGap: 16,
+  containerPaddingInlineEnd: 16,
+  containerPaddingInlineStart: 16,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: tanreiTypescale.body,
+  leadingIconColor: .role(.onSurfaceVariant),
+  leadingIconSize: 24,
+  overlineColor: .role(.onSurfaceVariant),
+  overlineTypescale: tanreiTypescale.labelSmall,
+  supportingTextColor: .role(.onSurfaceVariant),
+  supportingTextTypescale: tanreiTypescale.bodySmall,
+  trailingIconColor: .role(.onSurfaceVariant),
+  trailingIconSize: 24,
+  trailingTextColor: .role(.onSurfaceVariant),
+  trailingTextTypescale: tanreiTypescale.bodySmall,
+  densitys: TanreiListRowDensitys(
+    regular: TanreiListRowDensityTokens(
+      containerHeightOneLine: 56,
+      containerHeightTwoLine: 72,
+      containerHeightThreeLine: 88,
+      containerPaddingBlock: 8
+    ),
+    compact: TanreiListRowDensityTokens(
+      containerHeightOneLine: 40,
+      containerHeightTwoLine: 56,
+      containerHeightThreeLine: 72,
+      containerPaddingBlock: 4
+    )
+  )
+)
+
 private let tanreiListTokens = TanreiListTokens(
   containerGap: 16,
   containerHeight: 48,
@@ -9836,6 +9868,7 @@ extension TanreiSystem {
     keyboardShortcut: tanreiKeyboardShortcutTokens,
     linkCard: tanreiLinkCardTokens,
     link: tanreiLinkTokens,
+    listRow: tanreiListRowTokens,
     list: tanreiListTokens,
     loadingIndicator: tanreiLoadingIndicatorTokens,
     mainActionButton: tanreiMainActionButtonTokens,

@@ -5794,6 +5794,86 @@ public data class TanreiLinkTokens(
 }
 
 /**
+ * A density of list-row: the key of one entry of [TanreiListRowDensitys]. The set is OPEN — the constants are the core
+ * values every design system has, and a system may add more, so this is a string key, not an enum.
+ * A key the current system does not have draws as [Regular].
+ */
+@JvmInline
+public value class TanreiListRowDensity(public val key: String) {
+    override fun toString(): String = key
+
+    public companion object {
+        public val Regular: TanreiListRowDensity = TanreiListRowDensity("regular")
+        public val Compact: TanreiListRowDensity = TanreiListRowDensity("compact")
+    }
+}
+
+/** The tokens of one density of list-row. */
+@Immutable
+public data class TanreiListRowDensityTokens(
+    public val containerHeightOneLine: Dp,
+    public val containerHeightTwoLine: Dp,
+    public val containerHeightThreeLine: Dp,
+    public val containerPaddingBlock: Dp,
+)
+
+/**
+ * Every density of list-row: a named member per core value, plus [extra] for the values a design system added.
+ */
+@Immutable
+public data class TanreiListRowDensitys(
+    public val regular: TanreiListRowDensityTokens,
+    public val compact: TanreiListRowDensityTokens,
+    /** Values a design system added to the vocabulary, by key. */
+    public val extra: Map<TanreiListRowDensity, TanreiListRowDensityTokens> = emptyMap(),
+) {
+    /** Every key this system has, core values first. */
+    public val keys: Set<TanreiListRowDensity> get() = linkedSetOf(TanreiListRowDensity.Regular, TanreiListRowDensity.Compact) + extra.keys
+
+    public operator fun contains(key: TanreiListRowDensity): Boolean = find(key) != null
+
+    /** The tokens of [key], or null when this system does not have it. */
+    public fun find(key: TanreiListRowDensity): TanreiListRowDensityTokens? = when (key) {
+        TanreiListRowDensity.Regular -> regular
+        TanreiListRowDensity.Compact -> compact
+        else -> extra[key]
+    }
+
+    /** TOTAL: a key this system does not have reads the default value, [regular]. Components report such a key in debuggable apps. */
+    public operator fun get(key: TanreiListRowDensity): TanreiListRowDensityTokens = find(key) ?: regular
+}
+
+/** `comp.list-row`. Members are flat tokens, then per-state tokens, then one holder per axis (`densitys[density]`). */
+@Immutable
+public data class TanreiListRowTokens(
+    public val containerGap: Dp,
+    public val containerPaddingInlineEnd: Dp,
+    public val containerPaddingInlineStart: Dp,
+    public val headlineColor: TanreiPaint,
+    public val headlineTypescale: TanreiTextStyle,
+    public val leadingIconColor: TanreiPaint,
+    public val leadingIconSize: Dp,
+    public val overlineColor: TanreiPaint,
+    public val overlineTypescale: TanreiTextStyle,
+    public val supportingTextColor: TanreiPaint,
+    public val supportingTextTypescale: TanreiTextStyle,
+    public val trailingIconColor: TanreiPaint,
+    public val trailingIconSize: Dp,
+    public val trailingTextColor: TanreiPaint,
+    public val trailingTextTypescale: TanreiTextStyle,
+    public val densitys: TanreiListRowDensitys,
+) {
+    public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
+        addAll(headlineColor.roles())
+        addAll(leadingIconColor.roles())
+        addAll(overlineColor.roles())
+        addAll(supportingTextColor.roles())
+        addAll(trailingIconColor.roles())
+        addAll(trailingTextColor.roles())
+    }
+}
+
+/**
  * A condition of list: the key of one entry of [TanreiListConditions]. The set is OPEN — the constants are the core
  * values every design system has, and a system may add more, so this is a string key, not an enum.
  * A key the current system does not have draws as [Unselected].
@@ -11265,6 +11345,7 @@ public data class TanreiSystem(
     public val keyboardShortcut: TanreiKeyboardShortcutTokens,
     public val linkCard: TanreiLinkCardTokens,
     public val link: TanreiLinkTokens,
+    public val listRow: TanreiListRowTokens,
     public val list: TanreiListTokens,
     public val loadingIndicator: TanreiLoadingIndicatorTokens,
     public val mainActionButton: TanreiMainActionButtonTokens,
@@ -11350,6 +11431,7 @@ public data class TanreiSystem(
         addAll(keyboardShortcut.referencedRoles())
         addAll(linkCard.referencedRoles())
         addAll(link.referencedRoles())
+        addAll(listRow.referencedRoles())
         addAll(list.referencedRoles())
         addAll(loadingIndicator.referencedRoles())
         addAll(mainActionButton.referencedRoles())
