@@ -1006,16 +1006,16 @@ test.describe('actions and scrolling', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark, every fixture', async ({ page }) => {
-    for (const theme of ['light', 'dark'] as const) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`no axe violations in ${theme}, every fixture`, async ({ page }) => {
       for (const f of spec.fixtures) {
         await mount(page, [f], { theme });
         await page.waitForTimeout(300);
         const results = await new AxeBuilder({ page }).include('.stage').analyze();
         expect(results.violations, `${theme} ${f.id}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
       }
-    }
-  });
+    });
+  }
 });
 
 test.describe('fixtures', () => {
