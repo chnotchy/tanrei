@@ -1753,6 +1753,41 @@ test.describe('a collapsed cell’s name', () => {
     const [shown, c] = [await bounds(surface(page, 'collapsed', 1)), await bounds(box(page, 'collapsed', 1))];
     expect(shown.x).toBeGreaterThanOrEqual(c.x + c.width);
   });
+
+  test('NVD-56: keyboard focus on a cell that only touches the window\u2019s edge waits until part of it is seen, then shows its name', async ({ page }) => {
+    // An intersection observer calls a box that touches the window's edge intersecting, though nothing of it is seen,
+    // and a tooltip counts that anchor out of sight and closes at once: the name must open once part of it is seen.
+    await page.setViewportSize({ width: 800, height: 300 });
+    await mount(page, only('collapsible-expanded', 'collapsed'), { reducedMotion: true });
+    await page.mouse.click(790, 5);
+    await tabTo(page, cell(page, 'collapsed', 0));
+    await expect(surface(page, 'collapsed', 0)).toBeVisible();
+    // The next cell's box just below the window, its top on the window's bottom edge.
+    const edge = await tip(page, 'collapsed', 1).evaluate((el) => {
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: top - document.documentElement.clientHeight, behavior: 'instant' });
+      return [el.getBoundingClientRect().top, document.documentElement.clientHeight];
+    });
+    expect(edge[0]).toBe(edge[1]);
+    // Keyboard focus moves to it without scrolling (focus that follows keyboard focus is keyboard focus), and the
+    // observers' answer for that layout has arrived: the cell's own, and one made after it, in the same task.
+    const touching = await tip(page, 'collapsed', 1).evaluate(async (el) => {
+      const answer = () => new Promise<IntersectionObserverEntry>((resolve) => {
+        const observer = new IntersectionObserver((entries) => (observer.disconnect(), resolve(entries[0])));
+        observer.observe(el);
+      });
+      const target = (el.getRootNode() as ShadowRoot).querySelector<HTMLElement>('.cell')!;
+      target.focus({ preventScroll: true });
+      const entry = await answer();
+      await new Promise((resolve) => setTimeout(resolve));
+      return { keyboard: target.matches(':focus-visible'), intersecting: entry.isIntersecting, ratio: entry.intersectionRatio, open: (el as HTMLElement & { open: boolean }).open };
+    });
+    expect(touching).toEqual({ keyboard: true, intersecting: true, ratio: 0, open: false });
+    // Part of it comes into view: its name is shown.
+    await page.evaluate(() => window.scrollBy({ top: 12, behavior: 'instant' }));
+    await expect(surface(page, 'collapsed', 1)).toBeVisible();
+    await expect(surface(page, 'collapsed', 1)).toHaveText('Sent');
+  });
 });
 
 test.describe('a drawer that follows the window', () => {
