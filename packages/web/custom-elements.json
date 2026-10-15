@@ -80216,7 +80216,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Presents data that has rows and columns, with named columns, optional row headers, a caption and footer rows.\nA price list, a comparison, a list of settings, a status of many things. It scrolls in its own box when it does not\nfit. A column's header can ask for the rows in its order (`sort`); the table itself never sorts, filters, fetches or\npages: it draws the rows it is given, in the order it is given them.\n\nContract: specs/table.spec.json. The element has **no shadow root**: it is the scroll box around the product's own\nnative table, which stays in the document and is never given another `display` — its semantics, a crawler's reading,\ncopy and paste as a table and a screen reader's table navigation are the browser's own.\n\n```html\n<tanrei-table density=\"compact\" row-headers sticky-first-column>\n  <table>\n    <caption>Visits by region</caption>\n    <thead><tr><th scope=\"col\">Region</th><th scope=\"col\" data-align=\"end\" data-wrap=\"false\">January</th></tr></thead>\n    <tbody><tr><th scope=\"row\">Islands</th><td>212</td></tr></tbody>\n    <tfoot><tr><th scope=\"row\">All regions</th><td>6,846</td></tr></tfoot>\n  </table>\n</tanrei-table>\n```\n\nA column is a `<th scope=\"col\">` of the `<thead>` row: its text is the header, `data-align=\"start | center | end\"`\nsays where the column's cells sit and `data-wrap=\"false\"` keeps them on one line. A row is a `<tr>`; a footer row is\na `<tr>` in `<tfoot>`. A cell is a `<td>`, or a `<th scope=\"row\">` for the header of its row, and holds text, any\nview of the product's, or nothing. A cell may name its own `data-align` and `data-wrap`; a Markdown renderer's\n`align` is read as well (left and right as start and end).\n\nEverything drawn is `@tanrei/web/table.css` — every value a `--tanrei-comp-table-*` token — which draws the table\nbefore and without this script; the element adds the same sheet to the root it is connected to, so it also works\ninside another component's shadow root. The script adds what a stylesheet cannot: while the box scrolls it is a\nfocus stop and a region with the table's name (`tabindex`, `role`, `aria-labelledby` or `aria-label`), and the\narrow keys, Page Up, Page Down, Home and End scroll it as the browser scrolls a region; a hairline along an inline\nedge of the box says that columns lie beyond it; a column's alignment reaches its cells; a first column that is kept\nin view lets go where it would take more than half of the box.\n\nA column that can be sorted: its header cell says the order the rows are in — `aria-sort=\"none\"`, `\"ascending\"` or\n`\"descending\"` — and holds the product's own `<button type=\"button\">` around the header's text; `data-value` on the\ncell is the name the event carries. The stylesheet makes the whole cell the button and draws the mark from the\nattribute. A press emits `sort` with the direction asked for and changes nothing: the product orders its rows and\nwrites `aria-sort`. A table ordered by the server holds an `<a href>` to the same table in the other order in place of\nthe button; it works without script, and `sort` is then cancelable.\n\n```html\n<th scope=\"col\" aria-sort=\"ascending\" data-value=\"name\"><button type=\"button\">Name</button></th>\n```\n\nNo rows: `<tbody><tr data-part=\"empty\"><td colspan=\"3\">…</td></tr></tbody>`, holding the product's Empty state (or\nits sentence, in an element). The status line: `<div data-part=\"status\"><p role=\"status\">1–20 of 132</p>…</div>`\nafter the table, inside the element, holding the product's sentence and its pagination; the `status` attribute is a\nconvenience that writes the paragraph.\n\nRows that can be chosen: `selection=\"multiple\"`, and a first cell `<td data-part=\"selection\">` in every row — in the\nheader row holding the checkbox for every row, in a body row that has a `data-value` holding that row's checkbox\n(`<tanrei-checkbox label-hidden label=\"Select Kettle\">`, or a native `<input type=\"checkbox\" aria-label=\"…\">`), and\nempty in a footer row, a placeholder row and a row that cannot be chosen. A chosen row carries `data-selected`. The\ntable holds the selection: a change of a checkbox writes `data-selected` on its row and emits `selectionchange`\nwith the values of the chosen rows; the product writes `data-selected` to choose a row itself, and nothing is\nemitted for it. The header's checkbox is kept checked, mixed or unchecked, disabled with no row to choose, and named\nby `select-all-label` or the product's words (`selectAllLabel`). A row's checkbox that has no name of its own is\nnamed by the row's header cell. The table stays a table: no grid, no selected state on a row. For a pointer the whole\nrow is its checkbox's target: a click anywhere on it changes the checkbox, except on what a cell holds that answers a\npress itself (a link, a button, a field), at the end of a drag or a text selection, with a modifier key, or on the\nsecond click of a double click; the row is drawn hovered and pressed as one. The keyboard stays on the checkbox.\n\n```html\n<tanrei-table selection=\"multiple\" row-headers select-all-label=\"Select all products\">\n  <table>\n    <thead><tr><td data-part=\"selection\"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope=\"col\">Name</th></tr></thead>\n    <tbody><tr data-value=\"kettle\" data-selected>\n      <td data-part=\"selection\"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td><th scope=\"row\">Kettle</th>\n    </tr></tbody>\n  </table>\n</tanrei-table>\n```\n\nLoading: `loading` says that the product is fetching rows. The table is exposed as busy (`aria-busy` on the table)\nand draws what it is given — the rows it had, or rows `<tr data-placeholder aria-hidden=\"true\">` whose cells are empty\nor hold a Skeleton's placeholder (`<span class=\"tanrei-skeleton-placeholder\"></span>`). Nothing is dimmed or disabled.\n\nWithout a sortable column and with `selection` none the table takes no input and emits no event.\n\nA table inside a cell is the product's content and is not drawn by this one. Cells that span (`colspan`, `rowspan`)\nand a second header row work as HTML does and take the same cell styles.",
+          "description": "Presents data that has rows and columns, with named columns, optional row headers, a caption and footer rows.\nA price list, a comparison, a list of settings, a status of many things. It scrolls in its own box when it does not\nfit. A column's header can ask for the rows in its order (`sort`); the table itself never sorts, filters, fetches or\npages: it draws the rows it is given, in the order it is given them.\n\nContract: specs/table.spec.json. The element has **no shadow root**: it is the scroll box around the product's own\nnative table, which stays in the document and is never given another `display` — its semantics, a crawler's reading,\ncopy and paste as a table and a screen reader's table navigation are the browser's own.\n\n```html\n<tanrei-table density=\"compact\" row-headers sticky-first-column>\n  <table>\n    <caption>Visits by region</caption>\n    <thead><tr><th scope=\"col\">Region</th><th scope=\"col\" data-align=\"end\" data-wrap=\"false\">January</th></tr></thead>\n    <tbody><tr><th scope=\"row\">Islands</th><td>212</td></tr></tbody>\n    <tfoot><tr><th scope=\"row\">All regions</th><td>6,846</td></tr></tfoot>\n  </table>\n</tanrei-table>\n```\n\nA column is a `<th scope=\"col\">` of the `<thead>` row: its text is the header, `data-align=\"start | center | end\"`\nsays where the column's cells sit and `data-wrap=\"false\"` keeps them on one line. A row is a `<tr>`; a footer row is\na `<tr>` in `<tfoot>`. A cell is a `<td>`, or a `<th scope=\"row\">` for the header of its row, and holds text, any\nview of the product's, or nothing. A cell may name its own `data-align` and `data-wrap`; a Markdown renderer's\n`align` is read as well (left and right as start and end).\n\nEverything drawn is `@tanrei/web/table.css` — every value a `--tanrei-comp-table-*` token — which draws the table\nbefore and without this script; the element adds the same sheet to the root it is connected to, so it also works\ninside another component's shadow root. The script adds what a stylesheet cannot: while the box scrolls it is a\nfocus stop and a region with the table's name (`tabindex`, `role`, `aria-labelledby` or `aria-label`), and the\narrow keys, Page Up, Page Down, Home and End scroll it as the browser scrolls a region; a hairline along an inline\nedge of the box says that columns lie beyond it; a column's alignment reaches its cells; a first column that is kept\nin view lets go where it would take more than half of the box.\n\nA column that can be sorted: its header cell says the order the rows are in — `aria-sort=\"none\"`, `\"ascending\"` or\n`\"descending\"` — and holds the product's own `<button type=\"button\">` around the header's text; `data-value` on the\ncell is the name the event carries. The stylesheet makes the whole cell the button and draws the mark from the\nattribute. A press emits `sort` with the direction asked for and changes nothing: the product orders its rows and\nwrites `aria-sort`. A table ordered by the server holds an `<a href>` to the same table in the other order in place of\nthe button; it works without script, and `sort` is then cancelable.\n\n```html\n<th scope=\"col\" aria-sort=\"ascending\" data-value=\"name\"><button type=\"button\">Name</button></th>\n```\n\nNo rows: `<tbody><tr data-part=\"empty\"><td colspan=\"3\">…</td></tr></tbody>`, holding the product's Empty state (or\nits sentence, in an element). The status line: `<div data-part=\"status\"><p role=\"status\">1–20 of 132</p>…</div>`\nafter the table, inside the element, holding the product's sentence and its pagination; the `status` attribute is a\nconvenience that writes the paragraph.\n\nRows that can be chosen: `selection=\"multiple\"`, and a first cell `<td data-part=\"selection\">` in every row — in the\nheader row holding the checkbox for every row, in a body row that has a `data-value` holding that row's checkbox\n(`<tanrei-checkbox label-hidden label=\"Select Kettle\">`, or a native `<input type=\"checkbox\" aria-label=\"…\">`), and\nempty in a footer row, a placeholder row and a row that cannot be chosen. A chosen row carries `data-selected`. The\ntable holds the selection: a change of a checkbox writes `data-selected` on its row and emits `selectionchange`\nwith the values of the chosen rows; the product writes `data-selected` to choose a row itself, and nothing is\nemitted for it. The header's checkbox is kept checked, mixed or unchecked, disabled with no row to choose, and named\nby `select-all-label` or the product's words (`selectAllLabel`). A row's checkbox that has no name of its own is\nnamed by the row's header cell. The table stays a table: no grid, no selected state on a row. For a pointer the whole\nrow is its checkbox's target: a click anywhere on it changes the checkbox, except on what a cell holds that answers a\npress itself (a link, a button, a field), at the end of a drag or a text selection, with a modifier key, or on the\nsecond click of a double click; the row is drawn hovered and pressed as one. The keyboard stays on the checkbox.\n\nOne row at most: `selection=\"single\"`, and in each body row's selection cell a radio button in place of the\ncheckbox (`<tanrei-radio-button label-hidden name=\"product\" label=\"Select Kettle\">`, or a native\n`<input type=\"radio\" name=\"product\" aria-label=\"…\">`); the header row's selection cell stays empty. The radio buttons\nshare one name — the element gives one to those that have none — so they are one group: one Tab stop, the arrow keys\nmove the choice from row to row. Choosing a row lets the chosen one go, and `selectionchange` carries the one value;\nthe chosen row's radio button, or a press on that row, changes nothing (a radio is not cleared by its own\nactivation). To choose no row again, remove `data-selected` yourself.\n\n```html\n<tanrei-table selection=\"multiple\" row-headers select-all-label=\"Select all products\">\n  <table>\n    <thead><tr><td data-part=\"selection\"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope=\"col\">Name</th></tr></thead>\n    <tbody><tr data-value=\"kettle\" data-selected>\n      <td data-part=\"selection\"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td><th scope=\"row\">Kettle</th>\n    </tr></tbody>\n  </table>\n</tanrei-table>\n```\n\nLoading: `loading` says that the product is fetching rows. The table is exposed as busy (`aria-busy` on the table)\nand draws what it is given — the rows it had, or rows `<tr data-placeholder aria-hidden=\"true\">` whose cells are empty\nor hold a Skeleton's placeholder (`<span class=\"tanrei-skeleton-placeholder\"></span>`). Nothing is dimmed or disabled.\n\nWithout a sortable column and with `selection` none the table takes no input and emits no event.\n\nA table inside a cell is the product's content and is not drawn by this one. Cells that span (`colspan`, `rowspan`)\nand a second header row work as HTML does and take the same cell styles.",
           "name": "TanreiTable",
           "cssProperties": [
             {
@@ -80359,7 +80359,7 @@
                 "text": "TanreiTableSelection"
               },
               "default": "'none'",
-              "description": "Whether rows can be chosen. `multiple`: every body row that has a `data-value` and a first cell\n`<td data-part=\"selection\">` holding a checkbox can be chosen, and the header row's selection cell holds the\ncheckbox for every row. `none` draws no selection column and ignores a row's `data-selected`.",
+              "description": "Whether rows can be chosen, and how many. `multiple`: every body row that has a `data-value` and a first cell\n`<td data-part=\"selection\">` holding a checkbox can be chosen, and the header row's selection cell holds the\ncheckbox for every row. `single`: the selection cell holds a radio button instead, the header row's holds nothing,\nand one row at most is chosen. `none` draws no selection column and ignores a row's `data-selected`.",
               "attribute": "selection",
               "reflects": true
             },
@@ -80371,7 +80371,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the header row's checkbox (\"Select all rows\"). Not drawn. From the product's words (`selectAllLabel`) where the instance gives none.",
+              "description": "The accessible name of the header row's checkbox (\"Select all rows\"). Not drawn; read only under `multiple`. From the product's words (`selectAllLabel`) where the instance gives none.",
               "attribute": "select-all-label"
             },
             {
@@ -80600,6 +80600,21 @@
               "readonly": true,
               "default": "new WeakMap<Checkbox, string>()",
               "description": "The checkboxes this element named, with the name it gave: only that is written again or taken away (TBL-46)."
+            },
+            {
+              "kind": "field",
+              "name": "grouped",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new Map<Checkbox, string>()",
+              "description": "TBL-60: the radio buttons this element gave a group's name, and the name it gives them."
+            },
+            {
+              "kind": "field",
+              "name": "groupName",
+              "privacy": "private",
+              "readonly": true,
+              "default": "`tanrei-table-${++groups}`"
             },
             {
               "kind": "field",
@@ -80922,7 +80937,7 @@
                   }
                 }
               ],
-              "description": "The checkbox a row holds in its selection cell: the product's `<tanrei-checkbox>`, or its native one."
+              "description": "The control a row holds in its selection cell, of the kind the selection draws: a checkbox under `multiple`, a\nradio button under `single` (TBL-60) — the product's Tanrei element, or its native one. A control of the other\nkind is none: the row cannot be chosen (and table.css does not draw it)."
             },
             {
               "kind": "method",
@@ -80956,6 +80971,48 @@
                 }
               ],
               "description": "TBL-42 to TBL-46: the rows that can be chosen, each drawn chosen or not by what it says of itself, its checkbox in\nstep with it and named; and the header's checkbox in step with all of them. Nothing is emitted here: what is read\nis what the product wrote. A row is chosen by its own `data-selected` — the table carries no selection over to a\nrow it is not given (TBL-44) — or, the first time it is read, by a checkbox that is already checked (the form a\npage has without script, TBL-57). Its cost is the rows', and only while rows can be chosen."
+            },
+            {
+              "kind": "method",
+              "name": "one",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "read",
+                  "type": {
+                    "text": "{ row: HTMLTableRowElement; now: boolean; written: boolean }[]"
+                  }
+                }
+              ],
+              "description": "TBL-60: one row at most is chosen. Where more than one says it is, the one the product wrote last stands — of\nseveral written at once, the first in row order — and the others are let go, without an event; a debug build says\nwhen several were written at once."
+            },
+            {
+              "kind": "method",
+              "name": "group",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "table",
+                  "type": {
+                    "text": "HTMLTableElement | null"
+                  }
+                }
+              ],
+              "description": "TBL-60: the radio buttons of the table are one group — the options of one name. Those the product named keep their\nname; those it did not take the product's (the first name among them) or, where it named none, the table's own.\nCalled with no table, it takes back every name it gave."
+            },
+            {
+              "kind": "method",
+              "name": "checkKinds",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "table",
+                  "type": {
+                    "text": "HTMLTableElement"
+                  }
+                }
+              ],
+              "description": "TBL-60: a debug build says where a selection cell holds a control the selection does not draw."
             },
             {
               "kind": "method",
@@ -81093,21 +81150,21 @@
                   }
                 }
               ],
-              "description": "The checkbox an event came from, in a selection cell of this table's own rows, and its row: a table inside a cell is the product's."
+              "description": "The control an event came from — of the kind the selection draws — in a selection cell of this table's own rows, and its row: a table inside a cell is the product's."
             },
             {
               "kind": "field",
               "name": "onChange",
               "privacy": "private",
               "readonly": true,
-              "description": "TBL-44, TBL-45: the user changed a checkbox — by a press or by Space, which the checkbox makes one `change`. A\nrow's: the row is chosen as its checkbox now says. The header's: every row that can be chosen is chosen, or — where\nevery one was — none is. Then `selectionchange`, exactly once, with the values after the change in row order."
+              "description": "TBL-44, TBL-45: the user changed a checkbox — by a press or by Space, which the checkbox makes one `change`. A\nrow's: the row is chosen as its checkbox now says. The header's: every row that can be chosen is chosen, or — where\nevery one was — none is. TBL-60: a radio button is changed only to checked (by a press, Space or an arrow key; the\nchosen one fires nothing): its row is chosen and every other one let go. Then `selectionchange`, exactly once, with\nthe values after the change in row order."
             },
             {
               "kind": "field",
               "name": "onCellClick",
               "privacy": "private",
               "readonly": true,
-              "description": "TBL-47: a checkbox's hit area is its whole selection cell — a press on the cell beside the checkbox is the checkbox's."
+              "description": "TBL-47: a control's hit area is its whole selection cell — a press on the cell beside the checkbox or radio button is the control's."
             },
             {
               "kind": "field",
@@ -81368,7 +81425,7 @@
               "name": "sort"
             },
             {
-              "description": "The user changed which rows are chosen, by a row's checkbox or by the header's. `detail`: `{ values }` — the `data-value` of every chosen row after the change, in row order. Not emitted for what the product writes.",
+              "description": "The user changed which rows are chosen, by a row's checkbox or radio button (or a press on the row, or an arrow key on a radio button) or by the header's checkbox. `detail`: `{ values }` — the `data-value` of every chosen row after the change, in row order; under `single`, the one chosen row's. Not emitted for what the product writes.",
               "name": "selectionchange"
             }
           ],
@@ -81460,7 +81517,7 @@
                 "text": "TanreiTableSelection"
               },
               "default": "'none'",
-              "description": "Whether rows can be chosen. `multiple`: every body row that has a `data-value` and a first cell\n`<td data-part=\"selection\">` holding a checkbox can be chosen, and the header row's selection cell holds the\ncheckbox for every row. `none` draws no selection column and ignores a row's `data-selected`.",
+              "description": "Whether rows can be chosen, and how many. `multiple`: every body row that has a `data-value` and a first cell\n`<td data-part=\"selection\">` holding a checkbox can be chosen, and the header row's selection cell holds the\ncheckbox for every row. `single`: the selection cell holds a radio button instead, the header row's holds nothing,\nand one row at most is chosen. `none` draws no selection column and ignores a row's `data-selected`.",
               "fieldName": "selection"
             },
             {
@@ -81469,7 +81526,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "The accessible name of the header row's checkbox (\"Select all rows\"). Not drawn. From the product's words (`selectAllLabel`) where the instance gives none.",
+              "description": "The accessible name of the header row's checkbox (\"Select all rows\"). Not drawn; read only under `multiple`. From the product's words (`selectAllLabel`) where the instance gives none.",
               "fieldName": "selectAllLabel"
             },
             {

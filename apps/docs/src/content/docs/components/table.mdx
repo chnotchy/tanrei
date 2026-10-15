@@ -34,7 +34,7 @@ import CountedByThePage from '../../../components/CountedByThePage.astro';
   </tanrei-table>
 </DemoFrame>
 
-A table is for data that has two dimensions: a price list, a comparison of plans, a list of settings with their types and defaults, the status of several things on several platforms, the records a person works with. A column's header can ask for the rows in its order, a table without rows shows your Empty state, and a status line under the rows holds your sentence and your pagination. Rows can be chosen with a checkbox each, and a table that waits for its rows says that it is busy. The table itself never sorts, filters, fetches or pages: it draws the rows it is given, in the order it is given them. It does not resize columns.
+A table is for data that has two dimensions: a price list, a comparison of plans, a list of settings with their types and defaults, the status of several things on several platforms, the records a person works with. A column's header can ask for the rows in its order, a table without rows shows your Empty state, and a status line under the rows holds your sentence and your pagination. Rows can be chosen with a checkbox each, or one row with a radio button, and a table that waits for its rows says that it is busy. The table itself never sorts, filters, fetches or pages: it draws the rows it is given, in the order it is given them. It does not resize columns.
 
 On the web it is `<tanrei-table>` around your own native `<table>`. The element has no shadow root and the table is never given another `display`, so a crawler, copy and paste into a spreadsheet and a screen reader's table navigation all meet an ordinary HTML table. The other platforms have not implemented it yet.
 
@@ -105,9 +105,9 @@ On the web it is `<tanrei-table>` around your own native `<table>`. The element 
 | A column that can be sorted | `aria-sort="none"`, `"ascending"` or `"descending"` on the header cell, and a `<button type="button">` around its text. `data-value` on the cell is the name the `sort` event carries. |
 | No rows | A `<tr data-part="empty">` of one `<td colspan>` in `<tbody>`, holding your Empty state. |
 | The status line | A `<div data-part="status">` after the table, holding a `<p role="status">` and your pagination. `status` on the element writes the paragraph where you write none. |
-| Rows that can be chosen | `selection="multiple"` on the element, and a first cell `<td data-part="selection">` in every row. |
-| A row that can be chosen | `data-value` on the `<tr>`, and a `<tanrei-checkbox label-hidden>` in its selection cell. `data-selected` on the `<tr>` says that it is chosen. |
-| The checkbox for every row | A `<tanrei-checkbox label-hidden>` in the selection cell of the header row. `select-all-label` on the element names it. |
+| Rows that can be chosen | `selection="multiple"` on the element, or `selection="single"` where one row at most is chosen, and a first cell `<td data-part="selection">` in every row. |
+| A row that can be chosen | `data-value` on the `<tr>`, and a `<tanrei-checkbox label-hidden>` in its selection cell, or a `<tanrei-radio-button label-hidden>` under `single`. `data-selected` on the `<tr>` says that it is chosen. |
+| The checkbox for every row | A `<tanrei-checkbox label-hidden>` in the selection cell of the header row. `select-all-label` on the element names it. Under `single` that cell stays empty. |
 | A loading table | `loading` on the element. |
 | A placeholder row, for a row that has not arrived | A `<tr data-placeholder aria-hidden="true">`, its cells empty or holding a Skeleton placeholder. |
 
@@ -309,6 +309,50 @@ For a page that must work without script, use native checkboxes. A row whose che
 </tr>
 ```
 
+### Choosing one row
+
+<DemoFrame label="Choose one row: a radio button in each row, none in the header" plain>
+  <tanrei-table class="tanrei-not-prose" selection="single" row-headers>
+    <table>
+      <caption>Plan to change to</caption>
+      <thead>
+        <tr><td data-part="selection"></td><th scope="col">Plan</th><th scope="col" data-align="end" data-wrap="false">Seats</th><th scope="col" data-align="end" data-wrap="false">Per month</th></tr>
+      </thead>
+      <tbody>
+        <tr data-value="starter"><td data-part="selection"><tanrei-radio-button label-hidden name="docs-plan"></tanrei-radio-button></td><th scope="row">Starter</th><td data-align="end" data-wrap="false">3</td><td data-align="end" data-wrap="false">0.00</td></tr>
+        <tr data-value="team" data-selected><td data-part="selection"><tanrei-radio-button label-hidden name="docs-plan" checked></tanrei-radio-button></td><th scope="row">Team</th><td data-align="end" data-wrap="false">20</td><td data-align="end" data-wrap="false">48.00</td></tr>
+        <tr data-value="business"><td data-part="selection"><tanrei-radio-button label-hidden name="docs-plan"></tanrei-radio-button></td><th scope="row">Business</th><td data-align="end" data-wrap="false">100</td><td data-align="end" data-wrap="false">180.00</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+Where a person chooses one record (the plan to change to, the address to ship to, the build to compare against), set `selection="single"`. Each body row's selection cell holds a radio button in place of the checkbox, and the header row's selection cell stays empty, because no control stands for every row:
+
+```html
+<tanrei-table selection="single" row-headers>
+  <table>
+    <caption>Plan to change to</caption>
+    <thead>
+      <tr><td data-part="selection"></td><th scope="col">Plan</th><th scope="col" data-align="end">Seats</th></tr>
+    </thead>
+    <tbody>
+      <tr data-value="team" data-selected>
+        <td data-part="selection"><tanrei-radio-button label-hidden name="plan" checked></tanrei-radio-button></td>
+        <th scope="row">Team</th>
+        <td data-align="end">20</td>
+      </tr>
+    </tbody>
+  </table>
+</tanrei-table>
+```
+
+- Choosing a row lets the chosen one go. `selectionchange` carries the one value: `{ values: ['team'] }`.
+- A press on the chosen row, or on its radio button, changes nothing. A radio button is not cleared by pressing it again. Where a person may go back to no row chosen, give a control of your own for that, and remove `data-selected` from the row.
+- The radio buttons of one table share one name, so they are one group: one stop in the focus order, and the arrow keys move the choice from row to row. Give them your own name, which a form submits; the element gives one to those that have none.
+- If you mark more than one row with `data-selected`, the row you marked last is chosen, and of rows marked at once the first. A debug build reports rows marked at once.
+- Everything else is as with checkboxes: a press anywhere on a row chooses it, `data-selected` is yours to write, and a native `<input type="radio" name="…">` works without script.
+
 ### Loading
 
 <DemoFrame label="Loading: placeholder rows, and the status line says so" plain>
@@ -482,12 +526,13 @@ A row has no height of its own. It is as tall as its tallest cell.
 ### Guidance for choosing rows
 
 - Let people choose rows where they act on several records at once: delete, export, move. For one record, put the action in its row.
+- Choose one row (`single`) where the answer is one record: a plan, an address, a version to compare against. Don't use it to open a record.
 - A press anywhere on a row chooses it. Where a row also opens its record, put a link in its row header for that, not a press on the row.
 - Say how many rows are chosen in the status line ("3 of 132 selected"). The table counts nothing.
 - Put the buttons that act on the chosen rows above the table. They are yours; the table tells you what is chosen.
 - Offer "all 132" with a control of your own. The header's checkbox chooses the rows the table was given, never the rows of other pages.
-- Each checkbox is a stop in the focus order. Keep a page of rows to a number a person can tab through, and page the rest.
-- A row that holds a checkbox is at least 44 high at the regular density, and 48 for touch at both densities. A compact row stays compact for a pointer.
+- Each checkbox is a stop in the focus order. Keep a page of rows to a number a person can tab through, and page the rest. The radio buttons of a table are one stop together.
+- A row that holds a checkbox or a radio button is at least 44 high at the regular density, and 48 for touch at both densities. A compact row stays compact for a pointer.
 - A [tag](/components/tag/) and [inline code](/components/inline-code/) are tonal unless you choose another variant, and the tonal fill is nearly the fill of a chosen row in the default system, so on a chosen row their shape is lost. Their text stays readable. Use the outlined tag in a table whose rows are chosen.
 
 ### Guidance for loading
@@ -513,7 +558,7 @@ A row has no height of its own. It is as tall as its tallest cell.
 - Don't use a table to lay out a screen.
 - Don't rely on stripes or color to carry meaning. A status in a cell is a word, or a tag whose label says it.
 - Don't put a dash in an empty cell to fill it.
-- Don't make a row pressable, and don't write a sort mark or an order of your own into a header. A header becomes pressable by the markup above and by nothing else. A row is chosen by its checkbox, and rows that open are not part of the table.
+- Don't make a row pressable, and don't write a sort mark or an order of your own into a header. A header becomes pressable by the markup above and by nothing else. A row is chosen by its checkbox or radio button, and rows that open are not part of the table.
 - Don't dim or disable a table while it loads.
 
 ## Accessibility
@@ -537,16 +582,17 @@ A row has no height of its own. It is as tall as its tallest cell.
 - The paragraph of the status line is a status: a change of its text is told politely, without moving focus, and nothing is told when it is first drawn.
 - In forced colors a sort button's label and mark take the button's text color, and the sorted column is told by its arrow alone.
 - Without script the sort buttons, their marks, the Empty state's row and the status line are drawn all the same, and a sort link works. The `sort` event needs script.
-- A table whose rows can be chosen is still a table. It gets no grid role, a row gets no selected state, and no key moves focus from cell to cell. The checked state of a row's checkbox says that the row is chosen.
+- A table whose rows can be chosen is still a table. It gets no grid role, a row gets no selected state, and no key moves focus from cell to cell. The checked state of a row's checkbox or radio button says that the row is chosen.
 - The header's checkbox says checked, not checked, or mixed while it is indeterminate, and is disabled while there is no row to choose.
 - Each checkbox is its own stop in the focus order: the header row's checkbox and sort buttons first, then each row's checkbox. Space checks or unchecks it.
-- A row's checkbox that has no name of its own is named by the row's header cell.
+- A row's checkbox or radio button that has no name of its own is named by the row's header cell.
+- Under `single` the radio buttons are one stop: Tab reaches the chosen row's (the first row's while none is chosen) and leaves the table at the next press. The arrow keys move to the next or previous row's radio button and choose its row, wrapping. Each radio button is heard with its row's name, its state and its place among them, such as "Select Team, radio button, checked, 2 of 3". They are not wrapped in a radio group, which cannot hold the rows of a table.
 - A press anywhere in a selection cell presses its checkbox. When you replace or reorder the rows while a checkbox has focus, focus goes to the checkbox of the row with the same `data-value`.
 - For a pointer, a row that can be chosen is a larger target for its checkbox. The row gets no role, no focus stop and no selected state, so the keyboard and a screen reader meet the checkbox, named as before, and the text of the row can still be selected and copied.
-- In forced colors the fill of a chosen row is gone, and the checkbox still says that the row is chosen.
+- In forced colors the fill of a chosen row is gone, and the checkbox or radio button still says that the row is chosen.
 - While `loading` is set, the table is exposed as busy (`aria-busy`). Placeholder rows are hidden from assistive technology, so a person hears that the table is busy and not rows of nothing. The table announces nothing itself when loading begins or ends.
 - Without script the selection column, a chosen row (`data-selected`, or a native checkbox that is checked) and placeholder rows are drawn all the same, and native checkboxes work in your form. The header's checkbox kept in step and the `selectionchange` event need script. Without script a row shows no hover and no pointer cursor, and a press beside its checkbox changes nothing.
-- A table with no name, an unknown density, separation or selection, a footer row given before the body, a row with more or fewer cells than columns, a sortable column without a header, two columns sorted at once, a row's checkbox without a name and a placeholder row in a table that is not loading are reported in debug builds.
+- A table with no name, an unknown density, separation or selection, a footer row given before the body, a row with more or fewer cells than columns, a sortable column without a header, two columns sorted at once, a row's checkbox without a name, several rows marked chosen at once or a control of the wrong kind under `single`, and a placeholder row in a table that is not loading are reported in debug builds.
 
 ### What you need to do
 
@@ -566,7 +612,7 @@ Tanrei ships no words. The table asks you for one, the name of the header's chec
 | Word | Where you give it |
 | --- | --- |
 | The name of the header's checkbox ("Select all products") | `select-all-label` on the element, or once for every table with `setWords({ selectAllLabel: 'Select all rows' })`. |
-| The name of a row's checkbox ("Select Hand grinder") | `label` on the row's `<tanrei-checkbox>`, or `aria-label` on a native checkbox. With row headers you can leave it out: the row's header names the checkbox. |
+| The name of a row's checkbox or radio button ("Select Hand grinder") | `label` on the row's `<tanrei-checkbox>` or `<tanrei-radio-button>`, or `aria-label` on a native one. With row headers you can leave it out: the row's header names the checkbox. |
 | The sentence of the status line ("2 of 4 selected", "Loading") | The paragraph of the status line, or `status` on the element where you write no paragraph. |
 
 Without a name for the header's checkbox, the checkbox is still drawn and works, it has no accessible name, and a debug build reports the missing word.
