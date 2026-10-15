@@ -107,6 +107,11 @@ export interface Subject {
    * landmarks of one role and name (two standard side sheets both named "Filters"), which no product page has.
    */
   axeEach?: boolean;
+  /**
+   * Axe checks its fixtures a part at a time, each part a page of its own: all of them on one page are so many nodes
+   * that one scan outruns a test's time on a slow runner (the Field's 368 fixtures are about 15 000 elements).
+   */
+  axeParts?: boolean;
 }
 export function subject(
   name: string,
@@ -118,7 +123,8 @@ export function subject(
     wholeWindow,
     alone,
     axeEach,
-  }: { icons?: boolean; reducedMotion?: boolean; window?: { width: number; height: number }; wholeWindow?: boolean; alone?: boolean; axeEach?: boolean } = {},
+    axeParts,
+  }: { icons?: boolean; reducedMotion?: boolean; window?: { width: number; height: number }; wholeWindow?: boolean; alone?: boolean; axeEach?: boolean; axeParts?: boolean } = {},
 ): Subject {
   const spec = loadSpec(name);
   return {
@@ -130,6 +136,7 @@ export function subject(
     ...(wholeWindow ? { wholeWindow } : {}),
     ...(alone ? { alone } : {}),
     ...(axeEach ? { axeEach } : {}),
+    ...(axeParts ? { axeParts } : {}),
   };
 }
 
