@@ -18,6 +18,8 @@ Hover, focus, press and drag are shown with a **state layer**: a translucent ove
 - **Only one layer is visible at a time.** When states overlap, the strongest wins: pressed over focused over hovered.
 - It fades in over a short effects transition and appears immediately on press.
 
+The quiet selection is a layer too, and the one that stays: a list's selected option, a menu's current link item and the tonal tabs' indicator are drawn in their content color at `selected-state-layer-opacity`, twice the hover layer, over whatever the item stands on. So a selected item stands as far from a hovered one as a hovered one stands from one at rest, on any surface. The hover, focus and press layers are laid over it, and the selection is never told by the fill alone: a check, a mark or the label says it too.
+
 <StateTokens />
 
 Hover and press the buttons below to see the layer on different containers:

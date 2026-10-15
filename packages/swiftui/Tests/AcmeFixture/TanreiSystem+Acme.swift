@@ -9834,7 +9834,8 @@ extension TanreiSystem {
       draggedStateLayerOpacity: 0.16,
       focusStateLayerOpacity: 0.12,
       hoverStateLayerOpacity: 0.06,
-      pressedStateLayerOpacity: 0.2
+      pressedStateLayerOpacity: 0.2,
+      selectedStateLayerOpacity: 0.16
     ),
     measure: TanreiMeasure(
       borderHairline: 1,

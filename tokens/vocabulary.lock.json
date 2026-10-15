@@ -7458,6 +7458,7 @@
     "tanrei.sys.state.focus-state-layer-opacity": "number",
     "tanrei.sys.state.hover-state-layer-opacity": "number",
     "tanrei.sys.state.pressed-state-layer-opacity": "number",
+    "tanrei.sys.state.selected-state-layer-opacity": "number",
     "tanrei.sys.target.pointer": "dimension",
     "tanrei.sys.target.spacing": "dimension",
     "tanrei.sys.target.touch": "dimension",

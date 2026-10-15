@@ -461,6 +461,7 @@ const TanreiSystem acmeSystem = TanreiSystem(
     focusStateLayerOpacity: 0.12,
     hoverStateLayerOpacity: 0.06,
     pressedStateLayerOpacity: 0.2,
+    selectedStateLayerOpacity: 0.16,
   ),
   measure: TanreiMeasure(
     borderHairline: 1.0,

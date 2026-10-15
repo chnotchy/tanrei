@@ -497,6 +497,7 @@ public data class TanreiState(
     public val focusStateLayerOpacity: Float,
     public val hoverStateLayerOpacity: Float,
     public val pressedStateLayerOpacity: Float,
+    public val selectedStateLayerOpacity: Float,
     /** Steps a design system added to the vocabulary, by token key. */
     public val extra: Map<String, Float> = emptyMap(),
 ) {
@@ -508,6 +509,7 @@ public data class TanreiState(
         "focus-state-layer-opacity" -> focusStateLayerOpacity
         "hover-state-layer-opacity" -> hoverStateLayerOpacity
         "pressed-state-layer-opacity" -> pressedStateLayerOpacity
+        "selected-state-layer-opacity" -> selectedStateLayerOpacity
         else -> extra[key]
     }
 }

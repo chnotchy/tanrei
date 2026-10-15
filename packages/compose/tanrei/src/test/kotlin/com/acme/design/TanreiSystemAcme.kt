@@ -614,6 +614,7 @@ private object AcmeSystemSource {
         focusStateLayerOpacity = 0.12f,
         hoverStateLayerOpacity = 0.06f,
         pressedStateLayerOpacity = 0.2f,
+        selectedStateLayerOpacity = 0.16f,
     )
 
     fun measure(): TanreiMeasure = TanreiMeasure(

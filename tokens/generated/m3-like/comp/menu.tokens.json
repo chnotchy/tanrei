@@ -49,7 +49,7 @@
               "separation follows sys.behavior.separation: set the sys token to change every component at once, comp.menu.separation to set the menu apart, and the menu's separation prop to set one menu apart.",
               "A checked item is told by its mark; selected.container.color is a fill that may support it. In the default system it is none at standard contrast and a layer of the row's content color at medium and high contrast, where a stronger cue is asked for. Never show a choice by the fill alone. To keep a row unfilled in every scheme, alias selected.container.color to unselected.container.color.",
               "The current link item (current) is the destination the person is at: it has no mark, so it is told by its fill, current.container.color, in every scheme. Keep that fill whatever selected.container.color is: a checked row carries a mark, the current row only its fill.",
-              "The fills of a row lie over the menu's sheet (surface.color), and a row's fill may be translucent. In the default system they are layers of the row's content color — a hovered row 8%, the current link item's row 16%, a checked row 16% at medium and high contrast, a filled row that is hovered both — so each is told from the next on any sheet. To make a fill stronger or weaker, set it in a layer (a layer of the content color, or an opaque color chosen against your own sheet); do not pick a surface tone for it without measuring it against surface.color in both themes.",
+              "The fills of a row lie over the menu's sheet (surface.color), and a row's fill may be translucent. In the default system they are layers of the row's content color — a hovered row 8%, the current link item's row the selected layer (sys.state.selected-state-layer-opacity, 16%), a checked row the same at medium and high contrast, a filled row that is hovered both — so each is told from the next on any sheet. To make a fill stronger or weaker, set it in a layer (a layer of the content color, or an opaque color chosen against your own sheet); do not pick a surface tone for it without measuring it against surface.color in both themes.",
               "checkbox-item.mark and radio-item.mark choose the default mark per kind of item. The control looks read control.* and each condition's control.color and control-mark.color; the check reads mark.size and each condition's mark.color. A product names another glyph for one item or one group with markIcon; never draw a mark of your own.",
               "Every glyph the menu draws — the check, the check inside a checked box, the submenu indicator (chevron_right) — is a glyph of the system's icon set; to change one, choose another icon set.",
               "A group's title starts where the rows' content starts (group-title.padding-inline, which follows container.padding-inline), not after the mark and icon columns.",
@@ -408,13 +408,8 @@
             },
             "opacity": {
               "$type": "number",
-              "$value": 0.16,
-              "$description": "The opacity the fill inside a checked ring is drawn at, applied to the control color of the condition and state. The radio button's own value; where the fill meets the ring it is held 3:1 against the ring on the menu's sheet, the checked row's fill under it (WCAG 1.4.11).",
-              "$extensions": {
-                "dev.tanrei.derive": {
-                  "fixed": "An opacity is a proportion; no dial scales it."
-                }
-              }
+              "$value": "{tanrei.sys.state.selected-state-layer-opacity}",
+              "$description": "The opacity the fill inside a checked ring is drawn at, applied to the control color of the condition and state: the selected layer, as the radio button's own fill is. Where the fill meets the ring it is held 3:1 against the ring on the menu's sheet, the checked row's fill under it (WCAG 1.4.11)."
             }
           }
         },
@@ -593,7 +588,7 @@
             "color": {
               "$type": "color",
               "$value": "{tanrei.comp.menu.unselected.container.color}",
-              "$description": "The fill of a checked item's row, drawn over the menu's sheet (MNU-37). A checked item is told by its mark; this fill only supports it. The role named here is the quiet selection's; the default system does not draw that tone on the sheet — it values this token as a layer of the row's own content color (selected.state-layer.color), none at standard contrast and 16% at medium and high contrast (tokens/systems/tanrei.system.json), so that a person who asks for more contrast is given the fill as a second cue. A design system that sets this token draws what it sets.",
+              "$description": "The fill of a checked item's row, drawn over the menu's sheet (MNU-37). A checked item is told by its mark; this fill only supports it. The role named here is the quiet selection's; the default system does not draw that tone on the sheet — it values this token as a layer of the row's own content color (selected.state-layer.color), none at standard contrast and the selected layer (sys.state.selected-state-layer-opacity, 16 %) at medium and high contrast (tokens/systems/tanrei.system.json), so that a person who asks for more contrast is given the fill as a second cue. A design system that sets this token draws what it sets.",
               "$extensions": {}
             }
           },
@@ -673,7 +668,7 @@
             "color": {
               "$type": "color",
               "$value": "{tanrei.sys.color.secondary-container}",
-              "$description": "The fill of the link item that names the page the person is on (MNU-58): it has no mark, so this fill tells it from its neighbours, in every contrast scheme. The default system values it as a layer of the row's own content color (current.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json); the menubar's current link item draws the same fill."
+              "$description": "The fill of the link item that names the page the person is on (MNU-58): it has no mark, so this fill tells it from its neighbours, in every contrast scheme. The default system values it as a layer of the row's own content color (current.state-layer.color at the selected layer, sys.state.selected-state-layer-opacity: 16 %, twice the hover layer: tokens/systems/tanrei.system.json); the menubar's current link item draws the same fill."
             }
           },
           "label": {

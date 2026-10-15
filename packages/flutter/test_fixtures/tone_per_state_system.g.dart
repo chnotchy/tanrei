@@ -460,6 +460,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     focusStateLayerOpacity: 0.1,
     hoverStateLayerOpacity: 0.08,
     pressedStateLayerOpacity: 0.1,
+    selectedStateLayerOpacity: 0.16,
   ),
   measure: TanreiMeasure(
     borderHairline: 1.0,

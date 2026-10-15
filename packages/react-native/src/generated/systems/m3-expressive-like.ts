@@ -719,7 +719,7 @@ export const m3ExpressiveLike = {
   },
   shape: { cornerSmoothing: 0, extraExtraLarge: 48, extraLarge: 28, extraLargeIncreased: 32, extraSmall: 4, full: 9999, large: 16, largeIncreased: 20, medium: 12, none: 0, small: 8 },
   space: { space0: 0, space25: 2, space50: 4, space75: 6, space100: 8, space125: 10, space150: 12, space175: 14, space200: 16, space250: 20, space300: 24, space400: 32, space450: 36, space500: 40, space600: 48, space700: 56, space800: 64, space900: 72 },
-  state: { disabledContainerOpacity: 0.12, disabledContentOpacity: 0.38, draggedStateLayerOpacity: 0.16, focusStateLayerOpacity: 0.12, hoverStateLayerOpacity: 0.08, pressedStateLayerOpacity: 0.12 },
+  state: { disabledContainerOpacity: 0.12, disabledContentOpacity: 0.38, draggedStateLayerOpacity: 0.16, focusStateLayerOpacity: 0.12, hoverStateLayerOpacity: 0.08, pressedStateLayerOpacity: 0.12, selectedStateLayerOpacity: 0.16 },
   measure: {
     border: { hairline: 1, thick: 2 },
     breakpoint: { expanded: 1024, medium: 600 },

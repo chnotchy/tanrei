@@ -472,6 +472,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     focusStateLayerOpacity: 0.12,
     hoverStateLayerOpacity: 0.08,
     pressedStateLayerOpacity: 0.12,
+    selectedStateLayerOpacity: 0.16,
   ),
   measure: TanreiMeasure(
     borderHairline: 1.0,

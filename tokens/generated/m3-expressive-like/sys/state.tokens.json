@@ -3,14 +3,14 @@
     "sys": {
       "state": {
         "$type": "number",
-        "$description": "State layer opacities. The layer takes the color of the content (the on-* role), and only one layer is shown at a time.",
+        "$description": "State layer opacities. The layer takes the color of the content (the on-* role), and only one interaction layer is shown at a time. The selected layer is the one that stays: it marks the chosen item and the interaction layers are laid over it.",
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product shows hover, focus, press, drag and disabled differently from each other.",
+            "rationale": "One product shows hover, focus, press, drag, selection and disabled differently from each other.",
             "since": "0.1.0"
           },
           "dev.tanrei.llm": {
-            "usage": "Opacities used by a design system's RULES to compute state colors (hover, focus, press, drag, disabled). Components do not read these directly: they read their own per-state tokens.",
+            "usage": "Opacities used by a design system's RULES to compute state colors (hover, focus, press, drag, the quiet selection, disabled). Components do not read these directly: they read their own per-state tokens.",
             "rules": [
               "To change how hover looks everywhere, change the opacity here or replace the pattern rule in your layer; do not restyle components."
             ]
@@ -43,6 +43,19 @@
         "dragged-state-layer-opacity": {
           "$value": 0.16,
           "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "An opacity is a proportion; no dial scales it."
+            }
+          }
+        },
+        "selected-state-layer-opacity": {
+          "$value": 0.16,
+          "$description": "The quiet selection: the chosen item of a set drawn as a layer of its own content color over whatever it stands on — a menu's current link item (and its checked row, at medium and high contrast), a list's selected option, the tonal tabs' indicator, the tint inside a checked radio ring. Twice the hover layer, so a selected item stands as far from a hovered one as a hovered one stands from one at rest, by the same step on any surface. The selection is never carried by this fill alone: a check, a mark or the label says it too.",
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product marks the chosen item of a list, a menu or a set of tabs with a fill that stays while the pointer is elsewhere, and needs it told apart from a hovered item on every surface it stands on.",
+              "since": "0.1.0"
+            },
             "dev.tanrei.derive": {
               "fixed": "An opacity is a proportion; no dial scales it."
             }

@@ -555,6 +555,7 @@ private object CupertinoSystemSource {
         focusStateLayerOpacity = 0.1f,
         hoverStateLayerOpacity = 0.08f,
         pressedStateLayerOpacity = 0.1f,
+        selectedStateLayerOpacity = 0.16f,
     )
 
     fun measure(): TanreiMeasure = TanreiMeasure(

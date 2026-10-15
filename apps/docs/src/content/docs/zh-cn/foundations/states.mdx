@@ -2,7 +2,7 @@
 title: 交互状态
 description: 状态层、“先留间隙、再画圆环”的焦点指示，以及禁用状态的画法。
 translationOf: foundations/states.mdx
-sourceHash: 72082392521651e7f88cd4fd4707171e4d48f3d1
+sourceHash: 473427a122fbba6ee446b96eb41a5d60b045fd6a
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -19,6 +19,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 它的不透明度来自令牌，而不是组件。
 - **同一时刻只显示一层。** 多个状态重叠时，最强的那个胜出：按下高于聚焦，聚焦高于悬停。
 - 它通过一段短促的效果过渡淡入，按下时则立即出现。
+
+低调的选中状态也是一层，而且是一直保留的那一层：列表中选中的选项、菜单中的当前链接项和 tonal 标签页的指示器，都以其内容颜色按 `selected-state-layer-opacity`（悬停层的两倍）绘制，叠在该项所处的任何表面之上。因此在任何表面上，选中项与悬停项之间的差距，都和悬停项与静止项之间的差距相同。悬停、聚焦和按下层叠在它之上；选中状态从不只靠填充来表达：勾选标记、标识或标签也会表明它。
 
 <StateTokens />
 
