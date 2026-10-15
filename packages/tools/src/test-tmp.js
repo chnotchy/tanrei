@@ -34,6 +34,25 @@ export function tempDir(purpose) {
   return dir;
 }
 
+/**
+ * The environment for a git command run in a directory a test made. Git hands its hooks the repository they run for
+ * (GIT_DIR, GIT_INDEX_FILE, …), and those variables beat `git -C <dir>`: a test run from a hook would otherwise init,
+ * configure and commit in the real repository — a commit on the branch being pushed, `core.bare` set in its config.
+ */
+export function throwawayGitEnv(env = process.env) {
+  const clean = { ...env };
+  for (const name of Object.keys(clean)) if (GIT_LOCATION.has(name)) delete clean[name];
+  return clean;
+}
+/**
+ * For a test file whose own code (not only its child processes) runs git: take the hook's repository out of this
+ * process's environment before anything runs git. Without a hook around, it changes nothing.
+ */
+export function forgetHookRepository() {
+  for (const name of GIT_LOCATION) delete process.env[name];
+}
+const GIT_LOCATION = new Set(['GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_COMMON_DIR', 'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES', 'GIT_PREFIX', 'GIT_NAMESPACE', 'GIT_CEILING_DIRECTORIES', 'GIT_DISCOVERY_ACROSS_FILESYSTEM']);
+
 /** Entries of `os.tmpdir()` that this process made and that are still there. */
 export const ownTempDirs = () => fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith(TEMP_PREFIX) && name.includes(TAG));
 
