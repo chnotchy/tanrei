@@ -3703,7 +3703,10 @@ test.describe('context menu', () => {
       await page.mouse.click(300, 200, { button: 'right' });
       await page.locator('#b1').focus();
       await page.keyboard.press('Shift+F10');
-      expect(await log(page), trigger).toEqual(['native:shown']);
+      // The right click's own menu, shown; Shift+F10 makes one too where the platform has that key (Linux, Windows).
+      const seenLog = await log(page);
+      expect(seenLog[0], trigger).toBe('native:shown');
+      expect(new Set(seenLog), trigger).toEqual(new Set(['native:shown']));
       expect(await ctxOpen(page)).toBe(false);
       expect(seen.some((w) => w.includes('MNU-60') && w.includes('"menu"')), trigger).toBe(trigger === 'menu');
     }
