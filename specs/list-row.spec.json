@@ -340,7 +340,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "lagging",
+      "status": "alpha",
       "name": "tanrei-list-row",
       "props": {
         "headline": "headline",
