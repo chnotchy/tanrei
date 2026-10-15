@@ -40771,6 +40771,501 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/list-row/list-row.styles.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "CORE_DENSITIES",
+          "type": {
+            "text": "['regular', 'compact']"
+          },
+          "default": "['regular', 'compact']",
+          "description": "The densities every design system has. A layer may add more; those get their rules on demand (LRW-14)."
+        },
+        {
+          "kind": "variable",
+          "name": "AXES",
+          "type": {
+            "text": "readonly OpenAxis[]"
+          },
+          "default": "[ { name: 'density', core: CORE_DENSITIES, default: DEFAULT_DENSITY, rules: (value, selector) => densityBlock(value, selector, DEFAULT_DENSITY), probe: (value) => `${PREFIX}-container-padding-block-${value}` as const, }, ]",
+          "description": "LRW-14: a density a layer added gets its block on demand, falling back to the default's tokens."
+        },
+        {
+          "kind": "variable",
+          "name": "styles",
+          "default": "css` ${unsafeCSS(densityBlock(DEFAULT_DENSITY, ':host'))} ${unsafeCSS( CORE_DENSITIES.filter((density) => density !== DEFAULT_DENSITY) .map((density) => densityBlock(density, `:host([density='${density}'])`)) .join('\\n'), )} /* LRW-1: a block as wide as its layout gives it; inside a box that sizes it to its content, as wide as its parts. */ :host { display: block; min-inline-size: 0; box-sizing: border-box; } :host([hidden]) { display: none; } /* LRW-1, LRW-3: the row's box — its paddings and its least height by its lines; the parts centred in the height it has. LRW-8: inside an action, a link or an option the item's paddings are the row's, and the row keeps its height less the item's own padding above and below. It draws no fill, edge or state, and sets no color of its own: the color it inherits is what a selected option hands it (LRW-9). */ .row { box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; --_h: var(--_h1); min-block-size: var(--_h); padding-block: var(--_pb); padding-inline: ${T('container-padding-inline-start')} ${T('container-padding-inline-end')}; } .row.two { --_h: var(--_h2); } .row.three { --_h: var(--_h3); } /* LST-48: after the handle of a reorderable list the item's gap is the space before the row's first part. */ .row.handled { padding-inline-start: 0; } .row.boxed { padding: 0; min-block-size: calc(var(--_h) - 2 * var(--tanrei-comp-list-container-padding-block)); } /* LRW-1: leading, text, trailing text, trailing slot, trailing glyph, the gap apart; an absent part takes no room. LRW-3: centred on the text while one or two lines, at the top of the text while three. */ .parts { display: flex; align-items: center; gap: ${T('container-gap')}; min-inline-size: 0; } .row.three .parts { align-items: flex-start; } .leading, .trailing { display: flex; flex: none; align-items: center; } .leading:not(.has), .trailing:not(.has) { display: none; } /* LRW-2: the text takes the width that is left; its lines follow one another with no space between them. */ .text { display: flex; flex: 1 1 auto; flex-direction: column; min-inline-size: 0; } .overline, .headline, .supporting, .trailing-text { display: block; min-inline-size: 0; overflow: hidden; text-align: start; } /* LRW-2: the overline and the headline are one line each, cut with an ellipsis. */ .overline, .headline, .trailing-text { white-space: nowrap; text-overflow: ellipsis; } .overline { ${role('overline')} color: ${T('overline-color')}; } .headline { ${role('headline')} color: ${T('headline-color')}; } /* LRW-2: the supporting text wraps at its spaces onto as many lines as supportingLines says, and is cut with an ellipsis at the end of the last. */ .supporting { ${role('supporting-text')} color: ${T('supporting-text-color')}; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--_lines, 1); line-clamp: var(--_lines, 1); overflow-wrap: anywhere; } /* LRW-6: the trailing text on one line, never more than half of the row's inner width, cut beyond it. */ .trailing-text { flex: none; max-inline-size: 50%; ${role('trailing-text')} color: ${T('trailing-text-color')}; } /* LRW-12: each text in its own direction, isolated from the text around it, placed and aligned by the layout's. */ bdi { unicode-bidi: isolate; } /* LRW-4, LRW-6: the glyphs of the system's icon set, decorative, drawn once the icon set can draw them. */ ${iconGlyph('.leading-icon', { size: `${PREFIX}-leading-icon-size`, selected: ':not(*)' })} ${iconGlyph('.trailing-icon', { size: `${PREFIX}-trailing-icon-size`, selected: ':not(*)' })} .leading-icon { color: ${T('leading-icon-color')}; } .trailing-icon { flex: none; color: ${T('trailing-icon-color')}; } .leading-icon:not([data-drawn]), .trailing-icon:not([data-drawn]) { visibility: hidden; } /* The ligature's own width, which GlyphDrawnController compares with the glyph box. */ .ink { display: inline-block; vertical-align: top; } /* LRW-9: in a selected option every text and glyph is the content color the item hands its content. */ .row.selected :is(.overline, .headline, .supporting, .trailing-text, .leading-icon, .trailing-icon) { color: inherit; } /* LRW-7: the tooltip of a cut headline or supporting text stands over the text; a press reaches the row under it, and the tooltip's own box takes the pointer, so that it can be hovered. Its waits are read through a transition that moves nothing (a duration token is an expression). */ .text { position: relative; } .cut-tip { position: absolute; inset: 0; display: block; pointer-events: none; } .cut-tip::part(container) { pointer-events: auto; } .tip-clock { display: none; transition-property: none; transition-delay: var(--tanrei-comp-tooltip-motion-show-delay); transition-duration: var(--tanrei-comp-tooltip-motion-hide-delay); } /* LRW-15: in forced colors the texts and glyphs are the system's text color, and its disabled color in a disabled item. */ @media (forced-colors: active) { .row :is(.overline, .headline, .supporting, .trailing-text, .leading-icon, .trailing-icon) { color: CanvasText; } .row.disabled :is(.overline, .headline, .supporting, .trailing-text, .leading-icon, .trailing-icon) { color: GrayText; } } `"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CORE_DENSITIES",
+          "declaration": {
+            "name": "CORE_DENSITIES",
+            "module": "src/components/list-row/list-row.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AXES",
+          "declaration": {
+            "name": "AXES",
+            "module": "src/components/list-row/list-row.styles.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "styles",
+          "declaration": {
+            "name": "styles",
+            "module": "src/components/list-row/list-row.styles.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/list-row/list-row.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "One row of text with something before it and something after it: an overline, a headline and a line or two of\nsupporting text; a glyph, an avatar, a picture or a control at its start; a short value, a control and a glyph at its\nend. Placed as the direct child of a `<tanrei-list-item>`, which tells it what the item is, or standing alone.\n\nContract: specs/list-row.spec.json. Every visual value is a `--tanrei-comp-list-row-*` token. The row draws no fill,\nedge or state and is never pressable: pressing, focus, selection, the check, the handle and the dividers are the\nList's. Inside an action, a link or an option the item's paddings are the row's (LRW-8), and a selected option hands\nit its content color (LRW-9). The item it is in is named by its headline and described by its other texts (LST-49).\n\nA headline or a supporting text that is cut is shown whole in a tooltip on hover, and on the keyboard focus of its\nlist item (LRW-7); assistive technology always gets the whole text.",
+          "name": "TanreiListRow",
+          "cssParts": [
+            {
+              "description": "The row's box: its paddings and its least height.",
+              "name": "container"
+            },
+            {
+              "description": "The box of the leading part.",
+              "name": "leading"
+            },
+            {
+              "description": "The glyph `leading-icon` names.",
+              "name": "leading-icon"
+            },
+            {
+              "description": "The column of the overline, the headline and the supporting text.",
+              "name": "text"
+            },
+            {
+              "description": "The line above the headline.",
+              "name": "overline"
+            },
+            {
+              "description": "The row's name.",
+              "name": "headline"
+            },
+            {
+              "description": "The text under the headline.",
+              "name": "supporting-text"
+            },
+            {
+              "description": "The short value at the row's end.",
+              "name": "trailing-text"
+            },
+            {
+              "description": "The box of the trailing slot.",
+              "name": "trailing"
+            },
+            {
+              "description": "The glyph `trailing-icon` names.",
+              "name": "trailing-icon"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Content at the row's start in place of `leading-icon`: an avatar, a picture, or — while the row is static — a checkbox, a radio button or a switch. Drawn at its own size, given no style.",
+              "name": "leading"
+            },
+            {
+              "description": "Content at the row's end, after the trailing text and before the trailing glyph: a badge, or — while the row is static — a switch, a checkbox or an icon-only Button.",
+              "name": "trailing"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "availability",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new AvailabilityController(this, 'list-row')"
+            },
+            {
+              "kind": "field",
+              "name": "headline",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The row's name, on one line, cut where it does not fit (the whole in the tooltip). The list item the row is in is named by it.",
+              "attribute": "headline"
+            },
+            {
+              "kind": "field",
+              "name": "overline",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A short line above the headline: a category, a source, a time. One line.",
+              "attribute": "overline"
+            },
+            {
+              "kind": "field",
+              "name": "supportingText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The text under the headline, on `supporting-lines` lines at most, cut on the last with an ellipsis.",
+              "attribute": "supporting-text"
+            },
+            {
+              "kind": "field",
+              "name": "supportingLines",
+              "privacy": "public",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "How many lines the supporting text may take: 1 or 2 (two make a three-line row). Another number is read as the nearer.",
+              "attribute": "supporting-lines"
+            },
+            {
+              "kind": "field",
+              "name": "leadingIcon",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of a glyph of the system's icon set at the row's start. Decorative; the leading slot's content is drawn in its place.",
+              "attribute": "leading-icon"
+            },
+            {
+              "kind": "field",
+              "name": "trailingText",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A short value at the row's end: a count, a size, a time. One line, never more than half of the row.",
+              "attribute": "trailing-text"
+            },
+            {
+              "kind": "field",
+              "name": "trailingIcon",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of a glyph of the system's icon set at the row's very end (`chevron_right`). Decorative, mirrored where the icon set says.",
+              "attribute": "trailing-icon"
+            },
+            {
+              "kind": "field",
+              "name": "density",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiListRowDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room the row takes: `regular` (56, 72, 88) or `compact` (40, 56, 72). A design system may add values.",
+              "attribute": "density",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "leadingFilled",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "trailingFilled",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "axes",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new OpenAxesController(this, { component: 'list-row', behavior: 'LRW-14', axes: AXES })",
+              "description": "LRW-14: densities a design system adds, and a value the active system does not have (src/primitives/axes.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "glyphs",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new GlyphDrawnController(this, () => this.renderRoot.querySelectorAll<HTMLElement>('.leading-icon, .trailing-icon'))",
+              "description": "LRW-4, LRW-6: the glyphs are drawn only while the icon set can draw them, and mirrored where it says they point."
+            },
+            {
+              "kind": "field",
+              "name": "mirror",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new GlyphMirrorController(this, { drawn: '.leading-icon, .trailing-icon' })"
+            },
+            {
+              "kind": "field",
+              "name": "lines",
+              "type": {
+                "text": "1 | 2 | 3"
+              },
+              "privacy": "private",
+              "description": "LRW-3: the number of lines of text.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "item",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "The list item this row is the direct child of, while that item has told it what it is."
+            },
+            {
+              "kind": "method",
+              "name": "ask",
+              "privacy": "private",
+              "description": "LST-48, LST-49: asks the item it is in for its frame, and tells it that its name may have changed."
+            },
+            {
+              "kind": "method",
+              "name": "listen",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "HTMLElement | null"
+                  }
+                }
+              ],
+              "description": "LRW-7: the item's keyboard focus shows the tooltip; Escape there is the window's (`hearEscape`)."
+            },
+            {
+              "kind": "field",
+              "name": "onItemFocus",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onItemBlur",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onPointerEnter",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onPointerLeave",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onPress",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "track",
+              "privacy": "private",
+              "description": "Keeps the set of open tooltips that Escape closes."
+            },
+            {
+              "kind": "field",
+              "name": "cutTip",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new CutTextTip({ tip: () => this.tipElement, place: () => { this.placeTip(); queueMicrotask(() => this.track()); }, content: () => this.cutContent(), clock: () => this.renderRoot?.querySelector('.tip-clock') ?? null, })",
+              "description": "LRW-7: the tooltip that shows a cut headline or supporting text whole (src/primitives/cut-text.ts), made when first wanted."
+            },
+            {
+              "kind": "field",
+              "name": "tipElement",
+              "type": {
+                "text": "TanreiTooltip | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "method",
+              "name": "placeTip",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TanreiTooltip | null"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "cutContent",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "CutTextContent | null"
+                }
+              },
+              "description": "LRW-7: what is cut — the headline, or the supporting text — as the headline alone, or the headline and the supporting text."
+            },
+            {
+              "kind": "method",
+              "name": "onLeadingChange",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "onTrailingChange",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ]
+            }
+          ],
+          "attributes": [
+            {
+              "name": "headline",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The row's name, on one line, cut where it does not fit (the whole in the tooltip). The list item the row is in is named by it.",
+              "fieldName": "headline"
+            },
+            {
+              "name": "overline",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A short line above the headline: a category, a source, a time. One line.",
+              "fieldName": "overline"
+            },
+            {
+              "name": "supporting-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The text under the headline, on `supporting-lines` lines at most, cut on the last with an ellipsis.",
+              "fieldName": "supportingText"
+            },
+            {
+              "name": "supporting-lines",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "How many lines the supporting text may take: 1 or 2 (two make a three-line row). Another number is read as the nearer.",
+              "fieldName": "supportingLines"
+            },
+            {
+              "name": "leading-icon",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of a glyph of the system's icon set at the row's start. Decorative; the leading slot's content is drawn in its place.",
+              "fieldName": "leadingIcon"
+            },
+            {
+              "name": "trailing-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "A short value at the row's end: a count, a size, a time. One line, never more than half of the row.",
+              "fieldName": "trailingText"
+            },
+            {
+              "name": "trailing-icon",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The name of a glyph of the system's icon set at the row's very end (`chevron_right`). Decorative, mirrored where the icon set says.",
+              "fieldName": "trailingIcon"
+            },
+            {
+              "name": "density",
+              "type": {
+                "text": "TanreiListRowDensity"
+              },
+              "default": "'regular'",
+              "description": "How much room the row takes: `regular` (56, 72, 88) or `compact` (40, 56, 72). A design system may add values.",
+              "fieldName": "density"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "tanrei-list-row",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TanreiListRow",
+          "declaration": {
+            "name": "TanreiListRow",
+            "module": "src/components/list-row/list-row.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "tanrei-list-row",
+          "declaration": {
+            "name": "TanreiListRow",
+            "module": "src/components/list-row/list-row.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/list/list.styles.ts",
       "declarations": [
         {
@@ -41016,6 +41511,63 @@
               "privacy": "private",
               "default": "false",
               "description": "Space activates on key-up, as a native button does, and only when the key went down on the item."
+            },
+            {
+              "kind": "field",
+              "name": "fitted",
+              "type": {
+                "text": "TanreiListItemContent[]"
+              },
+              "privacy": "private",
+              "description": "LST-48: the children that fit themselves to the item (List rows).",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "contentName",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "description": "LST-49: the name the item's List rows give it: their headlines.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "contentDescription",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "description": "LST-49: the description the item's List rows give it: their other texts.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "told",
+              "privacy": "private",
+              "default": "new WeakMap<Element, string>()",
+              "description": "The frames told last, by child, so that a child is told only a change (LST-48)."
+            },
+            {
+              "kind": "field",
+              "name": "framed",
+              "privacy": "private",
+              "default": "new Set<TanreiListItemContent>()",
+              "description": "The children told a frame, so that one that left the item is told it stands alone."
+            },
+            {
+              "kind": "method",
+              "name": "tellContent",
+              "privacy": "private",
+              "description": "LST-48: tells each child that fits itself to the item what the item is, and a child that left that it stands alone."
+            },
+            {
+              "kind": "field",
+              "name": "onContentFits",
+              "privacy": "private",
+              "readonly": true,
+              "description": "LST-48, LST-49: a List row in the content was defined, or its texts changed: it is told the frame, and the list hears the new name."
             },
             {
               "kind": "field",

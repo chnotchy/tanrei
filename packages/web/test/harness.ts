@@ -1087,6 +1087,12 @@ const STAGING: Record<string, Staging> = {
       return actionable ? content : `<span class="fixture-tile">${content}</span>`;
     },
   },
+  // A list row is 360 wide (LRW-1's verify), standing alone. What a fixture puts in its leading slot stands for the
+  // product's avatar or picture: a 40 disc of a container role holding the text as a monogram, in the label text style.
+  'list-row': {
+    css: () => `.stage > tanrei-list-row { inline-size: 360px; }
+      .stage > tanrei-list-row > [slot='leading'] { display: inline-grid; place-items: center; inline-size: 40px; block-size: 40px; border-radius: var(--tanrei-sys-shape-corner-full); background: var(--tanrei-sys-color-primary-container); color: var(--tanrei-sys-color-on-primary-container); font: var(--tanrei-sys-typescale-label-font); }`,
+  },
   // A menu fixture draws the open surface in place (MNU-19's verify): the `inline` test attribute, at its natural size,
   // with its elevation and without an anchor, placement or open motion — room below for the elevation's shadow.
   // A test's own fixture that names an `anchor` is the real overlay instead: a button with that id is drawn before it.

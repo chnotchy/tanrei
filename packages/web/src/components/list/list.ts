@@ -94,6 +94,33 @@ interface ItemContext {
 
 const NO_MOVES: Record<Move, string> = { start: '', before: '', after: '', end: '' };
 
+/** LST-48: what an item tells an element of its content that fits itself to the item (a List row). */
+export interface TanreiListItemFrame {
+  /** The item is an action, a link or an option: it pads its content and carries its states (LST-8). */
+  boxed: boolean;
+  /** The item draws the handle of a reorderable list before its content, the item's gap away (LST-32). */
+  handled: boolean;
+  /** The item is a selected option: its content takes the selected content color (LST-8). */
+  selected: boolean;
+  /** The item is a disabled action, link or option (LST-15). */
+  disabled: boolean;
+}
+
+/**
+ * LST-48, LST-49: an element that fits itself to the item it is the direct child of — a `<tanrei-list-row>`. The item
+ * sets `listItemFrame` (null once the element is no longer its child), and reads the item's name and description from it.
+ * The element fires `tanrei-list-item-content` (bubbling) when it is first defined and whenever its name or description
+ * changes, so that the item tells it the frame and the list hears the new name.
+ */
+export interface TanreiListItemContent extends HTMLElement {
+  listItemFrame: TanreiListItemFrame | null;
+  readonly listItemName: string;
+  readonly listItemDescription: string;
+}
+
+/** Whether a child of an item fits itself to the item (LST-48). */
+const fitsItem = (element: Element): element is TanreiListItemContent => 'listItemFrame' in element && 'listItemName' in element;
+
 /** The item of `list` an event came from: the first list item on its composed path whose list is `list`. */
 function itemOf(list: Element, event: Event): TanreiListItem | null {
   for (const node of event.composedPath()) {
@@ -237,6 +264,7 @@ export class TanreiListItem extends LitElement {
     this.addEventListener('keyup', this.onKeyUp);
     this.addEventListener('focusin', this.onFocusIn);
     this.addEventListener('focusout', this.onFocusOut);
+    this.addEventListener('tanrei-list-item-content', this.onContentFits);
   }
 
   /** @internal The list's side: whether the item is an option, selected, the tab stop, and where it stands. */
@@ -250,10 +278,70 @@ export class TanreiListItem extends LitElement {
     this.context = context;
   }
 
-  /** @internal The item's name: its label, else the text of its content (LST-19). */
+  /** @internal The item's name: its label, else the headline of a List row that is its child (LST-49), else the text of its content (LST-19). */
   get name(): string {
-    return spoken(this.label) || spoken(this.textContent);
+    return spoken(this.label) || this.contentName || spoken(this.textContent);
   }
+
+  /** LST-48: the children that fit themselves to the item (List rows). */
+  private get fitted(): TanreiListItemContent[] {
+    return [...this.children].filter(fitsItem);
+  }
+
+  /** LST-49: the name the item's List rows give it: their headlines. */
+  private get contentName(): string {
+    return spoken(
+      this.fitted
+        .map((child) => child.listItemName)
+        .filter(Boolean)
+        .join(' '),
+    );
+  }
+
+  /** LST-49: the description the item's List rows give it: their other texts. */
+  private get contentDescription(): string {
+    return spoken(
+      this.fitted
+        .map((child) => child.listItemDescription)
+        .filter(Boolean)
+        .join(' '),
+    );
+  }
+
+  /** The frames told last, by child, so that a child is told only a change (LST-48). */
+  private told = new WeakMap<Element, string>();
+  /** The children told a frame, so that one that left the item is told it stands alone. */
+  private framed = new Set<TanreiListItemContent>();
+
+  /** LST-48: tells each child that fits itself to the item what the item is, and a child that left that it stands alone. */
+  private tellContent() {
+    const mode = this.mode;
+    const frame: TanreiListItemFrame = { boxed: mode !== 'static', handled: this.context.reorder, selected: this.selected, disabled: mode !== 'static' && this.disabled };
+    const key = JSON.stringify(frame);
+    const now = new Set(this.fitted);
+    for (const child of this.framed) {
+      if (now.has(child) || child.parentElement === this) continue;
+      if (child.listItemFrame) child.listItemFrame = null;
+      this.told.delete(child);
+    }
+    for (const child of now) {
+      if (this.told.get(child) === key) continue;
+      this.told.set(child, key);
+      child.listItemFrame = frame;
+    }
+    this.framed = now;
+  }
+
+  /** LST-48, LST-49: a List row in the content was defined, or its texts changed: it is told the frame, and the list hears the new name. */
+  private readonly onContentFits = (event: Event) => {
+    const child = event.target as Element;
+    if (child.parentElement !== this) return;
+    event.stopPropagation();
+    this.told.delete(child);
+    this.tellContent();
+    this.requestUpdate();
+    if (this.hasUpdated) notifyItemUpdate(this, 'tanrei-list-item-update');
+  };
 
   /** @internal Whether the item takes focus in its list: an action or an option — a disabled one too (LST-15). */
   get takesFocus(): boolean {
@@ -399,6 +487,8 @@ export class TanreiListItem extends LitElement {
 
   /** The content changed: what it holds is inspected, the list hears that the item's name may have changed. */
   private onContentChange() {
+    this.tellContent();
+    this.requestUpdate();
     void this.inspectContent();
     this.reportName();
     if (this.hasUpdated) notifyItemUpdate(this, 'tanrei-list-item-update');
@@ -445,17 +535,26 @@ export class TanreiListItem extends LitElement {
     if (list instanceof TanreiList) list.requestMenuMove(this, move);
   }
 
+  /** LST-48: a List row in the content is told what the item is before the item is drawn as that. */
+  protected override willUpdate() {
+    this.tellContent();
+  }
+
   protected override updated(changed: PropertyValues<this>) {
     const { position, size, tabStop } = this.context;
     const mode = this.mode;
     const option = mode === 'option';
+    // LST-49: an option without a label is named by its List row's headline and described by the row's other texts.
+    const ownName = spoken(this.label) || this.contentName;
+    const ownDescription = this.contentDescription;
     // LST-18, LST-19: a list item — or an option with its selected state, named by its label (else by its content) —
     // with its position and the list's size.
     hostAria(this, {
       role: option ? 'option' : 'listitem',
       'aria-selected': option ? String(this.selected) : null,
       'aria-disabled': option && this.disabled ? 'true' : null,
-      'aria-label': option && spoken(this.label) ? spoken(this.label) : null,
+      'aria-label': option && ownName ? ownName : null,
+      'aria-description': option && ownDescription ? ownDescription : null,
       'aria-posinset': position ? String(position) : null,
       'aria-setsize': size ? String(size) : null,
       // LST-17: an option takes focus itself; only the list's tab stop is in the tab order.
@@ -487,8 +586,10 @@ export class TanreiListItem extends LitElement {
     const tag = link ? literal`a` : literal`div`;
     const action = interactive || !!link;
     const { reorder, size, orientation, divider } = this.context;
-    const name = spoken(this.label);
-    const description = link ? this.link.describe() : null;
+    // LST-49: named by the label, else by its List row's headline; described by the row's other texts, then by the
+    // words of a link that opens a new context (LST-28).
+    const name = spoken(this.label) || this.contentName;
+    const description = [this.contentDescription, link ? this.link.describe() : ''].filter(Boolean).join(' ') || null;
     const lone = size < 2;
     // LST-32: the handle's name, its place {label} filled with the item's name.
     const handleName = this.context.handleLabel

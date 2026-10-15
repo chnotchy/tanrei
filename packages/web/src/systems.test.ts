@@ -49,6 +49,9 @@ const SUBJECTS = [
   subject('chip', (fixture) => fixture.id === 'filter-selected', { icons: true }),
   // Two of three selected, with icons and supporting text: the row heights, paddings, text roles, the selected fill and the check.
   subject('list', (fixture) => fixture.id === 'multiple-selected', { icons: true }),
+  // Every part at once: each preset's row height, paddings, gap, the headline's role (body-large in m3-like and
+  // cupertino), the overline's, the supporting and trailing texts' roles and colors, and both glyphs.
+  subject('list-row', (fixture) => fixture.id === 'all-parts', { icons: true }),
   // Titled groups of checkbox and radio items: the surface's color, corners, elevation, padding, the rows, the titles and the divider.
   subject('menu', (fixture) => fixture.id === 'group-titles', { icons: true }),
   // Keys joined by +: each preset's cap fill, edge and deeper bottom edge, height, padding and corners (eased in

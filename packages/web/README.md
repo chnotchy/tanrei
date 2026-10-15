@@ -4108,7 +4108,7 @@ focusable by `focus()`, by a pointer and by assistive technology. The chip itsel
 
 ## `<tanrei-list>`
 
-A box that holds your own items — rows, tiles, cards, files — in one column, one line, or lines that wrap into a grid; people read them, open them one by one, choose from them, or drag them into another order (`specs/list.spec.json`, LST-1…47).
+A box that holds your own items — rows, tiles, cards, files — in one column, one line, or lines that wrap into a grid; people read them, open them one by one, choose from them, or drag them into another order (`specs/list.spec.json`, LST-1…49).
 
 ```html
 <tanrei-list gap="small" dividers>
@@ -4223,6 +4223,52 @@ put it in your own scroll container. A line wider than the list goes past its en
   are `Intl.NumberFormat`'s for the nearest `lang`.
 - **Removal (LST-46).** When you remove the item that holds focus, focus goes to the handle of the item now standing
   there, else of the one before it; with no item left, it is yours. Nothing is announced.
+
+## `<tanrei-list-row>`
+
+`specs/list-row.spec.json` (LRW-1 to LRW-15): one row of text with something before it and something after it — an
+overline, a headline and a line or two of supporting text; a glyph, an avatar, a picture or a control at its start; a
+short value, a control and a glyph at its end. Put it as the direct child of a `<tanrei-list-item>`, or on its own. It
+draws no fill, edge or state and is never pressable: a row that opens something is the content of an `interactive` or
+`href` item, a row that is chosen the content of an option.
+
+```html
+<tanrei-list dividers>
+  <tanrei-list-item interactive>
+    <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected to Harbour" trailing-icon="chevron_right"></tanrei-list-row>
+  </tanrei-list-item>
+  <tanrei-list-item>
+    <tanrei-list-row headline="Bluetooth">
+      <tanrei-switch slot="trailing" label="Bluetooth" label-hidden></tanrei-switch>
+    </tanrei-list-row>
+  </tanrei-list-item>
+</tanrei-list>
+<tanrei-list-row overline="Shared" headline="Harbour photos" supporting-text="48 items" trailing-text="2.4 GB"></tanrei-list-row>
+```
+
+| `<tanrei-list-row>` | Type | Default | |
+|---|---|---|---|
+| `headline` | string | `''` | the row's name, one line, cut with an ellipsis (whole in the tooltip); the item it is in is named by it |
+| `overline` | string | `''` | a short line above the headline, one line |
+| `supporting-text` (`supportingText`) | string | `''` | the text under the headline, cut on its last line |
+| `supporting-lines` (`supportingLines`) | number | `1` | 1 or 2 lines of supporting text; another number is the nearer, reported |
+| `leading-icon` (`leadingIcon`) | string | `''` | a glyph of the icon set at the start, decorative; the `leading` slot's content replaces it |
+| `trailing-text` (`trailingText`) | string | `''` | a short value at the end, never more than half of the row |
+| `trailing-icon` (`trailingIcon`) | string | `''` | a glyph at the very end (`chevron_right`), decorative, mirrored where the icon set says |
+| `density` | `regular` \| `compact` | `regular` | 56, 72, 88 or 40, 56, 72 for one, two, three lines under the default system; reflected; open |
+
+Slots: `leading` (an avatar, a picture, or in a static row a control), `trailing` (a badge, or in a static row a control).
+Parts: `container`, `leading`, `leading-icon`, `text`, `overline`, `headline`, `supporting-text`, `trailing-text`,
+`trailing`, `trailing-icon`. No events.
+
+The seam with the List (LST-48, LST-49): a `<tanrei-list-item>` sets an internal `listItemFrame` property on each
+direct child that has one — whether the item is an action, a link or an option (it pads the row, so the row draws no
+padding of its own and keeps its height), whether it draws a reorderable list's handle (the row drops its start
+padding), whether it is a selected option (the row takes the item's content color) and whether it is disabled — and
+reads `listItemName` (the headline) and `listItemDescription` (the other texts) from it, for its name, its handle's
+name, typeahead, announcements and the description of an action, a link or an option. A row nested deeper in the
+item's content is told nothing and draws itself as standing alone. The row tells its item when its texts change with an
+internal `tanrei-list-item-content` event.
 
 ## `<tanrei-menu>`
 

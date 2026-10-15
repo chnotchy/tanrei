@@ -164,7 +164,7 @@
     },
     {
       "id": "LRW-8",
-      "text": "WHILE a list row is the content of a list item that is an action, a link or an option (LST-48) THE list row SHALL draw no padding of its own — the item's paddings are the row's (LST-8) — and SHALL be at least its height (LRW-3) less twice comp.list.container.padding-block tall, so that the item is as tall as the row standing alone and a column that mixes static items and actions keeps one height; WHILE it stands alone, or is the content of a static item or of an item of a reorderable list, THE list row SHALL draw its own paddings (LRW-1). The row SHALL fit every arrangement of the List: in a column it is as wide as the list; in a line it is as wide as its parts and never cut; in lines that wrap it is never wider than the list, and cut where it must be; in a reorderable list the List's handle stands before it, the item's gap away.",
+      "text": "WHILE a list row is the content of a list item that is an action, a link or an option (LST-48) THE list row SHALL draw no padding of its own — the item's paddings are the row's (LST-8) — and SHALL be at least its height (LRW-3) less twice comp.list.container.padding-block tall, so that the item is as tall as the row standing alone and a column that mixes static items and actions keeps one height; WHILE it stands alone, or is the content of a static item or of an item of a reorderable list, THE list row SHALL draw its own paddings (LRW-1). The row SHALL fit every arrangement of the List: in a column it is as wide as the list; in a line it is as wide as its parts and never cut; in lines that wrap it is never wider than the list, and cut where it must be; in a reorderable list the List's handle stands before it, the item's gap away, and THE list row SHALL draw no padding before its first part, the handle and that gap standing in its place.",
       "verify": "In a list of the fixture's rows, an interactive item, a link item and an option that hold the row of two-line are 72 tall, as the row of two-line standing alone is, and the headline starts comp.list.container.padding-inline-start from the item's start edge. In a reorderable list the handle stands before the row's leading glyph."
     },
     {
@@ -340,7 +340,7 @@
   ],
   "platforms": {
     "web": {
-      "status": "planned",
+      "status": "lagging",
       "name": "tanrei-list-row",
       "props": {
         "headline": "headline",
