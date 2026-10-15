@@ -84,3 +84,17 @@ test.describe('in a box as wide as its content', () => {
     });
   }
 });
+
+test('every fixture is in one part of its component, in the spec’s order, and no part has more than PART', () => {
+  for (const spec of specs) {
+    const units = parts(spec);
+    expect(units.flatMap((unit) => (unit.fixtures ?? spec.fixtures).map((f) => f.id)), spec.name).toEqual(spec.fixtures.map((f) => f.id));
+    if (IN_PARTS.has(spec.name)) {
+      expect(units.length, `${spec.name}: stood in parts`).toBeGreaterThan(1);
+      for (const unit of units) expect(unit.fixtures!.length, unit.name).toBeLessThanOrEqual(PART);
+    }
+    expect(new Set(units.map((unit) => unit.name)).size, spec.name).toBe(units.length);
+  }
+  // A component named here that has no spec, or no built element, would stand in no box at all.
+  for (const name of IN_PARTS) expect(specs.map((spec) => spec.name), name).toContain(name);
+});
