@@ -25,9 +25,9 @@ export type TanreiTableDensity = keyof TanreiTableDensityRegistry;
 export type TanreiTableSeparation = SeparationProp;
 /** The order a sortable column's header asks for (TBL-34). */
 export type TanreiTableSortDirection = 'ascending' | 'descending';
-/** Whether rows can be chosen (TBL-42): `multiple` draws a checkbox before the first column of every row that has a value. */
-export type TanreiTableSelection = 'none' | 'multiple';
-/** What `selectionchange` carries: the values of the chosen rows after the change, in row order. */
+/** Whether rows can be chosen, and how many (TBL-42): `multiple` draws a checkbox before the first column of every row that has a value, `single` a radio button (TBL-60). */
+export type TanreiTableSelection = 'none' | 'single' | 'multiple';
+/** What `selectionchange` carries: the values of the chosen rows after the change, in row order — one at most under `single`. */
 export interface TanreiTableSelectionChangeDetail {
   values: string[];
 }
@@ -81,18 +81,21 @@ const KEY = /^[a-z0-9][a-z0-9-]*$/;
 /** The sections of a table and their rows, as table.css reaches them. */
 const ROWS = ':where(tanrei-table) > :where(table) > :where(thead, tbody, tfoot) > :where(tr)';
 /** What the observer re-reads the table for, besides its children. */
-const ATTRIBUTES = ['data-align', 'data-wrap', 'align', 'colspan', 'id', 'aria-label', 'aria-labelledby', 'aria-sort', 'data-part', 'data-value', 'data-selected', 'data-placeholder'];
-/** The cell that holds a row's checkbox (TBL-42), and the checkbox in it: Tanrei's, or the browser's own. */
+const ATTRIBUTES = ['data-align', 'data-wrap', 'align', 'colspan', 'id', 'aria-label', 'aria-labelledby', 'aria-sort', 'data-part', 'data-value', 'data-selected', 'data-placeholder', 'name'];
+/** The cell that holds a row's control (TBL-42), and the control in it: a checkbox, or under single selection a radio button (TBL-60) — Tanrei's, or the browser's own. */
 const SELECTION_CELL = '[data-part="selection"]';
 const CHECKBOX = ':scope > tanrei-checkbox, :scope > input[type="checkbox"]';
+const RADIO = ':scope > tanrei-radio-button, :scope > input[type="radio"]';
+/** The element each kind of selection is drawn with, and the kind of native input that stands for it. */
+const KINDS = { multiple: { tag: 'tanrei-checkbox', input: 'checkbox', control: CHECKBOX }, single: { tag: 'tanrei-radio-button', input: 'radio', control: RADIO } } as const;
 /** TBL-58: how far a press may move and still be a press of its row — the platform's touch slop. */
 const SLOP = SHEET_TOUCH_SLOP;
 /** TBL-59: the row a fine pointer is over where a press would change its checkbox, and the moment its own cursor is set aside. */
 const HIT = 'data-tanrei-hit';
 const READING = 'data-tanrei-reading';
 const modified = (event: MouseEvent) => event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
-/** A checkbox of either kind, as far as the table reads and writes it. */
-type Checkbox = HTMLElement & { checked?: boolean; indeterminate?: boolean; disabled?: boolean; label?: string; labelHidden?: boolean };
+/** A row's control — a checkbox, or a radio button (TBL-60) — Tanrei's or the browser's, as far as the table reads and writes it. */
+type Checkbox = HTMLElement & { checked?: boolean; indeterminate?: boolean; disabled?: boolean; label?: string; labelHidden?: boolean; name?: string };
 const isNative = (box: Checkbox): box is HTMLInputElement => box.localName === 'input';
 /** Whether a checkbox is checked: its property, or — for an element that is not defined yet — its attribute. */
 const checkedOf = (box: Checkbox) => box.checked ?? box.hasAttribute('checked');
@@ -167,6 +170,8 @@ function positionSheet(columns: number, count: number): CSSStyleSheet | null {
 }
 
 let captions = 0;
+/** TBL-60: the name a table gives the radio buttons the product gave none, so that they are one group. */
+let groups = 0;
 
 /**
  * TBL-26: nothing tells a script that the layout direction it inherits changed, and no engine agrees on what becomes
@@ -337,6 +342,14 @@ function mark(element: Element, name: string, value: string | null) {
  * press itself (a link, a button, a field), at the end of a drag or a text selection, with a modifier key, or on the
  * second click of a double click; the row is drawn hovered and pressed as one. The keyboard stays on the checkbox.
  *
+ * One row at most: `selection="single"`, and in each body row's selection cell a radio button in place of the
+ * checkbox (`<tanrei-radio-button label-hidden name="product" label="Select Kettle">`, or a native
+ * `<input type="radio" name="product" aria-label="…">`); the header row's selection cell stays empty. The radio buttons
+ * share one name — the element gives one to those that have none — so they are one group: one Tab stop, the arrow keys
+ * move the choice from row to row. Choosing a row lets the chosen one go, and `selectionchange` carries the one value;
+ * the chosen row's radio button, or a press on that row, changes nothing (a radio is not cleared by its own
+ * activation). To choose no row again, remove `data-selected` yourself.
+ *
  * ```html
  * <tanrei-table selection="multiple" row-headers select-all-label="Select all products">
  *   <table>
@@ -359,7 +372,7 @@ function mark(element: Element, name: string, value: string | null) {
  *
  * @tag tanrei-table
  * @fires sort - The user pressed the header of a sortable column. `detail`: `{ column, index, direction }` — the header cell's `data-value`, its place among the columns of data (from 0) and the direction asked for (`ascending`, or `descending` where the rows ascend by it). The table changes nothing. Cancelable where the control is an anchor: cancelled, the link is not followed.
- * @fires selectionchange - The user changed which rows are chosen, by a row's checkbox or by the header's. `detail`: `{ values }` — the `data-value` of every chosen row after the change, in row order. Not emitted for what the product writes.
+ * @fires selectionchange - The user changed which rows are chosen, by a row's checkbox or radio button (or a press on the row, or an arrow key on a radio button) or by the header's checkbox. `detail`: `{ values }` — the `data-value` of every chosen row after the change, in row order; under `single`, the one chosen row's. Not emitted for what the product writes.
  * @slot - The native `<table>`: an optional `<caption>`, a `<thead>` of one row of `<th scope="col">`, one or more `<tbody>`, an optional `<tfoot>`. It is a child in the document, not a slotted node: the element has no shadow root.
  * @cssprop --tanrei-comp-table-sticky-container-color - The fill of a header row and a first column that are kept in view: the color of the surface the table sits on. Set it on a table inside a card, a dialog or a sheet.
  */
@@ -423,13 +436,14 @@ export class TanreiTable extends ReactiveElement {
   status = '';
 
   /**
-   * Whether rows can be chosen. `multiple`: every body row that has a `data-value` and a first cell
+   * Whether rows can be chosen, and how many. `multiple`: every body row that has a `data-value` and a first cell
    * `<td data-part="selection">` holding a checkbox can be chosen, and the header row's selection cell holds the
-   * checkbox for every row. `none` draws no selection column and ignores a row's `data-selected`.
+   * checkbox for every row. `single`: the selection cell holds a radio button instead, the header row's holds nothing,
+   * and one row at most is chosen. `none` draws no selection column and ignores a row's `data-selected`.
    */
   selection: TanreiTableSelection = 'none';
 
-  /** The accessible name of the header row's checkbox ("Select all rows"). Not drawn. From the product's words (`selectAllLabel`) where the instance gives none. */
+  /** The accessible name of the header row's checkbox ("Select all rows"). Not drawn; read only under `multiple`. From the product's words (`selectAllLabel`) where the instance gives none. */
   selectAllLabel = '';
 
   /**
@@ -484,6 +498,9 @@ export class TanreiTable extends ReactiveElement {
   private readonly chosen = new WeakMap<HTMLTableRowElement, boolean>();
   /** The checkboxes this element named, with the name it gave: only that is written again or taken away (TBL-46). */
   private readonly named = new WeakMap<Checkbox, string>();
+  /** TBL-60: the radio buttons this element gave a group's name, and the name it gives them. */
+  private readonly grouped = new Map<Checkbox, string>();
+  private readonly groupName = `tanrei-table-${++groups}`;
   /** The rows this element hid from assistive technology (TBL-50), and whether it wrote the busy state (TBL-49). */
   private readonly hiddenRows = new Set<HTMLTableRowElement>();
   private busied: HTMLTableElement | null = null;
@@ -538,7 +555,7 @@ export class TanreiTable extends ReactiveElement {
     }
     if (changed.has('density')) this.readDensity();
     // TBL-42: a selection the table does not define is none (no rule matches the attribute); a debug build says so.
-    if (changed.has('selection') && this.selection !== 'none' && this.selection !== 'multiple') {
+    if (changed.has('selection') && this.selection !== 'none' && this.selection !== 'single' && this.selection !== 'multiple') {
       report(this, 'TBL-42', `selection "${String(this.selection)}" is not a value the table defines; it is drawn as "none"`);
     }
     this.read();
@@ -839,7 +856,7 @@ export class TanreiTable extends ReactiveElement {
 
   /** How rows are chosen now: a selection the table does not define is none (TBL-42). */
   private get mode(): TanreiTableSelection {
-    return this.selection === 'multiple' ? 'multiple' : 'none';
+    return this.selection === 'multiple' || this.selection === 'single' ? this.selection : 'none';
   }
 
   /**
@@ -871,10 +888,14 @@ export class TanreiTable extends ReactiveElement {
     }
   }
 
-  /** The checkbox a row holds in its selection cell: the product's `<tanrei-checkbox>`, or its native one. */
+  /**
+   * The control a row holds in its selection cell, of the kind the selection draws: a checkbox under `multiple`, a
+   * radio button under `single` (TBL-60) — the product's Tanrei element, or its native one. A control of the other
+   * kind is none: the row cannot be chosen (and table.css does not draw it).
+   */
   private boxIn(row: HTMLTableRowElement | null | undefined): Checkbox | null {
     const cell = row?.cells[0];
-    return cell?.matches(SELECTION_CELL) ? cell.querySelector<Checkbox>(CHECKBOX) : null;
+    return cell?.matches(SELECTION_CELL) ? cell.querySelector<Checkbox>(this.mode === 'single' ? RADIO : CHECKBOX) : null;
   }
 
   /** TBL-42, TBL-45, TBL-50: the body rows that can be chosen — each has a value and a checkbox, and is no placeholder — in row order. */
@@ -898,18 +919,24 @@ export class TanreiTable extends ReactiveElement {
    * page has without script, TBL-57). Its cost is the rows', and only while rows can be chosen.
    */
   private readSelection(table: HTMLTableElement) {
-    const on = this.mode === 'multiple';
-    this.listenChoices(on);
-    if (!on) return;
+    const mode = this.mode;
+    this.listenChoices(mode !== 'none');
+    this.group(mode === 'single' ? table : null);
+    if (mode === 'none') return;
     let pending = false;
     let picked = 0;
     const rows = this.choosable(table);
-    for (const [row, box] of rows) {
-      pending ||= !isNative(box) && !box.matches(':defined');
+    // What each row says now: the row says something else than when it was last read — the product wrote it. Else
+    // the control is right.
+    const read = rows.map(([row, box]) => {
       const said = row.hasAttribute('data-selected');
       const before = this.chosen.get(row);
-      // The row says something else than when it was last read: the product wrote it. Else the checkbox is right.
       const now = before === undefined ? said || checkedOf(box) : said !== before ? said : checkedOf(box);
+      return { row, box, now, written: now && (before === undefined || said !== before) };
+    });
+    if (mode === 'single') this.one(read);
+    for (const { row, box, now } of read) {
+      pending ||= !isNative(box) && !box.matches(':defined');
       this.chosen.set(row, now);
       mark(row, 'data-selected', now ? '' : null);
       if (checkedOf(box) !== now) box.checked = now;
@@ -917,7 +944,8 @@ export class TanreiTable extends ReactiveElement {
       this.nameRow(row, box);
       if (now) picked++;
     }
-    const all = this.boxIn(table.tHead?.rows[0]);
+    if (debugBuild()) this.checkKinds(table);
+    const all = mode === 'multiple' ? this.boxIn(table.tHead?.rows[0]) : null;
     if (all) {
       pending ||= !isNative(all) && !all.matches(':defined');
       // TBL-45: checked while every row is chosen, mixed while some are, unchecked while none is; disabled with no row.
@@ -928,16 +956,72 @@ export class TanreiTable extends ReactiveElement {
       this.fit(all);
       this.nameAll(all);
     }
-    // A checkbox that is not defined yet is written to all the same (it reads its properties when it is), and read
+    // A control that is not defined yet is written to all the same (it reads its properties when it is), and read
     // again then.
     if (pending && !this.awaited) {
       this.awaited = true;
-      void customElements.whenDefined('tanrei-checkbox').then(() => {
+      void customElements.whenDefined(KINDS[mode].tag).then(() => {
         this.awaited = false;
         this.read();
       });
     }
     this.keepBoxFocus(table);
+  }
+
+  /**
+   * TBL-60: one row at most is chosen. Where more than one says it is, the one the product wrote last stands — of
+   * several written at once, the first in row order — and the others are let go, without an event; a debug build says
+   * when several were written at once.
+   */
+  private one(read: { row: HTMLTableRowElement; now: boolean; written: boolean }[]) {
+    const chosen = read.filter((each) => each.now);
+    if (chosen.length < 2) return;
+    const written = chosen.filter((each) => each.written);
+    const kept = written[0] ?? chosen[0];
+    for (const each of chosen) if (each !== kept) each.now = false;
+    if (written.length > 1) report(this, 'TBL-60', `${written.length} rows are marked as chosen while selection is single; the first of them is drawn chosen`);
+  }
+
+  /**
+   * TBL-60: the radio buttons of the table are one group — the options of one name. Those the product named keep their
+   * name; those it did not take the product's (the first name among them) or, where it named none, the table's own.
+   * Called with no table, it takes back every name it gave.
+   */
+  private group(table: HTMLTableElement | null) {
+    const boxes = table ? this.choosable(table).map(([, box]) => box) : [];
+    const own = (box: Checkbox) => (box.getAttribute('name') ?? '') !== '' && this.grouped.get(box) !== box.getAttribute('name');
+    const name = boxes.find(own)?.getAttribute('name') ?? this.groupName;
+    for (const box of boxes) {
+      if (own(box)) {
+        this.grouped.delete(box);
+        continue;
+      }
+      if (box.getAttribute('name') !== name) box.setAttribute('name', name);
+      this.grouped.set(box, name);
+    }
+    for (const [box, given] of this.grouped) {
+      if (boxes.includes(box)) continue;
+      if (box.getAttribute('name') === given) box.removeAttribute('name');
+      this.grouped.delete(box);
+    }
+  }
+
+  /** TBL-60: a debug build says where a selection cell holds a control the selection does not draw. */
+  private checkKinds(table: HTMLTableElement) {
+    const mode = this.mode;
+    if (mode === 'none') return;
+    const other = mode === 'single' ? CHECKBOX : RADIO;
+    const head = table.tHead?.rows[0]?.cells[0];
+    if (mode === 'single' && head?.matches(SELECTION_CELL) && head.children.length) report(this, 'TBL-60', 'the header row holds a control while selection is single; no control stands for every row, and it is not drawn');
+    for (const body of table.tBodies) {
+      for (const row of body.rows) {
+        const cell = row.cells[0];
+        if (cell?.matches(SELECTION_CELL) && cell.querySelector(other)) {
+          report(this, 'TBL-60', `a row holds a ${mode === 'single' ? 'checkbox' : 'radio button'} while selection is ${mode}; it is not drawn, and the row cannot be chosen`);
+          return;
+        }
+      }
+    }
   }
 
   /** TBL-42: a checkbox of the selection column draws no label. */
@@ -1018,9 +1102,12 @@ export class TanreiTable extends ReactiveElement {
     }
   }
 
-  /** The checkbox an event came from, in a selection cell of this table's own rows, and its row: a table inside a cell is the product's. */
+  /** The control an event came from — of the kind the selection draws — in a selection cell of this table's own rows, and its row: a table inside a cell is the product's. */
   private choiceOf(target: EventTarget | null): { box: Checkbox; row: HTMLTableRowElement } | null {
-    const box = target instanceof HTMLElement && (target.localName === 'tanrei-checkbox' || (target.localName === 'input' && (target as HTMLInputElement).type === 'checkbox')) ? (target as Checkbox) : null;
+    const mode = this.mode;
+    if (mode === 'none') return null;
+    const kind = KINDS[mode];
+    const box = target instanceof HTMLElement && (target.localName === kind.tag || (target.localName === 'input' && (target as HTMLInputElement).type === kind.input)) ? (target as Checkbox) : null;
     const cell = box?.parentElement;
     const row = cell?.parentElement;
     if (!box || !cell?.matches(SELECTION_CELL) || !(row instanceof HTMLTableRowElement) || row.cells[0] !== cell || row.parentElement?.parentElement !== this.table) return null;
@@ -1030,15 +1117,25 @@ export class TanreiTable extends ReactiveElement {
   /**
    * TBL-44, TBL-45: the user changed a checkbox — by a press or by Space, which the checkbox makes one `change`. A
    * row's: the row is chosen as its checkbox now says. The header's: every row that can be chosen is chosen, or — where
-   * every one was — none is. Then `selectionchange`, exactly once, with the values after the change in row order.
+   * every one was — none is. TBL-60: a radio button is changed only to checked (by a press, Space or an arrow key; the
+   * chosen one fires nothing): its row is chosen and every other one let go. Then `selectionchange`, exactly once, with
+   * the values after the change in row order.
    */
   private readonly onChange = (event: Event) => {
     const choice = this.choiceOf(event.target);
     const table = this.table;
-    if (!choice || !table || this.mode !== 'multiple') return;
+    if (!choice || !table) return;
     const { box, row } = choice;
     const rows = this.choosable(table);
-    if (row.parentElement?.localName === 'thead') {
+    if (this.mode === 'single') {
+      if (!rows.some(([each]) => each === row) || !checkedOf(box)) return;
+      for (const [each, own] of rows) {
+        const now = each === row;
+        this.chosen.set(each, now);
+        mark(each, 'data-selected', now ? '' : null);
+        if (!now && checkedOf(own)) own.checked = false;
+      }
+    } else if (row.parentElement?.localName === 'thead') {
       const every = rows.length > 0 && rows.every(([each]) => this.chosen.get(each) ?? each.hasAttribute('data-selected'));
       for (const [each, own] of rows) {
         this.chosen.set(each, !every);
@@ -1056,13 +1153,15 @@ export class TanreiTable extends ReactiveElement {
     this.dispatchEvent(new CustomEvent<TanreiTableSelectionChangeDetail>('selectionchange', { detail: { values }, bubbles: true, composed: true }));
   };
 
-  /** TBL-47: a checkbox's hit area is its whole selection cell — a press on the cell beside the checkbox is the checkbox's. */
+  /** TBL-47: a control's hit area is its whole selection cell — a press on the cell beside the checkbox or radio button is the control's. */
   private readonly onCellClick = (event: Event) => {
     const cell = event.target;
     if (!(cell instanceof HTMLTableCellElement) || !cell.matches(SELECTION_CELL) || cell.parentElement?.parentElement?.parentElement !== this.table) return;
     const row = cell.parentElement as HTMLTableRowElement;
-    if (row.cells[0] !== cell || this.mode !== 'multiple') return;
+    if (row.cells[0] !== cell || this.mode === 'none') return;
+    // TBL-60: under single selection the header row holds no control.
     const head = row.parentElement?.localName === 'thead';
+    if (head && this.mode === 'single') return;
     if (!head && (row.parentElement?.localName !== 'tbody' || !row.getAttribute('data-value') || row.hasAttribute('data-placeholder'))) return;
     const box = this.boxIn(row);
     if (box && !box.disabled) box.click();
@@ -1096,7 +1195,7 @@ export class TanreiTable extends ReactiveElement {
    * itself; the row's own pointer cursor is set aside while the cursor the product gave what is pressed is read.
    */
   private rowTargetOf(event: Event): { row: HTMLTableRowElement; inCell: boolean } | null {
-    if (this.mode !== 'multiple') return null;
+    if (this.mode === 'none') return null;
     const path = event.composedPath();
     const row = path.find((node): node is HTMLTableRowElement => node instanceof HTMLTableRowElement);
     const body = row?.parentElement;
@@ -1207,7 +1306,7 @@ export class TanreiTable extends ReactiveElement {
     if (Math.hypot(click.clientX - press.x, click.clientY - press.y) > SLOP || this.rowTargetOf(click)?.row !== press.row) return;
     const { row } = press;
     setTimeout(() => {
-      if (event.defaultPrevented || this.mode !== 'multiple' || row.parentElement?.parentElement !== this.table || this.selects(row)) return;
+      if (event.defaultPrevented || this.mode === 'none' || row.parentElement?.parentElement !== this.table || this.selects(row)) return;
       const box = this.boxIn(row);
       if (box && !box.disabled) box.click();
     });
@@ -1394,7 +1493,7 @@ export class TanreiTable extends ReactiveElement {
     const first = this.stickyFirstColumn ? (table?.rows[0]?.cells[0] ?? null) : null;
     // TBL-42: with a selection column the first column is the one after it, and the two are kept — and let go — together.
     const lead = first?.matches(SELECTION_CELL) ? (first.nextElementSibling as HTMLElement | null) : first;
-    const select = first && first !== lead && this.mode === 'multiple' ? first : null;
+    const select = first && first !== lead && this.mode !== 'none' ? first : null;
     const released = !!lead && lead.offsetWidth + (select?.offsetWidth ?? 0) > this.clientWidth / 2;
     return {
       scrolls: !!table && (range > SLACK || this.scrollHeight - this.clientHeight > SLACK),

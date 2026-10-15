@@ -1,7 +1,7 @@
 /*
  * Table (specs/table.spec.json, TBL-1 to TBL-57): data that has rows and columns — named
  * columns, optional row headers, a caption, footer rows — that scrolls in its own box when it does not fit. A column's
- * header can ask for the rows in its order, and rows can be chosen by a checkbox each; the table itself never sorts,
+ * header can ask for the rows in its order, and rows can be chosen by a checkbox or a radio button each; the table itself never sorts,
  * filters, fetches or pages.
  *
  * `<tanrei-table>` is an element with no shadow root around the product's own native table, which stays in the
@@ -18,7 +18,7 @@
  *   </tanrei-table>
  *
  * Attributes of the wrapper: `density` (regular | compact), `separation` (auto | divider | gap), `striped`,
- * `row-headers`, `sticky-header`, `sticky-first-column`, `selection` (none | multiple), `loading`, `label`, `caption`,
+ * `row-headers`, `sticky-header`, `sticky-first-column`, `selection` (none | single | multiple), `loading`, `label`, `caption`,
  * `status`. Attributes of a cell:
  * `data-align` (start | center | end) and `data-wrap="false"`; a renderer's own `align` (left, center, right) is read
  * as start, center and end.
@@ -52,6 +52,13 @@
  *     <th scope="row">Kettle</th>
  *   </tr></tbody>
  *
+ * Under `selection="single"` (TBL-60) one row at most is chosen: a body row's selection cell holds a radio button
+ * instead — a `<tanrei-radio-button label-hidden>` or a native one, all of one name — and the header row's holds
+ * nothing.
+ *
+ *   <tbody><tr data-value="kettle" data-selected>
+ *     <td data-part="selection"><tanrei-radio-button label-hidden name="product" label="Select Kettle" checked></tanrei-radio-button></td>
+ *
  * A row that stands for a record that has not arrived (TBL-50): `<tr data-placeholder aria-hidden="true">`, its cells
  * empty or holding a Skeleton's placeholder (`<span class="tanrei-skeleton-placeholder"></span>`, skeleton.css).
  *
@@ -70,7 +77,7 @@
  *   data-selection-kept, and `--_table-selection-size` in the wrapper's style
  *                                    the selection column is kept in view with the first column, which is held where
  *                                    the selection column ends — a length that has to be measured (TBL-42)
- *   data-selected (on a body row)    kept in step with the row's checkbox (TBL-44)
+ *   data-selected (on a body row)    kept in step with the row's checkbox or radio button (TBL-44)
  *   data-tanrei-hit (on a body row)  a fine pointer is over a row that can be chosen where a press would change its
  *                                    checkbox: the row is drawn hovered, with the pointer cursor (TBL-59)
  *   data-tanrei-reading (on a body row)   for the moment the element reads the cursor the product gave what is
@@ -357,10 +364,10 @@
     font-weight: var(--_table-cell-emphasized);
   }
   /* TBL-6, TBL-42: in a table whose rows can be chosen the first column is the one after the selection column. */
-  :where(tanrei-table[row-headers][selection='multiple']) > :where(table) > :where(tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child) {
+  :where(tanrei-table[row-headers]:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child) {
     font-weight: inherit;
   }
-  :where(tanrei-table[row-headers][selection='multiple']) > :where(table) > :where(tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child + td) {
+  :where(tanrei-table[row-headers]:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child + td) {
     font-weight: var(--_table-cell-emphasized);
   }
 
@@ -386,15 +393,16 @@
   }
 
   /* ── Rows that can be chosen (TBL-42 to TBL-47): a selection column before the first column ──────────────────── */
-  /* TBL-42: while selection is none there is no such column and no checkbox, whatever the markup holds. */
-  :where(tanrei-table:not([selection='multiple'])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
+  /* TBL-42: while selection is none there is no such column and no checkbox or radio button, whatever the markup holds. */
+  :where(tanrei-table:not([selection='multiple'], [selection='single'])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
     display: none;
   }
   /* The selection cell: no share of the width the columns of data are given — the column is as wide as the checkbox
-     and its paddings (a cell is never narrower than what it holds). The paddings are a cell's less half of what the
-     Checkbox's round container exceeds its box by, so that the box, not the container, stands at the cell's padding,
-     on the line the text of the other cells starts at; the container reaches into the padding. */
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
+     or radio button and its paddings (a cell is never narrower than what it holds). The paddings are a cell's less
+     half of what the control's round container exceeds its box (the Checkbox's) or its ring (the Radio button's) by,
+     so that the box or the ring, not the container, stands at the cell's padding, on the line the text of the other
+     cells starts at; the container reaches into the padding. */
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
     box-sizing: border-box;
     inline-size: 0;
     --_table-select-pad: max(0px, var(--_table-pad-inline) - (var(--tanrei-comp-checkbox-container-size) - var(--tanrei-comp-checkbox-box-size)) / 2);
@@ -405,49 +413,61 @@
        box, is inside the row at both densities). */
     overflow-y: clip;
   }
-  /* TBL-47: a row that holds a checkbox is at least the target high, drawn so (see `--_table-sort-target`), and for a
-     coarse pointer its selection cell at least the touch target wide. */
+  /* TBL-60: under single selection the control is the Radio button, whose ring is what stands at the padding. */
+  :where(tanrei-table[selection='single']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
+    --_table-select-pad: max(0px, var(--_table-pad-inline) - (var(--tanrei-comp-radio-button-container-size) - var(--tanrei-comp-radio-button-ring-size)) / 2);
+  }
+  /* TBL-47: a row that holds a checkbox or a radio button is at least the target high, drawn so (see
+     `--_table-sort-target`), and for a coarse pointer its selection cell at least the touch target wide. The header
+     row holds a control only under multiple selection (TBL-60). */
   :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead) > :where(tr) > :where([data-part='selection']),
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])) > :where([data-part='selection']) {
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])) > :where([data-part='selection']) {
     block-size: calc(var(--_table-sort-target) + var(--_table-row-gap));
   }
   @media (pointer: coarse) {
-    :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
+    :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
       inline-size: var(--tanrei-sys-target-touch);
     }
   }
-  /* TBL-42: the checkbox is the Checkbox as it is drawn anywhere, at the start of its cell on the cell's first line:
-     its layout box is one line of the cell's text high and its container is centred on that line, so that a row is
-     no taller for it. (The host is a flex container of one item, which may be taller than it.) */
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody) > :where(tr) > :where([data-part='selection']) > :where(tanrei-checkbox) {
+  /* TBL-42: the checkbox is the Checkbox, and the radio button the Radio button, as it is drawn anywhere, at the start
+     of its cell on the cell's first line: its layout box is one line of the cell's text high and its container is
+     centred on that line, so that a row is no taller for it. (The host is a flex container of one item, which may be
+     taller than it: a radio button's option is the touch target high.) */
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(thead, tbody) > :where(tr) > :where([data-part='selection']) > :where(tanrei-checkbox, tanrei-radio-button) {
     display: inline-flex;
     align-items: center;
     block-size: 1lh;
     vertical-align: top;
   }
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody) > :where(tr) > :where([data-part='selection']) > :where(input) {
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(thead, tbody) > :where(tr) > :where([data-part='selection']) > :where(input) {
     margin: 0;
     vertical-align: middle;
   }
-  /* The browser's own checkbox has no round container: its box is the element, and its cell keeps a cell's paddings. */
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']:has(> input)) {
+  /* The browser's own checkbox or radio button has no round container: its box is the element, and its cell keeps a
+     cell's paddings. */
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']:has(> input)) {
     --_table-select-pad: var(--_table-pad-inline);
     padding-inline: var(--_table-select-pad);
   }
-  /* TBL-42, TBL-50: no checkbox in a body row without a value, in a placeholder row or in a footer row. */
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr:not([data-value]), tr[data-value=''], tr[data-placeholder]) > :where([data-part='selection']) > :where(*),
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tfoot) > :where(tr) > :where([data-part='selection']) > :where(*) {
+  /* TBL-42, TBL-50, TBL-60: no control in a body row without a value, in a placeholder row or in a footer row; none
+     in the header row under single selection; and none of the other kind — a radio button under multiple selection,
+     a checkbox under single. */
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr:not([data-value]), tr[data-value=''], tr[data-placeholder]) > :where([data-part='selection']) > :where(*),
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tfoot) > :where(tr) > :where([data-part='selection']) > :where(*),
+  :where(tanrei-table[selection='single']) > :where(table) > :where(thead) > :where(tr) > :where([data-part='selection']) > :where(*),
+  :where(tanrei-table[selection='single']) > :where(table) > :where(thead, tbody) > :where(tr) > :where([data-part='selection']) > :where(tanrei-checkbox, input[type='checkbox']),
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody) > :where(tr) > :where([data-part='selection']) > :where(tanrei-radio-button, input[type='radio']) {
     display: none;
   }
   /* TBL-43: what a body row gives its cells — the stripe of a striped table, and in its place the quiet selection of a
-     row that is chosen: the row says so (`data-selected`), or its native checkbox is checked. Asked of the row, and
+     row that is chosen: the row says so (`data-selected`), or its native checkbox or radio button is checked. Asked of the row, and
      handed to its cells as values (see HOW IT IS WRITTEN). Never a row without a value or a placeholder row. */
-  :where(tanrei-table[selection='multiple'][striped]) > :where(table) > :where(tbody) > :where(tr:nth-child(even of :not([hidden]))) {
+  :where(tanrei-table[striped]:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr:nth-child(even of :not([hidden]))) {
     --_table-row-fill: var(--tanrei-comp-table-stripe-container-color);
   }
   /* TBL-59: the hovered and pressed colors of a row that can be chosen, by its condition — not chosen, then chosen. The
      row also carries press-hold as a time, which the press primitive reads when a press ends (it has no transition). */
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])) {
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])) {
     --_table-row-hovered: var(--tanrei-comp-table-row-unselected-hovered-container-color);
     --_table-row-hovered-text: var(--tanrei-comp-table-row-unselected-hovered-text-color);
     --_table-row-pressed: var(--tanrei-comp-table-row-unselected-pressed-container-color);
@@ -455,7 +475,7 @@
     transition-property: none;
     transition-delay: var(--tanrei-sys-motion-duration-press-hold);
   }
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])):where([data-selected], :has(> [data-part='selection'] > input:checked)) {
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])):where([data-selected], :has(> [data-part='selection'] > input:checked)) {
     --_table-row-fill: var(--tanrei-comp-table-row-selected-container-color);
     --_table-row-text: var(--tanrei-comp-table-row-selected-text-color);
     --_table-row-hovered: var(--tanrei-comp-table-row-selected-hovered-container-color);
@@ -467,24 +487,24 @@
      row under a fine pointer (`data-tanrei-hit`) and the row pressed (`data-pressed`); without script a row shows
      neither a state nor the pointer. Pressed over hovered; ripple has no one box across the cells and is overlay
      (the element writes it so); dim keeps the colors of the state under the press and dims the row. */
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-tanrei-hit]) {
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr[data-tanrei-hit]) {
     --_table-row-state: var(--_table-row-hovered);
     --_table-row-text: var(--_table-row-hovered-text);
   }
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-tanrei-hit]:not([data-tanrei-reading])) {
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr[data-tanrei-hit]:not([data-tanrei-reading])) {
     cursor: pointer;
   }
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-pressed='overlay']) {
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr[data-pressed='overlay']) {
     --_table-row-state: var(--_table-row-pressed);
     --_table-row-text: var(--_table-row-pressed-text);
   }
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-pressed='dim']) {
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr[data-pressed='dim']) {
     opacity: var(--tanrei-comp-table-pressed-opacity);
   }
   /* The fill is across the row, paddings and the selection cell included, short of the space of `separation: gap`,
      over the fill of a cell kept in view, and the state of a row that can be chosen over it; both change at once.
      What a cell holds keeps its own colors (TBL-15). */
-  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr) > :where(th, td) {
+  :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr) > :where(th, td) {
     background-image: linear-gradient(var(--_table-row-state, transparent), var(--_table-row-state, transparent)), linear-gradient(var(--_table-row-fill, transparent), var(--_table-row-fill, transparent));
     background-repeat: no-repeat;
     background-size: 100% calc(100% - var(--_table-row-gap));
@@ -922,7 +942,7 @@
     }
     /* TBL-54: the mode removes the fill of a chosen row, and the row's checkbox — which the Checkbox draws checked in
        this mode — is what says that it is chosen. Said here too, for an engine that keeps a gradient. */
-    :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr) > :where(th, td) {
+    :where(tanrei-table:is([selection='multiple'], [selection='single'])) > :where(table) > :where(tbody) > :where(tr) > :where(th, td) {
       background-image: none;
     }
     /* TBL-54: a sort button's label and mark in the button's text color, its focus indicator in the highlight; the
