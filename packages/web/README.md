@@ -4108,7 +4108,7 @@ focusable by `focus()`, by a pointer and by assistive technology. The chip itsel
 
 ## `<tanrei-list>`
 
-A box that holds your own items — rows, tiles, cards, files — in one column, one line, or lines that wrap into a grid; people read them, open them one by one, choose from them, or drag them into another order (`specs/list.spec.json`, LST-1…47).
+A box that holds your own items — rows, tiles, cards, files — in one column, one line, or lines that wrap into a grid; people read them, open them one by one, choose from them, or drag them into another order (`specs/list.spec.json`, LST-1…49).
 
 ```html
 <tanrei-list gap="small" dividers>
@@ -4223,6 +4223,52 @@ put it in your own scroll container. A line wider than the list goes past its en
   are `Intl.NumberFormat`'s for the nearest `lang`.
 - **Removal (LST-46).** When you remove the item that holds focus, focus goes to the handle of the item now standing
   there, else of the one before it; with no item left, it is yours. Nothing is announced.
+
+## `<tanrei-list-row>`
+
+`specs/list-row.spec.json` (LRW-1 to LRW-15): one row of text with something before it and something after it — an
+overline, a headline and a line or two of supporting text; a glyph, an avatar, a picture or a control at its start; a
+short value, a control and a glyph at its end. Put it as the direct child of a `<tanrei-list-item>`, or on its own. It
+draws no fill, edge or state and is never pressable: a row that opens something is the content of an `interactive` or
+`href` item, a row that is chosen the content of an option.
+
+```html
+<tanrei-list dividers>
+  <tanrei-list-item interactive>
+    <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected to Harbour" trailing-icon="chevron_right"></tanrei-list-row>
+  </tanrei-list-item>
+  <tanrei-list-item>
+    <tanrei-list-row headline="Bluetooth">
+      <tanrei-switch slot="trailing" label="Bluetooth" label-hidden></tanrei-switch>
+    </tanrei-list-row>
+  </tanrei-list-item>
+</tanrei-list>
+<tanrei-list-row overline="Shared" headline="Harbour photos" supporting-text="48 items" trailing-text="2.4 GB"></tanrei-list-row>
+```
+
+| `<tanrei-list-row>` | Type | Default | |
+|---|---|---|---|
+| `headline` | string | `''` | the row's name, one line, cut with an ellipsis (whole in the tooltip); the item it is in is named by it |
+| `overline` | string | `''` | a short line above the headline, one line |
+| `supporting-text` (`supportingText`) | string | `''` | the text under the headline, cut on its last line |
+| `supporting-lines` (`supportingLines`) | number | `1` | 1 or 2 lines of supporting text; another number is the nearer, reported |
+| `leading-icon` (`leadingIcon`) | string | `''` | a glyph of the icon set at the start, decorative; the `leading` slot's content replaces it |
+| `trailing-text` (`trailingText`) | string | `''` | a short value at the end, never more than half of the row |
+| `trailing-icon` (`trailingIcon`) | string | `''` | a glyph at the very end (`chevron_right`), decorative, mirrored where the icon set says |
+| `density` | `regular` \| `compact` | `regular` | 56, 72, 88 or 40, 56, 72 for one, two, three lines under the default system; reflected; open |
+
+Slots: `leading` (an avatar, a picture, or in a static row a control), `trailing` (a badge, or in a static row a control).
+Parts: `container`, `leading`, `leading-icon`, `text`, `overline`, `headline`, `supporting-text`, `trailing-text`,
+`trailing`, `trailing-icon`. No events.
+
+The seam with the List (LST-48, LST-49): a `<tanrei-list-item>` sets an internal `listItemFrame` property on each
+direct child that has one — whether the item is an action, a link or an option (it pads the row, so the row draws no
+padding of its own and keeps its height), whether it draws a reorderable list's handle (the row drops its start
+padding), whether it is a selected option (the row takes the item's content color) and whether it is disabled — and
+reads `listItemName` (the headline) and `listItemDescription` (the other texts) from it, for its name, its handle's
+name, typeahead, announcements and the description of an action, a link or an option. A row nested deeper in the
+item's content is told nothing and draws itself as standing alone. The row tells its item when its texts change with an
+internal `tanrei-list-item-content` event.
 
 ## `<tanrei-menu>`
 
@@ -5078,8 +5124,9 @@ than `container.gap.docked`, one item centred, every item centred across the row
 insets, and the items stay above and inside them (TBR-3). Floating: `display: inline-flex`, as long as its items —
 `container.padding-inline.floating` at each end and `container.gap.floating` between (0 in the default system), two
 neighbours standing further apart only as far as each needs to keep `sys.target.touch` of length along the axis
-(TBR-16: medium Buttons 8 apart, large ones touching, small ones 16; the toolbar measures its items and writes their
-lengths on them as `--tanrei-kept-*` custom properties, `src/primitives/kept-length.ts`, not a styling API) — at least
+(TBR-16: medium Buttons 8 apart, large ones touching, small ones 16; the toolbar measures its items and lays the space
+between two of them as an element of its own container, `src/primitives/kept-length.ts`, writing nothing on the items,
+so a page's reset such as `* { margin: 0 }` leaves the spacing as it is) — at least
 `container.size.floating` across, rounded by `container.shape.floating` (the shared corner rule, so smoothing eases a
 non-pill corner) with its edge all round; it never positions itself, draws no scrim and reads no inset (TBR-5): place it
 where your layout wants it. Vertical (floating only) stacks the items top to bottom whatever the direction, the paddings
@@ -7127,8 +7174,8 @@ button) `container.padding-inline` (`-with-button`) from the start, `container.g
 buttons (the clear button, then the trailing slot's) `container.button-gap` from one another, 0 in the default system,
 and two of them further apart only as far as each needs to keep `sys.target.touch` of length along the row (SRC-34: the
 small clear button and a medium Button 12 apart, two medium Buttons 8, two of 48 or more touching; the search measures
-its buttons and writes their lengths on them as `--tanrei-kept-*` custom properties, `src/primitives/kept-length.ts`,
-not a styling API) — the last one
+its buttons and lays the space before each trailing button as an element of its own trailing box,
+`src/primitives/kept-length.ts`, writing nothing on the product's buttons, so a page's reset leaves it) — the last one
 `container.padding-inline-with-button` from the end when it is a button, `container.padding-inline` when it is the input;
 mirrored in right-to-left. Its edge is a border inside the bar in the state's outline color and width — clear at rest in
 the default system, the focused outline under focus by pointer or keyboard (never a ring; a glow as well under

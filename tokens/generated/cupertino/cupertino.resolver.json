@@ -94,6 +94,9 @@
           "$ref": "comp/list.tokens.json"
         },
         {
+          "$ref": "comp/list-row.tokens.json"
+        },
+        {
           "$ref": "comp/menu.tokens.json"
         },
         {

@@ -107,6 +107,11 @@ export interface Subject {
    * landmarks of one role and name (two standard side sheets both named "Filters"), which no product page has.
    */
   axeEach?: boolean;
+  /**
+   * Axe checks its fixtures a part at a time, each part a page of its own: all of them on one page are so many nodes
+   * that one scan outruns a test's time on a slow runner (the Field's 368 fixtures are about 15 000 elements).
+   */
+  axeParts?: boolean;
 }
 export function subject(
   name: string,
@@ -118,7 +123,8 @@ export function subject(
     wholeWindow,
     alone,
     axeEach,
-  }: { icons?: boolean; reducedMotion?: boolean; window?: { width: number; height: number }; wholeWindow?: boolean; alone?: boolean; axeEach?: boolean } = {},
+    axeParts,
+  }: { icons?: boolean; reducedMotion?: boolean; window?: { width: number; height: number }; wholeWindow?: boolean; alone?: boolean; axeEach?: boolean; axeParts?: boolean } = {},
 ): Subject {
   const spec = loadSpec(name);
   return {
@@ -130,6 +136,7 @@ export function subject(
     ...(wholeWindow ? { wholeWindow } : {}),
     ...(alone ? { alone } : {}),
     ...(axeEach ? { axeEach } : {}),
+    ...(axeParts ? { axeParts } : {}),
   };
 }
 
@@ -736,7 +743,7 @@ function pageHeaderMarkup(fixture: Fixture): string {
  * holds a `<button type="button">` around the header; the `empty` slot's text is the one cell of a `<tr
  * data-part="empty">` in the body of a fixture without body rows, in a `<div>` (what the table keeps in view is an
  * element); the fixture's `status` and its `pagination` slot's text are the `<p role="status">` and a `<span>` of a
- * `<div data-part="status">` after the table. Rows that can be chosen (`selection: multiple`): every row begins with
+ * `<div data-part="status">` after the table. Rows that can be chosen (`selection: multiple`, or `single`): every row begins with
  * a `<td data-part="selection">` — in the header row holding a `<tanrei-checkbox label-hidden>`, which the element
  * names and keeps in step; in a body row that has a `value` holding that row's, named by its `selectLabel` and
  * `checked` where the row is `selected`; and empty in a row without a value, a placeholder row and a footer row. A
@@ -765,14 +772,17 @@ function tableMarkup(spec: Spec, fixture: Fixture): string {
     const { align, wrap } = columns[index]?.props ?? {};
     return `${align && align !== 'start' ? ` data-align="${String(align)}"` : ''}${wrap === false ? ' data-wrap="false"' : ''}`;
   };
-  const chooses = fixture.props.selection === 'multiple';
+  const chooses = fixture.props.selection === 'multiple' || fixture.props.selection === 'single';
+  // TBL-60: one row at most is chosen by a radio button, all of one name, which the product gives — here, the fixture's.
+  const single = fixture.props.selection === 'single';
   const attribute = (v: unknown) => String(v).replaceAll('&', '&amp;').replaceAll('"', '&quot;');
-  /** The selection cell of a row (TBL-42): the row's checkbox where it has a value, else nothing. */
+  /** The selection cell of a row (TBL-42): the row's checkbox — or radio button (TBL-60) — where it has a value, else nothing. */
   const choice = (item: FixtureItem) => {
     if (!chooses) return '';
     const { value, selected, selectLabel, placeholder, footer } = item.props;
     if (!value || placeholder === true || footer === true) return '<td data-part="selection"></td>';
-    return `<td data-part="selection"><tanrei-checkbox label-hidden${selectLabel ? ` label="${attribute(selectLabel)}"` : ''}${selected === true ? ' checked' : ''}></tanrei-checkbox></td>`;
+    const tag = single ? 'tanrei-radio-button' : 'tanrei-checkbox';
+    return `<td data-part="selection"><${tag} label-hidden${single ? ` name="${attribute(fixture.id)}"` : ''}${selectLabel ? ` label="${attribute(selectLabel)}"` : ''}${selected === true ? ' checked' : ''}></${tag}></td>`;
   };
   const state = (item: FixtureItem) => {
     const { value, selected, placeholder } = item.props;
@@ -793,7 +803,7 @@ function tableMarkup(spec: Spec, fixture: Fixture): string {
     const value = column.props.value ? ` data-value="${escape(String(column.props.value))}"` : '';
     return `<th scope="col" aria-sort="${String(column.props.sort ?? 'none')}"${value}${placed(index)}><button type="button">${text}</button></th>`;
   };
-  const all = chooses ? '<td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td>' : '';
+  const all = single ? '<td data-part="selection"></td>' : chooses ? '<td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td>' : '';
   const head = columns.some((column) => column.props.header) ? `<thead><tr>${all}${columns.map(header).join('')}</tr></thead>` : '';
   const body = rows.filter((item) => item.props.footer !== true);
   const foot = rows.filter((item) => item.props.footer === true);
@@ -1086,6 +1096,12 @@ const STAGING: Record<string, Staging> = {
       const actionable = !!item.props.interactive || !!item.props.href || item.props.value !== undefined;
       return actionable ? content : `<span class="fixture-tile">${content}</span>`;
     },
+  },
+  // A list row is 360 wide (LRW-1's verify), standing alone. What a fixture puts in its leading slot stands for the
+  // product's avatar or picture: a 40 disc of a container role holding the text as a monogram, in the label text style.
+  'list-row': {
+    css: () => `.stage > tanrei-list-row { inline-size: 360px; }
+      .stage > tanrei-list-row > [slot='leading'] { display: inline-grid; place-items: center; inline-size: 40px; block-size: 40px; border-radius: var(--tanrei-sys-shape-corner-full); background: var(--tanrei-sys-color-primary-container); color: var(--tanrei-sys-color-on-primary-container); font: var(--tanrei-sys-typescale-label-font); }`,
   },
   // A menu fixture draws the open surface in place (MNU-19's verify): the `inline` test attribute, at its natural size,
   // with its elevation and without an anchor, placement or open motion — room below for the elevation's shadow.

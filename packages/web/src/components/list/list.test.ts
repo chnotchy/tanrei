@@ -1092,6 +1092,77 @@ test.describe('reordering', () => {
   });
 });
 
+test.describe('a List row as an item’s content', () => {
+  const ROW = (headline: string, more = '') => `<tanrei-list-row leading-icon="wifi" headline="${headline}" supporting-text="Connected" ${more}></tanrei-list-row>`;
+  /** What the item told its row (LST-48), as the row's container draws it. */
+  const frame = (page: P, id: string, n: number) =>
+    item(page, id, n).evaluate((el) => {
+      const row = el.querySelector('tanrei-list-row') as HTMLElement & { listItemFrame: unknown };
+      return row.listItemFrame;
+    });
+
+  test('LST-48: the item tells a row that is its direct child what it is — boxed, after a handle, selected, disabled — and again on every change; a row nested deeper stands alone', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fixture('static', {}, [[ROW('Wi-Fi')], [`<div>${ROW('Nested')}</div>`]]),
+        fixture('options', { selection: 'single', label: 'Networks', value: 'a' }, [[ROW('Home'), { value: 'a' }], [ROW('Office'), { value: 'b', disabled: true }]]),
+        fixture('reorder', { reorderable: true, label: 'Networks', dragHandleLabel: 'Reorder {label}' }, [[ROW('Home')], [ROW('Office')]]),
+      ],
+    });
+    expect(await frame(page, 'static', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false });
+    expect(await item(page, 'static', 1).evaluate((el) => (el.querySelector('tanrei-list-row') as any).listItemFrame)).toBeNull();
+    expect(await frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: true, disabled: false });
+    expect(await frame(page, 'options', 1)).toEqual({ boxed: true, handled: false, selected: false, disabled: true });
+    expect(await frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: true, selected: false, disabled: false });
+    // Every change is told at once: the item becomes interactive, the selection moves, the list stops being reorderable.
+    await page.evaluate(() => {
+      document.querySelector('[data-fixture="static"] tanrei-list-item')!.setAttribute('interactive', '');
+      (document.querySelector('[data-fixture="options"] tanrei-list') as HTMLElement & { value: string }).value = 'b';
+      document.querySelector('[data-fixture="reorder"] tanrei-list')!.removeAttribute('reorderable');
+    });
+    await expect.poll(() => frame(page, 'static', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false });
+    await expect.poll(() => frame(page, 'options', 0)).toEqual({ boxed: true, handled: false, selected: false, disabled: false });
+    await expect.poll(() => frame(page, 'reorder', 0)).toEqual({ boxed: false, handled: false, selected: false, disabled: false });
+    // A row moved out of the item is told that it stands alone.
+    await page.evaluate(() => {
+      const row = document.querySelector('[data-fixture="static"] tanrei-list-row')!;
+      document.querySelector('[data-fixture="static"]')!.append(row);
+    });
+    await expect.poll(() => page.evaluate(() => (document.querySelector('[data-fixture="static"] > tanrei-list-row') as any).listItemFrame)).toBeNull();
+  });
+
+  test('LST-49: an item without a label is named by its row’s headline — its accessible name, its handle, typeahead and announcements — and an action, link or option is described by the row’s other texts', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [
+        fixture('actions', {}, [[ROW('Wi-Fi', 'overline="Network"'), { interactive: true }], [ROW('Bluetooth'), { href: '#bt', target: 'new', targetLabel: 'opens in a new tab' }], [ROW('Display'), { interactive: true, label: 'Screen' }]]),
+        fixture('options', { selection: 'single', label: 'Networks' }, [[ROW('Home', 'trailing-text="5 GHz"'), { value: 'a' }], [ROW('Office'), { value: 'b' }]]),
+        fixture('reorder', { reorderable: true, label: 'Networks', dragHandleLabel: 'Reorder {label}' }, [[ROW('Home')], [ROW('Office')]]),
+      ],
+    });
+    const box = (n: number) => item(page, 'actions', n).locator('.row.p');
+    expect(await box(0).getAttribute('aria-label')).toBe('Wi-Fi');
+    expect(await box(0).getAttribute('aria-description')).toBe('Network Connected');
+    expect(await box(1).getAttribute('aria-label')).toBe('Bluetooth');
+    expect(await box(1).getAttribute('aria-description')).toBe('Connected opens in a new tab');
+    // A label wins; the row still describes the item.
+    expect(await box(2).getAttribute('aria-label')).toBe('Screen');
+    expect(await box(2).getAttribute('aria-description')).toBe('Connected');
+    const option = item(page, 'options', 0);
+    expect(await option.getAttribute('aria-label')).toBe('Home');
+    expect(await option.getAttribute('aria-description')).toBe('Connected 5 GHz');
+    expect(await handle(page, 'reorder', 1).getAttribute('label')).toBe('Reorder Office');
+    // Typeahead finds the item by the headline.
+    await tabTo(page, option);
+    await page.keyboard.press('o');
+    await expect.poll(() => focused(page)).toBe('Office');
+    // A new headline is the item's new name at once.
+    await page.evaluate(() => document.querySelector('[data-fixture="actions"] tanrei-list-row')!.setAttribute('headline', 'Wireless'));
+    await expect.poll(() => box(0).getAttribute('aria-label')).toBe('Wireless');
+  });
+});
+
 test.describe('accessibility', () => {
   test('no axe violations in light and dark', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {

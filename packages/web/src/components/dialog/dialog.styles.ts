@@ -66,10 +66,28 @@ export const styles = css`
     transition-timing-function: ${t('motion-exit-easing')};
     transition-behavior: allow-discrete;
   }
+  /* DLG-27: small, medium or large — the fixed width the size names, whatever the parts would ask and not held between
+     min-width and max-width, but never wider than the window less the margins. A compact window places every width as
+     it places content (DLG-17, below). */
+  dialog[data-width='small'] {
+    --_width: ${t('width-small')};
+  }
+  dialog[data-width='medium'] {
+    --_width: ${t('width-medium')};
+  }
+  dialog[data-width='large'] {
+    --_width: ${t('width-large')};
+  }
+  dialog:not([data-width='content']) {
+    inline-size: min(var(--_width), ${unsafeCSS(INLINE_ROOM)});
+    min-inline-size: 0;
+    max-inline-size: ${unsafeCSS(INLINE_ROOM)};
+  }
   /* DLG-17: a compact window: at the bottom of the safe area, the margin above its bottom edge (or the keyboard) and from
      its sides, as wide as the window less those margins up to max-width, centred between the sides; all four corners
      stay the container's. */
-  dialog.compact {
+  dialog.compact,
+  dialog.compact:not([data-width='content']) {
     inline-size: min(${t('container-max-width')}, ${unsafeCSS(INLINE_ROOM)});
     min-inline-size: 0;
     margin-block: auto calc(${t('container-margin')} + env(safe-area-inset-bottom, 0px));
@@ -131,9 +149,32 @@ export const styles = css`
   }
   .head {
     display: flex;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    align-items: flex-start;
+    gap: ${t('header-gap')};
+  }
+  /* DLG-26: the header is one row — the icon and the headline, taking the width the close button leaves, and the close
+     button at its end, header.gap after the headline, its end edge at the container's padding (the row is inside it).
+     The row's first line is the headline's: the close button is centred on a line of that height, and beside a close
+     button taller than that line the icon and the headline's first line are centred on the button. */
+  .header {
+    display: flex;
     flex: none;
     align-items: flex-start;
     gap: ${t('header-gap')};
+    font: ${t('headline-typescale-font')};
+  }
+  .header.closable .head {
+    padding-block: max(0px, calc((var(--tanrei-comp-button-container-height-small) - 1lh) / 2));
+  }
+  /* DLG-25: the icon-only Button, placed and never restyled (its variant is given through the Button's own channel). */
+  .close-box {
+    display: flex;
+    flex: none;
+    align-items: center;
+    min-block-size: 1lh;
+    margin-inline-start: auto;
   }
   .middle {
     position: relative;
@@ -142,7 +183,7 @@ export const styles = css`
     flex-direction: column;
     min-block-size: 0;
   }
-  .head:not([hidden]) + .middle {
+  .header:not([hidden]) + .middle {
     margin-block-start: ${t('container-gap')};
   }
   /* An empty part is not drawn, and takes no gap. */
@@ -169,7 +210,7 @@ export const styles = css`
   .actions {
     margin-block-start: ${t('actions-margin-block-start')};
   }
-  .head[hidden] + .middle[hidden] + .actions {
+  .header[hidden] + .middle[hidden] + .actions {
     margin-block-start: 0;
   }
   /* DLG-10, end: at their own widths, the row aligned to the end; a column as wide as its widest action, at the end. */
@@ -318,6 +359,12 @@ export const styles = css`
   ${dialog} .head.with-icon .headline {
     align-self: stretch;
     text-align: center;
+  }
+  /* DLG-26: above, the icon and the headline stay centred in the container: as far from the row's start as the close
+     button and its gap take at the row's end, and the close button at the row's top end. */
+  ${dialog} .header.closable .head.with-icon {
+    padding-block: 0;
+    margin-inline-start: calc(var(--tanrei-comp-button-container-height-small) + ${T('header-gap')});
   }`,
   )}
 

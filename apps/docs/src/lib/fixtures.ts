@@ -147,7 +147,7 @@ function itemsHtml(spec: Spec, items: FixtureItem[]): string {
  * `data-value` and holds a `<button type="button">` around the header; the `empty` slot's text is the one cell of a
  * `<tr data-part="empty">` in the body of a fixture without body rows, in a `<div>` (what the table keeps in view is
  * an element); the fixture's `status` and its `pagination` slot's text are the `<p role="status">` and a `<span>` of a
- * `<div data-part="status">` after the table. Rows that can be chosen (`selection: multiple`): every row begins with
+ * `<div data-part="status">` after the table. Rows that can be chosen (`selection: multiple`, or `single`): every row begins with
  * a `<td data-part="selection">` — in the header row holding a `<tanrei-checkbox label-hidden>`, which the element
  * names and keeps in step; in a body row that has a `value` holding that row's, named by its `selectLabel` and
  * `checked` where the row is `selected`; and empty in a row without a value, a placeholder row and a footer row. A
@@ -162,13 +162,16 @@ function tableHtml(spec: Spec, fixture: Fixture, suffix: string): string {
     const { align, wrap } = (columns[index]?.props ?? {}) as Props;
     return `${align && align !== 'start' ? ` data-align="${escape(String(align))}"` : ''}${wrap === false ? ' data-wrap="false"' : ''}`;
   };
-  const chooses = fixture.props.selection === 'multiple';
-  /** The selection cell of a row (TBL-42): the row's checkbox where it has a value, else nothing. */
+  const chooses = fixture.props.selection === 'multiple' || fixture.props.selection === 'single';
+  // TBL-60: one row at most is chosen by a radio button, all of one name, which the product gives — here, the fixture's.
+  const single = fixture.props.selection === 'single';
+  /** The selection cell of a row (TBL-42): the row's checkbox — or radio button (TBL-60) — where it has a value, else nothing. */
   const choice = (item: FixtureItem) => {
     if (!chooses) return '';
     const { value, selected, selectLabel, placeholder, footer } = item.props as Props;
     if (!value || placeholder === true || footer === true) return '<td data-part="selection"></td>';
-    return `<td data-part="selection"><tanrei-checkbox label-hidden${selectLabel ? ` label="${escape(String(selectLabel))}"` : ''}${selected === true ? ' checked' : ''}></tanrei-checkbox></td>`;
+    const tag = single ? 'tanrei-radio-button' : 'tanrei-checkbox';
+    return `<td data-part="selection"><${tag} label-hidden${single ? ` name="${escape(fixture.id)}"` : ''}${selectLabel ? ` label="${escape(String(selectLabel))}"` : ''}${selected === true ? ' checked' : ''}></${tag}></td>`;
   };
   const state = (item: FixtureItem) => {
     const { value, selected, placeholder } = item.props as Props;
@@ -188,7 +191,7 @@ function tableHtml(spec: Spec, fixture: Fixture, suffix: string): string {
     const value = column.props.value ? ` data-value="${escape(String(column.props.value))}"` : '';
     return `<th scope="col" aria-sort="${escape(String(column.props.sort ?? 'none'))}"${value}${placed(index)}><button type="button">${text}</button></th>`;
   };
-  const all = chooses ? '<td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td>' : '';
+  const all = single ? '<td data-part="selection"></td>' : chooses ? '<td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td>' : '';
   const head = columns.some((column) => column.props.header) ? `<thead><tr>${all}${columns.map(header).join('')}</tr></thead>` : '';
   const body = rows.filter((item) => item.props.footer !== true);
   const foot = rows.filter((item) => item.props.footer === true);

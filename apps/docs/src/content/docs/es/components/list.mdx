@@ -2,7 +2,7 @@
 title: Lista
 description: Contiene un conjunto de elementos propios del producto (filas, mosaicos, tarjetas, archivos) en una columna, una fila o filas que se ajustan formando una cuadrícula. Las personas los leen, los abren uno a uno, eligen entre ellos o los arrastran a otro orden.
 translationOf: components/list.mdx
-sourceHash: 44e7c407804448e2e2a34486b365e5f53b561213
+sourceHash: a7c35532dba932b8eb282a4f36d7986db3c048ce
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -30,11 +30,9 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 <style>{`
   .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
-  .demo-row { display: flex; flex-direction: column; }
-  .demo-row small { color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-body-small-font); }
 `}</style>
 
-Una lista es una caja. Lo que muestra cada elemento es tu propio contenido: texto, una imagen, una tarjeta, un [elemento de archivo](/es/components/file-item/). La lista se ocupa de todo lo que rodea a los elementos: cómo se disponen, el espacio y las líneas entre ellos, qué son para la tecnología de asistencia, cómo se mueve el foco del teclado entre ellos, cuáles están elegidos y cómo las personas los ponen en otro orden.
+Una lista es una caja. Lo que muestra cada elemento es tu propio contenido: texto, una imagen, una tarjeta, un [elemento de archivo](/es/components/file-item/) o una [fila de lista](/es/components/list-row/): la fila de un titular, una o dos líneas de texto de apoyo y algo antes y después de ellos, de la que están hechas la mayoría de las listas. La lista se ocupa de todo lo que rodea a los elementos: cómo se disponen, el espacio y las líneas entre ellos, qué son para la tecnología de asistencia, cómo se mueve el foco del teclado entre ellos, cuáles están elegidos y cómo las personas los ponen en otro orden.
 
 <DemoFrame label="Una columna, una fila y una cuadrícula que se ajusta" plain>
   <tanrei-list gap="small" style="inline-size: 16rem">
@@ -58,9 +56,9 @@ Una lista es una caja. Lo que muestra cada elemento es tu propio contenido: text
 
 <DemoFrame label="Elementos que abren algo, elementos que son enlaces y una elección única" plain>
   <tanrei-list dividers style="inline-size: 16rem">
-    <tanrei-list-item interactive><span class="demo-row">Wi-Fi<small>Connected</small></span></tanrei-list-item>
-    <tanrei-list-item href="#list-demo-button"><span class="demo-row">Button<small>Actions and toggles</small></span></tanrei-list-item>
-    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+    <tanrei-list-item interactive><tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected"></tanrei-list-row></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-button"><tanrei-list-row leading-icon="smart_button" headline="Button" supporting-text="Actions and toggles"></tanrei-list-row></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab"><tanrei-list-row leading-icon="code" headline="Source code"></tanrei-list-row></tanrei-list-item>
   </tanrei-list>
   <tanrei-list selection="single" label="Theme" value="light" style="inline-size: 16rem">
     <tanrei-list-item value="light">Light</tanrei-list-item>
@@ -90,9 +88,11 @@ Un elemento es estático salvo que lo conviertas en algo más. Un elemento está
       <tanrei-list-item><img src="2.jpg" alt="Market street" /></tanrei-list-item>
     </tanrei-list>
 
-    <!-- Items that are one button or one link each, with lines between them. -->
+    <!-- Items that are one button or one link each, with lines between them. A list row draws a headline and its lines. -->
     <tanrei-list dividers>
-      <tanrei-list-item interactive>Wi-Fi</tanrei-list-item>
+      <tanrei-list-item interactive>
+        <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected"></tanrei-list-row>
+      </tanrei-list-item>
       <tanrei-list-item href="/privacy/">Privacy policy</tanrei-list-item>
       <tanrei-list-item href="https://example.com/tanrei" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
     </tanrei-list>

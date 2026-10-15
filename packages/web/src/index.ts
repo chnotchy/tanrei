@@ -253,7 +253,10 @@ export {
   type TanreiListMoveDetail,
   type TanreiListOrientation,
   type TanreiListSelection,
+  type TanreiListItemFrame,
+  type TanreiListItemContent,
 } from './components/list/list.js';
+export { TanreiListRow, type TanreiListRowDensity } from './components/list-row/list-row.js';
 export {
   TanreiMainActionButton,
   type TanreiMainActionButtonIconPosition,
@@ -266,6 +269,8 @@ export {
   type TanreiMenuCheckboxItemChangeDetail,
   type TanreiMenuCloseDetail,
   type TanreiMenuCloseReason,
+  type TanreiMenuContextInput,
+  type TanreiMenuContextRequestDetail,
   TanreiMenuGroup,
   type TanreiMenuGroupChangeDetail,
   TanreiMenuItem,
@@ -274,6 +279,7 @@ export {
   TanreiMenuRadioItem,
   TanreiMenuRowBase,
   type TanreiMenuSeparation,
+  type TanreiMenuTrigger,
   TanreiSubmenu,
   type TanreiSubmenuToggleDetail,
 } from './components/menu/menu.js';

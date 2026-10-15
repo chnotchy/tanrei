@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { conditionBlock, focusGlow, focusRing, iconGlyph, keptLength, minimumTarget, pressHold, rippleStyles, rowTarget, stateRules } from '../../primitives/index.js';
+import { conditionBlock, focusGlow, focusRing, iconGlyph, keptSpaces, minimumTarget, pressHold, rippleStyles, rowTarget, stateRules } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 
@@ -279,17 +279,15 @@ export const styles = css`
      from one another between their visible bounds (0 in the default system), and two of them further apart only as far
      as each needs to keep sys.target.touch of length along the row, centred on itself, that its neighbour's does not
      reach into: a button at least that wide touches its neighbour, a narrower one stands half of what it lacks away
-     (src/primitives/kept-length.ts; the element measures the buttons). The space is the margin of the button that
-     follows, so the row's own gap is none between them: the trailing slot's box has no gap, and takes the bar's gap
-     back after the clear button. The first action button still stands container.gap after the input and the last
+     (src/primitives/kept-length.ts; the element measures the buttons). The space before each of the trailing slot's
+     buttons is an element of the trailing box's own, never a margin on the product's button, which a page's reset
+     (\`* { margin: 0 }\`) would take away; so the row's own gap is none between them: the trailing box takes the bar's
+     gap back after the clear button. The first action button still stands container.gap after the input and the last
      padding-inline-with-button from the end edge; no button is widened or restyled (SRC-25), whatever the pointer. */
-  .trailing {
-    gap: 0;
-  }
   .clear + .trailing {
     margin-inline-start: calc(-1 * ${t('container-gap')});
   }
-  ${keptLength('.trailing ::slotted(*)', { gap: T('container-button-gap') })}
+  ${keptSpaces('.trailing', { gap: T('container-button-gap') })}
 
   ${unsafeCSS(inputStyles)}
 

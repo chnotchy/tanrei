@@ -40,14 +40,6 @@ const shapeBlock = (name: string, selector: string, fallback: string | null = nu
 }`;
 
 /**
- * AVT-16: each box of a group lies over the end of the one before it by the overlap of the group's size. The rule is on
- * the member, so it names the token itself: a rule on `::slotted()` reads the member's cascade, not the group's.
- */
-const overlapBlock = (size: string, selector: string, fallback: string | null = null) => `${selector} ::slotted(tanrei-avatar) {
-  margin-inline-start: calc(-1 * ${ref((v) => `${PREFIX}-group-overlap-${v}`, size, fallback)});
-}`;
-
-/**
  * The open axes (AVT-22): a size or a shape a layer added gets its block on demand, built by the same
  * functions as the core blocks and falling back to the default's tokens; a value the active system lacks is reported in
  * debug builds.
@@ -60,11 +52,8 @@ export const AXES: readonly OpenAxis[] = [
   { name: 'size', core: CORE_SIZES, default: DEFAULT_SIZE, rules: (value, selector) => sizeBlock(value, selector, DEFAULT_SIZE), probe: probes.size },
   { name: 'shape', core: CORE_SHAPES, default: DEFAULT_SHAPE, rules: (value, selector) => shapeBlock(value, selector, DEFAULT_SHAPE), probe: probes.shape },
 ];
-/** The group's: the same two, and the members' overlap with the size. */
-export const GROUP_AXES: readonly OpenAxis[] = [
-  { ...AXES[0], rules: (value, selector) => `${sizeBlock(value, selector, DEFAULT_SIZE)}\n${overlapBlock(value, selector, DEFAULT_SIZE)}` },
-  AXES[1],
-];
+/** The group's: the same two (its row reads the side and the overlap of its size, AVT-16). */
+export const GROUP_AXES: readonly OpenAxis[] = AXES;
 
 const forms = css`
   ${unsafeCSS(sizeBlock(DEFAULT_SIZE, ':host'))}
@@ -225,26 +214,25 @@ export const groupStyles = css`
     display: none;
   }
   ${forms}
-  ${unsafeCSS(overlapBlock(DEFAULT_SIZE, ':host'))}
-  ${unsafeCSS(CORE_SIZES.filter((size) => size !== DEFAULT_SIZE).map((size) => overlapBlock(size, `:host([size='${size}'])`)).join('\n'))}
 
-  /* Every box, the first too, is drawn back by the overlap, and the row starts that far in: the first stands at the
-     row's start edge, and a box later in the document is painted above the one before it. */
+  /* AVT-16: the row lays every box — the members and the overflow box — in a column of its own that is the side less
+     the overlap, from its start edge: each box is a whole side long, so it reaches the overlap past its column, under
+     the start of the next box, which is painted above it (it is later in the document). The last one's overlap is the
+     row's own room at its end. The row makes the overlap, not a margin on a member: a page's rules beat the rules a
+     shadow root gives what it slots, so a reset such as \`* { margin: 0 }\` would take a member's margin away. */
   .row {
-    display: flex;
-    flex-wrap: nowrap;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc(var(--_side) - var(--_overlap));
     align-items: center;
-    padding-inline-start: var(--_overlap);
+    padding-inline-end: var(--_overlap);
   }
   .row[hidden] {
     display: none;
   }
   ${box}
-  /* AVT-17: the overflow box — placed and surrounded as a member is. It takes no input: there is no listener and no
-     state here. */
-  .overflow {
-    margin-inline-start: calc(-1 * var(--_overlap));
-  }
+  /* AVT-17: the overflow box — placed (in the row's next column) and surrounded as a member is. It takes no input: there
+     is no listener and no state here. */
   /* AVT-18: the sign and the number are one left-to-right run, isolated, so the plus sign stays before the digits in a
      right-to-left layout; digits of equal width where the font has them. */
   .count {

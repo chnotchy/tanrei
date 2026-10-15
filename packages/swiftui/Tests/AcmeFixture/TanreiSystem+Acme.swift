@@ -2288,6 +2288,7 @@ private let acmeCarouselTokens = TanreiCarouselTokens(
   motionScrollEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  navigationButtonVariant: 2,
   parts: TanreiCarouselParts(
     item: TanreiCarouselPartTokens(
       enabled: TanreiCarouselPartStateTokens(
@@ -3437,6 +3438,7 @@ private let acmeDateTimePickerTokens = TanreiDateTimePickerTokens(
   separatorColor: .role(.onSurface),
   separatorTypescale: acmeTypescale.display,
   timeEntryModes: 0,
+  timeUnavailableOpacity: 0.38,
   wheelGap: 4,
   wheelHeight: 240,
   wheelLabelColor: .role(.onSurfaceVariant),
@@ -3552,6 +3554,7 @@ private let acmeDialogTokens = TanreiDialogTokens(
   actionsGap: 16,
   actionsMarginBlockStart: 24,
   actionsVariant: 1,
+  closeButtonVariant: 4,
   compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
   containerElevation: acmeElevation.level3,
@@ -3580,7 +3583,10 @@ private let acmeDialogTokens = TanreiDialogTokens(
   scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurfaceVariant),
-  supportingTextTypescale: acmeTypescale.body
+  supportingTextTypescale: acmeTypescale.body,
+  widthLarge: 800,
+  widthMedium: 560,
+  widthSmall: 400
 )
 
 private let acmeDividerTokens = TanreiDividerTokens(
@@ -5035,6 +5041,38 @@ private let acmeLinkTokens = TanreiLinkTokens(
   disabled: TanreiLinkStateTokens(
     containerShape: 3,
     opacity: 1
+  )
+)
+
+private let acmeListRowTokens = TanreiListRowTokens(
+  containerGap: 16,
+  containerPaddingInlineEnd: 16,
+  containerPaddingInlineStart: 16,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: acmeTypescale.body,
+  leadingIconColor: .role(.onSurfaceVariant),
+  leadingIconSize: 24,
+  overlineColor: .role(.onSurfaceVariant),
+  overlineTypescale: acmeTypescale.labelSmall,
+  supportingTextColor: .role(.onSurfaceVariant),
+  supportingTextTypescale: acmeTypescale.bodySmall,
+  trailingIconColor: .role(.onSurfaceVariant),
+  trailingIconSize: 24,
+  trailingTextColor: .role(.onSurfaceVariant),
+  trailingTextTypescale: acmeTypescale.bodySmall,
+  densitys: TanreiListRowDensitys(
+    regular: TanreiListRowDensityTokens(
+      containerHeightOneLine: 56,
+      containerHeightTwoLine: 72,
+      containerHeightThreeLine: 88,
+      containerPaddingBlock: 8
+    ),
+    compact: TanreiListRowDensityTokens(
+      containerHeightOneLine: 40,
+      containerHeightTwoLine: 56,
+      containerHeightThreeLine: 72,
+      containerPaddingBlock: 4
+    )
   )
 )
 
@@ -9834,7 +9872,8 @@ extension TanreiSystem {
       draggedStateLayerOpacity: 0.16,
       focusStateLayerOpacity: 0.12,
       hoverStateLayerOpacity: 0.06,
-      pressedStateLayerOpacity: 0.2
+      pressedStateLayerOpacity: 0.2,
+      selectedStateLayerOpacity: 0.16
     ),
     measure: TanreiMeasure(
       borderHairline: 1,
@@ -9969,6 +10008,7 @@ extension TanreiSystem {
     keyboardShortcut: acmeKeyboardShortcutTokens,
     linkCard: acmeLinkCardTokens,
     link: acmeLinkTokens,
+    listRow: acmeListRowTokens,
     list: acmeListTokens,
     loadingIndicator: acmeLoadingIndicatorTokens,
     mainActionButton: acmeMainActionButtonTokens,

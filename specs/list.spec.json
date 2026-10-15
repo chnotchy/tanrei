@@ -260,7 +260,7 @@
           "name": "label",
           "type": "string",
           "default": "",
-          "description": "The item's name. An interactive item, a link item or an option is named by it in place of its content's text; every item is called by it in the handle's name and in what the list announces about a move. Empty: the text of the content."
+          "description": "The item's name. An interactive item, a link item or an option is named by it in place of its content's text; every item is called by it in the handle's name and in what the list announces about a move. Empty: the headline of a List row that is its content's direct child (LST-49), else the text of the content."
         },
         {
           "name": "interactive",
@@ -307,7 +307,7 @@
       "slots": [
         {
           "name": "default",
-          "description": "The item's content: the product's own — text, an image, a card, a file item. In an interactive item, a link item or an option it is presentational and holds no interactive element; in a static item it may hold the product's controls, which keep their own semantics and focus."
+          "description": "The item's content: the product's own — text, an image, a card, a file item, a List row. In an interactive item, a link item or an option it is presentational and holds no interactive element; in a static item it may hold the product's controls, which keep their own semantics and focus."
         }
       ],
       "events": [
@@ -525,6 +525,16 @@
     {
       "id": "LST-47",
       "text": "THE list SHALL have no words of its own: it SHALL take dragHandleLabel, dragHandleHint, moveToStartLabel, moveBeforeLabel, moveAfterLabel, moveToEndLabel, liftedText, movedText and cancelledText from the instance's prop and, WHILE that is empty, from the product's words of the same key, and from nowhere else; WHILE the list is reorderable and one of them other than dragHandleHint is empty in both, it SHALL still render and work, and in debug builds report the missing word once. IF dragHandleLabel has no place {label} THE list SHALL name every handle with it as it is written and report in debug builds that the handles of two items cannot be told apart."
+    },
+    {
+      "id": "LST-48",
+      "text": "WHERE an element that fits itself to its item (a List row, list-row) is a direct child of an item THE list SHALL tell it what the item is — whether it is an action, a link or an option, which pads its content (LST-8); whether it draws the handle of a reorderable list before its content (LST-32); whether it is a selected option; whether it is a disabled action, link or option — before that element is first drawn in the item and again WHEN any of these changes (selection, interactive, href, disabled, or the list becoming reorderable or not), so that the element draws itself to fit the item in every arrangement and mode of the list. An element that is not a direct child of the item SHALL be told nothing and SHALL draw itself as it stands alone.",
+      "verify": "Move a List row from a static item to an interactive item, an option and an item of a reorderable list, select and disable its option: each time the row draws or drops its own paddings and its selected colors at once (LRW-8, LRW-9)."
+    },
+    {
+      "id": "LST-49",
+      "text": "WHERE an item's label is empty and its content holds a List row as a direct child THE list SHALL take the item's name from that row's headline in place of the text of its content — for the accessible name of an action, a link or an option, the handle's name, typeahead and every announcement — and SHALL describe an action, a link or an option by the row's overline, supporting text and trailing text, in that order, before the description of a link that opens a new context (LST-28); WHEN the row's texts change THE list SHALL take the new name and description at once. An item with a label keeps it as its name and is still described by the row.",
+      "verify": "On the web: an interactive item holding a row with headline Wi-Fi and supporting text Connected is a button named Wi-Fi and described Connected; in a reorderable list its handle is named with Wi-Fi; typing W moves focus to it."
     }
   ],
   "accessibility": {
@@ -566,7 +576,7 @@
     "labeling": "A selectable list is a listbox named by label; a reorderable list is named by label too. An interactive item, a link item or an option is named by its label or else by its content's text, and its content is presentational. While target is new, a link item is described by its targetLabel. In a reorderable list each handle is a button that opens a menu, named by dragHandleLabel with the item's name and described by dragHandleHint; the move menu's items are named by the four move words. The list's one live region says liftedText, movedText and cancelledText, with the item's name, its place and the number of items.",
     "minimumTarget": true,
     "notes": [
-      "The list is a box: what an item shows is the product's own content, in a slot. The list owns the arrangement (a column, a line, or lines that wrap into a grid, with a gap and dividers), the semantics (list or listbox, positions and size), keyboard focus among actionable items, selection, and reordering. A row with a headline, supporting text and an icon is the product's content, or another Tanrei component placed in the item.",
+      "The list is a box: what an item shows is the product's own content, in a slot. The list owns the arrangement (a column, a line, or lines that wrap into a grid, with a gap and dividers), the semantics (list or listbox, positions and size), keyboard focus among actionable items, selection, and reordering. A row with a headline, supporting text, a leading glyph, picture or control and a trailing value, glyph or control is a List row placed in the item as its direct child: the item tells the row what it is (LST-48) and takes its name from the row's headline (LST-49).",
       "Four kinds of item, chosen by props: static (selection none, interactive false, no href) draws nothing of its own — its content is the item — and may hold the product's controls; interactive is one button inside its list item; a link item (href) is one link inside its list item; an option (selection single or multiple) is chosen. The last three are drawn as a padded box with every state and the minimum target; a list may mix static, interactive and link items, and a selectable list holds only options.",
       "The list does not scroll or virtualize: the product places it in its own scroll view, or builds it lazily with the platform's lazy list and states the set size where the platform needs it.",
       "Reordering meets WCAG 2.2 success criterion 2.5.7 (dragging movements) and 2.1.1 (keyboard) without move buttons on every item: the handle is a button whose menu moves the item to the start, one place before, one place after or to the end — single presses for a pointer, touch, a switch, voice control and a screen reader — and with the keyboard it lifts the item, which the arrow keys carry and Space drops, as in the drag and drop patterns of mature systems (Atlassian's and GitHub's).",

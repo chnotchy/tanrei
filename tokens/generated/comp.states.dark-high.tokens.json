@@ -19450,7 +19450,7 @@
                 "dev.tanrei.derive": {
                   "fn": "alpha",
                   "of": "{tanrei.comp.list.selected.state-layer.color}",
-                  "amount": 0.16
+                  "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                 }
               }
             }
@@ -20890,7 +20890,7 @@
                 "dev.tanrei.derive": {
                   "fn": "alpha",
                   "of": "{tanrei.comp.menu.selected.state-layer.color}",
-                  "amount": 0.16
+                  "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                 }
               }
             }
@@ -21590,7 +21590,7 @@
                 "dev.tanrei.derive": {
                   "fn": "alpha",
                   "of": "{tanrei.comp.menu.current.state-layer.color}",
-                  "amount": 0.16
+                  "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                 }
               }
             }
@@ -26756,7 +26756,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.tabs.tonal.selected.state-layer.color}",
-                    "amount": 0.16
+                    "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                   }
                 }
               }
@@ -56587,7 +56587,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.select.stacked.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                   }
                 }
               }
@@ -57398,7 +57398,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.select.filled.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                   }
                 }
               }
@@ -58209,7 +58209,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.select.outlined.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                   }
                 }
               }
@@ -59082,7 +59082,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.combobox.stacked.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                   }
                 }
               }
@@ -59893,7 +59893,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.combobox.filled.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                   }
                 }
               }
@@ -60704,7 +60704,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.combobox.outlined.selected-option.state-layer.color}",
-                    "amount": 0.16
+                    "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                   }
                 }
               }

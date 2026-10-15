@@ -37,8 +37,9 @@ const hundredths = (value: number) => Math.round(value * 100) / 100;
  *
  * A floating toolbar lays its items `container.gap.floating` apart — 0 in the default system — and keeps for each a
  * length of `sys.target.touch` along its axis that its neighbour's does not reach into (TBR-16): two medium Buttons (40)
- * stand 8 apart, two large ones (56) touch. It measures its items for that and writes each one's length on it as
- * `--tanrei-kept-*` custom properties (src/primitives/kept-length.ts), which are not a styling API either.
+ * stand 8 apart, two large ones (56) touch. It measures its items for that and lays the space between two items as an
+ * element of its own container (src/primitives/kept-length.ts): it writes nothing on the items, and a page's reset
+ * (`* { margin: 0 }`) leaves the spacing as it is.
  *
  * @tag tanrei-toolbar
  * @slot - The items, in reading order: `<tanrei-button>` elements — an icon-only one for an action (a toggle such as
@@ -55,6 +56,7 @@ export class TanreiToolbar extends LitElement implements PlacingGroup {
     orientation: { type: String, reflect: true },
     label: { type: String },
     scrolls: { state: true },
+    only: { state: true },
   };
 
   /**
@@ -77,6 +79,9 @@ export class TanreiToolbar extends LitElement implements PlacingGroup {
   /** TBR-8: the items need more length than the toolbar has, so the container scrolls them. */
   private scrolls = false;
 
+  /** TBR-2: it holds one element, which the container centres (its own box, not a margin on the item). */
+  private only = false;
+
   /** TBR-13: variants a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
   private readonly axes = new OpenAxesController(this, { component: 'toolbar', behavior: 'TBR-13', axes: AXES });
 
@@ -89,8 +94,14 @@ export class TanreiToolbar extends LitElement implements PlacingGroup {
   /** TBR-9: where each item was placed last, with its reach toward its neighbours. */
   private readonly places = new Map<Element, GroupPlace>();
 
-  /** TBR-16: the lengths a floating toolbar's items keep along its axis; what follows from them is measured again. */
-  private readonly kept = new KeptLengths(() => this.measure());
+  /**
+   * TBR-16: the lengths a floating toolbar's items keep along its axis; what follows from them is measured again. The
+   * space between two items is a spacer in the container, never a margin on the product's item.
+   */
+  private readonly kept = new KeptLengths(
+    () => this.measure(),
+    () => this.container,
+  );
 
   private resize: ResizeObserver | null = null;
   private mutations: MutationObserver | null = null;
@@ -176,6 +187,7 @@ export class TanreiToolbar extends LitElement implements PlacingGroup {
   }
 
   private readonly onSlotChange = () => {
+    this.only = this.children.length === 1;
     for (const place of [...this.places.keys()]) if (place.parentElement !== this) this.places.delete(place);
     this.observe();
     this.rove();
@@ -329,6 +341,11 @@ export class TanreiToolbar extends LitElement implements PlacingGroup {
     }
   }
 
+  protected override willUpdate() {
+    // The first render already centres a single item: the light-DOM children are there before a slot says so.
+    if (!this.hasUpdated) this.only = this.children.length === 1;
+  }
+
   protected override updated(changed: PropertyValues<this>) {
     // TBR-11: a toolbar named by its label, with its orientation; its items keep their own name, role and state.
     hostAria(this, { role: 'toolbar', 'aria-label': this.label || null, 'aria-orientation': this.axis === 'block' ? 'vertical' : 'horizontal' });
@@ -344,7 +361,7 @@ export class TanreiToolbar extends LitElement implements PlacingGroup {
   }
 
   protected override render() {
-    return html`<div part="container" class=${classMap({ container: true, scrolls: this.scrolls })} data-tanrei-shape><slot @slotchange=${this.onSlotChange}></slot></div>`;
+    return html`<div part="container" class=${classMap({ container: true, scrolls: this.scrolls, only: this.only })} data-tanrei-shape><slot @slotchange=${this.onSlotChange}></slot></div>`;
   }
 }
 

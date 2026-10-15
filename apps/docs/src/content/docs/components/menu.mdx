@@ -63,6 +63,8 @@ An item's keyboard shortcut is its `shortcut` prop, written in the [keyboard sho
 
 An item with an `href` is a link item: the platform's own link, drawn exactly as an action and moved to with the same keys. A plain activation emits the item's `click`, closes the menu and then opens the destination. `target` and `targetLabel` are the [Button](/components/button/)'s. `current` marks the link item of the page the person is on: it is drawn with a fill of its own and no check. The web builds link items; SwiftUI, Compose, Flutter and React Native do not have them yet.
 
+A menu can also be the context menu of an area: set `trigger` to `context`, and the anchor is that area, such as a canvas, a list or a row. A person asks for the menu at a point in it with a right-click, a long press, or Shift+F10 or the ContextMenu key on what has focus. The menu emits `contextRequest` with the point, and you open it there. The web builds the context trigger; SwiftUI, Compose, Flutter and React Native do not have it yet.
+
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
@@ -95,6 +97,10 @@ An item with an `href` is a link item: the platform's own link, drawn exactly as
     <!-- separation="gap" sets groups apart by empty space in this menu and its submenus, whatever the design system chose. -->
     <tanrei-menu anchor="more" separation="gap">…</tanrei-menu>
 
+    <!-- trigger="context": the context menu of the area whose id is anchor. Name it with aria-label. -->
+    <div id="canvas">…</div>
+    <tanrei-menu id="canvas-menu" anchor="canvas" trigger="context" aria-label="Canvas">…</tanrei-menu>
+
     <script type="module">
       import '@tanrei/web/components/menu';
       const menu = document.querySelector('tanrei-menu');
@@ -106,6 +112,13 @@ An item with an `href` is a link item: the platform's own link, drawn exactly as
       menu.querySelector('[label="Copy"]').addEventListener('click', copy);
       menu.querySelector('[label="Show grid"]').addEventListener('change', (e) => setGrid(e.detail.checked));
       menu.querySelector('[label="Sort by"]').addEventListener('change', (e) => sortBy(e.detail.value));
+
+      // A right-click, a long press, Shift+F10 or the ContextMenu key in the area asks for the context menu.
+      // detail holds the point, the element it was asked about and how. Open it, or cancel the event to
+      // leave the request to the browser's own menu.
+      const canvasMenu = document.querySelector('#canvas-menu');
+      canvasMenu.addEventListener('contextrequest', () => (canvasMenu.open = true));
+      canvasMenu.addEventListener('close', () => (canvasMenu.open = false));
     </script>
     ```
   </TabItem>
@@ -130,6 +143,11 @@ An item with an `href` is a link item: the platform's own link, drawn exactly as
       <MenuItem label="Delete" leadingIcon="delete" destructive onClick={remove} />
       {/* A link item. A router cancels the click and goes there itself; the menu still closes. */}
       <MenuItem label="Keyboard shortcuts" href="/help/shortcuts/" onClick={(e) => { e.preventDefault(); navigate('/help/shortcuts/'); }} />
+    </Menu>
+
+    {/* A context menu of the area whose id is canvas: a request opens it. */}
+    <Menu anchor="canvas" trigger="context" aria-label="Canvas" open={contextOpen} onContextrequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
+      <MenuItem label="Paste" onClick={paste} />
     </Menu>
     ```
   </TabItem>
@@ -435,6 +453,18 @@ A submenu item is a row that ends with the icon set's `chevron_right`, and its c
 - **Depth.** Keep to two levels of submenu below the menu. A third is still drawn, and debug builds report it, as they report a submenu without items.
 - A group's `value` reaches only the radio items of its own surface, and each surface decides its own mark and icon columns.
 
+### Context menus
+
+A context menu offers the actions that apply to what the person points at, where they point. It is the same menu, with the same items, keys and submenus, opened at a point of an area instead of from a button.
+
+- **The area.** Set `trigger` to `context`, and `anchor` to the id of the area: a canvas, a list, a table's row, a document. The area is not a button, so the menu writes no popup state on it.
+- **Asking for it.** A right-click (on a Mac also a Control-click or a two-finger click), a touch or a pen held still for half a second, Shift+F10 or the ContextMenu key on the element that has focus, or the context-menu command of a screen reader. The menu emits `contextRequest` with the point, the element it was asked about and how it was asked: `pointer`, `long-press` or `keyboard`. You set `open`, as you do from an anchor.
+- **Where it opens.** With a corner on the point, with no gap: below the point and toward the end of the line by default, as `placement` names it. Near an edge of the window it opens on the other side of the point, along each axis by itself, so it never covers the point. It moves with the area as the page scrolls. Asked for with a key, it opens against the element that has focus, as against an anchor.
+- **The browser's own menu.** The menu cancels the browser's context menu for each request it answers. Cancel `contextRequest` to leave a request to the browser, for example over a field, a link or selected text that your menu does not handle.
+- **Focus and closing.** Focus moves to the first enabled item, and returns to the element that had focus when the menu was asked for. A press anywhere outside the menu closes it, in the area too, and a right-click somewhere else closes it and asks for it again there.
+- **What goes in it.** Only actions that apply to what was pointed at, the most used first. Offer each of them somewhere else in your product too: people who do not know to ask never see a context menu.
+- **On iOS** a long press can also select the text under it. Where the area's text is not meant to be selected, say so in its styles (`user-select: none`, `-webkit-touch-callout: none`).
+
 ### Opening, focus and closing
 
 A menu is an operated overlay that is not modal. People act inside it, so it takes focus and gives it back. Nothing else on the screen is blocked.
@@ -448,12 +478,12 @@ A menu is an operated overlay that is not modal. People act inside it, so it tak
 | --- | --- |
 | `escape` | Escape was pressed. |
 | `back` | The platform's back, such as Android's back button or gesture. |
-| `outside` | A press landed outside the surface and the anchor. |
-| `tab` | Tab or Shift+Tab was pressed. Focus then moves on from the anchor, as it would have from it. |
+| `outside` | A press landed outside the surface and the anchor. For a context menu, anywhere outside the surface, in the area too. |
+| `tab` | Tab or Shift+Tab was pressed. Focus then moves on from the anchor, as it would have from it. For a context menu, it moves on from the element that had focus when the menu was asked for. |
 | `focus-out` | Focus moved out of the menu some other way. |
 | `item` | An item was activated. |
 
-- **Focus back.** When the menu closes and focus was inside it, focus returns to the anchor.
+- **Focus back.** When the menu closes and focus was inside it, focus returns to the anchor. A context menu returns it to the element that had focus when the menu was asked for, and where nothing had focus, focus simply leaves the menu.
 
 Who closes the menu follows the platform. On the web and React Native you set `open` (`visible`) back to false from the close event. On Compose you set `expanded` to false from `onDismissRequest`, which carries a `TanreiMenuCloseReason`. On Flutter the menu calls `onClose` with the reason and closes itself through its controller. On SwiftUI the menu writes `false` to `isPresented`, so the reason is not passed on.
 
@@ -487,17 +517,19 @@ Whether a press outside also reaches what is under it follows the platform too. 
 - A group is exposed as a group named by its title. Dividers are separators that take no focus; where groups are set apart by a gap, there is no separator. Titles take no focus and are not read as items.
 - A submenu item is exposed as an item that opens a menu, with its expanded state, also while it is disabled. Its surface is a menu of its own, named by the item's label, and each surface counts its own positions.
 - The anchor is told that it opens a menu and whether the menu is open, where the platform has that property (on the web, `aria-haspopup`, `aria-controls` and `aria-expanded`).
+- A context menu leaves its area as it is: the area is not a button and is not told that it opens a menu. The menu opens with a right-click, a long press, Shift+F10, the ContextMenu key or the context-menu command of assistive technology, and is named only by the `aria-label` you give it, as the platforms' own context menus have no name.
 - Opening moves focus to the first enabled item. Closing returns focus to the anchor when it was inside the menu. Up and Down Arrow wrap, Home and End go to the ends, and typing moves to the next item whose label begins with the typed letters. Enter activates and closes. Space on a checkbox or radio item leaves the menu open. Escape closes and returns focus. Tab closes and moves on from the anchor. In a submenu, the arrow key toward the start of the line and Escape close that level alone and return focus to its item; the arrow keys along the line that do nothing never reach the page behind the menu.
 - Disabled items can still be reached with the arrow keys, but do not activate.
 - The focus ring is drawn inside the item, so the surface cannot clip it. It shows for keyboard focus only. A pointer moving onto an item shows it as hovered, not focused.
 - Each item is at least the minimum target tall, and the whole row is its hit area.
 - Items grow with larger text, and the surface scrolls when it no longer fits the screen.
 - While the icon font cannot draw a glyph mark yet, such as the check, the menu draws nothing in its place, never the word "check". It keeps the column's width and still exposes the checked state, and shows the mark once the font has loaded.
-- Debug builds report an item without a label, a radio item outside a group, a group value that names none of its radio items, two radio items that share a value, a group inside a group, an item with both a shortcut and trailing text, a `separation` or an `iconSpace` the menu does not define, a third level of submenu and a submenu without items. They also report a link item that opens a new context without a `targetLabel`, an `href` on a checkbox item, a radio item or a submenu item, an `href` that names a script or cannot be read, a `target` the menu does not define, and `current` on an item without an `href`.
+- Debug builds report an item without a label, a radio item outside a group, a group value that names none of its radio items, two radio items that share a value, a group inside a group, an item with both a shortcut and trailing text, a `trigger`, a `separation` or an `iconSpace` the menu does not define, a third level of submenu and a submenu without items. They also report a link item that opens a new context without a `targetLabel`, an `href` on a checkbox item, a radio item or a submenu item, an `href` that names a script or cannot be read, a `target` the menu does not define, and `current` on an item without an `href`.
 
 Known platform gaps:
 
 - SwiftUI, Compose, Flutter and React Native have no link items: an item takes no `href` there yet.
+- SwiftUI, Compose, Flutter and React Native have no context trigger: their menus open from an anchor only.
 - SwiftUI, Compose, Flutter and React Native have no submenus, no `separation`, no `iconSpace`, no `markIcon` and no fill on a checked row. They keep the mark and icon columns on every row of a menu where any item draws in them. They still draw the check as a mark of their own in a 16 box, and start a group's title where the labels start.
 - Where the title starts under `m3-like` and `cupertino` follows Tanrei's rule and has not been measured against the originals.
 - Web: the menu does not listen for the platform's close request, such as Android's back gesture, so `back` is never sent.
@@ -528,6 +560,7 @@ Known platform gaps:
 - Name the menu by its anchor. Give an icon button anchor a label such as "More" or "Sort". On React Native, pass the same name as the menu's `accessibilityLabel`.
 - On Compose and React Native, expose on the anchor whether the menu is open. The menu cannot set it there.
 - Close the menu when it asks, and do not move focus yourself when it closes. The menu returns focus to the anchor.
+- Name a context menu with `aria-label`, such as "Canvas", and offer each of its actions somewhere else in your product too.
 - Give every item a label, including items that show an icon. The label is the name and what typeahead matches.
 - Give the group of radio items a title that says what the choice is about.
 - Give every submenu item a label: it names the item and the submenu it opens.

@@ -97,6 +97,7 @@ private object M3ExpressiveLikeSystemSource {
             keyboardShortcut = keyboardShortcut(typescale, elevation),
             linkCard = linkCard(typescale, elevation),
             link = link(typescale, elevation),
+            listRow = listRow(typescale, elevation),
             list = list(typescale, elevation),
             loadingIndicator = loadingIndicator(typescale, elevation),
             mainActionButton = mainActionButton(typescale, elevation),
@@ -667,6 +668,7 @@ private object M3ExpressiveLikeSystemSource {
         focusStateLayerOpacity = 0.12f,
         hoverStateLayerOpacity = 0.08f,
         pressedStateLayerOpacity = 0.12f,
+        selectedStateLayerOpacity = 0.16f,
     )
 
     fun measure(): TanreiMeasure = TanreiMeasure(
@@ -2287,6 +2289,7 @@ private object M3ExpressiveLikeSystemSource {
             motionScrollEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            navigationButtonVariant = 2f,
             hovered = TanreiCarouselStateTokens(containerShape = 28.dp, opacity = 1f),
             focused = TanreiCarouselStateTokens(containerShape = 28.dp, opacity = 1f),
             pressed = TanreiCarouselStateTokens(containerShape = 28.dp, opacity = 1f),
@@ -3343,6 +3346,7 @@ private object M3ExpressiveLikeSystemSource {
             separatorColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
             separatorTypescale = typescale.extra.getValue("display-large"),
             timeEntryModes = 2f,
+            timeUnavailableOpacity = 0.38f,
             wheelGap = 4.dp,
             wheelHeight = 240.dp,
             wheelLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
@@ -3444,6 +3448,7 @@ private object M3ExpressiveLikeSystemSource {
             actionsGap = 8.dp,
             actionsMarginBlockStart = 24.dp,
             actionsVariant = 4f,
+            closeButtonVariant = 4f,
             compactWindowWidth = 0.dp,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerHigh),
             containerElevation = elevation.level3,
@@ -3473,6 +3478,9 @@ private object M3ExpressiveLikeSystemSource {
             scrimColor = TanreiPaint.Role(TanreiColorRole.Scrim),
             supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             supportingTextTypescale = typescale.body,
+            widthLarge = 800.dp,
+            widthMedium = 560.dp,
+            widthSmall = 400.dp,
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -4828,6 +4836,30 @@ private object M3ExpressiveLikeSystemSource {
                         currentStateLayerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.InverseOnSurface), amount = 0.38f),
                     ),
                 ),
+            ),
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    fun listRow(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiListRowTokens =
+        TanreiListRowTokens(
+            containerGap = 16.dp,
+            containerPaddingInlineEnd = 24.dp,
+            containerPaddingInlineStart = 16.dp,
+            headlineColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
+            headlineTypescale = typescale.bodyLarge,
+            leadingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            leadingIconSize = 24.dp,
+            overlineColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            overlineTypescale = typescale.labelSmall,
+            supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            supportingTextTypescale = typescale.bodySmall,
+            trailingIconColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            trailingIconSize = 24.dp,
+            trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
+            trailingTextTypescale = typescale.bodySmall,
+            densitys = TanreiListRowDensitys(
+                regular = TanreiListRowDensityTokens(containerHeightOneLine = 56.dp, containerHeightTwoLine = 72.dp, containerHeightThreeLine = 88.dp, containerPaddingBlock = 8.dp),
+                compact = TanreiListRowDensityTokens(containerHeightOneLine = 40.dp, containerHeightTwoLine = 56.dp, containerHeightThreeLine = 72.dp, containerPaddingBlock = 4.dp),
             ),
         )
 

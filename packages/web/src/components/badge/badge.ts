@@ -20,9 +20,12 @@ const ownDescriptions = new WeakMap<Element, string | null>();
  * announced with its own name followed by it ("Inbox, button, 3 unread"). An anchor that is a Tanrei component passes
  * it on to its native element. The badge takes no space and no input, and never announces a change by itself.
  *
+ * A badge needs an anchor: with no element in its slot it draws nothing and says nothing, and a debug build reports it
+ * (BDG-16). A count that stands by itself in a row is that row's text (a navigation drawer item's `trailing-text`).
+ *
  * @tag tanrei-badge
- * @slot - The anchor the badge sits on: an icon, an icon button, a navigation item or an avatar. Its first element is
- *   the one that is described.
+ * @slot - The anchor the badge sits on, which it needs: an icon, an icon button, a navigation item or an avatar. Its
+ *   first element is the one that is described; with none, the badge draws nothing (BDG-16).
  * @csspart container - The dot, or the pill that holds the count (hidden from assistive technology).
  * @csspart label - The count, or the capped count followed by a plus sign.
  */
@@ -35,6 +38,7 @@ export class TanreiBadge extends LitElement {
     max: { type: Number },
     label: { type: String },
     anchor: { state: true },
+    assigned: { state: true },
   };
 
   /** How many things are waiting. Null (no attribute) draws the dot; 0 draws nothing; above 0 draws the number. */
@@ -103,6 +107,18 @@ export class TanreiBadge extends LitElement {
     this.anchor = (event.target as HTMLSlotElement).assignedElements()[0] ?? null;
   }
 
+  /** BDG-16: whether the slot has been read, so that a badge is not reported as anchorless before its first assignment. */
+  private assigned = false;
+
+  /** BDG-16: whether the badge is without an anchor, so that it is reported once each time it is left without one. */
+  private missing = false;
+
+  protected override firstUpdated() {
+    // An empty slot fires no slotchange: read the assignment once, after the first render.
+    this.anchor = this.renderRoot.querySelector('slot')?.assignedElements()[0] ?? null;
+    this.assigned = true;
+  }
+
   override connectedCallback() {
     super.connectedCallback();
     if (this.hasUpdated) this.observePill();
@@ -149,6 +165,13 @@ export class TanreiBadge extends LitElement {
   protected override updated(changed: PropertyValues<this>) {
     // The pill is a new element whenever the form changes (dot → count); observing one twice is a no-op.
     this.observePill();
+    // BDG-16: a badge with nothing to sit on draws nothing; a debug build says so each time it is left without one.
+    const missing = this.assigned && !this.anchor;
+    const began = missing && !this.missing;
+    this.missing = missing;
+    if (began) {
+      report(this, 'BDG-16', 'the badge has no anchor, so it draws nothing; wrap the icon, button, navigation item or avatar it marks. A count that stands by itself in a row is that row\'s text', { once: false });
+    }
     // BDG-8 / BDG-10 / BDG-5: the anchor's description follows count and label; nothing is announced by the badge.
     const previous = changed.get('anchor' as keyof TanreiBadge) as Element | null | undefined;
     if (previous && previous !== this.anchor) this.describe(previous, null);
@@ -161,10 +184,11 @@ export class TanreiBadge extends LitElement {
   protected override render() {
     const shown = this.shown;
     const form = shown === null ? 'dot' : 'count';
-    // BDG-5: a count of 0 draws nothing. BDG-8: what is drawn is hidden from assistive technology.
+    // BDG-5: a count of 0 draws nothing; BDG-16: nor does a badge with no anchor. BDG-8: what is drawn is hidden from
+    // assistive technology.
     return html`
       <slot @slotchange=${this.onSlotChange}></slot>
-      <span class="corner ${form}" aria-hidden="true" ?hidden=${shown === 0}>
+      <span class="corner ${form}" aria-hidden="true" ?hidden=${shown === 0 || !this.anchor}>
         ${form === 'dot'
           ? html`<span part="container" class="container"></span>`
           : html`<span part="container" class="container" data-tanrei-shape><span part="label" class="label">${this.text || nothing}</span></span>`}

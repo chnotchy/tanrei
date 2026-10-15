@@ -2629,6 +2629,181 @@ test.describe('the range fields and typed entries', () => {
   });
 });
 
+test.describe('bounds of the time', () => {
+  test('DTM-49: min and max bound the time — a pending time outside them starts at the nearer bound and OK commits it; an hour or a period that leaves them moves the time into them; a date-time bound limits the times on its own day only; min is rounded up and max down to minuteStep; a bound in another form, a min after max and bounds with no time of the step between them are ignored and reported', async ({ page }) => {
+    const seen = warnings(page);
+    await mount(page, [
+      modal('a', { mode: 'time', value: '07:30', hourCycle: 'h12', min: '09:00', max: '17:30' }),
+      inline('b', { mode: 'time', value: '09:00', hourCycle: 'h12', min: '09:00', max: '17:30' }),
+      inline('c', { mode: 'date-time', value: '2026-09-18T07:30', hourCycle: 'h23', min: '2026-09-17T09:00', max: '2026-09-30T17:00' }),
+      inline('d', { mode: 'time', value: '12:00', hourCycle: 'h23', min: '09:07', max: '17:50', minuteStep: 15 }),
+      inline('e', { mode: 'time', value: '07:30', hourCycle: 'h23', min: '2026-09-17' }),
+      inline('f', { mode: 'time', value: '07:30', hourCycle: 'h23', min: '18:00', max: '09:00' }),
+      inline('g', { mode: 'time', value: '07:30', hourCycle: 'h23', min: '09:50', max: '09:55', minuteStep: 15 }),
+      inline('h', { mode: 'date-time', value: '2026-09-18T07:30', hourCycle: 'h23', min: '2026-09-17' }),
+    ]);
+    // Opened at 07:30 under a min of 09:00: the pending time is 9:00, and OK commits it.
+    await open(page, 'a');
+    await expect(wheel(page, 'a', 'hour')).toHaveAttribute('aria-valuenow', '9');
+    await expect(wheel(page, 'a', 'minute')).toHaveAttribute('aria-valuenow', '0');
+    await action(page, 'a', 'confirm').click();
+    await expect.poll(() => log(page)).toEqual(['change:{"value":"09:00","start":"","end":""}:09:00||', 'close:confirm']);
+    // 9:00 AM set to PM is 21:00, after a max of 17:30: the time is 5:30 PM.
+    await period(page, 'b').focus();
+    await page.keyboard.press('ArrowDown');
+    await expect(wheel(page, 'b', 'hour')).toHaveAttribute('aria-valuetext', '5 PM');
+    await expect(wheel(page, 'b', 'minute')).toHaveAttribute('aria-valuenow', '30');
+    // The day after min's: 07:30 is offered. min's own day: the time moves to 09:00. The calendar ends before min's date.
+    await expect(wheel(page, 'c', 'hour')).toHaveAttribute('aria-valuenow', '7');
+    await expect(host(page, 'c').locator('tanrei-calendar')).toHaveJSProperty('min', '2026-09-17');
+    await day(page, 'c', '2026-09-17').click();
+    await expect(wheel(page, 'c', 'hour')).toHaveAttribute('aria-valuenow', '9');
+    await expect(wheel(page, 'c', 'minute')).toHaveAttribute('aria-valuenow', '0');
+    // 09:07 with a step of 15 offers 09:15 first; 17:50 offers 17:45 last.
+    await wheel(page, 'd', 'hour').focus();
+    await page.keyboard.press('Home');
+    await expect(wheel(page, 'd', 'hour')).toHaveAttribute('aria-valuenow', '9');
+    await expect(wheel(page, 'd', 'minute')).toHaveAttribute('aria-valuenow', '15');
+    await page.keyboard.press('End');
+    await expect(wheel(page, 'd', 'hour')).toHaveAttribute('aria-valuenow', '17');
+    await expect(wheel(page, 'd', 'minute')).toHaveAttribute('aria-valuemax', '45');
+    await wheel(page, 'd', 'minute').focus();
+    await page.keyboard.press('End');
+    await expect(wheel(page, 'd', 'minute')).toHaveAttribute('aria-valuenow', '45');
+    // Ignored and reported: the time keeps 07:30.
+    for (const id of ['e', 'f', 'g']) await expect(wheel(page, id, 'hour')).toHaveAttribute('aria-valuenow', '7');
+    expect(seen.some((w) => w.includes('DTM-40') && w.includes('min "2026-09-17" is not a time of day'))).toBe(true);
+    expect(seen.some((w) => w.includes('DTM-40') && w.includes('min "18:00" is after max "09:00"'))).toBe(true);
+    expect(seen.some((w) => w.includes('DTM-40') && w.includes('no time of minuteStep 15 lies between'))).toBe(true);
+    // A date alone in mode date-time bounds the dates, and not the times.
+    await expect(host(page, 'h').locator('tanrei-calendar')).toHaveJSProperty('min', '2026-09-17');
+    await day(page, 'h', '2026-09-17').click();
+    await expect(wheel(page, 'h', 'hour')).toHaveAttribute('aria-valuenow', '7');
+  });
+
+  test('DTM-49: the picker never offers a time the Text field it opens from refuses — opened with the min and max of the field’s pickerRequest, every value it offers is accepted by the field, and the times just outside them are refused', async ({ page }) => {
+    await mount(page, [modal('p', { mode: 'time', hourCycle: 'h23', minuteStep: 15, value: '12:00' })], {
+      lead: '<tanrei-text-input id="field" type="time" locale="en-GB" label="Start" picker picker-label="Choose time" min="09:07" max="17:50"></tanrei-text-input>',
+    });
+    const field = page.locator('#field');
+    // The product's side: the field's request configures the picker and opens it.
+    await page.evaluate(() => {
+      const picker = document.querySelector<any>('[data-fixture="p"] tanrei-date-time-picker');
+      document.getElementById('field')!.addEventListener('pickerrequest', (event) => Object.assign(picker, { min: (event as CustomEvent).detail.min, max: (event as CustomEvent).detail.max, open: true }));
+    });
+    await field.locator('.picker-button button').click();
+    await expect.poll(() => isOpen(page, 'p')).toBe(true);
+    // Every value the picker offers: each available hour (Home, then Up Arrow until it wraps), and in each its available minutes.
+    const offered: string[] = [];
+    const two = (n: number) => String(n).padStart(2, '0');
+    await wheel(page, 'p', 'hour').focus();
+    await page.keyboard.press('Home');
+    const firstHour = await now(wheel(page, 'p', 'hour'));
+    for (let hour = firstHour, guard = 0; guard < 24; guard++) {
+      await wheel(page, 'p', 'minute').focus();
+      await page.keyboard.press('Home');
+      const firstMinute = await now(wheel(page, 'p', 'minute'));
+      for (let minute = firstMinute, steps = 0; steps < 4; steps++) {
+        offered.push(`${two(hour)}:${two(minute)}`);
+        await page.keyboard.press('ArrowUp');
+        minute = await now(wheel(page, 'p', 'minute'));
+        if (minute === firstMinute) break;
+      }
+      await wheel(page, 'p', 'hour').focus();
+      await page.keyboard.press('ArrowUp');
+      hour = await now(wheel(page, 'p', 'hour'));
+      if (hour === firstHour) break;
+    }
+    expect(offered[0]).toBe('09:15');
+    expect(offered.at(-1)).toBe('17:45');
+    expect(offered).toHaveLength(35);
+    await page.keyboard.press('Escape');
+    await expect.poll(() => isOpen(page, 'p')).toBe(false);
+    // The field, given each time as a person types it: every time the picker offers is accepted, and the times next to
+    // them on the step, outside them, are refused.
+    const accepts = async (time: string) => {
+      await field.locator('[part="segment"]').first().click();
+      await page.keyboard.type(time.replace(':', ''));
+      return field.evaluate((el) => (el as any).value);
+    };
+    for (const time of offered) expect(await accepts(time), time).toBe(time);
+    for (const time of ['09:00', '18:00']) expect(await accepts(time), time).toBe('');
+  });
+
+  test('DTM-50: hours, minutes and periods outside min and max keep their places, faded by the token, and are passed over — by the keys, a press on a row, a press on the dial and a typed entry; each spin button’s minimum and maximum are its first and last available values', async ({ page }) => {
+    await mount(
+      page,
+      [
+        inline('t', { mode: 'time', value: '17:30', hourCycle: 'h23', min: '09:15', max: '17:45', minuteStep: 15 }),
+        inline('p', { mode: 'time', value: '10:00', hourCycle: 'h12', min: '09:00', max: '11:30' }),
+        inline('d', { mode: 'time', value: '09:30', hourCycle: 'h12', entryMode: 'dial', min: '09:15', max: '17:45', minuteStep: 15 }),
+      ],
+      { window: { width: 480, height: 2000 } },
+    );
+    const faded = Number(await token(page, T('time-unavailable-opacity')));
+    expect(faded).toBeGreaterThan(0);
+    expect(faded).toBeLessThan(1);
+    // The hour wheel keeps 18 in its place below 17, faded; 16 is not.
+    const row = (id: string, unit: 'hour' | 'minute', text: string) => wheelBox(page, id, unit).locator('.row').filter({ hasText: new RegExp(`^${text}$`) }).first();
+    await expect(row('t', 'hour', '18')).toHaveAttribute('data-unavailable', '');
+    expect(Number(await css(row('t', 'hour', '18'), 'opacity'))).toBeCloseTo(faded, 2);
+    await expect(row('t', 'hour', '16')).not.toHaveAttribute('data-unavailable');
+    // The spin buttons' reach.
+    await expect(wheel(page, 't', 'hour')).toHaveAttribute('aria-valuemin', '9');
+    await expect(wheel(page, 't', 'hour')).toHaveAttribute('aria-valuemax', '17');
+    await expect(wheel(page, 't', 'minute')).toHaveAttribute('aria-valuemin', '0');
+    await expect(wheel(page, 't', 'minute')).toHaveAttribute('aria-valuemax', '45');
+    // Up Arrow from 17 passes over 18 … 08 to 9; Down Arrow back to 17.
+    await wheel(page, 't', 'hour').focus();
+    await page.keyboard.press('ArrowUp');
+    await expect(wheel(page, 't', 'hour')).toHaveAttribute('aria-valuenow', '9');
+    await expect(wheel(page, 't', 'minute')).toHaveAttribute('aria-valuenow', '30');
+    await page.keyboard.press('ArrowDown');
+    await expect(wheel(page, 't', 'hour')).toHaveAttribute('aria-valuenow', '17');
+    await page.keyboard.press('Home');
+    await expect(wheel(page, 't', 'hour')).toHaveAttribute('aria-valuenow', '9');
+    // In hour 9 the minute 00 is unavailable: Home is 15, Down Arrow from 15 wraps to 45.
+    await expect(wheel(page, 't', 'minute')).toHaveAttribute('aria-valuemin', '15');
+    await wheel(page, 't', 'minute').focus();
+    await page.keyboard.press('Home');
+    await expect(wheel(page, 't', 'minute')).toHaveAttribute('aria-valuenow', '15');
+    await page.keyboard.press('ArrowDown');
+    await expect(wheel(page, 't', 'minute')).toHaveAttribute('aria-valuenow', '45');
+    // A typed hour or minute outside them keeps the value before.
+    await wheel(page, 't', 'hour').focus();
+    await page.keyboard.type('20');
+    await expect(wheel(page, 't', 'hour')).toHaveAttribute('aria-valuenow', '9');
+    await wheel(page, 't', 'minute').focus();
+    await page.keyboard.type('00');
+    await expect(wheel(page, 't', 'minute')).toHaveAttribute('aria-valuenow', '45');
+    // A press on the row above the hour's — 8, unavailable — settles back on 9.
+    const box = await bounds(wheelBox(page, 't', 'hour'));
+    const rowHeight = (await bounds(wheelBox(page, 't', 'hour').locator('.row.on'))).height;
+    await expect(wheelBox(page, 't', 'hour').locator('.row.on')).toHaveText('09');
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2 - rowHeight);
+    // The rows go where they settle at once (the value is taken once they have): to 9, not to 8.
+    await expect(wheelBox(page, 't', 'hour').locator('.row.on')).toHaveText('09');
+    await expect(wheel(page, 't', 'hour')).toHaveAttribute('aria-valuenow', '9');
+    // A press on the row below — 10, available — settles there.
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2 + rowHeight);
+    await expect.poll(() => now(wheel(page, 't', 'hour'))).toBe(10);
+    // The period: PM has no time before 11:30 — faded, and the keys, the letter and a press on it change nothing.
+    const pm = periodBox(page, 'p').locator('.row').nth(1);
+    await expect(pm).toHaveAttribute('data-unavailable', '');
+    await expect(period(page, 'p')).toHaveAttribute('aria-valuemax', '0');
+    await period(page, 'p').focus();
+    for (const key of ['ArrowDown', 'End', 'p']) await page.keyboard.press(key);
+    await expect(period(page, 'p')).toHaveAttribute('aria-valuetext', 'AM');
+    // The dial: 3 (AM) is faded; a press on it takes the nearest available hour, 11.
+    const three = host(page, 'd').locator('.face .numbers.hours .number').filter({ hasText: /^3$/ });
+    await expect(three).toHaveAttribute('data-unavailable', '');
+    expect(Number(await css(three, 'opacity'))).toBeCloseTo(faded, 2);
+    const at = await bounds(three);
+    await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
+    await expect(selector(page, 'd', 'hour')).toHaveAttribute('aria-valuenow', '11');
+  });
+});
+
 test.describe('accessibility', () => {
   test('no axe violations in light and dark: each fixture alone, and a docked overlay open from its anchor', async ({ page }) => {
     test.setTimeout(300_000);

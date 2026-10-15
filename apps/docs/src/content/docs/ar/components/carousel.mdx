@@ -2,7 +2,7 @@
 title: العرض الدوّار
 description: صف من العناصر المرئية يُمرَّر جانبيًّا حول عنصر واحد في الصدارة، وكل عنصر يفتح ما يعرضه. والصف المميَّز قد يدور بلا نهاية، ويعرض موضعه بنقاط، ويتقدم من تلقاء نفسه.
 translationOf: components/carousel.mdx
-sourceHash: 2d83688f39ecd8ebca3c92ae6620428c4fb0310d
+sourceHash: 9e3187c84cf7ad11c87e041a77ec3b2d997a9e5e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,11 +16,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="carousel" />
 
 :::note[مواصفة معدَّلة لم تصل بعد إلى كل المنصات]
-تصف هذه الصفحة العرض الدوّار كما هو في المواصفة الآن. تحل اختيارات مستقلة (موضع العنصر البارز، عروض مرنة أو ثابتة، التصغير، الاستقرار على عنصر كامل، الدوران) محل الخاصية `layout`، ويستطيع الصف المميَّز أن يعرض نقاطًا وأن يتقدم من تلقاء نفسه. العنصر البارز (hero) صار الآن في الوسط افتراضيًّا، والعناصر المتجاورة تقف على بُعد فجوة واحدة عند كل موضع تمرير. مكوّن الويب يفعل ذلك كله منذ الآن، وكذلك العروض التوضيحية. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق بالمواصفة تقدّم المراجعة السابقة، وفيها `layout` وليس فيها دوران ولا نقاط ولا تشغيل تلقائي. انظر [العنصر البارز في الوسط في الوضع الافتراضي](#العنصر-البارز-في-الوسط-في-الوضع-الافتراضي) و [الترحيل من `layout`](#الترحيل-من-layout).
+تصف هذه الصفحة العرض الدوّار كما هو في المواصفة الآن. تحل اختيارات مستقلة (موضع العنصر البارز، عروض مرنة أو ثابتة، التصغير، الاستقرار على عنصر كامل، الدوران) محل الخاصية `layout`، ويستطيع الصف المميَّز أن يعرض نقاطًا وأن يتقدم من تلقاء نفسه. العنصر البارز (hero) صار الآن في الوسط افتراضيًّا، والعناصر المتجاورة تقف على بُعد فجوة واحدة عند كل موضع تمرير. مكوّن الويب يفعل ذلك كله منذ الآن، وكذلك العروض التوضيحية. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق بالمواصفة تقدّم المراجعة السابقة، وفيها `layout` وليس فيها دوران ولا نقاط ولا تشغيل تلقائي ولا عنصرا التحكم السابق والتالي. انظر [العنصر البارز في الوسط في الوضع الافتراضي](#العنصر-البارز-في-الوسط-في-الوضع-الافتراضي) و [الترحيل من `layout`](#الترحيل-من-layout).
 :::
 
 <DemoFrame label="الوضع الافتراضي: العنصر البارز في الوسط، وبجانبه عنصر صغير">
-  <tanrei-carousel label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -38,24 +38,26 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 يُرتَّب الصف حول عنصر واحد في الصدارة، هو العنصر البارز. تقول بضع خصائص مستقلة كيف يكون ذلك، ولكل منها قيمة افتراضية تناسب صفًّا للتصفح: العنصر البارز في الوسط، والعناصر التي بجانبه أضيق منه، والصف يستقر على عنصر كامل. الخاصية `itemWidth` هي عرض العنصر البارز؛ اتركها بلا تعيين لتأخذ القيمة الافتراضية لنظام التصميم. والصف المميَّز يستطيع أن يضيف `loop`، والنقاط (`indicator`)، و `autoplay`. ومن دون `autoplay` ليس للعرض الدوّار قيمة يُتحكَّم فيها: يُمرَّر حين يمرّره الشخص أو ينقل التركيز.
 
+فوق طرفي الصف عنصرا تحكم، سابق وتالٍ، ينقلانه عنصرًا واحدًا في كل مرة. في الوضع الافتراضي يُرسمان للفأرة أو للوحة اللمس، ويظهران ما دام المؤشر فوق العرض الدوّار أو التركيز داخله. أعطهما `previousLabel` و `nextLabel` بلغة منتجك. انظر [عنصرا التحكم السابق والتالي](#عنصرا-التحكم-السابق-والتالي).
+
 عيّنتا Web و React تعرضان المواصفة الحالية. وعيّنات SwiftUI و Compose و Flutter و React Native تعرض المراجعة السابقة، وهي ما تقدّمه تلك المنصات: `layout` (عدة عناصر في صف افتراضيًّا، أو `hero` أو `uncontained`) و `itemWidth`، بلا دوران ولا نقاط ولا تشغيل تلقائي.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-carousel label="نزهات بالقرب منك">
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" label="نزهات بالقرب منك">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><img src="coast.jpg" alt="" /></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><img src="town.jpg" alt="" /></tanrei-carousel-item>
       <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><img src="forest.jpg" alt="" /></tanrei-carousel-item>
     </tanrei-carousel>
 
     <!-- صف مميَّز: بلا نهاية، مع نقاط، يتقدم من تلقاء نفسه. العنصر البارز في الوسط افتراضيًّا. -->
-    <tanrei-carousel label="نزهات مميَّزة" loop indicator autoplay
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" label="نزهات مميَّزة" loop indicator autoplay
                      play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا">…</tanrei-carousel>
 
     <!-- صف بسيط من حافة البداية: كل عنصر بعرض 120 (عدد من بكسلات CSS)، ويقف حيث ينتهي
          التمرير. و fixed-width و free-scroll هما عكس fluidWidth و snap، وقيمتهما الافتراضية true. -->
-    <tanrei-carousel label="شوهد مؤخرًا" hero-alignment="start" fixed-width free-scroll item-width="120">…</tanrei-carousel>
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" label="شوهد مؤخرًا" hero-alignment="start" fixed-width free-scroll item-width="120">…</tanrei-carousel>
 
     <script type="module">
       import '@tanrei/web/components/carousel';
@@ -81,6 +83,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <Carousel label="نزهات مميَّزة" loop indicator autoplay paused={paused}
       onPausedchange={(e) => setPaused(e.detail.paused)}
+      previousLabel="النزهة السابقة" nextLabel="النزهة التالية"
       playLabel="تشغيل عرض الشرائح" pauseLabel="إيقاف عرض الشرائح مؤقتًا">
       {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}
     </Carousel>
@@ -157,13 +160,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ## المواصفات
 
 <DemoFrame label="عنصر بارز بأقصى عرض مسموح له، وعروض ثابتة تُمرَّر بحرية من حافة البداية" plain column>
-  <tanrei-carousel item-width="400" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" item-width="400" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
     <tanrei-carousel-item label="ضفة البحيرة، 5 صور"><span class="tanrei-icon">water</span></tanrei-carousel-item>
   </tanrei-carousel>
-  <tanrei-carousel hero-alignment="start" fixed-width free-scroll label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" hero-alignment="start" fixed-width free-scroll label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -175,7 +178,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <DemoFrame label="ترتيب الصف: عروض ثابتة، تصغير، دوران، محتوى نحو العنصر البارز" plain column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">عروض ثابتة، والصف يقف حيث ينتهي التمرير: <code>fixed-width free-scroll</code></div>
-    <tanrei-carousel fixed-width free-scroll label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" fixed-width free-scroll label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -185,7 +188,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">العناصر الأخرى مرسومة أصغر، بلا نهاية: <code>fixed-width scale-others loop</code></div>
-    <tanrei-carousel fixed-width scale-others loop label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" fixed-width scale-others loop label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -195,7 +198,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">بلا نهاية، والجانبان ممتلئان دائمًا: <code>loop</code></div>
-    <tanrei-carousel loop label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" loop label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -205,7 +208,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">العناصر المضيَّقة تعرض الجهة الأقرب إلى العنصر البارز: <code>item-width="120" content-alignment="toward-hero" loop</code></div>
-    <tanrei-carousel item-width="120" content-alignment="toward-hero" loop label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" item-width="120" content-alignment="toward-hero" loop label="نزهات بالقرب منك" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -219,7 +222,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <DemoFrame label="النقاط، والتشغيل التلقائي، والتقدم، والإيقاف المؤقت، وعنصر التحكم في التشغيل وحده" plain column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">النقاط: <code>indicator</code></div>
-    <tanrei-carousel indicator label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" indicator label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -230,7 +233,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">تشغيل تلقائي مع النقاط وعنصر التحكم في التشغيل: <code>indicator autoplay</code></div>
-    <tanrei-carousel indicator autoplay play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" indicator autoplay play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -241,7 +244,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">النقطة الحالية تمتلئ حتى العنصر التالي: <code>autoplay-progress</code></div>
-    <tanrei-carousel indicator autoplay autoplay-progress play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" indicator autoplay autoplay-progress play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -252,7 +255,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">متوقف مؤقتًا، من الشخص أو من المنتج: <code>paused</code></div>
-    <tanrei-carousel indicator autoplay paused autoplay-progress play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" indicator autoplay paused autoplay-progress play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -263,7 +266,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">تشغيل تلقائي بلا نقاط: عنصر التحكم في التشغيل وحده</div>
-    <tanrei-carousel autoplay play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="النزهة السابقة" next-label="النزهة التالية" autoplay play-label="تشغيل عرض الشرائح" pause-label="إيقاف عرض الشرائح مؤقتًا" label="نزهات مميَّزة" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="مسار الساحل، 12 صورة"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="البلدة القديمة، 8 صور"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="حلقة الغابة، 20 صورة"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -350,6 +353,24 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 **أبقِ التشغيل قابلًا للتحكم.** يجوز للمنتج أن يخفي عنصر التحكم في التشغيل بجعل `playbackControl` بالقيمة false، لكن عليه أن يبقيه حيثما استطاع. حالات التعليق ليست وسيلة لإيقاف الحركة: اللمس لا تحويم فيه، والإصبع لا تعلّق الصف إلا ما دامت مستقرة عليه، وقارئ الشاشة الذي يقرأ من دون أن ينقل التركيز لا يعلّقه أصلًا. ومن دون عنصر التحكم لا يستطيع شخص على هاتف أن يوقف عرضًا دوّارًا يعمل تلقائيًّا إلا من إعداد تقليل الحركة في النظام. لا تُخفِه إلا حيث يعطي منتجك وسيلة أخرى لإيقاف الحركة، كإيقاف مؤقت لكل المحتوى المتحرك في الصفحة (WCAG 2.2.2).
 
+### عنصرا التحكم السابق والتالي
+
+الصف الذي لا شريط تمرير له لا يعطي الفأرة ضغطة واحدة تحرّكه: لا شيء سوى المفتاح Shift مع العجلة، أو النقاط حيث تُرسم. لذلك يرسم العرض الدوّار عنصرَي تحكم، سابقًا وتاليًا، فوق طرفي صفه. هما زرّا Button بأيقونة فقط عليهما رسم شارة الاتجاه، بالنوع الذي يسمّيه نظام التصميم (elevated في النظام الافتراضي)، وكل منهما ينقل الصف عنصرًا إلى الوراء أو إلى الأمام، كما تفعل النقاط ومفاتيح الأسهم.
+
+| `navigation` | أين يُرسمان | متى يظهران |
+| --- | --- | --- |
+| `auto` (الافتراضي) | حيث المؤشر الأساسي فأرة أو لوحة لمس تستطيع التمرير فوق العناصر (hover) | ما دام المؤشر فوق العرض الدوّار أو التركيز داخله |
+| `always` | على كل جهاز، ومنه أجهزة اللمس | دائمًا |
+| `none` | أبدًا | أبدًا |
+
+- **لماذا لا يُرسمان على أجهزة اللمس افتراضيًّا.** الإصبع يسحب الصف، وعلى الهاتف كان العنصران سيبقيان فوق العناصر طوال الوقت. اختر `always` حيث يحتاج إليهما مستخدموك على أجهزة اللمس أيضًا.
+- **عند الطرفين.** من دون `loop` يُعطَّل عنصر التحكم السابق عند العنصر الأول والتالي عند الأخير. ويحتفظ العنصر المعطَّل بالتركيز وبموضعه في ترتيب المفتاح Tab، فلا يضيع التركيز أبدًا مهما تكرر الضغط على التالي. ومع `loop` يدوران.
+- **الضغطات تتراكم.** الضغطة في أثناء حركة الصف تُحسب من حيث يتجه، فضغطتان سريعتان تنقلان عنصرين.
+- **التشغيل التلقائي.** الضغطة حركة من الشخص نفسه: تبدأ الفترة من جديد حين يستقر الصف. وما دام المؤشر فوق عنصرَي التحكم أو التركيز عليهما يُعلَّق التشغيل التلقائي، كما في أي موضع آخر من العرض الدوّار.
+- **الاسمان.** يسمّيهما `previousLabel` و `nextLabel` للتقنيات المساعدة، مثل «النزهة السابقة» و«النزهة التالية». وتبلّغ بنيات التنقيح (debug) عن أي منهما إذا غاب.
+
+أبقِ `auto` حيثما استطعت. ولا تختر `none` إلا حيث تعطي صفحتك الفأرة طريقة أخرى لتحريك الصف، مثل النقاط.
+
 ### العناصر ومحتواها
 
 - **المحتوى يُخطَّط بعرض العنصر البارز.** يخطّط كل عنصر محتواه بعرض العنصر البارز، فالعنصر المضيَّق يعرض وسط صورته، أو الجهة الأقرب إلى العنصر البارز حين تكون `contentAlignment` بالقيمة toward-hero، والصورة تنساب داخل العنصر وهو يكبر ويصغر. أعطِ صورة تُقرأ جيدًا من الجزء الذي يظهر.
@@ -361,7 +382,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### التمرير والاستقرار
 
-يمرّر الناس الصف باللمس، أو بالقلم، أو بلوحة اللمس، أو بعجلة أفقية، أو بالمفتاح Shift مع عجلة رأسية. مع `snap` يستقر الصف على عنصر كامل حين ينتهي التمرير: الدفعة السريعة (fling) تنقل إلى العنصر التالي في اتجاهها، والإفلات الأبطأ يذهب إلى الأقرب. والدفعة السريعة إفلات أسرع من أدنى سرعة دفع في المنصة، أو من 0.5 نقطة في الميلي ثانية حيث لا تسمّي المنصة سرعة. من دون `loop`، عند نهاية المدى يكون العنصر الأخير هو العنصر البارز، وتبقى المواضع التي بعده فارغة. ومع `loop` يُرسم كل عنصر مرة واحدة، في أي موضع يقع فيه حول العنصر البارز، ويدور الصف بلا نهاية. وحيث تكون الحركة مقلَّلة تحدث فورًا كل حركة يبدؤها العرض الدوّار نفسه.
+يمرّر الناس الصف باللمس، أو بالقلم، أو بلوحة اللمس، أو بعجلة أفقية، أو بالمفتاح Shift مع عجلة رأسية. مع `snap` يستقر الصف على عنصر كامل حين ينتهي التمرير: الدفعة السريعة (fling) تنقل إلى العنصر التالي في اتجاهها، والإفلات الأبطأ يذهب إلى الأقرب. والدفعة السريعة إفلات أسرع من أدنى سرعة دفع في المنصة، أو من 0.5 نقطة في الميلي ثانية حيث لا تسمّي المنصة سرعة. من دون `loop`، عند نهاية المدى يكون العنصر الأخير هو العنصر البارز، وتبقى المواضع التي بعده فارغة. ومع `loop` يُرسم كل عنصر مرة واحدة، في أي موضع يقع فيه حول العنصر البارز، ويدور الصف بلا نهاية. وحيث تكون الحركة مقلَّلة تحدث فورًا كل حركة يبدؤها العرض الدوّار نفسه. وبالفأرة ينقله عنصرا التحكم السابق والتالي عنصرًا واحدًا في كل مرة.
 
 حين يتغير عرض العرض الدوّار أو عناصره، يرتّب مواضعه من جديد ويُبقي العنصر الذي كان في الصدارة حيث كان، بلا حركة.
 
@@ -387,18 +408,19 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - العرض الدوّار قائمة تسمّيها `label`. وكل عنصر زر واحد تسمّيه تسميته، مع موضعه بين العناصر وعددها. ومحتواه مخفي عن التقنيات المساعدة.
 - العناصر التي خارج المرئي تبقى معروضة للتقنيات المساعدة، بالترتيب، فيبلغ قارئ الشاشة كل واحد منها. ونقل تركيز قارئ الشاشة إلى عنصر يمرّره إلى مكانه.
-- **مواضع توقف المفتاح Tab.** للعرض الدوّار ثلاثة على الأكثر: عنصر التحكم في التشغيل، ما دام مرسومًا؛ والعناصر، موضعَ توقف واحدًا؛ والنقاط، ما دامت مرسومة. يأتي عنصر التحكم في التشغيل أولًا، قبل العناصر، ليستطيع مستخدم لوحة المفاتيح أن يوقف الحركة قبل أن يبلغ أي شيء آخر. ويُدخَل إلى العناصر عند العنصر الذي كان عليه تركيز لوحة المفاتيح آخر مرة، وإلا فعند العنصر الساكن في موضع العنصر البارز.
+- **مواضع توقف المفتاح Tab.** للعرض الدوّار خمسة على الأكثر: عنصر التحكم في التشغيل، ما دام مرسومًا؛ وعنصرا التحكم السابق والتالي، ما داما مرسومين؛ والعناصر، موضعَ توقف واحدًا؛ والنقاط، ما دامت مرسومة. يأتي عنصر التحكم في التشغيل أولًا، قبل العناصر، ليستطيع مستخدم لوحة المفاتيح أن يوقف الحركة قبل أن يبلغ أي شيء آخر. ويأتي عنصرا التحكم السابق والتالي قبل العناصر، كما في مثال العرض الدوّار في WAI-ARIA. ويُدخَل إلى العناصر عند العنصر الذي كان عليه تركيز لوحة المفاتيح آخر مرة، وإلا فعند العنصر الساكن في موضع العنصر البارز.
 - مفتاحا السهم الأيمن والسهم الأيسر ينقلان التركيز إلى العنصر التالي والسابق. يقفان عند الطرفين، ولا يدوران إلا ما دام العرض الدوّار يدور. والمفتاحان Home و End ينقلان إلى العنصر الأول والأخير، حتى في صف يدور. وفي التخطيط من اليمين إلى اليسار ينقل السهم الأيسر إلى العنصر التالي.
 - نقل التركيز يأتي بالعنصر الذي عليه التركيز إلى موضع العنصر البارز، بأقرب ما تسمح به نهاية المدى، ومن الطريق الأقصر في صف يدور. وفي صف بعروض ثابتة وتمرير حر من البداية، يكتفي بأن يأتي بالعنصر كله إلى داخل المرئي.
 - المفتاحان Enter و Space يفعّلان العنصر الذي عليه التركيز. والضغطة التي تتحول إلى تمرير لا تفعّل العنصر الذي بدأت عليه.
 - النقاط شريط تمرير (slider) واحد تسمّيه `label`، وقيمته تسمية العنصر الحالي. مفاتيح الأسهم، والمفتاحان Home و End، والزيادة والإنقاص في المنصة تحرّك الصف موضعًا واحدًا. والنقطة الحالية تُميَّز بشكلها الممطوط، لا باللون وحده.
 - عنصر التحكم في التشغيل زر تسمّيه `pauseLabel` في أثناء التشغيل و `playLabel` في أثناء الإيقاف المؤقت. ليس له حالة ضغط (pressed)، فلا يُقرأ أبدًا «إيقاف مؤقت، مضغوط». وتفعيله يُبقي التركيز عليه. ورسما الإيقاف المؤقت والتشغيل فيه لا يُعكسان، وقبل أن يُحمَّل خط الأيقونات لا يُعرض اسم أي رسم نصًّا.
+- عنصرا التحكم السابق والتالي زرّان يسمّيهما `previousLabel` و `nextLabel`. وتفعيل أحدهما يُبقي التركيز عليه. عند طرفي صف لا يدور يُعطَّل العنصر، لكنه يحتفظ بالتركيز ويبقى في ترتيب المفتاح Tab. وحين يكونان مخفيين مع `auto` يبلغهما المفتاح Tab ويقرؤهما قارئ الشاشة، ويُظهرهما التركيز. وفي التخطيط من اليمين إلى اليسار يكون عنصر التحكم السابق على اليمين، وتُعكَس شارتا الاتجاه حيث تقول مجموعة الأيقونات ذلك.
 - يُعلَّق التشغيل التلقائي ما دام التركيز في أي موضع من العرض الدوّار، ولا ينقل التركيز أبدًا ولا يُعلِن شيئًا، ولا يعمل أبدًا حيث تكون الحركة مقلَّلة.
 - تُرسم حلقة التركيز داخل العنصر، حيث لا يستطيع الصف أن يقصّها، وحول النقاط وعنصر التحكم في التشغيل. وتظهر لتركيز لوحة المفاتيح فقط.
 - مساحة اللمس لكل عنصر هي حاويته مضافًا إليها نصف الفجوة من كل جانب، ولا تقل أبدًا عن الحد الأدنى للهدف، حتى للعنصر الصغير. والعنصر الذي ما زال يدخل أو يخرج عند الحافة أضيق من ذلك، ومساحة اللمس له لا تغطي أبدًا مساحة جاره. ومساحة اللمس لعنصر التحكم في التشغيل هي هدف اللمس، ومساحة اللمس للنقاط هي حاويتها كلها وارتفاع الصف.
-- ليس التمرير الطريقة الوحيدة أبدًا لبلوغ عنصر: مفاتيح الأسهم والنقاط وتركيز قارئ الشاشة تبلغ كل واحد منها.
+- ليس التمرير الطريقة الوحيدة أبدًا لبلوغ عنصر: عنصرا التحكم السابق والتالي يحرّكان الصف بضغطة واحدة من الفأرة (WCAG 2.5.7)، ومفاتيح الأسهم والنقاط وتركيز قارئ الشاشة تبلغ كل واحد منها.
 - يحتفظ العرض الدوّار بارتفاعه وعناصره عند أحجام النص الأكبر. لا يحمل نصًّا خاصًّا به، ومحتواك يتبع حجم النص بنفسه.
-- تبلّغ بنيات التنقيح (debug) عن عنصر بلا تسمية، وعن عرض دوّار بلا `label`، وعن عنصر تحكم في التشغيل بلا `playLabel` أو `pauseLabel`، وعن نقاط لا تتسع، وعن قيمة مجهولة للخاصية `heroAlignment` أو `contentAlignment`، وعن قيمة للخاصية `itemWidth` أو `autoplayInterval` ليست عددًا موجبًا. ويبلّغ الويب أيضًا عن عنصر تفاعلي داخل محتوى عنصر.
+- تبلّغ بنيات التنقيح (debug) عن عنصر بلا تسمية، وعن عرض دوّار بلا `label`، وعن عنصر تحكم في التشغيل بلا `playLabel` أو `pauseLabel`، وعن عنصرَي التحكم السابق والتالي بلا `previousLabel` أو `nextLabel`، وعن نقاط لا تتسع، وعن قيمة مجهولة للخاصية `heroAlignment` أو `contentAlignment` أو `navigation`، وعن قيمة للخاصية `itemWidth` أو `autoplayInterval` ليست عددًا موجبًا. ويبلّغ الويب أيضًا عن عنصر تفاعلي داخل محتوى عنصر.
 
 فجوات معروفة في المنصات:
 
@@ -416,6 +438,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 - أعطِ العرض الدوّار `label`، وأعطِ كل عنصر تسمية تقول ما يعرضه محتواه. المحتوى لا يُقرأ.
 - مع التشغيل التلقائي، أعطِ عنصر التحكم في التشغيل `playLabel` و `pauseLabel` تقولان ما يفعله، وأبقِه مرسومًا.
+- أعطِ عنصرَي التحكم السابق والتالي `previousLabel` و `nextLabel`، وأبقِ `navigation` على `auto` ما لم تعطِ صفحتك الفأرة طريقة أخرى لتحريك الصف.
 - أبقِ عناصر التحكم خارج محتوى العناصر.
 - إن كان المحتوى يحمل معنى لا تحمله تسميته، كسعر على ملصق، فضعه في التسمية.
 - على SwiftUI و Compose و React Native، أبقِ عدد العناصر معتدلًا: العرض الدوّار هناك يبني كل عنصر، ومنها العناصر التي خارج المرئي.
