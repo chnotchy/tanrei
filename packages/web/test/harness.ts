@@ -2296,6 +2296,15 @@ export async function mountFixtures(page: Page, spec: Spec, options: DocumentOpt
   // A step in script (`Staging.after`) has run for every fixture before anything is measured or recorded.
   if (STAGING[spec.name]?.after) await page.waitForFunction((mark) => document.documentElement.hasAttribute(mark), STAGED);
   await page.evaluate(facesReady);
+  // A text face, too, is fetched only when text first needs it: a fixture whose only text is hidden at mount (the
+  // items of a closed menu, a popover's content) would draw that text in a fallback for the first frames it is shown,
+  // at another width, and settle a frame later. Load the faces of the text families the page names first.
+  await page.evaluate(async () => {
+    const style = getComputedStyle(document.documentElement);
+    const unquote = (family: string) => family.trim().replace(/^["']|["']$/g, '');
+    const text = ['brand', 'plain', 'mono'].map((role) => unquote(style.getPropertyValue(`--tanrei-ref-typeface-${role}`).split(',')[0]));
+    await Promise.all([...document.fonts].filter((face) => face.status === 'unloaded' && text.includes(unquote(face.family))).map((face) => face.load()));
+  });
   // The icon families the mounted system names that this repository registers. A document that draws a glyph of them
   // is given their faces even when it did not ask for them (`icons`): a picture of a glyph drawn without its face is
   // its name in a fallback face, or a machine's installed copy of the font — a Button's baseline once showed `ad` for
