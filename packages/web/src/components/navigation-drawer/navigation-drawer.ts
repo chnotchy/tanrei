@@ -332,21 +332,28 @@ abstract class DrawerCell extends LitElement {
     return this.supportingText ? { title: this.label, text: this.supportingText } : { text: this.label };
   }
 
-  /** Runs \`then\` once \`element\` is first seen in the window (at once where it is): a tooltip whose anchor is out of sight closes at once (NVD-56). */
+  /**
+   * Runs \`then\` once \`element\` is first seen in the window (at once where it is): a tooltip whose anchor is out of sight
+   * closes at once (NVD-56). NVD-75's wait is its own: the collapsed name's hide (after the pointer left) ends the name's
+   * wait, never this one.
+   */
   private whenInView(element: Element | null, then: () => void) {
-    this.sightline?.disconnect();
+    this.cutSightline?.disconnect();
     if (!element || typeof IntersectionObserver !== 'function') {
       then();
       return;
     }
-    this.sightline = new IntersectionObserver((entries) => {
+    this.cutSightline = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
-      this.sightline?.disconnect();
-      this.sightline = null;
+      this.cutSightline?.disconnect();
+      this.cutSightline = null;
       then();
     });
-    this.sightline.observe(element);
+    this.cutSightline.observe(element);
   }
+
+  /** NVD-75: waits for a focused cell to be seen before its cut text's tooltip is opened (\`whenInView()\`). */
+  private cutSightline: IntersectionObserver | null = null;
 
   /**
    * NVD-56: keyboard focus opens the name once the cell can be seen. A tooltip whose anchor lies wholly outside the
@@ -464,6 +471,8 @@ abstract class DrawerCell extends LitElement {
     this.cutTip.hide();
     this.sightline?.disconnect();
     this.sightline = null;
+    this.cutSightline?.disconnect();
+    this.cutSightline = null;
     this.hovered = false;
   }
 
