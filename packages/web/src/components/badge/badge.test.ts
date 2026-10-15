@@ -1,4 +1,4 @@
-// <tanrei-badge>, driven by specs/badge.spec.json: every behaviour id (BDG-1…14) is cited by a test title, every fixture
+// <tanrei-badge>, driven by specs/badge.spec.json: every behaviour id (BDG-1…14, BDG-16) is cited by a test title, every fixture
 // has a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
@@ -308,6 +308,40 @@ test.describe('behavior', () => {
       expect.stringMatching(/max 0 is below 1; the default 999 is used \(BDG-14\)/),
       expect.stringMatching(/count is not a number; it is drawn as 0 \(BDG-14\)/),
     ]));
+  });
+
+  test('BDG-16: with no anchor the badge draws nothing, takes no space and exposes nothing, and a debug build reports it; given an anchor it draws on it at once, and gives it back when it is taken away', async ({ page }) => {
+    const seen = warnings(page);
+    // No content: nothing in the default slot. A count, a dot and a capped count alike.
+    const alone = [{ id: 'alone', props: { count: 3, label: '3 unread' } }, { id: 'alone-dot', props: { label: 'New messages' } }, { id: 'alone-capped', props: { count: 1200 } }];
+    await mountFixtures(page, spec, { icons: true, fixtures: alone });
+    for (const { id } of alone) {
+      await expect(host(page, id).locator('.corner'), id).toBeHidden();
+      const own = await box(host(page, id));
+      expect(own.width, id).toBe(0);
+      // Nothing for assistive technology: the stage holds no node of the tree.
+      expect(await stage(page, id).ariaSnapshot(), id).toBe('');
+    }
+    await expect.poll(() => seen.filter((w) => w.includes('BDG-16'))).toHaveLength(alone.length);
+    expect(seen.find((w) => w.includes('BDG-16'))).toMatch(/<tanrei-badge>: the badge has no anchor, so it draws nothing/);
+    // Given an anchor: drawn on its corner (BDG-3) and describing it (BDG-8) at once, with no report.
+    await host(page, 'alone').evaluate((el) => el.insertAdjacentHTML('afterbegin', '<span class="tanrei-icon" data-size="medium" role="img" aria-label="Inbox">inbox</span>'));
+    await expect(container(page, 'alone')).toBeVisible();
+    await expect(anchor(page, 'alone')).toHaveAttribute('aria-description', '3 unread');
+    const offset = await resolveToken(page, T('container-offset'));
+    const [pill, a] = [await box(container(page, 'alone')), await box(anchor(page, 'alone'))];
+    expect(pill.x + pill.height / 2).toBeCloseTo(a.x + a.width - offset, 5);
+    expect(pill.y + pill.height / 2).toBeCloseTo(a.y + offset, 5);
+    expect(seen.filter((w) => w.includes('BDG-16'))).toHaveLength(alone.length);
+    // Taken away: the anchor's own description comes back, nothing is drawn, and a debug build reports it again.
+    await host(page, 'alone').evaluate((el) => {
+      const taken = el.firstElementChild!;
+      taken.id = 'taken';
+      document.body.append(taken);
+    });
+    await expect(host(page, 'alone').locator('.corner')).toBeHidden();
+    await expect(page.locator('#taken')).not.toHaveAttribute('aria-description');
+    await expect.poll(() => seen.filter((w) => w.includes('BDG-16'))).toHaveLength(alone.length + 1);
   });
 });
 
