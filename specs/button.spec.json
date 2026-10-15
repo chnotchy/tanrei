@@ -43,8 +43,14 @@
         "text"
       ],
       "default": "filled",
-      "description": "Emphasis level. Use one filled button per view for the main action; an icon-only text button is the quiet icon action of a toolbar or a row. A design system may add values. Default filled; a Button placed as a dialog's or a side sheet's action without a variant takes that host's (DLG-20, SSH-17), and a side sheet's close button takes comp.side-sheet.close-button.variant (SSH-5).",
+      "description": "Emphasis level; whether the action deletes or discards something is destructive, which every variant takes. Use one filled button per view for the main action; an icon-only text button is the quiet icon action of a toolbar or a row. A design system may add values. Default filled; a Button placed as a dialog's or a side sheet's action without a variant takes that host's (DLG-20, SSH-17), and a side sheet's close button takes comp.side-sheet.close-button.variant (SSH-5).",
       "axis": "tanrei.comp.button.variant"
+    },
+    {
+      "name": "destructive",
+      "type": "boolean",
+      "default": false,
+      "description": "Marks an action that deletes or discards something a person may not get back (Delete, Discard, Remove member): the button keeps its variant's emphasis and takes the error role's color in it — filled in the error color, tonal in its tonal container, and the error color for the label of an elevated, outlined or text button and the edge of an outlined one (BTN-40). Use it for that kind of action alone, never for emphasis. It adds a color, not a meaning: the label still says what the button does (BTN-42). A toggle has no destructive look: ignored while toggle is true (BTN-41)."
     },
     {
       "name": "size",
@@ -206,7 +212,7 @@
     },
     {
       "id": "BTN-6",
-      "text": "WHILE disabled is true THE button SHALL render its container, label, icon, outline, elevation and opacity from the disabled component tokens of its variant and, for a toggle, of its selection."
+      "text": "WHILE disabled is true THE button SHALL render its container, label, icon, outline, elevation and opacity from the disabled component tokens of its variant and, for a toggle, of its selection, and, while destructive is true, of its destructive parts (BTN-40)."
     },
     {
       "id": "BTN-7",
@@ -343,7 +349,7 @@
     },
     {
       "id": "BTN-36",
-      "text": "WHILE busy is true THE button SHALL draw its container, outline, elevation and opacity from its enabled tokens (of its variant and, for a toggle, of its selection), SHALL keep its label and icon in place without drawing them so that its width and height do not change, and SHALL draw at the centre of the container the loading indicator's arc (LDG-1; under reduced motion LDG-4's whole circle, its opacity easing once per cycle) in a box of the button's icon size (icon.size-without-label where it is icon-only), comp.button.busy.indicator.thickness thick, in the label color of its variant (the icon color where it is icon-only), turning once per comp.button.motion.busy-cycle-duration. It SHALL show neither the hovered nor the pressed state, and SHALL show the focused one. WHEN busy becomes false THE button SHALL draw its label and icon again at once, without a motion.",
+      "text": "WHILE busy is true THE button SHALL draw its container, outline, elevation and opacity from its enabled tokens (of its variant and, for a toggle, of its selection, or of its destructive parts, BTN-40), SHALL keep its label and icon in place without drawing them so that its width and height do not change, and SHALL draw at the centre of the container the loading indicator's arc (LDG-1; under reduced motion LDG-4's whole circle, its opacity easing once per cycle) in a box of the button's icon size (icon.size-without-label where it is icon-only), comp.button.busy.indicator.thickness thick, in the label color of its variant (the icon color where it is icon-only), turning once per comp.button.motion.busy-cycle-duration. It SHALL show neither the hovered nor the pressed state, and SHALL show the focused one. WHEN busy becomes false THE button SHALL draw its label and icon again at once, without a motion.",
       "verify": "Fixtures filled-busy and text-icon-busy: the arc at the centre, the button as wide and as high as filled-medium and text-icon."
     },
     {
@@ -360,6 +366,21 @@
       "id": "BTN-39",
       "text": "WHILE fullWidth is true and no host lays the button out THE button SHALL take the whole inline size its container gives it, and SHALL keep the height, the paddings, the corners, the outline and the minimum target of its size, variant and state, centring its content in that width — the label and the icon as one row, in the order and at the gap BTN-11 gives them, or an icon-only button's glyph, whatever width says. WHERE that width is narrower than the label THE button SHALL wrap the label, its lines centred, rather than truncate it or draw past its container. WHILE a host lays the button out (a button group, a toolbar, or the actions of a dialog, a side sheet, a popover, a callout or an empty state) THE button SHALL take the width that host gives it and ignore fullWidth: the host's own full width (BGR-17) is how a row of buttons shares one width.",
       "verify": "The fixture full-width is as wide as its 320-wide stage, 40 high, its label centred; full-width-leading-icon centres its icon and label as one row. A full-width Button inside a standard button group is laid out as the same Button without fullWidth."
+    },
+    {
+      "id": "BTN-40",
+      "text": "WHILE destructive is true and toggle is false THE button SHALL render its container, label, icon and outline from the destructive parts of its variant (comp.button.filled.destructive.container.color, and so on for each variant), in each state from the destructive parts of that state, and its elevation, shape and opacity as it would without destructive; WHILE destructive is false it SHALL render from the variant's own parts. In every shipped system the destructive parts are the error color role at the variant's emphasis — filled: the error color with the on-error color on it; tonal: the error container with the on-error-container color on it; elevated, outlined and text: the variant's own container with the label and the icon in the error color, and an outlined button's edge in it too — and disabled they are those of the variant's plain disabled look, so that a disabled destructive button looks like any disabled button of its variant. A link button (BTN-22) and an icon-only button take destructive as a labelled button does.",
+      "verify": "Under the default system: filled-destructive is error with an on-error label; tonal-destructive error-container with on-error-container; elevated-destructive, outlined-destructive and text-destructive keep their variant's container with an error label, outlined-destructive with an error edge; text-icon-destructive draws its glyph in error. filled-destructive-disabled and outlined-destructive-disabled render exactly as filled-disabled and an outlined disabled button. Hovered, pressed and keyboard-focused, outlined-destructive renders from that state's destructive parts, each unlike its rest. An outlined destructive link is drawn as outlined-destructive, and a destructive action without a variant in a dialog as a tonal destructive one."
+    },
+    {
+      "id": "BTN-41",
+      "text": "WHILE toggle is true THE button SHALL ignore destructive and render as BTN-15 says, and in debug builds SHALL report that a toggle has no destructive look: a control that switches a state on and off does not delete anything by being pressed.",
+      "verify": "A toggle with destructive true renders as the same toggle without it, selected and unselected, and a debug build reports it once."
+    },
+    {
+      "id": "BTN-42",
+      "text": "THE button SHALL NOT make color the only sign that its action is destructive: WHILE destructive is true it SHALL keep its role, its accessible name, its states and its keyboard behaviour exactly as they are without it, and SHALL expose nothing more to assistive technology on the web, where no role or state says it; WHERE the platform has a destructive role of its own (SwiftUI's ButtonRole.destructive) THE button SHALL be given that role. Its label, or its label prop on an icon-only button, says what it destroys.",
+      "verify": "The accessibility tree of filled-destructive equals that of filled-medium with the same label: the button role, the same name, no description and no extra state."
     }
   ],
   "accessibility": {
@@ -396,7 +417,9 @@
       "A button can keep a form from being sent twice: while busy it is shown and focusable but refuses every press, emits no click and therefore submits nothing (BTN-27 follows click), and it stops Enter in a field as a disabled default button does (BTN-37, BTN-32). Prefer it to disabling the button while the first submission is on its way: a disabled button drops the person's focus, and says nothing of why.",
       "Where script does not run, or before the element is defined, a web Button is its text and nothing else, and submits nothing; so is every Tanrei field, so a form made of them cannot be filled either. A form that must be sent without script is made of the platform's own controls, with the platform's own submit button.",
       "The native platforms have no form element, and the Button has no type there (BTN-34): which button the Return key presses is the app's to say, in the platform's idiom.",
-      "A disabled button leaves the focus order, so a keyboard or screen-reader user may never learn it is there or why it does nothing. Where a person can make the action available (fill in the message, choose a file), keep it reachable with focusableWhenDisabled and say why in a tooltip or a description; where the action simply does not apply, leave it out of the focus order (BTN-38)."
+      "A disabled button leaves the focus order, so a keyboard or screen-reader user may never learn it is there or why it does nothing. Where a person can make the action available (fill in the message, choose a file), keep it reachable with focusableWhenDisabled and say why in a tooltip or a description; where the action simply does not apply, leave it out of the focus order (BTN-38).",
+      "destructive adds a color, never a meaning (WCAG 1.4.1, use of color): the error color tells people who see it that the action deletes or discards something, and nothing tells a screen reader user so but the label. So the label names the action and what it acts on (\"Delete project\", not \"OK\"), and a dialog that confirms it says what will be lost in its headline and supporting text. The web has no role or state for a destructive action, so none is invented; SwiftUI's destructive role is given where it exists, and the platform decides what it does with it.",
+      "Disabled, a destructive button looks like any disabled button of its variant: the error color is a warning about what a press would do, and a button that cannot be pressed does nothing."
     ]
   },
   "tokens": "comp.button",
@@ -1102,6 +1125,86 @@
       "slots": {
         "icon": "upload"
       }
+    },
+    {
+      "id": "filled-destructive",
+      "props": {
+        "variant": "filled",
+        "destructive": true
+      },
+      "content": "Delete"
+    },
+    {
+      "id": "tonal-destructive",
+      "props": {
+        "variant": "tonal",
+        "destructive": true
+      },
+      "content": "Delete"
+    },
+    {
+      "id": "elevated-destructive",
+      "props": {
+        "variant": "elevated",
+        "destructive": true
+      },
+      "content": "Delete"
+    },
+    {
+      "id": "outlined-destructive",
+      "props": {
+        "variant": "outlined",
+        "destructive": true
+      },
+      "content": "Delete"
+    },
+    {
+      "id": "text-destructive",
+      "props": {
+        "variant": "text",
+        "destructive": true
+      },
+      "content": "Delete"
+    },
+    {
+      "id": "filled-destructive-leading-icon",
+      "props": {
+        "variant": "filled",
+        "destructive": true
+      },
+      "content": "Delete",
+      "slots": {
+        "icon": "delete"
+      }
+    },
+    {
+      "id": "text-icon-destructive",
+      "props": {
+        "variant": "text",
+        "destructive": true,
+        "label": "Delete"
+      },
+      "slots": {
+        "icon": "delete"
+      }
+    },
+    {
+      "id": "filled-destructive-disabled",
+      "props": {
+        "variant": "filled",
+        "destructive": true,
+        "disabled": true
+      },
+      "content": "Delete"
+    },
+    {
+      "id": "outlined-destructive-disabled",
+      "props": {
+        "variant": "outlined",
+        "destructive": true,
+        "disabled": true
+      },
+      "content": "Delete"
     }
   ],
   "platforms": {
@@ -1110,6 +1213,7 @@
       "name": "tanrei-button",
       "props": {
         "variant": "variant",
+        "destructive": "destructive",
         "size": "size",
         "width": "width",
         "fullWidth": "fullWidth",
@@ -1129,13 +1233,14 @@
         "click": "click",
         "change": "change"
       },
-      "notes": "The label is the default slot and the icon the `icon` slot (a glyph of the icon font); an icon-only button is one whose default slot is empty. `iconPosition` is reflected as the `icon-position` attribute. `label` sets `aria-label` on the inner `<button>` (or the anchor) whenever it is not empty; with a label in the default slot the slot's text stays drawn and the attribute replaces it as the name (BTN-16), and a debug build compares the two. A toggle sets `aria-pressed` on the inner `<button>`, switches its own `selected` and fires `change`, as a native checkbox does. `width` is the `width` attribute (`default`, `narrow`, `wide`); it does nothing while the default slot holds a label. With `href` the shadow root holds an `<a part=\"container\">` in place of the `<button>`, with the same classes, parts and listeners. The link form: `href` is the `href` attribute; `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two; anything else is `same` and reported); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation, which is how a client-side router takes it; a modified or a middle click is the browser's. A disabled link is the anchor without `href`, with `role=\"link\"` and `aria-disabled=\"true\"`, as the navigation drawer's destination already is. Space is not handed to the press controller. `element.click()` follows the link. In a form: a form-associated custom element (`static formAssociated = true`), as the text field is, for its form owner and for a disabled fieldset (`formDisabledCallback` through the shared primitive; not while it is a link). Web attributes, not spec props, as a checkbox's `name` and `value` are: `type` (`button`, `submit`, `reset`; default `button`, reflected; anything else is `button` and reported), `form` (the id of a form, the platform's own attribute for a form-associated element), `name` and `value`. The element has a read-only `form` property. A press of a submit button, after its `click` has gone through the page uncancelled, appends a hidden native `<button type=\"submit\">` with the same `name` and `value` to itself — a child in a slot it does not have, so it is drawn nowhere, naming the same form where the button names one by its `form` attribute — calls `form.requestSubmit()` with it and removes it before returning, so the form's validation, its `submit` event, `event.submitter` and `new FormData(form, event.submitter)` are the platform's, and the pair is sent at the button's own place among the form's entries, as the platform's own button's is; a reset button calls `form.reset()`. The form's default button is found by one primitive that walks `form.elements` in order and takes the first native submit button or `<tanrei-button type=\"submit\">`: the text field, the number field, the color field, the combobox, the one-time-code input and the search call it in place of `form.requestSubmit()` after their `action` (or `submit`) event, and the selection primitive of the checkbox, the radio button and the switch calls it for Enter, and for Enter in a control of the platform's own, which knows only the platform's buttons, the browser itself is left to decide: one `keydown` listener per tree, in the capture phase (on the window for a document, on the shadow root for a form inside one), added while a form of that tree holds a Tanrei submit button, answers Enter going down in a native control of such a form — inside it, or naming it by the `form` attribute from outside — whose default button is Tanrei's by appending to that button, for the length of the key, a hidden native `<button type=\"submit\">` in a slot the button does not have: the form's first submit button exactly when the Tanrei button is, disabled while it is, and never the default button to the primitive. The browser presses it exactly where, when and whether it would press a default button of its own — after the field has committed what was typed (`change`, then `click`, then `submit`), for the controls and the modifier keys this engine submits on and no others, never for the Enter an input method or a suggestion list took, and not at all while it is disabled, in a form of one field too. That press is stopped at the window before a listener of the page hears it (at the shadow root, for a form in a closed one) and its own submission cancelled; the hidden button is removed, and the Tanrei button's `click()` is called, which emits its `click` and submits as any press of it does. A hidden button the browser did not press is removed at the key's `keyup`, and one is appended again for each repeat of a key held down. A capture listener a page added to the window before the form's first Tanrei submit button was connected hears the stopped press, as a click on a hidden button inside the Tanrei button. `formaction`, `formmethod`, `formenctype`, `formtarget` and `formnovalidate` are not read. The inner `<button>` stays `type=\"button\"`: it is in a shadow root, where no form can own it. `focusableWhenDisabled` is the `focusable-when-disabled` attribute and `busyLabel` the `busy-label` attribute. A disabled button that is focusable-when-disabled renders its native `<button>` without the `disabled` attribute and with `aria-disabled=\"true\"`, and refuses the press in a listener of its own; the host's `disabled` attribute is written as for any disabled button, and a disabled fieldset still takes it out of the focus order (BTN-38). A busy button renders `aria-disabled=\"true\"` on its native `<button>` (or anchor), keeps its label and icon laid out under `visibility: hidden`, draws the arc as an inline SVG circle, and announces `busy-label` through a visually hidden `role=\"status\"` region emptied and set again each time it becomes busy (BTN-37). `fullWidth` is the `full-width` attribute: the host is a block-level flex box as wide as its container and the native `<button>` grows to fill it; while a host lays it out (a button group, a toolbar, the actions of a dialog, a popover, a callout, an empty state, a file picker) the element carries the custom state `placed` (`:state(placed)`), under which `full-width` does nothing (BTN-39)."
+      "notes": "The label is the default slot and the icon the `icon` slot (a glyph of the icon font); an icon-only button is one whose default slot is empty. `iconPosition` is reflected as the `icon-position` attribute. `label` sets `aria-label` on the inner `<button>` (or the anchor) whenever it is not empty; with a label in the default slot the slot's text stays drawn and the attribute replaces it as the name (BTN-16), and a debug build compares the two. A toggle sets `aria-pressed` on the inner `<button>`, switches its own `selected` and fires `change`, as a native checkbox does. `width` is the `width` attribute (`default`, `narrow`, `wide`); it does nothing while the default slot holds a label. With `href` the shadow root holds an `<a part=\"container\">` in place of the `<button>`, with the same classes, parts and listeners. The link form: `href` is the `href` attribute; `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two; anything else is `same` and reported); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation, which is how a client-side router takes it; a modified or a middle click is the browser's. A disabled link is the anchor without `href`, with `role=\"link\"` and `aria-disabled=\"true\"`, as the navigation drawer's destination already is. Space is not handed to the press controller. `element.click()` follows the link. In a form: a form-associated custom element (`static formAssociated = true`), as the text field is, for its form owner and for a disabled fieldset (`formDisabledCallback` through the shared primitive; not while it is a link). Web attributes, not spec props, as a checkbox's `name` and `value` are: `type` (`button`, `submit`, `reset`; default `button`, reflected; anything else is `button` and reported), `form` (the id of a form, the platform's own attribute for a form-associated element), `name` and `value`. The element has a read-only `form` property. A press of a submit button, after its `click` has gone through the page uncancelled, appends a hidden native `<button type=\"submit\">` with the same `name` and `value` to itself — a child in a slot it does not have, so it is drawn nowhere, naming the same form where the button names one by its `form` attribute — calls `form.requestSubmit()` with it and removes it before returning, so the form's validation, its `submit` event, `event.submitter` and `new FormData(form, event.submitter)` are the platform's, and the pair is sent at the button's own place among the form's entries, as the platform's own button's is; a reset button calls `form.reset()`. The form's default button is found by one primitive that walks `form.elements` in order and takes the first native submit button or `<tanrei-button type=\"submit\">`: the text field, the number field, the color field, the combobox, the one-time-code input and the search call it in place of `form.requestSubmit()` after their `action` (or `submit`) event, and the selection primitive of the checkbox, the radio button and the switch calls it for Enter, and for Enter in a control of the platform's own, which knows only the platform's buttons, the browser itself is left to decide: one `keydown` listener per tree, in the capture phase (on the window for a document, on the shadow root for a form inside one), added while a form of that tree holds a Tanrei submit button, answers Enter going down in a native control of such a form — inside it, or naming it by the `form` attribute from outside — whose default button is Tanrei's by appending to that button, for the length of the key, a hidden native `<button type=\"submit\">` in a slot the button does not have: the form's first submit button exactly when the Tanrei button is, disabled while it is, and never the default button to the primitive. The browser presses it exactly where, when and whether it would press a default button of its own — after the field has committed what was typed (`change`, then `click`, then `submit`), for the controls and the modifier keys this engine submits on and no others, never for the Enter an input method or a suggestion list took, and not at all while it is disabled, in a form of one field too. That press is stopped at the window before a listener of the page hears it (at the shadow root, for a form in a closed one) and its own submission cancelled; the hidden button is removed, and the Tanrei button's `click()` is called, which emits its `click` and submits as any press of it does. A hidden button the browser did not press is removed at the key's `keyup`, and one is appended again for each repeat of a key held down. A capture listener a page added to the window before the form's first Tanrei submit button was connected hears the stopped press, as a click on a hidden button inside the Tanrei button. `formaction`, `formmethod`, `formenctype`, `formtarget` and `formnovalidate` are not read. The inner `<button>` stays `type=\"button\"`: it is in a shadow root, where no form can own it. `focusableWhenDisabled` is the `focusable-when-disabled` attribute and `busyLabel` the `busy-label` attribute. A disabled button that is focusable-when-disabled renders its native `<button>` without the `disabled` attribute and with `aria-disabled=\"true\"`, and refuses the press in a listener of its own; the host's `disabled` attribute is written as for any disabled button, and a disabled fieldset still takes it out of the focus order (BTN-38). A busy button renders `aria-disabled=\"true\"` on its native `<button>` (or anchor), keeps its label and icon laid out under `visibility: hidden`, draws the arc as an inline SVG circle, and announces `busy-label` through a visually hidden `role=\"status\"` region emptied and set again each time it becomes busy (BTN-37). `fullWidth` is the `full-width` attribute: the host is a block-level flex box as wide as its container and the native `<button>` grows to fill it; while a host lays it out (a button group, a toolbar, the actions of a dialog, a popover, a callout, an empty state, a file picker) the element carries the custom state `placed` (`:state(placed)`), under which `full-width` does nothing (BTN-39). `destructive` is a boolean attribute; it draws, and exposes nothing more (BTN-42)."
     },
     "swiftui": {
       "status": "lagging",
       "name": "TanreiButton",
       "props": {
         "variant": "variant",
+        "destructive": "role",
         "size": "size",
         "width": "width",
         "fullWidth": "fullWidth",
@@ -1155,13 +1260,14 @@
         "click": "action",
         "change": "isSelected"
       },
-      "notes": "The title is the label and the `icon` view builder the icon; an icon-only button is the initializer that takes `label:` and an icon and no title. A toggle is the initializer that takes `isSelected: Binding<Bool>`. `disabled` follows SwiftUI's `.disabled(_:)` environment. `width: TanreiButtonWidth = .default` is a parameter of the icon-only initializer alone, so a labelled button cannot be given one. Not built on this platform yet: the initializer that takes `destination: URL` in place of `action:` (there is none that takes both a destination and `isSelected`, so a toggle cannot be given one) draws the same control as a SwiftUI `Link`, so the address is opened by the environment's `openURL` — an app that routes addresses itself provides an `OpenURLAction`, which is how the navigation is cancelled — and VoiceOver reads the link trait. `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint) are parameters of that initializer alone. Not built on this platform yet: the initializers that take a title take `label: String? = nil` as well, set with `.accessibilityLabel` over the title's text. SwiftUI has no form element that sends values, so there is no `type` (BTN-34): an app that wants Return to press a view's main button gives that `TanreiButton` `.keyboardShortcut(.defaultAction)`, or calls the same function from a text field's `action`. Not built on this platform yet: `busy` and `busyLabel` (BTN-36, BTN-37), and `focusableWhenDisabled` (BTN-38). Not built on this platform yet: `fullWidth` (BTN-39)."
+      "notes": "The title is the label and the `icon` view builder the icon; an icon-only button is the initializer that takes `label:` and an icon and no title. A toggle is the initializer that takes `isSelected: Binding<Bool>`. `disabled` follows SwiftUI's `.disabled(_:)` environment. `width: TanreiButtonWidth = .default` is a parameter of the icon-only initializer alone, so a labelled button cannot be given one. Not built on this platform yet: the initializer that takes `destination: URL` in place of `action:` (there is none that takes both a destination and `isSelected`, so a toggle cannot be given one) draws the same control as a SwiftUI `Link`, so the address is opened by the environment's `openURL` — an app that routes addresses itself provides an `OpenURLAction`, which is how the navigation is cancelled — and VoiceOver reads the link trait. `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint) are parameters of that initializer alone. Not built on this platform yet: the initializers that take a title take `label: String? = nil` as well, set with `.accessibilityLabel` over the title's text. SwiftUI has no form element that sends values, so there is no `type` (BTN-34): an app that wants Return to press a view's main button gives that `TanreiButton` `.keyboardShortcut(.defaultAction)`, or calls the same function from a text field's `action`. Not built on this platform yet: `busy` and `busyLabel` (BTN-36, BTN-37), and `focusableWhenDisabled` (BTN-38). Not built on this platform yet: `fullWidth` (BTN-39). Not built on this platform yet: `role: ButtonRole? = nil` on every initializer, as SwiftUI's own `Button(role:)` takes it: `.destructive` is destructive, and any other role draws as `nil` does; the role is passed on to the system, so a destructive Button in a menu, a swipe action or a confirmation dialog is treated as SwiftUI treats its own (BTN-40 to BTN-42)."
     },
     "compose": {
       "status": "lagging",
       "name": "TanreiButton",
       "props": {
         "variant": "variant",
+        "destructive": "destructive",
         "size": "size",
         "width": "width",
         "fullWidth": "fullWidth",
@@ -1181,13 +1287,14 @@
         "click": "onClick",
         "change": "onCheckedChange"
       },
-      "notes": "Compose idiom is the inverse flag `enabled`. A non-null `onCheckedChange` makes it a toggle (as `IconToggleButton`), with `checked` its state; an icon-only button is the overload with an `icon` and a `contentDescription` and no text. `width: TanreiButtonWidth = TanreiButtonWidth.Default` is a parameter of the icon-only overload alone. Not built on this platform yet: the overload that takes `href: String` and no `onCheckedChange` opens the address through `LocalUriHandler.current` after `onClick`; an app that routes addresses itself provides its own `UriHandler`. Compose has no link role for a clickable element (only link annotations inside text), so the node drops `Role.Button` and carries no role, and the README says so. `target: TanreiLinkTarget = TanreiLinkTarget.Same`; `targetLabel` is appended to the node's state description. Not built on this platform yet: the overloads that take text take `contentDescription: String? = null` as well; given, the node's semantics are cleared and set again with it, because a merged node would otherwise read the text and the description both. Compose has no form element, so there is no `type` (BTN-34): an app calls the same function from `onClick` and from a text field's `action`. Not built on this platform yet: `busy` and `busyLabel` (BTN-36, BTN-37), and `focusableWhenDisabled` (BTN-38). Not built on this platform yet: `fullWidth` (BTN-39)."
+      "notes": "Compose idiom is the inverse flag `enabled`. A non-null `onCheckedChange` makes it a toggle (as `IconToggleButton`), with `checked` its state; an icon-only button is the overload with an `icon` and a `contentDescription` and no text. `width: TanreiButtonWidth = TanreiButtonWidth.Default` is a parameter of the icon-only overload alone. Not built on this platform yet: the overload that takes `href: String` and no `onCheckedChange` opens the address through `LocalUriHandler.current` after `onClick`; an app that routes addresses itself provides its own `UriHandler`. Compose has no link role for a clickable element (only link annotations inside text), so the node drops `Role.Button` and carries no role, and the README says so. `target: TanreiLinkTarget = TanreiLinkTarget.Same`; `targetLabel` is appended to the node's state description. Not built on this platform yet: the overloads that take text take `contentDescription: String? = null` as well; given, the node's semantics are cleared and set again with it, because a merged node would otherwise read the text and the description both. Compose has no form element, so there is no `type` (BTN-34): an app calls the same function from `onClick` and from a text field's `action`. Not built on this platform yet: `busy` and `busyLabel` (BTN-36, BTN-37), and `focusableWhenDisabled` (BTN-38). Not built on this platform yet: `fullWidth` (BTN-39). Not built on this platform yet: `destructive: Boolean = false` on every overload; Compose has no destructive role, so it draws and adds no semantics (BTN-40 to BTN-42)."
     },
     "flutter": {
       "status": "lagging",
       "name": "TanreiButton",
       "props": {
         "variant": "variant",
+        "destructive": "isDestructiveAction",
         "size": "size",
         "width": "width",
         "fullWidth": "fullWidth",
@@ -1207,13 +1314,14 @@
         "click": "onPressed",
         "change": "onPressed"
       },
-      "notes": "Flutter idiom: a null `onPressed` disables the button; `iconAlignment` (start / end) is Flutter's own name for the icon's side. A non-null `isSelected` makes it a toggle and `onPressed` flips it; an icon-only button is the `TanreiButton.icon` constructor, whose `semanticLabel` is required. `width` (`TanreiButtonWidth.normal`, `.narrow`, `.wide`; `default` is a reserved word in Dart) is a parameter of `TanreiButton.icon` alone. Not built on this platform yet: the `TanreiButton.link` and `TanreiButton.iconLink` constructors (`href` is a `Uri`) has `Semantics(link: true)` with the address as its `linkUrl`. The package has no plugin dependency, so the address is opened by the nearest `TanreiLinkOpener`, an inherited widget the app provides once (calling `url_launcher`, or its own router); without one the control opens nothing and reports it in debug builds. `target` is a `TanreiLinkTarget`; `targetSemanticLabel` is the semantics hint. Not built on this platform yet: the constructors that take a child label take `semanticLabel` as well, optional there, applied with the child's own semantics excluded. Flutter's `Form` validates and saves and sends nothing, and has no default button, so there is no `type` (BTN-34): an app calls the same function from `onPressed` and from a text field's `action`. Not built on this platform yet: `busy` and `busySemanticLabel` (BTN-36, BTN-37), and `focusableWhenDisabled` (BTN-38). Not built on this platform yet: `fullWidth` (BTN-39)."
+      "notes": "Flutter idiom: a null `onPressed` disables the button; `iconAlignment` (start / end) is Flutter's own name for the icon's side. A non-null `isSelected` makes it a toggle and `onPressed` flips it; an icon-only button is the `TanreiButton.icon` constructor, whose `semanticLabel` is required. `width` (`TanreiButtonWidth.normal`, `.narrow`, `.wide`; `default` is a reserved word in Dart) is a parameter of `TanreiButton.icon` alone. Not built on this platform yet: the `TanreiButton.link` and `TanreiButton.iconLink` constructors (`href` is a `Uri`) has `Semantics(link: true)` with the address as its `linkUrl`. The package has no plugin dependency, so the address is opened by the nearest `TanreiLinkOpener`, an inherited widget the app provides once (calling `url_launcher`, or its own router); without one the control opens nothing and reports it in debug builds. `target` is a `TanreiLinkTarget`; `targetSemanticLabel` is the semantics hint. Not built on this platform yet: the constructors that take a child label take `semanticLabel` as well, optional there, applied with the child's own semantics excluded. Flutter's `Form` validates and saves and sends nothing, and has no default button, so there is no `type` (BTN-34): an app calls the same function from `onPressed` and from a text field's `action`. Not built on this platform yet: `busy` and `busySemanticLabel` (BTN-36, BTN-37), and `focusableWhenDisabled` (BTN-38). Not built on this platform yet: `fullWidth` (BTN-39). Not built on this platform yet: `isDestructiveAction` (`bool`, default false), the name Flutter's own `CupertinoDialogAction` gives the same flag; it draws and adds no semantics (BTN-40 to BTN-42)."
     },
     "react-native": {
       "status": "lagging",
       "name": "Button",
       "props": {
         "variant": "variant",
+        "destructive": "destructive",
         "size": "size",
         "width": "width",
         "fullWidth": "fullWidth",
@@ -1233,7 +1341,7 @@
         "click": "onPress",
         "change": "onSelectedChange"
       },
-      "notes": "The label is `children` and the icon the `icon` prop; an icon-only button has no children and requires `accessibilityLabel`. A toggle has `accessibilityState.selected` and the `togglebutton` role where React Native offers it. `width` (`\"default\" | \"narrow\" | \"wide\"`) is the icon-only width, not a layout width; it is ignored with children. Not built on this platform yet: a Button with `href` has `accessibilityRole=\"link\"` and opens the address with `Linking.openURL` after `onPress`, unless `onPress` called `event.preventDefault()`. `target` is `\"same\" | \"new\"`; `targetLabel` is the `accessibilityHint`. Not built on this platform yet: `accessibilityLabel` is read with children as well as without, and replaces their text as the name. React Native has no form element, so there is no `type` (BTN-34): an app calls the same function from `onPress` and from a text field's `action`. Not built on this platform yet: `busy` and `busyLabel` (BTN-36, BTN-37), and `focusableWhenDisabled` (BTN-38). Not built on this platform yet: `fullWidth` (BTN-39)."
+      "notes": "The label is `children` and the icon the `icon` prop; an icon-only button has no children and requires `accessibilityLabel`. A toggle has `accessibilityState.selected` and the `togglebutton` role where React Native offers it. `width` (`\"default\" | \"narrow\" | \"wide\"`) is the icon-only width, not a layout width; it is ignored with children. Not built on this platform yet: a Button with `href` has `accessibilityRole=\"link\"` and opens the address with `Linking.openURL` after `onPress`, unless `onPress` called `event.preventDefault()`. `target` is `\"same\" | \"new\"`; `targetLabel` is the `accessibilityHint`. Not built on this platform yet: `accessibilityLabel` is read with children as well as without, and replaces their text as the name. React Native has no form element, so there is no `type` (BTN-34): an app calls the same function from `onPress` and from a text field's `action`. Not built on this platform yet: `busy` and `busyLabel` (BTN-36, BTN-37), and `focusableWhenDisabled` (BTN-38). Not built on this platform yet: `fullWidth` (BTN-39). Not built on this platform yet: `destructive` (`boolean`, default false), the word React Native's own `Alert` button style uses; it draws and adds no accessibility props (BTN-40 to BTN-42)."
     }
   }
 }

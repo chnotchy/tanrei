@@ -107,7 +107,7 @@
           "name": "variant",
           "type": "string",
           "default": "",
-          "description": "The Button's variant (filled, tonal, elevated, outlined, text, or one a system added). Empty, the default: the dialog gives it the variant comp.dialog.actions.variant names, tonal in the default system (DLG-20). Set it to give one action another look (a filled Delete beside a text Cancel)."
+          "description": "The Button's variant (filled, tonal, elevated, outlined, text, or one a system added). Empty, the default: the dialog gives it the variant comp.dialog.actions.variant names, tonal in the default system (DLG-20). Set it to give one action another look (a filled Delete beside a text Cancel); a Delete that destroys something also sets the Button's own destructive, which the dialog leaves as set (BTN-40)."
         },
         {
           "name": "disabled",

@@ -1632,6 +1632,11 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: { kind: "role", role: "error" },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveIconColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           hovered: {
             containerColor: {
@@ -1665,6 +1670,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "error" },
+              with: { kind: "role", role: "onError" },
+              amount: 0.06,
+            },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveIconColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           focused: {
             containerColor: {
@@ -1698,6 +1713,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "error" },
+              with: { kind: "role", role: "onError" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveIconColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           pressed: {
             containerColor: {
@@ -1731,6 +1756,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "error" },
+              with: { kind: "role", role: "onError" },
+              amount: 0.2,
+            },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveIconColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           disabled: {
             containerColor: {
@@ -1793,6 +1828,27 @@ export const acme = {
             },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveContainerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveIconColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -1817,6 +1873,11 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onSecondary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onSecondary" },
+            destructiveContainerColor: { kind: "role", role: "errorContainer" },
+            destructiveLabelColor: { kind: "role", role: "onErrorContainer" },
+            destructiveIconColor: { kind: "role", role: "onErrorContainer" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onErrorContainer" },
           },
           hovered: {
             containerColor: {
@@ -1850,6 +1911,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onSecondary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onSecondary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "errorContainer" },
+              with: { kind: "role", role: "onErrorContainer" },
+              amount: 0.06,
+            },
+            destructiveLabelColor: { kind: "role", role: "onErrorContainer" },
+            destructiveIconColor: { kind: "role", role: "onErrorContainer" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onErrorContainer" },
           },
           focused: {
             containerColor: {
@@ -1883,6 +1954,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onSecondary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onSecondary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "errorContainer" },
+              with: { kind: "role", role: "onErrorContainer" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: { kind: "role", role: "onErrorContainer" },
+            destructiveIconColor: { kind: "role", role: "onErrorContainer" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onErrorContainer" },
           },
           pressed: {
             containerColor: {
@@ -1916,6 +1997,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onSecondary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onSecondary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "errorContainer" },
+              with: { kind: "role", role: "onErrorContainer" },
+              amount: 0.2,
+            },
+            destructiveLabelColor: { kind: "role", role: "onErrorContainer" },
+            destructiveIconColor: { kind: "role", role: "onErrorContainer" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onErrorContainer" },
           },
           disabled: {
             containerColor: {
@@ -1978,6 +2069,27 @@ export const acme = {
             },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveContainerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveIconColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -2002,6 +2114,11 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: { kind: "role", role: "surfaceContainerLowest" },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           hovered: {
             containerColor: {
@@ -2035,6 +2152,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "surfaceContainerLowest" },
+              with: { kind: "role", role: "error" },
+              amount: 0.06,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           focused: {
             containerColor: {
@@ -2068,6 +2195,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "surfaceContainerLowest" },
+              with: { kind: "role", role: "error" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           pressed: {
             containerColor: {
@@ -2101,6 +2238,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "surfaceContainerLowest" },
+              with: { kind: "role", role: "error" },
+              amount: 0.2,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           disabled: {
             containerColor: {
@@ -2163,6 +2310,27 @@ export const acme = {
             },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveContainerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveIconColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -2187,6 +2355,11 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "inverseOnSurface" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "inverseOnSurface" },
+            destructiveContainerColor: { kind: "none" },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "role", role: "error" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           hovered: {
             containerColor: {
@@ -2220,6 +2393,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "inverseOnSurface" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "inverseOnSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "error" },
+              amount: 0.06,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "role", role: "error" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           focused: {
             containerColor: {
@@ -2253,6 +2436,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "inverseOnSurface" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "inverseOnSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "error" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "role", role: "error" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           pressed: {
             containerColor: {
@@ -2286,6 +2479,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "inverseOnSurface" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "inverseOnSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "error" },
+              amount: 0.2,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "role", role: "error" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           disabled: {
             containerColor: { kind: "none" },
@@ -2340,6 +2543,23 @@ export const acme = {
             },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveContainerColor: { kind: "none" },
+            destructiveLabelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveIconColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveOutlineColor: { kind: "role", role: "outlineVariant" },
+            destructiveStateLayerColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
@@ -2364,6 +2584,11 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onSurface" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: { kind: "none" },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           hovered: {
             containerColor: {
@@ -2397,6 +2622,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onSurface" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "error" },
+              amount: 0.06,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           focused: {
             containerColor: {
@@ -2430,6 +2665,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onSurface" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "error" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           pressed: {
             containerColor: {
@@ -2463,6 +2708,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onSurface" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onSurface" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "none" },
+              with: { kind: "role", role: "error" },
+              amount: 0.2,
+            },
+            destructiveLabelColor: { kind: "role", role: "error" },
+            destructiveIconColor: { kind: "role", role: "error" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "error" },
           },
           disabled: {
             containerColor: { kind: "none" },
@@ -2517,6 +2772,23 @@ export const acme = {
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,
             },
+            destructiveContainerColor: { kind: "none" },
+            destructiveLabelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveIconColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
           },
         },
         danger: {
@@ -2537,6 +2809,11 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: { kind: "role", role: "error" },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveIconColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           hovered: {
             containerColor: {
@@ -2570,6 +2847,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "error" },
+              with: { kind: "role", role: "onError" },
+              amount: 0.06,
+            },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveIconColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           focused: {
             containerColor: {
@@ -2603,6 +2890,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "error" },
+              with: { kind: "role", role: "onError" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveIconColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           pressed: {
             containerColor: {
@@ -2636,6 +2933,16 @@ export const acme = {
             selectedIconColor: { kind: "role", role: "onPrimary" },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: { kind: "role", role: "onPrimary" },
+            destructiveContainerColor: {
+              kind: "mix",
+              base: { kind: "role", role: "error" },
+              with: { kind: "role", role: "onError" },
+              amount: 0.2,
+            },
+            destructiveLabelColor: { kind: "role", role: "onError" },
+            destructiveIconColor: { kind: "role", role: "onError" },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: { kind: "role", role: "onError" },
           },
           disabled: {
             containerColor: {
@@ -2698,6 +3005,27 @@ export const acme = {
             },
             selectedOutlineColor: { kind: "none" },
             selectedStateLayerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveContainerColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.12,
+            },
+            destructiveLabelColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveIconColor: {
+              kind: "alpha",
+              of: { kind: "role", role: "onSurface" },
+              amount: 0.38,
+            },
+            destructiveOutlineColor: { kind: "none" },
+            destructiveStateLayerColor: {
               kind: "alpha",
               of: { kind: "role", role: "onSurface" },
               amount: 0.38,

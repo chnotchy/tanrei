@@ -1160,7 +1160,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onPrimary),
         selectedIconColor: .role(.onPrimary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onPrimary)
+        selectedStateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .role(.error),
+        destructiveLabelColor: .role(.onError),
+        destructiveIconColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.onError)
       ),
       hovered: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .role(.primary), with: .role(.onPrimary), amount: 0.08),
@@ -1178,7 +1183,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onPrimary),
         selectedIconColor: .role(.onPrimary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onPrimary)
+        selectedStateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .mix(base: .role(.error), with: .role(.onError), amount: 0.08),
+        destructiveLabelColor: .role(.onError),
+        destructiveIconColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.onError)
       ),
       focused: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .role(.primary), with: .role(.onPrimary), amount: 0.1),
@@ -1196,7 +1206,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onPrimary),
         selectedIconColor: .role(.onPrimary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onPrimary)
+        selectedStateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .mix(base: .role(.error), with: .role(.onError), amount: 0.1),
+        destructiveLabelColor: .role(.onError),
+        destructiveIconColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.onError)
       ),
       pressed: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .role(.primary), with: .role(.onPrimary), amount: 0.1),
@@ -1214,7 +1229,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onPrimary),
         selectedIconColor: .role(.onPrimary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onPrimary)
+        selectedStateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .mix(base: .role(.error), with: .role(.onError), amount: 0.1),
+        destructiveLabelColor: .role(.onError),
+        destructiveIconColor: .role(.onError),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.onError)
       ),
       disabled: TanreiButtonVariantStateTokens(
         containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
@@ -1232,7 +1252,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        selectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     tonal: TanreiButtonVariantTokens(
@@ -1252,7 +1277,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onSecondary),
         selectedIconColor: .role(.onSecondary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondary)
+        selectedStateLayerColor: .role(.onSecondary),
+        destructiveContainerColor: .role(.errorContainer),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveIconColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       hovered: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.08),
@@ -1270,7 +1300,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onSecondary),
         selectedIconColor: .role(.onSecondary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondary)
+        selectedStateLayerColor: .role(.onSecondary),
+        destructiveContainerColor: .mix(base: .role(.errorContainer), with: .role(.onErrorContainer), amount: 0.08),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveIconColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       focused: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
@@ -1288,7 +1323,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onSecondary),
         selectedIconColor: .role(.onSecondary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondary)
+        selectedStateLayerColor: .role(.onSecondary),
+        destructiveContainerColor: .mix(base: .role(.errorContainer), with: .role(.onErrorContainer), amount: 0.1),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveIconColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       pressed: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .role(.secondaryContainer), with: .role(.onSecondaryContainer), amount: 0.1),
@@ -1306,7 +1346,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onSecondary),
         selectedIconColor: .role(.onSecondary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onSecondary)
+        selectedStateLayerColor: .role(.onSecondary),
+        destructiveContainerColor: .mix(base: .role(.errorContainer), with: .role(.onErrorContainer), amount: 0.1),
+        destructiveLabelColor: .role(.onErrorContainer),
+        destructiveIconColor: .role(.onErrorContainer),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.onErrorContainer)
       ),
       disabled: TanreiButtonVariantStateTokens(
         containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
@@ -1324,7 +1369,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        selectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     elevated: TanreiButtonVariantTokens(
@@ -1344,7 +1394,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onPrimary),
         selectedIconColor: .role(.onPrimary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onPrimary)
+        selectedStateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .role(.surfaceContainerLowest),
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.error)
       ),
       hovered: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .role(.surfaceContainerLowest), with: .role(.onSurface), amount: 0.08),
@@ -1362,7 +1417,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onPrimary),
         selectedIconColor: .role(.onPrimary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onPrimary)
+        selectedStateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .mix(base: .role(.surfaceContainerLowest), with: .role(.error), amount: 0.08),
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.error)
       ),
       focused: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .role(.surfaceContainerLowest), with: .role(.onSurface), amount: 0.1),
@@ -1380,7 +1440,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onPrimary),
         selectedIconColor: .role(.onPrimary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onPrimary)
+        selectedStateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .mix(base: .role(.surfaceContainerLowest), with: .role(.error), amount: 0.1),
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.error)
       ),
       pressed: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .role(.surfaceContainerLowest), with: .role(.onSurface), amount: 0.1),
@@ -1398,7 +1463,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onPrimary),
         selectedIconColor: .role(.onPrimary),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onPrimary)
+        selectedStateLayerColor: .role(.onPrimary),
+        destructiveContainerColor: .mix(base: .role(.surfaceContainerLowest), with: .role(.error), amount: 0.1),
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.error)
       ),
       disabled: TanreiButtonVariantStateTokens(
         containerColor: .alpha(of: .role(.onSurface), amount: 0.12),
@@ -1416,7 +1486,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        selectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .alpha(of: .role(.onSurface), amount: 0.12),
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     outlined: TanreiButtonVariantTokens(
@@ -1436,7 +1511,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.inverseOnSurface),
         selectedIconColor: .role(.inverseOnSurface),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.inverseOnSurface)
+        selectedStateLayerColor: .role(.inverseOnSurface),
+        destructiveContainerColor: .none,
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       hovered: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.08),
@@ -1454,7 +1534,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.inverseOnSurface),
         selectedIconColor: .role(.inverseOnSurface),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.inverseOnSurface)
+        selectedStateLayerColor: .role(.inverseOnSurface),
+        destructiveContainerColor: .mix(base: .none, with: .role(.error), amount: 0.08),
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       focused: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.1),
@@ -1472,7 +1557,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.inverseOnSurface),
         selectedIconColor: .role(.inverseOnSurface),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.inverseOnSurface)
+        selectedStateLayerColor: .role(.inverseOnSurface),
+        destructiveContainerColor: .mix(base: .none, with: .role(.error), amount: 0.1),
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       pressed: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.1),
@@ -1490,7 +1580,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.inverseOnSurface),
         selectedIconColor: .role(.inverseOnSurface),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.inverseOnSurface)
+        selectedStateLayerColor: .role(.inverseOnSurface),
+        destructiveContainerColor: .mix(base: .none, with: .role(.error), amount: 0.1),
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .role(.error),
+        destructiveStateLayerColor: .role(.error)
       ),
       disabled: TanreiButtonVariantStateTokens(
         containerColor: .none,
@@ -1508,7 +1603,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        selectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .none,
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .role(.outlineVariant),
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     ),
     text: TanreiButtonVariantTokens(
@@ -1528,7 +1628,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onSurface),
         selectedIconColor: .role(.onSurface),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onSurface)
+        selectedStateLayerColor: .role(.onSurface),
+        destructiveContainerColor: .none,
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.error)
       ),
       hovered: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.08),
@@ -1546,7 +1651,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onSurface),
         selectedIconColor: .role(.onSurface),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onSurface)
+        selectedStateLayerColor: .role(.onSurface),
+        destructiveContainerColor: .mix(base: .none, with: .role(.error), amount: 0.08),
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.error)
       ),
       focused: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.1),
@@ -1564,7 +1674,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onSurface),
         selectedIconColor: .role(.onSurface),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onSurface)
+        selectedStateLayerColor: .role(.onSurface),
+        destructiveContainerColor: .mix(base: .none, with: .role(.error), amount: 0.1),
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.error)
       ),
       pressed: TanreiButtonVariantStateTokens(
         containerColor: .mix(base: .none, with: .role(.onSurface), amount: 0.1),
@@ -1582,7 +1697,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .role(.onSurface),
         selectedIconColor: .role(.onSurface),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .role(.onSurface)
+        selectedStateLayerColor: .role(.onSurface),
+        destructiveContainerColor: .mix(base: .none, with: .role(.error), amount: 0.1),
+        destructiveLabelColor: .role(.error),
+        destructiveIconColor: .role(.error),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .role(.error)
       ),
       disabled: TanreiButtonVariantStateTokens(
         containerColor: .none,
@@ -1600,7 +1720,12 @@ private let tanreiButtonTokens = TanreiButtonTokens(
         selectedLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
         selectedOutlineColor: .none,
-        selectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
+        selectedStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveContainerColor: .none,
+        destructiveLabelColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveIconColor: .alpha(of: .role(.onSurface), amount: 0.38),
+        destructiveOutlineColor: .none,
+        destructiveStateLayerColor: .alpha(of: .role(.onSurface), amount: 0.38)
       )
     )
   ),
