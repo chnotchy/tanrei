@@ -251,6 +251,17 @@
                 "fixed": "A choice of kind; no dial scales it."
               }
             }
+          },
+          "unavailable-opacity": {
+            "$type": "number",
+            "$value": "{tanrei.sys.state.disabled-content-opacity}",
+            "$description": "How much is left of an hour, a minute or a period that min and max put out of reach, on a wheel, on the period wheel and on the dial. It keeps its place, so that no other value moves, and recedes by opacity from whatever color its place gives it: the system's own for disabled content.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product bounds the times a person can choose (opening hours, not before now) and shows the times out of reach in place, faded, so that the clock keeps its shape; how faint they are is that product's call, as it is for every unavailable thing it shows.",
+                "since": "0.1.0"
+              }
+            }
           }
         },
         "wheel": {

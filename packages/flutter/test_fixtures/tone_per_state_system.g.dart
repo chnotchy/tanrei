@@ -3439,6 +3439,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     separatorColor: TanreiPaint.role(TanreiColorRole.onSurface),
     separatorTypescale: _typescaleDisplay,
     timeEntryModes: 0.0,
+    timeUnavailableOpacity: 0.38,
     wheelGap: 4.0,
     wheelHeight: 240.0,
     wheelLabelColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),

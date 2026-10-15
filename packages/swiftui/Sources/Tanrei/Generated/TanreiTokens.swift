@@ -5831,6 +5831,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
   public var separatorColor: TanreiPaint
   public var separatorTypescale: TanreiTextStyle
   public var timeEntryModes: Double
+  public var timeUnavailableOpacity: Double
   public var wheelGap: CGFloat
   public var wheelHeight: CGFloat
   public var wheelLabelColor: TanreiPaint
@@ -5923,6 +5924,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
     separatorColor: TanreiPaint,
     separatorTypescale: TanreiTextStyle,
     timeEntryModes: Double,
+    timeUnavailableOpacity: Double,
     wheelGap: CGFloat,
     wheelHeight: CGFloat,
     wheelLabelColor: TanreiPaint,
@@ -6011,6 +6013,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
     self.separatorColor = separatorColor
     self.separatorTypescale = separatorTypescale
     self.timeEntryModes = timeEntryModes
+    self.timeUnavailableOpacity = timeUnavailableOpacity
     self.wheelGap = wheelGap
     self.wheelHeight = wheelHeight
     self.wheelLabelColor = wheelLabelColor

@@ -2641,6 +2641,7 @@
     --tanrei-comp-date-time-picker-separator-typescale-line-height: var(--tanrei-sys-typescale-display-large-line-height);
     --tanrei-comp-date-time-picker-separator-typescale-font: var(--tanrei-sys-typescale-display-large-font);
     --tanrei-comp-date-time-picker-time-entry-modes: dial;
+    --tanrei-comp-date-time-picker-time-unavailable-opacity: var(--tanrei-sys-state-disabled-content-opacity);
     --tanrei-comp-date-time-picker-unselected-focused-selector-container-color: color-mix(in srgb, var(--tanrei-comp-date-time-picker-unselected-selector-container-color), var(--tanrei-comp-date-time-picker-unselected-selector-state-layer-color) calc(var(--tanrei-sys-state-focus-state-layer-opacity) * 100%));
     --tanrei-comp-date-time-picker-unselected-focused-selector-label-color: var(--tanrei-comp-date-time-picker-unselected-selector-label-color);
     --tanrei-comp-date-time-picker-unselected-focused-selector-outline-color: var(--tanrei-comp-date-time-picker-unselected-selector-outline-color);

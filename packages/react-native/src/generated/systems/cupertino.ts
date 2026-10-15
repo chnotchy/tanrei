@@ -4150,6 +4150,7 @@ export const cupertino = {
       separatorColor: { kind: "role", role: "onSurface" },
       separatorTypescale: "display",
       timeEntryModes: 1,
+      timeUnavailableOpacity: 0.38,
       wheelGap: 4,
       wheelHeight: 240,
       wheelLabelColor: { kind: "role", role: "onSurfaceVariant" },

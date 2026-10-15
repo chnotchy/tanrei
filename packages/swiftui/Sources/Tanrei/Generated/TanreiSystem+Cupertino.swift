@@ -3291,6 +3291,7 @@ private let cupertinoDateTimePickerTokens = TanreiDateTimePickerTokens(
   separatorColor: .role(.onSurface),
   separatorTypescale: cupertinoTypescale.display,
   timeEntryModes: 1,
+  timeUnavailableOpacity: 0.38,
   wheelGap: 4,
   wheelHeight: 240,
   wheelLabelColor: .role(.onSurfaceVariant),

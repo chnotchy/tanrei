@@ -3394,6 +3394,7 @@ private object AcmeSystemSource {
             separatorColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
             separatorTypescale = typescale.display,
             timeEntryModes = 0f,
+            timeUnavailableOpacity = 0.38f,
             wheelGap = 4.dp,
             wheelHeight = 240.dp,
             wheelLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),

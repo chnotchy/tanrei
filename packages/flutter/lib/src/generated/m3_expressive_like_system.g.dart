@@ -3483,6 +3483,7 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     separatorColor: TanreiPaint.role(TanreiColorRole.onSurface),
     separatorTypescale: _typescaleDisplayLarge,
     timeEntryModes: 2.0,
+    timeUnavailableOpacity: 0.38,
     wheelGap: 4.0,
     wheelHeight: 240.0,
     wheelLabelColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),

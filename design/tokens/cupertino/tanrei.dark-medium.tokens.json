@@ -30285,6 +30285,11 @@
             "$type": "number",
             "$value": 1,
             "$description": "Which ways of setting a time the picker offers. both: wheels and dial, chosen by two icon-only tabs; wheels: wheels only; dial: dial only. With one, no entry-mode tabs are drawn and entryMode is ignored. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+          },
+          "unavailable-opacity": {
+            "$type": "number",
+            "$value": 0.38,
+            "$description": "How much is left of an hour, a minute or a period that min and max put out of reach, on a wheel, on the period wheel and on the dial. It keeps its place, so that no other value moves, and recedes by opacity from whatever color its place gives it: the system's own for disabled content."
           }
         },
         "unselected": {

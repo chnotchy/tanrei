@@ -3406,6 +3406,7 @@ private let m3LikeDateTimePickerTokens = TanreiDateTimePickerTokens(
   separatorColor: .role(.onSurface),
   separatorTypescale: m3LikeTypescaleDisplayLarge,
   timeEntryModes: 2,
+  timeUnavailableOpacity: 0.38,
   wheelGap: 4,
   wheelHeight: 240,
   wheelLabelColor: .role(.onSurfaceVariant),

@@ -3353,6 +3353,7 @@ private object M3LikeSystemSource {
             separatorColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
             separatorTypescale = typescale.extra.getValue("display-large"),
             timeEntryModes = 2f,
+            timeUnavailableOpacity = 0.38f,
             wheelGap = 4.dp,
             wheelHeight = 240.dp,
             wheelLabelColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
