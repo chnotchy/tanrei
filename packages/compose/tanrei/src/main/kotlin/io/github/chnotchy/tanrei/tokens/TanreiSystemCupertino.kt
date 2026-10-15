@@ -2166,7 +2166,7 @@ private object CupertinoSystemSource {
             motionScrollEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
-            navigationButtonVariant = 1f,
+            navigationButtonVariant = 2f,
             hovered = TanreiCarouselStateTokens(containerShape = 14.dp, opacity = 1f),
             focused = TanreiCarouselStateTokens(containerShape = 14.dp, opacity = 1f),
             pressed = TanreiCarouselStateTokens(containerShape = 14.dp, opacity = 0.7f),

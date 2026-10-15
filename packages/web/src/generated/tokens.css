@@ -1619,7 +1619,7 @@
     --tanrei-comp-carousel-motion-scroll-easing: var(--tanrei-sys-motion-easing-emphasized-decelerate);
     --tanrei-comp-carousel-motion-state-duration: var(--tanrei-sys-motion-duration-short3);
     --tanrei-comp-carousel-motion-state-easing: var(--tanrei-sys-motion-easing-standard);
-    --tanrei-comp-carousel-navigation-button-variant: tonal;
+    --tanrei-comp-carousel-navigation-button-variant: elevated;
     --tanrei-comp-carousel-playback-container-color: rgb(0 0 0 / 0);
     --tanrei-comp-carousel-playback-content-color: var(--tanrei-sys-color-on-surface-variant);
     --tanrei-comp-carousel-playback-focused-container-color: color-mix(in srgb, var(--tanrei-comp-carousel-playback-container-color), var(--tanrei-comp-carousel-playback-state-layer-color) calc(var(--tanrei-sys-state-focus-state-layer-opacity) * 100%));

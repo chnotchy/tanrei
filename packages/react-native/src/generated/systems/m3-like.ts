@@ -3428,7 +3428,7 @@ export const m3Like = {
       motionScrollEasing: [0.05, 0.7, 0.1, 1],
       motionStateDuration: 150,
       motionStateEasing: [0.2, 0, 0, 1],
-      navigationButtonVariant: 1,
+      navigationButtonVariant: 2,
       pressedContainerShape: 28,
       pressedOpacity: 1,
       parts: {

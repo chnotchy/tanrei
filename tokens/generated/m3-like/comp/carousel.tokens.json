@@ -190,8 +190,8 @@
           "button": {
             "variant": {
               "$type": "number",
-              "$value": 1,
-              "$description": "The Button variant of the previous and next controls, icon-only medium Buttons that stand over the ends of the row (CRL-41). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
+              "$value": 2,
+              "$description": "The Button variant of the previous and next controls, icon-only medium Buttons that stand over the ends of the row (CRL-41): elevated by default, a light fill with a shadow, so that the control stands apart from whatever the item under it shows. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
               "$extensions": {
                 "dev.tanrei.vocabulary": {
                   "rationale": "One product's previous and next controls stand on whatever its items show, so it chooses a variant with a fill of its own; which fill is the product's.",
