@@ -2,7 +2,7 @@
 title: "表格"
 description: "呈现有行有列的数据，带具名的列、可选的行标题、说明文字和表尾行。放不下时在自己的框内滚动。列标题可以请求让各行按这一列排序，行也可以被选择；表格自己从不排序。"
 translationOf: components/table.mdx
-sourceHash: c5bff496ab398c6bb6f372ce183a6a1d35192c1e
+sourceHash: 342eb55fba43c105691f8ba6eaa252107e81be12
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -36,7 +36,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
   </tanrei-table>
 </DemoFrame>
 
-表格用于有两个维度的数据：价目表、套餐对比、带类型和默认值的设置项列表、几样东西在几个平台上的状态、用户要处理的记录。列标题可以请求让各行按这一列排序，没有行的表格显示你的空状态，各行下方的状态行容纳你的句子和你的分页。行可以各用一个复选框来选择，正在等待行到来的表格会说明自己正忙。表格自己从不排序、筛选、获取数据或分页：给它什么行，它就按给它的顺序画什么行。它不调整列宽。
+表格用于有两个维度的数据：价目表、套餐对比、带类型和默认值的设置项列表、几样东西在几个平台上的状态、用户要处理的记录。列标题可以请求让各行按这一列排序，没有行的表格显示你的空状态，各行下方的状态行容纳你的句子和你的分页。行可以各用一个复选框来选择，也可以用单选按钮只选一行，正在等待行到来的表格会说明自己正忙。表格自己从不排序、筛选、获取数据或分页：给它什么行，它就按给它的顺序画什么行。它不调整列宽。
 
 在 Web 上，它是包在你自己的原生 `<table>` 外面的 `<tanrei-table>`。这个元素没有 shadow root，表格也从不会被设成别的 `display`，所以爬虫、复制粘贴到电子表格，以及屏幕阅读器的表格导航，遇到的都是一个普通的 HTML 表格。其他平台尚未实现。
 
@@ -107,9 +107,9 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
 | 可排序的列 | 列标题单元格上的 `aria-sort="none"`、`"ascending"` 或 `"descending"`，以及包在其文字外面的 `<button type="button">`。单元格上的 `data-value` 是 `sort` 事件带出的名称。 |
 | 没有行 | `<tbody>` 里的一个 `<tr data-part="empty">`，其中只有一个 `<td colspan>`，里面放你的空状态。 |
 | 状态行 | 表格之后的一个 `<div data-part="status">`，里面放一个 `<p role="status">` 和你的分页。你没有写这个段落时，元素上的 `status` 会写出它。 |
-| 可以选择的各行 | 元素上的 `selection="multiple"`，以及每一行里作为第一个单元格的 `<td data-part="selection">`。 |
-| 可以选择的一行 | `<tr>` 上的 `data-value`，以及它的选择单元格里的一个 `<tanrei-checkbox label-hidden>`。`<tr>` 上的 `data-selected` 表示它已被选中。 |
-| 针对所有行的复选框 | 表头行的选择单元格里的一个 `<tanrei-checkbox label-hidden>`。元素上的 `select-all-label` 为它命名。 |
+| 可以选择的各行 | 元素上的 `selection="multiple"`（最多只选一行时用 `selection="single"`），以及每一行里作为第一个单元格的 `<td data-part="selection">`。 |
+| 可以选择的一行 | `<tr>` 上的 `data-value`，以及它的选择单元格里的一个 `<tanrei-checkbox label-hidden>`，`single` 时则是一个 `<tanrei-radio-button label-hidden>`。`<tr>` 上的 `data-selected` 表示它已被选中。 |
+| 针对所有行的复选框 | 表头行的选择单元格里的一个 `<tanrei-checkbox label-hidden>`。元素上的 `select-all-label` 为它命名。`single` 时这个单元格留空。 |
 | 加载中的表格 | 元素上的 `loading`。 |
 | 占位行，代表尚未到达的行 | 一个 `<tr data-placeholder aria-hidden="true">`，它的单元格留空，或者放一个骨架屏占位符。 |
 
@@ -311,6 +311,50 @@ table.addEventListener('selectionchange', (event) => {
 </tr>
 ```
 
+### 选择一行
+
+<DemoFrame label="选择一行：每行一个单选按钮，表头行没有" plain>
+  <tanrei-table class="tanrei-not-prose" selection="single" row-headers>
+    <table>
+      <caption>要换成的套餐</caption>
+      <thead>
+        <tr><td data-part="selection"></td><th scope="col">套餐</th><th scope="col" data-align="end" data-wrap="false">席位</th><th scope="col" data-align="end" data-wrap="false">每月</th></tr>
+      </thead>
+      <tbody>
+        <tr data-value="starter"><td data-part="selection"><tanrei-radio-button label-hidden name="docs-plan"></tanrei-radio-button></td><th scope="row">入门版</th><td data-align="end" data-wrap="false">3</td><td data-align="end" data-wrap="false">0.00</td></tr>
+        <tr data-value="team" data-selected><td data-part="selection"><tanrei-radio-button label-hidden name="docs-plan" checked></tanrei-radio-button></td><th scope="row">团队版</th><td data-align="end" data-wrap="false">20</td><td data-align="end" data-wrap="false">48.00</td></tr>
+        <tr data-value="business"><td data-part="selection"><tanrei-radio-button label-hidden name="docs-plan"></tanrei-radio-button></td><th scope="row">商务版</th><td data-align="end" data-wrap="false">100</td><td data-align="end" data-wrap="false">180.00</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+用户要选择一条记录时（要换成的套餐、收货地址、作为对比基准的构建），设置 `selection="single"`。每个表体行的选择单元格放一个单选按钮来代替复选框，表头行的选择单元格留空，因为没有针对所有行的控件：
+
+```html
+<tanrei-table selection="single" row-headers>
+  <table>
+    <caption>要换成的套餐</caption>
+    <thead>
+      <tr><td data-part="selection"></td><th scope="col">套餐</th><th scope="col" data-align="end">席位</th></tr>
+    </thead>
+    <tbody>
+      <tr data-value="team" data-selected>
+        <td data-part="selection"><tanrei-radio-button label-hidden name="plan" checked></tanrei-radio-button></td>
+        <th scope="row">团队版</th>
+        <td data-align="end">20</td>
+      </tr>
+    </tbody>
+  </table>
+</tanrei-table>
+```
+
+- 选择一行，原先选中的行就不再选中。`selectionchange` 只携带一个值：`{ values: ['team'] }`。
+- 按下已选中的行或它的单选按钮，什么也不会改变。单选按钮再按一次也不会取消选中。如果要让用户回到一行都不选的状态，请自己提供一个控件，并从行上移除 `data-selected`。
+- 同一个表格的单选按钮共用一个名称，因此是一个组：在焦点顺序中只占一个停靠点，方向键把选择从一行移到另一行。请给它们起你自己的名称，表单会提交这个名称；没有名称的，元素会给它们一个。
+- 如果你给多行写上 `data-selected`，最后写上的那一行被选中；同时写上的几行中，第一行被选中。同时写上多行会在调试构建中报告。
+- 其余与复选框相同：按下行的任何位置都会选中它，`data-selected` 由你来写，原生的 `<input type="radio" name="…">` 在没有脚本时也能工作。
+
 ### 加载中
 
 <DemoFrame label="加载中：占位行，以及说明这一点的状态行" plain>
@@ -484,12 +528,13 @@ export function rehypeTanreiTable() {
 ### 选择行指引
 
 - 用户要同时对几条记录执行操作（删除、导出、移动）时，才让他们选择行。只针对一条记录的操作，放在它所在的行里。
+- 答案是一条记录时（套餐、地址、作为对比基准的版本），用选择一行（`single`）。不要用它来打开记录。
 - 在行上任何位置按下都会选择它。如果一行还要打开它的记录，请为此在行标题里放一个链接，而不是靠按下整行。
 - 在状态行里说明选中了多少行（“已选择 3 件，共 132 件”）。表格什么都不数。
 - 把对选中的行执行操作的按钮放在表格上方。按钮是你的；表格告诉你选中了什么。
 - “全部 132 件”要用你自己的控件来提供。表头行的复选框选择的是交给表格的那些行，绝不是其他页的行。
-- 每个复选框都是焦点顺序中的一个停靠点。一页的行数要控制在用户可以用 Tab 逐个走完的范围内，其余的分页。
-- 带有复选框的行在 regular 密度下至少高 44；用于触摸时，两种密度下都是 48。紧凑的行在使用指针时仍然紧凑。
+- 每个复选框都是焦点顺序中的一个停靠点。一页的行数要控制在用户可以用 Tab 逐个走完的范围内，其余的分页。一个表格的单选按钮合起来只算一个停靠点。
+- 带有复选框或单选按钮的行在 regular 密度下至少高 44；用于触摸时，两种密度下都是 48。紧凑的行在使用指针时仍然紧凑。
 - [Tag](/zh-cn/components/tag/) 和[行内代码](/zh-cn/components/inline-code/)在你没有选择其他变体时都是 tonal 的；在默认系统中，tonal 的填充与选中行的填充几乎相同，所以在选中的行上看不出它们的形状。它们的文字仍然可读。在可以选择行的表格里，请使用 outlined 的 Tag。
 
 ### 加载指引
@@ -515,7 +560,7 @@ export function rehypeTanreiTable() {
 - 不要用表格给屏幕排版。
 - 不要指望靠条纹或颜色来传达含义。单元格里的状态应是一个词，或者是一个用标签文字写明这个状态的 Tag。
 - 不要为了填满空单元格而在里面放一个破折号。
-- 不要让行可以被按下，也不要在列标题里写你自己的排序标记或顺序。列标题只有按上面的 HTML 写法才变得可以按下，别无他法。行靠它的复选框来选择，可以打开的行则不属于表格。
+- 不要让行可以被按下，也不要在列标题里写你自己的排序标记或顺序。列标题只有按上面的 HTML 写法才变得可以按下，别无他法。行靠它的复选框或单选按钮来选择，可以打开的行则不属于表格。
 - 不要在表格加载期间把它变淡或禁用。
 
 ## 无障碍
@@ -539,16 +584,17 @@ export function rehypeTanreiTable() {
 - 状态行的段落是一个状态：它的文本变化时会以礼貌（polite）的方式朗读，不移动焦点；首次绘制时什么都不朗读。
 - 在强制颜色模式下，排序按钮的标签和标记采用按钮的文本颜色，已排序的列只靠它的箭头来表明。
 - 没有脚本时，排序按钮、它们的标记、空状态所在的那一行和状态行照样绘制，排序链接也能工作。`sort` 事件需要脚本。
-- 可以选择行的表格仍然是表格。它不获得 grid 角色，行不获得选中状态，也没有任何按键把焦点从一个单元格移到另一个单元格。行的复选框的选中状态说明这一行已被选中。
+- 可以选择行的表格仍然是表格。它不获得 grid 角色，行不获得选中状态，也没有任何按键把焦点从一个单元格移到另一个单元格。行的复选框或单选按钮的选中状态说明这一行已被选中。
 - 表头行的复选框会说明自己是选中还是未选中，半选时则说明是混合；没有可以选择的行时是禁用的。
 - 每个复选框都是焦点顺序中单独的一个停靠点：先是表头行的复选框和排序按钮，然后是每一行的复选框。Space 选中或取消选中它。
-- 行的复选框没有自己的名称时，以这一行的行标题单元格命名。
+- 行的复选框或单选按钮没有自己的名称时，以这一行的行标题单元格命名。
+- 在 `single` 下，单选按钮合起来是一个停靠点：Tab 停在已选中行的单选按钮上（一行都没选中时停在第一行的上），再按一次 Tab 就离开表格。方向键移到下一行或上一行的单选按钮并选中那一行，到头后从另一端继续。每个单选按钮会连同行的名称、状态以及它在其中的位置一起读出，例如“选择团队版，单选按钮，已选中，第 2 个，共 3 个”。它们不包在单选组里，因为单选组无法容纳表格的行。
 - 在选择单元格里的任何位置按下，都是按下其中的复选框。某个复选框有焦点时，如果你替换了各行或重新排列了各行，焦点会移到 `data-value` 相同的那一行的复选框上。
 - 对指针来说，可以选择的行是其复选框的更大的目标。行不会得到角色、焦点停靠点或选中状态，所以键盘和屏幕阅读器面对的仍是那个已命名的复选框，行里的文本也仍然可以选择和复制。
-- 在强制颜色模式下，选中行的填充消失，复选框仍然说明这一行已被选中。
+- 在强制颜色模式下，选中行的填充消失，复选框或单选按钮仍然说明这一行已被选中。
 - 设置了 `loading` 期间，表格以忙碌状态暴露给辅助技术（`aria-busy`）。占位行对辅助技术隐藏，所以用户听到的是表格正忙，而不是一行行空无一物的内容。加载开始或结束时，表格自己什么都不朗读。
 - 没有脚本时，选择列、选中的行（`data-selected`，或者已选中的原生复选框）和占位行照样绘制，原生复选框也能在你的表单里工作。让表头行的复选框保持一致，以及 `selectionchange` 事件，都需要脚本。没有脚本时，行不显示悬停状态和指针光标，在复选框旁边按下也不会改变任何东西。
-- 没有名称的表格、未知的密度、分隔方式或选择方式、写在表体之前的表尾行、单元格数多于或少于列数的行、没有列标题的可排序列、同时排序的两列、没有名称的行复选框，以及不在加载中的表格里的占位行，会在调试构建中报告。
+- 没有名称的表格、未知的密度、分隔方式或选择方式、写在表体之前的表尾行、单元格数多于或少于列数的行、没有列标题的可排序列、同时排序的两列、没有名称的行复选框、同时被标为选中的多行、`single` 下种类不对的控件，以及不在加载中的表格里的占位行，会在调试构建中报告。
 
 ### 需要你做的事
 
@@ -568,7 +614,7 @@ Tanrei 不自带任何文字。表格只向你要其中一段，即表头行复�
 | 文字 | 在哪里给出 |
 | --- | --- |
 | 表头行复选框的名称（“选择所有商品”） | 元素上的 `select-all-label`，或者用 `setWords({ selectAllLabel: '选择所有行' })` 为所有表格只给一次。 |
-| 行的复选框的名称（“选择手摇磨豆机”） | 这一行的 `<tanrei-checkbox>` 上的 `label`，或者原生复选框上的 `aria-label`。有行标题时可以不写：行标题会为复选框命名。 |
+| 行的复选框或单选按钮的名称（“选择手摇磨豆机”） | 这一行的 `<tanrei-checkbox>` 或 `<tanrei-radio-button>` 上的 `label`，或者原生控件上的 `aria-label`。有行标题时可以不写：行标题会为复选框命名。 |
 | 状态行的句子（“已选择 2 件，共 4 件”“正在加载”） | 状态行的段落；你不写段落时，用元素上的 `status`。 |
 
 没有为表头行的复选框命名时，它照样绘制、照样能用，但没有无障碍名称，调试构建会报告缺少这段文字。
