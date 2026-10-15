@@ -9101,6 +9101,7 @@ class TanreiDialogTokens {
     required this.actionsGap,
     required this.actionsMarginBlockStart,
     required this.actionsVariant,
+    required this.closeButtonVariant,
     required this.compactWindowWidth,
     required this.containerColor,
     required this.containerElevation,
@@ -9130,6 +9131,9 @@ class TanreiDialogTokens {
     required this.scrimColor,
     required this.supportingTextColor,
     required this.supportingTextTypescale,
+    required this.widthLarge,
+    required this.widthMedium,
+    required this.widthSmall,
   });
 
   /// `comp.dialog.actions-arrangement`
@@ -9140,6 +9144,8 @@ class TanreiDialogTokens {
   final double actionsMarginBlockStart;
   /// `comp.dialog.actions-variant`
   final double actionsVariant;
+  /// `comp.dialog.close-button-variant`
+  final double closeButtonVariant;
   /// `comp.dialog.compact-window-width`
   final double compactWindowWidth;
   /// `comp.dialog.container-color`
@@ -9198,6 +9204,12 @@ class TanreiDialogTokens {
   final TanreiPaint supportingTextColor;
   /// `comp.dialog.supporting-text-typescale`
   final TanreiTextStyle supportingTextTypescale;
+  /// `comp.dialog.width-large`
+  final double widthLarge;
+  /// `comp.dialog.width-medium`
+  final double widthMedium;
+  /// `comp.dialog.width-small`
+  final double widthSmall;
 
   /// A copy with the given tokens replaced.
   TanreiDialogTokens copyWith({
@@ -9205,6 +9217,7 @@ class TanreiDialogTokens {
     double? actionsGap,
     double? actionsMarginBlockStart,
     double? actionsVariant,
+    double? closeButtonVariant,
     double? compactWindowWidth,
     TanreiPaint? containerColor,
     List<TanreiShadowLayer>? containerElevation,
@@ -9234,11 +9247,15 @@ class TanreiDialogTokens {
     TanreiPaint? scrimColor,
     TanreiPaint? supportingTextColor,
     TanreiTextStyle? supportingTextTypescale,
+    double? widthLarge,
+    double? widthMedium,
+    double? widthSmall,
   }) => TanreiDialogTokens(
         actionsArrangement: actionsArrangement ?? this.actionsArrangement,
         actionsGap: actionsGap ?? this.actionsGap,
         actionsMarginBlockStart: actionsMarginBlockStart ?? this.actionsMarginBlockStart,
         actionsVariant: actionsVariant ?? this.actionsVariant,
+        closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         compactWindowWidth: compactWindowWidth ?? this.compactWindowWidth,
         containerColor: containerColor ?? this.containerColor,
         containerElevation: containerElevation ?? this.containerElevation,
@@ -9268,6 +9285,9 @@ class TanreiDialogTokens {
         scrimColor: scrimColor ?? this.scrimColor,
         supportingTextColor: supportingTextColor ?? this.supportingTextColor,
         supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
+        widthLarge: widthLarge ?? this.widthLarge,
+        widthMedium: widthMedium ?? this.widthMedium,
+        widthSmall: widthSmall ?? this.widthSmall,
       );
 }
 

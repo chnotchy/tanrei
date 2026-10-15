@@ -4242,6 +4242,7 @@ export const cupertino = {
       actionsGap: 8,
       actionsMarginBlockStart: 24,
       actionsVariant: 4,
+      closeButtonVariant: 4,
       compactWindowWidth: 0,
       containerColor: { kind: "role", role: "surfaceContainerHigh" },
       containerElevation: "level3",
@@ -4271,6 +4272,9 @@ export const cupertino = {
       scrimColor: { kind: "role", role: "scrim" },
       supportingTextColor: { kind: "role", role: "onSurface" },
       supportingTextTypescale: "body",
+      widthLarge: 800,
+      widthMedium: 560,
+      widthSmall: 400,
     },
     divider: {
       lineColor: { kind: "role", role: "outlineVariant" },

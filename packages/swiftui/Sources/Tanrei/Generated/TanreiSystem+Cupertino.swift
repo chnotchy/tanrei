@@ -3406,6 +3406,7 @@ private let cupertinoDialogTokens = TanreiDialogTokens(
   actionsGap: 8,
   actionsMarginBlockStart: 24,
   actionsVariant: 4,
+  closeButtonVariant: 4,
   compactWindowWidth: 0,
   containerColor: .role(.surfaceContainerHigh),
   containerElevation: cupertinoElevation.level3,
@@ -3434,7 +3435,10 @@ private let cupertinoDialogTokens = TanreiDialogTokens(
   scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurface),
-  supportingTextTypescale: cupertinoTypescale.body
+  supportingTextTypescale: cupertinoTypescale.body,
+  widthLarge: 800,
+  widthMedium: 560,
+  widthSmall: 400
 )
 
 private let cupertinoDividerTokens = TanreiDividerTokens(

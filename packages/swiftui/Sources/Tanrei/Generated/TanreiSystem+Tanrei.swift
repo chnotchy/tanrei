@@ -3428,6 +3428,7 @@ private let tanreiDialogTokens = TanreiDialogTokens(
   actionsGap: 16,
   actionsMarginBlockStart: 24,
   actionsVariant: 1,
+  closeButtonVariant: 4,
   compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
   containerElevation: tanreiElevation.level3,
@@ -3456,7 +3457,10 @@ private let tanreiDialogTokens = TanreiDialogTokens(
   scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurfaceVariant),
-  supportingTextTypescale: tanreiTypescale.body
+  supportingTextTypescale: tanreiTypescale.body,
+  widthLarge: 800,
+  widthMedium: 560,
+  widthSmall: 400
 )
 
 private let tanreiDividerTokens = TanreiDividerTokens(

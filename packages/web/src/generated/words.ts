@@ -26,7 +26,7 @@ export interface TanreiWords {
   characterCountText?: string;
   /** Read by `combobox.clearLabel`, `search.clearLabel`. */
   clearLabel?: string;
-  /** Read by `callout.closeLabel`, `image-preview.closeLabel`, `popover.closeLabel`, `side-sheet.closeLabel`, `snackbar.closeLabel`. */
+  /** Read by `callout.closeLabel`, `dialog.closeLabel`, `image-preview.closeLabel`, `popover.closeLabel`, `side-sheet.closeLabel`, `snackbar.closeLabel`. */
   closeLabel?: string;
   /** Read by `date-time-picker.confirmLabel`. */
   confirmLabel?: string;
@@ -213,7 +213,7 @@ export const wordReaders: Readonly<Record<WordKey, readonly string[]>> = {
   characterCountNoLimitText: ['text-input.counterNoLimitText'],
   characterCountText: ['text-input.counterText'],
   clearLabel: ['combobox.clearLabel', 'search.clearLabel'],
-  closeLabel: ['callout.closeLabel', 'image-preview.closeLabel', 'popover.closeLabel', 'side-sheet.closeLabel', 'snackbar.closeLabel'],
+  closeLabel: ['callout.closeLabel', 'dialog.closeLabel', 'image-preview.closeLabel', 'popover.closeLabel', 'side-sheet.closeLabel', 'snackbar.closeLabel'],
   confirmLabel: ['date-time-picker.confirmLabel'],
   copiedLabel: ['code-block.copiedLabel', 'copy-button.copiedLabel'],
   copyFailedLabel: ['code-block.copyFailedLabel', 'copy-button.failedLabel'],

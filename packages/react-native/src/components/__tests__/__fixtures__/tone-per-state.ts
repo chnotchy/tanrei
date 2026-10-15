@@ -5952,6 +5952,7 @@ export const tonePerState = {
       actionsGap: 16,
       actionsMarginBlockStart: 24,
       actionsVariant: 1,
+      closeButtonVariant: 4,
       compactWindowWidth: 600,
       containerColor: { kind: "role", role: "surfaceBright" },
       containerElevation: "level3",
@@ -5981,6 +5982,9 @@ export const tonePerState = {
       scrimColor: { kind: "role", role: "scrim" },
       supportingTextColor: { kind: "role", role: "onSurfaceVariant" },
       supportingTextTypescale: "body",
+      widthLarge: 800,
+      widthMedium: 560,
+      widthSmall: 400,
     },
     divider: {
       lineColor: { kind: "role", role: "outlineVariant" },
