@@ -30,8 +30,10 @@ const BOXES = {
 } as const;
 
 test.describe('in a box as wide as its content', () => {
-  for (const spec of specs) {
-    test(`${spec.name}: in an inline block, a table cell and a flex item every fixture has its width within two frames and keeps it`, async ({ page }) => {
+  // One test for each box: a component with many fixtures (the date-time picker) took most of the time limit to mount
+  // and stand in all three on a slow runner, so each box is a test of its own with the whole of the limit.
+  for (const spec of specs) for (const [box, declarations] of Object.entries(BOXES)) {
+    test(`${spec.name}: in ${box} every fixture has its width within two frames and keeps it`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true });
       await page.evaluate(() => {
         (window as any).loops = 0;
@@ -39,7 +41,7 @@ test.describe('in a box as wide as its content', () => {
           if (/ResizeObserver/.test(event.message)) (window as any).loops += 1;
         });
       });
-      for (const [box, declarations] of Object.entries(BOXES)) {
+      {
         const seen = await page.evaluate(async (css) => {
           const frames = async (count: number) => {
             for (let i = 0; i < count; i++) await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
