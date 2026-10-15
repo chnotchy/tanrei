@@ -53713,7 +53713,21 @@
                   }
                 }
               ],
-              "description": "Runs \\`then\\` once \\`element\\` is first seen in the window (at once where it is): a tooltip whose anchor is out of sight closes at once (NVD-56).",
+              "description": "Runs \\`then\\` once \\`element\\` is first seen in the window (at once where it is): a tooltip whose anchor is out of sight\ncloses at once (NVD-56). NVD-75's wait is its own: the collapsed name's hide (after the pointer left) ends the name's\nwait, never this one.",
+              "inheritedFrom": {
+                "name": "DrawerCell",
+                "module": "src/components/navigation-drawer/navigation-drawer.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "cutSightline",
+              "type": {
+                "text": "IntersectionObserver | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "NVD-75: waits for a focused cell to be seen before its cut text's tooltip is opened (\\`whenInView()\\`).",
               "inheritedFrom": {
                 "name": "DrawerCell",
                 "module": "src/components/navigation-drawer/navigation-drawer.ts"
@@ -54884,7 +54898,21 @@
                   }
                 }
               ],
-              "description": "Runs \\`then\\` once \\`element\\` is first seen in the window (at once where it is): a tooltip whose anchor is out of sight closes at once (NVD-56).",
+              "description": "Runs \\`then\\` once \\`element\\` is first seen in the window (at once where it is): a tooltip whose anchor is out of sight\ncloses at once (NVD-56). NVD-75's wait is its own: the collapsed name's hide (after the pointer left) ends the name's\nwait, never this one.",
+              "inheritedFrom": {
+                "name": "DrawerCell",
+                "module": "src/components/navigation-drawer/navigation-drawer.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "cutSightline",
+              "type": {
+                "text": "IntersectionObserver | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "NVD-75: waits for a focused cell to be seen before its cut text's tooltip is opened (\\`whenInView()\\`).",
               "inheritedFrom": {
                 "name": "DrawerCell",
                 "module": "src/components/navigation-drawer/navigation-drawer.ts"
