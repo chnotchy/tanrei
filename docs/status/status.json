@@ -917,6 +917,7 @@
       "builtFrom": [],
       "uses": [
         "checkbox",
+        "radio-button",
         "tag",
         "empty-state",
         "pagination",

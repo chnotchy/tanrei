@@ -8,6 +8,7 @@
   "listing": "default",
   "uses": [
     "checkbox",
+    "radio-button",
     "tag",
     "empty-state",
     "pagination",
@@ -45,7 +46,7 @@
     },
     {
       "id": "row",
-      "description": "One record: a cell for each column, as tall as its tallest cell. A row that can be chosen is, for a pointer, one target that changes its checkbox, with its own hover and press (TBL-58, TBL-59)."
+      "description": "One record: a cell for each column, as tall as its tallest cell. A row that can be chosen is, for a pointer, one target that presses its checkbox or radio button, with its own hover and press (TBL-58, TBL-59)."
     },
     {
       "id": "row-header",
@@ -54,7 +55,7 @@
     },
     {
       "id": "selection-cell",
-      "description": "The cell before the first column of a table whose rows can be chosen: in a body row the row's checkbox, in the header row the checkbox for every row, in a footer row nothing.",
+      "description": "The cell before the first column of a table whose rows can be chosen: in a body row the row's checkbox, or its radio button where one row at most is chosen; in the header row the checkbox for every row, or nothing where one row at most is chosen; in a footer row nothing.",
       "optional": true
     },
     {
@@ -78,7 +79,7 @@
     },
     {
       "id": "placeholder-row",
-      "description": "A body row that stands for a record that has not arrived: as tall as a row of one line, holding what the product puts in its cells (a Skeleton), and no checkbox.",
+      "description": "A body row that stands for a record that has not arrived: as tall as a row of one line, holding what the product puts in its cells (a Skeleton), and no checkbox or radio button.",
       "optional": true
     },
     {
@@ -161,17 +162,18 @@
       "type": "enum",
       "values": [
         "none",
+        "single",
         "multiple"
       ],
       "default": "none",
-      "description": "Whether rows can be chosen. multiple puts a checkbox before the first column of every body row that has a value, and one in the header row that stands for all of them. none draws no such column and ignores a row's selected."
+      "description": "Whether rows can be chosen, and how many. multiple puts a checkbox before the first column of every body row that has a value, and one in the header row that stands for all of them. single puts a radio button there instead and nothing in the header row: one row at most is chosen, and a person moves the choice from row to row but does not take it back (TBL-60). none draws no such column and ignores a row's selected."
     },
     {
       "name": "selectAllLabel",
       "type": "string",
       "default": "",
       "words": "selectAllLabel",
-      "description": "The accessible name of the checkbox in the header row that chooses every row (\"Select all rows\"). Not drawn. From the product's words where the instance gives none."
+      "description": "The accessible name of the checkbox in the header row that chooses every row (\"Select all rows\"). Not drawn; read only while selection is multiple. From the product's words where the instance gives none."
     },
     {
       "name": "sortedAscendingLabel",
@@ -268,25 +270,25 @@
           "name": "value",
           "type": "string",
           "default": "",
-          "description": "The name the product knows the record by, carried by selectionChange. Not drawn. A body row without a value cannot be chosen: it has no checkbox."
+          "description": "The name the product knows the record by, carried by selectionChange. Not drawn. A body row without a value cannot be chosen: it has no checkbox or radio button."
         },
         {
           "name": "selected",
           "type": "boolean",
           "default": false,
-          "description": "Whether the row is chosen. Read only while the table's selection is multiple and the row has a value."
+          "description": "Whether the row is chosen. Read only while the table's selection is single or multiple and the row has a value; while it is single, one row at most is chosen (TBL-60)."
         },
         {
           "name": "selectLabel",
           "type": "string",
           "default": "",
-          "description": "The accessible name of the row's checkbox (\"Select Islands\"): words about this one record, so the instance's. Not drawn. Empty: the checkbox is named by the row's header cell where rowHeaders is true."
+          "description": "The accessible name of the row's checkbox or radio button (\"Select Islands\"): words about this one record, so the instance's. Not drawn. Empty: it is named by the row's header cell where rowHeaders is true."
         },
         {
           "name": "placeholder",
           "type": "boolean",
           "default": false,
-          "description": "Says that the row stands for a record that has not arrived. It is drawn as a body row at least one line tall, holds what the product puts in its cells (a Skeleton) or nothing, has no checkbox and is hidden from assistive technology."
+          "description": "Says that the row stands for a record that has not arrived. It is drawn as a body row at least one line tall, holds what the product puts in its cells (a Skeleton) or nothing, has no checkbox or radio button and is hidden from assistive technology."
         }
       ]
     },
@@ -369,7 +371,7 @@
     },
     {
       "name": "selectionChange",
-      "description": "The user changed which rows are chosen, by a row's checkbox or by the one for every row; carries values: the values of the chosen rows after the change, in row order."
+      "description": "The user changed which rows are chosen — by a row's checkbox or radio button, by a press on the row, by the checkbox for every row, or by an arrow key on a radio button; carries values: the values of the chosen rows after the change, in row order. While selection is single it holds the one chosen row's value."
     }
   ],
   "states": [
@@ -406,7 +408,7 @@
     },
     {
       "id": "TBL-6",
-      "text": "WHILE rowHeaders is true THE table SHALL treat the first cell of every body row and of every footer row as the header of its row: it SHALL draw that cell in the cell's text style at its emphasized weight — the style's weight plus sys.typescale.emphasis.body — in comp.table.cell.text.color, with a cell's paddings and no fill of its own, and SHALL expose it as a row header (TBL-24); WHILE rowHeaders is false THE table SHALL draw and expose the first column as cells, except that a first cell the product's own content already marks as the header of its row (on the web a th whose scope is row) SHALL be drawn and exposed as one whatever rowHeaders says: rowHeaders adds row headers and takes none away. WHILE selection is multiple the first column is the first column of data, after the selection column (TBL-42)."
+      "text": "WHILE rowHeaders is true THE table SHALL treat the first cell of every body row and of every footer row as the header of its row: it SHALL draw that cell in the cell's text style at its emphasized weight — the style's weight plus sys.typescale.emphasis.body — in comp.table.cell.text.color, with a cell's paddings and no fill of its own, and SHALL expose it as a row header (TBL-24); WHILE rowHeaders is false THE table SHALL draw and expose the first column as cells, except that a first cell the product's own content already marks as the header of its row (on the web a th whose scope is row) SHALL be drawn and exposed as one whatever rowHeaders says: rowHeaders adds row headers and takes none away. WHILE selection is multiple or single the first column is the first column of data, after the selection column (TBL-42)."
     },
     {
       "id": "TBL-7",
@@ -448,7 +450,7 @@
     },
     {
       "id": "TBL-16",
-      "text": "THE table and its cells SHALL NOT take pointer, touch or keyboard input of their own and SHALL NOT change anything they draw under a pointer, a press or focus, and a row SHALL NOT either except as TBL-58 and TBL-59 say: no row has a focused state, is a stop in the focus order or takes a key; a row that cannot be chosen — every row of a table whose selection is none, the header row, a footer row, a placeholder row and a body row without a value — has no hovered or pressed state and is not pressed as a whole; and a cell is not a stop in the focus order. Four parts of the table take input, each by its own sentences: the header cell of a sortable column, which is a button (TBL-32 to TBL-41); the checkboxes of a table whose selection is multiple, which are the Checkbox component (TBL-42 to TBL-47); a body row that can be chosen, which a pointer presses as its checkbox (TBL-58, TBL-59); and the scroll region while the table scrolls (TBL-22). WHILE no column is sortable and selection is none THE table SHALL emit no event."
+      "text": "THE table and its cells SHALL NOT take pointer, touch or keyboard input of their own and SHALL NOT change anything they draw under a pointer, a press or focus, and a row SHALL NOT either except as TBL-58 and TBL-59 say: no row has a focused state, is a stop in the focus order or takes a key; a row that cannot be chosen — every row of a table whose selection is none, the header row, a footer row, a placeholder row and a body row without a value — has no hovered or pressed state and is not pressed as a whole; and a cell is not a stop in the focus order. Four parts of the table take input, each by its own sentences: the header cell of a sortable column, which is a button (TBL-32 to TBL-41); the checkboxes of a table whose selection is multiple, which are the Checkbox component, and the radio buttons of a table whose selection is single, which are the Radio button component (TBL-42 to TBL-47, TBL-60, TBL-61); a body row that can be chosen, which a pointer presses as its checkbox or radio button (TBL-58, TBL-59); and the scroll region while the table scrolls (TBL-22). WHILE no column is sortable and selection is none THE table SHALL emit no event."
     },
     {
       "id": "TBL-17",
@@ -489,7 +491,7 @@
     },
     {
       "id": "TBL-25",
-      "text": "WHEN the table's rows, columns or cells change THE table SHALL draw the new content at once, without a motion, keeping its scroll position where the content it showed still exists, and SHALL NOT announce the change by itself. The one place where the table tells a change is its status line, and what that says is the product's (TBL-52); WHEN rows are replaced because the product ordered or fetched them THE table SHALL keep keyboard focus on the sort button or the checkbox that had it, where that control still exists."
+      "text": "WHEN the table's rows, columns or cells change THE table SHALL draw the new content at once, without a motion, keeping its scroll position where the content it showed still exists, and SHALL NOT announce the change by itself. The one place where the table tells a change is its status line, and what that says is the product's (TBL-52); WHEN rows are replaced because the product ordered or fetched them THE table SHALL keep keyboard focus on the sort button, the checkbox or the radio button that had it, where that control still exists."
     },
     {
       "id": "TBL-26",
@@ -541,7 +543,7 @@
     },
     {
       "id": "TBL-36",
-      "text": "WHEN a sort button receives keyboard focus THE table SHALL show the system's focus indicator inside the edge of its header cell without animation — sys.focus.outer-width wide in the color role focus-ring, set in from the edge by sys.focus.offset so that neither the next cell, the box's edge nor a header kept in view clips it, with the inner stroke of sys.focus.inner-width where the system has one; focus gained by pointer or touch SHALL NOT show it. WHEN keyboard focus moves to a sort button or a checkbox that is under a header row, a first column or a status line kept in view, or outside the box, THE table SHALL scroll its box so that the whole control is in view beside them."
+      "text": "WHEN a sort button receives keyboard focus THE table SHALL show the system's focus indicator inside the edge of its header cell without animation — sys.focus.outer-width wide in the color role focus-ring, set in from the edge by sys.focus.offset so that neither the next cell, the box's edge nor a header kept in view clips it, with the inner stroke of sys.focus.inner-width where the system has one; focus gained by pointer or touch SHALL NOT show it. WHEN keyboard focus moves to a sort button, a checkbox or a radio button that is under a header row, a first column or a status line kept in view, or outside the box, THE table SHALL scroll its box so that the whole control is in view beside them."
     },
     {
       "id": "TBL-37",
@@ -567,31 +569,31 @@
     },
     {
       "id": "TBL-42",
-      "text": "WHILE selection is multiple THE table SHALL draw a selection column before its first column: in the header row a cell holding the checkbox for every row (TBL-45), in each body row that has a value a cell holding that row's checkbox, and an empty cell in a body row without a value, in a placeholder row and in a footer row. Each checkbox is the Checkbox component as its own spec draws it, with no label drawn, placed on the cell's first line (TBL-15) with the edge of its box, not of its round container, at the cell's padding, so that the boxes stand on the line the text of the other cells starts at: the selection cell's paddings are a cell's paddings less half of what comp.checkbox.container.size exceeds comp.checkbox.box.size by (never less than 0), the round container reaching into them, and the column is as wide as the checkbox's container and those paddings. The selection column is not a column of data: it has no header text, the first column of rowHeaders and of stickyFirstColumn is the one after it, and a sort event's index does not count it. WHILE stickyFirstColumn is true the selection column SHALL stay in view with the first column (TBL-20), and the two together are what is released when they would take more than half of the box. WHILE selection is none THE table SHALL draw no such column and no checkbox, SHALL ignore every row's selected, and SHALL emit no selectionChange.",
-      "verify": "The fixture selection: five cells in each row for four columns of data; the footer row's first cell is empty; in the default system each checkbox's box starts 16 from the cell's start edge, where the text of a cell starts, and the column is 18 + 2 × 16 = 50 wide. The fixture selection-sticky-column: scrolled to the end, the checkbox and the Region column are both at the start edge."
+      "text": "WHILE selection is multiple or single THE table SHALL draw a selection column before its first column: in the header row a cell holding the checkbox for every row WHILE selection is multiple (TBL-45) and nothing WHILE it is single (TBL-60), in each body row that has a value a cell holding that row's control — a checkbox WHILE selection is multiple, a radio button WHILE it is single — and an empty cell in a body row without a value, in a placeholder row and in a footer row. Each checkbox is the Checkbox component and each radio button the Radio button component, as their own specs draw them, with no label drawn, placed on the cell's first line (TBL-15) with the edge of its box or ring, not of its round container, at the cell's padding, so that the boxes and rings stand on the line the text of the other cells starts at: the selection cell's paddings are a cell's paddings less half of what the control's container exceeds its box by — comp.checkbox.container.size over comp.checkbox.box.size, comp.radio-button.container.size over comp.radio-button.ring.size — (never less than 0), the round container reaching into them, and the column is as wide as the control's container and those paddings. The selection column is not a column of data: it has no header text, the first column of rowHeaders and of stickyFirstColumn is the one after it, and a sort event's index does not count it. WHILE stickyFirstColumn is true the selection column SHALL stay in view with the first column (TBL-20), and the two together are what is released when they would take more than half of the box. WHILE selection is none THE table SHALL draw no such column and no checkbox or radio button, SHALL ignore every row's selected, and SHALL emit no selectionChange.",
+      "verify": "The fixture selection: five cells in each row for four columns of data; the footer row's first cell is empty; in the default system each checkbox's box starts 16 from the cell's start edge, where the text of a cell starts, and the column is 18 + 2 × 16 = 50 wide. The fixture selection-sticky-column: scrolled to the end, the checkbox and the Region column are both at the start edge. The fixture selection-single: the header row's selection cell is empty, and in the default system each radio button's ring starts 16 from the cell's start edge and the column is 20 + 2 × 16 = 52 wide."
     },
     {
       "id": "TBL-43",
-      "text": "WHILE selection is multiple and a body row's selected is true THE table SHALL draw that row as chosen: comp.table.row.selected.container.color across its whole width, paddings and the selection cell included, in place of the stripe of TBL-11 where the row would have one; the text of its cells and of its row header in comp.table.row.selected.text.color; and its checkbox checked. What a cell holds that is not plain text SHALL keep its own colors (TBL-15). In a column kept in view the fill SHALL lie over comp.table.sticky.container.color. The lines and the gap between rows (TBL-8, TBL-10) SHALL be drawn as without it. The fill SHALL change at once, without a motion of the table's own. A footer row and a placeholder row are never chosen.",
+      "text": "WHILE selection is multiple or single and a body row's selected is true THE table SHALL draw that row as chosen: comp.table.row.selected.container.color across its whole width, paddings and the selection cell included, in place of the stripe of TBL-11 where the row would have one; the text of its cells and of its row header in comp.table.row.selected.text.color; and its checkbox or radio button checked. What a cell holds that is not plain text SHALL keep its own colors (TBL-15). In a column kept in view the fill SHALL lie over comp.table.sticky.container.color. The lines and the gap between rows (TBL-8, TBL-10) SHALL be drawn as without it. The fill SHALL change at once, without a motion of the table's own. A footer row and a placeholder row are never chosen.",
       "verify": "The fixture selection-striped: the second row is selected and takes the selected fill, not the stripe; the fourth keeps its stripe."
     },
     {
       "id": "TBL-44",
-      "text": "WHEN the user changes a row's checkbox — by a press, or by Space while it has focus — THE table SHALL set that row's selected to the checkbox's new state and emit selectionChange exactly once, carrying the values of every chosen row after the change in row order. A press on the row outside its selection cell changes its checkbox where TBL-58 says so, and this sentence holds for that change as for any other. WHEN the product sets a row's selected THE table SHALL draw it and SHALL NOT emit. THE table SHALL keep which rows are chosen by their values: WHEN rows are given again in another order (TBL-33) each row SHALL be drawn chosen or not by its own selected, and the table SHALL carry no selection over to a row it is not given."
+      "text": "WHEN the user changes a row's checkbox or radio button — by a press, by Space while it has focus, or, for a radio button, by an arrow key (TBL-61) — THE table SHALL set that row's selected to the control's new state, WHILE selection is single let the row that was chosen go (TBL-60), and emit selectionChange exactly once, carrying the values of every chosen row after the change in row order. A press on the row outside its selection cell presses its control where TBL-58 says so, and this sentence holds for that change as for any other. WHEN the product sets a row's selected THE table SHALL draw it and SHALL NOT emit. THE table SHALL keep which rows are chosen by their values: WHEN rows are given again in another order (TBL-33) each row SHALL be drawn chosen or not by its own selected, and the table SHALL carry no selection over to a row it is not given."
     },
     {
       "id": "TBL-45",
-      "text": "WHILE selection is multiple THE table SHALL keep the checkbox for every row in step with the body rows it holds that have a value: checked WHILE each of them is chosen, in its mixed (indeterminate) state WHILE some are and some are not, unchecked WHILE none is, and disabled WHILE there is no such row. WHEN the user activates it while it is unchecked or mixed THE table SHALL choose every such row, and while it is checked SHALL clear every one, and SHALL emit selectionChange exactly once with the values after the change. \"Every row\" is every row the table has been given: it SHALL NOT claim to choose records the product has not given it (the rows of other pages), and a product that offers that says so with a control of its own.",
+      "text": "WHILE selection is multiple THE table SHALL keep the checkbox for every row in step with the body rows it holds that have a value: checked WHILE each of them is chosen, in its mixed (indeterminate) state WHILE some are and some are not, unchecked WHILE none is, and disabled WHILE there is no such row. WHEN the user activates it while it is unchecked or mixed THE table SHALL choose every such row, and while it is checked SHALL clear every one, and SHALL emit selectionChange exactly once with the values after the change. \"Every row\" is every row the table has been given: it SHALL NOT claim to choose records the product has not given it (the rows of other pages), and a product that offers that says so with a control of its own. WHILE selection is single there is no such checkbox (TBL-60).",
       "verify": "The fixtures selection (two of four chosen: mixed), selection-all (checked) and selection-compact (none chosen: unchecked); the fixture empty-selection (no rows: disabled)."
     },
     {
       "id": "TBL-46",
-      "text": "THE table SHALL name each row's checkbox by that row's selectLabel; WHERE selectLabel is empty and rowHeaders is true the checkbox SHALL be named by the text of the row's header cell; IF it has neither THE table SHALL expose the checkbox without a name and in debug builds report the row once per table. THE table SHALL name the checkbox for every row by selectAllLabel, from the instance or from the product's words under the key selectAllLabel and from nowhere else; IF neither gives it THE table SHALL still draw the checkbox, expose it without a name and in debug builds report the missing word. A table whose selection is multiple SHALL still be exposed as a table (TBL-24), its rows as rows and its selection cells as cells: which rows are chosen is said by the checked state of their checkboxes, the header checkbox says checked, mixed or not checked, and the table SHALL add no selected state to a row and no role of a grid.",
-      "verify": "On the web: the accessibility tree of the fixture selection has the roles table, row, columnheader, rowheader, cell and checkbox, no grid and no aria-selected; the header checkbox is mixed."
+      "text": "THE table SHALL name each row's checkbox or radio button by that row's selectLabel; WHERE selectLabel is empty and rowHeaders is true the control SHALL be named by the text of the row's header cell; IF it has neither THE table SHALL expose the control without a name and in debug builds report the row once per table. WHILE selection is multiple THE table SHALL name the checkbox for every row by selectAllLabel, from the instance or from the product's words under the key selectAllLabel and from nowhere else; IF neither gives it THE table SHALL still draw the checkbox, expose it without a name and in debug builds report the missing word. A table whose selection is multiple or single SHALL still be exposed as a table (TBL-24), its rows as rows and its selection cells as cells: which rows are chosen is said by the checked state of their checkboxes or radio buttons, the header checkbox says checked, mixed or not checked, and the table SHALL add no selected state to a row and no role of a grid.",
+      "verify": "On the web: the accessibility tree of the fixture selection has the roles table, row, columnheader, rowheader, cell and checkbox, no grid and no aria-selected; the header checkbox is mixed. The fixture selection-single: the roles table, row, columnheader, rowheader, cell and radio, no checkbox, no grid and no aria-selected; the Kettle row's radio is checked."
     },
     {
       "id": "TBL-47",
-      "text": "THE table SHALL make each sort button and each checkbox its own stop in the focus order, in reading order — the scroll region first while the table scrolls (TBL-22), then the header row's controls from the start, then each row's checkbox followed by whatever in that row's cells takes focus — and SHALL handle no key that moves focus from cell to cell: the arrow keys scroll the region or do what the focused control does with them. A checkbox's hit area SHALL be its whole selection cell, in width and in height; for a pointer the rest of its row answers too (TBL-58). WHERE input is touch, or the platform cannot tell the input type, a row that holds a checkbox SHALL be at least sys.target.touch high, drawn so, at both densities, and its selection cell at least sys.target.touch wide; for a fine pointer the row SHALL be at least sys.target.pointer high WHILE density is regular, and WHILE density is compact as high as its density gives.",
+      "text": "THE table SHALL make each sort button and each checkbox its own stop in the focus order, and the radio buttons of a table whose selection is single one stop together (TBL-61), in reading order — the scroll region first while the table scrolls (TBL-22), then the header row's controls from the start, then each row's checkbox, or the one radio button that is the stop, followed by whatever in that row's cells takes focus — and SHALL handle no key that moves focus from cell to cell: the arrow keys scroll the region or do what the focused control does with them, which for a radio button is TBL-61. A checkbox's or radio button's hit area SHALL be its whole selection cell, in width and in height; for a pointer the rest of its row answers too (TBL-58). WHERE input is touch, or the platform cannot tell the input type, a row that holds a checkbox or a radio button SHALL be at least sys.target.touch high, drawn so, at both densities, and its selection cell at least sys.target.touch wide; for a fine pointer the row SHALL be at least sys.target.pointer high WHILE density is regular, and WHILE density is compact as high as its density gives.",
       "verify": "Test the fixture sortable-selection: Tab visits Name, Stock, Price, then each row's checkbox in turn; the arrow keys move focus nowhere."
     },
     {
@@ -601,12 +603,12 @@
     },
     {
       "id": "TBL-49",
-      "text": "WHILE loading is true THE table SHALL be exposed as busy; SHALL draw the rows it is given as they are — the rows it had, or placeholder rows (TBL-50) — and SHALL NOT draw the empty slot's content, even with no body row; SHALL keep its header row, its sort buttons, its checkboxes and its status line working as without it; SHALL change no color, no opacity and no size of its own because of it; and SHALL announce nothing itself when loading begins or ends: the product says it in status (TBL-52). THE table SHALL fetch nothing, wait for nothing and time nothing: loading is true for as long as the product says so.",
+      "text": "WHILE loading is true THE table SHALL be exposed as busy; SHALL draw the rows it is given as they are — the rows it had, or placeholder rows (TBL-50) — and SHALL NOT draw the empty slot's content, even with no body row; SHALL keep its header row, its sort buttons, its checkboxes, its radio buttons and its status line working as without it; SHALL change no color, no opacity and no size of its own because of it; and SHALL announce nothing itself when loading begins or ends: the product says it in status (TBL-52). THE table SHALL fetch nothing, wait for nothing and time nothing: loading is true for as long as the product says so.",
       "verify": "The fixture loading: the four rows it had, drawn as in the fixture selection, and on the web aria-busy on the table."
     },
     {
       "id": "TBL-50",
-      "text": "WHERE a row's placeholder is true THE table SHALL draw it as a body row — counted for stripes, parted from its neighbours as TBL-9 says, with a cell's paddings — at least as tall as a body row holding one line of text at the table's density, however little its cells hold; SHALL place in each cell what the product gives it there (a Skeleton, by TBL-15) or nothing; SHALL draw no checkbox in its selection cell and count it neither as a body row for the header checkbox (TBL-45) nor as a row for the empty slot (TBL-48); and SHALL hide the row from assistive technology, so that a person hears that the table is busy and not a row of nothing. IF a row's placeholder is true while loading is false THE table SHALL draw it all the same and in debug builds report it.",
+      "text": "WHERE a row's placeholder is true THE table SHALL draw it as a body row — counted for stripes, parted from its neighbours as TBL-9 says, with a cell's paddings — at least as tall as a body row holding one line of text at the table's density, however little its cells hold; SHALL place in each cell what the product gives it there (a Skeleton, by TBL-15) or nothing; SHALL draw no checkbox or radio button in its selection cell and count it neither as a body row for the header checkbox (TBL-45) nor as a row for the empty slot (TBL-48); and SHALL hide the row from assistive technology, so that a person hears that the table is busy and not a row of nothing. IF a row's placeholder is true while loading is false THE table SHALL draw it all the same and in debug builds report it.",
       "verify": "The fixture loading-placeholders: five rows of empty cells, each 46 high under the default system, no checkbox in any of them, and the header checkbox disabled."
     },
     {
@@ -626,12 +628,12 @@
     },
     {
       "id": "TBL-54",
-      "text": "WHERE the platform draws with a person's own forced colors THE table SHALL draw a sort button's label and mark in the platform's button-text color and its focus indicator in the platform's highlight color, SHALL keep the sorted column told from the others by its glyph alone, and, because the mode removes the fill of a chosen row, SHALL rely on the row's checkbox, which the Checkbox draws checked in that mode, to say that the row is chosen; it SHALL draw the line above a status line kept in view in the platform's text color (TBL-30).",
+      "text": "WHERE the platform draws with a person's own forced colors THE table SHALL draw a sort button's label and mark in the platform's button-text color and its focus indicator in the platform's highlight color, SHALL keep the sorted column told from the others by its glyph alone, and, because the mode removes the fill of a chosen row, SHALL rely on the row's control — its checkbox, which the Checkbox draws checked in that mode, or its radio button, which the Radio button draws selected there — to say that the row is chosen; it SHALL draw the line above a status line kept in view in the platform's text color (TBL-30).",
       "verify": "On the web, with forced colors emulated: in the fixture selection a chosen row and one that is not differ by their checkboxes; no fixture relies on a background color."
     },
     {
       "id": "TBL-55",
-      "text": "WHILE the text size is enlarged THE table SHALL grow a sort button's label and its mark's box with it, wrap the label inside its column where the column's wrap allows it and keep the mark on the label's last line, grow the status text and wrap it, keep the selection column as wide as its checkbox and paddings, and lay the status line out in two lines where one no longer fits (TBL-51); nothing of these SHALL be cut, and TBL-29 holds for a table with every one of them at a width of 320 points.",
+      "text": "WHILE the text size is enlarged THE table SHALL grow a sort button's label and its mark's box with it, wrap the label inside its column where the column's wrap allows it and keep the mark on the label's last line, grow the status text and wrap it, keep the selection column as wide as its checkbox or radio button and paddings, and lay the status line out in two lines where one no longer fits (TBL-51); nothing of these SHALL be cut, and TBL-29 holds for a table with every one of them at a width of 320 points.",
       "verify": "On the web at 200 % text and at a 320 wide window, the fixtures sortable-long-headers and data: every header label is whole and only the table's own box scrolls sideways."
     },
     {
@@ -640,18 +642,28 @@
     },
     {
       "id": "TBL-57",
-      "text": "WHERE the platform draws the product's own elements and script does not run (the web) THE table SHALL still draw, from the product's markup alone, everything of TBL-32, TBL-33, TBL-42, TBL-43, TBL-48, TBL-50 and TBL-51 that is drawing: a sort button and the mark of the order the header cell names, the hover, focus and press of the button, the selection column, a chosen row, the empty content, placeholder rows and the status line; a sort button that is an anchor and checkboxes that are the platform's own inside the product's form SHALL work as the platform makes them work. What needs script and is then absent: the events, a press on a row outside its checkbox and the row's hover and press (TBL-58, TBL-59), which are then not drawn, the header checkbox kept in step and choosing every row (TBL-45), the busy state where the product did not write it, keeping focus through a change of rows, and what TBL-22 already loses. Nothing SHALL be hidden that script would have to reveal.",
+      "text": "WHERE the platform draws the product's own elements and script does not run (the web) THE table SHALL still draw, from the product's markup alone, everything of TBL-32, TBL-33, TBL-42, TBL-43, TBL-48, TBL-50 and TBL-51 that is drawing: a sort button and the mark of the order the header cell names, the hover, focus and press of the button, the selection column, a chosen row, the empty content, placeholder rows and the status line; a sort button that is an anchor, and checkboxes and radio buttons that are the platform's own inside the product's form, SHALL work as the platform makes them work — radio buttons of one name exclude each other and share one stop without script (TBL-60, TBL-61). What needs script and is then absent: the events, a press on a row outside its checkbox or radio button and the row's hover and press (TBL-58, TBL-59), which are then not drawn, the header checkbox kept in step and choosing every row (TBL-45), the busy state where the product did not write it, keeping focus through a change of rows, and what TBL-22 already loses. Nothing SHALL be hidden that script would have to reveal.",
       "verify": "On the web with scripting off: the fixtures sortable, selection, empty, loading-placeholders and status-pagination, written as the README writes them, are drawn as with it."
     },
     {
       "id": "TBL-58",
-      "text": "WHILE selection is multiple, WHEN a body row that can be chosen (it has a value and a checkbox, TBL-42) is pressed and released outside its selection cell with the primary mouse button, a touch or a pen, without the pointer moving further than the platform's touch slop between the two, THE table SHALL change that row's checkbox exactly as a press on the checkbox does: the row is chosen or let go and selectionChange is emitted once (TBL-44). For a pointer the whole row is the checkbox's hit area, the way a whole card answers a press while the controls inside it keep their own. THE table SHALL NOT change the checkbox IF the press lands on or inside something in a cell that answers a press itself — a link, a button, a field, a select, a label, a summary, an editable element, an element with a tab index, an element with a widget role, a custom element that takes focus, or an element to which the product gave the pointer cursor where the row's own is not (the pointer the row shows for itself does not count) — which keeps its own behaviour; IF the release ends a text selection, that is, the selection is not empty and lies in the row once the press is released; IF the pointer moved further than the slop (a drag, a scroll); IF a modifier key (Control, Command, Shift, Alt or Option) is held or a button other than the primary is used; IF the press is the second or a later press of a multiple click; IF the product cancelled the click; or IF the press lands inside a table nested in a cell, whose rows are its own. A press in the selection cell is the checkbox's (TBL-47). The header row, whose checkbox stands for every row, a footer row, a placeholder row and a body row without a value SHALL take no such press. The row SHALL get no role, no name, no focus stop, no selected state and no announcement of its own: the checkbox stays the one control of the row, which the keyboard and assistive technology reach as TBL-46 and TBL-47 say, and a press on the row is a larger target for the same action. WHERE the platform's row answers no press (on the web, without the element's script) the row SHALL show neither the pointer cursor nor a state, and a press there SHALL choose nothing.",
-      "verify": "Test the fixture selection, and a table of the test's own whose cells hold a link, a button, a field and a label: a click on a row's text, on its padding and on its row header chooses the row with one selectionChange, and a second click lets it go; a click on the link (its default prevented), the button, the field and the label chooses nothing; a word selected by dragging over it, a drag of 20 px, ctrl-, meta-, shift- and alt-clicks, a middle-button click, the second click of a double click, a click the product cancels and a script's click() on a cell choose nothing; a press moved by 4 px chooses; a click on a footer row, a placeholder row, a row without a value and the header row outside its checkbox chooses nothing; Tab reaches the same stops as before, and no row has a role, a tab index or aria-selected."
+      "text": "WHILE selection is multiple or single, WHEN a body row that can be chosen (it has a value and a checkbox or radio button, TBL-42) is pressed and released outside its selection cell with the primary mouse button, a touch or a pen, without the pointer moving further than the platform's touch slop between the two, THE table SHALL press that row's control exactly as a press on the control does: a checkbox's row is chosen or let go, a radio button's row is chosen where it was not and stays chosen where it was (TBL-60), and selectionChange is emitted once where the choice changed (TBL-44). For a pointer the whole row is the control's hit area, the way a whole card answers a press while the controls inside it keep their own. THE table SHALL NOT press the control IF the press lands on or inside something in a cell that answers a press itself — a link, a button, a field, a select, a label, a summary, an editable element, an element with a tab index, an element with a widget role, a custom element that takes focus, or an element to which the product gave the pointer cursor where the row's own is not (the pointer the row shows for itself does not count) — which keeps its own behaviour; IF the release ends a text selection, that is, the selection is not empty and lies in the row once the press is released; IF the pointer moved further than the slop (a drag, a scroll); IF a modifier key (Control, Command, Shift, Alt or Option) is held or a button other than the primary is used; IF the press is the second or a later press of a multiple click; IF the product cancelled the click; or IF the press lands inside a table nested in a cell, whose rows are its own. A press in the selection cell is the control's (TBL-47). The header row, whose checkbox stands for every row, a footer row, a placeholder row and a body row without a value SHALL take no such press. The row SHALL get no role, no name, no focus stop, no selected state and no announcement of its own: the checkbox or radio button stays the one control of the row, which the keyboard and assistive technology reach as TBL-46, TBL-47 and TBL-61 say, and a press on the row is a larger target for the same action. WHERE the platform's row answers no press (on the web, without the element's script) the row SHALL show neither the pointer cursor nor a state, and a press there SHALL choose nothing.",
+      "verify": "Test the fixture selection, and a table of the test's own whose cells hold a link, a button, a field and a label: a click on a row's text, on its padding and on its row header chooses the row with one selectionChange, and a second click lets it go; a click on the link (its default prevented), the button, the field and the label chooses nothing; a word selected by dragging over it, a drag of 20 px, ctrl-, meta-, shift- and alt-clicks, a middle-button click, the second click of a double click, a click the product cancels and a script's click() on a cell choose nothing; a press moved by 4 px chooses; a click on a footer row, a placeholder row, a row without a value and the header row outside its checkbox chooses nothing; Tab reaches the same stops as before, and no row has a role, a tab index or aria-selected. The fixture selection-single: a click on the text of a row that is not chosen chooses it and lets the chosen one go, with one selectionChange; a click on the chosen row changes nothing and emits nothing."
     },
     {
       "id": "TBL-59",
-      "text": "WHILE selection is multiple and a fine pointer is over a body row that can be chosen where a press would change its checkbox — its selection cell, or its cells outside anything that answers a press itself (TBL-58) — THE table SHALL draw that row hovered, as one target, across its whole width, paddings and the selection cell included: its fill in the hovered container color of the row's condition — selected WHILE the row is chosen, unselected otherwise; the default system mixes comp.table.row.selected.state-layer.color or comp.table.row.unselected.state-layer.color into that condition's resting fill — laid over what the row is filled with at rest (its stripe, the chosen fill, comp.table.sticky.container.color in a column kept in view) and short of the gap of TBL-10; the text of its cells in the hovered text color of its condition; and the pointer cursor. WHILE the pointer is over something in a cell that answers a press itself, that thing SHALL keep its own cursor, hover and press, and the row SHALL be drawn at rest. WHEN such a row is pressed by pointer, touch or pen where TBL-58 or TBL-47 makes the press its checkbox's THE table SHALL draw the row pressed without delay and keep it so for at least sys.motion.duration.press-hold, even when the press ends sooner, answering as sys.behavior.pressed-feedback names: overlay draws the pressed container and text colors of the row's condition across the row; dim applies the table's pressed opacity to the whole row while its fill and text stay with the state under the press; none draws no answer; and ripple, which has no one box to grow in across the cells of a row, answers as overlay. The press SHALL end when the pointer leaves the row, moves further than the slop or is cancelled. The fills SHALL change at once, without a motion of the table's own, as the chosen fill does (TBL-43). The checkbox SHALL keep its own hover, focus and press; a key that presses the checkbox SHALL NOT draw the row pressed, and its keyboard focus is shown by the checkbox alone. Under forced colors the row's state fills are gone with the other fills (TBL-54).",
+      "text": "WHILE selection is multiple or single and a fine pointer is over a body row that can be chosen where a press would be its control's — its selection cell, or its cells outside anything that answers a press itself (TBL-58) — THE table SHALL draw that row hovered, as one target — the chosen row of a table whose selection is single too, whose press is its radio button's even though it changes nothing, as the radio button itself answers a hover and a press while it is selected — across its whole width, paddings and the selection cell included: its fill in the hovered container color of the row's condition — selected WHILE the row is chosen, unselected otherwise; the default system mixes comp.table.row.selected.state-layer.color or comp.table.row.unselected.state-layer.color into that condition's resting fill — laid over what the row is filled with at rest (its stripe, the chosen fill, comp.table.sticky.container.color in a column kept in view) and short of the gap of TBL-10; the text of its cells in the hovered text color of its condition; and the pointer cursor. WHILE the pointer is over something in a cell that answers a press itself, that thing SHALL keep its own cursor, hover and press, and the row SHALL be drawn at rest. WHEN such a row is pressed by pointer, touch or pen where TBL-58 or TBL-47 makes the press its control's THE table SHALL draw the row pressed without delay and keep it so for at least sys.motion.duration.press-hold, even when the press ends sooner, answering as sys.behavior.pressed-feedback names: overlay draws the pressed container and text colors of the row's condition across the row; dim applies the table's pressed opacity to the whole row while its fill and text stay with the state under the press; none draws no answer; and ripple, which has no one box to grow in across the cells of a row, answers as overlay. The press SHALL end when the pointer leaves the row, moves further than the slop or is cancelled. The fills SHALL change at once, without a motion of the table's own, as the chosen fill does (TBL-43). The checkbox or radio button SHALL keep its own hover, focus and press; a key that presses it or moves to it SHALL NOT draw the row pressed, and its keyboard focus is shown by the control alone. Under forced colors the row's state fills are gone with the other fills (TBL-54).",
       "verify": "Under the default system, in the fixture selection-striped: a pointer over the text of the fourth row draws every cell of that row with the unselected hovered fill over its stripe and the pointer cursor, and over the second row, which is chosen, with the selected hovered fill; over a link in a cell the row is at rest; pressed, the row takes the pressed fill at once and keeps it for press-hold after a quick release; under cupertino (dim) a press dims the row, and under m3-like (ripple) it takes the pressed fill."
+    },
+    {
+      "id": "TBL-60",
+      "text": "WHILE selection is single THE table SHALL let one row at most be chosen: each body row that can be chosen holds a radio button in its selection cell (TBL-42), and the header row's selection cell SHALL hold nothing, because no control stands for every row; IF the product puts a control there THE table SHALL NOT draw it and in debug builds report it. The radio buttons of one table SHALL be one group whose options exclude each other (RAD-3): on the web the radio buttons of one name, the name the product gave them or, for those it gave none, one the table gives them. WHEN the user chooses a row that is not chosen — by a press on its radio button or on the row (TBL-58), by Space, or by an arrow key (TBL-61) — THE table SHALL set that row's selected, let the row that was chosen go, and emit selectionChange exactly once, carrying the value of the chosen row alone. WHEN the user activates the radio button of the chosen row, or presses that row, THE table SHALL keep the row chosen and SHALL NOT emit: a radio button is never cleared by its own activation (RAD-2), and a product that lets a person go back to no row chosen offers a control of its own for that, which clears selected. WHEN the product sets selected THE table SHALL draw it and SHALL NOT emit (TBL-44); IF more than one row says it is chosen THE table SHALL draw chosen the one whose selected the product set last — of several set at once, the first in row order — and let the others go without emitting, and in debug builds report several set at once. IF a body row's selection cell holds a checkbox WHILE selection is single, or a radio button WHILE it is multiple, THE table SHALL treat the row as one that cannot be chosen, SHALL NOT draw that control, and in debug builds report it.",
+      "verify": "The fixture selection-single: Kettle is chosen and its radio button checked, and the header row holds no control. A press on the Scale row chooses Scale and lets Kettle go, with one selectionChange carrying scale alone; a second press on that row and Space on its radio button change nothing and emit nothing."
+    },
+    {
+      "id": "TBL-61",
+      "text": "WHILE selection is single THE table SHALL expose each row's radio button as a radio, checked or not, named as TBL-46 says, with its position among the table's radio buttons and their number, and SHALL wrap them in no radio group, give a row no selected state and add no role of a grid: a radio group cannot hold the rows of a table, and the table's name and the column the radio buttons stand in say what they choose. THE radio buttons SHALL be one stop in the focus order — the chosen row's, or, while no row is chosen, the first row's that can be chosen — at the place of that row's control in the reading order of TBL-47, and Tab SHALL leave them rather than move between them (RAD-5). WHILE one of them has keyboard focus, Down Arrow and Right Arrow SHALL move focus to the radio button of the next row that can be chosen and Up Arrow and Left Arrow to the previous one's, wrapping from the last to the first, and choose that row as TBL-60 says, with one selectionChange for each key; in a right-to-left layout Left Arrow and Right Arrow SHALL exchange what they do. THE table SHALL scroll its box so that a radio button that receives keyboard focus is in view beside a header row or a status line kept in view (TBL-36), and WHEN rows are given again focus SHALL stay with the radio button of the row of the same value (TBL-25).",
+      "verify": "Test the fixture selection-single: Tab reaches the Kettle row's radio button and the next Tab leaves the table; Down Arrow moves focus to the Scale row's radio button and chooses Scale with one selectionChange, and Down Arrow again wraps to the first row. On the web the accessibility tree has four radios, one checked, each at its position of four, and no radiogroup and no aria-selected."
     }
   ],
   "accessibility": {
@@ -659,7 +671,7 @@
     "keyboard": [
       {
         "keys": "Tab",
-        "action": "Moves focus to the table's box while the table scrolls in it; then to each sortable column's header button, in reading order; then, row by row, to the row's checkbox where rows can be chosen and to whatever in its cells takes focus. A table that does not scroll, sorts nothing and selects nothing is not a stop."
+        "action": "Moves focus to the table's box while the table scrolls in it; then to each sortable column's header button, in reading order; then, row by row, to the row's checkbox where rows can be chosen — where one row at most is chosen, once to the chosen row's radio button, or the first row's while none is — and to whatever in its cells takes focus. A table that does not scroll, sorts nothing and selects nothing is not a stop."
       },
       {
         "keys": "Enter / Space",
@@ -667,18 +679,18 @@
       },
       {
         "keys": "Space",
-        "action": "On a row's checkbox: chooses the row or lets it go. On the header row's checkbox: chooses every row, or lets every row go where all are chosen."
+        "action": "On a row's checkbox: chooses the row or lets it go. On the header row's checkbox: chooses every row, or lets every row go where all are chosen. On a row's radio button: chooses the row where it is not chosen; on the chosen row's, nothing."
       },
       {
         "keys": "Arrow keys",
-        "action": "While the box has focus: scroll it. Left and right move the view left and right in either layout direction."
+        "action": "On a row's radio button: move to the next row's radio button (Down, and Right in a left-to-right layout) or the previous one's, wrapping, and choose that row. While the box has focus: scroll it. Left and right move the view left and right in either layout direction."
       },
       {
         "keys": "Page Up / Page Down, Home / End",
         "action": "While the box has focus: scroll it by a page, or to its beginning or end, as the platform scrolls a region."
       }
     ],
-    "labeling": "The table is named by its caption, or by label where no caption is drawn (TBL-23). Header cells name their columns and, while rowHeaders is true, first cells name their rows; every cell is associated with both (TBL-24). While the table scrolls in its own box, that box is a region with the same name, so that a person who reaches it by keyboard hears what scrolls. A sortable column's button is named by the column's header, and the header cell carries the order (TBL-41). A row's checkbox is named by selectLabel, or by the row's header; the header row's by selectAllLabel (TBL-46). The status line is the product's sentence, told politely when it changes (TBL-52).",
+    "labeling": "The table is named by its caption, or by label where no caption is drawn (TBL-23). Header cells name their columns and, while rowHeaders is true, first cells name their rows; every cell is associated with both (TBL-24). While the table scrolls in its own box, that box is a region with the same name, so that a person who reaches it by keyboard hears what scrolls. A sortable column's button is named by the column's header, and the header cell carries the order (TBL-41). A row's checkbox or radio button is named by selectLabel, or by the row's header; the header row's checkbox by selectAllLabel (TBL-46). The radio buttons of a table are not wrapped in a radio group: each is exposed with its position among them (TBL-61). The status line is the product's sentence, told politely when it changes (TBL-52).",
     "minimumTarget": true,
     "notes": [
       "The table, its cells and every row that cannot be chosen take no input (TBL-16). What does — a sortable column's header, the checkboxes, a row that can be chosen (for a pointer), the scroll box — is a control, a larger target for one, or a region: a header's hit area is its whole cell and a checkbox's its whole selection cell, each at least the touch target high for touch at both densities (TBL-40, TBL-47); the compact density is lower than the pointer target, as a compact tree row is. What is pressable inside a cell (a link, a button) meets the minimum target by its own spec.",
@@ -691,9 +703,10 @@
       "Contrast in the default system: cell text is on-surface and header text on-surface-variant, each held to 4.5:1 on every surface and container step by the token invariants, the stripe included. The lines are decorative: rows, headers and the region are exposed without them.",
       "Alignment end for numbers is for sighted comparison only; it changes nothing that is exposed. Text is never justified and never centred except in a column the product sets to center.",
       "A table with checkboxes stays a table (TBL-46). The grid pattern — one stop for the whole table, arrow keys from cell to cell — is for a sheet whose cells are edited or acted on; it takes over the keys a screen reader uses to read a table, it would replace the roles of the product's own table on the web, and it cannot work without script. The price of staying a table is one Tab stop for each row's checkbox, which pagination keeps to a page of rows.",
-      "A press anywhere on a row that can be chosen changes its checkbox (TBL-58), as a press on a card or on a list item that can be chosen does: a larger target for a pointer (WCAG 2.5.8), not a second control. The row gets no role, no tab index and no selected state — ARIA allows aria-selected on a row only inside a grid or a treegrid — so that the keyboard and assistive technology meet the one control the row has, its named checkbox, and lose nothing. What a cell holds that answers a press (a link, a button, a field) keeps it, and a drag that selects text chooses nothing, so the text of a table can still be selected and copied.",
+      "Where a person chooses one record — the plan to change to, the address to ship to, the build to compare against — selection is single, and the selection column holds a radio button, as the single selection of Carbon's data table and of Ant Design's table does: a radio says that the choices exclude each other, and that one is answered once it is (TBL-60). A radio is never cleared by its own activation (HTML, WAI-ARIA APG radio group), so the table offers no way back to none: a product that needs it gives a control of its own. The radio buttons share one name and so behave as one radio group — one Tab stop, the arrow keys move the choice (TBL-61) — which also keeps a page of rows to one stop where checkboxes would be one each. They are not wrapped in an element of the radio group role, which cannot hold the rows of a table; each radio is heard with its row's name, its state and its position (\"Select Kettle, radio button, checked, 3 of 4\"), inside the table's name. The grid alternative, rows that carry aria-selected (React Aria's table, single selection mode), is declined for the reasons above.",
+      "A press anywhere on a row that can be chosen presses its checkbox or radio button (TBL-58), as a press on a card or on a list item that can be chosen does: a larger target for a pointer (WCAG 2.5.8), not a second control. The row gets no role, no tab index and no selected state — ARIA allows aria-selected on a row only inside a grid or a treegrid — so that the keyboard and assistive technology meet the one control the row has, its named checkbox or radio button, and lose nothing. What a cell holds that answers a press (a link, a button, a field) keeps it, and a drag that selects text chooses nothing, so the text of a table can still be selected and copied.",
       "Sorting is asked for and shown, never done, by the table (TBL-33, TBL-34): the header cell says the order (WCAG 1.3.1, 4.1.2) and the mark repeats it to the eye without relying on color (1.4.1). One column is sorted at a time.",
-      "A chosen row is said by its checkbox, checked; the fill is the same fact for the eye and is not relied on (WCAG 1.4.1), which is also what is left in forced colors (TBL-54). In the default system the text of a chosen row is on-secondary-container on secondary-container, the pair a selected list item and a selected tree row are drawn in; the contrast of what a cell holds beside plain text on that fill is its own component's.",
+      "A chosen row is said by its checkbox or radio button, checked; the fill is the same fact for the eye and is not relied on (WCAG 1.4.1), which is also what is left in forced colors (TBL-54). In the default system the text of a chosen row is on-secondary-container on secondary-container, the pair a selected list item and a selected tree row are drawn in; the contrast of what a cell holds beside plain text on that fill is its own component's.",
       "Status messages (WCAG 4.1.3): the table announces nothing itself (TBL-25) and gives the product one polite place to say what changed — rows found, rows chosen, loading and loaded (TBL-52). An Empty state in the empty slot that answers a search or a filter is live by its own spec.",
       "While loading, the table is busy and placeholder rows are hidden (TBL-49, TBL-50), so that a person does not walk through rows of nothing. Do not take the rows a person was reading away for a spinner where they can stay.",
       "Focus is never lost to a change of rows (TBL-25) and a focused control is never left under a part kept in view (TBL-36; WCAG 2.4.11)."
@@ -6874,6 +6887,161 @@
       ]
     },
     {
+      "id": "selection-single",
+      "props": {
+        "caption": "Featured product",
+        "selection": "single",
+        "rowHeaders": true
+      },
+      "items": [
+        {
+          "kind": "column",
+          "props": {
+            "header": "Name"
+          }
+        },
+        {
+          "kind": "column",
+          "props": {
+            "header": "Stock",
+            "align": "end",
+            "wrap": false
+          }
+        },
+        {
+          "kind": "column",
+          "props": {
+            "header": "Price",
+            "align": "end",
+            "wrap": false
+          }
+        },
+        {
+          "kind": "row",
+          "props": {
+            "value": "paper",
+            "selected": false,
+            "selectLabel": "Select Filter paper"
+          },
+          "items": [
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "Filter paper"
+            },
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "120"
+            },
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "4.50"
+            }
+          ]
+        },
+        {
+          "kind": "row",
+          "props": {
+            "value": "grinder",
+            "selected": false,
+            "selectLabel": "Select Hand grinder"
+          },
+          "items": [
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "Hand grinder"
+            },
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "8"
+            },
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "64.00"
+            }
+          ]
+        },
+        {
+          "kind": "row",
+          "props": {
+            "value": "kettle",
+            "selected": true,
+            "selectLabel": "Select Kettle"
+          },
+          "items": [
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "Kettle"
+            },
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "15"
+            },
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "38.00"
+            }
+          ]
+        },
+        {
+          "kind": "row",
+          "props": {
+            "value": "scale",
+            "selected": false,
+            "selectLabel": "Select Scale"
+          },
+          "items": [
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "Scale"
+            },
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "0"
+            },
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "29.50"
+            }
+          ]
+        },
+        {
+          "kind": "row",
+          "props": {
+            "footer": true
+          },
+          "items": [
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "Total"
+            },
+            {
+              "kind": "cell",
+              "props": {},
+              "content": "143"
+            },
+            {
+              "kind": "cell",
+              "props": {},
+              "content": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "sortable-selection",
       "props": {
         "caption": "Products",
@@ -8239,7 +8407,7 @@
             "selectLabel": "aria-label",
             "placeholder": "data-placeholder"
           },
-          "notes": "A `<tr>`; a footer row is a `<tr>` inside `<tfoot>`. A row that can be chosen has `data-value` and a first cell `<td data-part=\"selection\">` holding the product's checkbox — `<tanrei-checkbox label-hidden label=\"…\">`, or a native `<input type=\"checkbox\" aria-label=\"…\">` that also works in a form without script; `selectLabel` is that checkbox's own name. `data-selected` on the `<tr>` draws the row as chosen; the element keeps it in step with the checkbox, and the stylesheet also reads a native checkbox that is checked, so a row is drawn chosen before and without script. A placeholder row is `<tr data-placeholder aria-hidden=\"true\">`."
+          "notes": "A `<tr>`; a footer row is a `<tr>` inside `<tfoot>`. A row that can be chosen has `data-value` and a first cell `<td data-part=\"selection\">` holding the product's checkbox — `<tanrei-checkbox label-hidden label=\"…\">`, or a native `<input type=\"checkbox\" aria-label=\"…\">` that also works in a form without script; `selectLabel` is that checkbox's own name. `data-selected` on the `<tr>` draws the row as chosen; the element keeps it in step with the checkbox, and the stylesheet also reads a native checkbox that is checked, so a row is drawn chosen before and without script. While `selection=\"single\"` the selection cell holds a radio button instead — `<tanrei-radio-button label-hidden name=\"…\" label=\"…\">`, or a native `<input type=\"radio\" name=\"…\" aria-label=\"…\">` — the radio buttons of one table share one name (the element gives one to those that have none, so that they form one group), and the header row's selection cell is empty. A placeholder row is `<tr data-placeholder aria-hidden=\"true\">`."
         },
         "cell": {
           "name": "td",
@@ -8318,7 +8486,7 @@
           }
         }
       },
-      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiTable(caption:, columns: [TanreiTableColumn], density:, …) { TanreiTableRow { TanreiTableCell(\"…\"); TanreiTableCell { TanreiTag(\"Beta\", size: .small) } } }`. Built on `Grid` and `GridRow` (columns sized from content, which is TBL-2) inside a `ScrollView` whose axes are the ones that overflow; a table of several hundred rows uses a `LazyVStack` of rows with column widths measured once from the header and a sample of rows. The platform's own `Table` is not used: it is a data table of its own look, with selection and sorting, and it collapses to its first column in a compact width. Sticky parts are pinned section headers (`pinnedViews`) for the header row and an overlaid first column whose offset follows the scroll. Accessibility: SwiftUI has no table container for custom views, so TBL-24's fallback applies — each row is an accessibility container in reading order, each cell's label is its column header followed by its content, header cells carry the header trait, and the scroll view is named by the caption. Sorting, selection, empty, loading and status: `TanreiTableColumn(header:, value:, isSortable:, sort:)`, `TanreiTable(selection: $values, onSort: { column, index, direction in … })` where `selection` is a binding to the set of chosen values, and rows take `value:`, `selectLabel:`, `isPlaceholder:`. A sortable header is a `Button` whose accessibility value is `sortedAscendingLabel` or `sortedDescendingLabel` (SwiftUI has no sort trait); the row's checkbox is `TanreiCheckbox`. The empty slot and the pagination slot are view builders (`empty:`, `pagination:`); the status text is posted as an announcement when it changes; `isLoading` sets nothing SwiftUI has a trait for, so placeholder rows are hidden and the status says it."
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiTable(caption:, columns: [TanreiTableColumn], density:, …) { TanreiTableRow { TanreiTableCell(\"…\"); TanreiTableCell { TanreiTag(\"Beta\", size: .small) } } }`. Built on `Grid` and `GridRow` (columns sized from content, which is TBL-2) inside a `ScrollView` whose axes are the ones that overflow; a table of several hundred rows uses a `LazyVStack` of rows with column widths measured once from the header and a sample of rows. The platform's own `Table` is not used: it is a data table of its own look, with selection and sorting, and it collapses to its first column in a compact width. Sticky parts are pinned section headers (`pinnedViews`) for the header row and an overlaid first column whose offset follows the scroll. Accessibility: SwiftUI has no table container for custom views, so TBL-24's fallback applies — each row is an accessibility container in reading order, each cell's label is its column header followed by its content, header cells carry the header trait, and the scroll view is named by the caption. Sorting, selection, empty, loading and status: `TanreiTableColumn(header:, value:, isSortable:, sort:)`, `TanreiTable(selection: $values, onSort: { column, index, direction in … })` where `selection` is a binding to the set of chosen values, and rows take `value:`, `selectLabel:`, `isPlaceholder:`. A sortable header is a `Button` whose accessibility value is `sortedAscendingLabel` or `sortedDescendingLabel` (SwiftUI has no sort trait); the row's checkbox is `TanreiCheckbox`. The empty slot and the pagination slot are view builders (`empty:`, `pagination:`); the status text is posted as an announcement when it changes; `isLoading` sets nothing SwiftUI has a trait for, so placeholder rows are hidden and the status says it. Single selection (`selection` single, TBL-60, TBL-61): the row's control is the platform's Tanrei radio button in place of the checkbox, the header row holds none, and the product's selection holds one value at most."
     },
     "compose": {
       "status": "planned",
@@ -8381,7 +8549,7 @@
           }
         }
       },
-      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiTable(columns = listOf(TanreiTableColumn(\"Price\", align = End)), caption = …) { row { cell(\"…\"); cell { TanreiTag(\"Beta\", size = Small) } } }`. Compose has no table layout: a custom `Layout` measures each column's least and preferred widths (intrinsics) and shares the width as TBL-2 says, inside `horizontalScroll`; a long table is a `LazyColumn` of rows with the widths measured from the header and the rows composed so far, and `stickyHeader` for the header row. Semantics: the container sets `collectionInfo(rowCount, columnCount)` and each cell `collectionItemInfo(rowIndex, columnIndex)`, header cells are `heading()`, and each cell's content description is preceded by its column header, so TalkBack announces position and header. The scroll container is focusable and named by the caption. Sorting, selection, empty, loading and status: `TanreiTableColumn(header, value = \"price\", sortable = true, sort = TanreiTableSort.Ascending)`, `onSort = { column, index, direction -> }`, `selection = TanreiTableSelection.Multiple`, rows as `row(value = \"a1\", selected = …, selectLabel = …)` with `onSelectionChange = { values -> }`; the product holds both states. A sortable header is `Modifier.clickable(role = Role.Button)` with `stateDescription` from `sortedAscendingLabel` or `sortedDescendingLabel`; the checkboxes are `TanreiCheckbox` (`ToggleableState.Indeterminate` for the header's); `empty` and `pagination` are composable slots; the status text is a polite `liveRegion`."
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiTable(columns = listOf(TanreiTableColumn(\"Price\", align = End)), caption = …) { row { cell(\"…\"); cell { TanreiTag(\"Beta\", size = Small) } } }`. Compose has no table layout: a custom `Layout` measures each column's least and preferred widths (intrinsics) and shares the width as TBL-2 says, inside `horizontalScroll`; a long table is a `LazyColumn` of rows with the widths measured from the header and the rows composed so far, and `stickyHeader` for the header row. Semantics: the container sets `collectionInfo(rowCount, columnCount)` and each cell `collectionItemInfo(rowIndex, columnIndex)`, header cells are `heading()`, and each cell's content description is preceded by its column header, so TalkBack announces position and header. The scroll container is focusable and named by the caption. Sorting, selection, empty, loading and status: `TanreiTableColumn(header, value = \"price\", sortable = true, sort = TanreiTableSort.Ascending)`, `onSort = { column, index, direction -> }`, `selection = TanreiTableSelection.Multiple`, rows as `row(value = \"a1\", selected = …, selectLabel = …)` with `onSelectionChange = { values -> }`; the product holds both states. A sortable header is `Modifier.clickable(role = Role.Button)` with `stateDescription` from `sortedAscendingLabel` or `sortedDescendingLabel`; the checkboxes are `TanreiCheckbox` (`ToggleableState.Indeterminate` for the header's); `empty` and `pagination` are composable slots; the status text is a polite `liveRegion`. Single selection (`selection` single, TBL-60, TBL-61): the row's control is the platform's Tanrei radio button in place of the checkbox, the header row holds none, and the product's selection holds one value at most."
     },
     "flutter": {
       "status": "planned",
@@ -8443,7 +8611,7 @@
           }
         }
       },
-      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiTable(caption: …, columns: [TanreiTableColumn(header: \"Price\", align: TanreiTableAlign.end)], rows: [TanreiTableRow(cells: [...])])`. Built on the framework's `Table` widget with `IntrinsicColumnWidth` (flex for a column that wraps), inside a horizontal `SingleChildScrollView` in a `Scrollbar`; a long table uses a two-dimensional scroll view with pinned rows and columns for the sticky parts. The Material library's `DataTable` is not used: it brings its own look, sorting and selection, and reads a Material theme. Semantics: the table, row, cell and column-header roles where the framework version has them, and otherwise one `Semantics` per cell whose label is the column header followed by the content; the scroll view is a focusable region named by the caption. Sorting and selection: `TanreiTableColumn(header:, value:, sortable:, sort:)`, `onSort: (column, index, direction) {}`, `selection: TanreiTableSelection.multiple`, `TanreiTableRow(value:, selected:, selectLabel:, placeholder:)` and `onSelectionChanged: (values) {}`; the product holds both states. A sortable header is an `InkWell` in `Semantics(button: true, value: sortedAscendingLabel)`; the checkboxes are `TanreiCheckbox` with `tristate` for the header's; `empty` and `pagination` are widgets; the status text is `Semantics(liveRegion: true)`; placeholder rows are in `ExcludeSemantics`."
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiTable(caption: …, columns: [TanreiTableColumn(header: \"Price\", align: TanreiTableAlign.end)], rows: [TanreiTableRow(cells: [...])])`. Built on the framework's `Table` widget with `IntrinsicColumnWidth` (flex for a column that wraps), inside a horizontal `SingleChildScrollView` in a `Scrollbar`; a long table uses a two-dimensional scroll view with pinned rows and columns for the sticky parts. The Material library's `DataTable` is not used: it brings its own look, sorting and selection, and reads a Material theme. Semantics: the table, row, cell and column-header roles where the framework version has them, and otherwise one `Semantics` per cell whose label is the column header followed by the content; the scroll view is a focusable region named by the caption. Sorting and selection: `TanreiTableColumn(header:, value:, sortable:, sort:)`, `onSort: (column, index, direction) {}`, `selection: TanreiTableSelection.multiple`, `TanreiTableRow(value:, selected:, selectLabel:, placeholder:)` and `onSelectionChanged: (values) {}`; the product holds both states. A sortable header is an `InkWell` in `Semantics(button: true, value: sortedAscendingLabel)`; the checkboxes are `TanreiCheckbox` with `tristate` for the header's; `empty` and `pagination` are widgets; the status text is `Semantics(liveRegion: true)`; placeholder rows are in `ExcludeSemantics`. Single selection (`selection` single, TBL-60, TBL-61): the row's control is the platform's Tanrei radio button in place of the checkbox, the header row holds none, and the product's selection holds one value at most."
     },
     "react-native": {
       "status": "planned",
@@ -8506,7 +8674,7 @@
           }
         }
       },
-      "notes": "Proposed spelling, for the platform's agent to settle. `<Table caption=\"…\" columns={[{ header: \"Price\", align: \"end\" }]}><Table.Row><Table.Cell>…</Table.Cell></Table.Row></Table>`. React Native has no table layout: rows are `View`s in a horizontal `ScrollView` (inside a vertical one, or a `FlatList` with `stickyHeaderIndices` for a long table), and column widths are measured in a first pass with `onLayout` and applied in a second, so the first frame of a large table is drawn after measuring. A first column that stays in view is a second column of cells drawn over the scroll view and kept in step with its vertical offset. There is no table role on either native platform: TBL-24's fallback applies — a row is one accessible group and each cell's `accessibilityLabel` is its column header followed by its content; header cells have `accessibilityRole=\"header\"`. Follows the app's direction where an ancestor's is not known. Sorting and selection: columns `{ header, value, sortable, sort }`, `onSort={({ column, index, direction }) => …}`, `selection=\"multiple\"`, `<Table.Row value selected selectLabel placeholder>` and `onSelectionChange={(values) => …}`; the product holds both states. A sortable header is a `Pressable` with `accessibilityRole=\"button\"` and `accessibilityValue={{ text: sortedAscendingLabel }}`; the checkboxes are `Checkbox` (`accessibilityState={{ checked: \"mixed\" }}` for the header's); `empty` and `pagination` are elements; the status text has `accessibilityLiveRegion=\"polite\"` on Android and is posted with `AccessibilityInfo.announceForAccessibility` on iOS; `accessibilityState={{ busy: true }}` while loading."
+      "notes": "Proposed spelling, for the platform's agent to settle. `<Table caption=\"…\" columns={[{ header: \"Price\", align: \"end\" }]}><Table.Row><Table.Cell>…</Table.Cell></Table.Row></Table>`. React Native has no table layout: rows are `View`s in a horizontal `ScrollView` (inside a vertical one, or a `FlatList` with `stickyHeaderIndices` for a long table), and column widths are measured in a first pass with `onLayout` and applied in a second, so the first frame of a large table is drawn after measuring. A first column that stays in view is a second column of cells drawn over the scroll view and kept in step with its vertical offset. There is no table role on either native platform: TBL-24's fallback applies — a row is one accessible group and each cell's `accessibilityLabel` is its column header followed by its content; header cells have `accessibilityRole=\"header\"`. Follows the app's direction where an ancestor's is not known. Sorting and selection: columns `{ header, value, sortable, sort }`, `onSort={({ column, index, direction }) => …}`, `selection=\"multiple\"`, `<Table.Row value selected selectLabel placeholder>` and `onSelectionChange={(values) => …}`; the product holds both states. A sortable header is a `Pressable` with `accessibilityRole=\"button\"` and `accessibilityValue={{ text: sortedAscendingLabel }}`; the checkboxes are `Checkbox` (`accessibilityState={{ checked: \"mixed\" }}` for the header's); `empty` and `pagination` are elements; the status text has `accessibilityLiveRegion=\"polite\"` on Android and is posted with `AccessibilityInfo.announceForAccessibility` on iOS; `accessibilityState={{ busy: true }}` while loading. Single selection (`selection` single, TBL-60, TBL-61): the row's control is the platform's Tanrei radio button in place of the checkbox, the header row holds none, and the product's selection holds one value at most."
     }
   }
 }
