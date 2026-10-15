@@ -3550,6 +3550,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     actionsGap: 16.0,
     actionsMarginBlockStart: 24.0,
     actionsVariant: 1.0,
+    closeButtonVariant: 4.0,
     compactWindowWidth: 600.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceBright),
     containerElevation: _elevationLevel3,
@@ -3579,6 +3580,9 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     scrimColor: TanreiPaint.role(TanreiColorRole.scrim),
     supportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     supportingTextTypescale: _typescaleBody,
+    widthLarge: 800.0,
+    widthMedium: 560.0,
+    widthSmall: 400.0,
   ),
   divider: TanreiDividerTokens(
     lineColor: TanreiPaint.role(TanreiColorRole.outlineVariant),

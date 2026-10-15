@@ -3325,6 +3325,7 @@ private object CupertinoSystemSource {
             actionsGap = 8.dp,
             actionsMarginBlockStart = 24.dp,
             actionsVariant = 4f,
+            closeButtonVariant = 4f,
             compactWindowWidth = 0.dp,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerHigh),
             containerElevation = elevation.level3,
@@ -3354,6 +3355,9 @@ private object CupertinoSystemSource {
             scrimColor = TanreiPaint.Role(TanreiColorRole.Scrim),
             supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
             supportingTextTypescale = typescale.body,
+            widthLarge = 800.dp,
+            widthMedium = 560.dp,
+            widthSmall = 400.dp,
         )
 
     @Suppress("UNUSED_PARAMETER")

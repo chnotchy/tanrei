@@ -3553,6 +3553,7 @@ private let acmeDialogTokens = TanreiDialogTokens(
   actionsGap: 16,
   actionsMarginBlockStart: 24,
   actionsVariant: 1,
+  closeButtonVariant: 4,
   compactWindowWidth: 600,
   containerColor: .role(.surfaceBright),
   containerElevation: acmeElevation.level3,
@@ -3581,7 +3582,10 @@ private let acmeDialogTokens = TanreiDialogTokens(
   scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurfaceVariant),
-  supportingTextTypescale: acmeTypescale.body
+  supportingTextTypescale: acmeTypescale.body,
+  widthLarge: 800,
+  widthMedium: 560,
+  widthSmall: 400
 )
 
 private let acmeDividerTokens = TanreiDividerTokens(

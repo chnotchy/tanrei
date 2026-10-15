@@ -6169,6 +6169,7 @@ public struct TanreiDialogTokens: Sendable, Equatable {
   public var actionsGap: CGFloat
   public var actionsMarginBlockStart: CGFloat
   public var actionsVariant: Double
+  public var closeButtonVariant: Double
   public var compactWindowWidth: CGFloat
   public var containerColor: TanreiPaint
   public var containerElevation: [TanreiShadowLayer]
@@ -6198,12 +6199,16 @@ public struct TanreiDialogTokens: Sendable, Equatable {
   public var scrimColor: TanreiPaint
   public var supportingTextColor: TanreiPaint
   public var supportingTextTypescale: TanreiTextStyle
+  public var widthLarge: CGFloat
+  public var widthMedium: CGFloat
+  public var widthSmall: CGFloat
 
   public init(
     actionsArrangement: Double,
     actionsGap: CGFloat,
     actionsMarginBlockStart: CGFloat,
     actionsVariant: Double,
+    closeButtonVariant: Double,
     compactWindowWidth: CGFloat,
     containerColor: TanreiPaint,
     containerElevation: [TanreiShadowLayer],
@@ -6232,12 +6237,16 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     scrimBlur: CGFloat,
     scrimColor: TanreiPaint,
     supportingTextColor: TanreiPaint,
-    supportingTextTypescale: TanreiTextStyle
+    supportingTextTypescale: TanreiTextStyle,
+    widthLarge: CGFloat,
+    widthMedium: CGFloat,
+    widthSmall: CGFloat
   ) {
     self.actionsArrangement = actionsArrangement
     self.actionsGap = actionsGap
     self.actionsMarginBlockStart = actionsMarginBlockStart
     self.actionsVariant = actionsVariant
+    self.closeButtonVariant = closeButtonVariant
     self.compactWindowWidth = compactWindowWidth
     self.containerColor = containerColor
     self.containerElevation = containerElevation
@@ -6267,6 +6276,9 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     self.scrimColor = scrimColor
     self.supportingTextColor = supportingTextColor
     self.supportingTextTypescale = supportingTextTypescale
+    self.widthLarge = widthLarge
+    self.widthMedium = widthMedium
+    self.widthSmall = widthSmall
   }
 }
 

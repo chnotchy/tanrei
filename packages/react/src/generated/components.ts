@@ -33,7 +33,7 @@ import { TanreiComboboxField as TanreiComboboxFieldElement } from '@tanrei/web/c
 import { TanreiCopyButton as TanreiCopyButtonElement, type TanreiCopyButtonCopiedDetail, type TanreiCopyButtonCopyFailedDetail } from '@tanrei/web/components/copy-button';
 import { TanreiDateTimePicker as TanreiDateTimePickerElement, type TanreiDateTimePickerChangeDetail, type TanreiDateTimePickerCloseDetail } from '@tanrei/web/components/date-time-picker';
 import { TanreiDescriptionList as TanreiDescriptionListElement } from '@tanrei/web/components/description-list';
-import { TanreiDialog as TanreiDialogElement } from '@tanrei/web/components/dialog';
+import { TanreiDialog as TanreiDialogElement, type TanreiDialogDismissDetail } from '@tanrei/web/components/dialog';
 import { TanreiDivider as TanreiDividerElement } from '@tanrei/web/components/divider';
 import { TanreiDropZone as TanreiDropZoneElement } from '@tanrei/web/components/drop-zone';
 import { TanreiEmbeddedTextInput as TanreiEmbeddedTextInputElement, type TanreiEmbeddedTextInputActionDetail, type TanreiEmbeddedTextInputRowsChangeDetail } from '@tanrei/web/components/embedded-text-input';
@@ -712,7 +712,7 @@ export const DescriptionList = createComponent({
  * - `actions` — The answers, one at least: Tanrei Buttons, each marked `confirming` or `dismissive`. The dialog places them and gives those without a `variant` its own.
  *
  * Events:
- * - `onCancel` (`cancel`) — Escape, back or a press on the scrim asked to close it (only while `closedby` is not `none`). Cancelable: `preventDefault()` keeps it open.
+ * - `onCancel` (`cancel`) — Escape, back, a press on the scrim or the close button asked to close it (only while `closedby` is not `none`): `detail.reason` is `escape`, `back`, `scrim` or `close`. Cancelable: `preventDefault()` keeps it open.
  * - `onClose` (`close`) — The dialog closed, whatever closed it.
  */
 export const Dialog = createComponent({
@@ -720,7 +720,7 @@ export const Dialog = createComponent({
   elementClass: TanreiDialogElement,
   react: React,
   events: {
-    onCancel: 'cancel' as EventName<TanreiEvent<TanreiDialogElement>>,
+    onCancel: 'cancel' as EventName<TanreiEvent<TanreiDialogElement, CustomEvent<TanreiDialogDismissDetail>>>,
     onClose: 'close' as EventName<TanreiEvent<TanreiDialogElement>>,
   },
 });

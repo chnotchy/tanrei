@@ -1946,6 +1946,7 @@ export interface TanreiDialogTokens {
   readonly actionsGap: number;
   readonly actionsMarginBlockStart: number;
   readonly actionsVariant: number;
+  readonly closeButtonVariant: number;
   readonly compactWindowWidth: number;
   readonly containerColor: TanreiPaint;
   readonly containerElevation: TanreiElevationLevel;
@@ -1975,6 +1976,9 @@ export interface TanreiDialogTokens {
   readonly scrimColor: TanreiPaint;
   readonly supportingTextColor: TanreiPaint;
   readonly supportingTextTypescale: TanreiTypescaleRole;
+  readonly widthLarge: number;
+  readonly widthMedium: number;
+  readonly widthSmall: number;
 }
 
 /**

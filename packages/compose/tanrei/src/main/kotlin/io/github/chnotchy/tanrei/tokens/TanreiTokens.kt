@@ -3914,6 +3914,7 @@ public data class TanreiDialogTokens(
     public val actionsGap: Dp,
     public val actionsMarginBlockStart: Dp,
     public val actionsVariant: Float,
+    public val closeButtonVariant: Float,
     public val compactWindowWidth: Dp,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,
@@ -3943,6 +3944,9 @@ public data class TanreiDialogTokens(
     public val scrimColor: TanreiPaint,
     public val supportingTextColor: TanreiPaint,
     public val supportingTextTypescale: TanreiTextStyle,
+    public val widthLarge: Dp,
+    public val widthMedium: Dp,
+    public val widthSmall: Dp,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(containerColor.roles())

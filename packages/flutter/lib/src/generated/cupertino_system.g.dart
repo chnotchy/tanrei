@@ -3535,6 +3535,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     actionsGap: 8.0,
     actionsMarginBlockStart: 24.0,
     actionsVariant: 4.0,
+    closeButtonVariant: 4.0,
     compactWindowWidth: 0.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceContainerHigh),
     containerElevation: _elevationLevel3,
@@ -3564,6 +3565,9 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     scrimColor: TanreiPaint.role(TanreiColorRole.scrim),
     supportingTextColor: TanreiPaint.role(TanreiColorRole.onSurface),
     supportingTextTypescale: _typescaleBody,
+    widthLarge: 800.0,
+    widthMedium: 560.0,
+    widthSmall: 400.0,
   ),
   divider: TanreiDividerTokens(
     lineColor: TanreiPaint.role(TanreiColorRole.outlineVariant),

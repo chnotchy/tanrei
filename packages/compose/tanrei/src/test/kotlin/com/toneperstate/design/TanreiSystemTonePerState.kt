@@ -3369,6 +3369,7 @@ private object TonePerStateSystemSource {
             actionsGap = 16.dp,
             actionsMarginBlockStart = 24.dp,
             actionsVariant = 1f,
+            closeButtonVariant = 4f,
             compactWindowWidth = 600.dp,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             containerElevation = elevation.level3,
@@ -3398,6 +3399,9 @@ private object TonePerStateSystemSource {
             scrimColor = TanreiPaint.Role(TanreiColorRole.Scrim),
             supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSurfaceVariant),
             supportingTextTypescale = typescale.body,
+            widthLarge = 800.dp,
+            widthMedium = 560.dp,
+            widthSmall = 400.dp,
         )
 
     @Suppress("UNUSED_PARAMETER")

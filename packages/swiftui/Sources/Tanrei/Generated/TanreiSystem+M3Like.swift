@@ -3522,6 +3522,7 @@ private let m3LikeDialogTokens = TanreiDialogTokens(
   actionsGap: 8,
   actionsMarginBlockStart: 24,
   actionsVariant: 4,
+  closeButtonVariant: 4,
   compactWindowWidth: 0,
   containerColor: .role(.surfaceContainerHigh),
   containerElevation: m3LikeElevation.level3,
@@ -3550,7 +3551,10 @@ private let m3LikeDialogTokens = TanreiDialogTokens(
   scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurfaceVariant),
-  supportingTextTypescale: m3LikeTypescale.body
+  supportingTextTypescale: m3LikeTypescale.body,
+  widthLarge: 800,
+  widthMedium: 560,
+  widthSmall: 400
 )
 
 private let m3LikeDividerTokens = TanreiDividerTokens(
