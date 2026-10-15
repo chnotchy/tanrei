@@ -324,16 +324,17 @@ test.describe('behavior', () => {
   test('LRW-13: at 200 % text in a 320 wide box the row grows, needs no horizontal scrolling, and keeps the whole headline for assistive technology', async ({ page }) => {
     await mount(page, [byId('all-parts')]);
     const before = (await box(row(page, 'all-parts'))).height;
+    // Every text of the row at twice its size, the way a reader's enlarged text reaches it.
+    const fonts: Record<string, string> = {};
+    for (const name of ['headline', 'overline', 'supporting-text', 'trailing-text']) {
+      const size = await token(page, T(`${name}-typescale-font-size`));
+      fonts[T(`${name}-typescale-font`)] = `400 ${size * 2}px/1.5 sans-serif`;
+    }
+    await rootTokens(page, fonts);
     await page.evaluate(() => {
-      document.documentElement.style.fontSize = '200%';
       const s = document.querySelector('[data-fixture="all-parts"]') as HTMLElement;
       s.style.inlineSize = '320px';
       (s.firstElementChild as HTMLElement).style.inlineSize = '100%';
-      for (const name of ['headline', 'overline', 'supporting-text', 'trailing-text']) {
-        const style = getComputedStyle(document.documentElement);
-        const size = Number.parseFloat(style.getPropertyValue(`--tanrei-comp-list-row-${name}-typescale-font-size`)) || 16;
-        document.documentElement.style.setProperty(`--tanrei-comp-list-row-${name}-typescale-font`, `400 ${size * 2}px/1.5 sans-serif`);
-      }
     });
     await settled(page);
     const host = row(page, 'all-parts');
