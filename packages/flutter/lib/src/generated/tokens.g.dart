@@ -6076,6 +6076,7 @@ class TanreiCarouselTokens {
     required this.motionScrollEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
+    required this.navigationButtonVariant,
     required this.parts,
     required this.hovered,
     required this.focused,
@@ -6132,6 +6133,8 @@ class TanreiCarouselTokens {
   final int motionStateDuration;
   /// `comp.carousel.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
+  /// `comp.carousel.navigation-button-variant`
+  final double navigationButtonVariant;
   /// The `part` axis: `parts[part]`.
   final TanreiCarouselParts parts;
   /// `comp.carousel.hovered.*`
@@ -6168,6 +6171,7 @@ class TanreiCarouselTokens {
     TanreiCubicBezier? motionScrollEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
+    double? navigationButtonVariant,
     TanreiCarouselParts? parts,
     TanreiCarouselStateTokens? hovered,
     TanreiCarouselStateTokens? focused,
@@ -6198,6 +6202,7 @@ class TanreiCarouselTokens {
         motionScrollEasing: motionScrollEasing ?? this.motionScrollEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        navigationButtonVariant: navigationButtonVariant ?? this.navigationButtonVariant,
         parts: parts ?? this.parts,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,

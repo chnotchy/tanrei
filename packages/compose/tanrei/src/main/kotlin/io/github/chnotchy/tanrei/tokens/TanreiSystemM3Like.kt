@@ -2297,6 +2297,7 @@ private object M3LikeSystemSource {
             motionScrollEasing = TanreiCubicBezier(x1 = 0.05f, y1 = 0.7f, x2 = 0.1f, y2 = 1f),
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
+            navigationButtonVariant = 1f,
             hovered = TanreiCarouselStateTokens(containerShape = 28.dp, opacity = 1f),
             focused = TanreiCarouselStateTokens(containerShape = 28.dp, opacity = 1f),
             pressed = TanreiCarouselStateTokens(containerShape = 28.dp, opacity = 1f),

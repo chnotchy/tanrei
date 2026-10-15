@@ -1333,6 +1333,7 @@
     "tanrei.comp.carousel.motion.scroll-easing": "cubicBezier",
     "tanrei.comp.carousel.motion.state-duration": "duration",
     "tanrei.comp.carousel.motion.state-easing": "cubicBezier",
+    "tanrei.comp.carousel.navigation.button.variant": "number",
     "tanrei.comp.carousel.playback.container.color": "color",
     "tanrei.comp.carousel.playback.content.color": "color",
     "tanrei.comp.carousel.playback.focused.container.color": "color",

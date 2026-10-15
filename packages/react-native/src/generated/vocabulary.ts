@@ -1328,6 +1328,7 @@ export interface TanreiCarouselTokens {
   readonly motionScrollEasing: TanreiCubicBezier;
   readonly motionStateDuration: number;
   readonly motionStateEasing: TanreiCubicBezier;
+  readonly navigationButtonVariant: number;
   readonly pressedContainerShape: number;
   readonly pressedOpacity: number;
   readonly parts: TanreiCarouselParts;

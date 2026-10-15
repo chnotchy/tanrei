@@ -19082,6 +19082,15 @@
             ]
           }
         },
+        "navigation": {
+          "button": {
+            "variant": {
+              "$type": "number",
+              "$value": 1,
+              "$description": "The Button variant of the previous and next controls, icon-only medium Buttons that stand over the ends of the row (CRL-41). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+            }
+          }
+        },
         "playback": {
           "container": {
             "color": {
