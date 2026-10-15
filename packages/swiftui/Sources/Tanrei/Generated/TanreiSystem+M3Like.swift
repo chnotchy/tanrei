@@ -2382,6 +2382,7 @@ private let m3LikeCarouselTokens = TanreiCarouselTokens(
   motionScrollEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1),
   motionStateDuration: 150,
   motionStateEasing: TanreiCubicBezier(0.2, 0, 0, 1),
+  navigationButtonVariant: 2,
   parts: TanreiCarouselParts(
     item: TanreiCarouselPartTokens(
       enabled: TanreiCarouselPartStateTokens(
@@ -3531,6 +3532,7 @@ private let m3LikeDateTimePickerTokens = TanreiDateTimePickerTokens(
   separatorColor: .role(.onSurface),
   separatorTypescale: m3LikeTypescaleDisplayLarge,
   timeEntryModes: 2,
+  timeUnavailableOpacity: 0.38,
   wheelGap: 4,
   wheelHeight: 240,
   wheelLabelColor: .role(.onSurfaceVariant),
@@ -3646,6 +3648,7 @@ private let m3LikeDialogTokens = TanreiDialogTokens(
   actionsGap: 8,
   actionsMarginBlockStart: 24,
   actionsVariant: 4,
+  closeButtonVariant: 4,
   compactWindowWidth: 0,
   containerColor: .role(.surfaceContainerHigh),
   containerElevation: m3LikeElevation.level3,
@@ -3674,7 +3677,10 @@ private let m3LikeDialogTokens = TanreiDialogTokens(
   scrimBlur: 0,
   scrimColor: .role(.scrim),
   supportingTextColor: .role(.onSurfaceVariant),
-  supportingTextTypescale: m3LikeTypescale.body
+  supportingTextTypescale: m3LikeTypescale.body,
+  widthLarge: 800,
+  widthMedium: 560,
+  widthSmall: 400
 )
 
 private let m3LikeDividerTokens = TanreiDividerTokens(
@@ -5129,6 +5135,38 @@ private let m3LikeLinkTokens = TanreiLinkTokens(
   disabled: TanreiLinkStateTokens(
     containerShape: 4,
     opacity: 1
+  )
+)
+
+private let m3LikeListRowTokens = TanreiListRowTokens(
+  containerGap: 16,
+  containerPaddingInlineEnd: 24,
+  containerPaddingInlineStart: 16,
+  headlineColor: .role(.onSurface),
+  headlineTypescale: m3LikeTypescale.bodyLarge,
+  leadingIconColor: .role(.onSurfaceVariant),
+  leadingIconSize: 24,
+  overlineColor: .role(.onSurfaceVariant),
+  overlineTypescale: m3LikeTypescale.labelSmall,
+  supportingTextColor: .role(.onSurfaceVariant),
+  supportingTextTypescale: m3LikeTypescale.bodySmall,
+  trailingIconColor: .role(.onSurfaceVariant),
+  trailingIconSize: 24,
+  trailingTextColor: .role(.onSurfaceVariant),
+  trailingTextTypescale: m3LikeTypescale.bodySmall,
+  densitys: TanreiListRowDensitys(
+    regular: TanreiListRowDensityTokens(
+      containerHeightOneLine: 56,
+      containerHeightTwoLine: 72,
+      containerHeightThreeLine: 88,
+      containerPaddingBlock: 8
+    ),
+    compact: TanreiListRowDensityTokens(
+      containerHeightOneLine: 40,
+      containerHeightTwoLine: 56,
+      containerHeightThreeLine: 72,
+      containerPaddingBlock: 4
+    )
   )
 )
 
@@ -9925,7 +9963,8 @@ extension TanreiSystem {
       draggedStateLayerOpacity: 0.16,
       focusStateLayerOpacity: 0.12,
       hoverStateLayerOpacity: 0.08,
-      pressedStateLayerOpacity: 0.12
+      pressedStateLayerOpacity: 0.12,
+      selectedStateLayerOpacity: 0.16
     ),
     measure: TanreiMeasure(
       borderHairline: 1,
@@ -10054,6 +10093,7 @@ extension TanreiSystem {
     keyboardShortcut: m3LikeKeyboardShortcutTokens,
     linkCard: m3LikeLinkCardTokens,
     link: m3LikeLinkTokens,
+    listRow: m3LikeListRowTokens,
     list: m3LikeListTokens,
     loadingIndicator: m3LikeLoadingIndicatorTokens,
     mainActionButton: m3LikeMainActionButtonTokens,

@@ -200,7 +200,7 @@ Use a DateTimePicker when a person chooses a date or a time and seeing the calen
 | An appointment | `mode` `date-time` |
 | A booking from one moment to another | `mode` `date-time` with `range` |
 
-`min`, `max`, `disabledDates`, `today`, `firstDayOfWeek`, `startView` and `showAdjacentDays` are passed to the calendar and mean what they mean [there](/components/calendar/). They bound dates only: times are not bounded.
+`disabledDates`, `today`, `firstDayOfWeek`, `startView` and `showAdjacentDays` are passed to the calendar and mean what they mean [there](/components/calendar/). `min` and `max` take the mode's form, as a Text field's do: a date in `date` mode, a time such as `09:00` in `time` mode, and a date and time such as `2026-09-17T09:00` in `date-time` mode. The calendar gets their dates, and the time section offers only the times between them. In `date-time` mode a bound limits the times on its own day only, and a bound that is a date alone limits only the dates.
 
 ### Opening and committing
 
@@ -234,6 +234,7 @@ From top to bottom: the header, the body and the actions.
 - **The clock.** `hourCycle` is the locale's by default, or `h12` or `h23`. Values are 24-hour in every cycle.
 - **The period.** With a 12-hour clock, AM or PM is a part of the time, not a switch above it. In the wheels mode it is a short third wheel, and in the dial mode a narrow selector that changes to the other when pressed. It stands after the minute, or before the hour where the locale writes it first, as Japanese does. Changing it keeps the hour's number and changes the half of the day. It is drawn quiet and never takes the mark of the unit being set.
 - **Minute step.** `minuteStep` (1, 5, 10, 15 or 30) sets the minute wheel's rows and the dial's numbers. A time off the step, set or typed, rounds down to it.
+- **Bounds.** A time outside `min` and `max` keeps its place on the wheels and the dial and is drawn faded (`comp.date-time-picker.time.unavailable-opacity`). It cannot be chosen: a wheel settles on the nearest time that can be, the arrow keys skip to the next one, the dial takes the nearest available number, and a typed number outside the bounds is not taken. The earliest time offered is `min` rounded up to `minuteStep`, and the latest is `max` rounded down. A pending time outside them starts at the nearer bound, as does a time that a new hour or period would put outside them.
 - **An empty time** starts at the current time.
 
 ### Ranges
@@ -258,7 +259,7 @@ That call is the one this page runs: the samples above carry a `label` and none 
 - Open the picker from a Text field's picker button, so the value can also be typed.
 - Set `label` to what is being chosen ("Check-in", "Meeting start"), in your product's language, and the other words the picker shows.
 - Use `minuteStep` when only some minutes make sense, such as every 15 minutes for a booking.
-- Give the picker the same `min`, `max` and `disabledDates` as the field it serves, so the two accept the same dates.
+- Give the picker the same `min`, `max` and `disabledDates` as the field it serves, so the two accept the same dates and times. The field's `pickerRequest` carries its `min` and `max`.
 
 ### Don't
 
@@ -277,7 +278,7 @@ That call is the one this page runs: the samples above carry a `label` and none 
 - The surface is a dialog named by `label`. A modal picker keeps focus inside and draws a scrim; a docked picker takes focus and returns it to its anchor, but Tab leaves it and closes it. Focus moves in when it opens: to the calendar's active day, or to the hour.
 - The calendar, the tabs and the Buttons name themselves from the words the picker gives them. The entry-mode tabs are a real tab list, read with their names and positions ("Wheels, tab, 1 of 2") though they draw glyphs alone.
 - The two ends of a range are two buttons in a group named `rangeLabel`, each read with its name, its time and whether it is the one being set ("Start, 9:00 AM"). `startLabel` and `endLabel` are never drawn: they are what tells assistive technology which end is which. The dash is hidden.
-- The hour and minute wheels and selectors are spin buttons, operated by the arrow keys, Page Up and Page Down and Home and End, and read as drawn (the hour with its period in a 12-hour clock). They stay spin buttons while a number is typed into them. The period is a third spin button of two values, named `periodLabel`. Typing the first letter of a period's name, A or P in English, sets that period. The dial is hidden from assistive technology: everything it does, the selectors do too.
+- The hour and minute wheels and selectors are spin buttons, operated by the arrow keys, Page Up and Page Down and Home and End, and read as drawn (the hour with its period in a 12-hour clock). They stay spin buttons while a number is typed into them. The period is a third spin button of two values, named `periodLabel`. Typing the first letter of a period's name, A or P in English, sets that period. A time outside `min` and `max` is never a spin button's value, and each spin button's minimum and maximum are its first and last available values. The dial is hidden from assistive technology: everything it does, the selectors do too.
 - Escape ends a typed entry first, keeping the value before it. Otherwise it closes the picker without committing and returns focus to where it was.
 - A date-time range whose end is before its start is announced once, politely, and described on the end's range field.
 - Every selector, range field and wheel row is at least the minimum target, and the wheels, selectors, period and dial numbers grow with enlarged text rather than clip it. On a narrow window the picker is never wider than the window: the calendar's cells and the range fields narrow.

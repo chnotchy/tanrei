@@ -19,6 +19,7 @@ import {
   shadeFilter,
   shadowLayers,
   styleQueries,
+  swallowRelease,
   usableLength as usable,
 } from '../../primitives/index.js';
 // TIP-27: a plain tooltip draws its shortcut with the keyboard shortcut, which the tooltip defines wherever it is imported.
@@ -568,7 +569,8 @@ export class TanreiTooltip extends LitElement {
       event.preventDefault();
       event.stopPropagation();
       this.touchShown = false;
-      this.swallowRelease();
+      // TIP-13, TIP-29: a leaving tooltip takes no pointer, so the rest of this press would end on what lies under it.
+      swallowRelease();
       this.dismiss();
       return;
     }
@@ -578,26 +580,6 @@ export class TanreiTooltip extends LitElement {
     }
   };
 
-  /**
-   * TIP-13, TIP-29: the press that closed the tooltip ends over what lies under it, because a leaving tooltip takes no
-   * pointer: the rest of that one press — its release and the click it makes — goes no further either. The next press is
-   * a press on what is there.
-   */
-  private swallowRelease() {
-    const types = ['pointerup', 'mouseup', 'click'] as const;
-    const stop = (event: Event) => {
-      event.stopPropagation();
-      if (event.type !== 'pointerup') event.preventDefault();
-      if (event.type === 'click') done();
-    };
-    const done = () => {
-      for (const type of types) window.removeEventListener(type, stop, true);
-      window.removeEventListener('pointerdown', done, true);
-    };
-    for (const type of types) window.addEventListener(type, stop, true);
-    // Registered after this press's own pointerdown has passed the window: the next one ends it.
-    window.addEventListener('pointerdown', done, true);
-  }
 
   /** TIP-13: nothing of a press on the tooltip reaches what lies under it, nor the tooltip's ancestors. */
   private readonly swallow = (event: Event) => {

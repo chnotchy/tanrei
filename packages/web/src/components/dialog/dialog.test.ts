@@ -856,6 +856,186 @@ test.describe('actions', () => {
   });
 });
 
+test.describe('close button and width', () => {
+  const closeButton = (page: P, id: string) => host(page, id).locator('tanrei-button.close');
+  const paint = (locator: Locator) => locator.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor);
+  /** Every `cancel`'s reason, as `<id>:<reason>`. */
+  const reasons = (page: P) =>
+    page.evaluate(() => {
+      const seen: string[] = ((window as any).reasons = []);
+      for (const d of document.querySelectorAll<any>('tanrei-dialog')) {
+        const id = d.closest('[data-fixture]')?.dataset.fixture ?? d.id;
+        d.addEventListener('cancel', (e: CustomEvent) => seen.push(`${id}:${e.detail?.reason}`));
+      }
+    });
+  const reasonLog = (page: P) => page.evaluate(() => (window as any).reasons as string[]);
+  const CLOSABLE = { closable: true, closeLabel: 'Close' };
+
+  test('DLG-5, DLG-25: dismiss carries its reason — escape, back, scrim, and close for the close button', async ({ page }) => {
+    await mount(page, [f('d', CLOSABLE)]);
+    await reasons(page);
+    // The platform's back first: a close request without a key, before any Escape has been pressed.
+    await open(page, 'd');
+    await dialog(page, 'd').evaluate((el) => el.dispatchEvent(new Event('cancel', { cancelable: true })));
+    await expect.poll(() => isOpen(page, 'd')).toBe(false);
+    await open(page, 'd');
+    await page.keyboard.press('Escape');
+    await expect.poll(() => isOpen(page, 'd')).toBe(false);
+    await open(page, 'd');
+    await page.mouse.click(4, 4);
+    await expect.poll(() => isOpen(page, 'd')).toBe(false);
+    await open(page, 'd');
+    await closeButton(page, 'd').locator('button').click();
+    await expect.poll(() => isOpen(page, 'd')).toBe(false);
+    expect(await reasonLog(page)).toEqual(['d:back', 'd:escape', 'd:scrim', 'd:close']);
+    expect(await log(page)).toEqual(['d:cancel', 'd:close', 'd:cancel', 'd:close', 'd:cancel', 'd:close', 'd:cancel', 'd:close']);
+  });
+
+  test('DLG-25: while closable, an icon-only small Button with the close glyph named by close-label, in close-button.variant (text) given through the Button’s channel; a click, Enter or Space dismisses once with the reason close, unless cancelled; an empty close-label still draws it and is reported; closedby none draws none and reports it', async ({ page }) => {
+    const seen = reports(page);
+    await mount(page, [f('d', CLOSABLE), f('unnamed', { closable: true }), f('fixed', { ...CLOSABLE, dismissible: false }), f('plain')]);
+    await reasons(page);
+    expect(await token(page, T('close-button-variant'))).toBe('text');
+    await open(page, 'd');
+    // Focus does not start on it (DLG-2): the dialog itself has it, and the close button is the first Tab stop.
+    expect(await focused(page)).toBe('dialog');
+    const button = closeButton(page, 'd');
+    await expect(button).not.toHaveAttribute('variant');
+    await expect(button).toHaveAttribute('size', 'small');
+    expect(await button.evaluate((el) => el.textContent?.trim())).toBe('close');
+    await page.mouse.move(0, 0);
+    await expect.poll(() => paint(button)).toBe(await resolveColor(page, '--tanrei-comp-button-text-container-color'));
+    const size = await resolveToken(page, '--tanrei-comp-button-container-height-small');
+    const box = await bounds(button.locator('button'));
+    expect(box.width).toBeCloseTo(size, 2);
+    expect(box.height).toBeCloseTo(size, 2);
+    await expect(host(page, 'd').getByRole('button', { name: 'Close' })).toHaveCount(1);
+    expect(await tabOrder(page, 'd', 1)).toEqual(['close']);
+    // Cancelled, it stays open; each activation asks once.
+    await page.evaluate(() => document.querySelector('[data-fixture="d"] tanrei-dialog')!.addEventListener('cancel', (e) => e.preventDefault()));
+    await button.locator('button').click();
+    await button.locator('button').focus();
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Space');
+    expect(await reasonLog(page)).toEqual(['d:close', 'd:close', 'd:close']);
+    expect(await isOpen(page, 'd')).toBe(true);
+    await close(page, 'd');
+    // A system's choice (tonal), read when the dialog lays out.
+    await override(page, { [T('close-button-variant')]: 'tonal' });
+    await open(page, 'd');
+    await page.mouse.move(0, 0);
+    await expect.poll(() => paint(button)).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
+    await close(page, 'd');
+    // Not closable: none.
+    await open(page, 'plain');
+    await expect(closeButton(page, 'plain')).toHaveCount(0);
+    await close(page, 'plain');
+    // Unnamed: drawn and reported.
+    await open(page, 'unnamed');
+    await expect(closeButton(page, 'unnamed')).toBeVisible();
+    expect(seen.some((r) => r.text.includes('DLG-25') && r.text.includes('close-label is empty'))).toBe(true);
+    await close(page, 'unnamed');
+    // Not dismissible: no close button, and the ignored closable is reported.
+    await open(page, 'fixed');
+    await expect(closeButton(page, 'fixed')).toHaveCount(0);
+    expect(seen.some((r) => r.text.includes('DLG-25') && r.text.includes('closable is ignored'))).toBe(true);
+    // Made dismissible again, it draws the button.
+    await host(page, 'fixed').evaluate((el: any) => (el.closedBy = 'any'));
+    await expect(closeButton(page, 'fixed')).toBeVisible();
+  });
+
+  test('DLG-26: the header is one row — the close button at its end, header.gap after the headline, its end edge at the padding, centred on the headline’s first line; right-to-left at the left; above, the icon and the headline stay centred in the container', async ({ page }) => {
+    await mount(page, [
+      f('d', CLOSABLE),
+      f('long', { ...CLOSABLE, headline: 'A headline long enough that it wraps onto a second line beside the close button' }),
+      f('i', CLOSABLE, { slots: { icon: 'delete' } }),
+      f('untitled', { ...CLOSABLE, headline: '' }),
+    ]);
+    const [pad, headerGap] = await Promise.all(['container-padding', 'header-gap'].map((n) => resolveToken(page, T(n))));
+    await open(page, 'd');
+    const d = dialog(page, 'd');
+    const [box, hb, cb] = [await bounds(d), await bounds(d.locator('.headline')), await bounds(closeButton(page, 'd').locator('button'))];
+    expect(box.x + box.width - (cb.x + cb.width)).toBeCloseTo(pad, 0);
+    expect(cb.y - box.y).toBeCloseTo(pad, 0);
+    const line = Number.parseFloat(await css(d.locator('.headline'), 'line-height'));
+    expect(hb.y + line / 2).toBeCloseTo(cb.y + cb.height / 2, 0);
+    await close(page, 'd');
+    // A headline that wraps takes the width the button leaves, header.gap before it.
+    await open(page, 'long');
+    const l = dialog(page, 'long');
+    const [lh, lc] = [await bounds(l.locator('.headline')), await bounds(closeButton(page, 'long').locator('button'))];
+    expect(lh.height).toBeGreaterThan(line * 1.5);
+    expect(lc.x - (lh.x + lh.width)).toBeGreaterThanOrEqual(headerGap - 0.5);
+    expect(lc.y + lc.height / 2).toBeCloseTo(lh.y + line / 2, 0);
+    await close(page, 'long');
+    // Without a headline, the header is still drawn for the close button.
+    await open(page, 'untitled');
+    await expect(closeButton(page, 'untitled')).toBeVisible();
+    await close(page, 'untitled');
+    // Right-to-left: at the left, the headline at the right of it. (The glyph close is not one the icon set mirrors.)
+    await page.evaluate(() => document.querySelector('[data-fixture="d"]')!.setAttribute('dir', 'rtl'));
+    await open(page, 'd');
+    const [rb, rc, rh] = [await bounds(d), await bounds(closeButton(page, 'd').locator('button')), await bounds(d.locator('.headline'))];
+    expect(rc.x - rb.x).toBeCloseTo(pad, 0);
+    expect(rh.x).toBeGreaterThan(rc.x + rc.width);
+    await close(page, 'd');
+    // Above, as a system chooses it: the icon and the headline centred in the container, the button at the top end.
+    await override(page, { [T('icon-placement')]: 'above' });
+    await open(page, 'i');
+    const a = dialog(page, 'i');
+    const [ab, ai, ah, ac] = [await bounds(a), await bounds(a.locator('.head .icon')), await bounds(a.locator('.headline')), await bounds(closeButton(page, 'i').locator('button'))];
+    expect(ai.x + ai.width / 2).toBeCloseTo(ab.x + ab.width / 2, 0);
+    expect(ah.x + ah.width / 2).toBeCloseTo(ab.x + ab.width / 2, 0);
+    expect(ac.y - ab.y).toBeCloseTo(pad, 0);
+    expect(ac.x - (ah.x + ah.width)).toBeGreaterThanOrEqual(headerGap - 0.5);
+  });
+
+  test('DLG-27: small, medium and large are their widths whatever the parts ask, never wider than the window less the margins; content is DLG-7’s; a compact window places every width alike; a change is drawn at once; an unknown width is content and reported', async ({ page }) => {
+    const seen = reports(page);
+    await mount(page, [f('d', { width: 'small' }), f('content')]);
+    const [margin, minW, maxW, small, medium, large] = await Promise.all(
+      ['container-margin', 'container-min-width', 'container-max-width', 'width-small', 'width-medium', 'width-large'].map((n) => resolveToken(page, T(n))),
+    );
+    await open(page, 'd');
+    const d = dialog(page, 'd');
+    expect((await bounds(d)).width).toBeCloseTo(small, 0);
+    await expect(host(page, 'd')).toHaveAttribute('width', 'small');
+    await host(page, 'd').evaluate((el: any) => (el.width = 'medium'));
+    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(Math.min(medium, WIDE.width - 2 * margin), 0);
+    // Large is wider than this window allows: the window less the margins.
+    await host(page, 'd').evaluate((el: any) => (el.width = 'large'));
+    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(Math.min(large, WIDE.width - 2 * margin), 0);
+    // In a wide window it is its width, wider than max-width.
+    await page.setViewportSize({ width: 1200, height: 800 });
+    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(large, 0);
+    expect(large).toBeGreaterThan(maxW);
+    // Focus is kept through a change.
+    await dialog(page, 'd').evaluate((el) => (el as HTMLElement).focus());
+    await host(page, 'd').evaluate((el: any) => (el.width = 'small'));
+    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(small, 0);
+    expect(await focused(page)).toBe('dialog');
+    // A compact window: as wide as the window less the margins, as content is.
+    await page.setViewportSize(COMPACT);
+    await host(page, 'd').evaluate((el: any) => (el.width = 'large'));
+    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(Math.min(maxW, COMPACT.width - 2 * margin), 0);
+    await host(page, 'd').evaluate((el: any) => (el.width = 'small'));
+    await expect.poll(async () => (await bounds(d)).width).toBeCloseTo(Math.min(maxW, COMPACT.width - 2 * margin), 0);
+    await close(page, 'd');
+    // Content (the default) is sized by its parts, between min-width and max-width.
+    await page.setViewportSize(WIDE);
+    await open(page, 'content');
+    const c = await bounds(dialog(page, 'content'));
+    expect(c.width).toBeGreaterThanOrEqual(minW - 0.5);
+    expect(c.width).toBeLessThanOrEqual(maxW + 0.5);
+    await close(page, 'content');
+    // Unknown: drawn as content, and reported.
+    await host(page, 'content').evaluate((el: any) => (el.width = 'huge'));
+    await open(page, 'content');
+    expect((await bounds(dialog(page, 'content'))).width).toBeCloseTo(c.width, 0);
+    expect(seen.some((r) => r.text.includes('DLG-27') && r.text.includes('"huge"'))).toBe(true);
+  });
+});
+
 test.describe('accessibility', () => {
   test('no axe violations in light and dark, open, centred and compact', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {

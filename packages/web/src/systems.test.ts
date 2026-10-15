@@ -49,6 +49,9 @@ const SUBJECTS = [
   subject('chip', (fixture) => fixture.id === 'filter-selected', { icons: true }),
   // Two of three selected, with icons and supporting text: the row heights, paddings, text roles, the selected fill and the check.
   subject('list', (fixture) => fixture.id === 'multiple-selected', { icons: true }),
+  // Every part at once: each preset's row height, paddings, gap, the headline's role (body-large in m3-like and
+  // cupertino), the overline's, the supporting and trailing texts' roles and colors, and both glyphs.
+  subject('list-row', (fixture) => fixture.id === 'all-parts', { icons: true }),
   // Titled groups of checkbox and radio items: the surface's color, corners, elevation, padding, the rows, the titles and the divider.
   subject('menu', (fixture) => fixture.id === 'group-titles', { icons: true }),
   // Keys joined by +: each preset's cap fill, edge and deeper bottom edge, height, padding and corners (eased in
@@ -97,8 +100,9 @@ const SUBJECTS = [
   // labelled is recorded with them — a system cannot default the prop, mimicry gap
   // `navigation-drawer-collapsed-labels-default`): the icon column (Material's rail in m3-like: the icon indicator behind
   // the glyph, the label outside it), the header's menu button, the short labels.
-  // Drawn alone: the modal fixture would cover it (the top layer, over a scrim).
-  subject('navigation-drawer', (fixture) => fixture.id === 'standard' || fixture.id === 'collapsed-labels-always', { icons: true, alone: true }),
+  // Drawn alone: the modal fixture would cover it (the top layer, over a scrim). Axe checks its fixtures in parts: 41
+  // drawers of rows on one page are about 8 000 elements.
+  subject('navigation-drawer', (fixture) => fixture.id === 'standard' || fixture.id === 'collapsed-labels-always', { icons: true, alone: true, axeParts: true }),
   // Docked and open: the bar's fill, height, corners (medium in cupertino, eased) and paddings around the glyph, the value
   // and the clear button, and the view's color, corners, elevation and rows with their icons, text roles and padding.
   subject('search', (fixture) => fixture.id === 'docked', { icons: true }),
@@ -163,8 +167,9 @@ const SUBJECTS = [
   // close glyph of its icon set, and its Buttons at the foot.
   subject('popover', (fixture) => fixture.id === 'arrow-actions', { icons: true }),
   // A required slider in error: the label's text style and color, the required mark the preset chooses (its filled tag,
-  // or its asterisk), the preset's own slider untouched between the rows, and the error text in its error role.
-  subject('field', (fixture) => fixture.id === 'slider-required-error', { icons: true }),
+  // or its asterisk), the preset's own slider untouched between the rows, and the error text in its error role. Axe
+  // checks its fixtures in parts: its 368 fields on one page are about 15 000 elements.
+  subject('field', (fixture) => fixture.id === 'slider-required-error', { icons: true, axeParts: true }),
   // A required set of checkboxes in error: the legend and the preset's required mark, the description that stays, the
   // preset's checkboxes in their own error form, the distance it keeps between two controls, and the error text below.
   subject('field-group', (fixture) => fixture.id === 'checkboxes-error', { icons: true }),
@@ -416,16 +421,28 @@ async function settled(page: Page) {
   });
 }
 
+/** The most fixtures one axe test of a subject with `axeParts` mounts and scans. */
+const AXE_PART = 40;
+
 /**
- * What one axe test looks at: every fixture on one page, or (`axeEach`) each fixture alone, as a window of its own —
+ * What one axe test looks at: every fixture on one page; or (`axeEach`) each fixture alone, as a window of its own —
  * a test per fixture, so each is one mount's work within the test's time (eight modal pickers mounted in turn in one
- * test outran it on a 2-vCPU CI runner) and a failure names its fixture.
+ * test outran it on a 2-vCPU CI runner) and a failure names its fixture; or (`axeParts`) the fixtures in equal parts
+ * of at most AXE_PART, in the spec's order, each part a page and a test of its own. A scan's time grows with the nodes
+ * on the page: the Field's 368 fixtures on one page (about 15 000 elements) took 36 s in WebKit and 26 s in Firefox
+ * on a CI runner, where every other subject took 14 s or less save the navigation drawer's 41 (8 000 elements, 22 s).
+ * `every fixture is in one axe unit of its subject` holds that the parts keep every fixture.
  */
-const axeUnits = (spec: Spec, each = false): { name: string; fixtures?: Fixture[] }[] =>
-  each ? spec.fixtures.map((fixture) => ({ name: `${spec.name}/${fixture.id}`, fixtures: [fixture] })) : [{ name: spec.name }];
+const axeUnits = ({ spec, axeEach, axeParts }: { spec: Spec; axeEach?: boolean; axeParts?: boolean }): { name: string; fixtures?: Fixture[] }[] => {
+  if (axeEach) return spec.fixtures.map((fixture) => ({ name: `${spec.name}/${fixture.id}`, fixtures: [fixture] }));
+  if (!axeParts) return [{ name: spec.name }];
+  const count = Math.ceil(spec.fixtures.length / AXE_PART);
+  const size = Math.ceil(spec.fixtures.length / count);
+  return Array.from({ length: count }, (_, i) => ({ name: `${spec.name}, part ${i + 1} of ${count}`, fixtures: spec.fixtures.slice(i * size, (i + 1) * size) }));
+};
 
 /** axe's functional rules over a preset — every rule but its CRITERIA — in light and dark, in one contrast scheme. */
-async function axe(page: Page, spec: Spec, system: string, contrast: 'high' | undefined, icons: boolean, fixtures?: Fixture[]) {
+async function axe(page: Page, spec: Spec, unit: string, system: string, contrast: 'high' | undefined, icons: boolean, fixtures?: Fixture[]) {
   // A glyph drawn in its icon face is a ligature, which axe tells from text; without the face it is judged as text.
   // Mounted once: the theme, like the contrast, is the document's attribute and nothing but CSS reads it, so dark is
   // the same page switched, as a product switches it (a mount inlines the fonts and the bundle, and is most of the time).
@@ -438,15 +455,24 @@ async function axe(page: Page, spec: Spec, system: string, contrast: 'high' | un
     // axe.run in the page itself: the same rules over the same nodes. The default mode opens a blank page per run
     // for axe.finishRun, which only matters for cross-origin frames (no fixture has a frame) and costs a page each time.
     const results = await new AxeBuilder({ page }).setLegacyMode().include('.stage').disableRules(CRITERIA).analyze();
-    const which = fixtures ? ` ${fixtures[0].id}` : '';
     const ran = [...results.passes, ...results.violations, ...results.incomplete, ...results.inapplicable].map((r) => r.id);
-    expect(ran.filter((id) => CRITERIA.includes(id)), `${spec.name}${which} ${system}: a criterion rule ran`).toEqual([]);
-    expect(results.violations, `${spec.name}${which} ${system} ${theme} ${contrast ?? 'standard'}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
+    expect(ran.filter((id) => CRITERIA.includes(id)), `${unit} ${system}: a criterion rule ran`).toEqual([]);
+    expect(results.violations, `${unit} ${system} ${theme} ${contrast ?? 'standard'}: ${results.violations.map((v) => v.id).join(', ')}`).toEqual([]);
   }
 }
 
 test('presets are discovered from tokens/systems/', () => {
   expect([...presets].sort()).toEqual(['cupertino', 'm3-expressive-like', 'm3-like']);
+});
+
+test('every fixture is in one axe unit of its subject', () => {
+  for (const s of SUBJECTS) {
+    const units = axeUnits(s);
+    const ids = units.flatMap((unit) => (unit.fixtures ?? s.spec.fixtures).map((f) => f.id));
+    expect(ids, s.spec.name).toEqual(s.spec.fixtures.map((f) => f.id));
+    if (s.axeParts) for (const unit of units) expect(unit.fixtures!.length, unit.name).toBeLessThanOrEqual(AXE_PART);
+    expect(new Set(units.map((unit) => unit.name)).size, s.spec.name).toBe(units.length);
+  }
 });
 
 for (const system of presets) {
@@ -462,14 +488,14 @@ for (const system of presets) {
       expect(box!.height).toBe(await resolveToken(page, '--tanrei-comp-button-container-height-medium'));
     });
 
-    for (const { spec, fixtures, icons, reducedMotion, window, wholeWindow, alone, axeEach } of SUBJECTS) {
-      for (const unit of axeUnits(spec, axeEach)) {
+    for (const { spec, fixtures, icons, reducedMotion, window, wholeWindow, alone, ...scope } of SUBJECTS) {
+      for (const unit of axeUnits({ spec, ...scope })) {
         test(`${unit.name}: ${system} passes axe's functional rules at standard contrast (not its contrast or target-size criteria)`, async ({ page }) => {
-          await axe(page, spec, system, undefined, icons, unit.fixtures);
+          await axe(page, spec, unit.name, system, undefined, icons, unit.fixtures);
         });
 
         test(`${unit.name}: ${system} passes axe's functional rules at high contrast (not its contrast or target-size criteria)`, async ({ page }) => {
-          await axe(page, spec, system, 'high', icons, unit.fixtures);
+          await axe(page, spec, unit.name, system, 'high', icons, unit.fixtures);
         });
       }
 

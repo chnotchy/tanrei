@@ -519,6 +519,7 @@ public struct TanreiState: Sendable, Equatable {
   public var focusStateLayerOpacity: Double
   public var hoverStateLayerOpacity: Double
   public var pressedStateLayerOpacity: Double
+  public var selectedStateLayerOpacity: Double
   /// What a design system added, by key. Empty in a system that adds nothing.
   public var extra: [String: Double]
 
@@ -529,6 +530,7 @@ public struct TanreiState: Sendable, Equatable {
     focusStateLayerOpacity: Double,
     hoverStateLayerOpacity: Double,
     pressedStateLayerOpacity: Double,
+    selectedStateLayerOpacity: Double,
     extra: [String: Double] = [:]
   ) {
     self.disabledContainerOpacity = disabledContainerOpacity
@@ -537,6 +539,7 @@ public struct TanreiState: Sendable, Equatable {
     self.focusStateLayerOpacity = focusStateLayerOpacity
     self.hoverStateLayerOpacity = hoverStateLayerOpacity
     self.pressedStateLayerOpacity = pressedStateLayerOpacity
+    self.selectedStateLayerOpacity = selectedStateLayerOpacity
     self.extra = extra
   }
 
@@ -549,6 +552,7 @@ public struct TanreiState: Sendable, Equatable {
     case "focus-state-layer-opacity": return focusStateLayerOpacity
     case "hover-state-layer-opacity": return hoverStateLayerOpacity
     case "pressed-state-layer-opacity": return pressedStateLayerOpacity
+    case "selected-state-layer-opacity": return selectedStateLayerOpacity
     default: return extra[key]
     }
   }
@@ -4080,6 +4084,7 @@ public struct TanreiCarouselTokens: Sendable, Equatable {
   public var motionScrollEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
+  public var navigationButtonVariant: Double
   public var parts: TanreiCarouselParts
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiCarouselStateTokens
@@ -4114,6 +4119,7 @@ public struct TanreiCarouselTokens: Sendable, Equatable {
     motionScrollEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
+    navigationButtonVariant: Double,
     parts: TanreiCarouselParts,
     hovered: TanreiCarouselStateTokens,
     focused: TanreiCarouselStateTokens,
@@ -4144,6 +4150,7 @@ public struct TanreiCarouselTokens: Sendable, Equatable {
     self.motionScrollEasing = motionScrollEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
+    self.navigationButtonVariant = navigationButtonVariant
     self.parts = parts
     self.hovered = hovered
     self.focused = focused
@@ -5846,6 +5853,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
   public var separatorColor: TanreiPaint
   public var separatorTypescale: TanreiTextStyle
   public var timeEntryModes: Double
+  public var timeUnavailableOpacity: Double
   public var wheelGap: CGFloat
   public var wheelHeight: CGFloat
   public var wheelLabelColor: TanreiPaint
@@ -5938,6 +5946,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
     separatorColor: TanreiPaint,
     separatorTypescale: TanreiTextStyle,
     timeEntryModes: Double,
+    timeUnavailableOpacity: Double,
     wheelGap: CGFloat,
     wheelHeight: CGFloat,
     wheelLabelColor: TanreiPaint,
@@ -6026,6 +6035,7 @@ public struct TanreiDateTimePickerTokens: Sendable, Equatable {
     self.separatorColor = separatorColor
     self.separatorTypescale = separatorTypescale
     self.timeEntryModes = timeEntryModes
+    self.timeUnavailableOpacity = timeUnavailableOpacity
     self.wheelGap = wheelGap
     self.wheelHeight = wheelHeight
     self.wheelLabelColor = wheelLabelColor
@@ -6177,6 +6187,7 @@ public struct TanreiDialogTokens: Sendable, Equatable {
   public var actionsGap: CGFloat
   public var actionsMarginBlockStart: CGFloat
   public var actionsVariant: Double
+  public var closeButtonVariant: Double
   public var compactWindowWidth: CGFloat
   public var containerColor: TanreiPaint
   public var containerElevation: [TanreiShadowLayer]
@@ -6206,12 +6217,16 @@ public struct TanreiDialogTokens: Sendable, Equatable {
   public var scrimColor: TanreiPaint
   public var supportingTextColor: TanreiPaint
   public var supportingTextTypescale: TanreiTextStyle
+  public var widthLarge: CGFloat
+  public var widthMedium: CGFloat
+  public var widthSmall: CGFloat
 
   public init(
     actionsArrangement: Double,
     actionsGap: CGFloat,
     actionsMarginBlockStart: CGFloat,
     actionsVariant: Double,
+    closeButtonVariant: Double,
     compactWindowWidth: CGFloat,
     containerColor: TanreiPaint,
     containerElevation: [TanreiShadowLayer],
@@ -6240,12 +6255,16 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     scrimBlur: CGFloat,
     scrimColor: TanreiPaint,
     supportingTextColor: TanreiPaint,
-    supportingTextTypescale: TanreiTextStyle
+    supportingTextTypescale: TanreiTextStyle,
+    widthLarge: CGFloat,
+    widthMedium: CGFloat,
+    widthSmall: CGFloat
   ) {
     self.actionsArrangement = actionsArrangement
     self.actionsGap = actionsGap
     self.actionsMarginBlockStart = actionsMarginBlockStart
     self.actionsVariant = actionsVariant
+    self.closeButtonVariant = closeButtonVariant
     self.compactWindowWidth = compactWindowWidth
     self.containerColor = containerColor
     self.containerElevation = containerElevation
@@ -6275,6 +6294,9 @@ public struct TanreiDialogTokens: Sendable, Equatable {
     self.scrimColor = scrimColor
     self.supportingTextColor = supportingTextColor
     self.supportingTextTypescale = supportingTextTypescale
+    self.widthLarge = widthLarge
+    self.widthMedium = widthMedium
+    self.widthSmall = widthSmall
   }
 }
 
@@ -9191,6 +9213,140 @@ public struct TanreiLinkTokens: Sendable, Equatable {
     case .pressed: return pressed
     case .disabled: return disabled
     }
+  }
+}
+
+/// A value of list-row's `density` axis.
+///
+/// The set is open: the constants are the values every design system has; a value one system
+/// adds is `TanreiListRowDensity(rawValue: "…")`, or the typed constant generated with that system.
+public struct TanreiListRowDensity: RawRepresentable, Hashable, Sendable, CustomStringConvertible {
+  /// The token key of the value, for example `"medium"`.
+  public let rawValue: String
+  public init(rawValue: String) { self.rawValue = rawValue }
+  public var description: String { rawValue }
+
+  public static let regular = TanreiListRowDensity(rawValue: "regular")
+  public static let compact = TanreiListRowDensity(rawValue: "compact")
+
+  /// The values every design system has, in the order the component declares them.
+  public static let core: [TanreiListRowDensity] = [.regular, .compact]
+  /// The default: what a value the current design system does not have falls back to.
+  public static let fallback = TanreiListRowDensity.regular
+}
+
+/// Everything of list-row that depends on its density.
+public struct TanreiListRowDensityTokens: Sendable, Equatable {
+  public var containerHeightOneLine: CGFloat
+  public var containerHeightTwoLine: CGFloat
+  public var containerHeightThreeLine: CGFloat
+  public var containerPaddingBlock: CGFloat
+
+  public init(
+    containerHeightOneLine: CGFloat,
+    containerHeightTwoLine: CGFloat,
+    containerHeightThreeLine: CGFloat,
+    containerPaddingBlock: CGFloat
+  ) {
+    self.containerHeightOneLine = containerHeightOneLine
+    self.containerHeightTwoLine = containerHeightTwoLine
+    self.containerHeightThreeLine = containerHeightThreeLine
+    self.containerPaddingBlock = containerPaddingBlock
+  }
+}
+
+/// The densitys of list-row: named fields for the core values, `extra` for what a design system added.
+/// Read one with `densitys[key]`.
+public struct TanreiListRowDensitys: Sendable, Equatable {
+  public var regular: TanreiListRowDensityTokens
+  public var compact: TanreiListRowDensityTokens
+  /// What a design system added, by key. Empty in a system that adds nothing.
+  public var extra: [TanreiListRowDensity: TanreiListRowDensityTokens]
+
+  public init(
+    regular: TanreiListRowDensityTokens,
+    compact: TanreiListRowDensityTokens,
+    extra: [TanreiListRowDensity: TanreiListRowDensityTokens] = [:]
+  ) {
+    self.regular = regular
+    self.compact = compact
+    self.extra = extra
+  }
+
+  /// The tokens of one list-row density, core or added; `nil` when this design system does not have it.
+  public func value(for key: TanreiListRowDensity) -> TanreiListRowDensityTokens? {
+    switch key {
+    case .regular: return regular
+    case .compact: return compact
+    default: return extra[key]
+    }
+  }
+
+  /// Total lookup: a list-row density this design system does not have reads the tokens of `regular`, the
+  /// default, and is reported in debug builds only (`TanreiDiagnostics`).
+  public subscript(key: TanreiListRowDensity) -> TanreiListRowDensityTokens {
+    if let value = value(for: key) { return value }
+    TanreiDiagnostics.report("Tanrei: the current design system has no list-row density \"\(key.rawValue)\"; using \"regular\"")
+    return regular
+  }
+
+  /// Every list-row density of this design system: the core ones, then what it added.
+  public var keys: [TanreiListRowDensity] { TanreiListRowDensity.core + extra.keys.sorted { $0.rawValue < $1.rawValue } }
+}
+
+/// Component tokens of list-row (comp.list-row).
+public struct TanreiListRowTokens: Sendable, Equatable {
+  public var containerGap: CGFloat
+  public var containerPaddingInlineEnd: CGFloat
+  public var containerPaddingInlineStart: CGFloat
+  public var headlineColor: TanreiPaint
+  public var headlineTypescale: TanreiTextStyle
+  public var leadingIconColor: TanreiPaint
+  public var leadingIconSize: CGFloat
+  public var overlineColor: TanreiPaint
+  public var overlineTypescale: TanreiTextStyle
+  public var supportingTextColor: TanreiPaint
+  public var supportingTextTypescale: TanreiTextStyle
+  public var trailingIconColor: TanreiPaint
+  public var trailingIconSize: CGFloat
+  public var trailingTextColor: TanreiPaint
+  public var trailingTextTypescale: TanreiTextStyle
+  public var densitys: TanreiListRowDensitys
+
+  public init(
+    containerGap: CGFloat,
+    containerPaddingInlineEnd: CGFloat,
+    containerPaddingInlineStart: CGFloat,
+    headlineColor: TanreiPaint,
+    headlineTypescale: TanreiTextStyle,
+    leadingIconColor: TanreiPaint,
+    leadingIconSize: CGFloat,
+    overlineColor: TanreiPaint,
+    overlineTypescale: TanreiTextStyle,
+    supportingTextColor: TanreiPaint,
+    supportingTextTypescale: TanreiTextStyle,
+    trailingIconColor: TanreiPaint,
+    trailingIconSize: CGFloat,
+    trailingTextColor: TanreiPaint,
+    trailingTextTypescale: TanreiTextStyle,
+    densitys: TanreiListRowDensitys
+  ) {
+    self.containerGap = containerGap
+    self.containerPaddingInlineEnd = containerPaddingInlineEnd
+    self.containerPaddingInlineStart = containerPaddingInlineStart
+    self.headlineColor = headlineColor
+    self.headlineTypescale = headlineTypescale
+    self.leadingIconColor = leadingIconColor
+    self.leadingIconSize = leadingIconSize
+    self.overlineColor = overlineColor
+    self.overlineTypescale = overlineTypescale
+    self.supportingTextColor = supportingTextColor
+    self.supportingTextTypescale = supportingTextTypescale
+    self.trailingIconColor = trailingIconColor
+    self.trailingIconSize = trailingIconSize
+    self.trailingTextColor = trailingTextColor
+    self.trailingTextTypescale = trailingTextTypescale
+    self.densitys = densitys
   }
 }
 
@@ -18176,6 +18332,10 @@ public struct TanreiSystem: Sendable, Equatable {
     get { _link.value }
     set { _link.value = newValue }
   }
+  public var listRow: TanreiListRowTokens {
+    get { _listRow.value }
+    set { _listRow.value = newValue }
+  }
   public var list: TanreiListTokens {
     get { _list.value }
     set { _list.value = newValue }
@@ -18377,6 +18537,7 @@ public struct TanreiSystem: Sendable, Equatable {
   private var _keyboardShortcut: TanreiBox<TanreiKeyboardShortcutTokens>
   private var _linkCard: TanreiBox<TanreiLinkCardTokens>
   private var _link: TanreiBox<TanreiLinkTokens>
+  private var _listRow: TanreiBox<TanreiListRowTokens>
   private var _list: TanreiBox<TanreiListTokens>
   private var _loadingIndicator: TanreiBox<TanreiLoadingIndicatorTokens>
   private var _mainActionButton: TanreiBox<TanreiMainActionButtonTokens>
@@ -18473,6 +18634,7 @@ public struct TanreiSystem: Sendable, Equatable {
     keyboardShortcut: TanreiKeyboardShortcutTokens,
     linkCard: TanreiLinkCardTokens,
     link: TanreiLinkTokens,
+    listRow: TanreiListRowTokens,
     list: TanreiListTokens,
     loadingIndicator: TanreiLoadingIndicatorTokens,
     mainActionButton: TanreiMainActionButtonTokens,
@@ -18568,6 +18730,7 @@ public struct TanreiSystem: Sendable, Equatable {
     self._keyboardShortcut = TanreiBox(keyboardShortcut)
     self._linkCard = TanreiBox(linkCard)
     self._link = TanreiBox(link)
+    self._listRow = TanreiBox(listRow)
     self._list = TanreiBox(list)
     self._loadingIndicator = TanreiBox(loadingIndicator)
     self._mainActionButton = TanreiBox(mainActionButton)

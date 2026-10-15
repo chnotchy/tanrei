@@ -2,7 +2,7 @@
 title: Tabla
 description: Presenta datos que tienen filas y columnas, con columnas con nombre y, de forma opcional, encabezados de fila, una leyenda y filas de pie. Se desplaza dentro de su propia caja cuando no cabe. El encabezado de una columna puede pedir las filas en su orden y las filas se pueden elegir; la tabla nunca ordena por sí misma.
 translationOf: components/table.mdx
-sourceHash: c5bff496ab398c6bb6f372ce183a6a1d35192c1e
+sourceHash: 342eb55fba43c105691f8ba6eaa252107e81be12
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -36,7 +36,7 @@ import CountedByThePage from '../../../../components/CountedByThePage.astro';
   </tanrei-table>
 </DemoFrame>
 
-Una tabla es para datos que tienen dos dimensiones: una lista de precios, una comparación de planes, una lista de ajustes con sus tipos y sus valores predeterminados, el estado de varias cosas en varias plataformas, los registros con los que trabaja una persona. El encabezado de una columna puede pedir las filas en su orden, una tabla sin filas muestra tu estado vacío, y una línea de estado bajo las filas contiene tu frase y tu paginación. Las filas se pueden elegir con una casilla de verificación cada una, y una tabla que espera sus filas dice que está ocupada. La tabla nunca ordena, filtra, obtiene datos ni pagina por sí misma: dibuja las filas que se le dan, en el orden en que se le dan. No cambia el tamaño de las columnas.
+Una tabla es para datos que tienen dos dimensiones: una lista de precios, una comparación de planes, una lista de ajustes con sus tipos y sus valores predeterminados, el estado de varias cosas en varias plataformas, los registros con los que trabaja una persona. El encabezado de una columna puede pedir las filas en su orden, una tabla sin filas muestra tu estado vacío, y una línea de estado bajo las filas contiene tu frase y tu paginación. Las filas se pueden elegir con una casilla de verificación cada una, o una sola fila con un botón de opción, y una tabla que espera sus filas dice que está ocupada. La tabla nunca ordena, filtra, obtiene datos ni pagina por sí misma: dibuja las filas que se le dan, en el orden en que se le dan. No cambia el tamaño de las columnas.
 
 En la web es `<tanrei-table>` alrededor de tu propia `<table>` nativa. El elemento no tiene shadow root y a la tabla nunca se le da otro `display`, así que un rastreador, copiar y pegar en una hoja de cálculo y la navegación por tablas de un lector de pantalla se encuentran con una tabla HTML corriente. Las demás plataformas todavía no la han implementado.
 
@@ -107,9 +107,9 @@ En la web es `<tanrei-table>` alrededor de tu propia `<table>` nativa. El elemen
 | Una columna que se puede ordenar | `aria-sort="none"`, `"ascending"` o `"descending"` en la celda de encabezado, y un `<button type="button">` alrededor de su texto. `data-value` en la celda es el nombre que lleva el evento `sort`. |
 | Sin filas | Un `<tr data-part="empty">` con un solo `<td colspan>` en `<tbody>`, que contiene tu estado vacío. |
 | La línea de estado | Un `<div data-part="status">` después de la tabla, que contiene un `<p role="status">` y tu paginación. `status` en el elemento escribe el párrafo donde tú no escribes ninguno. |
-| Filas que se pueden elegir | `selection="multiple"` en el elemento, y una primera celda `<td data-part="selection">` en cada fila. |
-| Una fila que se puede elegir | `data-value` en el `<tr>`, y un `<tanrei-checkbox label-hidden>` en su celda de selección. `data-selected` en el `<tr>` dice que está elegida. |
-| La casilla de verificación de todas las filas | Un `<tanrei-checkbox label-hidden>` en la celda de selección de la fila de encabezado. `select-all-label` en el elemento le da nombre. |
+| Filas que se pueden elegir | `selection="multiple"` en el elemento, o `selection="single"` donde se elige una fila como mucho, y una primera celda `<td data-part="selection">` en cada fila. |
+| Una fila que se puede elegir | `data-value` en el `<tr>`, y un `<tanrei-checkbox label-hidden>` en su celda de selección, o un `<tanrei-radio-button label-hidden>` con `single`. `data-selected` en el `<tr>` dice que está elegida. |
+| La casilla de verificación de todas las filas | Un `<tanrei-checkbox label-hidden>` en la celda de selección de la fila de encabezado. `select-all-label` en el elemento le da nombre. Con `single` esa celda queda vacía. |
 | Una tabla en carga | `loading` en el elemento. |
 | Una fila de marcador de posición, para una fila que no ha llegado | Un `<tr data-placeholder aria-hidden="true">`, con las celdas vacías o con un marcador de posición de esqueleto en cada una. |
 
@@ -311,6 +311,50 @@ Para una página que debe funcionar sin script, usa casillas de verificación na
 </tr>
 ```
 
+### Elegir una fila
+
+<DemoFrame label="Elegir una fila: un botón de opción en cada fila, ninguno en el encabezado" plain>
+  <tanrei-table class="tanrei-not-prose" selection="single" row-headers>
+    <table>
+      <caption>Plan al que cambiar</caption>
+      <thead>
+        <tr><td data-part="selection"></td><th scope="col">Plan</th><th scope="col" data-align="end" data-wrap="false">Puestos</th><th scope="col" data-align="end" data-wrap="false">Al mes</th></tr>
+      </thead>
+      <tbody>
+        <tr data-value="starter"><td data-part="selection"><tanrei-radio-button label-hidden name="docs-plan"></tanrei-radio-button></td><th scope="row">Inicial</th><td data-align="end" data-wrap="false">3</td><td data-align="end" data-wrap="false">0.00</td></tr>
+        <tr data-value="team" data-selected><td data-part="selection"><tanrei-radio-button label-hidden name="docs-plan" checked></tanrei-radio-button></td><th scope="row">Equipo</th><td data-align="end" data-wrap="false">20</td><td data-align="end" data-wrap="false">48.00</td></tr>
+        <tr data-value="business"><td data-part="selection"><tanrei-radio-button label-hidden name="docs-plan"></tanrei-radio-button></td><th scope="row">Empresa</th><td data-align="end" data-wrap="false">100</td><td data-align="end" data-wrap="false">180.00</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+Donde una persona elige un registro (el plan al que cambiar, la dirección de envío, la compilación con la que comparar), define `selection="single"`. La celda de selección de cada fila del cuerpo contiene un botón de opción en lugar de la casilla de verificación, y la celda de selección de la fila de encabezado queda vacía, porque ningún control representa a todas las filas:
+
+```html
+<tanrei-table selection="single" row-headers>
+  <table>
+    <caption>Plan al que cambiar</caption>
+    <thead>
+      <tr><td data-part="selection"></td><th scope="col">Plan</th><th scope="col" data-align="end">Puestos</th></tr>
+    </thead>
+    <tbody>
+      <tr data-value="team" data-selected>
+        <td data-part="selection"><tanrei-radio-button label-hidden name="plan" checked></tanrei-radio-button></td>
+        <th scope="row">Equipo</th>
+        <td data-align="end">20</td>
+      </tr>
+    </tbody>
+  </table>
+</tanrei-table>
+```
+
+- Elegir una fila suelta la que estaba elegida. `selectionchange` lleva un solo valor: `{ values: ['team'] }`.
+- Pulsar la fila elegida, o su botón de opción, no cambia nada. Un botón de opción no se desmarca al pulsarlo otra vez. Donde una persona pueda volver a no tener ninguna fila elegida, pon un control propio para ello y quita `data-selected` de la fila.
+- Los botones de opción de una tabla comparten un nombre, así que forman un grupo: una sola parada en el orden del foco, y las teclas de flecha llevan la elección de una fila a otra. Dales tu propio nombre, que es el que envía un formulario; el elemento da uno a los que no lo tienen.
+- Si marcas más de una fila con `data-selected`, queda elegida la que marcaste la última y, de las marcadas a la vez, la primera. Una compilación de depuración notifica las filas marcadas a la vez.
+- Todo lo demás es como con las casillas de verificación: pulsar en cualquier parte de una fila la elige, `data-selected` lo escribes tú, y un `<input type="radio" name="…">` nativo funciona sin script.
+
 ### Carga
 
 <DemoFrame label="En carga: filas de marcador de posición, y la línea de estado lo dice" plain>
@@ -484,12 +528,13 @@ Una fila no tiene altura propia. Es tan alta como la más alta de sus celdas.
 ### Pautas para elegir filas
 
 - Deja que las personas elijan filas donde actúan sobre varios registros a la vez: eliminar, exportar, mover. Para un solo registro, pon la acción en su fila.
+- Elige una sola fila (`single`) donde la respuesta es un registro: un plan, una dirección, una versión con la que comparar. No lo uses para abrir un registro.
 - Una pulsación en cualquier punto de una fila la elige. Si una fila también abre su registro, pon para eso un enlace en su encabezado de fila, no una pulsación en la fila.
 - Di en la línea de estado cuántas filas están elegidas («Seleccionados: 3 de 132»). La tabla no cuenta nada.
 - Pon encima de la tabla los botones que actúan sobre las filas elegidas. Son tuyos; la tabla te dice qué está elegido.
 - Ofrece «todos los 132» con un control tuyo. La casilla de verificación de la fila de encabezado elige las filas que se le dieron a la tabla, nunca las filas de otras páginas.
-- Cada casilla de verificación es una parada en el orden del foco. Limita una página de filas a un número que una persona pueda recorrer con el tabulador, y pagina el resto.
-- Una fila que contiene una casilla de verificación tiene al menos 44 de alto con la densidad regular, y 48 para el tacto con las dos densidades. Una fila compacta sigue siendo compacta para un puntero.
+- Cada casilla de verificación es una parada en el orden del foco. Limita una página de filas a un número que una persona pueda recorrer con el tabulador, y pagina el resto. Los botones de opción de una tabla son, juntos, una sola parada.
+- Una fila que contiene una casilla de verificación o un botón de opción tiene al menos 44 de alto con la densidad regular, y 48 para el tacto con las dos densidades. Una fila compacta sigue siendo compacta para un puntero.
 - Un [tag](/es/components/tag/) y el [código en línea](/es/components/inline-code/) son tonales salvo que elijas otra variante, y en el sistema predeterminado el relleno tonal es casi el de una fila elegida, así que sobre una fila elegida su forma se pierde. Su texto se sigue pudiendo leer. Usa el tag con contorno en una tabla cuyas filas se eligen.
 
 ### Pautas para la carga
@@ -515,7 +560,7 @@ Una fila no tiene altura propia. Es tan alta como la más alta de sus celdas.
 - No uses una tabla para componer una pantalla.
 - No dependas de las franjas ni del color para transmitir significado. Un estado en una celda es una palabra, o un tag cuya etiqueta lo dice.
 - No pongas un guion en una celda vacía para llenarla.
-- No hagas que una fila se pueda pulsar, y no escribas en un encabezado una marca de ordenación ni un orden propios. Un encabezado se puede pulsar por el marcado de más arriba y por nada más. Una fila se elige con su casilla de verificación, y las filas que abren algo no forman parte de la tabla.
+- No hagas que una fila se pueda pulsar, y no escribas en un encabezado una marca de ordenación ni un orden propios. Un encabezado se puede pulsar por el marcado de más arriba y por nada más. Una fila se elige con su casilla de verificación o su botón de opción, y las filas que abren algo no forman parte de la tabla.
 - No atenúes ni deshabilites una tabla mientras carga.
 
 ## Accesibilidad
@@ -539,16 +584,17 @@ Una fila no tiene altura propia. Es tan alta como la más alta de sus celdas.
 - El párrafo de la línea de estado es un estado: un cambio de su texto se dice de forma cortés, sin mover el foco, y no se dice nada cuando se dibuja por primera vez.
 - Con colores forzados, la etiqueta y la marca de un botón de ordenar toman el color de texto del botón, y la columna ordenada se distingue solo por su flecha.
 - Sin script, los botones de ordenar, sus marcas, la fila del estado vacío y la línea de estado se dibujan igualmente, y un enlace de ordenación funciona. El evento `sort` necesita script.
-- Una tabla cuyas filas se pueden elegir sigue siendo una tabla. No recibe el rol de cuadrícula, una fila no recibe el estado de seleccionada y ninguna tecla mueve el foco de celda en celda. El estado marcado de la casilla de verificación de una fila dice que la fila está elegida.
+- Una tabla cuyas filas se pueden elegir sigue siendo una tabla. No recibe el rol de cuadrícula, una fila no recibe el estado de seleccionada y ninguna tecla mueve el foco de celda en celda. El estado marcado de la casilla de verificación o del botón de opción de una fila dice que la fila está elegida.
 - La casilla de verificación de la fila de encabezado dice marcada, sin marcar o mixta mientras es indeterminada, y está deshabilitada mientras no hay ninguna fila que elegir.
 - Cada casilla de verificación es una parada propia en el orden del foco: primero la casilla y los botones de ordenar de la fila de encabezado, y después la casilla de cada fila. Espacio la marca o la desmarca.
-- La casilla de verificación de una fila que no tiene nombre propio recibe su nombre de la celda de encabezado de la fila.
+- La casilla de verificación o el botón de opción de una fila que no tiene nombre propio recibe su nombre de la celda de encabezado de la fila.
+- Con `single` los botones de opción son una sola parada: el tabulador llega al de la fila elegida (al de la primera fila mientras no hay ninguna elegida) y la siguiente pulsación sale de la tabla. Las teclas de flecha pasan al botón de opción de la fila siguiente o anterior y eligen esa fila, y al llegar al final vuelven al otro extremo. Cada botón de opción se oye con el nombre de su fila, su estado y su posición entre ellos, por ejemplo «Seleccionar Equipo, botón de opción, marcado, 2 de 3». No se envuelven en un grupo de botones de opción, que no puede contener las filas de una tabla.
 - Una pulsación en cualquier punto de una celda de selección pulsa su casilla de verificación. Cuando sustituyes las filas o cambias su orden mientras una casilla tiene el foco, el foco va a la casilla de la fila que tiene el mismo `data-value`.
 - Para un puntero, una fila que se puede elegir es un objetivo más grande para su casilla de verificación. La fila no recibe rol, parada de foco ni estado seleccionado, así que el teclado y un lector de pantalla encuentran la casilla, con su nombre, como antes, y el texto de la fila se sigue pudiendo seleccionar y copiar.
-- Con colores forzados, el relleno de una fila elegida desaparece, y la casilla de verificación sigue diciendo que la fila está elegida.
+- Con colores forzados, el relleno de una fila elegida desaparece, y la casilla de verificación o el botón de opción sigue diciendo que la fila está elegida.
 - Mientras `loading` está definido, la tabla se expone como ocupada (`aria-busy`). Las filas de marcador de posición quedan ocultas para la tecnología de apoyo, así que una persona oye que la tabla está ocupada y no filas de nada. La tabla no anuncia nada por sí misma cuando la carga empieza ni cuando termina.
 - Sin script, la columna de selección, una fila elegida (`data-selected`, o una casilla de verificación nativa que está marcada) y las filas de marcador de posición se dibujan igualmente, y las casillas de verificación nativas funcionan en tu formulario. Mantener al día la casilla de la fila de encabezado y el evento `selectionchange` necesitan script. Sin script, una fila no muestra el paso del cursor ni el cursor de puntero, y una pulsación junto a su casilla no cambia nada.
-- Las compilaciones de depuración notifican una tabla sin nombre, una densidad, una separación o una selección desconocidas, una fila de pie situada antes del cuerpo, una fila con más o con menos celdas que columnas, una columna que se puede ordenar sin encabezado, dos columnas ordenadas a la vez, la casilla de verificación de una fila sin nombre y una fila de marcador de posición en una tabla que no está en carga.
+- Las compilaciones de depuración notifican una tabla sin nombre, una densidad, una separación o una selección desconocidas, una fila de pie situada antes del cuerpo, una fila con más o con menos celdas que columnas, una columna que se puede ordenar sin encabezado, dos columnas ordenadas a la vez, la casilla de verificación de una fila sin nombre, varias filas marcadas como elegidas a la vez, un control del tipo equivocado con `single` y una fila de marcador de posición en una tabla que no está en carga.
 
 ### Qué debes hacer tú
 
@@ -568,7 +614,7 @@ Tanrei no incluye textos propios. La tabla te pide uno, el nombre de la casilla 
 | Texto | Dónde lo das |
 | --- | --- |
 | El nombre de la casilla de verificación de la fila de encabezado («Seleccionar todos los productos») | `select-all-label` en el elemento, o una sola vez para todas las tablas con `setWords({ selectAllLabel: 'Seleccionar todas las filas' })`. |
-| El nombre de la casilla de verificación de una fila («Seleccionar Molinillo manual») | `label` en el `<tanrei-checkbox>` de la fila, o `aria-label` en una casilla nativa. Con encabezados de fila puedes omitirlo: el encabezado de la fila da nombre a la casilla. |
+| El nombre de la casilla de verificación o del botón de opción de una fila («Seleccionar Molinillo manual») | `label` en el `<tanrei-checkbox>` o el `<tanrei-radio-button>` de la fila, o `aria-label` en uno nativo. Con encabezados de fila puedes omitirlo: el encabezado de la fila da nombre a la casilla. |
 | La frase de la línea de estado («Seleccionados: 2 de 4», «Cargando») | El párrafo de la línea de estado, o `status` en el elemento donde no escribes ningún párrafo. |
 
 Sin un nombre para la casilla de verificación de la fila de encabezado, la casilla se sigue dibujando y funciona, no tiene nombre accesible, y una compilación de depuración notifica el texto que falta.

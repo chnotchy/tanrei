@@ -7,8 +7,9 @@
 //   focus-ring  — the keyboard focus indicator (ring or glow), the glow alone (focusGlow) and syncFocusStyle()
 //   target      — the minimum target (::before), and neighbourTarget(): capped toward a neighbour in a row (BGR-4, SPB-6)
 //   cut-text    — isCut() and CutTextTip: a one-line text cut with an ellipsis, shown whole in a tooltip while it is cut (TRV-50)
-//   kept-length — KeptLengths and keptLength(): controls that stand close in a row keep a touch target's length each,
-//                 the gap between two growing only by what they lack (SRC-34, TBR-16)
+//   kept-length — KeptLengths, keptLength() and keptSpaces(): controls that stand close in a row keep a touch target's
+//                 length each, the gap between two growing only by what they lack (SRC-34, TBR-16); between slotted
+//                 elements the space is a spacer of the host's box, never a margin a page's reset could take away
 //   behavior    — reading a choice of kind from the cascade
 //   icon        — styles/icons.ts: `iconGlyph()` (a component's own icon, drawn as icons.css draws `.tanrei-icon`)
 //   glyph       — GlyphDrawnController: `data-drawn` on a component's glyph while the icon set can draw it (CHK-19, MNU-30, SNK-26)
@@ -46,6 +47,9 @@
 //                 disabled anchor), readDestination() / readTarget() / linkRel() (what a destination is), LINK_MARK,
 //                 DISABLED and styledAsAnchorToo() (the anchor is the same styled part)
 //   after-click — afterClick(): `change` after the `click` has gone through the page, as a native checkbox (CHP-11, BTN-14)
+//   long-press  — TOUCH_SLOP and LONG_PRESS, the platform's where it names none (LST-36, MNU-60), and swallowRelease():
+//                 the press under way ends where something opened under it, its release and click going no further
+//                 (TIP-13, MNU-60)
 //   default-button — a form's default button (BTN-30): defaultButton(), pressDefaultButton() — what every control that
 //                 submits its form on Enter calls in place of `form.requestSubmit()` — watchNativeInputs() for Enter in
 //                 the platform's own inputs, and SUBMIT_BUTTON, by which a Button says it is a submit button
@@ -211,7 +215,7 @@ export {
 } from './selection.js';
 export { minimumTarget, neighbourTarget } from './target.js';
 export { type CutTextContent, CutTextTip, type CutTextTipOptions, type CutTextTooltip, isCut } from './cut-text.js';
-export { KeptLengths, keptLength } from './kept-length.js';
+export { KeptLengths, keptLength, keptSpaces } from './kept-length.js';
 export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
 export { RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
 export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } from './interactive.js';
@@ -282,6 +286,7 @@ export {
 } from './divider-visibility.js';
 export { SEPARATIONS, SEPARATION_VALUES, type Separation, type SeparationProp, separationHost, separationOf, styleQueries, syncSeparation, whenGap } from './separation.js';
 export { afterClick } from './after-click.js';
+export { LONG_PRESS, TOUCH_SLOP, swallowRelease } from './long-press.js';
 export { SUBMIT_BUTTON, type SubmitButtonState, defaultButton, markPassingSubmitter, pressDefaultButton, watchNativeInputs } from './default-button.js';
 export {
   DISABLED,

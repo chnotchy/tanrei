@@ -199,7 +199,8 @@ test('the repository as it is today: which components are put together and which
   // drawer are built from it now and are put together (four fewer single parts, one more), and the bottom sheet, which
   // named no component before, is the fifty-third that names another; the image preview, the search and the
   // date-time picker, which named others already, are built from it too.
-  assert.equal(specs.filter((each) => namedComponents(each).length).length, 53);
+  // The list row is a single part that uses the Tooltip for a cut text: the fifty-fourth that names another component.
+  assert.equal(specs.filter((each) => namedComponents(each).length).length, 54);
   assert.deepEqual(specs.find((each) => each.name === 'text-field').builtFrom, ['field', 'text-input']);
   assert.deepEqual(specs.find((each) => each.name === 'text-input').uses, ['button']);
   assert.deepEqual(specs.find((each) => each.name === 'file-upload').builtFrom, ['file-picker', 'file-item']);

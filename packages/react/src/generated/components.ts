@@ -33,7 +33,7 @@ import { TanreiComboboxField as TanreiComboboxFieldElement } from '@tanrei/web/c
 import { TanreiCopyButton as TanreiCopyButtonElement, type TanreiCopyButtonCopiedDetail, type TanreiCopyButtonCopyFailedDetail } from '@tanrei/web/components/copy-button';
 import { TanreiDateTimePicker as TanreiDateTimePickerElement, type TanreiDateTimePickerChangeDetail, type TanreiDateTimePickerCloseDetail } from '@tanrei/web/components/date-time-picker';
 import { TanreiDescriptionList as TanreiDescriptionListElement } from '@tanrei/web/components/description-list';
-import { TanreiDialog as TanreiDialogElement } from '@tanrei/web/components/dialog';
+import { TanreiDialog as TanreiDialogElement, type TanreiDialogDismissDetail } from '@tanrei/web/components/dialog';
 import { TanreiDivider as TanreiDividerElement } from '@tanrei/web/components/divider';
 import { TanreiDropZone as TanreiDropZoneElement } from '@tanrei/web/components/drop-zone';
 import { TanreiEmbeddedTextInput as TanreiEmbeddedTextInputElement, type TanreiEmbeddedTextInputActionDetail, type TanreiEmbeddedTextInputRowsChangeDetail } from '@tanrei/web/components/embedded-text-input';
@@ -52,9 +52,10 @@ import { TanreiKeyboardShortcut as TanreiKeyboardShortcutElement } from '@tanrei
 import { TanreiLinkCard as TanreiLinkCardElement } from '@tanrei/web/components/link-card';
 import { TanreiList as TanreiListElement, type TanreiListMoveDetail, type TanreiListChangeDetail } from '@tanrei/web/components/list';
 import { TanreiListItem as TanreiListItemElement } from '@tanrei/web/components/list';
+import { TanreiListRow as TanreiListRowElement } from '@tanrei/web/components/list-row';
 import { TanreiLoadingIndicator as TanreiLoadingIndicatorElement } from '@tanrei/web/components/loading-indicator';
 import { TanreiMainActionButton as TanreiMainActionButtonElement } from '@tanrei/web/components/main-action-button';
-import { TanreiMenu as TanreiMenuElement, type TanreiMenuCloseDetail } from '@tanrei/web/components/menu';
+import { TanreiMenu as TanreiMenuElement, type TanreiMenuCloseDetail, type TanreiMenuContextRequestDetail } from '@tanrei/web/components/menu';
 import { TanreiMenuCheckboxItem as TanreiMenuCheckboxItemElement, type TanreiMenuCheckboxItemChangeDetail } from '@tanrei/web/components/menu';
 import { TanreiMenuGroup as TanreiMenuGroupElement, type TanreiMenuGroupChangeDetail } from '@tanrei/web/components/menu';
 import { TanreiMenuItem as TanreiMenuItemElement } from '@tanrei/web/components/menu';
@@ -198,7 +199,7 @@ export const AvatarGroup = createComponent({
  * Marks an icon, a navigation item or an avatar with a dot or a small count to show that something is waiting.
  *
  * Children, by their `slot`:
- * - default — The anchor the badge sits on: an icon, an icon button, a navigation item or an avatar. Its first element is the one that is described.
+ * - default — The anchor the badge sits on, which it needs: an icon, an icon button, a navigation item or an avatar. Its first element is the one that is described; with none, the badge draws nothing (BDG-16).
  */
 export const Badge = createComponent({
   tagName: 'tanrei-badge',
@@ -712,7 +713,7 @@ export const DescriptionList = createComponent({
  * - `actions` — The answers, one at least: Tanrei Buttons, each marked `confirming` or `dismissive`. The dialog places them and gives those without a `variant` its own.
  *
  * Events:
- * - `onCancel` (`cancel`) — Escape, back or a press on the scrim asked to close it (only while `closedby` is not `none`). Cancelable: `preventDefault()` keeps it open.
+ * - `onCancel` (`cancel`) — Escape, back, a press on the scrim or the close button asked to close it (only while `closedby` is not `none`): `detail.reason` is `escape`, `back`, `scrim` or `close`. Cancelable: `preventDefault()` keeps it open.
  * - `onClose` (`close`) — The dialog closed, whatever closed it.
  */
 export const Dialog = createComponent({
@@ -720,7 +721,7 @@ export const Dialog = createComponent({
   elementClass: TanreiDialogElement,
   react: React,
   events: {
-    onCancel: 'cancel' as EventName<TanreiEvent<TanreiDialogElement>>,
+    onCancel: 'cancel' as EventName<TanreiEvent<TanreiDialogElement, CustomEvent<TanreiDialogDismissDetail>>>,
     onClose: 'close' as EventName<TanreiEvent<TanreiDialogElement>>,
   },
 });
@@ -1037,6 +1038,20 @@ export const ListItem = createComponent({
 });
 
 /**
+ * One row of text with something before it and something after it: an overline, a headline and a line or two of supporting text; a glyph, an avatar, a picture or a control at its start; a short value, a control and a glyph at its end. Placed as the direct child of a `<tanrei-list-item>`, which tells it what the item is, or standing alone.
+ *
+ * Children, by their `slot`:
+ * - `leading` — Content at the row's start in place of `leading-icon`: an avatar, a picture, or — while the row is static — a checkbox, a radio button or a switch. Drawn at its own size, given no style.
+ * - `trailing` — Content at the row's end, after the trailing text and before the trailing glyph: a badge, or — while the row is static — a switch, a checkbox or an icon-only Button.
+ */
+export const ListRow = createComponent({
+  tagName: 'tanrei-list-row',
+  elementClass: TanreiListRowElement,
+  react: React,
+  events: {},
+});
+
+/**
  * Shows that a short wait of unknown length is under way, inline or over content.
  */
 export const LoadingIndicator = createComponent({
@@ -1067,6 +1082,7 @@ export const MainActionButton = createComponent({
  *
  * Events:
  * - `onClose` (`close`) — The menu asks to be closed, every open submenu with it: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
+ * - `onContextrequest` (`contextrequest`) — With `trigger="context"`: a person asked for the context menu in the area. `detail` is `{ x, y, element, input }` — client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. Set `open` to true; cancel it to leave the request to the browser's own context menu.
  */
 export const Menu = createComponent({
   tagName: 'tanrei-menu',
@@ -1074,6 +1090,7 @@ export const Menu = createComponent({
   react: React,
   events: {
     onClose: 'close' as EventName<TanreiEvent<TanreiMenuElement, CustomEvent<TanreiMenuCloseDetail>>>,
+    onContextrequest: 'contextrequest' as EventName<TanreiEvent<TanreiMenuElement, CustomEvent<TanreiMenuContextRequestDetail>>>,
   },
 });
 
@@ -1285,7 +1302,7 @@ export const NavigationDrawerGroup = createComponent({
  * One destination of a navigation drawer — the spec's item kind `destination`: an icon, a label (a short label while the drawer is collapsed), optional trailing content at the end of its row and an optional badge on its icon. A child of `<tanrei-navigation-drawer>`, of one of its sections or of one of its groups, in order.
  *
  * Children, by their `slot`:
- * - `trailing` — Content at the end of the expanded row, in place of `trailing-text`: a glyph of the icon set (drawn at comp.navigation-drawer.item.trailing-icon.size, e.g. `open_in_new`), a badge, a short text. Not interactive.
+ * - `trailing` — Content at the end of the expanded row, in place of `trailing-text`: a glyph of the icon set (drawn at comp.navigation-drawer.item.trailing-icon.size, e.g. `open_in_new`), a short text. Not interactive. A count belongs in `trailing-text`, and a badge on the icon (`badge`): a badge needs an anchor, and the end of the row has none.
  */
 export const NavigationDrawerItem = createComponent({
   tagName: 'tanrei-navigation-drawer-item',
@@ -1940,7 +1957,7 @@ export const TabView = createComponent({
  *
  * Events:
  * - `onSort` (`sort`) — The user pressed the header of a sortable column. `detail`: `{ column, index, direction }` — the header cell's `data-value`, its place among the columns of data (from 0) and the direction asked for (`ascending`, or `descending` where the rows ascend by it). The table changes nothing. Cancelable where the control is an anchor: cancelled, the link is not followed.
- * - `onSelectionchange` (`selectionchange`) — The user changed which rows are chosen, by a row's checkbox or by the header's. `detail`: `{ values }` — the `data-value` of every chosen row after the change, in row order. Not emitted for what the product writes.
+ * - `onSelectionchange` (`selectionchange`) — The user changed which rows are chosen, by a row's checkbox or radio button (or a press on the row, or an arrow key on a radio button) or by the header's checkbox. `detail`: `{ values }` — the `data-value` of every chosen row after the change, in row order; under `single`, the one chosen row's. Not emitted for what the product writes.
  */
 export const Table = createComponent({
   tagName: 'tanrei-table',

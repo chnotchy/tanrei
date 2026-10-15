@@ -1,0 +1,162 @@
+---
+title: صف القائمة
+description: سطر واحد من النص قبله شيء وبعده شيء. عنوان رئيسي، وسطر قصير فوقه وسطر أو سطران تحته؛ وفي البداية رمز أو صورة أو عنصر تحكم، وفي النهاية قيمة قصيرة أو رمز أو عنصر تحكم. يوضع في عنصر قائمة فيلائم كل أنماط القائمة، ويُستخدم وحده أيضًا.
+translationOf: components/list-row.mdx
+sourceHash: d8e65ec40db0948de1aa23f3b046ca843492f885
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="list-row" />
+
+<DemoFrame label="صفوف في قائمة: صف ثابت فيه مفتاح، وصف يفتح شيئًا، وصف هو رابط" plain>
+  <tanrei-list dividers style="inline-size: 22rem">
+    <tanrei-list-item>
+      <tanrei-list-row leading-icon="bluetooth" headline="بلوتوث" supporting-text="جهازان">
+        <tanrei-switch slot="trailing" label="بلوتوث" label-hidden selected></tanrei-switch>
+      </tanrei-list-row>
+    </tanrei-list-item>
+    <tanrei-list-item interactive>
+      <tanrei-list-row leading-icon="wifi" headline="واي فاي" supporting-text="متصل بشبكة Harbour" trailing-icon="chevron_right"></tanrei-list-row>
+    </tanrei-list-item>
+    <tanrei-list-item href="#list-row-demo-storage">
+      <tanrei-list-row leading-icon="folder" overline="مشترك" headline="صور الميناء" supporting-text="48 عنصرًا، عُدّلت اليوم" trailing-text="2.4 GB"></tanrei-list-row>
+    </tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+صف القائمة هو الصف الذي تتألف منه معظم القوائم: اسم، وسطر أو سطران عنه، وشيء قبله وشيء بعده. [القائمة](/ar/components/list/) صندوق يرتّب عناصره ويجعلها إجراءات أو روابط أو خيارات؛ وصف القائمة هو ما يعرضه عنصر واحد. ضعه في عنصر قائمة، أو استخدمه وحده حيث يلزم صف واحد.
+
+لا يرسم الصف إلا النص والرموز. ليس له تعبئة ولا حدّ ولا تمرير مؤشر ولا تركيز خاص به، ولا يصبح قابلًا للضغط بنفسه أبدًا: يقرّر ذلك عنصرُ القائمة الذي يحتويه.
+
+في الويب هو `<tanrei-list-row>`. ولم تنفّذه المنصات الأخرى بعد.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- في القائمة يكون الصف ابنًا مباشرًا للعنصر. والعنصر يجعله إجراءً أو رابطًا أو خيارًا. -->
+    <tanrei-list dividers>
+      <tanrei-list-item interactive>
+        <tanrei-list-row leading-icon="wifi" headline="واي فاي" supporting-text="متصل بشبكة Harbour"
+                         trailing-icon="chevron_right"></tanrei-list-row>
+      </tanrei-list-item>
+      <tanrei-list-item>
+        <!-- يمكن للصف الثابت أن يحمل عنصر تحكم خاصًا به؛ سمِّه بالعنوان الرئيسي للصف. -->
+        <tanrei-list-row headline="بلوتوث">
+          <tanrei-switch slot="trailing" label="بلوتوث" label-hidden></tanrei-switch>
+        </tanrei-list-row>
+      </tanrei-list-item>
+    </tanrei-list>
+
+    <!-- صورة في البداية، وثلاثة أسطر من النص. -->
+    <tanrei-list-row overline="أمس" headline="ميرا أوكادا" supporting-text="صور الميناء في المجلد المشترك الآن." supporting-lines="2">
+      <tanrei-avatar slot="leading" initials="MO" decorative></tanrei-avatar>
+    </tanrei-list-row>
+
+    <script type="module">
+      import '@tanrei/web/components/list';
+      import '@tanrei/web/components/list-row';
+      import '@tanrei/web/components/switch';
+      import '@tanrei/web/components/avatar';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { List, ListItem, ListRow } from '@tanrei/react';
+
+    <List dividers>
+      {networks.map((network) => (
+        <ListItem key={network.id} interactive onClick={() => open(network)}>
+          <ListRow leadingIcon="wifi" headline={network.name} supportingText={network.status} trailingIcon="chevron_right" />
+        </ListItem>
+      ))}
+    </List>
+    ```
+  </TabItem>
+</Tabs>
+
+### الصف في كل نوع من عناصر القائمة
+
+يعرف الصف من عنصر القائمة الذي يحتويه ما هذا العنصر، فيرسم نفسه ليلائمه:
+
+- **عنصر ثابت، أو صف وحده.** يرسم الصف حشوته وألوانه بنفسه. ويحتفظ عنصر التحكم في فتحته الأولى أو الأخيرة بتركيزه وضغطه.
+- **عنصر تفاعلي، أو عنصر رابط، أو خيار.** يضيف العنصر حشوة إلى محتواه، فلا يرسم الصف حشوة خاصة به ويحتفظ بارتفاعه: يبقى ارتفاع العمود الذي تختلط فيه العناصر الثابتة والقابلة للضغط واحدًا. ويأخذ العنصر اسمه من العنوان الرئيسي للصف، ووصفه من نصوصه الأخرى. ويرسم الخيار المختار نصوص الصف ورموزه بلون محتواه المختار.
+- **قائمة يُعاد ترتيبها.** يقف مقبض القائمة في بداية العنصر، قبل الصف، في مكان الحشوة الأولى للصف.
+- **قائمة أفقية، أو قائمة تلتف أسطرها.** في سطر واحد يكون الصف بعرض أجزائه ولا يُقصّ أبدًا؛ وفي أسطر تلتف لا يكون أعرض من القائمة، ويُقصّ نصه حيث يلزم.
+
+اجعل الصف ابنًا مباشرًا للعنصر. أما الصف الملفوف في عنصر آخر داخل عنصر القائمة فلا يُخبَر بشيء، ويُرسم كما يُرسم وحده.
+
+## المواصفات
+
+<DemoFrame label="سطر واحد وسطران وثلاثة أسطر؛ صورة وقيمة؛ compact" plain>
+  <tanrei-list-row headline="واي فاي" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="wifi" headline="واي فاي" supporting-text="متصل بشبكة Harbour" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="folder" overline="مشترك" headline="صور الميناء" supporting-text="48 عنصرًا، عُدّلت اليوم" trailing-text="2.4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
+</DemoFrame>
+
+<ComponentSpecs name="list-row" />
+
+## الإرشادات
+
+### متى تُستخدم
+
+استخدم صف القائمة لكل عنصر في قائمة أشخاص أو أماكن أو إعدادات أو رسائل أو ملفات تعرض كلها الأجزاء نفسها. وضع محتواك أنت في عنصر القائمة حين تكون العناصر مربعات أو بطاقات أو صورًا، واستخدم [عنصر الملف](/ar/components/file-item/) لملف يُرسَل.
+
+### الأجزاء
+
+| الجزء | الاستخدام |
+| --- | --- |
+| العنوان الرئيسي | اسم العنصر. به يُنادى عنصر القائمة لدى التقنيات المساعدة، وفي مقبض القائمة التي يُعاد ترتيبها، وفي البحث بالكتابة. |
+| السطر العلوي | فئة أو مصدر أو وقت قصير فوق الاسم. |
+| النص المساعد | ما يدور حوله العنصر، أو حالته، أو بداية رسالة: سطر واحد، أو سطران مع `supportingLines`. |
+| الرمز أو الفتحة في البداية | نوع الشيء الذي يمثله العنصر (`leadingIcon`)، أو صورته الرمزية أو صورته (الفتحة `leading`). |
+| النص في النهاية | قيمة قصيرة: عدد، أو حجم، أو وقت، أو القيمة الحالية لإعداد. |
+| الفتحة في النهاية | شارة، أو في الصف الثابت مفتاح أو مربع اختيار أو زر بأيقونة فقط. |
+| الرمز في النهاية | سهم يقول إن الصف يفتح شيئًا، أو حالة. |
+
+يُقصّ العنوان الرئيسي والسطر العلوي والنص المساعد بعلامة حذف حيث لا تتسع لها المساحة، ويعرض التلميح العنوان الرئيسي والنص المساعد المقصوصين كاملين عند تمرير المؤشر وعند تركيز لوحة المفاتيح. ولا يأخذ النص في النهاية أكثر من نصف الصف أبدًا.
+
+### الكثافة
+
+في النظام الافتراضي ترتفع صفوف `regular` إلى 56 و72 و88 لسطر واحد وسطرين وثلاثة أسطر، لمنتج يُستخدم باللمس وبالمؤشر معًا. وصفوف `compact` (40 و56 و72) لأداة تُستخدم بالمؤشر. ولا يكون الإجراء أو الرابط أو الخيار أبدًا أدنى من الحد الأدنى لارتفاع القائمة نفسها ومن هدف اللمس، أيًّا كانت الكثافة.
+
+### افعل
+
+- أعطِ كل صف عنوانًا رئيسيًا. واجعل السطر العلوي فئة قصيرة، والنص في النهاية قيمة قصيرة.
+- أعطِ كل صفوف العمود الواحد رمزًا أو صورة في البداية، أو لا تعطِ أيًّا منها، لتصطف النصوص.
+- اجعل الصف الذي يفتح شيئًا محتوى عنصر تفاعلي أو عنصر رابط.
+
+### لا تفعل
+
+- لا تضع عنصر تحكم في صف هو محتوى عنصر تفاعلي أو عنصر رابط أو خيار. فذلك العنصر عنصر واحد، ولا تستطيع التقنيات المساعدة الوصول إلى عنصر تحكم داخله. أبقِ هذا الصف ثابتًا.
+- لا تجعل الصف قابلًا للضغط بنفسك (بمعالج نقر على الصف). استخدم عنصر القائمة، الذي يحمل التركيز والحالات والهدف الأدنى.
+- لا تعتمد على الرمز في النهاية وحده لتقول ما يفعله الصف. يقول ذلك العنوانُ الرئيسي ودورُ العنصر.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="list-row" />
+
+### ما يتكفل به المكوّن
+
+- تُقرأ نصوص الصف نصًّا، بالترتيب الذي تُرسم به: السطر العلوي، ثم العنوان الرئيسي، ثم النص المساعد، ثم النص في النهاية. وتُخفى رموزه.
+- يأخذ عنصر القائمة الذي يحتوي الصف اسمه من العنوان الرئيسي للصف إن لم تكن له تسمية خاصة، ويوصف الإجراء أو الرابط أو الخيار بالسطر العلوي والنص المساعد والنص في النهاية.
+- يصل النص المقصوص كاملًا دائمًا إلى التقنيات المساعدة. ويُخفى تلميحه عنها، ويُفتح عند تمرير المؤشر وعند تركيز لوحة المفاتيح على العنصر، ويبقى ما دام المؤشر فوقه، ويُغلق بمفتاح Escape.
+- في التخطيط من اليمين إلى اليسار يُعكس الصف، ويحتفظ كل نص باتجاهه.
+- في الألوان المفروضة تأخذ النصوص والرموز لون نص النظام، ولون النص المعطّل في العنصر المعطّل.
+- تُبلغ إصدارات التصحيح عن صف بلا عنوان رئيسي، وعن `supportingLines` ليس 1 ولا 2، وعن رمز في البداية تحلّ محله الفتحة الأولى، وعن كثافة غير معروفة.
+
+### ما عليك فعله
+
+- أعطِ الصف `headline`.
+- سمِّ عنصر التحكم في الصف الثابت بالعنوان الرئيسي للصف: «بلوتوث» للمفتاح، و«إزالة brief.pdf» للزر.
+- أعطِ الصورة الرمزية أو الصورة في الفتحة الأولى بديلًا نصيًّا خاصًا بها، أو أخفِها حين يكون العنوان الرئيسي قد سمّى الشخص.

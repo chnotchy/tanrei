@@ -632,7 +632,7 @@ abstract class DrawerCell extends LitElement {
  * list item, its position counted among the items of its level.
  *
  * @tag tanrei-navigation-drawer-item
- * @slot trailing - Content at the end of the expanded row, in place of `trailing-text`: a glyph of the icon set (drawn at comp.navigation-drawer.item.trailing-icon.size, e.g. `open_in_new`), a badge, a short text. Not interactive.
+ * @slot trailing - Content at the end of the expanded row, in place of `trailing-text`: a glyph of the icon set (drawn at comp.navigation-drawer.item.trailing-icon.size, e.g. `open_in_new`), a short text. Not interactive. A count belongs in `trailing-text`, and a badge on the icon (`badge`): a badge needs an anchor, and the end of the row has none.
  * @csspart cell - The whole cell: the native button or link, the hit area.
  * @csspart container - The item container: the row while expanded (starting `item.nest-indent` further in per level of nesting), and while collapsed the row cut after its icon, with the row's height and corners in the default system; the state layer's box, the focus ring's and the ripple's.
  * @csspart active-indicator - The fill of the item container (the active indicator while selected): it changes color in place and is never resized to show a selection.

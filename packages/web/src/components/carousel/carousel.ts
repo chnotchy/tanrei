@@ -1,6 +1,8 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
-import { AvailabilityController, DIRECTION_PROBE, DirectionController, PressController, RovingKeys, hostAria, report, slottedInteractive, syncFocusStyle, WordsController } from '../../primitives/index.js';
+import { exported } from '../../primitives/composed.js';
+import { AvailabilityController, BUTTON_VARIANTS, compChoice, DIRECTION_PROBE, DirectionController, giveVariant, PressController, RovingKeys, hostAria, report, slottedInteractive, SystemWatchController, syncFocusStyle, WordsController } from '../../primitives/index.js';
+import { TanreiButton } from '../button/button.js';
 import { CarouselGeometry, type TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 import { carouselStyles, itemStyles } from './carousel.styles.js';
 
@@ -12,6 +14,13 @@ export type { TanreiCarouselHeroAlignment } from './carousel-geometry.js';
  */
 export type TanreiCarouselContentAlignment = 'center' | 'toward-hero';
 
+/**
+ * Whether the previous and next controls are drawn over the ends of the row (CRL-41, CRL-42): `auto` where the primary
+ * pointer is fine and can hover, shown while the carousel is hovered or holds focus; `always` everywhere, at all times;
+ * `none` never.
+ */
+export type TanreiCarouselNavigation = 'auto' | 'always' | 'none';
+
 /** The detail of `pausedchange`: the new value of `paused`. */
 export interface TanreiCarouselPausedChangeDetail {
   paused: boolean;
@@ -19,6 +28,17 @@ export interface TanreiCarouselPausedChangeDetail {
 
 const HERO_ALIGNMENTS: readonly TanreiCarouselHeroAlignment[] = ['start', 'center'];
 const CONTENT_ALIGNMENTS: readonly TanreiCarouselContentAlignment[] = ['center', 'toward-hero'];
+const NAVIGATIONS: readonly TanreiCarouselNavigation[] = ['auto', 'always', 'none'];
+
+/** The previous and next controls (CRL-41), in the order Tab visits them; each is a part of that name. */
+const NAV_CONTROLS = ['previous', 'next'] as const;
+type NavControl = (typeof NAV_CONTROLS)[number];
+/** Each control's glyph: a ligature of the system's icon set, mirrored by the Button where the set says so (CRL-23). */
+const NAV_GLYPHS: Record<NavControl, string> = { previous: 'chevron_left', next: 'chevron_right' };
+/** Each Button's documented parts under the control's name: `previous-container`, `previous-label`, `previous-icon`. */
+const NAV_PARTS = Object.fromEntries(
+  NAV_CONTROLS.map((control) => [control, exported(TanreiButton, Object.fromEntries(TanreiButton.parts.map((part) => [part, { as: `${control}-${part}` }])))]),
+) as Record<NavControl, { attribute: string; names: string[] }>;
 
 /**
  * A release at least this fast is a fling (CRL-14), in px per ms: the web names no minimum fling velocity of its own,
@@ -241,7 +261,8 @@ type Motion = 'scroll' | 'autoplay';
  * horizontal scroller — wheel, trackpad, touch and pen scroll it as the platform does — whose track is as long as the
  * scroll range; it places every item from the scroll offset (CRL-12), and settles at a resting position when a scroll
  * ends while `snap` is true (CRL-14). The items are one Tab stop; the arrow keys, Home and End move between items and
- * bring the focused one into place (CRL-17, CRL-18). Below the items, a controls row holds the page indicator (one
+ * bring the focused one into place (CRL-17, CRL-18). Over the ends of the row, a previous and a next control move it one
+ * resting position (CRL-41 – CRL-43). Below the items, a controls row holds the page indicator (one
  * slider, CRL-29 – CRL-31) and the playback control (CRL-35). Every visual value comes from `--tanrei-comp-carousel-*`
  * tokens.
  *
@@ -253,12 +274,18 @@ type Motion = 'scroll' | 'autoplay';
  * @csspart indicator - The dots: one slider, named by `label`.
  * @csspart dot - One dot of the indicator.
  * @csspart playback - The playback control: a native button that pauses and plays autoplay.
+ * @csspart previous - The previous control over the row's inline start: a `<tanrei-button>`.
+ * @csspart next - The next control over the row's inline end: a `<tanrei-button>`.
+ * @exportparts tanrei-button container: previous-container, label: previous-label, icon: previous-icon
+ * @exportparts tanrei-button container: next-container, label: next-label, icon: next-icon
  * @fires {CustomEvent<TanreiCarouselPausedChangeDetail>} pausedchange - The person paused or played autoplay with the playback control; `detail.paused` is the new value. Not fired when `paused` is set, nor for a hold.
  */
 export class TanreiCarousel extends LitElement {
   private readonly availability = new AvailabilityController(this, 'carousel');
   /** The product's words, read where the instance gives none (src/primitives/words.ts). */
   private readonly words = new WordsController(this);
+  /** CRL-41: the controls' variant is a token's choice, read again when the page switches its design system. */
+  private readonly system = new SystemWatchController(this);
   static override styles = [carouselStyles, hiddenHost];
 
   static override properties: PropertyDeclarations = {
@@ -271,6 +298,7 @@ export class TanreiCarousel extends LitElement {
     scaleOthers: { type: Boolean, attribute: 'scale-others', reflect: true },
     snap: { attribute: 'free-scroll', reflect: true, converter: inverse },
     loop: { type: Boolean, reflect: true },
+    navigation: { type: String, reflect: true },
     indicator: { type: Boolean, reflect: true },
     autoplay: { type: Boolean, reflect: true },
     autoplayInterval: { attribute: 'autoplay-interval', converter: numberConverter },
@@ -279,12 +307,16 @@ export class TanreiCarousel extends LitElement {
     autoplayProgress: { type: Boolean, attribute: 'autoplay-progress', reflect: true },
     playLabel: { type: String, attribute: 'play-label' },
     pauseLabel: { type: String, attribute: 'pause-label' },
+    previousLabel: { type: String, attribute: 'previous-label' },
+    nextLabel: { type: String, attribute: 'next-label' },
     label: { type: String },
     restingCount: { state: true },
     indicatorFits: { state: true },
     current: { state: true },
     reducedMotion: { state: true },
     glyphReady: { state: true },
+    firstDisabled: { state: true },
+    lastDisabled: { state: true },
   };
 
   /** Where the item in focus sits: `center` (the middle of the row, items on both sides) or `start` (the inner start edge). An unknown value is drawn as `center` and reported (CRL-24). Reflected. */
@@ -313,6 +345,14 @@ export class TanreiCarousel extends LitElement {
   /** Whether the row is endless (CRL-27). Takes effect only with two or more items. */
   loop = false;
 
+  /**
+   * Whether the previous and next controls are drawn over the ends of the row (CRL-41, CRL-42): `auto` (the default)
+   * where the primary pointer is fine and can hover, shown while the carousel is hovered or holds focus; `always` on
+   * every device, at all times; `none` never. Keep `auto` wherever you can: without the controls a mouse moves the row
+   * only with Shift and the wheel (WCAG 2.5.7). An unknown value is `auto`, reported (CRL-24). Reflected.
+   */
+  navigation: TanreiCarouselNavigation = 'auto';
+
   /** Draws the dots below the items: one per resting position, the current one stretched (CRL-29). */
   indicator = false;
 
@@ -337,6 +377,12 @@ export class TanreiCarousel extends LitElement {
   /** The playback control's accessible name while autoplay is playing ("Pause the slideshow"). Required while it can be drawn. */
   pauseLabel = '';
 
+  /** The previous control's accessible name ("Previous walk"). Required while the control can be drawn (CRL-41). */
+  previousLabel = '';
+
+  /** The next control's accessible name ("Next walk"). Required while the control can be drawn (CRL-41). */
+  nextLabel = '';
+
   /** Names the carousel's list and its indicator for assistive technology ("Recently played"). Required. */
   label = '';
 
@@ -350,6 +396,9 @@ export class TanreiCarousel extends LitElement {
   private reducedMotion = false;
   /** CRL-38: whether the icon set can draw the playback glyphs. */
   private glyphReady = false;
+  /** CRL-43: the row is at, or moving to, its first or its last resting position, and does not loop. */
+  private firstDisabled = false;
+  private lastDisabled = false;
 
   private readonly itemKeys = new RovingKeys({ wrap: false });
   private readonly loopKeys = new RovingKeys({ wrap: true });
@@ -475,6 +524,16 @@ export class TanreiCarousel extends LitElement {
   /** CRL-24: the content alignment drawn. */
   private get drawnContent(): TanreiCarouselContentAlignment {
     return CONTENT_ALIGNMENTS.includes(this.contentAlignment) ? this.contentAlignment : 'center';
+  }
+
+  /** CRL-24: the navigation drawn — `navigation`, or the default while it names a value the carousel does not define. */
+  private get drawnNavigation(): TanreiCarouselNavigation {
+    return NAVIGATIONS.includes(this.navigation) ? this.navigation : 'auto';
+  }
+
+  /** CRL-41: whether the previous and next controls are in the tree (`auto` leaves the pointer's kind to CSS). */
+  private get navigationDrawn(): boolean {
+    return this.drawnNavigation !== 'none' && this.restingCount >= 2;
   }
 
   /** CRL-29: whether the indicator is drawn. */
@@ -680,6 +739,16 @@ export class TanreiCarousel extends LitElement {
       item.place({ start: starts.get(index)!, width: w, content: hero, contentLeft, scale, narrow: transit });
     });
     this.paintDots(p);
+    this.syncEnds();
+  }
+
+  /** CRL-43: the previous control is disabled at (or on the way to) the first resting position, the next at the last. */
+  private syncEnds() {
+    const geometry = this.geometry;
+    if (!geometry) return;
+    const { first, last } = geometry.atEnds(geometry.position(this.target ?? this.offset));
+    if (first !== this.firstDisabled) this.firstDisabled = first;
+    if (last !== this.lastDisabled) this.lastDisabled = last;
   }
 
   /** CRL-29, CRL-36: each dot's stretch and fill for the position `p`; the value of the slider. */
@@ -1124,6 +1193,46 @@ export class TanreiCarousel extends LitElement {
     syncFocusStyle(this, event.currentTarget as HTMLElement);
   };
 
+  // ── The previous and next controls (CRL-41 – CRL-43) ─────────────────────────────────────────────
+
+  /**
+   * CRL-43: one resting position back or on from where the row is — or is going, so that presses in a row add up — over
+   * the scroll motion; round the ring under loop. The items' Tab stop follows; focus stays on the control. The move is
+   * the person's: autoplay's time starts from zero once the row is at rest (CRL-33).
+   */
+  private navigate(direction: 1 | -1) {
+    const geometry = this.geometry;
+    if (!geometry) return;
+    const from = geometry.position(this.target ?? this.offset);
+    const to = geometry.adjacentResting(from, direction);
+    if (Math.abs(to - from) > 1e-3) this.moveTo(to);
+    this.syncEnds();
+  }
+
+  private readonly onPrevious = () => this.navigate(-1);
+  private readonly onNext = () => this.navigate(1);
+
+  /** CRL-41: each control is told the variant its token names, through the channel a Button reads from the component that places it (BTN-10). */
+  private giveVariants() {
+    const variant = compChoice(this, '--tanrei-comp-carousel-navigation-button-variant', BUTTON_VARIANTS);
+    for (const control of NAV_CONTROLS) giveVariant(this.renderRoot?.querySelector(`tanrei-button.${control}`), variant);
+  }
+
+  private navControl(control: NavControl) {
+    const label = control === 'previous' ? this.words.get('previousItemLabel', this.previousLabel) : this.words.get('nextItemLabel', this.nextLabel);
+    return html`<tanrei-button
+      part=${control}
+      exportparts=${NAV_PARTS[control].attribute}
+      class="navigation ${control} ${this.drawnNavigation}"
+      size="medium"
+      label=${label}
+      .focusableWhenDisabled=${true}
+      .disabled=${control === 'previous' ? this.firstDisabled : this.lastDisabled}
+      @click=${control === 'previous' ? this.onPrevious : this.onNext}
+      ><span slot="icon">${NAV_GLYPHS[control]}</span></tanrei-button
+    >`;
+  }
+
   // ── Autoplay (CRL-32 – CRL-36) ──────────────────────────────────────────────────────────────────
 
   /** How long the row rests before it advances, in ms: `autoplayInterval`, or comp.carousel.autoplay.interval through a real property. */
@@ -1320,12 +1429,21 @@ export class TanreiCarousel extends LitElement {
       if (missing) this.reportOnce('labels', missing, 'CRL-20', `autoplay is on and the playback control is drawn, but ${missing} is empty, so the control has no accessible name in that state; give it both labels ("Pause the slideshow", "Play the slideshow")`);
       else this.reported.delete('labels');
     }
+    // CRL-20: the previous and next controls without their names.
+    if (this.navigationDrawn) {
+      if (!this.words.get('previousItemLabel', this.previousLabel)) this.words.missing('previousItemLabel', { prop: 'previousLabel', id: 'CRL-20', effect: 'the previous control is drawn and has no accessible name' });
+      if (!this.words.get('nextItemLabel', this.nextLabel)) this.words.missing('nextItemLabel', { prop: 'nextLabel', id: 'CRL-20', effect: 'the next control is drawn and has no accessible name' });
+    }
+    this.giveVariants();
     // CRL-24: an unknown alignment is drawn as the default; an itemWidth or autoplayInterval that is not a positive number is null.
     if (changed.has('heroAlignment') && !HERO_ALIGNMENTS.includes(this.heroAlignment)) {
       this.reportOnce('heroAlignment', this.heroAlignment, 'CRL-24', `heroAlignment "${this.heroAlignment}" is not a hero alignment of the carousel; it is drawn as "center"`);
     }
     if (changed.has('contentAlignment') && !CONTENT_ALIGNMENTS.includes(this.contentAlignment)) {
       this.reportOnce('contentAlignment', this.contentAlignment, 'CRL-24', `contentAlignment "${this.contentAlignment}" is not a content alignment of the carousel; it is drawn as "center"`);
+    }
+    if (changed.has('navigation') && !NAVIGATIONS.includes(this.navigation)) {
+      this.reportOnce('navigation', this.navigation, 'CRL-24', `navigation "${this.navigation}" is not a navigation of the carousel; it is drawn as "auto"`);
     }
     if (changed.has('itemWidth') && this.itemWidth !== null && this.itemWidth !== undefined && positive(this.itemWidth) === null) {
       this.reportOnce('itemWidth', this.itemWidth, 'CRL-24', `itemWidth ${String(this.itemWidth)} is not a positive number of CSS pixels; comp.carousel.container.large-width is used instead`);
@@ -1348,6 +1466,7 @@ export class TanreiCarousel extends LitElement {
     const d = this.restingCount;
     const indicator = this.indicatorDrawn;
     const playback = this.playbackDrawn;
+    const navigation = this.navigationDrawn;
     const current = Math.min(this.current, Math.max(0, d - 1));
     const geometry = this.geometry;
     // CRL-8, CRL-9: the hero's width where the product names one — the row's own width in a box as wide as its content.
@@ -1355,7 +1474,8 @@ export class TanreiCarousel extends LitElement {
     const valueText = geometry ? (this.laidOut[geometry.restingIndex(geometry.restingPosition(current, geometry.middle + current))]?.label ?? '') : '';
     // The playback control comes first in the tree, so that it is the first Tab stop (CRL-17); it is drawn in the
     // controls row, at its inline end (CRL-28).
-    // The row is no Tab stop of its own (CRL-17: at most three): Firefox makes every scroller one, so it is taken out
+    // The previous and next controls come next, before the row, over whose ends they are drawn (CRL-17, CRL-41).
+    // The row is no Tab stop of its own (CRL-17: at most five): Firefox makes every scroller one, so it is taken out
     // of the order (`tabindex="-1"`). The keys reach the items, which bring themselves into place (CRL-18).
     return html`
       ${playback
@@ -1378,6 +1498,8 @@ export class TanreiCarousel extends LitElement {
             <span class="icon hold${this.glyphReady ? '' : ' loading'}" aria-hidden="true">${this.paused ? GLYPH_PLAY : GLYPH_PAUSE}</span>
           </button>`
         : nothing}
+      <div class="viewport">
+      ${navigation ? NAV_CONTROLS.map((control) => this.navControl(control)) : nothing}
       <div
         part="row"
         class="scroller"
@@ -1394,6 +1516,7 @@ export class TanreiCarousel extends LitElement {
         <div class="track">
           <div part="list" class="stage" role="list" aria-label=${this.label || nothing}><slot @slotchange=${() => this.arrange()}></slot></div>
         </div>
+      </div>
       </div>
       ${indicator || playback
         ? html`<div part="controls" class="controls">

@@ -20816,6 +20816,15 @@
             ]
           }
         },
+        "navigation": {
+          "button": {
+            "variant": {
+              "$type": "number",
+              "$value": 2,
+              "$description": "The Button variant of the previous and next controls, icon-only medium Buttons that stand over the ends of the row (CRL-41): elevated by default, a light fill with a shadow, so that the control stands apart from whatever the item under it shows. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+            }
+          }
+        },
         "playback": {
           "container": {
             "color": {
@@ -33241,6 +33250,11 @@
             "$type": "number",
             "$value": 0,
             "$description": "Which ways of setting a time the picker offers. both: wheels and dial, chosen by two icon-only tabs; wheels: wheels only; dial: dial only. With one, no entry-mode tabs are drawn and entryMode is ignored. The value is an index into dev.tanrei.enum.values; platforms receive the name."
+          },
+          "unavailable-opacity": {
+            "$type": "number",
+            "$value": 0.38,
+            "$description": "How much is left of an hour, a minute or a period that min and max put out of reach, on a wheel, on the period wheel and on the dial. It keeps its place, so that no other value moves, and recedes by opacity from whatever color its place gives it: the system's own for disabled content."
           }
         },
         "unselected": {
@@ -33945,6 +33959,13 @@
             "$description": "The Button variant the dialog gives an action whose variant the product did not set (DLG-20). An action whose variant is set keeps it. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
           }
         },
+        "close-button": {
+          "variant": {
+            "$type": "number",
+            "$value": 4,
+            "$description": "The Button variant of the close button, an icon-only small Button at the header's end (DLG-25). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name."
+          }
+        },
         "compact": {
           "window-width": {
             "$type": "dimension",
@@ -34189,7 +34210,7 @@
               "value": 12,
               "unit": "px"
             },
-            "$description": "Between the icon and the headline beside it, while the icon sits at the headline's start (icon.placement inline)."
+            "$description": "Between the icon and the headline beside it, while the icon sits at the headline's start (icon.placement inline), and between the headline and the close button at the header's end."
           }
         },
         "headline": {
@@ -34362,6 +34383,32 @@
               },
               "lineHeight": 1.5714
             }
+          }
+        },
+        "width": {
+          "large": {
+            "$type": "dimension",
+            "$value": {
+              "value": 800,
+              "unit": "px"
+            },
+            "$description": "The container's width while the dialog's width is large (DLG-27): content that needs room, a table or a preview. Never wider than the window less container.margin on each side."
+          },
+          "medium": {
+            "$type": "dimension",
+            "$value": {
+              "value": 560,
+              "unit": "px"
+            },
+            "$description": "The container's width while the dialog's width is medium (DLG-27): a form or a list of choices. Never wider than the window less container.margin on each side."
+          },
+          "small": {
+            "$type": "dimension",
+            "$value": {
+              "value": 400,
+              "unit": "px"
+            },
+            "$description": "The container's width while the dialog's width is small (DLG-27): a short form or a confirmation whose width should not follow its text. Never wider than the window less container.margin on each side."
           }
         }
       },
@@ -53225,6 +53272,298 @@
           }
         }
       },
+      "list-row": {
+        "container": {
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "Between the leading part, the text and the trailing part, and between the trailing text, the trailing slot's content and the trailing glyph."
+          },
+          "height": {
+            "one-line": {
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 40,
+                  "unit": "px"
+                }
+              },
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                }
+              }
+            },
+            "three-line": {
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 72,
+                  "unit": "px"
+                }
+              },
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 88,
+                  "unit": "px"
+                }
+              }
+            },
+            "two-line": {
+              "compact": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 56,
+                  "unit": "px"
+                }
+              },
+              "regular": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 72,
+                  "unit": "px"
+                }
+              }
+            }
+          },
+          "padding-block": {
+            "compact": {
+              "$type": "dimension",
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              }
+            },
+            "regular": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              }
+            }
+          },
+          "padding-inline-end": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "After the row's last part, while the row draws its own paddings."
+          },
+          "padding-inline-start": {
+            "$type": "dimension",
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$description": "Before the row's first part, while the row draws its own paddings. The same as a list item's, so that a row in a static item and one in an action line up."
+          }
+        },
+        "headline": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.9216,
+                0.9216,
+                0.9216
+              ],
+              "hex": "#ebebeb",
+              "alpha": 1
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Inter",
+                "Noto Sans JP",
+                "Noto Sans",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 14,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0,
+                "unit": "px"
+              },
+              "lineHeight": 1.5714
+            },
+            "$description": "The row's name. The text style a list item hands plain text, so that a row and a plain item read alike."
+          }
+        },
+        "leading-icon": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.6275,
+                0.6275,
+                0.6275
+              ],
+              "hex": "#a0a0a0",
+              "alpha": 1
+            }
+          },
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "The box of the glyph before the text."
+          }
+        },
+        "overline": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.6275,
+                0.6275,
+                0.6275
+              ],
+              "hex": "#a0a0a0",
+              "alpha": 1
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Inter",
+                "Noto Sans JP",
+                "Noto Sans",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 12,
+                "unit": "px"
+              },
+              "fontWeight": 500,
+              "letterSpacing": {
+                "value": 0.12,
+                "unit": "px"
+              },
+              "lineHeight": 1.3333
+            },
+            "$description": "The short line above the headline: a category, a source, a time."
+          }
+        },
+        "supporting-text": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.6275,
+                0.6275,
+                0.6275
+              ],
+              "hex": "#a0a0a0",
+              "alpha": 1
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Inter",
+                "Noto Sans JP",
+                "Noto Sans",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 13,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0.065,
+                "unit": "px"
+              },
+              "lineHeight": 1.5385
+            },
+            "$description": "The line or two under the headline."
+          }
+        },
+        "trailing-icon": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.6275,
+                0.6275,
+                0.6275
+              ],
+              "hex": "#a0a0a0",
+              "alpha": 1
+            }
+          },
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "The box of the glyph at the row's end: a chevron that says the row opens something, a status."
+          }
+        },
+        "trailing-text": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0.6275,
+                0.6275,
+                0.6275
+              ],
+              "hex": "#a0a0a0",
+              "alpha": 1
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": {
+              "fontFamily": [
+                "Inter",
+                "Noto Sans JP",
+                "Noto Sans",
+                "system-ui",
+                "sans-serif"
+              ],
+              "fontSize": {
+                "value": 13,
+                "unit": "px"
+              },
+              "fontWeight": 400,
+              "letterSpacing": {
+                "value": 0.065,
+                "unit": "px"
+              },
+              "lineHeight": 1.5385
+            },
+            "$description": "The short value at the row's end: a count, a size, a time, a setting's current value."
+          }
+        }
+      },
       "list": {
         "container": {
           "gap": {
@@ -53621,7 +53960,7 @@
                 "alpha": 0.16,
                 "hex": "#e2e2e2"
               },
-              "$description": "The fill of a selected option, drawn over whatever the list stands on and under the item's content (LST-25). The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the item's own content color (selected.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json), as the menu values its checked row, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered item. A design system that sets this token draws what it sets. The check is always drawn with the fill; the fill never carries the choice alone."
+              "$description": "The fill of a selected option, drawn over whatever the list stands on and under the item's content (LST-25). The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the item's own content color (selected.state-layer.color at the selected layer, sys.state.selected-state-layer-opacity: 16 %, twice the hover layer: tokens/systems/tanrei.system.json), as the menu values its checked row, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered item. A design system that sets this token draws what it sets. The check is always drawn with the fill; the fill never carries the choice alone."
             }
           },
           "content": {
@@ -57067,7 +57406,7 @@
             "opacity": {
               "$type": "number",
               "$value": 0.16,
-              "$description": "The opacity the fill inside a checked ring is drawn at, applied to the control color of the condition and state. The radio button's own value; where the fill meets the ring it is held 3:1 against the ring on the menu's sheet, the checked row's fill under it (WCAG 1.4.11)."
+              "$description": "The opacity the fill inside a checked ring is drawn at, applied to the control color of the condition and state: the selected layer, as the radio button's own fill is. Where the fill meets the ring it is held 3:1 against the ring on the menu's sheet, the checked row's fill under it (WCAG 1.4.11)."
             }
           },
           "mark": {
@@ -57133,7 +57472,7 @@
                 "alpha": 0.16,
                 "hex": "#e2e2e2"
               },
-              "$description": "The fill of the link item that names the page the person is on (MNU-58): it has no mark, so this fill tells it from its neighbours, in every contrast scheme. The default system values it as a layer of the row's own content color (current.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json); the menubar's current link item draws the same fill."
+              "$description": "The fill of the link item that names the page the person is on (MNU-58): it has no mark, so this fill tells it from its neighbours, in every contrast scheme. The default system values it as a layer of the row's own content color (current.state-layer.color at the selected layer, sys.state.selected-state-layer-opacity: 16 %, twice the hover layer: tokens/systems/tanrei.system.json); the menubar's current link item draws the same fill."
             }
           },
           "control-mark": {
@@ -59692,7 +60031,7 @@
                 "alpha": 0,
                 "hex": "#e2e2e2"
               },
-              "$description": "The fill of a checked item's row, drawn over the menu's sheet (MNU-37). A checked item is told by its mark; this fill only supports it. The role named here is the quiet selection's; the default system does not draw that tone on the sheet — it values this token as a layer of the row's own content color (selected.state-layer.color), none at standard contrast and 16% at medium and high contrast (tokens/systems/tanrei.system.json), so that a person who asks for more contrast is given the fill as a second cue. A design system that sets this token draws what it sets."
+              "$description": "The fill of a checked item's row, drawn over the menu's sheet (MNU-37). A checked item is told by its mark; this fill only supports it. The role named here is the quiet selection's; the default system does not draw that tone on the sheet — it values this token as a layer of the row's own content color (selected.state-layer.color), none at standard contrast and the selected layer (sys.state.selected-state-layer-opacity, 16 %) at medium and high contrast (tokens/systems/tanrei.system.json), so that a person who asks for more contrast is given the fill as a second cue. A design system that sets this token draws what it sets."
             }
           },
           "control-mark": {
@@ -74157,7 +74496,7 @@
           "opacity": {
             "$type": "number",
             "$value": 0.16,
-            "$description": "The opacity the fill is drawn at, applied to the fill color of the condition and state. The fill lies inside the ring, never under it, so a translucent ring (disabled) never shows the fill through it. Where the fill meets the ring (fill.inset 0), the fill as drawn is held 3:1 against the ring in every enabled state, on every surface role (WCAG 1.4.11)."
+            "$description": "The opacity the fill is drawn at, applied to the fill color of the condition and state. The fill lies inside the ring, never under it, so a translucent ring (disabled) never shows the fill through it. Where the fill meets the ring (fill.inset 0), the fill as drawn is held 3:1 against the ring in every enabled state, on every surface role (WCAG 1.4.11). The default system draws it as the selected layer, the step a checked menu row, a selected list option and the tonal tabs' indicator take: light enough that the fill stands 3:1 apart from the ring it meets (3.17:1 at the least, the focused error form on surface-container-highest in light), where a half did not (1.91:1). A design system that draws an opaque dot sets this token to 1."
           }
         },
         "focused": {
@@ -98670,7 +99009,7 @@
                   "alpha": 0.16,
                   "hex": "#e2e2e2"
                 },
-                "$description": "The active indicator of tonal tabs: the quiet selection. The role named here is the tonal container's; the default system does not draw that tone — it values this token as a layer of the selected tab's own content color (selected.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json), so that the indicator is seen by the same step on the track and on whatever surface a row without a track stands on. A design system that sets this token draws what it sets."
+                "$description": "The active indicator of tonal tabs: the quiet selection. The role named here is the tonal container's; the default system does not draw that tone — it values this token as a layer of the selected tab's own content color (selected.state-layer.color at the selected layer, sys.state.selected-state-layer-opacity: 16 %, twice the hover layer: tokens/systems/tanrei.system.json), so that the indicator is seen by the same step on the track and on whatever surface a row without a track stands on. A design system that sets this token draws what it sets."
               }
             },
             "container": {
@@ -110090,6 +110429,11 @@
         "pressed-state-layer-opacity": {
           "$type": "number",
           "$value": 0.1
+        },
+        "selected-state-layer-opacity": {
+          "$type": "number",
+          "$value": 0.16,
+          "$description": "The quiet selection: the chosen item of a set drawn as a layer of its own content color over whatever it stands on — a menu's current link item (and its checked row, at medium and high contrast), a list's selected option, the tonal tabs' indicator, the tint inside a checked radio ring. Twice the hover layer, so a selected item stands as far from a hovered one as a hovered one stands from one at rest, by the same step on any surface. The selection is never carried by this fill alone: a check, a mark or the label says it too."
         }
       },
       "target": {

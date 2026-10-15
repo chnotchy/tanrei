@@ -190,6 +190,11 @@ export interface TanreiTreeViewDensityRegistry {
   compact: true;
 }
 
+export interface TanreiListRowDensityRegistry {
+  regular: true;
+  compact: true;
+}
+
 export interface TanreiPageHeaderSizeRegistry {
   small: true;
   medium: true;

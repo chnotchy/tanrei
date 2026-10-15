@@ -61,7 +61,7 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
   </tanrei-button>
 </tanrei-app-bar>
 <tanrei-menu class="docs-frame-menu" anchor="docs-language" placement="bottom-end">
-  {languages.map(({ lang, label, href, current }) => <tanrei-menu-item lang={lang} label={label} href={href} trailing-icon={current ? 'check' : undefined} />)}
+  {languages.map(({ lang, label, href, current }) => <tanrei-menu-item lang={lang} label={label} href={href} current={current || undefined} />)}
 </tanrei-menu>
 <tanrei-menu class="docs-frame-menu" anchor="docs-more" placement="bottom-end">
   <tanrei-menu-group class="docs-theme-group" label={words.theme} value="auto">
@@ -70,7 +70,7 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
     <tanrei-menu-radio-item value="dark" label={t.dark} leading-icon="dark_mode" />
   </tanrei-menu-group>
   <tanrei-menu-group label={words.language}>
-    {languages.map(({ lang, label, href, current }) => <tanrei-menu-item lang={lang} label={label} href={href} trailing-icon={current ? 'check' : undefined} />)}
+    {languages.map(({ lang, label, href, current }) => <tanrei-menu-item lang={lang} label={label} href={href} current={current || undefined} />)}
   </tanrei-menu-group>
 </tanrei-menu>
 

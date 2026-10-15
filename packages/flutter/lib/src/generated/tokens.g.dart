@@ -1212,6 +1212,7 @@ class TanreiState {
     required this.focusStateLayerOpacity,
     required this.hoverStateLayerOpacity,
     required this.pressedStateLayerOpacity,
+    required this.selectedStateLayerOpacity,
     this.extra = const <String, double>{},
   });
 
@@ -1221,6 +1222,7 @@ class TanreiState {
   final double focusStateLayerOpacity;
   final double hoverStateLayerOpacity;
   final double pressedStateLayerOpacity;
+  final double selectedStateLayerOpacity;
 
   /// What a design system added to the core vocabulary, by token key.
   final Map<String, double> extra;
@@ -1234,6 +1236,7 @@ class TanreiState {
     double? focusStateLayerOpacity,
     double? hoverStateLayerOpacity,
     double? pressedStateLayerOpacity,
+    double? selectedStateLayerOpacity,
     Map<String, double>? extra,
   }) => TanreiState(
         disabledContainerOpacity: disabledContainerOpacity ?? this.disabledContainerOpacity,
@@ -1242,6 +1245,7 @@ class TanreiState {
         focusStateLayerOpacity: focusStateLayerOpacity ?? this.focusStateLayerOpacity,
         hoverStateLayerOpacity: hoverStateLayerOpacity ?? this.hoverStateLayerOpacity,
         pressedStateLayerOpacity: pressedStateLayerOpacity ?? this.pressedStateLayerOpacity,
+        selectedStateLayerOpacity: selectedStateLayerOpacity ?? this.selectedStateLayerOpacity,
         extra: extra == null ? this.extra : <String, double>{...this.extra, ...extra},
       );
 
@@ -1254,6 +1258,7 @@ class TanreiState {
         'focus-state-layer-opacity' => focusStateLayerOpacity,
         'hover-state-layer-opacity' => hoverStateLayerOpacity,
         'pressed-state-layer-opacity' => pressedStateLayerOpacity,
+        'selected-state-layer-opacity' => selectedStateLayerOpacity,
         _ => extra[key],
       };
 }
@@ -6101,6 +6106,7 @@ class TanreiCarouselTokens {
     required this.motionScrollEasing,
     required this.motionStateDuration,
     required this.motionStateEasing,
+    required this.navigationButtonVariant,
     required this.parts,
     required this.hovered,
     required this.focused,
@@ -6157,6 +6163,8 @@ class TanreiCarouselTokens {
   final int motionStateDuration;
   /// `comp.carousel.motion-state-easing`
   final TanreiCubicBezier motionStateEasing;
+  /// `comp.carousel.navigation-button-variant`
+  final double navigationButtonVariant;
   /// The `part` axis: `parts[part]`.
   final TanreiCarouselParts parts;
   /// `comp.carousel.hovered.*`
@@ -6193,6 +6201,7 @@ class TanreiCarouselTokens {
     TanreiCubicBezier? motionScrollEasing,
     int? motionStateDuration,
     TanreiCubicBezier? motionStateEasing,
+    double? navigationButtonVariant,
     TanreiCarouselParts? parts,
     TanreiCarouselStateTokens? hovered,
     TanreiCarouselStateTokens? focused,
@@ -6223,6 +6232,7 @@ class TanreiCarouselTokens {
         motionScrollEasing: motionScrollEasing ?? this.motionScrollEasing,
         motionStateDuration: motionStateDuration ?? this.motionStateDuration,
         motionStateEasing: motionStateEasing ?? this.motionStateEasing,
+        navigationButtonVariant: navigationButtonVariant ?? this.navigationButtonVariant,
         parts: parts ?? this.parts,
         hovered: hovered ?? this.hovered,
         focused: focused ?? this.focused,
@@ -8573,6 +8583,7 @@ class TanreiDateTimePickerTokens {
     required this.separatorColor,
     required this.separatorTypescale,
     required this.timeEntryModes,
+    required this.timeUnavailableOpacity,
     required this.wheelGap,
     required this.wheelHeight,
     required this.wheelLabelColor,
@@ -8735,6 +8746,8 @@ class TanreiDateTimePickerTokens {
   final TanreiTextStyle separatorTypescale;
   /// `comp.date-time-picker.time-entry-modes`
   final double timeEntryModes;
+  /// `comp.date-time-picker.time-unavailable-opacity`
+  final double timeUnavailableOpacity;
   /// `comp.date-time-picker.wheel-gap`
   final double wheelGap;
   /// `comp.date-time-picker.wheel-height`
@@ -8839,6 +8852,7 @@ class TanreiDateTimePickerTokens {
     TanreiPaint? separatorColor,
     TanreiTextStyle? separatorTypescale,
     double? timeEntryModes,
+    double? timeUnavailableOpacity,
     double? wheelGap,
     double? wheelHeight,
     TanreiPaint? wheelLabelColor,
@@ -8927,6 +8941,7 @@ class TanreiDateTimePickerTokens {
         separatorColor: separatorColor ?? this.separatorColor,
         separatorTypescale: separatorTypescale ?? this.separatorTypescale,
         timeEntryModes: timeEntryModes ?? this.timeEntryModes,
+        timeUnavailableOpacity: timeUnavailableOpacity ?? this.timeUnavailableOpacity,
         wheelGap: wheelGap ?? this.wheelGap,
         wheelHeight: wheelHeight ?? this.wheelHeight,
         wheelLabelColor: wheelLabelColor ?? this.wheelLabelColor,
@@ -9126,6 +9141,7 @@ class TanreiDialogTokens {
     required this.actionsGap,
     required this.actionsMarginBlockStart,
     required this.actionsVariant,
+    required this.closeButtonVariant,
     required this.compactWindowWidth,
     required this.containerColor,
     required this.containerElevation,
@@ -9155,6 +9171,9 @@ class TanreiDialogTokens {
     required this.scrimColor,
     required this.supportingTextColor,
     required this.supportingTextTypescale,
+    required this.widthLarge,
+    required this.widthMedium,
+    required this.widthSmall,
   });
 
   /// `comp.dialog.actions-arrangement`
@@ -9165,6 +9184,8 @@ class TanreiDialogTokens {
   final double actionsMarginBlockStart;
   /// `comp.dialog.actions-variant`
   final double actionsVariant;
+  /// `comp.dialog.close-button-variant`
+  final double closeButtonVariant;
   /// `comp.dialog.compact-window-width`
   final double compactWindowWidth;
   /// `comp.dialog.container-color`
@@ -9223,6 +9244,12 @@ class TanreiDialogTokens {
   final TanreiPaint supportingTextColor;
   /// `comp.dialog.supporting-text-typescale`
   final TanreiTextStyle supportingTextTypescale;
+  /// `comp.dialog.width-large`
+  final double widthLarge;
+  /// `comp.dialog.width-medium`
+  final double widthMedium;
+  /// `comp.dialog.width-small`
+  final double widthSmall;
 
   /// A copy with the given tokens replaced.
   TanreiDialogTokens copyWith({
@@ -9230,6 +9257,7 @@ class TanreiDialogTokens {
     double? actionsGap,
     double? actionsMarginBlockStart,
     double? actionsVariant,
+    double? closeButtonVariant,
     double? compactWindowWidth,
     TanreiPaint? containerColor,
     List<TanreiShadowLayer>? containerElevation,
@@ -9259,11 +9287,15 @@ class TanreiDialogTokens {
     TanreiPaint? scrimColor,
     TanreiPaint? supportingTextColor,
     TanreiTextStyle? supportingTextTypescale,
+    double? widthLarge,
+    double? widthMedium,
+    double? widthSmall,
   }) => TanreiDialogTokens(
         actionsArrangement: actionsArrangement ?? this.actionsArrangement,
         actionsGap: actionsGap ?? this.actionsGap,
         actionsMarginBlockStart: actionsMarginBlockStart ?? this.actionsMarginBlockStart,
         actionsVariant: actionsVariant ?? this.actionsVariant,
+        closeButtonVariant: closeButtonVariant ?? this.closeButtonVariant,
         compactWindowWidth: compactWindowWidth ?? this.compactWindowWidth,
         containerColor: containerColor ?? this.containerColor,
         containerElevation: containerElevation ?? this.containerElevation,
@@ -9293,6 +9325,9 @@ class TanreiDialogTokens {
         scrimColor: scrimColor ?? this.scrimColor,
         supportingTextColor: supportingTextColor ?? this.supportingTextColor,
         supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
+        widthLarge: widthLarge ?? this.widthLarge,
+        widthMedium: widthMedium ?? this.widthMedium,
+        widthSmall: widthSmall ?? this.widthSmall,
       );
 }
 
@@ -13434,6 +13469,200 @@ class TanreiLinkTokens {
         TanreiInteractionState.pressed => pressed,
         TanreiInteractionState.disabled => disabled,
       };
+}
+
+/// The key of a density of list-row (`comp.list-row`, axis `density`).
+///
+/// The set is open: the constants are the core values, and a design system may add its own —
+/// `const TanreiListRowDensity('…')`, or the typed constants generated next to a system that extends. A value the
+/// active system does not have renders as [regular].
+extension type const TanreiListRowDensity(String name) {
+  static const regular = TanreiListRowDensity('regular');
+  static const compact = TanreiListRowDensity('compact');
+
+  /// The core values, in the order the component declares them.
+  static const List<TanreiListRowDensity> core = <TanreiListRowDensity>[regular, compact];
+}
+
+/// The tokens of one list-row density.
+@immutable
+class TanreiListRowDensityTokens {
+  const TanreiListRowDensityTokens({
+    required this.containerHeightOneLine,
+    required this.containerHeightTwoLine,
+    required this.containerHeightThreeLine,
+    required this.containerPaddingBlock,
+  });
+
+  /// `comp.list-row.container-height-one-line.<density>`
+  final double containerHeightOneLine;
+  /// `comp.list-row.container-height-two-line.<density>`
+  final double containerHeightTwoLine;
+  /// `comp.list-row.container-height-three-line.<density>`
+  final double containerHeightThreeLine;
+  /// `comp.list-row.container-padding-block.<density>`
+  final double containerPaddingBlock;
+
+  /// A copy with the given tokens replaced.
+  TanreiListRowDensityTokens copyWith({
+    double? containerHeightOneLine,
+    double? containerHeightTwoLine,
+    double? containerHeightThreeLine,
+    double? containerPaddingBlock,
+  }) => TanreiListRowDensityTokens(
+        containerHeightOneLine: containerHeightOneLine ?? this.containerHeightOneLine,
+        containerHeightTwoLine: containerHeightTwoLine ?? this.containerHeightTwoLine,
+        containerHeightThreeLine: containerHeightThreeLine ?? this.containerHeightThreeLine,
+        containerPaddingBlock: containerPaddingBlock ?? this.containerPaddingBlock,
+      );
+}
+
+/// Every density of list-row: the core values by name, the values a design system added in [extra].
+/// Look one up with `densitys[key]`; the lookup is total.
+@immutable
+class TanreiListRowDensitys {
+  const TanreiListRowDensitys({
+    required this.regular,
+    required this.compact,
+    this.extra = const <TanreiListRowDensity, TanreiListRowDensityTokens>{},
+  });
+
+  /// `comp.list-row` density `regular`
+  final TanreiListRowDensityTokens regular;
+  /// `comp.list-row` density `compact`
+  final TanreiListRowDensityTokens compact;
+
+  /// The densitys a design system added to the core vocabulary.
+  final Map<TanreiListRowDensity, TanreiListRowDensityTokens> extra;
+
+  /// A copy with the given tokens replaced. The entries of [extra] are added to the existing ones (and replace
+  /// those with the same key): a copy never loses a value the design system added.
+  TanreiListRowDensitys copyWith({
+    TanreiListRowDensityTokens? regular,
+    TanreiListRowDensityTokens? compact,
+    Map<TanreiListRowDensity, TanreiListRowDensityTokens>? extra,
+  }) => TanreiListRowDensitys(
+        regular: regular ?? this.regular,
+        compact: compact ?? this.compact,
+        extra: extra == null ? this.extra : <TanreiListRowDensity, TanreiListRowDensityTokens>{...this.extra, ...extra},
+      );
+
+  /// The tokens of [density].
+  ///
+  /// A density this design system does not have resolves to [regular], the default; debug builds report it
+  /// through [debugTanreiReportUnknownValue] and release builds stay silent.
+  TanreiListRowDensityTokens operator [](TanreiListRowDensity density) => switch (density.name) {
+        'regular' => regular,
+        'compact' => compact,
+        _ => extra[density] ?? _fallback(density),
+      };
+
+  /// Whether this design system has [density].
+  bool has(TanreiListRowDensity density) => TanreiListRowDensity.core.contains(density) || extra.containsKey(density);
+
+  /// Every density this design system has: the core values, then the added ones.
+  List<TanreiListRowDensity> get keys => <TanreiListRowDensity>[...TanreiListRowDensity.core, ...extra.keys];
+
+  TanreiListRowDensityTokens _fallback(TanreiListRowDensity density) {
+    assert(() {
+      debugTanreiReportUnknownValue('list-row density', density.name, 'regular');
+      return true;
+    }());
+    return regular;
+  }
+}
+
+/// `comp.list-row.*`
+@immutable
+class TanreiListRowTokens {
+  const TanreiListRowTokens({
+    required this.containerGap,
+    required this.containerPaddingInlineEnd,
+    required this.containerPaddingInlineStart,
+    required this.headlineColor,
+    required this.headlineTypescale,
+    required this.leadingIconColor,
+    required this.leadingIconSize,
+    required this.overlineColor,
+    required this.overlineTypescale,
+    required this.supportingTextColor,
+    required this.supportingTextTypescale,
+    required this.trailingIconColor,
+    required this.trailingIconSize,
+    required this.trailingTextColor,
+    required this.trailingTextTypescale,
+    required this.densitys,
+  });
+
+  /// `comp.list-row.container-gap`
+  final double containerGap;
+  /// `comp.list-row.container-padding-inline-end`
+  final double containerPaddingInlineEnd;
+  /// `comp.list-row.container-padding-inline-start`
+  final double containerPaddingInlineStart;
+  /// `comp.list-row.headline-color`
+  final TanreiPaint headlineColor;
+  /// `comp.list-row.headline-typescale`
+  final TanreiTextStyle headlineTypescale;
+  /// `comp.list-row.leading-icon-color`
+  final TanreiPaint leadingIconColor;
+  /// `comp.list-row.leading-icon-size`
+  final double leadingIconSize;
+  /// `comp.list-row.overline-color`
+  final TanreiPaint overlineColor;
+  /// `comp.list-row.overline-typescale`
+  final TanreiTextStyle overlineTypescale;
+  /// `comp.list-row.supporting-text-color`
+  final TanreiPaint supportingTextColor;
+  /// `comp.list-row.supporting-text-typescale`
+  final TanreiTextStyle supportingTextTypescale;
+  /// `comp.list-row.trailing-icon-color`
+  final TanreiPaint trailingIconColor;
+  /// `comp.list-row.trailing-icon-size`
+  final double trailingIconSize;
+  /// `comp.list-row.trailing-text-color`
+  final TanreiPaint trailingTextColor;
+  /// `comp.list-row.trailing-text-typescale`
+  final TanreiTextStyle trailingTextTypescale;
+  /// The `density` axis: `densitys[density]`.
+  final TanreiListRowDensitys densitys;
+
+  /// A copy with the given tokens replaced.
+  TanreiListRowTokens copyWith({
+    double? containerGap,
+    double? containerPaddingInlineEnd,
+    double? containerPaddingInlineStart,
+    TanreiPaint? headlineColor,
+    TanreiTextStyle? headlineTypescale,
+    TanreiPaint? leadingIconColor,
+    double? leadingIconSize,
+    TanreiPaint? overlineColor,
+    TanreiTextStyle? overlineTypescale,
+    TanreiPaint? supportingTextColor,
+    TanreiTextStyle? supportingTextTypescale,
+    TanreiPaint? trailingIconColor,
+    double? trailingIconSize,
+    TanreiPaint? trailingTextColor,
+    TanreiTextStyle? trailingTextTypescale,
+    TanreiListRowDensitys? densitys,
+  }) => TanreiListRowTokens(
+        containerGap: containerGap ?? this.containerGap,
+        containerPaddingInlineEnd: containerPaddingInlineEnd ?? this.containerPaddingInlineEnd,
+        containerPaddingInlineStart: containerPaddingInlineStart ?? this.containerPaddingInlineStart,
+        headlineColor: headlineColor ?? this.headlineColor,
+        headlineTypescale: headlineTypescale ?? this.headlineTypescale,
+        leadingIconColor: leadingIconColor ?? this.leadingIconColor,
+        leadingIconSize: leadingIconSize ?? this.leadingIconSize,
+        overlineColor: overlineColor ?? this.overlineColor,
+        overlineTypescale: overlineTypescale ?? this.overlineTypescale,
+        supportingTextColor: supportingTextColor ?? this.supportingTextColor,
+        supportingTextTypescale: supportingTextTypescale ?? this.supportingTextTypescale,
+        trailingIconColor: trailingIconColor ?? this.trailingIconColor,
+        trailingIconSize: trailingIconSize ?? this.trailingIconSize,
+        trailingTextColor: trailingTextColor ?? this.trailingTextColor,
+        trailingTextTypescale: trailingTextTypescale ?? this.trailingTextTypescale,
+        densitys: densitys ?? this.densitys,
+      );
 }
 
 /// The key of a condition of list (`comp.list`, axis `condition`).
@@ -26022,6 +26251,7 @@ class TanreiSystem {
     required this.keyboardShortcut,
     required this.linkCard,
     required this.link,
+    required this.listRow,
     required this.list,
     required this.loadingIndicator,
     required this.mainActionButton,
@@ -26120,6 +26350,7 @@ class TanreiSystem {
   final TanreiKeyboardShortcutTokens keyboardShortcut;
   final TanreiLinkCardTokens linkCard;
   final TanreiLinkTokens link;
+  final TanreiListRowTokens listRow;
   final TanreiListTokens list;
   final TanreiLoadingIndicatorTokens loadingIndicator;
   final TanreiMainActionButtonTokens mainActionButton;
@@ -26217,6 +26448,7 @@ class TanreiSystem {
     TanreiKeyboardShortcutTokens? keyboardShortcut,
     TanreiLinkCardTokens? linkCard,
     TanreiLinkTokens? link,
+    TanreiListRowTokens? listRow,
     TanreiListTokens? list,
     TanreiLoadingIndicatorTokens? loadingIndicator,
     TanreiMainActionButtonTokens? mainActionButton,
@@ -26312,6 +26544,7 @@ class TanreiSystem {
         keyboardShortcut: keyboardShortcut ?? this.keyboardShortcut,
         linkCard: linkCard ?? this.linkCard,
         link: link ?? this.link,
+        listRow: listRow ?? this.listRow,
         list: list ?? this.list,
         loadingIndicator: loadingIndicator ?? this.loadingIndicator,
         mainActionButton: mainActionButton ?? this.mainActionButton,

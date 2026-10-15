@@ -2,7 +2,7 @@
 title: DateTimePicker
 description: Permite elegir una fecha, una hora o una fecha y hora (o un intervalo de cualquiera de ellas) con un calendario y unas ruedas de hora o la esfera de un reloj, en un diálogo o en una superficie que se despliega bajo un campo.
 translationOf: components/date-time-picker.mdx
-sourceHash: 4fc0c433202b9bc381522aeb962bd081d1a1d092
+sourceHash: a166f2e23305635f24636ae2e11d2163bcebe5aa
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -202,7 +202,7 @@ Usa un DateTimePicker cuando una persona elige una fecha o una hora y ver el cal
 | Una cita | `mode` `date-time` |
 | Una reserva de un momento a otro | `mode` `date-time` con `range` |
 
-`min`, `max`, `disabledDates`, `today`, `firstDayOfWeek`, `startView` y `showAdjacentDays` se pasan al calendario y significan lo mismo que [allí](/es/components/calendar/). Solo limitan las fechas: las horas no tienen límites.
+`disabledDates`, `today`, `firstDayOfWeek`, `startView` y `showAdjacentDays` se pasan al calendario y significan lo mismo que [allí](/es/components/calendar/). `min` y `max` toman la forma del modo, como los de un campo de texto: una fecha en el modo `date`, una hora como `09:00` en el modo `time`, y una fecha con hora como `2026-09-17T09:00` en el modo `date-time`. El calendario recibe sus fechas, y la sección de la hora ofrece solo las horas que quedan entre ellos. En el modo `date-time`, un límite restringe las horas solo en su propio día, y un límite que es solo una fecha restringe solo las fechas.
 
 ### Abrir y confirmar
 
@@ -236,6 +236,7 @@ De arriba abajo: la cabecera, el cuerpo y las acciones.
 - **El reloj.** `hourCycle` es de forma predeterminada el de la configuración regional, o bien `h12` o `h23`. Los valores son de 24 horas en todos los ciclos.
 - **El periodo.** Con un reloj de 12 horas, AM o PM es una parte de la hora, no un interruptor situado encima. En el modo de ruedas es una tercera rueda corta, y en el modo de esfera una casilla estrecha que cambia al otro valor cuando se pulsa. Va después de los minutos, o antes de las horas donde la configuración regional lo escribe primero, como en japonés. Cambiarlo conserva el número de las horas y cambia la mitad del día. Se dibuja de forma discreta y nunca lleva la marca de la unidad que se está definiendo.
 - **Paso de minutos.** `minuteStep` (1, 5, 10, 15 o 30) define las filas de la rueda de minutos y los números de la esfera. Una hora que no coincide con el paso, definida o escrita, se redondea hacia abajo hasta él.
+- **Límites.** Una hora fuera de `min` y `max` conserva su lugar en las ruedas y en la esfera y se dibuja atenuada (`comp.date-time-picker.time.unavailable-opacity`). No se puede elegir: una rueda se detiene en la hora más cercana que sí se puede elegir, las teclas de flecha saltan a la siguiente, la esfera toma el número disponible más cercano y un número escrito fuera de los límites no se acepta. La primera hora ofrecida es `min` redondeado hacia arriba a `minuteStep`, y la última es `max` redondeado hacia abajo. Una hora pendiente fuera de ellos empieza en el límite más cercano, igual que una hora que una nueva hora o un nuevo periodo dejarían fuera.
 - **Una hora vacía** empieza en la hora actual.
 
 ### Intervalos
@@ -260,7 +261,7 @@ Esa llamada es la que ejecuta esta página: los ejemplos de arriba llevan un `la
 - Abre el selector desde el botón de selector de un campo de texto, para que el valor también se pueda escribir.
 - Define `label` con lo que se está eligiendo («Entrada», «Inicio de la reunión»), en el idioma de tu producto, y también los demás textos que muestra el selector.
 - Usa `minuteStep` cuando solo tengan sentido algunos minutos, como cada 15 minutos en una reserva.
-- Da al selector los mismos `min`, `max` y `disabledDates` que al campo al que sirve, para que ambos acepten las mismas fechas.
+- Da al selector los mismos `min`, `max` y `disabledDates` que al campo al que sirve, para que ambos acepten las mismas fechas y horas. El `pickerRequest` del campo lleva su `min` y su `max`.
 
 ### Evita
 
@@ -279,7 +280,7 @@ Esa llamada es la que ejecuta esta página: los ejemplos de arriba llevan un `la
 - La superficie es un diálogo cuyo nombre es `label`. Un selector modal mantiene el foco dentro y dibuja un velo; un selector acoplado recibe el foco y lo devuelve a su ancla, pero Tab sale de él y lo cierra. Al abrirse, el foco entra: va al día activo del calendario o a las horas.
 - El calendario, las pestañas y los botones toman su nombre de los textos que les da el selector. Las pestañas del modo de entrada son una lista de pestañas real, que se lee con sus nombres y posiciones («Ruedas, pestaña, 1 de 2») aunque solo dibujen glifos.
 - Los dos extremos de un intervalo son dos botones en un grupo cuyo nombre es `rangeLabel`, y cada uno se lee con su nombre, su hora y si es el que se está definiendo («Inicio, 9:00»). `startLabel` y `endLabel` nunca se dibujan: son lo que indica a la tecnología de apoyo qué extremo es cada uno. La raya queda oculta.
-- Las ruedas y las casillas de horas y de minutos son botones de incremento (spin buttons), que se manejan con las teclas de flecha, Re Pág y Av Pág, y Inicio y Fin, y se leen tal como se dibujan (las horas con su periodo en un reloj de 12 horas). Siguen siendo botones de incremento mientras se escribe un número en ellos. El periodo es un tercer botón de incremento de dos valores, cuyo nombre es `periodLabel`. Escribir la primera letra del nombre de un periodo, A o P en inglés, fija ese periodo. La esfera queda oculta para la tecnología de apoyo: todo lo que hace, lo hacen también las casillas.
+- Las ruedas y las casillas de horas y de minutos son botones de incremento (spin buttons), que se manejan con las teclas de flecha, Re Pág y Av Pág, y Inicio y Fin, y se leen tal como se dibujan (las horas con su periodo en un reloj de 12 horas). Siguen siendo botones de incremento mientras se escribe un número en ellos. El periodo es un tercer botón de incremento de dos valores, cuyo nombre es `periodLabel`. Escribir la primera letra del nombre de un periodo, A o P en inglés, fija ese periodo. Una hora fuera de `min` y `max` nunca es el valor de un botón de incremento, y el mínimo y el máximo de cada uno son sus valores disponibles primero y último. La esfera queda oculta para la tecnología de apoyo: todo lo que hace, lo hacen también las casillas.
 - Escape termina primero una entrada escrita y conserva el valor anterior a ella. En cualquier otro caso, cierra el selector sin confirmar y devuelve el foco adonde estaba.
 - Un intervalo de fecha y hora cuyo fin es anterior a su inicio se anuncia una vez, de forma no intrusiva, y se describe en el campo de intervalo del fin.
 - Cada casilla, cada campo de intervalo y cada fila de rueda mide al menos el objetivo mínimo, y las ruedas, las casillas, el periodo y los números de la esfera crecen con el texto ampliado en lugar de recortarlo. En una ventana estrecha, el selector nunca es más ancho que la ventana: las celdas del calendario y los campos de intervalo se estrechan.

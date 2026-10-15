@@ -2,7 +2,7 @@
 title: "轮播"
 description: "一行视觉内容项，围绕一个突出展示的项横向滚动，每一项都会打开它所展示的内容。精选行可以循环、用圆点显示位置，并自动前进。"
 translationOf: components/carousel.mdx
-sourceHash: 2d83688f39ecd8ebca3c92ae6620428c4fb0310d
+sourceHash: 9e3187c84cf7ad11c87e041a77ec3b2d997a9e5e
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,11 +16,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="carousel" />
 
 :::note[规格已修订，尚未覆盖所有平台]
-本页描述的是规格当前所定的轮播。`layout` 属性被几项相互独立的选择取代（主项的位置、流动宽度还是固定宽度、缩小、停靠、循环），精选行还可以显示圆点并自动前进。主项（hero）现在默认居中，相邻的项在任何滚动位置都相隔一个间距。Web 组件已经做到了这一切，演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版，有 `layout`，没有循环、圆点和自动播放。参见[主项默认居中](#主项默认居中)和[从 `layout` 迁移](#从-layout-迁移)。
+本页描述的是规格当前所定的轮播。`layout` 属性被几项相互独立的选择取代（主项的位置、流动宽度还是固定宽度、缩小、停靠、循环），精选行还可以显示圆点并自动前进。主项（hero）现在默认居中，相邻的项在任何滚动位置都相隔一个间距。Web 组件已经做到了这一切，演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版，有 `layout`，没有循环、圆点、自动播放以及上一个和下一个控件。参见[主项默认居中](#主项默认居中)和[从 `layout` 迁移](#从-layout-迁移)。
 :::
 
 <DemoFrame label="默认：主项居中，旁边是一个小项">
-  <tanrei-carousel label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -38,24 +38,26 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 整行围绕一个突出展示的项来排列，这一项称为主项。怎么排由几个相互独立的属性决定，每个属性的默认值都适合一个供人浏览的行：主项居中，它旁边的项较窄，滚动结束时整行停靠在完整的一项上。`itemWidth` 是主项的宽度；不设置时采用设计系统的默认值。精选行可以加上 `loop`、圆点（`indicator`）和 `autoplay`。没有 `autoplay` 时，轮播没有需要受控的值：只有用户滚动它或移动焦点时，它才会滚动。
 
+在这一行的两端之上，有“上一个”和“下一个”控件，每次把这一行移动一项。默认情况下，它们在使用鼠标或触控板时绘制，并在指针位于轮播上方或焦点在轮播内时出现。请用你产品的语言为它们提供 `previousLabel` 和 `nextLabel`。参见[上一个和下一个控件](#上一个和下一个控件)。
+
 Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter 和 React Native 的示例展示的是上一版，也就是这些平台目前提供的版本：有 `layout`（默认是一行并排多个项，另有 `hero` 和 `uncontained`）和 `itemWidth`，没有循环、圆点和自动播放。
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-carousel label="附近的步行路线">
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" label="附近的步行路线">
       <tanrei-carousel-item label="海岸步道，12 张照片"><img src="coast.jpg" alt="" /></tanrei-carousel-item>
       <tanrei-carousel-item label="老城区，8 张照片"><img src="town.jpg" alt="" /></tanrei-carousel-item>
       <tanrei-carousel-item label="森林环线，20 张照片"><img src="forest.jpg" alt="" /></tanrei-carousel-item>
     </tanrei-carousel>
 
     <!-- 精选行：无限循环，带圆点，自动前进。主项默认居中。 -->
-    <tanrei-carousel label="精选步行路线" loop indicator autoplay
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" label="精选步行路线" loop indicator autoplay
                      play-label="播放幻灯片" pause-label="暂停幻灯片">…</tanrei-carousel>
 
     <!-- 从起始边缘排起的普通行：每一项宽 120（CSS 像素数），滚动在哪里结束就停在哪里。
          fixed-width 和 free-scroll 分别是默认为 true 的 fluidWidth 和 snap 的反义。 -->
-    <tanrei-carousel label="最近浏览" hero-alignment="start" fixed-width free-scroll item-width="120">…</tanrei-carousel>
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" label="最近浏览" hero-alignment="start" fixed-width free-scroll item-width="120">…</tanrei-carousel>
 
     <script type="module">
       import '@tanrei/web/components/carousel';
@@ -81,6 +83,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 
     <Carousel label="精选步行路线" loop indicator autoplay paused={paused}
       onPausedchange={(e) => setPaused(e.detail.paused)}
+      previousLabel="上一条步行路线" nextLabel="下一条步行路线"
       playLabel="播放幻灯片" pauseLabel="暂停幻灯片">
       {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}
     </Carousel>
@@ -157,13 +160,13 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 ## 规格
 
 <DemoFrame label="宽到上限的主项，以及从起始边缘自由滚动的固定宽度" plain column>
-  <tanrei-carousel item-width="400" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" item-width="400" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
     <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
   </tanrei-carousel>
-  <tanrei-carousel hero-alignment="start" fixed-width free-scroll label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" hero-alignment="start" fixed-width free-scroll label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -175,7 +178,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 <DemoFrame label="排列这一行：固定宽度、缩小、循环、内容靠向主项" plain column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">固定宽度，滚动在哪里结束就停在哪里：<code>fixed-width free-scroll</code></div>
-    <tanrei-carousel fixed-width free-scroll label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" fixed-width free-scroll label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -185,7 +188,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">其他项画得更小，无限循环：<code>fixed-width scale-others loop</code></div>
-    <tanrei-carousel fixed-width scale-others loop label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" fixed-width scale-others loop label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -195,7 +198,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">无限循环，两侧始终填满：<code>loop</code></div>
-    <tanrei-carousel loop label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" loop label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -205,7 +208,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">变窄的项显示最靠近主项的一侧：<code>item-width="120" content-alignment="toward-hero" loop</code></div>
-    <tanrei-carousel item-width="120" content-alignment="toward-hero" loop label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" item-width="120" content-alignment="toward-hero" loop label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -219,7 +222,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 <DemoFrame label="圆点、自动播放、进度、已暂停，以及单独的播放控件" plain column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">圆点：<code>indicator</code></div>
-    <tanrei-carousel indicator label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" indicator label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -230,7 +233,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">带圆点和播放控件的自动播放：<code>indicator autoplay</code></div>
-    <tanrei-carousel indicator autoplay play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" indicator autoplay play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -241,7 +244,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">当前圆点逐渐填满，直到切换到下一项：<code>autoplay-progress</code></div>
-    <tanrei-carousel indicator autoplay autoplay-progress play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" indicator autoplay autoplay-progress play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -252,7 +255,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">已暂停，由用户或由产品暂停：<code>paused</code></div>
-    <tanrei-carousel indicator autoplay paused autoplay-progress play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" indicator autoplay paused autoplay-progress play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -263,7 +266,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">不带圆点的自动播放：只有播放控件</div>
-    <tanrei-carousel autoplay play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="上一条步行路线" next-label="下一条步行路线" autoplay play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -350,6 +353,24 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 
 **让播放始终可控。** 产品可以把 `playbackControl` 设为 false 来隐藏播放控件，但只要有可能就应该保留它。暂缓不是停止动效的办法：触摸没有悬停；手指只有停在上面时才能让这一行暂缓；不移动焦点就能阅读的屏幕阅读器则完全不会让它暂缓。没有这个控件，手机上的用户要停下自动播放的轮播，就只能靠系统的“减弱动态效果”设置。只有当你的产品提供了另一种停止动效的办法时才隐藏它，例如一个能暂停页面上所有动态内容的开关（WCAG 2.2.2）。
 
+### 上一个和下一个控件
+
+没有滚动条的一行，鼠标无法通过单次按下来移动它：只能按住 Shift 滚动滚轮，或者在绘制了圆点时使用圆点。因此，轮播在这一行的两端之上绘制“上一个”和“下一个”控件。它们是带有尖角图标的纯图标 Button，变体由设计系统决定（默认系统中为 elevated），每个控件都像圆点和方向键一样，把这一行后退或前进一项。
+
+| `navigation` | 何处绘制 | 何时显示 |
+| --- | --- | --- |
+| `auto`（默认） | 主指针是能够悬停的鼠标或触控板时 | 指针位于轮播上方或焦点在轮播内时 |
+| `always` | 所有设备，包括触摸设备 | 始终 |
+| `none` | 从不 | 从不 |
+
+- **为何默认不在触摸设备上绘制。** 手指可以滑动这一行，而在手机上这些控件会一直盖在项上。如果你的用户在触摸设备上也需要它们，请选择 `always`。
+- **在两端。** 没有 `loop` 时，在第一项时“上一个”控件被禁用，在最后一项时“下一个”控件被禁用。被禁用的控件仍保留焦点和它在 Tab 顺序中的位置，因此反复按“下一个”也绝不会丢失焦点。开启 `loop` 时，它们会绕回。
+- **连续按下会累加。** 在这一行移动期间按下，会从它正要去的位置开始计算，所以快速按两次会移动两项。
+- **自动播放。** 按下是用户自己的移动：这一行停下后，间隔重新开始计时。指针位于这些控件上方或焦点在它们上面时，自动播放会暂缓，和在轮播的任何其他位置一样。
+- **名称。** `previousLabel` 和 `nextLabel` 为辅助技术命名它们，例如“上一条步行路线”和“下一条步行路线”。缺少时，调试构建会报告。
+
+只要有可能，就保持 `auto`。只有当页面为鼠标提供了移动这一行的其他方式（例如圆点）时，才选择 `none`。
+
 ### 项及其内容
 
 - **内容按主项的宽度布局。** 每一项都按主项的宽度来布局内容，因此变窄的项显示的是图片的中间部分；`contentAlignment` 为 toward-hero 时，显示的是最靠近主项的一侧。项变宽、变窄时，图片在项内平滑移动。请提供只看露出的那一部分也能看懂的图片。
@@ -361,7 +382,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 
 ### 滚动与停靠
 
-用户可以用触摸、触控笔、触控板、横向滚轮，或按住 Shift 滚动纵向滚轮来滚动这一行。开启 `snap` 时，滚动结束后这一行会停靠在完整的一项上：快速滑动（fling）会前进到该方向上的下一项，较慢的松手则去往最近的一项。快速滑动是指松手时的速度超过平台的最小快速滑动速度；平台没有给出这个值时，取每毫秒 0.5 点。没有 `loop` 时，在范围的末端，最后一项成为主项，它之后的槽位保持空着。开启 `loop` 时，每一项只绘制一次，落在主项周围的哪个位置就画在哪里，整行首尾相接、没有尽头。在减弱动态效果的环境中，轮播自己发起的每一次移动都立即完成。
+用户可以用触摸、触控笔、触控板、横向滚轮，或按住 Shift 滚动纵向滚轮来滚动这一行。开启 `snap` 时，滚动结束后这一行会停靠在完整的一项上：快速滑动（fling）会前进到该方向上的下一项，较慢的松手则去往最近的一项。快速滑动是指松手时的速度超过平台的最小快速滑动速度；平台没有给出这个值时，取每毫秒 0.5 点。没有 `loop` 时，在范围的末端，最后一项成为主项，它之后的槽位保持空着。开启 `loop` 时，每一项只绘制一次，落在主项周围的哪个位置就画在哪里，整行首尾相接、没有尽头。在减弱动态效果的环境中，轮播自己发起的每一次移动都立即完成。使用鼠标时，还可以用“上一个”和“下一个”控件每次移动一项。
 
 轮播的宽度或它的项发生变化时，它会重新排列槽位，并让原先突出展示的项留在原处，不带动效。
 
@@ -387,18 +408,19 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 
 - 轮播是一个以 `label` 命名的列表。每一项是一个以其标签命名的按钮，并带有它在各项中的位置和项的总数。它的内容对辅助技术隐藏。
 - 视野之外的项仍然按顺序暴露给辅助技术，因此屏幕阅读器能到达每一项。把屏幕阅读器的焦点移到某一项上，会把它滚动到位。
-- **Tab 停靠点。** 轮播最多有三个：播放控件（绘制时）、所有项（合为一个停靠点）和圆点（绘制时）。播放控件排在最前，在各项之前，这样键盘用户可以在到达其他任何东西之前先停下动效。进入各项时，焦点落在上一次拥有键盘焦点的那一项上；没有这样的项时，落在停靠于主项位置的那一项上。
+- **Tab 停靠点。** 轮播最多有五个：播放控件（绘制时）、“上一个”和“下一个”控件（绘制时）、所有项（合为一个停靠点）和圆点（绘制时）。播放控件排在最前，在各项之前，这样键盘用户可以在到达其他任何东西之前先停下动效。“上一个”和“下一个”控件排在各项之前，与 WAI-ARIA 的轮播示例一致。进入各项时，焦点落在上一次拥有键盘焦点的那一项上；没有这样的项时，落在停靠于主项位置的那一项上。
 - 向右方向键和向左方向键把焦点移到下一项和上一项。它们在两端停住，只有轮播循环时才会绕回。Home 和 End 移到第一项和最后一项，在循环的行里也是如此。在从右到左的布局中，向左方向键移到下一项。
 - 移动焦点会把获得焦点的项带到主项的位置，范围末端不允许时则尽量靠近；在循环的行里走较短的那一边。在主项位于起始边缘、宽度固定且自由滚动的行里，只是把这一项完整地带入视野。
 - Enter 和 Space激活获得焦点的项。按下后变成了滚动的操作，不会激活它起始时所在的项。
 - 圆点是一个以 `label` 命名的滑块，它的值是当前项的标签。方向键、Home 和 End，以及平台的递增和递减操作，都会让这一行移动一个位置。当前圆点靠拉长的形状来区分，而不只靠颜色。
 - 播放控件是一个按钮，播放时以 `pauseLabel` 命名，暂停时以 `playLabel` 命名。它没有按下状态，所以绝不会被读成“暂停，已按下”。激活它之后，焦点仍留在它上面。它的暂停和播放图标不会镜像；在图标字体加载完成之前，也不会把图标的名称当作文字画出来。
+- “上一个”和“下一个”控件是分别以 `previousLabel` 和 `nextLabel` 命名的按钮。激活后焦点仍留在它上面。在不循环的一行的两端，控件被禁用，但仍保留焦点并留在 Tab 顺序中。在 `auto` 下隐藏时，它们仍可以通过 Tab 到达、被屏幕阅读器读出，获得焦点时会显示出来。在从右到左的布局中，“上一个”控件位于右侧，尖角图标按图标集的规定镜像。
 - 焦点在轮播内任何位置时，自动播放都会暂缓；它从不移动焦点，不朗读任何内容，在减弱动态效果的环境中从不运行。
 - 焦点环画在项的内侧，这样不会被这一行裁切；圆点和播放控件的焦点环则画在它们的外围。它只在键盘聚焦时显示。
 - 每一项的点击区域是它的容器加上两侧各半个间距，并且绝不小于最小目标，即使是小项也一样。仍在边缘处进入或离开的项比这更窄，它的点击区域绝不会盖住相邻项的点击区域。播放控件的点击区域是触摸目标的大小，圆点的点击区域是它们的整个容器加上那一行的高度。
-- 滚动绝不是到达某一项的唯一方式：方向键、圆点和屏幕阅读器的焦点都能到达每一项。
+- 滚动绝不是到达某一项的唯一方式：“上一个”和“下一个”控件让鼠标单次按下就能移动这一行（WCAG 2.5.7），方向键、圆点和屏幕阅读器的焦点都能到达每一项。
 - 文本放大时，轮播的高度和项保持不变。它自己不含任何文字，你的内容自行跟随文本大小。
-- 调试构建会报告：没有标签的项、没有 `label` 的轮播、没有 `playLabel` 或 `pauseLabel` 的播放控件、放不下的圆点、未知的 `heroAlignment` 或 `contentAlignment`，以及不是正数的 `itemWidth` 或 `autoplayInterval`。Web 还会报告项的内容里的可交互元素。
+- 调试构建会报告：没有标签的项、没有 `label` 的轮播、没有 `playLabel` 或 `pauseLabel` 的播放控件、没有 `previousLabel` 或 `nextLabel` 的“上一个”和“下一个”控件、放不下的圆点、未知的 `heroAlignment`、`contentAlignment` 或 `navigation`，以及不是正数的 `itemWidth` 或 `autoplayInterval`。Web 还会报告项的内容里的可交互元素。
 
 已知的平台差距：
 
@@ -416,6 +438,7 @@ Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter �
 
 - 为轮播提供 `label`，并为每一项提供说明其内容展示了什么的标签。内容不会被朗读。
 - 使用自动播放时，为播放控件提供说明其作用的 `playLabel` 和 `pauseLabel`，并让它保持显示。
+- 为“上一个”和“下一个”控件提供 `previousLabel` 和 `nextLabel`；除非页面为鼠标提供了移动这一行的其他方式，否则让 `navigation` 保持为 `auto`。
 - 项的内容里不要放控件。
 - 如果内容带有标签没有表达的含义，例如海报上的价格，就把它写进标签。
 - 在 SwiftUI、Compose 和 React Native 上，项的数量要适中：这些平台上的轮播会构建每一项，包括视野之外的项。

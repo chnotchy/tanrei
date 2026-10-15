@@ -2,7 +2,7 @@
 title: Estados de interacción
 description: Las capas de estado, el indicador de foco de separación y anillo, y cómo se dibuja el estado deshabilitado.
 translationOf: foundations/states.mdx
-sourceHash: 72082392521651e7f88cd4fd4707171e4d48f3d1
+sourceHash: 473427a122fbba6ee446b96eb41a5d60b045fd6a
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -19,6 +19,8 @@ El paso del cursor, el foco, la pulsación y el arrastre se muestran con una **c
 - Su opacidad sale de un token, no del componente.
 - **Solo se ve una capa a la vez.** Cuando los estados se solapan, gana el más fuerte: pulsado sobre con foco, y con foco sobre con el cursor encima.
 - Aparece con un fundido, en una transición breve de efectos, y de inmediato al pulsar.
+
+La selección discreta también es una capa, y es la que permanece: la opción seleccionada de una lista, el elemento de enlace actual de un menú y el indicador de las pestañas tonales se dibujan con el color de su contenido a `selected-state-layer-opacity`, el doble de la capa de paso del cursor, sobre cualquier superficie en la que esté el elemento. Así, en cualquier superficie, un elemento seleccionado se separa de uno con el cursor encima tanto como este se separa de uno en reposo. Las capas de paso del cursor, foco y pulsación se superponen a ella, y la selección nunca se comunica solo con el relleno: una marca de verificación, un indicador o la etiqueta también la dicen.
 
 <StateTokens />
 

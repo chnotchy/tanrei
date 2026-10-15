@@ -20937,7 +20937,7 @@
                 "dev.tanrei.derive": {
                   "fn": "alpha",
                   "of": "{tanrei.comp.menu.current.state-layer.color}",
-                  "amount": 0.16
+                  "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                 }
               }
             }
@@ -25735,7 +25735,7 @@
                   "dev.tanrei.derive": {
                     "fn": "alpha",
                     "of": "{tanrei.comp.tabs.tonal.selected.state-layer.color}",
-                    "amount": 0.16
+                    "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
                   }
                 }
               }

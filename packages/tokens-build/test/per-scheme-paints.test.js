@@ -103,7 +103,9 @@ test('an alpha whose amount is a context map is a per-scheme paint, and the CSS 
   const name = '--tanrei-comp-menu-selected-container-color';
   const blocks = emitCss(model).split(/\n {2}(?=\[data-|@media)/);
   const declared = (selector) => blocks.filter((block) => selector.test(block.split('\n')[0])).map((block) => block.split('\n').find((line) => line.trim().startsWith(`${name}:`))?.trim());
-  const at = (amount) => `${name}: color-mix(in srgb, var(--tanrei-comp-menu-selected-state-layer-color) ${amount}%, transparent);`;
-  assert.ok(blocks[0].includes(at(0)), 'standard contrast, in the base block');
-  for (const selector of [/data-tanrei-contrast="medium"/, /data-tanrei-contrast="high"/, /prefers-contrast: more/]) assert.deepEqual(declared(selector), [at(16)], String(selector));
+  const at = (amount) => `${name}: color-mix(in srgb, var(--tanrei-comp-menu-selected-state-layer-color) ${amount}, transparent);`;
+  assert.ok(blocks[0].includes(at('0%')), 'standard contrast, in the base block');
+  // A level that names a token is stated by that token, so a layer that moves the selected layer moves it here too.
+  const selected = 'calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%)';
+  for (const selector of [/data-tanrei-contrast="medium"/, /data-tanrei-contrast="high"/, /prefers-contrast: more/]) assert.deepEqual(declared(selector), [at(selected)], String(selector));
 });

@@ -2,7 +2,7 @@
 title: Menú
 description: Un conjunto corto de acciones u opciones en una superficie temporal que se abre desde el elemento que lo pidió.
 translationOf: components/menu.mdx
-sourceHash: 2106a64d0831a3f48beba511b4ee3f8ed02897e3
+sourceHash: ca2c98d8f24b261512a44be38492e81f189e18fe
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -65,6 +65,8 @@ El atajo de teclado de un elemento es su propiedad `shortcut`, escrita con los n
 
 Un elemento con un `href` es un elemento de enlace: el enlace propio de la plataforma, que se dibuja exactamente igual que una acción y al que se llega con las mismas teclas. Una activación corriente emite el `click` del elemento, cierra el menú y después abre el destino. `target` y `targetLabel` son los del [botón](/es/components/button/). `current` marca el elemento de enlace de la página en la que está la persona: se dibuja con un relleno propio, sin marca de verificación. La web incluye los elementos de enlace; SwiftUI, Compose, Flutter y React Native todavía no los tienen.
 
+Un menú también puede ser el menú contextual de un área: pon `trigger` en `context` y el ancla es esa área, como un lienzo, una lista o una fila. La persona pide el menú en un punto de ella con un clic derecho, una pulsación larga, o Mayús+F10 o la tecla de menú contextual sobre lo que tiene el foco. El menú emite `contextRequest` con el punto, y tú lo abres allí. La web tiene el activador contextual; SwiftUI, Compose, Flutter y React Native todavía no.
+
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
@@ -97,6 +99,10 @@ Un elemento con un `href` es un elemento de enlace: el enlace propio de la plata
     <!-- separation="gap" separa los grupos con espacio vacío en este menú y en sus submenús, elija lo que elija el sistema de diseño. -->
     <tanrei-menu anchor="more" separation="gap">…</tanrei-menu>
 
+    <!-- trigger="context": el menú contextual del área cuyo id es anchor. Dale nombre con aria-label. -->
+    <div id="canvas">…</div>
+    <tanrei-menu id="canvas-menu" anchor="canvas" trigger="context" aria-label="Lienzo">…</tanrei-menu>
+
     <script type="module">
       import '@tanrei/web/components/menu';
       const menu = document.querySelector('tanrei-menu');
@@ -108,6 +114,13 @@ Un elemento con un `href` es un elemento de enlace: el enlace propio de la plata
       menu.querySelector('[label="Copiar"]').addEventListener('click', copy);
       menu.querySelector('[label="Mostrar cuadrícula"]').addEventListener('change', (e) => setGrid(e.detail.checked));
       menu.querySelector('[label="Ordenar por"]').addEventListener('change', (e) => sortBy(e.detail.value));
+
+      // Un clic derecho, una pulsación larga, Mayús+F10 o la tecla de menú contextual en el área piden el menú contextual.
+      // detail lleva el punto, el elemento por el que se pidió y cómo. Ábrelo, o cancela el evento para
+      // dejar la petición al menú propio del navegador.
+      const canvasMenu = document.querySelector('#canvas-menu');
+      canvasMenu.addEventListener('contextrequest', () => (canvasMenu.open = true));
+      canvasMenu.addEventListener('close', () => (canvasMenu.open = false));
     </script>
     ```
   </TabItem>
@@ -132,6 +145,11 @@ Un elemento con un `href` es un elemento de enlace: el enlace propio de la plata
       <MenuItem label="Eliminar" leadingIcon="delete" destructive onClick={remove} />
       {/* Un elemento de enlace. Un enrutador cancela el click y va él mismo al destino; el menú se cierra igualmente. */}
       <MenuItem label="Atajos de teclado" href="/help/shortcuts/" onClick={(e) => { e.preventDefault(); navigate('/help/shortcuts/'); }} />
+    </Menu>
+
+    {/* El menú contextual del área cuyo id es canvas: una petición lo abre. */}
+    <Menu anchor="canvas" trigger="context" aria-label="Lienzo" open={contextOpen} onContextrequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
+      <MenuItem label="Pegar" onClick={paste} />
     </Menu>
     ```
   </TabItem>
@@ -437,6 +455,18 @@ Un elemento de submenú es una fila que termina con el `chevron_right` del conju
 - **Profundidad.** No pases de dos niveles de submenú por debajo del menú. Un tercero se sigue dibujando, y las compilaciones de depuración lo notifican, igual que notifican un submenú sin elementos.
 - El `value` de un grupo solo llega a los elementos de opción de su propia superficie, y cada superficie decide sus propias columnas de marca y de icono.
 
+### Menús contextuales
+
+Un menú contextual ofrece las acciones que se aplican a lo que la persona señala, allí donde lo señala. Es el mismo menú, con los mismos elementos, teclas y submenús, abierto en un punto de un área en lugar de desde un botón.
+
+- **El área.** Pon `trigger` en `context` y `anchor` en el id del área: un lienzo, una lista, una fila de una tabla, un documento. El área no es un botón, así que el menú no escribe en ella ningún estado de ventana emergente.
+- **Cómo se pide.** Un clic derecho (en un Mac, también un clic con Control o con dos dedos), un toque o un lápiz sostenido sin moverse durante medio segundo, Mayús+F10 o la tecla de menú contextual sobre el elemento que tiene el foco, o la orden de menú contextual de un lector de pantalla. El menú emite `contextRequest` con el punto, el elemento por el que se pidió y cómo se pidió: `pointer`, `long-press` o `keyboard`. Tú pones `open`, como al abrirlo desde un ancla.
+- **Dónde se abre.** Con una esquina en el punto, sin separación: por defecto debajo del punto y hacia el final de la línea, como indique `placement`. Cerca de un borde de la ventana se abre al otro lado del punto, en cada eje por separado, de modo que nunca lo tapa. Se mueve con el área cuando la página se desplaza. Pedido con una tecla, se abre junto al elemento que tiene el foco, como junto a un ancla.
+- **El menú propio del navegador.** El menú cancela el menú contextual del navegador en cada petición que atiende. Cancela `contextRequest` para dejar una petición al navegador, por ejemplo sobre un campo, un enlace o un texto seleccionado que tu menú no trata.
+- **Foco y cierre.** El foco pasa al primer elemento habilitado y, al cerrarse, vuelve al elemento que tenía el foco cuando se pidió el menú. Una pulsación en cualquier lugar fuera del menú lo cierra, también dentro del área, y un clic derecho en otro sitio lo cierra y lo vuelve a pedir allí.
+- **Qué poner en él.** Solo acciones que se aplican a lo señalado, las más usadas primero. Ofrece cada una también en otro lugar de tu producto: quien no sabe pedirlo nunca ve un menú contextual.
+- **En iOS** una pulsación larga también puede seleccionar el texto que hay debajo. Si el texto del área no debe seleccionarse, indícalo en sus estilos (`user-select: none`, `-webkit-touch-callout: none`).
+
 ### Apertura, foco y cierre
 
 Un menú es una superposición que la persona maneja y que no es modal. Las personas actúan dentro de él, así que toma el foco y lo devuelve. No se bloquea nada más en la pantalla.
@@ -450,12 +480,12 @@ Un menú es una superposición que la persona maneja y que no es modal. Las pers
 | --- | --- |
 | `escape` | Se pulsó Escape. |
 | `back` | La acción de retroceso de la plataforma, como el botón o el gesto de retroceso de Android. |
-| `outside` | Una pulsación cayó fuera de la superficie y del ancla. |
-| `tab` | Se pulsó Tab o Mayús+Tab. El foco sigue entonces adelante desde el ancla, como habría hecho desde ella. |
+| `outside` | Una pulsación cayó fuera de la superficie y del ancla. En un menú contextual, en cualquier lugar fuera de la superficie, también dentro del área. |
+| `tab` | Se pulsó Tab o Mayús+Tab. El foco sigue entonces adelante desde el ancla, como habría hecho desde ella. En un menú contextual, sigue desde el elemento que tenía el foco cuando se pidió el menú. |
 | `focus-out` | El foco salió del menú de alguna otra forma. |
 | `item` | Se activó un elemento. |
 
-- **Vuelta del foco.** Cuando el menú se cierra y el foco estaba dentro de él, el foco vuelve al ancla.
+- **Vuelta del foco.** Cuando el menú se cierra y el foco estaba dentro de él, el foco vuelve al ancla. Un menú contextual lo devuelve al elemento que tenía el foco cuando se pidió el menú y, si ninguno lo tenía, el foco simplemente sale del menú.
 
 Quién cierra el menú depende de la plataforma. En la web y en React Native, vuelves a poner `open` (`visible`) en false desde el evento de cierre. En Compose, pones `expanded` en false desde `onDismissRequest`, que lleva un `TanreiMenuCloseReason`. En Flutter, el menú llama a `onClose` con el motivo y se cierra solo mediante su controlador. En SwiftUI, el menú escribe `false` en `isPresented`, así que el motivo no se transmite.
 
@@ -489,17 +519,19 @@ También depende de la plataforma que una pulsación fuera llegue además a lo q
 - Un grupo se expone como un grupo que recibe su nombre de su título. Los divisores son separadores que no reciben el foco; donde los grupos se separan con espacio vacío, no hay separador. Los títulos no reciben el foco y no se leen como elementos.
 - Un elemento de submenú se expone como un elemento que abre un menú, con su estado expandido, también mientras está deshabilitado. Su superficie es un menú por sí misma, que recibe su nombre de la etiqueta del elemento, y cada superficie cuenta sus propias posiciones.
 - Al ancla se le indica que abre un menú y si el menú está abierto, donde la plataforma tiene esa propiedad (en la web, `aria-haspopup`, `aria-controls` y `aria-expanded`).
+- Un menú contextual deja su área como está: el área no es un botón y no se le indica que abre un menú. El menú se abre con un clic derecho, una pulsación larga, Mayús+F10, la tecla de menú contextual o la orden de menú contextual de las tecnologías de apoyo, y su único nombre es el `aria-label` que le des, igual que los menús contextuales propios de las plataformas no tienen nombre.
 - Al abrirse, el foco pasa al primer elemento habilitado. Al cerrarse, el foco vuelve al ancla si estaba dentro del menú. Flecha arriba y Flecha abajo dan la vuelta, Inicio y Fin van a los extremos, y al escribir el foco pasa al siguiente elemento cuya etiqueta empieza por las letras escritas. Enter activa y cierra. Espacio en un elemento de casilla de verificación o de opción deja el menú abierto. Escape cierra y devuelve el foco. Tab cierra y sigue adelante desde el ancla. En un submenú, la tecla de flecha hacia el inicio de la línea y Escape cierran solo ese nivel y devuelven el foco a su elemento; las teclas de flecha a lo largo de la línea que no hacen nada nunca llegan a la página que hay detrás del menú.
 - Los elementos deshabilitados se siguen alcanzando con las teclas de flecha, pero no se activan.
 - El anillo de foco se dibuja dentro del elemento, así que la superficie no puede recortarlo. Solo se muestra para el foco del teclado. Un puntero que se mueve sobre un elemento lo muestra con el cursor encima, no con foco.
 - Cada elemento tiene como mínimo la altura del objetivo mínimo, y toda la fila es su área de pulsación.
 - Los elementos crecen con un texto más grande, y la superficie permite el desplazamiento cuando ya no cabe en la pantalla.
 - Mientras la fuente de iconos todavía no puede dibujar una marca que es un glifo, como la marca de verificación, el menú no dibuja nada en su lugar, nunca la palabra «check». Conserva el ancho de la columna y sigue exponiendo el estado marcado, y muestra la marca cuando la fuente se ha cargado.
-- Las compilaciones de depuración notifican un elemento sin etiqueta, un elemento de opción fuera de un grupo, un valor de grupo que no nombra ninguno de sus elementos de opción, dos elementos de opción que comparten un valor, un grupo dentro de un grupo, un elemento con atajo y texto final a la vez, un `separation` o un `iconSpace` que el menú no define, un tercer nivel de submenú y un submenú sin elementos. También notifican un elemento de enlace que abre un contexto nuevo sin `targetLabel`, un `href` en un elemento de casilla de verificación, de opción o de submenú, un `href` que nombra un script o que no se puede leer, un `target` que el menú no define, y `current` en un elemento sin `href`.
+- Las compilaciones de depuración notifican un elemento sin etiqueta, un elemento de opción fuera de un grupo, un valor de grupo que no nombra ninguno de sus elementos de opción, dos elementos de opción que comparten un valor, un grupo dentro de un grupo, un elemento con atajo y texto final a la vez, un `separation` o un `iconSpace` que el menú no define, un tercer nivel de submenú y un submenú sin elementos. También notifican un elemento de enlace que abre un contexto nuevo sin `targetLabel`, un `href` en un elemento de casilla de verificación, de opción o de submenú, un `href` que nombra un script o que no se puede leer, un `target` que el menú no define, y `current` en un elemento sin `href`. Notifican además un `trigger` que el menú no define.
 
 Carencias conocidas por plataforma:
 
 - SwiftUI, Compose, Flutter y React Native no tienen elementos de enlace: ahí un elemento todavía no admite `href`.
+- SwiftUI, Compose, Flutter y React Native no tienen activador contextual: sus menús se abren solo desde un ancla.
 - SwiftUI, Compose, Flutter y React Native no tienen submenús, `separation`, `iconSpace`, `markIcon` ni relleno en una fila marcada. Guardan las columnas de marca e icono en todas las filas de un menú en el que algún elemento dibuje en ellas. Todavía dibujan la marca de verificación como una marca propia en un recuadro de 16, y empiezan el título de un grupo donde empiezan las etiquetas.
 - El punto donde empieza el título con `m3-like` y `cupertino` sigue la regla de Tanrei y no se ha medido frente a los originales.
 - Web: el menú no escucha la petición de cierre de la plataforma, como el gesto de retroceso de Android, así que `back` nunca se envía.
@@ -530,6 +562,7 @@ Carencias conocidas por plataforma:
 - Da nombre al menú mediante su ancla. Da a un ancla que es un botón de icono una etiqueta como «Más» u «Ordenar». En React Native, pasa el mismo nombre como `accessibilityLabel` del menú.
 - En Compose y React Native, expón en el ancla si el menú está abierto. El menú no puede definirlo ahí.
 - Cierra el menú cuando lo pida y no muevas tú el foco cuando se cierre. El menú devuelve el foco al ancla.
+- Da nombre a un menú contextual con `aria-label`, como «Lienzo», y ofrece cada una de sus acciones también en otro lugar de tu producto.
 - Da una etiqueta a todos los elementos, incluidos los que muestran un icono. La etiqueta es el nombre y lo que busca la escritura anticipada.
 - Da al grupo de elementos de opción un título que diga de qué trata la elección.
 - Da una etiqueta a todos los elementos de submenú: da nombre al elemento y al submenú que abre.

@@ -1,0 +1,162 @@
+---
+title: 列表行
+description: 一行文本，前后各有一些内容。一个标题、其上方的一行短文本和下方的一两行文本；起始处是字形、图片或控件，末尾是一个简短的值、字形或控件。放在列表项中时适配列表的每种模式，也可以单独使用。
+translationOf: components/list-row.mdx
+sourceHash: d8e65ec40db0948de1aa23f3b046ca843492f885
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="list-row" />
+
+<DemoFrame label="列表中的行：带开关的静态行、打开某物的行，以及作为链接的行" plain>
+  <tanrei-list dividers style="inline-size: 22rem">
+    <tanrei-list-item>
+      <tanrei-list-row leading-icon="bluetooth" headline="蓝牙" supporting-text="两台设备">
+        <tanrei-switch slot="trailing" label="蓝牙" label-hidden selected></tanrei-switch>
+      </tanrei-list-row>
+    </tanrei-list-item>
+    <tanrei-list-item interactive>
+      <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="已连接到 Harbour" trailing-icon="chevron_right"></tanrei-list-row>
+    </tanrei-list-item>
+    <tanrei-list-item href="#list-row-demo-storage">
+      <tanrei-list-row leading-icon="folder" overline="共享" headline="港口照片" supporting-text="48 项，今天编辑" trailing-text="2.4 GB"></tanrei-list-row>
+    </tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+列表行是大多数列表由之构成的那种行：一个名称、关于它的一两行文字，以及放在它前面和后面的内容。[列表](/zh-cn/components/list/)是一个容器，负责排列各项并把它们变成操作、链接或选项；列表行是某一项显示的内容。把它放在列表项中，或者在只需要一行的地方单独使用。
+
+行只绘制文本和字形。它没有自己的填充、边框、悬停和焦点，本身也从不可按：这由它所在的列表项决定。
+
+在 Web 上它是 `<tanrei-list-row>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 在列表中：行是列表项的直接子元素。列表项把它变成操作、链接或选项。 -->
+    <tanrei-list dividers>
+      <tanrei-list-item interactive>
+        <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="已连接到 Harbour"
+                         trailing-icon="chevron_right"></tanrei-list-row>
+      </tanrei-list-item>
+      <tanrei-list-item>
+        <!-- 静态行可以包含自己的控件；用行的标题为控件命名。 -->
+        <tanrei-list-row headline="蓝牙">
+          <tanrei-switch slot="trailing" label="蓝牙" label-hidden></tanrei-switch>
+        </tanrei-list-row>
+      </tanrei-list-item>
+    </tanrei-list>
+
+    <!-- 起始处一张图片，三行文本。 -->
+    <tanrei-list-row overline="昨天" headline="冈田美良" supporting-text="港口照片已经放进共享文件夹了。" supporting-lines="2">
+      <tanrei-avatar slot="leading" initials="冈" decorative></tanrei-avatar>
+    </tanrei-list-row>
+
+    <script type="module">
+      import '@tanrei/web/components/list';
+      import '@tanrei/web/components/list-row';
+      import '@tanrei/web/components/switch';
+      import '@tanrei/web/components/avatar';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { List, ListItem, ListRow } from '@tanrei/react';
+
+    <List dividers>
+      {networks.map((network) => (
+        <ListItem key={network.id} interactive onClick={() => open(network)}>
+          <ListRow leadingIcon="wifi" headline={network.name} supportingText={network.status} trailingIcon="chevron_right" />
+        </ListItem>
+      ))}
+    </List>
+    ```
+  </TabItem>
+</Tabs>
+
+### 各种列表项中的行
+
+行从它所在的列表项得知这一项是什么，并据此绘制自己：
+
+- **静态项，或单独使用的行。** 行绘制自己的内边距和自己的颜色。起始或末尾插槽中的控件保留自己的焦点和按下。
+- **交互项、链接项或选项。** 列表项为内容加内边距，所以行不绘制自己的内边距，只保持自己的高度：静态项和可按的项混排的一列仍保持同一高度。列表项以行的标题命名，并以行的其他文本描述。被选中的选项会以其选中时的内容颜色绘制行的文本和字形。
+- **可重新排序的列表。** 列表的手柄位于该项起始处、行的前面，取代行起始侧的内边距。
+- **水平列表或换行的列表。** 排成一行时，行的宽度等于其各部分的宽度，从不截断；换行时，行不会比列表更宽，必要时文本会被截断。
+
+请把行作为列表项的直接子元素。在列表项中被其他元素包裹的行得不到任何信息，会像单独使用时那样绘制。
+
+## 规格
+
+<DemoFrame label="一行、两行和三行；图片和值；compact" plain>
+  <tanrei-list-row headline="Wi-Fi" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="已连接到 Harbour" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="folder" overline="共享" headline="港口照片" supporting-text="48 项，今天编辑" trailing-text="2.4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
+</DemoFrame>
+
+<ComponentSpecs name="list-row" />
+
+## 指南
+
+### 何时使用
+
+当列表中的人、地点、设置、消息或文件都显示同样的几个部分时，为每一项使用列表行。如果各项是图块、卡片或图片，就在列表项中放入你自己的内容；正在发送的文件使用[文件项](/zh-cn/components/file-item/)。
+
+### 组成部分
+
+| 部分 | 用途 |
+| --- | --- |
+| 标题 | 该项的名称。辅助技术、可重新排序列表的手柄和输入查找都用它来称呼这一列表项。 |
+| 上标文本 | 名称上方的简短类别、来源或时间。 |
+| 辅助文本 | 该项的内容、状态、消息的开头：一行，或用 `supportingLines` 设为两行。 |
+| 前置字形或插槽 | 该项是哪一类东西（`leadingIcon`），或它的头像或图片（`leading` 插槽）。 |
+| 后置文本 | 一个简短的值：数量、大小、时间、设置的当前值。 |
+| 末尾插槽 | 徽章；在静态行中可以是开关、复选框或纯图标按钮。 |
+| 后置字形 | 表示该行会打开某物的 V 形箭头，或一个状态。 |
+
+标题、上标文本和辅助文本放不下时会以省略号截断；被截断的标题和辅助文本在悬停和键盘聚焦时由工具提示显示全文。后置文本从不超过行宽的一半。
+
+### 密度
+
+在默认系统中，`regular` 行在一行、两行、三行时分别高 56、72、88，适用于既用触摸又用指针的产品。`compact` 行（40、56、72）适用于用指针操作的工具。操作、链接或选项无论密度如何，都不会低于列表自己的最小高度和触摸目标。
+
+### 推荐
+
+- 为每一行提供标题。上标文本保持为简短的类别，后置文本保持为简短的值。
+- 同一列中的行要么都有前置字形或图片，要么都没有，这样文本能对齐。
+- 会打开某物的行，应作为交互项或链接项的内容。
+
+### 避免
+
+- 不要在作为交互项、链接项或选项内容的行中放控件。这样的项是一个元素，辅助技术无法到达其中的控件。这样的行应保持静态。
+- 不要自己给行加点击处理来让它可按。请使用带有焦点、状态和最小目标的列表项。
+- 不要只靠后置字形来说明行的作用。说明它的是标题和列表项的角色。
+
+## 无障碍
+
+<ComponentAccessibility name="list-row" />
+
+### 组件负责的部分
+
+- 行的文本按绘制顺序作为文本朗读：上标文本、标题、辅助文本、后置文本。字形被隐藏。
+- 包含该行的列表项在没有标签时以行的标题命名；操作、链接或选项以行的上标文本、辅助文本和后置文本描述。
+- 被截断的文本对辅助技术始终是完整的。工具提示对辅助技术隐藏，在悬停和列表项获得键盘焦点时打开，指针停在其上时保持显示，按 Escape 关闭。
+- 在从右到左的布局中，行会镜像，每段文本保持自己的方向。
+- 在强制颜色模式下，文本和字形使用系统的文本颜色，禁用项中使用系统的禁用颜色。
+- 调试构建会报告没有标题的行、既不是 1 也不是 2 的 `supportingLines`、被前置插槽取代的前置字形，以及未知的密度。
+
+### 需要你做的事
+
+- 为行提供 `headline`。
+- 用行的标题为静态行中的控件命名：开关叫"蓝牙"，按钮叫"删除 brief.pdf"。
+- 为前置插槽中的头像或图片提供替代文本，或者在标题已经说出这个人时将其隐藏。

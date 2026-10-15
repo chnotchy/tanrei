@@ -2,7 +2,7 @@
 title: リスト
 description: 行、タイル、カード、ファイルなど、プロダクト自身の項目を 1 列、1 行、または折り返してグリッドになる行に並べて保持します。読む、1 つずつ開く、選ぶ、ドラッグして並べ替える、といった操作に使います。
 translationOf: components/list.mdx
-sourceHash: 44e7c407804448e2e2a34486b365e5f53b561213
+sourceHash: a7c35532dba932b8eb282a4f36d7986db3c048ce
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -30,11 +30,9 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 <style>{`
   .demo-tile { display: block; padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-surface-container-highest); color: var(--tanrei-sys-color-on-surface); font: var(--tanrei-sys-typescale-body-font); }
-  .demo-row { display: flex; flex-direction: column; }
-  .demo-row small { color: var(--tanrei-sys-color-on-surface-variant); font: var(--tanrei-sys-typescale-body-small-font); }
 `}</style>
 
-リストは箱です。各項目に表示するのはプロダクト自身のコンテンツ（テキスト、画像、カード、[ファイル項目](/ja/components/file-item/)）です。リストが担うのは項目のまわりのすべてです。項目の並べ方、項目間の余白と線、支援技術にとっての意味、項目間のキーボードフォーカスの移動、どれが選ばれているか、そして並べ替えです。
+リストは箱です。各項目に表示するのはプロダクト自身のコンテンツ（テキスト、画像、カード、[ファイル項目](/ja/components/file-item/)、または[リスト行](/ja/components/list-row/)）です。リスト行は、見出しと1〜2行の補足テキスト、その前後に置く要素からなる行で、多くのリストはこの行でできています。リストが担うのは項目のまわりのすべてです。項目の並べ方、項目間の余白と線、支援技術にとっての意味、項目間のキーボードフォーカスの移動、どれが選ばれているか、そして並べ替えです。
 
 <DemoFrame label="列、行、折り返すグリッド" plain>
   <tanrei-list gap="small" style="inline-size: 16rem">
@@ -58,9 +56,9 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
 
 <DemoFrame label="何かを開く項目、リンクの項目、1 つを選ぶリスト" plain>
   <tanrei-list dividers style="inline-size: 16rem">
-    <tanrei-list-item interactive><span class="demo-row">Wi-Fi<small>Connected</small></span></tanrei-list-item>
-    <tanrei-list-item href="#list-demo-button"><span class="demo-row">Button<small>Actions and toggles</small></span></tanrei-list-item>
-    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
+    <tanrei-list-item interactive><tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected"></tanrei-list-row></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-button"><tanrei-list-row leading-icon="smart_button" headline="Button" supporting-text="Actions and toggles"></tanrei-list-row></tanrei-list-item>
+    <tanrei-list-item href="#list-demo-source" target="new" target-label="opens in a new tab"><tanrei-list-row leading-icon="code" headline="Source code"></tanrei-list-row></tanrei-list-item>
   </tanrei-list>
   <tanrei-list selection="single" label="Theme" value="light" style="inline-size: 16rem">
     <tanrei-list-item value="light">Light</tanrei-list-item>
@@ -90,9 +88,11 @@ import ListReorderProduct from '../../../../components/ListReorderProduct.astro'
       <tanrei-list-item><img src="2.jpg" alt="Market street" /></tanrei-list-item>
     </tanrei-list>
 
-    <!-- Items that are one button or one link each, with lines between them. -->
+    <!-- Items that are one button or one link each, with lines between them. A list row draws a headline and its lines. -->
     <tanrei-list dividers>
-      <tanrei-list-item interactive>Wi-Fi</tanrei-list-item>
+      <tanrei-list-item interactive>
+        <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected"></tanrei-list-row>
+      </tanrei-list-item>
       <tanrei-list-item href="/privacy/">Privacy policy</tanrei-list-item>
       <tanrei-list-item href="https://example.com/tanrei" target="new" target-label="opens in a new tab">Source code</tanrei-list-item>
     </tanrei-list>

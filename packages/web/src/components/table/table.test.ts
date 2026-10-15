@@ -951,7 +951,7 @@ test.describe('accessibility', () => {
       const rows = f.items!.filter((item) => item.kind === 'row' && item.props.placeholder !== true);
       const headed = columns.some((c) => c.props.header);
       // TBL-42: a table whose rows can be chosen has one cell more in every row, the header row's too.
-      const selects = f.props.selection === 'multiple' ? rows.length + (headed ? 1 : 0) : 0;
+      const selects = f.props.selection === 'multiple' || f.props.selection === 'single' ? rows.length + (headed ? 1 : 0) : 0;
       const name = named(f);
       const tableRole = stage(page, f.id).getByRole('table', { name, exact: true });
       await expect(tableRole, f.id).toHaveCount(1);
@@ -1312,9 +1312,9 @@ test.describe('the element and its stylesheet', () => {
 
   test('the stylesheet alone draws every fixture, and defining the element moves nothing (TBL-1, TBL-25)', async ({ page }) => {
     // The tags fixture holds another component, whose own definition draws it, and so do the fixtures whose rows can
-    // be chosen (their checkboxes): they are left out of this measure. A table of native checkboxes is measured with
-    // scripting off and on by TBL-57's test.
-    const fixtures = spec.fixtures.filter((f) => f.id !== 'tags' && f.props.selection !== 'multiple');
+    // be chosen (their checkboxes and radio buttons): they are left out of this measure. A table of native checkboxes
+    // is measured with scripting off and on by TBL-57's test.
+    const fixtures = spec.fixtures.filter((f) => f.id !== 'tags' && f.props.selection !== 'multiple' && f.props.selection !== 'single');
     await withoutScript(page, fixtures);
     expect(await page.evaluate(() => customElements.get('tanrei-table'))).toBeUndefined();
     // Drawn without script: the tokens' paddings, the header's style, the stripes, the scroll box and the parts that stay.
@@ -2379,6 +2379,10 @@ test.describe('the data features in other conditions', () => {
 // ── Rows that can be chosen, and a loading body ──────────────────────────────
 /** The checkbox of a row's selection cell: Tanrei's, or the browser's own. */
 const check = (page: P, id: string, section: 'thead' | 'tbody' | 'tfoot', r: number) => cell(page, id, section, r, 1).locator('> tanrei-checkbox, > input');
+/** The radio button of a row's selection cell under single selection (TBL-60): Tanrei's, or the browser's own. */
+const radio = (page: P, id: string, r: number) => cell(page, id, 'tbody', r, 1).locator('> tanrei-radio-button, > input');
+/** Which rows' radio buttons are checked, in row order. */
+const radioed = (page: P, id: string) => table(page, id).evaluate((el) => [...el.querySelectorAll(':scope > tbody > tr > [data-part="selection"] > :is(tanrei-radio-button, input[type="radio"])')].filter((r) => (r as HTMLInputElement).checked).map((r) => (r.closest('tr') as HTMLElement).dataset.value));
 /** What a checkbox says: checked, mixed, disabled. */
 const said = (locator: Locator) => locator.evaluate((el) => { const c = el as HTMLInputElement; return [c.checked ? 'checked' : c.indeterminate ? 'mixed' : 'unchecked', c.disabled ? 'disabled' : 'enabled'].join(' '); });
 /** The values of the rows drawn as chosen, in row order. */
@@ -2403,7 +2407,7 @@ const NATIVE = `<table><thead><tr><td data-part="selection"><input type="checkbo
   <tr><td data-part="selection"></td><th scope="row">Discontinued</th><td data-align="end">0</td></tr>
   </tbody></table>`;
 const native = (id: string, props: Fixture['props'] = {}) => raw(id, { label: id, selection: 'multiple', selectAllLabel: 'Select all products', ...props }, NATIVE);
-const settled = (page: P, id: string) => host(page, id).evaluate(async (el) => { await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete; await Promise.all([...el.querySelectorAll('tanrei-checkbox')].map((c) => (c as unknown as { updateComplete: Promise<unknown> }).updateComplete)); });
+const settled = (page: P, id: string) => host(page, id).evaluate(async (el) => { await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete; await Promise.all([...el.querySelectorAll('tanrei-checkbox, tanrei-radio-button')].map((c) => (c as unknown as { updateComplete: Promise<unknown> }).updateComplete)); });
 /** TBL-58, TBL-59: rows whose cells hold what answers a press itself, a row of text, rows that cannot be chosen, a table in a cell. */
 const PRESSED = `<table><thead><tr><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="col">Name</th><th scope="col">Note</th></tr></thead><tbody>
   <tr data-value="a"><td data-part="selection"><tanrei-checkbox label-hidden label="A"></tanrei-checkbox></td><th scope="row">Kettle</th><td>Pour <a href="#notes" class="p-link">notes</a> <button type="button" class="p-button">Edit</button> <input class="p-field" aria-label="Note" value="slow"> <label class="p-label"><input type="radio" name="pressed-radio"> Pick</label> <span class="p-own" style="cursor: pointer">open</span> <tanrei-button variant="text">Do</tanrei-button></td></tr>
@@ -2508,7 +2512,7 @@ test.describe('rows that can be chosen', () => {
   });
 
   test('TBL-42: while selection is none the table draws no selection column and no checkbox, ignores every row’s selected and emits no selectionChange', async ({ page }) => {
-    await mountFixtures(page, spec, { fixtures: [{ ...fixture('selection'), id: 'off', props: { caption: 'Off', rowHeaders: true } }, native('none-native', { selection: 'none' }), native('unknown', { selection: 'single' })] });
+    await mountFixtures(page, spec, { fixtures: [{ ...fixture('selection'), id: 'off', props: { caption: 'Off', rowHeaders: true } }, native('none-native', { selection: 'none' }), native('unknown', { selection: 'some' })] });
     const seen = warnings(page);
     // The harness writes no selection cell for a fixture that is not multiple; the native table holds them in its markup.
     for (const id of ['none-native', 'unknown']) {
@@ -3345,12 +3349,234 @@ test.describe('chosen rows and a loading body in other conditions', () => {
     await on.close();
   });
 
-  test('the fixtures that choose rows have no axe violations with their checkboxes changed, in light and dark, and the contrast of a chosen row’s text holds (TBL-43, TBL-46)', async ({ page }) => {
+  test('TBL-42, TBL-60: while selection is single the selection column holds a radio button in each body row that can be chosen and nothing in the header row, as wide as the radio button and a cell’s paddings with its ring at the cell’s padding; the radio buttons share one name — the product’s, or one the table gives those that have none; a control of the other kind is not drawn, and a debug build says so', async ({ page }) => {
+    const seen = warnings(page);
+    const unnamed = raw('unnamed', { label: 'Unnamed', selection: 'single', rowHeaders: true }, `<table><thead><tr><td data-part="selection"></td><th scope="col">Name</th></tr></thead><tbody>${['a', 'b', 'c'].map((v) => `<tr data-value="${v}"><td data-part="selection"><tanrei-radio-button label-hidden${v === 'b' ? ' name="kept"' : ''}></tanrei-radio-button></td><th scope="row">Row ${v}</th></tr>`).join('')}</tbody></table>`);
+    const mixed = raw('mixed', { label: 'Mixed', selection: 'single', rowHeaders: true }, '<table><thead><tr><td data-part="selection"><tanrei-checkbox label-hidden label="All"></tanrei-checkbox></td><th scope="col">Name</th></tr></thead><tbody><tr data-value="a"><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="row">Kettle</th></tr><tr data-value="b"><td data-part="selection"><tanrei-radio-button label-hidden></tanrei-radio-button></td><th scope="row">Scale</th></tr></tbody></table>');
+    await mountFixtures(page, spec, { icons: true, fixtures: [...some('selection-single', 'totals'), unnamed, mixed] });
+    for (const id of ['selection-single', 'unnamed', 'mixed']) await settled(page, id);
+    const id = 'selection-single';
+    const f = fixture(id);
+    const columns = f.items!.filter((item) => item.kind === 'column').length;
+    expect(await table(page, id).evaluate((el) => [...el.rows].map((tr) => [tr.cells.length, tr.cells[0].dataset.part].join(' ')))).toEqual(Array(6).fill(`${columns + 1} selection`));
+    // The header row's selection cell holds nothing: no control stands for every row.
+    expect(await cell(page, id, 'thead', 1, 1).evaluate((el) => el.childElementCount)).toBe(0);
+    for (const r of [1, 2, 3, 4]) await expect(radio(page, id, r)).toBeVisible();
+    await expect(table(page, id).locator('tanrei-checkbox')).toHaveCount(0);
+    // The ring, not the round container, stands at the cell's padding, and the column is as wide as the container and
+    // the paddings: under the default system 20 + 2 × 16 = 52 (the verify).
+    const [ring, container, pad] = [await resolveToken(page, '--tanrei-comp-radio-button-ring-size'), await resolveToken(page, '--tanrei-comp-radio-button-container-size'), await resolveToken(page, T('cell-padding-inline-regular'))];
+    const inset = Math.max(0, pad - (container - ring) / 2);
+    for (const section of ['thead', 'tbody'] as const) near((await box(cell(page, id, section, 1, 1))).width, container + 2 * inset, 0.1);
+    near((await box(cell(page, id, 'tbody', 1, 1))).width, 52, 0.1);
+    const at = await box(cell(page, id, 'tbody', 1, 1));
+    const drawn = await radio(page, id, 1).evaluate((el) => { const r = el.shadowRoot!.querySelector('.ring')!.getBoundingClientRect(); return { left: r.left, middle: (r.top + r.bottom) / 2 }; });
+    near(drawn.left, at.x + pad, 0.6);
+    await expect(radio(page, id, 1)).toHaveAttribute('label-hidden', '');
+    // On the cell's first line, and the row no taller for it.
+    const text = await textBox(cell(page, id, 'tbody', 1, 2));
+    near(drawn.middle, (text.top + text.bottom) / 2, 0.6);
+    near((await box(table(page, id).locator('> tbody > tr').first())).height, (await box(table(page, 'totals').locator('> tbody > tr').first())).height, 0.1);
+    // The fixture's radio buttons keep the name the product gave them; those with none take the product's, or the table's.
+    expect(await table(page, id).evaluate((el) => [...new Set([...el.querySelectorAll('tanrei-radio-button')].map((r) => r.getAttribute('name')))])).toEqual([id]);
+    expect(await table(page, 'unnamed').evaluate((el) => [...el.querySelectorAll('tanrei-radio-button')].map((r) => r.getAttribute('name')))).toEqual(['kept', 'kept', 'kept']);
+    await radio(page, 'unnamed', 2).evaluate((el) => el.removeAttribute('name'));
+    await expect.poll(() => table(page, 'unnamed').evaluate((el) => [...new Set([...el.querySelectorAll('tanrei-radio-button')].map((r) => r.getAttribute('name') ?? ''))].map((n) => /^tanrei-table-\d+$/.test(n)))).toEqual([true]);
+    // They are one group: one chosen at a time.
+    await radio(page, 'unnamed', 1).click();
+    await radio(page, 'unnamed', 3).click();
+    expect(await radioed(page, 'unnamed')).toEqual(['c']);
+    expect(await chosen(page, 'unnamed')).toEqual(['c']);
+    // Let go of single selection, the names the table gave are taken back.
+    await host(page, 'unnamed').evaluate((el) => ((el as unknown as { selection: string }).selection = 'none'));
+    await expect.poll(() => table(page, 'unnamed').evaluate((el) => [...el.querySelectorAll('tanrei-radio-button')].map((r) => r.getAttribute('name')))).toEqual([null, null, null]);
+    // A checkbox under single selection — in the header row or in a body row — is not drawn, and its row cannot be chosen.
+    await expect(cell(page, 'mixed', 'thead', 1, 1).locator('tanrei-checkbox')).toBeHidden();
+    await expect(cell(page, 'mixed', 'tbody', 1, 1).locator('tanrei-checkbox')).toBeHidden();
+    await expect(radio(page, 'mixed', 2)).toBeVisible();
+    await hearChoices(page);
+    await cell(page, 'mixed', 'tbody', 1, 2).click();
+    await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 50)));
+    expect(await choices(page)).toEqual([]);
+    await expect.poll(() => seen.filter((m) => m.includes('TBL-60') && m.includes('header row holds a control')).length).toBe(1);
+    expect(seen.filter((m) => m.includes('TBL-60') && m.includes('holds a checkbox while selection is single')).length).toBe(1);
+    // …and a radio button under multiple selection is not drawn either.
+    await host(page, 'mixed').evaluate((el) => ((el as unknown as { selection: string }).selection = 'multiple'));
+    await expect(radio(page, 'mixed', 2)).toBeHidden();
+    await expect(cell(page, 'mixed', 'tbody', 1, 1).locator('tanrei-checkbox')).toBeVisible();
+    await expect.poll(() => seen.filter((m) => m.includes('TBL-60') && m.includes('holds a radio button while selection is multiple')).length).toBe(1);
+  });
+
+  test('TBL-60, TBL-44, TBL-58, TBL-59: choosing a row lets the chosen one go, with one selectionChange carrying its value alone; the chosen row’s radio button, Space on it and a press on its row change nothing, though the row is drawn hovered as the radio button is; what the product writes is drawn and not emitted, and of several rows marked chosen at once the first stands', async ({ page }) => {
+    const seen = warnings(page);
+    const NATIVE_RADIO = `<table><thead><tr><td data-part="selection"></td><th scope="col">Name</th><th scope="col" data-align="end">Stock</th></tr></thead><tbody>
+      <tr data-value="kettle"><td data-part="selection"><input type="radio" name="pick" value="kettle" aria-label="Select Kettle" checked></td><th scope="row">Kettle</th><td data-align="end">15</td></tr>
+      <tr data-value="scale"><td data-part="selection"><input type="radio" name="pick" value="scale" aria-label="Select Scale"></td><th scope="row">Scale</th><td data-align="end">0</td></tr>
+      <tr data-value="paper"><td data-part="selection"><input type="radio" name="pick" value="paper" aria-label="Select Filter paper"></td><th scope="row">Filter paper</th><td data-align="end">120</td></tr>
+      </tbody></table>`;
+    await mountFixtures(page, spec, { fixtures: [...some('selection-single'), raw('native-radio', { label: 'Native radio', selection: 'single', rowHeaders: true }, NATIVE_RADIO)] });
+    const quiet = async (n: number) => {
+      // The row's click is decided a task after it: give a click that should change nothing the time to have done so.
+      await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 50)));
+      expect(await choices(page)).toHaveLength(n);
+    };
+    for (const id of ['selection-single', 'native-radio']) {
+      await settled(page, id);
+      await hearChoices(page);
+      const order = id === 'selection-single' ? ['paper', 'grinder', 'kettle', 'scale'] : ['kettle', 'scale', 'paper'];
+      // The verify: Kettle is chosen and its radio button checked — for a native one, by its own `checked` (TBL-57).
+      expect(await chosen(page, id)).toEqual(['kettle']);
+      expect(await radioed(page, id)).toEqual(['kettle']);
+      // A press on another row's radio button chooses that row and lets Kettle go, with one event carrying its value.
+      const other = order.indexOf('scale') + 1;
+      await radio(page, id, other).click();
+      await expect.poll(() => choices(page)).toHaveLength(1);
+      expect(await choices(page)).toEqual([{ values: ['scale'], from: 'tanrei-table', cancelable: false }]);
+      expect(await chosen(page, id)).toEqual(['scale']);
+      expect(await radioed(page, id)).toEqual(['scale']);
+      // The chosen row's radio button again, Space on it, a press on its row: nothing changes, nothing is emitted.
+      await radio(page, id, other).click();
+      await quiet(1);
+      await radio(page, id, other).focus();
+      await page.keyboard.press('Space');
+      await quiet(1);
+      await cell(page, id, 'tbody', other, 2).click();
+      await quiet(1);
+      expect(await chosen(page, id)).toEqual(['scale']);
+      // A press on another row's text chooses it (TBL-58).
+      const third = order.indexOf('paper') + 1;
+      await cell(page, id, 'tbody', third, 3).click();
+      await expect.poll(() => choices(page)).toHaveLength(2);
+      expect((await choices(page))[1].values).toEqual(['paper']);
+      expect(await radioed(page, id)).toEqual(['paper']);
+      // TBL-59: under a fine pointer the chosen row is drawn hovered all the same, with the pointer cursor: its press is
+      // its radio button's, which answers a hover while selected.
+      await page.mouse.move(0, 0);
+      await cell(page, id, 'tbody', third, 2).hover();
+      await expect(table(page, id).locator('> tbody > tr').nth(third - 1)).toHaveAttribute('data-tanrei-hit', '');
+      expect(await css(cell(page, id, 'tbody', third, 2), 'cursor')).toBe('pointer');
+      await page.mouse.move(0, 0);
+      // The product chooses another row: drawn, the radio buttons follow, nothing emitted.
+      await table(page, id).locator('> tbody > tr').nth(0).evaluate((el) => el.setAttribute('data-selected', ''));
+      await expect.poll(() => chosen(page, id)).toEqual([order[0]]);
+      expect(await radioed(page, id)).toEqual([order[0]]);
+      // Several written at once: the first in row order stands, and a debug build says so.
+      await table(page, id).evaluate((el) => { el.tBodies[0].rows[1].setAttribute('data-selected', ''); el.tBodies[0].rows[2].setAttribute('data-selected', ''); });
+      await expect.poll(() => chosen(page, id)).toEqual([order[1]]);
+      expect(await radioed(page, id)).toEqual([order[1]]);
+      // The product lets every row go: none is chosen, no radio button is checked.
+      await table(page, id).locator('> tbody > tr').nth(1).evaluate((el) => el.removeAttribute('data-selected'));
+      await expect.poll(() => radioed(page, id)).toEqual([]);
+      expect(await chosen(page, id)).toEqual([]);
+      await frame(page);
+      expect(await choices(page)).toHaveLength(2);
+    }
+    expect(seen.filter((m) => m.includes('TBL-60') && m.includes('2 rows are marked as chosen')).length).toBe(2);
+  });
+
+  test('TBL-61, TBL-47, TBL-46: the radio buttons are one stop — the chosen row’s, or the first row’s while none is — and the arrow keys move focus and the choice from row to row, wrapping, with one selectionChange each; each is a radio named by its row, with its position among them, in no radio group, and the table has no grid and no selected state', async ({ page, browserName }) => {
+    const NATIVE_RADIO = `<table><thead><tr><td data-part="selection"></td><th scope="col">Name</th></tr></thead><tbody>
+      <tr data-value="kettle" data-selected><td data-part="selection"><input type="radio" name="pick" aria-label="Select Kettle"></td><th scope="row">Kettle</th></tr>
+      <tr data-value="scale"><td data-part="selection"><input type="radio" name="pick" aria-label="Select Scale"></td><th scope="row">Scale</th></tr>
+      <tr data-value="paper"><td data-part="selection"><input type="radio" name="pick" aria-label="Select Filter paper"></td><th scope="row">Filter paper</th></tr>
+      </tbody></table>`;
+    // (A fixture with sort buttons after the two: headless Firefox does not wrap Tab around at the last control.)
+    await mountFixtures(page, spec, { fixtures: [...some('selection-single'), raw('native-radio', { label: 'Native radio', selection: 'single' }, NATIVE_RADIO), ...some('sortable')] });
+    for (const id of ['selection-single', 'native-radio']) {
+      await settled(page, id);
+      await hearChoices(page);
+      const order = id === 'selection-single' ? ['paper', 'grinder', 'kettle', 'scale'] : ['kettle', 'scale', 'paper'];
+      const inTable = () => host(page, id).evaluate((el) => { const a = document.activeElement; return a && el.contains(a) ? ((a.closest('tr') as HTMLElement).dataset.value ?? '') : null; });
+      // Tab reaches the chosen row's radio button, and the next Tab leaves the table: one stop.
+      const at = order.indexOf('kettle') + 1;
+      await tabTo(page, radio(page, id, at));
+      expect(await inTable()).toBe('kettle');
+      await tab(page);
+      expect(await inTable()).toBeNull();
+      await tab(page, { back: true });
+      expect(await inTable()).toBe('kettle');
+      // Down moves to the next row's and chooses it, with one event; past the last it wraps to the first; Up goes back.
+      const expected: string[][] = [];
+      let now = at - 1;
+      for (const key of ['ArrowDown', 'ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft']) {
+        now = (now + (key === 'ArrowDown' || key === 'ArrowRight' ? 1 : -1) + order.length) % order.length;
+        await page.keyboard.press(key);
+        await expect.poll(inTable, key).toBe(order[now]);
+        await expect.poll(() => chosen(page, id), key).toEqual([order[now]]);
+        expected.push([order[now]]);
+      }
+      expect((await choices(page)).map((c) => c.values)).toEqual(expected);
+      // While no row is chosen the stop is the first row's. (Of native radio buttons of which none is checked, the browser
+      // decides which one Tab enters at — Chromium, the one focused last — so this is asked of Tanrei's alone.)
+      if (id === 'native-radio') continue;
+      await table(page, id).evaluate((el) => el.querySelectorAll('tr[data-selected]').forEach((tr) => tr.removeAttribute('data-selected')));
+      await expect.poll(() => radioed(page, id)).toEqual([]);
+      await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+      await tabTo(page, radio(page, id, 1));
+      await tab(page);
+      expect(await inTable()).toBeNull();
+      // Space chooses the row whose radio button has focus.
+      await tab(page, { back: true });
+      expect(await inTable()).toBe(order[0]);
+      await page.keyboard.press('Space');
+      await expect.poll(() => chosen(page, id)).toEqual([order[0]]);
+    }
+    // Exposed as radios, named by their rows, in no radio group; still a table, with no grid and no selected state.
+    const f = fixture('selection-single');
+    const tableRole = stage(page, 'selection-single').getByRole('table', { name: named(f), exact: true });
+    await expect(tableRole).toHaveCount(1);
+    const rows = f.items!.filter((item) => item.kind === 'row' && !item.props.footer);
+    for (const r of rows) await expect(tableRole.getByRole('radio', { name: String(r.props.selectLabel), exact: true })).toHaveCount(1);
+    await expect(tableRole.getByRole('radio')).toHaveCount(rows.length);
+    await expect(tableRole.getByRole('checkbox')).toHaveCount(0);
+    await expect(stage(page, 'selection-single').getByRole('radiogroup')).toHaveCount(0);
+    await expect(stage(page, 'selection-single').getByRole('grid')).toHaveCount(0);
+    expect(await host(page, 'selection-single').evaluate((el) => el.querySelectorAll('[aria-selected], [role="grid"], [role="gridcell"], [role="radiogroup"]').length)).toBe(0);
+    // The verify: Chromium's own tree — four radios, one checked, each at its place of four.
+    if (browserName === 'chromium') {
+      await mountFixtures(page, spec, { fixtures: some('selection-single') });
+      await settled(page, 'selection-single');
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send('Accessibility.enable');
+      const { nodes } = await cdp.send('Accessibility.getFullAXTree');
+      await cdp.detach();
+      const kept = nodes.filter((n) => !n.ignored);
+      const count = (role: string) => kept.filter((n) => String(n.role?.value) === role).length;
+      expect({ table: count('table'), row: count('row'), columnheader: count('columnheader'), rowheader: count('rowheader'), radio: count('radio'), checkbox: count('checkbox'), radiogroup: count('radiogroup'), grid: count('grid') }).toEqual({ table: 1, row: 6, columnheader: 3, rowheader: 5, radio: 4, checkbox: 0, radiogroup: 0, grid: 0 });
+      expect(kept.some((n) => n.properties?.some((p) => p.name === 'selected'))).toBe(false);
+      const radios = await stage(page, 'selection-single').locator('tanrei-radio-button').evaluateAll((all) => all.map((r) => { const input = r.shadowRoot!.querySelector('input')!; return [input.getAttribute('aria-label'), input.checked, input.getAttribute('aria-posinset'), input.getAttribute('aria-setsize')].join(' '); }));
+      expect(radios).toEqual(['Select Filter paper false 1 4', 'Select Hand grinder false 2 4', 'Select Kettle true 3 4', 'Select Scale false 4 4']);
+    }
+  });
+
+  test('TBL-57: with scripting off, native radio buttons of one name in the product’s markup exclude each other as the browser makes them, and the row of the checked one is drawn chosen', async ({ page: off }) => {
+    const markup = `<table><thead><tr><td data-part="selection"></td><th scope="col">Name</th></tr></thead><tbody>
+      <tr data-value="kettle"><td data-part="selection"><input type="radio" name="pick" aria-label="Select Kettle" checked></td><th scope="row">Kettle</th></tr>
+      <tr data-value="scale"><td data-part="selection"><input type="radio" name="pick" aria-label="Select Scale"></td><th scope="row">Scale</th></tr>
+      </tbody></table>`;
+    const document = await fixturesDocument(spec, { fixtures: [raw('form', { label: 'form', selection: 'single', rowHeaders: true }, markup)] });
+    const script = document.lastIndexOf('<script type="module">');
+    await off.setContent(`${document.slice(0, script)}</body></html>`);
+    expect(await off.locator('tanrei-table').first().evaluate((el) => el.matches(':defined'))).toBe(false);
+    const fill = await resolveColor(off, T('row-selected-container-color'));
+    const image = (r: number) => css(cell(off, 'form', 'tbody', r, 2), 'background-image');
+    expect(await image(1)).toContain(fill);
+    expect(await image(2)).not.toContain(fill);
+    await radio(off, 'form', 2).click();
+    expect(await image(2)).toContain(fill);
+    expect(await image(1)).not.toContain(fill);
+    // The header row's selection cell is drawn, empty, as wide as the body rows', so that the columns line up.
+    near((await box(cell(off, 'form', 'thead', 1, 1))).width, (await box(cell(off, 'form', 'tbody', 1, 1))).width, 0.1);
+  });
+
+  test('the fixtures that choose rows have no axe violations with their checkboxes and radio buttons changed, in light and dark, and the contrast of a chosen row’s text holds (TBL-43, TBL-46)', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
-      await mountFixtures(page, spec, { theme, icons: true, fixtures: some('selection', 'selection-striped', 'data', 'loading-placeholders') });
+      await mountFixtures(page, spec, { theme, icons: true, fixtures: some('selection', 'selection-striped', 'selection-single', 'data', 'loading-placeholders') });
       await settled(page, 'selection');
+      await settled(page, 'selection-single');
       await check(page, 'selection', 'thead', 1).click();
       await check(page, 'selection-striped', 'tbody', 1).click();
+      await radio(page, 'selection-single', 1).click();
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} (${v.nodes.map((n) => n.target.join(' ')).join('; ')})`).join(', ')}`).toEqual([]);
     }
@@ -3360,9 +3586,9 @@ test.describe('chosen rows and a loading body in other conditions', () => {
 test.describe('fixtures', () => {
   test('every fixture of the spec is mounted', async ({ page }) => {
     await mountFixtures(page, spec);
-    expect(spec.fixtures).toHaveLength(48);
-    // Every fixture is drawn: the twelve that choose rows or load are among them.
-    expect(spec.fixtures.filter((f) => f.props.selection !== undefined || f.props.loading !== undefined).map((f) => f.id)).toEqual(['selection', 'selection-all', 'selection-compact', 'selection-striped', 'selection-sticky-column', 'sortable-selection', 'empty-selection', 'loading', 'loading-placeholders', 'data', 'japanese-data', 'rtl-sortable-selection']);
+    expect(spec.fixtures).toHaveLength(49);
+    // Every fixture is drawn: the thirteen that choose rows or load are among them.
+    expect(spec.fixtures.filter((f) => f.props.selection !== undefined || f.props.loading !== undefined).map((f) => f.id)).toEqual(['selection', 'selection-all', 'selection-compact', 'selection-striped', 'selection-sticky-column', 'selection-single', 'sortable-selection', 'empty-selection', 'loading', 'loading-placeholders', 'data', 'japanese-data', 'rtl-sortable-selection']);
     for (const f of spec.fixtures.filter((each) => each.props.selection === 'multiple')) await expect(host(page, f.id)).toHaveAttribute('selection', 'multiple');
     for (const f of spec.fixtures) expect(await host(page, f.id).evaluate((el) => el.hasAttribute('loading')), f.id).toBe(f.props.loading === true);
     for (const f of spec.fixtures) {

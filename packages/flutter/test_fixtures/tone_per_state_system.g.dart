@@ -460,6 +460,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     focusStateLayerOpacity: 0.1,
     hoverStateLayerOpacity: 0.08,
     pressedStateLayerOpacity: 0.1,
+    selectedStateLayerOpacity: 0.16,
   ),
   measure: TanreiMeasure(
     borderHairline: 1.0,
@@ -2423,6 +2424,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     motionScrollEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    navigationButtonVariant: 2.0,
     parts: TanreiCarouselParts(
       item: TanreiCarouselPartTokens(
         enabled: TanreiCarouselPartStateTokens(
@@ -3564,6 +3566,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     separatorColor: TanreiPaint.role(TanreiColorRole.onSurface),
     separatorTypescale: _typescaleDisplay,
     timeEntryModes: 0.0,
+    timeUnavailableOpacity: 0.38,
     wheelGap: 4.0,
     wheelHeight: 240.0,
     wheelLabelColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
@@ -3677,6 +3680,7 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     actionsGap: 16.0,
     actionsMarginBlockStart: 24.0,
     actionsVariant: 1.0,
+    closeButtonVariant: 4.0,
     compactWindowWidth: 600.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceBright),
     containerElevation: _elevationLevel3,
@@ -3706,6 +3710,9 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     scrimColor: TanreiPaint.role(TanreiColorRole.scrim),
     supportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
     supportingTextTypescale: _typescaleBody,
+    widthLarge: 800.0,
+    widthMedium: 560.0,
+    widthSmall: 400.0,
   ),
   divider: TanreiDividerTokens(
     lineColor: TanreiPaint.role(TanreiColorRole.outlineVariant),
@@ -5143,6 +5150,37 @@ const TanreiSystem tonePerStateSystem = TanreiSystem(
     disabled: TanreiLinkStateTokens(
       containerShape: 3.0,
       opacity: 1.0,
+    ),
+  ),
+  listRow: TanreiListRowTokens(
+    containerGap: 16.0,
+    containerPaddingInlineEnd: 16.0,
+    containerPaddingInlineStart: 16.0,
+    headlineColor: TanreiPaint.role(TanreiColorRole.onSurface),
+    headlineTypescale: _typescaleBody,
+    leadingIconColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    leadingIconSize: 24.0,
+    overlineColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    overlineTypescale: _typescaleLabelSmall,
+    supportingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    supportingTextTypescale: _typescaleBodySmall,
+    trailingIconColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    trailingIconSize: 24.0,
+    trailingTextColor: TanreiPaint.role(TanreiColorRole.onSurfaceVariant),
+    trailingTextTypescale: _typescaleBodySmall,
+    densitys: TanreiListRowDensitys(
+      regular: TanreiListRowDensityTokens(
+        containerHeightOneLine: 56.0,
+        containerHeightTwoLine: 72.0,
+        containerHeightThreeLine: 88.0,
+        containerPaddingBlock: 8.0,
+      ),
+      compact: TanreiListRowDensityTokens(
+        containerHeightOneLine: 40.0,
+        containerHeightTwoLine: 56.0,
+        containerHeightThreeLine: 72.0,
+        containerPaddingBlock: 4.0,
+      ),
     ),
   ),
   list: TanreiListTokens(

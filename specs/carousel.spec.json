@@ -29,6 +29,16 @@
       "optional": true
     },
     {
+      "id": "previous",
+      "description": "The previous control: an icon-only Button over the row's inline start, centred on the row's height, that moves the row back by one resting position. Drawn as navigation says, while there are at least two resting positions (CRL-41).",
+      "optional": true
+    },
+    {
+      "id": "next",
+      "description": "The next control: an icon-only Button over the row's inline end, centred on the row's height, that moves the row on by one resting position. Drawn as navigation says, while there are at least two resting positions (CRL-41).",
+      "optional": true
+    },
+    {
       "id": "controls",
       "description": "The controls row directly below the items, drawn while the indicator or the playback control is. It does not scroll.",
       "optional": true
@@ -104,6 +114,17 @@
       "description": "Whether the row is endless: scrolling past the last item continues to the first, and back. Takes effect only with two or more items; with fewer it is ignored."
     },
     {
+      "name": "navigation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "none"
+      ],
+      "default": "auto",
+      "description": "Whether the previous and next controls are drawn over the ends of the row (CRL-41, CRL-42). auto draws them where the primary pointer is fine and can hover — a mouse or a trackpad, where no finger swipes the row — and shows them while the pointer is over the carousel or focus is within it; always draws them on every device and shows them at all times; none draws neither. Keep auto wherever you can: without the controls a person with a mouse moves the row only with Shift and the wheel, or with the indicator where it is drawn, and never with a single press (WCAG 2.5.7)."
+    },
+    {
       "name": "indicator",
       "type": "boolean",
       "default": false,
@@ -152,6 +173,20 @@
       "default": "",
       "description": "The playback control's accessible name while autoplay is playing (\"Pause the slideshow\"). Required while the control can be drawn.",
       "words": "pauseLabel"
+    },
+    {
+      "name": "previousLabel",
+      "type": "string",
+      "default": "",
+      "description": "The previous control's accessible name (\"Previous walk\"). Required while the control can be drawn.",
+      "words": "previousItemLabel"
+    },
+    {
+      "name": "nextLabel",
+      "type": "string",
+      "default": "",
+      "description": "The next control's accessible name (\"Next walk\"). Required while the control can be drawn.",
+      "words": "nextItemLabel"
     },
     {
       "name": "label",
@@ -274,7 +309,7 @@
     },
     {
       "id": "CRL-17",
-      "text": "THE carousel SHALL be at most three Tab stops, in this order: the playback control while it is drawn (CRL-35), so that the motion can be stopped before anything else is reached; the items, as one stop, at the item that last had keyboard focus in it or else at the resting item (the item at slot 0 while fluidWidth is true, heroAlignment is center or snap is true, and otherwise the first item wholly in view); and the indicator while it is drawn (CRL-29). WHILE an item has keyboard focus Right Arrow and Left Arrow SHALL move focus to the next and previous item, from the last to the first and the first to the last WHILE loop is in effect and otherwise without wrapping, and Home and End to the first and last item; in a right-to-left layout Left Arrow SHALL move to the next item and Right Arrow to the previous."
+      "text": "THE carousel SHALL be at most five Tab stops, in this order: the playback control while it is drawn (CRL-35), so that the motion can be stopped before anything else is reached; the previous and then the next control while they are drawn (CRL-41), before the items, so that a person can move the row before reading it; the items, as one stop, at the item that last had keyboard focus in it or else at the resting item (the item at slot 0 while fluidWidth is true, heroAlignment is center or snap is true, and otherwise the first item wholly in view); and the indicator while it is drawn (CRL-29). WHILE an item has keyboard focus Right Arrow and Left Arrow SHALL move focus to the next and previous item, from the last to the first and the first to the last WHILE loop is in effect and otherwise without wrapping, and Home and End to the first and last item; in a right-to-left layout Left Arrow SHALL move to the next item and Right Arrow to the previous."
     },
     {
       "id": "CRL-18",
@@ -282,15 +317,15 @@
     },
     {
       "id": "CRL-19",
-      "text": "THE carousel SHALL expose its items as a list named by label, and each item as one element with the button role, named by its label, with its position among the items and their number; it SHALL hide each item's content from assistive technology (the label names the item), and SHALL keep items that are out of view exposed, in order, so that a screen reader reaches every item (CRL-18 brings it into view). The indicator (CRL-31) and the playback control (CRL-35) SHALL be outside the list and SHALL NOT be counted among its items."
+      "text": "THE carousel SHALL expose its items as a list named by label, and each item as one element with the button role, named by its label, with its position among the items and their number; it SHALL hide each item's content from assistive technology (the label names the item), and SHALL keep items that are out of view exposed, in order, so that a screen reader reaches every item (CRL-18 brings it into view). The indicator (CRL-31), the playback control (CRL-35) and the previous and next controls (CRL-41) SHALL be outside the list and SHALL NOT be counted among its items."
     },
     {
       "id": "CRL-20",
-      "text": "WHILE an item's label is empty THE carousel SHALL still render it, and in debug builds report that it has no accessible name; WHILE the carousel's label is empty it SHALL report that the list and the indicator have no name; WHILE autoplay and playbackControl are true and playLabel or pauseLabel is empty it SHALL report the missing name; and WHILE indicator is true and the dots do not fit (CRL-29) it SHALL report that they are not drawn. An item's content SHALL contain no interactive element; a platform that can inspect it (the web, on every slot change) SHALL report one in debug builds, and a platform that cannot SHALL state the rule in its README."
+      "text": "WHILE an item's label is empty THE carousel SHALL still render it, and in debug builds report that it has no accessible name; WHILE the carousel's label is empty it SHALL report that the list and the indicator have no name; WHILE autoplay and playbackControl are true and playLabel or pauseLabel is empty it SHALL report the missing name; WHILE the previous and next controls are drawn (CRL-41) and previousLabel or nextLabel is empty it SHALL report the missing name; and WHILE indicator is true and the dots do not fit (CRL-29) it SHALL report that they are not drawn. An item's content SHALL contain no interactive element; a platform that can inspect it (the web, on every slot change) SHALL report one in debug builds, and a platform that cannot SHALL state the rule in its README."
     },
     {
       "id": "CRL-21",
-      "text": "WHEN the carousel's width or its items change THE carousel SHALL arrange its slots again and keep the resting item (CRL-17) where it was, as far as the new range allows, without motion; WHEN the number of items falls below two it SHALL stop looping (CRL-27) and advancing (CRL-32), and no longer draw the indicator or the playback control."
+      "text": "WHEN the carousel's width or its items change THE carousel SHALL arrange its slots again and keep the resting item (CRL-17) where it was, as far as the new range allows, without motion; WHEN the number of items falls below two it SHALL stop looping (CRL-27) and advancing (CRL-32), and no longer draw the indicator, the playback control or the previous and next controls."
     },
     {
       "id": "CRL-22",
@@ -298,11 +333,11 @@
     },
     {
       "id": "CRL-23",
-      "text": "WHEN the layout direction is right-to-left THE carousel SHALL mirror its row and its controls row: the inner start edge at the right, items moving toward the right as p grows, the padding, the scroll direction, the start and end sides of contentAlignment, the order of the dots and the playback control's side all mirrored; it SHALL grow a ripple from the point of contact as in left-to-right, and SHALL NOT mirror an item's content or the pause and play_arrow glyphs."
+      "text": "WHEN the layout direction is right-to-left THE carousel SHALL mirror its row and its controls row: the inner start edge at the right, items moving toward the right as p grows, the padding, the scroll direction, the start and end sides of contentAlignment, the order of the dots, the playback control's side and the sides of the previous and next controls (the previous control at the right) all mirrored; it SHALL grow a ripple from the point of contact as in left-to-right, and SHALL NOT mirror an item's content or the pause and play_arrow glyphs. The chevron_left and chevron_right glyphs of the previous and next controls SHALL be drawn mirrored exactly when the system's icon set marks the name as mirrored, by the Button's own icon helper; THE carousel SHALL NOT mirror a glyph itself."
     },
     {
       "id": "CRL-24",
-      "text": "WHEN heroAlignment or contentAlignment names a value the carousel does not define THE carousel SHALL render with that prop's default value, and in debug builds report the unknown value; WHEN itemWidth or autoplayInterval is not a positive number THE carousel SHALL treat it as null and in debug builds report it."
+      "text": "WHEN heroAlignment, contentAlignment or navigation names a value the carousel does not define THE carousel SHALL render with that prop's default value, and in debug builds report the unknown value; WHEN itemWidth or autoplayInterval is not a positive number THE carousel SHALL treat it as null and in debug builds report it."
     },
     {
       "id": "CRL-25",
@@ -341,7 +376,7 @@
     },
     {
       "id": "CRL-33",
-      "text": "WHILE a pointer is over the carousel (its row or its controls row), focus is anywhere within it however it came there, the person is pressing or dragging the row or the indicator, or the platform reports the carousel's window or document hidden, THE carousel SHALL NOT advance and SHALL hold the time that has passed; WHEN the last hold ends it SHALL continue from the time it held. WHEN the person moves the row (a scroll, a key, the indicator) the time SHALL start again from zero once the row comes to rest. WHEN the person activates the playback control to play, the hover and focus holds in effect at that moment SHALL end, and each SHALL apply again only once the pointer or focus has left the carousel and entered it again."
+      "text": "WHILE a pointer is over the carousel (its row or its controls row), focus is anywhere within it however it came there, the person is pressing or dragging the row or the indicator, or the platform reports the carousel's window or document hidden, THE carousel SHALL NOT advance and SHALL hold the time that has passed; WHEN the last hold ends it SHALL continue from the time it held. WHEN the person moves the row (a scroll, a key, the indicator, the previous or the next control) the time SHALL start again from zero once the row comes to rest. WHEN the person activates the playback control to play, the hover and focus holds in effect at that moment SHALL end, and each SHALL apply again only once the pointer or focus has left the carousel and entered it again."
     },
     {
       "id": "CRL-34",
@@ -372,6 +407,20 @@
       "id": "CRL-40",
       "text": "THE carousel SHALL keep the distance from the drawn end edge of an item's container to the drawn start edge of the next item's container equal to comp.carousel.layout.gap, for every two neighbouring items that are both drawn, at every scroll position: at rest and at every moment of a drag, a fling, a settle, an advance and a move by the keys or the dots, in every combination of heroAlignment, fluidWidth, scaleOthers, contentAlignment, snap and loop, and in both layout directions. The edges are those of the container as it is drawn, after any scale (CRL-26), not those of a box laid out before the scale. THE carousel SHALL place every item it draws in a frame from the same scroll position p, and SHALL NOT ease, delay or animate an item's start, width or scale apart from p. A platform that draws on whole device pixels SHALL round each item's start edge and take its end edge from the next item's rounded start edge less the gap as that platform rounds it, so that the rounding falls on an item's width and never on a gap, and no two gaps in view differ.",
       "verify": "Test between resting positions, not only at rest. Hold the row at p 0.25, 0.5 and 0.75 (write the scroll offset p × (H + g) with settling suspended), and also read the boxes in every frame of one settle and of one advance, for the fixtures `centered`, `content-toward-hero`, `fixed-width`, `scaled` and `loop`, and for the items of `centered` with heroAlignment set to start, with fluid and with fixed widths (a hero at the start has no fixture), each also in a right-to-left stage. Measure the box of every drawn item container (the scaled box, not the item's layout box): each start less the previous end is 8 with the default tokens, to within 0.01. Then run the same test under a system that sets the gap to 12 and the padding to 24, so that a gap that follows the padding, or a literal 8, fails. One screenshot at a device pixel ratio of 1 and a fractional offset counts the surface-colored columns between items along the row's middle line: the same number in every gap. Expected boxes at p 0.5, default tokens, W 368: `centered` 42 to 180, 188 to 326, 334 to 372; `fixed-width` −20 to 180, 188 to 388; `scaled` up to −13, −5 to 180, 188 to 373, from 381; `loop` −4 to 34, 42 to 180, 188 to 326, 334 to 372. A fluid row with its hero at the start, 6 items: −4 to 96, 104 to 254.67, 262.67 to 338.67, 346.67 to 372."
+    },
+    {
+      "id": "CRL-41",
+      "text": "WHILE navigation is auto or always and there are at least two resting positions THE carousel SHALL draw a previous control over the inline start of its row and a next control over its inline end, above the items: the previous control's start edge at the inner start edge and the next control's end edge at the inner end edge, both centred on the row's height. They SHALL be icon-only Buttons of the medium size in the variant comp.carousel.navigation.button.variant names, given through the channel a Button reads from the component that places it and otherwise unrestyled, showing the icon set's chevron_left and chevron_right glyphs and named by previousLabel and nextLabel. WHILE navigation is auto THE carousel SHALL draw them only where the primary pointer is fine and can hover; WHILE navigation is none, or there are fewer than two resting positions, it SHALL draw neither.",
+      "verify": "Default tokens, a 400 stage (W 368): the previous control spans 16 to 56 and the next 344 to 384, centred on the row's 200, so 80 to 120. Test auto under touch emulation as well (a coarse pointer that cannot hover): nothing is drawn and nothing takes focus."
+    },
+    {
+      "id": "CRL-42",
+      "text": "WHILE navigation is auto THE carousel SHALL show the previous and next controls only while a pointer is over the carousel (its row or its controls row) or focus is within it, however it came there, fading them in and out over comp.carousel.motion.state-duration with comp.carousel.motion.state-easing, at once where motion is reduced; hidden, they SHALL keep their place in the Tab order (CRL-17) and stay exposed to assistive technology with their names and states, so that a keyboard reaches them and focus shows them. WHILE navigation is always THE carousel SHALL show them at all times."
+    },
+    {
+      "id": "CRL-43",
+      "text": "WHEN the person activates the previous or the next control THE carousel SHALL move the row to the resting position before or after the one it is at — while it is moving, the one it is moving to; between two resting positions, the nearest one before or after where it is — over comp.carousel.motion.scroll-duration with comp.carousel.motion.scroll-easing (at once where motion is reduced), from the first to the last and from the last to the first WHILE loop is in effect. Focus SHALL stay on the control, and the items' Tab stop (CRL-17) SHALL become the resting item the move brings. WHILE loop is not in effect THE carousel SHALL disable the previous control while the row is at, or moving to, the first resting position, and the next control at the last: drawn and exposed as disabled and refusing activation, but kept in the Tab order and keeping focus, so that the stops do not change as the row moves and focus is never lost when a control reaches its end.",
+      "verify": "Hold the page clock as the autoplay tests do: a press of next while autoplay runs starts the time from zero once the row is at rest (CRL-33)."
     }
   ],
   "accessibility": {
@@ -379,7 +428,7 @@
     "keyboard": [
       {
         "keys": "Tab / Shift+Tab",
-        "action": "Moves through the carousel's stops: the playback control (while it is drawn), then the items as one stop (the item that last had focus, or else the resting item), then the indicator (while it is drawn), and on out (CRL-17)."
+        "action": "Moves through the carousel's stops: the playback control (while it is drawn), the previous and next controls (while they are drawn), then the items as one stop (the item that last had focus, or else the resting item), then the indicator (while it is drawn), and on out (CRL-17)."
       },
       {
         "keys": "Right Arrow / Left Arrow",
@@ -391,13 +440,15 @@
       },
       {
         "keys": "Enter or Space",
-        "action": "On an item: activates it (its click). On the playback control: pauses or plays autoplay."
+        "action": "On an item: activates it (its click). On the playback control: pauses or plays autoplay. On the previous or the next control: moves the row back or on by one position (CRL-43)."
       }
     ],
-    "labeling": "The items are a list named by label. Each item is one button named by its label, with its position and the number of items; its content is not read. The indicator is one slider named by label, whose value text is the current item's label. The playback control is a button named by pauseLabel while playing and by playLabel while paused. Items out of view are still reachable, and focusing one scrolls it into place.",
+    "labeling": "The items are a list named by label. Each item is one button named by its label, with its position and the number of items; its content is not read. The indicator is one slider named by label, whose value text is the current item's label. The playback control is a button named by pauseLabel while playing and by playLabel while paused. Items out of view are still reachable, and focusing one scrolls it into place. The previous and next controls are buttons named by previousLabel and nextLabel, disabled at the ends of a row that does not loop.",
     "minimumTarget": true,
     "notes": [
-      "Scrolling is never the only way to reach an item (WCAG 2.5.7): the arrow keys, the indicator and screen-reader focus move through every item and bring it into place.",
+      "Scrolling is never the only way to reach an item (WCAG 2.5.7, 2.1.1): the previous and next controls move the row one position with a single press of a mouse — drawn by default wherever the primary pointer is fine and can hover —, and the arrow keys, the indicator and screen-reader focus move through every item and bring it into place. The row draws no scroll bar, so without the controls a mouse could move the row only with Shift and the wheel.",
+      "Where the previous and next controls are, and when. They stand over the ends of the row, as the arrows of Ant Design's and Mantine's carousels and the overlay layouts of Fluent 2's do, not in the controls row, which exists only for a featured row with dots or autoplay. By default (auto) they are drawn only for a pointer that is fine and can hover, and shown while it is over the carousel or focus is within it: a touch screen moves the row with the finger's own swipe, and there the controls would stand over the items for good. A product whose people need them on touch as well sets always. Their place in the Tab sequence is the WAI-ARIA carousel example's: the playback control, then previous and next, then the slides.",
+      "A previous or next control at the end of a row that does not loop is disabled but keeps focus and its place in the Tab order (the Button's focusableWhenDisabled), so that pressing next again and again never drops focus to the page, and the number of stops does not change with the scroll.",
       "An item entering or leaving at an edge of a row with fluid widths is, between resting positions, narrower than a touch target (CRL-4, CRL-12). A row that snaps never rests there; a row that does not snap can, and the arrow keys, the indicator and a further scroll all bring that item to a slot, where it has its whole target.",
       "Autoplay (WCAG 2.2.2 Pause, Stop, Hide). A carousel that advances by itself holds while it is hovered, while focus is anywhere in it, while it is pressed and while it is hidden, and it never advances where the platform's reduced-motion setting is on (CRL-33, CRL-34). While autoplay is on, the playback control is drawn by default and is the first Tab stop, so a keyboard user reaches it before the items (CRL-17).",
       "Keep playback controllable. A product may hide the playback control (playbackControl false), but it should keep it wherever it can. The holds are not a way to stop the motion: on touch there is no hover, a finger on the carousel holds it only while it stays there, and a screen reader that reads without moving focus does not hold it at all. Without the control, a person on a phone can stop an autoplaying carousel only through the system's reduced-motion setting. Hide it only where the product gives the person another way to stop the motion, such as a pause for all moving content on the page.",
@@ -414,7 +465,9 @@
     {
       "id": "centered",
       "props": {
-        "label": "Featured walks"
+        "label": "Featured walks",
+        "previousLabel": "Previous walk",
+        "nextLabel": "Next walk"
       },
       "items": [
         {
@@ -459,7 +512,9 @@
       "props": {
         "label": "Walks near you",
         "fluidWidth": false,
-        "snap": false
+        "snap": false,
+        "previousLabel": "Previous walk",
+        "nextLabel": "Next walk"
       },
       "items": [
         {
@@ -505,7 +560,9 @@
         "label": "Featured walks",
         "fluidWidth": false,
         "scaleOthers": true,
-        "loop": true
+        "loop": true,
+        "previousLabel": "Previous walk",
+        "nextLabel": "Next walk"
       },
       "items": [
         {
@@ -549,7 +606,9 @@
       "id": "loop",
       "props": {
         "label": "Featured walks",
-        "loop": true
+        "loop": true,
+        "previousLabel": "Previous walk",
+        "nextLabel": "Next walk"
       },
       "items": [
         {
@@ -595,7 +654,9 @@
         "label": "Walks near you",
         "itemWidth": 120,
         "contentAlignment": "toward-hero",
-        "loop": true
+        "loop": true,
+        "previousLabel": "Previous walk",
+        "nextLabel": "Next walk"
       },
       "items": [
         {
@@ -643,10 +704,58 @@
       ]
     },
     {
+      "id": "navigation",
+      "props": {
+        "label": "Featured walks",
+        "navigation": "always",
+        "previousLabel": "Previous walk",
+        "nextLabel": "Next walk"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Coast path"
+          },
+          "content": "landscape"
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Old forest"
+          },
+          "content": "forest"
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Lake shore"
+          },
+          "content": "water"
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "City park"
+          },
+          "content": "park"
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Dunes"
+          },
+          "content": "sunny"
+        }
+      ]
+    },
+    {
       "id": "indicator",
       "props": {
         "label": "Featured walks",
-        "indicator": true
+        "indicator": true,
+        "previousLabel": "Previous walk",
+        "nextLabel": "Next walk"
       },
       "items": [
         {
@@ -700,7 +809,9 @@
         "indicator": true,
         "autoplay": true,
         "playLabel": "Play the slideshow",
-        "pauseLabel": "Pause the slideshow"
+        "pauseLabel": "Pause the slideshow",
+        "previousLabel": "Previous walk",
+        "nextLabel": "Next walk"
       },
       "items": [
         {
@@ -755,7 +866,9 @@
         "autoplay": true,
         "autoplayProgress": true,
         "playLabel": "Play the slideshow",
-        "pauseLabel": "Pause the slideshow"
+        "pauseLabel": "Pause the slideshow",
+        "previousLabel": "Previous walk",
+        "nextLabel": "Next walk"
       },
       "items": [
         {
@@ -811,7 +924,9 @@
         "paused": true,
         "autoplayProgress": true,
         "playLabel": "Play the slideshow",
-        "pauseLabel": "Pause the slideshow"
+        "pauseLabel": "Pause the slideshow",
+        "previousLabel": "Previous walk",
+        "nextLabel": "Next walk"
       },
       "items": [
         {
@@ -864,7 +979,9 @@
         "label": "Featured walks",
         "autoplay": true,
         "playLabel": "Play the slideshow",
-        "pauseLabel": "Pause the slideshow"
+        "pauseLabel": "Pause the slideshow",
+        "previousLabel": "Previous walk",
+        "nextLabel": "Next walk"
       },
       "items": [
         {
@@ -910,6 +1027,7 @@
         "scaleOthers": "scaleOthers",
         "snap": "snap",
         "loop": "loop",
+        "navigation": "navigation",
         "indicator": "indicator",
         "autoplay": "autoplay",
         "autoplayInterval": "autoplayInterval",
@@ -918,6 +1036,8 @@
         "autoplayProgress": "autoplayProgress",
         "playLabel": "playLabel",
         "pauseLabel": "pauseLabel",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
         "label": "label"
       },
       "events": {
@@ -935,7 +1055,7 @@
           "notes": "A `<tanrei-carousel-item>` child; its content is its default slot."
         }
       },
-      "notes": "Attributes: `hero-alignment`, `item-width` (a number of CSS pixels; without it the property is null), `content-alignment`, `scale-others`, `loop`, `indicator`, `autoplay`, `autoplay-interval` (milliseconds), `paused`, `autoplay-progress`, `play-label`, `pause-label`. `fluidWidth`, `snap` and `playbackControl` are boolean properties that default to true; their attributes are the inverses `fixed-width`, `free-scroll` and `no-playback-control` (an HTML boolean attribute cannot default to true). `pausedchange` is a CustomEvent whose `detail.paused` is the new value. Built on a native horizontal scroller (so wheel, trackpad and touch scroll as the platform does) whose track is as long as the scroll range; the items are placed from its scroll offset (CRL-12), and the settle animates the scroll offset over comp.carousel.motion.scroll-duration and scroll-easing once the scroll ends (`scrollend`, or 100 ms without a scroll event, because not every engine sends `scrollend` after a wheel), since a smooth `scrollTo` cannot follow the tokens. Fling 0.5 px/ms, measured from the finger's last touch moves over their own time stamps; after a fling the settle starts at the release, and the browser's momentum is held until it ends. While loop is in effect the track is several turns long and the offset is moved by a whole number of turns (N × (H + g)) when the row rests near either end, which draws nothing new. Autoplay reads `prefers-reduced-motion` and `document.visibilityState` when it would advance and listens for their changes; the hover hold is `pointerenter` / `pointerleave` on the host, the focus hold `focusin` / `focusout`. The items are placed from one scroll position in one pass, each start rounded to a device pixel and each end taken from the next start (CRL-40). Snapshot harness: a 400 × 200 stage (the carousel fills it: W 368), or 400 × 248 for the fixtures with a controls row, on a `surface` page, scrolled to its start, the pointer outside, motion not reduced and the autoplay clock stopped at the start of its interval."
+      "notes": "Attributes: `hero-alignment`, `item-width` (a number of CSS pixels; without it the property is null), `content-alignment`, `scale-others`, `loop`, `indicator`, `autoplay`, `autoplay-interval` (milliseconds), `paused`, `autoplay-progress`, `play-label`, `pause-label`, `navigation` (reflected), `previous-label`, `next-label`. `fluidWidth`, `snap` and `playbackControl` are boolean properties that default to true; their attributes are the inverses `fixed-width`, `free-scroll` and `no-playback-control` (an HTML boolean attribute cannot default to true). `pausedchange` is a CustomEvent whose `detail.paused` is the new value. Built on a native horizontal scroller (so wheel, trackpad and touch scroll as the platform does) whose track is as long as the scroll range; the items are placed from its scroll offset (CRL-12), and the settle animates the scroll offset over comp.carousel.motion.scroll-duration and scroll-easing once the scroll ends (`scrollend`, or 100 ms without a scroll event, because not every engine sends `scrollend` after a wheel), since a smooth `scrollTo` cannot follow the tokens. Fling 0.5 px/ms, measured from the finger's last touch moves over their own time stamps; after a fling the settle starts at the release, and the browser's momentum is held until it ends. While loop is in effect the track is several turns long and the offset is moved by a whole number of turns (N × (H + g)) when the row rests near either end, which draws nothing new. Autoplay reads `prefers-reduced-motion` and `document.visibilityState` when it would advance and listens for their changes; the hover hold is `pointerenter` / `pointerleave` on the host, the focus hold `focusin` / `focusout`. The items are placed from one scroll position in one pass, each start rounded to a device pixel and each end taken from the next start (CRL-40). The previous and next controls are `<tanrei-button>` elements with `focusable-when-disabled`, given their variant through the Button's group-item channel; auto draws them under `(hover: hover) and (pointer: fine)` and shows them while the host matches `:hover` or `:focus-within`. Snapshot harness: a 400 × 200 stage (the carousel fills it: W 368), or 400 × 248 for the fixtures with a controls row, on a `surface` page, scrolled to its start, the pointer outside, motion not reduced and the autoplay clock stopped at the start of its interval."
     },
     "swiftui": {
       "status": "lagging",
@@ -948,6 +1068,7 @@
         "scaleOthers": "scaleOthers",
         "snap": "snap",
         "loop": "loop",
+        "navigation": "navigation",
         "indicator": "showsIndicator",
         "autoplay": "autoplay",
         "autoplayInterval": "autoplayInterval",
@@ -956,6 +1077,8 @@
         "autoplayProgress": "showsAutoplayProgress",
         "playLabel": "playLabel",
         "pauseLabel": "pauseLabel",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
         "label": "label"
       },
       "events": {
@@ -973,7 +1096,7 @@
           "notes": "`TanreiCarouselItem(_ label: String, action: @escaping () -> Void) { content }`."
         }
       },
-      "notes": "Lagging: ships an earlier revision of this spec, with `layout` and its three values, and no loop, dots or autoplay, and so owes the hero centred by default, the edge slots of no width, the scaled slots closed up and the constant gap as well (CRL-9 to CRL-13, CRL-26, CRL-40). Target API: `TanreiCarousel(_ label: String, heroAlignment: .center, itemWidth: CGFloat? = nil, fluidWidth: true, contentAlignment: .center, scaleOthers: false, snap: true, loop: false, showsIndicator: false, autoplay: false, autoplayInterval: Duration? = nil, isPaused: Binding<Bool>, showsPlaybackControl: true, showsAutoplayProgress: false, playLabel:, pauseLabel:) { TanreiCarouselItem(…) { … } }`; `pausedChange` is the `isPaused` binding, set only by the control. A horizontal `ScrollView` whose content is a track as long as the scroll range, the items placed from the scroll offset by a custom `Layout` (read from `scrollPosition` and the track's geometry), settled by a custom `ScrollTargetBehavior` (iOS 17). The list is an `accessibilityElement(children: .contain)` named by label, and each item a button. SwiftUI has no position-in-set property for a custom container, so VoiceOver's own count of the container's elements stands in; the README says so. Autoplay reads `accessibilityReduceMotion` and `scenePhase`. Snapshot harness: a 400 × 200 frame (400 × 248 with a controls row) on a `surface` page."
+      "notes": "Lagging: ships an earlier revision of this spec, with `layout` and its three values, and no loop, dots or autoplay, and so owes the hero centred by default, the edge slots of no width, the scaled slots closed up and the constant gap as well (CRL-9 to CRL-13, CRL-26, CRL-40), and the previous and next controls with their props navigation, previousLabel and nextLabel (CRL-41 to CRL-43). Target API: `TanreiCarousel(_ label: String, heroAlignment: .center, itemWidth: CGFloat? = nil, fluidWidth: true, contentAlignment: .center, scaleOthers: false, snap: true, loop: false, showsIndicator: false, autoplay: false, autoplayInterval: Duration? = nil, isPaused: Binding<Bool>, showsPlaybackControl: true, showsAutoplayProgress: false, playLabel:, pauseLabel:) { TanreiCarouselItem(…) { … } }`; `pausedChange` is the `isPaused` binding, set only by the control. A horizontal `ScrollView` whose content is a track as long as the scroll range, the items placed from the scroll offset by a custom `Layout` (read from `scrollPosition` and the track's geometry), settled by a custom `ScrollTargetBehavior` (iOS 17). The list is an `accessibilityElement(children: .contain)` named by label, and each item a button. SwiftUI has no position-in-set property for a custom container, so VoiceOver's own count of the container's elements stands in; the README says so. Autoplay reads `accessibilityReduceMotion` and `scenePhase`. Snapshot harness: a 400 × 200 frame (400 × 248 with a controls row) on a `surface` page."
     },
     "compose": {
       "status": "lagging",
@@ -986,6 +1109,7 @@
         "scaleOthers": "scaleOthers",
         "snap": "snap",
         "loop": "loop",
+        "navigation": "navigation",
         "indicator": "indicator",
         "autoplay": "autoplay",
         "autoplayInterval": "autoplayInterval",
@@ -994,6 +1118,8 @@
         "autoplayProgress": "autoplayProgress",
         "playLabel": "playLabel",
         "pauseLabel": "pauseLabel",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
         "label": "contentDescription"
       },
       "events": {
@@ -1011,7 +1137,7 @@
           "notes": "`TanreiCarouselItem(label, onClick) { content }`, called from the carousel's item lambda."
         }
       },
-      "notes": "Lagging: ships an earlier revision of this spec, with `layout` and its three values, and no loop, dots or autoplay, and so owes the hero centred by default, the edge slots of no width, the scaled slots closed up and the constant gap as well (CRL-9 to CRL-13, CRL-26, CRL-40). Target API: `TanreiCarousel(itemCount, contentDescription, heroAlignment, itemWidth: Dp? = null, fluidWidth = true, contentAlignment, scaleOthers = false, snap = true, loop = false, indicator = false, autoplay = false, autoplayInterval: Duration? = null, paused = false, onPausedChange, playbackControl = true, autoplayProgress = false, playLabel, pauseLabel) { index -> TanreiCarouselItem(…) { … } }`, as Material's carousels take an item lambda; built on `Modifier.scrollable` and a custom `Layout`, not Material's carousel (the package does not depend on Material). Settling uses a `SnapFlingBehavior` whose fling threshold is `ViewConfiguration`'s. No list role: `collectionInfo` on the row and `collectionItemInfo` with `Role.Button` on each item. Autoplay reads the animator duration scale (0 is reduced motion) and the lifecycle's resumed state. Snapshot harness: a 400 × 200 dp box (400 × 248 with a controls row) on a `surface` page."
+      "notes": "Lagging: ships an earlier revision of this spec, with `layout` and its three values, and no loop, dots or autoplay, and so owes the hero centred by default, the edge slots of no width, the scaled slots closed up and the constant gap as well (CRL-9 to CRL-13, CRL-26, CRL-40), and the previous and next controls with their props navigation, previousLabel and nextLabel (CRL-41 to CRL-43). Target API: `TanreiCarousel(itemCount, contentDescription, heroAlignment, itemWidth: Dp? = null, fluidWidth = true, contentAlignment, scaleOthers = false, snap = true, loop = false, indicator = false, autoplay = false, autoplayInterval: Duration? = null, paused = false, onPausedChange, playbackControl = true, autoplayProgress = false, playLabel, pauseLabel) { index -> TanreiCarouselItem(…) { … } }`, as Material's carousels take an item lambda; built on `Modifier.scrollable` and a custom `Layout`, not Material's carousel (the package does not depend on Material). Settling uses a `SnapFlingBehavior` whose fling threshold is `ViewConfiguration`'s. No list role: `collectionInfo` on the row and `collectionItemInfo` with `Role.Button` on each item. Autoplay reads the animator duration scale (0 is reduced motion) and the lifecycle's resumed state. Snapshot harness: a 400 × 200 dp box (400 × 248 with a controls row) on a `surface` page."
     },
     "flutter": {
       "status": "lagging",
@@ -1024,6 +1150,7 @@
         "scaleOthers": "scaleOthers",
         "snap": "snap",
         "loop": "loop",
+        "navigation": "navigation",
         "indicator": "indicator",
         "autoplay": "autoplay",
         "autoplayInterval": "autoplayInterval",
@@ -1032,6 +1159,8 @@
         "autoplayProgress": "autoplayProgress",
         "playLabel": "playLabel",
         "pauseLabel": "pauseLabel",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
         "label": "semanticLabel"
       },
       "events": {
@@ -1049,7 +1178,7 @@
           "notes": "`TanreiCarouselItem(label:, onTap:, child:)`, one of the carousel's `children`."
         }
       },
-      "notes": "Lagging: ships an earlier revision of this spec, with `layout` and its three values, and no loop, dots or autoplay, and so owes the hero centred by default, the edge slots of no width, the scaled slots closed up and the constant gap as well (CRL-9 to CRL-13, CRL-26, CRL-40). Target API: `TanreiCarousel(semanticLabel:, heroAlignment: TanreiCarouselHeroAlignment.center, itemWidth: null, fluidWidth: true, contentAlignment: TanreiCarouselContentAlignment.center, scaleOthers: false, snap: true, loop: false, indicator: false, autoplay: false, autoplayInterval: null, paused: false, onPausedChanged:, playbackControl: true, autoplayProgress: false, playLabel:, pauseLabel:, children: [...])`, built on the widgets library's `Scrollable` with a custom layout and `ScrollPhysics` that settle (CRL-14), not Material's `CarouselView`. Each item is `Semantics(button: true, label:)` inside `IndexedSemantics`, and the scrollable reports `semanticChildCount`, so the position and the number of items are read; the whole is a `Semantics(label:, explicitChildNodes: true)` container. Autoplay reads `MediaQuery.disableAnimationsOf` and the app lifecycle. Snapshot harness: a golden of a 400 × 200 surface (400 × 248 with a controls row) on a `surface` page."
+      "notes": "Lagging: ships an earlier revision of this spec, with `layout` and its three values, and no loop, dots or autoplay, and so owes the hero centred by default, the edge slots of no width, the scaled slots closed up and the constant gap as well (CRL-9 to CRL-13, CRL-26, CRL-40), and the previous and next controls with their props navigation, previousLabel and nextLabel (CRL-41 to CRL-43). Target API: `TanreiCarousel(semanticLabel:, heroAlignment: TanreiCarouselHeroAlignment.center, itemWidth: null, fluidWidth: true, contentAlignment: TanreiCarouselContentAlignment.center, scaleOthers: false, snap: true, loop: false, indicator: false, autoplay: false, autoplayInterval: null, paused: false, onPausedChanged:, playbackControl: true, autoplayProgress: false, playLabel:, pauseLabel:, children: [...])`, built on the widgets library's `Scrollable` with a custom layout and `ScrollPhysics` that settle (CRL-14), not Material's `CarouselView`. Each item is `Semantics(button: true, label:)` inside `IndexedSemantics`, and the scrollable reports `semanticChildCount`, so the position and the number of items are read; the whole is a `Semantics(label:, explicitChildNodes: true)` container. Autoplay reads `MediaQuery.disableAnimationsOf` and the app lifecycle. Snapshot harness: a golden of a 400 × 200 surface (400 × 248 with a controls row) on a `surface` page."
     },
     "react-native": {
       "status": "lagging",
@@ -1062,6 +1191,7 @@
         "scaleOthers": "scaleOthers",
         "snap": "snap",
         "loop": "loop",
+        "navigation": "navigation",
         "indicator": "indicator",
         "autoplay": "autoplay",
         "autoplayInterval": "autoplayInterval",
@@ -1070,6 +1200,8 @@
         "autoplayProgress": "autoplayProgress",
         "playLabel": "playLabel",
         "pauseLabel": "pauseLabel",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
         "label": "accessibilityLabel"
       },
       "events": {
@@ -1087,7 +1219,7 @@
           "notes": "`<CarouselItem label onPress>{content}</CarouselItem>`, a child of `Carousel`."
         }
       },
-      "notes": "Lagging: ships an earlier revision of this spec, with `layout` and its three values, and no loop, dots or autoplay, and so owes the hero centred by default, the edge slots of no width, the scaled slots closed up and the constant gap as well (CRL-9 to CRL-13, CRL-26, CRL-40). Target API: `<Carousel accessibilityLabel heroAlignment itemWidth fluidWidth contentAlignment scaleOthers snap loop indicator autoplay autoplayInterval paused onPausedChange playbackControl autoplayProgress playLabel pauseLabel>{items}</Carousel>`: a horizontal `ScrollView` whose content is as long as the scroll range, the items placed from an `Animated` value of its offset; it settles with `scrollTo` after the drag or momentum ends (fling 0.5 pt/ms). The carousel has `role=\"list\"` and each item the `button` role. React Native has no position-in-set property, so an item's position and the number of items are left to the screen reader's own count of the list; the README says so. Autoplay reads `AccessibilityInfo.isReduceMotionEnabled` and `AppState`. No virtualization. Snapshot harness: a 400 × 200 view (400 × 248 with a controls row) on a `surface` page."
+      "notes": "Lagging: ships an earlier revision of this spec, with `layout` and its three values, and no loop, dots or autoplay, and so owes the hero centred by default, the edge slots of no width, the scaled slots closed up and the constant gap as well (CRL-9 to CRL-13, CRL-26, CRL-40), and the previous and next controls with their props navigation, previousLabel and nextLabel (CRL-41 to CRL-43). Target API: `<Carousel accessibilityLabel heroAlignment itemWidth fluidWidth contentAlignment scaleOthers snap loop indicator autoplay autoplayInterval paused onPausedChange playbackControl autoplayProgress playLabel pauseLabel>{items}</Carousel>`: a horizontal `ScrollView` whose content is as long as the scroll range, the items placed from an `Animated` value of its offset; it settles with `scrollTo` after the drag or momentum ends (fling 0.5 pt/ms). The carousel has `role=\"list\"` and each item the `button` role. React Native has no position-in-set property, so an item's position and the number of items are left to the screen reader's own count of the list; the README says so. Autoplay reads `AccessibilityInfo.isReduceMotionEnabled` and `AppState`. No virtualization. Snapshot harness: a 400 × 200 view (400 × 248 with a controls row) on a `surface` page."
     }
   }
 }

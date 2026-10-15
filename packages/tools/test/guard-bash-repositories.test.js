@@ -8,14 +8,16 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, before, test } from 'node:test';
 import { REPO_ROOT } from '../src/conventions.js';
-import { leavesNothingBehind, tempDir } from '../src/test-tmp.js';
+import { forgetHookRepository, leavesNothingBehind, tempDir, throwawayGitEnv } from '../src/test-tmp.js';
 
 leavesNothingBehind(after); // whatever tempDir() made is removed, and the file fails if something stays
+// The guard is imported into this process and runs git itself: under a git hook it would read the hook's repository.
+forgetHookRepository();
 
 const HOOK = path.join(REPO_ROOT, '.claude/hooks/guard-bash.mjs');
 const { blockReason, repositoryAt } = await import(HOOK);
 
-const git = (dir, ...args) => execFileSync('git', ['-C', dir, '-c', 'user.name=t', '-c', 'user.email=t@example.invalid', '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+const git = (dir, ...args) => execFileSync('git', ['-C', dir, '-c', 'user.name=t', '-c', 'user.email=t@example.invalid', '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], env: throwawayGitEnv() });
 /** A repository on `main` with one commit and the given origin. */
 function repository(dir, origin) {
   fs.mkdirSync(dir, { recursive: true });
@@ -75,7 +77,7 @@ test('a different repository inside the tree pushes and tags by its own rules', 
 });
 
 test('the hook reads the project from CLAUDE_PROJECT_DIR and the command from its cwd', () => {
-  const run = (command, cwd) => spawnSync(process.execPath, [HOOK], { input: JSON.stringify({ cwd, tool_input: { command } }), encoding: 'utf8', env: { ...process.env, CLAUDE_PROJECT_DIR: project } });
+  const run = (command, cwd) => spawnSync(process.execPath, [HOOK], { input: JSON.stringify({ cwd, tool_input: { command } }), encoding: 'utf8', env: { ...throwawayGitEnv(), CLAUDE_PROJECT_DIR: project } });
   assert.equal(run('git push', project).status, 2);
   assert.equal(run('git push', worktree).status, 0);
   assert.equal(run('cd records && git push', project).status, 0);
