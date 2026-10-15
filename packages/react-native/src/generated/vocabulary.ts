@@ -263,6 +263,7 @@ export interface TanreiState {
   readonly focusStateLayerOpacity: number;
   readonly hoverStateLayerOpacity: number;
   readonly pressedStateLayerOpacity: number;
+  readonly selectedStateLayerOpacity: number;
 }
 
 /** The dial values this system was derived from (informational at runtime: derivation is build-time). */

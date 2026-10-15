@@ -519,6 +519,7 @@ public struct TanreiState: Sendable, Equatable {
   public var focusStateLayerOpacity: Double
   public var hoverStateLayerOpacity: Double
   public var pressedStateLayerOpacity: Double
+  public var selectedStateLayerOpacity: Double
   /// What a design system added, by key. Empty in a system that adds nothing.
   public var extra: [String: Double]
 
@@ -529,6 +530,7 @@ public struct TanreiState: Sendable, Equatable {
     focusStateLayerOpacity: Double,
     hoverStateLayerOpacity: Double,
     pressedStateLayerOpacity: Double,
+    selectedStateLayerOpacity: Double,
     extra: [String: Double] = [:]
   ) {
     self.disabledContainerOpacity = disabledContainerOpacity
@@ -537,6 +539,7 @@ public struct TanreiState: Sendable, Equatable {
     self.focusStateLayerOpacity = focusStateLayerOpacity
     self.hoverStateLayerOpacity = hoverStateLayerOpacity
     self.pressedStateLayerOpacity = pressedStateLayerOpacity
+    self.selectedStateLayerOpacity = selectedStateLayerOpacity
     self.extra = extra
   }
 
@@ -549,6 +552,7 @@ public struct TanreiState: Sendable, Equatable {
     case "focus-state-layer-opacity": return focusStateLayerOpacity
     case "hover-state-layer-opacity": return hoverStateLayerOpacity
     case "pressed-state-layer-opacity": return pressedStateLayerOpacity
+    case "selected-state-layer-opacity": return selectedStateLayerOpacity
     default: return extra[key]
     }
   }

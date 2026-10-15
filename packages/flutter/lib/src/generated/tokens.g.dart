@@ -1212,6 +1212,7 @@ class TanreiState {
     required this.focusStateLayerOpacity,
     required this.hoverStateLayerOpacity,
     required this.pressedStateLayerOpacity,
+    required this.selectedStateLayerOpacity,
     this.extra = const <String, double>{},
   });
 
@@ -1221,6 +1222,7 @@ class TanreiState {
   final double focusStateLayerOpacity;
   final double hoverStateLayerOpacity;
   final double pressedStateLayerOpacity;
+  final double selectedStateLayerOpacity;
 
   /// What a design system added to the core vocabulary, by token key.
   final Map<String, double> extra;
@@ -1234,6 +1236,7 @@ class TanreiState {
     double? focusStateLayerOpacity,
     double? hoverStateLayerOpacity,
     double? pressedStateLayerOpacity,
+    double? selectedStateLayerOpacity,
     Map<String, double>? extra,
   }) => TanreiState(
         disabledContainerOpacity: disabledContainerOpacity ?? this.disabledContainerOpacity,
@@ -1242,6 +1245,7 @@ class TanreiState {
         focusStateLayerOpacity: focusStateLayerOpacity ?? this.focusStateLayerOpacity,
         hoverStateLayerOpacity: hoverStateLayerOpacity ?? this.hoverStateLayerOpacity,
         pressedStateLayerOpacity: pressedStateLayerOpacity ?? this.pressedStateLayerOpacity,
+        selectedStateLayerOpacity: selectedStateLayerOpacity ?? this.selectedStateLayerOpacity,
         extra: extra == null ? this.extra : <String, double>{...this.extra, ...extra},
       );
 
@@ -1254,6 +1258,7 @@ class TanreiState {
         'focus-state-layer-opacity' => focusStateLayerOpacity,
         'hover-state-layer-opacity' => hoverStateLayerOpacity,
         'pressed-state-layer-opacity' => pressedStateLayerOpacity,
+        'selected-state-layer-opacity' => selectedStateLayerOpacity,
         _ => extra[key],
       };
 }

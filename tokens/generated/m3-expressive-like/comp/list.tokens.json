@@ -198,7 +198,7 @@
             "color": {
               "$type": "color",
               "$value": "{tanrei.sys.color.secondary-container}",
-              "$description": "The fill of a selected option, drawn over whatever the list stands on and under the item's content (LST-25). The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the item's own content color (selected.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json), as the menu values its checked row, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered item. A design system that sets this token draws what it sets. The check is always drawn with the fill; the fill never carries the choice alone.",
+              "$description": "The fill of a selected option, drawn over whatever the list stands on and under the item's content (LST-25). The role named here is the quiet selection's; the default system does not draw that tone — it values this token as a layer of the item's own content color (selected.state-layer.color at the selected layer, sys.state.selected-state-layer-opacity: 16 %, twice the hover layer: tokens/systems/tanrei.system.json), as the menu values its checked row, so that the fill is seen by the same step on whatever the surface is and stands apart from a hovered item. A design system that sets this token draws what it sets. The check is always drawn with the fill; the fill never carries the choice alone.",
               "$extensions": {}
             }
           },
