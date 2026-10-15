@@ -1,4 +1,4 @@
-// <tanrei-menu> and its items, driven by specs/menu.spec.json: every behaviour id (MNU-1…59) is cited by a test title,
+// <tanrei-menu> and its items, driven by specs/menu.spec.json: every behaviour id (MNU-1…63) is cited by a test title,
 // every fixture has a baseline (drawn in place with the `inline` test attribute), and every state, condition and choice
 // of kind is read back from the tokens — never from a number written here.
 import fs from 'node:fs';
@@ -3547,6 +3547,312 @@ test.describe('link items', () => {
     expect(await color('disabled', disabled === 0 ? 1 : 0, '.label')).toBe(text);
     // The row keeps its shape as a row: nothing of a link's underline.
     expect(await css(row(page, 'links', 0), 'text-decoration-line')).toBe('none');
+  });
+});
+
+test.describe('context menu', () => {
+  /**
+   * An area with two buttons in it, in place of the staging's anchor button: the menu's anchor, by its id, is the area
+   * (MNU-60). The area is `style` (fixed, 800 × 600 by default). The product's side, as the docs page writes it: a
+   * request opens the menu, `close` closes it; every request, close and click is logged, with whether the browser's
+   * own context menu events were cancelled.
+   */
+  const contextArea = async (page: P, props: Fixture['props'] = {}, style = 'position: fixed; inset: 0;') => {
+    await mountFixtures(page, spec, { fixtures: [overlay('ctx', EDIT, { trigger: 'context', ...props })] });
+    await page.evaluate((css) => {
+      const button = document.getElementById('a-ctx')!;
+      const area = document.createElement('div');
+      area.id = 'a-ctx';
+      area.style.cssText = css;
+      area.innerHTML = '<button id="b1" type="button" style="position: absolute; left: 40px; top: 40px">One</button><button id="b2" type="button" style="position: absolute; left: 140px; top: 40px">Two</button>';
+      button.replaceWith(area);
+      const log: string[] = ((window as any).log = []);
+      const m = document.querySelector<any>('tanrei-menu')!;
+      m.addEventListener('contextrequest', (e: CustomEvent) => {
+        const { x, y, element, input } = e.detail;
+        log.push(`request:${input}:${Math.round(x)},${Math.round(y)}:${element.id || element.localName}`);
+        if (!(window as any).refuse) m.open = true;
+        else e.preventDefault();
+      });
+      m.addEventListener('close', (e: CustomEvent) => {
+        log.push(`close:${e.detail.reason}`);
+        m.open = false;
+      });
+      for (const el of document.querySelectorAll<any>('tanrei-menu-item')) el.addEventListener('click', () => log.push(`click:${el.label}`));
+      for (const id of ['b1', 'b2']) document.getElementById(id)!.addEventListener('click', () => log.push(`click:${id}`));
+      // Whether the browser would show its own context menu: the event's default, as the window sees it last.
+      window.addEventListener('contextmenu', (e) => log.push(`native:${e.defaultPrevented ? 'cancelled' : 'shown'}`));
+    }, style);
+  };
+  const ctxOpen = (page: P) => isOpen(page, 'ctx');
+  const touch = (page: P, type: string, x: number, y: number, target = '#a-ctx') =>
+    page.evaluate(
+      ([t, px, py, sel]) => {
+        const el = document.querySelector(sel as string)!;
+        el.dispatchEvent(new PointerEvent(t as string, { bubbles: true, composed: true, cancelable: true, pointerType: 'touch', pointerId: 7, isPrimary: true, button: t === 'pointermove' ? -1 : 0, clientX: px as number, clientY: py as number }));
+      },
+      [type, x, y, target] as const,
+    );
+  /** What assistive technology's context-menu command sends: a contextmenu event at the element, no pointer pressed. */
+  const atContextMenu = (page: P, selector: string) =>
+    page.evaluate((sel) => {
+      const el = document.querySelector(sel)!;
+      const r = el.getBoundingClientRect();
+      el.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, composed: true, cancelable: true, clientX: r.x + 2, clientY: r.y + 2, button: 2 }));
+    }, selector);
+  const close = (page: P) => menu(page, 'ctx').evaluate((el: any) => (el.open = false));
+
+  test('MNU-60: a right click, the context-menu command of assistive technology, Shift+F10 and the ContextMenu key ask for the menu once, with the point, the element and how; the browser’s own menu is cancelled; a cancelled request, one an inner element took and one inside the menu are left alone', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await contextArea(page);
+    await page.mouse.click(300, 200, { button: 'right' });
+    await expect.poll(() => ctxOpen(page)).toBe(true);
+    expect(await log(page)).toEqual(['request:pointer:300,200:a-ctx', 'native:cancelled']);
+    await expect.poll(() => focused(page)).toBe('Cut');
+    await close(page);
+    await expect.poll(() => ctxOpen(page)).toBe(false);
+    await page.evaluate(() => ((window as any).log.length = 0));
+    // The command of assistive technology is a contextmenu event with no pointer pressed.
+    await atContextMenu(page, '#b2');
+    const b2 = await bounds(page.locator('#b2'));
+    expect(await log(page)).toEqual([`request:pointer:${Math.round(b2.x + 2)},${Math.round(b2.y + 2)}:b2`, 'native:cancelled']);
+    await close(page);
+    await expect.poll(() => ctxOpen(page)).toBe(false);
+    // Keys, on an element of the area that has focus: the point is its block-end, inline-start corner.
+    const b1 = await bounds(page.locator('#b1'));
+    for (const key of ['Shift+F10', 'ContextMenu']) {
+      await page.evaluate(() => ((window as any).log.length = 0));
+      await page.locator('#b1').focus();
+      await page.keyboard.press(key);
+      await expect.poll(() => ctxOpen(page), key).toBe(true);
+      expect((await log(page)).filter((line) => line !== 'native:cancelled'), key).toEqual([`request:keyboard:${Math.round(b1.x)},${Math.round(b1.y + b1.height)}:b1`]);
+      await expect.poll(() => focused(page)).toBe('Cut');
+      await page.keyboard.press('Escape');
+      await expect.poll(() => ctxOpen(page)).toBe(false);
+    }
+    // A request the product cancels is left to the browser; the menu stays closed.
+    await page.evaluate(() => {
+      (window as any).log.length = 0;
+      (window as any).refuse = true;
+    });
+    await page.mouse.click(300, 200, { button: 'right' });
+    expect(await log(page)).toEqual(['request:pointer:300,200:a-ctx', 'native:shown']);
+    expect(await ctxOpen(page)).toBe(false);
+    await page.evaluate(() => {
+      (window as any).log.length = 0;
+      (window as any).refuse = false;
+      // An element inside the area that takes the event itself.
+      document.getElementById('b2')!.addEventListener('contextmenu', (e) => e.preventDefault());
+    });
+    await atContextMenu(page, '#b2');
+    expect(await log(page)).toEqual(['native:cancelled']);
+    // Nor is one made inside the open menu a request: a menu item's own context menu is the browser's.
+    await page.mouse.click(300, 200, { button: 'right' });
+    await expect.poll(() => ctxOpen(page)).toBe(true);
+    await page.evaluate(() => ((window as any).log.length = 0));
+    await atContextMenu(page, 'tanrei-menu-item');
+    expect(await log(page)).toEqual(['native:shown']);
+  });
+
+  test('MNU-60: a touch held still in the area for the long-press duration asks for the menu, and the release of that press activates nothing; one that moves past the slop or lifts sooner asks nothing (the page clock held)', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await contextArea(page);
+    await holdClock(page);
+    const b1 = await bounds(page.locator('#b1'));
+    const [x, y] = [Math.round(b1.x + 4), Math.round(b1.y + 4)];
+    await touch(page, 'pointerdown', x, y, '#b1');
+    await page.clock.runFor(499);
+    expect(await log(page)).toEqual([]);
+    await page.clock.runFor(1);
+    expect(await log(page)).toEqual([`request:long-press:${x},${y}:b1`]);
+    // Android's own context menu event for the same press comes after: cancelled, asking nothing again.
+    await page.evaluate(([px, py]) => document.getElementById('b1')!.dispatchEvent(new PointerEvent('contextmenu', { bubbles: true, composed: true, cancelable: true, pointerType: 'touch', clientX: px, clientY: py })), [x, y]);
+    // The release and its click go no further than the window: the button under the finger is not pressed.
+    await touch(page, 'pointerup', x, y, '#b1');
+    await page.locator('#b1').evaluate((el: HTMLElement) => el.click());
+    expect(await log(page)).toEqual([`request:long-press:${x},${y}:b1`, 'native:cancelled']);
+    await releaseClock(page);
+    await expect.poll(() => ctxOpen(page)).toBe(true);
+    await close(page);
+    await expect.poll(() => ctxOpen(page)).toBe(false);
+    await holdClock(page);
+    await page.evaluate(() => ((window as any).log.length = 0));
+    // Past the slop of 8 it is a scroll: nothing asked.
+    await touch(page, 'pointerdown', 300, 300);
+    await touch(page, 'pointermove', 309, 300);
+    await page.clock.runFor(600);
+    await touch(page, 'pointerup', 309, 300);
+    // Within the slop, but lifted at 300: nothing asked either.
+    await touch(page, 'pointerdown', 300, 300);
+    await touch(page, 'pointermove', 305, 304);
+    await page.clock.runFor(300);
+    await touch(page, 'pointerup', 305, 304);
+    await page.clock.runFor(600);
+    expect(await log(page)).toEqual([]);
+    // A later click on the button is a click again.
+    await page.locator('#b1').evaluate((el: HTMLElement) => el.click());
+    expect(await log(page)).toEqual(['click:b1']);
+    await releaseClock(page);
+  });
+
+  test('MNU-60: trigger anchor answers none of these and leaves the browser’s menu; an unknown trigger is anchor, and a debug build reports it', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    for (const trigger of ['anchor', 'menu']) {
+      const seen = warnings(page);
+      await contextArea(page, { trigger });
+      await page.mouse.click(300, 200, { button: 'right' });
+      await page.locator('#b1').focus();
+      await page.keyboard.press('Shift+F10');
+      expect(await log(page), trigger).toEqual(['native:shown']);
+      expect(await ctxOpen(page)).toBe(false);
+      expect(seen.some((w) => w.includes('MNU-60') && w.includes('"menu"')), trigger).toBe(trigger === 'menu');
+    }
+  });
+
+  test('MNU-61: the surface opens with a corner on the point, no offset; near the window’s far corner it ends at the point on both axes; mirrored in right-to-left; limited to the room and scrolled; moving with the area; against the focused element for a key; against the area where nothing was asked', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await contextArea(page, {}, 'position: absolute; left: 0; top: 0; inline-size: 800px; block-size: 1400px;');
+    const [offset, margin] = await Promise.all([resolveToken(page, T('surface-offset')), resolveToken(page, T('surface-viewport-margin'))]);
+    const at = async (x: number, y: number) => {
+      await page.mouse.click(x, y, { button: 'right' });
+      await expect.poll(() => ctxOpen(page)).toBe(true);
+      await motionEnded(page);
+      return bounds(surface(page, 'ctx'));
+    };
+    const shut = async () => {
+      await page.keyboard.press('Escape');
+      await expect.poll(() => ctxOpen(page)).toBe(false);
+    };
+    let s = await at(300, 200);
+    expect(s.x).toBeCloseTo(300, 0);
+    expect(s.y).toBeCloseTo(200, 0);
+    await expect(surface(page, 'ctx')).not.toHaveClass(/side-top/);
+    // The page scrolled by 50 moves the surface with the area.
+    await page.evaluate(() => window.scrollBy(0, 50));
+    await expect.poll(async () => (await bounds(surface(page, 'ctx'))).y).toBeCloseTo(150, 0);
+    await shut();
+    await page.evaluate(() => window.scrollTo(0, 0));
+    // Near the window's far corner, clear of its scrollbars.
+    const [vw, vh] = await page.evaluate(() => [document.documentElement.clientWidth, document.documentElement.clientHeight]);
+    s = await at(vw - 30, vh - 30);
+    expect(s.x + s.width).toBeCloseTo(vw - 30, 0);
+    expect(s.y + s.height).toBeCloseTo(vh - 30, 0);
+    await expect(surface(page, 'ctx')).toHaveClass(/side-top/);
+    await shut();
+    // A placement names the corner: top-end puts the surface's block-end, inline-end corner on the point.
+    await menu(page, 'ctx').evaluate((el: any) => (el.placement = 'top-end'));
+    s = await at(500, 400);
+    expect(s.x + s.width).toBeCloseTo(500, 0);
+    expect(s.y + s.height).toBeCloseTo(400, 0);
+    await shut();
+    await menu(page, 'ctx').evaluate((el: any) => (el.placement = 'bottom-start'));
+    // In right-to-left the start corner is the right one.
+    await page.locator('[data-fixture="ctx"]').evaluate((el) => el.setAttribute('dir', 'rtl'));
+    s = await at(500, 200);
+    expect(s.x + s.width).toBeCloseTo(500, 0);
+    expect(s.y).toBeCloseTo(200, 0);
+    await shut();
+    await page.locator('[data-fixture="ctx"]').evaluate((el) => el.removeAttribute('dir'));
+    // Taller than the room on both sides, it takes the larger, limited to it, and its items scroll.
+    await page.setViewportSize({ width: 800, height: 160 });
+    s = await at(300, 30);
+    expect(s.y).toBeCloseTo(30, 0);
+    expect(s.y + s.height).toBeLessThanOrEqual(160 - margin + 0.5);
+    expect(await menu(page, 'ctx').locator('.scroll').evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+    await shut();
+    await page.setViewportSize({ width: 800, height: 600 });
+    // A key places it against the element that has focus, as against an anchor: offset below, start edges aligned.
+    await page.locator('#b2').focus();
+    await page.keyboard.press('Shift+F10');
+    await expect.poll(() => ctxOpen(page)).toBe(true);
+    await motionEnded(page);
+    const b2 = await bounds(page.locator('#b2'));
+    s = await bounds(surface(page, 'ctx'));
+    expect(s.x).toBeCloseTo(b2.x, 0);
+    expect(s.y).toBeCloseTo(b2.y + b2.height + offset, 0);
+    await shut();
+    // Opened with no request since it was last closed, it is placed against the area.
+    await page.locator('#a-ctx').evaluate((el: HTMLElement) => (el.style.cssText = 'position: absolute; left: 100px; top: 100px; inline-size: 200px; block-size: 50px;'));
+    await menu(page, 'ctx').evaluate((el: any) => (el.open = true));
+    await expect.poll(() => ctxOpen(page)).toBe(true);
+    await motionEnded(page);
+    s = await bounds(surface(page, 'ctx'));
+    expect(s.x).toBeCloseTo(100, 0);
+    expect(s.y).toBeCloseTo(150 + offset, 0);
+  });
+
+  test('MNU-62: focus returns to the element that had it when the menu was asked for — none where none had; Tab moves on from it; a press in the area is a press outside, and a second right click asks again at the new point', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await contextArea(page);
+    await page.locator('#b1').focus();
+    const b1 = await bounds(page.locator('#b1'));
+    await page.mouse.click(b1.x + 4, b1.y + 4, { button: 'right' });
+    await expect.poll(() => focused(page)).toBe('Cut');
+    await page.keyboard.press('Escape');
+    await expect.poll(() => ctxOpen(page)).toBe(false);
+    expect(await focused(page)).toBe('b1');
+    // A key on another button; an action returns focus there.
+    await page.locator('#b2').focus();
+    await page.keyboard.press('Shift+F10');
+    await expect.poll(() => focused(page)).toBe('Cut');
+    await page.keyboard.press('Enter');
+    await expect.poll(() => ctxOpen(page)).toBe(false);
+    expect(await focused(page)).toBe('b2');
+    // With focus on nothing, focus leaves the menu and goes nowhere in particular.
+    await page.evaluate(() => (document.activeElement as HTMLElement).blur());
+    await page.mouse.click(400, 400, { button: 'right' });
+    await expect.poll(() => focused(page)).toBe('Cut');
+    await page.keyboard.press('Escape');
+    await expect.poll(() => ctxOpen(page)).toBe(false);
+    expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
+    // Tab moves on from the element focus returns to.
+    await page.locator('#b1').focus();
+    await page.keyboard.press('Shift+F10');
+    await expect.poll(() => focused(page)).toBe('Cut');
+    await tab(page);
+    await expect.poll(() => ctxOpen(page)).toBe(false);
+    expect(await focused(page)).toBe('b2');
+    // A left press in the area closes it; a right press elsewhere closes it and asks again there.
+    await page.mouse.click(400, 400, { button: 'right' });
+    await expect.poll(() => ctxOpen(page)).toBe(true);
+    await page.evaluate(() => ((window as any).log.length = 0));
+    await page.mouse.click(500, 500);
+    await expect.poll(() => ctxOpen(page)).toBe(false);
+    await page.mouse.click(400, 400, { button: 'right' });
+    await expect.poll(() => ctxOpen(page)).toBe(true);
+    await motionEnded(page);
+    await page.mouse.click(200, 300, { button: 'right' });
+    await expect.poll(async () => (await bounds(surface(page, 'ctx'))).x).toBeCloseTo(200, 0);
+    expect(await ctxOpen(page)).toBe(true);
+    expect(await log(page)).toEqual(['close:outside', 'request:pointer:400,400:a-ctx', 'native:cancelled', 'close:outside', 'request:pointer:200,300:a-ctx', 'native:cancelled']);
+  });
+
+  test('MNU-63: the area carries no popup state, open or closed, and keeps the product’s own; the menu is not named by its area and keeps the product’s name; no axe violations', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await contextArea(page, { trigger: 'anchor' });
+    const area = page.locator('#a-ctx');
+    // Opened from it as an anchor, the menu writes its state on it; as a context menu it takes it back.
+    await menu(page, 'ctx').evaluate((el: any) => (el.open = true));
+    await expect(area).toHaveAttribute('aria-haspopup', 'menu');
+    await menu(page, 'ctx').evaluate((el: any) => {
+      el.open = false;
+      el.trigger = 'context';
+    });
+    await expect(area).not.toHaveAttribute('aria-haspopup');
+    await expect(area).not.toHaveAttribute('aria-expanded');
+    await expect(area).not.toHaveAttribute('aria-controls');
+    await area.evaluate((el) => el.setAttribute('aria-describedby', 'b1'));
+    await menu(page, 'ctx').evaluate((el) => el.setAttribute('aria-label', 'Canvas actions'));
+    await page.mouse.click(300, 200, { button: 'right' });
+    await expect.poll(() => ctxOpen(page)).toBe(true);
+    for (const name of ['aria-haspopup', 'aria-expanded', 'aria-controls']) await expect(area).not.toHaveAttribute(name);
+    await expect(area).toHaveAttribute('aria-describedby', 'b1');
+    await expect(menu(page, 'ctx')).toHaveAttribute('role', 'menu');
+    await expect(menu(page, 'ctx')).not.toHaveAttribute('aria-labelledby');
+    await expect(menu(page, 'ctx')).toHaveAttribute('aria-label', 'Canvas actions');
+    await motionEnded(page);
+    const results = await new AxeBuilder({ page }).include('.stage').analyze();
+    expect(results.violations.map((v) => v.id)).toEqual([]);
   });
 });
 
