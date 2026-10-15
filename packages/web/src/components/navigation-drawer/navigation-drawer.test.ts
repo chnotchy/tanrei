@@ -3079,11 +3079,20 @@ test.describe('the row model shared with the tree view', () => {
     const long = item(page, 'one-line', 1).locator('.label');
     expect(await long.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
     expect(await css(long, 'text-overflow')).toBe('ellipsis');
+    const delay = await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration');
+    expect(delay).toBeGreaterThan(0);
+    // The show delay runs on the page's clock, held still and moved on by the test: a row drawn whole shows nothing
+    // once it is over; a cut one nothing a millisecond before it, and its tooltip at it.
+    await holdClock(page);
     await cell(page, 'one-line', 0).hover();
-    await page.waitForTimeout((await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration')) + 150);
+    await page.clock.runFor(delay);
     expect(await open('one-line', 0)).toBe(false);
     await cell(page, 'one-line', 1).hover();
-    await expect.poll(() => tip('one-line', 1).evaluate((el: any) => el.open)).toBe(true);
+    await page.clock.runFor(delay - 1);
+    expect(await open('one-line', 1)).toBe(false);
+    await page.clock.runFor(1);
+    expect(await tip('one-line', 1).evaluate((el: any) => el.open)).toBe(true);
+    await releaseClock(page);
     // A rich tooltip: the label as its title, the supporting text as its text.
     expect(await tip('one-line', 1).evaluate((el: any) => [el.variant, el.title, el.text])).toEqual(['rich', 'A destination whose name is far too long for one line of the drawer', 'and a note that is also longer than the row can hold']);
     await page.keyboard.press('Escape');
@@ -3097,8 +3106,9 @@ test.describe('the row model shared with the tree view', () => {
     await expect(cell(page, 'one-line', 1)).toHaveAttribute('aria-label', 'A destination whose name is far too long for one line of the drawer');
     // labelWrap: drawn whole, so no tooltip.
     expect(await item(page, 'label-wrap', 1).locator('.label').evaluate((el) => el.scrollWidth <= el.clientWidth + 0.5)).toBe(true);
+    await holdClock(page);
     await cell(page, 'label-wrap', 1).hover();
-    await page.waitForTimeout((await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration')) + 150);
+    await page.clock.runFor(delay);
     expect(await open('label-wrap', 1)).toBe(false);
   });
 
