@@ -2,7 +2,7 @@
   "$schema": "./component.schema.json",
   "name": "menu",
   "title": "Menu",
-  "summary": "Offers a short set of actions or choices on a temporary surface that opens from the element that asked for it, with a second level in a submenu where the set needs one.",
+  "summary": "Offers a short set of actions or choices on a temporary surface that opens from the element that asked for it, or at the point in an area where a person asked for it (a context menu), with a second level in a submenu where the set needs one.",
   "category": "selection",
   "level": "base",
   "listing": "default",
@@ -12,7 +12,7 @@
   "anatomy": [
     {
       "id": "surface",
-      "description": "The floating sheet that holds the items: its color, corners, elevation and padding. It is placed against the anchor and drawn above everything else."
+      "description": "The floating sheet that holds the items: its color, corners, elevation and padding. It is placed against the anchor, or at the point a context menu was asked for, and drawn above everything else."
     },
     {
       "id": "container",
@@ -87,7 +87,7 @@
       "name": "open",
       "type": "boolean",
       "default": false,
-      "description": "Whether the menu is shown. The product opens it from its anchor (a button, an icon-only Button, a field). Where open is a plain value (web, Compose, React Native) the product closes the menu by setting it to false when the menu emits close; where it is a binding or a controller (SwiftUI, Flutter) the menu closes itself through it (MNU-5)."
+      "description": "Whether the menu is shown. The product opens it from its anchor (a button, an icon-only Button, a field), or on contextRequest while trigger is context. Where open is a plain value (web, Compose, React Native) the product closes the menu by setting it to false when the menu emits close; where it is a binding or a controller (SwiftUI, Flutter) the menu closes itself through it (MNU-5)."
     },
     {
       "name": "placement",
@@ -99,7 +99,17 @@
         "top-end"
       ],
       "default": "bottom-start",
-      "description": "Where the surface goes against the anchor: below or above it, with its start or end edge aligned to the anchor's. The menu flips to the other side when this side has no room."
+      "description": "Where the surface goes against the anchor: below or above it, with its start or end edge aligned to the anchor's. The menu flips to the other side when this side has no room. For a context menu opened at a point it is where the surface goes from the point: bottom-start puts its block-start, inline-start corner there (MNU-61)."
+    },
+    {
+      "name": "trigger",
+      "type": "enum",
+      "values": [
+        "anchor",
+        "context"
+      ],
+      "default": "anchor",
+      "description": "What the menu opens from. anchor: the product opens it from its anchor — a button, an icon-only Button, a field — and the surface is placed against the anchor's edges. context: the menu is the context menu of an area, and the anchor is that area (a canvas, a list, a row, a document's body of text); a person asks for the menu at a point in it — a secondary click, a long press of a touch or a pen, Shift+F10 or the ContextMenu key on the element of the area that has focus — and the menu emits contextRequest, the product sets open, and the surface opens at that point, or against that element for the keyboard. The items, the keys, the submenus and the close reasons are the same in both (MNU-60 to MNU-63)."
     },
     {
       "name": "separation",
@@ -425,6 +435,10 @@
     {
       "name": "close",
       "description": "The menu asks to be closed, every open submenu with it: Escape or the platform's back while no submenu is open, a press outside, Tab, focus leaving it, or an item's activation at any level. Carries which of these it was, named escape, back, outside, tab, focus-out or item (in the platform's casing). Closing a submenu alone is the submenu item's toggle, not this event."
+    },
+    {
+      "name": "contextRequest",
+      "description": "While trigger is context: the person asked for the context menu in the anchor's area. Carries the point in the viewport's coordinates, the element it was asked about (the one under the pointer, or the one with focus) and how it was asked: pointer (a secondary click, or the context-menu command of assistive technology), long-press (a touch or a pen held still) or keyboard (Shift+F10, the ContextMenu key). Set open to true to show the menu there. Cancelling it leaves the request to the platform: its own context menu answers it (MNU-60)."
     }
   ],
   "states": [
@@ -438,11 +452,11 @@
   "behavior": [
     {
       "id": "MNU-1",
-      "text": "WHEN open becomes true THE menu SHALL present its surface in the platform's overlay layer (the web's top layer through the popover API, SwiftUI's popover, Compose's Popup, Flutter's Overlay, React Native's overlay layer that TanreiProvider renders), above other content at comp.menu.surface.elevation, and SHALL move focus to its first enabled item; WHEN open becomes false THE menu SHALL remove the surface and, if focus was inside it, return focus to the anchor. A menu is an operated overlay, so it takes focus and returns it although it is not modal."
+      "text": "WHEN open becomes true THE menu SHALL present its surface in the platform's overlay layer (the web's top layer through the popover API, SwiftUI's popover, Compose's Popup, Flutter's Overlay, React Native's overlay layer that TanreiProvider renders), above other content at comp.menu.surface.elevation, and SHALL move focus to its first enabled item; WHEN open becomes false THE menu SHALL remove the surface and, if focus was inside it, return focus to the anchor (a context menu: to the element MNU-62 names). A menu is an operated overlay, so it takes focus and returns it although it is not modal."
     },
     {
       "id": "MNU-2",
-      "text": "THE menu SHALL place its surface comp.menu.surface.offset from the anchor on the side and edge that placement names (bottom-start: below the anchor with the start edges aligned; bottom-end: below with the end edges aligned; top-start and top-end: above); WHERE that side has less room than the surface needs within comp.menu.surface.viewport-margin of the viewport's edge and the other side has more THE menu SHALL flip to the other side; it SHALL shift along the anchor to stay within that margin, SHALL limit its height to the room left and scroll its items beyond it, and SHALL keep following the anchor while it moves. WHEN the layout direction is right-to-left start and end SHALL mirror."
+      "text": "WHILE trigger is anchor THE menu SHALL place its surface comp.menu.surface.offset from the anchor on the side and edge that placement names (bottom-start: below the anchor with the start edges aligned; bottom-end: below with the end edges aligned; top-start and top-end: above); WHERE that side has less room than the surface needs within comp.menu.surface.viewport-margin of the viewport's edge and the other side has more THE menu SHALL flip to the other side; it SHALL shift along the anchor to stay within that margin, SHALL limit its height to the room left and scroll its items beyond it, and SHALL keep following the anchor while it moves. WHEN the layout direction is right-to-left start and end SHALL mirror."
     },
     {
       "id": "MNU-3",
@@ -454,7 +468,7 @@
     },
     {
       "id": "MNU-5",
-      "text": "WHEN the user presses Escape or the platform's back while no submenu is open, presses outside every surface of the menu and the anchor, presses Tab or Shift+Tab at any level, or moves focus out of the menu and all of its submenus THE menu SHALL emit close once with that reason and SHALL be closed, every open submenu with it (MNU-49): through its binding or controller where open is one (SwiftUI, Flutter), and by the product setting open to false where open is a plain value (web, Compose, React Native); Tab and Shift+Tab SHALL then move focus on from the anchor as they would have from it. Whether a press outside also reaches the element under it SHALL follow the platform and be stated in its README."
+      "text": "WHEN the user presses Escape or the platform's back while no submenu is open, presses outside every surface of the menu and the anchor (the area of a context menu is outside, MNU-62), presses Tab or Shift+Tab at any level, or moves focus out of the menu and all of its submenus THE menu SHALL emit close once with that reason and SHALL be closed, every open submenu with it (MNU-49): through its binding or controller where open is one (SwiftUI, Flutter), and by the product setting open to false where open is a plain value (web, Compose, React Native); Tab and Shift+Tab SHALL then move focus on from the anchor as they would have from it (a context menu: from the element MNU-62 names). Whether a press outside also reaches the element under it SHALL follow the platform and be stated in its README."
     },
     {
       "id": "MNU-6",
@@ -535,7 +549,7 @@
     },
     {
       "id": "MNU-24",
-      "text": "THE menu SHALL expose the menu role, named by its anchor; each item as a menu item, a link item included (MNU-53), each checkbox item as a menu item checkbox and each radio item as a menu item radio with its checked state, whatever its mark looks like, each with its position and the size of the surface it is in, named by label and described by supporting text, a link item that opens a new context also by its targetLabel (MNU-55), and a link item that is current with the current state (MNU-58); each submenu item as a menu item that opens a menu, with whether that menu is open (aria-haspopup with the value menu, and aria-expanded, on the web), described also by its trailing text, and each submenu's surface as a menu of its own named by its submenu item's label; shortcut SHALL be exposed as the item's keyboard shortcut in the form KBS-12 gives (aria-keyshortcuts on the web) where the platform has that property, and otherwise the text KBS-10 gives as the item's description; trailing text SHALL be exposed as the item's description only, never as a keyboard shortcut, whatever it holds; icons, the mark and the submenu indicator SHALL be hidden; each group SHALL be exposed as a group, named by its title where it has one. THE menu SHALL also expose on its anchor that it opens a menu and whether the menu is open, where the platform has that property."
+      "text": "THE menu SHALL expose the menu role, named by its anchor (a context menu as MNU-63 says); each item as a menu item, a link item included (MNU-53), each checkbox item as a menu item checkbox and each radio item as a menu item radio with its checked state, whatever its mark looks like, each with its position and the size of the surface it is in, named by label and described by supporting text, a link item that opens a new context also by its targetLabel (MNU-55), and a link item that is current with the current state (MNU-58); each submenu item as a menu item that opens a menu, with whether that menu is open (aria-haspopup with the value menu, and aria-expanded, on the web), described also by its trailing text, and each submenu's surface as a menu of its own named by its submenu item's label; shortcut SHALL be exposed as the item's keyboard shortcut in the form KBS-12 gives (aria-keyshortcuts on the web) where the platform has that property, and otherwise the text KBS-10 gives as the item's description; trailing text SHALL be exposed as the item's description only, never as a keyboard shortcut, whatever it holds; icons, the mark and the submenu indicator SHALL be hidden; each group SHALL be exposed as a group, named by its title where it has one. WHILE trigger is anchor THE menu SHALL also expose on its anchor that it opens a menu and whether the menu is open, where the platform has that property."
     },
     {
       "id": "MNU-25",
@@ -652,7 +666,7 @@
     },
     {
       "id": "MNU-49",
-      "text": "WHEN the menu is closed — for a reason MNU-5 or MNU-6 names, at whatever level it arose, or because the product sets open to false — THE menu SHALL close every open submenu with it at once, emit close once and never once for each level, set each closed submenu item's open to false without emitting its toggle, and return focus to the anchor as MNU-1 says, not to a submenu item; a press inside any surface of the menu SHALL NOT count as a press outside, and focus moving between the menu's surfaces SHALL NOT count as focus leaving it. The surfaces SHALL fade out together as MNU-4 says.",
+      "text": "WHEN the menu is closed — for a reason MNU-5 or MNU-6 names, at whatever level it arose, or because the product sets open to false — THE menu SHALL close every open submenu with it at once, emit close once and never once for each level, set each closed submenu item's open to false without emitting its toggle, and return focus to the anchor as MNU-1 says (a context menu: to the element MNU-62 names), not to a submenu item; a press inside any surface of the menu SHALL NOT count as a press outside, and focus moving between the menu's surfaces SHALL NOT count as focus leaving it. The surfaces SHALL fade out together as MNU-4 says.",
       "verify": "Test with two levels open: a press outside, Tab, and an action in the innermost submenu each emit close once, with the reasons outside, tab and item, and leave no surface shown."
     },
     {
@@ -703,6 +717,26 @@
       "id": "MNU-59",
       "text": "THE menu SHALL decide the mark column and the leading icon column for each section of a surface — a group, with the items of a group inside it (MNU-29), or a run of adjacent items outside any group: the parts MNU-36 draws as tiles — and each of the two columns by itself. WHILE iconSpace is auto a row SHALL keep a column, empty where it draws nothing in it, WHERE an item of its section draws in it — a checkbox or radio item its mark, whether checked or not and whatever the mark is (MNU-38), an item its leading icon — so that the labels of a section start on one line, and a section where no item draws in a column SHALL keep no room for it, its labels starting that much nearer the row's start; WHILE iconSpace is always every row SHALL keep both columns, whether or not any item of the surface draws in them; WHILE iconSpace is never a row SHALL have a column only where it draws in it itself. The room kept is the column's box (comp.menu.mark.size for the mark, comp.menu.leading-icon.size for the icon) and comp.menu.container.gap after it, draws nothing and is nothing to assistive technology. A submenu item has no mark and so draws nothing in the mark column (MNU-42). Each surface SHALL be decided by itself, every submenu with the menu's iconSpace; a group's title SHALL keep its own place whatever the columns of its section are (MNU-28). WHEN an item is added or removed, or an item's kind or leadingIcon changes, THE menu SHALL decide the item's section again; WHEN iconSpace names a value the menu does not define THE menu SHALL treat it as auto and in debug builds report the unknown value.",
       "verify": "Fixture icon-space-auto (in the default system): Cut and Copy have icons and Paste has none, so Paste's label starts where Copy's does, with no mark column before any of them; in the group View, Show grid and Show rulers are checkbox items and Zoom to fit an action, whose label starts where theirs do, after the mark column and with no icon column; in the last group, Settings and Help have neither, so their labels start at the row's content start, 16 from the sheet's edge (its padding of 4 and the row's of 12). Fixture icon-space-always: the same items, every label after both columns. Fixture icon-space-never: Paste's and Zoom to fit's labels start at the row's content start, each other label after its own mark or icon only. Test a leadingIcon given to Settings (its group then keeps the icon's room on Help), a submenu, and an unknown value (auto, reported)."
+    },
+    {
+      "id": "MNU-60",
+      "text": "WHILE trigger is context, WHEN the person asks for a context menu in the anchor's area — a secondary click (a right click, a Control-click, a two-finger click on a trackpad), the context-menu command of assistive technology, a press of a touch or a pen held within the platform's touch slop (8 points where the platform names none) for the platform's long-press duration (500 ms where the platform names none), or Shift+F10 or the ContextMenu key with no other modifier while focus is on the area or on an element inside it — THE menu SHALL emit contextRequest once, with the point in the viewport's coordinates (where the pointer is, where the press began, or the block-end, inline-start corner of the element that has focus), the element under the pointer or with focus, and how it was asked (pointer, long-press or keyboard), and SHALL NOT open itself: the product sets open to true (MNU-1). Unless the product cancels contextRequest, THE menu SHALL keep the platform's own context menu from answering the request, and after a long press SHALL keep the release of that press from activating what is under it; a cancelled request SHALL be left to the platform. A request that an element inside the area has already taken (on the web, a contextmenu event whose default is prevented) and one made inside the menu's own surfaces SHALL NOT be answered. WHILE trigger is anchor THE menu SHALL answer none of these. WHEN trigger names a value the menu does not define THE menu SHALL treat it as anchor and in debug builds report the unknown value.",
+      "verify": "Test an area: a right click, a contextmenu event from assistive technology, a touch held 500 ms (the page clock held: not at 499), Shift+F10 and the ContextMenu key on a button inside it each emit contextRequest once with the point, the element and the input, and the browser's contextmenu is cancelled; a touch that moves past 8 or lifts sooner requests nothing; the release of the long press activates nothing; a cancelled request leaves the browser's contextmenu uncancelled; a contextmenu an inner element cancelled and one inside the menu request nothing; trigger anchor answers none; an unknown trigger is anchor, reported."
+    },
+    {
+      "id": "MNU-61",
+      "text": "WHILE trigger is context THE menu SHALL place its surface at the point of the last contextRequest, with no offset, as placement names it from the point (bottom-start: the surface's block-start, inline-start corner on the point; bottom-end: its block-start, inline-end corner; top-start and top-end: its block-end corners); WHERE the side below or above the point has less room than the surface needs within comp.menu.surface.viewport-margin of the viewport's edge and the other side has more THE menu SHALL flip to the other side of the point, and WHERE the side before or after the point along the line has less room than the surface's width and the other has more SHALL flip along the line as well, each axis by itself, so that a surface asked for near a corner of the window opens away from that corner with a corner of its own on the point; it SHALL then shift to stay within that margin, limit its height to the room left and scroll its items beyond it, and keep the point where it is in the area while the area moves. FOR a request by the keyboard THE menu SHALL place the surface against the element that had focus as MNU-2 places it against an anchor, offset included. WHEN open becomes true with no request since the menu was last closed THE menu SHALL place the surface against the area as MNU-2 says. The surface SHALL grow from its edge that faces the point or the element (MNU-4).",
+      "verify": "Test in a window 800 × 600: a right click at (300, 200) puts the surface's top-left corner on the point; at (790, 590) the surface ends at the point on both axes; in right-to-left its top-right corner is on the point; a menu taller than the room is limited to it and scrolls; the area scrolled by 50 moves the surface by 50; Shift+F10 on a button places the surface below the button, offset, start edges aligned; open set with no request places it against the area."
+    },
+    {
+      "id": "MNU-62",
+      "text": "WHILE trigger is context THE menu SHALL behave as every other menu does once it is open — the same items, focus on opening (MNU-1), keys, typeahead, submenus, activation and close reasons — and WHEN it closes SHALL return focus, where focus was inside it, to the element that had focus when the request was made (the element a keyboard request was made on), and leave focus where the platform puts it where no element had it; Tab and Shift+Tab SHALL move focus on from that element. A press anywhere outside the menu's surfaces, the area included, SHALL count as a press outside (MNU-5); a secondary click or a long press elsewhere while the menu is open SHALL therefore close it and, in the area, request it again at the new point.",
+      "verify": "Test: a right click on a focused button in the area, then Escape, returns focus to the button; Shift+F10 on another button, then an item's activation, returns focus to that button; a right click on the area with focus on the body leaves focus on the body after Escape; Tab from the open menu moves focus on from the button; a left press in the area emits close with the reason outside; a second right click while open emits close (outside) and a new contextRequest."
+    },
+    {
+      "id": "MNU-63",
+      "text": "WHILE trigger is context THE menu SHALL NOT expose on its area that it opens a menu, whether it is open or which element it is (no aria-haspopup, aria-expanded or aria-controls on the web), because the area is not a button: a context menu is found by the platform's own convention — a secondary click, a long press, Shift+F10, the ContextMenu key, the context-menu command of assistive technology. THE menu SHALL NOT be named by its area; it SHALL take the name the product gives it (aria-label on the web), and have none where the product gives none, as the platform's own context menus have none.",
+      "verify": "Test: the area carries no aria-haspopup, aria-expanded or aria-controls, open or closed, and keeps a product's own; the open menu has the menu role, no aria-labelledby, and the product's aria-label where it gives one; axe finds no violation."
     }
   ],
   "accessibility": {
@@ -711,6 +745,10 @@
       {
         "keys": "Enter, Space or Down Arrow on the anchor",
         "action": "The product opens the menu; focus moves to the first enabled item."
+      },
+      {
+        "keys": "Shift+F10 or the ContextMenu key on the area or an element inside it (trigger context)",
+        "action": "The menu asks to be opened against that element (contextRequest); the product opens it, and focus moves to the first enabled item."
       },
       {
         "keys": "Down Arrow / Up Arrow",
@@ -746,17 +784,18 @@
       },
       {
         "keys": "Escape",
-        "action": "Closes the innermost open submenu and returns focus to its submenu item; with no submenu open, closes the menu and returns focus to the anchor."
+        "action": "Closes the innermost open submenu and returns focus to its submenu item; with no submenu open, closes the menu and returns focus to the anchor (a context menu: to the element that had focus when it was asked for)."
       },
       {
         "keys": "Tab / Shift+Tab",
         "action": "Closes the menu and every submenu, and moves focus on from the anchor."
       }
     ],
-    "labeling": "The menu is named by its anchor, and a submenu by its submenu item's label. Each item's label is its name and its supporting text its description; its shortcut is exposed as the item's keyboard shortcut where the platform has one, and otherwise given as text in its description (KBS-10); trailing text is description only. A link item is a menu item like any other, named by its label; while it opens a new context its targetLabel ends its description. Checkbox and radio items expose their checked state, whatever their mark looks like. A submenu item exposes that it opens a menu and whether that menu is open. A group is named by its title. Icons, the mark and the submenu indicator are decorative.",
+    "labeling": "The menu is named by its anchor (a context menu by the name the product gives it, and by none where it gives none), and a submenu by its submenu item's label. Each item's label is its name and its supporting text its description; its shortcut is exposed as the item's keyboard shortcut where the platform has one, and otherwise given as text in its description (KBS-10); trailing text is description only. A link item is a menu item like any other, named by its label; while it opens a new context its targetLabel ends its description. Checkbox and radio items expose their checked state, whatever their mark looks like. A submenu item exposes that it opens a menu and whether that menu is open. A group is named by its title. Icons, the mark and the submenu indicator are decorative.",
     "minimumTarget": true,
     "notes": [
       "The anchor is the product's own button, icon-only Button or field. The menu does not draw it; it reads its position, returns focus to it, and sets its expanded state where the platform has one (aria-haspopup and aria-expanded on the web).",
+      "A context menu (trigger context) is the same menu opened at a point of an area instead of from a button: a secondary click, a long press, Shift+F10 or the ContextMenu key, as the WAI-ARIA menu pattern names for a context-specific menu. The area is not a button, so it carries no popup state; the menu cancels the platform's own context menu only where it answers the request, and a product that cancels contextRequest — over a field, a link, selected text it does not handle — leaves the platform's menu in place. Every action a context menu offers is also reachable elsewhere in the product, because a context menu is found only by those who know to ask for it (MNU-60 to MNU-63).",
       "Five item kinds: item (an action), checkbox-item, radio-item, submenu and group. A checkbox item's checked is its own; which radio item is checked is its group's, by value; a submenu item's open is its own. A group may hold items of any kind except another group; a submenu may hold items of every kind.",
       "A link item is the platform's own link exposed as a menu item: on the web an anchor with the menu item role. Assistive technology reads a menu by its items — how many, which one, the arrow keys — and that reading holds only while every child of the menu is a menu item; so the role stays, and what makes the row a link stays underneath it: its address, the browser's context menu and new-tab gestures, a crawler that follows it. It is the one link form that Space activates, because it is operated as a menu item and looks like the action beside it. A menu of nothing but links to a site's main pages, always in view, is navigation and belongs in a navigation landmark of links; the menu is for a short set that is out of the way until asked for (the folded levels of a trail, a choice of language, \"more\").",
       "Focus: the menu is an operated overlay that is not modal. It moves focus in when it opens and returns it to the anchor when it closes, but does not keep it: Tab leaves the menu and closes it, at whatever level focus is. A submenu takes focus when it is opened by a key or a press and returns it to its submenu item when it closes alone.",
@@ -2391,10 +2430,12 @@
         "open": "open",
         "placement": "placement",
         "separation": "separation",
-        "iconSpace": "iconSpace"
+        "iconSpace": "iconSpace",
+        "trigger": "trigger"
       },
       "events": {
-        "close": "close"
+        "close": "close",
+        "contextRequest": "contextrequest"
       },
       "items": {
         "item": {
@@ -2477,7 +2518,7 @@
           "notes": "The title is the `label` attribute, as `<optgroup label>`: a `title` attribute would also draw the browser's tooltip. The group sets its own `value` before firing `change`."
         }
       },
-      "notes": "`tanrei-menu` (open, placement, separation, and `anchor`: the id of the anchor element, as the HTML anchor attribute) holds `tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-submenu` and `tanrei-menu-group` children; item attributes are kebab-case (`supporting-text`, `leading-icon`, `trailing-icon`, `trailing-text`, `mark-icon`). `click`, `change` and `toggle` fire on the item or group and bubble, so one listener on the menu can take them all. The surface is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback where the browser has none; each submenu's surface is a popover of its own, placed against its `tanrei-submenu` the same way. The menu implements its own light dismiss so that it can emit `close` with a reason, and treats every surface of its tree as inside. A press outside also reaches the element under it. It sets `aria-haspopup=\"menu\"`, `aria-controls` and `aria-expanded` on the anchor element, and the same three on each submenu item's row. The `inline` attribute, for tests, draws the open surface in place, with each open submenu beside it (MNU-19). The mark is the `mark` part: the box or the ring of a control look, drawn by the menu's own styles from `--tanrei-comp-menu-control-*`, or the icon helper's glyph (MNU-22, MNU-38). The submenu indicator is the icon helper's `chevron_right` in the `submenu-indicator` part. A group's title is inset by `--tanrei-comp-menu-group-title-padding-inline` from the rows' edges (MNU-28). The link item is not built on this platform yet: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. A link item's `current` writes `aria-current=\"page\"` on its anchor and draws the row from the current condition (MNU-58). Under gap each group, and each run of items outside a group, is a `.tile` (part `tile`) of its own inside the scroll box; under divider the tiles are boxes with no look (MNU-36)."
+      "notes": "`tanrei-menu` (open, placement, separation, and `anchor`: the id of the anchor element, as the HTML anchor attribute) holds `tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-submenu` and `tanrei-menu-group` children; item attributes are kebab-case (`supporting-text`, `leading-icon`, `trailing-icon`, `trailing-text`, `mark-icon`). `click`, `change` and `toggle` fire on the item or group and bubble, so one listener on the menu can take them all. The surface is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback where the browser has none; each submenu's surface is a popover of its own, placed against its `tanrei-submenu` the same way. The menu implements its own light dismiss so that it can emit `close` with a reason, and treats every surface of its tree as inside. A press outside also reaches the element under it. It sets `aria-haspopup=\"menu\"`, `aria-controls` and `aria-expanded` on the anchor element, and the same three on each submenu item's row. The `inline` attribute, for tests, draws the open surface in place, with each open submenu beside it (MNU-19). The mark is the `mark` part: the box or the ring of a control look, drawn by the menu's own styles from `--tanrei-comp-menu-control-*`, or the icon helper's glyph (MNU-22, MNU-38). The submenu indicator is the icon helper's `chevron_right` in the `submenu-indicator` part. A group's title is inset by `--tanrei-comp-menu-group-title-padding-inline` from the rows' edges (MNU-28). The link item is not built on this platform yet: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. A link item's `current` writes `aria-current=\"page\"` on its anchor and draws the row from the current condition (MNU-58). Under gap each group, and each run of items outside a group, is a `.tile` (part `tile`) of its own inside the scroll box; under divider the tiles are boxes with no look (MNU-36). `trigger` is the `trigger` attribute; with `context`, `anchor` names the area. `contextRequest` is `contextrequest`, a cancelable event whose `detail` is `{ x, y, element, input }`: client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. The menu listens on the area for `contextmenu` (a secondary click, Android's long press, the context-menu command of assistive technology) and cancels it unless the product cancels the request; for a touch or a pen held still, which WebKit on iOS answers with no `contextmenu`; and for Shift+F10 and the ContextMenu key on `keydown`, whose own `contextmenu` it then cancels. After a long press the release of that press, and its click, go no further. On iOS a long press may also select text: an area whose text is not to be selected says so in its own styles (`user-select`, `-webkit-touch-callout`)."
     },
     "swiftui": {
       "status": "lagging",
@@ -2486,10 +2527,12 @@
         "open": "isPresented",
         "placement": "placement",
         "separation": "separation",
-        "iconSpace": "iconSpace"
+        "iconSpace": "iconSpace",
+        "trigger": "trigger"
       },
       "events": {
-        "close": "isPresented"
+        "close": "isPresented",
+        "contextRequest": "onContextRequest"
       },
       "items": {
         "item": {
@@ -2574,7 +2617,7 @@
           "notes": "`TanreiMenuSection(_ title:) { … }` as `Section`; `TanreiMenuSection(_ title:, selection:) { TanreiMenuOption … }` for radio items, as an inline `Picker`. Writing the binding is change."
         }
       },
-      "notes": "A modifier on the anchor, `.tanreiMenu(isPresented:placement:) { … }`, as `.popover`, presented with `presentationCompactAdaptation(.popover)` so it stays a popover on iPhone; a press outside does not reach what is under it. The content builder takes the item views. `disabled` follows `.disabled(_:)`. Closing writes `false` to `isPresented`, which is close. SwiftUI's own `Menu` is not used: its items cannot be tokenised. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them."
+      "notes": "A modifier on the anchor, `.tanreiMenu(isPresented:placement:) { … }`, as `.popover`, presented with `presentationCompactAdaptation(.popover)` so it stays a popover on iPhone; a press outside does not reach what is under it. The content builder takes the item views. `disabled` follows `.disabled(_:)`. Closing writes `false` to `isPresented`, which is close. SwiftUI's own `Menu` is not used: its items cannot be tokenised. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them. Not built yet: the context trigger (MNU-60 to MNU-63) — this platform opens the menu from an anchor only."
     },
     "compose": {
       "status": "lagging",
@@ -2583,10 +2626,12 @@
         "open": "expanded",
         "placement": "placement",
         "separation": "separation",
-        "iconSpace": "iconSpace"
+        "iconSpace": "iconSpace",
+        "trigger": "trigger"
       },
       "events": {
-        "close": "onDismissRequest"
+        "close": "onDismissRequest",
+        "contextRequest": "onContextRequest"
       },
       "items": {
         "item": {
@@ -2669,7 +2714,7 @@
           "notes": "`TanreiMenuGroup(title, selectedValue, onSelectedValueChange) { TanreiRadioMenuItem(text, value) }`; the caller keeps `selectedValue`."
         }
       },
-      "notes": "Compose idiom, as `DropdownMenu`: `TanreiMenu(expanded, onDismissRequest, placement) { TanreiMenuItem(text, onClick, …); TanreiMenuGroup { … } }` inside the anchor's `Box`, shown in a `Popup`; the item composables are called in its content lambda. The caller closes it, so close is `onDismissRequest` and it carries the reason; the caller also keeps each checkbox item's `checked` (state hoisting). A press outside does not reach what is under it. `enabled` is the inverse flag. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them."
+      "notes": "Compose idiom, as `DropdownMenu`: `TanreiMenu(expanded, onDismissRequest, placement) { TanreiMenuItem(text, onClick, …); TanreiMenuGroup { … } }` inside the anchor's `Box`, shown in a `Popup`; the item composables are called in its content lambda. The caller closes it, so close is `onDismissRequest` and it carries the reason; the caller also keeps each checkbox item's `checked` (state hoisting). A press outside does not reach what is under it. `enabled` is the inverse flag. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them. Not built yet: the context trigger (MNU-60 to MNU-63) — this platform opens the menu from an anchor only."
     },
     "flutter": {
       "status": "lagging",
@@ -2678,10 +2723,12 @@
         "open": "controller",
         "placement": "placement",
         "separation": "separation",
-        "iconSpace": "iconSpace"
+        "iconSpace": "iconSpace",
+        "trigger": "trigger"
       },
       "events": {
-        "close": "onClose"
+        "close": "onClose",
+        "contextRequest": "onContextRequest"
       },
       "items": {
         "item": {
@@ -2766,7 +2813,7 @@
           "notes": "`TanreiMenuGroup<T>(title:, groupValue:, onChanged:, children:)`, which is also the `RadioGroup` of its radio items."
         }
       },
-      "notes": "Flutter idiom, as `MenuAnchor`: `TanreiMenuAnchor(controller:, placement:, menuChildren: […], builder:)` shown in the `Overlay`; the item widgets go in `menuChildren`. `MenuController.open()` and `.close()` are open, `onClose` is close. A press outside also reaches what is under it (`consumeOutsideTap: false`). Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them."
+      "notes": "Flutter idiom, as `MenuAnchor`: `TanreiMenuAnchor(controller:, placement:, menuChildren: […], builder:)` shown in the `Overlay`; the item widgets go in `menuChildren`. `MenuController.open()` and `.close()` are open, `onClose` is close. A press outside also reaches what is under it (`consumeOutsideTap: false`). Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them. Not built yet: the context trigger (MNU-60 to MNU-63) — this platform opens the menu from an anchor only."
     },
     "react-native": {
       "status": "lagging",
@@ -2775,10 +2822,12 @@
         "open": "visible",
         "placement": "placement",
         "separation": "separation",
-        "iconSpace": "iconSpace"
+        "iconSpace": "iconSpace",
+        "trigger": "trigger"
       },
       "events": {
-        "close": "onDismiss"
+        "close": "onDismiss",
+        "contextRequest": "onContextRequest"
       },
       "items": {
         "item": {
@@ -2861,7 +2910,7 @@
           "notes": "`{ kind: 'group', title?, value?, onValueChange?, items: (MenuItem | MenuCheckboxItem | MenuRadioItem)[] }`."
         }
       },
-      "notes": "`<Menu visible anchorRef placement onDismiss items={[…]}>`: `items` is an array whose element type is the union of the five kinds, told apart by a `kind` field (`'item'`, `'checkbox-item'`, `'radio-item'`, `'submenu'`, `'group'`). Presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the anchor (`measureInWindow`); Android's back button (`BackHandler`) is close. A press outside closes the menu and does not reach what is under it. Controlled: the caller sets `visible` to false from `onDismiss` and keeps each checkbox item's `checked` and each group's `value`. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them."
+      "notes": "`<Menu visible anchorRef placement onDismiss items={[…]}>`: `items` is an array whose element type is the union of the five kinds, told apart by a `kind` field (`'item'`, `'checkbox-item'`, `'radio-item'`, `'submenu'`, `'group'`). Presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the anchor (`measureInWindow`); Android's back button (`BackHandler`) is close. A press outside closes the menu and does not reach what is under it. Controlled: the caller sets `visible` to false from `onDismiss` and keeps each checkbox item's `checked` and each group's `value`. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens, the fill of a checked row with them: none at standard contrast in the default system, as MNU-37 says. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing. Lagging behind MNU-58 (a link item's current, drawn with the selected fill) and MNU-36 (the groups as separate tiles under gap): it has neither yet. Not built yet: iconSpace (MNU-59) — this platform still keeps the mark and leading icon columns in every row of a surface where any item draws in them. Not built yet: the context trigger (MNU-60 to MNU-63) — this platform opens the menu from an anchor only."
     }
   }
 }

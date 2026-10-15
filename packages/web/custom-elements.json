@@ -44491,6 +44491,19 @@
         },
         {
           "kind": "function",
+          "name": "placeAtPoint",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "text": "{ point: { x: number; y: number }; surface: { width: number; height: number }; viewport: { width: number; height: number }; placement: TanreiMenuPlacement; margin: number; rtl: boolean }"
+              }
+            }
+          ],
+          "description": "Where the surface of a context menu goes from the point it was asked for at (MNU-61): with no offset, a corner on the\npoint — the block-start corner for a `bottom-*` placement, the block-end one for `top-*`, the inline-start one for\n`*-start` (mirrored in right-to-left) — flipped to the other side of the point, along each axis by itself, where its\nside has less room than the surface needs within `margin` of the viewport's edge and the other side has more; then\nshifted to stay `margin` inside the viewport, its height limited to the room left. Coordinates are the viewport's."
+        },
+        {
+          "kind": "function",
           "name": "placeSubmenu",
           "parameters": [
             {
@@ -48755,7 +48768,7 @@
         },
         {
           "kind": "class",
-          "description": "Offers a short set of actions or choices on a temporary surface that opens from the element that asked for it, with\nfurther levels in submenus where the set needs them.\n\nContract: specs/menu.spec.json. The surface is a manual popover in the top layer, placed against the anchor (the\nelement whose id is `anchor`) by script: below or above it as `placement` says, flipping and shifting to stay inside\nthe viewport, scrolling when it is taller than the room, following the anchor while it moves. The menu is an operated\noverlay that is not modal: it moves focus to its first enabled item when it opens and back to the anchor\nwhen it closes, never traps focus and draws no scrim. It never closes itself: it fires `close` with a reason — Escape,\na press outside the surface and the anchor, Tab, focus leaving it, an item's activation — and you set `open` to false.\n\nA `<tanrei-submenu>` among the items opens another level beside its row (MNU-42 … MNU-52), by the WAI-ARIA menu\npattern: the arrow key that points to the inline end, Enter, Space, a press or a tap open it and move focus in; the\nopposite arrow key and Escape close one level and return focus to its item; a pointer that rests on the item opens it\nafter `comp.menu.motion.submenu-delay`, and may then cross other items on its way in. Every surface of the tree is\ninside the menu: a press in a submenu is not a press outside, and whatever closes the menu closes every level with one\n`close`.\n\nA group is told from what is next to it as `separation` names (MNU-35): a divider, or a gap of\n`comp.menu.group.gap`; `auto` takes `comp.menu.separation`, which follows the design system's choice.\n\nEvery visual value comes from `--tanrei-comp-menu-*` tokens, the items' by condition (unselected, selected,\ncurrent, destructive, expanded) and state. The `inline` attribute, for tests and documentation, draws the open surface in place\ninstead: at its natural size, with its elevation, without an anchor, placement, open motion, focus on opening or light\ndismiss, each open submenu beside its item.\n\nA component that holds a menu in its shadow root may forward its own children into it: a `<slot>` child of the menu\nstands for the elements assigned to it, each forwarded child in a slot of its own (the split button, SPB-15).",
+          "description": "Offers a short set of actions or choices on a temporary surface that opens from the element that asked for it, with\nfurther levels in submenus where the set needs them.\n\nContract: specs/menu.spec.json. The surface is a manual popover in the top layer, placed against the anchor (the\nelement whose id is `anchor`) by script: below or above it as `placement` says, flipping and shifting to stay inside\nthe viewport, scrolling when it is taller than the room, following the anchor while it moves. The menu is an operated\noverlay that is not modal: it moves focus to its first enabled item when it opens and back to the anchor\nwhen it closes, never traps focus and draws no scrim. It never closes itself: it fires `close` with a reason — Escape,\na press outside the surface and the anchor, Tab, focus leaving it, an item's activation — and you set `open` to false.\n\nA `<tanrei-submenu>` among the items opens another level beside its row (MNU-42 … MNU-52), by the WAI-ARIA menu\npattern: the arrow key that points to the inline end, Enter, Space, a press or a tap open it and move focus in; the\nopposite arrow key and Escape close one level and return focus to its item; a pointer that rests on the item opens it\nafter `comp.menu.motion.submenu-delay`, and may then cross other items on its way in. Every surface of the tree is\ninside the menu: a press in a submenu is not a press outside, and whatever closes the menu closes every level with one\n`close`.\n\nA group is told from what is next to it as `separation` names (MNU-35): a divider, or a gap of\n`comp.menu.group.gap`; `auto` takes `comp.menu.separation`, which follows the design system's choice.\n\nEvery visual value comes from `--tanrei-comp-menu-*` tokens, the items' by condition (unselected, selected,\ncurrent, destructive, expanded) and state. The `inline` attribute, for tests and documentation, draws the open surface in place\ninstead: at its natural size, with its elevation, without an anchor, placement, open motion, focus on opening or light\ndismiss, each open submenu beside its item.\n\nWith `trigger=\"context\"` it is the context menu of an area — the element whose id is `anchor` (MNU-60 … MNU-63): a\nsecondary click, a touch or a pen held still for the long-press duration, Shift+F10 or the ContextMenu key on the\nelement of the area that has focus, or the context-menu command of assistive technology fires `contextrequest` with\nthe point, and the browser's own context menu is cancelled unless you cancel the request. You set `open` to true; the\nsurface opens with a corner on the point (against the focused element for a key), flipping away from the window's\nedges, and focus returns, when it closes, to the element that had it. The area gets no popup state.\n\nA component that holds a menu in its shadow root may forward its own children into it: a `<slot>` child of the menu\nstands for the elements assigned to it, each forwarded child in a slot of its own (the split button, SPB-15).",
           "name": "TanreiMenu",
           "cssParts": [
             {
@@ -48826,8 +48839,20 @@
                 "text": "TanreiMenuPlacement"
               },
               "default": "'bottom-start'",
-              "description": "Where the surface goes against the anchor: below or above it, with its start or end edge aligned to the anchor's.",
+              "description": "Where the surface goes against the anchor: below or above it, with its start or end edge aligned to the anchor's.\nFor a context menu opened at a point, which of its corners is on the point (MNU-61).",
               "attribute": "placement",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "trigger",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiMenuTrigger"
+              },
+              "default": "'anchor'",
+              "description": "What opens the menu (MNU-60). `anchor` (the default): you open it from its anchor, and the surface is placed against\nthe anchor. `context`: the anchor is an area, and a person asks for the menu at a point in it — a secondary click, a\nlong press, Shift+F10 or the ContextMenu key on the element that has focus; the menu fires `contextrequest`, you set\n`open`, and the surface opens at that point.",
+              "attribute": "trigger",
               "reflects": true
             },
             {
@@ -49025,6 +49050,76 @@
               "privacy": "private",
               "default": "false",
               "description": "The menu itself is placing focus (MNU-1, MNU-43): that is not the person moving it to another item (MNU-48)."
+            },
+            {
+              "kind": "field",
+              "name": "asked",
+              "type": {
+                "text": "{ area: Element; dx: number; dy: number } | { element: Element } | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "MNU-61: where the last context request was made, since the menu was last closed — a point held in the area's own\ncoordinates, so that it moves with the area, or the element a key was pressed on."
+            },
+            {
+              "kind": "field",
+              "name": "returnTo",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "MNU-62: the element that had focus when the context menu was asked for, which focus returns to."
+            },
+            {
+              "kind": "field",
+              "name": "pressedFrom",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "MNU-62: the element that had focus as the last press in the area began."
+            },
+            {
+              "kind": "field",
+              "name": "held",
+              "type": {
+                "text": "{ pointerId: number; x: number; y: number; element: Element; timer: ReturnType<typeof setTimeout>; answered: 'menu' | 'platform' | null } | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "MNU-60: a touch or a pen pressed in the area, which a long press makes a request of."
+            },
+            {
+              "kind": "field",
+              "name": "keyed",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "MNU-60: a key asked for the menu, and the context menu event the key makes too is the menu's to cancel."
+            },
+            {
+              "kind": "field",
+              "name": "listenedRoot",
+              "type": {
+                "text": "Document | ShadowRoot | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "The document or shadow root whose events a context menu's area is listened in."
+            },
+            {
+              "kind": "field",
+              "name": "ariaWritten",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "MNU-63: the element the menu wrote the popup state on, which it takes back from when it no longer opens from it."
             },
             {
               "kind": "method",
@@ -49597,10 +49692,153 @@
               "description": "MNU-5, MNU-49: a press outside every surface and the anchor asks to close; the press also reaches what is under it."
             },
             {
+              "kind": "field",
+              "name": "isContext",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "description": "MNU-60: a context menu — an unknown trigger is `anchor`.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "areaOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "HTMLElement | null"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "path",
+                  "type": {
+                    "text": "EventTarget[]"
+                  }
+                }
+              ],
+              "description": "MNU-60: the area, when an event of `path` is a request made in it: the anchor while the menu is a context menu,\nnever from inside the menu's own surfaces."
+            },
+            {
+              "kind": "method",
+              "name": "request",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "area",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "x",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "Element"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "text": "TanreiMenuContextInput"
+                  }
+                }
+              ],
+              "description": "MNU-60: asks the product to open the menu at the point, about the element; true unless the product cancelled. The\npoint is held in the area's own coordinates (a key's request holds its element), and the element that has focus is\nwhere focus returns to (MNU-62). A menu that is open already is placed again at the new point."
+            },
+            {
+              "kind": "field",
+              "name": "onContextMenu",
+              "privacy": "private",
+              "readonly": true,
+              "description": "MNU-60: a secondary click, Android's long press, the context-menu command of assistive technology — and the event a\nkey makes after its own request, which is cancelled with nothing asked. One an element inside took is left to it;\none the product's request was cancelled for is left to the browser."
+            },
+            {
+              "kind": "field",
+              "name": "onContextKey",
+              "privacy": "private",
+              "readonly": true,
+              "description": "MNU-60: Shift+F10 or the ContextMenu key, with no other modifier, on the area or an element inside it asks for the\nmenu against that element; the key's own context menu event is the menu's to cancel — on Windows the ContextMenu\nkey makes it as the key comes up."
+            },
+            {
+              "kind": "field",
+              "name": "onAreaPress",
+              "privacy": "private",
+              "readonly": true,
+              "description": "MNU-60: a touch or a pen pressed in the area asks for the menu once it has been held within the touch slop for the\nlong-press duration — WebKit on iOS makes no context menu event of it — unless the browser's own event comes first."
+            },
+            {
+              "kind": "field",
+              "name": "onHeldMove",
+              "privacy": "private",
+              "readonly": true,
+              "description": "MNU-60: a touch that moves past the slop before it is answered is a scroll or a drag, and asks for nothing."
+            },
+            {
+              "kind": "field",
+              "name": "onHeldEnd",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "letGo",
+              "privacy": "private",
+              "description": "Forgets a touch held in the area."
+            },
+            {
+              "kind": "field",
+              "name": "focusReturn",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "private",
+              "description": "MNU-62: where focus returns when the menu closes — the anchor, or for a context menu the element that had focus.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "placedAgainst",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "{ box: MenuBox; point: boolean } | null"
+                }
+              },
+              "description": "MNU-2, MNU-61: what the surface is placed against — the anchor; for a context menu the point it was asked for at,\nwhich moves with its area, or the element a key asked about, and the area itself where nothing was asked."
+            },
+            {
+              "kind": "field",
+              "name": "followedElement",
+              "type": {
+                "text": "Element | null"
+              },
+              "privacy": "private",
+              "description": "The element whose moves move the surface (FollowController).",
+              "readonly": true
+            },
+            {
               "kind": "method",
               "name": "place",
               "privacy": "private",
-              "description": "MNU-2: places the surface against the anchor, in viewport coordinates."
+              "description": "MNU-2, MNU-61: places the surface against the anchor, or at the point a context menu was asked for, in viewport coordinates."
             },
             {
               "kind": "field",
@@ -49614,7 +49852,7 @@
               "name": "following",
               "privacy": "private",
               "readonly": true,
-              "default": "new FollowController(this, { followed: () => [this.positionAnchor ?? this.anchorElement, ...this.overlaid().map((submenu) => submenu.rowElement)], sized: () => [this.surface, this.scrollBox, ...this.overlaid().flatMap((submenu) => [submenu.surfaceElement, submenu.scrollElement])], check: this.follow, })",
+              "default": "new FollowController(this, { followed: () => [this.followedElement, ...this.overlaid().map((submenu) => submenu.rowElement)], sized: () => [this.surface, this.scrollBox, ...this.overlaid().flatMap((submenu) => [submenu.surfaceElement, submenu.scrollElement])], check: this.follow, })",
               "description": "What is followed: the anchor, and the item of each submenu open as an overlay; sized: every surface and what scrolls in it."
             },
             {
@@ -49636,7 +49874,7 @@
               "kind": "method",
               "name": "syncAnchor",
               "privacy": "private",
-              "description": "MNU-24: the anchor says it opens a menu, whether it is open, and which."
+              "description": "MNU-24: the anchor says it opens a menu, whether it is open, and which. MNU-63: the area of a context menu says\nnothing of it — what the menu wrote on an element it no longer opens from is taken back, a product's own is kept."
             },
             {
               "kind": "method",
@@ -49658,6 +49896,13 @@
                 "text": "CustomEvent<TanreiMenuCloseDetail>"
               },
               "description": "The menu asks to be closed, every open submenu with it: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false."
+            },
+            {
+              "name": "contextrequest",
+              "type": {
+                "text": "CustomEvent<TanreiMenuContextRequestDetail>"
+              },
+              "description": "With `trigger=\"context\"`: a person asked for the context menu in the area. `detail` is `{ x, y, element, input }` — client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. Set `open` to true; cancel it to leave the request to the browser's own context menu."
             }
           ],
           "attributes": [
@@ -49676,8 +49921,17 @@
                 "text": "TanreiMenuPlacement"
               },
               "default": "'bottom-start'",
-              "description": "Where the surface goes against the anchor: below or above it, with its start or end edge aligned to the anchor's.",
+              "description": "Where the surface goes against the anchor: below or above it, with its start or end edge aligned to the anchor's.\nFor a context menu opened at a point, which of its corners is on the point (MNU-61).",
               "fieldName": "placement"
+            },
+            {
+              "name": "trigger",
+              "type": {
+                "text": "TanreiMenuTrigger"
+              },
+              "default": "'anchor'",
+              "description": "What opens the menu (MNU-60). `anchor` (the default): you open it from its anchor, and the surface is placed against\nthe anchor. `context`: the anchor is an area, and a person asks for the menu at a point in it — a secondary click, a\nlong press, Shift+F10 or the ContextMenu key on the element that has focus; the menu fires `contextrequest`, you set\n`open`, and the surface opens at that point.",
+              "fieldName": "trigger"
             },
             {
               "name": "separation",
@@ -49754,6 +50008,18 @@
         {
           "kind": "variable",
           "name": "prefer"
+        },
+        {
+          "kind": "variable",
+          "name": "input",
+          "type": {
+            "text": "object"
+          },
+          "default": "{ parent: parent.getBoundingClientRect(), row: row.getBoundingClientRect(), viewport, offset, margin, minWidth, touch, rtl, prefer }"
+        },
+        {
+          "kind": "variable",
+          "name": "element"
         }
       ],
       "exports": [
@@ -49762,6 +50028,14 @@
           "name": "placeMenu",
           "declaration": {
             "name": "placeMenu",
+            "module": "src/components/menu/menu.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "placeAtPoint",
+          "declaration": {
+            "name": "placeAtPoint",
             "module": "src/components/menu/menu.ts"
           }
         },
@@ -90764,12 +91038,6 @@
               "privacy": "private",
               "readonly": true,
               "description": "TIP-3, TIP-13: a touch anywhere else closes it sooner; a press on the tooltip closes it and goes no further."
-            },
-            {
-              "kind": "method",
-              "name": "swallowRelease",
-              "privacy": "private",
-              "description": "TIP-13, TIP-29: the press that closed the tooltip ends over what lies under it, because a leaving tooltip takes no\npointer: the rest of that one press — its release and the click it makes — goes no further either. The next press is\na press on what is there."
             },
             {
               "kind": "field",

@@ -2,7 +2,7 @@
 title: "菜单"
 description: "一小组操作或选项，显示在一个临时表面上，这个表面从请求它的元素处打开。"
 translationOf: components/menu.mdx
-sourceHash: 2106a64d0831a3f48beba511b4ee3f8ed02897e3
+sourceHash: ca2c98d8f24b261512a44be38492e81f189e18fe
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -65,6 +65,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 带 `href` 的项是链接项：它是平台自己的链接，画法与操作完全相同，也用同样的按键移到它上面。普通激活会触发该项的 `click`，关闭菜单，然后打开目的地。`target` 和 `targetLabel` 与 [Button](/zh-cn/components/button/) 的相同。`current` 标出用户当前所在页面的链接项：它以自己的填充绘制，不画对勾。目前只有 Web 提供链接项；SwiftUI、Compose、Flutter 和 React Native 还没有。
 
+菜单也可以是某个区域的上下文菜单：把 `trigger` 设为 `context`，锚点就是那个区域，比如画布、列表或一行。用户在其中的某个位置右键点击、长按，或在有焦点的元素上按 Shift+F10 或 ContextMenu 键，来请求菜单。菜单带着该位置发出 `contextRequest`，由你在那里打开它。Web 已实现上下文触发方式；SwiftUI、Compose、Flutter 和 React Native 还没有。
+
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
@@ -97,6 +99,10 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <!-- separation="gap" 让这个菜单及其子菜单用空白来分开各组，无论设计系统选的是什么。 -->
     <tanrei-menu anchor="more" separation="gap">…</tanrei-menu>
 
+    <!-- trigger="context"：id 为 anchor 的区域的上下文菜单。用 aria-label 为它命名。 -->
+    <div id="canvas">…</div>
+    <tanrei-menu id="canvas-menu" anchor="canvas" trigger="context" aria-label="画布">…</tanrei-menu>
+
     <script type="module">
       import '@tanrei/web/components/menu';
       const menu = document.querySelector('tanrei-menu');
@@ -108,6 +114,13 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       menu.querySelector('[label="复制"]').addEventListener('click', copy);
       menu.querySelector('[label="显示网格"]').addEventListener('change', (e) => setGrid(e.detail.checked));
       menu.querySelector('[label="排序方式"]').addEventListener('change', (e) => sortBy(e.detail.value));
+
+      // 在区域中右键点击、长按、按 Shift+F10 或 ContextMenu 键，都会请求上下文菜单。
+      // detail 中有位置、所针对的元素和请求方式。打开菜单，或取消该事件，
+      // 把请求留给浏览器自己的菜单。
+      const canvasMenu = document.querySelector('#canvas-menu');
+      canvasMenu.addEventListener('contextrequest', () => (canvasMenu.open = true));
+      canvasMenu.addEventListener('close', () => (canvasMenu.open = false));
     </script>
     ```
   </TabItem>
@@ -132,6 +145,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
       <MenuItem label="删除" leadingIcon="delete" destructive onClick={remove} />
       {/* 链接项。路由取消这次 click，自己前往目的地；菜单仍会关闭。 */}
       <MenuItem label="键盘快捷键" href="/help/shortcuts/" onClick={(e) => { e.preventDefault(); navigate('/help/shortcuts/'); }} />
+    </Menu>
+
+    {/* id 为 canvas 的区域的上下文菜单：收到请求就打开。 */}
+    <Menu anchor="canvas" trigger="context" aria-label="画布" open={contextOpen} onContextrequest={() => setContextOpen(true)} onClose={() => setContextOpen(false)}>
+      <MenuItem label="粘贴" onClick={paste} />
     </Menu>
     ```
   </TabItem>
@@ -437,6 +455,18 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **深度。** 菜单之下的子菜单请不要超过两级。第三级仍然会画出来，并会在调试构建中报告；没有项的子菜单也会被报告。
 - 组的 `value` 只作用于它自己所在表面中的单选项，每个表面各自决定自己的标记列和图标列。
 
+### 上下文菜单
+
+上下文菜单在用户指向的位置，给出适用于所指对象的操作。它仍是同一个菜单，项、按键和子菜单都一样，只是在区域中的某个位置打开，而不是从按钮打开。
+
+- **区域。** 把 `trigger` 设为 `context`，把 `anchor` 设为区域的 id：画布、列表、表格的一行、文档。区域不是按钮，因此菜单不会在它上面写入弹出状态。
+- **如何请求。** 右键点击（在 Mac 上也可以按住 Control 点击或双指点击）、用触摸或触控笔按住不动半秒、在有焦点的元素上按 Shift+F10 或 ContextMenu 键，或使用屏幕阅读器的上下文菜单命令。菜单发出 `contextRequest`，带有位置、所针对的元素和请求方式：`pointer`、`long-press` 或 `keyboard`。和从锚点打开时一样，由你设置 `open`。
+- **在哪里打开。** 以一个角对准该位置，中间不留间隙：默认在位置下方、朝行尾方向展开，可用 `placement` 指定。靠近窗口边缘时，它会在各个轴上分别翻到位置的另一侧，因此不会盖住该位置。页面滚动时，它随区域一起移动。用按键请求时，它像对锚点那样，贴着有焦点的元素打开。
+- **浏览器自己的菜单。** 菜单每响应一次请求，就取消浏览器的上下文菜单。对于你的菜单不处理的地方，比如输入框、链接或选中的文本，取消 `contextRequest` 就能把请求留给浏览器。
+- **焦点和关闭。** 焦点移到第一个可用的项；关闭时，焦点回到请求菜单时拥有焦点的元素。在菜单之外按下的任何地方都会关闭它，在区域内也一样；在别处右键点击会先关闭它，再在那里重新请求。
+- **放什么。** 只放适用于所指对象的操作，最常用的放在前面。每个操作也要在产品的其他地方提供：不知道如何请求的人永远看不到上下文菜单。
+- **在 iOS 上**，长按也可能选中下面的文本。如果区域中的文本不应被选中，请在它的样式中说明（`user-select: none`、`-webkit-touch-callout: none`）。
+
 ### 打开、焦点和关闭
 
 菜单是供操作的浮层，但不是模态的。用户在其中进行操作，所以它会取得焦点，再把焦点交还回去。屏幕上的其他内容都不会被阻挡。
@@ -450,12 +480,12 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 | --- | --- |
 | `escape` | 按下了 Escape。 |
 | `back` | 平台的返回操作，例如 Android 的返回按钮或返回手势。 |
-| `outside` | 在表面和锚点之外按下。 |
-| `tab` | 按下了 Tab 或 Shift+Tab。焦点随后从锚点继续前进，就像原本从锚点出发一样。 |
+| `outside` | 在表面和锚点之外按下。对上下文菜单来说，是表面之外的任何地方，区域内也算。 |
+| `tab` | 按下了 Tab 或 Shift+Tab。焦点随后从锚点继续前进，就像原本从锚点出发一样。对上下文菜单来说，焦点从请求菜单时拥有焦点的元素继续前进。 |
 | `focus-out` | 焦点以其他方式移出了菜单。 |
 | `item` | 某一项被激活。 |
 
-- **焦点返回。** 菜单关闭时，如果焦点原本在菜单之内，就把焦点交还给锚点。
+- **焦点返回。** 菜单关闭时，如果焦点原本在菜单之内，就把焦点交还给锚点。上下文菜单会把焦点还给请求菜单时拥有焦点的元素；如果当时没有元素拥有焦点，焦点只是离开菜单。
 
 由谁来关闭菜单，取决于平台。在 Web 和 React Native 上，你在 close 事件中把 `open`（`visible`）设回 false。在 Compose 上，你在 `onDismissRequest` 中把 `expanded` 设为 false，它带有一个 `TanreiMenuCloseReason`。在 Flutter 上，菜单带着原因调用 `onClose`，并通过它的控制器自行关闭。在 SwiftUI 上，菜单向 `isPresented` 写入 `false`，所以原因不会传递出来。
 
@@ -489,17 +519,19 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 组作为以其标题命名的组暴露。分隔线是不接受焦点的分隔符；用间隙分开各组时，没有分隔符。标题不接受焦点，也不会被当作项来朗读。
 - 子菜单项作为一个会打开菜单的项暴露，并带有展开状态，被禁用时也是如此。它的表面是一个独立的菜单，以该项的标签命名，每个表面各自计算自己的位置。
 - 平台有相应属性时（在 Web 上是 `aria-haspopup`、`aria-controls` 和 `aria-expanded`），锚点会被告知它会打开一个菜单，以及菜单是否打开。
+- 上下文菜单不改动它的区域：区域不是按钮，也不会被告知它会打开菜单。菜单通过右键点击、长按、Shift+F10、ContextMenu 键或辅助技术的上下文菜单命令打开，名称只来自你提供的 `aria-label`，就像平台自己的上下文菜单也没有名称一样。
 - 打开时焦点移到第一个启用的项。关闭时，如果焦点原本在菜单之内，就把焦点交还给锚点。上、下方向键到头时循环，Home 和 End 前往两端，键入字符会移到标签以所键入字母开头的下一项。Enter 激活并关闭。在复选项或单选项上按 Space，菜单保持打开。Escape 关闭菜单并交还焦点。Tab 关闭菜单，焦点从锚点继续前进。在子菜单中，指向行首方向的方向键和 Escape 只关闭那一级，并把焦点交还给打开它的项；沿行方向而不起作用的方向键，绝不会传到菜单后面的页面。
 - 禁用的项仍然可以用方向键到达，但不会被激活。
 - 焦点环画在项的内部，所以表面不会把它裁掉。它只在键盘聚焦时显示。指针移到某一项上时，该项显示为悬停，而不是聚焦。
 - 每一项的高度不小于最小目标，整行都是它的点击区域。
 - 文本变大时，项随之增高；表面在屏幕上放不下时可以滚动。
 - 图标字体还无法画出某个图标标记（例如对勾）时，菜单在它的位置上什么也不画，绝不会画出“check”这个单词。它保留这一列的宽度，仍然暴露选中状态，并在字体加载完成后显示标记。
-- 调试构建会报告：没有标签的项、组外的单选项、没有指向组内任何单选项的组值、两个值相同的单选项、组内的组、同时有快捷键和后置文本的项、菜单没有定义的 `separation` 或 `iconSpace`、第三级子菜单，以及没有项的子菜单。它们还会报告：会打开新上下文却没有 `targetLabel` 的链接项；复选项、单选项或子菜单项上的 `href`；指向脚本或无法解析的 `href`；菜单没有定义的 `target`；以及没有 `href` 的项上的 `current`。
+- 调试构建会报告：没有标签的项、组外的单选项、没有指向组内任何单选项的组值、两个值相同的单选项、组内的组、同时有快捷键和后置文本的项、菜单没有定义的 `separation` 或 `iconSpace`、第三级子菜单，以及没有项的子菜单。它们还会报告：会打开新上下文却没有 `targetLabel` 的链接项；复选项、单选项或子菜单项上的 `href`；指向脚本或无法解析的 `href`；菜单没有定义的 `target`；以及没有 `href` 的项上的 `current`。菜单未定义的 `trigger` 也会被报告。
 
 已知的平台差距：
 
 - SwiftUI、Compose、Flutter 和 React Native 没有链接项：在这些平台上，项还不接受 `href`。
+- SwiftUI、Compose、Flutter 和 React Native 没有上下文触发方式：它们的菜单只能从锚点打开。
 - SwiftUI、Compose、Flutter 和 React Native 没有子菜单、`separation`、`iconSpace` 和 `markIcon`，选中的行也没有填充。只要菜单中有任何一项在标记列或图标列中画了内容，它们就在每一行都保留该列。它们仍然在 16 的方框里用各自的标记来画对勾，组的标题从标签开始的位置画起。
 - 在 `m3-like` 和 `cupertino` 下，标题从哪里开始遵循的是 Tanrei 的规则，还没有对照原版测量过。
 - Web：菜单不监听平台的关闭请求，例如 Android 的返回手势，所以从不发送 `back`。
@@ -530,6 +562,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - 通过锚点为菜单命名。给作为锚点的图标按钮一个标签，例如“更多”或“排序”。在 React Native 上，把同一个名称作为菜单的 `accessibilityLabel` 传入。
 - 在 Compose 和 React Native 上，在锚点上暴露菜单是否打开。菜单无法替你在那里设置。
 - 菜单请求关闭时就关闭它，并且在它关闭时不要自己移动焦点。菜单会把焦点交还给锚点。
+- 用 `aria-label` 为上下文菜单命名，比如“画布”，并在产品的其他地方也提供它的每个操作。
 - 给每一项一个标签，包括显示图标的项。标签就是名称，也是键入查找所匹配的内容。
 - 给单选项所在的组加一个标题，说明这项选择是关于什么的。
 - 给每个子菜单项一个标签：它既为该项命名，也为它打开的子菜单命名。

@@ -8,6 +8,7 @@ import {
   GlyphDrawnController,
   GlyphMirrorController,
   LINK_MARK,
+  LONG_PRESS,
   LinkController,
   type LinkForm,
   PressController,
@@ -16,6 +17,7 @@ import {
   SHORTCUT_UPDATE,
   type SeparationProp,
   SystemWatchController,
+  TOUCH_SLOP,
   chordsConverter,
   chordsOf,
   compChoice,
@@ -28,6 +30,7 @@ import {
   registerOverlay,
   report,
   styleQueries,
+  swallowRelease,
   syncFocusStyle,
   syncSeparation,
 } from '../../primitives/index.js';
@@ -39,6 +42,23 @@ import { groupStyles, itemStyles, menuStyles, submenuStyles } from './menu.style
 /** Where the surface goes against the anchor. A closed set; an unknown value is drawn as `bottom-start` (MNU-14). */
 export type TanreiMenuPlacement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
 const PLACEMENTS: readonly TanreiMenuPlacement[] = ['bottom-start', 'bottom-end', 'top-start', 'top-end'];
+
+/**
+ * What opens the menu (MNU-60): `anchor`, the product from its anchor; `context`, a person asking for a context menu at a
+ * point of the anchor, which is then an area. A closed set; an unknown value is `anchor`.
+ */
+export type TanreiMenuTrigger = 'anchor' | 'context';
+const TRIGGERS: readonly TanreiMenuTrigger[] = ['anchor', 'context'];
+
+/** How a context menu was asked for (MNU-60): a secondary click or assistive technology, a touch or a pen held still, or a key. */
+export type TanreiMenuContextInput = 'pointer' | 'long-press' | 'keyboard';
+/** What `contextrequest` carries (MNU-60): the point in client coordinates, the element it was asked about, and how. */
+export interface TanreiMenuContextRequestDetail {
+  x: number;
+  y: number;
+  element: Element;
+  input: TanreiMenuContextInput;
+}
 
 /**
  * Why the menu asks to be closed (MNU-5, MNU-6), by the spec's names. The web has no back gesture of its own: Escape is
@@ -133,6 +153,33 @@ export function placeMenu(input: { anchor: MenuBox; surface: { width: number; he
   const wanted = alignLeft ? anchor.x : anchor.x + anchor.width - surface.width;
   const left = Math.max(margin, Math.min(wanted, viewport.width - margin - surface.width));
   return { top, left, maxHeight: room, side };
+}
+
+/**
+ * Where the surface of a context menu goes from the point it was asked for at (MNU-61): with no offset, a corner on the
+ * point — the block-start corner for a `bottom-*` placement, the block-end one for `top-*`, the inline-start one for
+ * `*-start` (mirrored in right-to-left) — flipped to the other side of the point, along each axis by itself, where its
+ * side has less room than the surface needs within `margin` of the viewport's edge and the other side has more; then
+ * shifted to stay `margin` inside the viewport, its height limited to the room left. Coordinates are the viewport's.
+ */
+export function placeAtPoint(input: { point: { x: number; y: number }; surface: { width: number; height: number }; viewport: { width: number; height: number }; placement: TanreiMenuPlacement; margin: number; rtl: boolean }) {
+  const { point, surface, viewport, placement, margin, rtl } = input;
+  let side: 'top' | 'bottom' = placement.startsWith('top') ? 'top' : 'bottom';
+  const below = viewport.height - margin - point.y;
+  const above = point.y - margin;
+  if (side === 'bottom' && below < surface.height && above > below) side = 'top';
+  else if (side === 'top' && above < surface.height && below > above) side = 'bottom';
+  const room = Math.max(0, side === 'bottom' ? below : above);
+  const height = Math.min(surface.height, room);
+  const top = side === 'bottom' ? point.y : point.y - height;
+  // Along the line: the surface runs to the right of the point where its start is the left (left-to-right, `*-start`).
+  let rightward = placement.endsWith('end') === rtl;
+  const right = viewport.width - margin - point.x;
+  const left = point.x - margin;
+  if (rightward && right < surface.width && left > right) rightward = false;
+  else if (!rightward && left < surface.width && right > left) rightward = true;
+  const wanted = rightward ? point.x : point.x - surface.width;
+  return { top, left: Math.max(margin, Math.min(wanted, viewport.width - margin - surface.width)), maxHeight: room, side };
 }
 
 /**
@@ -1290,6 +1337,13 @@ type FocusReturn = 'key' | 'pointer' | 'stay';
  * instead: at its natural size, with its elevation, without an anchor, placement, open motion, focus on opening or light
  * dismiss, each open submenu beside its item.
  *
+ * With `trigger="context"` it is the context menu of an area — the element whose id is `anchor` (MNU-60 … MNU-63): a
+ * secondary click, a touch or a pen held still for the long-press duration, Shift+F10 or the ContextMenu key on the
+ * element of the area that has focus, or the context-menu command of assistive technology fires `contextrequest` with
+ * the point, and the browser's own context menu is cancelled unless you cancel the request. You set `open` to true; the
+ * surface opens with a corner on the point (against the focused element for a key), flipping away from the window's
+ * edges, and focus returns, when it closes, to the element that had it. The area gets no popup state.
+ *
  * A component that holds a menu in its shadow root may forward its own children into it: a `<slot>` child of the menu
  * stands for the elements assigned to it, each forwarded child in a slot of its own (the split button, SPB-15).
  *
@@ -1299,6 +1353,7 @@ type FocusReturn = 'key' | 'pointer' | 'stay';
  * @csspart scroll - The padded box inside the surface that scrolls the items.
  * @csspart divider - A line between a group and what is next to it, while the separation is divider.
  * @csspart tile - A group, or a run of items outside any group: a sheet of its own while the separation is gap (MNU-36), a box with no look while it is divider.
+ * @fires {CustomEvent<TanreiMenuContextRequestDetail>} contextrequest - With `trigger="context"`: a person asked for the context menu in the area. `detail` is `{ x, y, element, input }` — client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. Set `open` to true; cancel it to leave the request to the browser's own context menu.
  * @fires {CustomEvent<TanreiMenuCloseDetail>} close - The menu asks to be closed, every open submenu with it: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
  */
 export class TanreiMenu extends LitElement {
@@ -1313,6 +1368,7 @@ export class TanreiMenu extends LitElement {
   static override properties: PropertyDeclarations = {
     open: { type: Boolean, reflect: true },
     placement: { type: String, reflect: true },
+    trigger: { type: String, reflect: true },
     separation: { type: String, reflect: true },
     iconSpace: { type: String, attribute: 'icon-space', reflect: true },
     anchor: { type: String, reflect: true },
@@ -1323,8 +1379,19 @@ export class TanreiMenu extends LitElement {
   /** Whether the menu is shown. Open it from its anchor; set it to false when the menu fires `close`. */
   open = false;
 
-  /** Where the surface goes against the anchor: below or above it, with its start or end edge aligned to the anchor's. */
+  /**
+   * Where the surface goes against the anchor: below or above it, with its start or end edge aligned to the anchor's.
+   * For a context menu opened at a point, which of its corners is on the point (MNU-61).
+   */
   placement: TanreiMenuPlacement = 'bottom-start';
+
+  /**
+   * What opens the menu (MNU-60). `anchor` (the default): you open it from its anchor, and the surface is placed against
+   * the anchor. `context`: the anchor is an area, and a person asks for the menu at a point in it — a secondary click, a
+   * long press, Shift+F10 or the ContextMenu key on the element that has focus; the menu fires `contextrequest`, you set
+   * `open`, and the surface opens at that point.
+   */
+  trigger: TanreiMenuTrigger = 'anchor';
 
   /**
    * How a group is told from what is next to it: `divider` draws a line between them, `gap` leaves empty space and no
@@ -1397,6 +1464,23 @@ export class TanreiMenu extends LitElement {
   private swallowClick = false;
   /** The menu itself is placing focus (MNU-1, MNU-43): that is not the person moving it to another item (MNU-48). */
   private placing = false;
+  /**
+   * MNU-61: where the last context request was made, since the menu was last closed — a point held in the area's own
+   * coordinates, so that it moves with the area, or the element a key was pressed on.
+   */
+  private asked: { area: Element; dx: number; dy: number } | { element: Element } | null = null;
+  /** MNU-62: the element that had focus when the context menu was asked for, which focus returns to. */
+  private returnTo: HTMLElement | null = null;
+  /** MNU-62: the element that had focus as the last press in the area began. */
+  private pressedFrom: HTMLElement | null = null;
+  /** MNU-60: a touch or a pen pressed in the area, which a long press makes a request of. */
+  private held: { pointerId: number; x: number; y: number; element: Element; timer: ReturnType<typeof setTimeout>; answered: 'menu' | 'platform' | null } | null = null;
+  /** MNU-60: a key asked for the menu, and the context menu event the key makes too is the menu's to cancel. */
+  private keyed = false;
+  /** The document or shadow root whose events a context menu's area is listened in. */
+  private listenedRoot: Document | ShadowRoot | null = null;
+  /** MNU-63: the element the menu wrote the popup state on, which it takes back from when it no longer opens from it. */
+  private ariaWritten: HTMLElement | null = null;
 
   constructor() {
     super();
@@ -1425,6 +1509,13 @@ export class TanreiMenu extends LitElement {
     // control inside a popover is inside that popover (src/primitives/dismiss.ts). The popover closing takes focus back
     // to its own opener, which closes the menu by its own rule (MNU-5: focus leaving).
     this.unregister = registerOverlay(this, { openers: () => [this.positionAnchor, this.anchorElement], open: () => this.open && !this.inline });
+    // MNU-60: the requests are heard where the area is — the menu's own document or shadow root, the anchor being found
+    // by its id there — so an area that is added, replaced or given its id later is heard as it is.
+    const root = this.getRootNode() as Document | ShadowRoot;
+    this.listenedRoot = root;
+    root.addEventListener('contextmenu', this.onContextMenu as EventListener);
+    root.addEventListener('keydown', this.onContextKey as EventListener);
+    root.addEventListener('pointerdown', this.onAreaPress as EventListener);
   }
 
   override disconnectedCallback() {
@@ -1434,6 +1525,12 @@ export class TanreiMenu extends LitElement {
     this.unregister = null;
     this.stopFollowing();
     this.forgetPointer();
+    const root = this.listenedRoot;
+    root?.removeEventListener('contextmenu', this.onContextMenu as EventListener);
+    root?.removeEventListener('keydown', this.onContextKey as EventListener);
+    root?.removeEventListener('pointerdown', this.onAreaPress as EventListener);
+    this.listenedRoot = null;
+    this.letGo();
   }
 
   private readChildren() {
@@ -1883,7 +1980,7 @@ export class TanreiMenu extends LitElement {
     if (event.key === 'Tab') {
       // Focus goes to the anchor first, so that the Tab's own move goes on from there, as it would have from the anchor.
       this.requestClose('tab');
-      if (!this.inline) this.anchorElement?.focus();
+      if (!this.inline) this.focusReturn?.focus();
       return;
     }
     if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -2058,7 +2155,8 @@ export class TanreiMenu extends LitElement {
     if (!this.open || this.inline) return;
     const to = event.relatedTarget as Node | null;
     if (!to || this.owns(to)) return;
-    const anchor = this.anchorElement;
+    // MNU-62: the area of a context menu is outside it.
+    const anchor = this.isContext ? null : this.anchorElement;
     if (anchor && (anchor === to || anchor.contains(to))) return;
     // MBR-14: focus that stays in the menubar has not left it.
     for (let at: Node | null = this.bar ? to : null; at; at = flatParent(at)) if (at === this.bar?.ground) return;
@@ -2069,14 +2167,203 @@ export class TanreiMenu extends LitElement {
   private readonly onOutsidePress = (event: PointerEvent) => {
     const path = event.composedPath();
     if (path.includes(this)) return;
-    const anchor = this.anchorElement;
+    // MNU-62: a press in the area of a context menu is a press outside; a secondary one then asks for it again.
+    const anchor = this.isContext ? null : this.anchorElement;
     if (anchor && path.includes(anchor)) return;
     // MBR-14: a press on the menubar is the bar's to answer.
     if (this.bar && path.includes(this.bar.ground)) return;
     this.requestClose('outside');
   };
 
-  /** MNU-2: places the surface against the anchor, in viewport coordinates. */
+  // ── The context menu (MNU-60 … MNU-63) ──
+
+  /** MNU-60: a context menu — an unknown trigger is `anchor`. */
+  private get isContext(): boolean {
+    return this.trigger === 'context';
+  }
+
+  /**
+   * MNU-60: the area, when an event of `path` is a request made in it: the anchor while the menu is a context menu,
+   * never from inside the menu's own surfaces.
+   */
+  private areaOf(path: EventTarget[]): HTMLElement | null {
+    if (!this.isContext || this.inline || path.includes(this)) return null;
+    const area = this.anchorElement;
+    return area && path.includes(area) ? area : null;
+  }
+
+  /**
+   * MNU-60: asks the product to open the menu at the point, about the element; true unless the product cancelled. The
+   * point is held in the area's own coordinates (a key's request holds its element), and the element that has focus is
+   * where focus returns to (MNU-62). A menu that is open already is placed again at the new point.
+   */
+  private request(area: HTMLElement, x: number, y: number, element: Element, input: TanreiMenuContextInput): boolean {
+    const detail: TanreiMenuContextRequestDetail = { x, y, element, input };
+    if (!this.dispatchEvent(new CustomEvent<TanreiMenuContextRequestDetail>('contextrequest', { cancelable: true, detail }))) return false;
+    const box = area.getBoundingClientRect();
+    this.asked = input === 'keyboard' ? { element } : { area, dx: x - box.x, dy: y - box.y };
+    // A press that took focus away to nothing (WebKit blurs the focused element on a press that focuses none) did not
+    // move it: the element that had it before the press is the one it returns to.
+    const active = deepActive();
+    const had = active instanceof HTMLElement && active !== document.body ? active : this.pressedFrom;
+    if (!this.owns(had)) this.returnTo = had?.isConnected ? had : null;
+    this.pressedFrom = null;
+    if (this.open && this.shown) {
+      this.lastLayout = '';
+      this.place();
+    }
+    return true;
+  }
+
+  /**
+   * MNU-60: a secondary click, Android's long press, the context-menu command of assistive technology — and the event a
+   * key makes after its own request, which is cancelled with nothing asked. One an element inside took is left to it;
+   * one the product's request was cancelled for is left to the browser.
+   */
+  private readonly onContextMenu = (event: MouseEvent) => {
+    if (this.keyed) {
+      event.preventDefault();
+      return;
+    }
+    if (event.defaultPrevented) return;
+    const held = this.held;
+    if (held?.answered) {
+      if (held.answered === 'menu') event.preventDefault();
+      return;
+    }
+    const path = event.composedPath();
+    const area = this.areaOf(path);
+    if (!area) return;
+    const type = (event as PointerEvent).pointerType;
+    const input: TanreiMenuContextInput = held || type === 'touch' || type === 'pen' ? 'long-press' : 'pointer';
+    if (held) clearTimeout(held.timer);
+    const asked = this.request(area, event.clientX, event.clientY, (path[0] as Element) ?? area, input);
+    if (held) held.answered = asked ? 'menu' : 'platform';
+    if (!asked) return;
+    event.preventDefault();
+    if (input === 'long-press') swallowRelease();
+  };
+
+  /**
+   * MNU-60: Shift+F10 or the ContextMenu key, with no other modifier, on the area or an element inside it asks for the
+   * menu against that element; the key's own context menu event is the menu's to cancel — on Windows the ContextMenu
+   * key makes it as the key comes up.
+   */
+  private readonly onContextKey = (event: KeyboardEvent) => {
+    if (event.defaultPrevented || event.repeat) return;
+    const other = event.ctrlKey || event.altKey || event.metaKey;
+    const menuKey = event.key === 'ContextMenu' && !other && !event.shiftKey;
+    const shiftF10 = event.key === 'F10' && event.shiftKey && !other;
+    if (!menuKey && !shiftF10) return;
+    const path = event.composedPath();
+    const area = this.areaOf(path);
+    if (!area) return;
+    const element = (path[0] as Element) ?? area;
+    const box = element.getBoundingClientRect();
+    const rtl = getComputedStyle(element).direction === 'rtl';
+    if (!this.request(area, rtl ? box.right : box.left, box.bottom, element, 'keyboard')) return;
+    event.preventDefault();
+    this.keyed = true;
+    const key = event.key;
+    const settle = (up: KeyboardEvent) => {
+      if (up.key !== key) return;
+      up.preventDefault();
+      window.removeEventListener('keyup', settle, true);
+      setTimeout(() => (this.keyed = false));
+    };
+    window.addEventListener('keyup', settle, true);
+    // A pointer is a new request, whatever became of the key's.
+    window.addEventListener(
+      'pointerdown',
+      () => {
+        window.removeEventListener('keyup', settle, true);
+        this.keyed = false;
+      },
+      { once: true, capture: true },
+    );
+  };
+
+  /**
+   * MNU-60: a touch or a pen pressed in the area asks for the menu once it has been held within the touch slop for the
+   * long-press duration — WebKit on iOS makes no context menu event of it — unless the browser's own event comes first.
+   */
+  private readonly onAreaPress = (event: PointerEvent) => {
+    const path = event.composedPath();
+    const area = this.areaOf(path);
+    if (!area) return;
+    // MNU-62: what had focus as the press began, before the press moved it.
+    const active = deepActive();
+    this.pressedFrom = active instanceof HTMLElement && active !== document.body ? active : null;
+    if (event.pointerType === 'mouse' || !event.isPrimary || event.button !== 0) return;
+    this.letGo();
+    const held: NonNullable<TanreiMenu['held']> = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      element: (path[0] as Element) ?? area,
+      answered: null,
+      timer: setTimeout(() => {
+        if (this.held !== held || held.answered) return;
+        const asked = this.request(area, held.x, held.y, held.element, 'long-press');
+        held.answered = asked ? 'menu' : 'platform';
+        if (asked) swallowRelease();
+      }, LONG_PRESS),
+    };
+    this.held = held;
+    window.addEventListener('pointermove', this.onHeldMove, true);
+    window.addEventListener('pointerup', this.onHeldEnd, true);
+    window.addEventListener('pointercancel', this.onHeldEnd, true);
+  };
+
+  /** MNU-60: a touch that moves past the slop before it is answered is a scroll or a drag, and asks for nothing. */
+  private readonly onHeldMove = (event: PointerEvent) => {
+    const held = this.held;
+    if (!held || event.pointerId !== held.pointerId || held.answered) return;
+    if (Math.hypot(event.clientX - held.x, event.clientY - held.y) > TOUCH_SLOP) this.letGo();
+  };
+
+  private readonly onHeldEnd = (event: PointerEvent) => {
+    if (this.held && event.pointerId === this.held.pointerId) this.letGo();
+  };
+
+  /** Forgets a touch held in the area. */
+  private letGo() {
+    if (this.held) clearTimeout(this.held.timer);
+    this.held = null;
+    window.removeEventListener('pointermove', this.onHeldMove, true);
+    window.removeEventListener('pointerup', this.onHeldEnd, true);
+    window.removeEventListener('pointercancel', this.onHeldEnd, true);
+  }
+
+  /** MNU-62: where focus returns when the menu closes — the anchor, or for a context menu the element that had focus. */
+  private get focusReturn(): HTMLElement | null {
+    if (!this.isContext) return this.anchorElement;
+    return this.returnTo?.isConnected ? this.returnTo : null;
+  }
+
+  /**
+   * MNU-2, MNU-61: what the surface is placed against — the anchor; for a context menu the point it was asked for at,
+   * which moves with its area, or the element a key asked about, and the area itself where nothing was asked.
+   */
+  private placedAgainst(): { box: MenuBox; point: boolean } | null {
+    const asked = this.isContext ? this.asked : null;
+    if (asked && 'element' in asked) return { box: asked.element.getBoundingClientRect(), point: false };
+    if (asked) {
+      const area = asked.area.getBoundingClientRect();
+      return { box: { x: area.x + asked.dx, y: area.y + asked.dy, width: 0, height: 0 }, point: true };
+    }
+    const anchor = this.positionAnchor ?? this.anchorElement;
+    return anchor ? { box: anchor.getBoundingClientRect(), point: false } : null;
+  }
+
+  /** The element whose moves move the surface (FollowController). */
+  private get followedElement(): Element | null {
+    const asked = this.isContext ? this.asked : null;
+    if (asked) return 'element' in asked ? asked.element : asked.area;
+    return this.positionAnchor ?? this.anchorElement;
+  }
+
+  /** MNU-2, MNU-61: places the surface against the anchor, or at the point a context menu was asked for, in viewport coordinates. */
   private place() {
     const surface = this.surface;
     const scroll = this.scrollBox;
@@ -2087,10 +2374,13 @@ export class TanreiMenu extends LitElement {
     // The surface's size as laid out, fractional and untouched by the enter motion's scale (layoutSize): a snapped
     // one would put an end-aligned or top-side surface up to a pixel off its anchor.
     const size = { width: layoutSize(surface).width, height: naturalHeight(surface, scroll) };
-    const box = (this.positionAnchor ?? this.anchorElement)?.getBoundingClientRect() ?? { x: margin, y: margin, width: 0, height: 0 };
+    const against = this.placedAgainst() ?? { box: { x: margin, y: margin, width: 0, height: 0 }, point: false };
     const viewport = { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
     const rtl = getComputedStyle(this).direction === 'rtl';
-    const at = placeMenu({ anchor: box, surface: size, viewport, placement: this.effectivePlacement, offset, margin, rtl });
+    const placement = this.effectivePlacement;
+    const at = against.point
+      ? placeAtPoint({ point: against.box, surface: size, viewport, placement, margin, rtl })
+      : placeMenu({ anchor: against.box, surface: size, viewport, placement, offset, margin, rtl });
     surface.style.top = `${at.top}px`;
     surface.style.left = `${at.left}px`;
     surface.style.maxBlockSize = `${at.maxHeight}px`;
@@ -2104,7 +2394,7 @@ export class TanreiMenu extends LitElement {
    */
   private readonly follow = (): boolean => {
     let changed = false;
-    const box = (this.positionAnchor ?? this.anchorElement)?.getBoundingClientRect();
+    const box = this.placedAgainst()?.box;
     const scroll = this.scrollBox;
     const direction = getComputedStyle(this).direction;
     const viewport = `${document.documentElement.clientWidth},${document.documentElement.clientHeight}`;
@@ -2141,7 +2431,7 @@ export class TanreiMenu extends LitElement {
 
   /** What is followed: the anchor, and the item of each submenu open as an overlay; sized: every surface and what scrolls in it. */
   private readonly following = new FollowController(this, {
-    followed: () => [this.positionAnchor ?? this.anchorElement, ...this.overlaid().map((submenu) => submenu.rowElement)],
+    followed: () => [this.followedElement, ...this.overlaid().map((submenu) => submenu.rowElement)],
     sized: () => [this.surface, this.scrollBox, ...this.overlaid().flatMap((submenu) => [submenu.surfaceElement, submenu.scrollElement])],
     check: this.follow,
   });
@@ -2156,9 +2446,14 @@ export class TanreiMenu extends LitElement {
     document.removeEventListener('pointerdown', this.onOutsidePress, true);
   }
 
-  /** MNU-24: the anchor says it opens a menu, whether it is open, and which. */
+  /**
+   * MNU-24: the anchor says it opens a menu, whether it is open, and which. MNU-63: the area of a context menu says
+   * nothing of it — what the menu wrote on an element it no longer opens from is taken back, a product's own is kept.
+   */
   private syncAnchor() {
-    const target = this.anchorTarget;
+    const target = this.isContext ? null : this.anchorTarget;
+    if (this.ariaWritten && this.ariaWritten !== target) hostAria(this.ariaWritten, { 'aria-haspopup': null, 'aria-expanded': null, 'aria-controls': null });
+    this.ariaWritten = target;
     if (!target) return;
     if (!this.id) this.id = `tanrei-menu-${++ids}`;
     hostAria(target, {
@@ -2206,7 +2501,15 @@ export class TanreiMenu extends LitElement {
     this.shown = false;
     // Not :focus-within: it does not match the host while a slotted item has focus inside the top-layer surface. The
     // focused element, through shadow roots: a forwarded item is not in the menu's own tree. MNU-49: from whatever level.
-    if (this.owns(deepActive())) this.anchorElement?.focus();
+    // MNU-62: a context menu's to the element that had focus when it was asked for; where none had, out of the menu.
+    const active = deepActive();
+    if (this.owns(active)) {
+      const back = this.focusReturn;
+      if (back) back.focus();
+      else (active as HTMLElement).blur?.();
+    }
+    this.asked = null;
+    this.returnTo = null;
     // MBR-29: no close motion where it gives its place to another menu of a menubar.
     if (this.bar?.quick) {
       surface.classList.remove('leaving');
@@ -2229,6 +2532,10 @@ export class TanreiMenu extends LitElement {
     if (changed.has('placement') && !PLACEMENTS.includes(this.placement)) {
       report(this, 'MNU-14', `placement "${this.placement}" is not a value the menu defines; it is drawn as "bottom-start"`);
     }
+    // MNU-60: a trigger the menu does not define is anchor; a debug build says so.
+    if (changed.has('trigger') && !TRIGGERS.includes(this.trigger)) {
+      report(this, 'MNU-60', `trigger "${this.trigger}" is not a value the menu defines; it is treated as "anchor"`);
+    }
     // MNU-35: a separation the menu does not define is auto (no rule matches the attribute); a debug build says so.
     if (changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'MNU-35', `separation "${this.separation}" is not a value the menu defines; it is drawn as "auto"`);
@@ -2246,7 +2553,8 @@ export class TanreiMenu extends LitElement {
     // MNU-24: the menu role while open, named by its anchor.
     hostAria(this, {
       role: this.open ? 'menu' : null,
-      'aria-labelledby': this.open && anchor?.id && anchor.getRootNode() === this.getRootNode() ? anchor.id : null,
+      // MNU-63: a context menu is not named by its area; it keeps the name the product gives it.
+      'aria-labelledby': this.open && !this.isContext && anchor?.id && anchor.getRootNode() === this.getRootNode() ? anchor.id : null,
     });
     this.syncAnchor();
     if (changed.has('open') || changed.has('inline')) {
@@ -2254,7 +2562,7 @@ export class TanreiMenu extends LitElement {
       if (this.open) this.show();
       else this.hide();
     }
-    if (changed.has('placement') && this.open) this.place();
+    if ((changed.has('placement') || changed.has('trigger')) && this.open) this.place();
     this.sync();
   }
 

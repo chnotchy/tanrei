@@ -55,7 +55,7 @@ import { TanreiListItem as TanreiListItemElement } from '@tanrei/web/components/
 import { TanreiListRow as TanreiListRowElement } from '@tanrei/web/components/list-row';
 import { TanreiLoadingIndicator as TanreiLoadingIndicatorElement } from '@tanrei/web/components/loading-indicator';
 import { TanreiMainActionButton as TanreiMainActionButtonElement } from '@tanrei/web/components/main-action-button';
-import { TanreiMenu as TanreiMenuElement, type TanreiMenuCloseDetail } from '@tanrei/web/components/menu';
+import { TanreiMenu as TanreiMenuElement, type TanreiMenuCloseDetail, type TanreiMenuContextRequestDetail } from '@tanrei/web/components/menu';
 import { TanreiMenuCheckboxItem as TanreiMenuCheckboxItemElement, type TanreiMenuCheckboxItemChangeDetail } from '@tanrei/web/components/menu';
 import { TanreiMenuGroup as TanreiMenuGroupElement, type TanreiMenuGroupChangeDetail } from '@tanrei/web/components/menu';
 import { TanreiMenuItem as TanreiMenuItemElement } from '@tanrei/web/components/menu';
@@ -1082,6 +1082,7 @@ export const MainActionButton = createComponent({
  *
  * Events:
  * - `onClose` (`close`) — The menu asks to be closed, every open submenu with it: `detail.reason` is `escape`, `outside`, `tab`, `focus-out` or `item`. Set `open` to false.
+ * - `onContextrequest` (`contextrequest`) — With `trigger="context"`: a person asked for the context menu in the area. `detail` is `{ x, y, element, input }` — client coordinates, the element under the pointer or with focus, and `pointer`, `long-press` or `keyboard`. Set `open` to true; cancel it to leave the request to the browser's own context menu.
  */
 export const Menu = createComponent({
   tagName: 'tanrei-menu',
@@ -1089,6 +1090,7 @@ export const Menu = createComponent({
   react: React,
   events: {
     onClose: 'close' as EventName<TanreiEvent<TanreiMenuElement, CustomEvent<TanreiMenuCloseDetail>>>,
+    onContextrequest: 'contextrequest' as EventName<TanreiEvent<TanreiMenuElement, CustomEvent<TanreiMenuContextRequestDetail>>>,
   },
 });
 
