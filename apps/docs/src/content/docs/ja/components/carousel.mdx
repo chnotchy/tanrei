@@ -2,7 +2,7 @@
 title: カルーセル
 description: フォーカスのある 1 つの項目を中心に横へスクロールするビジュアルの項目の列で、各項目はそれが示すものを開きます。目玉の列は、ループし、位置をドットで示し、自動で進むこともできます。
 translationOf: components/carousel.mdx
-sourceHash: 2d83688f39ecd8ebca3c92ae6620428c4fb0310d
+sourceHash: a327e16008d21b7be4da0a1faa5653953aca1f60
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -16,11 +16,11 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 <ComponentAvailability name="carousel" />
 
 :::note[仕様は改訂済み、各プラットフォームは追従待ち]
-このページは、仕様の現在の形のカルーセルを説明しています。`layout` プロパティは、独立した選択（ヒーローの位置、幅が流動的か固定か、縮小、止まる位置、ループ）に置き換わりました。目玉の列では、ドットを表示したり自動で進めたりできます。ヒーローは既定で中央に置かれ、隣り合う項目の間隔はスクロールのどの位置でも一定です。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（`layout` があり、ループ・ドット・自動再生はない）を提供しています。[ヒーローは既定で中央](#ヒーローは既定で中央)と[`layout` からの移行](#layout-からの移行)も参照してください。
+このページは、仕様の現在の形のカルーセルを説明しています。`layout` プロパティは、独立した選択（ヒーローの位置、幅が流動的か固定か、縮小、止まる位置、ループ）に置き換わりました。目玉の列では、ドットを表示したり自動で進めたりできます。ヒーローは既定で中央に置かれ、隣り合う項目の間隔はスクロールのどの位置でも一定です。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（`layout` があり、ループ・ドット・自動再生・前と次のコントロールはない）を提供しています。[ヒーローは既定で中央](#ヒーローは既定で中央)と[`layout` からの移行](#layout-からの移行)も参照してください。
 :::
 
 <DemoFrame label="既定：中央にヒーロー、その隣に小さい項目">
-  <tanrei-carousel label="近くの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" label="近くの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -38,24 +38,26 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 列は、フォーカスのある 1 つの項目（ヒーロー）を中心に並びます。並べ方はいくつかの独立したプロパティで決まり、どれも既定値は眺めるための列に合うものです。ヒーローは中央にあり、その隣の項目は狭まり、列は項目の切れ目で止まります。`itemWidth` はヒーローの幅で、指定しなければデザインシステムの既定の幅になります。目玉の列には、`loop`、ドット（`indicator`）、`autoplay` を加えられます。`autoplay` がなければ、カルーセルには制御する値がありません。人がスクロールするかフォーカスを動かしたときにだけスクロールします。
 
+列の両端の上には「前へ」と「次へ」のコントロールがあり、列を 1 項目ずつ動かします。既定では、マウスやトラックパッドのときに描かれ、ポインタがカルーセルの上にあるか、フォーカスがその中にある間に現れます。製品の言語で `previousLabel` と `nextLabel` を付けてください。[前と次のコントロール](#前と次のコントロール)を参照してください。
+
 Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native の例は、これらのプラットフォームがいま提供している以前の版のものです。`layout`（既定は複数の項目を並べる形、ほかに `hero` と `uncontained`）と `itemWidth` を持ち、ループ、ドット、自動再生はありません。
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-carousel label="近くの散歩道">
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" label="近くの散歩道">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><img src="coast.jpg" alt="" /></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><img src="town.jpg" alt="" /></tanrei-carousel-item>
       <tanrei-carousel-item label="森の周回路、写真 20 枚"><img src="forest.jpg" alt="" /></tanrei-carousel-item>
     </tanrei-carousel>
 
     <!-- 目玉の列：ループし、ドットを表示し、自動で進みます。ヒーローは既定で中央です。 -->
-    <tanrei-carousel label="おすすめの散歩道" loop indicator autoplay
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" label="おすすめの散歩道" loop indicator autoplay
                      play-label="スライドショーを再生" pause-label="スライドショーを一時停止">…</tanrei-carousel>
 
     <!-- 先頭側の端から並ぶ素朴な列：どの項目も幅 120（CSS ピクセルの数値）で、スクロールが終わった場所で止まります。
          fixed-width と free-scroll は、既定が true の fluidWidth と snap の逆です。 -->
-    <tanrei-carousel label="最近表示した項目" hero-alignment="start" fixed-width free-scroll item-width="120">…</tanrei-carousel>
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" label="最近表示した項目" hero-alignment="start" fixed-width free-scroll item-width="120">…</tanrei-carousel>
 
     <script type="module">
       import '@tanrei/web/components/carousel';
@@ -81,6 +83,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 
     <Carousel label="おすすめの散歩道" loop indicator autoplay paused={paused}
       onPausedchange={(e) => setPaused(e.detail.paused)}
+      previousLabel="前の散歩道" nextLabel="次の散歩道"
       playLabel="スライドショーを再生" pauseLabel="スライドショーを一時停止">
       {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}
     </Carousel>
@@ -157,13 +160,13 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 ## 仕様
 
 <DemoFrame label="取れる最大の幅のヒーローと、先頭側の端から自由にスクロールする固定幅の列" plain column>
-  <tanrei-carousel item-width="400" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" item-width="400" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
     <tanrei-carousel-item label="湖畔、写真 5 枚"><span class="tanrei-icon">water</span></tanrei-carousel-item>
   </tanrei-carousel>
-  <tanrei-carousel hero-alignment="start" fixed-width free-scroll label="近くの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" hero-alignment="start" fixed-width free-scroll label="近くの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -175,7 +178,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 <DemoFrame label="列の並べ方：固定幅、縮小、ループ、ヒーロー寄りのコンテンツ" plain column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">固定幅で、スクロールが終わった位置に止まる：<code>fixed-width free-scroll</code></div>
-    <tanrei-carousel fixed-width free-scroll label="近くの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" fixed-width free-scroll label="近くの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -185,7 +188,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">ヒーロー以外を小さく描き、端のない列：<code>fixed-width scale-others loop</code></div>
-    <tanrei-carousel fixed-width scale-others loop label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" fixed-width scale-others loop label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -195,7 +198,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">端のない列。両側がいつも埋まります：<code>loop</code></div>
-    <tanrei-carousel loop label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" loop label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -205,7 +208,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">狭くなった項目はヒーローに近い側を見せる：<code>item-width="120" content-alignment="toward-hero" loop</code></div>
-    <tanrei-carousel item-width="120" content-alignment="toward-hero" loop label="近くの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" item-width="120" content-alignment="toward-hero" loop label="近くの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -219,7 +222,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 <DemoFrame label="ドット、自動再生、進み具合、一時停止、再生コントロールだけ" plain column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">ドット：<code>indicator</code></div>
-    <tanrei-carousel indicator label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" indicator label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -230,7 +233,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">ドットと再生コントロール付きの自動再生：<code>indicator autoplay</code></div>
-    <tanrei-carousel indicator autoplay play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" indicator autoplay play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -241,7 +244,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">次の項目までの時間を現在のドットが示す：<code>autoplay-progress</code></div>
-    <tanrei-carousel indicator autoplay autoplay-progress play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" indicator autoplay autoplay-progress play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -252,7 +255,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">利用者またはプロダクトが一時停止した状態：<code>paused</code></div>
-    <tanrei-carousel indicator autoplay paused autoplay-progress play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" indicator autoplay paused autoplay-progress play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -263,7 +266,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">ドットのない自動再生：再生コントロールだけ</div>
-    <tanrei-carousel autoplay play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="前の散歩道" next-label="次の散歩道" autoplay play-label="スライドショーを再生" pause-label="スライドショーを一時停止" label="おすすめの散歩道" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="海沿いの道、写真 12 枚"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="旧市街、写真 8 枚"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="森の周回路、写真 20 枚"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -350,6 +353,24 @@ Web では、既定が true のプロパティの逆として、`fluidWidth` は
 
 **再生を止められるようにしておいてください。** `playbackControl` を false にすれば再生コントロールを隠せますが、できる限り残すべきです。保留は動きを止める手段になりません。タッチにはホバーがなく、指は置いている間しか列を止められず、フォーカスを動かさずに読み進めるスクリーンリーダーはまったく止めません。コントロールがなければ、スマートフォンの利用者が自動再生を止める方法は、システムの動きを減らす設定しかありません。隠すのは、ページ上の動くコンテンツをすべて止める機能など、動きを止める別の方法をプロダクトが用意している場合だけにしてください（WCAG 2.2.2）。
 
+### 前と次のコントロール
+
+スクロールバーのない列では、マウスで列を動かす 1 回の押下がありません。あるのは Shift を押しながらのホイールか、描かれていればドットだけです。そのためカルーセルは、列の両端の上に「前へ」と「次へ」のコントロールを描きます。山形のグリフを持つアイコンだけの Button で、バリアントはデザインシステムが決めます（既定のシステムでは tonal）。それぞれ、ドットや矢印キーと同じく、列を 1 項目戻すか進めます。
+
+| `navigation` | 描かれる場所 | 見える間 |
+| --- | --- | --- |
+| `auto`（既定） | 主なポインタがホバーできるマウスやトラックパッドのとき | ポインタがカルーセルの上にあるか、フォーカスがその中にある間 |
+| `always` | タッチを含むすべての端末 | 常に |
+| `none` | なし | なし |
+
+- **既定でタッチに描かない理由。** 指は列をスワイプでき、スマートフォンではコントロールがずっと項目の上に重なってしまうためです。タッチでも必要な利用者がいるなら `always` を選んでください。
+- **両端で。** `loop` がなければ、最初の項目では「前へ」が、最後の項目では「次へ」が無効になります。無効になったコントロールもフォーカスと Tab の順番の位置を保つので、「次へ」を押し続けてもフォーカスが失われることはありません。`loop` のときは一周します。
+- **続けて押すと加算されます。** 列が動いている間に押すと、向かっている位置から数えるので、素早く 2 回押せば 2 項目進みます。
+- **自動再生。** 押すことは利用者自身の操作です。列が止まってから、間隔が最初から数え直されます。ポインタがコントロールの上にあるか、フォーカスがその上にある間は、カルーセルのほかの場所と同じく自動再生が止まります。
+- **名前。** `previousLabel` と `nextLabel` が支援技術向けの名前です（たとえば「前の散歩道」「次の散歩道」）。ないときはデバッグビルドで報告します。
+
+できる限り `auto` のままにしてください。`none` を選ぶのは、ドットなど、マウスで列を動かす別の手段をページが用意している場合だけにします。
+
 ### 項目とそのコンテンツ
 
 - **コンテンツはヒーローの幅でレイアウトする。** どの項目も、コンテンツをヒーローの幅でレイアウトします。そのため狭まった項目には画像の中央部分（`contentAlignment` が toward-hero ならヒーローに近い側）が見え、項目が伸び縮みするにつれて画像が中で滑るように動きます。見える部分だけでも意味が伝わる画像を使ってください。
@@ -361,7 +382,7 @@ Web では、既定が true のプロパティの逆として、`fluidWidth` は
 
 ### スクロールと止まる位置
 
-列は、タッチ、ペン、トラックパッド、横方向のホイール、Shift を押しながらの縦方向のホイールでスクロールできます。`snap` のときは、スクロールが終わると列が項目の切れ目に止まります。フリングならその向きの次の項目へ、ゆっくり離したなら近いほうの項目へ進みます。フリングとは、プラットフォームの最小フリング速度（定めがなければ 1 ミリ秒あたり 0.5 ポイント）より速く離すことです。`loop` がなければ、範囲の終わりでは最後の項目がヒーローになり、その後ろの枠は空のままです。`loop` のときは、各項目をヒーローのまわりの当てはまる位置に 1 回だけ描き、列は終わりなく回ります。動きを減らす設定では、カルーセルが自分で始める動きはすべて瞬時に終わります。
+列は、タッチ、ペン、トラックパッド、横方向のホイール、Shift を押しながらの縦方向のホイールでスクロールできます。`snap` のときは、スクロールが終わると列が項目の切れ目に止まります。フリングならその向きの次の項目へ、ゆっくり離したなら近いほうの項目へ進みます。フリングとは、プラットフォームの最小フリング速度（定めがなければ 1 ミリ秒あたり 0.5 ポイント）より速く離すことです。`loop` がなければ、範囲の終わりでは最後の項目がヒーローになり、その後ろの枠は空のままです。`loop` のときは、各項目をヒーローのまわりの当てはまる位置に 1 回だけ描き、列は終わりなく回ります。動きを減らす設定では、カルーセルが自分で始める動きはすべて瞬時に終わります。マウスでは、「前へ」と「次へ」のコントロールで 1 項目ずつ動かせます。
 
 カルーセルの幅や項目が変わると、枠を並べ直し、それまでフォーカスのあった項目を、動きなしで同じ場所に保ちます。
 
@@ -387,18 +408,19 @@ Web では、既定が true のプロパティの逆として、`fluidWidth` は
 
 - カルーセルは、`label` を名前とするリストです。各項目は、ラベルを名前とし、項目の中での位置と項目の数を持つ 1 つのボタンです。コンテンツは支援技術から隠します。
 - 見えていない項目も順番どおりに伝えるので、スクリーンリーダーはすべての項目に届きます。スクリーンリーダーのフォーカスを項目に移すと、その項目が所定の位置までスクロールします。
-- **Tab で止まる位置。** 最大で 3 か所です。再生コントロール（描かれているとき）、1 か所としての項目、ドット（描かれているとき）です。再生コントロールは項目より先に来るので、キーボードの利用者はほかの何よりも先に動きを止められます。項目には、最後にキーボードフォーカスのあった項目、なければヒーローの位置に止まっている項目から入ります。
+- **Tab で止まる位置。** 最大で 5 か所です。再生コントロール（描かれているとき）、前と次のコントロール（描かれているとき）、1 か所としての項目、ドット（描かれているとき）です。再生コントロールは項目より先に来るので、キーボードの利用者はほかの何よりも先に動きを止められます。前と次のコントロールは、WAI-ARIA のカルーセルの例と同じく項目より前に来ます。項目には、最後にキーボードフォーカスのあった項目、なければヒーローの位置に止まっている項目から入ります。
 - 右矢印と左矢印で次と前の項目へ移ります。端では止まり、ループしているときだけ折り返します。Home と End は、ループしている列でも最初と最後の項目へ移ります。右から左のレイアウトでは、左矢印で次の項目へ移ります。
 - フォーカスを動かすと、その項目をヒーローの位置まで（範囲の終わりが先に来るときはできるだけ近くへ）スクロールします。ループしている列では近いほうを回ります。幅が固定で自由にスクロールする、先頭にヒーローのある列では、全体が見えるところまでだけスクロールします。
 - Enter と Space でフォーカス中の項目を実行します。スクロールに変わった押下では、押し始めた項目は実行されません。
 - ドットは `label` を名前とする 1 つのスライダーで、値は現在の項目のラベルです。矢印キー、Home と End、プラットフォームの増減の操作で、列が 1 位置ずつ動きます。現在のドットは、色だけでなく伸びた形で見分けられます。
 - 再生コントロールは、再生中は `pauseLabel`、一時停止中は `playLabel` を名前とするボタンです。押された状態を持たないので、「一時停止、押されています」のように読み上げられることはありません。実行してもフォーカスはボタンに残ります。一時停止と再生のグリフは左右反転せず、アイコンフォントの読み込み前にグリフの名前がテキストとして描かれることもありません。
+- 前と次のコントロールは、`previousLabel` と `nextLabel` を名前とするボタンです。押してもフォーカスはそのまま残ります。ループしない列の両端では無効になりますが、フォーカスを保ち、Tab の順番からも外れません。`auto` で隠れている間も Tab で届き、スクリーンリーダーに読まれ、フォーカスが来ると表示されます。右から左のレイアウトでは「前へ」が右側に来て、山形のグリフはアイコンセットの指定どおりに反転します。
 - 自動再生は、フォーカスがカルーセルのどこかにある間は止まり、フォーカスを動かさず、何も読み上げず、動きを減らす設定では動きません。
 - フォーカスリングは、列に切り取られないよう項目の内側に描き、ドットと再生コントロールではそのまわりに描きます。キーボードフォーカスのときだけ表示します。
 - 各項目のヒット領域はコンテナに両側の間隔の半分ずつを加えた範囲で、小さい項目でも最小ターゲットを下回りません。端で出入りしている途中の項目はそれより狭く、そのヒット領域が隣の項目のヒット領域に重なることはありません。再生コントロールのヒット領域はタッチターゲットの大きさ、ドットのヒット領域はコンテナ全体と行の高さです。
-- スクロールだけが項目に届く唯一の手段になることはありません。矢印キー、ドット、スクリーンリーダーのフォーカスで、すべての項目に届きます。
+- スクロールだけが項目に届く唯一の手段になることはありません。前と次のコントロールで、マウスの 1 回の押下で列を動かせ（WCAG 2.5.7）、矢印キー、ドット、スクリーンリーダーのフォーカスで、すべての項目に届きます。
 - 文字を大きくしても、カルーセルの高さと項目は変わりません。カルーセル自体はテキストを持たず、コンテンツが自分で文字の大きさに従います。
-- ラベルのない項目、`label` のないカルーセル、`playLabel` か `pauseLabel` のない再生コントロール、収まらないドット、`heroAlignment` や `contentAlignment` の知らない値、正の数でない `itemWidth` と `autoplayInterval` は、デバッグビルドで報告します。Web では、項目のコンテンツの中にある操作できる要素も報告します。
+- ラベルのない項目、`label` のないカルーセル、`playLabel` か `pauseLabel` のない再生コントロール、`previousLabel` か `nextLabel` のない前と次のコントロール、収まらないドット、`heroAlignment`、`contentAlignment`、`navigation` の知らない値、正の数でない `itemWidth` と `autoplayInterval` は、デバッグビルドで報告します。Web では、項目のコンテンツの中にある操作できる要素も報告します。
 
 プラットフォームごとの既知の制約：
 
@@ -416,6 +438,7 @@ Web では、既定が true のプロパティの逆として、`fluidWidth` は
 
 - カルーセルに `label` を、すべての項目にコンテンツが何を示すかを表すラベルを付けます。コンテンツは読み上げられません。
 - 自動再生のときは、再生コントロールに何をするかが分かる `playLabel` と `pauseLabel` を付け、コントロールを描いたままにします。
+- 前と次のコントロールに `previousLabel` と `nextLabel` を付けます。ページがマウスで列を動かす別の手段を用意していない限り、`navigation` は `auto` のままにします。
 - 項目のコンテンツにコントロールを置かないでください。
 - ポスターに書かれた価格のように、ラベルにない意味をコンテンツが持っているなら、それもラベルに含めます。
 - SwiftUI、Compose、React Native では、項目の数を控えめにします。これらのカルーセルは、見えていない項目も含めてすべてを作ります。

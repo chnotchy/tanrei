@@ -14,11 +14,11 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 <ComponentAvailability name="carousel" />
 
 :::note[A revised spec, not yet on every platform]
-This page describes the carousel as the spec has it now. Independent choices (where the hero sits, fluid or fixed widths, scale, snapping, looping) replace the `layout` prop, and a featured row can show dots and advance by itself. The hero now sits in the centre by default, and neighbouring items stand one gap apart at every scroll position. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, with `layout` and no loop, dots or autoplay. See [The hero is in the centre by default](#the-hero-is-in-the-centre-by-default) and [Moving from `layout`](#moving-from-layout).
+This page describes the carousel as the spec has it now. Independent choices (where the hero sits, fluid or fixed widths, scale, snapping, looping) replace the `layout` prop, and a featured row can show dots and advance by itself. The hero now sits in the centre by default, and neighbouring items stand one gap apart at every scroll position. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, with `layout` and no loop, dots, autoplay or previous and next controls. See [The hero is in the centre by default](#the-hero-is-in-the-centre-by-default) and [Moving from `layout`](#moving-from-layout).
 :::
 
 <DemoFrame label="The default: the hero in the centre, a small item beside it">
-  <tanrei-carousel label="Walks near you" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="Previous walk" next-label="Next walk" label="Walks near you" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -36,24 +36,26 @@ Each item is one action. It holds your content, usually an image, and emits `cli
 
 The row is arranged around one item in focus, the hero. A few independent props say how, and each has a default that suits a row to browse: the hero in the centre, the items beside it narrower, and a row that settles at a whole item. `itemWidth` is the hero's width; leave it unset to take the design system's default. A featured row can add `loop`, the dots (`indicator`) and `autoplay`. Without `autoplay` the carousel has no value to control: it scrolls when the person scrolls it or moves focus.
 
+Over the ends of the row, a previous and a next control move it one item at a time. By default they are drawn for a mouse or a trackpad, and appear while the pointer is over the carousel or focus is in it. Give them a `previousLabel` and a `nextLabel` in your product's language. See [The previous and next controls](#the-previous-and-next-controls).
+
 The Web and React samples show the current spec. The SwiftUI, Compose, Flutter and React Native samples show the previous revision, which is what those platforms ship: `layout` (several items in a row by default, `hero` or `uncontained`) and `itemWidth`, with no loop, dots or autoplay.
 
 <Tabs syncKey="platform">
   <TabItem label="Web">
     ```html
-    <tanrei-carousel label="Walks near you">
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" label="Walks near you">
       <tanrei-carousel-item label="Coast path, 12 photos"><img src="coast.jpg" alt="" /></tanrei-carousel-item>
       <tanrei-carousel-item label="Old town, 8 photos"><img src="town.jpg" alt="" /></tanrei-carousel-item>
       <tanrei-carousel-item label="Forest loop, 20 photos"><img src="forest.jpg" alt="" /></tanrei-carousel-item>
     </tanrei-carousel>
 
     <!-- A featured row: endless, with dots, advancing by itself. The hero is in the middle by default. -->
-    <tanrei-carousel label="Featured walks" loop indicator autoplay
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" label="Featured walks" loop indicator autoplay
                      play-label="Play the slideshow" pause-label="Pause the slideshow">…</tanrei-carousel>
 
     <!-- A plain row from the start edge: every item 120 wide (a number of CSS pixels), resting wherever the
          scroll ends. fixed-width and free-scroll are the inverses of fluidWidth and snap, which default to true. -->
-    <tanrei-carousel label="Recently viewed" hero-alignment="start" fixed-width free-scroll item-width="120">…</tanrei-carousel>
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" label="Recently viewed" hero-alignment="start" fixed-width free-scroll item-width="120">…</tanrei-carousel>
 
     <script type="module">
       import '@tanrei/web/components/carousel';
@@ -79,6 +81,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
 
     <Carousel label="Featured walks" loop indicator autoplay paused={paused}
       onPausedchange={(e) => setPaused(e.detail.paused)}
+      previousLabel="Previous walk" nextLabel="Next walk"
       playLabel="Play the slideshow" pauseLabel="Pause the slideshow">
       {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}
     </Carousel>
@@ -155,13 +158,13 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
 ## Specs
 
 <DemoFrame label="A hero as wide as it may be, and fixed widths that scroll freely from the start edge" plain column>
-  <tanrei-carousel item-width="400" label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="Previous walk" next-label="Next walk" item-width="400" label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Lakeside, 5 photos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
   </tanrei-carousel>
-  <tanrei-carousel hero-alignment="start" fixed-width free-scroll label="Walks near you" style="inline-size: 25rem; max-inline-size: 100%">
+  <tanrei-carousel previous-label="Previous walk" next-label="Next walk" hero-alignment="start" fixed-width free-scroll label="Walks near you" style="inline-size: 25rem; max-inline-size: 100%">
     <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
     <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -173,7 +176,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
 <DemoFrame label="Arranging the row: fixed widths, scale, loop, content toward the hero" plain column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">Fixed widths, resting wherever the scroll ends: <code>fixed-width free-scroll</code></div>
-    <tanrei-carousel fixed-width free-scroll label="Walks near you" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" fixed-width free-scroll label="Walks near you" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -183,7 +186,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">The others drawn smaller, endless: <code>fixed-width scale-others loop</code></div>
-    <tanrei-carousel fixed-width scale-others loop label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" fixed-width scale-others loop label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -193,7 +196,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">Endless, both sides always filled: <code>loop</code></div>
-    <tanrei-carousel loop label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" loop label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -203,7 +206,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">Narrowed items show the side nearest the hero: <code>item-width="120" content-alignment="toward-hero" loop</code></div>
-    <tanrei-carousel item-width="120" content-alignment="toward-hero" loop label="Walks near you" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" item-width="120" content-alignment="toward-hero" loop label="Walks near you" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -217,7 +220,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
 <DemoFrame label="Dots, autoplay, progress, paused, and the playback control alone" plain column>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">Dots: <code>indicator</code></div>
-    <tanrei-carousel indicator label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" indicator label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -228,7 +231,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">Autoplay with dots and the playback control: <code>indicator autoplay</code></div>
-    <tanrei-carousel indicator autoplay play-label="Play the slideshow" pause-label="Pause the slideshow" label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" indicator autoplay play-label="Play the slideshow" pause-label="Pause the slideshow" label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -239,7 +242,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">The current dot fills until the next item: <code>autoplay-progress</code></div>
-    <tanrei-carousel indicator autoplay autoplay-progress play-label="Play the slideshow" pause-label="Pause the slideshow" label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" indicator autoplay autoplay-progress play-label="Play the slideshow" pause-label="Pause the slideshow" label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -250,7 +253,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">Paused, by the person or by the product: <code>paused</code></div>
-    <tanrei-carousel indicator autoplay paused autoplay-progress play-label="Play the slideshow" pause-label="Pause the slideshow" label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" indicator autoplay paused autoplay-progress play-label="Play the slideshow" pause-label="Pause the slideshow" label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -261,7 +264,7 @@ The Web and React samples show the current spec. The SwiftUI, Compose, Flutter a
   </div>
   <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
     <div style="font: var(--tanrei-sys-typescale-body-font)">Autoplay without dots: the playback control alone</div>
-    <tanrei-carousel autoplay play-label="Play the slideshow" pause-label="Pause the slideshow" label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel previous-label="Previous walk" next-label="Next walk" autoplay play-label="Play the slideshow" pause-label="Pause the slideshow" label="Featured walks" style="inline-size: 25rem; max-inline-size: 100%">
       <tanrei-carousel-item label="Coast path, 12 photos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Old town, 8 photos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
       <tanrei-carousel-item label="Forest loop, 20 photos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
@@ -348,6 +351,24 @@ The previous revision's `layout` prop is removed. Each of its values is now a co
 
 **Keep playback controllable.** A product may hide the playback control with `playbackControl` false, but it should keep it wherever it can. The holds are not a way to stop the motion: touch has no hover, a finger holds the row only while it rests there, and a screen reader that reads without moving focus does not hold it at all. Without the control, a person on a phone can stop an autoplaying carousel only through the system's reduced-motion setting. Hide it only where your product gives another way to stop the motion, such as a pause for all moving content on the page (WCAG 2.2.2).
 
+### The previous and next controls
+
+A row with no scroll bar gives a mouse no single press that moves it: only Shift with the wheel, or the dots where they are drawn. So the carousel draws a previous and a next control over the ends of its row. They are icon-only Buttons with chevrons, in the variant the design system names (tonal in the default system), and each moves the row one item back or on, as the dots and the arrow keys do.
+
+| `navigation` | Drawn | Shown |
+| --- | --- | --- |
+| `auto` (the default) | Where the primary pointer is a mouse or a trackpad, which can hover | While the pointer is over the carousel or focus is in it |
+| `always` | On every device, touch included | At all times |
+| `none` | Never | Never |
+
+- **Why not on touch by default.** A finger swipes the row, and on a phone the controls would stand over the items for good. Choose `always` where your people need them on touch too.
+- **At the ends.** Without `loop`, the previous control is disabled at the first item and the next at the last. A disabled control keeps focus and its place in the Tab order, so pressing next again never drops focus. With `loop` they go round.
+- **Presses add up.** A press while the row is moving counts from where it is going, so two quick presses move two items.
+- **Autoplay.** A press is the person's own move: the interval starts again once the row is at rest. While the pointer is over the controls, or focus is on them, autoplay holds, as it does anywhere in the carousel.
+- **Names.** `previousLabel` and `nextLabel` name them for assistive technology, such as "Previous walk" and "Next walk". Debug builds report a missing one.
+
+Keep `auto` wherever you can. Choose `none` only where your page gives a mouse another way to move the row, such as the dots.
+
 ### Items and their content
 
 - **Content is laid out at the hero's width.** Every item lays its content out at the hero's width, so a narrowed item shows the middle of its image, or the side nearest the hero with `contentAlignment` toward-hero, and the image glides inside the item as it grows and shrinks. Give an image that reads well from the part that shows.
@@ -359,7 +380,7 @@ The previous revision's `layout` prop is removed. Each of its values is now a co
 
 ### Scrolling and settling
 
-People scroll the row by touch, pen, trackpad, a horizontal wheel, or Shift with a vertical wheel. With `snap`, the row settles at a whole item when the scroll ends: a fling moves on to the next item in its direction, and a slower release goes to the nearest. A fling is a release faster than the platform's minimum fling velocity, or 0.5 points per millisecond where the platform names none. Without `loop`, at the end of the range the last item is the hero, and the slots after it stay empty. With `loop`, each item is drawn once, in whichever place around the hero it falls, and the row goes round without end. Where motion is reduced, every movement the carousel starts itself happens at once.
+People scroll the row by touch, pen, trackpad, a horizontal wheel, or Shift with a vertical wheel, and move it one item at a time with the previous and next controls. With `snap`, the row settles at a whole item when the scroll ends: a fling moves on to the next item in its direction, and a slower release goes to the nearest. A fling is a release faster than the platform's minimum fling velocity, or 0.5 points per millisecond where the platform names none. Without `loop`, at the end of the range the last item is the hero, and the slots after it stay empty. With `loop`, each item is drawn once, in whichever place around the hero it falls, and the row goes round without end. Where motion is reduced, every movement the carousel starts itself happens at once.
 
 When the carousel's width or its items change, it arranges its slots again and keeps the item that was in focus where it was, without motion.
 
@@ -385,18 +406,19 @@ When the carousel's width or its items change, it arranges its slots again and k
 
 - The carousel is a list named by `label`. Each item is one button named by its label, with its position among the items and their number. Its content is hidden from assistive technology.
 - Items out of view stay exposed, in order, so a screen reader reaches every one. Moving screen-reader focus to an item scrolls it into place.
-- **Tab stops.** The carousel has up to three: the playback control, while it is drawn; the items, as one stop; and the dots, while they are drawn. The playback control comes first, before the items, so a keyboard user can stop the motion before reaching anything else. The items are entered at the one that last had keyboard focus, or else at the item resting in the hero's place.
+- **Tab stops.** The carousel has up to five: the playback control, while it is drawn; the previous and next controls, while they are drawn; the items, as one stop; and the dots, while they are drawn. The playback control comes first, before the items, so a keyboard user can stop the motion before reaching anything else. The previous and next controls come before the items, as in the WAI-ARIA carousel example. The items are entered at the one that last had keyboard focus, or else at the item resting in the hero's place.
 - Right Arrow and Left Arrow move focus to the next and previous item. They stop at the ends, and wrap only while the carousel loops. Home and End move to the first and last item, even in a row that loops. In a right-to-left layout, Left Arrow moves to the next item.
 - Moving focus brings the focused item into the hero's place, as near as the end of the range allows, and the shorter way round in a row that loops. In a row with fixed widths and free scroll at the start, it just brings the item wholly into view.
 - Enter and Space activate the focused item. A press that turns into a scroll does not activate the item it started on.
 - The dots are one slider named by `label`, whose value is the current item's label. The arrow keys, Home and End, and the platform's increment and decrement move the row one position. The current dot is told apart by its stretched shape, not by color alone.
 - The playback control is a button named by `pauseLabel` while playing and `playLabel` while paused. It has no pressed state, so it never reads as "Pause, pressed". Activating it keeps focus on it. Its pause and play glyphs are not mirrored, and before the icon font has loaded no glyph's name is drawn as text.
+- The previous and next controls are buttons named by `previousLabel` and `nextLabel`. Activating one keeps focus on it. At the ends of a row that does not loop the control is disabled, but it keeps focus and stays in the Tab order. Hidden under `auto`, they are still reached by Tab and read by a screen reader, and focus shows them. Their chevrons are mirrored in a right-to-left layout where the icon set says so, and the previous control is then at the right.
 - Autoplay holds while focus is anywhere in the carousel, never moves focus and announces nothing, and never runs where motion is reduced.
 - The focus ring is drawn inside the item, where the row cannot clip it, and around the dots and the playback control. It shows for keyboard focus only.
 - Each item's hit area is its container plus half the gap on each side, and never less than the minimum target, even for a small item. An item that is still entering or leaving at the edge is narrower than that, and its hit area never covers its neighbour's. The playback control's hit area is the touch target, and the dots' is their whole container and the row's height.
-- Scrolling is never the only way to reach an item: the arrow keys, the dots and screen-reader focus reach every one.
+- Scrolling is never the only way to reach an item: the previous and next controls move the row with a single press of a mouse (WCAG 2.5.7), and the arrow keys, the dots and screen-reader focus reach every one.
 - The carousel keeps its height and items at larger text sizes. It holds no text of its own, and your content follows the text size itself.
-- Debug builds report an item without a label, a carousel without a `label`, a playback control without `playLabel` or `pauseLabel`, dots that do not fit, an unknown `heroAlignment` or `contentAlignment`, and an `itemWidth` or an `autoplayInterval` that is not a positive number. The web also reports an interactive element inside an item's content.
+- Debug builds report an item without a label, a carousel without a `label`, a playback control without `playLabel` or `pauseLabel`, previous and next controls without `previousLabel` or `nextLabel`, dots that do not fit, an unknown `heroAlignment`, `contentAlignment` or `navigation`, and an `itemWidth` or an `autoplayInterval` that is not a positive number. The web also reports an interactive element inside an item's content.
 
 Known platform gaps:
 
@@ -414,6 +436,7 @@ Known platform gaps:
 
 - Give the carousel a `label`, and every item a label that says what its content shows. The content is not read.
 - With autoplay, give the playback control a `playLabel` and a `pauseLabel` that say what it does, and keep it drawn.
+- Give the previous and next controls a `previousLabel` and a `nextLabel`, and keep `navigation` at `auto` unless your page gives a mouse another way to move the row.
 - Keep controls out of items' content.
 - If the content carries meaning its label does not, such as a price on a poster, put that in the label.
 - On SwiftUI, Compose and React Native, keep the number of items modest: the carousel there builds every item, including the ones out of view.
