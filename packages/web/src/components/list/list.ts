@@ -8,9 +8,11 @@ import {
   GlyphDrawnController,
   GlyphMirrorController,
   LINK_MARK,
+  LONG_PRESS,
   LinkController,
   PressController,
   RovingKeys,
+  TOUCH_SLOP as SLOP,
   type TanreiLinkTarget,
   WordsController,
   deepActive,
@@ -606,11 +608,6 @@ interface Press {
   y: number;
   timer: number;
 }
-
-/** The platform's touch slop where it names none (LST-36). */
-const SLOP = 8;
-/** The platform's long-press duration where it names none (LST-36). */
-const LONG_PRESS = 500;
 
 /**
  * Holds a set of your own items in one column, one line, or lines that wrap into a grid; people read them, open them
