@@ -163,6 +163,20 @@ Set `full-width` to make a button as wide as its container, such as the one acti
   </div>
 </DemoFrame>
 
+### Destructive actions
+
+Set `destructive` on a button whose action deletes or discards something a person may not get back: Delete, Discard, Remove member. The button keeps the emphasis of its variant and takes the error color in it. A filled button is filled with the error color and a tonal one with the error container; an elevated, outlined or text button draws its label in the error color, and an outlined one its edge too. Disabled, it looks like any disabled button of its variant.
+
+Choose the variant as for any other action. Use filled where deleting is the step the view exists for, such as the confirming action of a "Delete project?" dialog. Use outlined or text where it is one action among several, such as Remove in each row of a list. An icon-only button takes `destructive` as well, but for an action that cannot be undone a label is clearer than a glyph. A toggle has no destructive look.
+
+<DemoFrame label="Destructive buttons in each variant, and icon-only" plain>
+  <tanrei-button destructive>Delete project</tanrei-button>
+  <tanrei-button variant="tonal" destructive>Discard draft</tanrei-button>
+  <tanrei-button variant="outlined" destructive>Remove member</tanrei-button>
+  <tanrei-button variant="text" destructive>Clear history</tanrei-button>
+  <tanrei-button variant="text" destructive label="Delete file"><span slot="icon">delete</span></tanrei-button>
+</DemoFrame>
+
 ### A button with a destination is a link
 
 Give a button an `href` and it is a link, not a button: the same control, drawn from the same tokens in every state, but with the link role and everything the platform gives a link. On the web that is a real anchor, so people can open it in a new tab, copy its address, and see where it goes before they follow it. Use this form whenever activating the control only takes the person somewhere else. Do not navigate from a click handler on a plain button.
@@ -347,6 +361,8 @@ Variants express emphasis, and emphasis is a budget. Spend it once per view.
 | Outlined | Medium | Actions of equal weight beside a filled button, such as Cancel. |
 | Text | Low | The least pressing actions, inline actions in cards, dialogs and toolbars. |
 
+`destructive` is not a variant: it goes with any of them, and keeps that variant's emphasis (see [Destructive actions](#destructive-actions)).
+
 A button without a `variant` is filled, with one exception: placed as a [dialog](/components/dialog/)'s or a [side sheet](/components/side-sheet/)'s action, it takes that host's variant, tonal in the default system, so you set a variant only on the action that should look different. A side sheet's close button takes the sheet's close-button variant the same way.
 
 ### Do
@@ -355,6 +371,7 @@ A button without a `variant` is filled, with one exception: placed as a [dialog]
 - Keep one filled button per view. If two actions feel equally primary, the view is probably doing two jobs.
 - Place the primary action where the platform's users expect it, and keep that order across the product.
 - Use `small` (32) in dense toolbars and tables, `medium` (40) by default, and `large` (56) for touch-first or hero placements. The hit area is safe at every size.
+- Set `destructive` on an action that deletes or discards something, and choose its variant for its emphasis, as for any other action.
 - Use the icon slot to reinforce a label. Leave the label out only where the glyph is widely understood (search, close, more), and name the button with `label`.
 
 ### Don't
@@ -364,6 +381,7 @@ A button without a `variant` is filled, with one exception: placed as a [dialog]
 - Don't put a filled button in every row of a list. Prefer text buttons, or one action at the top that applies to the selection.
 - Don't disable a button as the only way to communicate a validation problem. Keep it enabled and explain what is missing when it is pressed, or keep it reachable with `focusable-when-disabled` and say why.
 - Don't disable a button while its action is under way. Set `busy`, so that focus stays on it.
+- Don't use `destructive` for emphasis, or for an action that destroys nothing. If every action in a view is red, none of them stands out.
 - Don't truncate labels. Let the button grow, or write a shorter label.
 - Don't leave an icon-only button without `label`: the glyph is not a name.
 - Don't pack narrow icon-only buttons edge to edge by hand. Their targets reach past their edges and would overlap.
@@ -388,12 +406,13 @@ Labels have no trailing punctuation. Aim for one or two words. Write them as eac
 - It shows the gap-then-ring focus indicator for keyboard focus, without animation.
 - Its colors come from role pairs whose contrast is verified at every contrast level. The outline of an outlined button is the default system's hairline, which is deliberately quiet at standard contrast: the label and the icon identify the control, not its edge. At medium and high contrast the hairline is raised to 3:1 and 4.5:1. A product that needs a stronger edge sets `comp.button.outlined.outline.color` to `sys.color.outline` in a layer.
 - At larger text sizes the container grows and the label never truncates.
+- `destructive` changes colors only. The role, the name, the states and the keys are those of the same button without it, because the web has no role or state that says an action is destructive. On SwiftUI it is the platform's own destructive role.
 
 ### What you need to do
 
 - Write a label that makes sense out of context. "Delete project" is better than "Delete" beside a project name, because a screen reader user may hear the button alone.
 - If an action starts a long process, set `busy` with a `busy-label`, and announce the result when it ends. Disabling the button on its own tells a screen reader user nothing, and drops their focus.
-- Do not rely on the variant's color to convey meaning, such as destructive intent. Say it in the label.
+- Do not rely on color alone to say that an action is destructive. `destructive` draws it in the error color, but people who cannot see or tell that color learn it from the label alone. Write "Delete project", not "OK", and say what will be lost in the dialog that confirms it.
 - Name a link button for where it goes: "View invoice", not "Click here". When `target` is `new`, write `targetLabel`.
 - Where several buttons draw the same word, give each a `label` that contains the word and says what the button acts on (see [A name longer than the label](#a-name-longer-than-the-label)).
 - When a form's submit button is disabled, say on the page what is still missing. The disabled button stops Enter as well, and by itself explains nothing.

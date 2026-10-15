@@ -2,7 +2,7 @@
 title: Diálogo
 description: Detiene a la persona para una decisión o unos pocos datos sin los que la tarea no puede continuar, en una superficie que atenúa y bloquea todo lo que hay detrás hasta que se responde o se descarta.
 translationOf: components/dialog.mdx
-sourceHash: 0ed6a75c74f935133fb988d34188b471fda6e967
+sourceHash: a52eaf938f43ae7dd4b0b71a7b0afcb69566b691
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -55,7 +55,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
     <tanrei-dialog headline="¿Eliminar el proyecto?" alert>
       <span slot="icon">delete</span>
       <tanrei-button slot="actions" dismissive variant="text">Cancelar</tanrei-button>
-      <tanrei-button slot="actions" confirming variant="filled">Eliminar</tanrei-button>
+      <tanrei-button slot="actions" confirming variant="filled" destructive>Eliminar</tanrei-button>
     </tanrei-dialog>
 
     <script type="module">
@@ -188,7 +188,7 @@ Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose
   <tanrei-dialog id="dialog-demo-alert" alert headline="¿Eliminar el proyecto?" supporting-text="Se eliminará todo el contenido del proyecto, incluido su historial. Esta acción no se puede deshacer.">
     <span slot="icon">delete</span>
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">Cancelar</tanrei-button>
-    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">Eliminar</tanrei-button>
+    <tanrei-button slot="actions" confirming destructive onclick="this.closest('tanrei-dialog').open = false">Eliminar</tanrei-button>
   </tanrei-dialog>
 </DemoFrame>
 
@@ -223,7 +223,7 @@ Las acciones se reparten a partes iguales el ancho interior del contenedor, con 
 - **Colocadas según la tarea.** En una fila, la acción de descarte está al inicio y la de confirmación al final. En una columna, la de confirmación está arriba y la de descarte abajo. Una acción sin ninguna de las dos marcas conserva el lugar que le diste, entre ambas. El foco y los lectores de pantalla siguen el orden de colocación, así que nunca ordenas los botones a mano.
 - **Fila o columna según quepan.** Las acciones se quedan en una fila mientras cada etiqueta quepa en su parte en una sola línea. Cuando alguna tendría que saltar de línea, se apilan en una columna, cada una tan ancha como el diálogo. El diálogo vuelve a decidirlo cuando cambia su ancho o el tamaño del texto.
 - **Tonal de forma predeterminada.** Una acción cuya `variant` no hayas definido se dibuja como tonal. Las marcas solo deciden el lugar, nunca el aspecto.
-- **Otro aspecto.** Define la `variant` de un botón para darle otro aspecto a esa acción, como un «Cancelar» text junto a un «Eliminar» filled. El diálogo nunca sobrescribe una variante que hayas definido. Un producto que quiera otro aspecto para todos los diálogos lo define una sola vez en su capa (`actions.variant`, y `actions.arrangement` para acciones con su propio ancho alineadas al final), no en cada botón.
+- **Otro aspecto.** Define la `variant` de un botón para darle otro aspecto a esa acción, como un «Cancelar» text junto a un «Eliminar» filled. Define `destructive` en una acción que elimina o descarta, como ese «Eliminar»: conserva su variante y toma el color de error. El diálogo nunca sobrescribe una variante que hayas definido, ni `destructive`. Un producto que quiera otro aspecto para todos los diálogos lo define una sola vez en su capa (`actions.variant`, y `actions.arrangement` para acciones con su propio ancho alineadas al final), no en cada botón.
 - **Al menos una.** Un diálogo sin ninguna acción se abre igualmente, y las compilaciones de depuración lo notifican como un error. Donde la API de una plataforma puede exigir acciones, la especificación dice que lo hace: el constructor `actions:` de SwiftUI, el parámetro `actions` de Compose, la lista `actions` de Flutter y la propiedad `actions` de React Native. De las cuatro, hoy solo es obligatoria la de SwiftUI; las demás siguen aceptando un diálogo sin acciones hasta que se pongan al día. Las compilaciones de depuración también notifican un diálogo cuyas acciones están todas deshabilitadas mientras `dismissible` es false, porque eso no deja ninguna salida.
 
 ### En una ventana compacta

@@ -2,7 +2,7 @@
 title: ダイアログ
 description: 作業を先に進めるのに欠かせない判断や入力のために、人をいったん立ち止まらせます。背後のすべてを暗くしてふさぎ、答えるか閉じるまで表示し続けます。
 translationOf: components/dialog.mdx
-sourceHash: 0ed6a75c74f935133fb988d34188b471fda6e967
+sourceHash: a52eaf938f43ae7dd4b0b71a7b0afcb69566b691
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -55,7 +55,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
     <tanrei-dialog headline="プロジェクトを削除しますか？" alert>
       <span slot="icon">delete</span>
       <tanrei-button slot="actions" dismissive variant="text">キャンセル</tanrei-button>
-      <tanrei-button slot="actions" confirming variant="filled">削除</tanrei-button>
+      <tanrei-button slot="actions" confirming variant="filled" destructive>削除</tanrei-button>
     </tanrei-dialog>
 
     <script type="module">
@@ -188,7 +188,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
   <tanrei-dialog id="dialog-demo-alert" alert headline="プロジェクトを削除しますか？" supporting-text="履歴も含め、プロジェクトのすべてが削除されます。元に戻すことはできません。">
     <span slot="icon">delete</span>
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">キャンセル</tanrei-button>
-    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">削除</tanrei-button>
+    <tanrei-button slot="actions" confirming destructive onclick="this.closest('tanrei-dialog').open = false">削除</tanrei-button>
   </tanrei-dialog>
 </DemoFrame>
 
@@ -223,7 +223,7 @@ Web と React の例は現在の仕様に沿っています。SwiftUI、Compose�
 - **役割で配置する。** 1 行のときは、引き返すアクションが先頭側、完了するアクションが末尾側です。縦に積むときは、完了するアクションが一番上、引き返すアクションが一番下です。どちらの印もないアクションは、両者の間で渡した位置を保ちます。フォーカスとスクリーンリーダーは配置した順にたどるので、ボタンを手で並べ替える必要はありません。
 - **収まるかどうかで 1 行か縦積みかを決める。** どのラベルも自分の幅に 1 行で収まる間は 1 行に並べます。1 つでも折り返しそうになると縦に積み、それぞれをダイアログの幅いっぱいにします。ダイアログの幅や文字の大きさが変わると、決め直します。
 - **既定は Tonal。** `variant` を設定していないアクションは Tonal で描きます。印が決めるのは位置だけで、見た目は変えません。
-- **別の見た目にする。** テキストのキャンセルの横に Filled の削除を置くように、1 つのアクションだけ見た目を変えたいときは、そのボタンの `variant` を設定します。設定した variant をダイアログが上書きすることはありません。すべてのダイアログで見た目を変えたいプロダクトは、ボタンごとにではなくレイヤで一度だけ設定します（`actions.variant`、自分の幅のまま末尾側にそろえるなら `actions.arrangement`）。
+- **別の見た目にする。** テキストのキャンセルの横に Filled の削除を置くように、1 つのアクションだけ見た目を変えたいときは、そのボタンの `variant` を設定します。削除や破棄を行うアクション（この削除など）には `destructive` も設定します。variant はそのままで、エラーの色になります。設定した variant も `destructive` も、ダイアログが上書きすることはありません。すべてのダイアログで見た目を変えたいプロダクトは、ボタンごとにではなくレイヤで一度だけ設定します（`actions.variant`、自分の幅のまま末尾側にそろえるなら `actions.arrangement`）。
 - **少なくとも 1 つ。** アクションのないダイアログも開きますが、デバッグビルドでエラーとして報告します。アクションを必須にできる API では必須にすると、仕様は定めています。SwiftUI の `actions:` ビルダー、Compose の `actions` 引数、Flutter の `actions` リスト、React Native の `actions` プロパティです。この 4 つのうち、いま必須なのは SwiftUI だけで、ほかは追従するまで、アクションのないダイアログも受け付けます。`dismissible` が false で、すべてのアクションが無効のダイアログも、出口がなくなるのでデバッグビルドで報告します。
 
 ### コンパクトなウィンドウでは

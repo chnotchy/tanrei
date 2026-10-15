@@ -2,7 +2,7 @@
 title: مربع الحوار
 description: يوقف الشخص من أجل قرار أو بضعة تفاصيل لا تستطيع المهمة أن تستمر من دونها، في سطح يعتّم كل ما خلفه ويحجبه إلى أن يُجاب عنه أو يُغلق.
 translationOf: components/dialog.mdx
-sourceHash: 0ed6a75c74f935133fb988d34188b471fda6e967
+sourceHash: a52eaf938f43ae7dd4b0b71a7b0afcb69566b691
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -55,7 +55,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
     <tanrei-dialog headline="حذف المشروع؟" alert>
       <span slot="icon">delete</span>
       <tanrei-button slot="actions" dismissive variant="text">إلغاء</tanrei-button>
-      <tanrei-button slot="actions" confirming variant="filled">حذف</tanrei-button>
+      <tanrei-button slot="actions" confirming variant="filled" destructive>حذف</tanrei-button>
     </tanrei-dialog>
 
     <script type="module">
@@ -188,7 +188,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   <tanrei-dialog id="dialog-demo-alert" alert headline="حذف المشروع؟" supporting-text="سيُحذف كل ما في المشروع، ومنه سجله. لا يمكن التراجع عن هذا.">
     <span slot="icon">delete</span>
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">إلغاء</tanrei-button>
-    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">حذف</tanrei-button>
+    <tanrei-button slot="actions" confirming destructive onclick="this.closest('tanrei-dialog').open = false">حذف</tanrei-button>
   </tanrei-dialog>
 </DemoFrame>
 
@@ -223,7 +223,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 - **الموضع بحسب المهمة.** في الصف، يكون إجراء التراجع (dismissive) في البداية وإجراء التأكيد (confirming) في النهاية. في العمود، يكون إجراء التأكيد في الأعلى وإجراء التراجع في الأسفل. والإجراء الذي لا يحمل أيًّا من العلامتين يحتفظ بموضعه المعطى بين الاثنين. التركيز وقارئات الشاشة تتبع ترتيب المواضع، فلا ترتّب الأزرار بيدك أبدًا.
 - **صف أو عمود بحسب الاتساع.** تبقى الإجراءات في صف ما دامت كل تسمية تتسع في حصتها على سطر واحد. وحين تكاد إحداها تلتف، تُرصّ في عمود، كل منها بعرض مربع الحوار. يقرر مربع الحوار من جديد حين يتغير عرضه أو حجم النص.
 - **الطراز tonal افتراضيًّا.** الإجراء الذي لم تضبط له `variant` يُرسم بالطراز tonal. العلامتان تحددان الموضع فقط، لا المظهر أبدًا.
-- **مظهر آخر.** اضبط `variant` لزر واحد لتعطي ذلك الإجراء مظهرًا آخر، مثل «إلغاء» من الطراز text بجانب «حذف» من الطراز filled. مربع الحوار لا يستبدل أبدًا طرازًا ضبطته أنت. والمنتج الذي يريد مظهرًا آخر لكل مربعات الحوار يضبطه مرة واحدة في طبقته (`actions.variant`، و `actions.arrangement` لإجراءات بعروضها الخاصة محاذاة إلى النهاية)، لا على كل زر.
+- **مظهر آخر.** اضبط `variant` لزر واحد لتعطي ذلك الإجراء مظهرًا آخر، مثل «إلغاء» من الطراز text بجانب «حذف» من الطراز filled. واضبط `destructive` على الإجراء الذي يحذف شيئًا أو يتخلص منه، مثل ذلك «حذف»: يحتفظ بطرازه ويأخذ لون الخطأ. مربع الحوار لا يستبدل أبدًا طرازًا ضبطته أنت، ولا `destructive`. والمنتج الذي يريد مظهرًا آخر لكل مربعات الحوار يضبطه مرة واحدة في طبقته (`actions.variant`، و `actions.arrangement` لإجراءات بعروضها الخاصة محاذاة إلى النهاية)، لا على كل زر.
 - **واحد على الأقل.** مربع الحوار الذي لا إجراء له يُفتح مع ذلك، وتبلّغ عنه بنيات التنقيح (debug) خطأً. وحيث تستطيع واجهة المنصة البرمجية أن تفرض وجود الإجراءات، تقول المواصفة إنها تفرضه: الباني `actions:` في SwiftUI، والمعامل `actions` في Compose، والقائمة `actions` في Flutter، والخاصية `actions` في React Native. ومن الأربعة، لا يُفرض اليوم إلا ما في SwiftUI؛ أما البقية فما زالت تقبل مربع حوار بلا إجراءات إلى أن تلحق. وتبلّغ بنيات التنقيح كذلك عن مربع حوار إجراءاته كلها معطَّلة والخاصية `dismissible` قيمتها false، لأن ذلك لا يترك مخرجًا.
 
 ### في نافذة مضغوطة
