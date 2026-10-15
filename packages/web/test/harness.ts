@@ -2227,11 +2227,15 @@ function facesReady(): Promise<void> {
 }
 
 /**
- * Runs in the page: every run of text the page draws in one of `families` (the icon families the harness registers)
- * that is not one glyph — its ink wider than 1.5 em (`DRAWN_WIDTH`, src/primitives/glyph.ts), so its name spelled out
- * in a text face, or in the icon face's own letters — described as `<host> › <element> "<text>" <width>px at <size>px`.
- * It looks through every shadow root, and it measures a glyph whose box clips it (a Button's 1 em icon box shows `ad`
- * of `add`) or hides it (`data-drawn`) at its whole width.
+ * Runs in the page: every run of text the page lays out in one of `families` (the icon families the harness
+ * registers) that is not yet one glyph of its face, described as `<host> › <element> "<text>" …`:
+ * - a run in a family the page has no loaded face of — drawn, if at all, from a fallback or from a copy of the font
+ *   installed on the machine, which the Linux recorder does not have; hidden or not, it is not ready;
+ * - a run whose ink is wider than 1.5 em (`DRAWN_WIDTH`, src/primitives/glyph.ts) and that is painted: its name spelled
+ *   out. A glyph whose box clips it (a Button's 1 em icon box shows `ad` of `add`) is measured at its whole width. A
+ *   spelled run that is hidden (`visibility: hidden`: a glyph its icon set cannot draw — a name the set does not
+ *   have, `data-drawn`) draws nothing, which is what its component means.
+ * It looks through every shadow root, and passes over what is not rendered at all.
  */
 export function glyphsSpelled(families: string[]): string[] {
   const spelled: string[] = [];
@@ -2241,7 +2245,10 @@ export function glyphsSpelled(families: string[]): string[] {
     for (const el of root.querySelectorAll<HTMLElement>('*')) {
       if (el.shadowRoot) visit(el.shadowRoot, el.localName);
       const texts = [...el.childNodes].filter((node): node is Text => node.nodeType === Node.TEXT_NODE && !!node.data.trim());
-      if (!texts.length) continue;
+      // Content that is not rendered (in a closed `<details>`, a `hidden="until-found"` list, under `display: none`) is
+      // in no picture, and is not looked into: measuring it makes Chromium lay it out (a tree's closed rows then report
+      // their parent's place).
+      if (!texts.length || !el.checkVisibility()) continue;
       const style = getComputedStyle(el);
       if (!families.includes(unquote(style.fontFamily.split(',')[0]))) continue;
       const range = document.createRange();
@@ -2249,10 +2256,13 @@ export function glyphsSpelled(families: string[]): string[] {
         range.selectNodeContents(text);
         return sum + range.getBoundingClientRect().width;
       }, 0);
-      const size = parseFloat(style.fontSize);
+      // The ink is measured as drawn, the font size as computed: under a CSS zoom or a transform on an ancestor the two
+      // differ by the factor the element's own box is drawn at (Firefox reports a zoom of 2 as twice the width).
+      const scale = el.offsetWidth ? el.getBoundingClientRect().width / el.offsetWidth : 1;
+      const size = parseFloat(style.fontSize) * scale;
       const family = unquote(style.fontFamily.split(',')[0]);
       const face = loaded.has(family);
-      if (width > 1.5 * size || !face) spelled.push(`${host} › ${el.localName}${el.className ? `.${String(el.className).split(' ')[0]}` : ''} "${texts.map((t) => t.data.trim()).join(' ')}" ${face ? `${width.toFixed(1)}px at ${size}px` : `in ${family}, which the page has no loaded face of`}`);
+      if (!face || (width > 1.5 * size && style.visibility === 'visible')) spelled.push(`${host} › ${el.localName}${el.className ? `.${String(el.className).split(' ')[0]}` : ''} "${texts.map((t) => t.data.trim()).join(' ')}" ${face ? `${width.toFixed(1)}px at ${size}px` : `in ${family}, which the page has no loaded face of`}`);
     }
   };
   visit(document, 'document');
