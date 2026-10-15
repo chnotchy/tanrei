@@ -1394,13 +1394,13 @@ test.describe('behavior', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark', async ({ page }) => {
-    for (const theme of ['light', 'dark'] as const) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`no axe violations in ${theme}`, async ({ page }) => {
       await mountFixtures(page, spec, { icons: true, theme });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, theme).toEqual([]);
-    }
-  });
+    });
+  }
 
   test('no axe violations with native controls, a nested group, a field as a member, and a group that is disabled and in error', async ({ page }) => {
     for (const theme of ['light', 'dark'] as const) {
