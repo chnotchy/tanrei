@@ -2576,13 +2576,13 @@ test.describe('behavior', () => {
         return at?.closest('tanrei-button') ? 'tanrei-button' : ((at?.getRootNode() as ShadowRoot).host?.localName ?? null);
       }, [next.x + next.width / 2, next.y + next.height / 2]),
     ).toBe('tanrei-button');
-    // The glyphs, the names and the variant the token names (tonal by default), through the Button's own channel.
+    // The glyphs, the names and the variant the token names (elevated by default), through the Button's own channel.
     await expect(nav(page, id, 'previous').locator('[slot="icon"]')).toHaveText('chevron_left');
     await expect(nav(page, id, 'next').locator('[slot="icon"]')).toHaveText('chevron_right');
     await expect(navButton(page, id, 'previous')).toHaveAttribute('aria-label', 'Previous walk');
     await expect(navButton(page, id, 'next')).toHaveAttribute('aria-label', 'Next walk');
     expect(await nav(page, id, 'next').getAttribute('size')).toBe('medium');
-    expect(await css(navButton(page, id, 'next'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
+    expect(await css(navButton(page, id, 'next'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-elevated-container-color'));
     await override(page, { [T('navigation-button-variant')]: 'outlined' });
     await expect.poll(() => css(navButton(page, id, 'next'), 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-outlined-container-color'));
     // Outside the list, and not among its items.

@@ -6,7 +6,7 @@
 Carousel: previous and next controls over the ends of the row, so that a mouse can move the row with a single press
 (WCAG 2.5.7) — before, a row without its dots moved under a mouse only with Shift and the wheel. They are icon-only
 medium Buttons with the chevron glyphs, in the variant the new token `comp.carousel.navigation.button.variant` names
-(tonal in every shipped system), named by the new `previousLabel` and `nextLabel` (`previous-label`, `next-label`;
+(elevated in every shipped system: a light fill with a shadow, which stands apart from any item), named by the new `previousLabel` and `nextLabel` (`previous-label`, `next-label`;
 the product's words `previousItemLabel` and `nextItemLabel`). Each moves the row one resting position, round under
 `loop`; presses made while the row moves add up. Without `loop` the previous control is disabled at the first position
 and the next at the last, keeping focus and their place in the Tab order.
