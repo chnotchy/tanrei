@@ -2708,6 +2708,7 @@ export const cupertino = {
       motionScrollEasing: [0.05, 0.7, 0.1, 1],
       motionStateDuration: 150,
       motionStateEasing: [0.2, 0, 0, 1],
+      navigationButtonVariant: 2,
       pressedContainerShape: 14,
       pressedOpacity: 0.7,
       parts: {

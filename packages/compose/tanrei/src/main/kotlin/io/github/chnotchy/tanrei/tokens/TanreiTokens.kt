@@ -2642,6 +2642,7 @@ public data class TanreiCarouselTokens(
     public val motionScrollEasing: TanreiCubicBezier,
     public val motionStateDuration: Int,
     public val motionStateEasing: TanreiCubicBezier,
+    public val navigationButtonVariant: Float,
     public val hovered: TanreiCarouselStateTokens,
     public val focused: TanreiCarouselStateTokens,
     public val pressed: TanreiCarouselStateTokens,

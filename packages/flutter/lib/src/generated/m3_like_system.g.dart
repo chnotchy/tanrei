@@ -2311,6 +2311,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     motionScrollEasing: TanreiCubicBezier(0.05, 0.7, 0.1, 1.0),
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    navigationButtonVariant: 2.0,
     parts: TanreiCarouselParts(
       item: TanreiCarouselPartTokens(
         enabled: TanreiCarouselPartStateTokens(

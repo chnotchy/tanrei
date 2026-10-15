@@ -4069,6 +4069,7 @@ public struct TanreiCarouselTokens: Sendable, Equatable {
   public var motionScrollEasing: TanreiCubicBezier
   public var motionStateDuration: Double
   public var motionStateEasing: TanreiCubicBezier
+  public var navigationButtonVariant: Double
   public var parts: TanreiCarouselParts
   /// Values of the hovered state shared by every variant.
   public var hovered: TanreiCarouselStateTokens
@@ -4103,6 +4104,7 @@ public struct TanreiCarouselTokens: Sendable, Equatable {
     motionScrollEasing: TanreiCubicBezier,
     motionStateDuration: Double,
     motionStateEasing: TanreiCubicBezier,
+    navigationButtonVariant: Double,
     parts: TanreiCarouselParts,
     hovered: TanreiCarouselStateTokens,
     focused: TanreiCarouselStateTokens,
@@ -4133,6 +4135,7 @@ public struct TanreiCarouselTokens: Sendable, Equatable {
     self.motionScrollEasing = motionScrollEasing
     self.motionStateDuration = motionStateDuration
     self.motionStateEasing = motionStateEasing
+    self.navigationButtonVariant = navigationButtonVariant
     self.parts = parts
     self.hovered = hovered
     self.focused = focused

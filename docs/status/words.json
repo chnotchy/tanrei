@@ -782,6 +782,15 @@
       ]
     },
     {
+      "key": "nextItemLabel",
+      "readers": [
+        {
+          "component": "carousel",
+          "prop": "nextLabel"
+        }
+      ]
+    },
+    {
       "key": "nextMonthLabel",
       "readers": [
         {
@@ -895,6 +904,15 @@
       "readers": [
         {
           "component": "image-preview",
+          "prop": "previousLabel"
+        }
+      ]
+    },
+    {
+      "key": "previousItemLabel",
+      "readers": [
+        {
+          "component": "carousel",
           "prop": "previousLabel"
         }
       ]

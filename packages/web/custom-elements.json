@@ -10158,6 +10158,58 @@
             },
             {
               "kind": "method",
+              "name": "adjacentResting",
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "position",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "direction",
+                  "type": {
+                    "text": "1 | -1"
+                  }
+                }
+              ],
+              "description": "CRL-43: the resting position before (`direction` −1) or after (1) `position` — at a resting position, its\nneighbour; between two, the nearer of them on that side. Round the ring while loop is in effect; otherwise the ends\nare where it stops."
+            },
+            {
+              "kind": "method",
+              "name": "atEnds",
+              "return": {
+                "type": {
+                  "text": "{ first: boolean; last: boolean }"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "position",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "CRL-43: whether `position` is at (or before) the first resting position, and at (or beyond) the last; never under loop."
+            },
+            {
+              "kind": "field",
+              "name": "nearPixel",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "description": "A pixel of scroll as a position (at least WHOLE): an engine that keeps the offset in whole pixels rests that near.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
               "name": "recentre",
               "return": {
                 "type": {
@@ -10201,7 +10253,7 @@
         {
           "kind": "variable",
           "name": "carouselStyles",
-          "default": "css` /* CRL-8: as wide as its parent; the row of items comp.carousel.layout.height tall and the controls row (CRL-28) below it, unless the product sizes the carousel, when the row takes that height less the controls row. CRL-4: never less tall than the target. */ :host { display: flex; flex-direction: column; position: relative; min-block-size: var(--tanrei-sys-target-pointer); } @media (pointer: coarse) { :host { min-block-size: var(--tanrei-sys-target-touch); } } /* CRL-14: a native horizontal scroller (wheel, trackpad, touch and pen scroll as the platform does), without a scroll bar. Its inert animation timing carries comp.carousel.motion.scroll-*, read by the settle, the scroll into place and a dot's move. */ .scroller { box-sizing: border-box; flex: 1 1 auto; /* CRL-8: the carousel is as wide as its parent, and where its parent is as wide as its content — a table cell, an inline block, a flex item that is not stretched — it has a width of its own that no item changes: one hero and the padding on each side. Without this the row's own content would be that width — the track, which is the carousel's width plus the scroll range — so every arrangement would widen the carousel it had just measured, without end. */ contain: inline-size; contain-intrinsic-inline-size: calc(var(--_hero, ${t('container-large-width')}) + 2 * ${t('layout-padding-inline')}); block-size: ${t('layout-height')}; min-block-size: var(--tanrei-sys-target-pointer); overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; animation-duration: ${t('motion-scroll-duration')}; animation-timing-function: ${t('motion-scroll-easing')}; } @media (pointer: coarse) { .scroller { min-block-size: var(--tanrei-sys-target-touch); } } /* CRL-14: while a fling's settle runs, the browser's own momentum stops and a pan cannot start; the offset is still set by the settle. */ .scroller.held { overflow-x: hidden; } .scroller::-webkit-scrollbar { display: none; } /* The track is as long as the scroll range (CRL-12, CRL-13, CRL-27); the carousel sets its length. */ .track { position: relative; block-size: 100%; inline-size: var(--_track, 100%); } /* CRL-8, CRL-12, CRL-19: the items lie on a stage that stays in view, as wide as the carousel, and clips them at its edges; it is the list the items belong to. */ .stage { position: sticky; inset-inline-start: 0; block-size: 100%; inline-size: var(--_view, 100%); overflow: clip; } /* CRL-28: the controls row, directly below the items, as wide as the carousel; the indicator centred on its width. */ .controls { flex: none; display: grid; grid-template: 100% / 100%; place-items: center; block-size: ${t('controls-height')}; } ${unsafeCSS(controlBlock('indicator', '.indicator'))} ${unsafeCSS(controlBlock('playback', '.playback'))} /* CRL-2, CRL-7, CRL-22: a control's container and content colors at rest, on controls.shape corners. */ .control { box-sizing: border-box; position: relative; /* Its own stacking context, so the ripple sits above the container color and below the content. */ isolation: isolate; ${unsafeCSS(cornerRadius(`${PREFIX}-controls-shape`))} background: var(--_c-r); color: var(--_o-r); cursor: pointer; outline: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; --_ripple: var(--_c-p); transition-property: background-color, color, opacity; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } /* CRL-29: the dots in reading order, dot.gap apart, inside a container controls.button-size tall that reaches controls.indicator-padding-inline beyond the first and last dot. The current dot's fill is the content color. */ .indicator { display: flex; align-items: center; gap: ${t('dot-gap')}; block-size: ${t('controls-button-size')}; padding-inline: ${t('controls-indicator-padding-inline')}; /* CRL-30: a horizontal drag along the dots is the indicator's; a vertical one still scrolls the page. */ touch-action: pan-y; } /* CRL-37: the indicator's hit area is as tall as the controls row and as wide as its container, at least sys.target.touch wide. */ .indicator::before { content: ''; position: absolute; inset-block: calc((${t('controls-button-size')} - ${t('controls-height')}) / 2); inset-inline: min(0px, calc((100% - var(--tanrei-sys-target-touch)) / 2)); } /* CRL-29: each dot dot.size tall with round ends, stretched toward dot.active-width by its closeness w to the indicator's position (--_w, written by the carousel as the row scrolls), in dot.color with the content color over it at opacity w. */ .dot { position: relative; flex: none; overflow: clip; inline-size: calc(${t('dot-size')} + (${t('dot-active-width')} - ${t('dot-size')}) * var(--_w, 0)); block-size: ${t('dot-size')}; border-radius: ${t('dot-size')}; background: ${t('dot-color')}; } .fill { position: absolute; inset-block: 0; inset-inline-start: 0; inline-size: 100%; background: currentColor; opacity: var(--_w, 0); } /* CRL-36: with the progress drawn, only the dot the row last came to rest at fills, from its start edge across the part of the interval that has passed, fading as the dot narrows. The part is the fill's scale along the row, which one animation of the interval's length runs (carousel.ts, drawProgress): nothing is laid out and no script runs while it fills. */ .indicator.progress .fill { opacity: 0; } .indicator.progress .dot.timed .fill { transform: scaleX(0); transform-origin: 0 50%; opacity: var(--_w, 0); } :host(:dir(rtl)) .indicator.progress .dot.timed .fill { transform-origin: 100% 50%; } .indicator .hold { display: none; } /* CRL-28, CRL-35: the playback control at the controls row's inline end, its end edge at the inner end edge, centred on the row's height: an icon-only button, a controls.button-size square. It comes first in the tree (the first Tab stop, CRL-17), so it is placed against the carousel's bottom edge. */ .playback { all: unset; box-sizing: border-box; position: absolute; z-index: 1; inset-inline-end: ${t('layout-padding-inline')}; inset-block-end: calc((${t('controls-height')} - ${t('controls-button-size')}) / 2); display: grid; place-items: center; inline-size: ${t('controls-button-size')}; block-size: ${t('controls-button-size')}; ${unsafeCSS(cornerRadius(`${PREFIX}-controls-shape`))} background: var(--_c-r); color: var(--_o-r); cursor: pointer; isolation: isolate; -webkit-tap-highlight-color: transparent; --_ripple: var(--_c-p); transition-property: background-color, color, opacity; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } /* CRL-35, CRL-23: the pause and play_arrow glyphs of the icon set, unselected, at controls.icon.size; never mirrored. */ ${iconGlyph('.icon', { size: `${PREFIX}-controls-icon-size`, selected: ':not(*)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} /* CRL-38: until the icon set can draw the glyph, its box stays and shows nothing. */ .icon.loading { visibility: hidden; } /* CRL-37: the playback control's hit area meets the target without changing its visual size. */ ${minimumTarget('.playback')} /* CRL-2, CRL-5, CRL-6: each state paints the control from that state's tokens; pressed > focused > hovered. The other dots keep dot.color in every state. */ ${stateRules(onControl, { hovered: paintControl('-h', 'hovered'), focused: paintControl('-f', 'focused'), pressed: paintControl('-p', 'pressed'), pressedContent: paintControl('-p', 'pressed', false), disabled: '', })} /* CRL-6 ripple: grows over motion.feedback-duration and fades over motion.state-duration. */ ${rippleStyles({ color: '--_ripple', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing`, })} /* CRL-3, CRL-7 focus-style: the ring (or the glow) around the focused control, never animated. */ ${focusRing(onControl)} /* CRL-7: corner smoothing on the controls (data-tanrei-shape). */ ${shape} /* CRL-5: the glyph and the indicator's hidden carrier hold press-hold for PressController. */ ${pressHold('.hold')} /* The tokens the arrangement is computed from, measured through real properties: padding, gap, the large width and the least and greatest small width; the dots, the indicator's padding and the touch target (CRL-29's fit); the least scale (CRL-26), a number, through flex-grow. */ .probe { position: absolute; inset-block-start: 0; inset-inline-start: 0; inline-size: 0; block-size: 0; visibility: hidden; pointer-events: none; padding-left: ${t('layout-padding-inline')}; padding-right: ${t('layout-gap')}; padding-top: ${t('container-large-width')}; padding-bottom: ${t('container-small-min-width')}; margin-left: ${t('container-small-max-width')}; } /* CRL-23: what tells the script that the direction it inherits changed (primitives/direction.ts). */ ${directionProbeStyles} .probe-controls { padding-left: ${t('dot-size')}; padding-right: ${t('dot-active-width')}; padding-top: ${t('dot-gap')}; padding-bottom: ${t('controls-indicator-padding-inline')}; margin-left: var(--tanrei-sys-target-touch); flex-grow: ${t('container-min-scale')}; } /* CRL-32: the interval, and the motion of an advance, read through real properties by script; this element draws nothing. The interval is a reading time: reduced motion does not touch it (autoplay does not run there at all). */ .timing { display: none; transition-property: none; transition-delay: ${t('autoplay-interval')}; animation-duration: ${t('motion-autoplay-duration')}; animation-timing-function: ${t('motion-autoplay-easing')}; } /* CRL-14, CRL-18, CRL-22, CRL-30: at once where motion is reduced. */ @media (prefers-reduced-motion: reduce) { .scroller { animation-duration: 0s; } .control, .playback { transition: none; } } @media (forced-colors: active) { .control, .playback { border: 1px solid ButtonText; } .dot { background: GrayText; } .fill { background: CanvasText; } } `",
+          "default": "css` /* CRL-8: as wide as its parent; the row of items comp.carousel.layout.height tall and the controls row (CRL-28) below it, unless the product sizes the carousel, when the row takes that height less the controls row. CRL-4: never less tall than the target. */ :host { display: flex; flex-direction: column; position: relative; min-block-size: var(--tanrei-sys-target-pointer); } @media (pointer: coarse) { :host { min-block-size: var(--tanrei-sys-target-touch); } } /* The row and the controls drawn over its ends (CRL-41): it takes the row's place in the carousel's column, and shrinks with it when the product sizes the carousel (CRL-8). */ .viewport { flex: 1 1 auto; display: flex; flex-direction: column; position: relative; min-block-size: 0; } /* CRL-41: the previous control's start edge at the inner start edge and the next control's end edge at the inner end edge, centred on the row's height, over the items. They are Buttons, drawn by their own tokens. */ .navigation { position: absolute; z-index: 1; inset-block-start: 50%; translate: 0 -50%; transition-property: opacity; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } .navigation.previous { inset-inline-start: ${t('layout-padding-inline')}; } .navigation.next { inset-inline-end: ${t('layout-padding-inline')}; } /* CRL-41, CRL-42: auto draws them only for a primary pointer that is fine and can hover, and shows them while the carousel is hovered or holds focus; hidden, they keep their place in the Tab order, and focus shows them. */ @media not all and (hover: hover) and (pointer: fine) { .navigation.auto { display: none; } } .navigation.auto { opacity: 0; } :host(:hover) .navigation.auto, :host(:focus-within) .navigation.auto { opacity: 1; } /* CRL-14: a native horizontal scroller (wheel, trackpad, touch and pen scroll as the platform does), without a scroll bar. Its inert animation timing carries comp.carousel.motion.scroll-*, read by the settle, the scroll into place and a dot's move. */ .scroller { box-sizing: border-box; flex: 1 1 auto; /* CRL-8: the carousel is as wide as its parent, and where its parent is as wide as its content — a table cell, an inline block, a flex item that is not stretched — it has a width of its own that no item changes: one hero and the padding on each side. Without this the row's own content would be that width — the track, which is the carousel's width plus the scroll range — so every arrangement would widen the carousel it had just measured, without end. */ contain: inline-size; contain-intrinsic-inline-size: calc(var(--_hero, ${t('container-large-width')}) + 2 * ${t('layout-padding-inline')}); block-size: ${t('layout-height')}; min-block-size: var(--tanrei-sys-target-pointer); overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; animation-duration: ${t('motion-scroll-duration')}; animation-timing-function: ${t('motion-scroll-easing')}; } @media (pointer: coarse) { .scroller { min-block-size: var(--tanrei-sys-target-touch); } } /* CRL-14: while a fling's settle runs, the browser's own momentum stops and a pan cannot start; the offset is still set by the settle. */ .scroller.held { overflow-x: hidden; } .scroller::-webkit-scrollbar { display: none; } /* The track is as long as the scroll range (CRL-12, CRL-13, CRL-27); the carousel sets its length. */ .track { position: relative; block-size: 100%; inline-size: var(--_track, 100%); } /* CRL-8, CRL-12, CRL-19: the items lie on a stage that stays in view, as wide as the carousel, and clips them at its edges; it is the list the items belong to. */ .stage { position: sticky; inset-inline-start: 0; block-size: 100%; inline-size: var(--_view, 100%); overflow: clip; } /* CRL-28: the controls row, directly below the items, as wide as the carousel; the indicator centred on its width. */ .controls { flex: none; display: grid; grid-template: 100% / 100%; place-items: center; block-size: ${t('controls-height')}; } ${unsafeCSS(controlBlock('indicator', '.indicator'))} ${unsafeCSS(controlBlock('playback', '.playback'))} /* CRL-2, CRL-7, CRL-22: a control's container and content colors at rest, on controls.shape corners. */ .control { box-sizing: border-box; position: relative; /* Its own stacking context, so the ripple sits above the container color and below the content. */ isolation: isolate; ${unsafeCSS(cornerRadius(`${PREFIX}-controls-shape`))} background: var(--_c-r); color: var(--_o-r); cursor: pointer; outline: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; --_ripple: var(--_c-p); transition-property: background-color, color, opacity; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } /* CRL-29: the dots in reading order, dot.gap apart, inside a container controls.button-size tall that reaches controls.indicator-padding-inline beyond the first and last dot. The current dot's fill is the content color. */ .indicator { display: flex; align-items: center; gap: ${t('dot-gap')}; block-size: ${t('controls-button-size')}; padding-inline: ${t('controls-indicator-padding-inline')}; /* CRL-30: a horizontal drag along the dots is the indicator's; a vertical one still scrolls the page. */ touch-action: pan-y; } /* CRL-37: the indicator's hit area is as tall as the controls row and as wide as its container, at least sys.target.touch wide. */ .indicator::before { content: ''; position: absolute; inset-block: calc((${t('controls-button-size')} - ${t('controls-height')}) / 2); inset-inline: min(0px, calc((100% - var(--tanrei-sys-target-touch)) / 2)); } /* CRL-29: each dot dot.size tall with round ends, stretched toward dot.active-width by its closeness w to the indicator's position (--_w, written by the carousel as the row scrolls), in dot.color with the content color over it at opacity w. */ .dot { position: relative; flex: none; overflow: clip; inline-size: calc(${t('dot-size')} + (${t('dot-active-width')} - ${t('dot-size')}) * var(--_w, 0)); block-size: ${t('dot-size')}; border-radius: ${t('dot-size')}; background: ${t('dot-color')}; } .fill { position: absolute; inset-block: 0; inset-inline-start: 0; inline-size: 100%; background: currentColor; opacity: var(--_w, 0); } /* CRL-36: with the progress drawn, only the dot the row last came to rest at fills, from its start edge across the part of the interval that has passed, fading as the dot narrows. The part is the fill's scale along the row, which one animation of the interval's length runs (carousel.ts, drawProgress): nothing is laid out and no script runs while it fills. */ .indicator.progress .fill { opacity: 0; } .indicator.progress .dot.timed .fill { transform: scaleX(0); transform-origin: 0 50%; opacity: var(--_w, 0); } :host(:dir(rtl)) .indicator.progress .dot.timed .fill { transform-origin: 100% 50%; } .indicator .hold { display: none; } /* CRL-28, CRL-35: the playback control at the controls row's inline end, its end edge at the inner end edge, centred on the row's height: an icon-only button, a controls.button-size square. It comes first in the tree (the first Tab stop, CRL-17), so it is placed against the carousel's bottom edge. */ .playback { all: unset; box-sizing: border-box; position: absolute; z-index: 1; inset-inline-end: ${t('layout-padding-inline')}; inset-block-end: calc((${t('controls-height')} - ${t('controls-button-size')}) / 2); display: grid; place-items: center; inline-size: ${t('controls-button-size')}; block-size: ${t('controls-button-size')}; ${unsafeCSS(cornerRadius(`${PREFIX}-controls-shape`))} background: var(--_c-r); color: var(--_o-r); cursor: pointer; isolation: isolate; -webkit-tap-highlight-color: transparent; --_ripple: var(--_c-p); transition-property: background-color, color, opacity; transition-duration: ${t('motion-state-duration')}; transition-timing-function: ${t('motion-state-easing')}; } /* CRL-35, CRL-23: the pause and play_arrow glyphs of the icon set, unselected, at controls.icon.size; never mirrored. */ ${iconGlyph('.icon', { size: `${PREFIX}-controls-icon-size`, selected: ':not(*)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })} /* CRL-38: until the icon set can draw the glyph, its box stays and shows nothing. */ .icon.loading { visibility: hidden; } /* CRL-37: the playback control's hit area meets the target without changing its visual size. */ ${minimumTarget('.playback')} /* CRL-2, CRL-5, CRL-6: each state paints the control from that state's tokens; pressed > focused > hovered. The other dots keep dot.color in every state. */ ${stateRules(onControl, { hovered: paintControl('-h', 'hovered'), focused: paintControl('-f', 'focused'), pressed: paintControl('-p', 'pressed'), pressedContent: paintControl('-p', 'pressed', false), disabled: '', })} /* CRL-6 ripple: grows over motion.feedback-duration and fades over motion.state-duration. */ ${rippleStyles({ color: '--_ripple', grow: `${PREFIX}-motion-feedback-duration`, fade: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing`, })} /* CRL-3, CRL-7 focus-style: the ring (or the glow) around the focused control, never animated. */ ${focusRing(onControl)} /* CRL-7: corner smoothing on the controls (data-tanrei-shape). */ ${shape} /* CRL-5: the glyph and the indicator's hidden carrier hold press-hold for PressController. */ ${pressHold('.hold')} /* The tokens the arrangement is computed from, measured through real properties: padding, gap, the large width and the least and greatest small width; the dots, the indicator's padding and the touch target (CRL-29's fit); the least scale (CRL-26), a number, through flex-grow. */ .probe { position: absolute; inset-block-start: 0; inset-inline-start: 0; inline-size: 0; block-size: 0; visibility: hidden; pointer-events: none; padding-left: ${t('layout-padding-inline')}; padding-right: ${t('layout-gap')}; padding-top: ${t('container-large-width')}; padding-bottom: ${t('container-small-min-width')}; margin-left: ${t('container-small-max-width')}; } /* CRL-23: what tells the script that the direction it inherits changed (primitives/direction.ts). */ ${directionProbeStyles} .probe-controls { padding-left: ${t('dot-size')}; padding-right: ${t('dot-active-width')}; padding-top: ${t('dot-gap')}; padding-bottom: ${t('controls-indicator-padding-inline')}; margin-left: var(--tanrei-sys-target-touch); flex-grow: ${t('container-min-scale')}; } /* CRL-32: the interval, and the motion of an advance, read through real properties by script; this element draws nothing. The interval is a reading time: reduced motion does not touch it (autoplay does not run there at all). */ .timing { display: none; transition-property: none; transition-delay: ${t('autoplay-interval')}; animation-duration: ${t('motion-autoplay-duration')}; animation-timing-function: ${t('motion-autoplay-easing')}; } /* CRL-14, CRL-18, CRL-22, CRL-30: at once where motion is reduced. */ @media (prefers-reduced-motion: reduce) { .scroller { animation-duration: 0s; } .control, .playback, .navigation { transition: none; } } @media (forced-colors: active) { .control, .playback { border: 1px solid ButtonText; } .dot { background: GrayText; } .fill { background: CanvasText; } } `",
           "description": "The carousel: `<tanrei-carousel>` — the row, and the controls row below it."
         }
       ],
@@ -10381,7 +10433,7 @@
         },
         {
           "kind": "class",
-          "description": "Lets people browse a row of visual items that scrolls sideways around one item in focus — the hero, in the centre (the\ndefault) or at the start, the others narrower (fluid widths) or smaller (scaleOthers) as they move away, every two\nneighbours one gap apart at every scroll position (CRL-40) — each item opening what it shows. A featured row may loop, show its position in dots and advance by itself, with a control to stop it.\n\nContract: specs/carousel.spec.json. The items are `<tanrei-carousel-item>` children, in order. The carousel is a native\nhorizontal scroller — wheel, trackpad, touch and pen scroll it as the platform does — whose track is as long as the\nscroll range; it places every item from the scroll offset (CRL-12), and settles at a resting position when a scroll\nends while `snap` is true (CRL-14). The items are one Tab stop; the arrow keys, Home and End move between items and\nbring the focused one into place (CRL-17, CRL-18). Below the items, a controls row holds the page indicator (one\nslider, CRL-29 – CRL-31) and the playback control (CRL-35). Every visual value comes from `--tanrei-comp-carousel-*`\ntokens.",
+          "description": "Lets people browse a row of visual items that scrolls sideways around one item in focus — the hero, in the centre (the\ndefault) or at the start, the others narrower (fluid widths) or smaller (scaleOthers) as they move away, every two\nneighbours one gap apart at every scroll position (CRL-40) — each item opening what it shows. A featured row may loop, show its position in dots and advance by itself, with a control to stop it.\n\nContract: specs/carousel.spec.json. The items are `<tanrei-carousel-item>` children, in order. The carousel is a native\nhorizontal scroller — wheel, trackpad, touch and pen scroll it as the platform does — whose track is as long as the\nscroll range; it places every item from the scroll offset (CRL-12), and settles at a resting position when a scroll\nends while `snap` is true (CRL-14). The items are one Tab stop; the arrow keys, Home and End move between items and\nbring the focused one into place (CRL-17, CRL-18). Over the ends of the row, a previous and a next control move it one\nresting position (CRL-41 – CRL-43). Below the items, a controls row holds the page indicator (one\nslider, CRL-29 – CRL-31) and the playback control (CRL-35). Every visual value comes from `--tanrei-comp-carousel-*`\ntokens.",
           "name": "TanreiCarousel",
           "cssParts": [
             {
@@ -10407,6 +10459,38 @@
             {
               "description": "The playback control: a native button that pauses and plays autoplay.",
               "name": "playback"
+            },
+            {
+              "description": "The previous control over the row's inline start: a `<tanrei-button>`.",
+              "name": "previous"
+            },
+            {
+              "description": "The next control over the row's inline end: a `<tanrei-button>`.",
+              "name": "next"
+            },
+            {
+              "description": "The native button that holds the label and the icon; with `href`, the anchor in its place.",
+              "name": "previous-container"
+            },
+            {
+              "description": "The label text wrapper.",
+              "name": "previous-label"
+            },
+            {
+              "description": "The box the icon is drawn in (hidden from assistive technology); also the mark of a link that opens a new context.",
+              "name": "previous-icon"
+            },
+            {
+              "description": "The native button that holds the label and the icon; with `href`, the anchor in its place.",
+              "name": "next-container"
+            },
+            {
+              "description": "The label text wrapper.",
+              "name": "next-label"
+            },
+            {
+              "description": "The box the icon is drawn in (hidden from assistive technology); also the mark of a link that opens a new context.",
+              "name": "next-icon"
             }
           ],
           "slots": [
@@ -10430,6 +10514,14 @@
               "readonly": true,
               "default": "new WordsController(this)",
               "description": "The product's words, read where the instance gives none (src/primitives/words.ts)."
+            },
+            {
+              "kind": "field",
+              "name": "system",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new SystemWatchController(this)",
+              "description": "CRL-41: the controls' variant is a token's choice, read again when the page switches its design system."
             },
             {
               "kind": "field",
@@ -10512,6 +10604,18 @@
               "default": "false",
               "description": "Whether the row is endless (CRL-27). Takes effect only with two or more items.",
               "attribute": "loop",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "navigation",
+              "privacy": "public",
+              "type": {
+                "text": "TanreiCarouselNavigation"
+              },
+              "default": "'auto'",
+              "description": "Whether the previous and next controls are drawn over the ends of the row (CRL-41, CRL-42): `auto` (the default)\nwhere the primary pointer is fine and can hover, shown while the carousel is hovered or holds focus; `always` on\nevery device, at all times; `none` never. Keep `auto` wherever you can: without the controls a mouse moves the row\nonly with Shift and the wheel (WCAG 2.5.7). An unknown value is `auto`, reported (CRL-24). Reflected.",
+              "attribute": "navigation",
               "reflects": true
             },
             {
@@ -10609,6 +10713,28 @@
             },
             {
               "kind": "field",
+              "name": "previousLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The previous control's accessible name (\"Previous walk\"). Required while the control can be drawn (CRL-41).",
+              "attribute": "previous-label"
+            },
+            {
+              "kind": "field",
+              "name": "nextLabel",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The next control's accessible name (\"Next walk\"). Required while the control can be drawn (CRL-41).",
+              "attribute": "next-label"
+            },
+            {
+              "kind": "field",
               "name": "label",
               "privacy": "public",
               "type": {
@@ -10667,6 +10793,25 @@
               },
               "default": "false",
               "description": "CRL-38: whether the icon set can draw the playback glyphs."
+            },
+            {
+              "kind": "field",
+              "name": "firstDisabled",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "CRL-43: the row is at, or moving to, its first or its last resting position, and does not loop."
+            },
+            {
+              "kind": "field",
+              "name": "lastDisabled",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
             },
             {
               "kind": "field",
@@ -11021,6 +11166,26 @@
             },
             {
               "kind": "field",
+              "name": "drawnNavigation",
+              "type": {
+                "text": "TanreiCarouselNavigation"
+              },
+              "privacy": "private",
+              "description": "CRL-24: the navigation drawn — `navigation`, or the default while it names a value the carousel does not define.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "navigationDrawn",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "description": "CRL-41: whether the previous and next controls are in the tree (`auto` leaves the pointer's kind to CSS).",
+              "readonly": true
+            },
+            {
+              "kind": "field",
               "name": "indicatorDrawn",
               "type": {
                 "text": "boolean"
@@ -11128,6 +11293,12 @@
                 }
               ],
               "description": "CRL-12, CRL-13, CRL-15, CRL-26, CRL-29, CRL-40: every item and every dot for `offset` — all from the one scroll\nposition, in one pass.\n\nCRL-40: a browser paints a box's edges on whole device pixels, so two gaps of the same length in CSS px can be\npainted a device pixel apart (10 and 9 for a gap of 8 at a pixel ratio of 1.25, measured). So each drawn item's\nstart is rounded to a device pixel, and its end is the next item's rounded start less the gap, itself rounded: the\nrounding falls on a width, never on a gap."
+            },
+            {
+              "kind": "method",
+              "name": "syncEnds",
+              "privacy": "private",
+              "description": "CRL-43: the previous control is disabled at (or on the way to) the first resting position, the next at the last."
             },
             {
               "kind": "method",
@@ -11453,6 +11624,51 @@
             },
             {
               "kind": "method",
+              "name": "navigate",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "direction",
+                  "type": {
+                    "text": "1 | -1"
+                  }
+                }
+              ],
+              "description": "CRL-43: one resting position back or on from where the row is — or is going, so that presses in a row add up — over\nthe scroll motion; round the ring under loop. The items' Tab stop follows; focus stays on the control. The move is\nthe person's: autoplay's time starts from zero once the row is at rest (CRL-33)."
+            },
+            {
+              "kind": "field",
+              "name": "onPrevious",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onNext",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "giveVariants",
+              "privacy": "private",
+              "description": "CRL-41: each control is told the variant its token names, through the channel a Button reads from the component that places it (BTN-10)."
+            },
+            {
+              "kind": "method",
+              "name": "navControl",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "NavControl"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
               "name": "interval",
               "privacy": "private",
               "return": {
@@ -11673,6 +11889,15 @@
               "fieldName": "loop"
             },
             {
+              "name": "navigation",
+              "type": {
+                "text": "TanreiCarouselNavigation"
+              },
+              "default": "'auto'",
+              "description": "Whether the previous and next controls are drawn over the ends of the row (CRL-41, CRL-42): `auto` (the default)\nwhere the primary pointer is fine and can hover, shown while the carousel is hovered or holds focus; `always` on\nevery device, at all times; `none` never. Keep `auto` wherever you can: without the controls a mouse moves the row\nonly with Shift and the wheel (WCAG 2.5.7). An unknown value is `auto`, reported (CRL-24). Reflected.",
+              "fieldName": "navigation"
+            },
+            {
               "name": "indicator",
               "type": {
                 "text": "boolean"
@@ -11743,6 +11968,24 @@
               "default": "''",
               "description": "The playback control's accessible name while autoplay is playing (\"Pause the slideshow\"). Required while it can be drawn.",
               "fieldName": "pauseLabel"
+            },
+            {
+              "name": "previous-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The previous control's accessible name (\"Previous walk\"). Required while the control can be drawn (CRL-41).",
+              "fieldName": "previousLabel"
+            },
+            {
+              "name": "next-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The next control's accessible name (\"Next walk\"). Required while the control can be drawn (CRL-41).",
+              "fieldName": "nextLabel"
             },
             {
               "name": "label",

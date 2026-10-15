@@ -216,6 +216,48 @@ export const carouselStyles = css`
     }
   }
 
+  /* The row and the controls drawn over its ends (CRL-41): it takes the row's place in the carousel's column, and
+     shrinks with it when the product sizes the carousel (CRL-8). */
+  .viewport {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-block-size: 0;
+  }
+
+  /* CRL-41: the previous control's start edge at the inner start edge and the next control's end edge at the inner end
+     edge, centred on the row's height, over the items. They are Buttons, drawn by their own tokens. */
+  .navigation {
+    position: absolute;
+    z-index: 1;
+    inset-block-start: 50%;
+    translate: 0 -50%;
+    transition-property: opacity;
+    transition-duration: ${t('motion-state-duration')};
+    transition-timing-function: ${t('motion-state-easing')};
+  }
+  .navigation.previous {
+    inset-inline-start: ${t('layout-padding-inline')};
+  }
+  .navigation.next {
+    inset-inline-end: ${t('layout-padding-inline')};
+  }
+  /* CRL-41, CRL-42: auto draws them only for a primary pointer that is fine and can hover, and shows them while the
+     carousel is hovered or holds focus; hidden, they keep their place in the Tab order, and focus shows them. */
+  @media not all and (hover: hover) and (pointer: fine) {
+    .navigation.auto {
+      display: none;
+    }
+  }
+  .navigation.auto {
+    opacity: 0;
+  }
+  :host(:hover) .navigation.auto,
+  :host(:focus-within) .navigation.auto {
+    opacity: 1;
+  }
+
   /* CRL-14: a native horizontal scroller (wheel, trackpad, touch and pen scroll as the platform does), without a scroll
      bar. Its inert animation timing carries comp.carousel.motion.scroll-*, read by the settle, the scroll into place and
      a dot's move. */
@@ -462,7 +504,8 @@ export const carouselStyles = css`
       animation-duration: 0s;
     }
     .control,
-    .playback {
+    .playback,
+    .navigation {
       transition: none;
     }
   }

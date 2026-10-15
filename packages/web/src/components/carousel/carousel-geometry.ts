@@ -431,6 +431,37 @@ export class CarouselGeometry {
   }
 
   /**
+   * CRL-43: the resting position before (`direction` −1) or after (1) `position` — at a resting position, its
+   * neighbour; between two, the nearer of them on that side. Round the ring while loop is in effect; otherwise the ends
+   * are where it stops.
+   */
+  adjacentResting(position: number, direction: 1 | -1): number {
+    if (this.loop) {
+      const from = direction > 0 ? Math.floor(position + WHOLE) : Math.ceil(position - WHOLE);
+      return clamp(from + direction, 0, this.maxPosition);
+    }
+    const resting = this.resting;
+    if (!resting.length) return 0;
+    const near = this.nearPixel;
+    if (direction > 0) return resting.find((r) => r > position + near) ?? resting[resting.length - 1];
+    for (let j = resting.length - 1; j >= 0; j--) if (resting[j] < position - near) return resting[j];
+    return resting[0];
+  }
+
+  /** CRL-43: whether `position` is at (or before) the first resting position, and at (or beyond) the last; never under loop. */
+  atEnds(position: number): { first: boolean; last: boolean } {
+    const resting = this.resting;
+    if (this.loop || !resting.length) return { first: false, last: false };
+    const near = this.nearPixel;
+    return { first: position <= resting[0] + near, last: position >= resting[resting.length - 1] - near };
+  }
+
+  /** A pixel of scroll as a position (at least WHOLE): an engine that keeps the offset in whole pixels rests that near. */
+  private get nearPixel(): number {
+    return this.step > 0 ? Math.max(WHOLE, 1 / this.step) : WHOLE;
+  }
+
+  /**
    * CRL-27: while loop is in effect, the same place on the ring in the middle turn of the track, when `position` has
    * come within a turn of either end; otherwise `position` itself. Moving by whole turns draws nothing new.
    */
