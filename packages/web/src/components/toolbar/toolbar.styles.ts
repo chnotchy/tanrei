@@ -1,5 +1,5 @@
 import { css, unsafeCSS } from 'lit';
-import { type OpenAxis, keptLength } from '../../primitives/index.js';
+import { type OpenAxis, keptSpaces } from '../../primitives/index.js';
 import { shape } from '../../styles/shape.js';
 
 // Every visual value is a token (tokens/comp/toolbar.tokens.json): per variant the container's color, elevation, corners,
@@ -36,7 +36,7 @@ export const AXES: readonly OpenAxis[] = [
 ];
 
 const FLOATING = ":host([variant='floating'])";
-// TBR-16: read on the items themselves, where a private name of the toolbar's (--_gap) would be the item's own.
+// TBR-16: the floating gap token, read by the container's spacers.
 const FLOATING_GAP = `var(${PREFIX}-container-gap-floating)`;
 const VERTICAL = ":host([variant='floating'][orientation='vertical'])";
 
@@ -80,12 +80,13 @@ export const styles = css`
   }
 
   /* TBR-8, TBR-9: every item keeps its own size (it never shrinks, and a Button's label stays on one line); TBR-2: one
-     item is centred. */
+     item is centred — by the container, not by a margin on the item, which a page's reset (\`* { margin: 0 }\`) would
+     take away: a page's rules beat the rules a shadow root gives what it slots. */
   ::slotted(*) {
     flex: none;
   }
-  ::slotted(:only-child) {
-    margin-inline: auto;
+  .container.only {
+    justify-content: center;
   }
 
   /* TBR-8: items that need more length than the toolbar has scroll along its axis (the gap at its minimum: space-between
@@ -119,6 +120,9 @@ export const styles = css`
     padding-right: var(--_pad);
     box-shadow: var(--_elevation), inset 0 0 0 ${t('outline-width')} var(--_edge);
   }
+  ${unsafeCSS(FLOATING)} .container.only {
+    justify-content: center;
+  }
 
   /* TBR-6: vertical (floating only) — the items stacked top to bottom in the order given, whatever the direction (TBR-7),
      the paddings and gap along the block axis, at least container.size wide, never taller than its container. */
@@ -140,9 +144,11 @@ export const styles = css`
      axis, centred on itself, that its neighbour's does not reach into: an item at least that long touches its
      neighbour, a shorter one stands half of what it lacks away (src/primitives/kept-length.ts; the element measures the
      items' lengths). Nothing of an item is widened or restyled (TBR-9), and the space is the same for every pointer.
-     Along the row, or the column of a vertical toolbar. A docked toolbar spreads its items and keeps its gap (TBR-2). */
-  ${keptLength(":host([variant='floating']:not([orientation='vertical'])) ::slotted(*)", { gap: FLOATING_GAP })}
-  ${keptLength(`${VERTICAL} ::slotted(*)`, { gap: FLOATING_GAP, axis: 'block' })}
+     Along the row, or the column of a vertical toolbar. The container lays the items out with that space between them
+     as an element of its own: nothing of it is a margin on an item, so a page's reset leaves it. A docked toolbar
+     spreads its items and keeps its gap (TBR-2). */
+  ${keptSpaces(":host([variant='floating']:not([orientation='vertical'])) .container", { gap: FLOATING_GAP })}
+  ${keptSpaces(`${VERTICAL} .container`, { gap: FLOATING_GAP, axis: 'block' })}
   ${unsafeCSS(VERTICAL)} .container.scrolls {
     overflow-x: hidden;
     overflow-y: auto;

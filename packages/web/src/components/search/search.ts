@@ -551,9 +551,10 @@ export class TanreiSearch extends LitElement {
 
   /**
    * SRC-34: the bar's action buttons — the clear button while it is shown, then the trailing slot's — each keep a touch
-   * target's length along the row; their lengths are measured for the styles (src/primitives/kept-length.ts).
+   * target's length along the row; their lengths are measured for the styles (src/primitives/kept-length.ts). The space
+   * before each of the trailing slot's buttons is a spacer in the trailing box, never a margin on the product's button.
    */
-  private readonly kept = new KeptLengths();
+  private readonly kept = new KeptLengths(undefined, () => this.renderRoot?.querySelector<HTMLElement>('.bar .trailing') ?? null);
   /**
    * SRC-32: a suggestion's leading glyph is marked when the icon set mirrors its name in right-to-left
    * (src/primitives/glyph-mirror.ts); `iconGlyph()` draws the mark. The search glyph (SRC-2) is not named here, and the

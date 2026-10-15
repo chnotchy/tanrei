@@ -179,8 +179,8 @@ test.describe('layout', () => {
     expect(own.width).toBeLessThan(stage.width);
     expect(own.x + own.width / 2).toBeCloseTo(stage.x + stage.width / 2, 1);
     expect(own.y + own.height / 2).toBeCloseTo(stage.y + stage.height / 2, 1);
-    // Nothing but its surface and its slot: no scrim.
-    expect(await bar(page, 'floating').evaluate((el) => [...el.shadowRoot!.querySelectorAll('*')].map((n) => n.localName))).toEqual(['div', 'slot']);
+    // Nothing but its surface and its slot (and the spaces between its items, TBR-16): no scrim.
+    expect(await bar(page, 'floating').evaluate((el) => [...el.shadowRoot!.querySelectorAll('*:not([data-tanrei-kept-space])')].map((n) => n.localName))).toEqual(['div', 'slot']);
     // No inset reaches it.
     await bar(page, 'floating').evaluate((el) => el.setAttribute('style', '--_inset-bottom: 34px; --_inset-left: 12px; --_inset-right: 20px'));
     expect(await bounds(bar(page, 'floating'))).toEqual(own);
@@ -518,7 +518,9 @@ test.describe('items', () => {
     await settled('floating', 5, [8, 8, 8, 12]);
     await bar(page, 'floating').evaluate((el) => el.firstElementChild!.remove());
     await settled('floating', 4, [8, 8, 12]);
-    expect(await item(page, 'floating', 0).evaluate((el) => (el as HTMLElement).style.getPropertyValue('--tanrei-kept-follows')), 'the new first item follows nothing').toBe('');
+    // The spaces are the container's own elements, one between two items; nothing is written on the items.
+    expect(await container(page, 'floating').evaluate((el) => el.querySelectorAll(':scope > [data-tanrei-kept-space]').length), 'one space between two items').toBe(3);
+    expect(await bar(page, 'floating').evaluate((el) => [...el.children].map((child) => (child as HTMLElement).style.cssText.includes('--tanrei-kept'))), 'nothing on the items').toEqual([false, false, false, false]);
     // Docked: unchanged — the items spread across the width with container.gap.docked as the least space, and no item
     // is given a margin.
     const dockedGap = await resolveToken(page, T('container-gap-docked'));

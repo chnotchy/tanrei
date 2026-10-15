@@ -7,8 +7,9 @@
 //   focus-ring  — the keyboard focus indicator (ring or glow), the glow alone (focusGlow) and syncFocusStyle()
 //   target      — the minimum target (::before), and neighbourTarget(): capped toward a neighbour in a row (BGR-4, SPB-6)
 //   cut-text    — isCut() and CutTextTip: a one-line text cut with an ellipsis, shown whole in a tooltip while it is cut (TRV-50)
-//   kept-length — KeptLengths and keptLength(): controls that stand close in a row keep a touch target's length each,
-//                 the gap between two growing only by what they lack (SRC-34, TBR-16)
+//   kept-length — KeptLengths, keptLength() and keptSpaces(): controls that stand close in a row keep a touch target's
+//                 length each, the gap between two growing only by what they lack (SRC-34, TBR-16); between slotted
+//                 elements the space is a spacer of the host's box, never a margin a page's reset could take away
 //   behavior    — reading a choice of kind from the cascade
 //   icon        — styles/icons.ts: `iconGlyph()` (a component's own icon, drawn as icons.css draws `.tanrei-icon`)
 //   glyph       — GlyphDrawnController: `data-drawn` on a component's glyph while the icon set can draw it (CHK-19, MNU-30, SNK-26)
@@ -211,7 +212,7 @@ export {
 } from './selection.js';
 export { minimumTarget, neighbourTarget } from './target.js';
 export { type CutTextContent, CutTextTip, type CutTextTipOptions, type CutTextTooltip, isCut } from './cut-text.js';
-export { KeptLengths, keptLength } from './kept-length.js';
+export { KeptLengths, keptLength, keptSpaces } from './kept-length.js';
 export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
 export { RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';
 export { answersPress, findInteractive, pressTakenWithin, slottedInteractive } from './interactive.js';
