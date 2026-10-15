@@ -1,0 +1,162 @@
+---
+title: Fila de lista
+description: Una fila de texto con algo antes y algo después. Un titular, una línea corta encima y una o dos debajo; un glifo, una imagen o un control al inicio; un valor corto, un glifo o un control al final. Dentro de un elemento de lista se adapta a cada modo de la lista, y también se usa sola.
+translationOf: components/list-row.mdx
+sourceHash: d8e65ec40db0948de1aa23f3b046ca843492f885
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="list-row" />
+
+<DemoFrame label="Filas en una lista: una fila estática con un interruptor, una fila que abre algo y una fila que es un enlace" plain>
+  <tanrei-list dividers style="inline-size: 22rem">
+    <tanrei-list-item>
+      <tanrei-list-row leading-icon="bluetooth" headline="Bluetooth" supporting-text="Dos dispositivos">
+        <tanrei-switch slot="trailing" label="Bluetooth" label-hidden selected></tanrei-switch>
+      </tanrei-list-row>
+    </tanrei-list-item>
+    <tanrei-list-item interactive>
+      <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Conectado a Harbour" trailing-icon="chevron_right"></tanrei-list-row>
+    </tanrei-list-item>
+    <tanrei-list-item href="#list-row-demo-storage">
+      <tanrei-list-row leading-icon="folder" overline="Compartido" headline="Fotos del puerto" supporting-text="48 elementos, editado hoy" trailing-text="2,4 GB"></tanrei-list-row>
+    </tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+Una fila de lista es la fila de la que están hechas la mayoría de las listas: un nombre, una o dos líneas sobre él, algo antes y algo después. La [lista](/es/components/list/) es una caja que dispone sus elementos y los convierte en acciones, enlaces u opciones; la fila de lista es lo que muestra un elemento. Ponla dentro de un elemento de lista, o úsala sola donde haga falta una única fila.
+
+La fila dibuja solo texto y glifos. No tiene relleno, borde, hover ni foco propios, y nunca se puede pulsar por sí misma: eso lo decide el elemento de lista que la contiene.
+
+En la web es `<tanrei-list-row>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- En una lista, la fila es hija directa del elemento. El elemento la convierte en acción, enlace u opción. -->
+    <tanrei-list dividers>
+      <tanrei-list-item interactive>
+        <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Conectado a Harbour"
+                         trailing-icon="chevron_right"></tanrei-list-row>
+      </tanrei-list-item>
+      <tanrei-list-item>
+        <!-- Una fila estática puede tener un control propio; nómbralo con el titular de la fila. -->
+        <tanrei-list-row headline="Bluetooth">
+          <tanrei-switch slot="trailing" label="Bluetooth" label-hidden></tanrei-switch>
+        </tanrei-list-row>
+      </tanrei-list-item>
+    </tanrei-list>
+
+    <!-- Una imagen al inicio y tres líneas de texto. -->
+    <tanrei-list-row overline="Ayer" headline="Mira Okada" supporting-text="Las fotos del puerto ya están en la carpeta compartida." supporting-lines="2">
+      <tanrei-avatar slot="leading" initials="MO" decorative></tanrei-avatar>
+    </tanrei-list-row>
+
+    <script type="module">
+      import '@tanrei/web/components/list';
+      import '@tanrei/web/components/list-row';
+      import '@tanrei/web/components/switch';
+      import '@tanrei/web/components/avatar';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { List, ListItem, ListRow } from '@tanrei/react';
+
+    <List dividers>
+      {networks.map((network) => (
+        <ListItem key={network.id} interactive onClick={() => open(network)}>
+          <ListRow leadingIcon="wifi" headline={network.name} supportingText={network.status} trailingIcon="chevron_right" />
+        </ListItem>
+      ))}
+    </List>
+    ```
+  </TabItem>
+</Tabs>
+
+### La fila en cada tipo de elemento de lista
+
+La fila sabe por el elemento de lista que la contiene qué es ese elemento, y se dibuja para encajar en él:
+
+- **Un elemento estático, o una fila sola.** La fila dibuja sus propios márgenes interiores y sus propios colores. Un control en su ranura inicial o final conserva su propio foco y su propia pulsación.
+- **Un elemento interactivo, un elemento enlace o una opción.** El elemento añade margen interior a su contenido, así que la fila no dibuja el suyo y conserva su altura: una columna que mezcla elementos estáticos y elementos que se pulsan mantiene una sola altura. El elemento toma su nombre del titular de la fila y su descripción de los demás textos. Una opción seleccionada dibuja los textos y los glifos de la fila en su color de contenido seleccionado.
+- **Una lista que se reordena.** El asa de la lista queda al inicio del elemento, antes de la fila, en lugar del margen inicial de la fila.
+- **Una lista horizontal, o una que salta de línea.** En una línea, la fila es tan ancha como sus partes y nunca se corta; en líneas que saltan, nunca es más ancha que la lista, y su texto se corta donde haga falta.
+
+Pon la fila como hija directa del elemento. Una fila envuelta en otro elemento dentro del elemento de lista no recibe nada y se dibuja como si estuviera sola.
+
+## Especificaciones
+
+<DemoFrame label="Una, dos y tres líneas; una imagen y un valor; compact" plain>
+  <tanrei-list-row headline="Wi-Fi" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Conectado a Harbour" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="folder" overline="Compartido" headline="Fotos del puerto" supporting-text="48 elementos, editado hoy" trailing-text="2,4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
+</DemoFrame>
+
+<ComponentSpecs name="list-row" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa una fila de lista en cada elemento de una lista de personas, lugares, ajustes, mensajes o archivos que muestran todos las mismas partes. Usa tu propio contenido en un elemento de lista cuando los elementos son mosaicos, tarjetas o imágenes, y un [elemento de archivo](/es/components/file-item/) para un archivo que se está enviando.
+
+### Las partes
+
+| Parte | Para qué sirve |
+| --- | --- |
+| Titular | El nombre del elemento. Es como se llama el elemento de lista para la tecnología de asistencia, en el asa de una lista que se reordena y en la búsqueda por escritura. |
+| Sobretítulo | Una categoría, un origen o una hora breves encima del nombre. |
+| Texto de apoyo | De qué trata el elemento, su estado, el comienzo de un mensaje: una línea, o dos con `supportingLines`. |
+| Glifo o ranura inicial | Qué clase de cosa es el elemento (`leadingIcon`), o un avatar o una imagen de él (la ranura `leading`). |
+| Texto final | Un valor corto: un recuento, un tamaño, una hora, el valor actual de un ajuste. |
+| Ranura final | Una insignia, o en una fila estática un interruptor, una casilla o un botón solo de icono. |
+| Glifo final | Un chevrón que dice que la fila abre algo, o un estado. |
+
+El titular, el sobretítulo y el texto de apoyo se cortan con puntos suspensivos donde no caben, y un tooltip muestra completos el titular y el texto de apoyo cortados al pasar el puntero y con el foco del teclado. El texto final nunca ocupa más de la mitad de la fila.
+
+### Densidad
+
+En el sistema por defecto, las filas `regular` miden 56, 72 y 88 de alto para una, dos y tres líneas, para un producto que se usa tanto con el dedo como con el puntero. Las filas `compact` (40, 56 y 72) son para una herramienta que se usa con el puntero. Una acción, un enlace o una opción nunca es más baja que la altura mínima de la propia lista y que el objetivo táctil, diga lo que diga la densidad.
+
+### Recomendado
+
+- Da un titular a cada fila. Mantén el sobretítulo como una categoría breve y el texto final como un valor corto.
+- Da a todas las filas de una columna un glifo o una imagen inicial, o a ninguna, para que los textos queden alineados.
+- Haz que una fila que abre algo sea el contenido de un elemento interactivo o de un elemento enlace.
+
+### Evita
+
+- No pongas un control en una fila que es el contenido de un elemento interactivo, un elemento enlace o una opción. Ese elemento es un solo elemento, así que la tecnología de asistencia no puede llegar a un control dentro de él. Mantén esa fila estática.
+- No hagas pulsable la fila por tu cuenta (con un manejador de clic en la fila). Usa el elemento de lista, que lleva el foco, los estados y el objetivo mínimo.
+- No confíes solo en el glifo final para decir lo que hace una fila. Lo dicen el titular y el rol del elemento.
+
+## Accesibilidad
+
+<ComponentAccessibility name="list-row" />
+
+### De qué se encarga el componente
+
+- Los textos de la fila se leen como texto, en el orden en que se dibujan: sobretítulo, titular, texto de apoyo, texto final. Sus glifos quedan ocultos.
+- Un elemento de lista que contiene la fila toma su nombre del titular de la fila cuando no tiene etiqueta propia, y una acción, un enlace o una opción se describe con el sobretítulo, el texto de apoyo y el texto final de la fila.
+- Un texto cortado siempre llega completo a la tecnología de asistencia. Su tooltip queda oculto para ella, se abre al pasar el puntero y con el foco del teclado del elemento, se queda mientras el puntero está encima y se cierra con Escape.
+- En una disposición de derecha a izquierda la fila se refleja, y cada texto conserva su propia dirección.
+- En colores forzados, los textos y los glifos toman el color de texto del sistema, y su color de texto deshabilitado en un elemento deshabilitado.
+- Las compilaciones de depuración informan de una fila sin titular, de un `supportingLines` que no es 1 ni 2, de un glifo inicial que la ranura inicial sustituye y de una densidad desconocida.
+
+### Qué debes hacer tú
+
+- Da a la fila un `headline`.
+- Nombra un control de una fila estática con el titular de la fila: «Bluetooth» para un interruptor, «Quitar brief.pdf» para un botón.
+- Da a un avatar o una imagen de la ranura inicial su propia alternativa textual, u ocúltalo cuando el titular ya nombra a la persona.

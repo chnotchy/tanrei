@@ -1,0 +1,160 @@
+---
+title: List row
+description: One row of text with something before it and something after it. A headline, a short line above it and a line or two below it; a glyph, a picture or a control at its start; a short value, a glyph or a control at its end. Placed in a list item, which it fits in every mode of the list, or on its own.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="list-row" />
+
+<DemoFrame label="Rows in a list: a static row with a switch, a row that opens something, and a row that is a link" plain>
+  <tanrei-list dividers style="inline-size: 22rem">
+    <tanrei-list-item>
+      <tanrei-list-row leading-icon="bluetooth" headline="Bluetooth" supporting-text="Two devices">
+        <tanrei-switch slot="trailing" label="Bluetooth" label-hidden selected></tanrei-switch>
+      </tanrei-list-row>
+    </tanrei-list-item>
+    <tanrei-list-item interactive>
+      <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected to Harbour" trailing-icon="chevron_right"></tanrei-list-row>
+    </tanrei-list-item>
+    <tanrei-list-item href="#list-row-demo-storage">
+      <tanrei-list-row leading-icon="folder" overline="Shared" headline="Harbour photos" supporting-text="48 items, edited today" trailing-text="2.4 GB"></tanrei-list-row>
+    </tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+A list row is the row most lists are made of: a name, a line or two about it, something before it and something after it. The [list](/components/list/) is a box that arranges its items and makes them actions, links or choices; the list row is what one item shows. Put it in a list item, or use it on its own where a single row is wanted.
+
+The row draws text and glyphs only. It has no fill, no edge, no hover and no focus of its own, and it is never pressable by itself: the list item it is in decides that.
+
+On the web it is `<tanrei-list-row>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- In a list: the row is the item's direct child. The item makes it an action, a link or an option. -->
+    <tanrei-list dividers>
+      <tanrei-list-item interactive>
+        <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected to Harbour"
+                         trailing-icon="chevron_right"></tanrei-list-row>
+      </tanrei-list-item>
+      <tanrei-list-item>
+        <!-- A static row may hold a control of its own; name it with the row's headline. -->
+        <tanrei-list-row headline="Bluetooth">
+          <tanrei-switch slot="trailing" label="Bluetooth" label-hidden></tanrei-switch>
+        </tanrei-list-row>
+      </tanrei-list-item>
+    </tanrei-list>
+
+    <!-- A picture at the start, three lines of text. -->
+    <tanrei-list-row overline="Yesterday" headline="Mira Okada" supporting-text="The harbour photos are in the shared folder now." supporting-lines="2">
+      <tanrei-avatar slot="leading" initials="MO" decorative></tanrei-avatar>
+    </tanrei-list-row>
+
+    <script type="module">
+      import '@tanrei/web/components/list';
+      import '@tanrei/web/components/list-row';
+      import '@tanrei/web/components/switch';
+      import '@tanrei/web/components/avatar';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { List, ListItem, ListRow } from '@tanrei/react';
+
+    <List dividers>
+      {networks.map((network) => (
+        <ListItem key={network.id} interactive onClick={() => open(network)}>
+          <ListRow leadingIcon="wifi" headline={network.name} supportingText={network.status} trailingIcon="chevron_right" />
+        </ListItem>
+      ))}
+    </List>
+    ```
+  </TabItem>
+</Tabs>
+
+### The row in each kind of list item
+
+The row learns from the list item it is in what that item is, and draws itself to fit:
+
+- **A static item, or a row on its own.** The row draws its own paddings and its own colors. A control in its leading or trailing slot keeps its own focus and press.
+- **An interactive item, a link item or an option.** The item pads its content, so the row draws no padding of its own and keeps its height: a column that mixes static and pressable items keeps one height. The item is named by the row's headline and described by its other texts. A selected option draws the row's texts and glyphs in its selected content color.
+- **A reorderable list.** The list's handle stands at the item's start, before the row, in place of the row's start padding.
+- **A horizontal list, or one that wraps.** In a line the row is as wide as its parts and is never cut; in lines that wrap it is never wider than the list, and its text is cut where it must be.
+
+Put the row as the item's direct child. A row wrapped in another element inside the item is told nothing and draws itself as it would on its own.
+
+## Specs
+
+<DemoFrame label="One, two and three lines; a picture and a value; compact" plain>
+  <tanrei-list-row headline="Wi-Fi" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Connected to Harbour" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="folder" overline="Shared" headline="Harbour photos" supporting-text="48 items, edited today" trailing-text="2.4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
+</DemoFrame>
+
+<ComponentSpecs name="list-row" />
+
+## Guidelines
+
+### When to use
+
+Use a list row for each item of a list of people, places, settings, messages or files that all show the same parts. Use your own content in a list item when the items are tiles, cards or pictures, and a [file item](/components/file-item/) for a file that is being sent.
+
+### The parts
+
+| Part | Use for |
+| --- | --- |
+| Headline | The item's name. It is what the list item is called for assistive technology, in the handle of a reorderable list and in typeahead. |
+| Overline | A short category, a source or a time above the name. |
+| Supporting text | What the item is about, its state, the start of a message: one line, or two with `supportingLines`. |
+| Leading glyph or slot | What kind of thing the item is (`leadingIcon`), or an avatar or a picture of it (the `leading` slot). |
+| Trailing text | A short value: a count, a size, a time, the current value of a setting. |
+| Trailing slot | A badge, or in a static row a switch, a checkbox or an icon-only button. |
+| Trailing glyph | A chevron that says the row opens something, or a status. |
+
+The headline, the overline and the supporting text are cut with an ellipsis where they do not fit, and a tooltip shows the whole of a cut headline and supporting text on hover and on keyboard focus. The trailing text never takes more than half of the row.
+
+### Density
+
+`regular` rows are 56, 72 and 88 high for one, two and three lines in the default system, for a product used by touch as well as by pointer. `compact` rows (40, 56 and 72) are for a tool used with a pointer. An action, a link or an option is never lower than the list's own minimum height and the touch target, whatever the density says.
+
+### Do
+
+- Give every row a headline. Keep the overline a short category and the trailing text a short value.
+- Give every row of a column a leading glyph or picture, or none, so that the texts line up.
+- Make a row that opens something the content of an interactive item or a link item.
+
+### Don't
+
+- Don't put a control in a row that is the content of an interactive item, a link item or an option. That item is one element, so assistive technology cannot reach a control inside it. Keep such a row static.
+- Don't make the row pressable yourself (a click handler on the row). Use the list item, which carries the focus, the states and the minimum target.
+- Don't rely on the trailing glyph alone to say what a row does. The headline and the item's role say it.
+
+## Accessibility
+
+<ComponentAccessibility name="list-row" />
+
+### What the component handles
+
+- The row's texts are read as text, in the order they are drawn: overline, headline, supporting text, trailing text. Its glyphs are hidden.
+- A list item that holds the row is named by the row's headline where the item has no label, and an action, a link or an option is described by the row's overline, supporting text and trailing text.
+- A cut text is always whole for assistive technology. Its tooltip is hidden from it, opens on hover and on keyboard focus of the item, stays while the pointer is over it, and Escape closes it.
+- In a right-to-left layout the row is mirrored, and each text keeps its own direction.
+- In forced colors the texts and glyphs take the system's text color, and its disabled color in a disabled item.
+- Debug builds report a row without a headline, a `supportingLines` that is neither 1 nor 2, a leading glyph that the leading slot replaces, and an unknown density.
+
+### What you need to do
+
+- Give the row a `headline`.
+- Name a control in a static row with the row's headline: "Bluetooth" for a switch, "Remove brief.pdf" for a button.
+- Give an avatar or a picture in the leading slot its own text alternative, or hide it where the headline already names the person.

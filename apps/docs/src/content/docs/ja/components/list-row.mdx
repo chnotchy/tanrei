@@ -1,0 +1,162 @@
+---
+title: リスト行
+description: 前と後ろに何かを添えた 1 行分のテキストです。見出しと、その上の短い行、その下の 1〜2 行。先頭にはグリフ、画像またはコントロール、末尾には短い値、グリフまたはコントロール。リスト項目の中に置くとリストのどのモードにも合わせて描かれ、単独でも使えます。
+translationOf: components/list-row.mdx
+sourceHash: d8e65ec40db0948de1aa23f3b046ca843492f885
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="list-row" />
+
+<DemoFrame label="リストの中の行：スイッチを持つ静的な行、何かを開く行、リンクである行" plain>
+  <tanrei-list dividers style="inline-size: 22rem">
+    <tanrei-list-item>
+      <tanrei-list-row leading-icon="bluetooth" headline="Bluetooth" supporting-text="2 台のデバイス">
+        <tanrei-switch slot="trailing" label="Bluetooth" label-hidden selected></tanrei-switch>
+      </tanrei-list-row>
+    </tanrei-list-item>
+    <tanrei-list-item interactive>
+      <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Harbour に接続済み" trailing-icon="chevron_right"></tanrei-list-row>
+    </tanrei-list-item>
+    <tanrei-list-item href="#list-row-demo-storage">
+      <tanrei-list-row leading-icon="folder" overline="共有" headline="港の写真" supporting-text="48 項目、今日編集" trailing-text="2.4 GB"></tanrei-list-row>
+    </tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+リスト行は、多くのリストを形づくる行です。名前、それについての 1〜2 行、そしてその前と後ろに置くもの。[リスト](/ja/components/list/)は項目を並べ、項目をアクション、リンク、選択肢にする箱であり、リスト行は 1 つの項目に表示する中身です。リスト項目の中に置くか、1 行だけが必要な場所では単独で使います。
+
+行が描くのはテキストとグリフだけです。塗り、枠、ホバー、フォーカスを持たず、行自体が押せるものになることもありません。それを決めるのは行を入れたリスト項目です。
+
+Web では `<tanrei-list-row>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- リストの中では、行を項目の直接の子にします。項目が行をアクション、リンク、選択肢にします。 -->
+    <tanrei-list dividers>
+      <tanrei-list-item interactive>
+        <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Harbour に接続済み"
+                         trailing-icon="chevron_right"></tanrei-list-row>
+      </tanrei-list-item>
+      <tanrei-list-item>
+        <!-- 静的な行は自分のコントロールを持てます。コントロールには行の見出しで名前を付けます。 -->
+        <tanrei-list-row headline="Bluetooth">
+          <tanrei-switch slot="trailing" label="Bluetooth" label-hidden></tanrei-switch>
+        </tanrei-list-row>
+      </tanrei-list-item>
+    </tanrei-list>
+
+    <!-- 先頭に画像、3 行のテキスト。 -->
+    <tanrei-list-row overline="昨日" headline="岡田 ミラ" supporting-text="港の写真を共有フォルダーに入れました。" supporting-lines="2">
+      <tanrei-avatar slot="leading" initials="MO" decorative></tanrei-avatar>
+    </tanrei-list-row>
+
+    <script type="module">
+      import '@tanrei/web/components/list';
+      import '@tanrei/web/components/list-row';
+      import '@tanrei/web/components/switch';
+      import '@tanrei/web/components/avatar';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { List, ListItem, ListRow } from '@tanrei/react';
+
+    <List dividers>
+      {networks.map((network) => (
+        <ListItem key={network.id} interactive onClick={() => open(network)}>
+          <ListRow leadingIcon="wifi" headline={network.name} supportingText={network.status} trailingIcon="chevron_right" />
+        </ListItem>
+      ))}
+    </List>
+    ```
+  </TabItem>
+</Tabs>
+
+### リスト項目の種類ごとの行
+
+行は、自分が入っているリスト項目がどの種類かをその項目から知り、それに合わせて自分を描きます。
+
+- **静的な項目、または単独の行。** 行は自分の余白と自分の色を描きます。先頭や末尾のスロットのコントロールは、それ自身のフォーカスと押下を保ちます。
+- **インタラクティブな項目、リンク項目、選択肢。** 項目が中身に余白を付けるので、行は自分の余白を描かず、高さだけを保ちます。静的な項目と押せる項目が混ざった列でも高さはそろいます。項目は行の見出しで名前が付き、ほかのテキストで説明されます。選択された選択肢では、行のテキストとグリフが選択時のコンテンツ色で描かれます。
+- **並べ替えられるリスト。** リストのハンドルが項目の先頭、行の前に立ち、行の先頭の余白の代わりになります。
+- **横並びのリスト、折り返すリスト。** 1 行に並ぶときは行は中身の幅になり、切り詰められません。折り返すときはリストより広くならず、必要な分だけテキストが切り詰められます。
+
+行は項目の直接の子にします。項目の中で別の要素に包まれた行には何も伝わらず、単独のときと同じように描かれます。
+
+## 仕様
+
+<DemoFrame label="1 行、2 行、3 行。画像と値。compact" plain>
+  <tanrei-list-row headline="Wi-Fi" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="wifi" headline="Wi-Fi" supporting-text="Harbour に接続済み" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="folder" overline="共有" headline="港の写真" supporting-text="48 項目、今日編集" trailing-text="2.4 GB" trailing-icon="chevron_right" style="inline-size: 22rem"></tanrei-list-row>
+  <tanrei-list-row leading-icon="description" headline="brief.pdf" supporting-text="820 KB" density="compact" style="inline-size: 22rem"></tanrei-list-row>
+</DemoFrame>
+
+<ComponentSpecs name="list-row" />
+
+## ガイドライン
+
+### 使う場面
+
+人、場所、設定、メッセージ、ファイルなど、どの項目も同じ部品を示すリストの各項目にリスト行を使います。項目がタイル、カード、画像であれば、リスト項目にプロダクト自身のコンテンツを入れます。送信中のファイルには[ファイル項目](/ja/components/file-item/)を使います。
+
+### 部品
+
+| 部品 | 用途 |
+| --- | --- |
+| 見出し | 項目の名前。支援技術、並べ替えられるリストのハンドル、タイプアヘッドで、リスト項目はこの名前で呼ばれます。 |
+| オーバーライン | 名前の上に置く短い分類、出どころ、時刻。 |
+| 補足テキスト | 項目の内容、状態、メッセージの書き出し。1 行、または `supportingLines` で 2 行。 |
+| 先頭のグリフまたはスロット | 項目の種類（`leadingIcon`）、またはそのアバターや画像（`leading` スロット）。 |
+| 末尾テキスト | 短い値。件数、サイズ、時刻、設定の現在値。 |
+| 末尾スロット | バッジ。静的な行ではスイッチ、チェックボックス、アイコンのみのボタン。 |
+| 末尾のグリフ | 行が何かを開くことを示すシェブロン、または状態。 |
+
+見出し、オーバーライン、補足テキストは収まらないところで省略記号付きで切り詰められます。切り詰められた見出しと補足テキストは、ホバーとキーボードフォーカスでツールチップに全文が表示されます。末尾テキストが行の半分を超えることはありません。
+
+### 密度
+
+`regular` の行は、デフォルトシステムで 1 行、2 行、3 行のときそれぞれ 56、72、88 の高さで、タッチとポインターの両方で使うプロダクト向けです。`compact` の行（40、56、72）は、ポインターで使うツール向けです。アクション、リンク、選択肢は、密度の指定にかかわらず、リスト自身の最小の高さとタッチターゲットより低くなりません。
+
+### 推奨
+
+- どの行にも見出しを付けます。オーバーラインは短い分類に、末尾テキストは短い値にとどめます。
+- 1 つの列の行には、すべてに先頭のグリフか画像を付けるか、どれにも付けないかにして、テキストの位置をそろえます。
+- 何かを開く行は、インタラクティブな項目かリンク項目の中身にします。
+
+### 非推奨
+
+- インタラクティブな項目、リンク項目、選択肢の中身である行にコントロールを入れないでください。その項目は 1 つの要素なので、中のコントロールに支援技術は届きません。そうした行は静的なままにします。
+- 行に自分でクリック処理を付けて押せるようにしないでください。フォーカス、状態、最小ターゲットを持つリスト項目を使います。
+- 行が何をするかを末尾のグリフだけで伝えないでください。それを伝えるのは見出しと項目の役割です。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="list-row" />
+
+### コンポーネントが担うこと
+
+- 行のテキストは、描かれる順（オーバーライン、見出し、補足テキスト、末尾テキスト）にテキストとして読まれます。グリフは隠されます。
+- 行を入れたリスト項目は、項目にラベルがなければ行の見出しで名前が付き、アクション、リンク、選択肢は行のオーバーライン、補足テキスト、末尾テキストで説明されます。
+- 切り詰められたテキストも、支援技術には常に全文が伝わります。ツールチップは支援技術から隠され、ホバーと項目のキーボードフォーカスで開き、ポインターが上にある間は残り、Escape で閉じます。
+- 右から左のレイアウトでは行は左右反転し、各テキストはそれ自身の方向を保ちます。
+- 強制カラーでは、テキストとグリフはシステムのテキスト色になり、無効な項目ではシステムの無効テキスト色になります。
+- デバッグビルドでは、見出しのない行、1 でも 2 でもない `supportingLines`、先頭スロットに置き換えられた先頭グリフ、不明な密度を報告します。
+
+### 利用者側で行うこと
+
+- 行に `headline` を付けます。
+- 静的な行のコントロールには、行の見出しで名前を付けます。スイッチなら「Bluetooth」、ボタンなら「brief.pdf を削除」のようにします。
+- 先頭スロットのアバターや画像には代替テキストを付けるか、見出しがすでにその人を名指ししているなら隠します。
