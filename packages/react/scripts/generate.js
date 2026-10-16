@@ -1,6 +1,7 @@
 // React wrappers are derived from @tanrei/web's custom elements manifest, so the
 // React API can never drift from the elements themselves.
 import fs from 'node:fs';
+import path from 'node:path';
 
 const manifest = JSON.parse(fs.readFileSync(new URL('../../web/custom-elements.json', import.meta.url), 'utf8'));
 const elements = manifest.modules
@@ -109,14 +110,18 @@ const wrappers = elements.map((el) => {
   return { file: fileOf(el), name, marked: marks.length > 0, text: lines.join('\n') };
 });
 
-const out = new URL('../src/generated/wrappers/', import.meta.url);
-fs.mkdirSync(out, { recursive: true });
-// A wrapper whose element is gone goes with it.
-const written = new Set(wrappers.map((w) => `${w.file}.ts`));
-for (const file of fs.readdirSync(out)) if (!written.has(file)) fs.rmSync(new URL(file, out));
-for (const w of wrappers) fs.writeFileSync(new URL(`${w.file}.ts`, out), w.text);
+// The generator owns src/generated/ whole (the drift check reads it so): a file it does not write there — the wrapper
+// of an element that is gone — goes.
+const generated = new URL('../src/generated/', import.meta.url);
+const written = new Set(['components.ts', ...wrappers.map((w) => `wrappers/${w.file}.ts`)]);
+for (const file of fs.existsSync(generated) ? fs.readdirSync(generated, { recursive: true }) : []) {
+  const rel = String(file).split(path.sep).join('/');
+  if (!written.has(rel) && fs.statSync(new URL(rel, generated)).isFile()) fs.rmSync(new URL(rel, generated));
+}
+fs.mkdirSync(new URL('wrappers/', generated), { recursive: true });
+for (const w of wrappers) fs.writeFileSync(new URL(`wrappers/${w.file}.ts`, generated), w.text);
 fs.writeFileSync(
-  new URL('../src/generated/components.ts', import.meta.url),
+  new URL('components.ts', generated),
   [
     ...HEADER,
     '// Every wrapper, each from its own module (src/generated/wrappers/): a bundler keeps the ones a product uses.',
