@@ -19,10 +19,11 @@ export const WIDTHS = ['default', 'narrow', 'wide'] as const;
 const STATES = { '': '', hovered: '-h', focused: '-f', pressed: '-p', disabled: '-d' } as const;
 const PARTS = { c: 'container-color', l: 'label-color', i: 'icon-color', o: 'outline-color' } as const;
 /**
- * The three looks of each variant (BTN-15): a plain button reads the variant's own parts, a toggle that is
- * off its `unselected.` parts, a toggle that is on its `selected.` parts. Elevation is the variant's in every look.
+ * The looks of each variant (BTN-15, BTN-40): a plain button reads the variant's own parts, a toggle that is off its
+ * `unselected.` parts, a toggle that is on its `selected.` parts, and a destructive button that is no toggle its
+ * `destructive.` parts. Elevation is the variant's in every look.
  */
-const LOOKS = { plain: '', unselected: 'unselected-', selected: 'selected-' } as const;
+const LOOKS = { plain: '', unselected: 'unselected-', selected: 'selected-', destructive: 'destructive-' } as const;
 /** The members of the size axis (tokens/comp/button.tokens.json, `dev.tanrei.axes`). */
 const SIZE_MEMBERS = {
   height: 'container-height',
@@ -120,6 +121,8 @@ const buttonStyles = css`
   ${unsafeCSS(lookBlock('plain', 'button'))}
   ${unsafeCSS(lookBlock('unselected', 'button[aria-pressed]'))}
   ${unsafeCSS(lookBlock('selected', "button[aria-pressed='true']"))}
+  /* BTN-40, BTN-41: a destructive button reads its variant's destructive parts; a toggle (aria-pressed) keeps its own. */
+  ${unsafeCSS(lookBlock('destructive', ':host([destructive]) button:not([aria-pressed])'))}
 
   button {
     all: unset;

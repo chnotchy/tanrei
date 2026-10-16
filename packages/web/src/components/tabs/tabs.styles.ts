@@ -557,8 +557,8 @@ export const tabStyles = css`
   .tab[data-pressed]:not([data-pressed='none']) :is(.box, .label, .icon, .cover, .underline) {
     transition-duration: 0s;
   }
-  /* TAB-23, TAB-38: a tab of a row that follows its group's choice, or one restored from storage, changes its colors at
-     once — the row marks it for the frame that draws the change. */
+  /* TAB-23, TAB-38: a tab that appears, and a tab of a row that follows its group's choice or one restored from storage,
+     changes its colors at once — the row marks it for the frame that draws the change. */
   .tab[data-still],
   .tab[data-still] :is(.box, .label, .icon, .cover, .underline) {
     transition-duration: 0s;

@@ -2386,9 +2386,12 @@ test.describe('behavior: conditions, exposure, size and direction', () => {
       content: `:root { --tanrei-comp-input-box-tinted-container-color: rgb(1, 2, 3); --tanrei-comp-input-box-tinted-input-color: rgb(4, 5, 6); --tanrei-comp-select-tinted-selected-option-container-color: rgb(7, 8, 9); }`,
     });
     await page.mouse.move(700, 600);
+    // The new values arrive over motion.state-*, each part by its own transition: every part is waited for. The
+    // container's is no gate for the others — between two rgb() colors the value is read rounded to whole channels and
+    // reaches the end some frames early, while the row moves from transparent and is read as oklab() until it is over.
     await expect.poll(() => css(container(page, 'added'), 'background-color')).toBe('rgb(1, 2, 3)');
-    expect(await css(part(page, 'added', '.value'), 'color')).toBe('rgb(4, 5, 6)');
-    expect(await css(row(page, 'added-open', 'Japan'), 'background-color')).toBe('rgb(7, 8, 9)');
+    await expect.poll(() => css(part(page, 'added', '.value'), 'color')).toBe('rgb(4, 5, 6)');
+    await expect.poll(() => css(row(page, 'added-open', 'Japan'), 'background-color')).toBe('rgb(7, 8, 9)');
     expect(await part(page, 'added', '.field').getAttribute('data-layout')).toBe('stacked');
     await expect(part(page, 'added', '.edge')).toHaveCount(1);
     await expect(part(page, 'added', '.floating')).toHaveCount(0);

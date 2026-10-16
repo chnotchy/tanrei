@@ -8,6 +8,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
+import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 
@@ -857,10 +858,19 @@ test.describe('states', () => {
       await target.hover();
       expect(await paints(target)).toEqual(await part(page, name, 'focused-'));
       await page.mouse.move(0, 0);
-      await page.keyboard.down('Enter');
-      await expect(target).toHaveAttribute('data-pressed', 'overlay');
-      expect(await paints(target)).toEqual(await part(page, name, 'pressed-'));
-      near((await edges(target)).height, rest.height, 0.01);
+      // Pressed, read while the press is shown, on the page's clock held still. Enter on the overflow button opens its
+      // menu in the turn of the key, and focus goes into the menu: the key's press ends there, and the pressed state
+      // stays for press-hold (BRC-18) and then gives way to the button at rest. A read a round trip or two after the key
+      // comes after press-hold on a slow machine (WebKit on Linux, two workers), and sees the button at rest.
+      await holdClock(page);
+      try {
+        await page.keyboard.down('Enter');
+        await expect(target).toHaveAttribute('data-pressed', 'overlay');
+        expect(await paints(target)).toEqual(await part(page, name, 'pressed-'));
+        near((await edges(target)).height, rest.height, 0.01);
+      } finally {
+        await releaseClock(page);
+      }
       // (The key is let go on another page's worth of nothing: Enter on the button opened its menu.)
       await page.keyboard.up('Enter');
       await page.keyboard.press('Escape');

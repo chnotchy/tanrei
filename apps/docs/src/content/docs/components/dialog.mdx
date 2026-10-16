@@ -55,7 +55,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
     <tanrei-dialog headline="Delete project?" alert>
       <span slot="icon">delete</span>
       <tanrei-button slot="actions" dismissive variant="text">Cancel</tanrei-button>
-      <tanrei-button slot="actions" confirming variant="filled">Delete</tanrei-button>
+      <tanrei-button slot="actions" confirming variant="filled" destructive>Delete</tanrei-button>
     </tanrei-dialog>
 
     <!-- A form with one action: a close button, and a fixed width. -->
@@ -195,7 +195,7 @@ The Web and React samples show the current spec. SwiftUI, Compose, Flutter and R
   <tanrei-dialog id="dialog-demo-alert" alert headline="Delete project?" supporting-text="Everything in the project, including its history, will be deleted. This cannot be undone.">
     <span slot="icon">delete</span>
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">Cancel</tanrei-button>
-    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">Delete</tanrei-button>
+    <tanrei-button slot="actions" confirming destructive onclick="this.closest('tanrei-dialog').open = false">Delete</tanrei-button>
   </tanrei-dialog>
 </DemoFrame>
 
@@ -231,7 +231,7 @@ The actions share the container's inner width equally, with 16 between them.
 - **Placed by task.** In a row, the dismissive action is at the start and the confirming one at the end. In a column, the confirming one is on top and the dismissive one at the bottom. An action with neither mark keeps its given place between the two. Focus and screen readers follow the placed order, so you never order the Buttons by hand.
 - **Row or column by fit.** The actions stay in a row while every label fits its share on one line. When one would wrap, they stack into a column, each as wide as the dialog. The dialog decides again when its width or the text size changes.
 - **Tonal by default.** An action whose `variant` you did not set is drawn tonal. The marks decide the place only, never the look.
-- **Another look.** Set one Button's `variant` to give that action another look, such as a text Cancel beside a filled Delete. The dialog never overwrites a variant you set. A product that wants another look for every dialog sets it once in its layer (`actions.variant`, and `actions.arrangement` for actions at their own widths aligned to the end), not on each Button.
+- **Another look.** Set one Button's `variant` to give that action another look, such as a text Cancel beside a filled Delete. Set `destructive` on an action that deletes or discards, such as that Delete: it keeps its variant and takes the error color. The dialog never overwrites a variant you set, nor `destructive`. A product that wants another look for every dialog sets it once in its layer (`actions.variant`, and `actions.arrangement` for actions at their own widths aligned to the end), not on each Button.
 - **At least one.** A dialog with no action still opens, and debug builds report it as an error. Where a platform's API can require actions, the spec says it does: SwiftUI's `actions:` builder, Compose's `actions` parameter, Flutter's `actions` list and React Native's `actions` prop. Of the four, only SwiftUI's is required today; the others still take a dialog without actions until they catch up. Debug builds also report a dialog whose actions are all disabled while `dismissible` is false, since that leaves no way out.
 
 ### The close button

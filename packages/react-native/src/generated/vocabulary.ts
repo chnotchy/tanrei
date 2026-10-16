@@ -975,6 +975,11 @@ export interface TanreiButtonVariantStateTokens {
   readonly selectedIconColor: TanreiPaint;
   readonly selectedOutlineColor: TanreiPaint;
   readonly selectedStateLayerColor: TanreiPaint;
+  readonly destructiveContainerColor: TanreiPaint;
+  readonly destructiveLabelColor: TanreiPaint;
+  readonly destructiveIconColor: TanreiPaint;
+  readonly destructiveOutlineColor: TanreiPaint;
+  readonly destructiveStateLayerColor: TanreiPaint;
 }
 /** One `variant`: the resting state (`enabled`) and every interaction state. States are not extensible. */
 export interface TanreiButtonVariantTokens {

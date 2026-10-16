@@ -233,7 +233,7 @@ Two flags on a button tell the group where it belongs, so that the two orientati
   </div>
 </DemoFrame>
 
-Keyboard focus and screen readers follow the placed order, so everyone meets the actions in the order they are drawn. The flags describe the task, not the tone: in "Cancel · Delete", Delete is the confirming one. A destructive action is told apart by its own look and label, not by its place. A [dialog](/components/dialog/) and a [side sheet](/components/side-sheet/) place their own actions by the same two flags.
+Keyboard focus and screen readers follow the placed order, so everyone meets the actions in the order they are drawn. The flags describe the task, not the tone: in "Cancel · Delete", Delete is the confirming one. A destructive action is told apart by its own look (the Button's `destructive`) and its label, not by its place. A [dialog](/components/dialog/) and a [side sheet](/components/side-sheet/) place their own actions by the same two flags.
 
 ### Joined by a divider or by a gap
 
@@ -340,7 +340,7 @@ Use a row by default. Use a column where the buttons would not fit side by side 
 
 - Don't use toggle buttons in a group for choices that exclude each other, such as left, center and right alignment. The group does not make its toggles exclusive. Use tabs where the choice changes the content below, radio buttons where it sets a value, or a segmented button where the system ships one.
 - Don't put anything but Tanrei Buttons, labelled or icon-only, in a group: no fields, chips or menus. Debug builds report other content.
-- Don't use the flags for tone. A destructive Delete that completes the task is `confirming`; a button with both flags is placed as if it had neither, and reported.
+- Don't use the flags for tone. A destructive Delete that completes the task is `confirming`, and takes its look from its own `destructive`; a button with both flags is placed as if it had neither, and reported.
 - Don't expect the row to wrap. A row that does not fit narrows its Buttons and wraps their labels. It never moves to a second line or scrolls.
 - Don't mix sizes in one group. The group does not resize its buttons.
 

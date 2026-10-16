@@ -114,6 +114,7 @@ export class TanreiButton extends LitElement {
     // The default is not reflected, so "no variant attribute" is how a dialog or a side sheet knows the product set
     // none (DLG-20, SSH-17).
     variant: { type: String, reflect: true, useDefault: true },
+    destructive: { type: Boolean, reflect: true },
     size: { type: String, reflect: true },
     width: { type: String, reflect: true },
     fullWidth: { type: Boolean, reflect: true, attribute: 'full-width' },
@@ -147,6 +148,15 @@ export class TanreiButton extends LitElement {
    * `comp.side-sheet.close-button.variant` (SSH-5).
    */
   variant: TanreiButtonVariant = 'filled';
+
+  /**
+   * An action that deletes or discards something a person may not get back (Delete, Discard, Remove member): the button
+   * keeps its variant's emphasis and takes the error role's color in it (BTN-40) — filled in the error color, tonal in
+   * its tonal container, the label of an elevated, outlined or text button (and an outlined button's edge) in the error
+   * color. Disabled, it looks like any disabled button of its variant. It adds a color and nothing else: the label says
+   * what is destroyed (BTN-42). Ignored on a toggle, and reported in debug builds (BTN-41).
+   */
+  destructive = false;
 
   /** Visual height (small 32 / medium 40 / large 56), which is also an icon-only button's width at its default width. The hit area always meets the minimum target. */
   size: TanreiButtonSize = 'medium';
@@ -612,6 +622,10 @@ export class TanreiButton extends LitElement {
     // BTN-21: a width the button does not define is drawn at the default width (no rule matches it) and reported.
     if (changed.has('width') && !(WIDTHS as readonly string[]).includes(this.width)) {
       report(this, 'BTN-21', `width "${this.width}" is not a value of the button; it is drawn as "default"`);
+    }
+    // BTN-41: a toggle has no destructive look; the styles draw it as the toggle it is.
+    if ((changed.has('destructive') || changed.has('toggle')) && this.destructive && this.toggle) {
+      report(this, 'BTN-41', 'a toggle has no destructive look: destructive is ignored while toggle is true');
     }
     if (changed.has('type') || changed.has('toggle') || changed.has('href')) {
       this.watch();

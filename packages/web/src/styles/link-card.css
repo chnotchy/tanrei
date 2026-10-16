@@ -591,6 +591,13 @@
       clip-path: circle(0 at var(--_x) var(--_y));
     }
   }
+  /* LKC-34: a new look, or a card that becomes a link, is drawn at once — the element marks itself while its new colors
+     are computed (link-card.ts), so the motion of LKC-28 answers a change of state and never a change of the card. */
+  :where(tanrei-link-card[data-tanrei-at-once]) > :where(a),
+  :where(tanrei-link-card[data-tanrei-at-once]) > :where(a)::before,
+  :where(tanrei-link-card[data-tanrei-at-once]) > :where(a) > :where([data-part='body']) > :where([data-part='title'], [data-part='description'], [data-part='site']) {
+    transition: none;
+  }
   /* LKC-28, LKC-19: where motion is reduced the colors change at once and the ripple appears whole. */
   @media (prefers-reduced-motion: reduce) {
     :where(tanrei-link-card) > :where(a),

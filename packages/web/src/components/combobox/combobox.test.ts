@@ -8,6 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { holdClock } from '../../../test/page-clock.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxOwn, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 
@@ -1423,6 +1424,63 @@ test.describe('behavior: the list', () => {
     await settle(page, 'custom');
     expect((await heard(page)).filter((e) => e.startsWith('change'))).toEqual(['change roboto-mono']);
     expect(await read(page, 'custom')).toMatchObject({ value: 'roboto-mono', text: 'Roboto Mono' });
+  });
+
+  test('CMB-29: the reason tab belongs to the focus move of the Tab press itself — a focus move that follows it, by the product or after a Tab that moved nothing, is focus-out, however late the page runs its timers', async ({ page }) => {
+    await mount(page, [fx('one', { value: 'tokyo' }), fx('clear', { value: 'tokyo', clearable: true, clearLabel: 'Clear' }), fx('after', {})], { reducedMotion: true });
+    await listen(page, 'one');
+    await host(page, 'clear').evaluate((el) => el.addEventListener('toggle', (event) => (window as unknown as { __events: string[] }).__events.push(`clear: toggle ${(event as CustomEvent<{ open: boolean; reason?: string }>).detail.open} ${(event as CustomEvent<{ reason?: string }>).detail.reason ?? ''}`.trim())));
+    // The page's timers stand still for the whole test: a Tab's mark that only a timer took back would still be there
+    // at every later focus move, as it was when the browser ran other tasks first (a run of the test page in Chromium).
+    await holdClock(page);
+    const typed = async (id: string, text: string) => {
+      await focusInput(page, id);
+      await selectAll(page, id);
+      await type(page, text);
+      await settle(page, id);
+      expect(others(await heard(page)), `${id}'s list opens`).toEqual([id === 'one' ? 'toggle true' : 'clear: toggle true']);
+    };
+    // Tab out of the field, then the product moves focus out of it again: tab, then focus-out.
+    await typed('one', 'kyo');
+    await tab(page);
+    await settle(page, 'one');
+    expect(others(await heard(page))).toEqual(['toggle false tab']);
+    await typed('one', 'nai');
+    await focusInput(page, 'after');
+    await settle(page, 'one');
+    expect(others(await heard(page)), 'the earlier Tab is over').toEqual(['toggle false focus-out']);
+    // Tab to the clear button keeps focus in the field and the list open; then the product moves focus: focus-out.
+    await typed('clear', 'lis');
+    await tab(page);
+    await settle(page, 'clear');
+    expect(await host(page, 'clear').evaluate((el) => !!el.shadowRoot!.activeElement?.closest('.clear-box')), 'the clear button has focus').toBe(true);
+    expect(others(await heard(page)), 'focus is still in the field').toEqual([]);
+    await focusInput(page, 'after');
+    await settle(page, 'clear');
+    expect(others(await heard(page))).toEqual(['clear: toggle false focus-out']);
+    // From the clear button, Tab leaves the field: tab.
+    await typed('clear', 'tor');
+    await tab(page);
+    await tab(page);
+    await settle(page, 'clear');
+    expect(others(await heard(page))).toEqual(['clear: toggle false tab']);
+    // A Tab that the product cancelled moved nothing; the product moves focus after it: focus-out.
+    await page.evaluate(() => {
+      const cancel = (event: KeyboardEvent) => {
+        if (event.key !== 'Tab') return;
+        event.preventDefault();
+        document.removeEventListener('keydown', cancel);
+      };
+      document.addEventListener('keydown', cancel);
+    });
+    await typed('one', 'ky');
+    await tab(page);
+    await settle(page, 'one');
+    expect(await read(page, 'one'), 'the cancelled Tab left focus and the list as they were').toMatchObject({ focused: true, open: true });
+    expect(others(await heard(page))).toEqual([]);
+    await focusInput(page, 'after');
+    await settle(page, 'one');
+    expect(others(await heard(page))).toEqual(['toggle false focus-out']);
   });
 
   test('CMB-30: Escape with the list open closes it, keeps the text and goes no further; with the list closed and the text edited it writes the committed value’s text back, emits input once and stops; otherwise it passes on, and never empties a value; a press outside closes with the reason outside and resolves the text; a list with nothing left to show closes with the reason empty and opens again when there is', async ({ page }) => {
