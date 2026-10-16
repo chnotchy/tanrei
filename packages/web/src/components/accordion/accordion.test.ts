@@ -18,6 +18,7 @@ import {
   rootTokens,
 } from '../../../test/harness.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
+import { motionEnded } from '../../../test/motions.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
@@ -102,8 +103,14 @@ const toggles = async (page: P) => {
 };
 /** The motions of the accordions that are running now: an item's clock and a chevron's turn (not a header's state colors). */
 const motions = (page: P) => page.evaluate(() => document.getAnimations().filter((a) => ['--_acc-open', 'rotate'].includes((a as CSSTransition).transitionProperty)).length);
-/** No motion of any accordion is running. */
-const settled = (page: P) => expect.poll(() => motions(page), { timeout: 5000 }).toBe(0);
+/**
+ * No motion of any accordion is running: each motion running when it is asked is waited for to its end, as long as the
+ * machine plays it (a poll with a time of its own guesses that length, and ACC-13 stretches the motion to 4 s).
+ */
+const settled = async (page: P) => {
+  await motionEnded(page);
+  await expect.poll(() => motions(page)).toBe(0);
+};
 const fixture = (id: string) => spec.fixtures.find((f) => f.id === id)!;
 const some = (...ids: string[]) => spec.fixtures.filter((f) => ids.includes(f.id));
 /** A fixture whose items are written by the test. */
@@ -693,8 +700,20 @@ test.describe('opening and closing', () => {
         };
         window.addEventListener('click', () => requestAnimationFrame(frame), { capture: true, once: true });
       }, turnBetween);
+    /**
+     * The change, once the page has watched it to its end. Waited for in the page, on the watch's own last frame: the end
+     * is the motion's, as long as the machine plays it (Chromium in harsh mode plays the 4 s at a fifth of its speed), and
+     * a poll with a time of its own would guess that length.
+     */
     const watched = async () => {
-      await expect.poll(() => page.evaluate(() => (window as unknown as { __watched: Watched }).__watched.done), { message: 'the change was watched to its end', timeout: 15_000 }).toBe(true);
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) => {
+            const seen = (window as unknown as { __watched: Watched }).__watched;
+            const look = () => (seen.done ? resolve() : requestAnimationFrame(look));
+            look();
+          }),
+      );
       return page.evaluate(() => (window as unknown as { __watched: Watched }).__watched);
     };
     await watch();
