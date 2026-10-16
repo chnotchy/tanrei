@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens } from '../../../test/harness.js';
+import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 
 const spec = loadSpec('menubar');
@@ -315,6 +316,11 @@ test.describe('the row and a title', () => {
       await page.keyboard.press('Escape');
       await expect.poll(() => open(page, 'editor')).toEqual([]);
     }
+  });
+
+  test('MBR-6: an action pressed by Space stays pressed while the key is down, though the pointer resting over it leaves; the keyup ends it', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [mixed()] });
+    await expectKeyPressOutlastsPointer(page, { control: item(page, 'mixed', 'Run').locator('.title'), focus: item(page, 'mixed', 'Run') });
   });
 
   test('MBR-7: the press answers as sys.behavior.pressed-feedback names — overlay the pressed tokens at once, ripple a layer from the point of contact, dim the pressed opacity and no layer, none nothing', async ({ page }) => {

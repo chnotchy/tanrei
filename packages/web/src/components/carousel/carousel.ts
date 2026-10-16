@@ -1163,7 +1163,7 @@ export class TanreiCarousel extends LitElement {
     if (event.pointerId !== this.indicatorPointer) return;
     this.indicatorPointer = null;
     this.indicatorDot = -1;
-    this.indicatorPress.release();
+    this.indicatorPress.release(event);
   };
 
   /** CRL-30: Right / Left Arrow to the next and previous resting position (wrapping while loop is in effect), Home and End; mirrored in right-to-left. */

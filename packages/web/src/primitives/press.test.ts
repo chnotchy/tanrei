@@ -7,7 +7,8 @@
 // same for them; what the browser offers to drag by itself — a link's address — is held by the links' tests (MNU-53,
 // BRC-22). `test/user-select.test.mjs` holds that every rule in the sources writes both names.
 import { expect, test } from '@playwright/test';
-import { loadSpec, mountFixtures } from '../../test/harness.js';
+import { loadSpec, mountFixtures, rootTokens } from '../../test/harness.js';
+import { expectKeyPressOutlastsPointer } from '../../test/key-press-pointer-leaves.js';
 
 /** A component, the fixture that draws it, the element in it that is pressed and kept from selection, and the behaviour id of its pressed state. */
 const SUBJECTS: readonly (readonly [component: string, fixture: string, pressed: string, id: string])[] = [
@@ -74,3 +75,32 @@ for (const [component, fixture, pressed, id] of SUBJECTS) {
     expect((await page.evaluate(() => (window as any).seen.join(' '))).replace(' dragstart:refused', '')).toMatch(/^pointerdown (pointerup|dragstart pointercancel)$/);
   });
 }
+
+// A press by a key is the key's: a pointer that rests over the control and leaves it — the mouse moved, or the control
+// moved out from under it — ends no press it did not make. The key's press lasts until its keyup, as the platform's
+// own button keeps `:active` under Space held wherever the pointer goes (test/key-press-pointer-leaves.ts).
+for (const [component, fixture, pressed, id] of SUBJECTS) {
+  test(`${id}: a press of ${component}'s ${pressed} by Space is kept while the key is down, though the pointer resting over it leaves`, async ({ page }) => {
+    const spec = loadSpec(component);
+    await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === fixture) });
+    await expectKeyPressOutlastsPointer(page, { control: page.locator(`[data-fixture="${fixture}"]`).locator(pressed).first() });
+  });
+}
+
+// And the other way round: a key that goes down and up while the pointer holds the control down ends no press of the
+// pointer's, which ends where the pointer ends it.
+test('BTN-8: a press held by the pointer is kept while Space goes down and up on the control, and ends with the pointer', async ({ page }) => {
+  const spec = loadSpec('button');
+  await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'filled-medium') });
+  await rootTokens(page, { '--tanrei-sys-motion-duration-press-hold': '0ms' });
+  const button = page.locator('[data-fixture="filled-medium"] button').first();
+  await button.focus();
+  await button.hover();
+  await page.mouse.down();
+  await expect(button).toHaveAttribute('data-pressed');
+  await page.keyboard.down(' ');
+  await page.keyboard.up(' ');
+  expect(await button.getAttribute('data-pressed'), 'the key that came up ended no press of the pointer, which is still down').not.toBeNull();
+  await page.mouse.up();
+  await expect(button).not.toHaveAttribute('data-pressed');
+});

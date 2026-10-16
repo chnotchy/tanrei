@@ -5,6 +5,7 @@ import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 
 const spec = loadSpec('navigation-drawer');
@@ -411,6 +412,12 @@ test.describe('states, press and focus', () => {
       expect(logged.up - logged.on, name).toBeLessThan(hold);
       expect(logged.off - logged.down, name).toBeGreaterThanOrEqual(hold - 1);
     }
+  });
+
+  test('NVD-8: a destination and a group pressed by Space stay pressed while the key is down, though the pointer resting over them leaves; the keyup ends the press', async ({ page }) => {
+    await mount(page, [fixture('g', [...MAIL, grp('Folders', [d('work', 'Work'), d('home', 'Home')])])]);
+    await expectKeyPressOutlastsPointer(page, { control: cell(page, 'g', 1) });
+    await expectKeyPressOutlastsPointer(page, { control: groupRow(page, 'g', 0) });
   });
 
   test('NVD-9: overlay (default), ripple (m3-like), dim (cupertino) and none each answer the press; an unknown name is the first', async ({ page }) => {
