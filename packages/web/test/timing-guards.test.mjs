@@ -144,7 +144,7 @@ export const RULES = {
       'src/components/menu/menu.test.ts': 5,
       'src/components/menubar/menubar.test.ts': 4,
       'src/components/modal-layer/modal-layer.test.ts': 1,
-      'src/components/navigation-bar/navigation-bar.test.ts': 5,
+      'src/components/navigation-bar/navigation-bar.test.ts': 4,
       'src/components/navigation-drawer/navigation-drawer.test.ts': 9,
       'src/components/number-field/number-field.test.ts': 1,
       'src/components/pagination/pagination.test.ts': 3,

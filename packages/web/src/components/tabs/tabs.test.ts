@@ -5,6 +5,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
+import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('tabs');
@@ -1752,8 +1753,9 @@ test.describe('the track and the drag', () => {
     expect(await dragging(page, 'primary')).toBe(true);
     expect(await row(page, 'primary').evaluate((el) => el.hasPointerCapture((window as any).mouseId))).toBe(true);
     await expect.poll(() => box(page, 'primary', 2).getAttribute('data-pressed')).toBeNull();
-    // Released there: Settings is the tab the indicator is on, selected by the release — once, not again by a click.
-    await page.mouse.up();
+    // Released there, at rest (the two moves are a fling toward Activity until they are 80 ms old, TAB-29): Settings is
+    // the tab the indicator is on, selected by the release — once, not again by a click.
+    await releaseAtRest(page);
     expect(await log(page)).toEqual(['settings:settings']);
     await row(page, 'primary').evaluate((el: any) => (el.value = 'overview'));
     await page.mouse.move(sx, sy);
@@ -2021,8 +2023,7 @@ test.describe('the track and the drag', () => {
     await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
     await page.mouse.down();
     await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 12 });
-    await page.waitForTimeout(150); // at rest: no fling
-    await page.mouse.up();
+    await releaseAtRest(page);
     expect(await log(page)).toEqual(['settings:settings']);
     await expect(tabAt(page, m, 2)).toHaveAttribute('tabindex', '0');
     // The focus the press gave Overview follows the selection.

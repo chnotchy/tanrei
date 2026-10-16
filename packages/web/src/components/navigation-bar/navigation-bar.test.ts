@@ -4,6 +4,7 @@
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { FOUR, bounds, css, destination, destinationSuite, override } from '../../../test/destinations.js';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { releaseAtRest } from '../../../test/release-at-rest.js';
 import { indicatorChoice, indicatorPlace } from '../../primitives/indicator-drag.js';
 
 const spec = loadSpec('navigation-bar');
@@ -169,11 +170,6 @@ async function dragTo(page: P, id: string, n: number, x: number) {
   await page.mouse.move(x, from.y);
   await frames(page);
   return from;
-}
-/** A release that is not a fling: the pointer has rested longer than the velocity looks back. */
-async function releaseAtRest(page: P) {
-  await page.waitForTimeout(160);
-  await page.mouse.up();
 }
 
 /** Every part a destination draws from its condition: NVB-3's list. */
