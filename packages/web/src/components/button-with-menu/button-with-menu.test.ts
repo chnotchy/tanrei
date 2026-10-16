@@ -7,6 +7,7 @@ import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-l
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { readSeam } from '../../../test/seam.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('button-with-menu');
 type P = Page;
@@ -420,6 +421,9 @@ test.describe('behavior', () => {
     await page.mouse.move(at.x, at.y);
     const hovered = await resolveColor(page, T('filled-hovered-container-color'));
     await expect.poll(() => css(page, 'filled-medium', 'trailing', 'background-color')).toBe(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, 'filled-medium'));
     await page.mouse.down();
     expect(await pressedAttr('trailing')).toBe('ripple');
     await expect(ripple('trailing')).toHaveCount(1);
@@ -485,6 +489,9 @@ test.describe('behavior', () => {
     await rootTokens(page, { '--tanrei-sys-behavior-pressed-feedback': 'none' });
     await leading(page, 'filled-medium').hover();
     await expect.poll(() => css(page, 'filled-medium', 'leading', 'background-color')).toBe(await resolveColor(page, T('filled-hovered-container-color')));
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, 'filled-medium'));
     const before = await css(page, 'filled-medium', 'leading', 'background-color');
     await page.mouse.down();
     expect(await pressedAttr('leading')).toBe('none');
