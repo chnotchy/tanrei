@@ -10,6 +10,7 @@ import { type Page, expect, test } from '@playwright/test';
 import { override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab } from '../../../test/harness.js';
 import { fixturePicture } from '../../../test/pictures.js';
+import { holdClock, releaseClock } from '../../../test/page-clock.js';
 
 const spec = loadSpec('image-preview');
 type P = Page;
@@ -35,6 +36,25 @@ const settled = (page: P) =>
     await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     for (const el of document.querySelectorAll<HTMLElement & { updateComplete: Promise<unknown> }>('tanrei-image-preview')) await el.updateComplete;
   });
+
+/** IMP-14, IMP-24: the web's interval for a double press — two `pointerup`s within 300 ms (the spec's web notes). */
+const DOUBLE_PRESS = 300;
+/**
+ * Two presses of a mouse at `at`, within the interval on any machine, and then the interval run out. The page's clock is
+ * held — its timers and the presses' own times (`event.timeStamp`) — so no page time passes between the two however
+ * long the driver takes to send them (300 ms and more on a loaded runner, 600 in harsh mode), and the preview's wait for
+ * a second press is then run to its end on the clock: a press also answered as a single one would have answered by then.
+ */
+const doublePress = async (page: P, at: { x: number; y: number }) => {
+  await holdClock(page);
+  try {
+    await page.mouse.click(at.x, at.y);
+    await page.mouse.click(at.x, at.y, { delay: 20 });
+    await page.clock.runFor(DOUBLE_PRESS);
+  } finally {
+    await releaseClock(page);
+  }
+};
 
 /** Nothing of the preview is in transition any more (the Skeleton's own stir goes on by design). */
 const rest = async (page: P) => {
@@ -775,22 +795,19 @@ test.describe('the stage and the zoom', () => {
     const fit = await look(page);
     const at = { x: fit.image!.x + fit.image!.width * 0.25, y: fit.image!.y + fit.image!.height * 0.3 };
     await watchRuns(page);
-    await page.mouse.click(at.x, at.y);
-    await page.mouse.click(at.x, at.y, { delay: 20 });
+    await doublePress(page, at);
     await expect.poll(async () => (await begun(page, SHOWN)).map((transition) => transition.property)).toEqual(['transform']);
     await rest(page);
     let seen = await look(page);
     expect(seen.zoom).toBe(2);
     near(seen.image!.x + seen.image!.width * 0.25, at.x, 'the point under the pointer, across');
     near(seen.image!.y + seen.image!.height * 0.3, at.y, 'the point under the pointer, down');
-    await page.waitForTimeout(450);
-    await page.mouse.click(at.x, at.y);
-    await page.mouse.click(at.x, at.y, { delay: 20 });
+    await doublePress(page, at);
     await rest(page);
     seen = await look(page);
     expect(seen.zoom).toBe(1);
     near(seen.image!.width, WINDOW.width, 'back at fit');
-    await page.waitForTimeout(450);
+    // Each pair's interval ran out on the clock (`doublePress`): a single press would have answered.
     expect(await events(page, 'controlshiddenchange'), 'neither pair answered as a single press').toEqual([]);
     expect((await look(page)).hidden).toBe(false);
   });
@@ -1487,27 +1504,40 @@ test.describe('the keys and the controls', () => {
 
   test('IMP-24: one press on the stage, without a drag and without a second press within the interval, hides the controls, and the next shows them; the preview never hides them by itself — not after a time without input and not when the zoom changes', async ({ page }) => {
     await mount(page, fx({ index: 1 }));
+    // The interval runs on the page's clock, held still: "not yet" and "now" are asked at exact page times, not after
+    // whatever time the machine took to answer.
+    await holdClock(page);
     await page.mouse.click(320, 340);
     expect((await look(page)).hidden, 'it waits out the interval for a second press').toBe(false);
+    await page.clock.runFor(DOUBLE_PRESS - 1);
+    expect((await look(page)).hidden, 'still waiting at the interval less 1 ms').toBe(false);
+    await page.clock.runFor(1);
     await expect.poll(async () => (await look(page)).hidden).toBe(true);
     expect(await host(page).getAttribute('controls-hidden')).toBe('');
     await page.mouse.click(320, 340);
+    await page.clock.runFor(DOUBLE_PRESS);
     await expect.poll(async () => (await look(page)).hidden).toBe(false);
     expect((await events(page, 'controlshiddenchange')).map((event) => event.detail.hidden)).toEqual([true, false]);
     // A finger's tap does the same; a drag does not.
     await finger(page, 'pointerdown', 320, 340);
     await finger(page, 'pointerup', 320, 340);
+    await page.clock.runFor(DOUBLE_PRESS);
     await expect.poll(async () => (await look(page)).hidden).toBe(true);
     await finger(page, 'pointerdown', 320, 340);
     await finger(page, 'pointerup', 320, 340);
+    await page.clock.runFor(DOUBLE_PRESS);
     await expect.poll(async () => (await look(page)).hidden).toBe(false);
+    // The drag keeps its own timing (its moves are timers of the page), so the clock runs for it; held again after it,
+    // the clock jumps a second ahead, past any interval the drag could have begun.
+    await releaseClock(page);
     await drag(page, [320, 300], [330, 420], { pointerType: 'mouse' });
-    await page.waitForTimeout(450);
+    await holdClock(page);
     expect((await look(page)).hidden).toBe(false);
     // Never by itself.
     await page.keyboard.press('+');
-    await page.waitForTimeout(1500);
+    await page.clock.runFor(1500);
     expect((await look(page)).hidden).toBe(false);
+    await releaseClock(page);
     expect((await events(page, 'controlshiddenchange')).length).toBe(4);
   });
 
@@ -2139,9 +2169,7 @@ test.describe('direction, colors, text size and the window', () => {
     expect(await part(page, SHOWN).evaluate((el) => new DOMMatrixReadOnly(getComputedStyle(el).transform).a)).toBe(1);
     const fit = await look(page);
     const at = { x: fit.image!.x + fit.image!.width * 0.45, y: fit.image!.y + fit.image!.height * 0.3 };
-    await page.waitForTimeout(350);
-    await page.mouse.click(at.x, at.y);
-    await page.mouse.click(at.x, at.y, { delay: 20 });
+    await doublePress(page, at);
     await rest(page);
     let zoomed = await look(page);
     expect(zoomed.zoom).toBe(2);
