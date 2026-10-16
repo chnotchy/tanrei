@@ -69,6 +69,23 @@ pnpm build && pnpm test
 
 Baselines change only when the visual change is the intended outcome of a spec/token change. Say why in the changeset.
 
+#### Timing: harsh mode and the CI-like run
+
+A web test that is green on a fast Mac can still fail on CI once in fifty runs: a runner shard is a busier, slower machine, and a test that reads a colour while its transition still runs, reads a 100 ms press-hold after a few round trips, or presses a box it measured while the box moved, only loses the race there. Two commands find those races before CI does; run both on the tests you touched before opening a pull request:
+
+```
+# Harsh mode: makes those races fail every time (on the Mac, any engine).
+TANREI_HARSH=1 pnpm --filter @tanrei/web test src/components/<name> --grep-invert "snapshot: " --project=chromium --project=firefox --project=webkit
+
+# As CI runs them: Linux, the Playwright image ci.yml pins, the runner's user, 2 workers, CI=1 (Docker needed).
+pnpm --filter @tanrei/web test:ci-like src/components/<name> --grep-invert "snapshot: " --project=webkit
+TANREI_HARSH=1 pnpm --filter @tanrei/web test:ci-like src/components/<name> --project=chromium   # both at once
+```
+
+- **Harsh mode** (`packages/web/test/harsh.ts`) waits 300 ms before and after every input action in every engine, and plays Chromium's animations and transitions at a fifth of their speed (CDP `Animation.setPlaybackRate`); CPU throttling is there on request (`TANREI_HARSH_CPU=4`), off by default because a slower page hides motion races instead of showing them. The page clock is untouched, so a test that holds it is unaffected. A test that is correct under real timing passes in harsh mode; a test that legitimately measures real time is exempted by name with its reason (`HARSH_OPT_OUTS`), never to make a race pass. The old versions of four tests CI caught flaking (BRC-16, MDL-9, SEL-60, TAB-45) fail in it every time in Chromium and their fixed versions pass (`harsh.ts` has the numbers).
+- **The CI-like run** (`scripts/ci-like.sh`) copies the working tree into a new container without `.git` (uncommitted files included, the Mac's `node_modules` never), installs and builds the web package there, runs the given Playwright arguments, copies `test-results/` out when the run fails, and removes the container. `CI_LIKE_CPUS` (default 4, a runner's vCPUs) and `CI_LIKE_WORKERS` (default 2) set its budget. Measured against a CI run (211 Chromium tests of the breadcrumbs, badge, card and callout, CI's first Chromium shard): the container took 1.55 times CI's time per test (median 1.54, 10th–90th percentile 1.29–1.86) on a Mac whose load was about 9, against 1.25 for the same tests run natively on that Mac. So it is as slow as a runner or slower, never faster. What cannot match: the CPU architecture (Docker on Apple silicon runs arm64 Linux, a runner is x86_64: the same image, other builds of the browsers, so a `snapshot:` test may differ by a pixel here and says nothing), the Mac's own load, and GitHub's host.
+- **Static guards** (`packages/web/test/timing-guards.test.mjs`, part of `test:node`) refuse the patterns that are always wrong: `document.getAnimations()` as a wait (it sees no shadow root), any other wait for motions or count of them outside `test/motions.ts` (an element's `getAnimations({ subtree: true })` does not enter its own shadow root either), `waitForTimeout(<number>)` with no reason in a comment, and `goto('about:blank')` in a file whose tests hover or move the pointer (Chromium on Linux then sends no `pointerleave`). Each has an allowlist of today's offenders by file, which only shrinks: a new offender fails, and so does one that was fixed and is still listed.
+
 ### 5. Record it
 
 `pnpm changeset` — one version for all platforms. Commit with Conventional Commits (`feat(web): …`, `fix(tokens): …`, `docs: …`). In the pull request, say what you noticed and did not fix, with what was seen and what would fix it.
