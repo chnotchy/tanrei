@@ -285,8 +285,8 @@ export const carouselStyles = css`
       min-block-size: var(--tanrei-sys-target-touch);
     }
   }
-  /* CRL-14: while a fling's settle runs, the browser's own momentum stops and a pan cannot start; the offset is still
-     set by the settle. */
+  /* CRL-14: while a touch release's settle runs (a fling's or the nearest position's), the browser's own momentum stops
+     and a pan cannot start; the offset is still set by the settle. */
   .scroller.held {
     overflow-x: hidden;
   }
