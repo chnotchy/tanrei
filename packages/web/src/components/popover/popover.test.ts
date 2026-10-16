@@ -6,6 +6,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { holdClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { ANCHORED_PLACEMENTS, type AnchoredInput, type AnchoredPlacement, placeAnchored } from '../../primitives/placement.js';
 
@@ -1419,6 +1420,38 @@ test.describe('dismissal', () => {
     await page.locator('#other').click();
     await page.keyboard.press('Escape');
     expect((await log(page)).filter((entry) => entry.startsWith('p:'))).toEqual(['p:outside', 'p:outside', 'p:escape']);
+    expect(await isShown(page)).toBe(true);
+  });
+
+  test('POP-21: a declined close is over with the act that asked for it — focus moved outside again, or after a declined Escape, asks again however late the page runs its timers; one act still asks once', async ({ page }) => {
+    await mount(
+      page,
+      `<div style="padding: 80px 200px"><button id="a" type="button">Storage</button> <button id="other" type="button">Other</button> <button id="third" type="button">Third</button></div><${TAG} id="p" anchor="a" headline="Rename" data-keep><input id="one" aria-label="One" /></${TAG}>`,
+    );
+    await open(page);
+    // The page's timers stand still from here: an act that only a timer ended would still be going on at every later
+    // act, as it is when the browser runs other tasks first.
+    await holdClock(page);
+    const focus = (selector: string) => page.locator(selector).evaluate((el) => (el as HTMLElement).focus());
+    // The product moves focus outside, twice, in two tasks of its own (no press, no key between them): each asks.
+    await focus('#other');
+    expect(await log(page)).toEqual(['p:focus-out']);
+    await focus('#third');
+    expect(await log(page)).toEqual(['p:focus-out', 'p:focus-out']);
+    // Escape, declined; then the product moves focus outside: that asks too.
+    await clearLog(page);
+    await focus('#one');
+    await page.keyboard.press('Escape');
+    expect(await log(page)).toEqual(['p:escape']);
+    await focus('#other');
+    expect(await log(page)).toEqual(['p:escape', 'p:focus-out']);
+    // One act asks once: a product that answers Escape by moving focus outside is not asked again by that move.
+    await clearLog(page);
+    await focus('#one');
+    await host(page).evaluate((el) => el.addEventListener('close', () => document.getElementById('third')!.focus(), { once: true }));
+    await page.keyboard.press('Escape');
+    expect(await active(page)).toBe('#third');
+    expect(await log(page)).toEqual(['p:escape']);
     expect(await isShown(page)).toBe(true);
   });
 
