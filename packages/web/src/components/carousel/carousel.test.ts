@@ -10,6 +10,7 @@ import { type Browser, type Locator, type Page, expect, test } from '@playwright
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { motionEnded } from '../../../test/motions.js';
 import { CarouselGeometry, type CarouselMetrics } from './carousel-geometry.js';
 
 const spec = loadSpec('carousel');
@@ -964,6 +965,9 @@ test.describe('behavior', () => {
     await page.mouse.move(box.x + 30, box.y + 12);
     const hovered = await expectedLayer(page, 'hovered');
     await expect.poll(() => drawnLayer(page, id, 0)).toEqual(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(item(page, id, 0));
     await page.mouse.down();
     expect(await pressed(page, id, 0)).toBe('ripple');
     await expect(ripples(page, id, 0)).toHaveCount(1);
@@ -1018,20 +1022,21 @@ test.describe('behavior', () => {
   test('CRL-6 ripple (m3-like): the indicator and the playback control grow their pressed layer from the point of contact', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true, system: 'm3-like', fixtures: only('autoplay-paused') });
     const id = 'autoplay-paused';
-    // A color is compared to four decimals: an engine may round a channel of the same color differently in the sixth.
-    const near = (color: string) => color.replace(/\d+\.\d+/g, (n) => Number(n).toFixed(4));
     for (const [control, locator] of [['indicator', indicator(page, id)], ['playback', playback(page, id)]] as const) {
       const box = await bounds(locator);
       await page.mouse.move(box.x + 6, box.y + 6);
       // Hovered, and its color arrived (CRL-22 animates it): the press is then seen to leave it as it is.
-      await expect.poll(async () => near(await css(locator, 'background-color')), control).toBe(near(await resolveColor(page, T(`${control}-hovered-container-color`))));
+      await expect.poll(() => css(locator, 'background-color'), control).toBe(await resolveColor(page, T(`${control}-hovered-container-color`)));
+      // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+      // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+      await motionEnded(locator);
       await page.mouse.down();
       await expect(locator).toHaveAttribute('data-pressed', 'ripple');
       const ripple = locator.locator('.ripple');
       await expect(ripple).toHaveCount(1);
-      expect(near(await css(ripple, 'background-color')), control).toBe(near(await resolveColor(page, T(`${control}-pressed-container-color`))));
+      expect(await css(ripple, 'background-color'), control).toBe(await resolveColor(page, T(`${control}-pressed-container-color`)));
       // The container stays with the state under the press.
-      expect(near(await css(locator, 'background-color')), control).toBe(near(await resolveColor(page, T(`${control}-hovered-container-color`))));
+      expect(await css(locator, 'background-color'), control).toBe(await resolveColor(page, T(`${control}-hovered-container-color`)));
       await page.mouse.up();
       await page.mouse.move(1200, 700);
       await expect(ripple).toHaveCount(0);
@@ -1046,6 +1051,9 @@ test.describe('behavior', () => {
     await item(page, id, 0).hover();
     const hovered = await expectedLayer(page, 'hovered');
     await expect.poll(() => drawnLayer(page, id, 0)).toEqual(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(item(page, id, 0));
     await page.mouse.down();
     expect(await pressed(page, id, 0)).toBe('dim');
     expect(await css(container(page, id, 0), 'opacity')).toBe(await token(page, T('pressed-opacity')));
@@ -1062,6 +1070,9 @@ test.describe('behavior', () => {
     await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'none' });
     await item(page, id, 0).hover();
     await expect.poll(() => drawn(page, id, 0)).toEqual(await expected(page, 'hovered'));
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(item(page, id, 0));
     const before = await drawn(page, id, 0);
     await page.mouse.down();
     expect(await pressed(page, id, 0)).toBe('none');
