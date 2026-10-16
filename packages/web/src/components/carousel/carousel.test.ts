@@ -9,6 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Browser, type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
+import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { CarouselGeometry, type CarouselMetrics } from './carousel-geometry.js';
 
 const spec = loadSpec('carousel');
@@ -821,12 +822,11 @@ test.describe('behavior', () => {
 
   const CLOCK = 1;
   test('CRL-5: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold, on an item and on the playback control', async ({ page }) => {
-    expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(100);
-    const hold = 1000;
+    const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+    expect(hold).toBe(100);
     for (const part of ['item', 'playback'] as const) {
       for (const name of ['Enter', 'Space', 'click'] as const) {
         await mountFixtures(page, spec, { icons: true, fixtures: only('centered', 'autoplay-paused') });
-        await override(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
         const target = part === 'item' ? container(page, 'centered', 0) : playback(page, 'autoplay-paused');
         await target.focus();
         await page.waitForTimeout(400); // the focus state's own transition ends first
@@ -841,9 +841,10 @@ test.describe('behavior', () => {
           for (const type of ['pointerup', 'keyup']) el.addEventListener(type, () => (log.up ??= performance.now()));
           for (const type of ['pointerdown', 'keydown']) window.addEventListener(type, () => (log.down ??= performance.now()), true);
         });
-        if (name === 'click') await target.click();
-        else await page.keyboard.press(name);
-        await expect.poll(() => page.evaluate(() => (window as any).press.off), `${part} ${name}`).toBeDefined();
+        // The press and the hold on the page's clock, held still: the press is over in no page time at all, so it is
+        // the short one at the system's own hold, however long the driver takes to send the release.
+        const activate = () => (name === 'click' ? clickCentre(page, target) : page.keyboard.press(name));
+        await heldPress(page, hold, activate, async () => (await page.evaluate(() => (window as any).press.off)) !== undefined, `${part} ${name}`);
         const log = await page.evaluate(() => (window as any).press);
         expect(log.seen, `${part} ${name}`).toBe('overlay');
         expect(log.up - log.on, `${part} ${name}: the press itself was shorter than press-hold`).toBeLessThan(hold);

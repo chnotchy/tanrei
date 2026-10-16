@@ -333,9 +333,9 @@ abstract class DrawerCell extends LitElement {
   }
 
   /**
-   * Runs \`then\` once \`element\` is first seen in the window (at once where it is): a tooltip whose anchor is out of sight
-   * closes at once (NVD-56). NVD-75's wait is its own: the collapsed name's hide (after the pointer left) ends the name's
-   * wait, never this one.
+   * Runs \`then\` once part of \`element\` is first seen in the window (at once where it is; a box that only touches the
+   * window's edge is not seen, \`seen()\`): a tooltip whose anchor is out of sight closes at once (NVD-56). NVD-75's wait
+   * is its own: the collapsed name's hide (after the pointer left) ends the name's wait, never this one.
    */
   private whenInView(element: Element | null, then: () => void) {
     this.cutSightline?.disconnect();
@@ -344,11 +344,11 @@ abstract class DrawerCell extends LitElement {
       return;
     }
     this.cutSightline = new IntersectionObserver((entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
+      if (!seen(entries)) return;
       this.cutSightline?.disconnect();
       this.cutSightline = null;
       then();
-    });
+    }, SIGHT);
     this.cutSightline.observe(element);
   }
 
