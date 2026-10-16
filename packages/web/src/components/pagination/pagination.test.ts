@@ -3,6 +3,7 @@
 // number written here, except where the spec's own verify gives it.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
+import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
 
 const spec = loadSpec('pagination');
@@ -661,15 +662,15 @@ test.describe('states', () => {
   });
 
   test('PGN-15: a press that ends within a frame — Enter, Space on a button, a click, Enter on a link — is shown at once and for at least press-hold, without holding the change back', async ({ page }) => {
-    const hold = 1000;
     for (const [name, href, activate] of [
       ['Enter', '', () => page.keyboard.press('Enter')],
       ['Space', '', () => page.keyboard.press('Space')],
-      ['click', '', () => control(page, 'p', 'next').click()],
+      ['click', '', () => clickCentre(page, control(page, 'p', 'next'))],
       ['link Enter', '#p{page}', () => page.keyboard.press('Enter')],
     ] as const) {
       await mountFixtures(page, spec, { icons: true, fixtures: [fx('p', { href })] });
-      await override(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
+      const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+      expect(hold, name).toBe(100);
       await control(page, 'p', 'next').focus();
       await control(page, 'p', 'next').evaluate((el) => {
         const log: { down?: number; on?: number; off?: number; up?: number; change?: number } = ((window as any).press = {});
@@ -681,8 +682,10 @@ test.describe('states', () => {
         for (const type of ['pointerdown', 'keydown']) window.addEventListener(type, () => (log.down ??= performance.now()), true);
         document.querySelector('tanrei-pagination')!.addEventListener('change', () => (log.change ??= performance.now()));
       });
-      await activate();
-      await expect.poll(() => page.evaluate(() => (window as any).press.off), name).toBeDefined();
+      // The press and the hold on the page's clock, held still: the press is over in no page time at all, so it is the
+      // short one at the system's own hold, however long the driver takes to send the release; and the change, sent
+      // without waiting for the hold, is there before half of it has passed.
+      await heldPress(page, hold, activate, async () => (await page.evaluate(() => (window as any).press.off)) !== undefined, name);
       const logged = await page.evaluate(() => (window as any).press);
       expect(logged.up - logged.on, name).toBeLessThan(hold);
       expect(logged.off - logged.down, name).toBeGreaterThanOrEqual(hold - 1);
