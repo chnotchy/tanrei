@@ -2122,6 +2122,28 @@ test.describe('the track and the drag', () => {
   });
 });
 
+/**
+ * TAB-3's walk in the default system: for each tab, at rest, hovered, pressed and focused by the pointer, and focused
+ * from the keyboard. Each entry is a test of its own on a fresh page; the coverage test below holds that every
+ * (tab, state) pair is walked exactly once, in this order.
+ */
+const TAB_3_TABS = [
+  ['primary', 1, 'primary', ''],
+  ['primary', 0, 'primary', 'selected'],
+  ['secondary', 0, 'secondary', 'selected'],
+] as const;
+const TAB_3_WALK = TAB_3_TABS.flatMap(([id, n, variant, look]) => [
+  { id, n, variant, look, states: ['rest', 'hovered', 'pressed', 'pointer focus'] },
+  { id, n, variant, look, states: ['focused'] },
+]);
+
+test('TAB-3: the parts of the state walk check each tab in each state exactly once, in order', () => {
+  expect(TAB_3_WALK.flatMap(({ id, n, states }) => states.map((state) => `${id}/${n}/${state}`))).toEqual(
+    TAB_3_TABS.flatMap(([id, n]) => ['rest', 'hovered', 'pressed', 'pointer focus', 'focused'].map((state) => `${id}/${n}/${state}`)),
+  );
+  expect(new Set(TAB_3_WALK.map(({ id, n, states }) => `${id}/${n}, ${states.join(', ')}`)).size).toBe(TAB_3_WALK.length);
+});
+
 test.describe('states, press, corners and focus style', () => {
   test.beforeAll(async () => {
     test.setTimeout(240_000);
@@ -2134,13 +2156,17 @@ test.describe('states, press, corners and focus style', () => {
     await mountFixtures(page, spec, { fixtures: EARLIER });
   });
 
-  test('TAB-3: each state renders the tab from that state’s tokens of its look and variant; pointer focus is not the focused state (default system)', async ({ page }) => {
-    for (const [id, n, variant, look] of [
-      ['primary', 1, 'primary', ''],
-      ['primary', 0, 'primary', 'selected'],
-      ['secondary', 0, 'secondary', 'selected'],
-    ] as const) {
-      await mountFixtures(page, spec, { fixtures: EARLIER });
+  // One test for each part of TAB_3_WALK, each on the fresh page beforeEach mounts and with the whole of the time limit:
+  // the walk in one test mounted the page six times and took 17 s in WebKit on a CI runner, over half of 30 s.
+  for (const { id, n, variant, look, states } of TAB_3_WALK) {
+    test(`TAB-3: each state renders the tab from that state’s tokens of its look and variant; pointer focus is not the focused state (default system) — ${id}/${n}, ${states.join(', ')}`, async ({ page }) => {
+      if (states[0] === 'focused') {
+        // Keyboard focus: Tab to the row's stop (its selected first tab), and from there to the tab by script.
+        await tabTo(page, tabAt(page, id, 0));
+        if (n !== 0) await tabAt(page, id, n).evaluate((el) => (el as HTMLElement).focus());
+        await expect.poll(() => drawn(page, id, n), `${id}/${n} focused`).toEqual(await expected(page, variant, look, 'focused'));
+        return;
+      }
       await page.mouse.move(0, 0);
       await expect.poll(() => drawn(page, id, n), `${id}/${n}`).toEqual(await expected(page, variant, look));
       await box(page, id, n).hover();
@@ -2154,13 +2180,8 @@ test.describe('states, press, corners and focus style', () => {
       await page.mouse.move(0, 0);
       await expect(tabAt(page, id, n)).toBeFocused();
       await expect.poll(() => drawn(page, id, n), `${id}/${n} pointer focus`).toEqual(await expected(page, variant, 'selected'));
-      // Keyboard focus: Tab to the row's stop (its selected first tab), and from there to the tab by script.
-      await mountFixtures(page, spec, { fixtures: EARLIER });
-      await tabTo(page, tabAt(page, id, 0));
-      if (n !== 0) await tabAt(page, id, n).evaluate((el) => (el as HTMLElement).focus());
-      await expect.poll(() => drawn(page, id, n), `${id}/${n} focused`).toEqual(await expected(page, variant, look, 'focused'));
-    }
-  });
+    });
+  }
 
   test('TAB-3: under acme, where the three states differ, pressed beats focused beats hovered', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: EARLIER, system: 'acme', systemCss: await acmeSystemCss() });
