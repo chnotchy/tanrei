@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
+import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint, warnings } from '../../../test/links.js';
 
 const spec = loadSpec('button');
@@ -186,29 +187,24 @@ test.describe('press, feedback, corners and focus style', () => {
   });
 
   test('BTN-8: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
-    expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(100);
-    // A driver's key press or click is not always over within 100 ms (Firefox under load takes 200). The hold is
-    // made longer than any of them, the way a design system would, so that every press below is the short one.
-    // (4 s: a key's release is sent one answer after its press, and an answer of WebKit on Linux takes up to 570 ms.)
-    const longHold = () => rootTokens(page, { '--tanrei-sys-motion-duration-press-hold': '4000ms' });
-    const hold = 4000;
+    const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+    expect(hold).toBe(100);
     const down = await resolveColor(page, '--tanrei-comp-button-filled-pressed-container-color');
     const activations: [string, () => Promise<void>][] = [
       ['Enter', () => page.keyboard.press('Enter')],
       ['Space', () => page.keyboard.press('Space')],
-      ['click', () => page.locator(button('filled-medium')).click()],
+      ['click', () => clickCentre(page, inner(page, 'filled-medium'))],
     ];
     for (const [name, activate] of activations) {
       await mountFixtures(page, spec);
-      await longHold();
-      expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(hold);
       await page.locator(button('filled-medium')).focus();
       // Let the focused state settle first: in the default system it has the pressed state's color, and a
       // transition already running towards that color is, correctly, not restarted by the press.
       await expect.poll(() => css(page, 'filled-medium', 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-filled-focused-container-color'));
       await watchPress(page, 'filled-medium');
-      await activate();
-      await expect.poll(async () => (await pressLog(page)).off, name).toBeDefined();
+      // The press and the hold on the page's clock, held still (see `heldPress`): the press is over in no page time
+      // at all, however long the driver takes to send the release, so it is the short press at the system's own hold.
+      await heldPress(page, hold, activate, async () => (await pressLog(page)).off !== undefined, name);
       const log = await pressLog(page);
       // Without delay: the pressed tokens are applied with no transition in.
       expect(log.seen, name).toEqual(['overlay', '0s', down]);

@@ -390,6 +390,41 @@ test.describe('selection and keyboard', () => {
   });
 });
 
+/**
+ * TAB-18's container box in parts: the box of each tab whose form it checks, the pointer at the corner of each tab it
+ * presses, the order of the layers, and m3-like's square container. Each entry is a test of its own on a page it mounts;
+ * the coverage test below holds that every (tab, check) pair the one test walked is walked exactly once, in its order.
+ */
+const TAB_18_BOX = [
+  ...([
+    ['primary', 1, 'capsule'],
+    ['primary-icon-only', 1, 'circle'],
+    ['primary-single-characters', 0, 'circle'],
+    ['primary-fill', 1, 'capsule'],
+    ['primary-icon-only-fill', 2, 'capsule'],
+  ] as const).map(([id, n, form]) => ({ part: 'the box' as const, id, n, form })),
+  ...([
+    ['primary', 1],
+    ['primary-icon-only', 1],
+  ] as const).map(([id, n]) => ({ part: 'the pointer' as const, id, n })),
+  { part: 'the layers' as const },
+  { part: 'm3-like' as const },
+];
+
+test('TAB-18: the parts of the container walk check each tab and each check exactly once, in order', () => {
+  expect(TAB_18_BOX.map((unit) => ('id' in unit ? `${unit.part} ${unit.id}/${unit.n}${'form' in unit ? ` ${unit.form}` : ''}` : unit.part))).toEqual([
+    'the box primary/1 capsule',
+    'the box primary-icon-only/1 circle',
+    'the box primary-single-characters/0 circle',
+    'the box primary-fill/1 capsule',
+    'the box primary-icon-only-fill/2 capsule',
+    'the pointer primary/1',
+    'the pointer primary-icon-only/1',
+    'the layers',
+    'm3-like',
+  ]);
+});
+
 test.describe('layout', () => {
   test('TAB-14: tabs that hug are their content plus the padding, whole and on one line, never narrower than their indicator, track.padding in from the track’s ends, and scroll inside it; tabs that fill share the width less that padding, at least the target, and truncate a label at its end with an ellipsis; nothing wraps and no icon shrinks', async ({ page }) => {
     const long = 'A label far too long for any share of this row';
@@ -740,76 +775,80 @@ test.describe('layout', () => {
     expect(l.y + l.height).toBeLessThanOrEqual(b.y + b.height - thick + 0.5);
   });
 
-  test('TAB-18: hover and press are drawn in the indicator’s box — a capsule, a circle where the content is not wider than tall, the tab’s share in a row that fills — rounded by container.shape, above the track and under the indicator, never on the tab’s rectangle; the whole tab still answers the pointer', async ({ page }) => {
-    await mountFixtures(page, spec, { icons: true });
-    const inset = await resolveToken(page, T('track-padding'));
-    const hoveredColor = await resolveColor(page, T('primary-hovered-container-color'));
-    expect(hoveredColor).not.toBe(await resolveColor(page, T('primary-container-color')));
-    for (const [id, n, form] of [
-      ['primary', 1, 'capsule'],
-      ['primary-icon-only', 1, 'circle'],
-      ['primary-single-characters', 0, 'circle'],
-      ['primary-fill', 1, 'capsule'],
-      ['primary-icon-only-fill', 2, 'capsule'],
-    ] as const) {
-      const [whole, c] = [await bounds(tabAt(page, id, n)), await seat(page, id, n)];
-      // The box: the row less track.padding above and below, centred in the tab.
-      expect([c.y, c.height], id).toEqual([expect.closeTo(whole.y + inset, 1), expect.closeTo(whole.height - 2 * inset, 1)]);
-      expect(c.height, id).toBeCloseTo(40, 0);
-      expect(c.x + c.width / 2, id).toBeCloseTo(whole.x + whole.width / 2, 0);
-      if (form === 'circle') {
-        expect(c.width, id).toBeCloseTo(c.height, 1);
-        expect(c.width, id).toBeLessThan(whole.width - 1);
-      } else expect([c.x, c.width], id).toEqual([expect.closeTo(whole.x, 0), expect.closeTo(whole.width, 0)]);
-      // Rounded by container.shape, each corner at most half its height: a capsule or a circle, never a rectangle.
-      expect(Number.parseFloat(await css(layer(page, id, n), 'border-top-left-radius')), id).toBeGreaterThanOrEqual(c.height / 2);
-      // Where this tab's indicator would be if it were selected: the same box.
-      await row(page, id).evaluate((el: any, index) => (el.value = el.tabs[index].value), n);
-      await expect.poll(async () => (await pill(page, id, n)).x, id).toBeCloseTo(c.x, 0);
-      await finishSlide(page, id);
-      const there = await pill(page, id, n);
-      expect([there.x, there.y, there.width, there.height], id).toEqual([expect.closeTo(c.x, 0), expect.closeTo(c.y, 0), expect.closeTo(c.width, 0), expect.closeTo(c.height, 0)]);
-    }
-    // A pointer at the tab's corner — outside the container — shows the hovered state, in the container; the tab's own
-    // rectangle draws nothing, in any state.
-    await mountFixtures(page, spec, { icons: true });
-    for (const [id, n] of [
-      ['primary', 1],
-      ['primary-icon-only', 1],
-    ] as const) {
-      const whole = await bounds(tabAt(page, id, n));
-      await page.mouse.move(whole.x + 1, whole.y + 1);
-      await expect.poll(() => css(layer(page, id, n), 'background-color'), id).toBe(hoveredColor);
-      expect(await css(box(page, id, n), 'background-color'), id).toBe('rgba(0, 0, 0, 0)');
-      const c = await seat(page, id, n);
-      expect(whole.y + 1).toBeLessThan(c.y);
-      await page.mouse.down();
-      await expect.poll(() => css(layer(page, id, n), 'background-color'), id).toBe(await resolveColor(page, T('primary-pressed-container-color')));
-      expect(await css(box(page, id, n), 'background-color'), id).toBe('rgba(0, 0, 0, 0)');
-      await page.mouse.up();
-      await expect(tabAt(page, id, n)).toHaveAttribute('aria-selected', 'true');
-    }
-    // Above the track (inside it) and under the indicator: the container comes before the content and the covered layer.
-    expect(
-      await tabAt(page, 'primary', 0).evaluate((el) => {
-        const order = [...el.shadowRoot!.querySelector('.tab')!.children].map((child) => child.className.split(' ')[0]);
-        return order.indexOf('box') < order.indexOf('content') && order.indexOf('content') < order.indexOf('cover');
-      }),
-    ).toBe(true);
-    await expect(layer(page, 'primary', 0)).toHaveAttribute('aria-hidden', 'true');
-    // m3-like (track.padding nothing, container.shape square): the container is the whole tab, square — on a tab whose
-    // content is not wider than it is tall in a row that hugs too, since such a tab is as wide as its indicator's box
-    // (the row's height) and no wider (TAB-14): the container is as wide as the row is tall, and that is the tab.
-    await mountFixtures(page, spec, { icons: true, system: 'm3-like' });
-    for (const id of ['primary', 'primary-fill', 'primary-icon-only-fill', 'secondary-icons']) {
-      const [whole, c] = [await bounds(tabAt(page, id, 1)), await seat(page, id, 1)];
-      expect([c.x, c.y, c.width, c.height], id).toEqual([expect.closeTo(whole.x, 1), expect.closeTo(whole.y, 1), expect.closeTo(whole.width, 1), expect.closeTo(whole.height, 1)]);
-      expect(await css(layer(page, id, 1), 'border-top-left-radius'), id).toBe('0px');
-    }
-    const [gapTab, gapSeat] = [await bounds(tabAt(page, 'primary-icon-only', 1)), await seat(page, 'primary-icon-only', 1)];
-    expect(gapSeat.width).toBeCloseTo(gapTab.height, 1);
-    expect(gapSeat.width).toBeCloseTo(gapTab.width, 1);
-  });
+  // One test for each part of TAB_18_BOX, each with the whole of the time limit: the walk in one test mounted the page
+  // three times, slid the indicator five times and took 17-30 s in WebKit on a CI runner, against 30 s.
+  for (const unit of TAB_18_BOX) {
+    test(`TAB-18: hover and press are drawn in the indicator’s box — a capsule, a circle where the content is not wider than tall, the tab’s share in a row that fills — rounded by container.shape, above the track and under the indicator, never on the tab’s rectangle; the whole tab still answers the pointer — ${unit.part}${'id' in unit ? `, ${unit.id}/${unit.n}` : ''}`, async ({ page }) => {
+      if (unit.part === 'the box') {
+        const { id, n, form } = unit;
+        await mountFixtures(page, spec, { icons: true });
+        const inset = await resolveToken(page, T('track-padding'));
+        const [whole, c] = [await bounds(tabAt(page, id, n)), await seat(page, id, n)];
+        // The box: the row less track.padding above and below, centred in the tab.
+        expect([c.y, c.height], id).toEqual([expect.closeTo(whole.y + inset, 1), expect.closeTo(whole.height - 2 * inset, 1)]);
+        expect(c.height, id).toBeCloseTo(40, 0);
+        expect(c.x + c.width / 2, id).toBeCloseTo(whole.x + whole.width / 2, 0);
+        if (form === 'circle') {
+          expect(c.width, id).toBeCloseTo(c.height, 1);
+          expect(c.width, id).toBeLessThan(whole.width - 1);
+        } else expect([c.x, c.width], id).toEqual([expect.closeTo(whole.x, 0), expect.closeTo(whole.width, 0)]);
+        // Rounded by container.shape, each corner at most half its height: a capsule or a circle, never a rectangle.
+        expect(Number.parseFloat(await css(layer(page, id, n), 'border-top-left-radius')), id).toBeGreaterThanOrEqual(c.height / 2);
+        // Where this tab's indicator would be if it were selected: the same box.
+        await row(page, id).evaluate((el: any, index) => (el.value = el.tabs[index].value), n);
+        await expect.poll(async () => (await pill(page, id, n)).x, id).toBeCloseTo(c.x, 0);
+        await finishSlide(page, id);
+        const there = await pill(page, id, n);
+        expect([there.x, there.y, there.width, there.height], id).toEqual([expect.closeTo(c.x, 0), expect.closeTo(c.y, 0), expect.closeTo(c.width, 0), expect.closeTo(c.height, 0)]);
+        return;
+      }
+      if (unit.part === 'the pointer') {
+        const { id, n } = unit;
+        // A pointer at the tab's corner — outside the container — shows the hovered state, in the container; the tab's own
+        // rectangle draws nothing, in any state.
+        await mountFixtures(page, spec, { icons: true });
+        const hoveredColor = await resolveColor(page, T('primary-hovered-container-color'));
+        expect(hoveredColor).not.toBe(await resolveColor(page, T('primary-container-color')));
+        const whole = await bounds(tabAt(page, id, n));
+        await page.mouse.move(whole.x + 1, whole.y + 1);
+        await expect.poll(() => css(layer(page, id, n), 'background-color'), id).toBe(hoveredColor);
+        expect(await css(box(page, id, n), 'background-color'), id).toBe('rgba(0, 0, 0, 0)');
+        const c = await seat(page, id, n);
+        expect(whole.y + 1).toBeLessThan(c.y);
+        await page.mouse.down();
+        await expect.poll(() => css(layer(page, id, n), 'background-color'), id).toBe(await resolveColor(page, T('primary-pressed-container-color')));
+        expect(await css(box(page, id, n), 'background-color'), id).toBe('rgba(0, 0, 0, 0)');
+        await page.mouse.up();
+        await expect(tabAt(page, id, n)).toHaveAttribute('aria-selected', 'true');
+        return;
+      }
+      if (unit.part === 'the layers') {
+        // Above the track (inside it) and under the indicator: the container comes before the content and the covered layer.
+        await mountFixtures(page, spec, { icons: true });
+        expect(
+          await tabAt(page, 'primary', 0).evaluate((el) => {
+            const order = [...el.shadowRoot!.querySelector('.tab')!.children].map((child) => child.className.split(' ')[0]);
+            return order.indexOf('box') < order.indexOf('content') && order.indexOf('content') < order.indexOf('cover');
+          }),
+        ).toBe(true);
+        await expect(layer(page, 'primary', 0)).toHaveAttribute('aria-hidden', 'true');
+        return;
+      }
+      expect(unit.part).toBe('m3-like');
+      // m3-like (track.padding nothing, container.shape square): the container is the whole tab, square — on a tab whose
+      // content is not wider than it is tall in a row that hugs too, since such a tab is as wide as its indicator's box
+      // (the row's height) and no wider (TAB-14): the container is as wide as the row is tall, and that is the tab.
+      await mountFixtures(page, spec, { icons: true, system: 'm3-like' });
+      for (const id of ['primary', 'primary-fill', 'primary-icon-only-fill', 'secondary-icons']) {
+        const [whole, c] = [await bounds(tabAt(page, id, 1)), await seat(page, id, 1)];
+        expect([c.x, c.y, c.width, c.height], id).toEqual([expect.closeTo(whole.x, 1), expect.closeTo(whole.y, 1), expect.closeTo(whole.width, 1), expect.closeTo(whole.height, 1)]);
+        expect(await css(layer(page, id, 1), 'border-top-left-radius'), id).toBe('0px');
+      }
+      const [gapTab, gapSeat] = [await bounds(tabAt(page, 'primary-icon-only', 1)), await seat(page, 'primary-icon-only', 1)];
+      expect(gapSeat.width).toBeCloseTo(gapTab.height, 1);
+      expect(gapSeat.width).toBeCloseTo(gapTab.width, 1);
+    });
+  }
 
   test('TAB-19: an icon-only tab draws its icon alone and keeps its label as its name; without an icon it draws the label and is reported', async ({ page }) => {
     const seen = warnings(page);
@@ -2083,6 +2122,28 @@ test.describe('the track and the drag', () => {
   });
 });
 
+/**
+ * TAB-3's walk in the default system: for each tab, at rest, hovered, pressed and focused by the pointer, and focused
+ * from the keyboard. Each entry is a test of its own on a fresh page; the coverage test below holds that every
+ * (tab, state) pair is walked exactly once, in this order.
+ */
+const TAB_3_TABS = [
+  ['primary', 1, 'primary', ''],
+  ['primary', 0, 'primary', 'selected'],
+  ['secondary', 0, 'secondary', 'selected'],
+] as const;
+const TAB_3_WALK = TAB_3_TABS.flatMap(([id, n, variant, look]) => [
+  { id, n, variant, look, states: ['rest', 'hovered', 'pressed', 'pointer focus'] },
+  { id, n, variant, look, states: ['focused'] },
+]);
+
+test('TAB-3: the parts of the state walk check each tab in each state exactly once, in order', () => {
+  expect(TAB_3_WALK.flatMap(({ id, n, states }) => states.map((state) => `${id}/${n}/${state}`))).toEqual(
+    TAB_3_TABS.flatMap(([id, n]) => ['rest', 'hovered', 'pressed', 'pointer focus', 'focused'].map((state) => `${id}/${n}/${state}`)),
+  );
+  expect(new Set(TAB_3_WALK.map(({ id, n, states }) => `${id}/${n}, ${states.join(', ')}`)).size).toBe(TAB_3_WALK.length);
+});
+
 test.describe('states, press, corners and focus style', () => {
   test.beforeAll(async () => {
     test.setTimeout(240_000);
@@ -2095,13 +2156,17 @@ test.describe('states, press, corners and focus style', () => {
     await mountFixtures(page, spec, { fixtures: EARLIER });
   });
 
-  test('TAB-3: each state renders the tab from that state’s tokens of its look and variant; pointer focus is not the focused state (default system)', async ({ page }) => {
-    for (const [id, n, variant, look] of [
-      ['primary', 1, 'primary', ''],
-      ['primary', 0, 'primary', 'selected'],
-      ['secondary', 0, 'secondary', 'selected'],
-    ] as const) {
-      await mountFixtures(page, spec, { fixtures: EARLIER });
+  // One test for each part of TAB_3_WALK, each on the fresh page beforeEach mounts and with the whole of the time limit:
+  // the walk in one test mounted the page six times and took 17 s in WebKit on a CI runner, over half of 30 s.
+  for (const { id, n, variant, look, states } of TAB_3_WALK) {
+    test(`TAB-3: each state renders the tab from that state’s tokens of its look and variant; pointer focus is not the focused state (default system) — ${id}/${n}, ${states.join(', ')}`, async ({ page }) => {
+      if (states[0] === 'focused') {
+        // Keyboard focus: Tab to the row's stop (its selected first tab), and from there to the tab by script.
+        await tabTo(page, tabAt(page, id, 0));
+        if (n !== 0) await tabAt(page, id, n).evaluate((el) => (el as HTMLElement).focus());
+        await expect.poll(() => drawn(page, id, n), `${id}/${n} focused`).toEqual(await expected(page, variant, look, 'focused'));
+        return;
+      }
       await page.mouse.move(0, 0);
       await expect.poll(() => drawn(page, id, n), `${id}/${n}`).toEqual(await expected(page, variant, look));
       await box(page, id, n).hover();
@@ -2115,13 +2180,8 @@ test.describe('states, press, corners and focus style', () => {
       await page.mouse.move(0, 0);
       await expect(tabAt(page, id, n)).toBeFocused();
       await expect.poll(() => drawn(page, id, n), `${id}/${n} pointer focus`).toEqual(await expected(page, variant, 'selected'));
-      // Keyboard focus: Tab to the row's stop (its selected first tab), and from there to the tab by script.
-      await mountFixtures(page, spec, { fixtures: EARLIER });
-      await tabTo(page, tabAt(page, id, 0));
-      if (n !== 0) await tabAt(page, id, n).evaluate((el) => (el as HTMLElement).focus());
-      await expect.poll(() => drawn(page, id, n), `${id}/${n} focused`).toEqual(await expected(page, variant, look, 'focused'));
-    }
-  });
+    });
+  }
 
   test('TAB-3: under acme, where the three states differ, pressed beats focused beats hovered', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: EARLIER, system: 'acme', systemCss: await acmeSystemCss() });

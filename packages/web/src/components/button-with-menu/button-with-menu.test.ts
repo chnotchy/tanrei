@@ -816,6 +816,10 @@ test.describe('behavior', () => {
     await host(page, 'kinds').getByRole('menuitemradio', { name: 'PNG' }).click();
     expect(await page.evaluate(() => (window as any).changes)).toEqual(['png']);
     await expect(host(page, 'kinds').getByRole('menuitemradio', { name: 'PNG' })).toHaveAttribute('aria-checked', 'true');
+    // The radio item's activation asked to close the menu, and the product closed it: it is gone once it has faded out
+    // (while it fades it still shows, so a closed menu is read only after that).
+    expect(await log(page)).toEqual(['toggle:true', 'close:item']);
+    await expect.poll(() => menuOpen(page, 'kinds')).toBe(false);
     // An item added later is the menu's too.
     await host(page, 'kinds').evaluate((el) => {
       const item = document.createElement('tanrei-menu-item');
@@ -823,8 +827,9 @@ test.describe('behavior', () => {
       item.slot = 'menu';
       el.append(item);
     });
+    // One press opens it again.
     await trailing(page, 'kinds').click();
-    await trailing(page, 'kinds').click();
+    expect(await log(page)).toEqual(['toggle:true', 'close:item', 'toggle:true']);
     await expect.poll(() => menuOpen(page, 'kinds')).toBe(true);
     await expect(host(page, 'kinds').getByRole('menuitem', { name: 'Save a copy' })).toHaveAttribute('aria-setsize', '5');
   });
