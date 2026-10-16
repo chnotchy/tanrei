@@ -112,6 +112,7 @@
     "generate": "cem analyze",
     "build": "tsc -p tsconfig.json && node scripts/build.js",
     "test": "playwright test",
+    "test:ci-like": "bash ../../scripts/ci-like.sh",
     "test:node": "node --test \"src/links/node/test/*.test.mjs\" \"test/*.test.mjs\"",
     "test:update": "playwright test --update-snapshots"
   },
