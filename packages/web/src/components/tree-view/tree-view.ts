@@ -1791,8 +1791,8 @@ export class TanreiTreeView extends ReactiveElement {
     return press;
   }
 
-  private readonly releasePress = () => {
-    this.held?.release();
+  private readonly releasePress = (event?: Event) => {
+    this.held?.release(event);
     this.held = null;
     this.heldRow = null;
   };
@@ -1816,7 +1816,7 @@ export class TanreiTreeView extends ReactiveElement {
   private readonly onPointerOut = (event: Event) => {
     const pointer = event as PointerEvent;
     const to = pointer.relatedTarget;
-    if (this.heldRow && !(to instanceof Node && this.heldRow.contains(to))) this.releasePress();
+    if (this.heldRow && !(to instanceof Node && this.heldRow.contains(to))) this.releasePress(event);
     // TRV-50: the pointer left the row whose text the tooltip shows (the tooltip stands in the row: over it is in it).
     if (this.tipRow && !(to instanceof Node && this.tipRow.contains(to)) && this.tipRow.contains(pointer.target as Node)) this.cutTip.pointerLeave(pointer.pointerType);
   };

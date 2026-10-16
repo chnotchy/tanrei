@@ -346,7 +346,7 @@ export class TanreiSwitch extends LitElement {
     }
     this.swallowClick = true;
     this.endDrag();
-    this.press.release();
+    this.press.release(event);
     if (!switches) return;
     this.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
     this.onChange();
@@ -377,7 +377,7 @@ export class TanreiSwitch extends LitElement {
     if (!this.drag) return;
     this.swallowClick = this.drag.following;
     this.endDrag();
-    this.press.release();
+    this.press.release('pointer');
   }
 
   /** Lets go of the pointer and of the progress: the stylesheet's value (0 or 1) is its target again. */
@@ -410,8 +410,8 @@ export class TanreiSwitch extends LitElement {
   }
 
   /** SWT-19: the switch stays pressed for as long as a drag lasts, wherever the captured pointer goes. */
-  private onPointerLeave() {
-    if (!this.drag?.following) this.press.release();
+  private onPointerLeave(event: PointerEvent) {
+    if (!this.drag?.following) this.press.release(event);
   }
 
   override disconnectedCallback() {

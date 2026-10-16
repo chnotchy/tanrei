@@ -716,14 +716,14 @@ export class TanreiMenubarItem extends LitElement {
     this.renderRoot.querySelector('.title')?.classList.add('pf');
   };
 
-  private readonly onPointerEnd = () => {
-    this.press.release();
+  private readonly onPointerEnd = (event: PointerEvent) => {
+    this.press.release(event);
     if (this.pointerFocused && !this.entryElement.matches(':focus')) this.pointerFocused = false;
   };
 
   /** MBR-35: a link item's address is the browser's to drag, and the press ends there; an action is never the start of a drag. */
   private readonly onDragStart = (event: DragEvent) => {
-    if (this.link.form) this.press.release();
+    if (this.link.form) this.press.release(event);
     else event.preventDefault();
   };
 

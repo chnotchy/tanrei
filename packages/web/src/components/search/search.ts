@@ -1229,15 +1229,15 @@ export class TanreiSearch extends LitElement {
     this.rowPress.onPointerDown(event);
   };
 
-  private readonly onResultPointerEnd = () => {
+  private readonly onResultPointerEnd = (event: PointerEvent) => {
     if (!this.pressedResult) return;
     this.pressedResult = null;
-    this.rowPress.release();
+    this.rowPress.release(event);
   };
 
   /** The pointer left the pressed result (its row fills it), as a row's own `pointerleave`. */
   private readonly onResultPointerOut = (event: PointerEvent) => {
-    if (this.pressedResult && event.relatedTarget !== this.pressedResult) this.onResultPointerEnd();
+    if (this.pressedResult && event.relatedTarget !== this.pressedResult) this.onResultPointerEnd(event);
   };
 
   /** SRC-6: focus moving out of the search closes the docked view. */

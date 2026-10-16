@@ -6,7 +6,7 @@ import { ownDirection } from '../styles/product-text.js';
 import { cornerRadius, shape } from '../styles/shape.js';
 import { focusRing, syncFocusStyle } from './focus-ring.js';
 import { LinkController, linkAttributes, readDestination } from './link.js';
-import { PressController, pressHold } from './press.js';
+import { PressController, type PressedBy, pressHold } from './press.js';
 import type { Point } from './ripple.js';
 import { rippleStyles } from './ripple.js';
 import { report } from './report.js';
@@ -680,9 +680,9 @@ export class NavigationDestination extends LitElement implements Destination {
     return this.renderRoot?.querySelector<HTMLElement>('.cell') ?? null;
   }
 
-  /** @internal The region took the press for something else (a drag of its indicator): it ends as any press does. */
-  releasePress() {
-    this.press.release();
+  /** @internal The region took the pointer's press for something else (a drag of its indicator): it ends as any press by the pointer does. */
+  releasePress(by?: Event | PressedBy) {
+    this.press.release(by);
   }
 
   private readonly onFocus = () => syncFocusStyle(this, this.cell);

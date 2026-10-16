@@ -1135,7 +1135,7 @@ export class OptionListController implements ReactiveController {
   /** Focus stays on the field: the press that would move it is cancelled (the pointer events still come). */
   readonly onMouseDown = (event: MouseEvent) => event.preventDefault();
 
-  readonly onPointerUp = () => this.press.release();
+  readonly onPointerUp = (event: PointerEvent) => this.press.release(event);
 
   /** A pointer that moves onto an option makes it the active one, without the focus indicator. */
   readonly onPointerMove = (event: PointerEvent) => {
