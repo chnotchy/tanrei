@@ -244,56 +244,94 @@ test.describe('activation and selection', () => {
   });
 });
 
+/**
+ * NVD-4's walk: for each condition, in both forms, its cell at rest, hovered, pressed and focused by the pointer, and
+ * focused from the keyboard; then a group's row hovered, and acme's order of the three states. Each entry is a test of
+ * its own on a page it mounts; the coverage test below holds that every (condition, state) pair the one test walked is
+ * walked exactly once, in its order.
+ */
+const NVD_4_CONDITIONS: [Fixture, number, Condition][] = [
+  [fixture('r', MAIL.slice(1)), 1, 'unselected'],
+  [fixture('r', MAIL.slice(1), { value: 'drafts' }), 1, 'selected'],
+  [rail('r', MAIL.slice(1)), 0, 'collapsed-unselected'],
+  [rail('r', MAIL.slice(1), { value: 'sent' }), 0, 'collapsed-selected'],
+];
+const NVD_4_WALK: ({ part: 'pointer' | 'keyboard'; f: Fixture; n: number; condition: Condition; states: string[] } | { part: 'a group’s row, hovered' | 'under acme, pressed beats focused beats hovered' })[] = [
+  ...NVD_4_CONDITIONS.flatMap(([f, n, condition]) => [
+    { part: 'pointer' as const, f, n, condition, states: ['rest', 'hovered', 'pressed', 'pointer focus'] },
+    { part: 'keyboard' as const, f, n, condition, states: ['focused'] },
+  ]),
+  { part: 'a group’s row, hovered' },
+  { part: 'under acme, pressed beats focused beats hovered' },
+];
+
+test('NVD-4: the parts of the state walk check each condition in each state, the group’s row and acme exactly once, in order', () => {
+  expect(NVD_4_WALK.flatMap((unit) => ('f' in unit ? unit.states.map((state) => `${unit.condition}/${state}`) : [unit.part]))).toEqual([
+    ...(['unselected', 'selected', 'collapsed-unselected', 'collapsed-selected'] as const).flatMap((condition) => ['rest', 'hovered', 'pressed', 'pointer focus', 'focused'].map((state) => `${condition}/${state}`)),
+    'a group’s row, hovered',
+    'under acme, pressed beats focused beats hovered',
+  ]);
+  expect(new Set(NVD_4_WALK.map((unit) => ('f' in unit ? `${unit.condition}, ${unit.states.join(', ')}` : unit.part))).size).toBe(NVD_4_WALK.length);
+});
+
 test.describe('states, press and focus', () => {
   test.beforeAll(async () => {
     test.setTimeout(240_000);
     await acmeSystemCss();
   });
 
-  test('NVD-4: each state draws the cell from that state’s tokens of its condition, in both forms and on a group’s row; pointer focus is not the focused state', async ({ page, browserName }) => {
-    for (const [f, n, condition] of [
-      [fixture('r', MAIL.slice(1)), 1, 'unselected'],
-      [fixture('r', MAIL.slice(1), { value: 'drafts' }), 1, 'selected'],
-      [rail('r', MAIL.slice(1)), 0, 'collapsed-unselected'],
-      [rail('r', MAIL.slice(1), { value: 'sent' }), 0, 'collapsed-selected'],
-    ] as const) {
-      await mount(page, [f]);
+  // One test for each part of NVD_4_WALK, each on a page it mounts and with the whole of the time limit: the walk in one
+  // test mounted the drawer ten times and took 18 s in WebKit on a CI runner, over half of 30 s.
+  for (const unit of NVD_4_WALK) {
+    test(`NVD-4: each state draws the cell from that state’s tokens of its condition, in both forms and on a group’s row; pointer focus is not the focused state — ${'f' in unit ? `${unit.condition}, ${unit.states.join(', ')}` : unit.part}`, async ({ page, browserName }) => {
+      if (unit.part === 'pointer' || unit.part === 'keyboard') {
+        const { f, n, condition } = unit;
+        if (unit.part === 'keyboard') {
+          await mount(page, [f]);
+          await page.mouse.click(700, 10);
+          await tabTo(page, cell(page, 'r', n));
+          await expect.poll(() => drawn(item(page, 'r', n)), `${condition} focused`).toEqual(await expected(page, condition, 'focused'));
+          return;
+        }
+        await mount(page, [f]);
+        await page.mouse.move(700, 10);
+        await expect.poll(() => drawn(item(page, 'r', n)), condition).toEqual(await expected(page, condition));
+        await cell(page, 'r', n).hover();
+        await expect.poll(() => drawn(item(page, 'r', n)), `${condition} hovered`).toEqual(await expected(page, condition, 'hovered'));
+        await page.mouse.down();
+        await expect.poll(() => drawn(item(page, 'r', n)), `${condition} pressed`).toEqual(await expected(page, condition, 'pressed'));
+        await page.mouse.up();
+        await page.mouse.move(700, 10);
+        if (browserName !== 'webkit') await expect(cell(page, 'r', n)).toBeFocused();
+        const now = condition.startsWith('collapsed') ? 'collapsed-selected' : 'selected';
+        await expect.poll(() => drawn(item(page, 'r', n)), `${condition} pointer focus`).toEqual(await expected(page, now));
+        return;
+      }
+      if (unit.part === 'a group’s row, hovered') {
+        // A group's row, from the unselected condition.
+        await mount(page, [fixture('g', [d('home', 'Home', 'home'), grp('Projects', [d('a', 'A')], { icon: 'folder' })], { value: 'home' })]);
+        await page.mouse.move(700, 10);
+        await groupRow(page, 'g', 0).hover();
+        await expect.poll(() => drawn(group(page, 'g', 0))).toEqual(await expected(page, 'unselected', 'hovered'));
+        return;
+      }
+      expect(unit.part).toBe('under acme, pressed beats focused beats hovered');
+      // Under acme the three states differ: pressed beats focused beats hovered.
+      await mount(page, [fixture('r', MAIL)], { system: 'acme', systemCss: await acmeSystemCss() });
+      const bg = () => css(item(page, 'r', 0).locator('.indicator'), 'background-color');
+      const [rest, hovered, focus, down] = await Promise.all(['', 'hovered-', 'focused-', 'pressed-'].map((s) => resolveColor(page, T(`selected-${s}item-container-color`))));
+      expect(new Set([rest, hovered, focus, down]).size).toBe(4);
       await page.mouse.move(700, 10);
-      await expect.poll(() => drawn(item(page, 'r', n)), condition).toEqual(await expected(page, condition));
-      await cell(page, 'r', n).hover();
-      await expect.poll(() => drawn(item(page, 'r', n)), `${condition} hovered`).toEqual(await expected(page, condition, 'hovered'));
-      await page.mouse.down();
-      await expect.poll(() => drawn(item(page, 'r', n)), `${condition} pressed`).toEqual(await expected(page, condition, 'pressed'));
-      await page.mouse.up();
-      await page.mouse.move(700, 10);
-      if (browserName !== 'webkit') await expect(cell(page, 'r', n)).toBeFocused();
-      const now = condition.startsWith('collapsed') ? 'collapsed-selected' : 'selected';
-      await expect.poll(() => drawn(item(page, 'r', n)), `${condition} pointer focus`).toEqual(await expected(page, now));
-      await mount(page, [f]);
-      await page.mouse.click(700, 10);
-      await tabTo(page, cell(page, 'r', n));
-      await expect.poll(() => drawn(item(page, 'r', n)), `${condition} focused`).toEqual(await expected(page, condition, 'focused'));
-    }
-    // A group's row, from the unselected condition.
-    await mount(page, [fixture('g', [d('home', 'Home', 'home'), grp('Projects', [d('a', 'A')], { icon: 'folder' })], { value: 'home' })]);
-    await page.mouse.move(700, 10);
-    await groupRow(page, 'g', 0).hover();
-    await expect.poll(() => drawn(group(page, 'g', 0))).toEqual(await expected(page, 'unselected', 'hovered'));
-    // Under acme the three states differ: pressed beats focused beats hovered.
-    await mount(page, [fixture('r', MAIL)], { system: 'acme', systemCss: await acmeSystemCss() });
-    const bg = () => css(item(page, 'r', 0).locator('.indicator'), 'background-color');
-    const [rest, hovered, focus, down] = await Promise.all(['', 'hovered-', 'focused-', 'pressed-'].map((s) => resolveColor(page, T(`selected-${s}item-container-color`))));
-    expect(new Set([rest, hovered, focus, down]).size).toBe(4);
-    await page.mouse.move(700, 10);
-    await expect.poll(bg).toBe(rest);
-    await cell(page, 'r', 0).hover();
-    await expect.poll(bg).toBe(hovered);
-    await tabTo(page, cell(page, 'r', 0));
-    await expect.poll(bg).toBe(focus);
-    await page.keyboard.down('Space');
-    await expect.poll(bg).toBe(down);
-    await page.keyboard.up('Space');
-  });
+      await expect.poll(bg).toBe(rest);
+      await cell(page, 'r', 0).hover();
+      await expect.poll(bg).toBe(hovered);
+      await tabTo(page, cell(page, 'r', 0));
+      await expect.poll(bg).toBe(focus);
+      await page.keyboard.down('Space');
+      await expect.poll(bg).toBe(down);
+      await page.keyboard.up('Space');
+    });
+  }
 
   test('NVD-5: keyboard focus shows the ring around the item container, without animation, in both forms; pointer focus does not', async ({ page }) => {
     await mount(page, [fixture('r', MAIL), rail('c', MAIL)]);
