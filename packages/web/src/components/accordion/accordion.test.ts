@@ -716,6 +716,10 @@ test.describe('opening and closing', () => {
       );
       return page.evaluate(() => (window as unknown as { __watched: Watched }).__watched);
     };
+    // The pointer is on the header first, and the item's hovered color has come in: a click that brings the pointer
+    // starts that state motion of the item too, still running when the toggle arrives if the click came within it.
+    await summary.hover();
+    await motionEnded(details);
     await watch();
     await summary.click();
     const opening = await watched();
