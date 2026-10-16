@@ -2,7 +2,7 @@
 title: "按钮"
 description: "让用户只需轻点或点击一次，就能执行一项操作、打开或关闭某个功能，或前往某个目标位置。"
 translationOf: components/button.mdx
-sourceHash: 2d11c980a07f77a062a0d304f367e3dbb66f4fd0
+sourceHash: af9d89a6c77ce45b911805a86b07eef4a749f99c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -163,6 +163,20 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
     <tanrei-button full-width>创建账号</tanrei-button>
     <tanrei-button variant="outlined" full-width><span slot="icon">upload</span>上传文件</tanrei-button>
   </div>
+</DemoFrame>
+
+### 破坏性操作
+
+如果按钮的操作会删除或丢弃一些可能无法找回的东西（删除、放弃、移除成员），就给它设置 `destructive`。按钮保持其变体的强调程度，并在其中采用错误色。filled 按钮用错误色填充，tonal 按钮用错误容器色填充；elevated、outlined 和 text 按钮用错误色绘制标签，outlined 按钮的边线也用这个颜色。禁用时，它与同一变体的任何禁用按钮看起来一样。
+
+像为其他操作那样选择变体。当删除正是这个视图要完成的那一步时，例如“删除项目？”对话框中的确认操作，用 filled。当它只是若干操作之一时，例如列表每一行中的“移除”，用 outlined 或 text。纯图标按钮也可以设置 `destructive`，但对于无法撤销的操作，标签比图标更清楚。切换按钮没有破坏性外观。
+
+<DemoFrame label="各变体的破坏性按钮，以及纯图标按钮" plain>
+  <tanrei-button destructive>删除项目</tanrei-button>
+  <tanrei-button variant="tonal" destructive>放弃草稿</tanrei-button>
+  <tanrei-button variant="outlined" destructive>移除成员</tanrei-button>
+  <tanrei-button variant="text" destructive>清除历史记录</tanrei-button>
+  <tanrei-button variant="text" destructive label="删除文件"><span slot="icon">delete</span></tanrei-button>
 </DemoFrame>
 
 ### 有目标地址的按钮是链接
@@ -349,6 +363,8 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 | Outlined | 中 | 放在 filled 按钮旁边、分量相当的操作，例如“取消”。 |
 | Text | 低 | 最不紧迫的操作，以及卡片、对话框和工具栏中的行内操作。 |
 
+`destructive` 不是变体：它可以与任何变体搭配，并保持该变体的强调程度（参见[破坏性操作](#破坏性操作)）。
+
 没有 `variant` 的按钮是 filled，只有一个例外：作为[对话框](/zh-cn/components/dialog/)或[侧边面板](/zh-cn/components/side-sheet/)的操作放置时，它采用宿主的变体，在默认系统中是 tonal。因此只需要给外观应当不同的那个操作设置变体。侧边面板的关闭按钮也以同样的方式采用面板为关闭按钮规定的变体。
 
 ### 推荐
@@ -357,6 +373,7 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 - 每个视图只保留一个 filled 按钮。如果两个操作看起来同样重要，这个视图很可能在同时做两件事。
 - 把主操作放在该平台的用户预期的位置，并在整个产品中保持这一顺序。
 - 在密集的工具栏和表格中使用 `small`（32），默认使用 `medium`（40），在以触摸为主的界面或首屏主视觉区域使用 `large`（56）。每种尺寸的点击区域都有保证。
+- 给删除或丢弃某些东西的操作设置 `destructive`，并像其他操作一样按强调程度选择变体。
 - 用图标插槽来强化标签。只有在图标的含义广为人知时（搜索、关闭、更多）才省略标签，并用 `label` 为按钮命名。
 
 ### 避免
@@ -366,6 +383,7 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 - 不要在列表的每一行都放一个 filled 按钮。优先使用 text 按钮，或者在顶部放一个作用于所选项的操作。
 - 不要把禁用按钮当作传达校验问题的唯一手段。让它保持可用，并在被按下时说明还缺少什么；或者用 `focusable-when-disabled` 让它仍可到达，并说明原因。
 - 不要在按钮的操作进行期间禁用它。请设置 `busy`，让焦点留在它上面。
+- 不要为了强调而使用 `destructive`，也不要把它用在不会破坏任何东西的操作上。如果一个视图中的操作全是红色，就没有哪个能突出。
 - 不要截断标签。让按钮变宽，或者把标签写短。
 - 不要让纯图标按钮缺少 `label`：图标不是名称。
 - 不要手动把 narrow 的纯图标按钮一个紧挨一个地排列。它们的目标会延伸到边缘之外，彼此重叠。
@@ -390,12 +408,13 @@ narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始�
 - 获得键盘焦点时，它显示“先留间隙、再画圆环”的焦点指示，不带动画。
 - 它的颜色来自成对的角色，这些角色对的对比度在每个对比度级别下都经过校验。outlined 按钮的轮廓是默认系统的细线，在标准对比度下有意画得很淡：让人认出这个控件的是标签和图标，而不是它的边线。在中、高对比度下，这条细线会提高到 3:1 和 4.5:1。需要更醒目边线的产品，可以在层中把 `comp.button.outlined.outline.color` 设为 `sys.color.outline`。
 - 文本放大时，容器随之变大，标签绝不截断。
+- `destructive` 只改变颜色。角色、名称、状态和按键与不带它的同一个按钮相同，因为 Web 上没有表示操作具有破坏性的角色或状态。在 SwiftUI 上，它就是平台自己的破坏性角色（destructive role）。
 
 ### 需要你做的事
 
 - 写出脱离上下文也能看懂的标签。在项目名称旁边，“删除项目”比“删除”更好，因为屏幕阅读器用户可能只听到这个按钮。
 - 如果操作会启动一个耗时较长的流程，请设置 `busy` 和 `busy-label`，并在流程结束时朗读结果。仅仅禁用按钮，对屏幕阅读器用户来说什么也没有传达，还会让他们失去焦点。
-- 不要依靠变体的颜色来传达含义，例如破坏性的意图。请在标签里说出来。
+- 不要只靠颜色来说明操作具有破坏性。`destructive` 会用错误色来绘制它，但看不到或分辨不出这种颜色的人，只能从标签得知。写“删除项目”，而不是“确定”，并在确认它的对话框中说明会失去什么。
 - 按链接的去向为链接按钮命名：写“查看发票”，不要写“点击这里”。`target` 为 `new` 时，写上 `targetLabel`。
 - 几个按钮画着同一个词时，给每个按钮一个 `label`，它包含这个词，并说明按钮作用于什么（参见[比标签更长的名称](#比标签更长的名称)）。
 - 表单的提交按钮被禁用时，请在页面上说明还缺少什么。禁用的按钮也会拦住 Enter，而它本身什么也没有解释。

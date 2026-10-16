@@ -6,6 +6,7 @@
   "type": "module",
   "repository": { "type": "git", "url": "https://github.com/chnotchy/tanrei.git", "directory": "packages/react" },
   "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "sideEffects": false,
   "files": ["dist", "README.md", "NOTICE"],
   "scripts": {
     "generate": "node scripts/generate.js",
@@ -17,5 +18,5 @@
     "@tanrei/web": "workspace:*"
   },
   "peerDependencies": { "react": ">=18" },
-  "devDependencies": { "@types/react": "^19.0.0", "react": "^19.0.0", "typescript": "^7.0.2" }
+  "devDependencies": { "@types/react": "^19.0.0", "esbuild": "^0.28.2", "react": "^19.0.0", "typescript": "^7.0.2" }
 }

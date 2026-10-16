@@ -32,7 +32,7 @@ export function Toolbar({ busy, onDeploy }: { busy: boolean; onDeploy: () => voi
 ```
 
 Importing a wrapper imports its element (`@tanrei/web/components/button`), which registers `<tanrei-button>`; nothing else
-has to be loaded. A wrapper is named after its tag without the prefix: `<tanrei-button>` → `Button`.
+has to be loaded, and a bundler leaves out the wrappers you do not import, with their elements. A wrapper is named after its tag without the prefix: `<tanrei-button>` → `Button`.
 
 Design systems, themes and contrast are attributes on any ancestor, exactly as on the web — they are not props and
 there is no provider:
@@ -166,8 +166,14 @@ know:
 
 ## Generated code
 
-`src/generated/components.ts` is written by `scripts/generate.js` from `packages/web/custom-elements.json`
-(`pnpm generate`) and must not be edited by hand; add a component in `@tanrei/web` — spec first — and regenerate.
+`src/generated/` is written by `scripts/generate.js` from `packages/web/custom-elements.json` (`pnpm generate`) and
+must not be edited by hand; add a component in `@tanrei/web` — spec first — and regenerate. Each wrapper is a module
+of its own (`src/generated/wrappers/<name>.ts`, which imports its element's module), and `src/generated/components.ts`
+re-exports them. The package declares no side effects (`"sideEffects": false`) and every call made at load is marked
+pure, so a bundler keeps the wrappers a product uses and, through them, only their elements: `import { Calendar } from
+'@tanrei/react'` bundles the calendar and the buttons it is drawn with, not the whole of `@tanrei/web`
+(`test/tree-shaking.test.mjs` holds this). Wrappers in one shared module could not be dropped: each element's module
+defines its element when it is evaluated, a side effect `@tanrei/web` declares.
 `pnpm --filter @tanrei/react build` compiles it with `tsc`. What the generator reads from the manifest: an element's
 tag and class, its events with their types (`@fires {CustomEvent<Detail>} name`), its slots and event descriptions for
 the doc comment, and its attributes that have no property (`@attr {boolean} name`) for the marks.

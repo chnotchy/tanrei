@@ -2,7 +2,7 @@
 title: "对话框"
 description: "当任务缺少某个决定或几项信息就无法继续时，让用户停下来作答：它出现在一个表面上，把背后的一切变暗并挡住，直到用户作答或将它关闭。"
 translationOf: components/dialog.mdx
-sourceHash: 0074aed1e5a862b361536e2345e8f216a62260a4
+sourceHash: 0b78df28088e3b0e0169efe05949a3bf381ca977
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -57,7 +57,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
     <tanrei-dialog headline="删除项目？" alert>
       <span slot="icon">delete</span>
       <tanrei-button slot="actions" dismissive variant="text">取消</tanrei-button>
-      <tanrei-button slot="actions" confirming variant="filled">删除</tanrei-button>
+      <tanrei-button slot="actions" confirming variant="filled" destructive>删除</tanrei-button>
     </tanrei-dialog>
 
     <!-- 只有一个操作的表单：一个关闭按钮，以及固定宽度。 -->
@@ -197,7 +197,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
   <tanrei-dialog id="dialog-demo-alert" alert headline="删除项目？" supporting-text="项目中的所有内容，包括它的历史记录，都将被删除。此操作无法撤销。">
     <span slot="icon">delete</span>
     <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">取消</tanrei-button>
-    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">删除</tanrei-button>
+    <tanrei-button slot="actions" confirming destructive onclick="this.closest('tanrei-dialog').open = false">删除</tanrei-button>
   </tanrei-dialog>
 </DemoFrame>
 
@@ -233,7 +233,7 @@ Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter
 - **按任务放置。** 排成一行时，取消类操作在起始侧，确认类操作在末尾侧。排成一列时，确认类操作在最上面，取消类操作在最下面。两种标记都没有的操作，保持它在两者之间的给定位置。焦点和屏幕阅读器遵循放置后的顺序，所以你不必手动给按钮排序。
 - **放得下就排成行，否则排成列。** 只要每个标签都能在自己那一份宽度内排成一行，操作就保持一行。一旦有标签需要换行，它们就叠成一列，每个与对话框同宽。对话框的宽度或文本大小变化时，会重新判断。
 - **默认是 tonal。** 没有设置 `variant` 的操作画成 tonal。标记只决定位置，从不决定外观。
-- **换一种外观。** 设置某个按钮的 `variant`，就能让那个操作换一种外观，例如 text 的“取消”配 filled 的“删除”。对话框从不覆盖你设置的 variant。如果产品希望所有对话框都换一种外观，应在产品的层里设置一次（`actions.variant`；如果要让操作保持各自的宽度并向末尾侧对齐，则设置 `actions.arrangement`），而不是在每个按钮上设置。
+- **换一种外观。** 设置某个按钮的 `variant`，就能让那个操作换一种外观，例如 text 的“取消”配 filled 的“删除”。给删除或丢弃内容的操作（例如这个“删除”）设置 `destructive`：它保持原有变体，并采用错误色。对话框从不覆盖你设置的 variant，也不覆盖 `destructive`。如果产品希望所有对话框都换一种外观，应在产品的层里设置一次（`actions.variant`；如果要让操作保持各自的宽度并向末尾侧对齐，则设置 `actions.arrangement`），而不是在每个按钮上设置。
 - **至少一个。** 没有操作的对话框仍会打开，调试构建会把它报告为错误。规格规定，凡是平台 API 能够把操作设为必填的地方都要这样做：SwiftUI 的 `actions:` 构建器、Compose 的 `actions` 参数、Flutter 的 `actions` 列表和 React Native 的 `actions` 属性。这四者之中，目前只有 SwiftUI 的是必填的；其余三个在跟上之前仍接受没有操作的对话框。如果对话框的所有操作都被禁用，而 `dismissible` 又为 false，调试构建也会报告，因为这样就没有出路了。
 
 ### 关闭按钮

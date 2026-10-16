@@ -7,6 +7,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
+import { holdClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { ANCHORED_PLACEMENTS, type AnchoredInput, type AnchoredPlacement, placeAnchored } from '../../primitives/placement.js';
 
@@ -1301,6 +1302,42 @@ test.describe('opening and focus', () => {
     await expect.poll(() => log(page)).toEqual(['q:focus-out']);
   });
 
+  test('POP-20: Tab from the popover’s last element skips the popover only for the key’s own move — once focus has moved on, or the Tab was cancelled, the popover takes focus again, however late the page runs its timers', async ({ page }) => {
+    // The popover's element directly after its opener in the document, where the key's move would come back into it.
+    await mount(page, `<div style="padding: 80px 200px"><button id="a" type="button">Storage</button>${popover('headline="Rename" closable close-label="Close" data-keep', `<input id="one" aria-label="One" /><input id="two" aria-label="Two" />${ACTIONS}`)} <a id="after" href="#a">After</a></div>`);
+    await page.locator('#a').focus();
+    await open(page);
+    // The page's timers stand still from here: a popover that only a timer gave back its focus would stay out of reach
+    // at every later act, as it does when the browser runs other tasks first.
+    await holdClock(page);
+    const inert = () => host(page).evaluate((el) => (el as HTMLElement).inert);
+    const last = host(page).locator('tanrei-button[confirming] button');
+    await last.focus();
+    await tab(page);
+    expect(await active(page)).toBe('#after');
+    // The product declines the close, and moves focus into the popover right away: it is there to take it.
+    expect(await log(page)).toEqual(['p:focus-out']);
+    await page.locator('#one').evaluate((el) => (el as HTMLElement).focus());
+    expect(await active(page)).toBe('#one');
+    expect(await inert()).toBe(false);
+    // A Tab that something on the page cancels after the popover has heard it moves nothing past the opener; once the
+    // key is up, the popover takes focus again.
+    await page.evaluate(() => {
+      const cancel = (event: KeyboardEvent) => {
+        if (event.key !== 'Tab') return;
+        event.preventDefault();
+        window.removeEventListener('keydown', cancel);
+      };
+      window.addEventListener('keydown', cancel);
+    });
+    await last.focus();
+    await tab(page);
+    expect(await active(page)).toBe('#a');
+    await page.locator('#one').evaluate((el) => (el as HTMLElement).focus());
+    expect(await active(page)).toBe('#one');
+    expect(await inert()).toBe(false);
+  });
+
   test('POP-22: closing returns focus to the opener if it was inside the popover or was lost with it, and leaves it where the person put it otherwise; the opener shows its focus indicator only when the close came from the keyboard; an opener that is gone takes nothing', async ({ page }) => {
     await mount(
       page,
@@ -1427,6 +1464,38 @@ test.describe('dismissal', () => {
     await page.locator('#other').click();
     await page.keyboard.press('Escape');
     expect((await log(page)).filter((entry) => entry.startsWith('p:'))).toEqual(['p:outside', 'p:outside', 'p:escape']);
+    expect(await isShown(page)).toBe(true);
+  });
+
+  test('POP-21: a declined close is over with the act that asked for it — focus moved outside again, or after a declined Escape, asks again however late the page runs its timers; one act still asks once', async ({ page }) => {
+    await mount(
+      page,
+      `<div style="padding: 80px 200px"><button id="a" type="button">Storage</button> <button id="other" type="button">Other</button> <button id="third" type="button">Third</button></div><${TAG} id="p" anchor="a" headline="Rename" data-keep><input id="one" aria-label="One" /></${TAG}>`,
+    );
+    await open(page);
+    // The page's timers stand still from here: an act that only a timer ended would still be going on at every later
+    // act, as it is when the browser runs other tasks first.
+    await holdClock(page);
+    const focus = (selector: string) => page.locator(selector).evaluate((el) => (el as HTMLElement).focus());
+    // The product moves focus outside, twice, in two tasks of its own (no press, no key between them): each asks.
+    await focus('#other');
+    expect(await log(page)).toEqual(['p:focus-out']);
+    await focus('#third');
+    expect(await log(page)).toEqual(['p:focus-out', 'p:focus-out']);
+    // Escape, declined; then the product moves focus outside: that asks too.
+    await clearLog(page);
+    await focus('#one');
+    await page.keyboard.press('Escape');
+    expect(await log(page)).toEqual(['p:escape']);
+    await focus('#other');
+    expect(await log(page)).toEqual(['p:escape', 'p:focus-out']);
+    // One act asks once: a product that answers Escape by moving focus outside is not asked again by that move.
+    await clearLog(page);
+    await focus('#one');
+    await host(page).evaluate((el) => el.addEventListener('close', () => document.getElementById('third')!.focus(), { once: true }));
+    await page.keyboard.press('Escape');
+    expect(await active(page)).toBe('#third');
+    expect(await log(page)).toEqual(['p:escape']);
     expect(await isShown(page)).toBe(true);
   });
 

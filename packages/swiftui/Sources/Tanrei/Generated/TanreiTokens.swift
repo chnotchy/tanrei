@@ -2808,6 +2808,11 @@ public struct TanreiButtonVariantStateTokens: Sendable, Equatable {
   public var selectedIconColor: TanreiPaint
   public var selectedOutlineColor: TanreiPaint
   public var selectedStateLayerColor: TanreiPaint
+  public var destructiveContainerColor: TanreiPaint
+  public var destructiveLabelColor: TanreiPaint
+  public var destructiveIconColor: TanreiPaint
+  public var destructiveOutlineColor: TanreiPaint
+  public var destructiveStateLayerColor: TanreiPaint
 
   public init(
     containerColor: TanreiPaint,
@@ -2825,7 +2830,12 @@ public struct TanreiButtonVariantStateTokens: Sendable, Equatable {
     selectedLabelColor: TanreiPaint,
     selectedIconColor: TanreiPaint,
     selectedOutlineColor: TanreiPaint,
-    selectedStateLayerColor: TanreiPaint
+    selectedStateLayerColor: TanreiPaint,
+    destructiveContainerColor: TanreiPaint,
+    destructiveLabelColor: TanreiPaint,
+    destructiveIconColor: TanreiPaint,
+    destructiveOutlineColor: TanreiPaint,
+    destructiveStateLayerColor: TanreiPaint
   ) {
     self.containerColor = containerColor
     self.labelColor = labelColor
@@ -2843,6 +2853,11 @@ public struct TanreiButtonVariantStateTokens: Sendable, Equatable {
     self.selectedIconColor = selectedIconColor
     self.selectedOutlineColor = selectedOutlineColor
     self.selectedStateLayerColor = selectedStateLayerColor
+    self.destructiveContainerColor = destructiveContainerColor
+    self.destructiveLabelColor = destructiveLabelColor
+    self.destructiveIconColor = destructiveIconColor
+    self.destructiveOutlineColor = destructiveOutlineColor
+    self.destructiveStateLayerColor = destructiveStateLayerColor
   }
 }
 

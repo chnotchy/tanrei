@@ -2,7 +2,7 @@
 title: Grupo de botones
 description: Dispone unos pocos botones relacionados en una fila o en una columna, separados o unidos en una sola forma, coloca la acción que completa la tarea y la que la abandona donde las personas las esperan, y da nombre a los botones como grupo.
 translationOf: components/button-group.mdx
-sourceHash: c06ddd9b183514fe5cde84fd2dfb883e35f2c0ec
+sourceHash: 4fffb14499d629d4c5b2c43cb8fa1ec4e97d4b84
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -235,7 +235,7 @@ Dos indicadores en un botón le dicen al grupo cuál es su lugar, de modo que la
   </div>
 </DemoFrame>
 
-El foco del teclado y los lectores de pantalla siguen el orden de colocación, de modo que todas las personas encuentran las acciones en el orden en que se dibujan. Los indicadores describen la tarea, no el tono: en «Cancelar · Eliminar», «Eliminar» es la acción que confirma. Una acción destructiva se distingue por su propio aspecto y su etiqueta, no por su lugar. Un [diálogo](/es/components/dialog/) y una [hoja lateral](/es/components/side-sheet/) colocan sus propias acciones con los mismos dos indicadores.
+El foco del teclado y los lectores de pantalla siguen el orden de colocación, de modo que todas las personas encuentran las acciones en el orden en que se dibujan. Los indicadores describen la tarea, no el tono: en «Cancelar · Eliminar», «Eliminar» es la acción que confirma. Una acción destructiva se distingue por su propio aspecto (el `destructive` del botón) y su etiqueta, no por su lugar. Un [diálogo](/es/components/dialog/) y una [hoja lateral](/es/components/side-sheet/) colocan sus propias acciones con los mismos dos indicadores.
 
 ### Unidos por un divisor o por una separación
 
@@ -342,7 +342,7 @@ Usa una fila de forma predeterminada. Usa una columna donde los botones no cabr�
 
 - No uses botones conmutadores en un grupo para opciones que se excluyen entre sí, como la alineación a la izquierda, al centro y a la derecha. El grupo no hace que sus conmutadores sean excluyentes. Usa pestañas donde la elección cambia el contenido de debajo, botones de opción donde define un valor, o un botón segmentado donde el sistema lo incluya.
 - No pongas en un grupo nada que no sean Buttons de Tanrei, con etiqueta o de solo icono: ni campos, ni chips, ni menús. Las compilaciones de depuración avisan de cualquier otro contenido.
-- No uses los indicadores para el tono. Un «Eliminar» destructivo que completa la tarea es `confirming`; un botón con ambos indicadores se coloca como si no tuviera ninguno, y se avisa de ello.
+- No uses los indicadores para el tono. Un «Eliminar» destructivo que completa la tarea es `confirming`, y toma su aspecto de su propio `destructive`; un botón con ambos indicadores se coloca como si no tuviera ninguno, y se avisa de ello.
 - No esperes que la fila salte de línea. Una fila que no cabe estrecha sus Buttons y ajusta sus etiquetas en varias líneas. Nunca pasa a una segunda línea ni se desplaza.
 - No mezcles tamaños en un mismo grupo. El grupo no cambia el tamaño de sus botones.
 

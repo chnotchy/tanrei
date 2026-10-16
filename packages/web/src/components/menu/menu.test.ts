@@ -3747,6 +3747,48 @@ test.describe('context menu', () => {
     expect(await log(page)).toEqual(['native:shown']);
   });
 
+  test('MNU-60: the context menu event a key may make is the key’s only while the key is down — the command of assistive technology that follows a key’s request, with no key or press between them, asks for the menu, however late the page runs its timers', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 600 });
+    await contextArea(page);
+    // The page's timers stand still from here: a key's request that only a timer ended would still be going on at the
+    // next request, as it is when the browser runs other tasks first.
+    await holdClock(page);
+    const b2 = await bounds(page.locator('#b2'));
+    // A context menu event made while the key is down — as an engine that makes one despite the cancelled key would —
+    // is the key's: cancelled, and no second request.
+    await page.evaluate(() => {
+      const make = (event: KeyboardEvent) => {
+        if (event.key !== 'ContextMenu') return;
+        window.removeEventListener('keydown', make);
+        document.getElementById('b1')!.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, composed: true, cancelable: true }));
+      };
+      window.addEventListener('keydown', make);
+    });
+    await page.locator('#b1').focus();
+    await page.keyboard.press('ContextMenu');
+    await expect.poll(() => ctxOpen(page)).toBe(true);
+    expect(await log(page)).toEqual([expect.stringMatching(/^request:keyboard:.*:b1$/), 'native:cancelled']);
+    await close(page);
+    await expect.poll(() => ctxOpen(page)).toBe(false);
+    for (const key of ['ContextMenu', 'Shift+F10']) {
+      await page.evaluate(() => ((window as any).log.length = 0));
+      await page.locator('#b1').focus();
+      await page.keyboard.press(key);
+      await expect.poll(() => ctxOpen(page), key).toBe(true);
+      expect((await log(page)).filter((line) => line !== 'native:cancelled'), key).toEqual([expect.stringMatching(/^request:keyboard:.*:b1$/)]);
+      // The product closes the menu; then the person asks again with assistive technology, which moves no pointer and
+      // presses no key in the page.
+      await close(page);
+      await expect.poll(() => ctxOpen(page), key).toBe(false);
+      await page.evaluate(() => ((window as any).log.length = 0));
+      await atContextMenu(page, '#b2');
+      expect(await log(page), key).toEqual([`request:pointer:${Math.round(b2.x + 2)},${Math.round(b2.y + 2)}:b2`, 'native:cancelled']);
+      await expect.poll(() => ctxOpen(page), key).toBe(true);
+      await close(page);
+      await expect.poll(() => ctxOpen(page), key).toBe(false);
+    }
+  });
+
   test('MNU-60: a touch held still in the area for the long-press duration asks for the menu, and the release of that press activates nothing; one that moves past the slop or lifts sooner asks nothing (the page clock held)', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 600 });
     await contextArea(page);

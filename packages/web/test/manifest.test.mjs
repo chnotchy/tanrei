@@ -73,9 +73,12 @@ test('the analyzer\'s sources are written once: in its configuration, which the 
   assert.equal(config.outdir, '.');
   assert.equal(config.litelement, true);
   assert.equal(JSON.parse(read('../package.json')).scripts.generate, 'cem analyze', 'the script names no source of its own');
-  const drift = /const cem = \['packages\/web', 'node_modules\/\.bin\/cem', \[([^\]]*)\]/.exec(read('../../tools/src/cli.js'));
-  assert.ok(drift, 'the drift check runs the analyzer');
-  assert.deepEqual([...drift[1].matchAll(/'([^']*)'/g)].map((match) => match[1]), ['analyze'], 'and neither does the drift check');
+  // The drift check's generators are a list it exports (packages/tools/src/drift.js), read here as the check runs them.
+  const { GENERATORS } = await import('../../tools/src/drift.js');
+  const drift = GENERATORS.filter(([cwd, command]) => cwd === 'packages/web' && command === 'node_modules/.bin/cem');
+  assert.equal(drift.length, 1, 'the drift check runs the analyzer');
+  assert.deepEqual(drift[0][2], ['analyze'], 'and neither does the drift check');
+  assert.deepEqual(drift[0][3], ['packages/web/custom-elements.json'], 'and compares the manifest the configuration writes');
   // What the configuration names is what the manifest holds: every module is a component's or one of the two
   // primitives that hold a base class (a navigation destination's; a composed element's).
   for (const module of manifest.modules) assert.ok(module.path.startsWith('src/components/') || ['src/primitives/destination.ts', 'src/primitives/composed.ts'].includes(module.path), module.path);

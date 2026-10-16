@@ -53,7 +53,9 @@ test('nothing changed: nothing is written and nothing is named', () => {
 
 test('the drift command takes --check, and says in its report that the tree was left as it was', () => {
   const cli = fs.readFileSync(new URL('../src/cli.js', import.meta.url), 'utf8');
-  assert.match(cli, /keepFiles\(REPO_ROOT/);
+  const drift = fs.readFileSync(new URL('../src/drift.js', import.meta.url), 'utf8');
+  assert.match(cli, /regenerate\(REPO_ROOT, GENERATORS, \{ checkOnly/);
+  assert.match(drift, /checkOnly \? keepFiles\(root/);
   assert.match(cli, /'--check'/);
   assert.match(cli, /TANREI_CHECK_ONLY/);
 });

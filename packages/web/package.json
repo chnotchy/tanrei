@@ -17,7 +17,16 @@
     "./dist/timeline.js",
     "./dist/previous-next-links.js",
     "./dist/components/**/*.js",
+    "./dist/primitives/field-frame.js",
     "./dist/tanrei.bundle.js",
+    "./src/index.ts",
+    "./src/icons.ts",
+    "./src/link.ts",
+    "./src/steps.ts",
+    "./src/timeline.ts",
+    "./src/previous-next-links.ts",
+    "./src/components/**/*.ts",
+    "./src/primitives/field-frame.ts",
     "**/*.css"
   ],
   "exports": {
