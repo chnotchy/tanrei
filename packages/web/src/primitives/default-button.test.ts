@@ -256,27 +256,32 @@ const CONTROLS = `
 const NOT_PRESSED_IN_A_TEST = ['file', 'color'];
 const CONTROL_IDS = [...CONTROLS.matchAll(/id="ID-([a-z]+)"/g)].map((match) => match[1]!).filter((id) => !NOT_PRESSED_IN_A_TEST.includes(id));
 
-test('BTN-30: Enter in each of the platform’s own controls does to a form with a Tanrei default button exactly what this engine does to one with its own — every event in the same order, the same data, the same submitter’s pair — and presses nothing where the engine would not', async ({ page }) => {
-  await mount(page, TWINS(CONTROLS));
-  await hearEverything(page);
-  const pressed: string[] = [];
-  for (const control of CONTROL_IDS) {
+/**
+ * The keys that must press the default button in a control, in every engine — so that a comparison of the two forms is
+ * not of two silences — and the controls where no key may press it: a text area, and a button of the platform's own.
+ */
+const MUST_PRESS: Record<string, string[]> = { text: ['Enter', 'Shift+Enter'], number: ['Enter'], checkbox: ['Enter'] };
+const MUST_NOT_PRESS = ['area', 'plain', 'clear'];
+
+// One test for each control, each the length of its own five keys in both forms (in harsh mode, a gap around every key
+// and focus: the controls together outlasted a test's time).
+for (const control of CONTROL_IDS) {
+  test(`BTN-30, ${control}: Enter in the platform’s own ${control} control does to a form with a Tanrei default button exactly what this engine does to one with its own — every event in the same order, the same data, the same submitter’s pair — and presses nothing where the engine would not`, async ({ page }) => {
+    await mount(page, TWINS(CONTROLS));
+    await hearEverything(page);
+    const pressed: string[] = [];
     for (const key of ['Enter', 'Shift+Enter', 'Alt+Enter', 'Control+Enter', 'Meta+Enter']) {
       const [tanrei, native] = await inBoth(page, control, () => page.keyboard.press(key));
       expect(tanrei, `${key} in ${control}`).toEqual(native);
-      if (tanrei.includes('click:button')) pressed.push(`${key} in ${control}`);
+      if (tanrei.includes('click:button')) pressed.push(key);
       // A select's list, a date's picker: closed before the next key.
       await page.keyboard.press('Escape');
       await page.evaluate(() => document.querySelectorAll('form').forEach((form) => form.reset()));
     }
-  }
-  // The comparison is not of two silences, and a key in a text area or on a button presses no default button.
-  expect(pressed).toContain('Enter in text');
-  expect(pressed).toContain('Shift+Enter in text');
-  expect(pressed).toContain('Enter in number');
-  expect(pressed).toContain('Enter in checkbox');
-  expect(pressed.filter((entry) => / in (area|plain|clear)$/.test(entry))).toEqual([]);
-});
+    if (MUST_PRESS[control]) expect(pressed, `pressed in ${control}`).toEqual(expect.arrayContaining(MUST_PRESS[control]));
+    if (MUST_NOT_PRESS.includes(control)) expect(pressed, `pressed in ${control}`).toEqual([]);
+  });
+}
 
 test('BTN-30: Enter in a native control whose value the person just changed — typed text, a number, a date, a moved range, a chosen option, a ticked box — commits it first: change, then the button’s click, then submit, and a submit listener reads the new value, as with the platform’s own default button', async ({ page }) => {
   await mount(page, TWINS(CONTROLS));
