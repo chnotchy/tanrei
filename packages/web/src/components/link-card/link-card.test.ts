@@ -916,7 +916,10 @@ test.describe('states, focus and press', () => {
   });
 
   test('LKC-18 a press by Enter stays while the key is down, though the pointer resting over the card leaves it; the keyup ends it', async ({ page }) => {
-    await mountSpec(page, ['full']);
+    // Mounted on the test's own page, not after a visit to about:blank (`mountSpec`): in Chromium on Linux a page that
+    // went to about:blank and on to the stage sends no pointerout and no pointerleave to anything on the stage — only
+    // pointerover — so the pointer could never be seen to leave the card.
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'full') });
     const link = anchor(page, 'full');
     await link.evaluate((el) => el.addEventListener('click', (event) => event.preventDefault()));
     await expectKeyPressOutlastsPointer(page, { control: link, key: 'Enter' });
