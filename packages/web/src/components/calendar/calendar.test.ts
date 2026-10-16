@@ -5,6 +5,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('calendar');
 type P = Page;
@@ -1491,6 +1492,9 @@ test.describe('states, press, corners and focus style', () => {
       const b = c.locator('.box');
       await c.hover();
       await expect.poll(() => css(b, 'background-color')).toBe(await resolveColor(page, T('unselected-hovered-container-color')));
+      // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+      // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+      await motionEnded(c);
       const hovered = await css(b, 'background-color');
       await page.mouse.down();
       const result = { pressed: await b.getAttribute('data-pressed'), bg: await css(b, 'background-color'), hovered, label: await css(b, 'color'), ripple: await b.locator('.ripple').count(), opacity: await css(c, 'opacity') };
