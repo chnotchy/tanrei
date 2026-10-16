@@ -702,6 +702,9 @@ test.describe('press, feedback, corners, focus style and motion', () => {
     const hovered = await resolveColor(page, S('hovered', 'container-color'));
     await page.mouse.move(h.x + 3, h.y - 2);
     await expect.poll(() => css(containerOf(page, 'continuous'), 'background-color')).toBe(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, 'continuous'));
     await page.mouse.down();
     expect(await pressed(page, 'continuous')).toBe('ripple');
     await expect(ripples(page, 'continuous')).toHaveCount(1);
