@@ -2263,6 +2263,15 @@ export async function mountFixtures(page: Page, spec: Spec, options: DocumentOpt
     });
     await page.evaluate(facesReady);
   }
+  // A text face, too, is fetched only when text first needs it: a fixture whose only text is hidden at mount (the
+  // items of a closed menu, a popover's content) would draw that text in a fallback for the first frames it is shown,
+  // at another width, and settle a frame later. Load the faces of the text families the page names first.
+  await page.evaluate(async () => {
+    const style = getComputedStyle(document.documentElement);
+    const unquote = (family: string) => family.trim().replace(/^["']|["']$/g, '');
+    const text = ['brand', 'plain', 'mono'].map((role) => unquote(style.getPropertyValue(`--tanrei-ref-typeface-${role}`).split(',')[0]));
+    await Promise.all([...document.fonts].filter((face) => face.status === 'unloaded' && text.includes(unquote(face.family))).map((face) => face.load()));
+  });
 }
 
 /** Where each stage of a spec's page of all its fixtures begins, as the part of a pixel past a whole one: measured once for a worker, by spec and options. */
