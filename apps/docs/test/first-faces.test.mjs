@@ -3,7 +3,7 @@
 // family's Latin letters from — so that text is first laid out in the family it stays in, and nothing under it moves
 // when a file arrives.
 //
-//   pnpm --filter @tanrei/docs test:node
+//   pnpm --filter @tanrei/docs test:node      (it writes src/styles/fonts.generated.css first, as dev and build do)
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { describe, test } from 'node:test';
@@ -32,6 +32,10 @@ describe('the families of a page’s first screen', () => {
 
 describe('what the head preloads', () => {
   const head = read('src/components/frame/Head.astro');
+  // Written by `pnpm --filter @tanrei/docs fonts` (gitignored); `test:node` runs that step first.
+  if (!fs.existsSync(fileURLToPath(new URL('../src/styles/fonts.generated.css', import.meta.url)))) {
+    throw new Error('src/styles/fonts.generated.css is missing: run `pnpm --filter @tanrei/docs fonts` (test:node does it first)');
+  }
   const faces = read('src/styles/fonts.generated.css');
   const families = firstFamilies(stacks);
 
