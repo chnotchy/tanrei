@@ -2242,6 +2242,49 @@ function facesReady(): Promise<void> {
   });
 }
 
+/**
+ * Runs in the page: every run of text the page lays out in one of `families` (the icon families the harness
+ * registers) that is not yet one glyph of its face, described as `<host> › <element> "<text>" …`:
+ * - a run in a family the page has no loaded face of — drawn, if at all, from a fallback or from a copy of the font
+ *   installed on the machine, which the Linux recorder does not have; hidden or not, it is not ready;
+ * - a run whose ink is wider than 1.5 em (`DRAWN_WIDTH`, src/primitives/glyph.ts) and that is painted: its name spelled
+ *   out. A glyph whose box clips it (a Button's 1 em icon box shows `ad` of `add`) is measured at its whole width. A
+ *   spelled run that is hidden (`visibility: hidden`: a glyph its icon set cannot draw — a name the set does not
+ *   have, `data-drawn`) draws nothing, which is what its component means.
+ * It looks through every shadow root, and passes over what is not rendered at all.
+ */
+export function glyphsSpelled(families: string[]): string[] {
+  const spelled: string[] = [];
+  const unquote = (family: string) => family.trim().replace(/^["']|["']$/g, '');
+  const loaded = new Set([...document.fonts].filter((face) => face.status === 'loaded').map((face) => unquote(face.family)));
+  const visit = (root: Document | ShadowRoot, host: string) => {
+    for (const el of root.querySelectorAll<HTMLElement>('*')) {
+      if (el.shadowRoot) visit(el.shadowRoot, el.localName);
+      const texts = [...el.childNodes].filter((node): node is Text => node.nodeType === Node.TEXT_NODE && !!node.data.trim());
+      // Content that is not rendered (in a closed `<details>`, a `hidden="until-found"` list, under `display: none`) is
+      // in no picture, and is not looked into: measuring it makes Chromium lay it out (a tree's closed rows then report
+      // their parent's place).
+      if (!texts.length || !el.checkVisibility()) continue;
+      const style = getComputedStyle(el);
+      if (!families.includes(unquote(style.fontFamily.split(',')[0]))) continue;
+      const range = document.createRange();
+      const width = texts.reduce((sum, text) => {
+        range.selectNodeContents(text);
+        return sum + range.getBoundingClientRect().width;
+      }, 0);
+      // The ink is measured as drawn, the font size as computed: under a CSS zoom or a transform on an ancestor the two
+      // differ by the factor the element's own box is drawn at (Firefox reports a zoom of 2 as twice the width).
+      const scale = el.offsetWidth ? el.getBoundingClientRect().width / el.offsetWidth : 1;
+      const size = parseFloat(style.fontSize) * scale;
+      const family = unquote(style.fontFamily.split(',')[0]);
+      const face = loaded.has(family);
+      if (!face || (width > 1.5 * size && style.visibility === 'visible')) spelled.push(`${host} › ${el.localName}${el.className ? `.${String(el.className).split(' ')[0]}` : ''} "${texts.map((t) => t.data.trim()).join(' ')}" ${face ? `${width.toFixed(1)}px at ${size}px` : `in ${family}, which the page has no loaded face of`}`);
+    }
+  };
+  visit(document, 'document');
+  return spelled;
+}
+
 /** Render every fixture of a spec in the page, and wait until the components and their faces are drawn. */
 export async function mountFixtures(page: Page, spec: Spec, options: DocumentOptions & { reducedMotion?: boolean } = {}) {
   const tag = spec.platforms.web.name;
@@ -2253,16 +2296,6 @@ export async function mountFixtures(page: Page, spec: Spec, options: DocumentOpt
   // A step in script (`Staging.after`) has run for every fixture before anything is measured or recorded.
   if (STAGING[spec.name]?.after) await page.waitForFunction((mark) => document.documentElement.hasAttribute(mark), STAGED);
   await page.evaluate(facesReady);
-  // An icon face is fetched when a glyph first needs it — after the element rendered, which may be after `fonts.ready`
-  // resolved for the text: load the icon set's two families (as the page's scope resolves them) before anything is drawn.
-  if ((await documentIconFamilies(options)).length) {
-    await page.evaluate(async () => {
-      const style = getComputedStyle(document.documentElement);
-      const families = ['unselected', 'selected'].map((s) => style.getPropertyValue(`--tanrei-sys-icon-family-${s}`).trim());
-      await Promise.all(families.map((family) => document.fonts.load(`24px ${family}`, 'favorite')));
-    });
-    await page.evaluate(facesReady);
-  }
   // A text face, too, is fetched only when text first needs it: a fixture whose only text is hidden at mount (the
   // items of a closed menu, a popover's content) would draw that text in a fallback for the first frames it is shown,
   // at another width, and settle a frame later. Load the faces of the text families the page names first.
@@ -2272,6 +2305,43 @@ export async function mountFixtures(page: Page, spec: Spec, options: DocumentOpt
     const text = ['brand', 'plain', 'mono'].map((role) => unquote(style.getPropertyValue(`--tanrei-ref-typeface-${role}`).split(',')[0]));
     await Promise.all([...document.fonts].filter((face) => face.status === 'unloaded' && text.includes(unquote(face.family))).map((face) => face.load()));
   });
+  // The icon families the mounted system names that this repository registers. A document that draws a glyph of them
+  // is given their faces even when it did not ask for them (`icons`): a picture of a glyph drawn without its face is
+  // its name in a fallback face, or a machine's installed copy of the font — a Button's baseline once showed `ad` for
+  // `add`, recorded on the Linux image, which has no icon font of its own, while a Mac with the font installed drew it.
+  const families = await iconFamilies(read('dist/tokens.css'), systemStyles(options));
+  if (!families.length) return;
+  const asked = (await documentIconFamilies(options)).length > 0;
+  if (!asked && (await page.evaluate(glyphsSpelled, families)).length) {
+    await page.addStyleTag({ content: await presetFontFaces(families) });
+  }
+  if (asked || (await page.evaluate(glyphsSpelled, families)).length) {
+    // An icon face is fetched when a glyph first needs it — after the element rendered, which may be after
+    // `fonts.ready` resolved for the text: load the icon set's two families (as the page's scope resolves them).
+    await page.evaluate(async () => {
+      const style = getComputedStyle(document.documentElement);
+      const families = ['unselected', 'selected'].map((s) => style.getPropertyValue(`--tanrei-sys-icon-family-${s}`).trim());
+      await Promise.all(families.map((family) => document.fonts.load(`24px ${family}`, 'favorite')));
+    });
+    await page.evaluate(facesReady);
+  }
+  await glyphsDrawn(page, families);
+}
+
+/**
+ * Resolves once every glyph the page draws in `families` is one glyph of a loaded face (`glyphsSpelled` finds none),
+ * looked at after each frame: the condition, not a time. A glyph a component draws a frame after its faces arrived (an
+ * observer's) is waited for; one that is still its name after `GLYPH_FRAMES` frames will not become a glyph — a name
+ * the icon set does not have, or a face that failed — and fails the mount, naming each one.
+ */
+const GLYPH_FRAMES = 60;
+export async function glyphsDrawn(page: Page, families: string[]) {
+  for (let frame = 0; ; frame++) {
+    const spelled = await page.evaluate(glyphsSpelled, families);
+    if (!spelled.length) return;
+    if (frame >= GLYPH_FRAMES) throw new Error(`glyphs drawn as their names, not by the icon face, after ${GLYPH_FRAMES} frames:\n  ${spelled.join('\n  ')}`);
+    await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
+  }
 }
 
 /** Where each stage of a spec's page of all its fixtures begins, as the part of a pixel past a whole one: measured once for a worker, by spec and options. */

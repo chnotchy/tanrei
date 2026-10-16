@@ -10084,7 +10084,10 @@ a JSON array attribute; `test/png.ts` decodes a screenshot for tests that must s
 the color a translucent token is painted as. `mountFixtures(…, { reducedMotion: true })` records a moving component's
 still form (LDG-4, PRG-7). `mountFixtures(…, { icons: true })` (and `subject(…, pick, { icons: true })`)
 registers the icon faces the mounted system names, so fixtures whose content is a glyph draw it rather than its ligature
-text. Baselines: `snapshots/`; record with
+text. A page that draws a glyph without asking is given the faces all the same, and `mountFixtures` returns only when
+every glyph on the page, in every shadow tree, is one glyph of a face the page loaded (`glyphsDrawn`): never its name in
+a fallback face, nor a copy of the font installed on the machine — the Linux recorder has none. A glyph that stays its
+name (a name the icon set does not have) fails the mount, naming it. Baselines: `snapshots/`; record with
 `TANREI_SNAPSHOT_REASON="…" pnpm --filter @tanrei/web test:update` and look at the images. They are recorded and
 verified on Linux, in Microsoft's Playwright image pinned to the lockfile's Playwright (CI's `web` job): an image
 recorded on macOS does not match, so record with the **Record baselines** workflow, or in that image
