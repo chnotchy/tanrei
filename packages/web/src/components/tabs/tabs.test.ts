@@ -3839,8 +3839,10 @@ test.describe('variants, the track, sizes and the transition', () => {
       if (forces) expect(rgba(await css(label(page, id, 1), 'color')), id).toEqual(canvasText);
     }
     expect(rgba(await css(label(page, 'tonal-no-track-disabled', 2), 'color'))).toEqual(gray);
-    // A disabled selected tab's indicator is the disabled color too.
-    expect(rgba(await css(cover(page, 'tonal-no-track-selected-disabled', 2), 'background-color'))).toEqual(gray);
+    // A disabled selected tab's indicator is the disabled color too — read once it has arrived: when a row first
+    // appears its tabs are drawn before the row has told them which tab is selected and whether that tab is disabled, so
+    // every piece of this row's indicator fades from the highlight to the disabled color over the state motion.
+    await expect.poll(async () => rgba(await css(cover(page, 'tonal-no-track-selected-disabled', 2), 'background-color'))).toEqual(gray);
     // A focused tab shows a ring.
     await tabTo(page, tabAt(page, 'tonal-small-no-track', 0));
     const focusRing = ring(page, 'tonal-small-no-track', 0);
