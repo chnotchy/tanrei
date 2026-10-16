@@ -6,6 +6,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { ANCHORED_PLACEMENTS, type AnchoredInput, type AnchoredPlacement, placeAnchored } from '../../primitives/placement.js';
@@ -95,10 +96,17 @@ const clearLog = (page: P) => page.evaluate(() => void ((window as unknown as { 
 const set = (page: P, props: Record<string, unknown>, id = 'p') => host(page, id).evaluate((el, p) => Object.assign(el, p), props);
 const isShown = (page: P, id = 'p') => surface(page, id).evaluate((el) => el.matches(':popover-open') && el.classList.contains('open'));
 const isOpen = (page: P, id = 'p') => host(page, id).evaluate((el) => (el as unknown as { open: boolean }).open);
+/**
+ * Opens a popover and waits for its open motion (POP-26) to end: until then it is still growing from its anchor's edge,
+ * so a box measured before is not where the popover rests, and a press aimed at it later may land elsewhere. The motion
+ * runs in the popover's shadow root, which `document.getAnimations()` does not look into: the moving part is asked.
+ */
 async function open(page: P, id = 'p') {
   await set(page, { open: true }, id);
   await expect.poll(() => isShown(page, id)).toBe(true);
   await settle(page);
+  // (Its own moving part: an overlay inside it, a tooltip on an element it holds, has one too.)
+  await motionEnded(surface(page, id).locator('> .motion'));
 }
 async function close(page: P, id = 'p') {
   await set(page, { open: false }, id);
