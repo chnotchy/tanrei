@@ -1,0 +1,9 @@
+{
+  // Harsh mode only (playwright.config.ts makes it the one tsconfig of the run): every import of @playwright/test, in
+  // a test and in the shared helpers, gets the harsh fixtures, which hand back everything else of the real module.
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "@playwright/test": ["./playwright-test.ts"] }
+  }
+}

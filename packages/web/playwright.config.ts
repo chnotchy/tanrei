@@ -1,9 +1,24 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type Project } from '@playwright/test';
+import { harsh, harshOptOuts } from './test/harsh.js';
 
 /** Tests that compare against a recorded image are titled `snapshot: <fixture id>`. */
 const BASELINES = /snapshot: /;
 
+/**
+ * Harsh mode (`TANREI_HARSH=1`, test/harsh.ts): this run's tsconfig puts test/harsh/ in place of @playwright/test, whose
+ * fixtures wait around every input action in every engine and slow Chromium's motion (and, on request, its CPU). The
+ * tests exempted by name, each with its reason, do not run; a test gets 4 times its time, an expect 3 times.
+ */
+const harshly = (project: Project): Project =>
+  harsh
+    ? {
+        ...project,
+        grepInvert: [...[project.grepInvert ?? []].flat(), harshOptOuts()],
+      }
+    : project;
+
 export default defineConfig({
+  ...(harsh ? { tsconfig: 'test/harsh/tsconfig.json', timeout: 120_000 } : {}),
   testDir: 'src',
   testMatch: '**/*.test.ts',
   // Baselines live at snapshots/<component>/<fixture-id>.png — the path the parity check expects.
@@ -19,7 +34,7 @@ export default defineConfig({
   reporter: process.env.CI ? [['blob'], ['github'], ['list']] : 'list',
   // A missing baseline is a failure, not something to write silently. Record with `pnpm test:update`.
   updateSnapshots: 'none',
-  expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: 'disabled', scale: 'device' } },
+  expect: { ...(harsh ? { timeout: 15_000 } : {}), toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: 'disabled', scale: 'device' } },
   // On CI only a retry is traced (in the blob report, so in the merged HTML report): a trace of a harness page is large,
   // and tracing every attempt runs a shard out of disk.
   use: { deviceScaleFactor: 2, colorScheme: 'light', trace: process.env.CI ? 'on-first-retry' : 'off' },
@@ -39,5 +54,5 @@ export default defineConfig({
       grep: /BSH-18|BTN-10|CHK-11|RAD-13|SWT-9|CRD-10|CRL-7|TXI-7|MAB-10|FBM-10|CHP-10|CAL-22|LST-10|MNU-17|MNU-35|MNU-38|TAB-10|TAB-49: where|TBV-22: where|DTM-31|SNK-7|SNK-30|TIP-26|SRC-21|NVB-10|NVD-10|SEG-11|SLD-15|BGR-2|SPB-11|TBV-10|LNK-10|LNK-27|LNK-33|CLO-19|TBL-9|COD-7|CPY-14|TBL-39|PNL-12|DSL-13|FIG-12|ACC-10|ACC-23|POP-15|POP-19|TOC-22|FLD-6|FGR-6|SEL-7|SEL-21|SEL-43|SEL-45|CMB-7|CMB-15|CMB-42|CMB-44|APS-6|APS-18|RGP-1:|NMI-15|CLI-7|CLI-23|BRC-20|BRC-30|TRV-30|FLD-24|FGR-24|SEL-62|CMB-60|NMI-44|TXI-52|FLD-25|RGP-19|CLF-47|LKC-20|SKL-12|SPB-30|PRG-17|ETI-11:|CCM-42: where the focus style|OTC-7 \(focus-style|MBR-7|MBR-8|MBR-32|FPK-4:|FPK-10|FPK-11|FIT-16|FIT-17|W13-7|OTF-7|IMP-26|IMP-27|CKG-1 twin|SEF-5|PGN-17/,
       use: { ...devices['Desktop Firefox'], deviceScaleFactor: 2, launchOptions: { firefoxUserPrefs: { 'layout.css.style-queries.enabled': false } } },
     },
-  ],
+  ].map(harshly),
 });
