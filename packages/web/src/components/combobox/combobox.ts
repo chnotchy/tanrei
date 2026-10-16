@@ -368,7 +368,12 @@ export class TanreiCombobox extends LitElement {
   private query: string | null = null;
   /** The text was last taken during a composition: its end makes the first match active (CMB-26). */
   private composedText = false;
-  /** The key that is moving focus now is Tab: a list it closes says so (CMB-29). */
+  /**
+   * CMB-29: a Tab went down in the field and its focus move has not been seen yet: the focus-out that follows is that
+   * move, and a list it closes says tab. It is taken by that focus-out, and given up when the key comes up without one
+   * (the move was cancelled) or another key goes down — never by a timer, which the browser may run after later
+   * tasks: a focus move made by the product after the Tab would be reported as the Tab's.
+   */
   private tabbing = false;
 
   /** CMB-56: sizes and variants a design system adds, and a value the active system does not have (src/primitives/axes.ts). */
@@ -807,11 +812,8 @@ export class TanreiCombobox extends LitElement {
     // CMB-16: while an input method composes, every key is its own.
     if (event.isComposing || this.native.composing || event.keyCode === 229) return;
     const { key } = event;
-    if (key === 'Tab') {
-      this.tabbing = true;
-      setTimeout(() => (this.tabbing = false), 0);
-      return;
-    }
+    // CMB-29: Tab moves focus on; the field marks the press (onFieldKeyDown).
+    if (key === 'Tab') return;
     if (key === 'Enter') {
       this.enter(event);
       return;
@@ -891,11 +893,14 @@ export class TanreiCombobox extends LitElement {
     this.focused = false;
   }
 
-  /** The clear button's Tab leaves the combobox too. */
+  /** CMB-29: every key that goes down in the field — the input's and the clear button's — says whether a Tab is moving focus. */
   private onFieldKeyDown(event: KeyboardEvent) {
-    if (event.key !== 'Tab' || this.tabbing) return;
-    this.tabbing = true;
-    setTimeout(() => (this.tabbing = false), 0);
+    this.tabbing = event.key === 'Tab';
+  }
+
+  /** CMB-29: a Tab that comes up in the field moved no focus out of it (something cancelled it): it is over. */
+  private onFieldKeyUp(event: KeyboardEvent) {
+    if (event.key === 'Tab') this.tabbing = false;
   }
 
   /**
@@ -904,12 +909,15 @@ export class TanreiCombobox extends LitElement {
    * focus-out. Focus that leaves the window has gone nowhere: nothing is resolved until it goes elsewhere in the page.
    */
   private onFocusOut(event: FocusEvent) {
+    // A Tab's focus move is this one, wherever it goes: within the field, out of the window or elsewhere in the page.
+    const tabbed = this.tabbing;
+    this.tabbing = false;
     const next = event.relatedTarget as Node | null;
     if (next && this.renderRoot.contains(next)) return;
     if (!next && !document.hasFocus()) return;
     if (this.inert_ || this.readOnly) return;
     if (!this.resolve()) this.restore();
-    this.closeList(this.tabbing ? 'tab' : 'focus-out');
+    this.closeList(tabbed ? 'tab' : 'focus-out');
   }
 
   /**
@@ -1146,6 +1154,7 @@ export class TanreiCombobox extends LitElement {
         ?data-clear=${clear}
         @focusout=${this.onFocusOut}
         @keydown=${this.onFieldKeyDown}
+        @keyup=${this.onFieldKeyUp}
       >
         <div part="container" class="container" data-tanrei-shape aria-disabled=${inert ? 'true' : nothing} @mousedown=${this.onContainerPress}>
           <span part="leading-icon" class="icon leading-slot" aria-hidden="true"><slot name="leading-icon" @slotchange=${this.onLeadingSlotChange}></slot></span>
