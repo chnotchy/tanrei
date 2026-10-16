@@ -9,6 +9,7 @@ import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { anchorOf as linkAnchor, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, painted, settledPaint } from '../../../test/links.js';
 import { decodePng } from '../../../test/png.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('card');
 type P = Page;
@@ -530,6 +531,9 @@ test.describe('press, feedback, corners and focus style', () => {
     await override(page, { [T('outlined-pressed-content-color')]: 'rgb(0, 0, 255)' });
     await page.mouse.move(box.x + 30, box.y + 12);
     await expect.poll(() => css(inner(page, id), 'background-color')).toBe(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, id));
     await page.mouse.down();
     expect(await pressed(page, id)).toBe('ripple');
     const ripple = ripples(page, id);
@@ -619,6 +623,9 @@ test.describe('press, feedback, corners and focus style', () => {
     await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'none' });
     await host(page, id).hover();
     await expect.poll(() => css(inner(page, id), 'background-color')).toBe(await resolveColor(page, T('outlined-hovered-container-color')));
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(host(page, id));
     const before = await drawn(page, id);
     await page.mouse.down();
     expect(await pressed(page, id)).toBe('none');
