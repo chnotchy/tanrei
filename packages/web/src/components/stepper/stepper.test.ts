@@ -20,6 +20,8 @@ import {
   tabTo,
   withoutIconFont,
 } from '../../../test/harness.js';
+import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { clickCentre } from '../../../test/watched-press.js';
 
 const spec = loadSpec('stepper');
 type P = Page;
@@ -443,6 +445,41 @@ test.describe('pressing a step', () => {
       const logged = await page.evaluate(() => (window as any).press);
       expect(logged.up - logged.on, name).toBeLessThan(hold);
       expect(logged.off - logged.down, name).toBeGreaterThanOrEqual(hold - 1);
+    }
+  });
+
+  // A step is drawn without motion for its first two frames (`.still`). The rule that turns its transitions off must
+  // not reach press-hold, which the step's `.hold` carries as a transition-delay: the `transition` shorthand would set
+  // that delay to 0s, and a press in those frames would end with the key. The page's clock is held, so the first frames
+  // never pass: the press lands in them on any machine, as a fast one in WebKit did on a loaded one.
+  test('SPR-14: a step pressed in its first frames, while it is drawn without motion, is held for press-hold too', async ({ page }) => {
+    const hold = 1000;
+    for (const [name, activate] of [
+      ['Enter', () => page.keyboard.press('Enter')],
+      ['Space', () => page.keyboard.press('Space')],
+      ['click', () => clickCentre(page, btn(page, 'pressable-visited', 0))],
+    ] as const) {
+      await mountFixtures(page, spec, { icons: true, fixtures: [fx('pressable-visited')] });
+      await holdClock(page);
+      try {
+        // The product draws the stepper anew, with its own press-hold on the root.
+        await page.locator('[data-fixture="pressable-visited"]').evaluate((stage) => {
+          stage.innerHTML = stage.innerHTML;
+        });
+        await rootTokens(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
+        const b = btn(page, 'pressable-visited', 0);
+        expect(await b.evaluate((el) => el.classList.contains('still')), `${name}: the step is in its first frames`).toBe(true);
+        await step(page, 'pressable-visited', 0).focus();
+        const pressed = () => b.evaluate((el) => el.hasAttribute('data-pressed'));
+        await activate();
+        expect(await pressed(), `${name}: still held when the press is over`).toBe(true);
+        await page.clock.runFor(hold - 1);
+        expect(await pressed(), `${name}: still held at press-hold − 1 ms`).toBe(true);
+        await page.clock.runFor(1);
+        await expect.poll(pressed, { message: `${name}: over at press-hold` }).toBe(false);
+      } finally {
+        await releaseClock(page);
+      }
     }
   });
 
