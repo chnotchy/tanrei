@@ -5,6 +5,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 
 const spec = loadSpec('tab-view');
 type P = Page;
@@ -396,6 +397,27 @@ test.describe('the swipe', () => {
     await finishSwitch(page, 'v');
     expect(await log(page)).toEqual(['tanrei-tab-view:activity:activity:activity', 'tanrei-tab-view:settings:settings:settings']);
     await expect(panel(page, 'v', 'settings')).toBeVisible();
+  });
+
+  test('TBV-4: a fast swipe that holds still for more than 40 ms before its release is no fling — under half it cancels — and the same swipe released within 40 ms of its last move commits', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [fixture('v')], reducedMotion: false });
+    await wire(page);
+    const shown = panel(page, 'v', 'overview');
+    const r = await bounds(shown);
+    const from = { x: r.x + r.width / 2, y: r.y + Math.min(r.height / 2, 12) };
+    // 30 px toward Activity at 2.5 px per ms, far under half the view: only a fling commits it.
+    const moves = strokes(from, { x: -10, y: 0 });
+    expect(30).toBeLessThan((await width(page, 'v')) / 2);
+    const before = await value(page, 'v');
+    await flingThenHold(page, shown, { from, moves, hold: STOPPED_AFTER + 1 });
+    expect(await value(page, 'v')).toBe(before);
+    expect(await log(page)).toEqual([]);
+    await finishSwitch(page, 'v');
+    await expect(shown).toBeVisible();
+    await flingThenHold(page, shown, { from, moves, hold: STOPPED_AFTER });
+    expect(await value(page, 'v')).toBe('activity');
+    expect(await log(page)).toEqual(['tanrei-tab-view:activity:activity:activity']);
+    await finishSwitch(page, 'v');
   });
 
   test('TBV-8: a mouse drag, a drag on its own row or on content that drags sideways itself (a text field, a sideways scroller, a slider) and any drag while no-swipe is set are not taken; the tabs still switch', async ({ page }) => {

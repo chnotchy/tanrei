@@ -5,6 +5,7 @@ import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 
 const spec = loadSpec('side-sheet');
 type P = Page;
@@ -731,6 +732,20 @@ test.describe('forms, focus and dismissal', () => {
     await still(page);
     expect(await log(page)).toEqual([]);
     await drag(page, { x: 200, y: 240 }, -(width / 2 + 20));
+    await expect.poll(() => log(page)).toEqual(['close:drag']);
+  });
+
+  test('SSH-4: a fast drag toward the end that holds still for more than 40 ms before its release is no fling — the sheet slides back — and the same drag released within 40 ms of its last move asks to close', async ({ page }) => {
+    await mount(page, [fx('s', { variant: 'modal' })]);
+    await wire(page);
+    // 30 px toward the end at 2.5 px per ms, far short of half the sheet's width: only a fling asks to close.
+    const from = await inside(page);
+    const moves = strokes(from, { x: 10, y: 0 });
+    await flingThenHold(page, sheet(page), { from, moves, hold: STOPPED_AFTER + 1 });
+    await still(page);
+    expect(await offset(page)).toBeCloseTo(0, 1);
+    expect(await log(page)).toEqual([]);
+    await flingThenHold(page, sheet(page), { from, moves, hold: STOPPED_AFTER });
     await expect.poll(() => log(page)).toEqual(['close:drag']);
   });
 

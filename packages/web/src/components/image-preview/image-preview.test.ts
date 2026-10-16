@@ -11,6 +11,8 @@ import { override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, tab } from '../../../test/harness.js';
 import { fixturePicture } from '../../../test/pictures.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { releaseAtRest } from '../../../test/release-at-rest.js';
+import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 
 const spec = loadSpec('image-preview');
 type P = Page;
@@ -971,8 +973,7 @@ test.describe('the stage and the zoom', () => {
     let seen = await look(page);
     near(seen.image!.x - from.x, 60, 'with the pointer, across');
     near(seen.image!.y - from.y, 60, 'with the pointer, down');
-    await page.waitForTimeout(160);
-    await page.mouse.up();
+    await releaseAtRest(page);
     await page.waitForTimeout(120);
     near((await look(page)).image!.y - from.y, 60, 'released at rest it stays');
     expect((await look(page)).index, 'a drag over an enlarged image is not the pager’s').toBe(1);
@@ -1116,6 +1117,37 @@ test.describe('moving between images', () => {
     await drag(page, [420, 340], [200, 340], { release: false });
     expect((await look(page)).image).toEqual(from.image);
     await finger(page, 'pointerup', 200, 340);
+  });
+
+  test('IMP-18, IMP-16: a fast stroke by a finger that holds still for more than 40 ms before its release is no fling — at fit the image comes back, enlarged it stays where it was left — and the same stroke released within 40 ms of its last move is one', async ({ page }) => {
+    await mount(page, fx({ index: 1 }));
+    const stage = part(page, '.stage');
+    // At fit: 30 px toward the start at 2.5 px per ms, far short of half the stage (320): only a fling turns the page.
+    const from = { x: 420, y: 340 };
+    const moves = strokes(from, { x: -10, y: 0 });
+    await flingThenHold(page, stage, { from, moves, hold: STOPPED_AFTER + 1 });
+    await rest(page);
+    expect((await look(page)).index, 'held still: it comes back').toBe(1);
+    await flingThenHold(page, stage, { from, moves, hold: STOPPED_AFTER });
+    await rest(page);
+    expect((await look(page)).index, 'released within 40 ms: flung to the image after').toBe(2);
+    expect((await events(page, 'indexchange')).map((event) => event.detail.index)).toEqual([2]);
+    // Enlarged: a pan held still stays where the release left it; released within 40 ms it goes on. The fling runs by
+    // frames of the page clock, which the test holds and moves on.
+    await set(page, { zoom: 2 });
+    await rest(page);
+    const up = { x: 320, y: 500 };
+    const climb = strokes(up, { x: 0, y: -10 });
+    await flingThenHold(page, stage, { from: up, moves: climb, hold: STOPPED_AFTER + 1, keepClock: true });
+    const left = (await look(page)).image!.y;
+    await page.clock.runFor(200);
+    expect((await look(page)).image!.y, 'held still: no fling goes on').toBe(left);
+    await releaseClock(page);
+    await flingThenHold(page, stage, { from: up, moves: climb, hold: STOPPED_AFTER, keepClock: true });
+    const flung = (await look(page)).image!.y;
+    await page.clock.runFor(200);
+    expect((await look(page)).image!.y, 'released within 40 ms: the fling goes on').toBeLessThan(flung - 5);
+    await releaseClock(page);
   });
 
   test('IMP-18: at fit a short stroke by a mouse released while it is moving, however fast, comes back and shows no neighbour — a mouse turns the page by its distance alone — where the same stroke by a finger turns it', async ({ page }) => {

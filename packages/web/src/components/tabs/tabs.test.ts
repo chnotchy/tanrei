@@ -6,6 +6,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 import { releaseAtRest } from '../../../test/release-at-rest.js';
+import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('tabs');
@@ -2030,6 +2031,24 @@ test.describe('the track and the drag', () => {
     await expect(tabAt(page, m, 2)).toBeFocused();
     await tabAt(page, m, 1).click();
     expect(await log(page)).toEqual(['settings:settings', 'activity:activity']);
+  });
+
+  test('TAB-29: a fast drag that holds still for more than 40 ms before its release is no fling — the nearer tab is chosen — and the same drag released within 40 ms of its last move is one', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: only('primary-fill'), reducedMotion: true });
+    await wire(page);
+    const id = 'primary-fill';
+    const [c0, m01] = [await centreX(page, id, 0), await meetX(page, id, 0, 1)];
+    const first = await bounds(tabAt(page, id, 0));
+    const y = first.y + first.height / 2;
+    // 30 px toward Activity at 2.5 px per ms, short of where Overview meets Activity: only a fling chooses Activity.
+    const moves = strokes({ x: c0, y }, { x: 10, y: 0 });
+    expect(moves[moves.length - 1].x).toBeLessThan(m01);
+    await flingThenHold(page, tabAt(page, id, 0), { from: { x: c0, y }, moves, hold: STOPPED_AFTER + 1 });
+    expect(await log(page)).toEqual([]);
+    expect(await row(page, id).evaluate((el: any) => el.value)).toBe('overview');
+    await expect.poll(() => dragging(page, id)).toBe(false);
+    await flingThenHold(page, tabAt(page, id, 0), { from: { x: c0, y }, moves, hold: STOPPED_AFTER });
+    expect(await log(page)).toEqual(['activity:activity']);
   });
 
   test('TAB-30: Escape, a cancelled pointer, a lost capture, selected set by the product, or a tab under the indicator removed or disabled cancel the drag — the indicator returns over the indicator’s motion and nothing is emitted; while it lasts nothing is selected, shown, focused or exposed; where motion is reduced it follows the pointer and lands at once', async ({ page }) => {

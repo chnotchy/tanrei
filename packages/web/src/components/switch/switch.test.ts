@@ -21,6 +21,7 @@ import {
   rootTokens,
 } from '../../../test/harness.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { STOPPED_AFTER, flingThenHold } from '../../../test/stopped-release.js';
 
 const spec = loadSpec('switch');
 type P = Page;
@@ -1471,6 +1472,26 @@ test.describe('drag', () => {
     await drag(page, id, -0.5, [{ at: -0.2, dt: 8 }, { at: 0.1, dt: 8 }, { at: 0.3, dt: 8 }], { up: 300 });
     expect(await isOn(target)).toBe(false);
     expect(await events(page)).toMatchObject({ click: 0, input: 4, change: 4, carried: [true, false, true, true] });
+  });
+
+  test('SWT-20: a fast drag that holds still for more than 40 ms before its release is no fling — short of the middle it stays off — and the same drag released within 40 ms of its last move turns it on', async ({ page }) => {
+    const id = 'unselected';
+    const target = host(page, id);
+    await listen(target);
+    const r = await bounds(host(page, id).locator('.track'));
+    // Where the handle's centre is at `at` of its travel (0 off, 1 on), on the track's middle line.
+    const x = (at: number) => r.x + r.height / 2 + at * (r.width - r.height);
+    const from = { x: x(-0.5), y: r.y + r.height / 2 };
+    // Toward the on end, released short of the middle, each move 4 ms after the one before: only a fling turns it on.
+    const moves = [-0.2, 0.1, 0.3].map((at) => ({ x: x(at), y: from.y }));
+    expect((moves[2].x - moves[1].x) / 4, 'faster than 0.5 px per ms').toBeGreaterThan(0.5);
+    const control = host(page, id).locator('.control');
+    await flingThenHold(page, control, { from, moves, hold: STOPPED_AFTER + 1 });
+    expect(await isOn(target)).toBe(false);
+    await expect.poll(() => progress(page, id)).toBe(0);
+    await flingThenHold(page, control, { from, moves, hold: STOPPED_AFTER });
+    expect(await isOn(target)).toBe(true);
+    expect(await events(page)).toMatchObject({ click: 0, input: 1, change: 1, carried: [true] });
   });
 
   test('SWT-20: the release ends the press and the handle finishes, or returns, over the selection motion from where the pointer left it', async ({ page }) => {
