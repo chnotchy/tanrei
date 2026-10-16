@@ -1,8 +1,7 @@
 // Registers every Tanrei custom element for live demos (browser only).
 //
-// A bare `import '@tanrei/web'` is tree-shaken away: the package's `sideEffects` list does not
-// include its entry module, so a bundler drops the import and nothing gets defined. Using the
-// namespace keeps the entry, and with it each component module that calls customElements.define.
+// Importing the package's entry defines every element: the entry is in the package's `sideEffects`
+// list, so a bundler keeps it (and each component module it imports) even where nothing is used.
 //
 // The docs' link forms hold a plain anchor until their element is defined (link-fallback.ts): it goes first.
 import './link-fallback';
