@@ -10,6 +10,7 @@ import { missingValueMessage } from '../../primitives/missing-value.js';
 import { styles } from './embedded-text-input.styles.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { CompositionEnd } from '../../primitives/composition-end.js';
 
 /** What the value is: the keyboard, autocorrection and autocapitalization, and nothing else (ETI-17). */
 export type TanreiEmbeddedTextInputType = 'text' | 'search' | 'email' | 'url' | 'tel';
@@ -240,9 +241,8 @@ export class TanreiEmbeddedTextInput extends LitElement {
   private committed = '';
   /** ETI-9: a pointer or a touch is held down in the text. */
   private pressed = false;
-  /** ETI-4: a composition ended in this task: the key that is reported after it is still the input method's. */
-  private justComposed = false;
-  private composedTimer: ReturnType<typeof setTimeout> | undefined;
+  /** ETI-4: when the last composition ended — the key that committed it may be reported after the end. */
+  private readonly composition = new CompositionEnd();
   /** ETI-25: the selection of the native element that `multiline` is about to replace, where it had focus. */
   private carried: { start: number; end: number } | null = null;
   private sizes: ResizeObserver | undefined;
@@ -478,12 +478,15 @@ export class TanreiEmbeddedTextInput extends LitElement {
 
   private readonly onCompositionStart = () => this.text.onCompositionStart();
 
-  /** ETI-4: where the platform reports the committing Enter only after the composition has ended, it is still the composition's. */
+  /**
+   * ETI-4: where the platform reports the committing Enter only after the composition has ended, it is still the
+   * composition's: it was pressed no later than the end, or carries the platform's mark of a key an input method took.
+   * Never "until a timer runs": on a busy page an engine reports a key before such a timer, and the first Enter pressed
+   * after a composition committed by a pointer would be lost.
+   */
   private readonly onCompositionEnd = (event: CompositionEvent) => {
     this.text.onCompositionEnd(event);
-    this.justComposed = true;
-    clearTimeout(this.composedTimer);
-    this.composedTimer = setTimeout(() => (this.justComposed = false), 0);
+    this.composition.ended(event);
   };
 
   /**
@@ -495,7 +498,7 @@ export class TanreiEmbeddedTextInput extends LitElement {
     const input = this.input;
     if (event.key !== 'Enter' || event.defaultPrevented || !input || !event.composedPath().includes(input)) return;
     // ETI-4: an input method's Enter chooses a candidate or commits; it is never a request for the action.
-    if (event.isComposing || this.text.composing || event.keyCode === 229 || this.justComposed) return;
+    if (this.text.composing || this.composition.tookKey(event)) return;
     // ETI-15, ETI-16: no key of a disabled or a read-only input asks for the action.
     if (this.inert_ || this.readOnly) return;
     const chord = event.ctrlKey || event.metaKey;
@@ -592,8 +595,7 @@ export class TanreiEmbeddedTextInput extends LitElement {
     this.children$?.disconnect();
     this.sizes?.disconnect();
     this.watched = null;
-    clearTimeout(this.composedTimer);
-    this.justComposed = false;
+    this.composition.reset();
     this.ownerDocument.defaultView?.removeEventListener('keydown', this.onKey);
     this.onPointerUp();
   }

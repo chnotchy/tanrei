@@ -54,6 +54,7 @@ import { AXES, INSET, styles } from './text-input.styles.js';
 import { runDirection } from '../../styles/product-text.js';
 import { disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
+import { CompositionEnd, isCompositionInput } from '../../primitives/composition-end.js';
 import { fillPlaces, reportPlaces } from '../../primitives/places.js';
 import { wordPlaces } from '../../generated/words.js';
 
@@ -626,6 +627,8 @@ export class TanreiTextInput extends LitElement {
   private typedDigits = '';
   /** TXI-45: an input method is composing on a segment; nothing is taken until it commits. */
   private composing = false;
+  /** TXI-45: when a composition on a segment last ended — the key that committed it may be reported after the end. */
+  private readonly segmentComposition = new CompositionEnd();
   /** TXI-43: focus is on one of the field's segments or on its picker button. */
   private within = false;
   /** TXI-33: the picker was asked for; focus leaving for it raises no entry error. */
@@ -1028,7 +1031,7 @@ export class TanreiTextInput extends LitElement {
    */
   private onBeforeInput(event: InputEvent) {
     if (!(event.target instanceof HTMLElement) || !event.target.classList.contains('segment')) return;
-    if (event.isComposing || this.composing || /Composition/.test(event.inputType)) return;
+    if (this.composing || isCompositionInput(event)) return;
     event.preventDefault();
     if (this.readOnly || this.inert_) return;
     const segment = event.target;
@@ -1064,7 +1067,7 @@ export class TanreiTextInput extends LitElement {
     const segment = event.target;
     const row = this.row;
     if (!row || !(segment instanceof HTMLElement) || !segment.classList.contains('segment')) return;
-    if (event.isComposing || this.composing || event.keyCode === 229) return;
+    if (this.composing || this.segmentComposition.tookKey(event)) return;
     if (event.key === 'Enter') {
       event.preventDefault();
       this.act(event);
@@ -1115,23 +1118,29 @@ export class TanreiTextInput extends LitElement {
   /**
    * TXI-45: an input method committed text on a segment. Its digits are taken one by one, as typed (full-width ones
    * too); any other text is read whole (TXI-29). What the composition drew in the segment is replaced by the field's own text.
+   *
+   * Taken in this event, which is where every engine ends a composition — a commit by a key or by a pointer (a candidate
+   * picked) alike — and never after a timer: on a busy page an engine handles input before timers, so the next
+   * composition (or a digit typed) could begin on this segment before the timer ran and focus moved on, and its digits
+   * would be taken here. What an engine still reports afterwards is the composition's by what it is: Firefox's last
+   * `input` only repaints (`onSegmentInput`), and the committing key WebKit reports after the end is not the segment's
+   * (`segmentComposition`). Firefox ends a composition a second time when focus moves inside its end — a second
+   * `compositionend`, from within the move — and that one is not a commit: no composition is open by then.
    */
   private onSegmentCompositionEnd(event: CompositionEvent) {
+    if (!this.composing) return;
+    this.segmentComposition.ended(event);
     const segment = event.target instanceof HTMLElement && event.target.classList.contains('segment') ? event.target : null;
     const text = event.data ?? '';
-    // After the event, not in it: the browser is still ending the composition — its last `input` is to come — and a
-    // focus moved from inside this event (a number that is complete moves on) would end the composition a second time.
-    setTimeout(() => {
-      this.composing = false;
-      this.paintSegments();
-      const characters = this.characters(text);
-      if (!segment || !segment.isConnected || !characters.length) return;
-      if (characters.every((character) => /^[0-9]$/.test(character) || SEPARATORS.has(character))) {
-        let at: HTMLElement | null = segment;
-        for (const character of characters) at = this.typeCharacter(character, at);
-      } else if (characters.length === 1) this.typeCharacter(characters[0], segment);
-      else this.takeWhole(text);
-    });
+    this.composing = false;
+    this.paintSegments();
+    const characters = this.characters(text);
+    if (!segment || !segment.isConnected || !characters.length) return;
+    if (characters.every((character) => /^[0-9]$/.test(character) || SEPARATORS.has(character))) {
+      let at: HTMLElement | null = segment;
+      for (const character of characters) at = this.typeCharacter(character, at);
+    } else if (characters.length === 1) this.typeCharacter(characters[0], segment);
+    else this.takeWhole(text);
   }
 
   /** The browser's own `input` on a segment (a composition's) is not the field's: the value's change is (TXI-46). */

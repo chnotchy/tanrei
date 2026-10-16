@@ -75,6 +75,8 @@
 //                 reselect, reports), NavigationDestination and destinationStyles() (a bar's item)
 //   native-text — NativeTextController: a component's value and its native text element kept in step around an input
 //                 method (text field, search: TXF-1, TXF-4, SRC-4)
+//   composition-end — CompositionEnd, isCompositionInput(): what an engine reports for an input method's composition
+//                 after its end (Firefox's last input, the committing key WebKit reports late), told by what it is, never by a timer
 //   calendar-date — Gregorian dates and times of day as parts, without a time zone: parsing and writing ISO 8601, adding
 //                 days and months, the month's grid of 42 cells, the clock's hours and minute steps (CAL-*, DTM-8, DTM-17)
 //   locale-date — dates and times in the locale's forms: typed in its numeric form and held as ISO 8601 (formatValue(),
@@ -234,6 +236,7 @@ export {
   watchEscape,
 } from './sheet.js';
 export { type NativeText, NativeTextController, type NativeTextOptions } from './native-text.js';
+export { COMPOSITION_INPUT_TYPES, CompositionEnd, isCompositionInput } from './composition-end.js';
 export {
   DATE_KINDS,
   type DateKind,
