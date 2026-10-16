@@ -7,5 +7,5 @@
   "repository": { "type": "git", "url": "https://github.com/chnotchy/tanrei.git", "directory": "packages/token-engine" },
   "exports": { ".": "./src/index.js" },
   "files": ["src", "README.md", "NOTICE"],
-  "scripts": { "test": "node --test" }
+  "scripts": { "test": "node ../tools/src/run-node-tests.js" }
 }

@@ -13,6 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import { runNodeTests } from '../../../tools/src/run-node-tests.js';
 import { sweepTempDirs, tempDir } from '../../../tools/src/test-tmp.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -41,7 +42,8 @@ try {
   const only = process.argv.slice(2);
   const files = fs.readdirSync(here).filter((name) => name.endsWith('.test.js') && (!only.length || only.some((word) => name.includes(word)))).map((name) => path.join('test/browser', name));
   const testsStarted = performance.now();
-  status = spawnSync(process.execPath, ['--test', ...files], { cwd: pkg, stdio: 'inherit', env: { ...process.env, TANREI_STUDIO_APP: appDir } }).status ?? 1;
+  // Through runNodeTests: a suite that fails to load, or a hook that throws, fails the run on every Node version.
+  status = runNodeTests(files, { cwd: pkg, env: { ...process.env, TANREI_STUDIO_APP: appDir } });
   console.log(`# browser tests ran in ${seconds(testsStarted)} (${seconds(started)} with the build)`);
 } catch (error) {
   console.error(error.message);
