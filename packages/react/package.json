@@ -18,5 +18,5 @@
     "@tanrei/web": "workspace:*"
   },
   "peerDependencies": { "react": ">=18" },
-  "devDependencies": { "@types/react": "^19.0.0", "react": "^19.0.0", "typescript": "^7.0.2" }
+  "devDependencies": { "@types/react": "^19.0.0", "esbuild": "^0.28.2", "react": "^19.0.0", "typescript": "^7.0.2" }
 }
