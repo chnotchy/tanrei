@@ -59,7 +59,9 @@ async function open(page: P, id: string) {
   await page.locator(`#open-${id}`).focus();
   await page.keyboard.press('Enter');
   await expect.poll(() => isOpen(page, id)).toBe(true);
-  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)));
+  // The enter fade of the container and of its scrim (`::backdrop`, which `subtree` takes in). They run in the layer's
+  // shadow root, which `document.getAnimations()` does not look into in any of the three engines.
+  await container(page, id).evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
 }
 const close = (page: P, id: string) => host(page, id).evaluate((el: any) => (el.open = false));
 
