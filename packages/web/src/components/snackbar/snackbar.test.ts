@@ -5,6 +5,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage } from '../../../test/harness.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('snackbar');
 type P = Page;
@@ -1938,17 +1939,16 @@ test.describe('controls: states, press, corners and focus style', () => {
   });
 
   test('SNK-5: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
-    expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(100);
-    const hold = 1000;
+    const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+    expect(hold).toBe(100);
     for (const [id, control, name, activate] of [
       ['action', 'action', 'Enter', () => page.keyboard.press('Enter')],
       ['action', 'action', 'Space', () => page.keyboard.press('Space')],
-      ['action', 'action', 'click', () => part(page, 'action', 'action').click()],
+      ['action', 'action', 'click', () => clickCentre(page, part(page, 'action', 'action'))],
       ['collapsed', 'expand', 'expand Enter', () => page.keyboard.press('Enter')],
-      ['collapsed', 'expand', 'expand click', () => part(page, 'collapsed', 'expand').click()],
+      ['collapsed', 'expand', 'expand click', () => clickCentre(page, part(page, 'collapsed', 'expand'))],
     ] as const) {
       await mountFixtures(page, spec, { icons: true });
-      await override(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
       await part(page, id, control).focus();
       await part(page, id, control).evaluate((el) => {
         const log: { down?: number; on?: number; off?: number; up?: number } = ((window as any).press = {});
@@ -1959,8 +1959,9 @@ test.describe('controls: states, press, corners and focus style', () => {
         for (const type of ['pointerup', 'keyup']) window.addEventListener(type, () => (log.up ??= performance.now()), true);
         for (const type of ['pointerdown', 'keydown']) window.addEventListener(type, () => (log.down ??= performance.now()), true);
       });
-      await activate();
-      await expect.poll(() => page.evaluate(() => (window as any).press.off), name).toBeDefined();
+      // The press and the hold on the page's clock, held still: the press is over in no page time at all, so it is the
+      // short one at the system's own hold, however long the driver takes to send the release.
+      await heldPress(page, hold, activate, async () => (await page.evaluate(() => (window as any).press.off)) !== undefined, name);
       const logged = await page.evaluate(() => (window as any).press);
       expect(logged.up - logged.on, name).toBeLessThan(hold);
       expect(logged.off - logged.down, name).toBeGreaterThanOrEqual(hold - 1);
