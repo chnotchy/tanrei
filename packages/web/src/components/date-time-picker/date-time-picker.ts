@@ -1170,13 +1170,19 @@ export class TanreiDateTimePicker extends LitElement {
     return this.renderRoot?.querySelector<HTMLInputElement>(`.wheel[data-unit='${unit}'] .entry`) ?? null;
   }
 
-  /** The height of a row in px (row.height, at least the target: DTM-32), and the settle's duration in ms (DTM-19). */
+  /**
+   * The height of a row in px (row.height, at least the target: DTM-32), and the settle's duration in ms (DTM-19). The
+   * duration is the wheel motion's, carried by `.rows` as an inert transition-delay: a row's own transition is off
+   * while the wheel follows a pointer or a scroll (`.following`), which still applies when the drag ends or the scroll
+   * stops, so a row would read 0 there — no fling would carry on and the value would be taken before the rows settle.
+   */
   private rowMetrics(element: HTMLElement): { row: number; duration: number } {
     const probe = element.querySelector<HTMLElement>('.row') ?? element;
-    const style = getComputedStyle(probe);
-    const row = probe.getBoundingClientRect().height || Number.parseFloat(style.blockSize) || 1;
+    const row = probe.getBoundingClientRect().height || Number.parseFloat(getComputedStyle(probe).blockSize) || 1;
+    const carrier = element.querySelector<HTMLElement>('.rows');
     const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    return { row, duration: reduced ? 0 : (Number.parseFloat(style.transitionDuration) || 0) * 1000 };
+    const seconds = carrier && !reduced ? Number.parseFloat(getComputedStyle(carrier).transitionDelay) : 0;
+    return { row, duration: (seconds || 0) * 1000 };
   }
 
   /** DTM-19: the rows settle `rows` rows on (a drag's end, a fling, a press on a row) and the value is taken once they have. */

@@ -466,9 +466,16 @@ export const styles = css`
   .name[data-off] {
     visibility: hidden;
   }
+  /* DTM-19: .rows carries the wheel motion's duration for the script (how far a fling carries on, when a settled value
+     is taken) as an inert transition-delay: with no transition-property it moves nothing. The script reads it when a
+     drag ends or a scroll stops, while .following still turns each .row's transition off — which is why the carrier is
+     not a .row. Nothing else may set its transition-delay: a rule that turns transitions off where it reaches .rows
+     names transition-property, never the transition shorthand, which resets the delay to 0s. */
   .rows {
     position: absolute;
     inset: 0;
+    transition-property: none;
+    transition-delay: ${t('motion-wheel-duration')};
   }
   /* DTM-19: each row at its place from the band; a settle, a key and a tab move them over the wheel motion. */
   .row {
