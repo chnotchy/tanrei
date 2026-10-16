@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, type Spec, fixtureHost, loadSpec, mountFixtures } from '../test/harness.js';
+import { motionEnded } from '../test/motions.js';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const inventory = JSON.parse(fs.readFileSync(path.join(repo, 'specs/inventory.json'), 'utf8')) as { components: { name: string }[] };
@@ -20,7 +21,11 @@ const specs: Spec[] = inventory.components
 /** A fixture that moves by itself, by design: a carousel that autoplays advances and, with its progress drawn, fills a dot. */
 const moves = (spec: Spec, fixture: Fixture) => spec.name === 'carousel' && fixture.props.autoplay === true;
 
-/** Frame callbacks asked for and layouts done over `ms`, once the page has had `settle` ms to draw itself. */
+/**
+ * Frame callbacks asked for and layouts done over `ms`, once every motion the page began as it was drawn has ended and
+ * the page has had `settle` ms more to draw itself (a fixed wait alone counted the frames of an entrance still running
+ * where motion ran slower than the wait).
+ */
 async function atRest(page: Page, { settle = 1500, ms = 600 } = {}) {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Performance.enable');
@@ -30,6 +35,7 @@ async function atRest(page: Page, { settle = 1500, ms = 600 } = {}) {
     const raf = window.requestAnimationFrame.bind(window);
     window.requestAnimationFrame = (callback) => (w.__frames++, raf(callback));
   });
+  await motionEnded(page);
   await page.waitForTimeout(settle);
   const read = async () => {
     const { metrics } = await cdp.send('Performance.getMetrics');
