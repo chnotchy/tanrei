@@ -559,6 +559,9 @@ test.describe('geometry', () => {
   });
 
   test('CRL-40: every two neighbours that are drawn are g apart at every scroll position — every alignment, width, scale and loop, and other tokens', () => {
+    // Some 40 000 gaps: each that is not g is collected and the list is expected empty once. A Playwright `expect` per
+    // gap records a step apiece, and the sweep took 40 to 58 s on CI — past its 30 s, unseen, as it never awaits.
+    const wrong: string[] = [];
     for (const system of [tokens, { padding: 24, gap: 12, smallMin: 40, smallMax: 56 }]) {
       for (const heroAlignment of ['center', 'start'] as const) {
         for (const fluid of [true, false]) {
@@ -572,16 +575,17 @@ test.describe('geometry', () => {
                 for (let p = from; p <= to + 1e-9; p += 0.0625) {
                   for (const gap of gaps(g, p)) {
                     pairs++;
-                    expect(Math.abs(gap - system.gap), `${heroAlignment} fluid ${fluid} scaled ${scaleOthers} loop ${loop} W ${width} L ${largeWidth} N ${count} at p ${p}: ${gap}`).toBeLessThan(1e-9);
+                    if (!(Math.abs(gap - system.gap) < 1e-9)) wrong.push(`${heroAlignment} fluid ${fluid} scaled ${scaleOthers} loop ${loop} W ${width} L ${largeWidth} N ${count} at p ${p}: ${gap}`);
                   }
                 }
-                expect(pairs).toBeGreaterThan(0);
+                if (pairs === 0) wrong.push(`${heroAlignment} fluid ${fluid} scaled ${scaleOthers} loop ${loop} W ${width} L ${largeWidth} N ${count}: no two drawn neighbours`);
               }
             }
           }
         }
       }
     }
+    expect(wrong.slice(0, 20), `${wrong.length} gaps that are not g`).toEqual([]);
   });
 });
 

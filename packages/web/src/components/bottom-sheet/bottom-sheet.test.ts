@@ -471,8 +471,11 @@ test.describe('the drag handle', () => {
     expect(none).toMatchObject({ pressed: 'none', ripple: 0 });
     expect(none.bg).toBe(none.hovered);
     expect((await press(undefined, 'sparkle')).pressed).toBe('overlay');
-    // A keyboard press grows the ripple from the centre over feedback-duration; it fades over state-duration.
+    // A keyboard press grows the ripple from the centre over feedback-duration; it fades over state-duration. The pointer
+    // the presses above left on the handle goes to the window's corner first: Enter raises the sheet, the handle moves
+    // out from under a pointer resting there, and the handle's pointerleave ends its press, even one by a key.
     await mount(page, [fx('s', {}, LONG)], { system: 'm3-like' });
+    await page.mouse.move(0, 0);
     await tabTo(page, handle(page));
     await page.keyboard.down('Enter');
     const layer = await handle(page)
