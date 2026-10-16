@@ -6,6 +6,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { attachPressLog, logPresses, notePress } from '../../../test/press-log.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('snackbar');
@@ -1447,6 +1448,8 @@ test.describe('status colors: the edge, the glyph, the description and the actio
 });
 
 test.describe('inverse', () => {
+  // A press read as drawn that fails says what the pointer did: the events and data-pressed, in the attachment.
+  test.afterEach(({ page }, info) => attachPressLog(page, info));
   /** The same snackbar three ways: `inverse` unset, set, and refused (the attribute `inverse="false"`). */
   const three = [f('unset', { action: 'Undo', closable: true, closeLabel: 'Close' }), f('set', { action: 'Undo', closable: true, closeLabel: 'Close', inverse: true }), f('refused', { action: 'Undo', closable: true, closeLabel: 'Close', inverse: 'false' })];
   const barColor = (page: P, id: string) => css(part(page, id, 'bar'), 'background-color');
@@ -1596,6 +1599,7 @@ test.describe('inverse', () => {
           drawn[`${name} at rest`] = await inState(id, name, form, '', at);
           await part(page, id, name).hover();
           drawn[`${name} hovered`] = await inState(id, name, form, 'hovered', at);
+          await notePress(page, `down: ${at} ${name}`);
           await page.mouse.down();
           drawn[`${name} pressed`] = await inState(id, name, form, 'pressed', at);
           // Released away from the control: nothing is activated, and the bar stays as it is for the next read.
@@ -1607,6 +1611,7 @@ test.describe('inverse', () => {
       const mount = async (theme: 'light' | 'dark', contrast: string) => {
         await mountFixtures(page, spec, { icons: true, fixtures: MIRROR, theme, reducedMotion: true });
         if (contrast) await page.evaluate((c) => document.documentElement.setAttribute('data-tanrei-contrast', c), contrast);
+        await logPresses(page);
         return `${theme}${contrast ? `-${contrast}` : ''}`;
       };
       const seen: Record<string, Record<string, Record<string, unknown>>> = {};
@@ -1747,6 +1752,8 @@ test.describe('controls: states, press, corners and focus style', () => {
   test.beforeEach(async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });
   });
+  // A press read as drawn that fails says what the pointer did: the events and data-pressed, in the attachment.
+  test.afterEach(({ page }, info) => attachPressLog(page, info));
   const drawn = (c: Locator) => c.evaluate((el) => ({ bg: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color, opacity: getComputedStyle(el).opacity }));
   const expected = async (page: P, control: string, state = '', form = '') => {
     const name = [control, state, form].filter(Boolean).join('-');
@@ -1783,11 +1790,13 @@ test.describe('controls: states, press, corners and focus style', () => {
     }
     for (const [id, control, tokens, status] of cases) {
       await mountFixtures(page, spec, { icons: true, fixtures: [fixture(id)] });
+      await logPresses(page);
       const c = part(page, id, control);
       await page.mouse.move(0, 0);
       await expect.poll(() => drawn(c), `${id} ${control}`).toEqual(await expected(page, tokens, '', status));
       await c.hover();
       await expect.poll(() => drawn(c), `${id} ${control} hovered`).toEqual(await expected(page, tokens, 'hovered', status));
+      await notePress(page, `down: ${id} ${control}`);
       await page.mouse.down();
       await expect.poll(() => drawn(c), `${id} ${control} pressed`).toEqual(await expected(page, tokens, 'pressed', status));
       await page.mouse.up();
@@ -1803,11 +1812,13 @@ test.describe('controls: states, press, corners and focus style', () => {
     }
     for (const control of ['action', 'close']) {
       await mountFixtures(page, spec, { icons: true });
+      await logPresses(page);
       const c = part(page, 'action-closable', control);
       await page.mouse.move(0, 0);
       await expect.poll(() => drawn(c), control).toEqual(await expected(page, control));
       await c.hover();
       await expect.poll(() => drawn(c), `${control} hovered`).toEqual(await expected(page, control, 'hovered'));
+      await notePress(page, `down: ${control}`);
       await page.mouse.down();
       await expect.poll(() => drawn(c), `${control} pressed`).toEqual(await expected(page, control, 'pressed'));
       await page.mouse.up();
