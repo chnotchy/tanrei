@@ -571,6 +571,25 @@ test.describe('overlay', () => {
   });
 });
 
+/**
+ * MNU-10's walk in the default system: for each condition, its row at rest, hovered and pressed by the pointer, and
+ * focused from the keyboard. Each entry is a test of its own on a fresh page; the coverage test below holds that every
+ * (row, state) pair is walked exactly once, in this order.
+ */
+const MNU_10_ROWS = [['actions', 0, 'unselected'], ['destructive', 1, 'destructive'], ['checkbox-checked', 0, 'selected']] as const;
+const MNU_10_WALK = MNU_10_ROWS.flatMap(([id, n, condition]) => [
+  { id, n, condition, states: ['rest', 'hovered', 'pressed'] },
+  { id, n, condition, states: ['focused'] },
+]);
+
+test('MNU-10: the parts of the state walk check each row in each state exactly once, in order', () => {
+  expect(MNU_10_WALK.flatMap(({ id, n, states }) => states.map((state) => `${id}/${n}/${state}`))).toEqual(
+    MNU_10_ROWS.flatMap(([id, n]) => ['rest', 'hovered', 'pressed', 'focused'].map((state) => `${id}/${n}/${state}`)),
+  );
+  // The test names tell the parts apart.
+  expect(new Set(MNU_10_WALK.map(({ id, states }) => `${id}, ${states.join(', ')}`)).size).toBe(MNU_10_WALK.length);
+});
+
 test.describe('items', () => {
   test.beforeAll(async () => {
     test.setTimeout(120_000);
@@ -613,9 +632,17 @@ test.describe('items', () => {
     expect(await item(page, 'x', 1).evaluate((el: any) => el.checked)).toBe(false);
   });
 
-  test('MNU-10: each state renders the row from that state’s tokens of its condition; pointer focus is not the focused state (default system)', async ({ page }) => {
-    for (const [id, n, condition] of [['actions', 0, 'unselected'], ['destructive', 1, 'destructive'], ['checkbox-checked', 0, 'selected']] as const) {
-      await mountFixtures(page, spec);
+  // One test for each part of MNU_10_WALK, each on the fresh page beforeEach mounts and with the whole of the time limit:
+  // the walk in one test mounted every fixture six times and took 26-29 s in WebKit on a CI runner, against 30 s.
+  for (const { id, n, condition, states } of MNU_10_WALK) {
+    test(`MNU-10: each state renders the row from that state’s tokens of its condition; pointer focus is not the focused state (default system) — ${id}, ${states.join(', ')}`, async ({ page }) => {
+      if (states[0] === 'focused') {
+        // Keyboard focus, reached with the arrow keys from a focused item.
+        await item(page, id, n === 0 ? 1 : 0).focus();
+        await page.keyboard.press(n === 0 ? 'ArrowUp' : 'ArrowDown');
+        await expect.poll(() => drawn(page, id, n), `${id} focused`).toEqual(await expected(page, condition, 'focused'));
+        return;
+      }
       await page.mouse.move(0, 0);
       await expect.poll(() => drawn(page, id, n), `${id}`).toEqual(await expected(page, condition));
       await row(page, id, n).hover();
@@ -624,13 +651,8 @@ test.describe('items', () => {
       await expect.poll(() => drawn(page, id, n), `${id} pressed`).toEqual(await expected(page, condition, 'pressed'));
       await page.mouse.move(0, 0);
       await page.mouse.up();
-      // Keyboard focus, reached with the arrow keys from a focused item.
-      await mountFixtures(page, spec);
-      await item(page, id, n === 0 ? 1 : 0).focus();
-      await page.keyboard.press(n === 0 ? 'ArrowUp' : 'ArrowDown');
-      await expect.poll(() => drawn(page, id, n), `${id} focused`).toEqual(await expected(page, condition, 'focused'));
-    }
-  });
+    });
+  }
 
   test('MNU-10: under acme, where the three states differ, pressed beats focused beats hovered', async ({ page }) => {
     await mountFixtures(page, spec, { system: 'acme', systemCss: await acmeSystemCss() });
