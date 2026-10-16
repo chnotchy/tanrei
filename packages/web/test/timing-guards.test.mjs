@@ -154,7 +154,7 @@ export const RULES = {
       'src/components/select/select.test.ts': 3,
       'src/components/side-sheet/side-sheet.test.ts': 6,
       'src/components/skeleton/skeleton.test.ts': 2,
-      'src/components/slider/slider.test.ts': 3,
+      'src/components/slider/slider.test.ts': 2,
       'src/components/snackbar/snackbar.test.ts': 3,
       'src/components/switch/switch.test.ts': 2,
       'src/components/table-of-contents/table-of-contents.test.ts': 5,
