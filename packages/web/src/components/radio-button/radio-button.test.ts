@@ -6,6 +6,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { BEHIND, INSIDE, RATIOS, atRatio, depth, endMotion, holdMotionAt, offLine, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
+import { motionEnded } from '../../../test/motions.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('radio-button');
@@ -884,8 +885,10 @@ test.describe('press, feedback, corners and focus style', () => {
     await host(page, 'o0').evaluate((el) => ((el as any).checked = true));
     // The stroke (the padding of both layers, RAD-24) and both colors, together.
     await expect.poll(() => begun(page, 'o0')).toEqual(expect.arrayContaining(['ring padding-top 700', 'ring background-color 700', 'fill padding-top 700', 'fill background-color 700']));
-    // The option it replaced changes over the selection motion as well: it changed condition too.
-    await page.waitForTimeout(800);
+    // The option it replaced changes over the selection motion as well: it changed condition too. The motions of the
+    // check are over first (waited for, not timed: one still running would be turned back, and a transition turned back
+    // part of the way is shortened to the part it goes back).
+    await motionEnded(host(page, 'o0'));
     await tabTo(page, host(page, 'o0'));
     await watchTransitions(host(page, 'o0'));
     await watchTransitions(host(page, 'o1'));
