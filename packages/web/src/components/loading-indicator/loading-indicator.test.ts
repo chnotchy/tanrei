@@ -305,6 +305,42 @@ const entry = (page: P, id: string) =>
     .locator('.container')
     .evaluate((el) => el.getAnimations().map((a) => ({ id: a.id, duration: Number(a.effect!.getTiming().duration), easing: a.effect!.getTiming().easing, state: a.playState })));
 
+/**
+ * Watches an inserted indicator for the moment it is shown, and looks at its indicator in that same task, once it has
+ * rendered — before any frame can pass: what runs in it (each animation's name, current time and progress through its
+ * cycle), and its rotation and opacity. A start time is no measure of when an animation began: an engine sets it to the
+ * time of a frame (in Chromium, the frame that was current when the test last read the timeline can be the one), and
+ * the timeline's time is read coarsened, so a start time can fall a fraction of a millisecond before a time the test
+ * read before the delay ended.
+ */
+const watchStart = (page: P, id: string) =>
+  byId(page, id).evaluate((el) => {
+    const indicator = el.shadowRoot!.querySelector('.indicator')!;
+    new MutationObserver((_, observer) => {
+      if (el.getAttribute('role') !== 'progressbar') return;
+      observer.disconnect();
+      void (el as any).updateComplete.then(() => {
+        const running = indicator.getAnimations();
+        const style = getComputedStyle(indicator);
+        const animations = running.map((a) => ({ name: (a as CSSAnimation).animationName, time: a.currentTime, progress: a.effect!.getComputedTiming().progress }));
+        (window as any).starts = { ...(window as any).starts, [el.id]: { running, animations, rotate: style.rotate, opacity: style.opacity } };
+      });
+    }).observe(el, { attributes: true, attributeFilter: ['role'] });
+  });
+/** What `watchStart` saw as the indicator was shown, and whether what started then is what runs now. */
+const started = (page: P, id: string) =>
+  byId(page, id).evaluate((el) => {
+    const seen = (window as any).starts?.[el.id];
+    if (!seen) return null;
+    const now = el.shadowRoot!.querySelector('.indicator')!.getAnimations();
+    return {
+      animations: seen.animations as { name: string; time: number | null; progress: number | null }[],
+      rotate: seen.rotate as string,
+      opacity: seen.opacity as string,
+      runs: now.length === 1 && now[0] === seen.running[0] && now[0].playState === 'running',
+    };
+  });
+
 test.describe('show delay and entrance', () => {
   test('LDG-11: from its insertion it waits its show delay with its box kept, drawing, running and exposing nothing; a show delay of 0 shows it as it is inserted', async ({ page }) => {
     await blank(page);
@@ -341,22 +377,27 @@ test.describe('show delay and entrance', () => {
     await blank(page);
     const delay = await resolveToken(page, T('motion-show-delay'), 'duration');
     await insert(page, 'subject');
-    const before = await page.evaluate(() => Number(document.timeline.currentTime));
-    await page.clock.runFor(delay);
+    await watchStart(page, 'subject');
+    // The turn did not run during the delay (LDG-11): to its last millisecond, nothing runs in the indicator.
+    await page.clock.runFor(delay - 1);
+    expect(await state(page, 'subject')).toEqual(WAITING);
+    await page.clock.runFor(1);
     expect(await exposure(page, 'subject')).toEqual(SHOWN);
     await expect(page.getByRole('progressbar', { name: 'Loading' })).toHaveCount(1);
     for (const name of ['aria-live', 'tabindex', 'aria-valuenow']) await expect(byId(page, 'subject'), name).not.toHaveAttribute(name);
     expect((await state(page, 'subject')).running).toEqual(['enter-fade', 'ring-turn']);
-    // The turn did not run during the delay (LDG-11): it begins now, at the start of its cycle.
-    const started = (id: string) => byId(page, id).locator('.indicator').evaluate((el) => Number(el.getAnimations()[0].startTime ?? document.timeline.currentTime));
-    expect(await started('subject')).toBeGreaterThanOrEqual(before);
+    // It begins as it is shown, at the start of its cycle: in the task that shows it, the turn is new, at 0 ms, no way
+    // into its cycle and at 0deg, and it is the turn that then runs.
+    expect(await started(page, 'subject')).toEqual({ animations: [{ name: 'ring-turn', time: 0, progress: 0 }], rotate: '0deg', opacity: '1', runs: true });
     // The reduced-motion pulse likewise starts at the beginning of its cycle, at full opacity.
     await reduceMotion(page);
     await insert(page, 'pulsing');
-    const later = await page.evaluate(() => Number(document.timeline.currentTime));
-    await page.clock.runFor(delay);
+    await watchStart(page, 'pulsing');
+    await page.clock.runFor(delay - 1);
+    expect(await state(page, 'pulsing')).toEqual(WAITING);
+    await page.clock.runFor(1);
     expect((await state(page, 'pulsing')).running).toEqual(['enter-fade', 'pulse']);
-    expect(await started('pulsing')).toBeGreaterThanOrEqual(later);
+    expect(await started(page, 'pulsing')).toEqual({ animations: [{ name: 'pulse', time: 0, progress: 0 }], rotate: 'none', opacity: '1', runs: true });
   });
 
   test('LDG-13: fade eases the whole component in over enter-duration on enter-easing; grow also scales it from its center; drawn only; 0 is at once; reduced motion turns grow into fade; it runs to its end off screen', async ({ page }) => {
