@@ -700,15 +700,16 @@ test.describe('behavior', () => {
     const motion = await host(page, 'menu').evaluate((el) =>
       [...el.querySelectorAll('tanrei-fab-menu-item')].map((it) => {
         const s = getComputedStyle(it.shadowRoot!.querySelector('.container')!);
-        return { name: s.animationName, duration: Number.parseFloat(s.animationDuration) * 1000, delay: Number.parseFloat(s.animationDelay) * 1000, origin: s.transformOrigin };
+        // The origin and the width it is compared with, read together: the layout width (a transform never changes it).
+        return { name: s.animationName, duration: Number.parseFloat(s.animationDuration) * 1000, delay: Number.parseFloat(s.animationDelay) * 1000, origin: s.transformOrigin, width: Number.parseFloat(s.width) };
       }),
     );
     expect(motion.map((m) => m.name)).toEqual(['fab-menu-item-in', 'fab-menu-item-in', 'fab-menu-item-in']);
     expect(motion.map((m) => m.duration)).toEqual([open, open, open]);
     expect(motion.map((m) => Math.round(m.delay))).toEqual([2 * stagger, stagger, 0]);
     // From the end edge: the right one, in left-to-right.
-    const width = await box(page, 'menu', 'Document').evaluate((el) => (el as HTMLElement).offsetWidth); // scaled to 0 while it waits
-    expect(Number.parseFloat(motion[0].origin.split(' ')[0])).toBeCloseTo(width, 0);
+    expect(motion[0].width).toBeGreaterThan(0);
+    expect(Number.parseFloat(motion[0].origin.split(' ')[0])).toBeCloseTo(motion[0].width, 0);
     await expect.poll(() => toggle(page, 'menu').evaluate((el) => el.classList.contains('turning')), { timeout: open + 2000 }).toBe(false);
     expect(await page.evaluate(() => (window as any).ended)).toEqual([]);
 

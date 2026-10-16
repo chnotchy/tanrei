@@ -1703,8 +1703,8 @@ test.describe('the members compared (the twin of a feature with parts of its own
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark, at rest and with the typing area focused — but in the fixture drawn without its words', async ({ page }) => {
-    for (const theme of ['light', 'dark'] as const) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`no axe violations in ${theme}, at rest and with the typing area focused — but in the fixture drawn without its words`, async ({ page }) => {
       await mount(page, spec.fixtures.filter((f) => f.id !== 'without-words'), { theme });
       await settle(page);
       const rest = await new AxeBuilder({ page }).include('.stage').analyze();
@@ -1712,8 +1712,8 @@ test.describe('accessibility', () => {
       await focus(page, 'inline-typed');
       const focusedNow = await new AxeBuilder({ page }).include('[data-fixture="inline-typed"]').analyze();
       expect(focusedNow.violations, `${theme}, focused`).toEqual([]);
-    }
-  });
+    });
+  }
 
   test('the fixture drawn without its words draws every part, works, and says what it lacks', async ({ page }) => {
     const seen = warnings(page);

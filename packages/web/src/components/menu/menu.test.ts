@@ -3860,8 +3860,8 @@ test.describe('context menu', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark, in place and open from an anchor', async ({ page }) => {
-    for (const theme of ['light', 'dark'] as const) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`no axe violations in ${theme}, in place and open from an anchor`, async ({ page }) => {
       await mountFixtures(page, spec, { theme, icons: true, fixtures: [...spec.fixtures, overlay('open', [...VIEW, sub('More', [cb('Wrap', { checked: true }), sub('Deeper', [it('Bottom')], { open: true })], { open: true })])] });
       await paintAnchor(page, 'open');
       await menu(page, 'open').evaluate((el: any) => (el.open = true));
@@ -3869,8 +3869,8 @@ test.describe('accessibility', () => {
       await motionEnded(page); // colors and the open motion
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
-    }
-  });
+    });
+  }
 
   test('keyboard only: a two-level submenu is opened, crossed and closed without a pointer — MNU-43, MNU-48, MNU-49', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [overlay('file', FILE)] });
