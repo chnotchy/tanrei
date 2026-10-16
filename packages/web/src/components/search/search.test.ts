@@ -18,6 +18,7 @@ import {
   rootTokens,
 } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('search');
 type P = Page;
@@ -1056,6 +1057,9 @@ test.describe('states', () => {
       const g = await bounds(host(page, 's').locator('.glyph'));
       await page.mouse.move(g.x + 2, g.y + 2);
       await expect.poll(() => css(b, 'background-color')).toBe(await resolveColor(page, S('hovered-container-color')));
+      // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+      // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+      await motionEnded(host(page, 's'));
       await page.mouse.down();
       const result = {
         pressed: await b.getAttribute('data-pressed'),
