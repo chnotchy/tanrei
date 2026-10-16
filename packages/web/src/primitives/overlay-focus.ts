@@ -117,9 +117,33 @@ export function tabThroughOverlay(event: KeyboardEvent, { surface, host, opener 
   // Past its end: from the opener, on to what follows it — the browser's own move, which must not come back in here
   // where the overlay's element happens to follow its opener in the document.
   opener.focus({ preventScroll: true });
+  skipDuringMove(host, opener, event);
+}
+
+/**
+ * POP-20: `host` is left out (`inert`) of the move that `key`, a Tab, makes from `opener`, and only of that move. It is
+ * over when focus leaves the opener — on to the next element, or out of the window — or, for a Tab that something
+ * cancelled and that moves nothing, when the key comes up; a press or another key is a new act, and ends it too. Never
+ * a timer: the browser may run one after later tasks, and the overlay would stay out of reach of focus the product
+ * moves into it right away.
+ */
+function skipDuringMove(host: HTMLElement, opener: HTMLElement, key: KeyboardEvent) {
   const was = host.inert;
   host.inert = true;
-  setTimeout(() => (host.inert = was), 0);
+  const over = (event: Event) => {
+    // The key's own keydown, heard further along its way: the move has not been made yet.
+    if (event === key) return;
+    if (event.type === 'keyup' && (event as KeyboardEvent).key !== 'Tab') return;
+    opener.removeEventListener('focusout', over, true);
+    window.removeEventListener('keyup', over, true);
+    window.removeEventListener('keydown', over, true);
+    window.removeEventListener('pointerdown', over, true);
+    host.inert = was;
+  };
+  opener.addEventListener('focusout', over, true);
+  window.addEventListener('keyup', over, true);
+  window.addEventListener('keydown', over, true);
+  window.addEventListener('pointerdown', over, true);
 }
 
 /**

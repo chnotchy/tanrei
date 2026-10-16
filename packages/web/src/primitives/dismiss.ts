@@ -134,8 +134,14 @@ export class DismissController implements ReactiveController {
   private readonly adopted = new WeakSet<Element>();
   /** Whether the person's last press or key was inside the surface: a modal overlay that opens next is its own. */
   private actedInside = false;
-  private asked = false;
-  private reset: ReturnType<typeof setTimeout> | undefined;
+  /**
+   * The act that last asked, and the event it asked with: the next request waits until that act is over. A press is
+   * over only at the next press or key (a touch moves focus after it is lifted, which is still that press); Escape, or
+   * focus arriving outside, is over once its event has been dispatched — what the host and the product do while it is
+   * (focus they move, a request they decline) is part of it. Never a timer: the browser may run a timer after later
+   * tasks, and a later act — focus the product or assistive technology moves — would then ask nothing.
+   */
+  private asked: { reason: DismissReason; event: Event } | null = null;
 
   constructor(
     private readonly host: Host,
@@ -151,7 +157,7 @@ export class DismissController implements ReactiveController {
   start() {
     if (this.active || typeof window === 'undefined') return;
     this.active = true;
-    this.asked = false;
+    this.asked = null;
     this.actedInside = this.owns(deepActive());
     if (shown.length === 0) window.addEventListener('keydown', onKey, true);
     shown.push(this);
@@ -163,8 +169,7 @@ export class DismissController implements ReactiveController {
   stop() {
     if (!this.active) return;
     this.active = false;
-    clearTimeout(this.reset);
-    this.asked = false;
+    this.asked = null;
     const at = shown.indexOf(this);
     if (at >= 0) shown.splice(at, 1);
     if (shown.length === 0) window.removeEventListener('keydown', onKey, true);
@@ -203,14 +208,17 @@ export class DismissController implements ReactiveController {
 
   /** @internal Asks once for one act of the person: a press outside that also moves focus is one request. */
   ask(reason: DismissReason, event: Event) {
-    if (!this.active || this.asked) return;
-    this.asked = true;
-    clearTimeout(this.reset);
-    // The host may decline (a product that keeps the surface open): the next act asks again. A press or a key says
-    // itself that it is a new act; a press is over only at the next one (a touch moves focus after it is lifted, which
-    // is still that press); anything else is over once this task is.
-    if (reason !== 'outside') this.reset = setTimeout(() => (this.asked = false), 0);
+    if (!this.active || this.asking()) return;
+    // The host may decline (a product that keeps the surface open): the next act asks again.
+    this.asked = { reason, event };
     this.options.request(reason, event);
+  }
+
+  /** Whether the act that last asked is still going on (`asked`). */
+  private asking(): boolean {
+    const asked = this.asked;
+    if (!asked) return false;
+    return asked.reason === 'outside' || asked.event.eventPhase !== Event.NONE;
   }
 
   /**
@@ -226,14 +234,14 @@ export class DismissController implements ReactiveController {
 
   /** A key: a new act of the person's, which may ask again. */
   private readonly onAct = (event: Event) => {
-    this.asked = false;
+    this.asked = null;
     this.actedInside = this.owns(event.composedPath()[0] as Node);
   };
 
   /** POP-21: a press outside the surface, its anchor, its opener and every overlay opened from inside it. */
   private readonly onPress = (event: PointerEvent) => {
     // A new act of the person's, which may ask again.
-    this.asked = false;
+    this.asked = null;
     const target = event.composedPath()[0] as Node;
     const inside = this.owns(target) || this.adopt(target);
     this.actedInside = inside;
