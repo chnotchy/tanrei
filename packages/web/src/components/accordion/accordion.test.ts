@@ -17,6 +17,7 @@ import {
   withoutIconFont,
   rootTokens,
 } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
@@ -102,8 +103,11 @@ const toggles = async (page: P) => {
 };
 /** The motions of the accordions that are running now: an item's clock and a chevron's turn (not a header's state colors). */
 const motions = (page: P) => page.evaluate(() => document.getAnimations().filter((a) => ['--_acc-open', 'rotate'].includes((a as CSSTransition).transitionProperty)).length);
-/** No motion of any accordion is running. */
-const settled = (page: P) => expect.poll(() => motions(page), { timeout: 5000 }).toBe(0);
+/**
+ * No motion of any accordion is running: every one running now has ended, however slowly it runs (a poll of the count
+ * gave up after a fixed five seconds, shorter than a slowed motion of a second).
+ */
+const settled = (page: P) => motionEnded(page);
 const fixture = (id: string) => spec.fixtures.find((f) => f.id === id)!;
 const some = (...ids: string[]) => spec.fixtures.filter((f) => ids.includes(f.id));
 /** A fixture whose items are written by the test. */

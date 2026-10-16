@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 import { firstStrong, runDirection } from '../../styles/product-text.js';
 import { ZERO, canonical, clamp, decimalFromString, decimalOf, format, numberForm, numberOf, read as readText, round, stepped } from './number-text.js';
 
@@ -1891,7 +1892,8 @@ test.describe('behavior: exposure, forms, size and direction', () => {
     expect(resting.height, 'on several lines').toBeGreaterThan(1.5 * (await px(label, 'font-size')));
     expect(resting.y >= c.y - 0.6 && resting.y + resting.height <= c.y + c.height + 0.6, 'the resting lines are inside the container').toBe(true);
     await focusInput(page, 'float');
-    await frames(page, 8);
+    // Floated: the label's motion up to the edge has ended (eight frames saw it on its way where it ran slower).
+    await motionEnded(host(page, 'float'));
     expect(await fits(), 'floated').toBe(true);
     expect((await box(label)).y + (await box(label)).height, 'never over the input’s line').toBeLessThanOrEqual((await box(input(page, 'float'))).y + 0.6);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'no scrolling sideways').toBe(true);

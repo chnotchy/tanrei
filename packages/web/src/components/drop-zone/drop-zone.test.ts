@@ -5,6 +5,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, rootTokens, setWords, tab, withoutIconFont } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('drop-zone');
 type P = Page;
@@ -232,7 +233,9 @@ test.describe('behavior', () => {
     expect(over.effect).toBe('none');
     await expect(part(page, 'a', 'icon')).toHaveText('block');
     await expect(part(page, 'a', 'label')).toHaveText('Only PNG images');
-    await frames(page, 20);
+    // The colors where they rest: the overlay's change to the refusing role has ended (twenty frames read its edge on
+    // the way where the change ran slower).
+    await motionEnded(host(page, 'a'));
     await isColor(page, part(page, 'a', 'edge'), 'border-top-color', 'refusing-outline-color');
     await isColor(page, part(page, 'a', 'icon'), 'color', 'refusing-icon-color');
     await isColor(page, overlay(page, 'a'), 'background-color', 'scrim-color');

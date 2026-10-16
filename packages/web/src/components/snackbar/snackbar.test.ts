@@ -4,6 +4,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, rootTokensInPage } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
@@ -363,7 +364,8 @@ test.describe('host', () => {
     await show(page, { title: TITLE, message: LONG, expandLabel: 'Show full message', duration: 'indefinite' });
     await expect.poll(() => showing(page)).toEqual([LONG]);
     await expect.poll(() => shown(page).locator('.expand').count()).toBe(1);
-    await page.waitForTimeout(600);
+    // At rest before it is measured: the entrance has ended (it rises in from below, so a box read during it is lower).
+    await motionEnded(shown(page));
     const before = await bounds(shown(page).locator('.bar'));
     // On its way: the bar's own motion, begun by a press on the expand button, is held half way through its time in
     // the task that begins it, the bar read there, and the motion let go. (Read 100 ms and an answer after a click, a
@@ -381,7 +383,7 @@ test.describe('host', () => {
       return { x: box.x, y: box.y, width: box.width, height: box.height };
     });
     expect(during.height, 'half way: taller than collapsed').toBeGreaterThan(before.height + 1);
-    await expect.poll(() => shown(page).locator('.bar').evaluate((el) => el.getAnimations().length)).toBe(0);
+    await motionEnded(shown(page).locator('.bar'));
     const after = await bounds(shown(page).locator('.bar'));
     expect(after.height).toBeGreaterThan(before.height);
     expect(during.height, 'half way: not yet expanded').toBeLessThan(after.height - 1);
@@ -450,6 +452,9 @@ test.describe('host', () => {
     await setOpen(true);
     await page.clock.runFor(10_000); // far longer than the timeout: paused
     expect(await showing(page)).toEqual(['Saved']);
+    // Measured at rest, as the point is tested later: the snackbar's entrance and the dialog's opening have ended (a box
+    // read while the bar still rises in from below names a point under the window's edge, where nothing is hit).
+    await motionEnded(page);
     const b = await bounds(shown(page).locator('.bar'));
     expect(await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.localName, [b.x + 4, b.y + b.height / 2])).toBe('tanrei-dialog');
     await show(page, { message: 'Next', action: 'Undo' });
@@ -475,7 +480,8 @@ test.describe('host', () => {
     await mountHost(page);
     await show(page, { message: 'Conversation archived', action: 'Undo' });
     await expect.poll(() => showing(page)).toEqual(['Conversation archived']);
-    await page.waitForTimeout(600);
+    // Where it rests: its entrance, which rises in from below, has ended.
+    await motionEnded(shown(page));
     const margin = await resolveToken(page, T('container-margin'));
     const b = await bounds(shown(page).locator('.bar'));
     expect(b.y + b.height).toBeCloseTo(600 - margin, 0);
@@ -1527,99 +1533,94 @@ test.describe('inverse', () => {
     });
   });
 
-  test('SNK-30: under the default system each status’s inverse form is drawn as that status’s form is in the other theme at the same contrast level — the bar, the title, the message, the glyph and the edge as drawn, the focus indicator, and the action and the close button at rest, hovered, pressed and focused — light for dark and dark for light, at standard, medium and high contrast', async ({ page }) => {
-    test.setTimeout(300_000);
-    // The eight forms of a status, each with every part the sentence names: a title, a message, a glyph, an action and
-    // a close button. `mirror-<form>`.
-    const forms = STATUSES.flatMap((status) => [status, `inverse-${status}`]);
-    const MIRROR: Fixture[] = forms.map((form) => ({
-      id: `mirror-${form}`,
-      props: { title: 'Draft deleted', message: 'The draft was moved to the bin.', action: 'Undo', closable: true, closeLabel: 'Close', status: form.replace('inverse-', ''), statusLabel: 'Status', ...(form.startsWith('inverse-') ? { inverse: true } : {}) },
-    }));
-    const controls = ['action', 'close'] as const;
-    /** A control as drawn: its container, its content, the opacity its state gives it, and the action's tonal layer. */
-    const control = async (c: Locator, name: string) => ({
-      container: await css(c, 'background-color'),
-      content: await css(c, 'color'),
-      opacity: await css(c, 'opacity'),
-      layer: name === 'action' ? (await tonalLayer(c)).color : null,
-    });
-    /** The tokens of a control's state in a form, as that control is drawn in it. */
-    const stateTokens = async (name: string, form: string, state: string) => ({
-      container: await resolveColor(page, controlToken(name as 'action' | 'close', form, 'container-color', state)),
-      content: await resolveColor(page, controlToken(name as 'action' | 'close', form, 'content-color', state)),
-      opacity: state ? await token(page, T(`${state}-opacity`)) : '1',
-    });
-    /** Waits until the control is drawn in `state` (its form's tokens of that state), then reads it as drawn. */
-    const inState = async (id: string, name: string, form: string, state: string, at: string) => {
-      const c = part(page, id, name);
-      const want = await stateTokens(name, form, state);
-      await expect.poll(async () => { const d = await control(c, name); return { container: d.container, content: d.content, opacity: d.opacity }; }, `${at} ${name} ${state || 'at rest'}`).toEqual(want);
-      return control(c, name);
-    };
-    /** Everything a form draws, read from its elements in the page's scheme. */
-    const read = async (form: string, scheme: string) => {
-      const id = `mirror-${form}`;
-      const at = `${scheme} ${form}`;
-      const drawn: Record<string, unknown> = {
-        bar: await css(part(page, id, 'bar'), 'background-color'),
-        title: await css(part(page, id, 'title'), 'color'),
-        message: await css(part(page, id, 'message'), 'color'),
-        glyph: await css(part(page, id, 'status'), 'color'),
-        // The edge is the bar's first shadow layer, before the elevation's (SNK-31), which is the theme's own.
-        edge: shadowLayer(shadowLayers(await css(part(page, id, 'bar'), 'box-shadow'))[0]),
+  // One test for each contrast level: each reads its two themes' eight forms through some two hundred inputs, and the
+  // three levels in one test took longer than its time where every input waits (harsh mode).
+  for (const contrast of ['', 'medium', 'high']) {
+    test(`SNK-30: under the default system each status’s inverse form is drawn as that status’s form is in the other theme at the same contrast level — the bar, the title, the message, the glyph and the edge as drawn, the focus indicator, and the action and the close button at rest, hovered, pressed and focused — light for dark and dark for light, at ${contrast || 'standard'} contrast`, async ({ page }) => {
+      test.setTimeout(300_000);
+      // The eight forms of a status, each with every part the sentence names: a title, a message, a glyph, an action and
+      // a close button. `mirror-<form>`.
+      const forms = STATUSES.flatMap((status) => [status, `inverse-${status}`]);
+      const MIRROR: Fixture[] = forms.map((form) => ({
+        id: `mirror-${form}`,
+        props: { title: 'Draft deleted', message: 'The draft was moved to the bin.', action: 'Undo', closable: true, closeLabel: 'Close', status: form.replace('inverse-', ''), statusLabel: 'Status', ...(form.startsWith('inverse-') ? { inverse: true } : {}) },
+      }));
+      const controls = ['action', 'close'] as const;
+      /** A control as drawn: its container, its content, the opacity its state gives it, and the action's tonal layer. */
+      const control = async (c: Locator, name: string) => ({
+        container: await css(c, 'background-color'),
+        content: await css(c, 'color'),
+        opacity: await css(c, 'opacity'),
+        layer: name === 'action' ? (await tonalLayer(c)).color : null,
+      });
+      /** The tokens of a control's state in a form, as that control is drawn in it. */
+      const stateTokens = async (name: string, form: string, state: string) => ({
+        container: await resolveColor(page, controlToken(name as 'action' | 'close', form, 'container-color', state)),
+        content: await resolveColor(page, controlToken(name as 'action' | 'close', form, 'content-color', state)),
+        opacity: state ? await token(page, T(`${state}-opacity`)) : '1',
+      });
+      /** Waits until the control is drawn in `state` (its form's tokens of that state), then reads it as drawn. */
+      const inState = async (id: string, name: string, form: string, state: string, at: string) => {
+        const c = part(page, id, name);
+        const want = await stateTokens(name, form, state);
+        await expect.poll(async () => { const d = await control(c, name); return { container: d.container, content: d.content, opacity: d.opacity }; }, `${at} ${name} ${state || 'at rest'}`).toEqual(want);
+        return control(c, name);
       };
-      // Keyboard focus first (WebKit does not move focus with Tab after a press): the focused state and its indicator.
-      for (const name of controls) {
-        await tabTo(page, part(page, id, name));
-        drawn[`${name} focused`] = await inState(id, name, form, 'focused', at);
-        drawn[`${name} focus indicator`] = await css(part(page, id, name), 'outline-color');
-        expect(await css(part(page, id, name), 'outline-style'), `${at} ${name}: the indicator is drawn`).toBe('solid');
-      }
-      return drawn;
-    };
-    /** The states a pointer reaches, after every form's keyboard focus was read. */
-    const readPointer = async (form: string, scheme: string, drawn: Record<string, unknown>) => {
-      const id = `mirror-${form}`;
-      const at = `${scheme} ${form}`;
-      for (const name of controls) {
-        await page.mouse.move(0, 0);
-        drawn[`${name} at rest`] = await inState(id, name, form, '', at);
-        await part(page, id, name).hover();
-        drawn[`${name} hovered`] = await inState(id, name, form, 'hovered', at);
-        await page.mouse.down();
-        drawn[`${name} pressed`] = await inState(id, name, form, 'pressed', at);
-        // Released away from the control: nothing is activated, and the bar stays as it is for the next read.
-        await page.mouse.move(0, 0);
-        await page.mouse.up();
-      }
-    };
-    const LEVELS = ['', 'medium', 'high'];
-    const THEMES = ['light', 'dark'] as const;
-    const mount = async (theme: 'light' | 'dark', contrast: string) => {
-      await mountFixtures(page, spec, { icons: true, fixtures: MIRROR, theme, reducedMotion: true });
-      if (contrast) await page.evaluate((c) => document.documentElement.setAttribute('data-tanrei-contrast', c), contrast);
-      return `${theme}${contrast ? `-${contrast}` : ''}`;
-    };
-    const all: Record<string, Record<string, Record<string, Record<string, unknown>>>> = {};
-    // Every scheme's keyboard focus before any press: WebKit does not move focus with Tab after a press, even on a new
-    // page (as in SNK-2's test).
-    for (const contrast of LEVELS) {
-      all[contrast] = {};
+      /** Everything a form draws, read from its elements in the page's scheme. */
+      const read = async (form: string, scheme: string) => {
+        const id = `mirror-${form}`;
+        const at = `${scheme} ${form}`;
+        const drawn: Record<string, unknown> = {
+          bar: await css(part(page, id, 'bar'), 'background-color'),
+          title: await css(part(page, id, 'title'), 'color'),
+          message: await css(part(page, id, 'message'), 'color'),
+          glyph: await css(part(page, id, 'status'), 'color'),
+          // The edge is the bar's first shadow layer, before the elevation's (SNK-31), which is the theme's own.
+          edge: shadowLayer(shadowLayers(await css(part(page, id, 'bar'), 'box-shadow'))[0]),
+        };
+        // Keyboard focus first (WebKit does not move focus with Tab after a press): the focused state and its indicator.
+        for (const name of controls) {
+          await tabTo(page, part(page, id, name));
+          drawn[`${name} focused`] = await inState(id, name, form, 'focused', at);
+          drawn[`${name} focus indicator`] = await css(part(page, id, name), 'outline-color');
+          expect(await css(part(page, id, name), 'outline-style'), `${at} ${name}: the indicator is drawn`).toBe('solid');
+        }
+        return drawn;
+      };
+      /** The states a pointer reaches, after every form's keyboard focus was read. */
+      const readPointer = async (form: string, scheme: string, drawn: Record<string, unknown>) => {
+        const id = `mirror-${form}`;
+        const at = `${scheme} ${form}`;
+        for (const name of controls) {
+          await page.mouse.move(0, 0);
+          drawn[`${name} at rest`] = await inState(id, name, form, '', at);
+          await part(page, id, name).hover();
+          drawn[`${name} hovered`] = await inState(id, name, form, 'hovered', at);
+          await page.mouse.down();
+          drawn[`${name} pressed`] = await inState(id, name, form, 'pressed', at);
+          // Released away from the control: nothing is activated, and the bar stays as it is for the next read.
+          await page.mouse.move(0, 0);
+          await page.mouse.up();
+        }
+      };
+      const THEMES = ['light', 'dark'] as const;
+      const mount = async (theme: 'light' | 'dark', contrast: string) => {
+        await mountFixtures(page, spec, { icons: true, fixtures: MIRROR, theme, reducedMotion: true });
+        if (contrast) await page.evaluate((c) => document.documentElement.setAttribute('data-tanrei-contrast', c), contrast);
+        return `${theme}${contrast ? `-${contrast}` : ''}`;
+      };
+      const seen: Record<string, Record<string, Record<string, unknown>>> = {};
+      // Both themes' keyboard focus before any press: WebKit does not move focus with Tab after a press, even on a new
+      // page (as in SNK-2's test).
       for (const theme of THEMES) {
         const scheme = await mount(theme, contrast);
-        all[contrast][theme] = {};
-        for (const form of forms) all[contrast][theme][form] = await read(form, scheme);
+        seen[theme] = {};
+        for (const form of forms) seen[theme][form] = await read(form, scheme);
       }
-    }
-    for (const contrast of LEVELS) {
       for (const theme of THEMES) {
         const scheme = await mount(theme, contrast);
-        for (const form of forms) await readPointer(form, scheme, all[contrast][theme][form]);
+        for (const form of forms) await readPointer(form, scheme, seen[theme][form]);
       }
-    }
-    for (const contrast of LEVELS) {
-      const seen = all[contrast];
       const level = contrast || 'standard';
       for (const status of STATUSES) {
         // The mirror, both ways: part for part, value for value.
@@ -1630,8 +1631,8 @@ test.describe('inverse', () => {
         expect(seen.light[`inverse-${status}`].bar, `${level} ${status}`).not.toBe(seen.light[status].bar);
         expect(Object.keys(seen.light[status]).sort(), `${level} ${status}: every part was read`).toEqual(['action at rest', 'action focus indicator', 'action focused', 'action hovered', 'action pressed', 'bar', 'close at rest', 'close focus indicator', 'close focused', 'close hovered', 'close pressed', 'edge', 'glyph', 'message', 'title']);
       }
-    }
-  });
+    });
+  }
 
   test('SNK-30: drawn inverse changes colors only — the same sizes, layout, elevation, corners and glyphs, the same width and opacity of a status form’s edge and the same opacities of the glyph, of a message under a title and of the action’s tonal layer as the same snackbar on a surface', async ({ page }) => {
     const pairs = (['action-closable', 'info', 'warning', 'error', 'expanded'] as const).map((id) => [fixture(id), { id: `${id}-inverse`, props: { ...fixture(id).props, inverse: true } }] as const);
@@ -1774,13 +1775,14 @@ test.describe('controls: states, press, corners and focus style', () => {
     ] as const;
     // Each form's states are tokens of its own: an inverse form's hovered action is not the surface form's.
     expect(await resolveColor(page, T('action-hovered-inverse-container-color'))).not.toBe(await resolveColor(page, T('action-hovered-container-color')));
+    // Each case on a page of its own fixture alone: Tab reaches its control in a press or two, not across every fixture.
     for (const [id, control, tokens, status] of cases) {
-      await mountFixtures(page, spec, { icons: true });
+      await mountFixtures(page, spec, { icons: true, fixtures: [fixture(id)] });
       await tabTo(page, part(page, id, control));
       await expect.poll(() => drawn(part(page, id, control)), `${id} ${control} focused`).toEqual(await expected(page, tokens, 'focused', status));
     }
     for (const [id, control, tokens, status] of cases) {
-      await mountFixtures(page, spec, { icons: true });
+      await mountFixtures(page, spec, { icons: true, fixtures: [fixture(id)] });
       const c = part(page, id, control);
       await page.mouse.move(0, 0);
       await expect.poll(() => drawn(c), `${id} ${control}`).toEqual(await expected(page, tokens, '', status));
