@@ -1475,8 +1475,12 @@ export class TanreiMenu extends LitElement {
   private pressedFrom: HTMLElement | null = null;
   /** MNU-60: a touch or a pen pressed in the area, which a long press makes a request of. */
   private held: { pointerId: number; x: number; y: number; element: Element; timer: ReturnType<typeof setTimeout>; answered: 'menu' | 'platform' | null } | null = null;
-  /** MNU-60: a key asked for the menu, and the context menu event the key makes too is the menu's to cancel. */
-  private keyed = false;
+  /**
+   * MNU-60: a key asked for the menu, and is still down: a context menu event the key makes too is the menu's to cancel.
+   * It is over at that event, when the key comes up, or at a press or another key — never on a timer, which the
+   * browser may run after later tasks: a separate request (the command of assistive technology) would be swallowed.
+   */
+  private keyed: (() => void) | null = null;
   /** The document or shadow root whose events a context menu's area is listened in. */
   private listenedRoot: Document | ShadowRoot | null = null;
   /** MNU-63: the element the menu wrote the popup state on, which it takes back from when it no longer opens from it. */
@@ -2223,6 +2227,7 @@ export class TanreiMenu extends LitElement {
   private readonly onContextMenu = (event: MouseEvent) => {
     if (this.keyed) {
       event.preventDefault();
+      this.keyed();
       return;
     }
     if (event.defaultPrevented) return;
@@ -2263,24 +2268,30 @@ export class TanreiMenu extends LitElement {
     const rtl = getComputedStyle(element).direction === 'rtl';
     if (!this.request(area, rtl ? box.right : box.left, box.bottom, element, 'keyboard')) return;
     event.preventDefault();
-    this.keyed = true;
+    this.keyed?.();
     const key = event.key;
-    const settle = (up: KeyboardEvent) => {
-      if (up.key !== key) return;
-      up.preventDefault();
-      window.removeEventListener('keyup', settle, true);
-      setTimeout(() => (this.keyed = false));
+    // The context menu event a key makes is the default of its keydown, or on Windows of its keyup: both are
+    // cancelled, so that none is made — one an engine makes all the same comes while the key is down.
+    const up = (next: KeyboardEvent) => {
+      if (next.key !== key) return;
+      next.preventDefault();
+      over();
     };
-    window.addEventListener('keyup', settle, true);
+    // Another key is a new act; the key's own repeats are not.
+    const down = (next: KeyboardEvent) => {
+      if (next !== event && !(next.repeat && next.key === key)) over();
+    };
+    const over = () => {
+      window.removeEventListener('keyup', up, true);
+      window.removeEventListener('keydown', down, true);
+      window.removeEventListener('pointerdown', over, true);
+      if (this.keyed === over) this.keyed = null;
+    };
+    this.keyed = over;
+    window.addEventListener('keyup', up, true);
+    window.addEventListener('keydown', down, true);
     // A pointer is a new request, whatever became of the key's.
-    window.addEventListener(
-      'pointerdown',
-      () => {
-        window.removeEventListener('keyup', settle, true);
-        this.keyed = false;
-      },
-      { once: true, capture: true },
-    );
+    window.addEventListener('pointerdown', over, true);
   };
 
   /**

@@ -49095,11 +49095,11 @@
               "kind": "field",
               "name": "keyed",
               "type": {
-                "text": "boolean"
+                "text": "(() => void) | null"
               },
               "privacy": "private",
-              "default": "false",
-              "description": "MNU-60: a key asked for the menu, and the context menu event the key makes too is the menu's to cancel."
+              "default": "null",
+              "description": "MNU-60: a key asked for the menu, and is still down: a context menu event the key makes too is the menu's to cancel.\nIt is over at that event, when the key comes up, or at a press or another key — never on a timer, which the\nbrowser may run after later tasks: a separate request (the command of assistive technology) would be swallowed."
             },
             {
               "kind": "field",
