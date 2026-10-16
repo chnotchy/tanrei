@@ -7,6 +7,7 @@ import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('bottom-sheet');
 type P = Page;
@@ -455,6 +456,9 @@ test.describe('the drag handle', () => {
       const h = handle(page);
       await h.hover();
       await expect.poll(() => css(h, 'background-color')).toBe(await resolveColor(page, T('drag-handle-hovered-container-color')));
+      // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+      // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+      await motionEnded(h);
       const hovered = await css(h, 'background-color');
       await page.mouse.down();
       const result = { pressed: await h.getAttribute('data-pressed'), bg: await css(h, 'background-color'), hovered, grip: await css(grip(page), 'background-color'), ripple: await h.locator('.ripple').count(), opacity: await css(h, 'opacity') };
