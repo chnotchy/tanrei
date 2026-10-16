@@ -276,6 +276,9 @@ export class TanreiTab extends LitElement {
   /** What the row says about this tab. */
   private context: TabContext = { selected: false, tabStop: false, position: 0, size: 0, secondary: false, fill: false, pillDisabled: false };
 
+  /** TAB-23: whether a row has told this tab what it is since the tab was last connected. */
+  private told = false;
+
   /** TAB-25: the drawn label does not fit its tab, so it is truncated and the tooltip shows it whole. */
   private truncated = false;
 
@@ -328,13 +331,20 @@ export class TanreiTab extends LitElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.labelSize$?.disconnect();
+    this.told = false;
   }
 
-  /** @internal The row's side. */
-  setTabsContext(context: TabContext) {
+  /**
+   * @internal The row's side. Answers whether this is the first the tab is told since it was connected: the tab is
+   * appearing, and what it is told is no change of state (TAB-23).
+   */
+  setTabsContext(context: TabContext): boolean {
+    const first = !this.told;
+    this.told = true;
     const now = this.context;
-    if ((Object.keys(context) as (keyof TabContext)[]).every((key) => context[key] === now[key])) return;
+    if ((Object.keys(context) as (keyof TabContext)[]).every((key) => context[key] === now[key])) return first;
     this.context = context;
+    return first;
   }
 
   /** @internal Whether the row draws this tab as its selected one. */
@@ -359,8 +369,9 @@ export class TanreiTab extends LitElement {
   }
 
   /**
-   * @internal TAB-23, TAB-38: while `on`, the tab's colors change at once — the row follows its group's choice, or one
-   * restored from storage, and a follower shows no motion. The row takes it off again once the change is drawn.
+   * @internal TAB-23, TAB-38: while `on`, the tab's colors change at once — the tab is appearing, or the row follows its
+   * group's choice, or one restored from storage, and a follower shows no motion. The row takes it off again once the
+   * change is drawn.
    */
   still(on: boolean) {
     this.renderRoot?.querySelector('.tab')?.toggleAttribute('data-still', on);
@@ -1365,10 +1376,15 @@ export class TanreiTabs extends LitElement {
     const view = this.linkedView;
     const ownPanelOf = (tab: TanreiTab) => (tab.value ? panels.find((panel) => panel.value === tab.value) : undefined);
     const panelOf = (tab: TanreiTab) => (view ? (tab.value ? (view.panelFor(tab.value) ?? undefined) : undefined) : ownPanelOf(tab));
+    const appearing: TanreiTab[] = [];
     tabs.forEach((tab, index) => {
-      tab.setTabsContext({ selected: tab === selected, tabStop: tab === stop, position: index + 1, size: tabs.length, secondary, fill, pillDisabled });
+      if (tab.setTabsContext({ selected: tab === selected, tabStop: tab === stop, position: index + 1, size: tabs.length, secondary, fill, pillDisabled })) appearing.push(tab);
       hostAria(tab, { 'aria-controls': panelOf(tab)?.id ?? null });
     });
+    // TAB-23: a tab that appears — every tab in the row's first frame, or one added to the row — is drawn as it is at
+    // once. It may have been drawn already, before the row told it whether it is selected, whether a disabled tab is
+    // under the indicator, or how its variant looks; what it is told then is no change of state, and nothing fades in.
+    if (appearing.length) TanreiTabs.still(appearing);
     // TAB-13: the selected tab's panel, named by its tab; the others hidden; a panel with nothing focusable is a Tab stop.
     const shown = selected && !view ? ownPanelOf(selected) : undefined;
     for (const panel of panels) {

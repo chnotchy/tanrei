@@ -370,11 +370,13 @@ export const stepStyles = css`
     display: none;
   }
 
-  /* The first condition a step is told is drawn, not animated (until two frames after it connected). */
+  /* The first condition a step is told is drawn, not animated (until two frames after it connected). It names
+     transition-property alone: the shorthand would also set .hold's transition-delay to 0s, and a press in those
+     frames would lose its press-hold (SPR-14). */
   .still,
   .still *,
   .still ~ .connector {
-    transition: none !important;
+    transition-property: none !important;
   }
 
   @media (prefers-reduced-motion: reduce) {

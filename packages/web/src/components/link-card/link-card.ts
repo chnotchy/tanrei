@@ -40,6 +40,19 @@ const INTERACTIVE = 'a, button, input, select, textarea, summary, iframe, object
 /** The parts of the body and of the site line, in the order they stand. */
 const BODY_ORDER = ['title', 'description', 'image-alt', 'site', 'words'];
 const SITE_ORDER = ['site-icon', 'site-name', 'address'];
+/**
+ * LKC-34: while the element holds this, link-card.css turns its transitions off, so that colors computed then are
+ * drawn at once (the same mark the accordion and the tree view use for what they draw at once).
+ */
+const AT_ONCE = 'data-tanrei-at-once';
+/**
+ * LKC-34: the props whose change moves a color the stylesheet transitions for a change of state — the look's colors,
+ * and every color at once where the card becomes a link (a card that is no link draws none of them). The others change
+ * text, pictures and marks, which nothing transitions.
+ */
+const REPAINTS: readonly string[] = ['variant', 'href'];
+/** What link-card.css transitions, read back to compute it while the transitions are off. */
+const MOVING_PARTS = ':scope > [data-part="body"] > :is([data-part="title"], [data-part="description"], [data-part="site"])';
 
 type Root = Document | ShadowRoot;
 
@@ -251,6 +264,11 @@ export class TanreiLinkCard extends ReactiveElement {
     this.pressed = null;
   }
 
+  protected override willUpdate(changed: PropertyValues) {
+    // LKC-34: marked before the new values reach the document (`variant` is reflected in the update that follows).
+    if (this.hasUpdated && REPAINTS.some((prop) => changed.has(prop))) this.setAttribute(AT_ONCE, '');
+  }
+
   protected override updated(changed: PropertyValues) {
     if (changed.has('variant')) this.readVariant();
     // LKC-27: an external the card does not define is auto.
@@ -262,6 +280,22 @@ export class TanreiLinkCard extends ReactiveElement {
     }
     // LKC-13: a picture whose address changed is a new picture — its box is drawn until it has loaded.
     this.read(changed.has('image'), changed.has('siteIcon'));
+    if (this.hasAttribute(AT_ONCE)) this.drawAtOnce();
+  }
+
+  /**
+   * LKC-34: the card's colors computed now, while `data-tanrei-at-once` holds its transitions off, and the mark taken
+   * off. A transition starts only where a computed color changes; the colors are already the new ones when the
+   * transitions return, so none starts, and the next change of state moves as before.
+   */
+  private drawAtOnce() {
+    const anchor = this.anchor();
+    if (anchor) {
+      void getComputedStyle(anchor).backgroundColor;
+      void getComputedStyle(anchor, '::before').borderTopColor;
+      for (const part of anchor.querySelectorAll(MOVING_PARTS)) void getComputedStyle(part).color;
+    }
+    this.removeAttribute(AT_ONCE);
   }
 
   /**
@@ -286,7 +320,12 @@ export class TanreiLinkCard extends ReactiveElement {
   private changed(records: MutationRecord[]) {
     const ripple = (node: Node) => node instanceof Element && node.classList.contains('ripple');
     if (records.every((record) => record.type === 'childList' && [...record.addedNodes, ...record.removedNodes].every(ripple))) return;
+    // LKC-34: the product's own anchor given an address or another one is drawn at once, as the href prop is.
+    const anchor = this.anchor();
+    const repaints = records.some((record) => record.type === 'attributes' && record.attributeName === 'href' && record.target === anchor);
+    if (repaints) this.setAttribute(AT_ONCE, '');
     this.read();
+    if (repaints) this.drawAtOnce();
   }
 
   /** A part of `parent` by its name, made in its place among the others where it is missing. */

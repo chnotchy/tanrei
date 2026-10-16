@@ -6,6 +6,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, type FixtureItem, acmeSystemCss, drawerWindow, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
+import { EVERY_ANIMATION } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
@@ -2067,13 +2068,16 @@ test.describe('a drawer that follows the window', () => {
         '<body>',
         `<body><script>
           window.first = null;
+          // Every motion in the page, in the document and in each shadow root: the drawer's run in its own, which
+          // document.getAnimations() leaves out in Chromium, Firefox and WebKit alike.
+          const running = ${EVERY_ANIMATION};
           customElements.whenDefined('tanrei-navigation-drawer').then(() => {
             const el = document.querySelector('tanrei-navigation-drawer');
             // As it connects — before its first render — the presentation is already the window's.
             window.first = { presentation: el.presentation, as: el.getAttribute('data-as'), rendered: !!el.shadowRoot?.querySelector('.drawer') };
             el.updateComplete.then(() => {
               const dialog = el.shadowRoot.querySelector('dialog');
-              window.frame = { open: dialog?.open ?? null, inert: !!el.shadowRoot.querySelector('[inert]'), running: document.getAnimations().length, height: el.getBoundingClientRect().height };
+              window.frame = { open: dialog?.open ?? null, inert: !!el.shadowRoot.querySelector('[inert]'), running: running(document).length, height: el.getBoundingClientRect().height };
             });
           });
         </script>`,

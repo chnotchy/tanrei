@@ -683,9 +683,12 @@ test('propose_extension: a ready, verified `vocabulary` fragment for each kind o
   // A variant: the declaration, plus the resting colors to re-point under `tokens`; its state tokens come from the pattern rules.
   const variant = (await propose({ kind: 'axis-value', component: 'button', axis: 'variant', value: 'danger', from: 'filled' })).data;
   assert.deepEqual(variant.write.vocabulary, { 'tanrei.comp.button.variant.danger': { from: 'filled', rationale: PLACEHOLDER } });
-  // A button that toggles rests selected or unselected too: those resting colors are offered as well.
+  // A button that toggles rests selected or unselected too, and a destructive one in its destructive look: those resting
+  // colors are offered as well, from the variant it was made from.
   assert.deepEqual(variant.write.tokens, {
     'tanrei.comp.button.danger.container.color': { $value: '{tanrei.sys.color.primary}' },
+    'tanrei.comp.button.danger.destructive.container.color': { $value: '{tanrei.sys.color.error}' },
+    'tanrei.comp.button.danger.destructive.label.color': { $value: '{tanrei.sys.color.on-error}' },
     'tanrei.comp.button.danger.label.color': { $value: '{tanrei.sys.color.on-primary}' },
     'tanrei.comp.button.danger.selected.container.color': { $value: '{tanrei.sys.color.primary}' },
     'tanrei.comp.button.danger.selected.label.color': { $value: '{tanrei.sys.color.on-primary}' },
@@ -693,7 +696,8 @@ test('propose_extension: a ready, verified `vocabulary` fragment for each kind o
     'tanrei.comp.button.danger.unselected.label.color': { $value: '{tanrei.sys.color.on-surface-variant}' },
   });
   assert.equal(variant.verified.newTokens.total, VARIANT_TOKENS);
-  assert.ok('tanrei.comp.button.danger.hovered.container.color' in variant.verified.newTokens.values && 'tanrei.comp.button.danger.disabled.label.color' in variant.verified.newTokens.values);
+  // The values listed are the first 40 ids in order; the state tokens among them come from the pattern rules.
+  assert.ok('tanrei.comp.button.danger.focused.container.color' in variant.verified.newTokens.values && 'tanrei.comp.button.danger.disabled.label.color' in variant.verified.newTokens.values);
 
   // A step in a series: next to `near`, shaped like it; built once the coefficient is given.
   const open = (await propose({ kind: 'step', near: 'tanrei.sys.space.space200', value: 'space1200' })).data;

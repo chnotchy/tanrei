@@ -17,7 +17,16 @@
     "./dist/timeline.js",
     "./dist/previous-next-links.js",
     "./dist/components/**/*.js",
+    "./dist/primitives/field-frame.js",
     "./dist/tanrei.bundle.js",
+    "./src/index.ts",
+    "./src/icons.ts",
+    "./src/link.ts",
+    "./src/steps.ts",
+    "./src/timeline.ts",
+    "./src/previous-next-links.ts",
+    "./src/components/**/*.ts",
+    "./src/primitives/field-frame.ts",
     "**/*.css"
   ],
   "exports": {
@@ -113,7 +122,7 @@
     "build": "tsc -p tsconfig.json && node scripts/build.js",
     "test": "playwright test",
     "test:ci-like": "bash ../../scripts/ci-like.sh",
-    "test:node": "node --test \"src/links/node/test/*.test.mjs\" \"test/*.test.mjs\"",
+    "test:node": "node ../tools/src/run-node-tests.js \"src/links/node/test/*.test.mjs\" \"test/*.test.mjs\"",
     "test:update": "playwright test --update-snapshots"
   },
   "dependencies": {

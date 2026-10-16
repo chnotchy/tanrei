@@ -4323,6 +4323,11 @@ class TanreiButtonVariantStateTokens {
     required this.selectedIconColor,
     required this.selectedOutlineColor,
     required this.selectedStateLayerColor,
+    required this.destructiveContainerColor,
+    required this.destructiveLabelColor,
+    required this.destructiveIconColor,
+    required this.destructiveOutlineColor,
+    required this.destructiveStateLayerColor,
   });
 
   /// `comp.button.<variant>.<state>.container-color`
@@ -4357,6 +4362,16 @@ class TanreiButtonVariantStateTokens {
   final TanreiPaint selectedOutlineColor;
   /// `comp.button.<variant>.<state>.selected-state-layer-color`
   final TanreiPaint selectedStateLayerColor;
+  /// `comp.button.<variant>.<state>.destructive-container-color`
+  final TanreiPaint destructiveContainerColor;
+  /// `comp.button.<variant>.<state>.destructive-label-color`
+  final TanreiPaint destructiveLabelColor;
+  /// `comp.button.<variant>.<state>.destructive-icon-color`
+  final TanreiPaint destructiveIconColor;
+  /// `comp.button.<variant>.<state>.destructive-outline-color`
+  final TanreiPaint destructiveOutlineColor;
+  /// `comp.button.<variant>.<state>.destructive-state-layer-color`
+  final TanreiPaint destructiveStateLayerColor;
 
   /// A copy with the given tokens replaced.
   TanreiButtonVariantStateTokens copyWith({
@@ -4376,6 +4391,11 @@ class TanreiButtonVariantStateTokens {
     TanreiPaint? selectedIconColor,
     TanreiPaint? selectedOutlineColor,
     TanreiPaint? selectedStateLayerColor,
+    TanreiPaint? destructiveContainerColor,
+    TanreiPaint? destructiveLabelColor,
+    TanreiPaint? destructiveIconColor,
+    TanreiPaint? destructiveOutlineColor,
+    TanreiPaint? destructiveStateLayerColor,
   }) => TanreiButtonVariantStateTokens(
         containerColor: containerColor ?? this.containerColor,
         labelColor: labelColor ?? this.labelColor,
@@ -4393,6 +4413,11 @@ class TanreiButtonVariantStateTokens {
         selectedIconColor: selectedIconColor ?? this.selectedIconColor,
         selectedOutlineColor: selectedOutlineColor ?? this.selectedOutlineColor,
         selectedStateLayerColor: selectedStateLayerColor ?? this.selectedStateLayerColor,
+        destructiveContainerColor: destructiveContainerColor ?? this.destructiveContainerColor,
+        destructiveLabelColor: destructiveLabelColor ?? this.destructiveLabelColor,
+        destructiveIconColor: destructiveIconColor ?? this.destructiveIconColor,
+        destructiveOutlineColor: destructiveOutlineColor ?? this.destructiveOutlineColor,
+        destructiveStateLayerColor: destructiveStateLayerColor ?? this.destructiveStateLayerColor,
       );
 }
 

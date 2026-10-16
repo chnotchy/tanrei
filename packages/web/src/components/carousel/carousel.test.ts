@@ -134,37 +134,6 @@ const gapsOf = (boxes: Drawn[]) => {
   return drawn.slice(1).map(([from], i) => Math.round((from - drawn[i][1]) * 1000) / 1000);
 };
 /**
- * Records every item's drawn container and the scroll offset in every frame, for the carousels of `ids`, until
- * `recorded()` is read.
- */
-const record = (page: P, ids: string[]) =>
-  page.evaluate((ids) => {
-    const frames: Record<string, { offset: number; boxes: number[][] }[]> = ((window as any).__recorded = Object.fromEntries(ids.map((id) => [id, []])));
-    (window as any).__recording = true;
-    const hosts = ids.map((id) => [id, document.querySelector(`[data-fixture="${id}"] tanrei-carousel`)!] as const);
-    const read = () => {
-      if (!(window as any).__recording) return;
-      for (const [id, host] of hosts) {
-        const own = host.getBoundingClientRect();
-        const rtl = getComputedStyle(host).direction === 'rtl';
-        frames[id].push({
-          offset: Math.abs(host.shadowRoot!.querySelector('.scroller')!.scrollLeft),
-          boxes: [...host.querySelectorAll('tanrei-carousel-item')].map((item) => {
-            const r = item.shadowRoot!.querySelector('.container')!.getBoundingClientRect();
-            return [rtl ? own.right - r.right : r.left - own.left, rtl ? own.right - r.left : r.right - own.left, r.top - own.top, r.height].map((v) => Math.round(v * 1000) / 1000);
-          }),
-        });
-      }
-      requestAnimationFrame(read);
-    };
-    requestAnimationFrame(read);
-  }, ids);
-const recorded = (page: P) =>
-  page.evaluate(() => {
-    (window as any).__recording = false;
-    return (window as any).__recorded as Record<string, { offset: number; boxes: Drawn[] }[]>;
-  });
-/**
  * The dots at scroll offset `to`, in the next frame: their widths and the opacity of their fills, read together. The
  * settle begins 100 ms after the last scroll event, so anything read in a round trip of its own may be read of a row
  * that has begun to move back.
@@ -192,6 +161,109 @@ const traced = (page: P) => page.evaluate(() => (window as any).offsets as numbe
  * so only what comes after it is the settle's.
  */
 const settled = (offsets: number[]) => offsets.slice(offsets.lastIndexOf(Math.max(...offsets)) + 1);
+/**
+ * Holds the carousel's next scroll motions (a settle, a scroll into place, a dot's or a control's move) at their start
+ * as they are played, so that `stepMotion` steps one through its duration and reads what the row passes at fixed moments
+ * of the motion — not in whatever frames a busy machine draws: WebKit in the CI image can draw frames more than half a
+ * second apart, and a frame that late sees the whole of a scroll motion as one jump. The motion's timing is an animation
+ * without a target (the carousel writes the offset from its progress), so it is caught as it is played. Another
+ * carousel's motion (an autoplay advance) is timed the same way and would be held too: use `stepMotion` on a page with no
+ * autoplay, or `stepDrawn`, which steps every motion held.
+ */
+const holdMotions = (page: P) =>
+  page.evaluate(() => {
+    const w = window as any;
+    w.heldMotions = [];
+    w.play ??= Animation.prototype.play;
+    Animation.prototype.play = function (this: Animation) {
+      w.play.call(this);
+      if (this.effect instanceof KeyframeEffect && this.effect.target === null) {
+        this.pause();
+        this.currentTime = 0;
+        w.heldMotions.push(this);
+      }
+    };
+  });
+/**
+ * Waits for a motion `holdMotions` caught, lets the motions after it run freely, and steps the last one still held
+ * through its duration in tenths, reading at each the offset the carousel wrote there; then lets it finish. Returns its
+ * duration and the offsets it passed.
+ */
+const stepMotion = async (page: P, id: string) => {
+  await expect.poll(() => page.evaluate(() => ((window as any).heldMotions as Animation[]).filter((a) => a.playState === 'paused').length), 'a motion began').toBeGreaterThan(0);
+  return scroller(page, id).evaluate(async (el) => {
+    const w = window as any;
+    const frame = () => new Promise((r) => requestAnimationFrame(r));
+    Animation.prototype.play = w.play;
+    delete w.play;
+    const timing = (w.heldMotions as Animation[]).filter((a) => a.playState === 'paused').pop()!;
+    const duration = Number(timing.effect!.getComputedTiming().duration);
+    const passed: number[] = [];
+    for (let i = 1; i < 10; i++) {
+      timing.currentTime = (duration * i) / 10;
+      // The carousel writes the offset in its next frame; it is read in the one after.
+      await frame();
+      await frame();
+      passed.push(Math.abs(el.scrollLeft));
+    }
+    timing.finish();
+    return { duration, passed };
+  });
+};
+/**
+ * A motion from `from` to `to`, read at tenths of it: it passes through several moments between the two (it does not
+ * move at once), never away from where it is going.
+ */
+function expectOver(passed: number[], from: number, to: number) {
+  const [low, high] = [Math.min(from, to), Math.max(from, to)];
+  expect(passed.filter((o) => o > low && o < high).length, `animated: ${from} → ${passed} → ${to}`).toBeGreaterThan(1);
+  expect(passed.every((o, i) => Math.abs(to - o) <= Math.abs(to - (i === 0 ? from : passed[i - 1]))), `toward ${to}: ${from} → ${passed}`).toBe(true);
+}
+/** The offset and every item's drawn container — the scaled box, not a layout box — of one carousel at one moment (CRL-40). */
+type Moment = { offset: number; boxes: Drawn[] };
+/**
+ * Waits until `count` motions `holdMotions` caught are held, lets the motions after them run freely, and steps all of
+ * them together through their durations in tenths, from the start (0) to the end (10) inclusive; then lets them finish.
+ * At each moment, and once more at rest after they finished, it reads the offset and every item's drawn container of
+ * the carousels of `ids` — read in one frame, the frame after the one the carousel wrote the offset and placed the items
+ * in. So what is read between two resting positions is the same nine moments of a motion on any machine, however far
+ * apart it draws its frames. Returns the motions' durations and, for each carousel, the twelve moments in order.
+ */
+const stepDrawn = async (page: P, ids: string[], count = 1) => {
+  await expect.poll(() => page.evaluate(() => ((window as any).heldMotions as Animation[]).filter((a) => a.playState === 'paused').length), `${count} motion(s) began`).toBeGreaterThanOrEqual(count);
+  return page.evaluate(async (ids) => {
+    const w = window as any;
+    const frame = () => new Promise((r) => requestAnimationFrame(r));
+    Animation.prototype.play = w.play;
+    delete w.play;
+    const held = (w.heldMotions as Animation[]).filter((a) => a.playState === 'paused');
+    const durations = held.map((timing) => Number(timing.effect!.getComputedTiming().duration));
+    const hosts = ids.map((id) => [id, document.querySelector(`[data-fixture="${id}"] tanrei-carousel`)!] as const);
+    const moments: Record<string, { offset: number; boxes: number[][] }[]> = Object.fromEntries(ids.map((id) => [id, []]));
+    const read = () => {
+      for (const [id, host] of hosts) {
+        const own = host.getBoundingClientRect();
+        const rtl = getComputedStyle(host).direction === 'rtl';
+        moments[id].push({
+          offset: Math.abs(host.shadowRoot!.querySelector('.scroller')!.scrollLeft),
+          boxes: [...host.querySelectorAll('tanrei-carousel-item')].map((item) => {
+            const r = item.shadowRoot!.querySelector('.container')!.getBoundingClientRect();
+            return [rtl ? own.right - r.right : r.left - own.left, rtl ? own.right - r.left : r.right - own.left, r.top - own.top, r.height].map((v) => Math.round(v * 1000) / 1000);
+          }),
+        });
+      }
+    };
+    for (let i = 0; i <= 11; i++) {
+      if (i <= 10) held.forEach((timing, k) => (timing.currentTime = (durations[k] * i) / 10));
+      else held.forEach((timing) => timing.finish());
+      // The carousel writes the offset and places the items in its next frame; they are read in the one after.
+      await frame();
+      await frame();
+      read();
+    }
+    return { durations, moments: moments as Record<string, Moment[]> };
+  }, ids);
+};
 /**
  * Waits until the row is at rest: no scroll event for as long as the carousel's longest motion lasts (the scroll motion
  * and the advance, their tokens read through the same properties the carousel reads), and two frames at least. A scroll
@@ -1235,23 +1307,8 @@ test.describe('behavior', () => {
     expect(await css(scroller(page, id), 'animation-duration')).toBe(`${(await resolveToken(page, T('motion-scroll-duration'), 'duration')) / 1000}s`);
     const box = await bounds(carousel(page, id));
     await page.mouse.move(200, box.y + 100);
-    // The settle is held at its start and stepped through its duration by the test, so what it passes is read at fixed
-    // moments of the motion, not in whatever frames a busy machine draws: frames that come late see a 300 ms motion on
-    // this curve as one jump. Its timing is an animation without a target (the carousel writes the offset from it), so
-    // it is caught as it is played.
-    await scroller(page, id).evaluate(() => {
-      const w = window as any;
-      w.settles = [];
-      w.play = Animation.prototype.play;
-      Animation.prototype.play = function (this: Animation) {
-        w.play.call(this);
-        if (this.effect instanceof KeyframeEffect && this.effect.target === null) {
-          this.pause();
-          this.currentTime = 0;
-          w.settles.push(this);
-        }
-      };
-    });
+    // The settle is held at its start and stepped through its duration by the test (`holdMotions`).
+    await holdMotions(page);
     await page.mouse.wheel(60, 0);
     await expect.poll(() => offset(page, id)).toBeGreaterThanOrEqual(50);
     // The wheel's own scroll is over (an engine may take it in steps, and a settle it overtakes gives way to it): the row
@@ -1259,31 +1316,11 @@ test.describe('behavior', () => {
     await atRest(page, id);
     const from = await offset(page, id);
     expect(from).toBeGreaterThanOrEqual(50);
-    const settle = await scroller(page, id).evaluate(async (el) => {
-      const w = window as any;
-      const frame = () => new Promise((r) => requestAnimationFrame(r));
-      Animation.prototype.play = w.play;
-      const timing = (w.settles as Animation[]).filter((a) => a.playState === 'paused').pop();
-      if (!timing) return null;
-      const duration = Number(timing.effect!.getComputedTiming().duration);
-      const passed: number[] = [];
-      for (let i = 1; i < 10; i++) {
-        timing.currentTime = (duration * i) / 10;
-        // The carousel writes the offset in its next frame; it is read in the one after.
-        await frame();
-        await frame();
-        passed.push(Math.abs(el.scrollLeft));
-      }
-      timing.finish();
-      return { duration, passed };
-    });
-    expect(settle, 'a settle began').not.toBeNull();
+    const settle = await stepMotion(page, id);
     // Over the scroll motion's duration…
-    expect(settle!.duration).toBe(await resolveToken(page, T('motion-scroll-duration'), 'duration'));
+    expect(settle.duration).toBe(await resolveToken(page, T('motion-scroll-duration'), 'duration'));
     // …it moves back through several moments of it, never away from where it is going, and comes to rest there.
-    const { passed } = settle!;
-    expect(passed.filter((o) => o > 0 && o < from).length, `${from} → ${passed}`).toBeGreaterThan(1);
-    expect(passed.every((o, i) => o <= (i === 0 ? from : passed[i - 1])), `${from} → ${passed}`).toBe(true);
+    expectOver(settle.passed, from, 0);
     await expect.poll(() => offset(page, id)).toBe(0);
     // Each turn of the wheel finds the row at rest, and where a turn left it is read at rest. An engine may take a turn
     // over many frames (WebKit on Linux: ten or so, over 230 ms), so an offset read on the way is not where the row
@@ -1544,10 +1581,13 @@ test.describe('behavior', () => {
     await mountFixtures(page, spec, { icons: true, fixtures: [...only('centered', 'fixed-width'), fixture('wide', { itemWidth: 320 }, 4)] });
     const id = 'centered';
     await tabTo(page, container(page, id, 0));
-    await trace(page, id);
+    // Held at its start and stepped through its duration by the test (`holdMotions`).
+    await holdMotions(page);
     await page.keyboard.press('ArrowRight');
+    const motion = await stepMotion(page, id);
+    expect(motion.duration).toBe(await resolveToken(page, T('motion-scroll-duration'), 'duration'));
+    expectOver(motion.passed, 0, 208);
     await expect.poll(() => offset(page, id)).toBe(208);
-    expect((await traced(page)).filter((o) => o > 0 && o < 208).length, 'animated').toBeGreaterThan(1);
     expect((await boxes(page, id))[1]).toEqual([100, 200]);
     await page.keyboard.press('End');
     await expect.poll(() => offset(page, id)).toBe(832);
@@ -1894,6 +1934,40 @@ test.describe('behavior', () => {
     'start-fluid': [[-4, 96], [104, 254.67], [262.67, 338.67], [346.67, 372]],
   };
 
+  /**
+   * The motions CRL-40 is read through, held at their start and stepped through their durations by the test
+   * (`holdMotions`, `stepDrawn`): a settle of each row that snaps, a move by the keys of each row, and an advance of all
+   * of them at once. Each entry is a test of its own, in each direction; the coverage test below holds that every row's
+   * motions are read exactly once.
+   */
+  const MOTION_PARTS = [
+    ...gapRows().map(({ id, props }) => ({ ids: [id], motions: props.snap !== false ? ['settle', 'keys'] : ['keys'] })),
+    { ids: gapRows().map((f) => f.id), motions: ['advance'] },
+  ];
+  test('CRL-40: the parts of the held motions read a settle of every row that snaps, a move by the keys and an advance of every row, each exactly once', () => {
+    const read = MOTION_PARTS.flatMap(({ ids, motions }) => ids.flatMap((id) => motions.map((motion) => `${id}/${motion}`)));
+    expect([...read].sort()).toEqual(gapRows().flatMap(({ id, props }) => [...(props.snap !== false ? ['settle'] : []), 'keys', 'advance'].map((motion) => `${id}/${motion}`)).sort());
+    expect(new Set(read).size).toBe(read.length);
+    expect(gapRows().map((f) => f.id)).toEqual([...GAP_FIXTURES, 'start-fluid', 'start-fixed']);
+  });
+  /**
+   * The moments `stepDrawn` read of one row's motion: at each, every two drawn neighbours are the gap apart; the motion
+   * goes from its start to its end through the nine between, never away from where it is going, and more than one of
+   * them lies between two resting positions (`one` apart).
+   */
+  const expectGapsHeld = (moments: Moment[], gap: number, id: string, what: string, one: number) => {
+    expect(moments.length, `${id}, ${what}`).toBe(12);
+    for (const { offset: at, boxes } of moments) {
+      const gaps = gapsOf(boxes);
+      expect(gaps.length, `${id}, ${what}`).toBeGreaterThan(0);
+      for (const each of gaps) expect(Math.abs(each - gap), `${id}, ${what}, at offset ${at}: gaps ${gaps.join(', ')}`).toBeLessThanOrEqual(0.01);
+    }
+    const passed = moments.slice(1, 10).map((m) => m.offset);
+    expectOver(passed, moments[0].offset, moments[10].offset);
+    const between = passed.filter((o) => Math.abs(o / one - Math.round(o / one)) > 0.02);
+    expect(between.length, `${id}, ${what}: seen between resting positions (${moments[0].offset} → ${passed} → ${moments[10].offset})`).toBeGreaterThan(1);
+  };
+
   for (const dir of ['ltr', 'rtl'] as const) {
     for (const system of ['default', 'wider'] as const) {
       test(`CRL-40: held between resting positions, every two drawn neighbours are layout.gap apart — the five fixtures and a hero at the start, ${dir}, the ${system} tokens`, async ({ page }) => {
@@ -1935,73 +2009,66 @@ test.describe('behavior', () => {
       });
     }
 
-    test(`CRL-40: in every frame of a settle, of a move by the keys and of an advance, every two drawn neighbours are layout.gap apart, ${dir}`, async ({ page }) => {
-      test.setTimeout(90_000);
-      const gap = 8;
-      /** Every frame's gaps are the gap; returns how many frames lay between two resting positions. */
-      const check = (frames: { offset: number; boxes: Drawn[] }[], id: string, what: string, one: number) => {
-        expect(frames.length, `${id}, ${what}`).toBeGreaterThan(0);
-        let between = 0;
-        for (const frame of frames) {
-          const gaps = gapsOf(frame.boxes);
-          expect(gaps.length, `${id}, ${what}`).toBeGreaterThan(0);
-          for (const each of gaps) expect(Math.abs(each - gap), `${id}, ${what}, at offset ${frame.offset}: gaps ${gaps.join(', ')}`).toBeLessThanOrEqual(0.01);
-          if (Math.abs(frame.offset / one - Math.round(frame.offset / one)) > 0.02) between++;
-        }
-        return between;
-      };
-      // The carousel writes a move frame by frame from its duration tokens, read when the move begins, and a frame is
-      // seen between two resting positions only if one is drawn while the move lasts: at the tokens' own lengths a
-      // runner that draws two frames a second (WebKit on Linux, 119 to 570 ms a frame) saw the row at rest, then at
-      // rest. Each move is given 1.2 s here, so a frame falls inside it at that rate (no longer: fourteen rows move
-      // twice each, and the test has 90 s); the gaps are the same question at any length.
-      const unhurried = () => override(page, { [T('motion-scroll-duration')]: '1200ms', [T('motion-autoplay-duration')]: '1200ms' });
-      // A settle (the rows that snap), and a move by the keys.
-      await mountFixtures(page, spec, { icons: true, dir, fixtures: gapRows(), reducedMotion: false });
-      await unhurried();
-      expect(await resolveToken(page, T('layout-gap'))).toBe(gap);
-      for (const { id, props } of gapRows()) {
+    // Each move is held at its start and stepped through its duration by the test, so the moments read between two
+    // resting positions do not depend on how often the machine draws a frame, and the motions keep their tokens' own
+    // lengths. One test for each part of MOTION_PARTS, each with the whole of the time limit.
+    for (const { ids, motions } of MOTION_PARTS) {
+      if (motions.includes('advance')) {
+        test(`CRL-40: at every tenth of an advance, held and stepped, and at rest after it, every two drawn neighbours are layout.gap apart — ${ids.join(', ')}, ${dir}`, async ({ page }) => {
+          // The rows with autoplay on, a short interval — longer than the advance, so that a row rests between two of
+          // them — nothing holding them once they play. They are mounted paused and set playing once every advance
+          // is held as it begins: all of them are timed the same way, and they are stepped together.
+          const playing = gapRows()
+            .filter((f) => ids.includes(f.id))
+            .map((f) => ({ ...f, props: { ...f.props, autoplay: true, autoplayInterval: 1000, paused: true, playLabel: 'Play', pauseLabel: 'Pause' } }));
+          await mountFixtures(page, spec, { icons: true, dir, fixtures: playing, reducedMotion: false });
+          const gap = await resolveToken(page, T('layout-gap'));
+          expect(gap).toBe(8);
+          // The pointer away from every row (they stand at the right in right-to-left): it would hold autoplay (CRL-33).
+          await page.mouse.move(dir === 'rtl' ? 10 : 1200, 10);
+          await holdMotions(page);
+          for (const id of ids) await carousel(page, id).evaluate((host) => ((host as unknown as { paused: boolean }).paused = false));
+          const advance = await stepDrawn(page, ids, ids.length);
+          const advances = await resolveToken(page, T('motion-autoplay-duration'), 'duration');
+          expect(advance.durations, 'each advance is the autoplay motion').toEqual(ids.map(() => advances));
+          // H is 120 in `content-toward-hero` and 200 in the others.
+          for (const id of ids) expectGapsHeld(advance.moments[id], gap, id, 'an advance', (id === 'content-toward-hero' ? 120 : 200) + gap);
+        });
+        continue;
+      }
+      const [id] = ids;
+      test(`CRL-40: at every tenth of ${motions.includes('settle') ? 'a settle and ' : ''}a move by the keys, held and stepped, and at rest after each, every two drawn neighbours are layout.gap apart — ${id}, ${dir}`, async ({ page }) => {
+        await mountFixtures(page, spec, { icons: true, dir, fixtures: gapRows().filter((f) => f.id === id), reducedMotion: false });
+        const gap = await resolveToken(page, T('layout-gap'));
+        expect(gap).toBe(8);
+        const scrolls = await resolveToken(page, T('motion-scroll-duration'), 'duration');
         const base = await offset(page, id);
         const one = await step(page, id);
-        const sign = dir === 'rtl' ? -1 : 1;
-        if (props.snap !== false) {
-          await record(page, [id]);
+        if (motions.includes('settle')) {
+          await holdMotions(page);
           await carousel(page, id).evaluate(async (host, to) => {
             const el = host.shadowRoot!.querySelector('.scroller')!;
             el.scrollLeft = to;
             await new Promise((r) => requestAnimationFrame(r));
             el.dispatchEvent(new Event('scrollend'));
-          }, sign * (base + 0.37 * one));
+          }, (dir === 'rtl' ? -1 : 1) * (base + 0.37 * one));
+          const settle = await stepDrawn(page, [id]);
+          expect(settle.durations, `${id}: a settle is the scroll motion`).toEqual([scrolls]);
+          expectGapsHeld(settle.moments[id], gap, id, 'a settle', one);
           await expect.poll(() => offset(page, id), `${id} settles`).toBe(base);
           await atRest(page, id);
-          expect(check((await recorded(page))[id], id, 'a settle', one), `${id}: the settle is seen between resting positions`).toBeGreaterThan(0);
         }
         await tabTo(page, container(page, id, 0));
         await atRest(page, id);
-        const from = await offset(page, id);
-        await record(page, [id]);
+        await holdMotions(page);
         await page.keyboard.press(dir === 'rtl' ? 'ArrowLeft' : 'ArrowRight');
-        await expect.poll(async () => Math.abs((await offset(page, id)) - from), `${id} moves by the keys`).toBeGreaterThan(30);
-        await atRest(page, id);
-        expect(check((await recorded(page))[id], id, 'a move by the keys', one), `${id}: the move is seen between resting positions`).toBeGreaterThan(0);
-      }
-      // An advance: the same rows with autoplay on, a short interval — longer than the advance, so that a row rests
-      // between two of them — nothing holding them.
-      const playing = gapRows().map((f) => ({ ...f, props: { ...f.props, autoplay: true, autoplayInterval: 4000, playLabel: 'Play', pauseLabel: 'Pause' } }));
-      await mountFixtures(page, spec, { icons: true, dir, fixtures: playing, reducedMotion: false });
-      await unhurried();
-      // The pointer away from every row (they stand at the right in right-to-left): it would hold autoplay (CRL-33).
-      await page.mouse.move(dir === 'rtl' ? 10 : 1200, 10);
-      const ids = playing.map((f) => f.id);
-      const before = await Promise.all(ids.map((id) => offset(page, id)));
-      // (Not measured here: a row may already have advanced. H is 120 in `content-toward-hero` and 200 in the others.)
-      const steps = ids.map((id) => (id === 'content-toward-hero' ? 120 : 200) + gap);
-      await record(page, ids);
-      for (const [index, id] of ids.entries()) await expect.poll(() => offset(page, id), { message: `${id} advances`, timeout: 15_000 }).not.toBe(before[index]);
-      for (const id of ids) await atRest(page, id);
-      const frames = await recorded(page);
-      for (const [index, id] of ids.entries()) expect(check(frames[id], id, 'an advance', steps[index]), `${id}: the advance is seen between resting positions`).toBeGreaterThan(0);
-    });
+        const move = await stepDrawn(page, [id]);
+        expect(move.durations, `${id}: a move by the keys is the scroll motion`).toEqual([scrolls]);
+        const moments = move.moments[id];
+        expect(Math.abs(moments[10].offset - moments[0].offset), `${id} moves by the keys`).toBeGreaterThan(30);
+        expectGapsHeld(moments, gap, id, 'a move by the keys', one);
+      });
+    }
   }
 
   for (const ratio of [1, 1.1, 1.25, 1.5, 2]) {
@@ -2225,12 +2292,15 @@ test.describe('behavior', () => {
     await mountFixtures(page, spec, { icons: true, fixtures: [...only('indicator'), fixture('loop-dots', { indicator: true, loop: true })] });
     const id = 'indicator';
     await tabTo(page, indicator(page, id));
-    await trace(page, id);
     // (The step is the hero's width at rest: read before the row moves, while the first item is still the hero.)
     const s = await step(page, id);
+    // Held at its start and stepped through its duration by the test (`holdMotions`).
+    await holdMotions(page);
     await page.keyboard.press('ArrowRight');
+    const motion = await stepMotion(page, id);
+    expect(motion.duration).toBe(await resolveToken(page, T('motion-scroll-duration'), 'duration'));
+    expectOver(motion.passed, 0, s);
     await expect.poll(() => offset(page, id)).toBe(s);
-    expect((await traced(page)).filter((o) => o > 0 && o < s).length, 'animated').toBeGreaterThan(1);
     await atRest(page, id);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await trace(page, id);
@@ -2701,11 +2771,13 @@ test.describe('behavior', () => {
     await nav(page, id, 'previous').click();
     await page.waitForTimeout(300);
     expect(await offset(page, id)).toBe(0);
-    // Over the scroll motion.
-    await trace(page, id);
+    // Over the scroll motion: held at its start and stepped through its duration by the test (`holdMotions`).
+    await holdMotions(page);
     await nav(page, id, 'next').click();
+    const motion = await stepMotion(page, id);
+    expect(motion.duration).toBe(await resolveToken(page, T('motion-scroll-duration'), 'duration'));
+    expectOver(motion.passed, 0, s);
     await expect.poll(() => offset(page, id)).toBe(s);
-    expect((await traced(page)).filter((o) => o > 0 && o < s).length, 'animated').toBeGreaterThan(1);
     await expect(navButton(page, id, 'previous')).not.toHaveAttribute('aria-disabled', 'true');
     // Two presses while the row moves go two positions on: the second counts from where the first is going.
     await nav(page, id, 'next').evaluate((el) => {

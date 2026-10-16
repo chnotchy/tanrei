@@ -94,6 +94,12 @@ interface Subject {
   give?: string;
   /** Boxes that draw the text and are not this file's: said where they are listed. */
   except?: string[];
+  /**
+   * Each text a test of its own, in TOLD's order: a stage that takes long to mount. Six mounts in one test took 29 s of
+   * its 30 s in WebKit on a CI runner for the navigation drawer, 24 s for the menu, 22 s for the menubar and 16 s for the
+   * dialog. (Not every component: a test of its own costs about a second more in WebKit, a new page and its faces.)
+   */
+  inParts?: true;
 }
 
 const SUBJECTS: Record<string, Subject> = {
@@ -104,7 +110,7 @@ const SUBJECTS: Record<string, Subject> = {
   checkbox: { boxes: ['tanrei-checkbox .label'] },
   chip: { boxes: ['tanrei-chip .label'] },
   'code-block': { boxes: ['tanrei-code-block .title'] },
-  dialog: { boxes: ['tanrei-dialog .headline', 'tanrei-dialog .supporting'] },
+  dialog: { inParts: true, boxes: ['tanrei-dialog .headline', 'tanrei-dialog .supporting'] },
   // `.announce` is what the state says to assistive technology, not drawn (WebKit gives it a box).
   'empty-state': { boxes: ['tanrei-empty-state .headline'], except: ['tanrei-empty-state .announce'] },
   'fab-menu': { boxes: ['tanrei-fab-menu-item .label'] },
@@ -114,6 +120,7 @@ const SUBJECTS: Record<string, Subject> = {
   'file-picker': { boxes: ['tanrei-file-picker .label', 'tanrei-file-picker .selection', 'tanrei-file-picker .supporting'] },
   'main-action-button': { boxes: ['tanrei-main-action-button .label'] },
   menu: {
+    inParts: true,
     boxes: [
       'tanrei-menu-checkbox-item .label',
       'tanrei-menu-group .title',
@@ -128,7 +135,7 @@ const SUBJECTS: Record<string, Subject> = {
       'tanrei-submenu .trailing-text',
     ],
   },
-  menubar: { boxes: ['tanrei-menubar-item .label', 'tanrei-menubar-menu .label'] },
+  menubar: { inParts: true, boxes: ['tanrei-menubar-item .label', 'tanrei-menubar-menu .label'] },
   'navigation-bar': { boxes: ['tanrei-navigation-bar-item .c-label', 'tanrei-navigation-bar-item .label'] },
   'navigation-drawer': {
     // Two drawers of 77 rows each, of the same elements as site-sidebar's 17: with them a mount takes 3 s in WebKit on
@@ -141,6 +148,7 @@ const SUBJECTS: Record<string, Subject> = {
       'compact', 'compact-collapsed', 'chevron-end', 'chevron-none', 'guides', 'guides-chevron-none', 'indent-zero',
       'highlight-full', 'icon-space', 'not-expandable', 'one-line', 'label-wrap', 'sticky',
     ],
+    inParts: true,
     boxes: [
       'tanrei-main-action-button .label',
       'tanrei-navigation-drawer-group .label',
@@ -172,33 +180,66 @@ const SUBJECTS: Record<string, Subject> = {
 const unique = (all: string[]) => [...new Set(all)].sort();
 const leftToRight = (lefts: number[]) => lefts.every((left, index) => index === 0 || left > lefts[index - 1]!);
 
+/** The texts each component is given in turn, in this order; the stage is mounted again for each. */
+const TOLD = [...LETTERLESS, NAMED, HEBREW];
+
+/**
+ * The tests of the first table: a component's walk through TOLD in one test, or, for a component that is `inParts`,
+ * one test for each text, in the same order, each on a page it mounts and with the whole of the time limit. The
+ * coverage test below holds that every (component, text) pair is checked exactly once, in that order.
+ */
+const PARTS: { name: string; texts: string[] }[] = Object.entries(SUBJECTS).flatMap(([name, subject]) => (subject.inParts ? TOLD.map((text) => ({ name, texts: [text] })) : [{ name, texts: TOLD }]));
+
+test('the tests of the walk give each component each text exactly once, in order; the components in parts have one test a text', () => {
+  const pairs = PARTS.flatMap((part) => part.texts.map((text) => `${part.name}/${text}`));
+  expect(pairs).toEqual(Object.keys(SUBJECTS).flatMap((name) => TOLD.map((text) => `${name}/${text}`)));
+  expect(new Set(pairs).size).toBe(pairs.length);
+  expect(PARTS.filter((part) => part.texts.length === 1).map((part) => part.name)).toEqual(Object.entries(SUBJECTS).flatMap(([name, subject]) => (subject.inParts ? TOLD.map(() => name) : [])));
+  expect(PARTS.filter((part) => part.texts.length !== 1).every((part) => part.texts === TOLD)).toBe(true);
+});
+
 for (const [name, subject] of Object.entries(SUBJECTS)) {
-  test(`${name} — in a right-to-left layout a text without a letter is drawn from the left, as in a left-to-right one; a text with a left-to-right letter keeps its order and one with a right-to-left letter is right to left`, async ({ page }) => {
-    const spec = loadSpec(name);
-    const fixtures = spec.fixtures.filter((f) => (!subject.only || subject.only.includes(f.id)) && !subject.without?.includes(f.id));
-    const told = async (text: string) => {
-      await mountFixtures(page, spec, { icons: true, fixtures: fixtures.map((f) => retold(subject.give ? { ...f, props: { ...f.props, [subject.give]: text } } : f, text, subject)) });
-      return (await seen(page, text)).filter((s) => !subject.except?.includes(s.where));
-    };
-    // −5, 40 %, +1 555 0100, 10 – 20: every character at the right of the one before it. (The longest does not fit
-    // every box on one line: each box is seen with one of them at least.)
-    const boxes: string[] = [];
-    for (const text of LETTERLESS) {
-      const all = await told(text);
-      boxes.push(...all.map((s) => s.where));
-      expect(unique(all.filter((s) => !leftToRight(s.lefts)).map((s) => s.where)), text).toEqual([]);
+  test.describe(() => {
+    // A component's tests run in order in one worker: the last text without a letter reads where the ones before it
+    // were seen, which for a component in parts were tests before this one.
+    test.describe.configure({ mode: 'serial' });
+    /** The boxes each text without a letter was seen in, in this worker. */
+    const letterless = new Map<string, string[]>();
+    for (const part of PARTS.filter((p) => p.name === name)) {
+      test(`${name} — in a right-to-left layout a text without a letter is drawn from the left, as in a left-to-right one; a text with a left-to-right letter keeps its order and one with a right-to-left letter is right to left${subject.inParts ? ` — ${part.texts[0]}` : ''}`, async ({ page }) => {
+        const spec = loadSpec(name);
+        const fixtures = spec.fixtures.filter((f) => (!subject.only || subject.only.includes(f.id)) && !subject.without?.includes(f.id));
+        const told = async (text: string) => {
+          await mountFixtures(page, spec, { icons: true, fixtures: fixtures.map((f) => retold(subject.give ? { ...f, props: { ...f.props, [subject.give]: text } } : f, text, subject)) });
+          return (await seen(page, text)).filter((s) => !subject.except?.includes(s.where));
+        };
+        for (const text of part.texts) {
+          const all = await told(text);
+          if (LETTERLESS.includes(text)) {
+            // −5, 40 %, +1 555 0100, 10 – 20: every character at the right of the one before it. (The longest does not
+            // fit every box on one line: each box is seen with one of them at least.)
+            letterless.set(text, all.map((s) => s.where));
+            expect(unique(all.filter((s) => !leftToRight(s.lefts)).map((s) => s.where)), text).toEqual([]);
+            if (text === LETTERLESS.at(-1)) {
+              expect([...letterless.keys()], 'the texts without a letter before this one were given first').toEqual(LETTERLESS);
+              expect(unique([...letterless.values()].flat())).toEqual([...subject.boxes].sort());
+            }
+          } else if (text === NAMED) {
+            // "v 1 – 2": a left-to-right text, the same.
+            expect(unique(all.map((s) => s.where))).toEqual([...subject.boxes].sort());
+            expect(unique(all.filter((s) => !leftToRight(s.lefts)).map((s) => s.where))).toEqual([]);
+          } else {
+            // "א 1 – 2": a right-to-left text — its letter at the right, then 1, then 2 at the left.
+            expect(text).toBe(HEBREW);
+            expect(unique(all.map((s) => s.where))).toEqual([...subject.boxes].sort());
+            expect(unique(all.filter((s) => !(s.lefts[0]! > s.lefts[1]! && s.lefts[1]! > s.lefts[3]!)).map((s) => s.where))).toEqual([]);
+          }
+        }
+      });
     }
-    expect(unique(boxes)).toEqual([...subject.boxes].sort());
-    // "v 1 – 2": a left-to-right text, the same.
-    const names = await told(NAMED);
-    expect(unique(names.map((s) => s.where))).toEqual([...subject.boxes].sort());
-    expect(unique(names.filter((s) => !leftToRight(s.lefts)).map((s) => s.where))).toEqual([]);
-    // "א 1 – 2": a right-to-left text — its letter at the right, then 1, then 2 at the left.
-    const hebrew = await told(HEBREW);
-    expect(unique(hebrew.map((s) => s.where))).toEqual([...subject.boxes].sort());
-    expect(unique(hebrew.filter((s) => !(s.lefts[0]! > s.lefts[1]! && s.lefts[1]! > s.lefts[3]!)).map((s) => s.where))).toEqual([]);
   });
 }
+
 
 /** A label too long for any box here, left to right and right to left, and a short one. */
 const LATIN_LONG = 'Awaiting a second review from the accessibility working group before the release candidate can be tagged';

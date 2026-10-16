@@ -277,7 +277,7 @@
     },
     {
       "id": "BGR-19",
-      "text": "THE button group SHALL NOT change an item's look, emphasis or semantics for its confirming or dismissive: the flags decide its place only. A destructive confirming action (Delete) takes its look from its own variant, and a Button is not made filled by being confirming."
+      "text": "THE button group SHALL NOT change an item's look, emphasis or semantics for its confirming or dismissive: the flags decide its place only. A destructive confirming action (Delete) takes its look from its own variant and its own destructive (BTN-40), and a Button is not made filled, or destructive, by being confirming."
     },
     {
       "id": "BGR-20",
@@ -323,7 +323,7 @@
       "A button group is a layout of actions: each item is its own Tab stop with its own semantics. A row that should be one Tab stop with arrow keys is a toolbar; one choice among several is a single-selection control: tabs where it changes the content below, a radio group where it sets a value, or a segmented button in a system that ships one.",
       "A toggle Button in a group keeps its own on/off state; the group does not make its toggles exclusive. One choice among several is a single-selection control: tabs where it changes the content below, a radio group where it sets a value, or a segmented button in a system that ships one.",
       "confirming and dismissive are not announced: they decide where a Button is, and focus and reading follow that place, so a screen-reader user meets the actions in the same order a sighted user sees them.",
-      "The two flags describe the task, not the tone: in \"Cancel · Delete\" Delete is confirming. A destructive action is told apart by its own look, not by its place.",
+      "The two flags describe the task, not the tone: in \"Cancel · Delete\" Delete is confirming. A destructive action is told apart by its own look (the Button's destructive) and its label, not by its place.",
       "Compose has no group role: the group is a traversal group whose content description is label, and each item keeps its own role.",
       "Text size: Buttons in a group grow as they do anywhere; a connected row stretches every item to the tallest, and a column makes every item as wide as the widest.",
       "A divider is decoration: it is not exposed, takes no press and is no boundary a person must find. What tells two joined Buttons apart for assistive technology is that each is its own button with its own name; for sight, their content and the line or the gap between them.",
