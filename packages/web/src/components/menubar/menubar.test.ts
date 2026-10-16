@@ -386,6 +386,10 @@ test.describe('the row and a title', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.mouse.move(2, 400);
     await focusTitle(page, 'editor', 'Edit');
+    // Enter opens the menu and focus moves into it, which ends the key's press at once (src/primitives/press.ts): the
+    // layer is kept for press-hold alone, and then removed. Read on the page's clock, held still, it is there however
+    // long the driver takes to answer.
+    await holdClock(page);
     await page.keyboard.down('Enter');
     const ripple = container(page, 'editor', 'Edit').locator('.ripple');
     expect(await ripple.count()).toBe(1);
@@ -393,6 +397,7 @@ test.describe('the row and a title', () => {
     expect(Number.parseFloat(await ripple.evaluate((el) => el.style.getPropertyValue('--_x')))).toBeCloseTo(size.width / 2, 0);
     expect(await css(ripple, 'animation-name')).toBe('none');
     await page.keyboard.up('Enter');
+    await releaseClock(page);
   });
 
   test('MBR-8: the container’s corners are eased by sys.shape.corner-smoothing, the ring concentric, and keyboard focus is shown as sys.behavior.focus-style names — a ring, or a glow', async ({ page }) => {
@@ -1998,22 +2003,26 @@ test.describe('entries that act', () => {
     // Enter: the anchor's own click, once, and the link is followed — not held back for the press-hold time.
     await focusTitle(page, 'mixed', 'View');
     await page.keyboard.press('End');
-    // (Counted in the page, from the key to the change of address, with the press as it is shown at that moment: the
-    // test's own clock also counts its answers, and two of a slow runner's are most of 1.5 s.)
+    // (Counted in the page, from the key to the change of address, with the press as it is shown at that moment. The
+    // page's clock is held still: a follow that waited for any timer — press-hold's among them — would never come, and
+    // the one that comes takes no page time at all. Following the link also moves focus out of the item, which ends
+    // the key's press at once: the state is kept for press-hold alone, so it too is read on the held clock.)
     await itemContainer(page, 'mixed', 'Documentation').evaluate((el) => {
       const w = window as unknown as { __followed?: { after: number; pressed: string | null } };
       let down = Number.NaN;
       window.addEventListener('keydown', () => (down = performance.now()), { capture: true, once: true });
       window.addEventListener('hashchange', () => (w.__followed = { after: performance.now() - down, pressed: el.dataset.pressed ?? null }), { once: true });
     });
+    await holdClock(page);
     await page.keyboard.down('Enter');
     await expect.poll(() => hash(page)).toBe('#docs');
     await expect.poll(() => page.evaluate(() => (window as unknown as { __followed?: unknown }).__followed)).toBeDefined();
     const followed = await page.evaluate(() => (window as unknown as { __followed: { after: number; pressed: string | null } }).__followed);
-    expect(followed.after).toBeLessThan(1500);
+    expect(followed.after, 'followed with no page time passed').toBe(0);
     expect(followed.pressed, 'followed while the press is shown').not.toBeNull();
     expect(await itemContainer(page, 'mixed', 'Documentation').evaluate((el) => el.dataset.pressed ?? null)).not.toBeNull();
     await page.keyboard.up('Enter');
+    await releaseClock(page);
     expect(await log(page)).toEqual(['go:Documentation']);
     expect(await heard(page)).toEqual(['click:0:left']);
     // Space: exactly as Enter does, and the page does not scroll for the key.
