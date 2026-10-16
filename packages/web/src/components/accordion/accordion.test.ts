@@ -17,8 +17,8 @@ import {
   withoutIconFont,
   rootTokens,
 } from '../../../test/harness.js';
-import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { motionEnded } from '../../../test/motions.js';
+import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
@@ -104,8 +104,9 @@ const toggles = async (page: P) => {
 /** The motions of the accordions that are running now: an item's clock and a chevron's turn (not a header's state colors). */
 const motions = (page: P) => page.evaluate(() => document.getAnimations().filter((a) => ['--_acc-open', 'rotate'].includes((a as CSSTransition).transitionProperty)).length);
 /**
- * No motion of any accordion is running: each motion running when it is asked is waited for to its end, as long as the
- * machine plays it (a poll with a time of its own guesses that length, and ACC-13 stretches the motion to 4 s).
+ * No motion of any accordion is running: every one running now has ended, however slowly it runs (a poll of the count
+ * gave up after a fixed five seconds, shorter than a slowed motion of a second, and ACC-13 stretches the motion to 4 s);
+ * then none is counted, so a motion that began on the way is not missed either.
  */
 const settled = async (page: P) => {
   await motionEnded(page);

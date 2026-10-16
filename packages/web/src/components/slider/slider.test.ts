@@ -5,6 +5,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
+import { motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 
 const spec = loadSpec('slider');
@@ -91,7 +92,12 @@ const running = (locator: Locator, property: string) =>
     const t = el.getAnimations().find((a) => (a as CSSTransition).transitionProperty === p);
     return t ? Math.round(Number(t.effect!.getTiming().duration)) : null;
   }, property);
-const settle = (page: P) => page.waitForTimeout(700);
+/**
+ * Every motion on the page has ended: a value, a direction or a token changed moves the handle and the tracks over
+ * their motions, and what is measured next is where they come to rest (a fixed wait read them on their way where the
+ * motions ran slower than the wait).
+ */
+const settle = (page: P) => motionEnded(page);
 /**
  * The durations (ms) of the transitions of `property` the element itself has begun since `watchTransitions(locator)` —
  * kept as the engine announces them, where `running` asks a round trip later for one that may be over by then.
