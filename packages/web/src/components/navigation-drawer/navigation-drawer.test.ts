@@ -244,56 +244,94 @@ test.describe('activation and selection', () => {
   });
 });
 
+/**
+ * NVD-4's walk: for each condition, in both forms, its cell at rest, hovered, pressed and focused by the pointer, and
+ * focused from the keyboard; then a group's row hovered, and acme's order of the three states. Each entry is a test of
+ * its own on a page it mounts; the coverage test below holds that every (condition, state) pair the one test walked is
+ * walked exactly once, in its order.
+ */
+const NVD_4_CONDITIONS: [Fixture, number, Condition][] = [
+  [fixture('r', MAIL.slice(1)), 1, 'unselected'],
+  [fixture('r', MAIL.slice(1), { value: 'drafts' }), 1, 'selected'],
+  [rail('r', MAIL.slice(1)), 0, 'collapsed-unselected'],
+  [rail('r', MAIL.slice(1), { value: 'sent' }), 0, 'collapsed-selected'],
+];
+const NVD_4_WALK: ({ part: 'pointer' | 'keyboard'; f: Fixture; n: number; condition: Condition; states: string[] } | { part: 'a group’s row, hovered' | 'under acme, pressed beats focused beats hovered' })[] = [
+  ...NVD_4_CONDITIONS.flatMap(([f, n, condition]) => [
+    { part: 'pointer' as const, f, n, condition, states: ['rest', 'hovered', 'pressed', 'pointer focus'] },
+    { part: 'keyboard' as const, f, n, condition, states: ['focused'] },
+  ]),
+  { part: 'a group’s row, hovered' },
+  { part: 'under acme, pressed beats focused beats hovered' },
+];
+
+test('NVD-4: the parts of the state walk check each condition in each state, the group’s row and acme exactly once, in order', () => {
+  expect(NVD_4_WALK.flatMap((unit) => ('f' in unit ? unit.states.map((state) => `${unit.condition}/${state}`) : [unit.part]))).toEqual([
+    ...(['unselected', 'selected', 'collapsed-unselected', 'collapsed-selected'] as const).flatMap((condition) => ['rest', 'hovered', 'pressed', 'pointer focus', 'focused'].map((state) => `${condition}/${state}`)),
+    'a group’s row, hovered',
+    'under acme, pressed beats focused beats hovered',
+  ]);
+  expect(new Set(NVD_4_WALK.map((unit) => ('f' in unit ? `${unit.condition}, ${unit.states.join(', ')}` : unit.part))).size).toBe(NVD_4_WALK.length);
+});
+
 test.describe('states, press and focus', () => {
   test.beforeAll(async () => {
     test.setTimeout(240_000);
     await acmeSystemCss();
   });
 
-  test('NVD-4: each state draws the cell from that state’s tokens of its condition, in both forms and on a group’s row; pointer focus is not the focused state', async ({ page, browserName }) => {
-    for (const [f, n, condition] of [
-      [fixture('r', MAIL.slice(1)), 1, 'unselected'],
-      [fixture('r', MAIL.slice(1), { value: 'drafts' }), 1, 'selected'],
-      [rail('r', MAIL.slice(1)), 0, 'collapsed-unselected'],
-      [rail('r', MAIL.slice(1), { value: 'sent' }), 0, 'collapsed-selected'],
-    ] as const) {
-      await mount(page, [f]);
+  // One test for each part of NVD_4_WALK, each on a page it mounts and with the whole of the time limit: the walk in one
+  // test mounted the drawer ten times and took 18 s in WebKit on a CI runner, over half of 30 s.
+  for (const unit of NVD_4_WALK) {
+    test(`NVD-4: each state draws the cell from that state’s tokens of its condition, in both forms and on a group’s row; pointer focus is not the focused state — ${'f' in unit ? `${unit.condition}, ${unit.states.join(', ')}` : unit.part}`, async ({ page, browserName }) => {
+      if (unit.part === 'pointer' || unit.part === 'keyboard') {
+        const { f, n, condition } = unit;
+        if (unit.part === 'keyboard') {
+          await mount(page, [f]);
+          await page.mouse.click(700, 10);
+          await tabTo(page, cell(page, 'r', n));
+          await expect.poll(() => drawn(item(page, 'r', n)), `${condition} focused`).toEqual(await expected(page, condition, 'focused'));
+          return;
+        }
+        await mount(page, [f]);
+        await page.mouse.move(700, 10);
+        await expect.poll(() => drawn(item(page, 'r', n)), condition).toEqual(await expected(page, condition));
+        await cell(page, 'r', n).hover();
+        await expect.poll(() => drawn(item(page, 'r', n)), `${condition} hovered`).toEqual(await expected(page, condition, 'hovered'));
+        await page.mouse.down();
+        await expect.poll(() => drawn(item(page, 'r', n)), `${condition} pressed`).toEqual(await expected(page, condition, 'pressed'));
+        await page.mouse.up();
+        await page.mouse.move(700, 10);
+        if (browserName !== 'webkit') await expect(cell(page, 'r', n)).toBeFocused();
+        const now = condition.startsWith('collapsed') ? 'collapsed-selected' : 'selected';
+        await expect.poll(() => drawn(item(page, 'r', n)), `${condition} pointer focus`).toEqual(await expected(page, now));
+        return;
+      }
+      if (unit.part === 'a group’s row, hovered') {
+        // A group's row, from the unselected condition.
+        await mount(page, [fixture('g', [d('home', 'Home', 'home'), grp('Projects', [d('a', 'A')], { icon: 'folder' })], { value: 'home' })]);
+        await page.mouse.move(700, 10);
+        await groupRow(page, 'g', 0).hover();
+        await expect.poll(() => drawn(group(page, 'g', 0))).toEqual(await expected(page, 'unselected', 'hovered'));
+        return;
+      }
+      expect(unit.part).toBe('under acme, pressed beats focused beats hovered');
+      // Under acme the three states differ: pressed beats focused beats hovered.
+      await mount(page, [fixture('r', MAIL)], { system: 'acme', systemCss: await acmeSystemCss() });
+      const bg = () => css(item(page, 'r', 0).locator('.indicator'), 'background-color');
+      const [rest, hovered, focus, down] = await Promise.all(['', 'hovered-', 'focused-', 'pressed-'].map((s) => resolveColor(page, T(`selected-${s}item-container-color`))));
+      expect(new Set([rest, hovered, focus, down]).size).toBe(4);
       await page.mouse.move(700, 10);
-      await expect.poll(() => drawn(item(page, 'r', n)), condition).toEqual(await expected(page, condition));
-      await cell(page, 'r', n).hover();
-      await expect.poll(() => drawn(item(page, 'r', n)), `${condition} hovered`).toEqual(await expected(page, condition, 'hovered'));
-      await page.mouse.down();
-      await expect.poll(() => drawn(item(page, 'r', n)), `${condition} pressed`).toEqual(await expected(page, condition, 'pressed'));
-      await page.mouse.up();
-      await page.mouse.move(700, 10);
-      if (browserName !== 'webkit') await expect(cell(page, 'r', n)).toBeFocused();
-      const now = condition.startsWith('collapsed') ? 'collapsed-selected' : 'selected';
-      await expect.poll(() => drawn(item(page, 'r', n)), `${condition} pointer focus`).toEqual(await expected(page, now));
-      await mount(page, [f]);
-      await page.mouse.click(700, 10);
-      await tabTo(page, cell(page, 'r', n));
-      await expect.poll(() => drawn(item(page, 'r', n)), `${condition} focused`).toEqual(await expected(page, condition, 'focused'));
-    }
-    // A group's row, from the unselected condition.
-    await mount(page, [fixture('g', [d('home', 'Home', 'home'), grp('Projects', [d('a', 'A')], { icon: 'folder' })], { value: 'home' })]);
-    await page.mouse.move(700, 10);
-    await groupRow(page, 'g', 0).hover();
-    await expect.poll(() => drawn(group(page, 'g', 0))).toEqual(await expected(page, 'unselected', 'hovered'));
-    // Under acme the three states differ: pressed beats focused beats hovered.
-    await mount(page, [fixture('r', MAIL)], { system: 'acme', systemCss: await acmeSystemCss() });
-    const bg = () => css(item(page, 'r', 0).locator('.indicator'), 'background-color');
-    const [rest, hovered, focus, down] = await Promise.all(['', 'hovered-', 'focused-', 'pressed-'].map((s) => resolveColor(page, T(`selected-${s}item-container-color`))));
-    expect(new Set([rest, hovered, focus, down]).size).toBe(4);
-    await page.mouse.move(700, 10);
-    await expect.poll(bg).toBe(rest);
-    await cell(page, 'r', 0).hover();
-    await expect.poll(bg).toBe(hovered);
-    await tabTo(page, cell(page, 'r', 0));
-    await expect.poll(bg).toBe(focus);
-    await page.keyboard.down('Space');
-    await expect.poll(bg).toBe(down);
-    await page.keyboard.up('Space');
-  });
+      await expect.poll(bg).toBe(rest);
+      await cell(page, 'r', 0).hover();
+      await expect.poll(bg).toBe(hovered);
+      await tabTo(page, cell(page, 'r', 0));
+      await expect.poll(bg).toBe(focus);
+      await page.keyboard.down('Space');
+      await expect.poll(bg).toBe(down);
+      await page.keyboard.up('Space');
+    });
+  }
 
   test('NVD-5: keyboard focus shows the ring around the item container, without animation, in both forms; pointer focus does not', async ({ page }) => {
     await mount(page, [fixture('r', MAIL), rail('c', MAIL)]);
@@ -1720,17 +1758,23 @@ test.describe('a collapsed cell’s name', () => {
     await expect(surface(page, 'collapsed', 1)).toBeVisible();
     // Where the label is drawn there is nothing to show.
     for (const id of ['collapsed-labels-always', 'collapsible-expanded']) await expect(drawer(page, id).locator('tanrei-navigation-drawer-item').locator('tanrei-tooltip.tip')).toHaveCount(0);
+    // The show delay runs on the page's clock, held still and moved on by the test: once it is over, nothing has opened.
+    const delay = await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration');
+    expect(delay).toBeGreaterThan(0);
+    await holdClock(page);
     await cell(page, 'collapsed-labels-always', 1).hover();
-    await page.waitForTimeout((await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration')) + 150);
+    await page.clock.runFor(delay);
     expect(await page.locator('tanrei-tooltip.tip[open]').count()).toBeLessThanOrEqual(1);
+    await releaseClock(page);
     await expect(item(page, 'collapsed-labels-always', 1).locator('.short')).toHaveCSS('opacity', '1');
     // Labels selected: Starred draws its label and has no tooltip; the others have one.
     expect(await Promise.all([0, 1, 2, 3].map((n) => tip(page, 'collapsed-labels-selected', n).count()))).toEqual([1, 1, 0, 1]);
     // A group's cell is named the same way.
     await expect(group(page, 'collapsed-groups', 0).locator('tanrei-tooltip.tip').first()).toHaveCount(1);
     // A touch does not hover: nothing opens.
+    await holdClock(page);
     await cell(page, 'collapsed', 3).dispatchEvent('pointerenter', { pointerType: 'touch' });
-    await page.waitForTimeout((await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration')) + 150);
+    await page.clock.runFor(delay);
     expect(await tip(page, 'collapsed', 3).evaluate((el: any) => el.open)).toBe(false);
   });
 
@@ -3145,6 +3189,40 @@ test.describe('the row model shared with the tree view', () => {
     await cell(page, 'label-wrap', 1).hover();
     await page.clock.runFor(delay);
     expect(await open('label-wrap', 1)).toBe(false);
+  });
+
+  test('NVD-75: keyboard focus on a cut row that only touches the window\u2019s edge waits until part of it is seen, then shows its tooltip', async ({ page }) => {
+    // An intersection observer calls a box that touches the window's edge intersecting, though nothing of it is seen,
+    // and a tooltip counts that anchor out of sight and closes at once: the tooltip must open once part of it is seen.
+    await page.setViewportSize({ width: 800, height: 300 });
+    await mount(page, [F('collapsible-expanded'), F('one-line')], { reducedMotion: true });
+    const tip = item(page, 'one-line', 1).locator('tanrei-tooltip.cut-tip');
+    await page.mouse.click(790, 5);
+    await tabTo(page, cell(page, 'one-line', 0));
+    // The cut row's cell just below the window, its top on the window's bottom edge.
+    const edge = await cell(page, 'one-line', 1).evaluate((el) => {
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: top - document.documentElement.clientHeight, behavior: 'instant' });
+      return [el.getBoundingClientRect().top, document.documentElement.clientHeight];
+    });
+    expect(edge[0]).toBe(edge[1]);
+    // Keyboard focus moves to it without scrolling (focus that follows keyboard focus is keyboard focus), and the
+    // observers' answer for that layout has arrived: the cell's own, and one made after it, in the same task.
+    const touching = await cell(page, 'one-line', 1).evaluate(async (el) => {
+      const answer = () => new Promise<IntersectionObserverEntry>((resolve) => {
+        const observer = new IntersectionObserver((entries) => (observer.disconnect(), resolve(entries[0])));
+        observer.observe(el);
+      });
+      (el as HTMLElement).focus({ preventScroll: true });
+      const entry = await answer();
+      await new Promise((resolve) => setTimeout(resolve));
+      const tooltip = (el.getRootNode() as ShadowRoot).querySelector<HTMLElement & { open: boolean }>('tanrei-tooltip.cut-tip');
+      return { keyboard: el.matches(':focus-visible'), intersecting: entry.isIntersecting, ratio: entry.intersectionRatio, open: !!tooltip?.open };
+    });
+    expect(touching).toEqual({ keyboard: true, intersecting: true, ratio: 0, open: false });
+    // Part of it comes into view: its tooltip opens.
+    await page.evaluate(() => window.scrollBy({ top: 12, behavior: 'instant' }));
+    await expect.poll(() => tip.evaluate((el: any) => el.open)).toBe(true);
   });
 
   test('NVD-76: an open group that is loading draws a loading row under its items, one step further in, named by loadingLabel, taking no focus; its list is busy', async ({ page }) => {
