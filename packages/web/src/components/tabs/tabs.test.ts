@@ -963,8 +963,8 @@ test.describe('layout', () => {
 
   test('TAB-24: each label and icon is drawn again in its look’s covered colors, clipped to the indicator: wholly covered when it lands in every fixture, partly while it slides; a clip, not a blend; each label exposed once', async ({ page }) => {
     test.setTimeout(120_000); // every fixture of the spec is walked: 77 rows
+    // Read at once: a row's first appearance draws every tab in its colors without a motion (the first appearance tests).
     await mountFixtures(page, spec, { icons: true });
-    await page.waitForTimeout(400); // colors transition
     // Landed, in every fixture: the selected tab's content lies wholly within the indicator, in the covered colors; the
     // plain content has the indicator's shape cut out, so nothing is drawn twice under a translucent indicator.
     for (const f of spec.fixtures) {
@@ -2651,6 +2651,95 @@ test.describe('the indicator at the first paint', () => {
   });
 });
 
+// A first appearance is not a change of state: every tab is drawn as it is in the first frame, its colors, its label's
+// weight and its icon's fill, with no motion (TAB-23, TAB-50, TAB-18; TAB-17 puts the indicator on at once).
+test.describe('the first appearance', () => {
+  /**
+   * Keeps every transition that starts from now on in the page, inside every shadow root made from now on (the event
+   * does not leave a shadow root) and on every light-DOM element under a host, each once. A page that `setContent()`
+   * writes keeps its window, and so this patch; an init script would not run for it.
+   */
+  const watchAll = (page: P) =>
+    page.evaluate(() => {
+      const w = window as any;
+      w.transitionsAtMount = [];
+      if (w.watchesAll) return;
+      w.watchesAll = true;
+      const seen = new WeakSet<Event>();
+      const record = (event: Event) => {
+        if (seen.has(event)) return;
+        seen.add(event);
+        const { propertyName, pseudoElement } = event as TransitionEvent;
+        const target = event.target as Element;
+        const host = (target.getRootNode() as ShadowRoot).host ?? target;
+        const fixture = host.closest('[data-fixture]')?.getAttribute('data-fixture');
+        w.transitionsAtMount.push(`${fixture} ${host.localName}[value=${host.getAttribute('value') ?? ''}] ${[target.localName, ...target.classList].join('.')}${pseudoElement} ${propertyName}`);
+      };
+      const attach = Element.prototype.attachShadow;
+      Element.prototype.attachShadow = function (this: Element, init: ShadowRootInit) {
+        const root = attach.call(this, init);
+        root.addEventListener('transitionrun', record);
+        this.addEventListener('transitionrun', record);
+        return root;
+      };
+    });
+  const transitionsAtMount = (page: P) => page.evaluate(() => (window as any).transitionsAtMount as string[]);
+  /** Every element has drawn what it is, and two frames have been drawn after that. */
+  const settled = (page: P) =>
+    page.evaluate(async () => {
+      await Promise.all([...document.querySelectorAll<any>('tanrei-tabs, tanrei-tab')].map((el) => el.updateComplete));
+      for (let n = 0; n < 3; n++) await new Promise((resolve) => requestAnimationFrame(resolve));
+    });
+
+  const SETUPS: { name: string; mount: (page: P) => Promise<{ system?: string; systemCss?: string }> }[] = [
+    { name: 'the default system', mount: async () => ({}) },
+    { name: 'm3-like', mount: async () => ({ system: 'm3-like' }) },
+    { name: 'cupertino', mount: async () => ({ system: 'cupertino' }) },
+    { name: 'acme', mount: async () => ({ system: 'acme', systemCss: await acmeSystemCss() }) },
+    {
+      name: 'forced colors',
+      mount: async (page) => {
+        await page.emulateMedia({ forcedColors: 'active' });
+        return {};
+      },
+    },
+  ];
+  for (const setup of SETUPS) {
+    test(`TAB-23, TAB-17, TAB-50: under ${setup.name}, every fixture's row first appears with every tab in its colors, weight and icon fill at once — no transition runs — and a selection made afterwards still animates its colors`, async ({ page }) => {
+      test.setTimeout(120_000); // every fixture of the spec is mounted: 77 rows
+      const options = await setup.mount(page);
+      await watchAll(page);
+      await mountFixtures(page, spec, { icons: true, reducedMotion: false, ...options });
+      await settled(page);
+      expect(await transitionsAtMount(page)).toEqual([]);
+      // The tabs are drawn still for the frames of their first appearance only: a selection made afterwards moves the two
+      // tabs' looks over the state motion (TAB-23), which the TAB-23 tests read in full.
+      await page.evaluate(() => ((window as any).transitionsAtMount = []));
+      await row(page, 'tonal').evaluate((el: any) => (el.value = 'activity'));
+      await expect.poll(async () => (await transitionsAtMount(page)).filter((run) => /^tonal tanrei-tab\[value=(overview|activity)\]/.test(run)).length).toBeGreaterThan(0);
+      await page.emulateMedia({ forcedColors: 'none' });
+    });
+  }
+
+  test('TAB-23, TAB-18: a tab added to a row that is already drawn appears in its state at once — a disabled tab in the disabled colors, a selected one with its weight and filled icon — while the tab it takes the selection from fades', async ({ page }) => {
+    await watchAll(page);
+    await mountFixtures(page, spec, { icons: true, reducedMotion: false, fixtures: [fixture('r', [t('a', 'First', { icon: 'home' }), t('b', 'Second', { icon: 'search' })], { selected: 'a', variant: 'tonal' })] });
+    await settled(page);
+    expect(await transitionsAtMount(page)).toEqual([]);
+    await row(page, 'r').evaluate(async (el: any) => {
+      for (const [value, label, disabled] of [['c', 'Third', true], ['d', 'Fourth', false]] as const) {
+        const tab = document.createElement('tanrei-tab') as any;
+        Object.assign(tab, { value, label, icon: 'favorite', disabled });
+        el.append(tab);
+      }
+      el.value = 'd';
+    });
+    await settled(page);
+    await expect.poll(async () => (await transitionsAtMount(page)).some((run) => run.startsWith('r tanrei-tab[value=a]'))).toBe(true);
+    expect((await transitionsAtMount(page)).filter((run) => /\[value=(c|d)\]/.test(run))).toEqual([]);
+  });
+});
+
 // A shared choice (TAB-36…41). The spec's two fixtures name one group; a test stages them — and rows of
 // its own — in one document, each given its props before it is first drawn, so that none of them is the group's choice.
 const PLATFORMS = [t('web', 'Web'), t('react', 'React'), t('swiftui', 'SwiftUI'), t('flutter', 'Flutter')];
@@ -3840,10 +3929,9 @@ test.describe('variants, the track, sizes and the transition', () => {
       if (forces) expect(rgba(await css(label(page, id, 1), 'color')), id).toEqual(canvasText);
     }
     expect(rgba(await css(label(page, 'tonal-no-track-disabled', 2), 'color'))).toEqual(gray);
-    // A disabled selected tab's indicator is the disabled color too — read once it has arrived: when a row first
-    // appears its tabs are drawn before the row has told them which tab is selected and whether that tab is disabled, so
-    // every piece of this row's indicator fades from the highlight to the disabled color over the state motion.
-    await expect.poll(async () => rgba(await css(cover(page, 'tonal-no-track-selected-disabled', 2), 'background-color'))).toEqual(gray);
+    // A disabled selected tab's indicator is the disabled color too, from the row's first frame (TAB-23: a first
+    // appearance draws every tab as it is, without a motion).
+    expect(rgba(await css(cover(page, 'tonal-no-track-selected-disabled', 2), 'background-color'))).toEqual(gray);
     // A focused tab shows a ring.
     await tabTo(page, tabAt(page, 'tonal-small-no-track', 0));
     const focusRing = ring(page, 'tonal-small-no-track', 0);
@@ -3882,8 +3970,8 @@ test.describe('accessibility', () => {
   test('no axe violations in light and dark, with panels', async ({ page }) => {
     test.setTimeout(120_000); // every fixture of the spec is walked: 77 rows
     for (const theme of ['light', 'dark'] as const) {
+      // Read at once: a row's first appearance draws every tab in its colors without a motion (the first appearance tests).
       await mountFixtures(page, spec, { theme, icons: true, fixtures: [...spec.fixtures, fixture('panels', THREE, { selected: 'activity' }, panels(['overview', 'activity', 'settings'], ['settings']))] });
-      await page.waitForTimeout(400); // colors transition
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }
