@@ -1,7 +1,7 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { exported } from '../../primitives/composed.js';
-import { AvailabilityController, BUTTON_VARIANTS, compChoice, DIRECTION_PROBE, DirectionController, giveVariant, PressController, RovingKeys, hostAria, report, slottedInteractive, SystemWatchController, syncFocusStyle, WordsController } from '../../primitives/index.js';
+import { AvailabilityController, BUTTON_VARIANTS, compChoice, DIRECTION_PROBE, DirectionController, giveVariant, PressController, RovingKeys, hostAria, report, slottedInteractive, stoppedBefore, SystemWatchController, syncFocusStyle, WordsController } from '../../primitives/index.js';
 import { TanreiButton } from '../button/button.js';
 import { CarouselGeometry, type TanreiCarouselHeroAlignment } from './carousel-geometry.js';
 import { carouselStyles, itemStyles } from './carousel.styles.js';
@@ -46,7 +46,7 @@ const NAV_PARTS = Object.fromEntries(
  */
 const FLING_VELOCITY = 0.5;
 
-/** How far back the velocity of a release looks, in ms: a finger that stopped longer ago than this releases at rest. */
+/** How far back the velocity of a release looks, in ms: the moves it averages over (a finger that held still is `stoppedBefore`). */
 const VELOCITY_WINDOW = 80;
 
 /**
@@ -835,18 +835,22 @@ export class TanreiCarousel extends LitElement {
   /**
    * CRL-14: the finger left the row: a release faster than FLING_VELOCITY is a fling, in its direction. The velocity is
    * the finger's over its moves in the last VELOCITY_WINDOW before the release, timed by the events' own time stamps, so
-   * a busy main thread (or a frame that came late) does not slow a fling down.
+   * a busy main thread (or a frame that came late) does not slow a fling down — and none where the finger had held
+   * still for longer than POINTER_STOPPED_TIME before it lifted (`stoppedBefore`): a row stopped on the item that was
+   * wanted is not flung past it.
    */
   private readonly onTouchEnd = (event: TouchEvent) => {
     if (event.touches.length || !this.touching) return;
     this.touching = false;
+    const lastMove = this.samples[this.samples.length - 1]?.time;
     this.sample(event);
     const release = event.timeStamp;
+    const stopped = lastMove === undefined || stoppedBefore(lastMove, release);
     const recent = this.samples.filter((sample) => release - sample.time <= VELOCITY_WINDOW);
     const [first, last] = [recent[0], recent[recent.length - 1]];
     // The finger moving toward the row's start scrolls it toward its end: toward the left, or the right in right-to-left.
     const toward = this.rtl ? 1 : -1;
-    const velocity = first && last && last.time > first.time ? (toward * (last.x - first.x)) / (last.time - first.time) : 0;
+    const velocity = !stopped && first && last && last.time > first.time ? (toward * (last.x - first.x)) / (last.time - first.time) : 0;
     // A touch that did not scroll the row (a tap, or the page's vertical scroll) is no fling of the row.
     this.fling = this.scrolledSinceTouch && Math.abs(velocity) >= FLING_VELOCITY ? (velocity > 0 ? 1 : -1) : 0;
     this.samples = [];

@@ -22,6 +22,7 @@ import {
   notifyDestinationUpdate,
   readDestination,
   report,
+  stoppedBefore,
   syncFocusStyle,
   tabbables,
   trapFocus,
@@ -2523,7 +2524,9 @@ export class TanreiNavigationDrawer extends LitElement {
     // The click that ends a drag is not an activation.
     this.dragged = true;
     setTimeout(() => (this.dragged = false), 0);
-    if (distance > dialog.getBoundingClientRect().width / 2 || drag.velocity >= FLING_VELOCITY) this.dismiss();
+    // NVD-20: a fling is the last move's speed, and none where the pointer held still before the release.
+    const flung = drag.velocity >= FLING_VELOCITY && !stoppedBefore(drag.lastTime, event.timeStamp);
+    if (distance > dialog.getBoundingClientRect().width / 2 || flung) this.dismiss();
   };
 
   /** Swallows the click that ends a drag, before it reaches a destination. */

@@ -16,8 +16,24 @@ export const SHEET_TOUCH_SLOP = 8;
 /** A release at least this fast along the axis is a fling (BSH-9), in px per ms: the web names no minimum of its own. */
 export const SHEET_FLING_VELOCITY = 0.5;
 
-/** How far back the velocity of a release looks, in ms: a pointer that stopped longer ago than this releases at rest. */
+/** How far back the velocity of a release looks, in ms: the moves it averages over. */
 const VELOCITY_WINDOW = 80;
+
+/**
+ * How long a pointer may hold still before its release and still fling, in ms: one that has not moved for longer than
+ * this has stopped, and its release has no velocity (BSH-9, and every drag that flings). Someone who drags quickly,
+ * stops where they want and lets go there meant that place. Android's VelocityTracker (`ASSUME_POINTER_STOPPED_TIME`),
+ * Jetpack Compose's and Flutter's `VelocityTracker` all take 40 ms; the web names none of its own.
+ */
+export const POINTER_STOPPED_TIME = 40;
+
+/**
+ * Whether a pointer that last moved at `lastMove` had stopped by its release at `release` (both an event's own
+ * `timeStamp`, so a busy main thread does not stop a fling): it held still for longer than `POINTER_STOPPED_TIME`.
+ */
+export function stoppedBefore(lastMove: number, release: number): boolean {
+  return release - lastMove > POINTER_STOPPED_TIME;
+}
 
 /** What a move did to a drag: nothing yet, it just started following, it follows, or it is not the sheet's (across the axis). */
 export type SheetDragStep = 'wait' | 'start' | 'follow' | 'reject';
@@ -26,7 +42,7 @@ export type SheetDragStep = 'wait' | 'start' | 'follow' | 'reject';
  * One pointer's drag along one axis (`y` for a bottom sheet, `x` for a side sheet). It does not follow before it has
  * moved `SHEET_TOUCH_SLOP` along the axis, more than across it; a drag that goes across first is not the sheet's. Its
  * velocity is measured over the last `VELOCITY_WINDOW` ms, in px per ms along the axis (positive: toward larger
- * coordinates, down or right).
+ * coordinates, down or right), and is 0 once the pointer has held still for longer than `POINTER_STOPPED_TIME`.
  */
 export class SheetDrag {
   readonly id: number;
@@ -83,8 +99,9 @@ export class SheetDrag {
     return moved;
   }
 
-  /** The velocity at release, px per ms along the axis; 0 when the pointer had stopped. */
+  /** The velocity at release, px per ms along the axis; 0 when the pointer had stopped (`stoppedBefore`). */
   velocity(event: PointerEvent): number {
+    if (stoppedBefore(this.samples[this.samples.length - 1].time, event.timeStamp)) return 0;
     const recent = this.samples.filter((sample) => event.timeStamp - sample.time <= VELOCITY_WINDOW);
     if (recent.length < 2) return 0;
     const first = recent[0];
