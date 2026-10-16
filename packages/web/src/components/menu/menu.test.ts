@@ -2886,7 +2886,6 @@ test.describe('separation, selection and marks', () => {
       }, name);
     await watch(unchecked.locator('.box'), 'box');
     await watch(unchecked.locator('.box-check'), 'check');
-    await watch(unchecked, 'row');
     await item(page, 'checkbox-checked', 1).focus();
     const before = await bounds(unchecked.locator('.box'));
     await page.keyboard.press('Space');
@@ -2894,7 +2893,6 @@ test.describe('separation, selection and marks', () => {
     const ran = await page.evaluate(() => (window as any).ran);
     expect(ran.box).toEqual(expect.arrayContaining(['background-color', 'box-shadow']));
     expect(ran.check).toContain('opacity');
-    expect(ran.row).toContain('background-color');
     expect(await bounds(unchecked.locator('.box'))).toEqual(before);
     expect(await css(unchecked.locator('.box'), 'transform')).toBe('none');
     // A radio item: the stroke thickens inward and the fill follows; the ring's outer box does not change.
@@ -2908,6 +2906,17 @@ test.describe('separation, selection and marks', () => {
     expect(await page.evaluate(() => (window as any).ran.fill)).toEqual(expect.arrayContaining(['background-color']));
     await expect.poll(async () => (await settledCss(next.locator('.ring'), 'box-shadow')).includes(`${await resolveToken(page, T('control-ring-width'))}px inset`)).toBe(false);
     expect(await bounds(next.locator('.ring'))).toEqual(ringBefore);
+    // The row's fill changes with the mark (MNU-27). Not under a Space: that press is the pressed state, which the overlay
+    // draws at once (MNU-16), and at standard contrast the default system gives a checked row no fill (MNU-37), so a row's
+    // fill has nothing to move there. At high contrast it has one: the product unchecks a row at rest, after its fill has
+    // settled, so what runs is the change of checked and not a focus or a press.
+    await inContrast(page, 'high');
+    const filled = await settledCss(unchecked, 'background-color');
+    await watch(unchecked, 'row');
+    await item(page, 'checkbox-checked', 1).evaluate((el: any) => (el.checked = false));
+    await expect.poll(() => page.evaluate(() => (window as any).ran.row)).toContain('background-color');
+    expect(await settledCss(unchecked, 'background-color')).not.toBe(filled);
+    await inContrast(page, null);
     // Where motion is reduced: the new condition whole, at once.
     await page.emulateMedia({ reducedMotion: 'reduce' });
     for (const part of [unchecked.locator('.box'), unchecked.locator('.box-check'), next.locator('.ring'), next.locator('.fill'), unchecked]) expect(await css(part, 'transition-duration')).toBe('0s');
