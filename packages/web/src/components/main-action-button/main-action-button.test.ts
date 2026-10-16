@@ -7,6 +7,7 @@ import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, res
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { decodePng } from '../../../test/png.js';
 import { opticalSize } from '../../../test/icons.js';
+import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('main-action-button');
 type P = Page;
@@ -673,14 +674,13 @@ test.describe('press, feedback, corners and focus style', () => {
   const pressLog = (page: P) => page.evaluate(() => (window as any).press as { down?: number; on?: number; off?: number; up?: number; seen?: string[] });
 
   test('MAB-8: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
-    expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(100);
-    const hold = 1000;
+    const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+    expect(hold).toBe(100);
     // The keys first, the clicks last: after a click WebKit takes the page for a pointer's — across a new document —
     // and neither draws a scripted focus() as keyboard focus nor moves focus by Tab.
     for (const name of ['Enter', 'Space', 'click'] as const) {
       for (const id of ['filled-extended', 'filled-collapsed']) {
         await mountFixtures(page, spec);
-        await override(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
         // The state the press comes from is settled first — keyboard focus for a key, the pointer's hover for a click:
         // in the default system it has the pressed state's color, and a transition already running towards that
         // color is, correctly, not restarted by the press.
@@ -692,9 +692,10 @@ test.describe('press, feedback, corners and focus style', () => {
           await expect.poll(() => css(page, id, 'background-color')).toBe(await resolveColor(page, T('filled-focused-container-color')));
         }
         await watchPress(page, id);
-        if (name === 'click') await host(page, id).click();
-        else await page.keyboard.press(name);
-        await expect.poll(async () => (await pressLog(page)).off, `${id} ${name}`).toBeDefined();
+        // The press and the hold on the page's clock, held still: the press is over in no page time at all, so it is
+        // the short one at the system's own hold, however long the driver takes to send the release.
+        const activate = () => (name === 'click' ? clickCentre(page, host(page, id)) : page.keyboard.press(name));
+        await heldPress(page, hold, activate, async () => (await pressLog(page)).off !== undefined, `${id} ${name}`);
         const log = await pressLog(page);
         expect(log.seen, `${id} ${name}`).toEqual(['overlay', '0s', await resolveColor(page, T('filled-pressed-container-color'))]);
         expect(log.up! - log.on!, `${id} ${name}: the press itself was shorter than press-hold`).toBeLessThan(hold);
