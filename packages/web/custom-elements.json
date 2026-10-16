@@ -40872,6 +40872,12 @@
             },
             {
               "kind": "method",
+              "name": "drawAtOnce",
+              "privacy": "private",
+              "description": "LKC-34: the card's colors computed now, while `data-tanrei-at-once` holds its transitions off, and the mark taken\noff. A transition starts only where a computed color changes; the colors are already the new ones when the\ntransitions return, so none starts, and the next change of state moves as before."
+            },
+            {
+              "kind": "method",
               "name": "readVariant",
               "privacy": "private",
               "description": "LKC-27: a look the core does not have was added by a design system — its rule is added to the root, falling back\nto the default's tokens — or is unknown to the active one, which a debug build says."
