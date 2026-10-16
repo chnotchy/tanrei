@@ -3147,6 +3147,40 @@ test.describe('the row model shared with the tree view', () => {
     expect(await open('label-wrap', 1)).toBe(false);
   });
 
+  test('NVD-75: keyboard focus on a cut row that only touches the window\u2019s edge waits until part of it is seen, then shows its tooltip', async ({ page }) => {
+    // An intersection observer calls a box that touches the window's edge intersecting, though nothing of it is seen,
+    // and a tooltip counts that anchor out of sight and closes at once: the tooltip must open once part of it is seen.
+    await page.setViewportSize({ width: 800, height: 300 });
+    await mount(page, [F('collapsible-expanded'), F('one-line')], { reducedMotion: true });
+    const tip = item(page, 'one-line', 1).locator('tanrei-tooltip.cut-tip');
+    await page.mouse.click(790, 5);
+    await tabTo(page, cell(page, 'one-line', 0));
+    // The cut row's cell just below the window, its top on the window's bottom edge.
+    const edge = await cell(page, 'one-line', 1).evaluate((el) => {
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: top - document.documentElement.clientHeight, behavior: 'instant' });
+      return [el.getBoundingClientRect().top, document.documentElement.clientHeight];
+    });
+    expect(edge[0]).toBe(edge[1]);
+    // Keyboard focus moves to it without scrolling (focus that follows keyboard focus is keyboard focus), and the
+    // observers' answer for that layout has arrived: the cell's own, and one made after it, in the same task.
+    const touching = await cell(page, 'one-line', 1).evaluate(async (el) => {
+      const answer = () => new Promise<IntersectionObserverEntry>((resolve) => {
+        const observer = new IntersectionObserver((entries) => (observer.disconnect(), resolve(entries[0])));
+        observer.observe(el);
+      });
+      (el as HTMLElement).focus({ preventScroll: true });
+      const entry = await answer();
+      await new Promise((resolve) => setTimeout(resolve));
+      const tooltip = (el.getRootNode() as ShadowRoot).querySelector<HTMLElement & { open: boolean }>('tanrei-tooltip.cut-tip');
+      return { keyboard: el.matches(':focus-visible'), intersecting: entry.isIntersecting, ratio: entry.intersectionRatio, open: !!tooltip?.open };
+    });
+    expect(touching).toEqual({ keyboard: true, intersecting: true, ratio: 0, open: false });
+    // Part of it comes into view: its tooltip opens.
+    await page.evaluate(() => window.scrollBy({ top: 12, behavior: 'instant' }));
+    await expect.poll(() => tip.evaluate((el: any) => el.open)).toBe(true);
+  });
+
   test('NVD-76: an open group that is loading draws a loading row under its items, one step further in, named by loadingLabel, taking no focus; its list is busy', async ({ page }) => {
     await mount(page, [F('group-loading')], { reducedMotion: true });
     const archive = group(page, 'group-loading', 0);
