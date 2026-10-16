@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { atRatio, shoot, stageBehind } from '../../../test/one-shape.js';
+import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { readSeam } from '../../../test/seam.js';
@@ -393,6 +394,11 @@ test.describe('behavior', () => {
       expect(record.seen, half).toEqual(['overlay', '0s']);
       expect(record.off - record.down, half).toBeGreaterThanOrEqual(hold - 1);
     }
+  });
+
+  test('SPB-9: the trailing half pressed by Space stays pressed while the key is down, though the pointer resting over it leaves; the keyup ends it', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true });
+    await expectKeyPressOutlastsPointer(page, { control: trailing(page, 'filled-medium') });
   });
 
   test('SPB-10: overlay (default), ripple (m3-like), dim (cupertino) and none each answer a press on a half; an unknown name is the first', async ({ page }) => {

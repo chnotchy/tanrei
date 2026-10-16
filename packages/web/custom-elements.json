@@ -41164,7 +41164,7 @@
               },
               "privacy": "private",
               "readonly": true,
-              "default": "[ ['error', this.onPicture], ['load', this.onPicture], [ 'pointerdown', (event) => { const anchor = this.own(event); if (!anchor?.hasAttribute('href')) return; this.pressed = anchor; this.press.onPointerDown(event as PointerEvent); }, ], ['pointerup', this.release], ['pointercancel', this.release], // (It does not bubble, and is heard here for every part: the press ends when the pointer leaves the anchor itself.) ['pointerleave', (event) => event.target === this.pressed && this.release()], ['dragstart', this.release], [ 'keydown', (event) => { const anchor = this.own(event); if (!anchor?.hasAttribute('href') || event.target !== anchor) return; this.pressed = anchor; this.press.onKeyDown(event as KeyboardEvent); }, ], ['keyup', (event) => this.press.onKeyUp(event as KeyboardEvent)], [ 'focusin', (event) => { const anchor = this.own(event); // LKC-20: sys.behavior.focus-style, read when focus arrives, where the browser has no style queries. if (anchor) syncFocusStyle(this, anchor); }, ], ['focusout', () => this.press.onBlur()], ]",
+              "default": "[ ['error', this.onPicture], ['load', this.onPicture], [ 'pointerdown', (event) => { const anchor = this.own(event); if (!anchor?.hasAttribute('href')) return; this.pressed = anchor; this.press.onPointerDown(event as PointerEvent); }, ], ['pointerup', this.release], ['pointercancel', this.release], // (It does not bubble, and is heard here for every part: the press ends when the pointer leaves the anchor itself.) ['pointerleave', (event) => event.target === this.pressed && this.release(event)], ['dragstart', this.release], [ 'keydown', (event) => { const anchor = this.own(event); if (!anchor?.hasAttribute('href') || event.target !== anchor) return; this.pressed = anchor; this.press.onKeyDown(event as KeyboardEvent); }, ], ['keyup', (event) => this.press.onKeyUp(event as KeyboardEvent)], [ 'focusin', (event) => { const anchor = this.own(event); // LKC-20: sys.behavior.focus-style, read when focus arrives, where the browser has no style queries. if (anchor) syncFocusStyle(this, anchor); }, ], ['focusout', () => this.press.onBlur()], ]",
               "description": "Listened for on the element, on the way down: the anchor and its parts are the document's, and get no listener of their own."
             }
           ],
@@ -78825,6 +78825,14 @@
               "kind": "method",
               "name": "onPointerLeave",
               "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                }
+              ],
               "description": "SWT-19: the switch stays pressed for as long as a drag lasts, wherever the captured pointer goes."
             }
           ],
@@ -81784,7 +81792,16 @@
             {
               "kind": "method",
               "name": "releaseRow",
-              "privacy": "private"
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "optional": true,
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ]
             },
             {
               "kind": "field",

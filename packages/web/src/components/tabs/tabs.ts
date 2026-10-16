@@ -6,6 +6,7 @@ import {
   GlyphMirrorController,
   OpenAxesController,
   PressController,
+  type PressedBy,
   RovingKeys,
   SHEET_FLING_VELOCITY,
   type SharedChoice,
@@ -365,9 +366,9 @@ export class TanreiTab extends LitElement {
     this.renderRoot?.querySelector('.tab')?.toggleAttribute('data-still', on);
   }
 
-  /** @internal TAB-28: the drag was taken, so the press on this tab ends as any press does (TAB-8). */
-  releasePress() {
-    this.press.release();
+  /** @internal TAB-28: the drag was taken, so the pointer's press on this tab ends as any press by the pointer does (TAB-8). */
+  releasePress(by?: Event | PressedBy) {
+    this.press.release(by);
   }
 
   /**
@@ -1917,7 +1918,7 @@ export class TanreiTabs extends LitElement {
     }
     // The press activates no tab when it ends, and the tab under it leaves its pressed state as when a press ends.
     this.swallowClick = true;
-    drag.pressed?.releasePress();
+    drag.pressed?.releasePress(event);
     // From where the indicator is drawn — a running slide stops there — to the pointer, over the state motion.
     const from = this.mark;
     this.stopSliding();

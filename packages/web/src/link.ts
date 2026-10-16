@@ -516,8 +516,8 @@ export function observeLinks(root: Document | ShadowRoot = document): () => void
   if (typeof MutationObserver === 'undefined') return () => {};
   running?.();
   let held: { anchor: HTMLAnchorElement; press: PressController } | null = null;
-  const release = () => {
-    held?.press.release();
+  const release = (event?: Event) => {
+    held?.press.release(event);
     held = null;
   };
   const onPointerDown = (event: Event) => {
@@ -532,7 +532,7 @@ export function observeLinks(root: Document | ShadowRoot = document): () => void
   // `pointerleave` does not reach the document: the press ends when the pointer goes out of the anchor it holds.
   const onPointerOut = (event: Event) => {
     const to = (event as PointerEvent).relatedTarget;
-    if (held && !(to instanceof Node && held.anchor.contains(to))) release();
+    if (held && !(to instanceof Node && held.anchor.contains(to))) release(event);
   };
   const onKeyDown = (event: Event) => {
     const anchor = linkOf(event.target);

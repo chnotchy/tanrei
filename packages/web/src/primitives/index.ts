@@ -144,7 +144,7 @@ export { isDisabledControl, takeFormDisabled } from './form-disabled.js';
 export { type DisabledHost, FocusedStop, disabledWaitsWhileFocused, endsWaiting, waitsWhileFocused } from './disabled-while-focused.js';
 export { focusedAtFirst, wantsAutofocus } from './autofocus.js';
 export { type FocusRingOptions, type FocusSelector, focusGlow, focusGlowEnds, focusRing, syncFocusStyle } from './focus-ring.js';
-export { PressController, type PressOptions, pressHold } from './press.js';
+export { PressController, type PressOptions, type PressedBy, pressHold } from './press.js';
 export { type Point, type RippleTokens, fadeRipple, rippleStyles, startRipple } from './ripple.js';
 export { type StatePaints, type StateSelector, stateRules } from './states.js';
 export { arcStyles } from './arc.js';
