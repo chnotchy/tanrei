@@ -8,6 +8,7 @@ import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, res
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { anchorOf as linkAnchor, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, painted, settledPaint } from '../../../test/links.js';
 import { decodePng } from '../../../test/png.js';
+import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('card');
 type P = Page;
@@ -464,21 +465,21 @@ test.describe('press, feedback, corners and focus style', () => {
   const pressLog = (page: P) => page.evaluate(() => (window as any).press as { down?: number; on?: number; off?: number; up?: number; seen?: string[] });
 
   test('CRD-8: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
-    expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(100);
-    const hold = 1000;
+    const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+    expect(hold).toBe(100);
     const id = 'outlined-interactive';
     for (const [name, activate] of [
       ['Enter', () => page.keyboard.press('Enter')],
       ['Space', () => page.keyboard.press('Space')],
-      ['click', () => host(page, id).click()],
+      ['click', () => clickCentre(page, host(page, id))],
     ] as const) {
       await mountFixtures(page, spec);
-      await override(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
       await host(page, id).focus();
       await expect.poll(() => css(inner(page, id), 'background-color')).toBe(await resolveColor(page, T('outlined-focused-container-color')));
       await watchPress(page, id);
-      await activate();
-      await expect.poll(async () => (await pressLog(page)).off, name).toBeDefined();
+      // The press and the hold on the page's clock, held still: the press is over in no page time at all, so it is the
+      // short one at the system's own hold, however long the driver takes to send the release.
+      await heldPress(page, hold, activate, async () => (await pressLog(page)).off !== undefined, name);
       const log = await pressLog(page);
       expect(log.seen, name).toEqual(['overlay', '0s', await resolveColor(page, T('outlined-pressed-container-color'))]);
       expect(log.up! - log.on!, `${name}: the press itself was shorter than press-hold`).toBeLessThan(hold);

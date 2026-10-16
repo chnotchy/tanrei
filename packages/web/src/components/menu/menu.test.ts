@@ -10,6 +10,7 @@ import { type Fixture, type FixtureItem, acmeSystemCss, iconFaceArrives, loadSpe
 import { MIRRORED, anchorOf, expectDrawnAlike, expectNewContext, expectRefusals, markOf } from '../../../test/links.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
+import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('menu');
 type P = Page;
@@ -1244,17 +1245,16 @@ test.describe('press, feedback, corners and focus style', () => {
   const pressed = (page: P, id: string, n: number) => row(page, id, n).getAttribute('data-pressed');
 
   test('MNU-15: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
-    expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(100);
-    const hold = 1000;
+    const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+    expect(hold).toBe(100);
     for (const [name, activate] of [
       ['Enter', () => page.keyboard.press('Enter')],
       ['Space', () => page.keyboard.press('Space')],
-      ['click', () => row(page, 'checkbox-unchecked', 1).click()],
+      ['click', () => clickCentre(page, row(page, 'checkbox-unchecked', 1))],
     ] as const) {
-      // The one fixture the press is made in: a token overridden on the root restyles the whole document, and WebKit
-      // takes about 3.5 ms an element for that (5 s for the 34 fixtures, three times here, near the test's timeout).
+      // The one fixture the press is made in, mounted afresh for each press (a press checks the item): the 34 fixtures,
+      // three times, take seconds to mount in WebKit.
       await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === 'checkbox-unchecked') });
-      await override(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
       await item(page, 'checkbox-unchecked', 1).focus();
       await row(page, 'checkbox-unchecked', 1).evaluate((el) => {
         const log: { down?: number; on?: number; off?: number; up?: number } = ((window as any).press = {});
@@ -1265,8 +1265,9 @@ test.describe('press, feedback, corners and focus style', () => {
         for (const type of ['pointerup', 'keyup']) window.addEventListener(type, () => (log.up ??= performance.now()), true);
         for (const type of ['pointerdown', 'keydown']) window.addEventListener(type, () => (log.down ??= performance.now()), true);
       });
-      await activate();
-      await expect.poll(() => page.evaluate(() => (window as any).press.off), name).toBeDefined();
+      // The press and the hold on the page's clock, held still: the press is over in no page time at all, so it is the
+      // short one at the system's own hold, however long the driver takes to send the release.
+      await heldPress(page, hold, activate, async () => (await page.evaluate(() => (window as any).press.off)) !== undefined, name);
       const log = await page.evaluate(() => (window as any).press);
       expect(log.up - log.on, name).toBeLessThan(hold);
       expect(log.off - log.down, name).toBeGreaterThanOrEqual(hold - 1);
