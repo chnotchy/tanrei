@@ -10,6 +10,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { acmeSystemCss, fixtureHost, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { fixturePicture } from '../../../test/pictures.js';
+import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -91,6 +92,8 @@ const settled = (target: Locator) =>
     await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
     for (let frame = 0; frame < 2; frame++) await new Promise((resolve) => requestAnimationFrame(resolve));
   });
+/** Three frames of the page: by then the engine has announced every transition a change made before them. */
+const frames = (page: P) => page.evaluate(async () => { for (let frame = 0; frame < 3; frame++) await new Promise((resolve) => requestAnimationFrame(resolve)); });
 const near = (a: number[], b: number[], slack = 2) => a.length === b.length && a.every((v, i) => Math.abs(v - b[i]) <= slack);
 const setStage = (page: P, id: string, style: string) => stage(page, id).evaluate((el, s) => ((el as HTMLElement).style.cssText += s), style);
 const hoverless = (page: P) => page.mouse.move(0, 0);
@@ -1477,11 +1480,28 @@ test.describe('changes, and what a card may hold', () => {
     const link = anchor(page, 't');
     await tabTo(page, link);
     const node = await link.elementHandle();
-    await card(page, 't').evaluate(
-      (el, [picture, icon]) =>
-        Object.assign(el, { href: 'https://example.org/two', headline: 'Two', description: 'Second.', image: picture, imageAlt: 'A picture', siteName: 'Other', siteIcon: icon, target: 'new', targetLabel: 'opens in a new tab', external: 'on', externalLabel: 'external link', variant: 'filled' }),
+    // The card has keyboard focus: the colors are the focused ones of each look. Each one read below is a new color.
+    const filled = { fill: await token(page, 'filled-focused-container-color'), edge: await token(page, 'filled-focused-outline-color') };
+    const outlined = { fill: await token(page, 'outlined-focused-container-color'), edge: await token(page, 'outlined-focused-outline-color') };
+    expect(filled.fill).not.toEqual(outlined.fill);
+    expect(filled.edge).not.toEqual(outlined.edge);
+    await watchTransitions(card(page, 't'));
+    const drawnNow = await card(page, 't').evaluate(
+      async (el, [picture, icon]) => {
+        Object.assign(el, { href: 'https://example.org/two', headline: 'Two', description: 'Second.', image: picture, imageAlt: 'A picture', siteName: 'Other', siteIcon: icon, target: 'new', targetLabel: 'opens in a new tab', external: 'on', externalLabel: 'external link', variant: 'filled' });
+        await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+        // The fill and the edge as computed in the task of the change, before any frame: a color the change moved would
+        // read as the old one.
+        const a = el.querySelector(':scope > a')!;
+        return { fill: getComputedStyle(a).backgroundColor, edge: getComputedStyle(a, '::before').borderTopColor };
+      },
       [PICTURE, ICON] as const,
     );
+    // At once: the new look is what the card draws in the task that changed it, before any frame, and no transition
+    // starts — by the next frames the engine has announced every transition the change made (none).
+    expect({ fill: await painted(page, drawnNow.fill), edge: await painted(page, drawnNow.edge) }).toEqual(filled);
+    await frames(page);
+    expect(await transitionsRun(card(page, 't'))).toEqual([]);
     await expect(link).toHaveAttribute('href', 'https://example.org/two');
     await expect(part(page, 't', 'title')).toHaveText('Two');
     await expect(part(page, 't', 'description')).toHaveText('Second.');
@@ -1492,14 +1512,6 @@ test.describe('changes, and what a card may hold', () => {
     await expect(link).toHaveAttribute('target', '_blank');
     await expect(part(page, 't', 'words')).toHaveText('opens in a new tab');
     await expect(card(page, 't')).toHaveAttribute('variant', 'filled');
-    // The new look's fill, waited for: the change of look starts a transition of the fill, which reads as the old fill
-    // until the second frame after the change, and a loaded runner can ask before it.
-    // TODO: a change of variant fades the fill and the edge over motion.state-duration, where this behaviour asks for
-    // no motion. Once the look changes at once, read the fill without waiting and count that no transition runs.
-    // (The card has keyboard focus: the fill is the focused one of the look.)
-    const filled = await token(page, 'filled-focused-container-color');
-    for (const before of ['outlined-container-color', 'outlined-focused-container-color']) expect(filled, before).not.toEqual(await token(page, before));
-    await expect.poll(() => drawn(link, 'background-color')).toEqual(filled);
     await expect.poll(() => part(page, 't', 'media').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
     await expect(link).toHaveAccessibleName('Two');
     await expect(link).toHaveAccessibleDescription('Second. A picture Other example.org opens in a new tab');
@@ -1508,11 +1520,27 @@ test.describe('changes, and what a card may hold', () => {
     expect(await card(page, 't').evaluate((el) => [...el.querySelectorAll('[data-part]')].map((p) => p.getAttribute('data-part')))).toEqual(['body', 'title', 'description', 'image-alt', 'site', 'site-icon', 'site-name', 'address', 'host', 'words', 'media']);
     // Not announced: no live region, no alert.
     expect(await card(page, 't').evaluate((el) => el.querySelectorAll('[aria-live], [role="alert"], [role="status"]').length + (el.hasAttribute('aria-live') ? 1 : 0))).toBe(0);
-    // Back again: the parts go, and leave nothing.
-    await card(page, 't').evaluate((el) => Object.assign(el, { description: '', image: '', imageAlt: '', siteName: '', siteIcon: '', target: 'same', external: 'off', variant: 'outlined' }));
+    // Back again: the parts go, and leave nothing; the first look is drawn at once too.
+    await watchTransitions(card(page, 't'));
+    const backNow = await card(page, 't').evaluate(async (el) => {
+      Object.assign(el, { description: '', image: '', imageAlt: '', siteName: '', siteIcon: '', target: 'same', external: 'off', variant: 'outlined' });
+      await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+      // (Read in the task of the change, before any frame.)
+      const a = el.querySelector(':scope > a')!;
+      return { fill: getComputedStyle(a).backgroundColor, edge: getComputedStyle(a, '::before').borderTopColor };
+    });
+    expect({ fill: await painted(page, backNow.fill), edge: await painted(page, backNow.edge) }).toEqual(outlined);
+    await frames(page);
+    expect(await transitionsRun(card(page, 't'))).toEqual([]);
     for (const name of ['description', 'media', 'image-alt', 'site-name', 'site-icon', 'words']) await expect(part(page, 't', name), name).toHaveCount(0);
     await expect(link).not.toHaveAttribute('target');
     await expect(link).toBeFocused();
+    // A change of state still moves (LKC-28): the focus leaving fades the fill and the edge over motion.state-duration.
+    const duration = await resolveToken(page, T('motion-state-duration'), 'duration');
+    expect(await token(page, 'outlined-container-color')).not.toEqual(outlined.fill);
+    await watchTransitions(card(page, 't'));
+    await link.evaluate((el) => (el as HTMLElement).blur());
+    await expect.poll(() => transitionsRun(card(page, 't'))).toContainEqual(expect.objectContaining({ property: 'background-color', on: 'a', pseudo: '', duration }));
     // The product's own anchor: a change of its markup is read again, and an attribute given is written over its part.
     await mount(page, built(`href="${HREF}" data-external="false"`, '<span data-part="title" dir="auto">Written</span><span data-part="site"><span data-part="address"><bdi data-part="host" dir="ltr">example.com</bdi></span></span>'));
     await part(page, 't', 'title').evaluate((el) => (el.textContent = 'Rewritten'));
@@ -1522,6 +1550,41 @@ test.describe('changes, and what a card may hold', () => {
     await card(page, 't').evaluate((el) => el.setAttribute('description', 'Added.'));
     await expect(part(page, 't', 'description')).toHaveText('Added.');
     expect(await card(page, 't').evaluate((el) => [...el.querySelectorAll('[data-part="body"] > [data-part]')].map((p) => p.getAttribute('data-part')))).toEqual(['title', 'description', 'site']);
+  });
+
+  test('LKC-34 a card that is no link and is given a destination is drawn as a card at once, without a motion — by its href or by the product’s own anchor', async ({ page }) => {
+    await mount(page, '<tanrei-link-card headline="One" external="off"></tanrei-link-card>');
+    await hoverless(page);
+    const rest = { fill: await token(page, 'outlined-container-color'), edge: await token(page, 'outlined-outline-color') };
+    // No link: no fill. Given an href, the card's fill is what it draws in the task that gave it, and nothing moves.
+    expect(await drawn(anchor(page, 't'), 'background-color')).not.toEqual(rest.fill);
+    await watchTransitions(card(page, 't'));
+    const given = await card(page, 't').evaluate(async (el, href) => {
+      (el as HTMLElement & { href: string }).href = href;
+      await (el as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+      // (Read in the task of the change, before any frame.)
+      const a = el.querySelector(':scope > a')!;
+      return { fill: getComputedStyle(a).backgroundColor, edge: getComputedStyle(a, '::before').borderTopColor };
+    }, HREF);
+    expect({ fill: await painted(page, given.fill), edge: await painted(page, given.edge) }).toEqual(rest);
+    await frames(page);
+    expect(await transitionsRun(card(page, 't'))).toEqual([]);
+    // The product's own anchor, given its address in the document: the same, once the element has read the change.
+    await mount(page, built('data-external="false"', '<span data-part="title" dir="auto">Written</span>'));
+    await hoverless(page);
+    expect(await drawn(anchor(page, 't'), 'background-color')).not.toEqual(rest.fill);
+    await watchTransitions(card(page, 't'));
+    const written = await card(page, 't').evaluate(async (el, href) => {
+      el.querySelector(':scope > a')!.setAttribute('href', href);
+      // (The element hears the change in a microtask of this task.)
+      await Promise.resolve();
+      // (Read in the task of the change, before any frame.)
+      const a = el.querySelector(':scope > a')!;
+      return { fill: getComputedStyle(a).backgroundColor, edge: getComputedStyle(a, '::before').borderTopColor };
+    }, HREF);
+    expect({ fill: await painted(page, written.fill), edge: await painted(page, written.edge) }).toEqual(rest);
+    await frames(page);
+    expect(await transitionsRun(card(page, 't'))).toEqual([]);
   });
 
   test('LKC-35 the card holds no interactive element and offers no place to put one: it has no slot and no property that takes markup, and one found inside the product’s own markup is reported and made inert, so the card stays one link', async ({ page }) => {
