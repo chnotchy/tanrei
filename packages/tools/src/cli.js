@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { GENERATED_MANIFEST, checkParity, generatedFilesOnDisk, validateAvailability, validatePackages, validateSpecs } from './checks.js';
 import { CONFIG, PLATFORMS, REPO_ROOT } from './conventions.js';
-import { keepFiles } from './keep.js';
+import { GENERATORS, regenerate } from './drift.js';
 import { checkRetiredTerms, checkWorkMarkers } from './scans.js';
 import { buildStatus, levelLine, listingLine, statusFiles, writeStatus } from './status.js';
 
@@ -64,33 +64,22 @@ function drift() {
     })
     .map(([rel]) => `${rel} is out of date`);
 
-  // Every generator in the repo, in dependency order. Each entry: [cwd, command, args, outputs].
-  // As the `generate` script of packages/web: what the analyzer reads and where it writes is its configuration's
-  // (packages/web/custom-elements-manifest.config.mjs), written once.
-  const cem = ['packages/web', 'node_modules/.bin/cem', ['analyze'], ['packages/web/custom-elements.json']];
-  const generators = [
-    ['.', 'node', ['packages/tokens-build/src/cli.js', 'generate'], null],
-    cem,
-    ['packages/react', 'node', ['scripts/generate.js'], ['packages/react/src/generated/components.ts']],
-  ];
-  const tracked = () => [...generatedFilesOnDisk(), ...generators.flatMap((g) => g[3] ?? [])];
-  const before = new Map(tracked().map((rel) => [rel, safeRead(rel)]));
-  // The list of generated files is itself generated: it is kept with them.
-  const kept = checkOnly ? keepFiles(REPO_ROOT, [...before.keys(), GENERATED_MANIFEST]) : null;
-  for (const [cwd, bin, args] of generators) {
-    const run = spawnSync(bin, args, { cwd: path.join(REPO_ROOT, cwd), encoding: 'utf8' });
-    if (run.status !== 0) {
-      console.error(`generator failed: ${bin} ${args.join(' ')}\n${run.stdout}${run.stderr}`);
-      kept?.restore(tracked());
-      return false;
-    }
+  // Every generator in the repo, and what each writes (drift.js): the files of the generated manifest and each
+  // generator's outputs, a directory it owns as every file under it. The manifest is itself generated: it is kept
+  // with them.
+  const run = regenerate(REPO_ROOT, GENERATORS, { checkOnly, listed: generatedFilesOnDisk, keep: [GENERATED_MANIFEST] });
+  if (run.failure) {
+    console.error(`generator failed: ${run.failure}`);
+    return false;
   }
-  for (const rel of tracked()) {
-    if (before.get(rel) !== safeRead(rel)) stale.push(`${rel} is stale or hand-edited (${checkOnly ? 'left as it was: --check' : 'now regenerated — review and commit'})`);
+  for (const rel of run.changed) {
+    if (run.removed.includes(rel)) stale.push(`${rel} should not exist: no generator writes it (${checkOnly ? 'left as it was: --check' : 'now removed — review and commit'})`);
+    else stale.push(`${rel} is stale or hand-edited (${checkOnly ? 'left as it was: --check' : 'now regenerated — review and commit'})`);
   }
-  kept?.restore(tracked());
   try {
-    const untracked = execFileSync('git', ['status', '--porcelain', '--', ...tracked(), 'docs/status'], { cwd: REPO_ROOT, encoding: 'utf8' });
+    // The owned directories are named whole, so a file in one that git does not know is reported too.
+    const owned = GENERATORS.flatMap((g) => g[3]).filter((output) => output.endsWith('/'));
+    const untracked = execFileSync('git', ['status', '--porcelain', '--', ...run.files, ...owned, 'docs/status'], { cwd: REPO_ROOT, encoding: 'utf8' });
     for (const line of untracked.split('\n').filter(Boolean)) stale.push(`uncommitted generated change: ${line.trim()}`);
   } catch {
     // Not a git checkout (e.g. a source tarball): the in-memory comparison above still ran.

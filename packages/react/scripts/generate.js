@@ -1,6 +1,7 @@
 // React wrappers are derived from @tanrei/web's custom elements manifest, so the
 // React API can never drift from the elements themselves.
 import fs from 'node:fs';
+import path from 'node:path';
 
 const manifest = JSON.parse(fs.readFileSync(new URL('../../web/custom-elements.json', import.meta.url), 'utf8'));
 const elements = manifest.modules
@@ -32,37 +33,39 @@ const marksOf = (el) => (el.attributes ?? []).filter((a) => !a.fieldName && !/^d
 const oneLine = (text) => (text ?? '').replace(/\s+/g, ' ').trim().replace(/\*\//g, '*\\/');
 /** The events a wrapper maps to listeners on the element: its custom events, and `click` where it must be direct. */
 const listened = (el) => [...customEvents(el), ...(DIRECT_CLICK.has(el.tagName) && !customEvents(el).some((e) => e.name === 'click') ? [{ name: 'click', direct: true }] : [])];
-const listens = elements.some((el) => listened(el).length);
-const marked = elements.some((el) => marksOf(el).length);
 
-const lines = [
-  '// GENERATED FILE — DO NOT EDIT.',
-  '// Source: packages/web/custom-elements.json. Regenerate with `pnpm generate`.',
-  listens ? "import { type EventName, createComponent } from '@lit/react';" : "import { createComponent } from '@lit/react';",
-  "import * as React from 'react';",
-  ...(listens ? ["import type { TanreiEvent } from '../events.js';"] : []),
-  ...(marked ? ["import { type Marked, withMarks } from '../marks.js';"] : []),
-];
-// A detail type several elements share (the navigation regions' `TanreiNavigationChangeDetail`) is imported once.
-const imported = new Set();
-for (const el of elements) {
-  const dir = el.module.replace(/^src\//, '').replace(/\/[^/]+\.ts$/, '').replace(/^components\//, '');
-  const details = [...new Set(customEvents(el).map(detailOf).filter(Boolean))].filter((d) => !imported.has(d)).map((d) => {
-    imported.add(d);
-    return `type ${d}`;
-  });
-  lines.push(`import { ${[`${el.name} as ${el.name}Element`, ...details].join(', ')} } from '@tanrei/web/components/${dir}';`);
-}
-lines.push('');
-for (const el of elements) {
-  const name = pascal(el.tagName.replace(/^tanrei-/, ''));
+// One module per wrapper (`src/generated/wrappers/<name>.ts`), and `src/generated/components.ts` re-exports them all.
+// A product imports what it uses from the package's one entry, and its bundler keeps only that: the package declares
+// itself free of side effects (package.json `sideEffects: false`), so a wrapper's module is left out, with its import of
+// the element's module, unless something it exports is used. Each element's module defines its element when it is
+// evaluated — a side effect `@tanrei/web` declares — so wrappers that shared one module would keep every element: that
+// module is used, and none of its imports could be dropped. Importing a wrapper still defines its element, and the
+// elements it is drawn with, because the wrapper's module imports the element's.
+// Every call made at load is marked pure as well, for a bundler that reads those marks and not the field.
+const HEADER = ['// GENERATED FILE — DO NOT EDIT.', '// Source: packages/web/custom-elements.json. Regenerate with `pnpm generate`.'];
+const PURE = '/* @__PURE__ */';
+const fileOf = (el) => el.tagName.replace(/^tanrei-/, '');
+const wrappers = elements.map((el) => {
+  const name = pascal(fileOf(el));
   const events = listened(el);
+  const marks = marksOf(el);
+  const slots = el.slots ?? [];
+  const dir = el.module.replace(/^src\//, '').replace(/\/[^/]+\.ts$/, '').replace(/^components\//, '');
+  const details = [...new Set(customEvents(el).map(detailOf).filter(Boolean))];
+  const lines = [
+    ...HEADER,
+    events.length ? "import { type EventName, createComponent } from '@lit/react';" : "import { createComponent } from '@lit/react';",
+    "import * as React from 'react';",
+    ...(events.length ? ["import type { TanreiEvent } from '../../events.js';"] : []),
+    ...(marks.length ? ["import { type Marked, withMarks } from '../../marks.js';"] : []),
+    // Importing the element's module defines the element, and the elements it is drawn with.
+    `import { ${[`${el.name} as ${el.name}Element`, ...details.map((d) => `type ${d}`)].join(', ')} } from '@tanrei/web/components/${dir}';`,
+    '',
+  ];
   // Every listener is on the element, so `currentTarget` is the element (`TanreiEvent`): a handler reads the new value
   // from it (`event.currentTarget.value`) whether or not the event carries a detail.
   const eventType = (e) => `EventName<TanreiEvent<${el.name}Element${e.direct ? ', MouseEvent' : detailOf(e) ? `, CustomEvent<${detailOf(e)}>` : ''}>>`;
   const map = events.map((e) => `    on${pascal(e.name)}: '${e.name}' as ${eventType(e)},`).join('\n');
-  const marks = marksOf(el);
-  const slots = el.slots ?? [];
   // What an editor shows for the wrapper: the element's first line, then what the prop types cannot say — which children
   // go where, and what each event prop is fired for.
   const doc = [
@@ -76,6 +79,7 @@ for (const el of elements) {
       `export interface ${name}Marks {`,
       ...marks.flatMap((a) => [`  /** ${oneLine(a.description)} */`, `  ${JSON.stringify(a.name).replace(/^"([A-Za-z_$][\w$]*)"$/, '$1')}?: ${a.type?.text ?? 'string'};`]),
       '}',
+      '',
     );
   }
   const booleans = marks.filter((a) => a.type?.text === 'boolean').map((a) => `'${a.name}'`).join(', ');
@@ -83,20 +87,46 @@ for (const el of elements) {
   // property returns the form) cannot be assigned as a prop: the wrapper writes it on the element as an attribute.
   const shadowed = marks.filter((a) => (el.members ?? []).some((m) => m.name === a.name)).map((a) => `'${a.name}'`).join(', ');
   const comment = ['/**', ...doc.map((line) => (line ? ` * ${line}` : ' *')), ' */'];
-  // With marks the wrapper is made in two steps, so that the exported type names the element's wrapper instead of
-  // spelling its props out (which a declaration file cannot do for an element with a symbol-keyed member).
+  // With marks the wrapper is made in steps, so that the exported type names the element's wrapper instead of spelling
+  // its props out (which a declaration file cannot do for an element with a symbol-keyed member), and so that each call
+  // carries its own pure mark.
   lines.push(
     ...(marks.length ? [] : comment),
-    `${marks.length ? `const ${name}Element` : `export const ${name}`} = createComponent({`,
+    `${marks.length ? `const ${name}Element` : `export const ${name}`} = ${PURE} createComponent({`,
     `  tagName: '${el.tagName}',`,
     `  elementClass: ${el.name}Element,`,
     '  react: React,',
     `  events: {${map ? `\n${map}\n  ` : ''}},`,
     '});',
-    ...(marks.length ? [...comment, `export const ${name}: Marked<typeof ${name}Element, ${name}Marks> = withMarks<${name}Marks>([${booleans}]${shadowed ? `, [${shadowed}]` : ''})(${name}Element);`] : []),
+    ...(marks.length
+      ? [
+          `const with${name}Marks = ${PURE} withMarks<${name}Marks>([${booleans}]${shadowed ? `, [${shadowed}]` : ''});`,
+          ...comment,
+          `export const ${name}: Marked<typeof ${name}Element, ${name}Marks> = ${PURE} with${name}Marks(${name}Element);`,
+        ]
+      : []),
     '',
   );
+  return { file: fileOf(el), name, marked: marks.length > 0, text: lines.join('\n') };
+});
+
+// The generator owns src/generated/ whole (the drift check reads it so): a file it does not write there — the wrapper
+// of an element that is gone — goes.
+const generated = new URL('../src/generated/', import.meta.url);
+const written = new Set(['components.ts', ...wrappers.map((w) => `wrappers/${w.file}.ts`)]);
+for (const file of fs.existsSync(generated) ? fs.readdirSync(generated, { recursive: true }) : []) {
+  const rel = String(file).split(path.sep).join('/');
+  if (!written.has(rel) && fs.statSync(new URL(rel, generated)).isFile()) fs.rmSync(new URL(rel, generated));
 }
-fs.mkdirSync(new URL('../src/generated/', import.meta.url), { recursive: true });
-fs.writeFileSync(new URL('../src/generated/components.ts', import.meta.url), lines.join('\n'));
-console.log(`✔ react: ${elements.length} wrapper(s)`);
+fs.mkdirSync(new URL('wrappers/', generated), { recursive: true });
+for (const w of wrappers) fs.writeFileSync(new URL(`wrappers/${w.file}.ts`, generated), w.text);
+fs.writeFileSync(
+  new URL('components.ts', generated),
+  [
+    ...HEADER,
+    '// Every wrapper, each from its own module (src/generated/wrappers/): a bundler keeps the ones a product uses.',
+    ...wrappers.map((w) => `export { ${[w.name, ...(w.marked ? [`type ${w.name}Marks`] : [])].join(', ')} } from './wrappers/${w.file}.js';`),
+    '',
+  ].join('\n'),
+);
+console.log(`✔ react: ${wrappers.length} wrapper(s)`);

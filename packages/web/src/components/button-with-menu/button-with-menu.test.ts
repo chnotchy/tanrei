@@ -1893,8 +1893,9 @@ test.describe('seams', () => {
 });
 
 test.describe('React wrappers', () => {
-  const generated = fs.readFileSync(new URL('../../../../react/src/generated/components.ts', import.meta.url), 'utf8');
-  const wrapper = (name: string) => generated.split('export const ').find((block) => block.startsWith(`${name} =`)) ?? '';
+  // Each wrapper is generated into a module of its own, named after its tag without the prefix (MenuItem: menu-item.ts).
+  const wrapper = (name: string) =>
+    fs.readFileSync(new URL(`../../../../react/src/generated/wrappers/${name.replace(/(?<!^)[A-Z]/g, (letter) => `-${letter}`).toLowerCase()}.ts`, import.meta.url), 'utf8');
 
   test('SPB-16: a MenuItem’s onClick inside a ButtonWithMenu fires (a listener on the item), ButtonWithMenu’s onClick does not fire for an item, and an ordinary Menu works as before', async ({ page }) => {
     // The map: the menu item kinds listen to click on the element; nothing else does. What is asserted is the entry of
