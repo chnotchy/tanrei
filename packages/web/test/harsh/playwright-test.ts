@@ -40,11 +40,20 @@ function gapAround(proto: Record<string, unknown>, names: readonly string[]) {
   }
 }
 
+let elementGapped = false;
+/** Contexts the test made with scripting off (`javaScriptEnabled: false`). */
+const unscripted = new WeakSet<BrowserContext>();
+
 async function gapActions(page: Page) {
   gapAround(Object.getPrototypeOf(page.mainFrame()), ACTIONS.frame);
   gapAround(Object.getPrototypeOf(page.mouse), ACTIONS.mouse);
   gapAround(Object.getPrototypeOf(page.keyboard), ACTIONS.keyboard);
   gapAround(Object.getPrototypeOf(page.touchscreen), ACTIONS.touchscreen);
+  // An element handle's class is reached through a handle, asked of a page once a worker — never of a page whose
+  // context has scripting off (a test that compares a page without its script): a handle asked there leaves that
+  // page's `waitForFunction` never polling again (the steps stylesheet's test waited for its fonts until it timed out).
+  if (elementGapped || unscripted.has(page.context())) return;
+  elementGapped = true;
   const element = await page.evaluateHandle(() => document.documentElement);
   gapAround(Object.getPrototypeOf(element), ACTIONS.element);
   await element.dispose();
@@ -97,10 +106,15 @@ export const test = base.extend<{ context: BrowserContext }, { browser: Browser 
   browser: [
     async ({ browser }, use) => {
       const newContext = browser.newContext.bind(browser);
-      browser.newContext = async (options) => slowContext(await newContext(options));
+      browser.newContext = async (options) => {
+        const context = await newContext(options);
+        if (options?.javaScriptEnabled === false) unscripted.add(context);
+        return slowContext(context);
+      };
       const newPage = browser.newPage.bind(browser);
       browser.newPage = async (options) => {
         const page = await newPage(options);
+        if (options?.javaScriptEnabled === false) unscripted.add(page.context());
         await slowDown(page);
         return page;
       };

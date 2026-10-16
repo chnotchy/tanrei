@@ -105,9 +105,13 @@ const toggles = async (page: P) => {
 const motions = (page: P) => page.evaluate(() => document.getAnimations().filter((a) => ['--_acc-open', 'rotate'].includes((a as CSSTransition).transitionProperty)).length);
 /**
  * No motion of any accordion is running: every one running now has ended, however slowly it runs (a poll of the count
- * gave up after a fixed five seconds, shorter than a slowed motion of a second).
+ * gave up after a fixed five seconds, shorter than a slowed motion of a second, and ACC-13 stretches the motion to 4 s);
+ * then none is counted, so a motion that began on the way is not missed either.
  */
-const settled = (page: P) => motionEnded(page);
+const settled = async (page: P) => {
+  await motionEnded(page);
+  await expect.poll(() => motions(page)).toBe(0);
+};
 const fixture = (id: string) => spec.fixtures.find((f) => f.id === id)!;
 const some = (...ids: string[]) => spec.fixtures.filter((f) => ids.includes(f.id));
 /** A fixture whose items are written by the test. */
@@ -697,10 +701,26 @@ test.describe('opening and closing', () => {
         };
         window.addEventListener('click', () => requestAnimationFrame(frame), { capture: true, once: true });
       }, turnBetween);
+    /**
+     * The change, once the page has watched it to its end. Waited for in the page, on the watch's own last frame: the end
+     * is the motion's, as long as the machine plays it (Chromium in harsh mode plays the 4 s at a fifth of its speed), and
+     * a poll with a time of its own would guess that length.
+     */
     const watched = async () => {
-      await expect.poll(() => page.evaluate(() => (window as unknown as { __watched: Watched }).__watched.done), { message: 'the change was watched to its end', timeout: 15_000 }).toBe(true);
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) => {
+            const seen = (window as unknown as { __watched: Watched }).__watched;
+            const look = () => (seen.done ? resolve() : requestAnimationFrame(look));
+            look();
+          }),
+      );
       return page.evaluate(() => (window as unknown as { __watched: Watched }).__watched);
     };
+    // The pointer is on the header first, and the item's hovered color has come in: a click that brings the pointer
+    // starts that state motion of the item too, still running when the toggle arrives if the click came within it.
+    await summary.hover();
+    await motionEnded(details);
     await watch();
     await summary.click();
     const opening = await watched();

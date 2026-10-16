@@ -6,8 +6,10 @@ import type { Page } from '@playwright/test';
 const installed = new WeakSet<Page>();
 
 /**
- * Holds the page's timers still (`setTimeout`, `setInterval`, `requestAnimationFrame`, `Date`, `performance.now()`)
- * until the test moves them on with `page.clock.runFor(ms)`, or lets them run again with `releaseClock`. CSS
+ * Holds the page's timers still (`setTimeout`, `setInterval`, `requestAnimationFrame`, `Date`, `performance.now()`, and
+ * an event's `timeStamp`, which Playwright's clock reads from the same fake time) until the test moves them on with
+ * `page.clock.runFor(ms)`, or lets them run again with `releaseClock`. So two inputs sent with no page time between them
+ * are 0 ms apart for a component that compares their times (a double press), however long the driver took. CSS
  * transitions and animations keep the document's own timeline. The page's time jumps one second ahead as it is held
  * (a held time may not lie in the past), so hold the clock before the delay under test starts, not during it.
  */

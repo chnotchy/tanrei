@@ -62,8 +62,13 @@ async function define(page: P) {
 
 /** The stirring animations of an element: what a browser runs for it, by CSS alone. */
 const animations = (target: Locator) =>
-  target.evaluate((el) =>
-    el.getAnimations().map((animation) => {
+  target.evaluate(async (el) => {
+    // An animation is given its start time when it begins, in the frame after the style that made it: until then it
+    // has none (\`startTime\` null) and a pulse's beginning cannot be compared. Read once each has begun, and after the
+    // turn in which the skeleton puts its placeholders in step (SKL-24, on the same \`ready\`).
+    await Promise.all(el.getAnimations().map((animation) => animation.ready.catch(() => undefined)));
+    await new Promise((resolve) => setTimeout(resolve));
+    return el.getAnimations().map((animation) => {
       const timing = animation.effect!.getComputedTiming();
       return {
         name: (animation as CSSAnimation).animationName,
@@ -78,8 +83,8 @@ const animations = (target: Locator) =>
         iterations: timing.iterations as number,
         properties: [...new Set((animation.effect as KeyframeEffect).getKeyframes().flatMap((frame) => Object.keys(frame).filter((key) => !['offset', 'easing', 'composite', 'computedOffset'].includes(key))))],
       };
-    }),
-  );
+    });
+  });
 
 /** What is painted of `target`: the runs of the fill down a column and along a row, in CSS pixels (the page is drawn at 2×). */
 async function painted(target: Locator, fill: string) {
@@ -440,25 +445,31 @@ test.describe('skeleton', () => {
   test('SKL-7 before any script the show delay is the stylesheet’s: the skeleton is hidden for the token’s time with its box kept, a page-written role is not exposed while it waits, and show-delay="0" is shown from the first frame', async ({ page, browserName }) => {
     await page.setContent(bare(`<main style="inline-size: 300px"><div id="place"></div></main>`));
     const delay = await token(page, 'motion-show-delay', 'duration');
-    const seen = await page.evaluate(async (wait) => {
+    const seen = await page.evaluate(() => {
       const place = document.getElementById('place')!;
       place.innerHTML = `<tanrei-skeleton id="waits" role="progressbar" aria-busy="true" aria-label="Loading the article"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
         <tanrei-skeleton id="at-once" show-delay="0"><span class="tanrei-skeleton-placeholder"></span></tanrei-skeleton>`;
       const [waits, atOnce] = [place.querySelector('#waits')!, place.querySelector('#at-once')!];
-      const at = performance.now();
       const first = { waits: getComputedStyle(waits).visibility, atOnce: getComputedStyle(atOnce).visibility, height: waits.getBoundingClientRect().height };
-      let shownAt = -1;
-      while (performance.now() - at < wait * 4 && shownAt < 0) {
-        await new Promise((resolve) => requestAnimationFrame(resolve));
-        if (getComputedStyle(waits).visibility === 'visible') shownAt = performance.now() - at;
-      }
-      return { first, shownAt, height: waits.getBoundingClientRect().height };
-    }, delay);
+      // The wait is the stylesheet's own animation, on the document's timeline: held where it stands, as it is made, and
+      // read at the last millisecond of its length and at its end — the token's time exactly, not a time measured on
+      // another clock while a machine draws its frames (and plays the motion at its own pace).
+      const wait = waits.getAnimations().find((animation) => (animation as CSSAnimation).animationName === 'tanrei-skeleton-wait');
+      if (!wait) return { first, wait: null, height: waits.getBoundingClientRect().height };
+      wait.pause();
+      const end = Number(wait.effect!.getComputedTiming().endTime);
+      wait.currentTime = end - 1;
+      const before = getComputedStyle(waits).visibility;
+      const heldHeight = waits.getBoundingClientRect().height;
+      wait.currentTime = end;
+      const after = getComputedStyle(waits).visibility;
+      wait.finish();
+      return { first, wait: { length: Math.round(end * 1000) / 1000, before, after, heldHeight }, height: waits.getBoundingClientRect().height };
+    });
     expect(seen.first).toEqual({ waits: 'hidden', atOnce: 'visible', height: seen.height });
     expect(seen.height).toBeGreaterThan(60);
-    // The token's time, as a browser's animation counts it (a frame late at most, more on a busy machine).
-    expect(seen.shownAt).toBeGreaterThanOrEqual(delay - 20);
-    expect(seen.shownAt).toBeLessThan(delay + 400);
+    // Hidden for the token's time with its box kept, and shown when it is over.
+    expect(seen.wait).toEqual({ length: delay, before: 'hidden', after: 'visible', heldHeight: seen.height });
     if (browserName === 'chromium') {
       // Exposed now that it is shown — and it was not while it was hidden: the same markup, held hidden, is absent.
       expect((await progressbars(page)).map((node) => node.name)).toEqual(['Loading the article']);

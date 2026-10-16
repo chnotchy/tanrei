@@ -11,6 +11,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
+import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { firstStrong, runDirection } from '../../styles/product-text.js';
 import { ZERO, canonical, clamp, decimalFromString, decimalOf, format, numberForm, numberOf, read as readText, round, stepped } from './number-text.js';
 
@@ -1221,6 +1222,9 @@ test.describe('behavior: the steppers, the unit and what the product sets', () =
     await focusInput(page, 'other');
     const [x, y] = await centre(stepper(page, 'one', 'up'));
     await page.mouse.move(x, y);
+    // The press lasts no page time: the clock is held from before it begins until it has ended, so however long the
+    // machine takes between the reads, the press is not held past motion.repeat-delay (NMI-27 is the held press).
+    await holdClock(page);
     await page.mouse.down();
     expect(await read(page, 'one'), 'stepped when the press began').toMatchObject({ value: 13, text: '13', focused: false });
     expect(await heard(page)).toEqual(['input 13']);
@@ -1228,6 +1232,7 @@ test.describe('behavior: the steppers, the unit and what the product sets', () =
     expect(await heard(page), 'change when the press ends').toEqual(['change 13']);
     expect(await read(page, 'one'), 'one step, not two').toMatchObject({ value: 13, focused: false });
     expect((await read(page, 'other')).focused, 'focus stayed where it was').toBe(true);
+    await releaseClock(page);
     // A focused input keeps its focus.
     await focusInput(page, 'one');
     await pressOn(stepper(page, 'one', 'down'));

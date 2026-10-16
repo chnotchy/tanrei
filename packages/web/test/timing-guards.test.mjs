@@ -137,7 +137,7 @@ export const RULES = {
       'src/components/fab-menu/fab-menu.test.ts': 1,
       'src/components/figure/figure.test.ts': 1,
       'src/components/file-item/file-item.test.ts': 1,
-      'src/components/image-preview/image-preview.test.ts': 19,
+      'src/components/image-preview/image-preview.test.ts': 14,
       'src/components/link-card/link-card.test.ts': 6,
       'src/components/list/list.test.ts': 4,
       'src/components/main-action-button/main-action-button.test.ts': 1,
