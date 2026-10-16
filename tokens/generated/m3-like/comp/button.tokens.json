@@ -4,7 +4,7 @@
       "button": {
         "$extensions": {
           "dev.tanrei.vocabulary": {
-            "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off.",
+            "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off, and some of them actions that delete or discard something, which a person should be able to tell apart before pressing.",
             "since": "0.1.0"
           },
           "dev.tanrei.states": {
@@ -37,7 +37,12 @@
               "selected.label.color": "color",
               "selected.icon.color": "color",
               "selected.outline.color": "color",
-              "selected.state-layer.color": "color"
+              "selected.state-layer.color": "color",
+              "destructive.container.color": "color",
+              "destructive.label.color": "color",
+              "destructive.icon.color": "color",
+              "destructive.outline.color": "color",
+              "destructive.state-layer.color": "color"
             },
             "perComponent": {
               "opacity": "number",
@@ -45,7 +50,7 @@
             }
           },
           "dev.tanrei.llm": {
-            "usage": "Everything a Button reads, and nothing else: size-dependent geometry (height, directional padding with and without an icon at either side, gap, and the narrow inset and the wide width of an icon-only button), its text style, its glyph sizes (beside a label, and alone), and for each variant (filled, tonal, elevated, outlined, text) the container / label / icon / outline colors and elevation of a plain button, of a toggle that is off (unselected.) and of a toggle that is on (selected.), in each state (resting, hovered, focused, pressed, disabled), plus per-state shape and opacity.",
+            "usage": "Everything a Button reads, and nothing else: size-dependent geometry (height, directional padding with and without an icon at either side, gap, and the narrow inset and the wide width of an icon-only button), its text style, its glyph sizes (beside a label, and alone), and for each variant (filled, tonal, elevated, outlined, text) the container / label / icon / outline colors and elevation of a plain button, of a toggle that is off (unselected.), of a toggle that is on (selected.) and of an action that deletes or discards (destructive.), in each state (resting, hovered, focused, pressed, disabled), plus per-state shape and opacity.",
             "rules": [
               "To restyle buttons in a product, change these tokens in a layer; never fork the component or add a variant.",
               "State tokens are valued by the design system's pattern rules (tanrei.comp.*.*.hovered.container.color …). Override one token, or replace the rule to change every component at once.",
@@ -55,7 +60,8 @@
               "An icon-only button is as wide as it is high by default, so container.shape draws a circle at corner.full and a rounded square at a smaller corner; its width prop sets the glyph between container.padding-inline-narrow, or draws container.width-wide, instead, for a tight row or a wider target. There is no token for the default width (it is the height) and none for the narrow one (it is the glyph and the inset twice).",
               "A toggle that is off must look quieter than one that is on; do not make unselected and selected the same.",
               "Each look's state-layer.color is the color hover, focus and press mix into its container; it aliases that look's label color.",
-              "padding-inline-start-with-icon and padding-inline-end-with-icon are the padding on the side an icon sits at; keep them a step tighter than the plain paddings, because a glyph carries empty space inside its box that a label does not."
+              "padding-inline-start-with-icon and padding-inline-end-with-icon are the padding on the side an icon sits at; keep them a step tighter than the plain paddings, because a glyph carries empty space inside its box that a label does not.",
+              "destructive. is the look of an action that deletes or discards something, in each variant: the error role at the variant's own emphasis (filled: error and on-error; tonal: error-container and on-error-container; elevated, outlined and text: the error color on the variant's own container, and an outlined button's edge in it too). Disabled, it looks like any disabled button of its variant. A toggle has no destructive look."
             ]
           },
           "dev.tanrei.axes": {
@@ -529,6 +535,37 @@
                 "$value": "{tanrei.comp.button.filled.selected.label.color}"
               }
             }
+          },
+          "destructive": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.sys.color.error}",
+                "$description": "A destructive filled button is filled with the error role: the strongest look, for the one action of a view that deletes or discards."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-error}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.filled.destructive.label.color}",
+                "$description": "The glyph of a destructive icon-only button: its label's color."
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": "{tanrei.comp.button.filled.outline.color}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.filled.destructive.label.color}",
+                "$description": "The color hover, focus and press mix into a destructive container: its label color."
+              }
+            }
           }
         },
         "tonal": {
@@ -664,6 +701,37 @@
             "state-layer": {
               "color": {
                 "$value": "{tanrei.comp.button.tonal.selected.label.color}"
+              }
+            }
+          },
+          "destructive": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.sys.color.error-container}",
+                "$description": "A destructive tonal button is filled with the error role's tonal container."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-error-container}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.tonal.destructive.label.color}",
+                "$description": "The glyph of a destructive icon-only button: its label's color."
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": "{tanrei.comp.button.tonal.outline.color}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.tonal.destructive.label.color}",
+                "$description": "The color hover, focus and press mix into a destructive container: its label color."
               }
             }
           }
@@ -806,6 +874,37 @@
                 "$value": "{tanrei.comp.button.elevated.selected.label.color}"
               }
             }
+          },
+          "destructive": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.comp.button.elevated.container.color}",
+                "$description": "A destructive elevated button keeps its variant's container; its label takes the error color."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.elevated.destructive.label.color}",
+                "$description": "The glyph of a destructive icon-only button: its label's color."
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": "{tanrei.comp.button.elevated.outline.color}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.elevated.destructive.label.color}",
+                "$description": "The color hover, focus and press mix into a destructive container: its label color."
+              }
+            }
           }
         },
         "outlined": {
@@ -946,6 +1045,38 @@
             "state-layer": {
               "color": {
                 "$value": "{tanrei.comp.button.outlined.selected.label.color}"
+              }
+            }
+          },
+          "destructive": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.comp.button.outlined.container.color}",
+                "$description": "A destructive outlined button keeps its variant's container (none); its label and its edge take the error color."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.outlined.destructive.label.color}",
+                "$description": "The glyph of a destructive icon-only button: its label's color."
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": "{tanrei.sys.color.error}",
+                "$description": "The edge of a destructive outlined button: the error color, as its label."
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.outlined.destructive.label.color}",
+                "$description": "The color hover, focus and press mix into a destructive container: its label color."
               }
             }
           }
@@ -1128,6 +1259,37 @@
             "state-layer": {
               "color": {
                 "$value": "{tanrei.comp.button.text.selected.label.color}"
+              }
+            }
+          },
+          "destructive": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.comp.button.text.container.color}",
+                "$description": "A destructive text button keeps its variant's container (none); its label takes the error color."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.text.destructive.label.color}",
+                "$description": "The glyph of a destructive icon-only button: its label's color."
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": "{tanrei.comp.button.text.outline.color}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.text.destructive.label.color}",
+                "$description": "The color hover, focus and press mix into a destructive container: its label color."
               }
             }
           }

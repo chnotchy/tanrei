@@ -6003,6 +6003,18 @@
             },
             {
               "kind": "field",
+              "name": "destructive",
+              "privacy": "public",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "An action that deletes or discards something a person may not get back (Delete, Discard, Remove member): the button\nkeeps its variant's emphasis and takes the error role's color in it (BTN-40) — filled in the error color, tonal in\nits tonal container, the label of an elevated, outlined or text button (and an outlined button's edge) in the error\ncolor. Disabled, it looks like any disabled button of its variant. It adds a color and nothing else: the label says\nwhat is destroyed (BTN-42). Ignored on a toggle, and reported in debug builds (BTN-41).",
+              "attribute": "destructive",
+              "reflects": true
+            },
+            {
+              "kind": "field",
               "name": "size",
               "privacy": "public",
               "type": {
@@ -6578,6 +6590,15 @@
               "default": "'filled'",
               "description": "Emphasis level. Use one filled button per view for the main action; an icon-only text button is the quiet icon\naction of a toolbar or a row. Default filled; a Button placed as a dialog's or a side sheet's action without a\n`variant` attribute takes the host's (DLG-20, SSH-17), and a side sheet's close button takes\n`comp.side-sheet.close-button.variant` (SSH-5).",
               "fieldName": "variant"
+            },
+            {
+              "name": "destructive",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "An action that deletes or discards something a person may not get back (Delete, Discard, Remove member): the button\nkeeps its variant's emphasis and takes the error role's color in it (BTN-40) — filled in the error color, tonal in\nits tonal container, the label of an elevated, outlined or text button (and an outlined button's edge) in the error\ncolor. Disabled, it looks like any disabled button of its variant. It adds a color and nothing else: the label says\nwhat is destroyed (BTN-42). Ignored on a toggle, and reported in debug builds (BTN-41).",
+              "fieldName": "destructive"
             },
             {
               "name": "size",

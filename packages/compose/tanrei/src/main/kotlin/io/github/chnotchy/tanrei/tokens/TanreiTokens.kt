@@ -1812,6 +1812,11 @@ public data class TanreiButtonVariantStateTokens(
     public val selectedIconColor: TanreiPaint,
     public val selectedOutlineColor: TanreiPaint,
     public val selectedStateLayerColor: TanreiPaint,
+    public val destructiveContainerColor: TanreiPaint,
+    public val destructiveLabelColor: TanreiPaint,
+    public val destructiveIconColor: TanreiPaint,
+    public val destructiveOutlineColor: TanreiPaint,
+    public val destructiveStateLayerColor: TanreiPaint,
 ) {
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(containerColor.roles())
@@ -1830,6 +1835,11 @@ public data class TanreiButtonVariantStateTokens(
         addAll(selectedIconColor.roles())
         addAll(selectedOutlineColor.roles())
         addAll(selectedStateLayerColor.roles())
+        addAll(destructiveContainerColor.roles())
+        addAll(destructiveLabelColor.roles())
+        addAll(destructiveIconColor.roles())
+        addAll(destructiveOutlineColor.roles())
+        addAll(destructiveStateLayerColor.roles())
     }
 }
 

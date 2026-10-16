@@ -2346,3 +2346,139 @@ test.describe('busy, reachable while disabled, full width', () => {
     expect(widths.full).toEqual(widths.plain);
   });
 });
+
+test.describe('destructive', () => {
+  type P = import('@playwright/test').Page;
+  const T = (name: string) => `--tanrei-comp-button-${name}`;
+  const VARIANTS = ['filled', 'tonal', 'elevated', 'outlined', 'text'] as const;
+  const inner = (page: P, id: string) => page.locator(button(id)).locator('[part="container"]');
+  const css = (page: P, id: string, property: string) => inner(page, id).evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
+  const look = (page: P, id: string) =>
+    inner(page, id).evaluate((el) => {
+      const s = getComputedStyle(el);
+      return { background: s.backgroundColor, color: s.color, shadow: s.boxShadow };
+    });
+  /** The layers of a box-shadow after the outline's ring: the elevation. */
+  const elevation = (value: string) => value.split(/,\s*(?![^(]*\))/).slice(1).join(', ');
+  const glyphColor = (page: P, id: string) => page.locator(button(id)).evaluate((el) => getComputedStyle(el.shadowRoot!.querySelector('.icon')!).color);
+
+  test('BTN-40: a destructive button renders from the destructive parts of its variant — the error role at the variant’s emphasis — with the elevation of its variant; an icon-only one draws its glyph in them', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true });
+    const [error, onError, errorContainer, onErrorContainer] = await Promise.all(['error', 'on-error', 'error-container', 'on-error-container'].map((role) => resolveColor(page, `--tanrei-sys-color-${role}`)));
+    for (const variant of VARIANTS) {
+      const id = `${variant}-destructive`;
+      const drawn = await look(page, id);
+      expect(drawn.background, id).toBe(await resolveColor(page, T(`${variant}-destructive-container-color`)));
+      expect(drawn.color, id).toBe(await resolveColor(page, T(`${variant}-destructive-label-color`)));
+      expect(drawn.shadow, id).toContain(await resolveColor(page, T(`${variant}-destructive-outline-color`)));
+      // The elevation is the variant's: the same layers after the outline as the plain button's.
+      expect(elevation(drawn.shadow), id).toBe(elevation(await css(page, `${variant}-medium`, 'box-shadow')));
+      // The variant without destructive draws its own parts, and the two are told apart.
+      const plain = await look(page, `${variant}-medium`);
+      expect([plain.background, plain.color], id).not.toEqual([drawn.background, drawn.color]);
+    }
+    // The default system's values: the error role at each emphasis.
+    expect((await look(page, 'filled-destructive')).background).toBe(error);
+    expect((await look(page, 'filled-destructive')).color).toBe(onError);
+    expect((await look(page, 'tonal-destructive')).background).toBe(errorContainer);
+    expect((await look(page, 'tonal-destructive')).color).toBe(onErrorContainer);
+    for (const variant of ['elevated', 'outlined', 'text'] as const) {
+      expect((await look(page, `${variant}-destructive`)).color, variant).toBe(error);
+      expect((await look(page, `${variant}-destructive`)).background, variant).toBe(await css(page, `${variant}-medium`, 'background-color'));
+    }
+    expect((await look(page, 'outlined-destructive')).shadow).toContain(error);
+    // A leading icon takes the label's color; an icon alone the destructive icon color.
+    expect(await glyphColor(page, 'filled-destructive-leading-icon')).toBe(onError);
+    expect(await glyphColor(page, 'text-icon-destructive')).toBe(await resolveColor(page, T('text-destructive-icon-color')));
+    expect(await glyphColor(page, 'text-icon-destructive')).toBe(error);
+  });
+
+  test('BTN-40, BTN-3: hovered, pressed and keyboard-focused, a destructive button renders from the destructive parts of that state', async ({ page }) => {
+    const target = page.locator(button('outlined-destructive'));
+    const bg = () => css(page, 'outlined-destructive', 'background-color');
+    const rest = await bg();
+    await target.hover();
+    await expect.poll(bg).toBe(await resolveColor(page, T('outlined-hovered-destructive-container-color')));
+    expect(await bg()).not.toBe(rest);
+    await page.mouse.down();
+    await expect.poll(bg).toBe(await resolveColor(page, T('outlined-pressed-destructive-container-color')));
+    await page.mouse.up();
+    await page.mouse.move(1, 1);
+    await page.locator('body').click({ position: { x: 1, y: 1 } });
+    await tabTo(page, target);
+    await expect.poll(bg).toBe(await resolveColor(page, T('outlined-focused-destructive-container-color')));
+    expect(await css(page, 'outlined-destructive', 'color')).toBe(await resolveColor(page, T('outlined-focused-destructive-label-color')));
+  });
+
+  test('BTN-40, BTN-6: disabled, a destructive button looks exactly like a disabled button of its variant', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      fixtures: [
+        ...spec.fixtures.filter((f) => ['filled-disabled', 'filled-destructive-disabled', 'outlined-destructive-disabled'].includes(f.id)),
+        { id: 'outlined-disabled', props: { variant: 'outlined', disabled: true }, content: 'Delete' },
+      ],
+    });
+    expect(await look(page, 'filled-destructive-disabled')).toEqual(await look(page, 'filled-disabled'));
+    expect(await look(page, 'outlined-destructive-disabled')).toEqual(await look(page, 'outlined-disabled'));
+    const outlined = await look(page, 'outlined-destructive-disabled');
+    expect(outlined.background).toBe(await resolveColor(page, T('outlined-disabled-container-color')));
+    expect(outlined.color).toBe(await resolveColor(page, T('outlined-disabled-label-color')));
+    expect(outlined.shadow).toContain(await resolveColor(page, T('outlined-disabled-outline-color')));
+  });
+
+  test('BTN-40: a link button, and a dialog’s action that takes the dialog’s variant, take destructive as any Button does', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      fixtures: [
+        { id: 'link', props: { variant: 'outlined', destructive: true, href: '/somewhere/' }, content: 'Delete' },
+        { id: 'plain', props: { variant: 'outlined', destructive: true }, content: 'Delete' },
+      ],
+    });
+    expect(await inner(page, 'link').evaluate((el) => el.tagName)).toBe('A');
+    expect(await look(page, 'link')).toEqual(await look(page, 'plain'));
+    // In a dialog an action without a variant takes the dialog's (DLG-20), and keeps its destructive.
+    const drawn = await page.evaluate(async () => {
+      await customElements.whenDefined('tanrei-dialog');
+      const dialog = document.createElement('tanrei-dialog') as HTMLElement & { open: boolean };
+      dialog.setAttribute('headline', 'Delete project?');
+      dialog.innerHTML = '<tanrei-button slot="actions" dismissive>Cancel</tanrei-button><tanrei-button slot="actions" confirming destructive>Delete</tanrei-button>';
+      document.body.appendChild(dialog);
+      dialog.open = true;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const [cancel, del] = [...dialog.querySelectorAll('tanrei-button')].map((b) => b.shadowRoot!.querySelector('button')!);
+      return { variant: del.dataset.hostVariant, cancel: getComputedStyle(cancel).backgroundColor, delete: getComputedStyle(del).backgroundColor, color: getComputedStyle(del).color };
+    });
+    expect(drawn.variant).toBe('tonal');
+    expect(drawn.cancel).toBe(await resolveColor(page, T('tonal-container-color')));
+    expect(drawn.delete).toBe(await resolveColor(page, T('tonal-destructive-container-color')));
+    expect(drawn.color).toBe(await resolveColor(page, T('tonal-destructive-label-color')));
+  });
+
+  test('BTN-41: a toggle ignores destructive — on and off it renders as the same toggle without it — and a debug build reports it once', async ({ page }) => {
+    const seen = warnings(page);
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: ['selected', 'unselected'].flatMap((state) => [
+        { id: `${state}-destructive`, props: { variant: 'tonal', toggle: true, selected: state === 'selected', destructive: true, label: 'Pin' }, slots: { icon: 'push_pin' } },
+        { id: state, props: { variant: 'tonal', toggle: true, selected: state === 'selected', label: 'Pin' }, slots: { icon: 'push_pin' } },
+      ]),
+    });
+    for (const state of ['selected', 'unselected']) expect(await look(page, `${state}-destructive`), state).toEqual(await look(page, state));
+    await expect.poll(() => seen.filter((w) => w.includes('(BTN-41)')).length).toBe(2);
+    // Switching it off and on again says nothing more: once per button.
+    await page.locator(button('selected-destructive')).click();
+    await page.locator(button('selected-destructive')).click();
+    expect(seen.filter((w) => w.includes('(BTN-41)')).length).toBe(2);
+  });
+
+  test('BTN-42: destructive adds a color and nothing else — the same role, name, states and description as the button without it', async ({ page }) => {
+    await mountFixtures(page, spec, {
+      fixtures: [
+        { id: 'destructive', props: { variant: 'filled', destructive: true }, content: 'Delete project' },
+        { id: 'plain', props: { variant: 'filled' }, content: 'Delete project' },
+      ],
+    });
+    const attributes = (id: string) => inner(page, id).evaluate((el) => el.getAttributeNames().filter((name) => name.startsWith('aria-') || name === 'role').map((name) => `${name}=${el.getAttribute(name)}`));
+    expect(await attributes('destructive')).toEqual(await attributes('plain'));
+    expect(await page.locator('[data-fixture="destructive"]').ariaSnapshot()).toBe(await page.locator('[data-fixture="plain"]').ariaSnapshot());
+    await expect(page.locator(button('destructive')).getByRole('button', { name: 'Delete project' })).toHaveCount(1);
+  });
+});

@@ -882,6 +882,14 @@
             "tanrei.comp.button.outlined.disabled.unselected.container.color": {
               "$value": "{tanrei.comp.button.outlined.unselected.container.color}"
             },
+            "tanrei.comp.button.outlined.disabled.destructive.container.color": {
+              "$value": "{tanrei.comp.button.outlined.disabled.container.color}",
+              "reason": "A disabled destructive outlined button looks like any disabled outlined button: it has no fill."
+            },
+            "tanrei.comp.button.text.disabled.destructive.container.color": {
+              "$value": "{tanrei.comp.button.text.disabled.container.color}",
+              "reason": "A disabled destructive text button looks like any disabled text button: it has no fill."
+            },
             "tanrei.comp.chip.outlined.disabled.container.color": {
               "$value": "{tanrei.comp.chip.outlined.container.color}"
             },
@@ -2119,6 +2127,11 @@
               "match": "tanrei.comp.button.*.disabled.*.outline.color",
               "$value": "{tanrei.comp.button.$1.$2.outline.color}",
               "reason": "A toggle's outline keeps its resting value when disabled: a look with no outline does not grow one."
+            },
+            {
+              "match": "tanrei.comp.button.*.disabled.destructive.outline.color",
+              "$value": "{tanrei.comp.button.$1.disabled.outline.color}",
+              "reason": "A disabled destructive button looks like any disabled button of its variant: an outlined one keeps the plain disabled edge, not the error color, since it cannot be pressed."
             },
             {
               "match": "tanrei.comp.main-action-button.*.hovered.container.elevation",
