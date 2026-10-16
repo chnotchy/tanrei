@@ -5,6 +5,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, pickerWindow, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 import { expectOneThumb, readThumb } from '../../../test/thumb.js';
 
 const spec = loadSpec('date-time-picker');
@@ -151,12 +152,10 @@ async function mount(page: P, fixtures: Fixture[], options: Parameters<typeof mo
   await mountFixtures(page, spec, { icons: true, fixtures, ...rest });
   await wire(page);
   // An open fixture grows in over the open motion: what is measured is the picker at rest.
-  await page.evaluate(async () => {
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    // The surface's own motion runs in the picker's shadow tree, which a document's list of animations leaves out in Firefox.
-    const inside = [...document.querySelectorAll('tanrei-date-time-picker')].flatMap((picker) => picker.shadowRoot?.getAnimations() ?? []);
-    await Promise.all([...document.getAnimations(), ...inside].map((a) => a.finished.catch(() => undefined)));
-  });
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  // The surface's own motion runs in the picker's shadow tree, which a document's list of animations leaves out in
+  // Chromium, Firefox and WebKit alike: every shadow root is asked for its own.
+  await motionEnded(page);
 }
 /** Opens a picker from its button by the keyboard (focus on the button, Enter), and waits for the open motion. */
 async function open(page: P, id: string) {
