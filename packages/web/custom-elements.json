@@ -23735,7 +23735,7 @@
               },
               "privacy": "private",
               "default": "false",
-              "description": "The key that is moving focus now is Tab: a list it closes says so (CMB-29)."
+              "description": "CMB-29: a Tab went down in the field and its focus move has not been seen yet: the focus-out that follows is that\nmove, and a list it closes says tab. It is taken by that focus-out, and given up when the key comes up without one\n(the move was cancelled) or another key goes down — never by a timer, which the browser may run after later\ntasks: a focus move made by the product after the Tab would be reported as the Tab's."
             },
             {
               "kind": "field",
@@ -24478,7 +24478,21 @@
                   }
                 }
               ],
-              "description": "The clear button's Tab leaves the combobox too."
+              "description": "CMB-29: every key that goes down in the field — the input's and the clear button's — says whether a Tab is moving focus."
+            },
+            {
+              "kind": "method",
+              "name": "onFieldKeyUp",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "CMB-29: a Tab that comes up in the field moved no focus out of it (something cancelled it): it is over."
             },
             {
               "kind": "method",
