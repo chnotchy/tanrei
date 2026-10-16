@@ -5,6 +5,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
+import { motionEnded } from '../../../test/motions.js';
 
 const spec = loadSpec('fab-menu');
 type P = Page;
@@ -953,6 +954,9 @@ test.describe('press, feedback, corners and focus style', () => {
     await page.mouse.move(b.x + 10, b.y + 8);
     const hovered = await resolveColor(page, T('filled-hovered-container-color'));
     await expect.poll(() => cssOf(toggle(page, 'filled-closed'), 'background-color')).toBe(hovered);
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(toggle(page, 'filled-closed'));
     await page.mouse.down();
     expect(await pressedAttr(toggle(page, 'filled-closed'))).toBe('ripple');
     const ripple = toggle(page, 'filled-closed').locator('.ripple');
@@ -1036,6 +1040,9 @@ test.describe('press, feedback, corners and focus style', () => {
     await override(page, { '--tanrei-sys-behavior-pressed-feedback': 'none' });
     await toggle(page, 'filled-closed').hover();
     await expect.poll(() => cssOf(toggle(page, 'filled-closed'), 'background-color')).toBe(await resolveColor(page, T('filled-hovered-container-color')));
+    // Pressed once the hovered color has ended its motion: the poll passes on its last frames, where the color reads
+    // as its end value and, a frame later, one channel a step of 1e-6 off it (Firefox).
+    await motionEnded(toggle(page, 'filled-closed'));
     const before = await cssOf(toggle(page, 'filled-closed'), 'background-color');
     await page.mouse.down();
     expect(await pressedAttr(toggle(page, 'filled-closed'))).toBe('none');
