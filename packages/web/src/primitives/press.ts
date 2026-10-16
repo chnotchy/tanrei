@@ -175,6 +175,10 @@ export class PressController implements ReactiveController {
  * The carrier of press-hold for `PressController`: a custom property holds an expression, a real property computes it
  * to seconds. With no transition-property it changes nothing about `selector` (an element inside the container that
  * is always rendered, e.g. the label).
+ *
+ * Nothing else may set the carrier's transition-delay, in any state: a rule that turns transitions off where it can
+ * reach the carrier names `transition-property: none`, never the `transition` shorthand, which resets the delay to 0s
+ * — and a press while that rule applies would then end with the key or the pointer, unheld.
  */
 export function pressHold(selector: string): CSSResult {
   return unsafeCSS(`
