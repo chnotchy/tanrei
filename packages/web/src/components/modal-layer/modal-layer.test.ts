@@ -277,7 +277,14 @@ test.describe('closing', () => {
   test('MDL-9: a popover opened from inside the container is above the layer and operable, and a press in it is not a press on the scrim', async ({ page }) => {
     await mount(page, [f('l', {}, { content: '<button id="anchor">Options</button><tanrei-popover anchor="anchor" label="Options"><button id="inside">Inside</button></tanrei-popover>' })]);
     await open(page, 'l');
-    await page.evaluate(() => ((document.querySelector('tanrei-popover') as any).open = true));
+    // The popover grows in from its anchor's edge over its open motion (POP-1), so a point measured while it grows lies
+    // elsewhere in the grown box: the press is aimed at #inside where it rests, once every motion in the popover is over.
+    // Opened and waited for in one task: reading the animations flushes the style that starts them.
+    await page.locator('tanrei-popover').evaluate(async (el: any) => {
+      el.open = true;
+      await el.updateComplete;
+      await Promise.all([...el.shadowRoot.querySelectorAll('*')].flatMap((part: Element) => part.getAnimations()).map((a: Animation) => a.finished));
+    });
     const inside = page.locator('#inside');
     await expect(inside).toBeVisible();
     const box = await bounds(inside);
