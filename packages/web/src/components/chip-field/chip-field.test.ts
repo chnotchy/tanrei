@@ -1292,13 +1292,13 @@ test.describe('behavior', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark', async ({ page }) => {
-    for (const theme of ['light', 'dark'] as const) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`no axe violations in ${theme}`, async ({ page }) => {
       await mountFixtures(page, spec, { theme, icons: true });
       const results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, theme).toEqual([]);
-    }
-  });
+    });
+  }
 
   test('every fixture is one text box named by its label, after one list of that name where it holds entries — each entry a button named by its whole text — and the element itself has no role and no name of its own', async ({ page }) => {
     await mountFixtures(page, spec, { icons: true });

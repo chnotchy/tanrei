@@ -1447,9 +1447,10 @@ test.describe('link form', () => {
     expect(await anchorOf(toggle)).toMatchObject({ tag: 'button', href: null, target: null, rel: null, pressed: 'true', description: null });
     await expect(toggle.getByRole('button', { pressed: true })).toHaveAccessibleName('Bold');
     expect(await markOf(toggle, '.mark')).toBeNull();
-    const changes = toggle.evaluate((el) => new Promise<boolean>((resolve) => el.addEventListener('change', (event) => resolve((event as CustomEvent).detail.selected), { once: true })));
+    // The listener is in place before the click is sent (an unawaited evaluate can miss an event that comes first).
+    await toggle.evaluate((el) => el.addEventListener('change', (event) => ((window as any).changedTo = (event as CustomEvent).detail.selected), { once: true }));
     await toggle.click();
-    expect(await changes).toBe(false);
+    await expect.poll(() => page.evaluate(() => (window as any).changedTo)).toBe(false);
     await expect.poll(() => seen.filter((w) => w.includes('(BTN-26)') && w.includes('a toggle cannot be a link')).length).toBe(1);
     // Space still activates what is a button.
     await toggle.focus();

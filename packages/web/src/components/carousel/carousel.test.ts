@@ -1225,18 +1225,62 @@ test.describe('behavior', () => {
   });
 
   test('CRL-14: a wheel scroll follows and then settles at the nearest resting position over the scroll motion; Shift turns a vertical wheel sideways', async ({ page }) => {
+    // Alone on the page: another carousel's motion (an autoplay advance) is timed the same way and would be caught too.
+    await mountFixtures(page, spec, { icons: true, fixtures: only('centered') });
     const id = 'centered';
     expect(await css(scroller(page, id), 'animation-duration')).toBe(`${(await resolveToken(page, T('motion-scroll-duration'), 'duration')) / 1000}s`);
     const box = await bounds(carousel(page, id));
     await page.mouse.move(200, box.y + 100);
-    await trace(page, id);
+    // The settle is held at its start and stepped through its duration by the test, so what it passes is read at fixed
+    // moments of the motion, not in whatever frames a busy machine draws: frames that come late see a 300 ms motion on
+    // this curve as one jump. Its timing is an animation without a target (the carousel writes the offset from it), so
+    // it is caught as it is played.
+    await scroller(page, id).evaluate(() => {
+      const w = window as any;
+      w.settles = [];
+      w.play = Animation.prototype.play;
+      Animation.prototype.play = function (this: Animation) {
+        w.play.call(this);
+        if (this.effect instanceof KeyframeEffect && this.effect.target === null) {
+          this.pause();
+          this.currentTime = 0;
+          w.settles.push(this);
+        }
+      };
+    });
     await page.mouse.wheel(60, 0);
-    await expect.poll(async () => (await traced(page)).length).toBeGreaterThan(0);
+    await expect.poll(() => offset(page, id)).toBeGreaterThanOrEqual(50);
+    // The wheel's own scroll is over (an engine may take it in steps, and a settle it overtakes gives way to it): the row
+    // stands where the wheel left it, the settle held at its start.
+    await atRest(page, id);
+    const from = await offset(page, id);
+    expect(from).toBeGreaterThanOrEqual(50);
+    const settle = await scroller(page, id).evaluate(async (el) => {
+      const w = window as any;
+      const frame = () => new Promise((r) => requestAnimationFrame(r));
+      Animation.prototype.play = w.play;
+      const timing = (w.settles as Animation[]).filter((a) => a.playState === 'paused').pop();
+      if (!timing) return null;
+      const duration = Number(timing.effect!.getComputedTiming().duration);
+      const passed: number[] = [];
+      for (let i = 1; i < 10; i++) {
+        timing.currentTime = (duration * i) / 10;
+        // The carousel writes the offset in its next frame; it is read in the one after.
+        await frame();
+        await frame();
+        passed.push(Math.abs(el.scrollLeft));
+      }
+      timing.finish();
+      return { duration, passed };
+    });
+    expect(settle, 'a settle began').not.toBeNull();
+    // Over the scroll motion's duration…
+    expect(settle!.duration).toBe(await resolveToken(page, T('motion-scroll-duration'), 'duration'));
+    // …it moves back through several moments of it, never away from where it is going, and comes to rest there.
+    const { passed } = settle!;
+    expect(passed.filter((o) => o > 0 && o < from).length, `${from} → ${passed}`).toBeGreaterThan(1);
+    expect(passed.every((o, i) => o <= (i === 0 ? from : passed[i - 1])), `${from} → ${passed}`).toBe(true);
     await expect.poll(() => offset(page, id)).toBe(0);
-    const passed = await traced(page);
-    expect(Math.max(...passed)).toBeGreaterThanOrEqual(50);
-    // It moved back over several frames: the settle is animated.
-    expect(settled(passed).filter((o) => o > 0 && o < 50).length, `${passed}`).toBeGreaterThan(1);
     // Each turn of the wheel finds the row at rest, and where a turn left it is read at rest. An engine may take a turn
     // over many frames (WebKit on Linux: ten or so, over 230 ms), so an offset read on the way is not where the row
     // settles — a turn of 300 from 208 passes 416 on its way to 508, before it settles back there.
