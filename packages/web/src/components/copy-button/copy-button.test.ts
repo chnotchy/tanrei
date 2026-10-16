@@ -6,7 +6,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
-import { holdClock } from '../../../test/page-clock.js';
+import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { holdTransitions, stepTransitions } from '../../../test/stepped-transitions.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('copy-button');
@@ -555,20 +556,25 @@ test.describe('copying', () => {
     expect((await box(native(page, 'labelled-long-confirmation'))).width - button.width).toBeCloseTo(rest.texts[1] - rest.texts[0], 0);
     const glyphAt = await box(glyph(page, id));
     // Copied: it widens through widths in between to the width of "Copied to the clipboard"; the height, the glyph and
-    // the start of the text stay where they were.
-    const samples = await host(page, id).evaluate(async (el, ms) => {
-      const root = el.shadowRoot!;
-      const button = root.querySelector('tanrei-button')!.shadowRoot!.querySelector('button')!;
-      (root.querySelector('tanrei-button') as HTMLElement).click();
-      const out: { width: number; height: number; glyph: number; start: number }[] = [];
-      const t0 = performance.now();
-      while (performance.now() - t0 < ms * 1.5 + 200) {
-        await new Promise(requestAnimationFrame);
-        const b = button.getBoundingClientRect();
-        out.push({ width: root.querySelector('.labels')!.getBoundingClientRect().width, height: b.height, glyph: root.querySelector('.glyph')!.getBoundingClientRect().left, start: root.querySelector('.labels .shown')!.getBoundingClientRect().left });
-      }
-      return out;
-    }, duration);
+    // the start of the text stay where they were. The width's motion is held at its start as the press begins it and
+    // read at tenths of its duration (`stepTransitions`): the same moments on any machine, however late it draws. The
+    // confirmation's duration runs on the page's clock, held still until the reduced motion below: a form that ended on
+    // the way would start a motion back to rest in the middle of the readings.
+    await holdClock(page);
+    /** A press that waits for no frame (a locator's click waits for two, and the held clock holds them). */
+    const activate = () => host(page, id).evaluate((el) => (el.shadowRoot!.querySelector('tanrei-button') as HTMLElement).click());
+    await holdTransitions(labels, ['inline-size', 'width']);
+    await activate();
+    const { held, moments, rest: copied } = await stepTransitions(labels, () =>
+      host(page, id).evaluate((el) => {
+        const root = el.shadowRoot!;
+        const b = root.querySelector('tanrei-button')!.shadowRoot!.querySelector('button')!.getBoundingClientRect();
+        return { width: root.querySelector('.labels')!.getBoundingClientRect().width, height: b.height, glyph: root.querySelector('.glyph')!.getBoundingClientRect().left, start: root.querySelector('.labels .shown')!.getBoundingClientRect().left };
+      }),
+    );
+    // One motion, of the label box's width, over the resize motion.
+    expect(held.map(({ on, duration }) => [on, duration])).toEqual([['span.labels', duration]]);
+    const samples = [...moments, copied];
     expect((await shows(page, id)).form).toBe('copied');
     expect(samples.some((s) => s.width > rest.texts[0] + 1 && s.width < rest.texts[1] - 1)).toBe(true);
     expect(samples.at(-1)!.width).toBeCloseTo(rest.texts[1], 1);
@@ -579,13 +585,14 @@ test.describe('copying', () => {
     expect(await css(host(page, id).locator('.labels .shown'), 'white-space')).toBe('nowrap');
     // Failed: the width follows "Could not copy".
     await answers(page, 'refuses');
-    await press(page, id);
+    await activate();
     await expect.poll(async () => (await shows(page, id)).form).toBe('failed');
     await expect.poll(async () => (await widths()).box).toBeCloseTo(rest.texts[2], 1);
     // New words for the form shown: the width follows them too.
     await host(page, id).evaluate((el) => ((el as unknown as { failedLabel: string }).failedLabel = 'No'));
     await expect.poll(async () => { const w = await widths(); return w.box - w.texts[2]; }).toBeCloseTo(0, 1);
     await host(page, id).evaluate((el) => ((el as unknown as { failedLabel: string }).failedLabel = 'Could not copy'));
+    await releaseClock(page);
 
     // Where motion is reduced, each width is reached at once.
     await page.emulateMedia({ reducedMotion: 'reduce' });
