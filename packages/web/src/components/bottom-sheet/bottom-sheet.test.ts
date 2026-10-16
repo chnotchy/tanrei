@@ -5,6 +5,7 @@ import { atRest } from '../../../test/at-rest.js';
 import { type Page, expect, test } from '@playwright/test';
 import { bounds, css, override, warnings } from '../../../test/destinations.js';
 import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 
 const spec = loadSpec('bottom-sheet');
 type P = Page;
@@ -472,8 +473,8 @@ test.describe('the drag handle', () => {
     expect(none.bg).toBe(none.hovered);
     expect((await press(undefined, 'sparkle')).pressed).toBe('overlay');
     // A keyboard press grows the ripple from the centre over feedback-duration; it fades over state-duration. The pointer
-    // the presses above left on the handle goes to the window's corner first: Enter raises the sheet, the handle moves
-    // out from under a pointer resting there, and the handle's pointerleave ends its press, even one by a key.
+    // the presses above left on the handle goes to the window's corner first, so that only the key presses the handle
+    // here (a pointer that Enter's rise leaves behind ends no press of the key's: the test after this one).
     await mount(page, [fx('s', {}, LONG)], { system: 'm3-like' });
     await page.mouse.move(0, 0);
     await tabTo(page, handle(page));
@@ -488,6 +489,22 @@ test.describe('the drag handle', () => {
     expect(layer.x).toBeCloseTo(0.5, 5);
     expect(layer.grow).toBe(await ms(page, T('motion-feedback-duration')));
     expect(layer.fade).toBe(await ms(page, T('motion-state-duration')));
+  });
+
+  test('BSH-17: Enter raises the sheet and moves the handle out from under the pointer resting on it; the handle stays pressed while the key is down, and the keyup ends it', async ({ page }) => {
+    await mount(page, [fx('s', {}, LONG)]);
+    const before = await top(page);
+    await expectKeyPressOutlastsPointer(page, {
+      control: handle(page),
+      key: 'Enter',
+      // The sheet rose to its full height: the handle is far above the pointer, which has not moved.
+      whileDown: async () => {
+        await expect.poll(() => top(page)).toBeCloseTo(await px(page, T('container-margin-block-start')), 0);
+        await still(page);
+        expect(before - (await top(page))).toBeGreaterThan((await bounds(handle(page))).height);
+      },
+      away: null,
+    });
   });
 
   test('BSH-18 corner smoothing and focus-style: cupertino eases the container’s top corners; acme shows the handle’s focus as a glow', async ({ page }) => {

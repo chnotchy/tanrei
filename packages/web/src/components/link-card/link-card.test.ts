@@ -10,6 +10,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { acmeSystemCss, fixtureHost, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
 import { drawnOpticalSize, opticalSize } from '../../../test/icons.js';
 import { fixturePicture } from '../../../test/pictures.js';
+import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -912,6 +913,13 @@ test.describe('states, focus and press', () => {
     await watchPress(link);
     await page.keyboard.press('Enter');
     await expectPressShownAndHeld(page, hold, 'Enter');
+  });
+
+  test('LKC-18 a press by Enter stays while the key is down, though the pointer resting over the card leaves it; the keyup ends it', async ({ page }) => {
+    await mountSpec(page, ['full']);
+    const link = anchor(page, 'full');
+    await link.evaluate((el) => el.addEventListener('click', (event) => event.preventDefault()));
+    await expectKeyPressOutlastsPointer(page, { control: link, key: 'Enter' });
   });
 
   test('LKC-19 a press is answered as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container, ripple grows a layer from the point of contact and keeps the container color, dim applies the pressed opacity and draws no layer, none draws nothing', async ({ page }) => {
