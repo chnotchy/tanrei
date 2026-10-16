@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
+import { motionEnded } from '../../../test/motions.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint, warnings } from '../../../test/links.js';
 
@@ -2010,6 +2011,8 @@ test.describe('in a form', () => {
       await Promise.resolve();
       await el.updateComplete;
     });
+    // Read where it rests: the change back to the disabled colors runs over the state motion.
+    await motionEnded(page.locator('#in-submit'));
     expect(await look('in-submit')).toEqual(disabled);
     // Disabled by the fieldset and first among the form's enabled submit buttons, it still stops Enter.
     await page.locator('#send').evaluate((el) => el.remove());
