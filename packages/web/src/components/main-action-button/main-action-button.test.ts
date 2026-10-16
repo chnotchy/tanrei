@@ -8,6 +8,8 @@ import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { decodePng } from '../../../test/png.js';
 import { opticalSize } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { holdTransitions, stepTransitions } from '../../../test/stepped-transitions.js';
 
 const spec = loadSpec('main-action-button');
 type P = Page;
@@ -399,25 +401,37 @@ test.describe('behavior', () => {
     expect((await style(box, 'transition-duration')).split(', ').map((d) => Number.parseFloat(d) * 1000)).toEqual([duration, duration]);
     expect(await style(box, 'transition-timing-function')).toBe(`${easing}, ${easing}`);
     const [wide, side] = [(await bounds(inner(page, id))).width, await resolveToken(page, T('container-height-medium'))];
-    const { samples, paddings } = await host(page, id).evaluate(async (el, ms) => {
-      const button = el.shadowRoot!.querySelector('button')!;
-      const label = el.shadowRoot!.querySelector('.label-box')!;
+    // The motions are held at their start as the change begins them and read at tenths of their duration
+    // (`stepTransitions`): the same moments on any machine, however late it draws. The one-line hold of the label is a
+    // timer of the same duration, on the page's clock, held still meanwhile so that it ends with the motion and not
+    // while the test reads the middle of it.
+    await holdClock(page);
+    await holdTransitions(host(page, id));
+    await host(page, id).evaluate(async (el) => {
       (el as any).extended = false;
       await (el as any).updateComplete;
-      // The paddings move with it, on the same motion.
-      const s = getComputedStyle(button);
+    });
+    // The paddings move with it, on the same motion (the collapsed form's own transition).
+    const paddings = await host(page, id).evaluate((el) => {
+      const s = getComputedStyle(el.shadowRoot!.querySelector('button')!);
       const props = s.transitionProperty.split(', ');
       const durations = s.transitionDuration.split(', ');
-      const paddings = ['padding-inline-start', 'padding-inline-end'].map((p) => Number.parseFloat(durations[props.indexOf(p)]) * 1000);
-      const out: { width: number; height: number; opacity: number }[] = [];
-      const t0 = performance.now();
-      while (performance.now() - t0 < ms * 1.5) {
-        await new Promise(requestAnimationFrame);
-        const r = button.getBoundingClientRect();
-        out.push({ width: r.width, height: r.height, opacity: Number(getComputedStyle(label).opacity) });
-      }
-      return { samples: out, paddings };
-    }, duration);
+      return ['padding-inline-start', 'padding-inline-end'].map((p) => Number.parseFloat(durations[props.indexOf(p)]) * 1000);
+    });
+    const { held, moments, rest } = await stepTransitions(
+      host(page, id),
+      () =>
+        host(page, id).evaluate((el) => {
+          const r = el.shadowRoot!.querySelector('button')!.getBoundingClientRect();
+          return { width: r.width, height: r.height, opacity: Number(getComputedStyle(el.shadowRoot!.querySelector('.label-box')!).opacity), oneLine: el.shadowRoot!.querySelector('button')!.hasAttribute('data-resizing') };
+        }),
+      { count: 3 },
+    );
+    await releaseClock(page);
+    // What moves: the label box's columns and its opacity, and the button's end padding (left to right), each over the
+    // resize motion.
+    expect(held.map(({ property, duration }) => [property, duration]).sort()).toEqual([['grid-template-columns', duration], ['opacity', duration], ['padding-right', duration]]);
+    const samples = [...moments, rest];
     expect(paddings).toEqual([duration, duration]);
     // It narrows through widths in between, the label fading out, and ends a square; the height never moves.
     expect(samples.some((s) => s.width < wide - 1 && s.width > side + 1)).toBe(true);
@@ -425,6 +439,7 @@ test.describe('behavior', () => {
     expect(samples.at(-1)).toMatchObject({ width: side, height: side, opacity: 0 });
     expect(new Set(samples.map((s) => s.height))).toEqual(new Set([side]));
     // While it resizes, the label keeps one line; once it is done, it may wrap again.
+    expect(moments.map((s) => s.oneLine)).toEqual(moments.map(() => true));
     await expect(inner(page, id)).not.toHaveAttribute('data-resizing');
     await host(page, id).evaluate((el) => ((el as any).extended = true));
     await expect(inner(page, id)).toHaveAttribute('data-resizing', '');
