@@ -11,7 +11,7 @@
   "scripts": {
     "generate": "node scripts/generate.js",
     "build": "tsc -p tsconfig.json",
-    "test": "tsc -p test/tsconfig.json && node --test \"test/*.test.mjs\""
+    "test": "tsc -p test/tsconfig.json && node ../tools/src/run-node-tests.js \"test/*.test.mjs\""
   },
   "dependencies": {
     "@lit/react": "^1.0.8",

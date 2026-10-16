@@ -17,7 +17,7 @@
     "build:app": "node ../../packages/tools/src/font-faces.js app/fonts.generated.css --check-systems && vite build --config app/vite.config.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "validate": "pnpm typecheck",
-    "test:node": "node --test \"test/*.test.js\"",
+    "test:node": "node ../tools/src/run-node-tests.js \"test/*.test.js\"",
     "test:browser": "node test/browser/run.mjs",
     "test": "pnpm test:node && pnpm test:browser"
   },

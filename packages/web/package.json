@@ -121,7 +121,7 @@
     "generate": "cem analyze",
     "build": "tsc -p tsconfig.json && node scripts/build.js",
     "test": "playwright test",
-    "test:node": "node --test \"src/links/node/test/*.test.mjs\" \"test/*.test.mjs\"",
+    "test:node": "node ../tools/src/run-node-tests.js \"src/links/node/test/*.test.mjs\" \"test/*.test.mjs\"",
     "test:update": "playwright test --update-snapshots"
   },
   "dependencies": {

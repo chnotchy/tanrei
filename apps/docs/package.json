@@ -11,8 +11,8 @@
     "i18n": "node scripts/i18n-check.mjs",
     "build": "node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css --check-systems && astro check --minimumFailingSeverity warning && astro build",
     "preview": "astro preview",
-    "test:node": "node --test \"test/*.test.mjs\"",
-    "test:browser": "node --test \"test/browser/*.test.mjs\"",
+    "test:node": "pnpm fonts && node ../../packages/tools/src/run-node-tests.js \"test/*.test.mjs\"",
+    "test:browser": "node ../../packages/tools/src/run-node-tests.js \"test/browser/*.test.mjs\"",
     "test": "pnpm test:node && node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css --check-systems && astro build && pnpm test:browser",
     "fonts": "node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css",
     "links": "tanrei-links update"

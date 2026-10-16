@@ -10,7 +10,7 @@
   "scripts": {
     "validate": "node src/cli.js validate",
     "generate": "node src/cli.js status",
-    "test": "node --test"
+    "test": "node src/run-node-tests.js"
   },
   "dependencies": {
     "ajv": "^8.20.0",

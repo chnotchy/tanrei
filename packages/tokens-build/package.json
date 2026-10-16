@@ -8,7 +8,7 @@
     "generate": "node src/cli.js generate",
     "validate": "node src/cli.js validate",
     "figma-plans": "node src/cli.js figma-plans",
-    "test": "node --test"
+    "test": "node ../tools/src/run-node-tests.js"
   },
   "dependencies": {
     "@material/material-color-utilities": "^0.4.0",
