@@ -4,6 +4,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, withoutIconFont } from '../../../test/harness.js';
+import { motionEnded } from '../../../test/motions.js';
 import { MIRRORED, anchorOf, expectDisabledLink, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf } from '../../../test/links.js';
 
 const spec = loadSpec('list');
@@ -902,7 +903,8 @@ test.describe('reordering', () => {
     await list(page, 'reorderable-wrap').scrollIntoViewIfNeeded();
     const places = await Promise.all([0, 1, 2, 3, 4].map((n) => bounds(item(page, 'reorderable-wrap', n))));
     await dragBy(page, item(page, 'reorderable-wrap', 0).locator('.content').first(), places[3].x - places[0].x, places[3].y - places[0].y);
-    await page.waitForTimeout((await reorderWindow(page)) + 100);
+    // The neighbours slide over the reorder motion: read once it has ended, as long as the machine plays it.
+    await motionEnded(list(page, 'reorderable-wrap'));
     const second = await bounds(item(page, 'reorderable-wrap', 1));
     expect(second.x).toBeCloseTo(places[0].x, 0);
     expect(second.y).toBeCloseTo(places[0].y, 0);
