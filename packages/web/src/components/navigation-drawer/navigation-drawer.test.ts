@@ -1720,17 +1720,23 @@ test.describe('a collapsed cell’s name', () => {
     await expect(surface(page, 'collapsed', 1)).toBeVisible();
     // Where the label is drawn there is nothing to show.
     for (const id of ['collapsed-labels-always', 'collapsible-expanded']) await expect(drawer(page, id).locator('tanrei-navigation-drawer-item').locator('tanrei-tooltip.tip')).toHaveCount(0);
+    // The show delay runs on the page's clock, held still and moved on by the test: once it is over, nothing has opened.
+    const delay = await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration');
+    expect(delay).toBeGreaterThan(0);
+    await holdClock(page);
     await cell(page, 'collapsed-labels-always', 1).hover();
-    await page.waitForTimeout((await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration')) + 150);
+    await page.clock.runFor(delay);
     expect(await page.locator('tanrei-tooltip.tip[open]').count()).toBeLessThanOrEqual(1);
+    await releaseClock(page);
     await expect(item(page, 'collapsed-labels-always', 1).locator('.short')).toHaveCSS('opacity', '1');
     // Labels selected: Starred draws its label and has no tooltip; the others have one.
     expect(await Promise.all([0, 1, 2, 3].map((n) => tip(page, 'collapsed-labels-selected', n).count()))).toEqual([1, 1, 0, 1]);
     // A group's cell is named the same way.
     await expect(group(page, 'collapsed-groups', 0).locator('tanrei-tooltip.tip').first()).toHaveCount(1);
     // A touch does not hover: nothing opens.
+    await holdClock(page);
     await cell(page, 'collapsed', 3).dispatchEvent('pointerenter', { pointerType: 'touch' });
-    await page.waitForTimeout((await resolveToken(page, '--tanrei-comp-tooltip-motion-show-delay', 'duration')) + 150);
+    await page.clock.runFor(delay);
     expect(await tip(page, 'collapsed', 3).evaluate((el: any) => el.open)).toBe(false);
   });
 
