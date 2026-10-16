@@ -426,7 +426,7 @@ abstract class DrawerCell extends LitElement {
   };
 
   protected readonly onPointerLeave = (event: PointerEvent) => {
-    this.press.release();
+    this.press.release(event);
     if (event.pointerType === 'touch') return;
     this.cutTip.pointerLeave(event.pointerType);
     this.hovered = false;
@@ -1104,7 +1104,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
   };
 
   private readonly onToggleKeyUp = (event: KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') this.press.release();
+    if (event.key === 'Enter' || event.key === ' ') this.press.release(event);
   };
 
   private readonly onToggleFocus = () => syncFocusStyle(this, this.toggle);

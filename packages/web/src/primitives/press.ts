@@ -5,6 +5,20 @@ import { type Point, fadeRipple, startRipple } from './ripple.js';
 /** The keys that press a button. */
 const DEFAULT_KEYS: readonly string[] = ['Enter', ' '];
 
+/** What holds a press down. */
+export type PressedBy = 'pointer' | 'key';
+
+/**
+ * What an event that ends a press holds: a key's keyup and a blur end a key's press; a pointer's, mouse's, touch's or
+ * drag's event a pointer's. Any other event names none.
+ */
+function pressedByOf(event: Event): PressedBy | undefined {
+  if (event instanceof KeyboardEvent || event instanceof FocusEvent) return 'key';
+  // (A DragEvent and a PointerEvent are both MouseEvents; TouchEvent is not defined where there is no touch.)
+  if (event instanceof MouseEvent || (typeof TouchEvent !== 'undefined' && event instanceof TouchEvent)) return 'pointer';
+  return undefined;
+}
+
 export interface PressOptions {
   /** The native element that is pressed and carries `data-pressed` (what `stateRules()`' pressed conditions name). */
   container: () => HTMLElement | null;
@@ -54,8 +68,11 @@ export class PressController implements ReactiveController {
     return (typeof keys === 'function' ? keys() : keys) ?? DEFAULT_KEYS;
   }
   private pressedAt = 0;
-  /** What is holding the press down. A pointer press ends with the pointer, a key press with the key or with focus. */
-  private pressedBy: 'pointer' | 'key' | null = null;
+  /**
+   * What is holding the press down: a pointer, a key, or both at once. A pointer's press ends with the pointer, a key's
+   * with the key or with focus, and the press ends when nothing holds it any more.
+   */
+  private readonly heldBy = new Set<PressedBy>();
   private holdTimer: ReturnType<typeof setTimeout> | undefined;
   private ripple: HTMLElement | null = null;
 
@@ -72,7 +89,7 @@ export class PressController implements ReactiveController {
   press(at: Point | null) {
     const container = this.options.container();
     if (!container || this.options.disabled()) return;
-    this.pressedBy = at ? 'pointer' : 'key';
+    this.heldBy.add(at ? 'pointer' : 'key');
     // For a host that is not a Lit element (no `hostUpdated()`): the same function each time, so a second press adds
     // nothing.
     container.addEventListener('dragstart', this.onDragStart);
@@ -85,11 +102,21 @@ export class PressController implements ReactiveController {
     if (feedback === 'ripple') this.ripple = startRipple(this.options.rippleHost?.() ?? container, at && this.options.origin ? this.options.origin(at) : at);
   }
 
-  /** The press ended; the pressed state stays until press-hold has passed since it began. */
-  readonly release = () => {
+  /**
+   * The press ended; the pressed state stays until press-hold has passed since it began. Given the event that ends it
+   * (or what holds it, where no event is at hand), it ends only what that event holds: a pointer's `pointerup`,
+   * `pointercancel` or `pointerleave` ends no press a key holds down — the pointer may rest over the control and leave
+   * it, because the mouse moved or the control moved out from under it — and a key's keyup ends no press a pointer
+   * holds, as the platform's own button keeps a key's press while the key is down wherever the pointer goes. Without
+   * either, it ends the press whatever holds it (the control took the press for something else, or is gone).
+   */
+  readonly release = (by?: Event | PressedBy) => {
     const container = this.options.container();
     if (!container || container.dataset.pressed === undefined) return;
-    this.pressedBy = null;
+    const what = by === undefined || typeof by === 'string' ? by : pressedByOf(by);
+    if (what) this.heldBy.delete(what);
+    else this.heldBy.clear();
+    if (this.heldBy.size > 0) return;
     clearTimeout(this.holdTimer);
     // The carrier holds press-hold as a transition-delay, which computes to seconds (see pressHold()).
     const carrier = this.options.holdCarrier();
@@ -114,7 +141,7 @@ export class PressController implements ReactiveController {
   };
 
   readonly onKeyUp = (event: KeyboardEvent) => {
-    if (this.keys.includes(event.key)) this.release();
+    if (this.keys.includes(event.key)) this.release(event);
   };
 
   /**
@@ -131,16 +158,16 @@ export class PressController implements ReactiveController {
     const path = event.composedPath();
     const within = path.slice(0, path.indexOf(event.currentTarget as EventTarget) + 1);
     const browsers = (each: EventTarget) => each instanceof HTMLElement && (each.draggable || each.isContentEditable || each instanceof HTMLInputElement || each instanceof HTMLTextAreaElement);
-    if (within.some(browsers)) this.release();
+    if (within.some(browsers)) this.release(event);
     else event.preventDefault();
   };
 
   /**
-   * Focus left while a key was down: its keyup will arrive somewhere else, so the press ends here. A pointer press
+   * Focus left while a key was down: its keyup will arrive somewhere else, so the key's press ends here. A pointer press
    * is not ended by focus — Safari takes focus AWAY from a focused button on mouse down, while the pointer is held.
    */
   readonly onBlur = () => {
-    if (this.pressedBy === 'key') this.release();
+    if (this.heldBy.has('key')) this.release('key');
   };
 
   /** The container the host has rendered refuses the engine's drag (`onDragStart`); the same function each time. */
@@ -150,7 +177,7 @@ export class PressController implements ReactiveController {
 
   hostDisconnected() {
     clearTimeout(this.holdTimer);
-    this.pressedBy = null;
+    this.heldBy.clear();
     this.removeRipple();
     const container = this.options.container();
     if (container) delete container.dataset.pressed;

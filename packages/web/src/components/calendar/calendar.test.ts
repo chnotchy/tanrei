@@ -4,6 +4,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 
 const spec = loadSpec('calendar');
 type P = Page;
@@ -1474,6 +1475,11 @@ test.describe('states, press, corners and focus style', () => {
     await mount(page, [f('y', { value: '2026-09-17', startView: 'year' })]);
     await year(page, 'y', 2027).dispatchEvent('pointerdown', { button: 0, pointerType: 'mouse', clientX: 1, clientY: 1 });
     await expect(year(page, 'y', 2027).locator('.box')).toHaveAttribute('data-pressed', 'overlay');
+  });
+
+  test('CAL-20: a day pressed by Space stays pressed while the key is down, though the pointer resting over it leaves the grid; the keyup ends it', async ({ page }) => {
+    await mount(page, [f('c', { value: '2026-09-17' })]);
+    await expectKeyPressOutlastsPointer(page, { control: day(page, 'c', '2026-09-17') });
   });
 
   test('CAL-21: overlay (default), ripple (m3-like), dim (cupertino) and none each answer a day’s press; an in-range day answers on its band', async ({ page }) => {

@@ -10,8 +10,10 @@ const button = (id: string) => `[data-fixture="${id}"] tanrei-button`;
 const token = (page: import('@playwright/test').Page, name: string) =>
   page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 
+// The fixtures draw glyphs of the icon set (52 of them do): the page registers its faces, so a glyph is drawn, never its
+// name in a fallback face — on the Linux recorder, which has no icon font, every baseline with an icon once showed one.
 test.beforeEach(async ({ page }) => {
-  await mountFixtures(page, spec);
+  await mountFixtures(page, spec, { icons: true });
 });
 
 test.describe('behavior', () => {

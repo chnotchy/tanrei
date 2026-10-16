@@ -21,7 +21,7 @@ import {
   withoutIconFont,
 } from '../../../test/harness.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
-import { clickCentre } from '../../../test/watched-press.js';
+import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('stepper');
 type P = Page;
@@ -422,14 +422,14 @@ test.describe('pressing a step', () => {
   });
 
   test('SPR-14: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
-    const hold = 1000;
     for (const [name, activate] of [
       ['Enter', () => page.keyboard.press('Enter')],
       ['Space', () => page.keyboard.press('Space')],
-      ['click', () => btn(page, 'pressable-visited', 0).click()],
+      ['click', () => clickCentre(page, btn(page, 'pressable-visited', 0))],
     ] as const) {
       await mountFixtures(page, spec, { icons: true, fixtures: [fx('pressable-visited')] });
-      await rootTokens(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
+      const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+      expect(hold, name).toBe(100);
       await step(page, 'pressable-visited', 0).focus();
       await btn(page, 'pressable-visited', 0).evaluate((el) => {
         const log: { down?: number; on?: number; off?: number; up?: number } = ((window as any).press = {});
@@ -440,8 +440,9 @@ test.describe('pressing a step', () => {
         for (const type of ['pointerup', 'keyup']) window.addEventListener(type, () => (log.up ??= performance.now()), true);
         for (const type of ['pointerdown', 'keydown']) window.addEventListener(type, () => (log.down ??= performance.now()), true);
       });
-      await activate();
-      await expect.poll(() => page.evaluate(() => (window as any).press.off), name).toBeDefined();
+      // The press and the hold on the page's clock, held still: the press is over in no page time at all, so it is the
+      // short one at the system's own hold, however long the driver takes to send the release.
+      await heldPress(page, hold, activate, async () => (await page.evaluate(() => (window as any).press.off)) !== undefined, name);
       const logged = await page.evaluate(() => (window as any).press);
       expect(logged.up - logged.on, name).toBeLessThan(hold);
       expect(logged.off - logged.down, name).toBeGreaterThanOrEqual(hold - 1);

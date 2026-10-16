@@ -515,7 +515,7 @@ export class TanreiNavigationBar extends LitElement {
    * over the state motion (not where motion is reduced), following the pointer meanwhile.
    */
   private takeDrag(x: number) {
-    for (const item of this.items) item.releasePress();
+    for (const item of this.items) item.releasePress('pointer');
     const from = this.drawn ?? this.boxOf(this.destinations.selected);
     this.stopMoving();
     const { duration, easing } = this.motion('state');

@@ -501,8 +501,8 @@ export class TanreiBreadcrumbs extends LitElement {
     if (!a.hasAttribute('data-pressed')) a.dataset.pressed = 'none';
   }
 
-  private readonly releasePress = () => {
-    this.heldPress?.release();
+  private readonly releasePress = (event?: Event) => {
+    this.heldPress?.release(event);
     this.heldPress = null;
     this.heldAnchor = null;
   };
@@ -520,7 +520,7 @@ export class TanreiBreadcrumbs extends LitElement {
   // `pointerleave` is not seen from here: the press ends when the pointer goes out of the level it holds.
   private readonly onPointerOut = (event: Event) => {
     const to = (event as PointerEvent).relatedTarget;
-    if (this.heldAnchor && !(to instanceof Node && this.heldAnchor.contains(to))) this.releasePress();
+    if (this.heldAnchor && !(to instanceof Node && this.heldAnchor.contains(to))) this.releasePress(event);
   };
 
   private readonly onLevelKeyDown = (event: Event) => {
