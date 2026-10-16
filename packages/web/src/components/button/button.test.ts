@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { opticalSize } from '../../../test/icons.js';
+import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { MIRRORED, anchorOf, container, countClicks, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, painted, settledPaint, warnings } from '../../../test/links.js';
 
 const spec = loadSpec('button');
@@ -9,8 +10,10 @@ const button = (id: string) => `[data-fixture="${id}"] tanrei-button`;
 const token = (page: import('@playwright/test').Page, name: string) =>
   page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 
+// The fixtures draw glyphs of the icon set (52 of them do): the page registers its faces, so a glyph is drawn, never its
+// name in a fallback face — on the Linux recorder, which has no icon font, every baseline with an icon once showed one.
 test.beforeEach(async ({ page }) => {
-  await mountFixtures(page, spec);
+  await mountFixtures(page, spec, { icons: true });
 });
 
 test.describe('behavior', () => {
@@ -184,29 +187,24 @@ test.describe('press, feedback, corners and focus style', () => {
   });
 
   test('BTN-8: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
-    expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(100);
-    // A driver's key press or click is not always over within 100 ms (Firefox under load takes 200). The hold is
-    // made longer than any of them, the way a design system would, so that every press below is the short one.
-    // (4 s: a key's release is sent one answer after its press, and an answer of WebKit on Linux takes up to 570 ms.)
-    const longHold = () => rootTokens(page, { '--tanrei-sys-motion-duration-press-hold': '4000ms' });
-    const hold = 4000;
+    const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+    expect(hold).toBe(100);
     const down = await resolveColor(page, '--tanrei-comp-button-filled-pressed-container-color');
     const activations: [string, () => Promise<void>][] = [
       ['Enter', () => page.keyboard.press('Enter')],
       ['Space', () => page.keyboard.press('Space')],
-      ['click', () => page.locator(button('filled-medium')).click()],
+      ['click', () => clickCentre(page, inner(page, 'filled-medium'))],
     ];
     for (const [name, activate] of activations) {
       await mountFixtures(page, spec);
-      await longHold();
-      expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(hold);
       await page.locator(button('filled-medium')).focus();
       // Let the focused state settle first: in the default system it has the pressed state's color, and a
       // transition already running towards that color is, correctly, not restarted by the press.
       await expect.poll(() => css(page, 'filled-medium', 'background-color')).toBe(await resolveColor(page, '--tanrei-comp-button-filled-focused-container-color'));
       await watchPress(page, 'filled-medium');
-      await activate();
-      await expect.poll(async () => (await pressLog(page)).off, name).toBeDefined();
+      // The press and the hold on the page's clock, held still (see `heldPress`): the press is over in no page time
+      // at all, however long the driver takes to send the release, so it is the short press at the system's own hold.
+      await heldPress(page, hold, activate, async () => (await pressLog(page)).off !== undefined, name);
       const log = await pressLog(page);
       // Without delay: the pressed tokens are applied with no transition in.
       expect(log.seen, name).toEqual(['overlay', '0s', down]);
@@ -1451,9 +1449,10 @@ test.describe('link form', () => {
     expect(await anchorOf(toggle)).toMatchObject({ tag: 'button', href: null, target: null, rel: null, pressed: 'true', description: null });
     await expect(toggle.getByRole('button', { pressed: true })).toHaveAccessibleName('Bold');
     expect(await markOf(toggle, '.mark')).toBeNull();
-    const changes = toggle.evaluate((el) => new Promise<boolean>((resolve) => el.addEventListener('change', (event) => resolve((event as CustomEvent).detail.selected), { once: true })));
+    // The listener is in place before the click is sent (an unawaited evaluate can miss an event that comes first).
+    await toggle.evaluate((el) => el.addEventListener('change', (event) => ((window as any).changedTo = (event as CustomEvent).detail.selected), { once: true }));
     await toggle.click();
-    expect(await changes).toBe(false);
+    await expect.poll(() => page.evaluate(() => (window as any).changedTo)).toBe(false);
     await expect.poll(() => seen.filter((w) => w.includes('(BTN-26)') && w.includes('a toggle cannot be a link')).length).toBe(1);
     // Space still activates what is a button.
     await toggle.focus();

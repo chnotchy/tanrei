@@ -4,6 +4,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
+import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 
 const spec = loadSpec('pagination');
 type P = Page;
@@ -694,6 +695,11 @@ test.describe('states', () => {
     await page.keyboard.down('Space');
     expect(await control(page, 'l', 'next').getAttribute('data-pressed')).toBeNull();
     await page.keyboard.up('Space');
+  });
+
+  test('PGN-15: an item pressed by Space stays pressed while the key is down, though the pointer resting over it leaves; the keyup ends it', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: [fx('p')] });
+    await expectKeyPressOutlastsPointer(page, { control: control(page, 'p', 'next') });
   });
 
   test('PGN-16: overlay (default), ripple (m3-like), dim (cupertino) and none each answer the press; an unknown name is the first', async ({ page }) => {

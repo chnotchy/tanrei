@@ -89,6 +89,15 @@ type DrawerDestination = TanreiNavigationDrawerItem | TanreiNavigationDrawerGrou
 const ms = (value: string) => (Number.parseFloat(value) || 0) * (value.trim().endsWith('ms') ? 1 : 1000);
 
 /** Whether an update changed `key` (a private or protected reactive property, which `PropertyValues<this>` does not name). */
+/**
+ * NVD-56: when a box waited for is first seen. \`isIntersecting\` is true also for a box that only touches the window's
+ * edge, of which nothing is seen, and a tooltip counts such an anchor out of sight and closes at once
+ * (src/primitives/placement.ts): the wait goes on until part of it is seen. The second threshold makes the observer call
+ * again when that happens; a single threshold of 0 would not, the box still intersecting.
+ */
+const SIGHT: IntersectionObserverInit = { threshold: [0, 1e-6] };
+const seen = (entries: IntersectionObserverEntry[]) => entries.some((entry) => entry.isIntersecting && entry.intersectionRatio > 0);
+
 const has = (changed: PropertyValues, key: string) => (changed as Map<PropertyKey, unknown>).has(key);
 
 /** The groups that hold `cell`, outermost first (within its drawer). */
@@ -323,21 +332,28 @@ abstract class DrawerCell extends LitElement {
     return this.supportingText ? { title: this.label, text: this.supportingText } : { text: this.label };
   }
 
-  /** Runs \`then\` once \`element\` is first seen in the window (at once where it is): a tooltip whose anchor is out of sight closes at once (NVD-56). */
+  /**
+   * Runs \`then\` once part of \`element\` is first seen in the window (at once where it is; a box that only touches the
+   * window's edge is not seen, \`seen()\`): a tooltip whose anchor is out of sight closes at once (NVD-56). NVD-75's wait
+   * is its own: the collapsed name's hide (after the pointer left) ends the name's wait, never this one.
+   */
   private whenInView(element: Element | null, then: () => void) {
-    this.sightline?.disconnect();
+    this.cutSightline?.disconnect();
     if (!element || typeof IntersectionObserver !== 'function') {
       then();
       return;
     }
-    this.sightline = new IntersectionObserver((entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
-      this.sightline?.disconnect();
-      this.sightline = null;
+    this.cutSightline = new IntersectionObserver((entries) => {
+      if (!seen(entries)) return;
+      this.cutSightline?.disconnect();
+      this.cutSightline = null;
       then();
-    });
-    this.sightline.observe(element);
+    }, SIGHT);
+    this.cutSightline.observe(element);
   }
+
+  /** NVD-75: waits for a focused cell to be seen before its cut text's tooltip is opened (\`whenInView()\`). */
+  private cutSightline: IntersectionObserver | null = null;
 
   /**
    * NVD-56: keyboard focus opens the name once the cell can be seen. A tooltip whose anchor lies wholly outside the
@@ -354,11 +370,11 @@ abstract class DrawerCell extends LitElement {
       return;
     }
     this.sightline = new IntersectionObserver((entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
+      if (!seen(entries)) return;
       this.sightline?.disconnect();
       this.sightline = null;
       if (this.cell?.matches(':focus-visible') && this.unnamed) this.showName(true);
-    });
+    }, SIGHT);
     this.sightline.observe(tip);
   }
 
@@ -410,7 +426,7 @@ abstract class DrawerCell extends LitElement {
   };
 
   protected readonly onPointerLeave = (event: PointerEvent) => {
-    this.press.release();
+    this.press.release(event);
     if (event.pointerType === 'touch') return;
     this.cutTip.pointerLeave(event.pointerType);
     this.hovered = false;
@@ -455,6 +471,8 @@ abstract class DrawerCell extends LitElement {
     this.cutTip.hide();
     this.sightline?.disconnect();
     this.sightline = null;
+    this.cutSightline?.disconnect();
+    this.cutSightline = null;
     this.hovered = false;
   }
 
@@ -1086,7 +1104,7 @@ export class TanreiNavigationDrawerGroup extends DrawerCell {
   };
 
   private readonly onToggleKeyUp = (event: KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') this.press.release();
+    if (event.key === 'Enter' || event.key === ' ') this.press.release(event);
   };
 
   private readonly onToggleFocus = () => syncFocusStyle(this, this.toggle);

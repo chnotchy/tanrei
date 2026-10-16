@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens } from '../../../test/harness.js';
+import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 
 const spec = loadSpec('menubar');
@@ -315,6 +316,11 @@ test.describe('the row and a title', () => {
       await page.keyboard.press('Escape');
       await expect.poll(() => open(page, 'editor')).toEqual([]);
     }
+  });
+
+  test('MBR-6: an action pressed by Space stays pressed while the key is down, though the pointer resting over it leaves; the keyup ends it', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [mixed()] });
+    await expectKeyPressOutlastsPointer(page, { control: item(page, 'mixed', 'Run').locator('.title'), focus: item(page, 'mixed', 'Run') });
   });
 
   test('MBR-7: the press answers as sys.behavior.pressed-feedback names — overlay the pressed tokens at once, ripple a layer from the point of contact, dim the pressed opacity and no layer, none nothing', async ({ page }) => {
@@ -2856,8 +2862,8 @@ test.describe('entries that act', () => {
 });
 
 test.describe('accessibility', () => {
-  test('no axe violations in light and dark: every fixture, a filled bar with a menu and a submenu open, and a folded bar with the overflow item’s menu open', async ({ page }) => {
-    for (const theme of ['light', 'dark'] as const) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`no axe violations in ${theme}: every fixture, a filled bar with a menu and a submenu open, and a folded bar with the overflow item’s menu open`, async ({ page }) => {
       await mountFixtures(page, spec, { theme, icons: true, reducedMotion: true });
       let results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
@@ -2882,8 +2888,8 @@ test.describe('accessibility', () => {
       await settled(page);
       results = await new AxeBuilder({ page }).include('.stage').analyze();
       expect(results.violations, `${theme}, folded: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
-    }
-  });
+    });
+  }
 
   test('keyboard only: every command of a bar is reached and run without a pointer, at full width and folded — MBR-9, MBR-12, MBR-13, MBR-22', async ({ page }) => {
     await mountFixtures(page, spec, { fixtures: [editor()], icons: true, lead: '<button id="before">before</button>', reducedMotion: true });

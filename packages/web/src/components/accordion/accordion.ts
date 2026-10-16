@@ -735,8 +735,8 @@ export class TanreiAccordion extends ReactiveElement {
     if (!summary.hasAttribute('data-pressed')) summary.dataset.pressed = 'none';
   }
 
-  private readonly releasePress = () => {
-    this.held?.release();
+  private readonly releasePress = (event?: Event) => {
+    this.held?.release(event);
     this.held = null;
     this.heldSummary = null;
     this.heldItem = null;
@@ -774,7 +774,7 @@ export class TanreiAccordion extends ReactiveElement {
   private readonly onPointerOut = (event: Event) => {
     const to = (event as PointerEvent).relatedTarget;
     const holds = this.heldItem ?? this.heldSummary;
-    if (holds && !(to instanceof Node && holds.contains(to))) this.releasePress();
+    if (holds && !(to instanceof Node && holds.contains(to))) this.releasePress(event);
     if (!(to instanceof Node && this.contains(to))) this.setHit(null);
   };
 
@@ -838,7 +838,7 @@ export class TanreiAccordion extends ReactiveElement {
     if (press && !press.moved && pointer.pointerId === press.id && Math.hypot(pointer.clientX - press.x, pointer.clientY - press.y) > SLOP) {
       press.moved = true;
       // The press of the item ends there: what follows is a drag, not a press.
-      if (this.heldItem === press.details) this.releasePress();
+      if (this.heldItem === press.details) this.releasePress(event);
     }
   };
 

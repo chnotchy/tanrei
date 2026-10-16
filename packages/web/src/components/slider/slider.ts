@@ -570,7 +570,7 @@ export class TanreiSlider extends LitElement {
     const gesture = this.gesture;
     if (!gesture) return;
     this.gesture = null;
-    this.presses[gesture.handle].release();
+    this.presses[gesture.handle].release('pointer');
     this.dragging = false;
     const now = this.values;
     if (now.start !== gesture.before.start || now.end !== gesture.before.end) this.emit('change');

@@ -723,8 +723,8 @@ export class TanreiTable extends ReactiveElement {
     if (!control.hasAttribute('data-pressed')) control.dataset.pressed = 'none';
   }
 
-  private readonly releasePress = () => {
-    this.held?.release();
+  private readonly releasePress = (event?: Event) => {
+    this.held?.release(event);
     this.held = null;
     this.heldControl = null;
   };
@@ -742,7 +742,7 @@ export class TanreiTable extends ReactiveElement {
   // `pointerleave` is not seen from here: the press ends when the pointer goes out of the control it holds.
   private readonly onPointerOut = (event: Event) => {
     const to = (event as PointerEvent).relatedTarget;
-    if (this.heldControl && !(to instanceof Node && this.heldControl.contains(to))) this.releasePress();
+    if (this.heldControl && !(to instanceof Node && this.heldControl.contains(to))) this.releasePress(event);
   };
 
   private readonly onKeyDown = (event: Event) => {
@@ -1242,8 +1242,8 @@ export class TanreiTable extends ReactiveElement {
     return press;
   }
 
-  private releaseRow() {
-    if (this.heldRow) this.rowPresses.get(this.heldRow)?.release();
+  private releaseRow(event?: Event) {
+    if (this.heldRow) this.rowPresses.get(this.heldRow)?.release(event);
     this.heldRow = null;
   }
 
@@ -1255,7 +1255,7 @@ export class TanreiTable extends ReactiveElement {
     const target = this.rowTargetOf(pointer);
     if (!target) return;
     this.rowPress = { id: pointer.pointerId, x: pointer.clientX, y: pointer.clientY, row: target.row, inCell: target.inCell, moved: false };
-    this.releaseRow();
+    this.releaseRow(event);
     this.heldRow = target.row;
     this.rowPressOf(target.row).onPointerDown(pointer);
   };
@@ -1266,15 +1266,15 @@ export class TanreiTable extends ReactiveElement {
     const pointer = event as PointerEvent;
     if (press && !press.moved && pointer.pointerId === press.id && Math.hypot(pointer.clientX - press.x, pointer.clientY - press.y) > SLOP) {
       press.moved = true;
-      if (this.heldRow === press.row) this.releaseRow();
+      if (this.heldRow === press.row) this.releaseRow(event);
     }
   };
 
-  private readonly onRowPointerUp = () => this.releaseRow();
+  private readonly onRowPointerUp = (event: Event) => this.releaseRow(event);
 
-  private readonly onRowPointerCancel = () => {
+  private readonly onRowPointerCancel = (event: Event) => {
     this.rowPress = null;
-    this.releaseRow();
+    this.releaseRow(event);
   };
 
   // TBL-59: a fine pointer over a row where a press would change its checkbox draws that row hovered; elsewhere none is.
@@ -1287,7 +1287,7 @@ export class TanreiTable extends ReactiveElement {
   // under a fine pointer is none once the pointer leaves the table.
   private readonly onRowPointerOut = (event: Event) => {
     const to = (event as PointerEvent).relatedTarget;
-    if (this.heldRow && !(to instanceof Node && this.heldRow.contains(to))) this.releaseRow();
+    if (this.heldRow && !(to instanceof Node && this.heldRow.contains(to))) this.releaseRow(event);
     if (!(to instanceof Node && this.contains(to))) this.setHit(null);
   };
 

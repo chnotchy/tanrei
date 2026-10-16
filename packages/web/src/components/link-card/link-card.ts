@@ -665,8 +665,8 @@ export class TanreiLinkCard extends ReactiveElement {
     this.read();
   };
 
-  private readonly release = () => {
-    this.press.release();
+  private readonly release = (event?: Event) => {
+    this.press.release(event);
   };
 
   /** Listened for on the element, on the way down: the anchor and its parts are the document's, and get no listener of their own. */
@@ -685,7 +685,7 @@ export class TanreiLinkCard extends ReactiveElement {
     ['pointerup', this.release],
     ['pointercancel', this.release],
     // (It does not bubble, and is heard here for every part: the press ends when the pointer leaves the anchor itself.)
-    ['pointerleave', (event) => event.target === this.pressed && this.release()],
+    ['pointerleave', (event) => event.target === this.pressed && this.release(event)],
     ['dragstart', this.release],
     [
       'keydown',

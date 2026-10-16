@@ -476,7 +476,7 @@ export class TanreiButtonWithMenu extends LitElement {
 
   /** SPB-22: leaving before the wait is over cancels it; SPB-23: leaving a menu open from hover starts the grace. */
   private readonly onTrailingLeave = (event: PointerEvent) => {
-    this.trailingPress.release();
+    this.trailingPress.release(event);
     if (!hovers(event)) return;
     this.onTrailing = false;
     this.cancelOpenWait();

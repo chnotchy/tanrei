@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
-import { type Spec, loadSpec, mountFixtures } from '../test/harness.js';
+import { type Fixture, type Spec, loadSpec, mountFixtures } from '../test/harness.js';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const inventory = JSON.parse(fs.readFileSync(path.join(repo, 'specs/inventory.json'), 'utf8')) as { components: { name: string }[] };
@@ -29,17 +29,41 @@ const BOXES = {
   'a flex item': 'display: flex; inline-size: max-content;',
 } as const;
 
+/**
+ * The components whose fixtures make a page too heavy to stand in a box in one test, and the most fixtures one test of
+ * theirs mounts. The date-time picker's 31 fixtures (about 5 300 elements) took 17–24 s a box in WebKit on a CI runner,
+ * and 29–31 s on one a third slower, against a limit of 30 s; every other component took 7 s or less. In parts of at
+ * most PART, each part takes about a quarter of the whole: in WebKit in the Linux CI image 3.0–4.1 s, where the whole
+ * took 12.4–15.8 s — about 8 s on that slower runner, under half of the limit.
+ */
+const IN_PARTS = new Set(['date-time-picker']);
+const PART = 8;
+
+/**
+ * What one test stands in a box: every fixture of the spec on one page; or, for a component in IN_PARTS, its fixtures
+ * in equal parts of at most PART, in the spec's order, each part a page and a test of its own.
+ * `every fixture is in one part of its component` holds that the parts keep every fixture.
+ */
+const parts = (spec: Spec): { name: string; fixtures?: Fixture[] }[] => {
+  if (!IN_PARTS.has(spec.name)) return [{ name: spec.name }];
+  const count = Math.ceil(spec.fixtures.length / PART);
+  const size = Math.ceil(spec.fixtures.length / count);
+  return Array.from({ length: count }, (_, i) => ({ name: `${spec.name}, part ${i + 1} of ${count}`, fixtures: spec.fixtures.slice(i * size, (i + 1) * size) }));
+};
+
 test.describe('in a box as wide as its content', () => {
-  for (const spec of specs) {
-    test(`${spec.name}: in an inline block, a table cell and a flex item every fixture has its width within two frames and keeps it`, async ({ page }) => {
-      await mountFixtures(page, spec, { icons: true });
+  // One test for each box, and for a component in IN_PARTS one for each part of its fixtures in each box: each has the
+  // whole of the time limit.
+  for (const spec of specs) for (const part of parts(spec)) for (const [box, declarations] of Object.entries(BOXES)) {
+    test(`${part.name}: in ${box} every fixture has its width within two frames and keeps it`, async ({ page }) => {
+      await mountFixtures(page, spec, { icons: true, ...(part.fixtures ? { fixtures: part.fixtures } : {}) });
       await page.evaluate(() => {
         (window as any).loops = 0;
         window.addEventListener('error', (event) => {
           if (/ResizeObserver/.test(event.message)) (window as any).loops += 1;
         });
       });
-      for (const [box, declarations] of Object.entries(BOXES)) {
+      {
         const seen = await page.evaluate(async (css) => {
           const frames = async (count: number) => {
             for (let i = 0; i < count; i++) await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
@@ -59,4 +83,18 @@ test.describe('in a box as wide as its content', () => {
       }
     });
   }
+});
+
+test('every fixture is in one part of its component, in the spec’s order, and no part has more than PART', () => {
+  for (const spec of specs) {
+    const units = parts(spec);
+    expect(units.flatMap((unit) => (unit.fixtures ?? spec.fixtures).map((f) => f.id)), spec.name).toEqual(spec.fixtures.map((f) => f.id));
+    if (IN_PARTS.has(spec.name)) {
+      expect(units.length, `${spec.name}: stood in parts`).toBeGreaterThan(1);
+      for (const unit of units) expect(unit.fixtures!.length, unit.name).toBeLessThanOrEqual(PART);
+    }
+    expect(new Set(units.map((unit) => unit.name)).size, spec.name).toBe(units.length);
+  }
+  // A component named here that has no spec, or no built element, would stand in no box at all.
+  for (const name of IN_PARTS) expect(specs.map((spec) => spec.name), name).toContain(name);
 });

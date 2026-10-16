@@ -374,7 +374,7 @@ export class TanreiPagination extends LitElement {
   }
 
   private readonly onPointerDown = (event: PointerEvent) => this.pressOf(event.currentTarget as HTMLElement).onPointerDown(event);
-  private readonly onRelease = (event: Event) => this.presses.get(event.currentTarget as HTMLElement)?.release();
+  private readonly onRelease = (event: Event) => this.presses.get(event.currentTarget as HTMLElement)?.release(event);
   private readonly onKeyDown = (event: KeyboardEvent) => this.pressOf(event.currentTarget as HTMLElement).onKeyDown(event);
   private readonly onKeyUp = (event: KeyboardEvent) => this.presses.get(event.currentTarget as HTMLElement)?.onKeyUp(event);
   private readonly onBlur = (event: FocusEvent) => this.presses.get(event.currentTarget as HTMLElement)?.onBlur();

@@ -144,9 +144,11 @@ test.describe('behavior', () => {
     const [x, y] = [(pill.x + a.x + a.width) / 2, (pill.y + pill.height + a.y) / 2];
     expect(x).toBeGreaterThan(pill.x);
     expect(y).toBeLessThan(pill.y + pill.height);
-    const clicked = page.evaluate(() => new Promise<string>((resolve) => document.addEventListener('click', (event) => resolve((event.target as Element).getAttribute('aria-label') ?? ''), { once: true })));
+    // The listener is in place before the click is sent: a listener installed by an evaluate not yet answered can miss
+    // the click on a slow runner, and the evaluate then waits for a click that already happened.
+    await page.evaluate(() => document.addEventListener('click', (event) => ((window as any).clickedLabel = (event.target as Element).getAttribute('aria-label') ?? ''), { once: true }));
     await page.mouse.click(x, y);
-    expect(await clicked).toBe('Notifications');
+    await expect.poll(() => page.evaluate(() => (window as any).clickedLabel)).toBe('Notifications');
     expect(await css(host(page, 'count-single').locator('.corner'), 'pointer-events')).toBe('none');
   });
 

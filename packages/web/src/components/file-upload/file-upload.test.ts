@@ -2486,12 +2486,30 @@ const listenMoves = (page: P, id: string) =>
     el.addEventListener('change', (event) => log.changes.push((event as CustomEvent<{ files: File[] }>).detail.files.map((f) => f.name)));
   });
 const moveLog = (page: P) => page.evaluate(() => (window as unknown as { fup: { moves: unknown[]; changes: string[][] } }).fup);
-/** Lifts row `index` with the keyboard from its handle, carries it by `steps` presses of Down Arrow and drops it. */
-async function carry(page: P, id: string, index: number, steps: number) {
+/**
+ * Waits until the List's items stand where they are laid out: none drawn elsewhere (an inline transform), none on its
+ * way back (an inline transition), none moving (a running animation).
+ *
+ * A move nobody answered — the product's rows, or a kept file the file upload will not put among the refused — holds
+ * the items as they were dropped for the reorder motion's time and then slides them back over that time again. Until
+ * then the list lifts nothing, and a row's handle is not where it is laid out: a pointer pressed there can be let go
+ * over another row, and the click lands on neither handle.
+ */
+const listAtRest = (page: P, id: string) =>
+  expect
+    .poll(() => host(page, id).locator('.group > .list > tanrei-list-item').evaluateAll((els) => els.every((el) => !(el as HTMLElement).style.transform && !(el as HTMLElement).style.transition && el.getAnimations().length === 0)), { message: 'the List at rest' })
+    .toBe(true);
+/**
+ * Lifts row `index` with the keyboard from its handle, carries it by `steps` presses of `key` and drops it, then waits
+ * for the List at rest: a move by the keyboard is drawn, and maybe held and put back, over the reorder motion.
+ */
+async function carry(page: P, id: string, index: number, steps: number, key = 'ArrowDown') {
   await handleOf(page, id, index).focus();
   await page.keyboard.press('Space');
-  for (let n = 0; n < steps; n++) await page.keyboard.press('ArrowDown');
+  await expect(host(page, id).locator('.group > .list > tanrei-list-item').nth(index), 'lifted').toHaveAttribute('data-dragged', '');
+  for (let n = 0; n < steps; n++) await page.keyboard.press(key);
   await page.keyboard.press('Space');
+  await listAtRest(page, id);
 }
 
 test.describe('reorderable', () => {
@@ -2504,7 +2522,7 @@ test.describe('reorderable', () => {
     await expect.poll(async () => (await moveLog(page)).moves).toEqual([{ from: 0, to: 2 }]);
     // The product's rows are the product's to move: the file upload changed nothing.
     expect(await rows(page, 'given').evaluateAll((els) => els.map((el) => (el as HTMLElement & { name: string }).name))).toEqual(['one.pdf', 'two.pdf', 'three.pdf']);
-    // The menu of the handle: one move, once.
+    // The menu of the handle: one move, once. (`carry` left the List at rest: the unanswered move was put back.)
     await handleOf(page, 'given', 2).click();
     await host(page, 'given').locator('.group > .list > tanrei-list-item').nth(2).locator('tanrei-menu-item').first().click();
     await expect.poll(async () => (await moveLog(page)).moves).toEqual([{ from: 0, to: 2 }, { from: 2, to: 0 }]);
@@ -2526,13 +2544,11 @@ test.describe('reorderable', () => {
     expect(await moveLog(page)).toEqual({ moves: [], changes: [['b.pdf', 'c.pdf', 'a.pdf']] });
     expect(await submitted(page)).toEqual(['attachments=b.pdf:4', 'attachments=c.pdf:4', 'attachments=a.pdf:4', 'note=hello']);
     // A kept file after the refused one, or the refused one among the kept: nothing changes, nothing is emitted.
+    // Each carry lifts its row (the List holds a refused move until it has put it back, and lifts nothing meanwhile),
+    // and the List is at rest after it: nothing that the file upload refused can still change.
     await carry(page, 'own', 2, 1);
     await carry(page, 'own', 3, 0);
-    await handleOf(page, 'own', 3).focus();
-    await page.keyboard.press('Space');
-    await page.keyboard.press('Home');
-    await page.keyboard.press('Space');
-    await page.waitForTimeout(700);
+    await carry(page, 'own', 3, 1, 'Home');
     expect(await keptNames(page, 'own')).toEqual(['b.pdf', 'c.pdf', 'a.pdf']);
     expect(await drawn(page, 'own')).toEqual(['b.pdf', 'c.pdf', 'a.pdf', 'holiday.mov!PDF only.']);
     expect((await moveLog(page)).changes).toHaveLength(1);

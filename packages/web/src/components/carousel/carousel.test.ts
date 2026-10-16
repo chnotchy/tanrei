@@ -9,6 +9,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Browser, type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
+import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { CarouselGeometry, type CarouselMetrics } from './carousel-geometry.js';
 
 const spec = loadSpec('carousel');
@@ -558,6 +559,9 @@ test.describe('geometry', () => {
   });
 
   test('CRL-40: every two neighbours that are drawn are g apart at every scroll position — every alignment, width, scale and loop, and other tokens', () => {
+    // Some 40 000 gaps: each that is not g is collected and the list is expected empty once. A Playwright `expect` per
+    // gap records a step apiece, and the sweep took 40 to 58 s on CI — past its 30 s, unseen, as it never awaits.
+    const wrong: string[] = [];
     for (const system of [tokens, { padding: 24, gap: 12, smallMin: 40, smallMax: 56 }]) {
       for (const heroAlignment of ['center', 'start'] as const) {
         for (const fluid of [true, false]) {
@@ -571,16 +575,17 @@ test.describe('geometry', () => {
                 for (let p = from; p <= to + 1e-9; p += 0.0625) {
                   for (const gap of gaps(g, p)) {
                     pairs++;
-                    expect(Math.abs(gap - system.gap), `${heroAlignment} fluid ${fluid} scaled ${scaleOthers} loop ${loop} W ${width} L ${largeWidth} N ${count} at p ${p}: ${gap}`).toBeLessThan(1e-9);
+                    if (!(Math.abs(gap - system.gap) < 1e-9)) wrong.push(`${heroAlignment} fluid ${fluid} scaled ${scaleOthers} loop ${loop} W ${width} L ${largeWidth} N ${count} at p ${p}: ${gap}`);
                   }
                 }
-                expect(pairs).toBeGreaterThan(0);
+                if (pairs === 0) wrong.push(`${heroAlignment} fluid ${fluid} scaled ${scaleOthers} loop ${loop} W ${width} L ${largeWidth} N ${count}: no two drawn neighbours`);
               }
             }
           }
         }
       }
     }
+    expect(wrong.slice(0, 20), `${wrong.length} gaps that are not g`).toEqual([]);
   });
 });
 
@@ -817,12 +822,11 @@ test.describe('behavior', () => {
 
   const CLOCK = 1;
   test('CRL-5: a press that ends within a frame — Enter, Space, a click — is shown at once and for at least press-hold, on an item and on the playback control', async ({ page }) => {
-    expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(100);
-    const hold = 1000;
+    const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+    expect(hold).toBe(100);
     for (const part of ['item', 'playback'] as const) {
       for (const name of ['Enter', 'Space', 'click'] as const) {
         await mountFixtures(page, spec, { icons: true, fixtures: only('centered', 'autoplay-paused') });
-        await override(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
         const target = part === 'item' ? container(page, 'centered', 0) : playback(page, 'autoplay-paused');
         await target.focus();
         await page.waitForTimeout(400); // the focus state's own transition ends first
@@ -837,9 +841,10 @@ test.describe('behavior', () => {
           for (const type of ['pointerup', 'keyup']) el.addEventListener(type, () => (log.up ??= performance.now()));
           for (const type of ['pointerdown', 'keydown']) window.addEventListener(type, () => (log.down ??= performance.now()), true);
         });
-        if (name === 'click') await target.click();
-        else await page.keyboard.press(name);
-        await expect.poll(() => page.evaluate(() => (window as any).press.off), `${part} ${name}`).toBeDefined();
+        // The press and the hold on the page's clock, held still: the press is over in no page time at all, so it is
+        // the short one at the system's own hold, however long the driver takes to send the release.
+        const activate = () => (name === 'click' ? clickCentre(page, target) : page.keyboard.press(name));
+        await heldPress(page, hold, activate, async () => (await page.evaluate(() => (window as any).press.off)) !== undefined, `${part} ${name}`);
         const log = await page.evaluate(() => (window as any).press);
         expect(log.seen, `${part} ${name}`).toBe('overlay');
         expect(log.up - log.on, `${part} ${name}: the press itself was shorter than press-hold`).toBeLessThan(hold);
@@ -1224,18 +1229,62 @@ test.describe('behavior', () => {
   });
 
   test('CRL-14: a wheel scroll follows and then settles at the nearest resting position over the scroll motion; Shift turns a vertical wheel sideways', async ({ page }) => {
+    // Alone on the page: another carousel's motion (an autoplay advance) is timed the same way and would be caught too.
+    await mountFixtures(page, spec, { icons: true, fixtures: only('centered') });
     const id = 'centered';
     expect(await css(scroller(page, id), 'animation-duration')).toBe(`${(await resolveToken(page, T('motion-scroll-duration'), 'duration')) / 1000}s`);
     const box = await bounds(carousel(page, id));
     await page.mouse.move(200, box.y + 100);
-    await trace(page, id);
+    // The settle is held at its start and stepped through its duration by the test, so what it passes is read at fixed
+    // moments of the motion, not in whatever frames a busy machine draws: frames that come late see a 300 ms motion on
+    // this curve as one jump. Its timing is an animation without a target (the carousel writes the offset from it), so
+    // it is caught as it is played.
+    await scroller(page, id).evaluate(() => {
+      const w = window as any;
+      w.settles = [];
+      w.play = Animation.prototype.play;
+      Animation.prototype.play = function (this: Animation) {
+        w.play.call(this);
+        if (this.effect instanceof KeyframeEffect && this.effect.target === null) {
+          this.pause();
+          this.currentTime = 0;
+          w.settles.push(this);
+        }
+      };
+    });
     await page.mouse.wheel(60, 0);
-    await expect.poll(async () => (await traced(page)).length).toBeGreaterThan(0);
+    await expect.poll(() => offset(page, id)).toBeGreaterThanOrEqual(50);
+    // The wheel's own scroll is over (an engine may take it in steps, and a settle it overtakes gives way to it): the row
+    // stands where the wheel left it, the settle held at its start.
+    await atRest(page, id);
+    const from = await offset(page, id);
+    expect(from).toBeGreaterThanOrEqual(50);
+    const settle = await scroller(page, id).evaluate(async (el) => {
+      const w = window as any;
+      const frame = () => new Promise((r) => requestAnimationFrame(r));
+      Animation.prototype.play = w.play;
+      const timing = (w.settles as Animation[]).filter((a) => a.playState === 'paused').pop();
+      if (!timing) return null;
+      const duration = Number(timing.effect!.getComputedTiming().duration);
+      const passed: number[] = [];
+      for (let i = 1; i < 10; i++) {
+        timing.currentTime = (duration * i) / 10;
+        // The carousel writes the offset in its next frame; it is read in the one after.
+        await frame();
+        await frame();
+        passed.push(Math.abs(el.scrollLeft));
+      }
+      timing.finish();
+      return { duration, passed };
+    });
+    expect(settle, 'a settle began').not.toBeNull();
+    // Over the scroll motion's duration…
+    expect(settle!.duration).toBe(await resolveToken(page, T('motion-scroll-duration'), 'duration'));
+    // …it moves back through several moments of it, never away from where it is going, and comes to rest there.
+    const { passed } = settle!;
+    expect(passed.filter((o) => o > 0 && o < from).length, `${from} → ${passed}`).toBeGreaterThan(1);
+    expect(passed.every((o, i) => o <= (i === 0 ? from : passed[i - 1])), `${from} → ${passed}`).toBe(true);
     await expect.poll(() => offset(page, id)).toBe(0);
-    const passed = await traced(page);
-    expect(Math.max(...passed)).toBeGreaterThanOrEqual(50);
-    // It moved back over several frames: the settle is animated.
-    expect(settled(passed).filter((o) => o > 0 && o < 50).length, `${passed}`).toBeGreaterThan(1);
     // Each turn of the wheel finds the row at rest, and where a turn left it is read at rest. An engine may take a turn
     // over many frames (WebKit on Linux: ten or so, over 230 ms), so an offset read on the way is not where the row
     // settles — a turn of 300 from 208 passes 416 on its way to 508, before it settles back there.

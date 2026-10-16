@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { atRatio, shoot, stageBehind } from '../../../test/one-shape.js';
+import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { readSeam } from '../../../test/seam.js';
@@ -393,6 +394,11 @@ test.describe('behavior', () => {
       expect(record.seen, half).toEqual(['overlay', '0s']);
       expect(record.off - record.down, half).toBeGreaterThanOrEqual(hold - 1);
     }
+  });
+
+  test('SPB-9: the trailing half pressed by Space stays pressed while the key is down, though the pointer resting over it leaves; the keyup ends it', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true });
+    await expectKeyPressOutlastsPointer(page, { control: trailing(page, 'filled-medium') });
   });
 
   test('SPB-10: overlay (default), ripple (m3-like), dim (cupertino) and none each answer a press on a half; an unknown name is the first', async ({ page }) => {
@@ -816,6 +822,10 @@ test.describe('behavior', () => {
     await host(page, 'kinds').getByRole('menuitemradio', { name: 'PNG' }).click();
     expect(await page.evaluate(() => (window as any).changes)).toEqual(['png']);
     await expect(host(page, 'kinds').getByRole('menuitemradio', { name: 'PNG' })).toHaveAttribute('aria-checked', 'true');
+    // The radio item's activation asked to close the menu, and the product closed it: it is gone once it has faded out
+    // (while it fades it still shows, so a closed menu is read only after that).
+    expect(await log(page)).toEqual(['toggle:true', 'close:item']);
+    await expect.poll(() => menuOpen(page, 'kinds')).toBe(false);
     // An item added later is the menu's too.
     await host(page, 'kinds').evaluate((el) => {
       const item = document.createElement('tanrei-menu-item');
@@ -823,8 +833,9 @@ test.describe('behavior', () => {
       item.slot = 'menu';
       el.append(item);
     });
+    // One press opens it again.
     await trailing(page, 'kinds').click();
-    await trailing(page, 'kinds').click();
+    expect(await log(page)).toEqual(['toggle:true', 'close:item', 'toggle:true']);
     await expect.poll(() => menuOpen(page, 'kinds')).toBe(true);
     await expect(host(page, 'kinds').getByRole('menuitem', { name: 'Save a copy' })).toHaveAttribute('aria-setsize', '5');
   });

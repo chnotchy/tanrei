@@ -1070,7 +1070,7 @@ export class TanreiCalendar extends LitElement {
     } catch {
       // No active pointer by that id (a dispatched event): the moves still reach the grid they are dispatched on.
     }
-    this.press.release();
+    this.press.release(event);
     // CAL-14: a scroll being followed ends here; the drag carries on from where it left the days.
     this.dropScroll();
     grid.closest('.calendar')?.setAttribute('data-dragging', '');
@@ -1277,7 +1277,7 @@ export class TanreiCalendar extends LitElement {
   };
 
   private readonly onGridKeyUp = (event: KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') this.press.release();
+    if (event.key === 'Enter' || event.key === ' ') this.press.release(event);
   };
 
   private readonly onGridPointerDown = (event: PointerEvent) => {
@@ -1291,7 +1291,7 @@ export class TanreiCalendar extends LitElement {
 
   private readonly onGridPointerUp = (event: PointerEvent) => {
     this.onDragUp(event);
-    this.press.release();
+    this.press.release(event);
   };
 
   /** CAL-15: a press on a neighbouring month's day moves no focus by itself: the day takes it once its month is shown, if focus was in the grid. */
@@ -1725,7 +1725,7 @@ export class TanreiCalendar extends LitElement {
           @pointerdown=${this.onGridPointerDown}
           @pointermove=${this.onDragMove}
           @pointerup=${this.onGridPointerUp}
-          @pointercancel=${(event: PointerEvent) => (this.onDragCancel(event), this.press.release())}
+          @pointercancel=${(event: PointerEvent) => (this.onDragCancel(event), this.press.release(event))}
           @lostpointercapture=${this.onDragCancel}
           @pointerleave=${this.press.release}
           @mousedown=${this.onGridMouseDown}
