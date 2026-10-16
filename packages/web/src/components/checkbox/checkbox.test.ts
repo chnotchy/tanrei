@@ -8,6 +8,7 @@ import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, presetFontFaces, 
 import { RATIOS, atRatio, endMotion, holdMotionAt, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { decodePng } from '../../../test/png.js';
 import { opticalSizeAxis } from '../../../test/icons.js';
+import { clickCentre, heldPress } from '../../../test/watched-press.js';
 
 const spec = loadSpec('checkbox');
 type P = Page;
@@ -448,20 +449,20 @@ test.describe('press, feedback, corners and focus style', () => {
   const pressLog = (page: P) => page.evaluate(() => (window as any).press as { down?: number; on?: number; off?: number; up?: number; seen?: string[] });
 
   test('CHK-9: a press that ends within a frame — Space, a click — is shown at once and for at least press-hold', async ({ page }) => {
-    expect(await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration')).toBe(100);
-    const hold = 1000;
+    const hold = await resolveToken(page, '--tanrei-sys-motion-duration-press-hold', 'duration');
+    expect(hold).toBe(100);
     for (const [name, activate] of [
       ['Space', () => page.keyboard.press('Space')],
-      ['click', () => container(page, "unselected").click()],
+      ['click', () => clickCentre(page, container(page, 'unselected'))],
     ] as const) {
       await mountFixtures(page, spec);
-      await override(page, { '--tanrei-sys-motion-duration-press-hold': `${hold}ms` });
       await host(page, 'unselected').focus();
       // Let the focused state settle first: in the default system it has the pressed state's strength.
       await expect.poll(() => css(container(page, 'unselected'), 'background-color')).toBe(await resolveColor(page, T('unselected-focused-container-color')));
       await watchPress(page, 'unselected');
-      await activate();
-      await expect.poll(async () => (await pressLog(page)).off, name).toBeDefined();
+      // The press and the hold on the page's clock, held still: the press is over in no page time at all, so it is the
+      // short one at the system's own hold, however long the driver takes to send the release.
+      await heldPress(page, hold, activate, async () => (await pressLog(page)).off !== undefined, name);
       const log = await pressLog(page);
       // Without delay: the pressed container with no transition in. (The press also switched it: the pressed color is
       // the one of the condition it was in when the press began, or the new one — both are the pressed state.)
