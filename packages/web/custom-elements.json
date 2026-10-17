@@ -82812,6 +82812,25 @@
               "readonly": true
             },
             {
+              "kind": "method",
+              "name": "labelRoomChanged",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "changed",
+                  "type": {
+                    "text": "PropertyValues<this>"
+                  }
+                }
+              ],
+              "description": "TAB-14, TAB-25: whether what the row told the tab may cut its label anew: the first the tab is told, its structure\n(secondary), whether the row fills — or, in a row that fills, its selection, whose heavier weight (TAB-50) may not\nfit the share where the lighter one did. A row that hugs never cuts a label, so a selection that moves along it\nmeasures none."
+            },
+            {
               "kind": "field",
               "name": "onKeyDown",
               "privacy": "private",
@@ -83310,10 +83329,42 @@
             },
             {
               "kind": "field",
+              "name": "syncs",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new CoalescedSync(() => this.sync())",
+              "description": "The re-read of the tabs and panels (`sync()`), once per turn however many of them said they changed in it: a row of\nN tabs built, or N labels changed at once, re-reads its N tabs once — not once per tab, which made the build O(N²)."
+            },
+            {
+              "kind": "field",
+              "name": "flushSyncs",
+              "privacy": "private",
+              "readonly": true,
+              "description": "What reads the tabs' context in the task it runs in reads it re-read (a key press, a press, focus)."
+            },
+            {
+              "kind": "field",
+              "name": "reshaped",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "true",
+              "description": "TAB-14, TAB-16: whether what the tabs' containers are sized from may have changed since the row last sized them —\na tab, a panel, the row's own props, its link — so that the next re-read sizes them again. A new selection alone\nchanges no tab's size (TAB-50), and is not re-sized: what does change a size later (a font, the text size) is seen\nby the resize observer."
+            },
+            {
+              "kind": "field",
+              "name": "itemsChanged",
+              "privacy": "private",
+              "readonly": true,
+              "description": "A tab or a panel said it changed, or the children did: the row re-reads them, and sizes them again."
+            },
+            {
+              "kind": "field",
               "name": "children$",
               "privacy": "private",
               "readonly": true,
-              "default": "new MutationObserver(() => this.sync())"
+              "default": "new MutationObserver(this.itemsChanged)"
             },
             {
               "kind": "field",
@@ -83688,6 +83739,16 @@
             },
             {
               "kind": "field",
+              "name": "selecting",
+              "type": {
+                "text": "TanreiTab | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "TAB-12, TAB-15: the tab a key moves focus to and is about to select: its selection brings it into view."
+            },
+            {
+              "kind": "field",
               "name": "onFocusIn",
               "privacy": "private",
               "readonly": true,
@@ -83798,6 +83859,71 @@
                 }
               },
               "description": "The indicator's timing (TAB-15, TAB-17): the tokens, read through real properties — 0 where motion is reduced."
+            },
+            {
+              "kind": "method",
+              "name": "readOnce",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "run",
+                  "type": {
+                    "text": "() => T"
+                  }
+                }
+              ],
+              "description": "TAB-12, TAB-16, TAB-17: what the row reads of its layout while `run` runs is read once — each box, the strip's style\nand scale, the indicator's timing and corner — however many of its steps ask for it (a slide measures its two tabs,\nthen every tab, then the scroll the tab it goes to; each used to read them again). Nested, it is the outer one."
+            },
+            {
+              "kind": "field",
+              "name": "reading",
+              "type": {
+                "text": "Reading | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "The reading going on now (`readOnce`), or null: everything is read when it is asked for."
+            },
+            {
+              "kind": "method",
+              "name": "rect",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "DOMRect"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "Element"
+                  }
+                }
+              ],
+              "description": "`element`'s box on the page — once for each reading."
+            },
+            {
+              "kind": "method",
+              "name": "stripReading",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "{ rect: DOMRect; style: CSSStyleDeclaration; scale: Scale } | null"
+                }
+              },
+              "description": "The strip's box on the page, its computed style and the scale it is drawn at (`layoutScale`), once for each reading."
+            },
+            {
+              "kind": "method",
+              "name": "readAgain",
+              "privacy": "private",
+              "description": "Something the row wrote may have moved a box (`boxes()`, a scroll): what the reading holds is read afresh."
             },
             {
               "kind": "method",
@@ -83973,6 +84099,17 @@
               "description": "Every tab's box and its content's box, in the strip's coordinates and the row's own pixels, and the indicator's corner."
             },
             {
+              "kind": "method",
+              "name": "radius",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              },
+              "description": "The selected tab's indicator corner (TAB-16), once for each reading."
+            },
+            {
               "kind": "field",
               "name": "markTab",
               "type": {
@@ -84005,7 +84142,26 @@
               "kind": "method",
               "name": "place",
               "privacy": "private",
+              "parameters": [
+                {
+                  "name": "sized",
+                  "default": "true"
+                }
+              ],
               "description": "TAB-17, TAB-26: puts the indicator on the selected tab (at the current offset) at once — or, while it slides, sends\nthe slide there; while a drag carries it (TAB-28), it stays where the pointer is."
+            },
+            {
+              "kind": "method",
+              "name": "placeNow",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "sized",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ]
             },
             {
               "kind": "method",
@@ -84062,6 +84218,25 @@
                 }
               ],
               "description": "TAB-17, TAB-21, TAB-24: the indicator and the underline slide and resize from where they are drawn — on `old`, or\nwherever a running slide, an offset or a released drag has left them — to `tab` over the indicator's motion, as one\nbox measured on the page, so the slide mirrors in right-to-left. The old tab is measured afresh: it may have moved\nwithout changing size (the layout direction flipping), which nothing reports. At once where motion is reduced.\n\nThe browser runs it. The row writes once — the end of the slide, where everything rests — and gives every tab the\nindicator passes its pieces as animations between the slide's stops (`slideIndicator`), all on the document's\ntimeline from the same moment as the row's own animation `tanrei-tabs-slide` on the strip, an effect without\nkeyframes that draws nothing and is the slide's clock. No script runs while it slides; where the indicator has got\nto is worked out from the clock when something asks (`mark`): a choice made meanwhile, a drag, an offset.\n\nEvery frame is a look a drag draws (TAB-28): from a tab at rest the indicator passes over the enabled tabs between\nthe two as a drag does, taking each one's box on the way, so its width is always between two neighbouring tabs'.\nFrom anywhere else it goes straight to the tab, each edge interpolated."
+            },
+            {
+              "kind": "method",
+              "name": "slideNow",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "old",
+                  "type": {
+                    "text": "TanreiTab | null"
+                  }
+                },
+                {
+                  "name": "tab",
+                  "type": {
+                    "text": "TanreiTab"
+                  }
+                }
+              ]
             },
             {
               "kind": "method",
@@ -84160,6 +84335,19 @@
                 }
               ],
               "description": "TAB-28: draws the indicator and the underline where the pointer is — in the frame it moves, without a motion of their\nown, except the catch-up that brings them from where they rested — and scrolls the tabs to keep the indicator in view\nwhile the drag carries it toward an end of the track."
+            },
+            {
+              "kind": "method",
+              "name": "followPointer",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "drag",
+                  "type": {
+                    "text": "RowDrag"
+                  }
+                }
+              ]
             },
             {
               "kind": "field",
@@ -84487,6 +84675,14 @@
           },
           "tagName": "tanrei-tabs",
           "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "style"
+        },
+        {
+          "kind": "variable",
+          "name": "rect"
         }
       ],
       "exports": [
