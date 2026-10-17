@@ -1029,6 +1029,8 @@ export class TanreiFileUpload extends ComposedElement implements PlacingGroup {
     this.assignSlots();
     // FUP-24, FUP-32: the file picker is told at once what a field gave the file upload.
     this.provider.sync();
+    // FUP-28: and its trigger, just passed on, is told by the file picker before the trigger is first drawn.
+    this.picker?.tellTrigger();
     this.tellRows();
     this.syncForm();
     if (this.leavingHeld) {

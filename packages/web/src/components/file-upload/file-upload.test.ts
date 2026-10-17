@@ -15,7 +15,9 @@ import http from 'node:http';
 import path from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, type TestInfo, expect, test } from '@playwright/test';
-import { type Fixture, avatarPicture, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont } from '../../../test/harness.js';
+import { appearingFixture } from '../../../test/first-frame.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
+import { type Fixture, avatarPicture, fixturesDocument, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont } from '../../../test/harness.js';
 
 const spec = loadSpec('file-upload');
 type P = Page;
@@ -630,6 +632,36 @@ test.describe('behavior', () => {
     await expect.poll(() => get(picker(page, 'own'), ['selectionText'])).toEqual(['No file']);
     await give(page, 'own', [A]);
     await expect.poll(() => names('own', ownRows(page, 'own'))).toEqual(['Remove']);
+  });
+
+  // A disabled file upload that appears on a page that is already drawn is disabled from its first frame: its trigger
+  // does not fade from the enabled colours, as it does when disabled reaches it after it was first drawn.
+  for (const id of ['button-disabled', 'drop-area-disabled']) {
+    test(`FUP-28: ${id} is drawn disabled in its first frame — the trigger in its disabled colours from the start, with nothing moving into them`, async ({ page }) => {
+      expectFirstFrameAtRest(await appearingFixture(page, spec, id));
+    });
+  }
+
+  // Whether a frame shows the trigger enabled depends on whether anything reads style between the trigger's first
+  // render and the one that disables it (the given rows of the two fixtures above do). That the trigger's first render
+  // is the disabled one does not: it is read where the render is done. own-disabled, as its markup writes it (the row
+  // its staging adds afterwards is not needed for the trigger).
+  test('FUP-28: the trigger of own-disabled is disabled in its very first render, before anything can draw it enabled', async ({ page }) => {
+    const written = { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'own-disabled') };
+    await mountFixtures(page, spec, written);
+    // The fixture as it is written, not as the mounted one stands (its trigger carries the disabled it was given).
+    const fixtureHtml = await fixturesDocument(spec, written);
+    const markup = fixtureHtml.slice(fixtureHtml.indexOf('<div class="stage"'), fixtureHtml.indexOf('</main>'));
+    const first = await page.evaluate(async (html) => {
+      const holder = document.querySelector('main')!;
+      holder.replaceChildren();
+      holder.insertAdjacentHTML('beforeend', html);
+      const trigger = holder.querySelector('tanrei-file-upload > [slot="trigger"]') as HTMLElement & { updateComplete: Promise<unknown> };
+      // The trigger's first update: the one that draws its native button.
+      await trigger.updateComplete;
+      return trigger.shadowRoot!.querySelector('button')!.disabled;
+    }, markup);
+    expect(first).toBe(true);
   });
 
   test('FUP-28: disabled is given to its file picker, which disables the trigger, and to every file item — the product’s own, without changing a prop or an attribute of it, and the ones it makes — whose actions and body are disabled while what they show stays drawn and readable; neither select nor reject is emitted, and no row’s click, remove or retry', async ({ page }) => {
