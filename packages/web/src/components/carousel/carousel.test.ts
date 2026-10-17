@@ -9,6 +9,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Browser, type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
+import { holdClock as holdPageClock, releaseClock } from '../../../test/page-clock.js';
+import { STOPPED_AFTER } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { CarouselGeometry, type CarouselMetrics } from './carousel-geometry.js';
 
@@ -1420,6 +1422,44 @@ test.describe('behavior', () => {
     await drag(90, 150, 20, 4, 0); // back, fast
     await expect.poll(() => offset(page, 'centered')).toBe(0);
     await context.close();
+  });
+
+  test('CRL-14: a fast drag that holds still for more than 40 ms before the finger lifts is no fling — the row settles at the nearest position — and the same drag lifted within 40 ms of its last move goes on to the next one', async ({ page }) => {
+    await mountFixtures(page, spec, { icons: true, fixtures: only('centered') });
+    // The finger's events are made in the page on a held clock, so the time between the last move and the lift is
+    // exact; the row is scrolled by the test as the finger would scroll it. A real touch cannot show the carousel's own
+    // choice: the browser's momentum carries a quick drag on after the lift whatever the carousel decides.
+    const touch = (type: 'touchstart' | 'touchmove' | 'touchend', x: number) =>
+      scroller(page, 'centered').evaluate(
+        (el, [type, x]) => {
+          const at = [{ clientX: x as number, clientY: 0 }];
+          el.dispatchEvent(Object.assign(new Event(type as string), { touches: type === 'touchend' ? [] : at, changedTouches: at }));
+        },
+        [type, x] as const,
+      );
+    const stroke = async (hold: number) => {
+      await holdPageClock(page);
+      await touch('touchstart', 150);
+      // 60 px toward the end, nearer this position (0) than the next (208): only a fling goes on.
+      await scroller(page, 'centered').evaluate(
+        (el) =>
+          new Promise<void>((resolve) => {
+            el.addEventListener('scroll', () => resolve(), { once: true });
+            el.scrollLeft = 60;
+          }),
+      );
+      for (const x of [130, 110, 90]) {
+        await page.clock.runFor(4);
+        await touch('touchmove', x);
+      }
+      await page.clock.runFor(hold);
+      await touch('touchend', 90);
+      await releaseClock(page);
+    };
+    await stroke(STOPPED_AFTER + 1);
+    await expect.poll(() => offset(page, 'centered')).toBe(0);
+    await stroke(STOPPED_AFTER);
+    await expect.poll(() => offset(page, 'centered')).toBe(208);
   });
 
   test('CRL-14, CRL-40: inside an ancestor with a CSS zoom of 2 a slow drag still settles at the nearest position and a fling goes on to the next one — the same resting positions, in the row’s own pixels, as without the zoom', async ({ browser, browserName }) => {

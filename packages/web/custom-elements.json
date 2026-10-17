@@ -11387,7 +11387,7 @@
               "name": "onTouchEnd",
               "privacy": "private",
               "readonly": true,
-              "description": "CRL-14: the finger left the row: a release faster than FLING_VELOCITY is a fling, in its direction. The velocity is\nthe finger's over its moves in the last VELOCITY_WINDOW before the release, timed by the events' own time stamps, so\na busy main thread (or a frame that came late) does not slow a fling down."
+              "description": "CRL-14: the finger left the row: a release faster than FLING_VELOCITY is a fling, in its direction. The velocity is\nthe finger's over its moves in the last VELOCITY_WINDOW before the release, timed by the events' own time stamps, so\na busy main thread (or a frame that came late) does not slow a fling down — and none where the finger had held\nstill for longer than POINTER_STOPPED_TIME before it lifted (`stoppedBefore`): a row stopped on the item that was\nwanted is not flung past it."
             },
             {
               "kind": "method",
@@ -27034,6 +27034,31 @@
               "readonly": true
             },
             {
+              "kind": "method",
+              "name": "releaseVelocity",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "wheel",
+                  "type": {
+                    "text": "WheelMotion"
+                  }
+                },
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                }
+              ],
+              "description": "DTM-19: a wheel's velocity at the release, px per ms downward, over its moves in the last VELOCITY_WINDOW; none\nwhere the pointer held still for longer than POINTER_STOPPED_TIME before it (`stoppedBefore`), so a wheel stopped\non the row that was wanted settles there instead of carrying on past it."
+            },
+            {
               "kind": "field",
               "name": "onWheelPointerUp",
               "privacy": "private",
@@ -39810,7 +39835,7 @@
                   }
                 }
               ],
-              "description": "The speed of a release along what `samples` hold, px per ms; 0 when the pointer had stopped."
+              "description": "The speed of a release along what `samples` hold, px per ms; 0 when the pointer had stopped — it held still for\nlonger than POINTER_STOPPED_TIME before the release (IMP-18), so a drag stopped where it was wanted is no fling."
             },
             {
               "kind": "field",

@@ -50,6 +50,7 @@ import {
   report,
   roundDown,
   shownHour12,
+  stoppedBefore,
   stepMinutes,
   supportedLocale,
   syncFocusStyle,
@@ -1247,6 +1248,17 @@ export class TanreiDateTimePicker extends LitElement {
     this.wheelFrame++;
   };
 
+  /**
+   * DTM-19: a wheel's velocity at the release, px per ms downward, over its moves in the last VELOCITY_WINDOW; none
+   * where the pointer held still for longer than POINTER_STOPPED_TIME before it (`stoppedBefore`), so a wheel stopped
+   * on the row that was wanted settles there instead of carrying on past it.
+   */
+  private releaseVelocity(wheel: WheelMotion, event: PointerEvent): number {
+    const [first, last] = [wheel.samples[0], wheel.samples[wheel.samples.length - 1]];
+    if (!first || !last || stoppedBefore(last.t, event.timeStamp)) return 0;
+    return event.timeStamp > first.t ? (event.clientY - first.y) / (event.timeStamp - first.t) : 0;
+  }
+
   private readonly onWheelPointerUp = (event: PointerEvent) => {
     const found = this.wheelOf(event);
     if (!found) return;
@@ -1267,8 +1279,7 @@ export class TanreiDateTimePicker extends LitElement {
       return;
     }
     // DTM-19: a fling carries on and slows down (none where motion is reduced), then the nearest row settles.
-    const first = wheel.samples[0];
-    const velocity = first && event.timeStamp > first.t ? (event.clientY - first.y) / (event.timeStamp - first.t) : 0;
+    const velocity = this.releaseVelocity(wheel, event);
     const carry = duration > 0 ? (-velocity * duration) / 2 / row : 0;
     this.settle(found.unit, found.element, Math.round(wheel.shift + carry));
   };
@@ -1752,8 +1763,7 @@ export class TanreiDateTimePicker extends LitElement {
       this.settlePeriod(element, rows === 0 ? 1 - wheel.at : wheel.at + rows);
       return;
     }
-    const first = wheel.samples[0];
-    const velocity = first && event.timeStamp > first.t ? (event.clientY - first.y) / (event.timeStamp - first.t) : 0;
+    const velocity = this.releaseVelocity(wheel, event);
     const carry = duration > 0 ? (-velocity * duration) / 2 / row : 0;
     this.settlePeriod(element, wheel.at + wheel.shift + carry);
   };

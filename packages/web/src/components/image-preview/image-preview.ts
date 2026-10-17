@@ -22,6 +22,7 @@ import {
   modalSheetKeys,
   report,
   returnFocus,
+  stoppedBefore,
   syncFocusStyle,
   watchEscape,
   watchInput,
@@ -1058,8 +1059,12 @@ export class TanreiImagePreview extends LitElement {
     }
   }
 
-  /** The speed of a release along what `samples` hold, px per ms; 0 when the pointer had stopped. */
+  /**
+   * The speed of a release along what `samples` hold, px per ms; 0 when the pointer had stopped — it held still for
+   * longer than POINTER_STOPPED_TIME before the release (IMP-18), so a drag stopped where it was wanted is no fling.
+   */
   private speed(samples: { at: number; time: number }[], now: number): number {
+    if (!samples.length || stoppedBefore(samples[samples.length - 1].time, now)) return 0;
     const recent = samples.filter((sample) => now - sample.time <= 80);
     if (recent.length < 2) return 0;
     const time = recent[recent.length - 1].time - recent[0].time;
@@ -1093,6 +1098,9 @@ export class TanreiImagePreview extends LitElement {
     if (gesture.kind === 'pan') {
       if (cancelled || this.reduced) return;
       const now = event.timeStamp;
+      // IMP-16, IMP-18: a pan whose pointer held still before the release has no fling to continue.
+      const lastMove = gesture.samples[gesture.samples.length - 1];
+      if (!lastMove || stoppedBefore(lastMove.time, now)) return;
       const recent = gesture.samples.filter((sample) => now - sample.time <= 80);
       if (recent.length < 2) return;
       const time = recent[recent.length - 1].time - recent[0].time;

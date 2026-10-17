@@ -184,7 +184,7 @@
     },
     {
       "id": "SSH-4",
-      "text": "WHILE variant is modal and the sheet is open, WHEN the user presses the scrim, presses Escape, uses the platform's back, as its modal layer answers them (MDL-6), or drags the sheet toward its end edge past half its width or flings it that way, THE side sheet SHALL emit close exactly once with the reason scrim, escape, back or drag; a drag SHALL follow the finger or pointer once it passes the platform's touch slop, and a released drag that does not ask to close SHALL slide the sheet back over comp.side-sheet.motion.enter-duration with comp.side-sheet.motion.enter-easing (at once where motion is reduced). The fling and the touch slop are those BSH-9 names for the bottom sheet: the platform's own, or 0.5 points per millisecond and 8 points where the platform names none."
+      "text": "WHILE variant is modal and the sheet is open, WHEN the user presses the scrim, presses Escape, uses the platform's back, as its modal layer answers them (MDL-6), or drags the sheet toward its end edge past half its width or flings it that way, THE side sheet SHALL emit close exactly once with the reason scrim, escape, back or drag; a drag SHALL follow the finger or pointer once it passes the platform's touch slop, and a released drag that does not ask to close SHALL slide the sheet back over comp.side-sheet.motion.enter-duration with comp.side-sheet.motion.enter-easing (at once where motion is reduced). The fling, the touch slop and the stillness after which a release is no fling are those BSH-9 names for the bottom sheet: the platform's own, or 0.5 points per millisecond, 8 points and 40 milliseconds where the platform names none."
     },
     {
       "id": "SSH-5",
