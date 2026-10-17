@@ -189,6 +189,27 @@ const scope = { [STAGE_SCOPE]: '' };
     box-sizing: border-box;
     max-inline-size: 100%;
   }
+  /* A fixture drawn in the page inherits what the web package's document gives its stages, and not the page's text:
+     that document sets no text style of its own, so a stage stands in the initial one, as each baseline was taken —
+     a line of text the fixture does not style is as tall here as there. */
+  .docs-stage-canvas[data-fixture-scope] {
+    font: initial;
+    letter-spacing: initial;
+    word-spacing: initial;
+    text-align: initial;
+    text-indent: initial;
+    text-transform: initial;
+    white-space: initial;
+    overflow-wrap: initial;
+    word-break: initial;
+    hyphens: initial;
+    color: CanvasText;
+  }
+  /* The document's stage is its baseline's picture, and the canvas is its box: a margin the staging gives a stage to
+     keep the next one clear in the document (a closed FAB menu's 32 below) has no next one here. */
+  .docs-stage-canvas[data-fixture-scope] > :global(.stage) {
+    margin: 0;
+  }
   /* A fixture is drawn when its stage comes near the view (lib/fixture-stages.ts); until then its canvas holds the
      room its baseline shows, so that nothing moves when it is drawn. */
   .docs-stage-canvas[data-pending] {
