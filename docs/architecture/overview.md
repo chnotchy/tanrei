@@ -27,7 +27,7 @@ Names — namespace, npm scope, tag prefix, platform list, version — come from
        ▼                                                                   │
  tokens/generated/<system>/   one DTCG bundle per system, own resolver,    │
        │                      recipe embedded, a11y-report.json,           │
-       │                      fidelity.json                                │
+       │                      fidelity.json, components.json               │
        ▼                                                                   │
  packages/tokens-build        model.js ─► invariants.js (contrast, heights)│
        │                          │                                        │
@@ -116,6 +116,8 @@ Legal operations per token are computed by `packages/token-engine/src/operations
 | `dart.js` | `packages/flutter/lib/src/generated/tokens.g.dart` · `<id>_system.g.dart` |
 
 Two more writers sit beside them: `emit/theme-exports.js` (Tailwind CSS v4 `@theme`, shadcn/ui variables) and `emit/figma.js` (sync plans). `design/tokens/` receives resolved, alias-free DTCG per scheme and per system for design tools.
+
+**Components manifests.** What a system ships is one generated list per system, `tokens/generated/<id>/components.json` (the default system's among them; `@tanrei/web/systems/<id>.components.json`; a product's in the `tokens` output of `tanrei build`): each component it ships — its level and listing, the layer it lives in, its element or class with the module that registers it, its React name, its `variant` values — and each it does not have, with the layer that left it out, the `reason` and `insteadUse`, or the layer it lives in (`providedBy`), and the variant values it leaves out. Whatever suggests or checks a component reads this list rather than the specs. It is worked out (`components-manifest.js`) from the system's chain, as the stylesheets read it, and from the component catalog `packages/tokens-build/generated/component-catalog.json` — every component with a spec, where it lives and its names on each platform — which `components-catalog.js` writes after the web elements' manifest and the React wrappers are generated, and refuses to write a name a platform does not have. Which entry registers a component is decided in one place there (`importOf`).
 
 On the native platforms every token is read through a **system instance** carried by the theme, so the default system, a shipped preset and a product's generated system coexist in one app. Core values are named in types; extensions arrive as open keys with a total lookup that falls back to the default (Button requirement BTN-7), and a system that adds nothing generates no trace of the feature.
 
