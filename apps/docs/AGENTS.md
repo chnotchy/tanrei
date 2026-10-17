@@ -13,7 +13,8 @@ If a spec, a token file, the status matrix or `tanrei.config.json` can supply a 
 | Component index | `src/components/ComponentIndex.astro` | `docs/status/status.json` |
 | The sidebar's Components group; which components a list shows by default | `astro.config.mjs`, `src/components/frame/Sidebar.astro` (`src/lib/listing.mjs`) | `docs/status/status.json` (`listing`, `category`, `docs`) |
 | "Used in" and the line an advanced component's page leads with | `src/components/frame/PageTitle.astro` (`src/lib/page-head.ts`) | `specs/*.spec.json` (`builtFrom`, `listing`) |
-| Component overview / specs / accessibility tables, fixtures, platform name mapping, component tokens | `src/components/Component{Availability,Specs,Accessibility}.astro` | `specs/<name>.spec.json`, `tokens/comp/`, `design/tokens/` |
+| Component overview / specs / accessibility tables, platform name mapping, component tokens | `src/components/Component{Availability,Specs,Accessibility}.astro` | `specs/<name>.spec.json`, `tokens/comp/`, `design/tokens/` |
+| A component's fixtures: the gallery of stages in the Specs tab, and the page of each component's fixtures (`/fixtures/<name>/`) | `src/components/fixtures/FixtureGallery.astro` (`src/lib/fixture-gallery.ts`, `src/lib/fixtures.ts`), `src/pages/fixtures/[component].astro` | `specs/<name>.spec.json` |
 | Token reference tables and specimens | `src/components/tokens/*.astro` | `design/tokens/*.tokens.json` (resolved), `tokens/sys/` (descriptions) |
 | Hero platform list and figures | `src/components/Hero.astro` | status.json, specs, `tanrei.config.json` |
 | Token descriptions shown in prose pages | `src/components/tokens/TokenNotes.astro` | `tokens/{ref,sys}/*.tokens.json` (`$description`, verbatim) |
@@ -33,6 +34,15 @@ Hand-written: MDX prose, per-platform code samples, frontmatter `title`/`descrip
 - What a list of components shows follows the spec's `listing`: the sidebar and the index show a component marked to be shown on request only to a reader who turned on "All components" (`src/components/ListingSwitch.astro`), its page is always built, found by the search and shown in the sidebar while it is open, and the head of its page says what it is a part of (`src/lib/page-head.ts`, `listingFacts`). Code asks `listings.listed` and `listings.onRequest` (`src/lib/repo.ts`) and never writes a listing's name.
 
 A generated block that writes headings (`StatusMatrix`, `Roadmap`, `Backlog`, `ComponentIndex`) takes `headingLevel` from the page that places it: 2 directly under the page's title, one more than the heading it stands under otherwise. A Markdown table's first header cell says what its column holds; it is never left empty.
+
+## The fixtures' gallery
+
+The Specs tab draws every fixture of the spec, each on a stage of its own (`src/components/fixtures/FixtureGallery.astro`): Tanrei's Figure with the fixture's id as its title, the props that make it as its caption, and three actions in its header — the stage's scheme, the copy of the fixture's markup as a product writes it, and the fixture's own page. The stages stand in groups by the first token axis of the spec that tells its fixtures apart. Which stage a fixture takes is `src/lib/fixture-gallery.ts`'s, from the spec alone:
+
+- **In the page**: a fixture that is not presented is drawn in the page's document, on a stage as wide as what it draws. One that is as wide as its layout (the renderer gives it the width of the web harness's stage) starts its stage at that width, fills it, and has a width handle on the stage's end edge.
+- **In a window**: a presented fixture is drawn alone, presented, in an `iframe` of the component's fixtures page (`/fixtures/<name>/?id=<fixture>`), the size of the window the web harness draws it in, scaled down where the column is narrower. What it puts in the top layer or places against the window stays in that window, and what reads the window's width reads the stage's. A window is `inert` until what it draws has opened, so that it never takes the focus from the page as it loads.
+
+A stage holds its room before it is drawn: a window by its size, a stage of the page by `content-visibility: auto` with the room it last had. The width handle is a window splitter (`src/components/fixtures/ResizeHandle.astro`, `src/lib/resize-handle.ts`) that resizes nothing itself: it reports each width as a `docs-resize` event, so that Tanrei's own splitter can take its place by sending the same event.
 
 ## Adding a page in both locales
 
@@ -77,7 +87,7 @@ The search is Tanrei's Search (`src/components/frame/Search.astro`, in the app b
 
 What the index reads is the built page's main region (`data-pagefind-body` on the framework's `<main>`), less what stands under `data-pagefind-ignore`. Three rules follow, for every component of the docs:
 
-- **A live example is not text of the page.** Its stage — `DemoFrame`'s, the Specs table's fixtures column, a row of systems — carries `data-pagefind-ignore`: «Save» in a sample button is not what the page says. A figure's title and caption are, and are read.
+- **A live example is not text of the page.** Its stage — `DemoFrame`'s, a stage of the fixtures' gallery and its actions, a row of systems — carries `data-pagefind-ignore`: «Save» in a sample button is not what the page says. A figure's title and caption are, and are read.
 - **A glyph's name is not a word.** A `span` that holds a ligature's name (`slot="icon"`, `slot="media"`, `class="tanrei-icon"`) carries `data-pagefind-ignore`; `test/search.test.mjs` reads the sources for it. A word that is only an attribute and should be found (a status tag's `label`) is given to the index with `data-pagefind-index-attrs`.
 - **Words that stand side by side need white space in the markup.** The build removes it between tags, and the index then reads one word. Terms, descriptions, cells and tab panels are parted for every page by `src/lib/index-text.mjs` (in `frame/TwoColumnContent.astro`); anything else a component writes side by side — the items of a flex row or a grid — gets `{' '}` between them, which is drawn nowhere. Not between inline boxes of one line: a space there is drawn. Two inline boxes that must be two words and stand with no space (a file's name and its note in a tree, which the Tree view sets apart by its own gap) get a hidden line break between them, `<br hidden>`: the index reads a break as the end of a word, and a hidden element makes no box. What the index reads is asked of the index itself in a test (`test/index-reads.mjs`), not of a model of it.
 
@@ -92,7 +102,9 @@ pnpm --filter @tanrei/docs test:node  # Node's runner, no browser and no build o
 pnpm --filter @tanrei/docs test:browser  # the built site (`build` first) in Chromium, a few minutes: test/browser/*.test.mjs
 ```
 
-`test:browser` holds one thing: `test/browser/previews.test.mjs` opens every page of the root language that draws a live example, a spec fixture or a file tree, in both schemes, and compares each with a copy of its markup drawn beside it by the page's own rules under every stylesheet of `@tanrei/web` (`compare-previews.mjs` says how). A box, a margin, a color or a pseudo-element's glyph that differs is the page doing to a component what its stylesheet does not allow: a stylesheet in a layer Starlight's beat or not loaded, a page rule that reaches into a component, fixtures that share one document's state (a radio group's `name`). What it leaves out is said there: the fixtures the Specs table's controller presents or stages files into, and the parts placed against a box outside the preview.
+`test:browser` holds one thing: `test/browser/previews.test.mjs` opens every page of the root language that draws a live example, a spec fixture or a file tree, in both schemes, and compares each with a copy of its markup drawn beside it by the page's own rules under every stylesheet of `@tanrei/web` (`compare-previews.mjs` says how). A box, a margin, a color or a pseudo-element's glyph that differs is the page doing to a component what its stylesheet does not allow: a stylesheet in a layer Starlight's beat or not loaded, a page rule that reaches into a component, fixtures that share one document's state (a radio group's `name`). What it leaves out is said there: the fixtures drawn in a window of their own (an `iframe` of the component's fixtures page), those the page stages files into, and the parts placed against a box outside the preview.
+
+It holds a second: `test/browser/fixture-gallery.test.mjs` opens every component page at 1440 and at 390 wide and asks that the Specs tab has a gallery with one stage for each fixture of the spec, that every stage stands inside the column and the window, that what each fixture draws stands inside its stage and has both its lengths, and that the page never scrolls sideways.
 
 What `test:node` holds, and where a change belongs:
 
