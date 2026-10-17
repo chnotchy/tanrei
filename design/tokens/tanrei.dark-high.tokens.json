@@ -57872,14 +57872,6 @@
         },
         "item": {
           "container": {
-            "height": {
-              "$type": "dimension",
-              "$value": {
-                "value": 32,
-                "unit": "px"
-              },
-              "$description": "Kept for the platforms that still draw a pill at least this high; the current spec makes the item container as tall as the bar less container.padding above and below and reads no height. Dropped once the last platform catches up."
-            },
             "padding-block": {
               "$type": "dimension",
               "$value": {
@@ -57903,14 +57895,6 @@
                 "unit": "px"
               },
               "$description": "The radius of the item container's four corners, at most half its height: full makes the destination's share of the bar a capsule."
-            },
-            "width": {
-              "$type": "dimension",
-              "$value": {
-                "value": 56,
-                "unit": "px"
-              },
-              "$description": "Kept for the platforms that still draw a pill around the icon and label at least this wide; the current spec makes the item container as wide as the destination's cell and reads no width. Dropped once the last platform catches up."
             }
           },
           "gap": {

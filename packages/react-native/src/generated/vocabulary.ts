@@ -3354,11 +3354,9 @@ export interface TanreiNavigationBarTokens {
   readonly disabledOpacity: number;
   readonly focusedOpacity: number;
   readonly hoveredOpacity: number;
-  readonly itemContainerHeight: number;
   readonly itemContainerPaddingBlock: number;
   readonly itemContainerPaddingInline: number;
   readonly itemContainerShape: number;
-  readonly itemContainerWidth: number;
   readonly itemGap: number;
   readonly itemIconIndicatorHeight: number;
   readonly itemIconIndicatorShape: number;

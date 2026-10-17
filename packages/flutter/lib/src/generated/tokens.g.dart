@@ -15670,11 +15670,9 @@ class TanreiNavigationBarTokens {
     required this.containerElevation,
     required this.containerHeight,
     required this.containerPadding,
-    required this.itemContainerHeight,
     required this.itemContainerPaddingBlock,
     required this.itemContainerPaddingInline,
     required this.itemContainerShape,
-    required this.itemContainerWidth,
     required this.itemGap,
     required this.itemIconIndicatorHeight,
     required this.itemIconIndicatorShape,
@@ -15703,16 +15701,12 @@ class TanreiNavigationBarTokens {
   final double containerHeight;
   /// `comp.navigation-bar.container-padding`
   final double containerPadding;
-  /// `comp.navigation-bar.item-container-height`
-  final double itemContainerHeight;
   /// `comp.navigation-bar.item-container-padding-block`
   final double itemContainerPaddingBlock;
   /// `comp.navigation-bar.item-container-padding-inline`
   final double itemContainerPaddingInline;
   /// `comp.navigation-bar.item-container-shape`
   final double itemContainerShape;
-  /// `comp.navigation-bar.item-container-width`
-  final double itemContainerWidth;
   /// `comp.navigation-bar.item-gap`
   final double itemGap;
   /// `comp.navigation-bar.item-icon-indicator-height`
@@ -15756,11 +15750,9 @@ class TanreiNavigationBarTokens {
     List<TanreiShadowLayer>? containerElevation,
     double? containerHeight,
     double? containerPadding,
-    double? itemContainerHeight,
     double? itemContainerPaddingBlock,
     double? itemContainerPaddingInline,
     double? itemContainerShape,
-    double? itemContainerWidth,
     double? itemGap,
     double? itemIconIndicatorHeight,
     double? itemIconIndicatorShape,
@@ -15784,11 +15776,9 @@ class TanreiNavigationBarTokens {
         containerElevation: containerElevation ?? this.containerElevation,
         containerHeight: containerHeight ?? this.containerHeight,
         containerPadding: containerPadding ?? this.containerPadding,
-        itemContainerHeight: itemContainerHeight ?? this.itemContainerHeight,
         itemContainerPaddingBlock: itemContainerPaddingBlock ?? this.itemContainerPaddingBlock,
         itemContainerPaddingInline: itemContainerPaddingInline ?? this.itemContainerPaddingInline,
         itemContainerShape: itemContainerShape ?? this.itemContainerShape,
-        itemContainerWidth: itemContainerWidth ?? this.itemContainerWidth,
         itemGap: itemGap ?? this.itemGap,
         itemIconIndicatorHeight: itemIconIndicatorHeight ?? this.itemIconIndicatorHeight,
         itemIconIndicatorShape: itemIconIndicatorShape ?? this.itemIconIndicatorShape,

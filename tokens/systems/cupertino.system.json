@@ -292,7 +292,7 @@
     "tanrei.comp.navigation-bar.item.gap": {"$value": "{tanrei.sys.space.space25}"},
     "tanrei.comp.navigation-bar.item.container.padding-inline": {"$value": "{tanrei.sys.space.space0}", "reason": "Apple's tab bar draws no shape around a tab; its content keeps the tab bar's spacing."},
     "tanrei.comp.navigation-bar.item.container.padding-block": {"$value": "{tanrei.sys.space.space0}", "reason": "Apple's tab bar draws no shape around a tab; its content keeps the tab bar's spacing."},
-    "tanrei.comp.navigation-bar.item.icon-indicator.height": {"$value": "{tanrei.comp.navigation-bar.item.container.height}", "reason": "Keeps the glyph's place and its distance to the title as they were."},
+    "tanrei.comp.navigation-bar.item.icon-indicator.height": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 8}, "reason": "The glyph sits in a box 32 high, which sets its place in the bar and its distance to the title."},
     "tanrei.comp.navigation-bar.filled-selected.item.container.color": {"$value": {"colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0, "hex": "#000000"}, "reason": "Apple's tab bar has no filled form (the variant is unavailable here); drawn, it marks the current tab by its tint."},
     "tanrei.comp.navigation-bar.unselected.item.covered-icon.color": {"$value": "{tanrei.comp.navigation-bar.unselected.item.icon.color}", "reason": "Apple's tab bar draws no shape over a tab, so the covered copy keeps the color of what it covers."},
     "tanrei.comp.navigation-bar.unselected.item.covered-label.color": {"$value": "{tanrei.comp.navigation-bar.unselected.item.label.color}", "reason": "Apple's tab bar draws no shape over a tab, so the covered copy keeps the color of what it covers."},

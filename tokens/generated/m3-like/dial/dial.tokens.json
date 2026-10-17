@@ -5622,13 +5622,6 @@
                 "by": 20
               }
             },
-            "tanrei.comp.navigation-bar.item.container.width": {
-              "derive": {
-                "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 16
-              }
-            },
             "tanrei.comp.navigation-bar.item.container.shape": {
               "$value": "{tanrei.sys.shape.corner.full}"
             },

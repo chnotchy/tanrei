@@ -6473,8 +6473,7 @@ centred: the icon indicator (`item.icon-indicator.width` × `height`, its corner
 keep it) and cut with an ellipsis `item.container.padding-inline` inside its sides. A label that is not drawn collapses,
 and the icon indicator comes to the middle of the same box. Every part is laid out in every system: the default leaves
 the icon indicator transparent at the icon's own size; m3-like and cupertino set `container.padding` to nothing and make
-the item container transparent, so their bars draw what they drew. `item.container.width` and `.height` are read by
-nothing any more. The color reaches under `env(safe-area-inset-bottom)`, `-left` and `-right`. Text grows the bar and
+the item container transparent, so their bars draw no shape around a destination. The color reaches under `env(safe-area-inset-bottom)`, `-left` and `-right`. Text grows the bar and
 every item container with it (its height is a minimum); the icon indicators and icons keep their tokens' size (the web's
 sizes follow `rem`, so a larger root font size grows them too).
 

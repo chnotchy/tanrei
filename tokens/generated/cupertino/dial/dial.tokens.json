@@ -4471,8 +4471,12 @@
               "reason": "Apple's tab bar draws no shape around a tab; its content keeps the tab bar's spacing."
             },
             "tanrei.comp.navigation-bar.item.icon-indicator.height": {
-              "$value": "{tanrei.comp.navigation-bar.item.container.height}",
-              "reason": "Keeps the glyph's place and its distance to the title as they were."
+              "derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 8
+              },
+              "reason": "The glyph sits in a box 32 high, which sets its place in the bar and its distance to the title."
             },
             "tanrei.comp.navigation-bar.filled-selected.item.container.color": {
               "$value": {

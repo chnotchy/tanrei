@@ -10781,11 +10781,9 @@ public struct TanreiNavigationBarTokens: Sendable, Equatable {
   public var containerElevation: [TanreiShadowLayer]
   public var containerHeight: CGFloat
   public var containerPadding: CGFloat
-  public var itemContainerHeight: CGFloat
   public var itemContainerPaddingBlock: CGFloat
   public var itemContainerPaddingInline: CGFloat
   public var itemContainerShape: CGFloat
-  public var itemContainerWidth: CGFloat
   public var itemGap: CGFloat
   public var itemIconIndicatorHeight: CGFloat
   public var itemIconIndicatorShape: CGFloat
@@ -10814,11 +10812,9 @@ public struct TanreiNavigationBarTokens: Sendable, Equatable {
     containerElevation: [TanreiShadowLayer],
     containerHeight: CGFloat,
     containerPadding: CGFloat,
-    itemContainerHeight: CGFloat,
     itemContainerPaddingBlock: CGFloat,
     itemContainerPaddingInline: CGFloat,
     itemContainerShape: CGFloat,
-    itemContainerWidth: CGFloat,
     itemGap: CGFloat,
     itemIconIndicatorHeight: CGFloat,
     itemIconIndicatorShape: CGFloat,
@@ -10842,11 +10838,9 @@ public struct TanreiNavigationBarTokens: Sendable, Equatable {
     self.containerElevation = containerElevation
     self.containerHeight = containerHeight
     self.containerPadding = containerPadding
-    self.itemContainerHeight = itemContainerHeight
     self.itemContainerPaddingBlock = itemContainerPaddingBlock
     self.itemContainerPaddingInline = itemContainerPaddingInline
     self.itemContainerShape = itemContainerShape
-    self.itemContainerWidth = itemContainerWidth
     self.itemGap = itemGap
     self.itemIconIndicatorHeight = itemIconIndicatorHeight
     self.itemIconIndicatorShape = itemIconIndicatorShape

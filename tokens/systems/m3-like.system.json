@@ -546,7 +546,6 @@
     "tanrei.comp.navigation-bar.container.color": {"$value": "{tanrei.sys.color.surface-container}"},
     "tanrei.comp.navigation-bar.outline.color": {"$value": {"colorSpace": "srgb", "components": [0, 0, 0], "alpha": 0, "hex": "#000000"}, "reason": "Material's bar is set apart by tone, with no edge."},
     "tanrei.comp.navigation-bar.container.height": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 20}},
-    "tanrei.comp.navigation-bar.item.container.width": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 16}},
     "tanrei.comp.navigation-bar.item.container.shape": {"$value": "{tanrei.sys.shape.corner.full}"},
     "tanrei.comp.navigation-bar.item.container.padding-inline": {"$value": "{tanrei.sys.space.space0}", "reason": "Material's bar draws no shape around the whole destination; its content keeps Material's spacing."},
     "tanrei.comp.navigation-bar.item.container.padding-block": {"$value": "{tanrei.sys.space.space0}", "reason": "Material's bar draws no shape around the whole destination; its content keeps Material's spacing."},
