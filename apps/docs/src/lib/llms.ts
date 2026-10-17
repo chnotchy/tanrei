@@ -27,6 +27,7 @@ import {
   systemLayers,
   webAttribute,
   type ComponentsManifest,
+  type ManifestOmission,
   type Spec,
   type SpecProp,
 } from './repo';
@@ -231,15 +232,19 @@ function availabilitySection(name: string): string[] {
     const omitted = manifest.omitted.find((each) => each.name === name);
     if (omitted?.providedBy) {
       const carriers = manifests.filter((other) => other.chain.includes(omitted.providedBy!)).map((other) => code(other.system));
-      return [`${manifest.name} (${code(manifest.system)})`, 'No', `It lives in the ${code(omitted.providedBy)} layer, which this system does not extend; the systems that have it: ${carriers.join(', ')}.`];
+      return [`${manifest.name} (${code(manifest.system)})`, 'No', [`It lives in the ${code(omitted.providedBy)} layer, which this system does not extend; the systems that have it: ${carriers.join(', ')}.`, ...standIns(omitted)].join(' ')];
     }
-    return [
-      `${manifest.name} (${code(manifest.system)})`,
-      'No',
-      [`Left out by the ${code(omitted?.omittedBy ?? manifest.system)} layer.`, omitted?.insteadUse?.length ? `Instead use: ${list(omitted.insteadUse)}.` : '', line(omitted?.reason)].filter(Boolean).join(' '),
-    ];
+    return [`${manifest.name} (${code(manifest.system)})`, 'No', [`Left out by the ${code(omitted?.omittedBy ?? manifest.system)} layer.`, ...standIns(omitted)].join(' ')];
   });
   return ['## Availability', '', table(['Design system', 'Has it', 'Notes'], rows)];
+}
+
+/**
+ * What a system that does not ship a component uses for the same job, and why, where its manifest says: for one a
+ * layer of its chain left out, and for one that lives in a layer it does not extend alike.
+ */
+export function standIns(omitted: ManifestOmission | undefined): string[] {
+  return [omitted?.insteadUse?.length ? `Instead use: ${list(omitted.insteadUse)}.` : '', line(omitted?.reason)].filter(Boolean);
 }
 
 /** How a product names the component on each platform, and how far each platform is. */
@@ -332,10 +337,8 @@ const componentLine = (site: URL, name: string, note?: string) => {
 function omittedLines(site: URL, manifest: ComponentsManifest): string[] {
   return manifest.omitted.map((omitted) => {
     const carriers = manifests.filter((other) => other.components.some((component) => component.name === omitted.name)).map((other) => code(other.system));
-    const why = omitted.providedBy
-      ? `It lives in the ${code(omitted.providedBy)} layer, which ${manifest.name} does not extend.`
-      : [`${manifest.name} leaves it out.`, omitted.insteadUse?.length ? `Instead use: ${list(omitted.insteadUse)}.` : ''].filter(Boolean).join(' ');
-    return componentLine(site, omitted.name, `${why} Only in: ${carriers.join(', ') || 'none of the shipped systems'}.`);
+    const place = omitted.providedBy ? `It lives in the ${code(omitted.providedBy)} layer, which ${manifest.name} does not extend.` : `${manifest.name} leaves it out.`;
+    return componentLine(site, omitted.name, [place, ...standIns(omitted), `Only in: ${carriers.join(', ') || 'none of the shipped systems'}.`].join(' '));
   });
 }
 
