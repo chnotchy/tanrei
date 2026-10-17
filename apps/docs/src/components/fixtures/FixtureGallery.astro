@@ -69,7 +69,7 @@ const surface = (id: string) => (spec.fixtures.find((f) => f.id === id) as { sur
                       {!stage.drawn ? (
                         <p class="docs-muted docs-stage-none">{live || !defined ? t.notDefinedYet : t.notDrawnHere}</p>
                       ) : sized ? (
-                        <div class="docs-stage-canvas docs-window" style={`--docs-window-width: ${sized.width}; --docs-window-height: ${sized.height}`}>
+                        <div class="docs-stage-canvas docs-window" style={`--docs-window-width: ${sized.width}; --docs-window-height: ${sized.height}`} data-fit={stage.presentation === 'none' ? '' : undefined}>
                           <iframe
                             class="docs-window-frame"
                             src={fixturePageHref(spec.name, stage.id)}
