@@ -16,37 +16,41 @@ const docs = new URL('../', import.meta.url);
 const read = (base, file) => fs.readFileSync(new URL(file, base), 'utf8');
 const symbol = read(repo, 'design/brand/symbol.svg');
 const symbolLight = read(repo, 'design/brand/generated/symbol.light.svg');
+const wordmark = read(repo, 'design/brand/wordmark.svg');
 const wordmarkLight = read(repo, 'design/brand/generated/wordmark.light.svg');
 
 describe('the header', () => {
   const header = read(docs, 'src/components/frame/Header.astro');
-  const link = header.match(/<a slot="brand" class="tanrei-link docs-site-title"[^>]*>([\s\S]*?)<\/a>/);
+  const css = read(docs, 'src/styles/frame.css');
 
-  test('the link to the first page is the app bar’s brand in its default layout — one image, the symbol — named by the site’s name for assistive technology', () => {
-    assert.ok(link, 'the header has the link to the first page in the bar’s brand slot, not in its navigation slot');
-    assert.doesNotMatch(header, /<tanrei-app-bar[^>]*brand-layout=/, 'the header gives one image: the default layout');
-    assert.match(link[0], /href=\{homeHref\(route\)\}/);
-    assert.match(link[1], /<Fragment set:html=\{symbol\} \/>/, 'the symbol is drawn inline, so a token paints it');
-    assert.match(link[1], /<span class="sr-only">\{route\.siteTitle\}<\/span>/, 'the link is named by the site’s name');
-    assert.doesNotMatch(link[1].replace(/<span class="sr-only">[^<]*<\/span>/, ''), /siteTitle/, 'the name is not set as text beside the symbol');
+  test('the header’s brand is the app bar’s: a link to the first page named by the site’s name', () => {
+    assert.match(header, /<tanrei-app-bar class="docs-app-bar" brand-href=\{homeHref\(route\)\} brand-label=\{route\.siteTitle\}>/);
+    assert.doesNotMatch(header, /<a slot="(?:navigation|brand)/, 'the link is the bar’s, not one written by the page');
   });
 
-  test('the symbol holds its size before any stylesheet, hidden from assistive technology, in currentColor', () => {
-    const mark = inlineMark(symbol, { width: 24, height: 24, class: 'docs-site-mark', 'aria-hidden': 'true', focusable: 'false' });
-    assert.match(mark, /^<svg [^>]*viewBox="0 0 512 512" width="24" height="24" fill="none" class="docs-site-mark" aria-hidden="true" focusable="false">/);
+  test('it always shows the wordmark — never the symbol — named by the site’s name until the bar takes the name', () => {
+    assert.match(header, /inlineMark\(marks\.wordmark, \{[^}]*slot: 'brand-wordmark'[^}]*role: 'img', 'aria-label': route\.siteTitle/);
+    assert.doesNotMatch(header, /marks\.symbol/);
+    assert.doesNotMatch(header, /brand-layout=/, 'one image at every width: no layout that swaps it');
+    const mark = inlineMark(wordmark, { width: 120, height: 40, slot: 'brand-wordmark', class: 'docs-brand' });
+    assert.match(mark, /width="120" height="40"/, 'it holds its size before any stylesheet');
     assert.match(mark, /fill="currentColor"/);
-    assert.doesNotMatch(mark, /<!--/);
-    assert.match(header, /inlineMark\(marks\.symbol, \{ width: 24, height: 24, class: 'docs-site-mark', 'aria-hidden': 'true', focusable: 'false' \}\)/);
   });
 
-  test('the symbol is painted by the brand’s color and drawn at the brand’s size; the bar gives it its cell', () => {
-    const css = read(docs, 'src/styles/frame.css');
-    const rule = (selector) => css.match(new RegExp(`\\n  ${selector.replace(/[.[\]]/g, '\\$&')} \\{([^}]*)\\}`))?.[1] ?? '';
-    assert.match(rule('.docs-site-title'), /color: var\(--tanrei-comp-app-bar-brand-color\)/);
-    assert.doesNotMatch(rule('.docs-site-title'), /min-inline-size/, 'the cell is the bar’s (APB-19)');
-    assert.match(rule('.docs-site-title'), /--tanrei-comp-link-focused-container-shape: var\(--tanrei-comp-button-focused-container-shape\)/);
-    assert.match(rule('.docs-site-mark'), /inline-size: var\(--tanrei-comp-app-bar-brand-size\)/);
-    assert.match(rule('.docs-site-mark'), /block-size: var\(--tanrei-comp-app-bar-brand-size\)/);
+  test('until the bar is defined, the wordmark holds the box the bar gives it, from the bar’s tokens', () => {
+    const rule = css.match(/\n  tanrei-app-bar:not\(:defined\) > \.docs-brand \{([^}]*)\}/)?.[1] ?? '';
+    assert.match(rule, /block-size: var\(--tanrei-comp-app-bar-brand-wordmark-height\)/);
+    assert.match(rule, /padding-inline: calc\(\(var\(--tanrei-sys-target-pointer\) - var\(--tanrei-comp-app-bar-brand-symbol-size\)\) \/ 2\)/);
+    assert.match(rule, /padding-block: calc\(\(var\(--tanrei-sys-target-pointer\) - var\(--tanrei-comp-app-bar-brand-wordmark-height\)\) \/ 2\)/);
+    assert.match(rule, /color: var\(--tanrei-comp-app-bar-brand-color\)/);
+  });
+
+  test('the wordmark at the bar’s height keeps its capital at the brand’s minimum, 24 px', async () => {
+    const tokens = read(repo, 'tokens/comp/app-bar.tokens.json');
+    const height = Number(tokens.match(/"wordmark": \{\s*"height": \{[\s\S]*?"value": (\d+)/)[1]);
+    const cap = (await inkBox(wordmark, { to: 0.25 })).height;
+    const drawn = (cap * height) / frameOf(wordmark).height;
+    assert.ok(drawn >= 24, `the capital is ${drawn} px at ${height} px`);
   });
 });
 
