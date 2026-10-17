@@ -90,7 +90,7 @@ TANREI_HARSH=1 pnpm --filter @tanrei/web test:ci-like src/components/<name> --pr
 
 ### 5. Record it
 
-`pnpm changeset` — one version for all platforms. Commit with Conventional Commits (`feat(web): …`, `fix(tokens): …`, `docs: …`). In the pull request, say what you noticed and did not fix, with what was seen and what would fix it.
+`pnpm changeset` — one version for all platforms. During the 0.x prereleases backward compatibility is not kept: a change may break anything, with no deprecation period first, and its changeset says what broke and what to use instead. Commit with Conventional Commits (`feat(web): …`, `fix(tokens): …`, `docs: …`). In the pull request, say what you noticed and did not fix, with what was seen and what would fix it.
 
 ## Adding a component
 

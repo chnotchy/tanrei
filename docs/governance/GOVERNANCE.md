@@ -26,6 +26,7 @@ Decisions are recorded where they take effect: in the specs and tokens, in `AGEN
 
 ## Stability promises
 
+- **During the 0.x prereleases, backward compatibility is not kept.** Any prerelease may break anything — a prop, an event, a token's name, a default — with no deprecation period first; the changeset of each change, and so the changelog, says what broke and what to use instead. The semver and deprecation promises below do not apply to the 0.x prereleases.
 - Versions are lockstep across platforms; the status matrix at a version is the statement of what that version contains.
 - Until the web components reach `alpha`, every version is a prerelease on the `next` line (`0.1.0-next.N`, published under the npm dist-tag `next`, never `latest`): what is installed without a tag is nothing, by design. `0.1.0` is the first release, when the web is `alpha`; a platform whose CI is paused is published only once it has caught up. The prerelease tag is `next` and not `alpha` or `beta` because those words are component statuses here, with their own meaning.
 - `stable` components follow semver on their spec surface. Token **names** in `sys` and `comp` are public API; token **values** may change in minor releases when the change is visual refinement, and are called out in the changelog.
