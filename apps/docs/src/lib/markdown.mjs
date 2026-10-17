@@ -21,7 +21,7 @@
 //    Callout.astro` writes the same markup for a page that needs the notice as a component.
 //
 // 2. A table. Every `<table>` that Markdown renders is wrapped in `<tanrei-table>`, the scroll box that draws it
-//    (packages/web/README.md, "Markdown"). A Markdown table has no caption, so it is named for assistive technology
+//    (packages/web/IMPLEMENTATION.md, "Markdown"). A Markdown table has no caption, so it is named for assistive technology
 //    by `label` (TBL-23): THE NEAREST HEADING BEFORE IT in the page, or the page's title where no heading comes
 //    first; a second table under the same heading is "<heading> (2)", so that no two tables of a page share a name.
 //    A table written as HTML inside MDX is the author's own and is left alone.
