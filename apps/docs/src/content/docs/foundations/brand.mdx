@@ -1,0 +1,107 @@
+---
+title: Brand
+description: Tanrei's name, its two marks and how to use them, and the character the system is drawn with.
+---
+
+import BrandFigure from '../../../components/BrandFigure.astro';
+
+Tanrei (端麗) means clean and well-formed. The name is a brief for the system: interfaces that are quiet, precise and easy to read, on every platform a product ships to. Tanrei is an independent project.
+
+## The marks
+
+Tanrei has two marks, and uses one at a time.
+
+<BrandFigure
+  title="The symbol and the wordmark"
+  panels={[
+    { mark: 'symbol', scheme: 'light', caption: 'The symbol, light' },
+    { mark: 'symbol', scheme: 'dark', caption: 'The symbol, dark' },
+    { mark: 'wordmark', scheme: 'light', caption: 'The wordmark, light' },
+    { mark: 'wordmark', scheme: 'dark', caption: 'The wordmark, dark' },
+  ]}
+/>
+
+- **The symbol** is the T of Shippori Mincho, with its corners eased. It is used only where a square or round shape is required — the favicon, an app icon, a watermark on assets such as the corner of a design file — or for quiet promotion and decoration.
+- **The wordmark** is the symbol's T followed by "anrei" set in Outfit SemiBold, drawn as one. It is Tanrei's logo wherever the name is read: the header of this site at every width, a cover, a page title, the image of a shared link.
+
+One mark at a time, and never a lockup of the symbol and the wordmark: that is Tanrei's own rule for its marks. The [app bar](/components/app-bar/) itself lets a product show its own logo in whatever arrangement that logo needs, a lockup included.
+
+The symbol sits a little below the centre of its square frame. This is an optical correction: the T carries its weight at the top, and the lower position makes it look centred.
+
+## Color
+
+Both marks are drawn in one color, `sys.color.on-surface`, on the surface they stand on. Because the color is a token and not part of the drawing, the marks follow the light and dark schemes and every contrast level. Each use takes on-surface: the header of this site paints its wordmark with `comp.app-bar.brand.color`, which is on-surface.
+
+## Clear space
+
+<BrandFigure
+  title="Clear space"
+  panels={[{ mark: 'symbol', height: 160, clearSpace: true, caption: 'A quarter of the ink’s height on every side' }]}
+/>
+
+Keep a quarter of the symbol's height clear on every side. Measure it from the ink, not from the frame. Around the wordmark, keep half its x-height clear. Nothing else enters that space: no text, no other mark and no edge of the screen.
+
+## Minimum size
+
+<BrandFigure
+  title="Minimum size"
+  panels={[
+    { mark: 'symbol', height: 'min', caption: 'The symbol: a 24 px frame' },
+    { mark: 'wordmark', height: 'min', caption: 'The wordmark: a 24 px capital' },
+  ]}
+/>
+
+Never draw the symbol smaller than a 24 px frame, and never draw the wordmark with a capital less than 24 px high.
+
+The favicon is the one exception, because a browser draws it at 16 px. It is one SVG. The ICO and PNG files beside it are drawings of the same image at the sizes browsers ask for, not a second design. At 16 px its edges soften, and that is accepted.
+
+## Do and don't
+
+<BrandFigure
+  title="Don't"
+  panels={[
+    { mark: 'symbol', misuse: 'recolor', caption: 'Painted in another color' },
+    { mark: 'symbol', misuse: 'outline', caption: 'Outlined' },
+    { mark: 'symbol', misuse: 'stretch', caption: 'Stretched' },
+    { mark: 'lockup', caption: 'The symbol beside the wordmark' },
+    { mark: 'name', caption: 'The name set beside the symbol' },
+  ]}
+/>
+
+### Do
+
+- Use one mark at a time: the wordmark wherever the name is read, the symbol only where a square or round shape is required.
+- Draw the mark in on-surface, on the surface of the scheme it stands in.
+- Where a platform needs an opaque icon, such as a home screen or a raster favicon, put the symbol on the light scheme's surface. The square belongs to the platform, not to the mark.
+- Keep the symbol where it sits in its frame. Don't move it to the frame's centre.
+
+### Don't
+
+- Don't recolor a mark, and don't add a gradient, an outline, a shadow or a background shape.
+- Don't stretch, rotate or crop a mark.
+- Don't build a lockup of the symbol and the wordmark, and don't set the name as text beside the symbol.
+- Don't set the wordmark again in another typeface. Use its drawing.
+- Don't use the characters 端麗 as a mark. They are an ornament of the design file's cover, not part of the identity.
+
+## The character of the system
+
+The brand is also the way the system looks.
+
+### Content first, chrome last
+
+Surfaces are near-monochrome and borders are one-pixel hairlines, so the product's content is the most colorful thing on the screen. The primary action is black on white or white on black. A single blue accent exists, and it is reserved for the one thing that must be found at once: the keyboard focus ring. A link is told by its underline and the chosen item by the primary color, so nothing else on the screen is blue.
+
+### Structure you can see
+
+Hierarchy comes from alignment, spacing and hairlines rather than from heavy shadows or tinted panels. Elevation is a ring plus a very soft shadow.
+
+### Additive expression
+
+The default is restrained. Expressive choices such as heavier emphasis steps, larger and smoother corners and springier motion are extra tokens layered on the same structure, never a fork of it.
+
+## Use of the marks by others
+
+Tanrei's code and documentation are licensed under the Apache License 2.0. Section 6 of the license does not grant permission to use the licensor's names, trademarks or product names, except to describe where the work comes from and to reproduce the NOTICE file.
+
+- You may say in text that your work uses Tanrei or is built with it.
+- The symbol and the wordmark belong to the Tanrei Authors and are not licensed to others. Don't use them in your product, in your package's name or icon, or in any way that suggests your work is Tanrei or is endorsed by it.

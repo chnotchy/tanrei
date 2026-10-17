@@ -1,0 +1,161 @@
+---
+// A figure of the brand page (foundations/brand.mdx): the marks drawn from their sources (design/brand/, by
+// lib/brand-marks.ts), never from a picture of them, so that a mark pulled again from Figma is what the page shows on
+// its next build. Each panel draws one use — a mark in a scheme, at a size, with its clear space measured from its
+// ink (lib/brand-geometry.mjs), or a misuse made from the mark — and the page writes its words (title, captions) in
+// its own language.
+//
+// Tanrei's Figure, written as its native parts and named by its title before it is defined; the stage is not text of
+// the page (`data-pagefind-ignore`), the captions are.
+import { inlineMark } from '../lib/brand.mjs';
+import { inkBox, frameOf } from '../lib/brand-geometry.mjs';
+import { marks } from '../lib/brand-marks';
+import { figureId } from '../lib/figure-id';
+
+type Mark = 'symbol' | 'wordmark';
+interface Panel {
+  /** Which mark the panel draws. `lockup` and `name` are misuses: the symbol beside the wordmark, or beside the name set as text. */
+  mark: Mark | 'lockup' | 'name';
+  /** The scheme the panel is drawn in: its own surface and on-surface. */
+  scheme?: 'light' | 'dark';
+  /** The mark's height in px; `min` is the mark's minimum size (the symbol's frame 24, the wordmark's cap height 24). */
+  height?: number | 'min';
+  /** Draw the clear space around the ink: a quarter of the ink's height on every side (the symbol). */
+  clearSpace?: boolean;
+  /** A misuse made from the mark: painted in the accent color, outlined, or stretched. */
+  misuse?: 'recolor' | 'outline' | 'stretch';
+  /** What the panel shows, in the page's language. */
+  caption: string;
+}
+interface Props {
+  title: string;
+  panels: Panel[];
+}
+const { title, panels } = Astro.props;
+const id = figureId(Astro);
+
+/** The smallest size a mark is drawn at: the symbol's frame 24 px; the wordmark's capital (its first letter) 24 px high. */
+const MIN = 24;
+const wordmarkCap = (await inkBox(marks.wordmark, { to: 0.25 })).height;
+const minHeight = (mark: Mark) => (mark === 'symbol' ? MIN : Math.ceil((MIN * frameOf(marks.wordmark).height) / wordmarkCap));
+const symbolInk = await inkBox(marks.symbol);
+
+const draw = (mark: Mark, height: number, misuse?: Panel['misuse']) => {
+  const frame = frameOf(marks[mark]);
+  const width = Math.round(((height * frame.width) / frame.height) * (misuse === 'stretch' ? 1.6 : 1) * 100) / 100;
+  let svg = inlineMark(marks[mark], { width, height, 'aria-hidden': 'true', focusable: 'false', class: misuse === 'recolor' ? 'mark recolor' : 'mark' });
+  if (misuse === 'stretch') svg = svg.replace('<svg ', '<svg preserveAspectRatio="none" ');
+  if (misuse === 'outline') svg = svg.replaceAll('fill="currentColor"', 'fill="none" stroke="currentColor" stroke-width="12"');
+  return svg;
+};
+
+const rendered = panels.map((panel) => {
+  const base: Mark = panel.mark === 'wordmark' ? 'wordmark' : 'symbol';
+  const height = panel.height === 'min' ? minHeight(base) : (panel.height ?? (panel.mark === 'lockup' || panel.mark === 'name' ? 48 : base === 'symbol' ? 96 : 40));
+  let html = '';
+  if (panel.mark === 'lockup') html = `${draw('symbol', height)}${draw('wordmark', Math.round(height * 0.6))}`;
+  else if (panel.mark === 'name') html = `${draw('symbol', height)}<span class="name" translate="no">Tanrei</span>`;
+  else html = draw(base, height, panel.misuse);
+  // The clear space: the ink's box, grown by a quarter of the ink's height on every side, in the frame's units.
+  let space = '';
+  if (panel.clearSpace && base === 'symbol') {
+    const k = height / frameOf(marks.symbol).height;
+    const q = symbolInk.height / 4;
+    const box = { left: (symbolInk.x - q) * k, top: (symbolInk.y - q) * k, width: (symbolInk.width + 2 * q) * k, height: (symbolInk.height + 2 * q) * k };
+    const ink = { left: symbolInk.x * k, top: symbolInk.y * k, width: symbolInk.width * k, height: symbolInk.height * k };
+    space = `<span class="space" style="left:${box.left}px;top:${box.top}px;width:${box.width}px;height:${box.height}px"></span><span class="ink" style="left:${ink.left}px;top:${ink.top}px;width:${ink.width}px;height:${ink.height}px"></span>`;
+  }
+  return { ...panel, html, space, captionId: `${id}-${panels.indexOf(panel)}` };
+});
+---
+
+<tanrei-figure class="not-content brand" pattern="none">
+  <figure aria-labelledby={`${id}-title`}>
+    <div data-part="frame">
+      <header>
+        <p data-part="title" id={`${id}-title`}>{title}</p>
+      </header>
+      <div data-part="stage" class="stage" data-pagefind-ignore>
+        {rendered.map((panel) => (
+          <>
+            <div class:list={['panel', panel.scheme ?? 'light', { misuse: !!panel.misuse || panel.mark === 'lockup' || panel.mark === 'name' }]} role="group" aria-labelledby={panel.captionId}>
+              <div class="art">
+                <span class="drawing" set:html={panel.html + panel.space} />
+              </div>
+              <p class="caption" id={panel.captionId}>{panel.caption}</p>
+            </div>{' '}
+          </>
+        ))}
+      </div>
+    </div>
+  </figure>
+</tanrei-figure>
+
+<script>
+  import '@tanrei/web/components/figure';
+</script>
+
+<style>
+  /* The site's own arrangement inside the stage: a row of panels, each the surface of its scheme with the mark in its
+     on-surface (light-dark() tokens resolve by the panel's own color-scheme), the caption under it. */
+  .stage {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    gap: var(--tanrei-sys-space-space200);
+  }
+  .panel {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: var(--tanrei-sys-space-space100);
+    padding: var(--tanrei-sys-space-space200);
+    border-radius: var(--tanrei-sys-shape-corner-medium);
+    background: var(--tanrei-sys-color-surface);
+    color: var(--tanrei-sys-color-on-surface);
+    outline: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+  }
+  .panel.light {
+    color-scheme: light;
+  }
+  .panel.dark {
+    color-scheme: dark;
+  }
+  /* A misuse is made from the mark: painted in the focus ring's accent, a color a mark is never drawn in. */
+  .panel :global(.mark.recolor) {
+    color: var(--tanrei-sys-color-focus-ring);
+  }
+  .art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--tanrei-sys-space-space150);
+    min-block-size: 8rem;
+  }
+  .drawing {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tanrei-sys-space-space150);
+  }
+  /* The clear space and the ink's box, measured from the mark (lib/brand-geometry.mjs), over the drawing. */
+  .drawing :global(.space),
+  .drawing :global(.ink) {
+    position: absolute;
+    box-sizing: border-box;
+    pointer-events: none;
+  }
+  .drawing :global(.space) {
+    border: var(--tanrei-sys-border-hairline) dashed var(--tanrei-sys-color-focus-ring);
+  }
+  .drawing :global(.ink) {
+    border: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+  }
+  .name {
+    font: var(--tanrei-sys-typescale-title-font);
+  }
+  .caption {
+    margin: 0;
+    font: var(--tanrei-sys-typescale-body-small-font);
+    letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+</style>
