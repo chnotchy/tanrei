@@ -7,7 +7,8 @@ React bindings are generated from this package's custom elements manifest (`@tan
 
 ```js
 import '@tanrei/web/tokens.css';   // the default system, on :root
-import '@tanrei/web';              // every element; or one at a time: '@tanrei/web/components/button'
+import '@tanrei/web';              // every element of the core; or one at a time: '@tanrei/web/components/button'
+import '@tanrei/web/m3-like';      // on an m3-like system: the elements that live in that layer (the FAB menu)
 import '@tanrei/web/icons.css';    // optional: .tanrei-icon
 import '@tanrei/web/text.css';     // optional: .tanrei-text-<role>
 import '@tanrei/web/prose.css';    // optional: .tanrei-prose — long-form text (rendered Markdown, CMS content)
@@ -124,13 +125,20 @@ And in every engine, whatever is registered:
   differ, and the first is met at once.
 
 A system may leave components, or values of a component's `variant`, out: Tanrei's default leaves out
-`<tanrei-segmented-button>` and `<tanrei-fab-menu>`, the presets the navigation bar's `filled`. They still render and
+`<tanrei-segmented-button>`, the presets the navigation bar's `filled`. They still render and
 work under it; in a debug build (see `report()` below) each element that system leaves out warns once, when it connects
 and when its `variant` changes. The system's stylesheet carries the list as
 `--tanrei-unavailable: "<component> <component>:<variant> …"`, read from the cascade at the element, so it follows
 `data-tanrei-system` like every token. The warning names the system from `--tanrei-system: "<id>"` when the sheet
 declares it, otherwise from the nearest `data-tanrei-system`, and what the system uses instead when the sheet declares
 `--tanrei-unavailable-replacement: "<entry>=<replacement>,… …"`.
+
+A component that lives in a layer is another matter: `<tanrei-fab-menu>` lives in the m3-like layer, and a system that
+does not descend from it (the default, cupertino) has none of its tokens. `@tanrei/web` does not register it;
+`@tanrei/web/m3-like` does. Its sheet names it in `--tanrei-unavailable-layer: "<component>=<layer> …"`, and an element
+used there warns once in a debug build that it lives in that layer, which the system does not extend. A product on
+another system takes it in its own layer with `"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }`:
+its sheet then carries the FAB menu's tokens, valued with the product's own.
 
 ## Choices of kind (`sys.behavior.*`)
 
@@ -3918,7 +3926,9 @@ the web). Forced colors: a `ButtonText` edge, since the shadow is dropped.
 ## `<tanrei-fab-menu>` and `<tanrei-fab-menu-item>`
 
 A floating action button that opens a short list of related actions, and turns into the list's close button while they
-show (`specs/fab-menu.spec.json`, FBM-1…24).
+show (`specs/fab-menu.spec.json`, FBM-1…24). It lives in the m3-like layer: `import '@tanrei/web/m3-like'` registers it,
+and its tokens are in the m3-like systems' sheets (`@tanrei/web/systems/m3-like.css`, `m3-expressive-like.css`) and in
+the sheet of a product that includes it.
 
 ```html
 <tanrei-fab-menu label="Create">

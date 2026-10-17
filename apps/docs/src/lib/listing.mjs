@@ -7,7 +7,7 @@
 // components mark their rows with them, and Node tests them (test/listing.test.mjs).
 
 /**
- * @typedef {{ name: string, title: string, category: string, level: string, listing: string, builtFrom?: string[], docs?: string | null }} Row  A row of the status file's `components`.
+ * @typedef {{ name: string, title: string, category: string, level: string, listing: string, layer?: string, builtFrom?: string[], docs?: string | null }} Row  A row of the status file's `components`.
  * @typedef {{ listed: string, onRequest: string }} Listings  The status file's `listings`: which name is which.
  */
 
@@ -15,7 +15,17 @@
 const OWN_PAGE = /^\/components\/[a-z0-9-]+\/$/;
 
 /** The categories in the order the inventory first names them: the order of every list that groups by what a component is for. */
-export const categoriesOf = (/** @type {Row[]} */ rows) => [...new Set(rows.map((row) => row.category))];
+/**
+ * The group a component is listed in: its category, or — for one that lives in a layer, which only the systems that
+ * descend from that layer have — that layer's own group, `layer:<id>`.
+ */
+export const groupOf = (/** @type {Pick<Row, 'category' | 'layer'>} */ row) => (row.layer ? `layer:${row.layer}` : row.category);
+
+/** The groups of the rows, the categories in the inventory's order and then the layers' groups. */
+export const categoriesOf = (/** @type {Pick<Row, 'category' | 'layer'>[]} */ rows) => {
+  const groups = [...new Set(rows.map(groupOf))];
+  return [...groups.filter((group) => !group.startsWith('layer:')), ...groups.filter((group) => group.startsWith('layer:'))];
+};
 
 /**
  * The components that have a page of their own, category by category (each category's in the inventory's order): the
@@ -26,7 +36,7 @@ export const categoriesOf = (/** @type {Row[]} */ rows) => [...new Set(rows.map(
  */
 export function componentPages(rows) {
   const pages = rows.filter((row) => OWN_PAGE.test(row.docs ?? ''));
-  return categoriesOf(pages).flatMap((category) => pages.filter((row) => row.category === category));
+  return categoriesOf(pages).flatMap((category) => pages.filter((row) => groupOf(row) === category));
 }
 
 /**
@@ -94,7 +104,7 @@ export function sidebarTree(sidebar, rows, listings, base, categoryLabel) {
       label: categoryLabel(category),
       collapsed: false,
       entries: own
-        .filter((child) => rowOf(child).category === category)
+        .filter((child) => groupOf(rowOf(child)) === category)
         .map((child) => (isOnRequest(rowOf(child), listings) && !(/** @type {LinkEntry} */ (child).isCurrent) ? { ...child, onRequest: true } : child)),
     }));
     return { ...entry, entries: [...entry.entries.filter((child) => !own.includes(child)), ...groups] };
