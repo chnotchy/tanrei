@@ -1,12 +1,13 @@
 import { css, unsafeCSS } from 'lit';
-import { focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules, whenChosen } from '../../primitives/index.js';
+import { focusRing, iconGlyph, minimumTarget, pressHold, rippleStyles, stateRules, type Tone, whenChosen } from '../../primitives/index.js';
 import { productText } from '../../styles/product-text.js';
 import { cornerRadius, shape } from '../../styles/shape.js';
 import { scriptTracking } from '../../styles/script-tracking.js';
 
-// Every visual value is a token (tokens/comp/snackbar.tokens.json). The action and the close button are the two values
-// of the snackbar's control axis: each has its container and content colors per state, and they share the
-// geometry under `controls.*`; the expand button reads the close button's tokens. The bar itself answers no state.
+// Every visual value is a token (tokens/comp/snackbar.tokens.json). The action is the snackbar's one control of its own:
+// it has its container and content colors per state, and its geometry under `controls.*`. The expand and close buttons
+// are small Tanrei Buttons (SNK-34), drawn from Button's own tokens in the tone the snackbar gives them. The bar itself
+// answers no state.
 //
 // A snackbar has ten forms (SNK-21, SNK-30): its status (default, info, warning, error, success), on a surface of the
 // scheme or drawn inverse. A form is a condition written as a one-word prefix — none, `<status>`, `inverse`,
@@ -31,8 +32,8 @@ export const INVERSE = ['off', 'on'] as const;
 export const INVERSE_PROPERTY = '--_inverse';
 /** The component token itself: the system's choice as the cascade gives it to the host, whatever its attribute says. */
 export const INVERSE_TOKEN = `${PREFIX}-container-inverse`;
-/** One control's colors in every state, as `--_c-h` (container, hovered), `--_o-p` (content, pressed)… in one form. */
-const controlBlock = (control: 'action' | 'close', selector: string, form = '') =>
+/** The action's colors in every state, as `--_c-h` (container, hovered), `--_o-p` (content, pressed)… in one form. */
+const controlBlock = (control: 'action', selector: string, form = '') =>
   `${selector} {\n${Object.entries(STATES)
     .flatMap(([state, suffix]) => {
       const name = [control, state, form].filter(Boolean).join('-');
@@ -41,7 +42,9 @@ const controlBlock = (control: 'action' | 'close', selector: string, form = '') 
     .join('\n')}\n}`;
 /**
  * The bar's own colors in one form, as `--_bar`, `--_title`, `--_text`, `--_icon` (a status form's glyph), `--_edge` (a
- * status form's edge, SNK-31) and `--_focus` (the outer stroke of the focus indicator drawn on this bar, SNK-3).
+ * status form's edge, SNK-31) and `--_focus` (the outer stroke of the focus indicator drawn on this bar, SNK-3); and the
+ * tone of the expand and close Buttons (SNK-34): the form's message color and its focus color, as `--_button-tone` and
+ * `--_button-tone-focus`, which the Buttons inherit.
  */
 const barBlock = (selector: string, form: string, glyph: boolean) => {
   const part = (name: string) => `var(${PREFIX}-${form ? `${form}-` : ''}${name})`;
@@ -50,8 +53,16 @@ const barBlock = (selector: string, form: string, glyph: boolean) => {
   --_title: ${part('title-color')};
   --_text: ${part('supporting-text-color')};${glyph ? `\n  --_icon: ${part('icon-color')};\n  --_edge: ${part('outline-color')};` : ''}
   --_focus: ${part('focus-ring-color')};
+  --_button-tone: ${part('supporting-text-color')};
+  --_button-tone-focus: ${part('focus-ring-color')};
 }`;
 };
+/**
+ * SNK-34, BTN-45: the tone the snackbar gives its expand and close Buttons, the same words in every form: each form's
+ * block above sets the two custom properties on the bar, and a Button reads them where it is drawn, so a change of form
+ * (SNK-30) recolors it at once. The names are the snackbar's own and no Button's.
+ */
+export const BUTTON_TONE: Tone = { color: 'var(--_button-tone)', focus: 'var(--_button-tone-focus)' };
 /** The five forms of `bar` on a surface (`inverse` false) or drawn inverse: each status's block, the default's first. */
 const formBlocks = (bar: string, inverse: boolean) =>
   (['default', ...STATUSES] as const)
@@ -59,8 +70,7 @@ const formBlocks = (bar: string, inverse: boolean) =>
       const form = [inverse ? 'inverse' : '', status === 'default' ? '' : status].filter(Boolean).join('-');
       const of = `${bar}[data-status='${status}']`;
       return `${barBlock(of, form, status !== 'default')}
-${controlBlock('action', `${of} .action`, form)}
-${controlBlock('close', `${of} :is(.close, .expand)`, form)}`;
+${controlBlock('action', `${of} .action`, form)}`;
     })
     .join('\n');
 
@@ -116,7 +126,7 @@ export const styles = css`
     display: none;
   }
 
-  /* SNK-15: a control — the action's label, or a glyph in a square — at least controls.height tall, on its corners. */
+  /* SNK-15: the action — its label at least controls.height tall, on its corners. */
   /* SNK-21, SNK-30: the five forms on a surface, then the five drawn inverse — by a style query on the host's choice,
      which follows the attribute, a layer and a system switched on any ancestor with no script, and by data-inverse
      (written by the element) in a browser without style queries. */
@@ -310,13 +320,18 @@ export const styles = css`
   ${focusRing((focus) => `.text${focus} ~ .focus`, { inside: true, color: 'var(--_focus)' })}
 
   /* The first control is container.gap after the text, the next ones controls.gap after the one before; each is
-     centred on the text's first line, overlapping the padding rather than growing the row. */
-  .control {
+     centred on the text's first line, overlapping the padding rather than growing the row. The action is
+     controls.height tall, or as tall as its label's line where enlarged text makes that taller; the expand and close
+     buttons are small Buttons (SNK-34), as tall as their size. */
+  :is(.control, .expand, .close) {
     align-self: start;
-    margin-block: calc((var(--_line) - ${t('controls-height')}) / 2);
+    margin-block: calc((var(--_line) - max(${t('controls-height')}, ${unsafeCSS(lineOf('controls-label'))})) / 2);
     margin-inline-start: ${t('container-gap')};
   }
-  .control + .control {
+  :is(.expand, .close) {
+    margin-block: calc((var(--_line) - var(--tanrei-comp-button-container-height-small)) / 2);
+  }
+  :is(.control, .expand, .close) + :is(.expand, .close) {
     margin-inline-start: ${t('controls-gap')};
   }
   .action {
@@ -351,7 +366,7 @@ export const styles = css`
     margin-block: ${t('container-gap')} 0;
     margin-inline-start: 0;
   }
-  .bar.stacked .action + .control {
+  .bar.stacked .action + :is(.expand, .close) {
     margin-inline-start: ${t('container-gap')};
   }
   /* Expanded, the text fills its row, which holds it to the height the bar may take (SNK-25). */
@@ -369,8 +384,8 @@ export const styles = css`
   /* SNK-33: the action's tonal layer — its content color of the form and the state it is in (the color the label is
      drawn in, so it follows every state and its transition) at action.tonal-layer.opacity, filling the container to its
      corners, in every state. It is the label's own layer under the label: above the container color of the state and,
-     later in the same stacking order, above a ripple (the control's first child); it takes no press and no room. Not on
-     the expand or the close button. At 0 it is transparent: the action is its container alone. */
+     later in the same stacking order, above a ripple (the control's first child); it takes no press and no room. The
+     action's alone. At 0 it is transparent: the action is its container alone. */
   .action .hold {
     corner-shape: inherit;
   }
@@ -384,16 +399,17 @@ export const styles = css`
     background: ${faded('currentColor', 'action-tonal-layer-opacity')};
     pointer-events: none;
   }
-  .close,
-  .expand {
-    inline-size: ${t('controls-height')};
-    block-size: ${t('controls-height')};
+  /* SNK-34: the glyph the snackbar gives an expand or close Button, in the Button's icon slot, which sizes and draws it;
+     its box clips the name a text face would spell while the icon set cannot draw it yet. */
+  .glyph {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
   }
-  ${iconGlyph('.icon', { size: `${PREFIX}-controls-icon-size`, selected: ':not(*)', duration: `${PREFIX}-motion-state-duration`, easing: `${PREFIX}-motion-state-easing` })}
   /* SNK-26: nothing in a glyph's place until the icon set can draw it (GlyphDrawnController sets data-drawn); the box keeps
      its size. */
   .status:not([data-drawn]),
-  .icon:not([data-drawn]) {
+  .glyph:not([data-drawn]) {
     visibility: hidden;
   }
   /* The ligature's own width, which GlyphDrawnController compares with the glyph box. */
@@ -402,10 +418,10 @@ export const styles = css`
     vertical-align: top;
   }
 
-  /* SNK-4: each control's hit area meets the minimum target without changing its visual size. */
+  /* SNK-4: the action's hit area meets the minimum target without changing its visual size (a Button keeps its own). */
   ${minimumTarget('.control')}
 
-  /* SNK-2, SNK-5, SNK-6: each state paints the control from that state's tokens; pressed > focused > hovered. */
+  /* SNK-2, SNK-5, SNK-6: each state paints the action from that state's tokens; pressed > focused > hovered. */
   ${stateRules(on, {
     hovered: `${paint('-h')}
     opacity: ${T('hovered-opacity')};`,
@@ -426,14 +442,15 @@ export const styles = css`
     easing: `${PREFIX}-motion-state-easing`,
   })}
 
-  /* SNK-3, SNK-7: the ring (or the glow) around the focused control, never animated, its outer stroke in the form's
-     focus color: the indicator is drawn on the bar, so the bar decides what shows on it. */
+  /* SNK-3, SNK-7: the ring (or the glow) around the focused action, never animated, its outer stroke in the form's
+     focus color: the indicator is drawn on the bar, so the bar decides what shows on it. (The expand and close Buttons
+     draw their own, in the same color through their tone.) */
   ${focusRing(on, { color: 'var(--_focus)' })}
 
-  /* SNK-7: corner smoothing on the bar and the controls (data-tanrei-shape). */
+  /* SNK-7: corner smoothing on the bar and the action (data-tanrei-shape). */
   ${shape}
 
-  /* SNK-5: the label and the glyph carry press-hold for PressController. */
+  /* SNK-5: the action's label carries press-hold for PressController. */
   ${pressHold('.hold')}
 
   /* SNK-24: while the bar grows or shrinks, what is outside its new height is clipped — and the text, held to a row
