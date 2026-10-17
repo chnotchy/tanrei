@@ -726,7 +726,7 @@ test.describe('brand', () => {
   const brandBar = (page: P) => page.locator('#brand-stage tanrei-app-bar');
   const centre = (box: { x: number; y: number; width: number; height: number }) => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 });
 
-  test('APB-19: the brand stands after the navigation item at actions.gap, in a cell as large as an icon button’s, its square mark on the icon’s centre line at the icon’s inset; without a navigation item it starts container.padding-inline from the edge; rtl mirrors', async ({ page }) => {
+  test('APB-19: the brand stands after the navigation item at actions.gap, in a cell as large as an icon button’s, its square mark on the icon’s centre line at the icon’s inset; without a navigation item, or with one that is not drawn, it starts container.padding-inline from the edge; rtl mirrors', async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 600 });
     await brandPage(page, '', link('brand', 'home'));
     const menu = await bounds(brandBar(page).locator('tanrei-button[slot="navigation"]'));
@@ -749,6 +749,12 @@ test.describe('brand', () => {
     const barBox = await bounds(brandBar(page));
     const alone = await bounds(page.locator('#home'));
     expect(alone.x - barBox.x).toBeCloseTo(await resolveToken(page, T('container-padding-inline')), 0);
+    // A navigation item the product does not draw (an app shell's menu button where the navigation has a place) leaves
+    // no gap before the brand.
+    await brandPage(page, '', link('brand', 'home'));
+    await brandBar(page).locator('tanrei-button[slot="navigation"]').evaluate((el: HTMLElement) => (el.style.display = 'none'));
+    const undrawn = await bounds(page.locator('#home'));
+    expect(undrawn.x - (await bounds(brandBar(page))).x).toBeCloseTo(await resolveToken(page, T('container-padding-inline')), 0);
 
     await page.locator('#brand-stage').evaluate((el) => el.setAttribute('dir', 'rtl'));
     await brandBar(page).evaluate((el: any) => el.updateComplete);
