@@ -46,11 +46,26 @@ export const presetAccessibilityReport = (system, measurements) => ({
 });
 
 /**
- * The components whose colors `checkInvariants` compares in every scheme, and not by role alone: the radio's mark
- * (the radio button, and the menu's radio item) is drawn over a state layer that a rule derives. A model read one
- * scheme at a time (`invariantModel`) carries their colors in every scheme, so that it reports what a whole model does.
+ * The rows whose selection is told by their fill (`ROW_SELECTION` below): each is a selected row's container color, the
+ * color of a row that is not selected under the pointer, and the color of the selected row's text, the component's own
+ * tokens. A menu's checked row is told by its mark and has no fill at standard contrast, a select's and a combobox's
+ * option are menus, and a chip, a segmented button and a tab draw a check or an indicator beside their fill: none is
+ * held here.
  */
-export const COMPONENTS_HELD_IN_EVERY_SCHEME = ['radio-button', 'menu'];
+const SELECTED_ROWS = [
+  ['list.selected.container.color', 'list.unselected.hovered.container.color', 'list.selected.content.color'],
+  ['tree-view.selected.container.color', 'tree-view.unselected.hovered.container.color', 'tree-view.selected.label.color'],
+  ['navigation-drawer.selected.item.container.color', 'navigation-drawer.unselected.hovered.item.container.color', 'navigation-drawer.selected.item.label.color'],
+  ['table.row.selected.container.color', 'table.row.unselected.hovered.container.color', 'table.row.selected.text.color'],
+];
+
+/**
+ * The components whose colors `checkInvariants` compares in every scheme, and not by role alone: the radio's mark
+ * (the radio button, and the menu's radio item) is drawn over a state layer that a rule derives, and a selected row
+ * and a hovered one are layers over the surface the row stands on. A model read one scheme at a time
+ * (`invariantModel`) carries their colors in every scheme, so that it reports what a whole model does.
+ */
+export const COMPONENTS_HELD_IN_EVERY_SCHEME = ['radio-button', 'menu', ...new Set(SELECTED_ROWS.map(([selected]) => selected.split('.')[0]))];
 
 /** WCAG 2.x contrast ratio; a translucent foreground is composited over the background first. */
 export function contrast(fgColor, bgColor) {
@@ -130,6 +145,11 @@ const HIGH_CONTRAST_TEXT = 7;
 // decoration beside a control that its label already identifies (WCAG 1.4.11), and is not held. The default system
 // alone is held to it (below).
 const HAIRLINE = { medium: 3, high: 4.5 };
+// How far a selected row stands from a row under the pointer, both laid over the surface they stand on, in every
+// scheme and on every surface role. A selection that is a layer twice the hover layer stands 1.15:1 to 1.3:1 from a
+// hovered row in the default system; a tone chosen against the page met the hover layer at 1.00:1 to 1.03:1, and the
+// two rows read as one grey. The default system alone is held to it: a preset keeps its original's selection.
+const ROW_SELECTION = 1.1;
 // The scheme of the other theme at the same contrast level (an inverse status form mirrors it).
 const OTHER_THEME = { light: 'dark', 'light-medium': 'dark-medium', 'light-high': 'dark-high', dark: 'light', 'dark-medium': 'light-medium', 'dark-high': 'light-high' };
 
@@ -434,6 +454,37 @@ export function checkInvariants(model) {
             : `the fill of a radio against the ring it meets, at ${short(at(mark.opacity))} ${opacity} over ${short(worst.groundId)} and the state layer — WCAG 1.4.11`;
           failures.push(`[${scheme}] ${short(fillId)} on ${besideId}: ${worst.ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (${why})`);
         }
+      }
+    }
+  }
+
+  // A selected row against a hovered one (`ROW_SELECTION`), and the selected row's text on its fill (4.5:1, 7:1 in the
+  // high-contrast schemes). Each fill is laid over each surface role of the scheme (the selection replaces the hover
+  // layer's ground, it is not stacked on it) and the worst pair is reported. A fill that is a role is held on its own
+  // by the role pairs above. Compared from the component colors of the schemes the model carries.
+  if (model.system === CONFIG.namespace) {
+    for (const [selectedName, hoveredName, textName] of SELECTED_ROWS) {
+      const [selectedId, hoveredId, textId] = [selectedName, hoveredName, textName].map((name) => `${CONFIG.namespace}.comp.${name}`);
+      if (!model.tokens[selectedId] || !model.tokens[hoveredId]) continue;
+      for (const scheme of model.schemes) {
+        const [selected, hovered, text] = [colorOf(scheme, selectedId), colorOf(scheme, hoveredId), model.tokens[textId] && colorOf(scheme, textId)];
+        if (!selected || !hovered) continue;
+        let apart;
+        let read;
+        for (const surface of SURFACES) {
+          const ground = model.colors[scheme][surface]?.value;
+          if (!ground || rgba(ground).a < 1) continue;
+          const fill = flat(selected, ground);
+          const ratio = contrast(fill, flat(hovered, ground));
+          if (!apart || ratio < apart.ratio) apart = { ratio, surface };
+          if (text && !role(model.tokens[selectedId])) {
+            const textRatio = contrast(text, fill);
+            if (!read || textRatio < read.ratio) read = { ratio: textRatio, surface };
+          }
+        }
+        if (apart && apart.ratio < ROW_SELECTION) failures.push(`[${scheme}] ${short(selectedId)} on ${short(hoveredId)}: ${apart.ratio.toFixed(2)}:1 < ${ROW_SELECTION}:1 (a selected row against a hovered one, each laid over sys.color.${apart.surface}: the two read as one fill — make the selection a layer of the row's content color, as comp.list.selected.container.color is)`);
+        const required = scheme.endsWith('-high') ? HIGH_CONTRAST_TEXT : TEXT;
+        if (read && read.ratio < required) failures.push(`[${scheme}] ${short(textId)} on ${short(selectedId)}: ${read.ratio.toFixed(2)}:1 < ${required}:1 (a selected row's text on its fill, laid over sys.color.${read.surface})`);
       }
     }
   }
