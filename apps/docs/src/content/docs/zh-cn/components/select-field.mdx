@@ -2,7 +2,7 @@
 title: "下拉选择字段"
 description: "以表单里一个完整字段的形式，让用户从一个封闭的列表中选择一个值——一个可以说明字段必填或选填的标签，一个显示选中的选项并打开选项列表的触发器，以及下方的一行帮助文本或错误——它们为辅助技术关联在一起，并作为一个控件参与表单。"
 translationOf: components/select-field.mdx
-sourceHash: 5623cc0f00e2618e6c0495cbfb3ff9ec11643515
+sourceHash: a32e4e5bcac0cb6b1463d882d742f42b45d3df2a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -159,7 +159,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 | 方面 | 来自字段 | 来自下拉选择框 |
 | --- | --- | --- |
-| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation` |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation`, `iconSpace` |
 | 事件 | — | `change`, `toggle` |
 | 插槽 | `label-icon` | `leading-icon`，以及选项 |
 | 令牌 | `comp.field.*` | 方框用 `comp.input-box.*`，每一种输入方框都读取它；列表用 `comp.select.*` |

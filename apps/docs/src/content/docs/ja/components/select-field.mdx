@@ -2,7 +2,7 @@
 title: セレクトフィールド
 description: 決まったリストの中から 1 つの値を、完成した 1 つのフォームのフィールドとして選べるようにします。必須または任意であることを伝えられるラベル、選ばれているオプションを表示してオプションのリストを開くトリガー、下に置く補足またはエラーの 1 行から成り、支援技術に対して 1 つにまとめられ、フォームには 1 つのコントロールとして加わります。
 translationOf: components/select-field.mdx
-sourceHash: 5623cc0f00e2618e6c0495cbfb3ff9ec11643515
+sourceHash: a32e4e5bcac0cb6b1463d882d742f42b45d3df2a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -159,7 +159,7 @@ Web では、`<tanrei-option>` を子に持つ `<tanrei-select-field>` です。
 
 | 観点 | フィールドから | セレクトから |
 | --- | --- | --- |
-| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText` | `variant`、`size`、`value`、`placeholder`、`readOnly`、`open`、`separation` |
+| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText` | `variant`、`size`、`value`、`placeholder`、`readOnly`、`open`、`separation`、`iconSpace` |
 | イベント | — | `change`、`toggle` |
 | スロット | `label-icon` | `leading-icon` と、オプション |
 | トークン | `comp.field.*` | ボックスは `comp.input-box.*`（すべての入力ボックスが読みます）。リストは `comp.select.*` |
