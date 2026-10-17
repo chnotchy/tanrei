@@ -18,6 +18,7 @@ If a spec, a token file, the status matrix or `tanrei.config.json` can supply a 
 | Hero platform list and figures | `src/components/Hero.astro` | status.json, specs, `tanrei.config.json` |
 | Token descriptions shown in prose pages | `src/components/tokens/TokenNotes.astro` | `tokens/{ref,sys}/*.tokens.json` (`$description`, verbatim) |
 | A choice of kind: description, allowed names | `src/components/tokens/BehaviorChoice.astro` | `tokens/sys/behavior.tokens.json` (`dev.tanrei.enum`) |
+| The header's mark, the favicons, the home-screen icon, the social image | `src/components/frame/Header.astro`; `src/pages/{favicon.svg,favicon.ico,apple-touch-icon.png,og.png}.ts` (`src/lib/brand.mjs`) | `design/brand/` (the marks, and the copies `pnpm generate` paints), the light scheme's surface |
 | What each shipped system resolves a token to | `src/components/tokens/SystemValues.astro`, `src/components/SystemButtons.astro` | `tokens/systems/`, `design/tokens/<system>/` |
 
 All repository data is imported in `src/lib/repo.ts` and `src/lib/tokens.ts`. Add new data access there, not in pages. UI strings for generated blocks (table headers, legends) live in `src/lib/i18n.ts` in both languages.

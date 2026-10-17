@@ -47,7 +47,7 @@ If you cannot finish a platform, leave its status as it truly is. The status mat
 | `packages/{web,react,swiftui,compose,flutter,react-native}/` | Platform implementations | yes, except `generated/` |
 | `apps/docs/` | Documentation site (Astro Starlight, six languages) | yes, except generated content |
 | `docs/` | Architecture, governance, the registries the checks read; `docs/status/` is generated | yes, except `docs/status/` |
-| `design/` | Hand-off to design tools (resolved tokens, the Figma library's conventions) | the READMEs and `figma/renames.json`; the rest is generated |
+| `design/` | Hand-off to design tools (resolved tokens, the Figma library's conventions) and the brand marks | the READMEs, `figma/renames.json` and `brand/figma.json`; the marks are pulled from Figma (`pnpm brand:pull`); the rest is generated |
 
 ## Commands
 
@@ -61,4 +61,5 @@ pnpm build && pnpm test   # three suites at a time: each one starts its own work
                           # tests that watch a 100 ms hold or a 40 ms transition cannot see it on an oversubscribed machine
 pnpm check         # all of the above, in order
 pnpm status        # print the component × platform status matrix
+pnpm brand:pull    # refresh the brand marks from Figma (design/brand/README.md), then regenerate what is derived from them
 ```
