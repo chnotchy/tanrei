@@ -42786,6 +42786,21 @@
             },
             {
               "kind": "field",
+              "name": "syncs",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new CoalescedSync(() => this.sync())",
+              "description": "The re-read of the items (`sync()`), once per turn however many items said they changed in it: a list of N items\nbuilt, or N names changed at once, re-reads its N items once — not once per item, which made the build O(N²)."
+            },
+            {
+              "kind": "field",
+              "name": "flushSyncs",
+              "privacy": "private",
+              "readonly": true,
+              "description": "What reads the items' context in the task it runs in reads it re-read (a key press, a press, focus)."
+            },
+            {
+              "kind": "field",
               "name": "items",
               "type": {
                 "text": "TanreiListItem[]"
