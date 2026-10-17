@@ -1,0 +1,148 @@
+// A drag across the browser's colour picker, or along a slider, reports a value for every move of the pointer —
+// several in a frame. The Studio shows the latest one at the next frame and computes the layer when the value is
+// committed: a palette's color is drawn from the palette alone, set on the preview's scope, and anything else is
+// computed once a frame at most. Computing the layer is the whole build (the token engine, the emitter, the checks):
+// done for every move, a drag of one second took the page tens of seconds to follow.
+//
+// What is counted is what the Studio does, never how long the browser takes to do it: the computations (each one a
+// `performance.measure` of the page), the writes of the preview's sheet, and the frames of the drag.
+import assert from 'node:assert/strict';
+import { studioTest } from './harness.js';
+
+/** In the page: what is written into the preview's sheet, and each time the layer is computed. */
+const watch = (page) =>
+  page.evaluate(() => {
+    const w = (window.__drag = { writes: 0, computes: 0 });
+    w.sheet = new MutationObserver((records) => (w.writes += records.length));
+    w.sheet.observe(document.querySelector('[data-sheet]'), { childList: true, characterData: true, subtree: true });
+    const computes = (entries) => (w.computes += entries.filter((e) => e.name.endsWith('studio: compute')).length);
+    w.measures = new PerformanceObserver((list) => computes(list.getEntries()));
+    w.measures.observe({ type: 'measure' });
+    w.take = () => {
+      w.writes += w.sheet.takeRecords().length;
+      computes(w.measures.takeRecords());
+      const seen = { writes: w.writes, computes: w.computes };
+      Object.assign(w, { writes: 0, computes: 0 });
+      return seen;
+    };
+  });
+const take = (page) => page.evaluate(() => window.__drag.take());
+
+/**
+ * A drag: `values.length / perFrame` frames, `perFrame` moves in each, as the browser reports them — for a colour
+ * field, a pick in its picker (the well's value, and its `input`), with focus on the button that opened it; for a
+ * slider, its value and `input`. Then a frame more, for what the Studio shows at the next frame. Resolves with the
+ * number of frames, and — read in that frame — the custom property `property` as the preview's scope sets it on
+ * itself (`set`: what a palette drawn alone sets) and as it is computed there (`drawn`).
+ */
+const drag = (page, { field, slider, values, perFrame, property = '--none' }) =>
+  page.evaluate(
+    ({ field, slider, values, perFrame, property }) =>
+      new Promise((resolve) => {
+        const input = field && document.querySelector(field).shadowRoot.querySelector('tanrei-color-input').shadowRoot;
+        const target = field ? input.querySelector('.native-picker') : document.querySelector(slider);
+        if (field) input.querySelector('.picker-button').focus();
+        const left = [...values];
+        let frames = 0;
+        const frame = () => {
+          frames += 1;
+          if (!left.length) {
+            const scope = document.querySelector('[data-scope]');
+            return resolve({ frames, set: scope.style.getPropertyValue(property), drawn: getComputedStyle(scope).getPropertyValue(property).trim() });
+          }
+          for (const value of left.splice(0, perFrame)) {
+            target.value = value;
+            target.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+          }
+          requestAnimationFrame(frame);
+        };
+        requestAnimationFrame(frame);
+      }),
+    { field, slider, values, perFrame, property },
+  );
+/** The pointer lifted: the picker closes, or the slider's press ends, with its `change`. */
+const release = (page, { field, slider }) =>
+  page.evaluate(({ field, slider }) => {
+    const target = field ? document.querySelector(field).shadowRoot.querySelector('tanrei-color-input').shadowRoot.querySelector('.native-picker') : document.querySelector(slider);
+    target.dispatchEvent(new Event('change', { bubbles: true }));
+  }, { field, slider });
+
+/** Colors along a path across the picker: each one another. */
+const path = (n) => Array.from({ length: n }, (_, i) => `#${[40 + i * 7, 200 - i * 5, 90 + i * 11].map((c) => (((c % 256) + 256) % 256).toString(16).padStart(2, '0')).join('')}`);
+const settled = (page) => page.evaluate(() => document.fonts.ready.then(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))));
+/** What the preview's scope has set on itself: the tones a drag draws from the palette alone. */
+const setOnScope = (scope, name) => scope.evaluate((el, property) => el.style.getPropertyValue(property), name);
+
+studioTest('a drag across the brand color’s picker is drawn at every frame from the palette alone, and the layer is computed when the picker closes', {}, async ({ page, saved, css, scope }) => {
+  const field = 'tanrei-color-field[data-seed="primary"]';
+  const tone = '--tanrei-ref-palette-primary-40';
+  // The default system has no primary palette: the first pick declares one, and is computed, as a person's first is.
+  await drag(page, { field, values: ['#0f766e'], perFrame: 1 });
+  await release(page, { field });
+  await saved((layer) => layer.palettes?.primary?.source?.seed === '#0f766e', 'the first color');
+  await settled(page);
+  const before = (await css(scope, tone)).trim();
+  await watch(page);
+
+  const values = path(60);
+  const { frames, set, drawn: live } = await drag(page, { field, values, perFrame: 3, property: tone });
+  const during = await take(page);
+  assert.ok(during.computes <= frames, `the layer is computed once a frame at most: ${during.computes} times in ${frames} frames, for ${values.length} moves`);
+  assert.ok(during.writes <= frames, `the sheet is written once a frame at most: ${during.writes} times in ${frames} frames`);
+  assert.ok(during.writes <= during.computes, `the sheet is written only with a computed layer: ${during.writes} writes, ${during.computes} computations`);
+  assert.notEqual(live, before, 'the preview follows the color while it moves');
+  assert.equal(set, live, 'drawn from the palette alone: the tone is set on the scope');
+
+  await release(page, { field });
+  await saved((layer) => layer.palettes.primary.source.seed === values.at(-1), 'the last color, written when the picker closes');
+  const after = await take(page);
+  assert.equal(after.computes, 1, 'the layer is computed once');
+  assert.equal(after.writes, 1, 'and its sheet written once, whole');
+  assert.equal(await setOnScope(scope, tone), '', 'nothing is left on the scope');
+  assert.equal((await css(scope, tone)).trim(), live, 'what the drag drew is what the layer computes');
+});
+
+studioTest('a drag across a fixed tone’s picker is drawn from the palette alone too, and written when the picker closes', {}, async ({ page, level, saved, css, scope }) => {
+  const tone = '--tanrei-ref-palette-accent-40';
+  await level('groups');
+  const accent = page.locator('[data-palette="accent"]');
+  await accent.locator('[data-tones] summary').click();
+  await accent.locator('[data-tone-new] input').fill('40');
+  await page.keyboard.press('Enter');
+  await saved((layer) => layer.palettes?.accent?.source?.tones?.['40'], 'the tone added');
+  await settled(page);
+  await watch(page);
+
+  const field = '[data-palette="accent"] [data-tone-row="40"] tanrei-color-field';
+  const values = path(45);
+  const { frames, set, drawn } = await drag(page, { field, values, perFrame: 3, property: tone });
+  const during = await take(page);
+  assert.ok(during.computes <= frames, `the layer is computed once a frame at most: ${during.computes} times in ${frames} frames, for ${values.length} moves`);
+  assert.ok(during.writes <= frames, `the sheet is written once a frame at most: ${during.writes} times in ${frames} frames`);
+  assert.ok(during.writes <= during.computes, `the sheet is written only with a computed layer: ${during.writes} writes, ${during.computes} computations`);
+  assert.equal(drawn, values.at(-1), 'the fixed tone is drawn as it moves');
+  assert.equal(set, values.at(-1), 'drawn from the palette alone');
+
+  await release(page, { field });
+  await saved((layer) => layer.palettes.accent.source.tones['40'] === values.at(-1), 'the last color, written when the picker closes');
+  assert.equal((await take(page)).computes, 1, 'the layer is computed once');
+  assert.equal(await setOnScope(scope, tone), '');
+  assert.equal((await css(scope, tone)).trim(), values.at(-1));
+});
+
+studioTest('a drag along a dial’s slider computes the layer once a frame at most, and the last value is written when the press ends', {}, async ({ page, saved }) => {
+  const slider = '[data-dial="tanrei.dial.shape.unit"] tanrei-slider';
+  await settled(page);
+  await watch(page);
+  // Back and forth across the slider's steps (0–8 by 0.5): every move another value.
+  const steps = Array.from({ length: 17 }, (_, i) => i / 2);
+  const values = [...steps.slice(1), ...steps.slice(0, -1).reverse(), ...steps.slice(1, 8)];
+  const { frames, drawn } = await drag(page, { slider, values, perFrame: 3, property: '--tanrei-dial-shape-unit' });
+  const during = await take(page);
+  assert.ok(during.computes <= frames, `the layer is computed once a frame at most: ${during.computes} times in ${frames} frames, for ${values.length} moves`);
+  assert.ok(during.writes <= frames, `the sheet is written once a frame at most: ${during.writes} times in ${frames} frames`);
+  assert.equal(drawn, `${values.at(-1)}px`, 'the preview shows the last value at the next frame');
+
+  await release(page, { slider });
+  await saved((layer) => layer.tokens?.['tanrei.dial.shape.unit']?.$value.value === values.at(-1), 'the last value, written when the press ends');
+});

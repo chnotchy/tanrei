@@ -121,7 +121,7 @@ function tonesTable(ctx: Ctx, name: string) {
   const { t, studio } = ctx;
   const rows = h('div', { class: 'ts-tone-rows', 'data-tone-rows': true });
   const table = () => Object.fromEntries((studio.paletteTones(ctx.layer(), name) as Json[]).map((row) => [String(row.tone), row.hex]));
-  const write = (next: Json) => ctx.commit(studio.setPaletteTones(ctx.layer(), name, next));
+  const write = (next: Json, live?: boolean) => ctx.commit(studio.setPaletteTones(ctx.layer(), name, next), { preview: live });
   let drawn = '';
 
   function draw() {
@@ -147,7 +147,7 @@ function tonesTable(ctx: Ctx, name: string) {
             redraw(() => rows.querySelector<HTMLElement>(`[data-tone="${to}"]`)?.focus());
           },
         });
-        const color = colorWidget(ctx, { label: t.tones.toneOf(name, row.tone), labelHidden: true, value: row.hex, onchange: () => color.get() && write({ ...table(), [String(row.tone)]: color.get() }) });
+        const color = colorWidget(ctx, { label: t.tones.toneOf(name, row.tone), labelHidden: true, value: row.hex, onchange: (live) => color.get() && write({ ...table(), [String(row.tone)]: color.get() }, live) });
         const remove = linkButton(t.tones.remove, () => {
           const current = table();
           delete current[String(row.tone)];
