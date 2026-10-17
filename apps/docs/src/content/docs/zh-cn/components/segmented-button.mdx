@@ -2,7 +2,7 @@
 title: "分段按钮"
 description: "让用户从两到五个相关的选项中选择一个或多个；这些选项并排绘制，是同一个控件中彼此相连的分段。"
 translationOf: components/segmented-button.mdx
-sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+sourceHash: 15c1e7e933ee457eac5920e11183ca99368b3906
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -67,7 +67,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Segment, SegmentedButton } from '@tanrei/react';
+    // 默认系统不包含分段按钮：它在 m3-like、m3-expressive-like 和 cupertino 的入口中，也在 /all 中。
+    import { Segment, SegmentedButton } from '@tanrei/react/m3-like';
 
     // 单选时 detail 是 { value }，多选时是 { values }。
     <SegmentedButton label="范围" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>

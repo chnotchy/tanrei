@@ -2,7 +2,7 @@
 title: حقل إدخال العدد
 description: صندوق العدد، يُكتب فيه بالصورة التي تكتبه بها الإعدادات المحلية أو يُغيَّر خطوةً خطوةً بمفتاح أو بزر، ويبقى ضمن حدوده، ووحدته بجانبه، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لعدد تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
 translationOf: components/number-input.mdx
-sourceHash: 460094edc2d24cabbbfc27e3d6b6b7965206a6af
+sourceHash: 2790f391198caf794180332adcdc03fd67075c81
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -82,7 +82,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { NumberInput } from '@tanrei/react';
+    // يُستورد المكوّن المتقدّم، وهو جزء تُبنى منه مكوّنات أخرى، من المدخل advanced.
+    import { NumberInput } from '@tanrei/react/advanced';
 
     <NumberInput label="التكبير" value={scale} min={0.25} max={4} step={0.05} suffixText="×"
       align="end" noSteppers onChange={(event) => setScale(event.currentTarget.value)} />

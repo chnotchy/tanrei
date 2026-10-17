@@ -2,7 +2,7 @@
 title: सेगमेंटेड बटन
 description: लोगों को दो से पाँच संबंधित विकल्पों में से एक या कई चुनने देता है, जो एक ही कंट्रोल के जुड़े हुए सेगमेंट के रूप में अगल-बग़ल बने होते हैं।
 translationOf: components/segmented-button.mdx
-sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+sourceHash: 15c1e7e933ee457eac5920e11183ca99368b3906
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -67,7 +67,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Segment, SegmentedButton } from '@tanrei/react';
+    // डिफ़ॉल्ट सिस्टम सेगमेंटेड बटन को शामिल नहीं करता: यह m3-like, m3-expressive-like और cupertino की एंट्री में है, और /all में।
+    import { Segment, SegmentedButton } from '@tanrei/react/m3-like';
 
     // एकल चयन के लिए detail { value } है, और कई के लिए { values }।
     <SegmentedButton label="अवधि" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>

@@ -2,7 +2,7 @@
 title: FAB मेन्यू
 description: सिमटे हुए मुख्य ऐक्शन बटन के रूप में बने टॉगल से संबंधित क्रियाओं की एक छोटी लिस्ट खोलता है, और जब तक वे दिखती हैं, टॉगल उस लिस्ट का बंद करने वाला बटन बन जाता है।
 translationOf: components/fab-menu.mdx
-sourceHash: d02dad9ce11727213a408e17844bdf50e97a1b5b
+sourceHash: 44f0ba1f383f84ad15e8de15f96c79554efb3d6a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -75,7 +75,8 @@ FAB मेन्यू `m3-like` लेयर में रहता है: य
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { FabMenu, FabMenuItem } from '@tanrei/react';
+    // FAB मेन्यू m3-like लेयर में रहता है: यह उन सिस्टमों की एंट्री में है जिनमें यह है (m3-like, m3-expressive-like), और /all में।
+    import { FabMenu, FabMenuItem } from '@tanrei/react/m3-like';
 
     <FabMenu
       className="primary-action"

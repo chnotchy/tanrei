@@ -2,7 +2,7 @@
 title: कलर इनपुट
 description: वह बॉक्स जिसमें लोग एक रंग तय करते हैं — उसका नमूना, टेक्स्ट के रूप में मान जिसे वे पढ़, टाइप और पेस्ट कर सकते हैं, और एक बटन जो पिकर माँगता है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस पंक्ति या कॉलम के लिए जो रंग का नाम पहले से देता है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
 translationOf: components/color-input.mdx
-sourceHash: 5885b9f8c0f343c08541c5f3fa755279bd351aaa
+sourceHash: 06ea4de2a206e2a366e6e3f37d0d315f0686aad9
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -73,7 +73,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ColorInput } from '@tanrei/react';
+    // उन्नत कंपोनेंट, जिससे दूसरे कंपोनेंट बनते हैं, advanced एंट्री से इम्पोर्ट होता है।
+    import { ColorInput } from '@tanrei/react/advanced';
 
     <ColorInput label="प्राइमरी, टोन 40" value={tone} picker pickerLabel="प्राइमरी, टोन 40 का रंग चुनें"
       onChange={(event) => setTone(event.currentTarget.value)} />

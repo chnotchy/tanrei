@@ -2,7 +2,7 @@
 title: मोडल लेयर
 description: हर मोडल सरफ़ेस के नीचे की लेयर। यह जिसे पेश करती है, उसके पीछे की विंडो को धुँधला करती है, वहाँ की हर चीज़ को निष्क्रिय कर देती है, फ़ोकस को भीतर ले जाकर वहीं रखती है और फिर लौटा देती है, और Escape, प्लैटफ़ॉर्म के बैक या स्क्रिम पर दबाने पर बंद होने का अनुरोध करती है। इसकी स्टाइल एक बार बदलें, और हर मोडल सरफ़ेस उसके पीछे चलती है।
 translationOf: components/modal-layer.mdx
-sourceHash: e6ede40ce27d5047b0691b404bc90d640cff347a
+sourceHash: 12f9729f28d08c1930faa7dc3aff1c56aad0ec4c
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -76,7 +76,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { ModalLayer } from '@tanrei/react';
+    // उन्नत कंपोनेंट, जिससे दूसरे कंपोनेंट बनते हैं, advanced एंट्री से इम्पोर्ट होता है।
+    import { ModalLayer } from '@tanrei/react/advanced';
 
     <ModalLayer open={open} label="कमांड" onClose={() => setOpen(false)}>
       <CommandPalette />

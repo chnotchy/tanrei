@@ -2,7 +2,7 @@
 title: ワンタイムコード入力欄
 description: サインインや確認のためにユーザーへ送った短いコードを、マス目に分けて描いた 1 つのテキストの値として受け取ります。コードの長さと、まだ足りない分が見え、プラットフォームが 1 回の操作で入力できます。
 translationOf: components/one-time-code-input.mdx
-sourceHash: 175113d67562d2edbe7ef3a1d76bd1851bb3e2aa
+sourceHash: b70fb1919ce7b3c5afa78107ef653b7b4cc03596
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -70,7 +70,9 @@ Web では `<tanrei-one-time-code-input>` です。ほかのプラットフォ�
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Field, OneTimeCodeInput } from '@tanrei/react';
+    // 上級者向けのコンポーネント（ほかのコンポーネントの部品）は、advanced のエントリーから読み込みます。
+    import { Field } from '@tanrei/react';
+    import { OneTimeCodeInput } from '@tanrei/react/advanced';
 
     <Field label="確認コード" error={wrong}
       supportingText="携帯電話に送った 6 桁のコードを入力してください。"

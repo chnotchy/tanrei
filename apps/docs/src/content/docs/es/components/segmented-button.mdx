@@ -2,7 +2,7 @@
 title: Botón segmentado
 description: Permite elegir una opción, o varias, entre dos y cinco opciones relacionadas que se dibujan una junto a otra como los segmentos unidos de un solo control.
 translationOf: components/segmented-button.mdx
-sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+sourceHash: 15c1e7e933ee457eac5920e11183ca99368b3906
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -67,7 +67,8 @@ Un botón segmentado recibe sus segmentos como cada plataforma recibe los hijos 
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Segment, SegmentedButton } from '@tanrei/react';
+    // El sistema predeterminado deja fuera el botón segmentado: está en las entradas de m3-like, m3-expressive-like y cupertino, y en /all.
+    import { Segment, SegmentedButton } from '@tanrei/react/m3-like';
 
     // detail es { value } para una sola elección y { values } para varias.
     <SegmentedButton label="Intervalo" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>

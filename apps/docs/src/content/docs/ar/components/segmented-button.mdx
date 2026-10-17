@@ -2,7 +2,7 @@
 title: الزر المقسَّم
 description: يتيح للأشخاص اختيار خيار واحد، أو عدة خيارات، من خيارين إلى خمسة خيارات مترابطة مرسومة جنبًا إلى جنب مقاطعَ متصلة لعنصر تحكم واحد.
 translationOf: components/segmented-button.mdx
-sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+sourceHash: 15c1e7e933ee457eac5920e11183ca99368b3906
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -67,7 +67,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Segment, SegmentedButton } from '@tanrei/react';
+    // يستبعد النظام الافتراضي الزر المقسَّم: تجده في مداخل m3-like وm3-expressive-like وcupertino، وفي /all.
+    import { Segment, SegmentedButton } from '@tanrei/react/m3-like';
 
     // detail هو { value } للاختيار الواحد و { values } لعدة اختيارات.
     <SegmentedButton label="النطاق" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>

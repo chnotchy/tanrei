@@ -2,7 +2,7 @@
 title: قائمة FAB
 description: تفتح قائمة قصيرة من الإجراءات المترابطة من زر تبديل مرسوم بهيئة زر إجراء رئيسي مطويّ، يتحول إلى زر إغلاق القائمة ما دامت الإجراءات ظاهرة.
 translationOf: components/fab-menu.mdx
-sourceHash: d02dad9ce11727213a408e17844bdf50e97a1b5b
+sourceHash: 44f0ba1f383f84ad15e8de15f96c79554efb3d6a
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -75,7 +75,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { FabMenu, FabMenuItem } from '@tanrei/react';
+    // تعيش قائمة FAB في طبقة m3-like: تجدها في مداخل الأنظمة التي تتضمّنها (m3-like وm3-expressive-like)، وفي /all.
+    import { FabMenu, FabMenuItem } from '@tanrei/react/m3-like';
 
     <FabMenu
       className="primary-action"

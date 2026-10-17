@@ -65,7 +65,8 @@ A segmented button holds its segments the way each platform holds repeated child
   </TabItem>
   <TabItem label="React">
     ```tsx
-    import { Segment, SegmentedButton } from '@tanrei/react';
+    // The default system leaves the segmented button out: it is in the entries of m3-like, m3-expressive-like and cupertino, and in /all.
+    import { Segment, SegmentedButton } from '@tanrei/react/m3-like';
 
     // detail is { value } for a single choice and { values } for several.
     <SegmentedButton label="Range" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>
