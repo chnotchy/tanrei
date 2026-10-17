@@ -1730,6 +1730,7 @@ export const m3Like = {
       motionStateEasing: [0.2, 0, 0, 1],
       pressedContainerShape: 9999,
       pressedOpacity: 1,
+      toneContainerOpacity: 0.16,
       sizes: {
         small: { containerHeight: 32, containerPaddingInlineNarrow: 4, containerWidthWide: 40, containerPaddingInlineStart: 12, containerPaddingInlineEnd: 12, containerPaddingInlineStartWithIcon: 12, containerPaddingInlineEndWithIcon: 12, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 20, containerGap: 8, outlineWidth: 1 },
         medium: { containerHeight: 40, containerPaddingInlineNarrow: 4, containerWidthWide: 52, containerPaddingInlineStart: 16, containerPaddingInlineEnd: 16, containerPaddingInlineStartWithIcon: 16, containerPaddingInlineEndWithIcon: 16, containerPaddingBlock: 6, labelTypescale: "label", iconSize: 18, iconSizeWithoutLabel: 24, containerGap: 8, outlineWidth: 1 },

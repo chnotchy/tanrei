@@ -1238,6 +1238,7 @@ const TanreiSystem tanreiSystem = TanreiSystem(
     motionFeedbackDuration: 450,
     motionStateDuration: 150,
     motionStateEasing: TanreiCubicBezier(0.2, 0.0, 0.0, 1.0),
+    toneContainerOpacity: 0.16,
     sizes: TanreiButtonSizes(
       small: TanreiButtonSizeTokens(
         containerHeight: 32.0,

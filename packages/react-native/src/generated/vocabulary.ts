@@ -1019,6 +1019,7 @@ export interface TanreiButtonTokens {
   readonly motionStateEasing: TanreiCubicBezier;
   readonly pressedContainerShape: number;
   readonly pressedOpacity: number;
+  readonly toneContainerOpacity: number;
   readonly sizes: TanreiButtonSizes;
   readonly variants: TanreiButtonVariants;
 }
