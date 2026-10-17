@@ -4015,7 +4015,7 @@ A compact choice, a suggested action or an item the user entered, as a small lab
 <tanrei-chip label="Add to calendar"><span slot="icon">event</span></tanrei-chip>
 <tanrei-chip kind="filter" label="Vegetarian" selected></tanrei-chip>
 <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Remove Ada Lovelace"><img slot="avatar" src="ada.jpg" alt="" /></tanrei-chip>
-<tanrei-chip kind="input" label="Under 30 min" remove-label="Remove Under 30 min" no-destructive-remove></tanrei-chip>
+<tanrei-chip kind="input" label="report.pdf" remove-label="Remove report.pdf" destructive-remove></tanrei-chip>
 ```
 
 | Property / attribute | Type | Default | |
@@ -4034,7 +4034,7 @@ A compact choice, a suggested action or an item the user entered, as a small lab
 | `type` | `button` \| `submit` \| `reset` | `button` | web only: what a press does to the button's form — nothing, ask it to submit, ask it to reset (BTN-27, BTN-28). Anything else is `button`, reported; a toggle and a link ignore it, reported (BTN-33). Reflected, the default not |
 | `name`, `value` | string | `""` | web only: the pair sent with the form when this button submitted it; nothing while `name` is empty (BTN-31) |
 | `form` (attribute) | a form's id | — | web only: the form the button belongs to where it stands outside it; the platform's own attribute. The `form` property is read-only and returns the form (BTN-29) |
-| `destructiveRemove` / `no-destructive-remove` | boolean | `true` | whether an input chip's remove action reads as destructive: the same at rest, the error color while hovered, keyboard-focused or pressed (CHP-27). An HTML boolean attribute cannot default to true, so the attribute is the inverse: `no-destructive-remove` turns it off, for a removal that loses nothing. Color only — name, glyph, size, hit area and behaviour are the same either way (CHP-28). Ignored unless `kind="input"`; reflected |
+| `destructiveRemove` / `destructive-remove` | boolean | `false` | whether an input chip's remove action reads as destructive: the same at rest, the error color while hovered, keyboard-focused or pressed (CHP-27). Set it where removing loses something that cannot be put back in a step (an attachment, a recipient already invited); leave it off where the item comes back in one step (an applied filter). Color only — name, glyph, size, hit area and behaviour are the same either way (CHP-28). Ignored unless `kind="input"`; reflected |
 | `removable` / `not-removable` | boolean | `true` | whether an input chip draws its remove action (CHP-38). `not-removable`: no remove action, no stop for one, no `remove` from Backspace or Delete, and the padding of a chip without one — an entry that cannot be taken away now (a read-only field's). Ignored unless `kind="input"`; reflected |
 
 | Event | When |
@@ -4086,10 +4086,10 @@ reported, CHP-15) is clipped to `avatar.shape` at `avatar.size.<size>`, hidden f
 `remove.container.size` at the inline end; not a Tab stop (above). The container is larger than the glyph (the state layer shows as a ring
 around the filled disc) and out of flow: it reaches into the gap and the end padding — on a small chip to its top and
 bottom — without changing the chip's size. It has its own hover, focus and press, its own focus ring, press-hold and
-ripple (within the round container; from its center for a press in the hit area outside it). While `destructiveRemove`
-is true (the default) it paints from the variant's `destructive-remove.*` parts, which rest at the `remove.*` values and,
-in the default system, take `sys.color.error` for the glyph and mix error into the round container while hovered,
-focused or pressed; with `no-destructive-remove` it paints from `remove.*`. Disabled, the two look alike. Only colors
+ripple (within the round container; from its center for a press in the hit area outside it). By default it paints
+from the variant's `remove.*` parts; with `destructive-remove` it paints from its `destructive-remove.*` parts, which
+rest at the `remove.*` values and, in the default system, take `sys.color.error` for the glyph and mix error into the
+round container while hovered, focused or pressed. Disabled, the two look alike. Only colors
 differ: the role, the name `removeLabel`, the glyph, the size and the hit area are the same. Its hit area is at least
 `sys.target.pointer` (`touch` for a coarse pointer) on both axes around the glyph: toward the label it reaches no
 further than the gap before the glyph — never over the label — and it extends outward, past the chip's edge, as far as

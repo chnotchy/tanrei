@@ -58,9 +58,9 @@ const REMOVE_GLYPH = 'cancel';
  * its leading position. An input chip has a remove action, a second button named by `removeLabel`, pressed by pointer,
  * touch or assistive technology and not a Tab stop: an input chip is one stop, and Backspace or Delete on it removes it,
  * which the chip tells assistive technology with `aria-keyshortcuts`. Both fire `remove` — the chip never removes itself
- * (the page does, and moves focus). By default the remove action reads as destructive (`destructiveRemove`; the attribute
- * `no-destructive-remove` turns it off): it looks the same at rest and takes the error color while it is hovered,
- * focused or pressed — a color only, never a change of name, glyph or size. The label is the visible text and the
+ * (the page does, and moves focus). With `destructiveRemove` (the attribute `destructive-remove`) the remove action reads
+ * as destructive: it looks the same at rest and takes the error color while it is hovered, focused or pressed — a color
+ * only, never a change of name, glyph or size. It is off by default. The label is the visible text and the
  * accessible name; the icon (the `icon` slot) and the avatar (the `avatar` slot, input chips only) are decorative.
  *
  * An action chip with `href` is a link and not a button (CHP-33): the shadow root holds an `<a href>` in place
@@ -103,12 +103,7 @@ export class TanreiChip extends LitElement {
     disabled: { type: Boolean, reflect: true },
     label: { type: String },
     removeLabel: { type: String, attribute: 'remove-label', reflect: true },
-    destructiveRemove: {
-      type: Boolean,
-      attribute: 'no-destructive-remove',
-      reflect: true,
-      converter: { fromAttribute: (value: string | null) => value === null, toAttribute: (value: boolean) => (value ? null : '') },
-    },
+    destructiveRemove: { type: Boolean, attribute: 'destructive-remove', reflect: true },
     removable: {
       type: Boolean,
       attribute: 'not-removable',
@@ -147,10 +142,12 @@ export class TanreiChip extends LitElement {
 
   /**
    * Whether an input chip's remove action reads as destructive: the same at rest, the error color while hovered,
-   * keyboard-focused or pressed. Set `no-destructive-remove` where removing loses nothing (a filter the user can add
-   * back in one step). Color only: the name, glyph, size and behaviour are the same either way. Ignored unless `kind` is input.
+   * keyboard-focused or pressed. Set `destructive-remove` where removing loses something that cannot be put back in a
+   * step (an attachment, a recipient already invited); leave it off where the person can put the item back in one step
+   * (an applied filter, a search term). Color only: the name, glyph, size and behaviour are the same either way. Ignored
+   * unless `kind` is input.
    */
-  destructiveRemove = true;
+  destructiveRemove = false;
 
   /**
    * Whether an input chip draws its remove action. Set `not-removable` for an entry that cannot be taken away now (a

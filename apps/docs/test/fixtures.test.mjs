@@ -211,8 +211,12 @@ describe('a prop whose attribute is not the kebab-case of its name', () => {
     assert.ok(names('bottom-sheet', 'no-handle').includes('no-handle'));
     assert.deepEqual(names('carousel', 'fixed-width').filter((name) => /width|scroll|snap/.test(name)), ['fixed-width', 'free-scroll']);
     assert.ok(names('main-action-button', 'filled-collapsed').includes('collapsed'));
-    assert.ok(names('chip', 'input-plain-remove').includes('no-destructive-remove'));
-    assert.ok(!names('chip', 'input-destructive-remove').some((name) => name.includes('destructive')), 'true is the default: nothing is written');
+  });
+
+  test('a boolean that defaults to false is its own bare attribute when true, and nothing when false', () => {
+    const names = (name, id) => opened(name, id).attributes.map(([attribute, value]) => (value === undefined ? attribute : `${attribute}="${value}"`));
+    assert.ok(names('chip', 'input-destructive-remove').includes('destructive-remove'));
+    assert.ok(!names('chip', 'input-plain-remove').some((name) => name.includes('destructive')), 'false is the default: nothing is written');
   });
 
   test('a boolean that defaults to true and has no such attribute is turned off by name="false" alone', () => {

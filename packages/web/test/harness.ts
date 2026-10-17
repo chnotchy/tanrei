@@ -1081,11 +1081,10 @@ const STAGING: Record<string, Staging> = {
   },
   // A chip's content names what goes in its leading position: a glyph of the icon set (the `icon` slot), or `avatar` —
   // the shared neutral avatar image (one grey pixel, no person and no text, as React Native's) in the `avatar`
-  // slot. `destructiveRemove: false` is the `no-destructive-remove` attribute.
+  // slot.
   chip: {
     content: (content) =>
       content === 'avatar' ? `<img slot="avatar" alt="" src="${FIXTURE_AVATAR}" />` : `<span slot="icon">${content}</span>`,
-    props: ({ destructiveRemove, ...props }) => (destructiveRemove === false ? { ...props, noDestructiveRemove: true } : props),
   },
   // A radio button is never alone: it is an option of a group, and a group is the options with one name in one form
   // (RAD-3). Each fixture is its own group — its own form — so that one fixture's selection does not clear another's,

@@ -2,7 +2,7 @@
 title: "标签组（Tag group）"
 description: "把一组 Tag 或纸片排成会换行的若干行，按其中的内容留出间距，并把这一组作为一个有名称的列表暴露出来。成员保持原样；纸片被移除之后，焦点会移到下一个纸片上。"
 translationOf: components/tag-group.mdx
-sourceHash: dfd5a40f6573b0faf035063e9e49568a6050b0e4
+sourceHash: 73d00d225e6da4964ae9ab6d241a9e6e1ea07f85
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -178,6 +178,8 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 ### 移除纸片
 
 纸片请求被移除，由你来移除它。如果当时焦点在这个纸片上，或在它的移除操作上，标签组会把焦点放到它后面的那个纸片上；后面没有纸片时，放到前面的那个上。连续移除好几项的人，可以从原来的位置接着做下去。
+
+除非你在某个纸片上设置 `destructiveRemove`，纸片的移除操作都是普通外观，标签组也不会改变它。只有当移除会丢失一步无法恢复的东西时（例如附件），才设置它；已应用的筛选条件或搜索词一步就能恢复。
 
 有两件事仍然由你负责：
 
