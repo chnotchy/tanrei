@@ -2594,7 +2594,6 @@ private object M3LikeSystemSource {
             labelTypescale = typescale.body,
             markSize = 20.dp,
             markWeight = 400f,
-            markWidth = 2.dp,
             motionFeedbackDuration = 450,
             motionMarkEnterScale = 0.5f,
             motionMarkScaleDuration = 350,

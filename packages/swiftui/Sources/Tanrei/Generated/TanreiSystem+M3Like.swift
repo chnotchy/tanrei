@@ -2566,7 +2566,6 @@ private let m3LikeCheckboxTokens = TanreiCheckboxTokens(
   labelTypescale: m3LikeTypescale.body,
   markSize: 20,
   markWeight: 400,
-  markWidth: 2,
   motionFeedbackDuration: 450,
   motionMarkEnterScale: 0.5,
   motionMarkScaleDuration: 350,
