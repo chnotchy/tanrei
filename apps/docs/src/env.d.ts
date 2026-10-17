@@ -6,3 +6,10 @@
 declare module 'virtual:starlight/pagefind-config' {
   export const pagefindUserConfig: Record<string, unknown>;
 }
+
+// Which module of `@tanrei/web` defines each element (src/lib/element-modules.mjs, from the package's manifest): a
+// function for each tag that imports its module, and how many modules there are.
+declare module 'virtual:tanrei-element-modules' {
+  export const loaders: Readonly<Record<string, () => Promise<unknown>>>;
+  export const modules: number;
+}

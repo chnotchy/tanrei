@@ -6,6 +6,7 @@ import starlight from '@astrojs/starlight';
 import { tanreiStudio } from '@tanrei/studio/vite';
 import { tabsBootstrap } from './src/components/tabs/keys.mjs';
 import { starlightLocales, translations } from './i18n/locales.mjs';
+import { elementModulesPlugin } from './src/lib/element-modules.mjs';
 import { listingBootstrap, sidebarSlugs } from './src/lib/listing.mjs';
 import { tanreiMarkdown } from './src/lib/markdown.mjs';
 import { notFoundFiles } from './src/lib/not-found-files.mjs';
@@ -166,7 +167,9 @@ export default defineConfig({
   markdown: { syntaxHighlight: false },
   vite: {
     // Theme Studio (@tanrei/studio) previews with the build's own emitter; its plugin makes that bundle for a browser.
-    plugins: [tanreiStudio()],
+    // A page defines only the elements it draws (src/lib/define-on-demand.ts), from this table of the module that
+    // defines each tag, made from the web package's manifest.
+    plugins: [tanreiStudio(), elementModulesPlugin()],
     // Pages import tokens, specs and the status matrix straight from the repository root.
     server: { fs: { allow: [repoRoot] } },
   },
