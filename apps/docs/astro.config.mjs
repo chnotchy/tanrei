@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import sitemap from '@astrojs/sitemap';
 import { tanreiStudio } from '@tanrei/studio/vite';
 import { tabsBootstrap } from './src/components/tabs/keys.mjs';
 import { starlightLocales, translations } from './i18n/locales.mjs';
@@ -155,6 +156,12 @@ export default defineConfig({
           ],
         },
       ],
+    }),
+    // The sitemap, with Starlight's languages as Starlight configures its own (which it leaves out once the site has
+    // one): every page but the documents the fixtures' windows draw (src/pages/fixtures/), which are no reader's page.
+    sitemap({
+      i18n: { defaultLocale: 'root', locales: Object.fromEntries(Object.entries(starlightLocales).map(([locale, { lang }]) => [locale, lang])) },
+      filter: (page) => !new URL(page).pathname.startsWith('/fixtures/'),
     }),
     // After Starlight, so that its passes run after Starlight's: Markdown's tables, notices and fenced code are drawn by
     // Tanrei's Table, Callout and Code block (src/lib/markdown.mjs).
