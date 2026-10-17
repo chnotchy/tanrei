@@ -250,6 +250,17 @@ A design system may add sizes. On SwiftUI, Compose, Flutter and React Native, a 
 - A button that goes somewhere is a link: give it an `href`. A back button that leads to the parent page, or a help action that opens a page, is then a real link, drawn as the same button. A back button that returns through history stays a button.
 - On the web, a [search](/components/search/) can be one of the actions as its icon trigger (`bar` set to `icon`): an icon-only button that opens the search's dialog or full-screen view.
 
+### Brand
+
+A product can put its mark in the bar as the link to its first page. The bar places it after the navigation button, in a cell as large as an icon button's, so a square mark drawn at `comp.app-bar.brand.size` stands in line with the icons. The bar gives it `comp.app-bar.brand.color` unless your own styles color it, so a mark drawn in the current color follows the scheme and the contrast.
+
+- **One image (the default).** On the web, give your own link `slot="brand"`, with the mark inside it and the product's name as its text alternative. It is shown at every width.
+- **The symbol and the wordmark separately.** Set `brandLayout` to `split` (`brand-layout` on the web) and give the link twice, drawn with the symbol (`slot="brand-symbol"`) and with the wordmark (`slot="brand-wordmark"`). The bar shows the wordmark while the window is medium or wider and the symbol while it is compact, never both. Inside an app shell it follows the shell's window class.
+- Show one mark at a time. Don't set the product's name as text beside the mark, and don't use the title for it: the title is the screen's name.
+- SwiftUI, Compose, Flutter and React Native do not draw the brand yet.
+
+This site's header uses the default: one image, the Tanrei symbol.
+
 ### Do
 
 - Write the title as the screen's name, such as "Inbox" or "Quarterly report". Keep it short: it stays on one line and is cut with an ellipsis.
