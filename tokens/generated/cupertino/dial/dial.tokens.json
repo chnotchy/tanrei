@@ -2832,6 +2832,30 @@
               "$value": 1,
               "reason": "Apple's navigation bars and toolbars draw their hairline only while content lies under them: at the scroll edge their appearance has no shadow (scrollEdgeAppearance), and a sheet's bar follows the same rule."
             },
+            "tanrei.sys.state.hover-state-layer-opacity": {
+              "$value": 0,
+              "reason": "Apple platforms draw no state layer: a control is not tinted under the pointer. The rules below keep every container at rest; this keeps a color known only where a control is drawn (a Button's tone on a colored surface, a carousel item over its image) at rest too."
+            },
+            "tanrei.sys.state.focus-state-layer-opacity": {
+              "$value": 0,
+              "reason": "Apple platforms show keyboard focus by the focus ring alone, with no layer over the control, for a color known only where a control is drawn as for every other."
+            },
+            "tanrei.comp.menubar.expanded.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
+                "amount": 0.08
+              },
+              "reason": "A Mac menu bar marks the title whose menu is open with a fill. The default system derives it from the hover layer, which this system sets to 0, so the fill keeps the default's amount."
+            },
+            "tanrei.comp.menubar.expanded.focused.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.menubar.expanded.state-layer.color}",
+                "amount": 0.1
+              },
+              "reason": "Under keyboard focus the open title keeps its fill, at the default system's focus-layer amount (this system's is 0)."
+            },
             "tanrei.sys.shape.corner-smoothing": {
               "$value": 0.6,
               "reason": "Apple platforms draw continuous corners: Figma's 60 % corner smoothing."
@@ -4369,17 +4393,9 @@
             "tanrei.comp.snackbar.action.content.color": {
               "$value": "{tanrei.sys.color.primary}"
             },
-            "tanrei.comp.snackbar.controls.icon.size": {
-              "$value": "{tanrei.sys.icon.small}",
-              "reason": "This preset's own size, small where the default system's is medium."
-            },
             "tanrei.sys.icon.mark.weight": {
               "$value": "{tanrei.sys.icon.weight}",
               "reason": "This preset draws a control's mark at the weight of its icons, lighter than the default system's marks. The pin is an alias, so the marks follow the preset's icon weight; moving it is a fidelity decision for this preset."
-            },
-            "tanrei.comp.snackbar.close.content.color": {
-              "$value": "{tanrei.sys.color.on-surface-variant}",
-              "reason": "On the light banner the default's inverse-on-surface close glyph would vanish."
             },
             "tanrei.comp.dialog.container.color": {
               "$value": "{tanrei.sys.color.surface-container-high}"
@@ -5658,21 +5674,9 @@
               "$value": "{tanrei.sys.color.success-container}",
               "reason": "This preset's own action label color; the default system's takes it from the bar's text."
             },
-            "tanrei.comp.snackbar.close.inverse-info.content.color": {
-              "$value": "{tanrei.sys.color.on-info}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
-            },
-            "tanrei.comp.snackbar.close.inverse-warning.content.color": {
-              "$value": "{tanrei.sys.color.on-warning}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
-            },
-            "tanrei.comp.snackbar.close.inverse-error.content.color": {
-              "$value": "{tanrei.sys.color.on-error}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
-            },
-            "tanrei.comp.snackbar.close.inverse-success.content.color": {
-              "$value": "{tanrei.sys.color.on-success}",
-              "reason": "What this preset draws on its inverse filled status bar; the default system's bar is a quiet tint."
+            "tanrei.comp.snackbar.close-button.variant": {
+              "$value": 4,
+              "reason": "The close and expand glyphs stand bare on this preset's banner, as a text Button with an icon only; the default system's are tonal."
             },
             "tanrei.comp.snackbar.action.tonal-layer.opacity": {
               "$value": 0,

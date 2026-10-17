@@ -298,12 +298,12 @@ export function checkInvariants(model) {
     }
   }
 
-  // 2–4, 6. What is read on an inverse status bar is held against that bar: the title and the message (4.5:1, 7:1 in
-  // the high-contrast schemes), the glyph at icon.opacity (3:1), the description at its opacity under a title (text),
-  // and the close button's glyph on its container over the bar (3:1). A pair whose two colors follow color roles and
-  // whose foreground is drawn opaque is a role pair, held above. The proposal's check 5, the action's label on the
-  // action as drawn in each state, is not here: it reads state colors of schemes a partial model does not carry, so
-  // a system read one scheme at a time and read whole would report differently.
+  // 2–4. What is read on an inverse status bar is held against that bar: the title and the message (4.5:1, 7:1 in
+  // the high-contrast schemes), the glyph at icon.opacity (3:1) and the description at its opacity under a title
+  // (text). A pair whose two colors follow color roles and whose foreground is drawn opaque is a role pair, held above.
+  // The proposal's check 5, the action's label on the action as drawn in each state, is not here: it reads state
+  // colors of schemes a partial model does not carry, so a system read one scheme at a time and read whole would
+  // report differently.
   const STATES = ['', 'hovered.', 'focused.', 'pressed.'];
   for (const status of STATUSES) {
     const form = `inverse-${status}`;
@@ -314,7 +314,6 @@ export function checkInvariants(model) {
       [`${form}.supporting-text.color`, null, 1, TEXT, 'message on its bar'],
       [`${form}.icon.color`, null, number(`${snackbar}.icon.opacity`), NON_TEXT, 'status glyph at icon.opacity on its bar'],
       [`${form}.supporting-text.color`, null, number(`${snackbar}.supporting-text.under-title.opacity`), TEXT, 'description at its opacity under a title'],
-      ...STATES.map((state) => [`close.${state}${form}.content.color`, `close.${state}${form}.container.color`, 1, NON_TEXT, 'close glyph on its container over the bar']),
     ];
     for (const [fgName, groundName, opacity, min, why] of pairs) {
       const [fgId, groundId] = [`${snackbar}.${fgName}`, groundName && `${snackbar}.${groundName}`];
@@ -327,6 +326,38 @@ export function checkInvariants(model) {
         const required = scheme.endsWith('-high') && min === TEXT ? HIGH_CONTRAST_TEXT : min;
         const ratio = contrast(faded(fg, opacity), bg);
         if (ratio < required) failures.push(`[${scheme}] ${short(fgId)} on ${short(groundId ?? barId)}: ${ratio.toFixed(2)}:1 < ${required}:1 (${why})`);
+      }
+    }
+  }
+
+  // 6. The expand and close buttons' glyph on its circle over the bar, in all ten forms (SNK-34, BTN-45): the snackbar
+  // gives them its form's message color as their tone, and a Button draws its glyph in it, and its container — where
+  // its variant draws one — in it at comp.button.tone.container.opacity over the bar, with each state's layer of it
+  // over that at the system's state-layer opacity. The circle is a blend no role pair holds: the glyph is held against
+  // it at 3:1 at rest and in each state. A variant that draws no container (outlined, text) leaves the bar under the
+  // glyph at rest, which the message's own pair holds; a press answered by a dim or by nothing draws no pressed layer.
+  const ns = CONFIG.namespace;
+  const toneOpacity = model.tokens[`${ns}.comp.button.tone.container.opacity`]?.value;
+  const variant = model.tokens[`${snackbar}.close-button.variant`]?.value;
+  const LAYERS = { rest: null, hovered: 'hover', focused: 'focus', pressed: 'pressed' };
+  const layerOpacity = Object.fromEntries(Object.entries(LAYERS).map(([state, name]) => [state, name ? model.tokens[`${ns}.sys.state.${name}-state-layer-opacity`]?.value : 0]));
+  if (['dim', 'none'].includes(choiceOf(model, 'pressed-feedback'))) delete layerOpacity.pressed;
+  if (typeof toneOpacity === 'number' && typeof variant === 'number' && Object.values(layerOpacity).every((value) => typeof value === 'number')) {
+    const bare = variant === 3 || variant === 4;
+    for (const form of ['', ...STATUSES, 'inverse', ...STATUSES.map((status) => `inverse-${status}`)]) {
+      const prefix = form ? `${snackbar}.${form}` : snackbar;
+      const [toneId, barId] = [`${prefix}.supporting-text.color`, `${prefix}.container.color`];
+      if (!model.tokens[toneId] || !model.tokens[barId]) continue;
+      for (const scheme of model.schemes) {
+        const [tone, bar] = [inScheme(scheme, toneId), inScheme(scheme, barId)];
+        if (!tone || !bar || rgba(bar).a < 1) continue;
+        const circle = bare ? bar : flat(faded(tone, toneOpacity), bar);
+        for (const [state, opacity] of Object.entries(layerOpacity)) {
+          if (bare && state === 'rest') continue;
+          const ground = opacity ? flat(faded(tone, opacity), circle) : circle;
+          const ratio = contrast(tone, ground);
+          if (ratio < NON_TEXT) failures.push(`[${scheme}] ${short(toneId)} on ${short(barId)}: ${ratio.toFixed(2)}:1 < ${NON_TEXT}:1 (expand and close glyph on its circle over the bar, ${state})`);
+        }
       }
     }
   }

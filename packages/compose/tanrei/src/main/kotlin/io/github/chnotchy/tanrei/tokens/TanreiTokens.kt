@@ -9038,7 +9038,6 @@ public value class TanreiSnackbarControl(public val key: String) {
 
     public companion object {
         public val Action: TanreiSnackbarControl = TanreiSnackbarControl("action")
-        public val Close: TanreiSnackbarControl = TanreiSnackbarControl("close")
     }
 }
 
@@ -9135,19 +9134,17 @@ public data class TanreiSnackbarControlTokens(
 @Immutable
 public data class TanreiSnackbarControls(
     public val action: TanreiSnackbarControlTokens,
-    public val close: TanreiSnackbarControlTokens,
     /** Values a design system added to the vocabulary, by key. */
     public val extra: Map<TanreiSnackbarControl, TanreiSnackbarControlTokens> = emptyMap(),
 ) {
     /** Every key this system has, core values first. */
-    public val keys: Set<TanreiSnackbarControl> get() = linkedSetOf(TanreiSnackbarControl.Action, TanreiSnackbarControl.Close) + extra.keys
+    public val keys: Set<TanreiSnackbarControl> get() = linkedSetOf(TanreiSnackbarControl.Action) + extra.keys
 
     public operator fun contains(key: TanreiSnackbarControl): Boolean = find(key) != null
 
     /** The tokens of [key], or null when this system does not have it. */
     public fun find(key: TanreiSnackbarControl): TanreiSnackbarControlTokens? = when (key) {
         TanreiSnackbarControl.Action -> action
-        TanreiSnackbarControl.Close -> close
         else -> extra[key]
     }
 
@@ -9156,7 +9153,6 @@ public data class TanreiSnackbarControls(
 
     public fun referencedRoles(): Set<TanreiColorRole> = buildSet {
         addAll(action.referencedRoles())
-        addAll(close.referencedRoles())
         extra.values.forEach { addAll(it.referencedRoles()) }
     }
 }
@@ -9171,6 +9167,7 @@ public data class TanreiSnackbarStateTokens(
 @Immutable
 public data class TanreiSnackbarTokens(
     public val actionTonalLayerOpacity: Float,
+    public val closeButtonVariant: Float,
     public val containerColor: TanreiPaint,
     public val containerElevation: List<TanreiShadowLayer>,
     public val containerGap: Dp,
@@ -9186,7 +9183,6 @@ public data class TanreiSnackbarTokens(
     public val containerShape: Dp,
     public val controlsGap: Dp,
     public val controlsHeight: Dp,
-    public val controlsIconSize: Dp,
     public val controlsLabelTypescale: TanreiTextStyle,
     public val controlsPaddingInline: Dp,
     public val controlsShape: Dp,

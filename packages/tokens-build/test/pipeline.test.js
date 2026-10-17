@@ -155,9 +155,10 @@ test('the snackbar\'s inverse status forms are the other theme\'s status forms, 
       compared++;
     }
   }
-  // 30 color tokens of each of four forms (the bar, the title, the message, the glyph, the edge, the focus indicator,
-  // and the action's and the close button's three colors at rest and in three states), in six schemes.
-  assert.equal(compared, 720);
+  // 18 color tokens of each of four forms (the bar, the title, the message, the glyph, the edge, the focus indicator,
+  // and the action's three colors at rest and in three states), in six schemes. The expand and close buttons have no
+  // colors of their own: their tone is the form's message and focus colors (SNK-34).
+  assert.equal(compared, 432);
 
   // The build holds it: a restated tone that drifts from the role it restates is named, with both values.
   const drifted = breakable(model);
@@ -189,9 +190,28 @@ test('invariants hold what is read on an inverse status bar against that bar, op
   // The glyph at icon.opacity, as a mark.
   failures = breakIt('dark', 'inverse-error.icon.color', 'inverse-error.container.color');
   assert.ok(failures.includes('[dark] comp.snackbar.inverse-error.icon.color on comp.snackbar.inverse-error.container.color: 1.00:1 < 3:1 (status glyph at icon.opacity on its bar)'), failures.join('\n'));
-  // The close button's glyph on its container over the bar, in a state.
-  failures = breakIt('light', 'close.hovered.inverse-info.content.color', 'inverse-info.container.color');
-  assert.ok(failures.some((f) => f.startsWith('[light] comp.snackbar.close.hovered.inverse-info.content.color on comp.snackbar.close.hovered.inverse-info.container.color: ') && f.endsWith('< 3:1 (close glyph on its container over the bar)')), failures.join('\n'));
+  // The expand and close buttons' glyph, the form's message color given as their tone, on its circle over the bar,
+  // at rest and in a state (SNK-34).
+  failures = breakIt('light', 'inverse-info.supporting-text.color', 'inverse-info.container.color');
+  for (const state of ['rest', 'hovered', 'focused', 'pressed']) {
+    assert.ok(failures.includes(`[light] comp.snackbar.inverse-info.supporting-text.color on comp.snackbar.inverse-info.container.color: 1.00:1 < 3:1 (expand and close glyph on its circle over the bar, ${state})`), failures.join('\n'));
+  }
+  // The default system holds it in all ten forms and six schemes, with room: the weakest is a focused or pressed glyph
+  // on an inverse status bar.
+  const ground = (scheme, form, layer) => {
+    const name = (part) => id(form ? `${form}.${part}` : part);
+    const tone = model.componentColors[scheme][name('supporting-text.color')].value;
+    const bar = model.componentColors[scheme][name('container.color')].value;
+    const mixed = (top, under, amount) => {
+      const [t, u] = [top.components, under.components];
+      return { colorSpace: 'srgb', components: [0, 1, 2].map((i) => t[i] * amount + u[i] * (1 - amount)), alpha: 1 };
+    };
+    const circle = mixed(tone, bar, model.tokens['tanrei.comp.button.tone.container.opacity'].value);
+    return contrast(tone, layer ? mixed(tone, circle, model.tokens[`tanrei.sys.state.${layer}-state-layer-opacity`].value) : circle);
+  };
+  const FORMS = ['', 'info', 'warning', 'error', 'success', 'inverse', 'inverse-info', 'inverse-warning', 'inverse-error', 'inverse-success'];
+  const weakest = Math.min(...SCHEMES.flatMap((scheme) => FORMS.flatMap((form) => [null, 'hover', 'focus', 'pressed'].map((layer) => ground(scheme, form, layer)))));
+  assert.equal(weakest.toFixed(2), '6.21');
 
   // The floors the default system holds, at the least over the four statuses: the glyph is the one that is near its floor.
   const drawn = (scheme, name, opacity) => {

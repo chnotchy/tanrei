@@ -416,7 +416,9 @@
       "level": "base",
       "listing": "default",
       "builtFrom": [],
-      "uses": [],
+      "uses": [
+        "button"
+      ],
       "hasSpec": true,
       "docs": "/components/snackbar/",
       "platforms": {
