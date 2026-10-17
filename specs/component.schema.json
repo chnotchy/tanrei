@@ -739,9 +739,10 @@
               "glyph",
               "icon-only-button",
               "button",
-              "text"
+              "text",
+              "mark"
             ],
-            "description": "What a fixture's string in this slot becomes: a glyph, an icon-only Button of the text variant showing that glyph and named by the glyph's name, a text Button with that label, or plain text. Without it, fixtures cannot fill the slot."
+            "description": "What a fixture's string in this slot becomes: a glyph, an icon-only Button of the text variant showing that glyph and named by the glyph's name, a text Button with that label, plain text, or a mark — `symbol` or `wordmark`, drawn from design/brand/ in the current color, which every harness draws the same. Without it, fixtures cannot fill the slot."
           }
         }
       }
