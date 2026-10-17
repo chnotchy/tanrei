@@ -1,22 +1,41 @@
 ---
 title: Motion tokens
-description: Spring, duration and easing tokens.
+description: Durations by role, the duration scale, easing curves by role, where a surface appears from, and springs.
 ---
 
+import BehaviorChoice from '../../../components/tokens/BehaviorChoice.astro';
 import MotionTokens from '../../../components/tokens/MotionTokens.astro';
 
 Motion tokens under `tanrei.sys.motion`. For guidance, read [Motion](/foundations/motion/).
+
+## Durations by role
+
+How long a change takes, by what moves: a change of state, a selection, a box that resizes, content that opens in place, and each kind of surface that appears and leaves. A component's duration token aliases its role, so a layer re-times every component of one role in one line. A surface leaves faster than it appears. The roles follow the motion dial.
+
+<MotionTokens part="role" />
+
+## Durations
+
+The scale the roles are made of.
+
+<MotionTokens part="duration" />
+
+## Easing
+
+The curves, and the four roles a component eases a change by: `enter` for a surface that appears, `exit` for one that leaves, `state` for a change of state in place, `spatial` for something that moves or resizes in place. Each role names a curve of the scale.
+
+<MotionTokens part="easing" />
+
+## Where a surface appears from
+
+Every surface that appears — a menu, a list, a popover, a tooltip, a dialog, a snackbar — starts from the same opacity, scale, distance and blur, and leaves the same way back. One choice of kind sets them together; a layer chooses another, or pins one of the values.
+
+<BehaviorChoice choice="appearance" />
+
+<MotionTokens part="appear" />
 
 ## Springs
 
 Each spring has four sub-tokens. `stiffness` and `damping` drive platforms with spring animation; `duration` and `easing` are the approximation used where springs are unavailable, such as CSS.
 
 <MotionTokens part="spring" />
-
-## Durations
-
-<MotionTokens part="duration" />
-
-## Easing
-
-<MotionTokens part="easing" />
