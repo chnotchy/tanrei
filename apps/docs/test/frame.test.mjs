@@ -36,7 +36,7 @@ describe('the first page of the page’s language', () => {
     assert.equal(homeHref({ siteTitleHref: homeHref({ siteTitleHref: '/ar' }) }), '/ar/');
   });
   test('is asked of the frame by the three places that link to it: the site’s title, the breadcrumbs’ first level, the not-found page’s action', () => {
-    assert.match(read('components/frame/Header.astro'), /<a slot="navigation" class="tanrei-link docs-site-title"[^>]* href=\{homeHref\(route\)\}/);
+    assert.match(read('components/frame/Header.astro'), /<a slot="brand" class="tanrei-link docs-site-title"[^>]* href=\{homeHref\(route\)\}/);
     assert.match(read('components/frame/PageTitle.astro'), /<a href=\{homeHref\(route\)\} data-icon="home">/);
     const notFound = read('components/NotFound.astro');
     assert.match(notFound, /const home = homeHref\(route\);/);

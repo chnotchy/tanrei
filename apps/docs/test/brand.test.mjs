@@ -17,10 +17,11 @@ const wordmarkLight = read(repo, 'design/brand/generated/wordmark.light.svg');
 
 describe('the header', () => {
   const header = read(docs, 'src/components/frame/Header.astro');
-  const link = header.match(/<a slot="navigation" class="tanrei-link docs-site-title"[^>]*>([\s\S]*?)<\/a>/);
+  const link = header.match(/<a slot="brand" class="tanrei-link docs-site-title"[^>]*>([\s\S]*?)<\/a>/);
 
-  test('the link to the first page is the symbol, named by the site’s name for assistive technology', () => {
-    assert.ok(link, 'the header has the link to the first page');
+  test('the link to the first page is the app bar’s brand in its default layout — one image, the symbol — named by the site’s name for assistive technology', () => {
+    assert.ok(link, 'the header has the link to the first page in the bar’s brand slot, not in its navigation slot');
+    assert.doesNotMatch(header, /<tanrei-app-bar[^>]*brand-layout=/, 'the header gives one image: the default layout');
     assert.match(link[0], /href=\{homeHref\(route\)\}/);
     assert.match(link[1], /<Fragment set:html=\{symbol\} \/>/, 'the symbol is drawn inline, so a token paints it');
     assert.match(link[1], /<span class="sr-only">\{route\.siteTitle\}<\/span>/, 'the link is named by the site’s name');
@@ -35,14 +36,14 @@ describe('the header', () => {
     assert.match(header, /inlineMark\(marks\.symbol, \{ width: 24, height: 24, class: 'docs-site-mark', 'aria-hidden': 'true', focusable: 'false' \}\)/);
   });
 
-  test('the symbol is painted by on-surface and sized as an icon in an icon button’s box', () => {
+  test('the symbol is painted by the brand’s color and drawn at the brand’s size; the bar gives it its cell', () => {
     const css = read(docs, 'src/styles/frame.css');
     const rule = (selector) => css.match(new RegExp(`\\n  ${selector.replace(/[.[\]]/g, '\\$&')} \\{([^}]*)\\}`))?.[1] ?? '';
-    assert.match(rule('.docs-site-title'), /color: var\(--tanrei-comp-app-bar-title-color\)/);
-    assert.match(rule('.docs-site-title'), /min-inline-size: var\(--tanrei-sys-target-pointer\)/);
+    assert.match(rule('.docs-site-title'), /color: var\(--tanrei-comp-app-bar-brand-color\)/);
+    assert.doesNotMatch(rule('.docs-site-title'), /min-inline-size/, 'the cell is the bar’s (APB-19)');
     assert.match(rule('.docs-site-title'), /--tanrei-comp-link-focused-container-shape: var\(--tanrei-comp-button-focused-container-shape\)/);
-    assert.match(rule('.docs-site-mark'), /inline-size: var\(--tanrei-sys-icon-medium\)/);
-    assert.match(rule('.docs-site-mark'), /block-size: var\(--tanrei-sys-icon-medium\)/);
+    assert.match(rule('.docs-site-mark'), /inline-size: var\(--tanrei-comp-app-bar-brand-size\)/);
+    assert.match(rule('.docs-site-mark'), /block-size: var\(--tanrei-comp-app-bar-brand-size\)/);
   });
 });
 
