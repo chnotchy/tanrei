@@ -5179,7 +5179,7 @@
     --tanrei-comp-navigation-drawer-selected-hovered-item-supporting-text-color: var(--tanrei-comp-navigation-drawer-selected-item-supporting-text-color);
     --tanrei-comp-navigation-drawer-selected-hovered-item-trailing-icon-color: var(--tanrei-comp-navigation-drawer-selected-item-trailing-icon-color);
     --tanrei-comp-navigation-drawer-selected-hovered-item-trailing-text-color: var(--tanrei-comp-navigation-drawer-selected-item-trailing-text-color);
-    --tanrei-comp-navigation-drawer-selected-item-container-color: var(--tanrei-sys-color-secondary-container);
+    --tanrei-comp-navigation-drawer-selected-item-container-color: color-mix(in srgb, var(--tanrei-comp-navigation-drawer-selected-item-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
     --tanrei-comp-navigation-drawer-selected-item-icon-indicator-color: var(--tanrei-comp-navigation-drawer-unselected-item-icon-indicator-color);
     --tanrei-comp-navigation-drawer-selected-item-icon-color: var(--tanrei-sys-color-on-secondary-container);
     --tanrei-comp-navigation-drawer-selected-item-label-color: var(--tanrei-sys-color-on-secondary-container);
@@ -7448,7 +7448,7 @@
     --tanrei-comp-table-motion-state-easing: var(--tanrei-sys-motion-easing-standard);
     --tanrei-comp-table-pressed-opacity: 1;
     --tanrei-comp-table-row-gap: var(--tanrei-sys-space-space50);
-    --tanrei-comp-table-row-selected-container-color: var(--tanrei-sys-color-secondary-container);
+    --tanrei-comp-table-row-selected-container-color: color-mix(in srgb, var(--tanrei-comp-table-row-selected-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
     --tanrei-comp-table-row-selected-hovered-container-color: color-mix(in srgb, var(--tanrei-comp-table-row-selected-container-color), var(--tanrei-comp-table-row-selected-state-layer-color) calc(var(--tanrei-sys-state-hover-state-layer-opacity) * 100%));
     --tanrei-comp-table-row-selected-hovered-text-color: var(--tanrei-comp-table-row-selected-text-color);
     --tanrei-comp-table-row-selected-pressed-container-color: color-mix(in srgb, var(--tanrei-comp-table-row-selected-container-color), var(--tanrei-comp-table-row-selected-state-layer-color) calc(var(--tanrei-sys-state-pressed-state-layer-opacity) * 100%));
@@ -8256,7 +8256,7 @@
     --tanrei-comp-tree-view-motion-state-easing: var(--tanrei-sys-motion-easing-standard);
     --tanrei-comp-tree-view-pressed-opacity: 1;
     --tanrei-comp-tree-view-selected-chevron-color: var(--tanrei-sys-color-on-secondary-container);
-    --tanrei-comp-tree-view-selected-container-color: var(--tanrei-sys-color-secondary-container);
+    --tanrei-comp-tree-view-selected-container-color: color-mix(in srgb, var(--tanrei-comp-tree-view-selected-state-layer-color) calc(var(--tanrei-sys-state-selected-state-layer-opacity) * 100%), transparent);
     --tanrei-comp-tree-view-selected-disabled-chevron-color: var(--tanrei-comp-tree-view-selected-chevron-color);
     --tanrei-comp-tree-view-selected-disabled-container-color: var(--tanrei-comp-tree-view-selected-container-color);
     --tanrei-comp-tree-view-selected-disabled-icon-color: var(--tanrei-comp-tree-view-selected-icon-color);

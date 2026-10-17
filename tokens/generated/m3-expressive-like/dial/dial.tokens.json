@@ -1107,6 +1107,30 @@
               },
               "reason": "A selected option's fill is a layer of the row's own content color, twice the hover layer, as the menu's current link item is (and its checked row at medium and high contrast), so that the quiet selection looks the same in a list and in a menu and stands as far from a hovered row as a hovered row stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
             },
+            "tanrei.comp.tree-view.selected.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.tree-view.selected.state-layer.color}",
+                "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+              },
+              "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that a selected node stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+            },
+            "tanrei.comp.navigation-drawer.selected.item.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.navigation-drawer.selected.item.state-layer.color}",
+                "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+              },
+              "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that the current destination stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is 1.03:1 from a hovered destination."
+            },
+            "tanrei.comp.table.row.selected.container.color": {
+              "derive": {
+                "fn": "alpha",
+                "of": "{tanrei.comp.table.row.selected.state-layer.color}",
+                "amount": "{tanrei.sys.state.selected-state-layer-opacity}"
+              },
+              "reason": "A row's selection is the same layer in every component that selects rows: it follows tanrei.comp.list.selected.container.color, a layer of the row's own content color twice the hover layer, so that a selected row stands as far from a hovered one as a hovered one stands from one at rest. The neutral palette's secondary-container is a tone chosen against the page: in light it is the same grey as a hovered row (1.01:1 between them)."
+            },
             "tanrei.comp.menu.expanded.container.color": {
               "derive": {
                 "fn": "alpha",
@@ -5284,6 +5308,18 @@
             "tanrei.comp.list.selected.container.color": {
               "$value": "{tanrei.sys.color.secondary-container}",
               "reason": "This preset keeps Material's selected list item, a secondary-container fill, where the default system lays a layer of the content color; whether Material's fill is told from a hovered row on the preset's surfaces is a fidelity decision for this preset."
+            },
+            "tanrei.comp.tree-view.selected.container.color": {
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "reason": "This preset keeps the secondary-container fill, Material's quiet selection, for a selected tree row, where the default system lays a layer of the content color; whether that fill is told from a hovered row on the preset's surfaces is a fidelity decision for this preset."
+            },
+            "tanrei.comp.navigation-drawer.selected.item.container.color": {
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "reason": "This preset keeps Material's navigation drawer active indicator, a secondary-container fill, where the default system lays a layer of the content color; whether Material's fill is told from a hovered destination on the preset's surfaces is a fidelity decision for this preset."
+            },
+            "tanrei.comp.table.row.selected.container.color": {
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "reason": "This preset keeps the secondary-container fill, Material's quiet selection, for a selected table row, where the default system lays a layer of the content color; whether that fill is told from a hovered row on the preset's surfaces is a fidelity decision for this preset."
             },
             "tanrei.comp.menu.surface.color": {
               "$value": "{tanrei.sys.color.surface-container}"

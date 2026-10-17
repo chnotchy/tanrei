@@ -5985,7 +5985,7 @@ private object TonePerStateSystemSource {
                 ),
                 selected = TanreiNavigationDrawerConditionTokens(
                     enabled = TanreiNavigationDrawerConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+                        itemContainerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -5995,7 +5995,7 @@ private object TonePerStateSystemSource {
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     hovered = TanreiNavigationDrawerConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
+                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -6005,7 +6005,7 @@ private object TonePerStateSystemSource {
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     focused = TanreiNavigationDrawerConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
+                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -6015,7 +6015,7 @@ private object TonePerStateSystemSource {
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     pressed = TanreiNavigationDrawerConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
+                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -6025,7 +6025,7 @@ private object TonePerStateSystemSource {
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     disabled = TanreiNavigationDrawerConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+                        itemContainerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemLabelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
@@ -6089,7 +6089,7 @@ private object TonePerStateSystemSource {
                 ),
                 collapsedSelected = TanreiNavigationDrawerConditionTokens(
                     enabled = TanreiNavigationDrawerConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+                        itemContainerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -6099,7 +6099,7 @@ private object TonePerStateSystemSource {
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     hovered = TanreiNavigationDrawerConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
+                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -6109,7 +6109,7 @@ private object TonePerStateSystemSource {
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     focused = TanreiNavigationDrawerConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
+                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -6119,7 +6119,7 @@ private object TonePerStateSystemSource {
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     pressed = TanreiNavigationDrawerConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
+                        itemContainerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         itemLabelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -6129,7 +6129,7 @@ private object TonePerStateSystemSource {
                         itemStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     disabled = TanreiNavigationDrawerConditionStateTokens(
-                        itemContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+                        itemContainerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f),
                         itemIconIndicatorColor = TanreiPaint.None,
                         itemIconColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
                         itemLabelColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSurface), amount = 0.38f),
@@ -8234,10 +8234,10 @@ private object TonePerStateSystemSource {
             motionStateDuration = 150,
             motionStateEasing = TanreiCubicBezier(x1 = 0.2f, y1 = 0f, x2 = 0f, y2 = 1f),
             rowGap = 4.dp,
-            rowSelectedContainerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
-            rowSelectedHoveredContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
+            rowSelectedContainerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f),
+            rowSelectedHoveredContainerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
             rowSelectedHoveredTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
-            rowSelectedPressedContainerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
+            rowSelectedPressedContainerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
             rowSelectedPressedTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
             rowSelectedStateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
             rowSelectedTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -9072,7 +9072,7 @@ private object TonePerStateSystemSource {
                 ),
                 selected = TanreiTreeViewConditionTokens(
                     enabled = TanreiTreeViewConditionStateTokens(
-                        containerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+                        containerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f),
                         labelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -9081,7 +9081,7 @@ private object TonePerStateSystemSource {
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     hovered = TanreiTreeViewConditionStateTokens(
-                        containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.08f),
                         labelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -9090,7 +9090,7 @@ private object TonePerStateSystemSource {
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     focused = TanreiTreeViewConditionStateTokens(
-                        containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
                         labelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -9099,7 +9099,7 @@ private object TonePerStateSystemSource {
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     pressed = TanreiTreeViewConditionStateTokens(
-                        containerColor = TanreiPaint.Mix(base = TanreiPaint.Role(TanreiColorRole.SecondaryContainer), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
+                        containerColor = TanreiPaint.Mix(base = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f), with = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.1f),
                         labelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
@@ -9108,7 +9108,7 @@ private object TonePerStateSystemSource {
                         stateLayerColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                     ),
                     disabled = TanreiTreeViewConditionStateTokens(
-                        containerColor = TanreiPaint.Role(TanreiColorRole.SecondaryContainer),
+                        containerColor = TanreiPaint.Alpha(of = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer), amount = 0.16f),
                         labelColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         supportingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
                         trailingTextColor = TanreiPaint.Role(TanreiColorRole.OnSecondaryContainer),
