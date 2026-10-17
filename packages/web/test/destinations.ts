@@ -6,6 +6,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, type FixtureItem, type Spec, acmeSystemCss, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from './harness.js';
 import { opticalSize } from './icons.js';
+import { motionEnded } from './motions.js';
 
 type P = Page;
 
@@ -348,6 +349,9 @@ export function destinationSuite({ spec, tag, itemTag, ids, lines, range, own = 
         const c = container(page, 'four-destinations', 1);
         await c.hover();
         await expect.poll(() => css(item(page, 'four-destinations', 1).locator('.indicator'), 'background-color')).toBe(await resolveColor(page, T('unselected-hovered-item-container-color')));
+        // Pressed once the hovered color has ended its motion: the poll can pass on its last frames, where the color
+        // reads as its end value and, a frame later, one channel a step off it (Firefox, a translucent color).
+        await motionEnded(item(page, 'four-destinations', 1));
         const hovered = await css(item(page, 'four-destinations', 1).locator('.indicator'), 'background-color');
         await page.mouse.down();
         const result = {
