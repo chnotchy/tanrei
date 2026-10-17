@@ -9,6 +9,9 @@
   "builtFrom": [
     "modal-layer"
   ],
+  "uses": [
+    "button"
+  ],
   "anatomy": [
     {
       "id": "scrim",
