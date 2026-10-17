@@ -86,7 +86,7 @@ function actions(stage: HTMLElement, box: HTMLElement) {
   const holder = stage.querySelector<HTMLElement>('[data-stage-actions]');
   const template = holder?.querySelector<HTMLTemplateElement>(':scope > template');
   if (!holder || !template) return;
-  template.replaceWith(template.content.cloneNode(true));
+  template.replaceWith(document.importNode(template.content, true));
   scheme(stage, box);
   stage.querySelector('[data-stage-redraw]')?.addEventListener('click', () => {
     const frame = box.querySelector('iframe');
@@ -95,12 +95,26 @@ function actions(stage: HTMLElement, box: HTMLElement) {
   });
 }
 
+/**
+ * A fixture drawn in the page is written in a template and drawn when its stage comes near the view: a page of hundreds
+ * of fixtures (the Field's has 368) would define and lay out every one of them before it had loaded. Its canvas holds
+ * the room the fixture's baseline shows until then. A fixture that takes a step in script takes it once drawn.
+ */
+export function drawFixture(stage: Element) {
+  const template = stage.querySelector<HTMLTemplateElement>('.fixture-element > template[data-stage-fixture]');
+  if (!template) return;
+  const holder = template.parentElement!;
+  template.replaceWith(document.importNode(template.content, true));
+  for (const element of holder.querySelectorAll<HTMLElement>(':scope > [data-fixture-files]')) stageFiles(element);
+}
+
 const near = new IntersectionObserver(
   (entries) => {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
       near.unobserve(entry.target);
       const stage = entry.target as HTMLElement;
+      drawFixture(stage);
       const box = stage.querySelector<HTMLElement>('.docs-stage-box');
       if (box) actions(stage, box);
     }
@@ -157,4 +171,3 @@ export async function stageFiles(element: HTMLElement) {
   const kind = (name: string) => kinds[name.slice(name.lastIndexOf('.') + 1).toLowerCase()] ?? '';
   add(items.map((item, index) => new File([new Uint8Array(index + 1)], item.name, { lastModified: 1767225600000, type: kind(item.name) })));
 }
-for (const element of document.querySelectorAll<HTMLElement>('.fixture-element > [data-fixture-files]')) stageFiles(element);

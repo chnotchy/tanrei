@@ -82,13 +82,17 @@ const surface = (id: string) => (spec.fixtures.find((f) => f.id === id) as { sur
                           <ResizeHandle label={named(t.stages.width, { id: stage.id })} controls={`${id}-stage`} />
                         </div>
                       ) : (
-                        <div class="docs-stage-canvas" style={stage.width ? `--docs-stage-width: ${stage.width}` : undefined} data-resizable={stage.width ? '' : undefined}>
+                        <div
+                          class="docs-stage-canvas"
+                          style={[stage.width && `--docs-stage-width: ${stage.width}`, stage.reserve && `--docs-stage-reserve-inline: ${stage.reserve.width}px; --docs-stage-reserve-block: ${stage.reserve.height}px`].filter(Boolean).join('; ') || undefined}
+                          data-resizable={stage.width ? '' : undefined}
+                        >
                           {/* The fixture's stage color, where it names one (the schema's `surface`): the element stands on that surface. */}
                           <div
                             class="fixture-element"
                             data-presentation={stage.presentation}
                             style={surface(stage.id) ? `background: var(--tanrei-sys-color-${surface(stage.id)}); padding: var(--tanrei-sys-space-space200)` : undefined}
-                            set:html={stage.html}
+                            set:html={`<template data-stage-fixture>${stage.html}</template>`}
                           />
                           {stage.width && <ResizeHandle label={named(t.stages.width, { id: stage.id })} controls={`${id}-stage`} />}
                         </div>
@@ -184,6 +188,12 @@ const surface = (id: string) => (spec.fixtures.find((f) => f.id === id) as { sur
     position: relative;
     box-sizing: border-box;
     max-inline-size: 100%;
+  }
+  /* A fixture is drawn when its stage comes near the view (lib/fixture-stages.ts); until then its canvas holds the
+     room its baseline shows, so that nothing moves when it is drawn. */
+  .docs-stage-canvas:has(> .fixture-element > template) {
+    min-inline-size: min(100%, var(--docs-stage-reserve-inline, 0px));
+    min-block-size: var(--docs-stage-reserve-block, 0px);
   }
   .docs-stage-canvas[data-resizable] {
     inline-size: var(--docs-stage-width);

@@ -13,6 +13,8 @@
 //   the window the web harness draws it in. What it puts in the top layer or places against the window stays in that
 //   window, and what reads the window's width (a drawer's breakpoints) reads the stage's. A window is drawn scaled down
 //   where the column is narrower than it.
+import fs from 'node:fs';
+import path from 'node:path';
 import { drawsFixture, liveFixture } from './fixtures';
 import type { Spec, SpecProp } from './repo';
 
@@ -45,6 +47,11 @@ export interface Stage {
   presentation?: string;
   /** A step in script the stage takes once defined (`data-fixture-files`), so it is not compared with a copy of its markup. */
   staged?: boolean;
+  /**
+   * For an inline stage: the room its fixture is held before it is drawn — the size of what the web package's baseline
+   * of it shows inside its stage's padding — where it has a baseline.
+   */
+  reserve?: Size;
 }
 
 export interface Group {
@@ -125,6 +132,30 @@ function layoutWidth(html: string): { width: string; html: string } | undefined 
   return { width: width[1].trim(), html: `${head.replace(found[0], ` style="${style}"`)}${html.slice(end)}` };
 }
 
+/** The padding of the web harness's stage around a fixture, on each side, in CSS pixels. */
+const HARNESS_STAGE_PADDING = 16;
+
+/**
+ * The room a fixture is drawn in, read from its baseline in the web package (packages/web/snapshots/<spec>/<id>.png:
+ * a picture of the harness's stage at a device pixel ratio of 2), less the stage's padding. The site is built from the
+ * docs' folder, so the folder of baselines is found from there. Nothing where the fixture has no baseline.
+ */
+function reserveOf(spec: string, id: string): Size | undefined {
+  const file = path.resolve(process.cwd(), '../../packages/web/snapshots', spec, `${id}.png`);
+  if (!fs.existsSync(file)) return undefined;
+  const header = Buffer.alloc(24);
+  const fd = fs.openSync(file, 'r');
+  try {
+    fs.readSync(fd, header, 0, 24, 0);
+  } finally {
+    fs.closeSync(fd);
+  }
+  // A PNG's first chunk is IHDR: its width and height are the two big-endian words after the signature and its head.
+  if (header.toString('ascii', 12, 16) !== 'IHDR') return undefined;
+  const less = (pixels: number) => Math.max(0, Math.round(pixels / 2) - 2 * HARNESS_STAGE_PADDING);
+  return { width: less(header.readUInt32BE(16)), height: less(header.readUInt32BE(20)) };
+}
+
 /** A prop's value as the caption shows it: a long text is cut after its first words (the copied markup holds all of it). */
 const LONGEST = 40;
 const shown = (value: unknown) => {
@@ -148,7 +179,7 @@ export function stageOf(spec: Spec, fixture: Fixture, live: boolean): Stage {
   const lf = liveFixture(spec, fixture);
   if (lf.presentation !== 'none') return { ...base, drawn: true, kind: 'window', window: windowOf(spec, fixture), markup: liveFixture(spec, fixture, { window: true }).markup, presentation: lf.presentation };
   const sized = layoutWidth(lf.html);
-  return { ...base, drawn: true, kind: 'inline', html: sized?.html ?? lf.html, width: sized?.width, markup: lf.markup, presentation: lf.presentation, staged: lf.html.includes(' data-fixture-files=') };
+  return { ...base, drawn: true, kind: 'inline', html: sized?.html ?? lf.html, width: sized?.width, markup: lf.markup, presentation: lf.presentation, staged: lf.html.includes(' data-fixture-files='), reserve: reserveOf(spec.name, fixture.id) };
 }
 
 /** The spec's fixtures as groups of stages: by the grouping axis's values in the spec's order (then any other), or one group. */
