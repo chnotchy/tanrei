@@ -69,15 +69,15 @@ test('m3-like and m3-expressive-like list both; cupertino lists the segmented bu
     const fab = find(manifest, 'fab-menu');
     assert.ok(fab, id);
     assert.equal(fab.layer, 'm3-like');
-    assert.deepEqual(fab.web, { tag: `${CONFIG.web.tagPrefix}-fab-menu`, import: `${WEB}/systems/${id}.js`, module: `${WEB}/components/fab-menu` }, 'registered by the system’s entry, not the main one');
-    assert.equal(find(manifest, 'segmented-button').web.import, `${WEB}/systems/${id}.js`, 'and so is the segmented button, which the main entry does not register');
-    assert.equal(find(manifest, 'button').web.import, `${WEB}/systems/${id}.js`, 'a system’s entry registers every component it ships');
+    assert.deepEqual(fab.web, { tag: `${CONFIG.web.tagPrefix}-fab-menu`, import: `${WEB}/${id}`, module: `${WEB}/components/fab-menu` }, 'registered by the system’s entry, not the main one');
+    assert.equal(find(manifest, 'segmented-button').web.import, `${WEB}/${id}`, 'and so is the segmented button, which the main entry does not register');
+    assert.equal(find(manifest, 'button').web.import, `${WEB}/${id}`, 'a system’s entry registers every component it ships');
     assert.equal(omitted(manifest, 'fab-menu'), undefined);
     assert.deepEqual(find(manifest, 'text-field').variants, ['stacked', 'filled', 'outlined'], 'the preset does not inherit the default system’s choices');
     assert.deepEqual(find(manifest, 'navigation-bar').variants, ['tonal']);
   }
   const cupertino = committed('cupertino');
-  assert.equal(find(cupertino, 'segmented-button').web.import, `${WEB}/systems/cupertino.js`);
+  assert.equal(find(cupertino, 'segmented-button').web.import, `${WEB}/cupertino`);
   assert.equal(find(cupertino, 'fab-menu'), undefined);
   assert.deepEqual(omitted(cupertino, 'fab-menu'), { name: 'fab-menu', title: 'FAB menu', providedBy: 'm3-like' });
 });
@@ -143,8 +143,8 @@ test('a variant value a layer adds to an axis is listed for every component that
 
 test('a product on a preset takes the preset’s entry for what the preset ships, and the manifest needs the shipped systems', () => {
   const acme = productManifest({ id: 'acme', name: 'Acme', extends: 'm3-like', components: { omit: { carousel: { reason: 'Acme shows one thing at a time.' } } } });
-  assert.equal(find(acme, 'segmented-button').web.import, `${WEB}/systems/m3-like.js`);
-  assert.equal(find(acme, 'fab-menu').web.import, `${WEB}/systems/m3-like.js`);
-  assert.equal(find(acme, 'button').web.import, `${WEB}/systems/m3-like.js`);
+  assert.equal(find(acme, 'segmented-button').web.import, `${WEB}/m3-like`);
+  assert.equal(find(acme, 'fab-menu').web.import, `${WEB}/m3-like`);
+  assert.equal(find(acme, 'button').web.import, `${WEB}/m3-like`);
   assert.throws(() => componentsManifest(layerChain(DEFAULT_SYSTEM, read), catalog, held), /name the shipped systems/);
 });
