@@ -2,7 +2,7 @@
 title: Sistemas de diseño y personalización
 description: Un vocabulario, muchos sistemas de diseño. Cambia un dial, declara una paleta, reorienta un token, y todas las plataformas lo siguen en un solo commit.
 translationOf: foundations/design-systems.mdx
-sourceHash: 4c890c31daebc5db9719d6f53c3e48ce32b794cf
+sourceHash: caf3afbc5714bcc983352574d935aeaded71f2a5
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -135,6 +135,34 @@ import '@tanrei/web/cupertino'; // los componentes que incluye cupertino
 ```
 
 Lo que todavía no pueden expresar ni los valores ni las elecciones de tipo (los materiales de fondo, las etiquetas en mayúsculas como cuestión de estilo) figura como defecto de Tanrei en `docs/governance/mimicry-gaps.json`; no se oculta.
+
+## Un componente que tu sistema no tiene
+
+Un sistema puede dejar fuera un componente, o un valor de la `variant` de un componente: el sistema por defecto no tiene botón segmentado, ni campo de texto filled u outlined. Una capa lo dice en `components`, con el motivo y lo que se usa en su lugar:
+
+```json
+"components": {
+  "omit": { "carousel": { "reason": "Acme shows one thing at a time.", "insteadUse": ["list"] } },
+  "variants": { "tabs": { "omit": ["tonal"] } }
+}
+```
+
+Lo que se deja fuera se sigue dibujando y funciona. En una compilación de desarrollo, cada elemento que lo usa avisa una vez en la consola, con el nombre de tu sistema y lo que usa en su lugar. El aviso nombra el componente que escribiste: `<tanrei-text-field variant="outlined">` se informa como el `outlined` del campo de texto, no como la entrada de texto que dibuja dentro. Un componente que vive en la capa de otro sistema, como el menú FAB en m3-like, se informa igual, con la capa en la que vive.
+
+Para que tus pruebas fallen por ello, haz que se informe como un error y pregunta qué se usó:
+
+```js
+import { setAvailabilityMode, unavailableUses } from '@tanrei/web';
+
+setAvailabilityMode('error'); // en la preparación de tus pruebas, antes de que se dibuje nada
+
+test('el producto usa solo lo que tiene su sistema', async () => {
+  // …renderiza las pantallas del producto…
+  expect(unavailableUses()).toEqual([]);
+});
+```
+
+`unavailableUses()` enumera cada uso una vez, en orden alfabético (`segmented-button`, `text-field:outlined`), en cualquiera de los dos modos. Una compilación de producción no comprueba nada, así que allí la lista queda vacía. `@tanrei/web/availability` contiene las mismas dos funciones sin registrar ningún elemento.
 
 ## Compartir un sistema
 
