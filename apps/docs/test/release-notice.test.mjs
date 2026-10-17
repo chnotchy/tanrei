@@ -75,6 +75,13 @@ describe('the notice, in every language', () => {
   }
 });
 
+test('the notice reads as the site’s prose: no comma before the last "and" in English, no space after a Japanese full stop', () => {
+  const en = releaseNotice({ lang: 'en', version: '0.1.0', paused: NATIVE });
+  assert.ok(en.paragraphs[0].includes('SwiftUI, Jetpack Compose, Flutter and React Native'), en.paragraphs[0]);
+  const ja = releaseNotice({ lang: 'ja', platform: 'web', pkgs: ['@tanrei/web'], version: '0.1.0-next.0', paused: NATIVE });
+  assert.ok(ja.paragraphs[0].includes(`。${strings('ja').release.noCompat}`), ja.paragraphs[0]);
+});
+
 describe('the install pages, in every language', () => {
   /** The headings a notice names, quoted in the language's own marks. */
   const quoted = (text) => [...text.replace(/<[^>]*>/g, '').matchAll(/[“「«]([^”」»]+)[”」»]/g)].map(([, name]) => name);

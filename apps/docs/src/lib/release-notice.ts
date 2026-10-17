@@ -40,11 +40,14 @@ const put = (template: string, text: Record<string, string>, html: Record<string
 /** The notice the page carries, or null where it needs none. */
 export function releaseNotice({ lang, platform, pkgs = [], registry = 'npm', version = config.version, paused = pausedPlatforms.paused }: NoticeOptions): Notice | null {
   const t = strings(lang).release;
-  const list = (items: string[]) => new Intl.ListFormat(lang, { type: 'conjunction' }).format(items);
+  // The site's English writes no comma before the last item's "and" ("Flutter and React Native"): British usage.
+  const list = (items: string[]) => new Intl.ListFormat(lang.split('-')[0] === 'en' ? 'en-GB' : lang, { type: 'conjunction' }).format(items);
   const { prerelease, tag, release: next } = release(version);
   const repository = config.repository.public;
-  // The rule while the versions are 0.x prereleases; nothing is said of later ones.
-  const noCompat = prerelease && version.startsWith('0.') ? ` ${t.noCompat}` : '';
+  // The rule while the versions are 0.x prereleases; nothing is said of later ones. A sentence follows a full stop
+  // with a space, except after the ideographic one (。), which takes none.
+  const rule = prerelease && version.startsWith('0.');
+  const withRule = (sentence: string) => (rule ? `${sentence}${sentence.endsWith('。') ? '' : ' '}${t.noCompat}` : sentence);
 
   if (platform && paused.includes(platform)) {
     const pkg = pkgs[0] ?? '';
@@ -53,11 +56,11 @@ export function releaseNotice({ lang, platform, pkgs = [], registry = 'npm', ver
   if (platform || pkgs.length) {
     if (!prerelease) return null;
     const install = list(pkgs.map((pkg) => code(`${pkg}@${tag}`)));
-    return { title: t.prereleaseTitle, paragraphs: [put(t.prerelease, { version, registry, tag, release: next }, { install }) + noCompat] };
+    return { title: t.prereleaseTitle, paragraphs: [withRule(put(t.prerelease, { version, registry, tag, release: next }, { install }))] };
   }
 
   const paragraphs: string[] = [];
-  if (prerelease) paragraphs.push(put(t.prereleaseAll, { version, tag, release: next, example: `npm install ${config.packages.npmScope}/web@${tag}` }) + noCompat);
+  if (prerelease) paragraphs.push(withRule(put(t.prereleaseAll, { version, tag, release: next, example: `npm install ${config.packages.npmScope}/web@${tag}` })));
   const held = config.platforms.filter((p) => paused.includes(p)).map((p) => fill('{name}', { name: strings(lang).platform[p] ?? p }));
   if (held.length) paragraphs.push(put(t.unpublishedAll, {}, { platforms: list(held) }));
   if (!paragraphs.length) return null;
