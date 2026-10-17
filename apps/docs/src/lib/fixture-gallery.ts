@@ -9,7 +9,7 @@
 //   wide as its layout (the renderer gives it the width of the web harness's stage) takes that width as its stage's
 //   starting width, fills the stage, and can be made narrower or wider with the stage's handle.
 // - `window`: a presented fixture (a modal dialog, an open menu, a docked picker, a tooltip) is drawn presented, alone,
-//   in a window of its own — an `iframe` of the fixture's own page (src/pages/fixtures/[component].astro), which draws
+//   in a window of its own — an `iframe` of the fixture's document (src/pages/fixtures/[component].astro), which draws
 //   it from the web package's own document of it, at the size of the stage its baseline was taken of. What it puts in
 //   the top layer or places against the window stays in that window, and what reads the window's width (a drawer's
 //   breakpoints) reads the stage's. A window is drawn scaled down where the column is narrower than it. Every fixture
@@ -208,11 +208,5 @@ export function galleryOf(spec: Spec, live: boolean): Group[] {
     .filter((group) => group.stages.length > 0);
 }
 
-/** The address of a fixture's own page: every fixture of a component on one page, or one alone (`?id=`). */
-export const fixturePageHref = (component: string, id?: string, theme?: 'light' | 'dark') => {
-  const query = new URLSearchParams();
-  if (id) query.set('id', id);
-  if (theme) query.set('theme', theme);
-  const search = query.toString();
-  return `/fixtures/${component}/${search ? `?${search}` : ''}`;
-};
+/** The address of the document a window draws: one fixture of a component, alone. */
+export const fixtureWindowHref = (component: string, id: string) => `/fixtures/${component}/?${new URLSearchParams({ id })}`;
