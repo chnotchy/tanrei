@@ -12,7 +12,7 @@ import { emitTs } from './emit/ts.js';
 import { checkGuidance, checkSources } from '@tanrei/token-engine';
 import { ROOT_SYSTEM, availabilityOf, buildBundle, layerChain, listSystems, shippedLayerProblems, writeBundle } from './bundle.js';
 import { emitIconSetsTs, iconSetFor, loadIconSets, validateIconSets } from './icon-sets.js';
-import { PRESET_CRITERIA_NOTE, checkInvariants, isCriterionFinding, presetAccessibilityReport } from './invariants.js';
+import { PRESET_CRITERIA_NOTE, auditInvariants, checkedLine, defaultAccessibilityReport, isCriterionFinding, presetAccessibilityReport } from './invariants.js';
 import { buildIR } from './ir.js';
 import { CONFIG, GENERATED_HEADER, REPO_ROOT, TOKENS_DIR, buildModel, buildModelFromBundle, lintValues } from './model.js';
 import { readBundle } from './reader.js';
@@ -126,7 +126,7 @@ async function generateSystems(outputs, iconSets, systemIconSets) {
     const reader = readBundle(files, id);
     await lintValues(reader.tokens());
     const model = await buildModelFromBundle(files, id, reader);
-    const findings = checkInvariants(model);
+    const { failures: findings, checked } = auditInvariants(model);
     failOn(`structural/functional invariant violation(s) in system "${id}" — these fail in every system`, findings.filter((f) => !isCriterionFinding(f)));
     const measurements = findings.filter(isCriterionFinding);
     if (measurements.length) console.log(`ℹ system "${id}": ${measurements.length} contrast measurement(s) below Tanrei's thresholds, recorded as information — ${PRESET_CRITERIA_NOTE}`);
@@ -134,7 +134,7 @@ async function generateSystems(outputs, iconSets, systemIconSets) {
     const ir = buildIR(model);
     systemIconSets[id] = iconSetOf(ir, iconSets);
     const targets = {
-      [`${bundleDir}/a11y-report.json`]: presetAccessibilityReport(id, measurements),
+      [`${bundleDir}/a11y-report.json`]: presetAccessibilityReport(id, measurements, checked),
       // Exactness, measured against the published system this preset reproduces.
       ...(fidelityMaps(REPO_ROOT).includes(id) ? { [`${bundleDir}/fidelity.json`]: measureFidelity(model, loadFidelityMap(id)) } : {}),
       [`packages/web/src/generated/systems/${id}.css`]: banner + emitCss(model, { scope: id, unavailable: availabilityOf(layerChain(id, readLayer)) }),
@@ -144,7 +144,7 @@ async function generateSystems(outputs, iconSets, systemIconSets) {
       ...nativeSystemFiles(ir, banner),
     };
     for (const [rel, content] of Object.entries(targets)) { write(rel, content); outputs.push(rel); }
-    console.log(`✔ system "${id}": ${Object.keys(model.tokens).length} tokens, ${measurements.length} contrast measurement(s) that do not apply`);
+    console.log(`✔ system "${id}": ${Object.keys(model.tokens).length} tokens, ${measurements.length} contrast measurement(s) that do not apply; ${checkedLine(checked)}`);
   }
 }
 
@@ -155,7 +155,7 @@ async function generate() {
   const iconSets = loadIconSets(REPO_ROOT);
   const outputs = generateSchemes();
   const model = await buildModel();
-  const failures = checkInvariants(model);
+  const { failures, checked } = auditInvariants(model);
   if (failures.length) {
     console.error(`✖ ${failures.length} token invariant violation(s):\n${failures.map((f) => `  - ${f}`).join('\n')}`);
     process.exit(1);
@@ -174,6 +174,8 @@ async function generate() {
     // The brand marks painted in each scheme's on-surface, and the favicon that follows the reader's scheme.
     ...brandFiles(REPO_ROOT, model.colors),
     'tokens/vocabulary.lock.json': vocabularyLock(model),
+    // What the build checked: the number of contrast pairs per scheme, which the documentation and talks quote.
+    'tokens/generated/a11y-report.json': defaultAccessibilityReport(ROOT_SYSTEM, checked),
   };
   for (const [rel, content] of Object.entries(targets)) {
     write(rel, content);
@@ -197,7 +199,7 @@ async function generate() {
   }
   // The drift check and the edit-guard hook both read this list.
   write('packages/tokens-build/generated-manifest.json', { files: outputs.sort() });
-  console.log(`✔ tokens: ${Object.keys(model.tokens).length} tokens × ${model.schemes.length} schemes → ${outputs.length} files`);
+  console.log(`✔ tokens: ${Object.keys(model.tokens).length} tokens × ${model.schemes.length} schemes → ${outputs.length} files; ${checkedLine(checked)}`);
 }
 
 async function validate() {
@@ -206,7 +208,7 @@ async function validate() {
   failOn('icon set problem(s)', validateIconSets(REPO_ROOT));
   generateSchemes();
   const model = await buildModel(); // Refuses an alias that leads nowhere, in a circle or to another type (reader.js), and a value that is not well-formed (the token lint).
-  const failures = checkInvariants(model);
+  const { failures, checked } = auditInvariants(model);
   if (failures.length) {
     console.error(`✖ ${failures.length} token invariant violation(s):\n${failures.map((f) => `  - ${f}`).join('\n')}`);
     process.exit(1);
@@ -219,7 +221,7 @@ async function validate() {
     if (family && !iconSetFor(iconSets, family)) console.warn(`⚠ system "${id}": no tokens/icon-sets/*.icon-set.json describes its icon family "${family[0]}" — no glyph is mirrored in right-to-left by itself`);
   }
   console.log(`✔ icon sets valid: ${iconSets.map(({ doc }) => `${doc.id} (${doc.mirrored.length} mirrored)`).join(', ')}`);
-  console.log(`✔ tokens valid: ${Object.keys(model.tokens).length} tokens, ${model.schemes.length} schemes, all contrast invariants hold`);
+  console.log(`✔ tokens valid: ${Object.keys(model.tokens).length} tokens, ${model.schemes.length} schemes, all contrast invariants hold — ${checkedLine(checked)}`);
 }
 
 /**

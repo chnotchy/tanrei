@@ -1,0 +1,35 @@
+{
+  "system": "tanrei",
+  "criteria": "enforced",
+  "because": "The default system is held to Tanrei's accessibility criteria in every contrast scheme: a pair under its threshold, or any other invariant violation, fails the build. A committed report therefore lists no finding; it records what was checked.",
+  "checked": {
+    "rolePairs": 826,
+    "componentPairs": 888,
+    "schemes": {
+      "light": {
+        "rolePairs": 127,
+        "componentPairs": 148
+      },
+      "light-medium": {
+        "rolePairs": 143,
+        "componentPairs": 148
+      },
+      "light-high": {
+        "rolePairs": 143,
+        "componentPairs": 148
+      },
+      "dark": {
+        "rolePairs": 127,
+        "componentPairs": 148
+      },
+      "dark-medium": {
+        "rolePairs": 143,
+        "componentPairs": 148
+      },
+      "dark-high": {
+        "rolePairs": 143,
+        "componentPairs": 148
+      }
+    }
+  }
+}
