@@ -19,6 +19,7 @@ import {
 } from '../../../test/harness.js';
 import { opticalSizeAxis } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
+import { settledCss } from '../../../test/motions.js';
 
 const spec = loadSpec('segmented-button');
 type P = Page;
@@ -28,16 +29,6 @@ const seg = (page: P, id: string, n: number) => segs(page, id).nth(n);
 const btn = (page: P, id: string, n: number) => seg(page, id, n).locator('.container');
 const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
-/**
- * The element's computed `property` once every transition and animation running on it has reached its end on its own
- * timeline. A color read mid-transition can serialize like its end value (Firefox writes an interpolated color in the end
- * value's space, alpha already rounded to it) and differ from it in the last digit a frame later.
- */
-const settledCss = (locator: Locator, property: string) =>
-  locator.evaluate(async (el, p) => {
-    await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
-    return getComputedStyle(el).getPropertyValue(p);
-  }, property);
 const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim(), name);
 const T = (name: string) => `--tanrei-comp-segmented-button-${name}`;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
