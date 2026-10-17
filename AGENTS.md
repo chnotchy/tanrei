@@ -20,6 +20,7 @@ Everything else is **derived**: generated token outputs, platform implementation
 - **The core vocabulary is decided by the one-product test**: a core token exists because one product may need that distinction — not because one design system has it, and not because a component happens to use it today. Never grow the core for one design system's sake. **A layer extends the vocabulary instead**: under `vocabulary`, with a `rationale`, additive only — a step in a series, a value on a component axis, or tokens in the layer's own namespace. A shipped preset extends only with evidence in its fidelity map.
 - **Say what you leave undone.** What you notice and do not fix goes into your report or pull request description, with what was seen (a path, a command, a number) and what would fix it. A `TODO` in source says in words what is missing.
 - **Never publish.** Releasing to npm / pub.dev / Maven Central, pushing a release tag, or changing a repository's visibility is a maintainer's decision.
+- **No backward compatibility during the 0.x prereleases.** Rename, remove and change freely, everywhere at once: no deprecated alias, shim, fallback for an old name or shape, or token kept for an implementation that has not caught up. Compatibility code you find is removed, not extended. The changeset says what broke.
 - **Every user-visible change needs a changeset** (`pnpm changeset`). All packages version in lockstep.
 
 ## Definition of parity
