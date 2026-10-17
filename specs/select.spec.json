@@ -179,6 +179,17 @@
       ],
       "default": "auto",
       "description": "How a group of options is told from what is next to it. divider: a line between them. gap: empty space and no line. Auto takes comp.select.separation, which follows the design system's choice."
+    },
+    {
+      "name": "iconSpace",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "never"
+      ],
+      "default": "auto",
+      "description": "Whether an option keeps the room of the leading icon column where it has no icon, so that the labels of a section start on one line — a section being an option group, or a run of adjacent options outside any group. auto: an option keeps the column while another option of its section has a leading icon, so that a section without icons starts its labels where the row's content starts. always: every option keeps it. never: only an option that has an icon has the column. The menu's iconSpace, with the same values and default (SEL-66)."
     }
   ],
   "items": [
@@ -380,7 +391,7 @@
     },
     {
       "id": "SEL-37",
-      "text": "THE select SHALL lay out an option as one row: comp.select.option.padding-inline from each edge, the leading icon column (while any option of the list has a leading icon), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.select.option.mark.size for the check (SEL-39), each comp.select.option.gap from the next; an empty column or box SHALL keep its width in every row so that labels align and wrap alike. It SHALL make the row at least comp.select.option.height tall, and at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.select.option.padding-block above and below; draw the label in comp.select.option.label.typescale and the supporting text in comp.select.option.supporting-text.typescale; and wrap text and grow the row, with long labels and with enlarged text, rather than cut anything in the list. The whole row SHALL be the option's hit area.",
+      "text": "THE select SHALL lay out an option as one row: comp.select.option.padding-inline from each edge, the leading icon column (as SEL-66 says), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.select.option.mark.size for the check (SEL-39), each comp.select.option.gap from the next; the box of the check SHALL keep its width in every row so that labels wrap alike. It SHALL make the row at least comp.select.option.height tall, and at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.select.option.padding-block above and below; draw the label in comp.select.option.label.typescale and the supporting text in comp.select.option.supporting-text.typescale; and wrap text and grow the row, with long labels and with enlarged text, rather than cut anything in the list. The whole row SHALL be the option's hit area.",
       "verify": "Under the default system an option's label starts 16 from the list's edge (4 of the list's padding and 12 of the row's), which is where the value starts in a medium or large container of the same width."
     },
     {
@@ -495,6 +506,11 @@
       "id": "SEL-65",
       "text": "THE select SHALL draw its box from the one set of tokens every input box is drawn from, the group comp.input-box (comp.input-box.container.shape, comp.input-box.container.height.medium, and so on): its container, its corners, its edges and their widths, the label that floats in it and the asterisk after it, the line that shows the chosen value and the placeholder, the leading icon and the chevron, the paddings, the gaps and the least height of its size — small included, and the colors of each of these in its look, at rest, hovered, focused and disabled, plain and in error. It SHALL have no token of its own for any of them: the tokens of its own group are the list's — its surface, its options and their states, its groups, its motion (SEL-25, SEL-37 to SEL-42). WHEN a design system or a product sets a token of the box THE select SHALL follow it, as the text input, the combobox, the number input and the color input do, which read the same tokens; no token is held equal to another for this. WHERE one select is to differ from the other boxes of a product, the token is set for that instance — on its element or on a subtree that holds it, in each platform's way of setting a token for a subtree — and THE select SHALL draw itself from the value it finds there.",
       "verify": "Every value of a select's box is the value of the comp.input-box token it reads, in every scheme of every shipped system. A build test fails if a token with the name of a token of the box stands in the select's own group. Unit, web: with the custom property of comp.input-box.container.shape set on one select's element, its corners change and those of a text input and a select beside it do not; set on an ancestor of the three, all three change."
+    },
+    {
+      "id": "SEL-66",
+      "text": "THE select SHALL decide the leading icon column for each section of its list — an option group, with the options of a group inside it (SEL-44), or a run of adjacent options outside any group: the parts SEL-45 separates. WHILE iconSpace is auto an option SHALL keep the column, empty where it has no icon, WHERE an option of its section has a leading icon, so that the labels of a section start on one line, and a section where no option has one SHALL keep no column, its labels starting at the row's content start; WHILE iconSpace is always every option SHALL keep the column, whether or not any option of the list has an icon; WHILE iconSpace is never an option SHALL have the column only where it has a leading icon itself. The column kept is comp.select.option.leading-icon.size wide with comp.select.option.gap after it, draws nothing and is nothing to assistive technology. A group's title SHALL keep its own place whatever the column of its section is (SEL-44). WHEN an option is added or removed, or an option's leadingIcon changes, THE select SHALL decide its section again; WHEN iconSpace names a value the select does not define THE select SHALL treat it as auto and in debug builds report the unknown value.",
+      "verify": "Fixture icon-space-auto: in the group Apps, Mail and Messages have icons and Copy link has none, so Copy link's label starts where Messages' does; in the group Files, Print and Save as PDF have none, so their labels start at the row's content start, 16 from the list's edge (its padding of 4 and the row's of 12). Fixture icon-space-always: the same options, every label after the column. Fixture icon-space-never: Copy link's label starts at the row's content start, Mail's and Messages' after their icons. Test options outside any group (a run of its own), a leadingIcon given to Print (its group then keeps the column on Save as PDF) and taken away, and an unknown value (auto, reported)."
     }
   ],
   "accessibility": {
@@ -2656,6 +2672,197 @@
           ]
         }
       ]
+    },
+    {
+      "id": "icon-space-auto",
+      "props": {
+        "label": "Share to",
+        "value": "mail",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Apps"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Mail",
+                "value": "mail",
+                "leadingIcon": "mail"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Messages",
+                "value": "messages",
+                "leadingIcon": "chat"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Copy link",
+                "value": "link"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Files"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Print",
+                "value": "print"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Save as PDF",
+                "value": "pdf"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "icon-space-always",
+      "props": {
+        "label": "Share to",
+        "value": "mail",
+        "open": true,
+        "iconSpace": "always"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Apps"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Mail",
+                "value": "mail",
+                "leadingIcon": "mail"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Messages",
+                "value": "messages",
+                "leadingIcon": "chat"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Copy link",
+                "value": "link"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Files"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Print",
+                "value": "print"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Save as PDF",
+                "value": "pdf"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "icon-space-never",
+      "props": {
+        "label": "Share to",
+        "value": "mail",
+        "open": true,
+        "iconSpace": "never"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Apps"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Mail",
+                "value": "mail",
+                "leadingIcon": "mail"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Messages",
+                "value": "messages",
+                "leadingIcon": "chat"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Copy link",
+                "value": "link"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Files"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Print",
+                "value": "print"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Save as PDF",
+                "value": "pdf"
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "platforms": {
@@ -2673,7 +2880,8 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "open": "open",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "change": "change",
@@ -2715,7 +2923,8 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "open": "isPresented",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "change": "selection",
@@ -2757,7 +2966,8 @@
         "disabled": "enabled",
         "readOnly": "readOnly",
         "open": "expanded",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "change": "onValueChange",
@@ -2799,7 +3009,8 @@
         "disabled": "enabled",
         "readOnly": "readOnly",
         "open": "controller",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "change": "onChanged",
@@ -2841,7 +3052,8 @@
         "disabled": "disabled",
         "readOnly": "readOnly",
         "open": "open",
-        "separation": "separation"
+        "separation": "separation",
+        "iconSpace": "iconSpace"
       },
       "events": {
         "change": "onValueChange",
