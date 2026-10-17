@@ -121,9 +121,12 @@
     padding-inline: var(--tanrei-comp-app-bar-container-padding-inline);
     background: var(--tanrei-comp-app-bar-flat-container-color);
   }
-  /* The search: the one item of the bar that neither the shell nor the window's class shows and hides. */
+  /* The search: the one item of the bar that neither the shell nor the window's class shows and hides, and the first
+     action in either arrangement, so the actions start from it at the end. (An item of the arrangement the window's
+     class does not show has no slot, Header.astro: no rule here may take the first action from the slots.) */
   tanrei-app-bar:not(:defined) > .docs-search {
     display: inline-flex;
+    margin-inline-start: auto;
   }
   tanrei-app-bar:not(:defined) > .docs-wide-only {
     display: inline-flex;
@@ -150,9 +153,6 @@
   }
   tanrei-app-bar:not(:defined) > [slot='actions'] ~ [slot='actions'] {
     margin-inline-start: var(--tanrei-comp-app-bar-actions-gap);
-  }
-  tanrei-app-bar:not(:defined) > :not([slot='actions']) + [slot='actions'] {
-    margin-inline-start: auto;
   }
   @media (pointer: coarse) {
     tanrei-app-bar:not(:defined) > :where([slot]) {
