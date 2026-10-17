@@ -18,6 +18,20 @@ export async function build(layer, parents = []) {
   }
 }
 
+/**
+ * A sheet with `properties` written in, as a drag patches the preview (core.liveProperties): each is declared once,
+ * in the base block, and replaced there.
+ */
+export function patchedSheet(css, properties) {
+  let out = css;
+  for (const [name, value] of Object.entries(properties)) {
+    const declaration = new RegExp(`(\\n\\s*${name.replace(/[-]/g, '\\-')}: )[^;]+;`, 'g');
+    assert.equal(out.match(declaration)?.length, 1, `${name} is declared once in the sheet`);
+    out = out.replace(declaration, `$1${value};`);
+  }
+  return out;
+}
+
 /** A sheet as `{ selector: { property: value } }`, every rule of it. */
 export function parseSheet(css) {
   const rules = {};
