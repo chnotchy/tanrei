@@ -8,7 +8,7 @@
 '@tanrei/docs': patch
 ---
 
-App bar: a brand, the product's logo as the link to its first page (APB-19 to APB-23). `brand-href` (`brandHref`) is
+App bar: a brand, the product's logo as the link to its first page (APB-19 to APB-24). `brand-href` (`brandHref`) is
 the address and `brand-label` (`brandLabel`) the product's name: the bar draws one link, named by it, around the images
 the product gives, and hides the images from assistive technology. The images: one logo file (`slot="brand"`), the
 symbol (`slot="brand-symbol"`), the wordmark (`slot="brand-wordmark"`), or both — side by side by default
@@ -17,6 +17,7 @@ medium or wider, the symbol while it is compact, the enclosing app shell's windo
 `sys.breakpoint.medium`). The brand stands after the navigation item in an icon button's cell, so that a symbol stands
 where an icon does, and takes `comp.app-bar.brand.color` where its images have no colors of their own. New tokens:
 `comp.app-bar.brand.symbol.size` (`sys.icon.medium`), `brand.wordmark.height` (40), `brand.image.height`,
+`brand.lockup.symbol.size` (the wordmark's height: a lockup's symbol stands at the wordmark's height, APB-24),
 `brand.lockup.gap` (`sys.space.space100`), `brand.lockup.alignment` (`center` | `start` | `end`), `brand.shape`
 (`sys.shape.corner.full`) and `brand.color` (`sys.color.on-surface`), in every platform's generated tokens; the native
 platforms do not draw the brand yet, and their notes say so. A slot of a spec can now say its fixture strings are marks
