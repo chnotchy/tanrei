@@ -15,6 +15,7 @@ import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 import { iconFont } from '../../../../packages/tools/src/icon-font.js';
+import { watchNetwork } from './network-quiet.mjs';
 
 const docs = fileURLToPath(new URL('../../', import.meta.url));
 const dist = path.join(docs, 'dist');
@@ -156,19 +157,22 @@ describe('every icon of the built pages is a glyph of the cut-down file', { conc
   }
 });
 
-/** What a page transfers before it is idle, compressed: [total bytes, the icon files' bytes, the largest requests]. */
+/**
+ * What a page transfers before it is idle, compressed: [total bytes, the icon files' bytes, the largest requests]. Idle
+ * is the load, then 500 ms with nothing in flight (network-quiet.mjs): Playwright's `networkidle` can be lost on a page
+ * as long as a component's, and its wait then runs out with nothing in flight.
+ */
 async function transfer(url) {
   const context = await browser.newContext({ viewport: { width: 412, height: 823 } });
   try {
     const page = await context.newPage();
-    const cdp = await context.newCDPSession(page);
-    await cdp.send('Network.enable');
+    const { cdp, quiet } = await watchNetwork(page);
     await cdp.send('Network.setCacheDisabled', { cacheDisabled: true });
     const requests = new Map();
     cdp.on('Network.responseReceived', (event) => requests.set(event.requestId, { url: event.response.url, bytes: 0 }));
     cdp.on('Network.loadingFinished', (event) => requests.has(event.requestId) && (requests.get(event.requestId).bytes = event.encodedDataLength));
     await page.goto(origin + url, { waitUntil: 'load' });
-    await page.waitForLoadState('networkidle');
+    await quiet();
     const list = [...requests.values()];
     const sum = (rows) => rows.reduce((total, row) => total + row.bytes, 0);
     return { total: sum(list), icons: sum(list.filter((row) => /material-symbols/.test(row.url))), largest: list.sort((a, b) => b.bytes - a.bytes).slice(0, 5).map((row) => `${Math.round(row.bytes / 1024)} KB ${row.url.replace(origin, '')}`) };
