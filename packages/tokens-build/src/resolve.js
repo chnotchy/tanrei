@@ -16,7 +16,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT_SYSTEM, assertSystemId, buildBundle, layerChain, listSystems, validateLayerFile } from './bundle.js';
-import { checkInvariants } from './invariants.js';
+import { auditInvariants, checkInvariants } from './invariants.js';
 import { REPO_ROOT, buildModelFromBundle, invariantModel, lintValues } from './model.js';
 import { readBundle } from './reader.js';
 import { loadSystem, systemPath } from './scheme.js';
@@ -134,7 +134,7 @@ export async function resolveChain(chain, { model: wantsModel = true } = {}) {
   const reader = readBundle(files, id);
   await lintValues(reader.tokens());
   let model;
-  let warnings;
+  let audit;
   const resolved = {
     id,
     chain,
@@ -156,7 +156,9 @@ export async function resolveChain(chain, { model: wantsModel = true } = {}) {
      * (`like`, another resolved system with the same colors, once let a trial build skip five schemes; reading them
      * costs a twentieth of a second now, and the argument is ignored.)
      */
-    warnings: () => (warnings ??= resolved.model().then(checkInvariants)),
+    warnings: () => resolved.audit().then(({ failures }) => failures),
+    /** The same findings, with the number of contrast pairs measured in each scheme (`auditInvariants`). */
+    audit: () => (audit ??= resolved.model().then(auditInvariants)),
     /** Declarations core has since made redundant. */
     notices: system.notices ?? [],
   };
