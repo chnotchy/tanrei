@@ -55,7 +55,7 @@ export const RULES = {
       'src/components/button-group/button-group.test.ts': 3,
       'src/components/button-with-menu/button-with-menu.test.ts': 4,
       'src/components/calendar/calendar.test.ts': 2,
-      'src/components/callout/callout.test.ts': 2,
+      'src/components/callout/callout.test.ts': 1,
       'src/components/chat-composer/chat-composer.test.ts': 3,
       'src/components/chip/chip.test.ts': 2,
       'src/components/code-block/code-block.test.ts': 4,
