@@ -1696,6 +1696,198 @@
         ".changeset/",
         "CHANGELOG.md"
       ]
+    },
+    {
+      "term": "comp.callout.close",
+      "notFollowedBy": "-button",
+      "since": "2026-10-18",
+      "reason": "the callout's close button is a small Tanrei Button: its colors at rest and in each state are the Button's, drawn in the tone of the callout's form on a filled look",
+      "replacedBy": "comp.callout.close-button.variant, and the body color of the callout's form as the Button's tone",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-callout-close",
+      "notFollowedBy": "-button",
+      "since": "2026-10-18",
+      "reason": "the callout's close button is a small Tanrei Button: its colors at rest and in each state are the Button's, drawn in the tone of the callout's form on a filled look",
+      "replacedBy": "--tanrei-comp-callout-close-button-variant, and the Button's own custom properties",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.callout.focus-ring",
+      "since": "2026-10-18",
+      "reason": "the close button's focus indicator is the Button's, its outer stroke in the tone of the callout's form on a filled look",
+      "replacedBy": "the Button's focus ring (sys.focus, and the tone on a filled look)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-callout-focus-ring",
+      "since": "2026-10-18",
+      "reason": "the close button's focus indicator is the Button's, its outer stroke in the tone of the callout's form on a filled look",
+      "replacedBy": "the Button's focus ring (--tanrei-sys-focus-*, and the tone on a filled look)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.callout.info.focus-ring",
+      "since": "2026-10-18",
+      "reason": "the close button's focus indicator is the Button's, its outer stroke in the tone of the callout's form on a filled look",
+      "replacedBy": "the Button's focus ring, in comp.callout.info.body.color.tonal on the tonal look",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-callout-info-focus-ring",
+      "since": "2026-10-18",
+      "reason": "the close button's focus indicator is the Button's, its outer stroke in the tone of the callout's form on a filled look",
+      "replacedBy": "the Button's focus ring, in --tanrei-comp-callout-info-body-color-tonal on the tonal look",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.callout.warning.focus-ring",
+      "since": "2026-10-18",
+      "reason": "the close button's focus indicator is the Button's, its outer stroke in the tone of the callout's form on a filled look",
+      "replacedBy": "the Button's focus ring, in comp.callout.warning.body.color.tonal on the tonal look",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-callout-warning-focus-ring",
+      "since": "2026-10-18",
+      "reason": "the close button's focus indicator is the Button's, its outer stroke in the tone of the callout's form on a filled look",
+      "replacedBy": "the Button's focus ring, in --tanrei-comp-callout-warning-body-color-tonal on the tonal look",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.callout.error.focus-ring",
+      "since": "2026-10-18",
+      "reason": "the close button's focus indicator is the Button's, its outer stroke in the tone of the callout's form on a filled look",
+      "replacedBy": "the Button's focus ring, in comp.callout.error.body.color.tonal on the tonal look",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-callout-error-focus-ring",
+      "since": "2026-10-18",
+      "reason": "the close button's focus indicator is the Button's, its outer stroke in the tone of the callout's form on a filled look",
+      "replacedBy": "the Button's focus ring, in --tanrei-comp-callout-error-body-color-tonal on the tonal look",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.callout.success.focus-ring",
+      "since": "2026-10-18",
+      "reason": "the close button's focus indicator is the Button's, its outer stroke in the tone of the callout's form on a filled look",
+      "replacedBy": "the Button's focus ring, in comp.callout.success.body.color.tonal on the tonal look",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-callout-success-focus-ring",
+      "since": "2026-10-18",
+      "reason": "the close button's focus indicator is the Button's, its outer stroke in the tone of the callout's form on a filled look",
+      "replacedBy": "the Button's focus ring, in --tanrei-comp-callout-success-body-color-tonal on the tonal look",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.callout.controls",
+      "since": "2026-10-18",
+      "reason": "the close button's size, shape and glyph are the Button's small icon-only circle",
+      "replacedBy": "comp.button.container.height.small and comp.button.icon.size.small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-callout-controls",
+      "since": "2026-10-18",
+      "reason": "the close button's size, shape and glyph are the Button's small icon-only circle",
+      "replacedBy": "--tanrei-comp-button-container-height-small and --tanrei-comp-button-icon-size-small",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.callout.motion",
+      "since": "2026-10-18",
+      "reason": "the close button's state and press motion is the Button's",
+      "replacedBy": "comp.button.motion",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-callout-motion",
+      "since": "2026-10-18",
+      "reason": "the close button's state and press motion is the Button's",
+      "replacedBy": "--tanrei-comp-button-motion-*",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-callout-hovered-opacity",
+      "since": "2026-10-18",
+      "reason": "the callout's state opacities were its close button's, which is now a Button",
+      "replacedBy": "--tanrei-comp-button-hovered-opacity",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-callout-focused-opacity",
+      "since": "2026-10-18",
+      "reason": "the callout's state opacities were its close button's, which is now a Button",
+      "replacedBy": "--tanrei-comp-button-focused-opacity",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-callout-pressed-opacity",
+      "since": "2026-10-18",
+      "reason": "the callout's state opacities were its close button's, which is now a Button",
+      "replacedBy": "--tanrei-comp-button-pressed-opacity",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
     }
   ]
 }
