@@ -2,7 +2,7 @@
 title: التنويه
 description: إشعار هو جزء من المحتوى ويبقى فيه، كملاحظة أو تحذير أو سبب لشيء أو ملخص لما هو خطأ، بتعبئة هادئة أو بحدّ، بألوان حالة ورسم أيقونتها، ومعه اختياريًّا عنوان وإجراءات وزر إغلاق.
 translationOf: components/callout.mdx
-sourceHash: 320f2641050ceff2eca3845c2bce486e1bb800a0
+sourceHash: 65333366770cf82f1121d8c6818a694b82956ae5
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -17,7 +17,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="ملاحظة، وتحذير له عنوان، وإشعار له إجراءات وزر إغلاق" column>
   <tanrei-callout status="info" status-label="معلومة" style="inline-size: min(100%, 34rem)">الويب يرسم هذه المراجعة، والمنصات الأخرى تلحق به.</tanrei-callout>
-  <tanrei-callout status="warning" headline="إصدار تمهيدي: لم يُنشر بعد" style="inline-size: min(100%, 34rem)">الحزمة غير متاحة في سجل الحزم بعد. خطوات التثبيت أدناه تبيّن كيف ستعمل بعد الإصدار الأول.</tanrei-callout>
+  <tanrei-callout status="warning" headline="خذ نسخة احتياطية قبل الترحيل" style="inline-size: min(100%, 34rem)">يعيد الترحيل كتابة قاعدة البيانات في مكانها. تبيّن الخطوات أدناه كيف تحتفظ بنسخة يمكنك استعادتها.</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="تتوفر نسخة أحدث من هذه الصفحة" closable close-label="إغلاق" style="inline-size: min(100%, 34rem)">أعد التحميل لقراءتها. لن يضيع شيء مما كتبته.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">إعادة التحميل</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">إظهار الأخير مرة أخرى</tanrei-button>
 </DemoFrame>
@@ -52,9 +52,9 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
     <!-- المحتوى الطويل نص متصل (prose)، بحجم التنويه، وبلا حدّ لطول السطر. -->
     <tanrei-callout size="large" status="warning">
-      <h3 slot="title">إصدار تمهيدي: لم يُنشر بعد</h3>
+      <h3 slot="title">خذ نسخة احتياطية قبل الترحيل</h3>
       <div class="tanrei-prose" data-size="large" data-measure="false">
-        <p>الحزمة ليست في سجل الحزم بعد. <a href="/ar/status/">اطّلع على الحالة</a>.</p>
+        <p>يعيد الترحيل كتابة قاعدة البيانات في مكانها. <a href="#restore">اطّلع على طريقة الاستعادة من نسخة</a>.</p>
         <ul><li>…</li></ul>
       </div>
     </tanrei-callout>
@@ -95,7 +95,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 <DemoFrame label="عنوان، ورسم أيقونة من عندك، وإجراءات، وزر إغلاق، والحجم الكبير" plain column>
   <tanrei-callout headline="نصيحة" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>أبقِ الإجراء مفعَّلًا، واشرح ما ينقص حين يُستخدم.</tanrei-callout>
-  <tanrei-callout status="info" headline="تجريبي" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>قد يتغير هذا السلوك قبل الإصدار الأول.</tanrei-callout>
+  <tanrei-callout status="info" headline="تجريبي" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>قد يتغير هذا السلوك في إصدار لاحق.</tanrei-callout>
   <tanrei-callout status="warning" headline="تغيّر الملف على القرص" style="inline-size: min(100%, 34rem)">لديك هنا تعديلات ليست فيه. لن يُستبدل شيء حتى تختار.<tanrei-button slot="actions" variant="outlined">إعادة التحميل من القرص</tanrei-button><tanrei-button slot="actions" variant="text">الإبقاء على نسختي</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="البحث يشمل الآن ملاحظات الإصدار" closable close-label="إغلاق" style="inline-size: min(100%, 34rem)">اضغط زر الإغلاق: يختفي التنويه فورًا، ويعود التركيز إلى حيث كان.</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">إظهاره مرة أخرى</tanrei-button>
@@ -209,7 +209,7 @@ import DemoFrame from '../../../../components/DemoFrame.astro';
 
 ### افعل
 
-- قل الحالة بالكلمات. «تحذير: لم يُنشر بعد» لا يحتاج إلى أكثر؛ و«إمكانية الوصول» على تحذير يحتاج إلى `status-label="تحذير"`.
+- قل الحالة بالكلمات. «تحذير: خذ نسخة احتياطية أولًا» لا يحتاج إلى أكثر؛ و«إمكانية الوصول» على تحذير يحتاج إلى `status-label="تحذير"`.
 - استخدم الحالات بما تعنيه في كل مكان. المشورة ليست نجاحًا.
 - ضع قائمة واحدة من النقاط في تنويه واحد، لا عدة تنويهات متتالية.
 
