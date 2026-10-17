@@ -207,7 +207,7 @@ export function specProblems(file, written, { validate = compileSpecSchema(), vo
       const slot = (spec.slots ?? []).find((s) => s.name === name);
       if (!slot) problems.push(`${file}: fixture "${fixture.id}" fills unknown slot "${name}"`);
       else if (!slot.fixture) problems.push(`${file}: fixture "${fixture.id}" fills slot "${name}", which declares no \`fixture\``);
-      else if (Array.isArray(value) && (slot.fixture === 'glyph' || slot.fixture === 'text')) problems.push(`${file}: fixture "${fixture.id}" gives slot "${name}" a list, but a ${slot.fixture} slot takes one string`);
+      else if (Array.isArray(value) && (slot.fixture === 'glyph' || slot.fixture === 'text' || slot.fixture === 'mark')) problems.push(`${file}: fixture "${fixture.id}" gives slot "${name}" a list, but a ${slot.fixture} slot takes one string`);
     }
   }
   const ids = spec.behavior.map((b) => b.id);
@@ -266,7 +266,7 @@ export function itemProblems(file, spec, others = () => new Map(loadSpecs().map(
             const slot = (theirs.slots ?? []).find((s) => s.name === name);
             if (!slot) problems.push(`${file}: ${at} (${item.kind}) fills the slot "${name}", which "${kind.component}" does not have`);
             else if (!slot.fixture) problems.push(`${file}: ${at} (${item.kind}) fills the slot "${name}", which declares no \`fixture\``);
-            else if (Array.isArray(value) && (slot.fixture === 'glyph' || slot.fixture === 'text')) problems.push(`${file}: ${at} (${item.kind}) gives the slot "${name}" a list, but a ${slot.fixture} slot takes one string`);
+            else if (Array.isArray(value) && (slot.fixture === 'glyph' || slot.fixture === 'text' || slot.fixture === 'mark')) problems.push(`${file}: ${at} (${item.kind}) gives the slot "${name}" a list, but a ${slot.fixture} slot takes one string`);
           }
         }
       }
