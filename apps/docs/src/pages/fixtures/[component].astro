@@ -1,36 +1,33 @@
 ---
-// A component's fixtures on a page of their own, outside the documentation's frame: `/fixtures/<component>/` draws every
-// fixture that stands in the page's document, each on its stage and named by its id, and links each presented one;
-// `?id=<fixture>` draws that one fixture alone — presented, where it is presented — which is what a window stage of the
-// gallery shows (components/fixtures/FixtureGallery.astro) and what its "open alone" action opens. `?theme=dark` (or
-// `light`) sets the scheme; otherwise the page takes the site's (the theme the site's picker stored) and else the
-// system's.
+// A component's fixtures on a page of their own, outside the documentation's frame, drawn from the web package's own
+// document of them — the document its tests draw every fixture in and take each baseline from (lib/fixture-documents.ts):
+// its stages, its staging rules and its step in script, with the site's own tokens, faces and components.
 //
-// Each fixture is written in a `template` and drawn only when it is asked for, so that a window draws its one fixture
-// and nothing else: a presented fixture beside another would cover it. The page is not indexed by the site's search (it
-// has no `data-pagefind-body`) and asks search engines not to index it.
+// `/fixtures/<component>/` draws every fixture, each named by its id, and links each one that is presented over the
+// window (a modal dialog), which would cover the others; `?id=<fixture>` draws that one fixture alone, as its
+// baseline was taken — which is what a window stage of the gallery shows (components/fixtures/FixtureGallery.astro) and
+// what its "open alone" action opens. `?theme=dark` (or `light`) sets the scheme; otherwise the page takes the site's
+// (the theme the site's picker stored) and else the system's.
+//
+// The page is not indexed by the site's search (it has no `data-pagefind-body`) and asks search engines not to index it.
 import '../../styles/fixture-page.css';
 import { definedTags, specs } from '../../lib/repo';
-import { drawsFixture, drawsLive, liveFixture } from '../../lib/fixtures';
-import { stageOf } from '../../lib/fixture-gallery';
+import { drawsLive, liveFixture } from '../../lib/fixtures';
+import { documentedComponents, fixtureDocument } from '../../lib/fixture-documents';
 
 export function getStaticPaths() {
-  return Object.values(specs)
-    .filter((spec) => definedTags.has(spec.platforms.web?.name ?? '') && drawsLive(spec))
-    .map((spec) => ({ params: { component: spec.name } }));
+  return documentedComponents()
+    .filter((name) => specs[name])
+    .map((component) => ({ params: { component } }));
 }
 
 const spec = specs[Astro.params.component as string];
-type Fixture = (typeof spec.fixtures)[number] & { direction?: 'ltr' | 'rtl'; surface?: string; slots?: Record<string, string | string[]> };
-const entries = (spec.fixtures as Fixture[])
-  .filter((fixture) => drawsFixture(spec, fixture))
-  .map((fixture) => ({
-    id: fixture.id,
-    html: liveFixture(spec, fixture, { window: true }).html,
-    direction: fixture.direction,
-    surface: fixture.surface,
-    window: stageOf(spec, fixture, true).kind === 'window',
-  }));
+const document = fixtureDocument(spec.name)!;
+// A fixture presented over the window: on the page of every fixture it is a link to its own window.
+const live = definedTags.has(spec.platforms.web?.name ?? '') && drawsLive(spec);
+const overWindow = new Set(live ? spec.fixtures.filter((fixture) => liveFixture(spec, fixture).presentation === 'overlay').map((fixture) => fixture.id) : []);
+const stages = document.stages.map((stage) => (overWindow.has(stage.id) ? `<template data-presented="${stage.id}">${stage.html}</template>` : stage.html)).join('\n');
+const holder = document.page ? 'div' : 'main';
 ---
 
 <!doctype html>
@@ -43,93 +40,62 @@ const entries = (spec.fixtures as Fixture[])
     <script is:inline>
       // The scheme, before the first paint: the address's, else the one the site's picker stored, else the system's.
       (() => {
-        const asked = new URLSearchParams(location.search).get('theme');
+        const query = new URLSearchParams(location.search);
+        const asked = query.get('theme');
         let stored = null;
         try {
           stored = localStorage.getItem('starlight-theme');
         } catch {}
         const theme = asked === 'dark' || asked === 'light' ? asked : stored === 'dark' || stored === 'light' ? stored : null;
         if (theme) document.documentElement.dataset.tanreiTheme = theme;
+        if (query.get('id')) document.documentElement.dataset.alone = '';
       })();
     </script>
+    <Fragment set:html={`<style>${document.styles}</style>`} />
   </head>
   <body data-component={spec.name}>
-    <main>
-      {entries.map((entry) => (
-        <template data-fixture={entry.id} data-window={entry.window ? '' : undefined}>
-          <div class="stage" data-fixture={entry.id} dir={entry.direction} style={entry.surface ? `background: var(--tanrei-sys-color-${entry.surface})` : undefined} set:html={entry.html} />
-        </template>
-      ))}
-    </main>
+    <Fragment set:html={`<${holder} class="stages">${stages}</${holder}>`} />
+    <script is:inline>
+      // One fixture alone: every other stage goes before any component is defined. On the page of every fixture, each
+      // one presented over the window is a link to its own.
+      (() => {
+        const asked = new URLSearchParams(location.search).get('id');
+        const holder = document.querySelector('body > .stages');
+        if (asked) {
+          for (const presented of holder.querySelectorAll('template[data-presented]')) if (presented.dataset.presented === asked) presented.replaceWith(presented.content.cloneNode(true));
+          for (const stage of holder.querySelectorAll(':scope > .stage, :scope > template')) if (stage.dataset.fixture !== asked) stage.remove();
+          return;
+        }
+        for (const presented of holder.querySelectorAll('template[data-presented]')) {
+          const link = document.createElement('a');
+          link.className = 'tanrei-link stage-link';
+          link.dataset.fixture = presented.dataset.presented;
+          link.href = `?id=${encodeURIComponent(presented.dataset.presented)}`;
+          link.textContent = presented.dataset.presented;
+          presented.replaceWith(link);
+        }
+      })();
+    </script>
+    {document.after && <script is:inline type="module" set:html={document.after} />}
     <script>
       import '../../lib/register-web';
-      import { stageFiles } from '../../lib/fixture-stages';
-
-      const main = document.querySelector('main')!;
-      const asked = new URLSearchParams(location.search).get('id');
-      const templates = [...document.querySelectorAll<HTMLTemplateElement>('template[data-fixture]')];
-
-      /** A presented component that stands beside an anchor it does not wrap (a popover) and names none: an anchor drawn before it. */
-      async function anchor(stage: HTMLElement) {
-        const element = stage.firstElementChild as (HTMLElement & { anchorElement?: Element | null; updateComplete?: Promise<unknown> }) | null;
-        if (!element || element.hasAttribute('anchor')) return;
-        await customElements.whenDefined(element.localName);
-        if (!('anchorElement' in element) || element.anchorElement) return;
-        const button = document.createElement('tanrei-button');
-        button.setAttribute('variant', 'outlined');
-        button.textContent = stage.dataset.fixture ?? '';
-        stage.prepend(button);
-        element.anchorElement = button;
-      }
-
-      const draw = (template: HTMLTemplateElement) => {
-        main.append(template.content.cloneNode(true));
-        const stage = main.lastElementChild as HTMLElement;
-        for (const element of stage.querySelectorAll<HTMLElement>('[data-fixture-files]')) stageFiles(element);
-        return stage;
-      };
-
-      if (asked) {
-        const template = templates.find((each) => each.dataset.fixture === asked);
-        document.body.dataset.alone = '';
-        if (template) anchor(draw(template));
-      } else {
-        // Every fixture of the page's document, each named; a presented one is a link to its own window.
-        for (const template of templates) {
-          if (template.dataset.window === undefined) draw(template);
-          else {
-            const link = document.createElement('a');
-            link.className = 'tanrei-link stage presented';
-            link.dataset.fixture = template.dataset.fixture;
-            link.href = `?id=${encodeURIComponent(template.dataset.fixture ?? '')}`;
-            link.textContent = template.dataset.fixture ?? '';
-            main.append(link);
-          }
-        }
-      }
     </script>
     <style is:global>
-      body {
-        margin: 0;
-        background: var(--tanrei-sys-color-surface);
-        color: var(--tanrei-sys-color-on-surface);
-        font: var(--tanrei-sys-typescale-body-font);
-      }
-      /* Every fixture: a row of named stages, as the review gallery lays them out. */
-      main {
+      /* Every fixture: the stages side by side and named, as the review gallery lays them out. */
+      html:not([data-alone]) body > .stages {
         display: flex;
+        flex-direction: row;
         flex-wrap: wrap;
         align-items: flex-start;
         gap: var(--tanrei-sys-space-space300);
         padding: var(--tanrei-sys-space-space300);
       }
-      main > .stage {
+      html:not([data-alone]) body > .stages > :is(.stage, .stage-link) {
         position: relative;
-        padding: var(--tanrei-sys-space-space200);
         margin-block-start: var(--tanrei-sys-space-space300);
         outline: var(--tanrei-sys-border-hairline) dashed var(--tanrei-sys-color-outline-variant);
       }
-      main > .stage::before {
+      html:not([data-alone]) body > .stages > .stage::before {
         content: attr(data-fixture);
         position: absolute;
         inset-block-end: 100%;
@@ -137,31 +103,6 @@ const entries = (spec.fixtures as Fixture[])
         font: var(--tanrei-sys-typescale-code-small-font);
         color: var(--tanrei-sys-color-on-surface-variant);
         white-space: nowrap;
-      }
-      /* One fixture alone: the window is its stage, as the web package's harness draws it — padded, at the start. */
-      body[data-alone] main {
-        display: block;
-        padding: 0;
-      }
-      body[data-alone] main > .stage {
-        box-sizing: border-box;
-        min-block-size: 100vh;
-        margin: 0;
-        outline: 0;
-      }
-      body[data-alone] main > .stage::before {
-        content: none;
-      }
-      /* A component placed beside its anchor (a tooltip, a popover) has the anchor at the window's centre. */
-      body[data-alone]:is([data-component='tooltip'], [data-component='popover']) main > .stage {
-        display: grid;
-        place-items: center;
-      }
-      /* A FAB menu's toggle is at the window's inline-end bottom corner. */
-      body[data-alone][data-component='fab-menu'] main > .stage {
-        display: flex;
-        align-items: flex-end;
-        justify-content: flex-end;
       }
     </style>
   </body>

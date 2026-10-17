@@ -9,12 +9,14 @@
 //   wide as its layout (the renderer gives it the width of the web harness's stage) takes that width as its stage's
 //   starting width, fills the stage, and can be made narrower or wider with the stage's handle.
 // - `window`: a presented fixture (a modal dialog, an open menu, a docked picker, a tooltip) is drawn presented, alone,
-//   in a window of its own — an `iframe` of the fixture's own page (src/pages/fixtures/[component].astro), the size of
-//   the window the web harness draws it in. What it puts in the top layer or places against the window stays in that
-//   window, and what reads the window's width (a drawer's breakpoints) reads the stage's. A window is drawn scaled down
-//   where the column is narrower than it.
+//   in a window of its own — an `iframe` of the fixture's own page (src/pages/fixtures/[component].astro), which draws
+//   it from the web package's own document of it, at the size of the stage its baseline was taken of. What it puts in
+//   the top layer or places against the window stays in that window, and what reads the window's width (a drawer's
+//   breakpoints) reads the stage's. A window is drawn scaled down where the column is narrower than it. Every fixture
+//   of a spec this site's own renderer cannot draw is drawn the same way.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fixtureDocument, stageMarkup } from './fixture-documents';
 import { drawsFixture, liveFixture } from './fixtures';
 import type { Spec, SpecProp } from './repo';
 
@@ -175,9 +177,18 @@ function factsOf(spec: Spec, fixture: Fixture): string[] {
 /** One fixture's stage. `live` says whether the page can draw the spec's fixtures at all (`drawsLive`, a defined element). */
 export function stageOf(spec: Spec, fixture: Fixture, live: boolean): Stage {
   const base = { id: fixture.id, facts: factsOf(spec, fixture), holds: { items: fixture.items?.length ?? 0, slots: Object.keys(fixture.slots ?? {}) } };
-  if (!live || !drawsFixture(spec, fixture)) return { ...base, drawn: false, kind: 'inline' };
+  // A window draws the fixture from the web package's own document of it (lib/fixture-documents.ts), at the size of the
+  // stage its baseline was taken of — or of the window the harness draws it in, where it has no baseline yet.
+  const document = fixtureDocument(spec.name);
+  const harnessStage = document?.stages.find((stage) => stage.id === fixture.id);
+  const window = (): Size => document?.sizes[fixture.id] ?? windowOf(spec, fixture);
+  // A spec whose fixtures this site's own renderer cannot draw (lib/fixtures.ts: a class on the product's own
+  // elements, items that are native elements or nest two deep, a frame of a whole window) is drawn by the harness,
+  // each fixture alone in a window of its own stage's size.
+  if (!live) return harnessStage ? { ...base, drawn: true, kind: 'window', window: window(), markup: stageMarkup(harnessStage.html), presentation: 'none' } : { ...base, drawn: false, kind: 'inline' };
+  if (!drawsFixture(spec, fixture)) return { ...base, drawn: false, kind: 'inline' };
   const lf = liveFixture(spec, fixture);
-  if (lf.presentation !== 'none') return { ...base, drawn: true, kind: 'window', window: windowOf(spec, fixture), markup: liveFixture(spec, fixture, { window: true }).markup, presentation: lf.presentation };
+  if (lf.presentation !== 'none') return { ...base, drawn: true, kind: 'window', window: window(), markup: harnessStage ? stageMarkup(harnessStage.html) : liveFixture(spec, fixture, { window: true }).markup, presentation: lf.presentation };
   const sized = layoutWidth(lf.html);
   return { ...base, drawn: true, kind: 'inline', html: sized?.html ?? lf.html, width: sized?.width, markup: lf.markup, presentation: lf.presentation, staged: lf.html.includes(' data-fixture-files='), reserve: reserveOf(spec.name, fixture.id) };
 }

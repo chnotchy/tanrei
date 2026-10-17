@@ -41,7 +41,7 @@ function windowStage(canvas: HTMLElement, handle: HTMLElement | null) {
       later(() => frame.removeAttribute('inert'));
     };
     frame.addEventListener('load', release);
-    if (frame.contentDocument?.readyState === 'complete' && frame.contentDocument.querySelector('main > .stage')) release();
+    if (frame.contentDocument?.readyState === 'complete' && frame.contentDocument.querySelector('.stage')) release();
   }
   const width = () => Number(getComputedStyle(canvas).getPropertyValue('--docs-window-width')) || 1;
   const scale = () => canvas.style.setProperty('--docs-window-scale', String(Math.min(1, canvas.getBoundingClientRect().width / width())));
