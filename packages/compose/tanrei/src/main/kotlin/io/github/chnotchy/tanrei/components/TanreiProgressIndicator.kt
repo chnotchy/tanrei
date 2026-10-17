@@ -70,8 +70,8 @@ public enum class TanreiProgressIndicatorVariant { Linear, Circular }
  * @param contentDescription the spec's `label`: what is in progress ("Uploading report.pdf"). Required: a bar alone is
  *   not a name. An empty one still renders, and a debuggable app reports it (PRG-15).
  * @param variant [TanreiProgressIndicatorVariant.Linear] (default) or [TanreiProgressIndicatorVariant.Circular].
- * @param size a key of `tokens.progressIndicator.sizes`: the bar's thickness or the ring's box and stroke. Open (ADR
- *   0012); a size the current design system does not have draws as medium, and a debuggable app reports it (PRG-12).
+ * @param size a key of `tokens.progressIndicator.sizes`: the bar's thickness or the ring's box and stroke. Open (a design
+ *   system may add sizes); a size the current design system does not have draws as medium, and a debuggable app reports it (PRG-12).
  * @param valueRange the spec's `min` and `max` (as `Slider` names them). A range whose end is not above its start draws
  *   the track alone and exposes 0 of 0…1, and a debuggable app reports it (PRG-11).
  * @param stateDescription the spec's `valueText`: how assistive technology reads the value when a percentage is not

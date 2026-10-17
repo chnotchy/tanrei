@@ -6,8 +6,8 @@ import { productText } from '../../styles/product-text.js';
 // the layout of its cells and the active indicator while it moves; each destination paints its item container (its
 // whole share of the bar, held in by container.padding: the state layer's box, and the active indicator at rest), its
 // icon indicator, icon, label and the covered copy of both, from the condition (unselected, selected,
-// filled-unselected, filled-selected) and state it is in — how a state looks is the design system's decision (ADR
-// 0020), the component only says which tokens are drawn.
+// filled-unselected, filled-selected) and state it is in — how a state looks is the design system's decision,
+// the component only says which tokens are drawn.
 const PREFIX = '--tanrei-comp-navigation-bar';
 const t = (name: string) => unsafeCSS(`var(${PREFIX}-${name})`);
 const selection = unsafeCSS(`var(${PREFIX}-motion-selection-duration) var(${PREFIX}-motion-selection-easing)`);

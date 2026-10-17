@@ -16,8 +16,8 @@ interface Props {
 const spec = getSpec(Astro.props.name);
 const t = strings(contentLang(Astro));
 
-// The component's own group first, then every set of tokens it reads that is no component's (the input box, proposal
-// 0149): each row names its custom property, so the family a token is of is read from its name.
+// The component's own group first, then every set of tokens it reads that is no component's (the input box):
+// each row names its custom property, so the family a token is of is read from its name.
 const groups = [spec.tokens, ...sharedSetsOf(spec.name)];
 const compTokens = groups.flatMap((group) => tokensIn(`${ns}.${group}`).filter((tk) => tk.type !== 'typography'));
 const typographyTokens = groups.flatMap((group) => tokensIn(`${ns}.${group}`).filter((tk) => tk.type === 'typography'));

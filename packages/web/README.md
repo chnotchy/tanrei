@@ -3192,7 +3192,7 @@ text for separators, and it has one live region.
   `readonly`, `autocomplete`, and `input-value`, the Text input's `value`), ten its own (`value`, `separators`,
   `max-entries`, `invalid-text`, `duplicate-text`, `limit-text`, `remove-label`, `added-text`, `added-count-text`,
   `removed-text`). Four forwarded props are joined, each by a sentence of the spec: `disabled` with a fieldset's (W6),
-  `error` and `errorText` with the entry error (CHF-6; W2 as settled for 0139), `placeholder` given only while the list
+  `error` and `errorText` with the entry error (CHF-6; W2), `placeholder` given only while the list
   is empty (CHF-17), `type` given as `text` unless it is `text`, `email`, `tel` or `url` (CHF-26).
 - **`value` is an array property** (assign a new array); the `value` attribute is read once, as a JSON array, and is
   what a reset returns to — a list first given as a property is what a reset returns to where there is no attribute.
