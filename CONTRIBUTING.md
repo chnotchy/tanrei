@@ -135,6 +135,8 @@ On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs 
 
 The docs site is deployed by its own workflow (`.github/workflows/deploy-docs.yml`, outside ci.yml so that a release never deploys it): a pull request gets a preview and a push to `main` deploys production, when the Docs row's paths change. `gh workflow run deploy-docs.yml --ref main` deploys by hand — for a site that is behind, or after a change outside those paths.
 
+Known vulnerabilities in the locked dependencies are checked by their own workflow (`.github/workflows/osv-scanner.yml`, OSV-Scanner). A pull request that changes `pnpm-lock.yaml` is scanned on its base and on its head, and fails only on a vulnerability it brings in; a draft is held, as in CI. Every Monday (and on `gh workflow run osv-scanner.yml --ref main`) `main` is scanned whole: that run does not fail, and its findings go to the repository's Security tab (Code scanning), where what is already locked is dealt with.
+
 Runner images are pinned (`ubuntu-24.04`, `macos-26` with `XCODE_VERSION`), and the web runs in the Playwright image pinned to the lockfile: a baseline depends on the renderer, so a runner image or toolchain moves only on purpose — bump it in ci.yml and record-baselines.yml together, then re-record.
 
 ### Native CI is paused
