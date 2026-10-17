@@ -9,6 +9,7 @@
 import { config, platforms, statusComponents, specs } from '../lib/repo';
 import { contextIds } from '../lib/tokens';
 import { contentLang, strings } from '../lib/i18n';
+import { heroEyebrow } from '../lib/release-notice';
 import { destination, linkAttribute } from '../lib/link';
 import { figureId } from '../lib/figure-id';
 import { specimenFixtures } from '../lib/fixtures';
@@ -38,7 +39,7 @@ const specimenTitle = `${figureId(Astro)}-title`;
 
 <div class="hero not-content">
   <tanrei-page-header class="copy" size="large" actions-placement="below">
-    <p data-part="eyebrow">{t.heroEyebrow} · v{config.version}</p>
+    <p data-part="eyebrow">{heroEyebrow(lang)}</p>
     <h1 id="_top" set:html={title} />
     {tagline && <p set:html={tagline} />}
     {actions.length > 0 && (

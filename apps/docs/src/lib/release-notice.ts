@@ -66,3 +66,13 @@ export function releaseNotice({ lang, platform, pkgs = [], registry = 'npm', ver
   if (!paragraphs.length) return null;
   return { title: prerelease ? t.prereleaseTitle : t.unpublishedTitle, paragraphs };
 }
+
+/**
+ * The home hero's eyebrow (components/Hero.astro): what Tanrei is and its version, with the word for a prerelease
+ * while the version is one, from the same `release()`: "Design system · prerelease · v0.1.0-next.0", then
+ * "Design system · v0.1.0" once it is released.
+ */
+export function heroEyebrow(lang: string, version: string = config.version): string {
+  const t = strings(lang);
+  return [t.heroEyebrow, ...(release(version).prerelease ? [t.heroPrerelease] : []), `v${version}`].join(' · ');
+}
