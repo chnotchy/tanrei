@@ -61,30 +61,30 @@ The server needs Node.js 20 or newer. It resolves a relative `layerFile` from it
 
 ### What the server answers
 
-| Tool | What it answers |
-|---|---|
-| `list_systems` | The systems that ship with Tanrei and, given your layer file, your product's chain of layers, with what each one adds to the vocabulary and its accessibility findings |
-| `search_tokens` | Tokens found by id, by a substring or a glob, with each token's type, kind and description |
-| `resolve` | What a token resolves to in a system and scheme, through which aliases and rules, set by which layer, and its CSS custom property |
-| `explain_token` | Why a token exists, what follows it, the changes a layer may write for it and how to add vocabulary next to it, each as a fragment of a layer |
-| `diff_systems` | The tokens whose values differ between two systems |
-| `validate_layer` | Every problem of a layer at once, each with the way out, then the real build and the warnings it prints; it writes nothing |
-| `propose_extension` | A new step, size, variant or token of your own as a fragment of a layer, checked by a trial build, with the values it makes |
-| `mimicry_gaps` | The traits of other design systems that no token can express yet |
+Its tools, and what each one answers:
 
-| Resource | What it holds |
-|---|---|
-| `tanrei://philosophy` | The ideas behind the vocabulary and the rules a layer follows, on one page |
-| `tanrei://schema/system` | The JSON Schema of a layer file |
-| `tanrei://systems/<id>` | Each shipped system's layer file as it is written |
+- `list_systems`: the systems that ship with Tanrei and, given your layer file, your product's chain of layers, with what each one adds to the vocabulary and its accessibility findings
+- `search_tokens`: tokens found by id, by a substring or a glob, with each token's type, kind and description
+- `resolve`: what a token resolves to in a system and scheme, through which aliases and rules, set by which layer, and its CSS custom property
+- `explain_token`: why a token exists, what follows it, the changes a layer may write for it and how to add vocabulary next to it, each as a fragment of a layer
+- `diff_systems`: the tokens whose values differ between two systems
+- `validate_layer`: every problem of a layer at once, each with the way out, then the real build and the warnings it prints; it writes nothing
+- `propose_extension`: a new step, size, variant or token of your own as a fragment of a layer, checked by a trial build, with the values it makes
+- `mimicry_gaps`: the traits of other design systems that no token can express yet
 
-The server also gives the agent its rules when it connects: change values through a layer, add vocabulary only under `vocabulary` and with a rationale, give every pinned value a reason, never change an accessibility threshold, and never edit a generated file. These two tables are the server's own lists: a check holds this page to the tools and resources the server has, in every language, so a tool the server gains is added here with it.
+Its resources, and what each one holds:
+
+- `tanrei://philosophy`: the ideas behind the vocabulary and the rules a layer follows, on one page
+- `tanrei://schema/system`: the JSON Schema of a layer file
+- `tanrei://systems/<id>`: each shipped system's layer file as it is written
+
+The server also gives the agent its rules when it connects: change values through a layer, add vocabulary only under `vocabulary` and with a rationale, give every pinned value a reason, never change an accessibility threshold, and never edit a generated file. These two lists are the server's own: a check holds this page to the tools and resources the server has, in every language, so a tool the server gains is added here with it.
 
 ## A rules file for your repository
 
 Many coding agents read `AGENTS.md` at the root of a repository. Cursor does. Claude Code reads it when the repository has no `CLAUDE.md`; when it has one, add a line `@AGENTS.md` to it, and Claude Code reads both. Copy this section into your `AGENTS.md`:
 
-```text title="AGENTS.md"
+```text title="AGENTS.md" wrap
 ## UI
 
 This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on its default design system, `tanrei`.
@@ -100,7 +100,7 @@ This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on 
 
 The rules are in English, the language of the names in the code; translate them if your team keeps its rules in another language. If your product has its own layer, replace the rule "Stay on the default system" with these two, using your layer's name and file:
 
-```text title="AGENTS.md"
+```text title="AGENTS.md" wrap
 - Our design system is the layer design/acme.system.json, which extends tanrei. Change a value there, never in a generated file: check the edit with the tanrei MCP server's validate_layer before you write it, and run npx tanrei build after.
 - Set data-tanrei-system="acme" once, on <html>, and no other system anywhere.
 ```
@@ -109,9 +109,11 @@ Cursor also reads project rules from `.cursor/rules/*.mdc`; a rule with `alwaysA
 
 ## Keep an agent to the default system's components
 
-The default system, `tanrei`, leaves a few components and variants out, which other shipped systems keep. They still render and work under it, so what keeps an agent from reaching for one is the rule above and these signals. Today the default system leaves out:
+The default system, `tanrei`, leaves a few components and variants out, which other shipped systems keep. They still render and work under it, so what keeps an agent from reaching for one is the rule above and the signals below. Today the default system leaves out:
 
 <LeftOutOfDefault />
+
+What tells an agent, and whoever reviews its work, that it reached for one:
 
 - Each component's page says, under its overview, which systems do not ship it, or which of its variants they leave out.
 - In a development build, each element the active system leaves out warns once in the console, when it connects and when its `variant` changes.

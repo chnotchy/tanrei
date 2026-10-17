@@ -1,5 +1,5 @@
 // The page on using Tanrei with AI agents (getting-started/ai-agents) says only what the repository has, in every
-// language: its tables of the MCP server's tools and resources are the server's own lists (packages/mcp/src), and
+// language: its lists of the MCP server's tools and resources are the server's own lists (packages/mcp/src), and
 // every name its samples and its rules file give a product — a custom property, a package and an export of it, a
 // function, the default system, the words a component's page shows — is one the packages and the site have. The
 // samples are code, so they are the same in every language. A tool the server gains, or a name a package drops, fails
@@ -25,8 +25,11 @@ const folders = ['', ...translations.map(({ dir }) => `${dir}/`)];
 const pages = folders.map((folder) => ({ folder, text: read(`apps/docs/src/content/docs/${folder}getting-started/ai-agents.mdx`) }));
 const english = pages[0].text;
 
-/** The first cells of a page's table rows that name something in code: `list_systems`, `tanrei://philosophy`. */
-const firstCells = (text, pattern) => [...text.matchAll(/^\|\s*`([^`]+)`\s*\|/gm)].map((match) => match[1]).filter((name) => pattern.test(name));
+/**
+ * The names a page's lists define, in code before a colon: `- \`list_systems\`: …` (Arabic names the kind first,
+ * `- الأداة \`list_systems\`: …`; Japanese and Chinese take the full-width colon).
+ */
+const listed = (text, pattern) => [...text.matchAll(/^- [^`\n]*`([^`]+)`[:：]/gm)].map((match) => match[1]).filter((name) => pattern.test(name));
 /** Every fenced block of a page, as written (its fence line and its lines, without the indentation of a list). */
 const fences = (text) => [...text.matchAll(/^( *)```[^\n]*\n[\s\S]*?^\1```$/gm)].map(([block, indent]) => block.split('\n').map((line) => line.slice(indent.length)).join('\n'));
 
@@ -38,12 +41,12 @@ describe('the page on AI agents', () => {
 
   test('lists every tool of the MCP server, in the server’s order, and no other', () => {
     const tools = TOOLS.map((tool) => tool.name);
-    for (const { folder, text } of pages) assert.deepEqual(firstCells(text, /^[a-z]+(_[a-z]+)*$/), tools, `${folder}getting-started/ai-agents.mdx`);
+    for (const { folder, text } of pages) assert.deepEqual(listed(text, /^[a-z]+(_[a-z]+)*$/), tools, `${folder}getting-started/ai-agents.mdx`);
   });
 
   test('lists every resource of the MCP server, a shipped system’s file once as `<id>`', () => {
     const uris = [...new Set(listResources().map(({ uri }) => uri.replace(/^(tanrei:\/\/systems\/).+$/, '$1<id>')))];
-    for (const { folder, text } of pages) assert.deepEqual(firstCells(text, /^tanrei:\/\//), uris, `${folder}getting-started/ai-agents.mdx`);
+    for (const { folder, text } of pages) assert.deepEqual(listed(text, /^tanrei:\/\//), uris, `${folder}getting-started/ai-agents.mdx`);
   });
 
   test('has the same samples in every language: they are code and the rules file a product copies', () => {
