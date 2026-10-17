@@ -3496,7 +3496,6 @@ private object TonePerStateSystemSource {
             actionsGap = 16.dp,
             actionsMarginBlockStart = 24.dp,
             actionsVariant = 1f,
-            closeButtonVariant = 4f,
             compactWindowWidth = 600.dp,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceBright),
             containerElevation = elevation.level3,

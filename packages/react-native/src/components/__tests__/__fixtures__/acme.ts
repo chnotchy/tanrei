@@ -6471,7 +6471,6 @@ export const acme = {
       actionsGap: 16,
       actionsMarginBlockStart: 24,
       actionsVariant: 1,
-      closeButtonVariant: 4,
       compactWindowWidth: 600,
       containerColor: { kind: "role", role: "surfaceBright" },
       containerElevation: "level3",

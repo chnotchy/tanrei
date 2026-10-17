@@ -4445,7 +4445,6 @@ export const cupertino = {
       actionsGap: 8,
       actionsMarginBlockStart: 24,
       actionsVariant: 4,
-      closeButtonVariant: 4,
       compactWindowWidth: 0,
       containerColor: { kind: "role", role: "surfaceContainerHigh" },
       containerElevation: "level3",

@@ -3573,7 +3573,6 @@ private object M3ExpressiveLikeSystemSource {
             actionsGap = 8.dp,
             actionsMarginBlockStart = 24.dp,
             actionsVariant = 4f,
-            closeButtonVariant = 4f,
             compactWindowWidth = 0.dp,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerHigh),
             containerElevation = elevation.level3,
