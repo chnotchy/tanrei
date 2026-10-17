@@ -23,7 +23,8 @@
 //                 element's language, else the document's; `missing()`: recorded, reported once per key and page),
 //                 wordFor() / watchWords() for a script; setWords() and missingWords() are the product's two functions
 //   missing-value — missingValueMessage(): the browser's message of a required control left empty, else the element's own words
-//   availability — AvailabilityController: a component or variant the active system leaves out, reported
+//   availability — AvailabilityController: a component or variant the active system does not have, recorded and reported
+//                 under the element the product wrote; setAvailabilityMode() and unavailableUses() are the product's two functions
 //   arc         — arcStyles: a ring of SVG circles (center, radius, stroke, circumference), ring-turn and pulse
 //   description — FORWARDED_DESCRIPTION: the host's aria-description, rendered on the native element (FORWARDED_INVALID: its aria-invalid)
 //   focus-order — OUTSIDE_FOCUS_ORDER: a control a host takes out of the focus order (a number field's steppers, NUM-25)
