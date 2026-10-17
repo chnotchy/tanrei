@@ -2,7 +2,7 @@
 title: Usar Tanrei con agentes de IA
 description: Conecta el servidor MCP de Tanrei, dale a un agente de programación las reglas de interfaz de tu producto en AGENTS.md y mantenlo dentro de los componentes y los valores del sistema predeterminado.
 translationOf: getting-started/ai-agents.mdx
-sourceHash: d28251d7b08dcfbb2b78ec804fbb33db4b7122d5
+sourceHash: 19100fdef85b040278c3869d2bc8107907412fb9
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -63,30 +63,30 @@ El servidor necesita Node.js 20 o posterior. Resuelve un `layerFile` relativo de
 
 ### Qué responde el servidor
 
-| Herramienta | Qué responde |
-|---|---|
-| `list_systems` | Los sistemas incluidos con Tanrei y, si le das tu archivo de capa, la cadena de capas de tu producto, con lo que cada una añade al vocabulario y sus hallazgos de accesibilidad |
-| `search_tokens` | Tokens encontrados por id, con una subcadena o un glob, con el tipo, la clase y la descripción de cada uno |
-| `resolve` | A qué se resuelve un token en un sistema y un esquema, a través de qué alias y reglas, qué capa lo fijó y su propiedad personalizada de CSS |
-| `explain_token` | Por qué existe un token, qué lo sigue, los cambios que una capa puede escribir para él y cómo añadir vocabulario a su lado, cada uno como un fragmento de capa |
-| `diff_systems` | Los tokens cuyo valor difiere entre dos sistemas |
-| `validate_layer` | Todos los problemas de una capa a la vez, cada uno con su solución; después, la compilación real y las advertencias que imprime. No escribe nada |
-| `propose_extension` | Un nuevo paso, tamaño, variante o token propio como fragmento de capa, comprobado con una compilación de prueba, con los valores que produce |
-| `mimicry_gaps` | Los rasgos de otros sistemas de diseño que ningún token puede expresar todavía |
+Sus herramientas y lo que responde cada una:
 
-| Recurso | Qué contiene |
-|---|---|
-| `tanrei://philosophy` | Las ideas detrás del vocabulario y las reglas que sigue una capa, en una sola página |
-| `tanrei://schema/system` | El JSON Schema de un archivo de capa |
-| `tanrei://systems/<id>` | El archivo de capa de cada sistema incluido, tal como está escrito |
+- `list_systems`: los sistemas incluidos con Tanrei y, si le das tu archivo de capa, la cadena de capas de tu producto, con lo que cada una añade al vocabulario y sus hallazgos de accesibilidad
+- `search_tokens`: tokens encontrados por id, con una subcadena o un glob, con el tipo, la clase y la descripción de cada uno
+- `resolve`: a qué se resuelve un token en un sistema y un esquema, a través de qué alias y reglas, qué capa lo fijó y su propiedad personalizada de CSS
+- `explain_token`: por qué existe un token, qué lo sigue, los cambios que una capa puede escribir para él y cómo añadir vocabulario a su lado, cada uno como un fragmento de capa
+- `diff_systems`: los tokens cuyo valor difiere entre dos sistemas
+- `validate_layer`: todos los problemas de una capa a la vez, cada uno con su solución; después, la compilación real y las advertencias que imprime. No escribe nada
+- `propose_extension`: un nuevo paso, tamaño, variante o token propio como fragmento de capa, comprobado con una compilación de prueba, con los valores que produce
+- `mimicry_gaps`: los rasgos de otros sistemas de diseño que ningún token puede expresar todavía
 
-El servidor también le da al agente sus reglas al conectarse: cambiar los valores mediante una capa, añadir vocabulario solo bajo `vocabulary` y con una justificación, dar un motivo a cada valor fijado, no cambiar nunca un umbral de accesibilidad y no editar nunca un archivo generado. Estas dos tablas son las listas del propio servidor: una comprobación mantiene esta página fiel a las herramientas y los recursos que tiene el servidor, en todos los idiomas, así que una herramienta que el servidor gane se añade aquí con ella.
+Sus recursos y lo que contiene cada uno:
+
+- `tanrei://philosophy`: las ideas detrás del vocabulario y las reglas que sigue una capa, en una sola página
+- `tanrei://schema/system`: el JSON Schema de un archivo de capa
+- `tanrei://systems/<id>`: el archivo de capa de cada sistema incluido, tal como está escrito
+
+El servidor también le da al agente sus reglas al conectarse: cambiar los valores mediante una capa, añadir vocabulario solo bajo `vocabulary` y con una justificación, dar un motivo a cada valor fijado, no cambiar nunca un umbral de accesibilidad y no editar nunca un archivo generado. Estas dos listas son las del propio servidor: una comprobación mantiene esta página fiel a las herramientas y los recursos que tiene el servidor, en todos los idiomas, así que una herramienta que el servidor gane se añade aquí con ella.
 
 ## Un archivo de reglas para tu repositorio
 
 Muchos agentes de programación leen `AGENTS.md` en la raíz de un repositorio. Cursor lo hace. Claude Code lo lee cuando el repositorio no tiene `CLAUDE.md`; si lo tiene, añade a ese archivo una línea `@AGENTS.md` y Claude Code leerá los dos. Copia esta sección en tu `AGENTS.md`:
 
-```text title="AGENTS.md"
+```text title="AGENTS.md" wrap
 ## UI
 
 This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on its default design system, `tanrei`.
@@ -102,7 +102,7 @@ This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on 
 
 Las reglas están en inglés, el idioma de los nombres del código; tradúcelas si tu equipo escribe sus reglas en otro idioma. Si tu producto tiene su propia capa, sustituye la regla «Stay on the default system» por estas dos, con el nombre y el archivo de tu capa:
 
-```text title="AGENTS.md"
+```text title="AGENTS.md" wrap
 - Our design system is the layer design/acme.system.json, which extends tanrei. Change a value there, never in a generated file: check the edit with the tanrei MCP server's validate_layer before you write it, and run npx tanrei build after.
 - Set data-tanrei-system="acme" once, on <html>, and no other system anywhere.
 ```
@@ -111,9 +111,11 @@ Cursor también lee reglas de proyecto en `.cursor/rules/*.mdc`; si guardas tus 
 
 ## Mantener a un agente en los componentes del sistema predeterminado
 
-El sistema predeterminado, `tanrei`, deja fuera algunos componentes y variantes, que otros sistemas incluidos conservan. Bajo `tanrei` se siguen dibujando y funcionando, así que lo que impide que un agente recurra a ellos es la regla de arriba y estas señales. Hoy el sistema predeterminado deja fuera:
+El sistema predeterminado, `tanrei`, deja fuera algunos componentes y variantes, que otros sistemas incluidos conservan. Bajo `tanrei` se siguen dibujando y funcionando, así que lo que impide que un agente recurra a ellos es la regla de arriba y las señales de más abajo. Hoy el sistema predeterminado deja fuera:
 
 <LeftOutOfDefault />
+
+Lo que le indica a un agente, y a quien revise su trabajo, que recurrió a uno de ellos:
 
 - La página de cada componente indica, en su descripción general, qué sistemas no lo incluyen o qué variantes suyas dejan fuera.
 - En una compilación de desarrollo, cada elemento que el sistema activo deja fuera avisa una vez en la consola: al conectarse y cuando cambia su `variant`.

@@ -2,7 +2,7 @@
 title: AI エージェントと Tanrei を使う
 description: Tanrei の MCP サーバーをつなぎ、コーディングエージェントにプロダクトの UI の規則を AGENTS.md で渡し、既定のシステムのコンポーネントと値の中に留めます。
 translationOf: getting-started/ai-agents.mdx
-sourceHash: d28251d7b08dcfbb2b78ec804fbb33db4b7122d5
+sourceHash: 19100fdef85b040278c3869d2bc8107907412fb9
 ---
 
 import Callout from '../../../../components/Callout.astro';
@@ -63,30 +63,30 @@ VS Code は `.vscode/mcp.json` を読みます。サーバーは `servers` の�
 
 ### サーバーが答えること
 
-| ツール | 答えること |
-|---|---|
-| `list_systems` | Tanrei に同梱されたシステムと、レイヤファイルを渡したときはプロダクトのレイヤの連なり。それぞれが語彙に足したものと、アクセシビリティの指摘も |
-| `search_tokens` | id の部分文字列か glob で見つけたトークンと、それぞれの型、種類、説明 |
-| `resolve` | あるシステムとスキームでトークンが何に解決されるか。どのエイリアスと規則を通り、どのレイヤが値を決めたか、そして CSS カスタムプロパティの名前 |
-| `explain_token` | トークンがなぜあるか、何がそれに追従するか、レイヤがそれに書ける変更と、隣に語彙を足す方法。どれもレイヤの断片として |
-| `diff_systems` | 2 つのシステムで値が違うトークン |
-| `validate_layer` | レイヤの問題を一度にすべて、それぞれの直し方とともに。続けて実際のビルドと、それが出す警告。何も書きません |
-| `propose_extension` | 新しい段、サイズ、バリアント、または自分のトークンを、レイヤの断片として。試しのビルドで確かめ、生まれる値も添えます |
-| `mimicry_gaps` | ほかのデザインシステムの特徴のうち、まだどのトークンでも表せないもの |
+ツールと、それぞれが答えること。
 
-| リソース | 中身 |
-|---|---|
-| `tanrei://philosophy` | 語彙の考え方と、レイヤが従う規則を 1 ページで |
-| `tanrei://schema/system` | レイヤファイルの JSON Schema |
-| `tanrei://systems/<id>` | 同梱システムそれぞれの、書かれたままのレイヤファイル |
+- `list_systems`：Tanrei に同梱されたシステムと、レイヤファイルを渡したときはプロダクトのレイヤの連なり。それぞれが語彙に足したものと、アクセシビリティの指摘も
+- `search_tokens`：id の部分文字列か glob で見つけたトークンと、それぞれの型、種類、説明
+- `resolve`：あるシステムとスキームでトークンが何に解決されるか。どのエイリアスと規則を通り、どのレイヤが値を決めたか、そして CSS カスタムプロパティの名前
+- `explain_token`：トークンがなぜあるか、何がそれに追従するか、レイヤがそれに書ける変更と、隣に語彙を足す方法。どれもレイヤの断片として
+- `diff_systems`：2 つのシステムで値が違うトークン
+- `validate_layer`：レイヤの問題を一度にすべて、それぞれの直し方とともに。続けて実際のビルドと、それが出す警告。何も書きません
+- `propose_extension`：新しい段、サイズ、バリアント、または自分のトークンを、レイヤの断片として。試しのビルドで確かめ、生まれる値も添えます
+- `mimicry_gaps`：ほかのデザインシステムの特徴のうち、まだどのトークンでも表せないもの
 
-サーバーは接続したときに、エージェントへ規則も渡します。値はレイヤで変える、語彙は `vocabulary` の下に理由を添えてだけ足す、固定した値にはすべて理由を書く、アクセシビリティのしきい値は変えない、生成されたファイルは編集しない。この 2 つの表はサーバー自身の一覧です。チェックがこのページを、どの言語でも、サーバーの持つツールとリソースに合わせているので、サーバーがツールを得れば、ここにもその行が足されます。
+リソースと、それぞれの中身。
+
+- `tanrei://philosophy`：語彙の考え方と、レイヤが従う規則を 1 ページで
+- `tanrei://schema/system`：レイヤファイルの JSON Schema
+- `tanrei://systems/<id>`：同梱システムそれぞれの、書かれたままのレイヤファイル
+
+サーバーは接続したときに、エージェントへ規則も渡します。値はレイヤで変える、語彙は `vocabulary` の下に理由を添えてだけ足す、固定した値にはすべて理由を書く、アクセシビリティのしきい値は変えない、生成されたファイルは編集しない。この 2 つの一覧はサーバー自身のものです。チェックがこのページを、どの言語でも、サーバーの持つツールとリソースに合わせているので、サーバーがツールを得れば、ここにもその行が足されます。
 
 ## リポジトリに置く規則のファイル
 
 多くのコーディングエージェントは、リポジトリのルートの `AGENTS.md` を読みます。Cursor は読みます。Claude Code は、リポジトリに `CLAUDE.md` がなければ読みます。あるときは、そこに `@AGENTS.md` という行を足せば、Claude Code は両方を読みます。次の節を `AGENTS.md` に写してください。
 
-```text title="AGENTS.md"
+```text title="AGENTS.md" wrap
 ## UI
 
 This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on its default design system, `tanrei`.
@@ -102,7 +102,7 @@ This product's interface is built with Tanrei (https://tanrei.chnotchy.com), on 
 
 規則は、コードの名前と同じ英語で書いてあります。チームが規則を別の言語で書いているなら、訳してください。プロダクトが自分のレイヤを持つなら、「Stay on the default system」の規則を次の 2 行に置き換え、レイヤの名前とファイルを自分のものにします。
 
-```text title="AGENTS.md"
+```text title="AGENTS.md" wrap
 - Our design system is the layer design/acme.system.json, which extends tanrei. Change a value there, never in a generated file: check the edit with the tanrei MCP server's validate_layer before you write it, and run npx tanrei build after.
 - Set data-tanrei-system="acme" once, on <html>, and no other system anywhere.
 ```
@@ -111,9 +111,11 @@ Cursor は `.cursor/rules/*.mdc` のプロジェクトルールも読みます�
 
 ## エージェントを既定のシステムのコンポーネントに留める
 
-既定のシステム `tanrei` は、いくつかのコンポーネントとバリアントを外しています。ほかの同梱システムはそれらを持っています。外されたものも `tanrei` の下で描画され、動きます。ですから、エージェントがそれに手を伸ばさないようにするのは、上の規則と次の合図です。既定のシステムがいま外しているのは、次のものです。
+既定のシステム `tanrei` は、いくつかのコンポーネントとバリアントを外しています。ほかの同梱システムはそれらを持っています。外されたものも `tanrei` の下で描画され、動きます。ですから、エージェントがそれに手を伸ばさないようにするのは、上の規則と、後に挙げる合図です。既定のシステムがいま外しているのは、次のものです。
 
 <LeftOutOfDefault />
+
+エージェントと、その作業をレビューする人に、それを使ったことを知らせるものは次のとおりです。
 
 - 各コンポーネントのページは、概要の中で、それを提供しないシステムや、外しているバリアントを示します。
 - 開発ビルドでは、有効なシステムが外している要素は、接続したときと `variant` が変わったときに、コンソールに一度だけ警告します。
