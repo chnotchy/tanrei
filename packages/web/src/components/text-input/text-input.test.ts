@@ -1901,6 +1901,84 @@ test.describe('behavior', () => {
     expect(reduced).toEqual({ running: 0, height: 3 * lineOf, scrolled: 0 });
   });
 
+  test('TXI-38: a letter typed while the motion of a line break runs continues that motion — the motion it replaces reports its cancellation a frame later, and that report ends nothing: the height still moves from the one shown to the end height through heights on its curve, with no step of more than 35 % of the whole change', async ({ page }) => {
+    await mountFixtures(page, spec, { reducedMotion: false, fixtures: [fixture('a', { label: 'Notes', multiline: true, value: '1\n2' })] });
+    const lineOf = await line(page, T('input-typescale-medium'));
+    for (const id of ['a']) {
+      const run = await input(page, id).evaluate(async (el) => {
+        const field = el as HTMLTextAreaElement;
+        // The height the input shows: its box, and what its bottom margin still takes back while the change moves.
+        const height = () => Number.parseFloat(getComputedStyle(field).height) + Number.parseFloat(getComputedStyle(field).marginBottom);
+        const resizing = () => field.getAnimations().filter((a) => /^margin-(bottom|block-end)$/.test((a as CSSTransition).transitionProperty));
+        const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        let cancelled = 0;
+        field.addEventListener('transitioncancel', () => cancelled++);
+        field.focus();
+        field.setSelectionRange(field.value.length, field.value.length);
+        const from = height();
+        const hold = (at: (duration: number) => number) => {
+          const held = resizing();
+          const duration = Number(held[0]?.effect?.getComputedTiming().duration ?? 0);
+          for (const motion of field.getAnimations()) {
+            motion.pause();
+            motion.currentTime = at(duration);
+          }
+          return held.length;
+        };
+        // A line break: its motion runs for a rendered frame, held a thirteenth of the way (every read below follows a
+        // rendered frame).
+        document.execCommand('insertText', false, '\n');
+        const first = hold((duration) => duration / 13);
+        await frame();
+        const mid = height();
+        // A letter, a moment later: its change replaces that motion with one from the height then shown, and the replaced
+        // one is cancelled — which is reported with the next frame's events. The new motion is held at its start and then
+        // stepped by hand, so what is read does not depend on the machine's speed.
+        document.execCommand('insertText', false, 'b');
+        const motions = field.getAnimations();
+        for (const motion of motions) {
+          motion.pause();
+          motion.currentTime = 0;
+        }
+        const resize = resizing()[0];
+        const duration = Number(resize?.effect?.getComputedTiming().duration ?? 0);
+        await frame();
+        const after = { motions: resizing().length, marked: field.getAttribute('data-resizing'), cancelled };
+        const heights = [from, mid, height()];
+        // The eased progress at each read, from the motion itself: where the height should be, whatever the curve.
+        const progress = [Number.NaN, 0, Number(resize?.effect?.getComputedTiming().progress ?? 1)];
+        for (let step = 1; step < 13; step++) {
+          for (const motion of motions) motion.currentTime = (duration * step) / 13;
+          await frame();
+          heights.push(height());
+          progress.push(Number(resize?.effect?.getComputedTiming().progress ?? 1));
+        }
+        for (const motion of motions) motion.finish();
+        await frame();
+        heights.push(height());
+        progress.push(1);
+        return { first, held: motions.filter((a) => /^margin-(bottom|block-end)$/.test((a as CSSTransition).transitionProperty)).length, after, heights, progress };
+      });
+      expect(run.first, `${id}: the line break starts one motion`).toBe(1);
+      expect(run.held, `${id}: one motion runs after the letter`).toBe(1);
+      expect(run.after.cancelled, `${id}: the replaced motion reported its cancellation`).toBeGreaterThanOrEqual(1);
+      expect({ motions: run.after.motions, marked: run.after.marked }, `${id}: after that report the motion still runs`).toEqual({ motions: 1, marked: '' });
+      const whole = run.heights.at(-1)! - run.heights[0]!;
+      expect(whole, `${id}: one line more`).toBeCloseTo(lineOf, 0);
+      // The letter's motion, from the height shown when it came: at each read where its curve has brought it.
+      const rest = run.heights.at(-1)! - run.heights[1]!;
+      expect(rest, `${id}: the letter's motion goes on from the height then shown`).toBeGreaterThan(1);
+      run.heights.forEach((h, i) => i >= 1 && expect(Math.abs(h - (run.heights[1]! + run.progress[i]! * rest)), `${id}: read ${i} on the curve (${run.heights.join(' → ')})`).toBeLessThanOrEqual(1));
+      // And in the measure of a motion that jumps: at 13 evenly spaced times no step is more than 35 % of the change (the
+      // standard curve's largest is 28 %; a motion ended by the report moves 100 % at once).
+      for (let i = 1; i < run.heights.length; i++) {
+        const step = run.heights[i]! - run.heights[i - 1]!;
+        expect(step, `${id}: never lower than the one before (${run.heights.join(' → ')})`).toBeGreaterThanOrEqual(-0.01);
+        expect(step / whole, `${id}: step ${i} is no more than 35 % of the change (${run.heights.join(' → ')})`).toBeLessThanOrEqual(0.35);
+      }
+    }
+  });
+
   // ── TXI-51: a multi-line field is set from the top ────────────────────────────────────────────
   /** Where the parts of a field stand, from its container's top edge (and, for what belongs to the bottom, from its bottom edge). */
   const placesOf = (page: P, id: string) =>
