@@ -295,7 +295,7 @@
     --tanrei-comp-badge-label-typescale-font: var(--tanrei-sys-typescale-caption-font);
     --tanrei-comp-badge-outline-color: rgb(0 0 0 / 0);
     --tanrei-comp-badge-outline-width: var(--tanrei-sys-border-thick);
-    --tanrei-comp-bottom-sheet-close-button-variant: tonal;
+    --tanrei-comp-bottom-sheet-close-button-variant: text;
     --tanrei-comp-bottom-sheet-container-color: var(--tanrei-sys-color-surface-container-low);
     --tanrei-comp-bottom-sheet-container-elevation: var(--tanrei-sys-elevation-level1);
     --tanrei-comp-bottom-sheet-container-elevation-inset-ring: var(--tanrei-sys-elevation-level1-inset-ring);

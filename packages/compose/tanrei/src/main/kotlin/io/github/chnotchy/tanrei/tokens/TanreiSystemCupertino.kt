@@ -865,7 +865,7 @@ private object CupertinoSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun bottomSheet(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiBottomSheetTokens =
         TanreiBottomSheetTokens(
-            closeButtonVariant = 1f,
+            closeButtonVariant = 4f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLowest),
             containerElevation = elevation.level2,
             containerMarginBlockStart = 48.dp,

@@ -996,7 +996,7 @@ private object M3LikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun bottomSheet(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiBottomSheetTokens =
         TanreiBottomSheetTokens(
-            closeButtonVariant = 1f,
+            closeButtonVariant = 4f,
             containerColor = TanreiPaint.Role(TanreiColorRole.SurfaceContainerLow),
             containerElevation = elevation.level1,
             containerMarginBlockStart = 48.dp,

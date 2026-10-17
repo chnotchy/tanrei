@@ -835,7 +835,7 @@ const TanreiSystem m3LikeSystem = TanreiSystem(
     outlineWidth: 2.0,
   ),
   bottomSheet: TanreiBottomSheetTokens(
-    closeButtonVariant: 1.0,
+    closeButtonVariant: 4.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceContainerLow),
     containerElevation: _elevationLevel1,
     containerMarginBlockStart: 48.0,

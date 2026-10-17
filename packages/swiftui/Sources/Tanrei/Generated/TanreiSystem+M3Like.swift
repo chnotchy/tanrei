@@ -773,7 +773,7 @@ private let m3LikeBadgeTokens = TanreiBadgeTokens(
 )
 
 private let m3LikeBottomSheetTokens = TanreiBottomSheetTokens(
-  closeButtonVariant: 1,
+  closeButtonVariant: 4,
   containerColor: .role(.surfaceContainerLow),
   containerElevation: m3LikeElevation.level1,
   containerMarginBlockStart: 48,

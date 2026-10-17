@@ -394,6 +394,7 @@
     "tanrei.comp.search.container.padding-inline-with-button": {"$value": "{tanrei.sys.space.space50}", "reason": "This preset's own value, narrower than the default system's, which is widened for its 48 touch target: a preset follows the system it imitates, and this value is not yet checked against the reference."},
     "tanrei.comp.bottom-sheet.container.color": {"$value": "{tanrei.sys.color.surface-container-lowest}", "reason": "Apple's sheet is the elevated background: white in light, a raised dark grey in dark."},
     "tanrei.comp.bottom-sheet.container.shape": {"$value": "{tanrei.sys.shape.corner.medium}"},
+    "tanrei.comp.bottom-sheet.close-button.variant": {"$value": 4, "reason": "The bare close glyph this preset draws on its other surfaces; the change to a tonal close button is the default system's."},
     "tanrei.comp.bottom-sheet.handle.grip-width": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 9}, "reason": "Apple's grabber is 36pt wide."},
     "tanrei.comp.bottom-sheet.handle.grip-height": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 1.25}, "reason": "Apple's grabber is 5pt tall."},
     "tanrei.comp.bottom-sheet.handle.container-height": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 4}, "reason": "With no margin, the grabber sits about 5pt below the sheet's top edge, as Apple's does; the hit area still reaches the touch target (BSH-15)."},

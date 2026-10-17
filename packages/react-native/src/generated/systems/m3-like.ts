@@ -1175,7 +1175,7 @@ export const m3Like = {
       outlineWidth: 2,
     },
     bottomSheet: {
-      closeButtonVariant: 1,
+      closeButtonVariant: 4,
       containerColor: { kind: "role", role: "surfaceContainerLow" },
       containerElevation: "level1",
       containerMarginBlockStart: 48,

@@ -773,7 +773,7 @@ private let m3ExpressiveLikeBadgeTokens = TanreiBadgeTokens(
 )
 
 private let m3ExpressiveLikeBottomSheetTokens = TanreiBottomSheetTokens(
-  closeButtonVariant: 1,
+  closeButtonVariant: 4,
   containerColor: .role(.surfaceContainerLow),
   containerElevation: m3ExpressiveLikeElevation.level1,
   containerMarginBlockStart: 48,

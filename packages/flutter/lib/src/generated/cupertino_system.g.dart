@@ -804,7 +804,7 @@ const TanreiSystem cupertinoSystem = TanreiSystem(
     outlineWidth: 2.0,
   ),
   bottomSheet: TanreiBottomSheetTokens(
-    closeButtonVariant: 1.0,
+    closeButtonVariant: 4.0,
     containerColor: TanreiPaint.role(TanreiColorRole.surfaceContainerLowest),
     containerElevation: _elevationLevel2,
     containerMarginBlockStart: 48.0,

@@ -4971,6 +4971,10 @@
             "tanrei.comp.bottom-sheet.container.shape": {
               "$value": "{tanrei.sys.shape.corner.medium}"
             },
+            "tanrei.comp.bottom-sheet.close-button.variant": {
+              "$value": 4,
+              "reason": "The bare close glyph this preset draws on its other surfaces; the change to a tonal close button is the default system's."
+            },
             "tanrei.comp.bottom-sheet.handle.grip-width": {
               "derive": {
                 "fn": "mul",
