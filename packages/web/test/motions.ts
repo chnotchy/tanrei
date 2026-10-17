@@ -33,3 +33,37 @@ export const motionEnded = (target: Locator | Page): Promise<void> =>
     const ending = running.filter((animation) => Number(animation.effect?.getComputedTiming().endTime) !== Number.POSITIVE_INFINITY);
     await Promise.all(ending.map((animation) => animation.finished.catch(() => undefined)));
   }, EVERY_ANIMATION);
+
+/**
+ * The element's computed `property` (of its `pseudo`-element, given one), read once no motion that can change it still
+ * runs: the element's own transitions and animations, its pseudo-element's, and those of every ancestor in the flat
+ * tree — through the slot it is assigned to, and out of each shadow root to its host. An ancestor's motion counts
+ * because an inherited property (`color`, a custom property a `var()` reads) follows it with no motion of its own, so
+ * `el.getAnimations()` lists nothing while the value still moves.
+ *
+ * The race it closes: a colour polled until it equals its end value can pass while its transition still runs — an
+ * engine serializes an interpolated colour like its end value (Firefox writes it in the end value's space, alpha already
+ * rounded, and unpremultiplies a translucent one differently from one frame to the next) — and a strict read of the
+ * same value a moment later reads another frame of the motion. Poll this, not a plain read, when an exact read of the
+ * same value follows; or wait with `motionEnded()` between the two. An animation that never ends (a spinner's) and one
+ * that is paused are not waited for; one that is cancelled counts as ended; one that a finished one starts is waited
+ * for in turn.
+ */
+export const settledCss = (target: Locator, property: string, pseudo?: string): Promise<string> =>
+  target.evaluate(
+    async (el, [name, part]) => {
+      for (;;) {
+        const chain: Element[] = [];
+        for (let node: Element | null = el; node; node = node.assignedSlot ?? node.parentElement ?? ((node.parentNode as ShadowRoot | null)?.host ?? null)) chain.push(node);
+        // Asking flushes style, so a motion the last change starts is among them. The element's own list, with
+        // subtree, holds its pseudo-elements' (each targets the element); a descendant's is no part of its value.
+        const own = el.getAnimations({ subtree: true }).filter((animation) => (animation.effect as KeyframeEffect | null)?.target === el);
+        const running = [...own, ...chain.slice(1).flatMap((node) => node.getAnimations())].filter(
+          (animation) => animation.playState === 'running' && Number(animation.effect?.getComputedTiming().endTime) !== Number.POSITIVE_INFINITY,
+        );
+        if (!running.length) return getComputedStyle(el, part ?? undefined).getPropertyValue(name);
+        await Promise.all(running.map((animation) => animation.finished.catch(() => undefined)));
+      }
+    },
+    [property, pseudo ?? null] as const,
+  );
