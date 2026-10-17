@@ -74,6 +74,8 @@
       "types": "./dist/links/node/index.d.ts",
       "node": "./dist/links/node/index.js"
     },
+    "./tanrei.css": "./dist/tanrei.css",
+    "./base.css": "./dist/base.css",
     "./tokens.css": "./dist/tokens.css",
     "./icons.css": "./dist/icons.css",
     "./text.css": "./dist/text.css",
