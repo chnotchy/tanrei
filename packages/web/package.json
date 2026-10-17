@@ -11,7 +11,8 @@
   },
   "sideEffects": [
     "./dist/index.js",
-    "./dist/m3-like.js",
+    "./dist/all.js",
+    "./dist/systems/*.js",
     "./dist/icons.js",
     "./dist/link.js",
     "./dist/steps.js",
@@ -21,7 +22,6 @@
     "./dist/primitives/field-frame.js",
     "./dist/tanrei.bundle.js",
     "./src/index.ts",
-    "./src/m3-like.ts",
     "./src/icons.ts",
     "./src/link.ts",
     "./src/steps.ts",
@@ -36,9 +36,9 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./m3-like": {
-      "types": "./dist/m3-like.d.ts",
-      "default": "./dist/m3-like.js"
+    "./all": {
+      "types": "./dist/all.d.ts",
+      "default": "./dist/all.js"
     },
     "./registry": {
       "types": "./dist/registry.d.ts",
@@ -108,11 +108,16 @@
     "./menubar.css": "./dist/menubar.css",
     "./systems/*.css": "./dist/systems/*.css",
     "./systems/*.components.json": "./dist/systems/*.components.json",
+    "./systems/*.js": {
+      "types": "./dist/systems/*.d.ts",
+      "default": "./dist/systems/*.js"
+    },
     "./components/*": {
       "types": "./dist/components/*/*.d.ts",
       "default": "./dist/components/*/*.js"
     },
-    "./custom-elements.json": "./custom-elements.json"
+    "./custom-elements.json": "./custom-elements.json",
+    "./custom-elements/*.json": "./dist/custom-elements/*.json"
   },
   "customElements": "custom-elements.json",
   "bin": {
