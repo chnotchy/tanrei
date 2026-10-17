@@ -1,6 +1,18 @@
 // The standalone app: Theme Studio, full page, editing the layer file of the server that serves it.
 import './fonts.generated.css';
 import '@tanrei/web/tokens.css';
+// The Studio's stylesheets, which its entry leaves to the host (src/index.ts):
+// - `.tanrei-icon`: the preview draws icons with the system's icon tokens (the font is fonts.generated.css's);
+// - the token tree is a tree view around the Studio's own lists, drawn by its stylesheet;
+// - what opens and closes is an accordion, and a token's facts a description list, each around the Studio's own
+//   elements, drawn by its stylesheet — loaded with the page, so that the first fold a level draws does not give the
+//   whole document, the preview with it, another sheet to be styled by;
+// - and the Studio's own.
+import '@tanrei/web/icons.css';
+import '@tanrei/web/tree-view.css';
+import '@tanrei/web/accordion.css';
+import '@tanrei/web/description-list.css';
+import '../src/studio.css';
 import { type StudioLanguage, createHttpAdapter, mountStudio, studioDirection, studioLanguage, studioLanguages, studioStrings, takeToken } from '../src/index';
 import './app.css';
 

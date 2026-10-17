@@ -6,11 +6,18 @@
 // The page's language is passed as it is. The Studio speaks the languages it has a dictionary for
 // (packages/studio/src/strings/); a page in a language it has none for yet hosts it in English, and its link still leads to that language's page. On a right-to-left page the
 // Studio stands in the page's direction; it sets one itself only where its host has not.
+//
+// The Studio's stylesheets are the host's to load (packages/studio/src/index.ts). The web package's four it draws with
+// — the icon class, the tree view, the accordion, the description list — are the site's, on every page, in the docs'
+// layers (astro.config.mjs, styles/prose.css). The Studio's own is linked here, so that it is on this page only: a
+// stylesheet a script imports is given to every page of the site that the script's bundle reaches.
+import studioCss from '@tanrei/studio/studio.css?url';
 import { localeBase } from '../lib/i18n';
 const lang = Astro.currentLocale ?? 'en';
 const layers = `${localeBase(Astro)}/foundations/design-systems/`;
 ---
 
+<link rel="stylesheet" href={studioCss} />
 {/* The page's content column is prose, and prose spaces the blocks of every section and div inside it. The Studio is
     a tool of its own boxes, not a text: an island of the prose (PRS-16), so that nothing inside it takes prose's
     rhythm — its segments, panes and rows stood a block gap out of line before it was one. */}
