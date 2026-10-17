@@ -1,0 +1,109 @@
+---
+title: Marca
+description: El nombre de Tanrei, sus dos marcas y cómo usarlas, y el carácter con el que se dibuja el sistema.
+translationOf: foundations/brand.mdx
+sourceHash: a595a956404e09f904b20075fe03b71bd3b735b5
+---
+
+import BrandFigure from '../../../../components/BrandFigure.astro';
+
+Tanrei (端麗) significa limpio y bien formado. El nombre resume lo que se le pide al sistema: interfaces sobrias, precisas y fáciles de leer, en todas las plataformas en las que se publica un producto. Tanrei es un proyecto independiente.
+
+## Las marcas
+
+Tanrei tiene dos marcas y usa una cada vez.
+
+<BrandFigure
+  title="El símbolo y el logotipo"
+  panels={[
+    { mark: 'symbol', scheme: 'light', caption: 'El símbolo, claro' },
+    { mark: 'symbol', scheme: 'dark', caption: 'El símbolo, oscuro' },
+    { mark: 'wordmark', scheme: 'light', caption: 'El logotipo, claro' },
+    { mark: 'wordmark', scheme: 'dark', caption: 'El logotipo, oscuro' },
+  ]}
+/>
+
+- **El símbolo** es la T de Shippori Mincho, con las esquinas suavizadas. Se usa solo donde se requiere una forma cuadrada o redonda —el favicon, el icono de una app, una marca de agua en recursos como el adorno de la esquina de un archivo de diseño— o para una promoción y una decoración discretas.
+- **El logotipo** es la T del símbolo seguida de «anrei» compuesto en Outfit SemiBold, dibujado como una sola pieza. Es el logo de Tanrei dondequiera que el nombre se lee: la cabecera de este sitio en todos los anchos, una portada, el título de una página, la imagen de un enlace compartido.
+
+Una marca cada vez, y nunca el símbolo y el logotipo combinados en un conjunto: esa es la regla de Tanrei para sus propias marcas. La [barra de aplicación](/es/components/app-bar/) permite a un producto mostrar su propio logo en la disposición que ese logo necesite, un conjunto incluido.
+
+El símbolo está un poco por debajo del centro de su marco cuadrado. Es una corrección óptica: la T lleva su peso arriba, y la posición más baja hace que parezca centrada.
+
+## Color
+
+Las dos marcas se dibujan en un solo color, `sys.color.on-surface`, sobre la superficie en la que están. Como el color es un token y no forma parte del dibujo, las marcas siguen los esquemas claro y oscuro y todos los niveles de contraste. Cada uso toma on-surface: la cabecera de este sitio pinta su logotipo con `comp.app-bar.brand.color`, que es on-surface.
+
+## Espacio libre
+
+<BrandFigure
+  title="Espacio libre"
+  panels={[{ mark: 'symbol', height: 160, clearSpace: true, caption: 'Un cuarto de la altura de la tinta por cada lado' }]}
+/>
+
+Deja libre un cuarto de la altura del símbolo por cada lado. Mídelo desde la tinta, no desde el marco. Alrededor del logotipo, deja libre la mitad de su altura x. Nada más entra en ese espacio: ni texto, ni otra marca, ni el borde de la pantalla.
+
+## Tamaño mínimo
+
+<BrandFigure
+  title="Tamaño mínimo"
+  panels={[
+    { mark: 'symbol', height: 'min', caption: 'El símbolo: un marco de 24 px' },
+    { mark: 'wordmark', height: 'min', caption: 'El logotipo: una mayúscula de 24 px' },
+  ]}
+/>
+
+Nunca dibujes el símbolo con un marco menor de 24 px, ni el logotipo con una mayúscula de menos de 24 px de alto.
+
+El favicon es la única excepción, porque el navegador lo dibuja a 16 px. Es un solo SVG. Los archivos ICO y PNG que lo acompañan son dibujos de la misma imagen a los tamaños que piden los navegadores, no un segundo diseño. A 16 px sus bordes se suavizan, y eso se acepta.
+
+## Recomendado y no recomendado
+
+<BrandFigure
+  title="Evita"
+  panels={[
+    { mark: 'symbol', misuse: 'recolor', caption: 'Pintada en otro color' },
+    { mark: 'symbol', misuse: 'outline', caption: 'Con contorno' },
+    { mark: 'symbol', misuse: 'stretch', caption: 'Estirada' },
+    { mark: 'lockup', caption: 'El símbolo junto al logotipo' },
+    { mark: 'name', caption: 'El nombre compuesto junto al símbolo' },
+  ]}
+/>
+
+### Recomendado
+
+- Usa una marca cada vez: el logotipo dondequiera que el nombre se lee, y el símbolo solo donde se requiere una forma cuadrada o redonda.
+- Dibuja la marca en on-surface, sobre la superficie del esquema en el que está.
+- Donde una plataforma necesite un icono opaco, como una pantalla de inicio o un favicon rasterizado, pon el símbolo sobre la superficie del esquema claro. El cuadrado pertenece a la plataforma, no a la marca.
+- Deja el símbolo donde está dentro de su marco. No lo muevas al centro del marco.
+
+### Evita
+
+- No cambies el color de una marca ni le añadas un degradado, un contorno, una sombra o una forma de fondo.
+- No estires, gires ni recortes una marca.
+- No combines el símbolo y el logotipo en un conjunto, ni compongas el nombre como texto junto al símbolo.
+- No vuelvas a componer el logotipo en otra tipografía. Usa su dibujo.
+- No uses los caracteres 端麗 como marca. Son un adorno de la portada del archivo de diseño, no parte de la identidad.
+
+## El carácter del sistema
+
+La marca es también el aspecto del sistema.
+
+### El contenido primero, la interfaz al final
+
+Las superficies son casi monocromas y los bordes son líneas finas de un píxel, de modo que el contenido del producto es lo más colorido de la pantalla. La acción principal es negro sobre blanco o blanco sobre negro. Existe un único acento azul, reservado para lo único que debe encontrarse de inmediato: el anillo de foco del teclado. Un enlace se reconoce por su subrayado y el elemento elegido por el color primario, así que nada más en la pantalla es azul.
+
+### Una estructura que se ve
+
+La jerarquía surge de la alineación, el espaciado y las líneas finas, no de sombras pesadas ni de paneles teñidos. La elevación es un anillo más una sombra muy suave.
+
+### Expresión por adición
+
+El valor predeterminado es contenido. Las decisiones expresivas, como pasos de énfasis más marcados, esquinas más grandes y más suaves o un movimiento más elástico, son tokens adicionales que se superponen a la misma estructura, nunca una bifurcación de ella.
+
+## Uso de las marcas por otros
+
+El código y la documentación de Tanrei tienen la licencia Apache License 2.0. La sección 6 de la licencia no concede permiso para usar los nombres, las marcas registradas ni los nombres de producto del licenciante, salvo para describir de dónde procede la obra y para reproducir el archivo NOTICE.
+
+- Puedes decir en un texto que tu obra usa Tanrei o que está hecha con Tanrei.
+- El símbolo y el logotipo pertenecen a los Tanrei Authors y no se conceden a otros. No los uses en tu producto, en el nombre o el icono de tu paquete, ni de ninguna manera que sugiera que tu obra es Tanrei o que Tanrei la respalda.
