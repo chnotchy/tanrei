@@ -37295,6 +37295,14 @@
             },
             {
               "kind": "field",
+              "name": "rowSyncs",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new CoalescedSync(() => { if (this.isConnected) this.readRows(); })",
+              "description": "The re-read of the product's rows (`readRows()`), once per turn however many rows said they changed in it: a file\nupload of N rows built, or N rows changed at once, re-reads its N rows once — not once per row, which made the build\nO(N²). It runs in a microtask, before the next frame, so every frame draws the rows as they are (FUP-29, FUP-39)."
+            },
+            {
+              "kind": "field",
               "name": "children$",
               "privacy": "private",
               "readonly": true,
