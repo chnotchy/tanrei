@@ -1,0 +1,284 @@
+---
+// The Specs tab's fixtures: a gallery of stages, one for each fixture of the spec (lib/fixture-gallery.ts says which
+// stage each takes, lib/fixtures.ts how it is drawn). Each stage is Tanrei's Figure, written as its native parts: the
+// fixture's id as its title, the stage's actions in its header — the stage's scheme, the copy of the fixture's markup,
+// the fixture's own page — what the fixture draws on its stage, and the props that make it as the caption. The stages
+// stand in groups by the first axis of the spec that tells its fixtures apart (`variant`, else `size`, …).
+//
+// A stage is sized to what it draws, and a stage whose fixture is as wide as its layout starts at the width the web
+// harness gives that layout and has a handle on its end edge that makes it narrower or wider. A presented fixture is
+// drawn alone, presented, in a window of its own: an `iframe` of the fixture's page, loaded when it comes near the view,
+// in a box that holds the window's size before anything is loaded (scaled down where the column is narrower).
+//
+// The fixture ids and props are the page's words and are read by the search; what a stage draws, and its actions, are
+// not (`data-pagefind-ignore`, as DemoFrame's stage).
+import { getSpec, definedTags } from '../../lib/repo';
+import { drawsLive } from '../../lib/fixtures';
+import { galleryOf, fixturePageHref } from '../../lib/fixture-gallery';
+import { contentLang, strings } from '../../lib/i18n';
+import { figureId } from '../../lib/figure-id';
+import ResizeHandle from './ResizeHandle.astro';
+
+interface Props {
+  name: string;
+}
+const spec = getSpec(Astro.props.name);
+const t = strings(contentLang(Astro));
+const webName = spec.platforms.web?.name;
+const defined = !!webName && definedTags.has(webName);
+const live = defined && drawsLive(spec);
+const groups = galleryOf(spec, live);
+const named = (template: string, values: Record<string, string | number>) => template.replace(/\{(\w+)\}/g, (place, key: string) => (key in values ? String(values[key]) : place));
+const surface = (id: string) => (spec.fixtures.find((f) => f.id === id) as { surface?: string } | undefined)?.surface;
+---
+
+<div class="docs-fixture-gallery not-content" data-fixture-gallery data-component={spec.name}>
+  <p class="docs-fixture-all" data-pagefind-ignore><a class="tanrei-link" href={fixturePageHref(spec.name)}>{t.stages.allOnOnePage}</a></p>
+  {groups.map((group) => (
+    <section class="docs-fixture-group">
+      {group.axis && (
+        <h4 class="docs-fixture-axis"><code>{group.axis.name}: {group.axis.value}</code>{' '}<span class="docs-muted docs-fixture-count">({group.stages.length})</span></h4>
+      )}
+      <div class="docs-fixture-stages">
+        {group.stages.map((stage) => {
+          const id = figureId(Astro);
+          const sized = stage.kind === 'window' && stage.window;
+          return (
+            <>
+              <tanrei-figure class="docs-stage" pattern="none" data-stage={stage.kind} data-fixture-id={stage.id} data-drawn={stage.drawn ? '' : undefined}>
+                <figure aria-labelledby={`${id}-title`} aria-describedby={`${id}-caption`}>
+                  <div data-part="frame">
+                    <header>
+                      <p data-part="title" id={`${id}-title`} data-tanrei-code="plain"><code>{stage.id}</code></p>
+                      {stage.drawn && (
+                        <div data-part="actions" data-pagefind-ignore data-stage-actions={stage.kind === 'window' ? 4 : 3}>
+                          {/* Written in a template and drawn when the stage comes near the view (lib/fixture-stages.ts): a
+                              page of 368 fixtures would otherwise define over a thousand buttons as it loads. */}
+                          <template>
+                          <tanrei-button class="docs-stage-action" variant="text" size="small" toggle label={t.stages.dark} data-stage-theme><span slot="icon" data-pagefind-ignore>dark_mode</span></tanrei-button>
+                          {stage.kind === 'window' && (
+                            <tanrei-button class="docs-stage-action" variant="text" size="small" label={named(t.stages.redraw, { id: stage.id })} data-stage-redraw><span slot="icon" data-pagefind-ignore>refresh</span></tanrei-button>
+                          )}
+                          <tanrei-copy-button class="docs-stage-action" size="small" text={stage.markup} label={t.stages.copy} copied-label={t.stages.copied} failed-label={t.stages.copyFailed}></tanrei-copy-button>
+                          <tanrei-button class="docs-stage-action" variant="text" size="small" href={fixturePageHref(spec.name, stage.id)} target="new" target-label={t.stages.newTab} label={named(t.stages.openAlone, { id: stage.id })}><span slot="icon" data-pagefind-ignore>open_in_new</span></tanrei-button>
+                          </template>
+                        </div>
+                      )}
+                    </header>
+                    <div data-part="stage" id={`${id}-stage`} class="docs-stage-box" data-tanrei-demo data-pagefind-ignore>
+                      {!stage.drawn ? (
+                        <p class="docs-muted docs-stage-none">{live || !defined ? t.notDefinedYet : t.notDrawnHere}</p>
+                      ) : sized ? (
+                        <div class="docs-stage-canvas docs-window" style={`--docs-window-width: ${sized.width}; --docs-window-height: ${sized.height}`}>
+                          <iframe
+                            class="docs-window-frame"
+                            src={fixturePageHref(spec.name, stage.id)}
+                            loading="lazy"
+                            inert
+                            width={sized.width}
+                            height={sized.height}
+                            title={named(t.stages.frame, { id: stage.id })}
+                          />
+                          <ResizeHandle label={named(t.stages.width, { id: stage.id })} controls={`${id}-stage`} />
+                        </div>
+                      ) : (
+                        <div
+                          class="docs-stage-canvas"
+                          style={[stage.width && `--docs-stage-width: ${stage.width}`, stage.reserve && `--docs-stage-reserve-inline: ${stage.reserve.width}px; --docs-stage-reserve-block: ${stage.reserve.height}px`].filter(Boolean).join('; ') || undefined}
+                          data-resizable={stage.width ? '' : undefined}
+                        >
+                          {/* The fixture's stage color, where it names one (the schema's `surface`): the element stands on that surface. */}
+                          <div
+                            class="fixture-element"
+                            data-presentation={stage.presentation}
+                            style={surface(stage.id) ? `background: var(--tanrei-sys-color-${surface(stage.id)}); padding: var(--tanrei-sys-space-space200)` : undefined}
+                            set:html={`<template data-stage-fixture>${stage.html}</template>`}
+                          />
+                          {stage.width && <ResizeHandle label={named(t.stages.width, { id: stage.id })} controls={`${id}-stage`} />}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <figcaption id={`${id}-caption`} class="docs-stage-facts">
+                    {stage.facts.map((fact) => (<><code>{fact}</code>{' '}</>))}
+                    {stage.holds.items > 0 && <><code>items: {stage.holds.items}</code>{' '}</>}
+                    {stage.holds.slots.length > 0 && <><code>slots: {stage.holds.slots.join(', ')}</code>{' '}</>}
+                    {!stage.facts.length && !stage.holds.items && !stage.holds.slots.length && <><code>{'{}'}</code>{' '}</>}
+                    {sized && <span class="docs-muted docs-stage-window">{named(t.stages.window, { width: sized.width, height: sized.height })}</span>}
+                  </figcaption>
+                </figure>
+              </tanrei-figure>{' '}
+            </>
+          );
+        })}
+      </div>
+    </section>
+  ))}
+</div>
+
+<script>
+  import '../../lib/register-web';
+  import '../../lib/fixture-stages';
+</script>
+
+<style>
+  .docs-fixture-gallery {
+    display: grid;
+    gap: var(--tanrei-sys-space-space300);
+    margin-block-start: var(--tanrei-sys-space-space200);
+  }
+  .docs-fixture-all {
+    margin: 0;
+  }
+  .docs-fixture-axis {
+    margin: 0 0 var(--tanrei-sys-space-space150);
+  }
+  /* The stages of a group: a wrapping row, each stage as wide as what it holds and never wider than the column. */
+  .docs-fixture-stages {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--tanrei-sys-space-space200);
+  }
+  /* A stage: as wide as its canvas or its header, never wider than the column. Every stage of the page is laid out
+     with the page, as a product's screen is: a stage that is not laid out while it is away from the view
+     (`content-visibility: auto`) has no size then, and a component that measures its place once — the description
+     list choosing between its terms beside their values and above them — keeps the choice it made in no room. */
+  .docs-stage {
+    flex: 0 1 auto;
+    inline-size: fit-content;
+    min-inline-size: min(100%, 14rem);
+  }
+  /* The id breaks where it must, so that the header never makes a stage wider than what it draws. */
+  .docs-stage [data-part='title'] code {
+    overflow-wrap: anywhere;
+  }
+  .docs-fixture-count {
+    font-weight: normal;
+  }
+  /* The props wrap under the stage and do not widen it. */
+  .docs-stage-facts {
+    contain: inline-size;
+  }
+  .docs-stage-facts code {
+    overflow-wrap: anywhere;
+  }
+  .docs-stage-window {
+    display: block;
+  }
+  /* The stage: what is drawn stays inside it, clipped to it. It is clipped by its overflow and not by containment: a
+     box that contains layout or paint is the box that the fixture's fixed parts are placed against, and a surface
+     drawn in place (an open list placed against the window) would then stand where no product's page draws it. What a
+     fixture places in the top layer or against the window is drawn in a window of its own instead. */
+  .docs-stage-box {
+    display: grid;
+    /* One column as wide as the stage, whatever the fixture asks for: a fixture wider than the column is made narrower
+       (a layout's width, a window), never let out of it. */
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    min-block-size: 6rem;
+    overflow: clip;
+  }
+  /* A stage keeps the scheme it is given (lib/fixture-stages.ts): its surface and every token below it. */
+  .docs-stage-box[data-tanrei-theme] {
+    background: var(--tanrei-sys-color-surface);
+    color: var(--tanrei-sys-color-on-surface);
+  }
+  .docs-stage-canvas {
+    position: relative;
+    box-sizing: border-box;
+    max-inline-size: 100%;
+  }
+  /* A fixture is drawn when its stage comes near the view (lib/fixture-stages.ts); until then its canvas holds the
+     room its baseline shows, so that nothing moves when it is drawn. */
+  .docs-stage-canvas:has(> .fixture-element > template) {
+    min-inline-size: min(100%, var(--docs-stage-reserve-inline, 0px));
+    min-block-size: var(--docs-stage-reserve-block, 0px);
+  }
+  .docs-stage-canvas[data-resizable] {
+    inline-size: var(--docs-stage-width);
+  }
+  /* A window: as wide as the window it stands for and never wider than the column, as tall as that width keeps its
+     proportions — held before the frame loads, so nothing moves when it does. The frame is drawn at the window's size
+     and scaled to the box (lib/fixture-stages.ts). */
+  .docs-window {
+    inline-size: calc(var(--docs-window-width) * 1px);
+    max-inline-size: 100%;
+    aspect-ratio: var(--docs-window-width) / var(--docs-window-height);
+    outline: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+  }
+  .docs-window-frame {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: calc(var(--docs-window-width) * 1px);
+    block-size: calc(var(--docs-window-height) * 1px);
+    border: 0;
+    transform-origin: 0 0;
+    transform: scale(var(--docs-window-scale, 1));
+    background: var(--tanrei-sys-color-surface);
+  }
+  .docs-window-frame:dir(rtl) {
+    transform-origin: 100% 0;
+  }
+  .docs-stage-none {
+    margin: 0;
+    max-inline-size: 16rem;
+    white-space: normal;
+  }
+  /* What a fixture draws before its element is defined is hidden, in the room it takes (as the table's cells were). */
+  .docs-stage-box :global(:not(:defined)) {
+    visibility: hidden;
+  }
+  /* The actions hold their room before they are drawn — as many small icon-only Buttons as the stage has, and the
+     gaps between them — and each holds the room of one before it is defined; without script there are none. */
+  [data-stage-actions]:has(> template) {
+    min-inline-size: calc(3 * var(--tanrei-comp-button-container-height-small) + 2 * var(--tanrei-comp-figure-header-gap));
+    min-block-size: var(--tanrei-comp-button-container-height-small);
+  }
+  [data-stage-actions='4']:has(> template) {
+    min-inline-size: calc(4 * var(--tanrei-comp-button-container-height-small) + 3 * var(--tanrei-comp-figure-header-gap));
+  }
+  @media (scripting: none) {
+    [data-stage-actions]:has(> template) {
+      display: none;
+    }
+  }
+  :where(tanrei-button, tanrei-copy-button).docs-stage-action:not(:defined) {
+    display: inline-block;
+    inline-size: var(--tanrei-comp-button-container-height-small);
+    block-size: var(--tanrei-comp-button-container-height-small);
+    overflow: hidden;
+    visibility: hidden;
+  }
+  @media (scripting: none) {
+    :where(tanrei-button, tanrei-copy-button).docs-stage-action:not(:defined) {
+      display: none;
+    }
+  }
+  /* The sample holder of an embedded text input's held fixtures (`HELD` in lib/fixtures.ts): the product's own box
+     around the typing — a visible box and its padding, and the focus indication on the box for as long as the input has
+     focus. The box is the page's; the element draws none. */
+  .fixture-element:has(> :global([data-fixture-holder])) {
+    box-sizing: border-box;
+    inline-size: 17.5rem;
+    max-inline-size: 100%;
+    background: var(--tanrei-sys-color-surface-container);
+    border-radius: var(--tanrei-sys-shape-corner-large);
+    padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200);
+    outline: var(--tanrei-sys-border-thick) solid transparent;
+    outline-offset: calc(-1 * var(--tanrei-sys-border-thick));
+    cursor: text;
+  }
+  .fixture-element:has(> :global([data-fixture-holder])):focus-within {
+    outline-color: var(--tanrei-sys-color-focus-ring);
+  }
+  @media (forced-colors: active) {
+    .fixture-element:has(> :global([data-fixture-holder])) {
+      outline-color: CanvasText;
+    }
+    .fixture-element:has(> :global([data-fixture-holder])):focus-within {
+      outline-color: Highlight;
+    }
+  }
+</style>
