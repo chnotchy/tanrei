@@ -5,18 +5,24 @@ description: Use Tanrei's CSS tokens and Web Components in any web project.
 
 import Steps from '../../../components/Steps.astro';
 import Callout from '../../../components/Callout.astro';
-import PreReleaseNotice from '../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../components/ReleaseNotice.astro';
 import DemoFrame from '../../../components/DemoFrame.astro';
 
 `@tanrei/web` contains two things: a stylesheet of design tokens as CSS custom properties, and standards-based custom elements built with Lit. It has no framework requirement.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+<ReleaseNotice platform="web" registry="npm" pkg="@tanrei/web" />
 
 ## Install
 
+### From npm
+
+```sh
+npm install @tanrei/web
+```
+
 ### From source
 
-You need Git, Node 22.12 or later and pnpm 12 (`corepack enable` gives you the version the repository pins). Build the package in a clone of the repository, pack it, and install the packed file in your project:
+To use the source as it stands on `main`, before it is published, you need Git, Node 22.12 or later and pnpm 12 (`corepack enable` gives you the version the repository pins). Build the package in a clone of the repository, pack it, and install the packed file in your project:
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -31,13 +37,7 @@ pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
 npm install path/to/tanrei-packages/tanrei-web-*.tgz
 ```
 
-The packed file holds what a release will publish, so everything below works the same way. To take a newer state of the source, pull, build and pack again, then install the new file.
-
-### After the first release
-
-```sh
-npm install @tanrei/web
-```
+The packed file holds what a release publishes, so everything below works the same way. To take a newer state of the source, pull, build and pack again, then install the new file.
 
 ## Use
 

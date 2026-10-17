@@ -4,19 +4,25 @@ description: Typed React components generated from Tanrei's Web Components.
 ---
 
 import Callout from '../../../components/Callout.astro';
-import PreReleaseNotice from '../../../components/PreReleaseNotice.astro';
+import ReleaseNotice from '../../../components/ReleaseNotice.astro';
 
 `@tanrei/react` wraps each custom element from `@tanrei/web` in a real React component with typed props and event handlers. The wrappers are generated from the custom elements manifest, so they always match the elements they wrap.
 
-<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+<ReleaseNotice platform="web" registry="npm" pkg={["@tanrei/react", "@tanrei/web"]} />
 
 ## Install
 
 React 18 or later is required.
 
+### From npm
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
 ### From source
 
-As for the [Web package](/getting-started/web/) (Git, Node 22.12 or later, pnpm 12): build both packages in a clone of the repository and pack them,
+To use the source as it stands on `main`, do as for the [Web package](/getting-started/web/) (Git, Node 22.12 or later, pnpm 12): build both packages in a clone of the repository and pack them,
 
 ```sh
 git clone https://github.com/chnotchy/tanrei.git
@@ -30,12 +36,6 @@ then install both packed files in your project with one command, so that the Rea
 
 ```sh
 npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
-```
-
-### After the first release
-
-```sh
-npm install @tanrei/react @tanrei/web
 ```
 
 ## Use
