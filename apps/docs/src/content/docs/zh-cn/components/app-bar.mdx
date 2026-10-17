@@ -2,7 +2,7 @@
 title: "应用栏"
 description: "位于屏幕顶部，标明当前屏幕的名称，并容纳返回入口和该屏幕的少量操作。它的底边作为屏幕页眉的边缘始终存在；内容滚动到它下方后，它呈现滚动后的外观。"
 translationOf: components/app-bar.mdx
-sourceHash: 17761c4d72731c4539844ae0de53f75e1af75c21
+sourceHash: 6cfec147d94cc9b488a1e09aa54d25c3d7b2351b
 ---
 
 import { Tabs, TabItem } from '../../../../components/tabs';
@@ -251,6 +251,20 @@ Web 和 React 的示例展示的是当前规格：应用栏中的项是纯图标
 - 按钮的外观与在其他任何地方相同。应用栏只负责排列它们，从不给它们改色。
 - 通向某个地方的按钮是链接：给它一个 `href`。这样，通向父页面的返回按钮，或打开某个页面的帮助操作，就是真正的链接，画出来仍是同样的按钮。沿历史记录返回的返回按钮仍然是按钮。
 - 在 Web 上，[搜索](/zh-cn/components/search/)可以以图标触发器的形式（`bar` 设为 `icon`）作为操作之一：一个纯图标按钮，用来打开搜索的对话框或全屏视图。
+
+### 品牌
+
+产品可以把自己的标志放进栏中，作为通往首页的链接。把地址（`brandHref`，Web 上为 `brand-href`）和产品名称（`brandLabel`）交给栏：栏会在你提供的图片外绘制一个链接，并用该名称为它命名，同时对辅助技术隐藏这些图片，因此名称只会被读一次。栏把品牌放在导航按钮之后，占一个与图标按钮同样大小的单元格；除非你的图片自带颜色，否则会给它 `comp.app-bar.brand.color`。
+
+- **一张图片。** 把一个标志文件放进 `slot="brand"`，高度为 `comp.app-bar.brand.image.height`。
+- **只有符号。** 放进 `slot="brand-symbol"`，高度为 `comp.app-bar.brand.symbol.size`，位于图标按钮的图标所在的位置。
+- **只有文字标。** 放进 `slot="brand-wordmark"`，高度为 `comp.app-bar.brand.wordmark.height`。
+- **符号和文字标一起。** 两者都提供。默认（`brandLayout` 为 `lockup`）时它们并排，间距为 `comp.app-bar.brand.lockup.gap`，按 `comp.app-bar.brand.lockup.alignment` 对齐。此时符号与文字标同高（`comp.app-bar.brand.lockup.symbol.size`）。
+- **按窗口宽度切换。** 两者都提供，并把 `brandLayout` 设为 `responsive`（Web 上为 `brand-layout`）：窗口为 medium 或更宽时，栏显示文字标；为 compact 时显示符号，两者从不同时显示。在应用外壳中，它跟随外壳的窗口类别。
+
+栏会为每张图片确定尺寸，并保持其比例。不要用标题来写产品名称：标题是屏幕的名称。SwiftUI、Compose、Flutter 和 React Native 尚未绘制品牌。
+
+本站的页眉在任何宽度下都只显示 Tanrei 的文字标。
 
 ### 推荐
 

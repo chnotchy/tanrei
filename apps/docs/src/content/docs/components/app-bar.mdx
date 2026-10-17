@@ -250,6 +250,20 @@ A design system may add sizes. On SwiftUI, Compose, Flutter and React Native, a 
 - A button that goes somewhere is a link: give it an `href`. A back button that leads to the parent page, or a help action that opens a page, is then a real link, drawn as the same button. A back button that returns through history stays a button.
 - On the web, a [search](/components/search/) can be one of the actions as its icon trigger (`bar` set to `icon`): an icon-only button that opens the search's dialog or full-screen view.
 
+### Brand
+
+A product can put its logo in the bar as the link to its first page. Give the bar the address (`brandHref`, `brand-href` on the web) and the product's name (`brandLabel`): the bar draws one link, named by that name, around the images you give it, and hides the images from assistive technology, so the name is read once. It places the brand after the navigation button, in a cell as large as an icon button's, and gives it `comp.app-bar.brand.color` unless your images have colors of their own.
+
+- **One image.** A single logo file in `slot="brand"`, drawn `comp.app-bar.brand.image.height` high.
+- **The symbol alone.** In `slot="brand-symbol"`, drawn `comp.app-bar.brand.symbol.size` high, where an icon button's icon stands.
+- **The wordmark alone.** In `slot="brand-wordmark"`, drawn `comp.app-bar.brand.wordmark.height` high.
+- **The symbol and the wordmark together.** Give both. By default (`brandLayout` `lockup`) they stand side by side, `comp.app-bar.brand.lockup.gap` apart, aligned as `comp.app-bar.brand.lockup.alignment` says. The symbol then stands at the wordmark's height (`comp.app-bar.brand.lockup.symbol.size`).
+- **By the window's width.** Give both and set `brandLayout` to `responsive` (`brand-layout` on the web): the bar shows the wordmark while the window is medium or wider and the symbol while it is compact, never both. Inside an app shell it follows the shell's window class.
+
+The bar sizes each image and keeps its proportions. Don't use the title for the product's name: the title is the screen's name. SwiftUI, Compose, Flutter and React Native do not draw the brand yet.
+
+This site's header shows Tanrei's wordmark alone, at every width.
+
 ### Do
 
 - Write the title as the screen's name, such as "Inbox" or "Quarterly report". Keep it short: it stays on one line and is cut with an ellipsis.
