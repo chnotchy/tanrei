@@ -4493,9 +4493,9 @@ const TanreiSystem m3ExpressiveLikeSystem = TanreiSystem(
     listGap: 16.0,
   ),
   imagePreview: TanreiImagePreviewTokens(
-    barButtonVariant: 4.0,
+    barButtonVariant: 1.0,
     barContainerColor: TanreiPaint.role(TanreiColorRole.surface),
-    barGap: 4.0,
+    barGap: 12.0,
     barHeight: 56.0,
     barPaddingInline: 8.0,
     captionColor: TanreiPaint.role(TanreiColorRole.onSurface),

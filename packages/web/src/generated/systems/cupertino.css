@@ -3642,9 +3642,9 @@
     --tanrei-comp-file-picker-supporting-text-typescale-font: var(--tanrei-sys-typescale-body-small-font);
     --tanrei-comp-file-picker-trigger-gap: var(--tanrei-sys-space-space150);
     --tanrei-comp-file-upload-list-gap: var(--tanrei-sys-space-space200);
-    --tanrei-comp-image-preview-bar-button-variant: text;
+    --tanrei-comp-image-preview-bar-button-variant: tonal;
     --tanrei-comp-image-preview-bar-container-color: var(--tanrei-sys-color-surface);
-    --tanrei-comp-image-preview-bar-gap: var(--tanrei-sys-space-space50);
+    --tanrei-comp-image-preview-bar-gap: var(--tanrei-sys-space-space150);
     --tanrei-comp-image-preview-bar-height: round(nearest, calc(var(--tanrei-dial-size-unit) * 14), 0.25px);
     --tanrei-comp-image-preview-bar-padding-inline: var(--tanrei-sys-space-space100);
     --tanrei-comp-image-preview-caption-color: var(--tanrei-sys-color-on-surface);

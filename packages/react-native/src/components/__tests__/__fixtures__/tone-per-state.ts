@@ -7417,9 +7417,9 @@ export const tonePerState = {
     },
     fileUpload: { listGap: 16 },
     imagePreview: {
-      barButtonVariant: 4,
+      barButtonVariant: 1,
       barContainerColor: { kind: "role", role: "surface" },
-      barGap: 4,
+      barGap: 12,
       barHeight: 56,
       barPaddingInline: 8,
       captionColor: { kind: "role", role: "onSurface" },

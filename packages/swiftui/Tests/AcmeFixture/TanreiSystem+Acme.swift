@@ -4485,9 +4485,9 @@ private let acmeFileUploadTokens = TanreiFileUploadTokens(
 )
 
 private let acmeImagePreviewTokens = TanreiImagePreviewTokens(
-  barButtonVariant: 4,
+  barButtonVariant: 1,
   barContainerColor: .role(.surface),
-  barGap: 4,
+  barGap: 12,
   barHeight: 56,
   barPaddingInline: 8,
   captionColor: .role(.onSurface),

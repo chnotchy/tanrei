@@ -4336,9 +4336,9 @@ private let tanreiFileUploadTokens = TanreiFileUploadTokens(
 )
 
 private let tanreiImagePreviewTokens = TanreiImagePreviewTokens(
-  barButtonVariant: 4,
+  barButtonVariant: 1,
   barContainerColor: .role(.surface),
-  barGap: 4,
+  barGap: 12,
   barHeight: 56,
   barPaddingInline: 8,
   captionColor: .role(.onSurface),

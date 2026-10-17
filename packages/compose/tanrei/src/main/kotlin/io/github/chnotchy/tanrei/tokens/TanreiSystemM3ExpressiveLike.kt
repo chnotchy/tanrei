@@ -4322,9 +4322,9 @@ private object M3ExpressiveLikeSystemSource {
     @Suppress("UNUSED_PARAMETER")
     fun imagePreview(typescale: TanreiTypescale, elevation: TanreiElevation): TanreiImagePreviewTokens =
         TanreiImagePreviewTokens(
-            barButtonVariant = 4f,
+            barButtonVariant = 1f,
             barContainerColor = TanreiPaint.Role(TanreiColorRole.Surface),
-            barGap = 4.dp,
+            barGap = 12.dp,
             barHeight = 56.dp,
             barPaddingInline = 8.dp,
             captionColor = TanreiPaint.Role(TanreiColorRole.OnSurface),
