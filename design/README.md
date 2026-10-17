@@ -8,6 +8,7 @@ Design tools are **renderers** of Tanrei's tokens, not their master. The reposit
 |---|---|---|
 | `tokens/tanrei.<scheme>.tokens.json` | Fully resolved, alias-free DTCG 2025.10 for each of the six schemes (`light`, `light-medium`, `light-high`, `dark`, `dark-medium`, `dark-high`) | yes — `pnpm generate` |
 | `figma/` | Notes and scripts for the Figma library | by hand |
+| `brand/` | The symbol and the wordmark, and what is derived from them (`brand/generated/`) | the marks are pulled from Figma (`pnpm brand:pull`), `brand/generated/` by `pnpm generate`; `brand/figma.json` and the README by hand |
 
 The resolved files exist because most tools cannot evaluate the DTCG *resolver* yet. Tools that can should read `tokens/tanrei.resolver.json` directly.
 

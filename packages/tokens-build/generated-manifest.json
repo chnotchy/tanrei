@@ -1,5 +1,10 @@
 {
   "files": [
+    "design/brand/generated/symbol.adaptive.svg",
+    "design/brand/generated/symbol.dark.svg",
+    "design/brand/generated/symbol.light.svg",
+    "design/brand/generated/wordmark.dark.svg",
+    "design/brand/generated/wordmark.light.svg",
     "design/tokens/cupertino/tanrei.dark-high.tokens.json",
     "design/tokens/cupertino/tanrei.dark-medium.tokens.json",
     "design/tokens/cupertino/tanrei.dark.tokens.json",

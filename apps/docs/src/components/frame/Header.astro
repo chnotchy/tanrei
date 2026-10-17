@@ -5,10 +5,13 @@
 //
 //   the menu button   an icon-only Button the shell shows only while the navigation has no place in the layout, and
 //                     answers (`data-app-shell-menu`, APS-6);
-//   the site's name   a Tanrei Link to the language's first page, beside the menu button, with no line under it
-//                     (`data-underline="never"`: a name, not a link in running text). The bar's own title
-//                     (`headline`) is text and a heading: a site's name leads home and is not a heading of the page,
-//                     so the bar is given none;
+//   the site's mark   a Tanrei Link to the language's first page, beside the menu button, drawn as the brand's
+//                     symbol (design/brand/symbol.svg, inline, in on-surface) with the site's name as its text for
+//                     assistive technology: the symbol stands where the name is not read, and never beside the
+//                     wordmark or the name set as text. It sits in an icon button's box at an icon's size, so its
+//                     centre and inset are the menu button's and the actions'. The bar's own title (`headline`) is
+//                     text and a heading: a site's name leads home and is not a heading of the page, so the bar is
+//                     given none;
 //   the search        Tanrei's Search as the bar's first action (Search.astro): a button trigger with its shortcut
 //                     that opens a dialog, and in a compact window an icon-only Button that opens the full-screen
 //                     view; the site's search index answers it;
@@ -28,6 +31,8 @@ import Search from './Search.astro';
 import { translations, source } from '../../../i18n/locales.mjs';
 import { strings } from '../../lib/i18n';
 import { frameWords, homeHref } from './frame';
+import { inlineMark } from '../../lib/brand.mjs';
+import { marks } from '../../lib/brand-marks';
 
 const route = Astro.locals.starlightRoute;
 const words = frameWords(Astro);
@@ -35,6 +40,9 @@ const t = strings(route.lang);
 
 // The same page in each language: the address without this language's folder, under the other's.
 const here = route.locale ? Astro.url.pathname.replace(new RegExp(`^/${route.locale}(?=/|$)`), '') || '/' : Astro.url.pathname;
+// The symbol at the icon size it is drawn at (sys.icon.medium, styles/frame.css), held by its attributes before the
+// stylesheet arrives; its shapes are in `currentColor`.
+const symbol = inlineMark(marks.symbol, { width: 24, height: 24, class: 'docs-site-mark', 'aria-hidden': 'true', focusable: 'false' });
 const languages = [{ dir: '', lang: source.lang, label: source.label }, ...translations].map(({ dir, lang, label }) => ({ lang, label, href: dir ? `/${dir}${here}` : here, current: (route.locale ?? '') === dir }));
 ---
 
@@ -46,7 +54,7 @@ const languages = [{ dir: '', lang: source.lang, label: source.label }, ...trans
       </tanrei-button>
     )
   }
-  <a slot="navigation" class="tanrei-link docs-site-title" data-standalone data-underline="never" href={homeHref(route)} translate="no">{route.siteTitle}</a>
+  <a slot="navigation" class="tanrei-link docs-site-title" data-standalone data-underline="never" href={homeHref(route)} translate="no"><Fragment set:html={symbol} /><span class="sr-only">{route.siteTitle}</span></a>
   <Search />
   <tanrei-select slot="actions" class="docs-theme docs-wide-only" size="small" label={words.theme} label-hidden value="auto">
     <tanrei-option value="auto" leading-icon="computer">{words.themeAuto}</tanrei-option>
