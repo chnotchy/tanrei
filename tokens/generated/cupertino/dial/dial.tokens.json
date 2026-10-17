@@ -4,7 +4,6 @@
       "id": "cupertino",
       "chain": [
         "core",
-        "tanrei",
         "cupertino"
       ],
       "extensions": [
@@ -2387,102 +2386,20 @@
         },
         {
           "$schema": "../schema/system.schema.json",
-          "id": "tanrei",
-          "name": "Tanrei",
+          "id": "cupertino",
+          "name": "Cupertino (Apple HIG-inspired)",
           "extends": "core",
-          "description": "The default design system. Near-monochrome surfaces, a monochrome primary and one accent. It takes its values from core and leaves out the components and variants it does not draw.",
           "components": {
             "omit": {
-              "segmented-button": {
-                "reason": "One choice among several is told by what it changes: tabs where it switches the content below, radio buttons where it sets a value, a button group where each button toggles on its own.",
-                "insteadUse": [
-                  "tabs",
-                  "radio-button",
-                  "button-group"
-                ]
-              },
               "fab-menu": {
-                "reason": "The default system draws no floating action button; its main action opens a sheet of further actions.",
+                "reason": "Apple's platforms draw no floating action button: an app's main actions sit in its toolbar, and further actions open from a button with a menu.",
                 "insteadUse": [
-                  "main-action-button",
-                  "bottom-sheet"
+                  "toolbar",
+                  "button-with-menu"
                 ]
               }
             },
             "variants": {
-              "text-input": {
-                "omit": [
-                  "filled",
-                  "outlined"
-                ]
-              },
-              "select": {
-                "omit": [
-                  "filled",
-                  "outlined"
-                ]
-              },
-              "combobox": {
-                "omit": [
-                  "filled",
-                  "outlined"
-                ]
-              },
-              "number-input": {
-                "omit": [
-                  "filled",
-                  "outlined"
-                ]
-              },
-              "color-input": {
-                "omit": [
-                  "filled",
-                  "outlined"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "$schema": "../schema/system.schema.json",
-          "id": "cupertino",
-          "name": "Cupertino (Apple HIG-inspired)",
-          "extends": "tanrei",
-          "components": {
-            "include": [
-              "segmented-button"
-            ],
-            "variants": {
-              "text-input": {
-                "include": [
-                  "filled",
-                  "outlined"
-                ]
-              },
-              "select": {
-                "include": [
-                  "filled",
-                  "outlined"
-                ]
-              },
-              "combobox": {
-                "include": [
-                  "filled",
-                  "outlined"
-                ]
-              },
-              "number-input": {
-                "include": [
-                  "filled",
-                  "outlined"
-                ]
-              },
-              "color-input": {
-                "include": [
-                  "filled",
-                  "outlined"
-                ]
-              },
               "navigation-bar": {
                 "omit": [
                   "filled"
