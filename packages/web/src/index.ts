@@ -1,3 +1,11 @@
+// `@tanrei/web` registers the components of the default system, Tanrei, and no other: a product on it can reach only
+// the components its system ships. A component another system ships — the segmented button (the presets), the FAB
+// menu (the m3-like layer) — is registered by that system's entry, `@tanrei/web/<id>` (`@tanrei/web/m3-like`), which registers
+// everything this one does and the system's own; `@tanrei/web/all` registers every component of the package; and a
+// component's own module, `@tanrei/web/components/<name>`, registers it alone, for a product that includes it in its
+// own layer. The build writes those entries from the systems' components manifests (scripts/build.js), and
+// test/entries.test.mjs holds each entry to its system's manifest.
+
 // The bare `.tanrei-icon` of the page: loading the components also marks the glyphs the icon set mirrors in a
 // right-to-left layout (`@tanrei/web/icons` is the same script alone).
 export { type GlyphMirroring, type IconSet, activeIconSet, glyphMirrors, glyphName, iconSets, markGlyph, observeIcons, systemIconSets } from './icons.js';
@@ -323,13 +331,6 @@ export {
   TanreiSearchSuggestion,
   type TanreiSearchToggleDetail,
 } from './components/search/search.js';
-export {
-  TanreiSegment,
-  TanreiSegmentedButton,
-  type TanreiSegmentedButtonChangeDetail,
-  type TanreiSegmentedButtonSelection,
-  type TanreiSegmentedButtonSize,
-} from './components/segmented-button/segmented-button.js';
 export {
   TanreiStepper,
   type TanreiStepperLayout,

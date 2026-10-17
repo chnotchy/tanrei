@@ -120,11 +120,12 @@ The same `<tanrei-button>`, the same markup. `m3-like` and `cupertino` are there
 
 <SystemGallery />
 
-On the web a preset is one extra stylesheet, scoped to an attribute, so systems can even sit side by side:
+On the web a preset is one extra stylesheet, scoped to an attribute, so systems can even sit side by side. Its entry registers the components it ships, those the default system leaves out among them (`@tanrei/web` registers the default system's alone):
 
 ```js
 import '@tanrei/web/tokens.css';
 import '@tanrei/web/systems/cupertino.css';
+import '@tanrei/web/cupertino'; // the components cupertino ships
 ```
 
 ```html

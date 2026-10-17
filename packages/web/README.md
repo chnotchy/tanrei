@@ -7,8 +7,9 @@ React bindings are generated from this package's custom elements manifest (`@tan
 
 ```js
 import '@tanrei/web/tokens.css';   // the default system, on :root
-import '@tanrei/web';              // every element of the core; or one at a time: '@tanrei/web/components/button'
-import '@tanrei/web/m3-like';      // on an m3-like system: the elements that live in that layer (the FAB menu)
+import '@tanrei/web';              // the elements the default system ships; or one at a time: '@tanrei/web/components/button'
+// on a preset, its entry instead: '@tanrei/web/<id>' (m3-like, m3-expressive-like, cupertino);
+// every element of the package: '@tanrei/web/all'
 import '@tanrei/web/icons.css';    // optional: .tanrei-icon
 import '@tanrei/web/text.css';     // optional: .tanrei-text-<role>
 import '@tanrei/web/prose.css';    // optional: .tanrei-prose — long-form text (rendered Markdown, CMS content)
@@ -138,11 +139,19 @@ declares it, otherwise from the nearest `data-tanrei-system`, and what the syste
 `--tanrei-unavailable-replacement: "<entry>=<replacement>,… …"`.
 
 A component that lives in a layer is another matter: `<tanrei-fab-menu>` lives in the m3-like layer, and a system that
-does not descend from it (the default, cupertino) has none of its tokens. `@tanrei/web` does not register it;
-`@tanrei/web/m3-like` does. Its sheet names it in `--tanrei-unavailable-layer: "<component>=<layer> …"`, and an element
+does not descend from it (the default, cupertino) has none of its tokens. `@tanrei/web` does not register it; the
+entries of the m3-like systems do (`@tanrei/web/m3-like`). Its sheet names it in `--tanrei-unavailable-layer: "<component>=<layer> …"`, and an element
 used there warns once in a debug build that it lives in that layer, which the system does not extend. A product on
 another system takes it in its own layer with `"components": { "include": [{ "name": "fab-menu", "from": "m3-like" }] }`:
-its sheet then carries the FAB menu's tokens, valued with the product's own.
+its sheet then carries the FAB menu's tokens, valued with the product's own, and it imports the element's own module
+(`@tanrei/web/components/fab-menu`).
+
+What each entry registers is what a system ships: `@tanrei/web` (src/index.ts) the default system's components and
+no other, `@tanrei/web/<id>` system `<id>`'s (the main entry and the components only it ships), and
+`@tanrei/web/all` every element. The build writes the last two from the systems' components manifests
+(scripts/entries.js), with `dist/custom-elements/<id>.json`, custom-elements.json without the modules of the
+components system `<id>` does not ship; test/entries.test.mjs holds every entry to its manifest. custom-elements.json
+itself lists the public surface: no private or protected member, and no styles' text (custom-elements-manifest.config.mjs).
 
 ## Choices of kind (`sys.behavior.*`)
 

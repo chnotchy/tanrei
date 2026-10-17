@@ -11,7 +11,10 @@
   },
   "sideEffects": [
     "./dist/index.js",
+    "./dist/all.js",
     "./dist/m3-like.js",
+    "./dist/m3-expressive-like.js",
+    "./dist/cupertino.js",
     "./dist/icons.js",
     "./dist/link.js",
     "./dist/steps.js",
@@ -21,7 +24,6 @@
     "./dist/primitives/field-frame.js",
     "./dist/tanrei.bundle.js",
     "./src/index.ts",
-    "./src/m3-like.ts",
     "./src/icons.ts",
     "./src/link.ts",
     "./src/steps.ts",
@@ -36,9 +38,21 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./all": {
+      "types": "./dist/all.d.ts",
+      "default": "./dist/all.js"
+    },
     "./m3-like": {
       "types": "./dist/m3-like.d.ts",
       "default": "./dist/m3-like.js"
+    },
+    "./m3-expressive-like": {
+      "types": "./dist/m3-expressive-like.d.ts",
+      "default": "./dist/m3-expressive-like.js"
+    },
+    "./cupertino": {
+      "types": "./dist/cupertino.d.ts",
+      "default": "./dist/cupertino.js"
     },
     "./registry": {
       "types": "./dist/registry.d.ts",
@@ -112,7 +126,8 @@
       "types": "./dist/components/*/*.d.ts",
       "default": "./dist/components/*/*.js"
     },
-    "./custom-elements.json": "./custom-elements.json"
+    "./custom-elements.json": "./custom-elements.json",
+    "./custom-elements/*.json": "./dist/custom-elements/*.json"
   },
   "customElements": "custom-elements.json",
   "bin": {

@@ -51,6 +51,7 @@ export function componentCatalog(root = ROOT) {
   const exported = new Set(Object.keys(readJson(root, 'packages/web/package.json').exports));
   const standIns = outsideStandIns(listSystems(root), (id) => loadSystem(root, id));
   const wrappers = new Set([...fs.readFileSync(path.join(root, 'packages/react/src/generated/components.ts'), 'utf8').matchAll(/^export \{ (\w+)[ ,]/gm)].map((match) => match[1]));
+  const shipped = shippedSystems(root);
   const problems = [];
 
   const components = [];
@@ -58,7 +59,9 @@ export function componentCatalog(root = ROOT) {
     const spec = specs.get(row.name);
     if (!spec) continue; // planned everywhere: nothing to import yet
     const layer = row.layer ?? ROOT_SYSTEM;
-    if (layer !== ROOT_SYSTEM && !exported.has(`./${layer}`)) problems.push(`${row.name} lives in "${layer}", and ${WEB} has no entry "./${layer}" (packages/web/package.json exports)`);
+    // A component that lives in a layer is registered by the entries of the systems that ship it, and a layer that holds
+    // one is a shipped system: its entry is `@tanrei/web/<layer>`, which the web build writes.
+    if (layer !== ROOT_SYSTEM && !(shipped.includes(layer) && exported.has(`./${layer}`))) problems.push(`${row.name} lives in "${layer}", which is not a shipped system with an entry of ${WEB} ("./${layer}" in packages/web/package.json exports)`);
     const entry = { name: row.name, title: row.title, level: row.level, listing: row.listing, layer };
     // What the layer that holds it names for a system without it; each system's manifest keeps those it ships.
     if (layer !== ROOT_SYSTEM && standIns.has(row.name)) entry.outside = standIns.get(row.name);
@@ -109,7 +112,7 @@ export function writeComponentFiles(root = ROOT) {
         manifestFile(id),
         {
           $comment: manifestComment(id, 'packages/tokens-build/src/components-catalog.js (pnpm generate)'),
-          ...componentsManifest(layerChain(id, read), catalog, held),
+          ...componentsManifest(layerChain(id, read), catalog, held, shippedSystems(root)),
         },
       ]),
     ),

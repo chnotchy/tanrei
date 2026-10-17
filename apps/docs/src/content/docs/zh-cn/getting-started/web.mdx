@@ -2,7 +2,7 @@
 title: Web
 description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
 translationOf: getting-started/web.mdx
-sourceHash: 3ecaeb6746e2657a87faf465d962be3eb0d109bf
+sourceHash: b40902bc98989b8cbafc64c99571fc17b3aec9f3
 ---
 
 import Steps from '../../../../components/Steps.astro';
@@ -51,13 +51,17 @@ npm install @tanrei/web
    import '@tanrei/web/tokens.css';
    ```
 
-2. 注册组件。可以全部导入，也可以只导入用到的元素。
+2. 注册你的设计系统的组件，也可以只导入用到的元素。
 
    ```js
    import '@tanrei/web';
+   // 使用预设时，改为导入它的入口：m3-like、m3-expressive-like 或 cupertino
+   import '@tanrei/web/m3-like';
    // 或者，一次导入一个元素：
    import '@tanrei/web/components/button';
    ```
+
+   `@tanrei/web` 只注册默认系统包含的组件，所以基于它的产品接触不到系统没有的组件。预设的入口 `@tanrei/web/<id>` 注册该预设包含的组件，`@tanrei/web/all` 注册包里的全部组件。只有预设才包含的组件，例如[分段按钮](/zh-cn/components/segmented-button/)，仍然可以有意地使用：在你的系统的层里引入它，并导入它自己的模块。
 
    `@tanrei/web/…` 这类说明符是包的导出，由打包工具（Vite、webpack、esbuild）解析。没有打包工具时，浏览器无法解析 `<link>` 或 `<script src>` 中的裸说明符，这时请直接提供包的 `dist/` 目录并指向其中的文件：样式表原样使用，脚本使用 `tanrei.bundle.js`，它包含 Lit 和所有元素：
 
@@ -89,6 +93,10 @@ npm install @tanrei/web
   <tanrei-button variant="filled">部署</tanrei-button>
   <tanrei-button variant="outlined" size="small" disabled>取消</tanrei-button>
 </DemoFrame>
+
+## 元素清单
+
+编辑器和编程代理从包的 [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest)（`@tanrei/web/custom-elements.json`）读取元素：每个元素的属性、特性、事件、插槽和部件，不包含产品无法访问的内容。`@tanrei/web/custom-elements/<id>.json` 只包含系统 `<id>` 提供的元素，所以在一个系统里工作的工具不会推荐别的元素。
 
 ## 主题与对比度
 
