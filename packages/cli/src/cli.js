@@ -13,6 +13,7 @@ import { DERIVE, ENUM, enumName, legalOperations, matchingRules } from '@tanrei/
 import { TARGETS, buildProductSystem } from '@tanrei/tokens-build/product';
 import { listSystems } from '@tanrei/tokens-build/bundle';
 import { FONT_NOTE, fontLines, fontReport } from '@tanrei/tokens-build/fonts';
+import { glyphLines } from '@tanrei/tokens-build/glyphs';
 import { leadWithStructure } from '@tanrei/tokens-build/invariants';
 import { buildIR } from '@tanrei/tokens-build/ir';
 import { CONFIG, REPO_ROOT } from '@tanrei/tokens-build/model';
@@ -111,6 +112,7 @@ async function build(flags) {
   console.log(`✔ "${result.id}" (${result.chain.join(" → ")}): ${result.tokens} tokens → ${targets.join(', ')} — ${written} file(s) changed`);
   for (const [target, name] of Object.entries(result.names)) if (targets.includes(target)) console.log(`  ${target}: ${name}`);
   printFonts(result.id, result.fonts);
+  if (result.glyphs.names) for (const line of glyphLines(result.glyphs.names, result.glyphs.axes)) console.log(line);
   return 0;
 }
 
