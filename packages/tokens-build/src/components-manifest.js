@@ -11,7 +11,7 @@
 //     (components-catalog.js writes it from the specs and from what the platforms generate from them).
 //
 // A component's `import` is the module a product imports to have it registered in this system: on the web, the entry
-// of the shipped system that ships it — `@tanrei/web` for the default system's components, `@tanrei/web/systems/<id>.js`
+// of the shipped system that ships it — `@tanrei/web` for the default system's components, `@tanrei/web/<id>`
 // for another system's — and, for a component no system the product is built on ships (one the product brings back
 // or includes from another layer), its own module; in React, the package's one entry. That is decided in one place,
 // `importOf`, so that an entry that changes what it registers changes every manifest with it. `module` is the
@@ -31,9 +31,9 @@ const REACT = `${CONFIG.packages.npmScope}/react`;
 
 /**
  * The web package's entry that registers a shipped system's components: `@tanrei/web` the default system's, and
- * `@tanrei/web/systems/<id>.js` another's (packages/web/scripts/build.js writes those from the systems' manifests).
+ * `@tanrei/web/<id>` another's (packages/web/scripts/build.js writes those from the systems' manifests).
  */
-export const webEntryOf = (system) => (system === DEFAULT_SYSTEM ? WEB : `${WEB}/systems/${system}.js`);
+export const webEntryOf = (system) => (system === DEFAULT_SYSTEM ? WEB : `${WEB}/${system}`);
 
 /**
  * The module of each platform's package that registers `component` (a catalog entry) for a product: the one place an

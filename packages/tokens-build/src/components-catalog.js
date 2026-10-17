@@ -58,8 +58,8 @@ export function componentCatalog(root = ROOT) {
     if (!spec) continue; // planned everywhere: nothing to import yet
     const layer = row.layer ?? ROOT_SYSTEM;
     // A component that lives in a layer is registered by the entries of the systems that ship it, and a layer that holds
-    // one is a shipped system: its entry is `@tanrei/web/systems/<layer>.js`, which the web build writes.
-    if (layer !== ROOT_SYSTEM && !(shipped.includes(layer) && exported.has('./systems/*.js'))) problems.push(`${row.name} lives in "${layer}", which is not a shipped system with an entry of ${WEB} ("./systems/*.js" in packages/web/package.json exports)`);
+    // one is a shipped system: its entry is `@tanrei/web/<layer>`, which the web build writes.
+    if (layer !== ROOT_SYSTEM && !(shipped.includes(layer) && exported.has(`./${layer}`))) problems.push(`${row.name} lives in "${layer}", which is not a shipped system with an entry of ${WEB} ("./${layer}" in packages/web/package.json exports)`);
     const entry = { name: row.name, title: row.title, level: row.level, listing: row.listing, layer };
     const web = spec.platforms?.web;
     if (web && web.status !== 'planned') {

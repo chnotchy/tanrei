@@ -2,8 +2,9 @@
 // (tokens/generated/<id>/components.json) and the component catalog (packages/tokens-build/generated/component-catalog.json).
 // The build writes them (scripts/build.js):
 //
-//   dist/systems/<id>.js, .d.ts      `@tanrei/web/systems/<id>.js`: what system <id> ships — everything the main entry
-//                                    registers, and the components the system ships that the default system does not
+//   dist/<id>.js, .d.ts              `@tanrei/web/<id>`: what system <id> ships — everything the main entry registers,
+//                                    and the components the system ships that the default system does not (for each
+//                                    shipped system but the default, whose entry is `@tanrei/web` itself)
 //   dist/all.js, .d.ts               `@tanrei/web/all`: every component of the package
 //   dist/custom-elements/<id>.json   `@tanrei/web/custom-elements/<id>.json`: custom-elements.json without the modules
 //                                    of the components system <id> does not ship
@@ -72,9 +73,10 @@ export function entryFiles(read = readManifests()) {
   const { systems, all } = entrySets(read);
   const files = {};
   for (const [id, dirs] of systems) {
-    const text = entryText('../', dirs, `The components the "${id}" system ships (tokens/generated/${id}/components.json): those of ${PACKAGE}, and the system's own.`);
-    files[`systems/${id}.js`] = text;
-    files[`systems/${id}.d.ts`] = text;
+    if (id === DEFAULT_SYSTEM) continue; // `@tanrei/web` itself
+    const text = entryText('./', dirs, `The components the "${id}" system ships (tokens/generated/${id}/components.json): those of ${PACKAGE}, and the system's own.`);
+    files[`${id}.js`] = text;
+    files[`${id}.d.ts`] = text;
   }
   const text = entryText('./', all, 'Every component of the package: those of the default system, and those only other systems ship.');
   files['all.js'] = text;

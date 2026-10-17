@@ -300,7 +300,7 @@ fs.cpSync('src/generated/systems', 'dist/systems', { recursive: true });
 // what the system ships, with the module that registers each component, generated beside the system's tokens.
 const manifests = fs.readdirSync('../../tokens/generated', { withFileTypes: true }).filter((entry) => entry.isDirectory() && fs.existsSync(`../../tokens/generated/${entry.name}/components.json`));
 for (const { name } of manifests) fs.copyFileSync(`../../tokens/generated/${name}/components.json`, `dist/systems/${name}.components.json`);
-// The entries written from those manifests (scripts/entries.js): `@tanrei/web/systems/<id>.js` registers what system
+// The entries written from those manifests (scripts/entries.js): `@tanrei/web/<id>` registers what system
 // <id> ships, `@tanrei/web/all` every component, and `@tanrei/web/custom-elements/<id>.json` is the elements' manifest
 // of the components system <id> ships.
 const shipped = readManifests();
@@ -347,4 +347,4 @@ fs.rmSync('dist/links/node', { recursive: true, force: true });
 fs.mkdirSync('dist/links/node', { recursive: true });
 for (const file of fs.readdirSync('src/links/node')) if (/\.(?:js|d\.ts)$/.test(file)) fs.copyFileSync(`src/links/node/${file}`, `dist/links/node/${file}`);
 fs.chmodSync('dist/links/node/cli.js', 0o755);
-console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/systems/*.css, dist/systems/*.components.json, dist/systems/*.js, dist/all.js, dist/custom-elements/*.json, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));
+console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/systems/*.css, dist/systems/*.components.json, dist/<id>.js, dist/all.js, dist/custom-elements/*.json, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));

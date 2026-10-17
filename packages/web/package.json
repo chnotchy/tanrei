@@ -12,7 +12,9 @@
   "sideEffects": [
     "./dist/index.js",
     "./dist/all.js",
-    "./dist/systems/*.js",
+    "./dist/m3-like.js",
+    "./dist/m3-expressive-like.js",
+    "./dist/cupertino.js",
     "./dist/icons.js",
     "./dist/link.js",
     "./dist/steps.js",
@@ -39,6 +41,18 @@
     "./all": {
       "types": "./dist/all.d.ts",
       "default": "./dist/all.js"
+    },
+    "./m3-like": {
+      "types": "./dist/m3-like.d.ts",
+      "default": "./dist/m3-like.js"
+    },
+    "./m3-expressive-like": {
+      "types": "./dist/m3-expressive-like.d.ts",
+      "default": "./dist/m3-expressive-like.js"
+    },
+    "./cupertino": {
+      "types": "./dist/cupertino.d.ts",
+      "default": "./dist/cupertino.js"
     },
     "./registry": {
       "types": "./dist/registry.d.ts",
@@ -108,10 +122,6 @@
     "./menubar.css": "./dist/menubar.css",
     "./systems/*.css": "./dist/systems/*.css",
     "./systems/*.components.json": "./dist/systems/*.components.json",
-    "./systems/*.js": {
-      "types": "./dist/systems/*.d.ts",
-      "default": "./dist/systems/*.js"
-    },
     "./components/*": {
       "types": "./dist/components/*/*.d.ts",
       "default": "./dist/components/*/*.js"
