@@ -15,7 +15,7 @@ import DemoFrame from '../../../components/DemoFrame.astro';
 
 <DemoFrame label="A note, a caution with a title, and a notice with actions and a close button" column>
   <tanrei-callout status="info" status-label="Information" style="inline-size: min(100%, 34rem)">The web draws this revision; the other platforms follow.</tanrei-callout>
-  <tanrei-callout status="warning" headline="Pre-release: not published yet" style="inline-size: min(100%, 34rem)">The package is not available on the registry yet. The install steps below show how it will work after the first release.</tanrei-callout>
+  <tanrei-callout status="warning" headline="Back up before you migrate" style="inline-size: min(100%, 34rem)">The migration rewrites the database in place. The steps below show how to keep a copy you can restore.</tanrei-callout>
   <tanrei-callout id="callout-demo-overview" variant="outlined" headline="A newer version of this page is available" closable close-label="Close" style="inline-size: min(100%, 34rem)">Reload to read it. Nothing you typed is lost.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">Reload</tanrei-button></tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">Show the last one again</tanrei-button>
 </DemoFrame>
@@ -50,9 +50,9 @@ The body is the element's own content. The title is the `headline` attribute, or
 
     <!-- Long-form content is prose, at the callout's size, with no measure. -->
     <tanrei-callout size="large" status="warning">
-      <h3 slot="title">Pre-release: not published yet</h3>
+      <h3 slot="title">Back up before you migrate</h3>
       <div class="tanrei-prose" data-size="large" data-measure="false">
-        <p>The package is not on the registry yet. <a href="/status/">See the status</a>.</p>
+        <p>The migration rewrites the database in place. <a href="#restore">See how to restore a copy</a>.</p>
         <ul><li>…</li></ul>
       </div>
     </tanrei-callout>
@@ -93,7 +93,7 @@ The body is the element's own content. The title is the `headline` attribute, or
 
 <DemoFrame label="A title, your own glyph, actions, a close button, and the large size" plain column>
   <tanrei-callout headline="Tip" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>Keep an action enabled and explain what is missing when it is used.</tanrei-callout>
-  <tanrei-callout status="info" headline="Experimental" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>This behaviour may change before the first release.</tanrei-callout>
+  <tanrei-callout status="info" headline="Experimental" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>This behaviour may change in a later version.</tanrei-callout>
   <tanrei-callout status="warning" headline="The file changed on disk" style="inline-size: min(100%, 34rem)">You have edits here that are not in it. Nothing is overwritten until you choose.<tanrei-button slot="actions" variant="outlined">Reload from disk</tanrei-button><tanrei-button slot="actions" variant="text">Keep mine</tanrei-button></tanrei-callout>
   <tanrei-callout id="callout-demo-closable" headline="Search now covers the release notes" closable close-label="Close" style="inline-size: min(100%, 34rem)">Press the close button: the callout goes at once, and focus returns to where it was.</tanrei-callout>
   <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">Show it again</tanrei-button>
@@ -207,7 +207,7 @@ The body, the title slot and the actions are the element's own children, so they
 
 ### Do
 
-- Say the status in words. "Warning: not published yet" needs nothing more; "Accessibility" on a warning needs `status-label="Warning"`.
+- Say the status in words. "Warning: back up first" needs nothing more; "Accessibility" on a warning needs `status-label="Warning"`.
 - Use the statuses for what they mean everywhere. Advice is not a success.
 - Put one list of points in one callout rather than several callouts in a row.
 
